@@ -1,0 +1,501 @@
+{
+  "date": "2026-11-03",
+  "fieldDirectory": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_TblField",
+        "success": true,
+        "total": 63,
+        "countReported": true,
+        "returned": 63,
+        "rows": [
+          {
+            "rowid": "1123DC42B65A9A1F490546FDCA6EC5C8",
+            "enname": "navParams",
+            "cnname": "导航参数，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "1138FF575C0D4972AE72855EC09299B6",
+            "enname": "BeginGroup",
+            "cnname": "是否分组",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "12178C84D2F34133AECDE47B53BB7917",
+            "enname": "lingma_sys_is_delete",
+            "cnname": "逻辑删除标记",
+            "DataType": "BIGINT"
+          },
+          {
+            "rowid": "14911AECBC634F168B662F45D48219E3",
+            "enname": "conType",
+            "cnname": "内容类型，模块或功能",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "1A1969A0788B4920A4FDED99BF9A104A",
+            "enname": "prowid",
+            "cnname": "父节点 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "1B748EC6541F4333A08BCBE73063A2C2",
+            "enname": "NavigationType",
+            "cnname": "导航类型",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "1D4E6E7D580F42E984E6D17F8B8ED7F3",
+            "enname": "status",
+            "cnname": "状态",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "1E5E7EE2367E4529A90937E503E17C21",
+            "enname": "SysId",
+            "cnname": "系统 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "1E6E3FDF61994D0E9868300D71E00229",
+            "enname": "createuser",
+            "cnname": "创建人",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "20586AAADD4C43E78603B608622008C7",
+            "enname": "folderName",
+            "cnname": "文件夹名称，（弃用，设计文件存放文件夹）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "20B6079631554C4E98CEA8177A48B5CB",
+            "enname": "wfid",
+            "cnname": "流程实例 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "21719B664C56C2DD655536F3F99034BA",
+            "enname": "authDefaultSet",
+            "cnname": "权限默认设置，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "25BF4E15F6F44169AE74977D52C3DCC3",
+            "enname": "createtime",
+            "cnname": "创建时间",
+            "DataType": "DATETIME"
+          },
+          {
+            "rowid": "26D787C3583247D2884FCC33E4724F65",
+            "enname": "funCode",
+            "cnname": "功能码",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "292C9CF1C7974750A44DC1E9319BDC3E",
+            "enname": "FunName",
+            "cnname": "功能名称，也是导航标题",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "2AE3186F74604A6AA5736ED8285550DB",
+            "enname": "ChildItemLocation",
+            "cnname": "子项位置",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "306c1e4e9d1311f185000242ac110008",
+            "enname": "lingma_sys_appid",
+            "cnname": "应用系统标识",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "32E6BF661CB649AE90651562D3784CCB",
+            "enname": "CtrlType",
+            "cnname": "控件类型，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "36EA5157BCA74860B261D35A6226DCCA",
+            "enname": "FormName",
+            "cnname": "表单名称，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "387022F0C2CF455FAB3D38395298ACF6",
+            "enname": "rowid",
+            "cnname": "唯一标识 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "3ED375EC6DA34F4FBAD0AE6628F733EC",
+            "enname": "promptText",
+            "cnname": "提示文本，（弃用）",
+            "DataType": "TEXT"
+          },
+          {
+            "rowid": "3ED84E9C7FE4463D91760F7B8516D214",
+            "enname": "FunCodeID",
+            "cnname": "功能码 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "44A6193EF8344EA5A96A1BF8CA095B6F",
+            "enname": "ReportID",
+            "cnname": "报表 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "45E801378EDA434FBAA2A2A5DC9DD90B",
+            "enname": "NavigationShowType",
+            "cnname": "导航显示类型",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "47BFED33633643D9BCA38868D1422A45",
+            "enname": "IsFavoriteApp",
+            "cnname": "是否收藏至桌面",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "4DFDA1B6FED6050E3F5403E95BFEB497",
+            "enname": "IsToDeskApp",
+            "cnname": "是否添加到桌面",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "4EB0CE5D01AC444BA6794EB6FD4D2D11",
+            "enname": "Width",
+            "cnname": "宽度，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "52138D3338FF4850B3158393B4DA153E",
+            "enname": "DataType",
+            "cnname": "数据目录-数据类型，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "540F5AB353D44274A17681350AF4C5DA",
+            "enname": "DifficultyFactor",
+            "cnname": "难度系数",
+            "DataType": "DOUBLE"
+          },
+          {
+            "rowid": "6C43E3AFF3744CCA8A7B6EA7D334B9FB",
+            "enname": "name",
+            "cnname": "导航名称",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "6C90D9C0200C415C9B10E157E3FDE093",
+            "enname": "FromId",
+            "cnname": "关联表单 ID，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "6FDAEAF48F8E4FE9B73CE5E8C9DECEC0",
+            "enname": "DataValField",
+            "cnname": "值字段，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "704D5CCAB9D04405AE874DB8EC7DFD2B",
+            "enname": "NavigationUrl",
+            "cnname": "导航地址",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "71832CA547924043BD8D29E9825C7EAE",
+            "enname": "lingma_sys_ent",
+            "cnname": "企业标识字段",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "73EF7596426F4727AF283ACD2392D30B",
+            "enname": "FunOrderValue",
+            "cnname": "功能排序",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "7841B24EDCBB4D80869102F747596E7B",
+            "enname": "Sum",
+            "cnname": "合计",
+            "DataType": "decimal"
+          },
+          {
+            "rowid": "7CBB3FFB36F49B3CB4AD23D8499A4385",
+            "enname": "personCharge",
+            "cnname": "负责人 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "7FFC4B54D11A4EABB29CC39A5723F461",
+            "enname": "NavCsrType",
+            "cnname": "导航路径拼类型",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "889F804B4FA947FFBAB3B3648876D70D",
+            "enname": "DataTextField",
+            "cnname": "文字字段，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "88A0F0B683CB4211B77B77F1B4C05603",
+            "enname": "Total",
+            "cnname": "总工时",
+            "DataType": "decimal"
+          },
+          {
+            "rowid": "8A1FD0CD94AE45039BBB1F50B24B27FC",
+            "enname": "conid",
+            "cnname": "内容 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "A02EE17042E44239AF6697F0D6E1E76D",
+            "enname": "modid",
+            "cnname": "模块ID，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "A1FBE4BA8A3A48ED9A3D8AF46384854C",
+            "enname": "flowstate",
+            "cnname": "流程状态",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "A2A0054F370C427BA19E413C10782A46",
+            "enname": "DataId",
+            "cnname": "数据 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "ADAF3112D991F8489BF67079DA51B25B",
+            "enname": "MobileUrl",
+            "cnname": "移动端地址",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "AF36E4725D26467C8226138FCD8BE388",
+            "enname": "memo",
+            "cnname": "备注",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "B2374FFD9C744FE39CBBB4265EE6A451",
+            "enname": "VersionId",
+            "cnname": "版本 ID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "B423E95C75944E25BC9C82951529ED36",
+            "enname": "Number",
+            "cnname": "人数",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "BD4B0B5E7BD4467A98FD6BB9273E584D",
+            "enname": "description",
+            "cnname": "摘要",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "BF3C8512088C493F8C70E47A14A843E2",
+            "enname": "JSValue",
+            "cnname": "JS 标识，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "BF554450AF064DBC8A6698124A43C650",
+            "enname": "Manhour",
+            "cnname": "人天工时",
+            "DataType": "DOUBLE"
+          },
+          {
+            "rowid": "C39DC0491E104358A5D5393CD629CB7A",
+            "enname": "HorizontalAlignment",
+            "cnname": "水平对齐",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "C978596940D34C2897FA56CD07AB4EF3",
+            "enname": "NavigationImageWxz",
+            "cnname": "导航图标",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "D7F2E861D3AA45DEB9DD0B965568EC7B",
+            "enname": "NavCsrName",
+            "cnname": "导航路径名称",
+            "DataType": "TEXT"
+          },
+          {
+            "rowid": "DB82BF0CA68C438296C2979B1978EE95",
+            "enname": "IsChild",
+            "cnname": "是否叶子节点",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "E227C12EE1D2422E8B3BA92A0CDE8C42",
+            "enname": "NavigationOrderValue",
+            "cnname": "导航排序，（弃用）",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "E740164162AF4FCBBD3434461B834322",
+            "enname": "DataName",
+            "cnname": "数据名称，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "E9ABB902F9CE46EA8BFF8FDFF6EA28A4",
+            "enname": "IsShowChildItem",
+            "cnname": "是否显示子项",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "EA4DB349709C4DCF944A18BCD4AE5433",
+            "enname": "IsShowAtNav",
+            "cnname": "是否显示到导航",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "ED84E82B137C43E688177783284E0F86",
+            "enname": "updatetime",
+            "cnname": "修改时间",
+            "DataType": "DATETIME"
+          },
+          {
+            "rowid": "F42B9F01D3A04EEAABC592B05DACFD36",
+            "enname": "htmlDesc",
+            "cnname": "原型描述",
+            "DataType": "LONGTEXT"
+          },
+          {
+            "rowid": "F4C31C5434FE42CAA1EB26A6B0D00899",
+            "enname": "caption",
+            "cnname": "导航标题，（弃用）",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "FC6120554BDC46B2B3FD8C156997D679",
+            "enname": "updateuser",
+            "cnname": "修改人",
+            "DataType": "VARCHAR"
+          }
+        ]
+      }
+    ]
+  },
+  "assembly": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 12,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "success": true,
+        "diagnostics": [],
+        "views": [
+          {
+            "table": "Base_WorkflowDefinition",
+            "view": "default",
+            "rows": 4,
+            "total": 4,
+            "state": 3
+          },
+          {
+            "table": "Base_WorkflowDefinition",
+            "view": "edit",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "_base_dbInfo",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "_Base_TblList",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "default",
+            "rows": 63,
+            "total": 63,
+            "state": 3
+          },
+          {
+            "table": "workflowStatus",
+            "view": "default",
+            "rows": 2,
+            "total": 2,
+            "state": 3
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "46FA11BC212B35DB921AE78568ED0E5F",
+            "tblid": "9137069151984ECE97083EE72E967F2F",
+            "tblName": "HR_New_XC_GZFPJL",
+            "dbName": "spark_payroll",
+            "filter": ""
+          }
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "originalMissingDirectoryReadonly": true,
+    "candidate": "Base_NavigationInfo",
+    "fieldCount": 63,
+    "selectedField": "Number",
+    "label": "人数",
+    "type": "int",
+    "emptyValueRejected": true,
+    "explicitZeroAppliedToDraft": true,
+    "saveClicked": false,
+    "outerCancelRestored": true
+  },
+  "workflowExecutions": 0,
+  "codeAllocations": 0
+}

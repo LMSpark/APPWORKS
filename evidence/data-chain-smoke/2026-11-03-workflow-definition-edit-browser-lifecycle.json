@@ -1,0 +1,152 @@
+{
+  "date": "2026-11-03",
+  "kind": "actual-service-definition-edit-browser-lifecycle",
+  "id": "A2D43973F22F47668B563CA46D39ACFE",
+  "authorization": "one temporary stopped definition; name/version/description; no allocation/nodes/parameters/layout/enable/execute",
+  "preflight401": {
+    "kind": "definition-edit-fixture",
+    "testedAt": "2026-11-02T18:05:08.644Z",
+    "id": "A2D43973F22F47668B563CA46D39ACFE",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+    "key": "SE39ACFE",
+    "phase": "failed",
+    "error": "Request failed with status code 401",
+    "mode": "preflight",
+    "reads": 2,
+    "writes": 0,
+    "confirmed": 0,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "preflight": {
+    "kind": "definition-edit-fixture",
+    "testedAt": "2026-11-02T18:05:21.165Z",
+    "id": "A2D43973F22F47668B563CA46D39ACFE",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+    "key": "SE39ACFE",
+    "phase": "preflight-ready",
+    "mode": "preflight",
+    "reads": 7,
+    "writes": 0,
+    "confirmed": 0,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "create": {
+    "kind": "definition-edit-fixture",
+    "testedAt": "2026-11-02T18:05:33.559Z",
+    "id": "A2D43973F22F47668B563CA46D39ACFE",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+    "key": "SE39ACFE",
+    "phase": "created",
+    "created": true,
+    "mode": "create",
+    "reads": 15,
+    "writes": 1,
+    "confirmed": 1,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "cancelRead": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "A2D43973F22F47668B563CA46D39ACFE",
+            "name": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+            "workflow_key": "SE39ACFE",
+            "description": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+            "status": 2,
+            "version": "1",
+            "timeExp": "",
+            "tblName": "",
+            "tableOperate": "",
+            "filter": "",
+            "dbName": "",
+            "tblid": "",
+            "activeType": "table",
+            "sysid": "D99A1DCE9894698799101EFD70F8FC76"
+          }
+        ]
+      }
+    ]
+  },
+  "saveRead": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "A2D43973F22F47668B563CA46D39ACFE",
+            "name": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE_UPDATED",
+            "workflow_key": "SE39ACFE",
+            "description": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE_DESCRIPTION",
+            "status": 2,
+            "version": "2",
+            "timeExp": "",
+            "tblName": "",
+            "tableOperate": "",
+            "filter": "",
+            "dbName": "",
+            "tblid": "",
+            "activeType": "table",
+            "sysid": "D99A1DCE9894698799101EFD70F8FC76"
+          }
+        ]
+      }
+    ]
+  },
+  "save": {
+    "browserClicks": 1,
+    "independentlyConfirmed": true,
+    "allOtherFieldsUnchanged": true
+  },
+  "cleanup": {
+    "kind": "definition-edit-fixture",
+    "testedAt": "2026-11-02T18:09:43.680Z",
+    "id": "A2D43973F22F47668B563CA46D39ACFE",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+    "key": "SE39ACFE",
+    "phase": "cleaned",
+    "created": true,
+    "deleted": true,
+    "mode": "cleanup",
+    "reads": 14,
+    "writes": 1,
+    "confirmed": 1,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "replayWrites": 0,
+  "workflowExecutions": 0,
+  "codeAllocations": 0,
+  "screenshots": [
+    "artifacts/data-chain-smoke/2026-11-03-workflow-definition-edit-saved.png",
+    "artifacts/data-chain-smoke/2026-11-03-workflow-definition-edit-cleaned.png"
+  ],
+  "fixtureScriptSha256": "7188f719b0d429163f01da111936880ebc99b053873814b175df6f5400bbca8f",
+  "productHeadAtSave": "d7443692f6db0c405c02f15320de5d65c30e5a9a"
+}

@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/trigger-condition",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger-condition",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger-condition\n职责：按定义原编辑视图的触发表身份读取字段元数据，供标准条件编辑器消费。\n边界：不编辑条件、不保存、不执行过滤；不把目录记录变成第二份字段真源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowTriggerCondition"
+    ]
+  },
+  "$defs": {
+    "WorkflowTriggerCondition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowTriggerCondition",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.tableId.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.tableId.return": {
+          "type": "string"
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.columns.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.columns.return": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "method.functionContext.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.functionContext.return": {
+          "$ref": "../../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T18:24:00.367Z",
+  "models": {
+    "WorkflowTriggerCondition": {
+      "name": "WorkflowTriggerCondition",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "tableId",
+              "jsdoc": "当前定义的有效触发表ID；空值保持为空，不回退其他流程或同名表。",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "load",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "columns",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataColumn"
+                }
+              }
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "值函数编辑目录使用当前触发表名称及已确认字段；只描述输入，不宣称服务端支持执行。",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataViewFilterFunctionContext"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

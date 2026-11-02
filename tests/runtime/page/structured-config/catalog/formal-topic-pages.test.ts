@@ -3,7 +3,8 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
@@ -45,6 +46,36 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['cancel','save'])('binds trigger conditions to the original definition and guards unapplied input before %s',async outcome=>{
+    const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
+    Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',tblid:'T1',tblName:'Orders',filter:originalFilter})
+    state.http.records['Base_TblField']=[{rowid:'F1',tblid:'T1',enname:'Count',cnname:'数量',DataType:'INT'},{rowid:'OTHER',tblid:'T2',enname:'HiddenOther',cnname:'其他表',DataType:'VARCHAR'}]
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
+    const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)!;b.vm.$emit('click');await flushPromises()}
+    await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
+    await vi.waitFor(()=>expect(wrapper.findComponent(RendererFilterExpression).exists()).toBe(true))
+    const filter=wrapper.getComponent(RendererFilterExpression)
+    await vi.waitFor(()=>expect(filter.props('readonly')).toBe(false))
+    expect(filter.props('dataViewKey')).toBe(`${WORKFLOW}@Base_WorkflowDefinition@edit`)
+    expect(filter.props('columns')).toEqual([{name:'Count',label:'数量',type:'int'}])
+    const editor=filter.getComponent({name:'FilterExpressionEditor'})
+    editor.props('onEditingChange')(true);await flushPromises()
+    expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
+    expect(wrapper.findAllComponents(RendererButton).find(b=>b.props('label')==='选择触发表')!.props('disabled')).toBe(true)
+    await click('保存定义');expect(state.http.saves).toEqual([]);expect(wrapper.text()).toContain('请先应用或取消触发条件编辑')
+    await click('取消定义修改');expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(false)
+    filter.getComponent({name:'FilterExpressionEditor'}).vm.$emit('update:modelValue',{field:'Count',operator:'eq',value:2});await flushPromises()
+    if(outcome==='cancel'){await click('取消定义修改');expect(state.http.saves).toEqual([]);expect(state.http.records['Base_WorkflowDefinition']![0]!['filter']).toBe(originalFilter)}
+    else{
+      await click('保存定义');expect(state.http.saves).toHaveLength(1)
+      const stored=state.http.records['Base_WorkflowDefinition']![0]!['filter'];expect(typeof stored).toBe('string')
+      expect(DataViewFilterCodec.parseStored(typeof stored==='string'?stored:undefined)?.toJSON()).toEqual({field:'Count',operator:'eq',value:2})
+      expect(state.http.saves[0]?.table).toBe('Base_WorkflowDefinition')
+    }
+  })
   it.each(['save','cancel'])('edits trigger type and Cron through standard bound fields and %s',async outcome=>{
     Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',activeType:'table',timeExp:'original-expression',tblid:'KEEP_TABLE',filter:'keep-filter',tableOperate:'add,edit'})
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})

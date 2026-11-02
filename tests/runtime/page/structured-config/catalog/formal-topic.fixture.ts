@@ -10,8 +10,9 @@ export function topicModels(scenarioId: string) {
   const config = JSON.parse(topicTexts[scenarioId]!) as TopicConfig
   return Object.entries(config.tables).flatMap(([name, table]) => {
     const fields = [...new Set(Object.values(table.views).flatMap(view => view.queryConfig.fields))]
+    if(name==='Base_TblField')fields.push('tblid')
     const key = name === 'Base_FileInspectConfig' ? 'id' : name === 'Base_UserInfo' ? 'ID' : name === '_base_dbInfo' ? 'Id' : 'rowid'
     return buildFormalModels({[name]: fields}).map(model => ({...model, id: table.modelBinding.modelId, primaryKey: key,
-      fields: model.fields.map(field => ({...field, modelId: table.modelBinding.modelId, primaryKey: field.name === key}))}))
+      fields: model.fields.map(field => ({...field, modelId: table.modelBinding.modelId, primaryKey: field.name === key,...(name==='Base_TblField'&&field.name==='tblid'?{output:false}:{})}))}))
   })
 }

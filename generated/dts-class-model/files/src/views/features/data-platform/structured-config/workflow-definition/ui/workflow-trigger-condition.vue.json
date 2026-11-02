@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition\n职责：从当前定义的触发表按需读取字段目录，标准条件组件写回原定义视图。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T18:21:10.187Z",
+  "models": {}
+}

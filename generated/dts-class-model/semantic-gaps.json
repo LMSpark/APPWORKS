@@ -1,5 +1,5 @@
 {
-  "gapCount": 3473,
+  "gapCount": 3479,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -35891,6 +35891,64 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/trigger-condition",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/trigger-condition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/trigger-condition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts"
+    },
+    {
+      "kind": "constructor",
+      "className": "WorkflowTriggerCondition",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowTriggerCondition.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "model",
+      "className": "WorkflowTriggerCondition",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowTriggerCondition 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowTriggerCondition",
+      "memberName": "load",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowTriggerCondition.load 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowTriggerCondition",
+      "memberName": "columns",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowTriggerCondition.columns 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/resources/structured-config/workflow-definition/trigger-selection",
       "moduleName": "app:lowcode/resources/structured-config/workflow-definition/trigger-selection",
       "reason": "weak-module-jsdoc",
@@ -41137,6 +41195,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition",
+      "moduleName": "app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue"
     },
     {
       "kind": "module",

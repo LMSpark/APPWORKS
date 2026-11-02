@@ -5265,3 +5265,22 @@ flowchart LR
 真实浏览器三字段activeType=time/Cron=0 0 9 * * ?/add+edit只写原草稿，取消后表类型、空Cron/操作全部恢复；原绑定表未变，关闭守卫恢复。独立精确回读1读0写确认activeType/table、原tblid/dbName/tblName/filter及status2，0流程执行、无保存点击、未创建任何fixture。证据workflow-trigger-fields-browser-cancel，指南workflow-trigger-fields-guides；截图本机workflow-trigger-fields-cancel.png。10文件92选择组件与页面测试通过，受改ESLint通过；最终typecheck/正式ClassModel及高阶复核进行中，后续按结果登记。完整工作流/正式创建领码、条件目录、AI Cron和触发实际执行未验收，全目标active。
 
 最终检查：选择类及页面10文件92测试、工作流/目录11文件106测试均通过；typecheck首次因新增测试从未导出的barrel导入SparkOptionValueMode失败，改为测试引用已有shared-types真源后重跑exit0，无产品扩导出。受改ESLint、pages-config/workflow-designs/page-thin/docs、独立前端打包exit0。正式ClassModel1002文件已刷新；11个编号噪声及3个只含时间戳/顺序/编号的无关分片经比对恢复，保留公共helper和页面真实产物。高阶模型最终复核确认四项问题已修，本范围无其他确定重要阻塞。真实保存/执行仍未验收，新的单定义fixture授权仍待答复且未创建；本轮不消费此前已清理的三记录授权。准备提交本轮完整触发字段编辑检查点。
+
+
+**2026-11-03 基础定义单记录真实保存烟测闭环。**用户已明确批准此前新的1条SMOKE_DATA_CHAIN_WORKFLOW_EDIT_定义范围，前文待答复转为历史状态。固定身份A2D43973F22F47668B563CA46D39ACFE、标记SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE、夹具短码SE39ACFE；不调用正式领码，不创建参数/节点/布局，不启用或执行。因目录配置新增库表来源，忽略脚本load只保留本次两张所需模型并去掉无关级联，未改生产逻辑。新预检首次2请求401、0写，刷新原RAM授权后7读0写ready；创建1写15读确认并逐字段独立回读。
+
+原tab5正在被切换到其他业务页面，改独立后台tab6，正常使用用户已授权领码科技/wangtao登录，未保存或输出凭据。浏览器唯一标记定位→名称/版本/描述三字段试改并取消→独立精确回读原定义→三字段设为标记_UPDATED/版本2/标记_DESCRIPTION→wx记录唯一浏览器保存意图→点击保存定义一次→原目录显示修改结果、关闭重新可用→独立精确回读，与取消后整行基线逐字段比较，仅这3字段变动，其余字段包括status2、sysid、编码及触发配置不变。原DataSet清理同一条：1写14读、确认ack及独立不存在；目录真实刷新恢复原4行。无unknown、无重放、无执行/编码分配。证据workflow-definition-edit-browser-lifecycle.json及saved/cleaned本机截图。该单记录授权已完整消费并清理，不为后续filter/触发保存重建。
+
+**2026-11-03 触发条件字段目录及原定义绑定工位。**实服精确按Base_TblField.tblid过滤，投影rowid/enname/cnname/DataType，Base_NavigationInfo表返回63字段（1读0写），DataType实际VARCHAR/INT/DATETIME等；非输出tblid/DataTypeName未提升。目录配置接正式模型7ad74f84-9a3c-4dcf-9b9b-32cc0814cd60、按输入triggerTableId过滤、allPages且不自动加载。首次只建triggerFields命名视图被原ScenarioViewConfig拒绝缺default，遵循原生约束改为唯一default视图，不另设无用默认查询。夹具补真实非输出tblid声明，不把过滤字段偷加到输出。按当前生产配置实服原生装配12读0写、无diagnostics，字段视图63条、edit不自动装载。
+
+领域WorkflowTriggerCondition校验同一空间/定义edit行/输入ID及有效编辑tblid，原DataView查询并验证归属；从只读快照投影DataColumn目录，按字段访问拒绝不可读、缺名/类型及重复名，不猜字段值。字段类型保留正式类型小写；当前BIGINT等特殊类型的编辑控件识别仍须核，不把字段列表存在当日期比较服务已支持。值函数目录取有效tblName及当前字段，与标准DataViewFilterFunctionContext合同一致，不声称后端任意函数可执行。窄Vue组件绑定原filter，标准RendererFilterExpression format=spark-json，目录错/空时保留原文只读，迟到响应受原查询代次及组件generation/tableId复核约束；未应用编辑纳入父页dirty，阻止保存、关闭和换触发表，外层取消沿原DataView事件释放。普通保存仍只原定义edit目标ID，字段目录不参加提交。
+
+ClassModel目录/概要/columns/format指南已读，onEditingChange是方法投影不是属性，改查正式methodGuide成功；证据workflow-trigger-condition-guides。新增领域测试先因实现缺失红，继而暴露default及非输出过滤夹具错误，按正式合同修正；真实标准组件集成补未应用守卫、应用/取消/保存同一filter及目录不入保存。目录权限夹具曾错用hidden读状态，按正式invisible修正；新增测试unknown类型parseStored问题按类型收窄修正，未改产品许可。
+
+浏览器原WF00001字段目录未返回时显示只读及原空filter；选择QYVirtualPlat/Base_NavigationInfo只改草稿→字段63条→标准编辑器选人数（Number/INT）→空值应用被缺显式值拒绝→显式输入数字0后应用成功，摘要人数等于0→外层取消恢复原HR_New_XC_GZFPJL及空filter→独立1读0写逐字段匹配原绑定。未点击正式保存，未执行流程。证据workflow-trigger-condition-browser-cancel.json及本机condition-draft截图。
+
+高阶模型核定义filter消费者与连线不同：本地WorkflowServiceImpl.filterMatchData→ConvertCondUtils.matchesJoinCondition(data,BaseCondition)，可含字符串/IN，不套此前连线有限操作符结论；日期比较、动态函数的部署执行仍未验。delete/del需精确登记：缓存/事件del可被LIKE/contains匹配delete，不能说delete不触发；但主键回读仅完整tableOperate=delete跳过，add,delete及历史del不等价，保留部署/执行缺口，不改存量编码。高阶最终限定范围无重要阻塞；若未来另加同目标字段目录刷新入口，Loading会变readonly并重置未应用草稿，需届时补保护；当前仅ID/tblid变化加载，无关字段编辑不重查。全目标active，真实filter保存/触发执行、新建领码、完整布局及四文件仍未核销。
+
+本轮最终：目录与工作流12文件113测试通过，新增领域5测试在最终目标失效守卫修正后再次通过；typecheck、受改ESLint（最后两处非空断言已改显式失效诊断）、pages-config/workflow-designs/page-thin/docs及前端独立打包通过，最终正式ClassModel刷新进行中。高阶复核新增functionContext无重要问题；配置编辑不等于部署函数执行已支持。基础定义单记录完整生命周期证据已归档，保存时产品HEAD=d7443692f，并记录本机夹具脚本SHA256。本轮真实写入仅授权夹具创建/三字段浏览器保存/清理，条件环节始终0写/0执行；准备提交条件编辑与烟测证据检查点。
+
+最终typecheck再次exit0，ClassModel正式生成1004文件；15个仅编译编号/时间戳/对象顺序变化的旧分片经语义归一比对恢复。所有本轮检查已终结，未保留未知写入owner。单记录夹具已清理，独立后台tab6保留作为后续烟测入口，原tab5不再操作；当前准备提交推送。

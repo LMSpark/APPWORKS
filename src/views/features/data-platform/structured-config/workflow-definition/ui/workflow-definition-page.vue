@@ -21,9 +21,9 @@
         <FieldRadio field="activeType" label="触发类型" :options="triggerTypes" :readonly="definitionLocked" />
         <FieldText field="timeExp" label="时间表达式" placeholder="请输入时间表达式（Cron）" :readonly="definitionLocked" />
         <FieldText field="tblName" label="触发表" :readonly="true" />
-        <RendererButton label="选择触发表" :disabled="definitionLocked" @click="triggerOpen = true" />
+        <RendererButton label="选择触发表" :disabled="definitionLocked || conditionEditing" @click="triggerOpen = true" />
         <FieldCheckboxGroup field="tableOperate" label="操作方式" :options="triggerOperations" value-mode="separated-string" value-separator="," :readonly="definitionLocked" />
-        <FieldTextarea field="filter" label="条件原文" :readonly="true" />
+        <WorkflowTriggerCondition :workflow-id="editTarget" :data-view-key="editKey" :readonly="definitionLocked" @editing="value=>conditionEditing=value" />
         <FieldTextarea field="description" label="描述" :readonly="definitionLocked" />
       </RendererForm>
       <template #footer>
@@ -52,6 +52,7 @@ import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererFor
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
+import WorkflowTriggerCondition from './workflow-trigger-condition.vue'
 import WorkflowDesign from '../design/ui/workflow-design-page.vue'
 
 const route = useRoute()
@@ -60,13 +61,14 @@ const designPending=computed(()=>designPage.value?.hasPending===true||designPage
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-definition-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const triggerOpen = ref(false)
+const conditionEditing=ref(false)
 const triggerTypes=[{label:'表',value:'table'},{label:'时间',value:'time'}]
 const triggerOperations=[{label:'删除',value:'delete'},{label:'添加',value:'add'},{label:'编辑',value:'edit'}]
 const editTarget=ref(''),editReady=ref(false),editBusy=ref(false)
 const editor=()=>runtime?.getDataSet(scenarioId.value)?.getView(LowcodeWorkflowDefinition.catalogMetaName,'edit')
 const definitionUnconfirmed=computed(()=>{revision.value;return editor()?.hasUnconfirmedSave===true})
 const definitionLocked=computed(()=>editBusy.value||definitionUnconfirmed.value)
-const definitionPending=computed(()=>{revision.value;const target=editor();return editBusy.value||!!target&&(target.hasUnconfirmedSave||target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges())})
+const definitionPending=computed(()=>{revision.value;const target=editor();return conditionEditing.value||editBusy.value||!!target&&(target.hasUnconfirmedSave||target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges())})
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selectionState = computed(() => {
   revision.value
@@ -98,10 +100,10 @@ const fields = computed<SparkNode[]>(() => [
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createFlow(): void {error.value='暂不能创建工作流：业务编码生成能力尚未确认。'}
 function openDesign(): void {if(selected.value&&!designTarget.value&&!editTarget.value)designTarget.value=selected.value}
-async function openTrigger():Promise<void>{await openDefinition();if(editReady.value)triggerOpen.value=true}
+async function openTrigger():Promise<void>{if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}await openDefinition();if(editReady.value)triggerOpen.value=true}
 function validateTriggerTarget():void{
  const target=editor(),row=target?.currentRow
- if(editBusy.value||!editReady.value||!row||target?.getPkKey(row)!==editTarget.value||target.queryContext['definitionId']!==editTarget.value||target.hasUnconfirmedSave)throw Error('工作流定义目标已变化或正在保存')
+ if(conditionEditing.value||editBusy.value||!editReady.value||!row||target?.getPkKey(row)!==editTarget.value||target.queryContext['definitionId']!==editTarget.value||target.hasUnconfirmedSave)throw Error('工作流定义目标已变化或正在保存')
 }
 async function openDefinition():Promise<void>{
  if(!selected.value||editTarget.value||designTarget.value)return
@@ -119,6 +121,7 @@ async function openDefinition():Promise<void>{
 function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){triggerOpen.value=false;editTarget.value='';editReady.value=false}}
 function cancelDefinition():void{if(definitionLocked.value)return;try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function saveDefinition():Promise<void>{
+ if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}
  const target=editor(),ds=runtime?.getDataSet(scenarioId.value),id=editTarget.value,own=generation
  if(editBusy.value||!editReady.value||!target||!ds)return
  if(target.queryContext['definitionId']!==id||target.rows.length!==1||target.getPkKey(target.rows[0]!)!==id){error.value='工作流定义编辑目标已变化';return}

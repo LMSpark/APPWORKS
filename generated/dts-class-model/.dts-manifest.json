@@ -4186,6 +4186,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts.json",
       "sourceModifiedAt": "2026-11-02T15:13:34.454Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts.json",
+      "sourceModifiedAt": "2026-11-02T18:24:00.367Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts.json",
@@ -4949,7 +4954,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T17:53:14.239Z"
+      "sourceModifiedAt": "2026-11-02T18:12:36.455Z"
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue.json",
+      "sourceModifiedAt": "2026-11-02T18:21:10.187Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",

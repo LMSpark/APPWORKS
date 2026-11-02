@@ -23,6 +23,10 @@
       "modelBinding":{"modelId":"75ea2f93-1a69-44c5-a1df-9f3664437ce8","modelName":"_Base_TblList"},
       "views":{"default":{"autoLoad":false,"autoCurrentFirst":false,"autoSelectFirst":false,"selectionDelimiter":"","pageSize":20,"queryConfig":{"fields":["rowid","dbid","tblname","tbldesc"]},"sortExpression":[{"field":"tblname","direction":"asc"}]}}
     },
+    "Base_TblField": {
+      "modelBinding":{"modelId":"7ad74f84-9a3c-4dcf-9b9b-32cc0814cd60","modelName":"Base_TblField"},
+      "views":{"default":{"autoLoad":false,"autoCurrentFirst":false,"autoSelectFirst":false,"queryContext":{"triggerTableId":""},"queryConfig":{"fields":["rowid","enname","cnname","DataType"],"allPages":true},"filterExpression":{"field":"tblid","operator":"eq","value":{"Type":"GetInputParam","ParamName":"triggerTableId"}}}}
+    },
     "workflowStatus": {
       "modelBinding": {"modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5", "modelName": "workflowStatus"},
       "columns": [{"name":"statusCode","type":"string","computeExpression":"val + ''"}],

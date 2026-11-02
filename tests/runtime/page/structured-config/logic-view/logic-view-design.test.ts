@@ -66,6 +66,36 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('displays boolean field flags correctly and preserves their wire types when another field is edited',async()=>{
+    const field={Name:'id',AsName:'old',IsOutput:true,IsPKey:false,DISTINCT:true,Group:false,extra:7}
+    http.logicDesigns['V1']=[{Name:'root',Fields:[field],ChildTables:[]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    const checks=editor.findAll<HTMLInputElement>('.el-table__body-wrapper tbody input[type="checkbox"]')
+    expect(checks.map(check=>check.element.checked)).toEqual([true,true,false,false])
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    await editor.get('.el-table__body-wrapper tbody td:nth-child(4) input').setValue('new');await flushPromises()
+    await editor.get('[data-json-save-row]').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'root',Fields:[{...field,AsName:'new'}],ChildTables:[]}])
+  })
+  it('binds batch field-output actions to the selected original node and preserves the separate parameter store',async()=>{
+    http.logicDesigns['V1']=[{Name:'root',Fields:[{Name:'id',IsOutput:1},{Name:'CreateUser',IsOutput:1}],ChildTables:[{Name:'child',Fields:[{Name:'other',IsOutput:1}]}]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='系统字段不输出')!.trigger('click');await flushPromises()
+    const complete=wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='完整设计')!
+    expect(JSON.parse(complete.get('textarea').element.value)[0].Fields.map((field:{IsOutput:number})=>field.IsOutput)).toEqual([1,0])
+    await wrapper.findAll('button').find(button=>button.text()==='反转输出')!.trigger('click');await flushPromises()
+    expect(JSON.parse(complete.get('textarea').element.value)[0].Fields.map((field:{IsOutput:number})=>field.IsOutput)).toEqual([0,1])
+    await wrapper.findAll('button').find(button=>button.text()==='全部不输出')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'root',Fields:[{Name:'id',IsOutput:0},{Name:'CreateUser',IsOutput:0}],ChildTables:[{Name:'child',Fields:[{Name:'other',IsOutput:1}]}]}])
+    expect(http.saves).toHaveLength(0)
+  })
   it('keeps an incomplete database source visible as an error without inventing its database identity',async()=>{
     http.records['View_TblList']=[{rowid:'T',tblname:'Orphan',tbldesc:'',dbid:null,DbName:null}]
     const {wrapper}=await openDesigner()

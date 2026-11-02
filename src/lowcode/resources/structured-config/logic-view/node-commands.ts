@@ -7,6 +7,7 @@ import type {DataView} from '@spark-appworks/spark-data'
 import {getValueAtJsonPath,isJsonObject,parseJsonDocument,type JsonPath,type JsonValue} from '@spark-appworks/spark-json-document'
 import type {PageDataSpaceModelSourcePrepared} from '../../../data-space/model-source/lowcode-data-space-source-catalog'
 type Node=Record<string,JsonValue>
+const systemFieldNames=new Set(['createuser','createtime','updateuser','updatetime','wfid','flowstate','reportid','description','lingma_sys_is_delete','lingma_sys_ent'])
 function nodes(value:JsonValue):Node[]{if(!Array.isArray(value)||value.some(row=>!isJsonObject(row)||Array.isArray(row)))throw new Error('逻辑视图节点必须为对象数组');return value.filter(isJsonObject)}
 function assertNodePath(path:JsonPath):void {
   if(!path.length||path.length%2!==1||path.some((part,index)=>index%2===0?typeof part!=='number'||!Number.isSafeInteger(part)||part<0:part!=='ChildTables'))throw new Error('节点路径无效')
@@ -25,6 +26,18 @@ export class LogicViewNodeCommands {
   /** 捕获确认命令的原字段版本；仅用于异步/路径身份核验，不作为草稿或保存来源。 */
   public capture():string{return this.current().text}
   private document(expected:string){const current=this.current();if(current.text!==expected)throw new Error('设计已变化，请重新选择节点');return {...current,roots:nodes(parseJsonDocument(current.text))}}
+  /** 批量切换选中节点的输出标记；不递归影响子节点，不保存或删除字段定义。 */
+  public setFieldOutput(input:Readonly<{expected:string;path:JsonPath;operation:'all-off'|'system-off'|'reverse'}>):void {
+    assertNodePath(input.path)
+    const current=this.document(input.expected),node=getValueAtJsonPath(current.roots,input.path)
+    if(!isJsonObject(node)||Array.isArray(node)||!Array.isArray(node['Fields']))throw new Error('节点字段数组不存在')
+    const fields=nodes(node['Fields'])
+    for(const field of fields){
+      if(input.operation==='reverse')field['IsOutput']=Number(field['IsOutput'])===1?0:1
+      else if(input.operation==='all-off'||systemFieldNames.has(String(field['Name']??'').trim().toLowerCase()))field['IsOutput']=0
+    }
+    current.view.updateEditingValue(current.id,'designJson',JSON.stringify(current.roots))
+  }
   /** 确认来源后加入当前节点的子集合；未选节点时加入根集合。 */
   public append(input:Readonly<{expected:string;parentPath:JsonPath|null;prepared:PageDataSpaceModelSourcePrepared}>):JsonPath {
     const current=this.document(input.expected),{source,model,fields}=input.prepared

@@ -2629,7 +2629,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-02T05:21:42.247Z"
+      "sourceModifiedAt": "2026-11-02T05:23:16.001Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -4071,10 +4071,15 @@
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/design-ops.ts.json",
       "sourceModifiedAt": "2026-11-02T04:09:10.982Z"
     },
+    "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts.json",
+      "sourceModifiedAt": "2026-11-02T05:38:30.475Z"
+    },
     "src/lowcode/resources/structured-config/logic-view/node-commands.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/node-commands.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json",
-      "sourceModifiedAt": "2026-11-02T05:19:37.107Z"
+      "sourceModifiedAt": "2026-11-02T05:32:39.172Z"
     },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
@@ -4839,7 +4844,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue.json",
-      "sourceModifiedAt": "2026-11-02T05:09:12.963Z"
+      "sourceModifiedAt": "2026-11-02T05:35:30.090Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",

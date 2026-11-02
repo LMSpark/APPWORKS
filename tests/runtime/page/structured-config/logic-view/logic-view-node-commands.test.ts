@@ -1,6 +1,7 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
+import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
 import {attachStagedDesignView,setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import type {PageDataSpaceModelSourcePrepared} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 const sets:DataSet[]=[]
@@ -21,6 +22,31 @@ async function fixture(){
   return {ds,view,commands,original,persist,permission,active,read}
 }
 describe('original logic design node commands',()=>{
+  it('projects known flag representations and preserves untouched or unknown source values',()=>{
+    const original={Name:'id',IsOutput:true,IsPKey:'0',DISTINCT:1,extra:{keep:0}}
+    const projected=logicFieldRowAdapter.read(original)
+    expect(projected).toMatchObject({IsOutput:1,IsPKey:0,DISTINCT:1})
+    expect(logicFieldRowAdapter.write(projected,original)).toEqual(original)
+    expect(logicFieldRowAdapter.write({...projected,IsOutput:0,IsPKey:1},original)).toEqual({...original,IsOutput:false,IsPKey:'1'})
+    expect(logicFieldRowAdapter.write({Name:'x'},{Name:'x'})).toEqual({Name:'x'})
+    expect(logicFieldRowAdapter.read({Group:'unknown'})).toEqual({Group:'unknown'})
+  })
+  it('changes only selected-node output flags and keeps original cancellation and stale-target guards',async()=>{
+    const f=await fixture()
+    const fields=[{Name:'id',IsOutput:1,extra:false},{Name:'CreateTime',IsOutput:1},{Name:'amount',IsOutput:0},{Name:'description',IsOutput:'1'}]
+    const original=[{...f.original[0],Fields:fields},f.original[1]]
+    f.view.updateEditingValue('V','designJson',JSON.stringify(original))
+    const stale=f.commands.capture()
+    f.commands.setFieldOutput({expected:stale,path:[0],operation:'system-off'})
+    expect(f.read()[0].Fields).toEqual([{Name:'id',IsOutput:1,extra:false},{Name:'CreateTime',IsOutput:0},{Name:'amount',IsOutput:0},{Name:'description',IsOutput:0}])
+    expect(()=>f.commands.setFieldOutput({expected:stale,path:[0],operation:'reverse'})).toThrow(/变化/)
+    f.commands.setFieldOutput({expected:f.commands.capture(),path:[0],operation:'reverse'})
+    expect(f.read()[0].Fields.map((field:{IsOutput:number})=>field.IsOutput)).toEqual([0,1,1,1])
+    f.commands.setFieldOutput({expected:f.commands.capture(),path:[0],operation:'all-off'})
+    expect(f.read()[0].Fields.map((field:{IsOutput:number})=>field.IsOutput)).toEqual([0,0,0,0])
+    expect(f.read()[0].ChildTables).toEqual(f.original[0]!.ChildTables);expect(f.read()[1]).toEqual(f.original[1])
+    expect(f.persist).not.toHaveBeenCalled();f.view.discardPendingChanges();expect(f.read()).toEqual(f.original)
+  })
   it('rejects an arbitrary JSON member path instead of adding a node outside the logical tree',async()=>{
     const f=await fixture()
     expect(()=>f.commands.append({expected:f.commands.capture(),parentPath:[0,'extra'],prepared})).toThrow(/节点路径/)

@@ -50,6 +50,37 @@
         "method.capture.return": {
           "type": "string"
         },
+        "method.setFieldOutput.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "expected": {
+                  "type": "string"
+                },
+                "path": {
+                  "$ref": "../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+                },
+                "operation": {
+                  "enum": [
+                    "all-off",
+                    "system-off",
+                    "reverse"
+                  ]
+                }
+              },
+              "required": [
+                "expected",
+                "path",
+                "operation"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setFieldOutput.return": true,
         "method.append.params": {
           "type": "object",
           "properties": {
@@ -121,7 +152,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T05:19:37.107Z",
+  "generatedAt": "2026-11-02T05:32:39.172Z",
   "models": {
     "LogicViewNodeCommands": {
       "name": "LogicViewNodeCommands",
@@ -155,6 +186,29 @@
               "type": {
                 "type": "intrinsic",
                 "name": "string"
+              }
+            },
+            {
+              "name": "setFieldOutput",
+              "jsdoc": "批量切换选中节点的输出标记；不递归影响子节点，不保存或删除字段定义。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        expected: string;\n        path: JsonPath;\n        operation: 'all-off' | 'system-off' | 'reverse';\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

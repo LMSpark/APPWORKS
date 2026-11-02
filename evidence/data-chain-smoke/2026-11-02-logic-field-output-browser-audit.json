@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "sourceContract": "Original IsOutput values are boolean; strict numeric checkbox had displayed all false",
+  "afterFix": {
+    "rows": 26,
+    "beforeOn": 20,
+    "reverseOn": 6,
+    "exactReverse": true,
+    "systemOffOn": 0,
+    "allOffOn": 0,
+    "restoredEqual": true
+  },
+  "network": {
+    "events": 1,
+    "truncated": false,
+    "hasMore": false,
+    "paths": [
+      "/api/ViewData/GetView"
+    ],
+    "writes": 0,
+    "scope": "fresh repeated three-action and discard window; previous HMR window truncated and excluded"
+  },
+  "screenshot": {
+    "path": "artifacts/data-chain-smoke/logic-field-output-browser.png",
+    "sha256": "f901b13d9b860dc676171266c93d194e684ee9856bacdc9234abfcb30f7702a0"
+  },
+  "limitations": [
+    "No real SaveView mutation",
+    "Full page and preview contract remain open"
+  ],
+  "formalReadback": {
+    "unchanged": true,
+    "sha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "code": 200
+  }
+}

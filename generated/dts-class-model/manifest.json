@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 982,
+  "scannedFileCount": 983,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13756,6 +13756,19 @@
         "modulePath": "lowcode/resources/structured-config/logic-view/design-ops",
         "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/design-ops",
         "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/field-row-adapter",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/field-row-adapter",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/field-row-adapter\n职责：将正式逻辑字段的布尔/数字标记投影给标准数字复选框。\n边界：只转换当前确认行；未改标记及未知成员保持原值，不保存、不持有草稿。",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },

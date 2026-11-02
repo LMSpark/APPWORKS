@@ -4721,3 +4721,14 @@ flowchart TD
 - 74文件1234测试通过（logic-source-complete-impact.log），覆盖完整spark-data及结构化页面/来源读取；正式ClassModel已刷新，未手改产物。首次完整verify因测试移动留下空dataview目录触发子目录超限；已确认空目录并非递归删除，重跑原完整verify/build，终态另补。既有数据权限和后端保持不变。
 - 尚未完成：真实SaveView写入验收、完整输入参数编辑/过滤与值函数交互、字段批量操作、未保存预览合同及整页1:1。98字典、12 GetView、2逻辑消费失败及其余全架构开放项继续保留；本轮为progress，根目标active，不称全部烟测通过。
 - 最后62297退出0：完整verify与build通过，74文件1234项测试及正式ClassModel生成均已通过；构建既有动态导入提示保留。最终实服分页/过滤补验与独立GetView哈希一致，截图及审计已落盘。审阅原节点命令、来源装配、页面生命周期与公共分页差异，提交推送本检查点；目标继续active。
+
+### 2026-11-02 字段批量输出及布尔标记呈现断链
+- 上轮de23fc46f已推送，工作树干净开始，判定progress。继续固定参考APPWorks APP完整页面；本轮先核输入/输出链。Ruling: 参考节点inputParams只供值函数选项与previewNode匹配视图参数，没有独立入参编辑区；撤销此前台账“必须补独立入参编辑界面”的推断，保留运行消费及参数类型未验证缺口，不新增参考不存在的表单。
+- 参考use-logic-view-design-page.ts的handleSetAllFieldsNotOutput/handleSetSystemFieldsNotOutput/handleReverseFieldOutput明确三项命令。按原精确节点路径只改Fields.IsOutput，不递归子表，不删字段或目录，不保存。system名单只用于显式业务命令：createuser/createtime/updateuser/updatetime/wfid/flowstate/reportid/description/lingma_sys_is_delete/lingma_sys_ent，trim+大小写不敏感；不是权限判断或自动过滤。原版本捕获、文件字段权限、工作区身份、未知保存和未确认输入守卫继续生效，按钮使用标准RendererButton与原viewKey。
+- 命令测试先RED缺少setFieldOutput，随后GREEN；页面测试先RED缺少入口，再接入。实服首次发现正式sys_edit.Fields.IsOutput为boolean，数字trueValue=1的checkbox把20个true显示成未选中。反转命令本身与Number规则一致，但原呈现错误，不能把首次全false当原数据。先取消全部修改，再加RED页面测试证明布尔显示失败。
+- Ruling: 复用FieldJson正式rowAdapter，只在领域投影将已知boolean及字符串0/1呈现为数字标记；确认单行时未改标记保留原类型和值，改变的boolean/string标记维持其来源类型，未知值/未知成员保留、缺失标记不补默认。没有第二份草稿或数据查询。原生rows/rowAdapter/read/write/权限/取消合同已从当前ClassModel及源码核对，不改公共复选框的严格值语义。页面布尔别名编辑测试与纯适配测试验证原值保持。
+- 最终实服原26字段显示20输出，反转6且每项互补，系统字段关闭后0，全部关闭0，原放弃修改并重读后逐项恢复20/26。首次含HMR网络窗口truncated不作为完整无写证明；重新捕获完整三命令+取消窗口1次GetView、truncated=false/hasMore=false，没有写请求。另独立GetView Code200且原SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。证据2026-11-02-logic-field-output-browser-audit.json及logic-field-output-browser.png，不含原始请求凭据或参数值，没有真实SaveView写入。
+- 最终相关7文件56项通过（logic-output-final-tests.log）。旧71017门禁虽退出0，但期间源码新增适配，因此不能当最终门禁；当前1058正在正式生成、完整verify/build，等终态后提交推送。原后端、权限和来源合同未改。
+- 仍有过滤/值函数专用交互、字段AI配置差距、输出结构、真实设计保存、节点/整体预览及全架构其它开放项；98字典、12 GetView、2逻辑消费失败和预览服务合同缺口不核销，目标active。
+- 最后1058被no-dynamic-delete拦截，已改为Reflect.deleteProperty保持缺失成员语义；未绕过lint。重新7文件56项通过并正式生成完成，当前27866进行完整verify/build。真实SaveView描述临时标记及恢复的具体范围已发出一次确认，等待用户答复；现有参数/服务商临时记录授权不自动扩为设计文件写入，其余可独立工作继续。
+- 最后27866退出0：7文件56项、正式ClassModel生成、完整verify和build全部通过；动态导入既有提示保留。最终差异已审阅，字段布尔适配/批量命令/页面接线及烟测证据作为检查点提交推送origin/1031，等待真实SaveView具体写入确认期间不阻塞后续其它断链，根目标active。

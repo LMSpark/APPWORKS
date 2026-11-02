@@ -1,5 +1,5 @@
 {
-  "gapCount": 3373,
+  "gapCount": 3374,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -34260,6 +34260,17 @@
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/logic-view/field-row-adapter",
+      "moduleName": "app:lowcode/resources/structured-config/logic-view/field-row-adapter",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/logic-view/field-row-adapter 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts"
     },
     {
       "kind": "module",

@@ -24,7 +24,10 @@
           <RendererForm :data-view-key="viewKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
             <FieldJson field="designJson" label="基础配置" mode="form" :value-path="path" :schema="basicSchema" :readonly="disabled" :on-editing-change="value=>editing('basic',value)" />
             <FieldJson field="designJson" label="条件" mode="properties" :value-path="path" :schema="filterSchema" :readonly="disabled" :on-editing-change="value=>editing('filter',value)" />
-            <FieldJson v-if="hasFields" field="designJson" label="字段信息" mode="rows" :value-path="[...path,'Fields']" :children="fieldColumns" :readonly="disabled" :on-editing-change="value=>editing('fields',value)" />
+            <div v-if="hasFields" class="node-actions">
+              <RendererButton v-for="action in outputActions" :key="action.operation" :data-view-key="viewKey" :label="action.label" :disabled="!canEdit || pending.size>0 || !hasOutputFields" @click="setOutput(action.operation)" />
+            </div>
+            <FieldJson v-if="hasFields" field="designJson" label="字段信息" mode="rows" :value-path="[...path,'Fields']" :children="fieldColumns" :row-adapter="logicFieldRowAdapter" :readonly="disabled" :on-editing-change="value=>editing('fields',value)" />
             <p v-else>此节点尚未定义 Fields 字段数组。</p>
           </RendererForm>
         </RendererTabPane>
@@ -59,6 +62,7 @@ import {getValueAtJsonPath,isJsonObject, parseJsonDocument, type JsonPath, type 
 import {FieldJson, RendererButton,RendererDialog,RendererTable,RendererForm, RendererTabs, RendererTabPane,type RFilterProps} from '@spark-appworks/spark-component'
 import {LogicViewSourceViews,type LogicViewSourceType} from '@/lowcode/resources/structured-config/logic-view/source-views'
 import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
+import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 const props=defineProps<{viewKey:string;view:DataView;metadata?:DataSet|undefined;disabled:boolean}>()
 const emit=defineEmits<{'editing-change':[value:boolean]}>()
@@ -68,6 +72,8 @@ const commandError=ref(''),sourceOpen=ref(false),sourceBusy=ref(false),sourceErr
 const deleteTarget=ref<{expected:string;path:JsonPath}>()
 let sourceExpected='',sourceParent:JsonPath|null=null
 const sourceChoices:ReadonlyArray<{type:LogicViewSourceType;label:string}>=[{type:'table',label:'表'},{type:'dict',label:'字典'},{type:'interface',label:'接口'},{type:'json',label:'JSON'}]
+type OutputOperation='all-off'|'system-off'|'reverse'
+const outputActions:ReadonlyArray<{operation:OutputOperation;label:string}>=[{operation:'all-off',label:'全部不输出'},{operation:'system-off',label:'系统字段不输出'},{operation:'reverse',label:'反转输出'}]
 const sources=computed(()=>props.metadata?new LogicViewSourceViews(props.metadata):undefined)
 const commands=computed(()=>{
   const view=props.view,workspace=sources.value
@@ -129,6 +135,10 @@ async function confirmSource():Promise<void>{
 function closeDelete():void {deleteTarget.value=undefined;editing('delete',false)}
 function requestDelete():void {if(!path.value||!canEdit.value||pending.value.size)return;try{deleteTarget.value={expected:commands.value.capture(),path:[...path.value]};editing('delete',true)}catch(cause){commandError.value=String(cause)}}
 function confirmDelete():void {const target=deleteTarget.value;if(!target)return;try{path.value=commands.value.remove(target);closeDelete()}catch(cause){commandError.value=String(cause)}}
+function setOutput(operation:OutputOperation):void {
+  if(!path.value||!canEdit.value||pending.value.size)return
+  try{commands.value.setFieldOutput({expected:commands.value.capture(),path:[...path.value],operation});commandError.value=''}catch(cause){commandError.value=String(cause)}
+}
 watch(()=>props.view,(view,_,cleanup)=>{
   closeSource();closeDelete();path.value=null;pending.value.clear();emit('editing-change',false)
   const changed=()=>revision.value++
@@ -145,6 +155,7 @@ const selectedNode=computed(()=>{
   }catch{return undefined}
 })
 const hasFields=computed(()=>Array.isArray(selectedNode.value?.['Fields']))
+const hasOutputFields=computed(()=>{const fields=selectedNode.value?.['Fields'];return Array.isArray(fields)&&fields.length>0})
 const nodeNotice=computed(()=>{
   const node=selectedNode.value;if(!node)return ''
   const fields=Array.isArray(node['Fields'])?node['Fields'].filter(isJsonObject):[]

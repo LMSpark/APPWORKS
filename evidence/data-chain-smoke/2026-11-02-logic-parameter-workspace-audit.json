@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-02",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "summary": {
+    "readRequests": 14,
+    "writeRequests": 0,
+    "scopedDataViewsPassed": 2
+  },
+  "results": [
+    {
+      "kind": "native-logic-parameters",
+      "scopeId": "D0624BDE07FA475B90D5653994A6493D",
+      "success": true,
+      "primaryKey": "parid",
+      "rows": 1,
+      "total": 1,
+      "ownerVerified": true,
+      "cancelVerified": true,
+      "rereadUnchanged": true
+    },
+    {
+      "kind": "native-logic-parameters",
+      "scopeId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "success": true,
+      "primaryKey": "parid",
+      "rows": 2,
+      "total": 2,
+      "ownerVerified": true,
+      "cancelVerified": true,
+      "rereadUnchanged": true
+    }
+  ],
+  "contract": {
+    "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+    "modelName": "_Base_ParamList",
+    "primaryKey": "parid",
+    "ownerField": "pid",
+    "queryInput": "viewId",
+    "fields": [
+      "parid",
+      "pid",
+      "parname",
+      "pardesc",
+      "testvalue"
+    ]
+  },
+  "limits": [
+    "Read/edit/cancel/reread only; no real CRUD save.",
+    "Complete parameter UI and runtime consumer wiring remain open."
+  ],
+  "artifacts": [
+    {
+      "file": "artifacts/data-chain-smoke/logic-parameter-workspace-live.json",
+      "sha256": "f332d0e902704d7f1b54ddbb085f3bddf378b7a04b22ba6daf26af327154f1d9"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/live-read.mts",
+      "sha256": "708d5bd1aa1d63fa8750ed5ba4be304f4f33084982761aada185c91ecf73ac72"
+    }
+  ]
+}

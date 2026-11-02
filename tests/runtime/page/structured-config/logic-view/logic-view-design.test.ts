@@ -35,6 +35,21 @@ beforeEach(() => {
 afterEach(() => {config.global.stubs = originalStubs; vi.restoreAllMocks()})
 
 describe('logic-view design page', () => {
+  it('discards the local design through the page action and rereads without saving', async () => {
+    const router = createRouter({history: createMemoryHistory(), routes: [{path: '/design', component: LogicViewDesign,
+      meta: {blueprintScenarioId: LowcodeLogicView.navigationScenarioId}}]})
+    await router.push({path: '/design', query: {viewId: 'V1'}}); await router.isReady()
+    const wrapper = mount(LogicViewDesign, {global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+    await flushPromises()
+    const original = wrapper.find('textarea').element.value
+    await wrapper.find('textarea').setValue('[{"Name":"Unsaved"}]'); await flushPromises()
+    await wrapper.findAll('button').find(button => button.text().includes('放弃修改'))!.trigger('click'); await flushPromises()
+    expect(wrapper.find('textarea').element.value).toBe(original)
+    expect(http.posts.filter(post => post.url.includes('ViewData/GetView'))).toHaveLength(2)
+    expect(http.posts.some(post => post.url.includes('ViewData/SaveView'))).toBe(false)
+    expect(wrapper.text()).not.toContain('DATA_VIEW_UNSAVED_CHANGES')
+    wrapper.unmount()
+  })
   it('loads ViewData and saves', async () => {
     const router = createRouter({
       history: createMemoryHistory(),

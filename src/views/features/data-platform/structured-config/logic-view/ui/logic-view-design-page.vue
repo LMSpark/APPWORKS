@@ -8,8 +8,8 @@
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready">
       <JsonTreeEditor v-model="designTree" :height="360" />
-      <RendererButton label="保存设计" button-type="primary" :disabled="busy" @click="save" />
-      <RendererButton label="放弃修改并重读" :disabled="busy" @click="reload" />
+      <RendererButton :data-view-key="designKey" :label="designView?.hasUnconfirmedSave ? '核验设计保存结果' : '保存设计'" button-type="primary" :disabled="busy" @click="save" />
+      <RendererButton :data-view-key="designKey" label="放弃修改并重读" :disabled="busy || designView?.hasUnconfirmedSave === true" @click="reload" />
     </template>
   </section>
 </template>
@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import {computed} from 'vue'
 import {useRoute} from 'vue-router'
+import {buildDataViewKey} from '@spark-appworks/spark-data'
 import {JsonTreeEditor, RendererButton} from '@spark-appworks/spark-component'
 import {LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
@@ -25,6 +26,7 @@ import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/u
 const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const viewId = computed(() => typeof route.query['viewId'] === 'string' ? route.query['viewId'] : '')
+const designKey = computed(() => buildDataViewKey(LOGIC_VIEW_DESIGN_VIEW, 'default', scenarioId.value))
 const {designView, loading, ready, busy, error, saveChanges, refreshDesign, updateDesignField} = useStagedDesignPage({
   pageId: 'logic-view-design-page',
   scenarioId,
@@ -40,7 +42,7 @@ const designTree = computed({
   set: value => updateDesignField(designView.value, 'designJson', value),
 })
 async function save(): Promise<void> {await saveChanges()}
-async function reload(): Promise<void> {await refreshDesign()}
+async function reload(): Promise<void> {await refreshDesign({discardChanges: true})}
 </script>
 
 <style scoped>

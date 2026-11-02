@@ -43,12 +43,20 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
   }
   useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || hasPending()}})
 
-  async function refreshDesign(): Promise<void> {
+  async function refreshDesign(options: Readonly<{discardChanges?: boolean}> = {}): Promise<void> {
     const scope = config.scopeId.value?.trim()
     const ds = currentDataSet()
     if (!active || !ds || !scope || loadedScenario.value !== config.scenarioId.value || busy.value) {
       error.value = !scope ? config.missingScopeMessage : '设计目标已变化或操作尚未完成'
       return
+    }
+    if (options.discardChanges) {
+      try {
+        const view = designView.value
+        if (!view) throw new Error('设计目标已变化或尚未读取完成')
+        if (view.hasUnconfirmedSave) throw new Error('设计保存结果尚未确认，请通过原保存入口核验')
+        view.discardPendingChanges()
+      } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return}
     }
     const own = ++generation
     loading.value = true; ready.value = false; error.value = ''

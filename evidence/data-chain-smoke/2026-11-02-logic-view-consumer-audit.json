@@ -1,0 +1,301 @@
+{
+  "date": "2026-11-02",
+  "scope": "All 17 visible formal models whose wire Type is 视图; not limited to published AppWorks pages",
+  "summary": {
+    "models": 17,
+    "queried": 17,
+    "passed": 15,
+    "failed": 2,
+    "nonempty": 4,
+    "empty": 11,
+    "readRequests": 23,
+    "writeRequests": 0
+  },
+  "results": [
+    {
+      "modelId": "0168365B59AA47FB97831D9A6935030Dp004",
+      "scenarioId": "0168365B59AA47FB97831D9A6935030D",
+      "modelName": "db_relation_show",
+      "sourceName": "db_relation_show",
+      "sourceId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "metaName": "db_relation_show",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "0168365B59AA47FB97831D9A6935030Dp005",
+      "scenarioId": "0168365B59AA47FB97831D9A6935030D",
+      "modelName": "db_relation_sel",
+      "sourceName": "db_relation_sel",
+      "sourceId": "BF112400AD6E45EC8839CD961807C8E5",
+      "metaName": "db_relation_sel",
+      "success": true,
+      "total": 1,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {}
+      ]
+    },
+    {
+      "modelId": "04db6da7-7065-4bfc-8498-ca3fc792fb3f",
+      "scenarioId": "5036735D6D5AD1C8AAFC96FA8053705F",
+      "modelName": "db_relation_show",
+      "sourceName": "db_relation_show",
+      "sourceId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "metaName": "db_relation_show",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "0C70F74793F9E858B71E0DBDEC784D57p005",
+      "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
+      "modelName": "sys_edit",
+      "sourceName": "sys_edit",
+      "sourceId": "D0624BDE07FA475B90D5653994A6493D",
+      "metaName": "sys_edit",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "2D4155DB065DFC1CED2485C239AB2D7D",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "modelName": "VIew_InertfaceList",
+      "sourceName": "VIew_InertfaceList",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "success": false,
+      "error": "[1003] 数据不存在"
+    },
+    {
+      "modelId": "30B5316B73CC40D497E5CB659F42054Dp000",
+      "scenarioId": "41C6C2FA86A3BC7B0378560A5B1C8F79",
+      "modelName": "人员选择",
+      "sourceName": "人员选择",
+      "sourceId": "9BB57B29626F4B5EB06C7C23055F25C0",
+      "metaName": "人员选择",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "3668f0f9-1c74-484a-a01e-0eec3a58a8ed",
+      "scenarioId": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "modelName": "db_relation_show",
+      "sourceName": "db_relation_show",
+      "sourceId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "metaName": "db_relation_show",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "3A91837FD1EFF10F2B9FF90FF771989C",
+      "scenarioId": "97DCB03F75AADEAE6B102B062DB71CEA",
+      "modelName": "db_relation_show",
+      "sourceName": "db_relation_show",
+      "sourceId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "metaName": "db_relation_show",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "574D4FF4D5174268A7D4F85CE003EAACp003",
+      "scenarioId": "574D4FF4D5174268A7D4F85CE003EAAC",
+      "modelName": "sysSel",
+      "sourceName": "sysSel",
+      "sourceId": "1CF5A4F1B6FC4FBABB8FBDC4A694EFD8",
+      "metaName": "sysSel",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "575c4406-f946-4c2a-91c5-826f1632e7cb",
+      "scenarioId": "C3608C3EB2D7D8844743206C9050B8BF",
+      "modelName": "人员选择",
+      "sourceName": "人员选择",
+      "sourceId": "9BB57B29626F4B5EB06C7C23055F25C0",
+      "metaName": "人员选择",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "7ebaa5ae-8e16-4b98-bffc-5af8275fb3be",
+      "scenarioId": "3B54C8AC98BFA5827F620B078917DB48",
+      "modelName": "人员选择",
+      "sourceName": "人员选择",
+      "sourceId": "9BB57B29626F4B5EB06C7C23055F25C0",
+      "metaName": "人员选择",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "87639E48BFD673CFAA2E6601FABD1467",
+      "scenarioId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "modelName": "SourceInputScope_20261018",
+      "sourceName": "db_relation_sel",
+      "sourceId": "BF112400AD6E45EC8839CD961807C8E5",
+      "metaName": "SourceInputScope_20261018",
+      "success": true,
+      "total": 1,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {}
+      ]
+    },
+    {
+      "modelId": "9A15DBAE128C3A66AF358A38724E8D0C",
+      "scenarioId": "EE10AB4F2D0C47B3BFEF73EBCD0D452B",
+      "modelName": "接口拼接数据",
+      "sourceName": "接口拼接数据",
+      "sourceId": "106F4CD483394270A668AA89C24756E4",
+      "success": false,
+      "error": "[500] [404] 文件不存在"
+    },
+    {
+      "modelId": "aafd410a-f8e6-42c0-af40-558d420649b3",
+      "scenarioId": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "modelName": "db_relation_sel",
+      "sourceName": "db_relation_sel",
+      "sourceId": "BF112400AD6E45EC8839CD961807C8E5",
+      "metaName": "db_relation_sel",
+      "success": true,
+      "total": 1,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {}
+      ]
+    },
+    {
+      "modelId": "bcdb9392-724e-4c56-b1de-3c0617babec2",
+      "scenarioId": "439BD7FB0463A2FE197B9167234A81D0",
+      "modelName": "人员选择",
+      "sourceName": "人员选择",
+      "sourceId": "9BB57B29626F4B5EB06C7C23055F25C0",
+      "metaName": "人员选择",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "d5f54b06-ab6c-4d25-b18e-9725cfd448b2",
+      "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
+      "modelName": "db_relation_show",
+      "sourceName": "db_relation_show",
+      "sourceId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "metaName": "db_relation_show",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "modelId": "fdc487f4-6ce1-47b3-afc8-1a05ee73edfc",
+      "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
+      "modelName": "db_relation_sel",
+      "sourceName": "db_relation_sel",
+      "sourceId": "BF112400AD6E45EC8839CD961807C8E5",
+      "metaName": "db_relation_sel",
+      "success": true,
+      "total": 1,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {}
+      ]
+    }
+  ],
+  "failureIdentityChecks": [
+    {
+      "kind": "native-logic-design",
+      "viewId": "106F4CD483394270A668AA89C24756E4",
+      "success": false,
+      "error": "[1003] 数据不存在"
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "View_ViewList",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataViewList",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataViewList",
+      "success": true,
+      "total": 1,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {
+          "rowid": "106F4CD483394270A668AA89C24756E4",
+          "name": "接口拼接数据"
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "Protocol runtime query with first row only, without page-specific inputs; empty success is not full business-result acceptance.",
+    "Missing source is not proof of intended replacement; no relinking, type changes, deletion, or empty-file creation.",
+    "Source record 106F4CD483394270A668AA89C24756E4 exists while runtime reports file missing and GetView reports data missing; deployment identity/storage cause unproven.",
+    "A first diagnostic used the wrong Type label 逻辑视图; it is not a consumer inventory result."
+  ],
+  "artifacts": [
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-consumer-type-diagnostic-live.json",
+      "sha256": "954e36e679e5e98155a2d374927289b68ed97ba3e3f1b76947e60b3e0155c608"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-consumer-inventory-live.json",
+      "sha256": "8d76c3f076680a163b985622fa8afa42915092fa825d64d540d486473a2cdb64"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-consumer-runtime-live.json",
+      "sha256": "8524c85c973ae11e2dde3832fb7d416bab66477a1f7b60c7a1ee24b8a0184cc3"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-view-consumer-failure-identities-live.json",
+      "sha256": "ebabb9f7c94800c4417d0da54890d2b78bdb42564eb9d3a600ca7f1f44bd14a2"
+    }
+  ]
+}

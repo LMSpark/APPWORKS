@@ -29,6 +29,39 @@ async function setup() {
 }
 
 describe('staged design current target', () => {
+  it('explicitly discards the current draft and rereads without writing', async () => {
+    const {page, writes, reads} = await setup()
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    await page.refreshDesign({discardChanges: true})
+    expect(page.ready.value).toBe(true)
+    expect(page.designView.value?.rows[0]?.['designJson']).toBe('[]')
+    expect(reads).toHaveBeenCalledTimes(2)
+    expect(writes).not.toHaveBeenCalled()
+    expect(host.dirty.at(-1)?.isDirty).toBe(false)
+  })
+  it('never discards an unconfirmed original save', async () => {
+    const {page, writes, reads} = await setup()
+    writes.mockImplementationOnce(() => {throw new Error('Unknown save result')})
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    await page.saveChanges()
+    expect(page.designView.value?.hasUnconfirmedSave).toBe(true)
+    await page.refreshDesign({discardChanges: true})
+    expect(page.ready.value).toBe(true)
+    expect(page.designView.value?.hasUnconfirmedSave).toBe(true)
+    expect(page.designView.value?.rows[0]?.['designJson']).toContain('Edited')
+    expect(reads).toHaveBeenCalledTimes(1)
+    expect(writes).toHaveBeenCalledTimes(1)
+  })
+  it('never discards the original draft using a different route target', async () => {
+    const {page, scope, dataSet, reads} = await setup()
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
+    scope.value = 'B'; await flushPromises()
+    await page.refreshDesign({discardChanges: true})
+    expect(dataSet.getTable('Input')?.rows[0]?.['targetId']).toBe('A')
+    expect(reads).toHaveBeenCalledTimes(1)
+    scope.value = 'A'; await flushPromises()
+    expect(page.designView.value?.rows[0]?.['designJson']).toContain('Edited')
+  })
   it('keeps the current draft visible when an ordinary refresh is rejected', async () => {
     const {page} = await setup()
     page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()

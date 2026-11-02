@@ -4621,3 +4621,17 @@ flowchart TD
 - 后续动作保留完整语义：当前页“放弃修改并重读”仍调用普通refresh，原DataView会拒绝未保存草稿；本轮保证拒绝后原编辑器仍可操作，并未把该按钮的显式取消语义核销。下一步须用原DataView的明确取消入口恢复该行为（未确认保存不能取消），再按parid/多空间正式模型恢复参数、来源、节点与输出流程，不回到通用JSON页即完成的口径。
 - 最终69768退出0：局部eslint/7项scope回归、正式ClassModel编译生成、全仓verify全部通过（design-scope-verify-final.log）；最终build22774退出0（design-scope-build-final.log）。21文件123项影响测试在统一isCurrent等价提取前通过，提取后7项生命周期专项重跑通过；不重复累计。既有AI模型告警保留。
 - 本轮提交推送origin/1031保存设计实例身份与关闭保护修复、真实只读依赖/取消回读证据；未进行实服SaveView、浏览器整页或其它模型修复。后续显式取消、参数parid/来源只读合同、完整参考页面及全架构开放项继续，整体目标不标完成。
+
+### 2026-11-02 显式取消恢复与逻辑视图参数原生链烟测
+- 上轮6fdb60fddd8e2e725fe04d909b205530d6f72c84已推送origin/1031，当前从干净树继续；上一目标轮为progress，完整全架构目标继续active。
+- 按已批准循环计划修复“放弃修改并重读”：普通refresh保留原来拒绝未保存替换的语义，显式discardChanges请求先核当前设计目标及未确认状态，再调用原DataView.discardPendingChanges后重读；页面按钮传明确取消意图，未确认保存时禁用。没有调用abandonUnconfirmedSave、没有新草稿/请求/权限通道。
+- RED design-discard-red.log为1失败/9通过，原生草稿无法被页面重读取消；修复后逻辑视图4文件19项通过，追加真实标准页面操作测试后影响21文件127项通过（design-discard-impact.log），局部eslint通过。覆盖取消零写、原目标不符拒绝取消、未知保存保留原回执owner且不重放、普通refresh仍保留草稿，以及实际页面按钮取消后再GetView。
+- 为接回完整参数工作区，沿正式元数据空间_Base_ParamList以pid=GetInputParam(viewId)创建原生DataView，投影parid/pid/parname/pardesc/testvalue，按当前查询权限局部编辑testvalue→原生取消→回读。两个已知逻辑视图分别1/2行，parid主键、pid归属、取消恢复和回读一致均通过；白名单14读取/0写入，不存参数业务值或权限原文。脱敏证据evidence/data-chain-smoke/2026-11-02-logic-parameter-workspace-audit.json；尚非真实保存或参数UI验收。
+- 参数后续实现须与目录/设计文件同一个PageRuntime承载正式元数据DataSet；数据库参数保存与设计文件分别确认，不能混成一次原子提交。当前界面尚未恢复参数、节点、来源、输出预览；此次参数烟测证明接入基础合同，不缩小参考整页范围。ClassModel37955已正式生成退出0，完整verify10739及build53752正在执行。
+- 首轮verify10739在typecheck退出2，取消按钮可选链导致disabled可能undefined；已改为显式===true布尔值，不放宽组件合同。同时按已查RendererButton指南为两操作绑定完整设计DataView键，未知保存显示“核验设计保存结果”仍由原入口核验。最终4文件20项测试通过（design-discard-final-tests.log），正式生成/全仓verify/build串行2572运行中。
+- 继续追踪实际下游：DataSpaceResourceTypeWire正式逻辑视图标签为“视图”，精确过滤Base_DataModel返回total=17/returned=17/countReported=true且17个唯一模型ID；先前用“逻辑视图”的诊断查询为错误标签探针，不能据空结果称无消费者。17个正式模型按原空间/Name逐项只读查询已启动，输出不保存业务行内容，尚待终态。
+- 17项逻辑视图消费查询全部终态：15成功（4有行/11空，均countReported=true）、2失败；仅各取首行且未传页面专用参数，空查询不能当完整业务结果验收。按当次授权可见Type=视图清点，含历史/测试空间，不等同全部为当前发布页故障。evidence/data-chain-smoke/2026-11-02-logic-view-consumer-audit.json逐项保留身份与结果。
+- 两失败：2D4155DB065DFC1CED2485C239AB2D7D（4E4FEECFD41A4EF8B0D090237407E8D2/VIew_InertfaceList）返回1003数据不存在；在View_ViewList按vewname及Base_DataViewList按name精确查询均0，不能猜成物理视图并改Type。9A15DBAE128C3A66AF358A38724E8D0C（EE10AB4F2D0C47B3BFEF73EBCD0D452B/接口拼接数据）来源106F4CD483394270A668AA89C24756E4目录行存在，但运行500/404文件不存在、同ID GetView1003数据不存在；部署身份/存储差异原因未证实，不重建空文件或改挂同名其它记录。
+- 消费专题新增23次只读（含1次错误Type标签诊断、1次正确17条清点、17运行查询、4身份/设计复核）/0写入；参数专题14次只读另外计算，本轮合计37读取/0写入。两失败继续开放，不因本地测试绿灯核销。
+- 最终2572退出0：按钮绑定/布尔修正后4文件20项通过，正式ClassModel生成、全仓verify与build串行全部通过（design-discard-{final-tests,generate-final,verify-final,build-final}.log）；前序21文件127项影响测试及局部eslint通过，范围重叠不累计。既有AI模型告警和构建动态导入提示保留。
+- 本轮提交推送origin/1031保存显式取消、完整设计操作绑定/未知结果入口提示及两份实服只读审计；无Java修改、无实服写入、无浏览器整页验收。下一实现继续参数多空间PageRuntime接入及参考完整节点/来源/输出语义，现存98项字典运行失败、12项GetView差异、两项逻辑视图下游失败与其它台账项均不擅自核销；目标继续active。

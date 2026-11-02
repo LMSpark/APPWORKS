@@ -22,6 +22,47 @@ export function isFixedCodeNode(dataSet: DataSet, row: Readonly<DataRow>): boole
 }
 
 const sequenceFields = {Name: '名称', Incre: '增量', StartNo: '开始段', EndNo: '结束段', Format: '起始值-最大值'}
+
+/**
+ * 将已保存分类的引用映射复制到当前编码段，不提交目录或设计。
+ * @param dataSet 当前编码设计实例。 @param nodeId 原节点主键。 @param classId 已保存分类主键。
+ */
+export function selectCodeClass(dataSet: DataSet, nodeId: string | number, classId: string | number): void {
+  if (dataSet.scenarioId !== SCENE) throw new Error('编码设计场景身份不匹配')
+  const nodes = dataSet.getView('Base_CodeNodeDesign'), catalog = dataSet.getView('Base_CodeClassTable'), main = dataSet.getView('Base_CodeDesign')
+  const row = nodes?.currentRow, owner = main?.rows[0]
+  if (!nodes || !catalog || main?.rows.length !== 1 || !owner || !row || nodes.getPkKey(row) !== nodeId) throw new Error('编码段目标已改变，请重新打开')
+  if (nodes.hasUnconfirmedSave || main.hasUnconfirmedSave) throw new Error('请先核验设计保存结果')
+  catalog.assertResultReplacementAllowed()
+  if (nodes.fieldAccess(row, 'CodeDesignID').read !== 'visible' || row['CodeDesignID'] !== main.getPkKey(owner)) throw new Error('编码节点不属于当前设计')
+  if (nodes.fieldAccess(row, 'NodeType').read !== 'visible' || codeNodeTypeLabel(dataSet, row['NodeType']) !== '分类字符串') throw new Error('当前编码段不是分类字符串')
+  const selected = catalog.rows.find(item => catalog.getPkKey(item) === classId)
+  if (!selected) throw new Error('请选择已保存的分类规则')
+  const read = (field: string): string => {
+    if (catalog.fieldAccess(selected, field).read !== 'visible') throw new Error('分类规则字段不可读')
+    const value = selected[field]
+    if (typeof value !== 'string' || !value.trim()) throw new Error('分类规则缺少名称、引用表或字段映射，请先维护目录')
+    return value.trim()
+  }
+  const name = read('Name'), mapping = {BusFilterField: read('BusFilterField'), RefTableId: read('TableRowid'), RefTableName: read('TableName'),
+    RefTableValueField: read('TextFieldName'), RefTableFilterField: read('ValueFieldName')}
+  for (const field of ['CodeNodeDesignJson', 'ParameterName']) {
+    const access = nodes.fieldAccess(row, field)
+    if (access.read !== 'visible' || access.write !== 'allowed') throw new Error('当前编码段规则不可读写')
+  }
+  const raw = editableRow(nodes, row)['CodeNodeDesignJson']
+  let original: unknown = {}
+  try {if (raw !== undefined && raw !== null && raw !== '') original = typeof raw === 'string' ? JSON.parse(raw) : null}
+  catch {throw new Error('编码节点规则JSON无效，请先纠正')}
+  if (original === null || typeof original !== 'object' || Array.isArray(original)) throw new Error('编码节点规则必须是JSON对象')
+  const checkpoint = nodes.createEditingCheckpoint(nodeId, ['CodeNodeDesignJson', 'ParameterName'])
+  try {
+    nodes.updateEditingValue(nodeId, 'CodeNodeDesignJson', JSON.stringify({...original, ...mapping}))
+    nodes.updateEditingValue(nodeId, 'ParameterName', name)
+    checkpoint.release()
+  } catch (cause) {checkpoint.restore(); checkpoint.release(); throw cause}
+}
+
 function sequenceValues(view: DataView, row: DataRow): Record<keyof typeof sequenceFields, string> {
   const value = (field: keyof typeof sequenceFields): string => {
     if (view.fieldAccess(row, field).read !== 'visible') throw new Error('顺序号规则字段不可读')

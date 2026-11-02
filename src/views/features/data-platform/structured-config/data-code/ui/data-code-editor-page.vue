@@ -17,12 +17,12 @@
       <div class="structured-editor-actions">
         <RendererButton :label="unconfirmed ? '核验保存结果' : '保存设计'" button-type="primary" :disabled="busy" @click="save" />
         <RendererButton label="取消修改" :disabled="busy || unconfirmed" @click="cancel" />
-        <RendererButton label="编码类选择…" :disabled="busy" @click="openDialog = 'classSelector'" />
+        <RendererButton label="编码类选择…" :disabled="busy || unconfirmed" @click="openCurrentClass" />
         <RendererButton label="初始化数据…" :disabled="busy" @click="openDialog = 'codeInit'" />
         <RendererButton label="编码类编辑…" :disabled="busy" @click="openDialog = 'classEdit'" />
       </div>
     </template>
-    <CodeClassSelectorDialog v-if="openDialog === 'classSelector'" @close="openDialog = ''" />
+    <CodeClassSelectorDialog v-if="openDialog === 'classSelector' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
     <ParentCodeDialog v-if="openDialog === 'parentCode' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" :bus-table-rowid="ruleTarget.busTableRowid" @close="closeRule" />
     <SequenceSelectorDialog v-if="openDialog === 'sequence' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
     <TimeStringDialog v-if="openDialog === 'timeString' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" :bus-table-rowid="ruleTarget.busTableRowid" @close="closeRule" />
@@ -39,7 +39,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, FieldText, RendererForm, RendererTable, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {codeNodeTypeLabel, isFixedCodeNode, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
-import CodeClassSelectorDialog from './dialogs/code-class-selector-dialog.vue'
+import CodeClassSelectorDialog from './code-class-selector-dialog.vue'
 import CodeClassEditDialog from './dialogs/code-class-edit-dialog.vue'
 import CodeInitDialog from './dialogs/code-init-dialog.vue'
 import ParentCodeDialog from './parent-code-dialog.vue'
@@ -87,16 +87,23 @@ const nodeFields: SparkNode[] = [
     cellReadonly: (row: Readonly<DataRow>) => saving.value || !dataSet.value || !isFixedCodeNode(dataSet.value, row)}},
 ]
 const nodeActions = {children: [{type: 'r-button', props: {label: '选择', onClick: openRule}}]}
+function openCurrentClass(): void {
+  const row = nodes.value?.currentRow
+  if (!row || !dataSet.value || !nodes.value || nodes.value.fieldAccess(row, 'NodeType').read !== 'visible'
+    || codeNodeTypeLabel(dataSet.value, row['NodeType']) !== '分类字符串') {error.value = '请选择分类字符串编码段'; return}
+  openRule(row)
+}
 function openRule(row: DataRow): void {
   if (busy.value || unconfirmed.value || !nodes.value || !main.value || !dataSet.value || !row || typeof row !== 'object') return
   const owner = main.value.currentRow
   if (!owner || nodes.value.fieldAccess(row, 'NodeType').read !== 'visible') return
   const label = codeNodeTypeLabel(dataSet.value, row['NodeType'])
-  const dialog = label.includes('时间字符串') ? 'timeString' : label === '父编码串' ? 'parentCode' : label === '顺序号串' ? 'sequence' : ''
+  const dialog = label.includes('时间字符串') ? 'timeString' : label === '父编码串' ? 'parentCode' : label === '顺序号串' ? 'sequence' : label === '分类字符串' ? 'classSelector' : ''
   if (!dialog) {error.value = '该类型规则尚未恢复'; return}
-  if (dialog !== 'sequence' && main.value.fieldAccess(owner, 'BusTableRowid').read !== 'visible') return
-  const nodeId = nodes.value.getPkKey(row), busTableRowid = dialog === 'sequence' ? '' : owner['BusTableRowid']
-  if ((typeof nodeId !== 'string' && typeof nodeId !== 'number') || dialog !== 'sequence' && (typeof busTableRowid !== 'string' || !busTableRowid)) {error.value = '缺少编码段或业务表身份'; return}
+  const needsBusinessFields = dialog === 'timeString' || dialog === 'parentCode'
+  if (needsBusinessFields && main.value.fieldAccess(owner, 'BusTableRowid').read !== 'visible') return
+  const nodeId = nodes.value.getPkKey(row), busTableRowid = needsBusinessFields ? owner['BusTableRowid'] : ''
+  if ((typeof nodeId !== 'string' && typeof nodeId !== 'number') || needsBusinessFields && (typeof busTableRowid !== 'string' || !busTableRowid)) {error.value = '缺少编码段或业务表身份'; return}
   ruleTarget.value = {nodeId, busTableRowid: typeof busTableRowid === 'string' ? busTableRowid : ''}; openDialog.value = dialog
 }
 watch([applicationId, codeDesignId], async ([app, code]) => {

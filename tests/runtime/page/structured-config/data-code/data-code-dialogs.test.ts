@@ -5,6 +5,7 @@ import ElementPlus from 'element-plus'
 import {Spark, RendererTable, registerAllRenderers} from '@spark-appworks/spark-component'
 import TimeStringDialog from '@/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue'
 import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
+import CodeClassSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {codeService, designText} from './data-code.fixture'
@@ -39,6 +40,21 @@ async function mountEditor() {
 const dialogButtons = ['初始化数据', '编码类编辑', '编码类选择'] as const
 
 describe('data-code editor dialogs', () => {
+  it('opens classification selection for the exact node through its bound DataView', async () => {
+    state.current.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 1, ParameterName: '', CodeNodeDesignJson: '{}'}
+    state.current.http.records['Dict_CodeNodeType']!.push({rowid: 'D1', val: '1', txt: '分类字符串', ordIdx: '1'})
+    const wrapper = await mountEditor()
+    await vi.waitFor(() => expect(wrapper.findComponent(RendererTable).exists()).toBe(true))
+    const action = wrapper.getComponent(RendererTable).props('actions')!.children![0]!
+    if (typeof action !== 'object') throw new Error('expected standard row action')
+    const choose = action.props!['onClick'] as (row: unknown) => void
+    choose(state.current.http.records['Base_CodeNodeDesign']![0]); await flushPromises()
+    expect(wrapper.getComponent(CodeClassSelectorDialog).props('nodeId')).toBe('N1')
+    expect(wrapper.getComponent(CodeClassSelectorDialog).props('dataViewKey')).toBe('868E62F90DB8118C74CDC9F6BCA61157@Base_CodeNodeDesign@default')
+    expect(state.current.http.reads.some(read => read.table === 'Base_CodeClassTable')).toBe(true)
+    expect(state.current.http.saves).toEqual([])
+    wrapper.unmount()
+  })
   it('opens sequence selection from its node even when no business table is selected', async () => {
     state.current.http.records['Base_CodeDesign']![0]!['BusTableRowid'] = ''
     state.current.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 4, ParameterName: '', CodeNodeDesignJson: '{}'}

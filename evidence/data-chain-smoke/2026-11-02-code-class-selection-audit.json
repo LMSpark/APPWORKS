@@ -1,0 +1,114 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "referenceMapping": "use-data-code-editor-page.ts handleClassConfirm: Name -> ParameterName; BusFilterField/TableRowid/TableName/TextFieldName/ValueFieldName -> BusFilterField/RefTableId/RefTableName/RefTableValueField/RefTableFilterField",
+  "source": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
+  "nativeActualService": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 11,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "success": true,
+        "diagnostics": [],
+        "codeClassSelection": {
+          "nodeId": "62F6F7458D6B0EE7BE81943EE93D65EC",
+          "catalogRows": 7,
+          "catalogTotal": 7,
+          "selectedClassId": "1DA116B1DF5646BAAF92D6FC23080054",
+          "mappingVerified": true,
+          "cancelRestored": true,
+          "serverRereadUnchanged": true,
+          "writes": 0
+        },
+        "views": [
+          {
+            "table": "Base_CodeDesign",
+            "view": "default",
+            "rows": 1,
+            "total": 1,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeDesign",
+            "view": "parents",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeNodeDesign",
+            "view": "default",
+            "rows": 3,
+            "total": 3,
+            "state": 3
+          },
+          {
+            "table": "Dict_CodeNodeType",
+            "view": "default",
+            "rows": 5,
+            "total": 5,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeClassTable",
+            "view": "default",
+            "rows": 7,
+            "total": 7,
+            "state": 3
+          },
+          {
+            "table": "Base_CodingSequence",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeSerialPerform",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          }
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "tab": 3,
+    "existingUnknownSaveTab": 2,
+    "unknownTabReboundWithoutReload": true,
+    "handoffMarkSucceeded": true,
+    "managedApplicationOptions": [
+      "DataSchemaManage"
+    ],
+    "selectedApplicationCodeRows": 0,
+    "classificationDialogAcceptance": false,
+    "hiddenEditorDirectUrlNotAnIndependentNavigationIdentity": true,
+    "formalEditorOpensAsDialogWithProps": true,
+    "screenshot": "artifacts/data-chain-smoke/code-class-browser-scope.jpg"
+  },
+  "limits": [
+    "Native smoke verifies local staged classification mapping, original cancellation and server reread only; no save or code execution.",
+    "Directory create/edit/delete/independent save is still incomplete.",
+    "Browser end-to-end selection cannot be claimed because the existing definitions application identities are absent from the formal catalog application options.",
+    "SaveView unknown result remains open; no retry or restore write."
+  ],
+  "guides": [
+    "generated/dts-class-model/files/packages/spark-component/src/components/containers/data-views/RendererTable/index.ts.json",
+    "generated/dts-class-model/files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts.json",
+    "generated/dts-class-model/files/packages/spark-component/src/components/containers/layout/overlay/RendererDialog/RendererDialog.props.ts.json",
+    "generated/dts-class-model/files/packages/spark-data/src/data-view.ts.json"
+  ]
+}

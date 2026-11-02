@@ -1,0 +1,235 @@
+{
+  "testedAt": "2026-11-02T15:37:06.326Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "statusRuntime": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "workflowStatus",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "returned": 2,
+        "rows": [
+          {
+            "rowid": "25438B7DDF3643DDB82C401D807824EE",
+            "val": "停用",
+            "txt": "2"
+          },
+          {
+            "rowid": "267730441E724E2A8980F6F6D97C1C12",
+            "val": "启用",
+            "txt": "1"
+          }
+        ]
+      }
+    ]
+  },
+  "formalAndPersistedStatus": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 3,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "workflowStatus",
+        "success": true,
+        "modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5",
+        "sourceName": "workflowStatus",
+        "sourceType": "字典",
+        "sourceId": "F64D7DC20CA14DC99C6729DEA36C63D6",
+        "primaryKey": "",
+        "fields": [
+          {
+            "id": "11A9511995A3660E588A9D0711C9240B",
+            "name": "txt",
+            "sourceField": "txt",
+            "type": "varchar",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "文本",
+            "order": 0
+          },
+          {
+            "id": "51519A251CF6C90C9DA06C4CB8F06322",
+            "name": "ordIdx",
+            "sourceField": "ordIdx",
+            "type": "int",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "排序字段",
+            "order": 0
+          },
+          {
+            "id": "CCE618FA4888AED46425CCF888E279DB",
+            "name": "val",
+            "sourceField": "val",
+            "type": "varchar",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "值",
+            "order": 0
+          },
+          {
+            "id": "EA83D07DF38C5E1E3846A2C192D5C7CA",
+            "name": "rowid",
+            "sourceField": "rowid",
+            "type": "varchar",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "唯一值（ID）",
+            "order": 0
+          }
+        ]
+      },
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 4,
+        "countReported": true,
+        "returned": 4,
+        "rows": [
+          {
+            "rowid": "CA2428C178AC4E088D2E573263AC0F08",
+            "status": 2
+          },
+          {
+            "rowid": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+            "status": 2
+          },
+          {
+            "rowid": "46FA11BC212B35DB921AE78568ED0E5F",
+            "status": 2
+          },
+          {
+            "rowid": "9F59FC5B849F48FD96E7B33BC5BC1145",
+            "status": 2
+          }
+        ]
+      }
+    ]
+  },
+  "consumers": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataModel",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "returned": 2,
+        "rows": [
+          {
+            "rowid": "3702cbf4-1dea-47a8-ae71-a32c5fc4bfbd",
+            "dataSetId": "E0BB79BA59101F76628F1448D6351B4E",
+            "Name": "workflowStatus",
+            "MetaName": "workflowStatus",
+            "DbId": "F64D7DC20CA14DC99C6729DEA36C63D6"
+          },
+          {
+            "rowid": "8475c6ee-0d8f-48cb-936f-27892ba774e5",
+            "dataSetId": "5E9676B1E38860B023921F48FB4370DE",
+            "Name": "workflowStatus",
+            "MetaName": "workflowStatus",
+            "DbId": "F64D7DC20CA14DC99C6729DEA36C63D6"
+          }
+        ]
+      }
+    ]
+  },
+  "preflights": [
+    {
+      "kind": "exact-workflow-status-source-repair",
+      "testedAt": "2026-11-02T15:35:29.063Z",
+      "mode": "preflight",
+      "phase": "preflight-ready",
+      "dictionaryId": "F64D7DC20CA14DC99C6729DEA36C63D6",
+      "entries": [
+        {
+          "id": "25438B7DDF3643DDB82C401D807824EE",
+          "before": {
+            "val": "停用",
+            "txt": "2"
+          },
+          "after": {
+            "val": "2",
+            "txt": "停用"
+          }
+        },
+        {
+          "id": "267730441E724E2A8980F6F6D97C1C12",
+          "before": {
+            "val": "启用",
+            "txt": "1"
+          },
+          "after": {
+            "val": "1",
+            "txt": "启用"
+          }
+        }
+      ],
+      "reads": 7,
+      "writes": 0,
+      "confirmed": false,
+      "unknownOwnerRetained": false,
+      "replayWrites": 0,
+      "checks": [
+        "exact dictionary and two entry baselines verified; original val/txt permissions allow edit"
+      ]
+    },
+    {
+      "kind": "native-workflow-start-ui-fixture",
+      "testedAt": "2026-11-02T15:35:28.581Z",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "mode": "preflight",
+      "phase": "preflight-ready",
+      "reads": 16,
+      "writes": 0,
+      "confirmedSaves": 0,
+      "cleanupConfirmed": false,
+      "replayWrites": 0,
+      "checks": [
+        "original create permissions and formal identity API available",
+        "exact reversed status source detected; source repair and readback required before create"
+      ],
+      "unknownOwnerRetained": false
+    }
+  ],
+  "offlineSafetyChecks": {
+    "passed": 5,
+    "actualHttpCapabilitySupplied": false
+  },
+  "scripts": {
+    "workflow-status-source-repair.mts": "ae8dc5e8b7275c318b940aa817afe78799ef93d0c7ca8399782694e9f0d38ff8",
+    "workflow-start-ui-fixture.mts": "3bf4d6f9d7e8beee33cf17dba74983e8589b7e77e6d3c716f7cbcbdb5426f137",
+    "workflow-smoke-guard-check.mjs": "2689278b99b83a8c77724bd4bbc739d85e57e34a09a8e6fd7bbd6e01048fb0ae"
+  },
+  "browserEvidence": "artifacts/data-chain-smoke/workflow-status-source-before.png",
+  "authorization": "pending: two formal dictionary entry corrections plus three temporary workflow records",
+  "actualWrites": 0,
+  "limits": [
+    "The status source remains unchanged",
+    "No temporary workflow created",
+    "Read-only registered models do not enumerate name-fallback consumers"
+  ]
+}

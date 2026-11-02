@@ -1,0 +1,49 @@
+{
+  "kind": "actual-service-workflow-consumption-checkpoint",
+  "testedAt": "2026-11-02T23:06:05.423Z",
+  "workflowId": "7755BA4C36A64752A09527680B8F2D19",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "definitionSmoke": {
+    "queryModels": 2,
+    "source": "sys_edit",
+    "sourceViewId": "D0624BDE07FA475B90D5653994A6493D",
+    "fieldsPerModel": 31,
+    "connectors": 3,
+    "inputA": "FE6F513F737167E35EA5B36478136FD0.rowid",
+    "outputA": "rowid",
+    "independentReadback": true
+  },
+  "execution": {
+    "singleNodeRequests": 1,
+    "nodeId": "20962673DE207205AFBC0759AE2AD752",
+    "serviceError": "[1004] 节点执行失败；根因：请填写合适的分页参数！",
+    "outcome": "unknown",
+    "replays": 0,
+    "AtoBPassed": false,
+    "wholeFlowExecuted": false,
+    "runtimeInstancesObserved": 0
+  },
+  "cleanup": {
+    "temporaryRecords": 92,
+    "extras": {
+      "records": 89,
+      "reads": 18,
+      "writes": 4,
+      "independentlyAbsent": true
+    },
+    "base": {
+      "records": 3,
+      "reads": 60,
+      "writes": 3,
+      "independentlyAbsent": true
+    },
+    "pendingRecords": 0
+  },
+  "limitations": [
+    "Actual service rejected the single-node query for pagination; local Java source does not prove deployed support.",
+    "Non-start hierarchical output candidates remain diagnostic until actual flat output is verified.",
+    "Complete layout, four-file migration, field types, calculated fields and remaining full-page flows remain open."
+  ],
+  "backendModified": false,
+  "review": "Higher-model static review found no new definite blocker; no live execution success claimed."
+}

@@ -7,6 +7,8 @@ import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-confi
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
 import {openWorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
+import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
+import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 
@@ -29,6 +31,64 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it('allows additive query outputs with downstream edges but preserves the guard for removing or renaming existing outputs',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:JSON.stringify([
+   {rowid:'ROOT',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},
+   {rowid:'F1',pid:'ROOT',Name:'code',FieldType:'varchar',isParent:false}])}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'EDGE',workflow_id:'W1',sourceID:'N1',targetID:'NEXT'}]
+  http.records['Base_DataModel_Field']=['F1','F2'].map((rowid,index)=>({rowid,dataSetId:'W1',dataModelId:'M1',Name:index?'rowid':'code',AsName:'',type:'dataModel',FieldType:'varchar',IsOutput:index?0:1,IsPKey:0,description:''}))
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('F2','IsOutput',1);await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toEqual(expect.arrayContaining([expect.objectContaining({rowid:'F1',Name:'code'}),expect.objectContaining({rowid:'F2',Name:'rowid'})]))
+  const writes=http.saves.length
+  fields.updateEditingValue('F1','AsName','renamed');await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('下游')
+  await cancelWorkflowQueryFields(ds,'W1','N1')
+  fields.updateEditingValue('F1','IsOutput',0);await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('下游')
+  expect(http.saves).toHaveLength(writes)
+ })
+ it('captures the saved execution graph and distinguishes mandatory results from conditional branches',async()=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0},{rowid:'A',workflow_id:'W1',position_type:1},{rowid:'END',workflow_id:'W1',position_type:2}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'SA',workflow_id:'W1',sourceID:'START',targetID:'A'},{rowid:'AE',workflow_id:'W1',sourceID:'A',targetID:'END'}]
+  http.records['Base_DataModel_Relation']=[];await nodes.refresh();await edges.refresh()
+  const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  await context.load();expect(context.capture()).toEqual({workflowId:'W1',nodeIds:['START','A','END'],requiredNodeIds:['START','A','END'],conditional:false})
+  http.records['Base_DataModel_Relation']=[{rowid:'R',dataSetId:'W1',parentModId:'START',childModId:'A',filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'flag',operator:'eq',value:false}))}]
+  await context.load();expect(context.capture()).toEqual({workflowId:'W1',nodeIds:['START','A','END'],requiredNodeIds:['START'],conditional:true})
+  http.records['Base_DataModel_Relation']!.push({...http.records['Base_DataModel_Relation']![0],rowid:'DUPLICATE'})
+  await expect(context.load()).rejects.toThrow('多条条件')
+  context.dispose();expect(ds.getView('Base_DataModel_Relation','asParent')).toBeDefined()
+ })
+ it('creates and cancels formal connectors in the original view, rejects duplicate/cyclic endpoints, and preserves an unknown save',async()=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query'},
+   {rowid:'A',workflow_id:'W1',position_type:1,node_type:'query'},{rowid:'B',workflow_id:'W1',position_type:1,node_type:'query'}]
+  http.records['Base_WorkflowConnectors']=[];await nodes.refresh();await edges.refresh()
+  const cancelled=await WorkflowConnectors.add(ds,'W1',{source:'START',target:'A'})
+  expect(edges.dirtyTracking.isPendingCreate(cancelled)).toBe(true);expect(http.saves).toEqual([])
+  edges.discardPendingChanges([cancelled]);expect(edges.rows).toEqual([])
+  const id=await WorkflowConnectors.add(ds,'W1',{source:'START',target:'A'})
+  http.failAfterWrite=true
+  await expect(WorkflowConnectors.save(ds,'W1',id)).rejects.toThrow()
+  expect(edges.hasUnconfirmedSave).toBe(true);expect(http.saves).toHaveLength(1)
+  await WorkflowConnectors.save(ds,'W1',id);expect(http.saves).toHaveLength(1)
+  await expect(WorkflowConnectors.add(ds,'W1',{source:'START',target:'A'})).rejects.toThrow('重复')
+  await expect(WorkflowConnectors.add(ds,'W1',{source:'A',target:'A'})).rejects.toThrow('自身')
+  await expect(WorkflowConnectors.add(ds,'W1',{source:'A',target:'START'})).rejects.toThrow('开始')
+  http.records['Base_WorkflowConnectors']!.push({rowid:'AB',workflow_id:'W1',sourceID:'A',targetID:'B',params:'[]'})
+  await edges.refresh()
+  await expect(WorkflowConnectors.add(ds,'W1',{source:'B',target:'A'})).rejects.toThrow('环')
+  await expect(WorkflowConnectors.add(ds,'W1',{source:'OTHER',target:'B'})).rejects.toThrow('归属')
+ })
+ it('preserves undeclared source parameter types during query model planning instead of assuming varchar',async()=>{
+  const {ds,reader,http}=await fixture()
+  const command=await openWorkflowQueryModelCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  await command.preview(source)
+  expect(reader.prepare).toHaveBeenCalledWith(source,ds,{missingInputType:'preserve'})
+  expect(http.saves).toEqual([])
+  command.discard()
+ })
  it('saves source ValueFun and model Filter together, recovers the original unknown batch before changed ancestor validation, and cancels both scopes',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',node_config:'',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},

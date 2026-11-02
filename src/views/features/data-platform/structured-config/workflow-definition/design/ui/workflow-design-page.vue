@@ -16,6 +16,8 @@
       <p v-if="unconfirmed" role="status">保存结果尚未确认，请使用原保存入口核验，勿重复创建。</p>
       <p v-if="layoutMissing" role="status">布局文件不存在；创建前画布位置仅供预览。</p>
       <p v-if="layoutError" role="alert">布局内容无效：{{ layoutError }}</p>
+      <WorkflowExecutionPanel v-if="dataSet" :key="loadedTarget" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedKind === 'node' ? selectedQueryId : ''"
+        :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('execution.'+key,value)" />
       <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId"
         :disabled="locked || (hasPending && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
       <div>
@@ -30,6 +32,7 @@
       <div class="workflow-workspaces">
         <RendererGraph ref="graphApi" :data-view-key="nodesKey" :edge-data-view-key="edgesKey" label-field="name" description-field="description"
           node-caption-field="node_type" edge-source-field="sourceID" edge-target-field="targetID"
+          :connectable-keys="connectableKeys" :on-connect="connectObjects"
           :disabled="locked" :on-select="selectObject" :node-positions="layoutProjection?.nodePositions ?? {}" :edge-paths="layoutProjection?.edgePaths ?? {}"
           :draggable-keys="layoutEditableKeys" :on-node-move="moveLayout" :on-arrange="arrangeLayout" background-pattern="dots" />
         <aside>
@@ -123,9 +126,11 @@ import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workf
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
 import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
+import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
+import WorkflowExecutionPanel from './workflow-execution-panel.vue'
 const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
@@ -146,7 +151,7 @@ const views=computed(()=>{revision.value;return Object.values(dataSet.value?.tab
 const validTarget=computed(()=>{revision.value;return view('Base_WorkflowDefinition')?.rows.length===1})
 const missing=computed(()=>ready.value&&!validTarget.value)
 const loading=computed(()=>{revision.value;return opening.value||views.value.some(v=>v.requestState===RequestState.Preparing||v.requestState===RequestState.Loading)})
-const busy=computed(()=>acting.value||loading.value)
+const busy=computed(()=>acting.value||loading.value||inputs.value.has('execution.running'))
 const unconfirmed=computed(()=>{revision.value;return views.value.some(v=>v.hasUnconfirmedSave)})
 const locked=computed(()=>busy.value||unconfirmed.value||loadedTarget.value!==workflowId.value)
 const hasPending=computed(()=>{revision.value;return acting.value||inputs.value.size>0||views.value.some(v=>v.hasUnconfirmedSave||v.hasEditingChanges()||v.dirtyTracking.hasPendingChanges())})
@@ -159,6 +164,7 @@ const conditionDeleting=computed(()=>{revision.value;return (conditionView()?.di
 const conditionState=computed(()=>{
  revision.value
  const empty={ready:false,row:undefined,columns:[],functionContext:{},error:''},ds=dataSet.value,id=selectedEdgeId.value
+ if(id!==undefined&&view(edgesTable)?.dirtyTracking.isPendingCreate(id))return {...empty,error:'请先保存新连线，再维护连线条件'}
  if(selectedKind.value!=='edge'||!ds||id===undefined||conditionView()?.requestState!==RequestState.Loaded)return empty
  try{const state=WorkflowConnectorCondition.presentation(ds,workflowId.value,id);return{...state,ready:true,error:state.outputError}}
  catch(cause){return{...empty,error:cause instanceof Error?cause.message:String(cause)}}
@@ -215,6 +221,18 @@ function pending(id:string,value:boolean):void{if(value)inputs.value.add(id);els
 function pendingPart(prefix:string):boolean{return [...inputs.value].some(id=>id.startsWith(prefix+'.'))}
 function validateJson(value:unknown):void{if(typeof value!=='string')throw new Error('配置必须是JSON文本');if(value.trim())parseJsonDocument(value)}
 function isUnconfirmed(table:string):boolean{revision.value;return view(table)?.hasUnconfirmedSave===true}
+const connectableKeys=computed(()=>{
+ revision.value;const nodes=view(nodesTable),edges=view(edgesTable)
+ if(locked.value||hasPending.value||!nodes||edges?.addActionState()!=='enabled')return []
+ return nodes.rows.flatMap(row=>{const id=nodes.getPkKey(row);return id!==undefined&&nodes.fieldAccess(row,'rowid').read==='visible'&&nodes.fieldAccess(row,'workflow_id').read==='visible'&&row['workflow_id']===workflowId.value?[id]:[]})
+})
+async function connectObjects(edge:Readonly<{source:string|number;target:string|number}>):Promise<void>{
+ const ds=dataSet.value,own=generation;if(!ds||locked.value||hasPending.value)return
+ acting.value=true;error.value=''
+ try{await WorkflowConnectors.add(ds,workflowId.value,edge);if(active&&own===generation)selectedKind.value='edge'}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
 function selectObject(event:SparkComponent.GraphSelection):void{
  if(locked.value||hasPending.value){event.control.cancel=true;return}
  const target=view(event.kind==='node'?nodesTable:edgesTable),row=target?.rows.find(row=>target.getPkKey(row)===event.id)
@@ -294,7 +312,11 @@ async function save(table:string):Promise<void>{
  if(busy.value||loadedTarget.value!==workflowId.value)return
  const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
  acting.value=true;error.value=''
- try{const result=await ds.saveChanges({views:[{tableName:table,viewId:'default'}]});if(!result.success)throw new Error(result.message??'保存未完整确认')}
+ try{const id=target.currentRow&&target.getPkKey(target.currentRow)
+  const result=table===edgesTable&&typeof id==='string'?await WorkflowConnectors.save(ds,workflowId.value,id):await ds.saveChanges({views:[{tableName:table,viewId:'default'}]})
+  if(!result.success)throw new Error(result.message??'保存未完整确认')
+  if(table===edgesTable&&active&&own===generation)await loadCondition()
+ }
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }

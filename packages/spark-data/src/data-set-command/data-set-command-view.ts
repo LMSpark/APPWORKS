@@ -16,7 +16,8 @@ type QueryResult = Awaited<ReturnType<NonNullable<Parameters<DataView['bindQuery
 
 export type DataSetCommandRowsLoader = (view: DataView) => Promise<readonly DataRow[]>
 
-export type DataSetCommandResourceIdentity = Readonly<{resourceType: 'file'; resourceId: string}>
+/** 真实命令资源身份；文件命令仍为file，服务命令声明自身语义类型，不伪造文件或后端模型。 */
+export type DataSetCommandResourceIdentity = Readonly<{resourceType: string; resourceId: string}>
 
 export type BindReadonlyCommandQueryOptions = Readonly<{
   resource: DataSetCommandResourceIdentity

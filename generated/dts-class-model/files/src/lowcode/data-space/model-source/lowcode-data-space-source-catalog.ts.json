@@ -404,7 +404,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T05:07:47.129Z",
+  "generatedAt": "2026-11-02T22:21:02.243Z",
   "models": {
     "PageDataSpaceModelSourceType": {
       "name": "PageDataSpaceModelSourceType",
@@ -667,11 +667,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    /** 模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
+        "declarationTypeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    /** 模型创建沿既有字符串缺省；逻辑视图及工作流输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    /** 模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
+            "typeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    /** 模型创建沿既有字符串缺省；逻辑视图及工作流输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -715,7 +715,7 @@
             },
             {
               "name": "prepare",
-              "jsdoc": "模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。",
+              "jsdoc": "模型创建沿既有字符串缺省；逻辑视图及工作流输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。",
               "parameters": [
                 {
                   "name": "source",

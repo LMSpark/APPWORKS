@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/execution-context",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/execution-context",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution-context\n职责：执行命令按需读取正式连线条件，捕获可达节点和可证明必经的结果。\n边界：原DataView持有定义，不执行条件、不假设条件分支都命中，不参与普通保存。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowExecutionContext"
+    ]
+  },
+  "$defs": {
+    "WorkflowExecutionContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionContext",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "guard": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.load.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.load.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.capture.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.capture.return": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts.json#/$defs/WorkflowExecutionGraph"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T22:21:02.242Z",
+  "models": {
+    "WorkflowExecutionContext": {
+      "name": "WorkflowExecutionContext",
+      "jsdoc": "执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(ds: DataSet, workflowId: string, guard: () => void)",
+          "parameters": [
+            {
+              "name": "ds",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            },
+            {
+              "name": "workflowId",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "guard",
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "capture",
+              "jsdoc": "图完整性与分支可证性分别表达；不在前端求值服务端条件。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "WorkflowExecutionGraph"
+              }
+            },
+            {
+              "name": "dispose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

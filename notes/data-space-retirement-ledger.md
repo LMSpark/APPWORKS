@@ -5399,3 +5399,41 @@ ClassModel目录/概要/columns/format指南已读，onEditingChange是方法投
 下一工位仍需完整B/C：实参来源API/逻辑视图的inputParams.ValueFun真烟测、正式连线祖先引用、实际部署流程取值与查询结果消费、层次输出/共享模型引用维护，以及A类型/计算字段、完整1:1与四文件。当前只证明定义编辑和持久链，不称整个查询节点或全仓完成；整体目标active。
 
 最终门禁已确认：typecheck、全仓pnpm run lint、前端build:fe、pages-config/workflow-designs/page-thin/docs均exit0；140项工作流/输入UI组合和239项共享过滤测试通过，最后目录实现纯lint整理后8项候选归属/失权/释放回归再次exit0。最终正式ClassModel编译生成1013文件exit0，23份纯噪声已逐份归一核对恢复；保留2份既有实际变更分片、4份新增分片及关联manifest。高阶最后限定只读复核未见新增确定阻断。浏览器目录Total4已恢复，query-input-cleaned截图已保存、tab6无草稿并handoff。所有11条夹具独立核空、unknown0、重放0。此检查点按用户授权提交推送1031；B/C执行消费及全架构总目标继续active，不标完成。
+
+**2026-11-03 B/C完整消费工作卡 implementing（接续8d4b4b210）。**上一轮为progress：正式提交推送且11条实服夹具核空。本轮高阶只读核定同一停用流程“开始→参数化查询A→消费A实际输出的查询B→结束”，完整页面创建正式连线、输入映射、保存重开、单节点/整流执行和精确清理；不以只保存ValueFun或单节点冒充此卡完成。固定参考执行为runSingleNodeTest({workflowId,nodeId,inputParams:{ancestorId:[row]}})及runWorkflowTest({workflowId,startParams:[业务行]})；参考把多参数拆成多行是待纠正缺陷。完整测试可能异步存节点实例、返回列表可能包含失败/缺失/裁剪结果，均须实服核定且按精确归属清理，不能用HTTP200代替通过。
+
+只读实服1请求核sys_edit的sysid参数，未返回parzdtype。进一步源码发现工作流来源prepare仍沿公共reader的varchar缺省，和本任务保留未发布类型要求不符；先红复现其未传missingInputType=preserve，现工作流包装固定传preserve，来源定义不改、权限不放宽，未知类型保持空白，不能据此假称来源支持完整类型。此修复属于原B来源合同范围。
+
+当前缺口：本仓没有数据工作流测试客户端，既有bindDataSetCommandSubmit语义可复用但资源身份类型限定file；不能伪造designer.execution后端模型或文件来源。按既有完整工作包补数据层真实workflow-execution命令适配，使用原scope、原DataSet/DataView一次提交/原未知捕获，verify无实际服务查询协议则明确持续未知且禁止重放；业务页面不发HTTP。先以固定不存在目标负向核服务路由，再对独立确认的唯一停用只读查询夹具执行；完整流程的实例落库能力及清理合同须先核定。正式连线CRUD复用原Connectors视图，端点归属/重复/自连/环及未确认提交由本领域命令与原数据链承接；不把布局JSON当正式连线。以上与原工作卡同台账，不另起总计划，不改Java/启动部署后端。
+
+**B/C实施进度（当前未提交、有效执行未验收）。**已新增真实workflow-execution语义命令资源，复用原bindDataSetCommandSubmit，资源身份不再伪装file；请求retry=0，未知保留原捕获，服务无按请求核验协议时verify持续明确未知且不重发。正确包内配置11项执行资源测试通过，覆盖0/false/空/null、业务行保持、外来身份、未知重复核验0重放、失败结果与递归剥离内部权限回执；首次根vitest未选中colocated测试，已纠正，未以“未选中”当有效测试。实服唯一不存在节点负向1读1POST明确[1003]节点不存在；首探针因服务消息带代码前缀误标unknown，经目标已独立核空+原明确不存在响应核定为已知拒绝后释放旧诊断owner，新增前缀反例先红修正，再用新唯一负向目标复验knownRejection=true、子进程exit0，无定义写入、无实际节点执行。
+
+新增原Connectors领域新增/精确保存，原Graph.connectableKeys/onConnect接线；自连、重复、跨流程、开始/结束边界与环拒绝，取消0请求，未知保存沿原批次只读确认不重发；领域和页面定向回归已绿。新增测试面板直接绑定同DataSet命令输入/只读回执，未确认JSON输入与全页dirty/运行锁衔接，取消0执行，单节点0/false输入及回执绑定UI回归已绿。高阶发现整流成功子集误判success，已先红修正：响应接纳与complete/partial/unverified分开，外来节点不可接纳；条件分支不机械要求全图。新增WorkflowExecutionContext在显式整流执行前沿原关系查询视图按当前连线端点读取条件，捕获可达图及可证明必经节点；同端点重复条件拒绝，不在前端求值条件、不扩大普通保存。原关系视图保留；必经与条件分支领域回归已绿。当前12文件124工作流测试、11执行资源测试通过；新typecheck/受改ESLint及ClassModel正执行，未称最终门禁完成。
+
+只读实服核sys_edit来源：GetView经原设计DataView返回一个数据库表Base_AppSystemList，按rowid=GetInputParam(sysid)过滤，含数据库子表，无接口执行源；源码前端参数未声明类型保持未知。真实触发表唯一1FD4DFAF725F4F759A45700BC6838F3C、连接EBEFF17BBB6443B185D6FB32FF69F0BB、库QYVirtualPlat。完整测试的表触发启动行会按主键回库，必须配置这个真实触发表并以rowid启动，不将activeType临时改time绕过。Base_WorkflowNodeInstance当前正式模型查询为0条：整流可能异步生成实例，需先沿真实物理表来源建立可核验清理的正式SPARK data承接（不伪造后端模型/权限），或确认已有正式清理通道；在此之前不发有效整流执行。此为待补能力，不是全目标blocked，仍可推进参数化来源、单节点和连线完整链。
+
+本工位尚无新增正式夹具、无实际流程执行；上一轮11条仍全空。授权会话一次只读401后已正常刷新并完成1读来源结构核对，未重放写入。后续按同一完整工作卡继续有效夹具、祖先实际输出、整流实例精确清理；全目标active。
+
+**完整消费夹具已创建，待继续，不可重建。**7755BA4C36A64752A09527680B8F2D19，标记SMOKE_DATA_CHAIN_WORKFLOW_CONSUMPTION_1793658601528，短码SMF2D19。原链17读0写预检后3写47读确认停用定义、同ID参数定义及开始节点FE6F513F737167E35EA5B36478136FD0。定义触发表真实Base_AppSystemList/QYVirtualPlat/1FD4DFAF725F4F759A45700BC6838F3C，activeType=table、tableOperate=edit、status=2；参数Name=rowid、Value=本应用ID，保留额外成员。当前只有这3条临时记录，未清理、无unknown，不重跑create；独立生命周期脚本workflow-consumption-fixture及checkpoint持有原身份。尚未创建运行实例清理模型、查询A/B、结束节点、连线，尚未有效执行。
+
+纠正前文实例来源检索：实际Java常量为Base_Workflow_NodeInstance，按类名Base_WorkflowNodeInstance查空不是来源缺失证据。以实际表名重新核定：正式模型0，物理表唯一E7F71B1AADC24EFA914E8E0E7963FA29，QYVirtualPlat/EBEFF17BBB6443B185D6FB32FF69F0BB，18字段完整读取，实际主键rowid、node_id、workflow_instance_id、status；禁止猜camelCase列。sys_edit根来源DbId/DbName已独立GetView匹配同连接。高阶只读确认临时清理模型绑定真实物理来源、原数据权限与精确实例身份的方案无确定原则阻断；实例查询可用不代表每行删除可用，须由当次返回逐行核权；四节点实例须同一workflow_instance_id、终态后清理核空，不重跑整流、不猜额外主实例表落库。
+
+**消费夹具扩展已确认（仍未执行，待继续清理）。**同一7755BA4C36A64752A09527680B8F2D19中，浏览器经真实表来源创建临时清理模型1360452C6FF13895882EE85FF0423A0F，名称SMOKE_DATA_CHAIN_QUERY_MODEL_RUNTIME_0B8F2D19，绑定Base_Workflow_NodeInstance/QYVirtualPlat/EBEFF17BBB6443B185D6FB32FF69F0BB；18字段及附带查询节点FCAC42A05DF02BE154F0A8012BD84087均3读独立确认。仅将node_id（19339A0F2BEDE700D1D3AADA785647D1）、status（373B6D29914123B5EC41CDD99A91A15A）、workflow_instance_id（7384D9664449C884C4686BE7C1700D35）的IsOutput改1，原rowid主键输出保留；单次保存，6读独立核正式模型四输出及运行查询本次start.node_id返回0，未读取输入/输出日志正文。原source字段均来自18项正式物理字段，无伪造模型、文件或权限。创建与输出保存意图分别workflow-consumption-runtime-model-create-intent、runtime-output-save-intent，phase=confirmed，18精确新字段IDs见前者，不重建/重放。
+
+清理模型附带节点已按计划退役，以免进入执行图：边界脚本8读0写预检后，一次原节点DataSet混合新增/删除（1写17读）删除FCAC42A05DF02BE154F0A8012BD84087并创建结束节点B1E803B125E2F94E42EBB9E4B413BB5A（position_type=2、node_type=query），独立核只剩原开始与结束两节点、开始整行未变；boundary-intent phase=confirmed。清理模型与18字段保留到实例核空之后再删除。
+
+当前正式待清理共23条：定义1、参数1、开始1、结束1、清理模型1、字段18；无连线、无查询A/B、无运行实例、无unknown、无实际执行。浏览器tab6当前目录、此设计已正常关闭无草稿。下一步同夹具重开保存开始参数派生输出，UI创建sys_edit查询A/B与三条正式连线；映射A.sysid=START.rowid，真实单节点验证输出后再开放B对A的平面字段引用；再按同工作卡执行整流、终态实例精确回读/核权/删除核空及全部夹具清理。不得调用base create重建；base cleanup前须先清理结束/其他节点和所有模型/字段/连线/实例，使其只剩原三记录范围。
+
+**参数来源类型核对纠偏。**此前8D1默认查询没有返回parzdtype，不能据此认定工作流实际来源未声明类型。A创建后回读为varchar，最初“应为空”断言失败；未重放保存或改数据。已沿实际0DD8的_Base_ParamList正式模型+显式parzdtype投影5读0写核定：该字段已发布，来源参数AA6B31630F2840D0AF890B06AAF194C0（pid=sys_edit、parname=sysid）真实parzdtype=varchar；新模型与源一致。相应保护保留未发布类型的实现仍有效，但本例不是未发布类型验收。来源事实以实际宿主模型/投影为准，不以另一场景缺省输出替代。
+
+查询A已确认：模型84208BBFE4FC133DFC382DD959205B6E，节点20962673DE207205AFBC0759AE2AD752，31字段（30输出定义+sysid来源入参5D3954E771DE8D0EE32D54EF170CA7DD，FieldType=varchar、ValueFun空），Name=SMOKE_DATA_CHAIN_QUERY_MODEL_A_0B8F2D19、Type=视图、MetaName=sys_edit、DbId=D0624BDE07FA475B90D5653994A6493D、requestType=query。4读独立核2模型/3节点/49字段/0连接器；创建意图query-a-create-intent已phase=confirmed，精确31字段IDs见同文件，不可重建。开始输出单次保存已2读确认只有rowid平面输出，整份参数保留原字节；中途RAM读取401只刷新已授权会话再读，未重放写入。当前待清理56记录：原23+查询A模型1/字段31/节点1；尚无B、连线或实际执行，unknown0。
+
+
+**2026-11-03 完整消费工作卡真实阻断检查点（上述待清理记录已结束）。**同一7755BA4C36A64752A09527680B8F2D19中，UI创建查询B模型898E5AB0089B80EEEBEF9DD7C86809DC/节点3F2C34EE227F0B15748A89F66D9D7B77/31字段，独立回读确认；画布创建并逐条回读START→A→B→END三条连线。适配画布前误连START→B仅原生取消草稿，无提交。A来源sysid.ValueFun通过标准设置器保存为GetInputParam(START.rowid)，独立回读保留node.input_mapping/config。勾选A.rowid输出后真实触发过宽的“有下游一律阻断”守卫，保存前拒绝且草稿保留，无未知提交；两次拒绝均非后端写入。新增回归先红复现，现只在原输出rowid/pid/Name/FieldType/isParent完整保留时允许增量输出，仍阻止删除/重命名，原DataSet同步保存字段与输出目录。开发热更新重建工作区后重新从已保存定义勾选，真实回读确认输出字段23ADA85AA4682F36A361AFB7B5B25EEC与items/Count原根ID同时保留；不把开发热更新当成草稿持久化。
+
+经原WorkflowExecution语义资源/DataSet仅发一次A单节点实服测试，输入为START到完整rowid业务行数组；服务返回“[1004] 节点执行失败；根因：请填写合适的分页参数！”。原请求按unknown保留、禁止重跑，浏览器锁住关闭/取消/执行；未凭500认定没有副作用。随后沿真实Base_Workflow_NodeInstance清理模型按本轮四节点ID查询0条，无运行实例可删。没有执行B或完整流程，不开放尚未实服核定的查询层次输出候选，不称A→B/整流通过。本机Java当前源码有分页处理，仅为参考，不能证明实际部署已支持；不改/启动/部署后端，不增未确认分页协议。截图artifacts/data-chain-smoke/workflow-consumption-single-a-service-blocker.png，单次执行意图已记unknown/noReplay，机器可读证据evidence/data-chain-smoke/2026-11-03-workflow-consumption-checkpoint.json。
+
+清理9读0写逐行权限/精确身份预检后，按边→额外节点→80字段→3模型，原DataSet四写十八读确认89条附加记录独立不存在；再原基础脚本三写六十读确认开始/参数/定义三条不存在。本轮92条临时正式记录全清理，当前正式待清理0；执行结果unknown审计保留不重放，不能把夹具核空当作原执行结果核验。高阶限定静态复核无新增确定阻断。125工作流测试与12执行资源测试已绿、全仓lint exit0；最新typecheck/前端打包/正式ClassModel最终检查仍执行，完成后补结果。C实际执行消费仍开放，A类型/计算字段、完整1:1布局/四文件及其余全页链路继续同总目标active。
+
+
+本轮最终验证补录：125工作流测试（12文件）、12执行资源测试（独立package配置）、typecheck、全仓lint及pages-config/workflow-designs/page-thin/docs均exit0；正式ClassModel编译生成完成。首次build:fe与生成并行时manifest短暂被替换导致失败，属本次检查调度错误；待生成完全结束后顺序重跑build:fe exit0，不隐瞒首轮失败。25份生成文件经完整JSON去generatedAt/编译器编号/JSONSchema required集合顺序比较完全等价后git restore，保留真实服务资源语义、来源类型JSDoc、新类/视图及manifest/semantic-gaps实际产物，不手改生成文件。高阶限定复核未发现新增确定阻断。当前数据夹具0，原执行unknown审计不重放，A→B/整流明确未通过，全目标继续active；下一轮先核现有服务分页正式合同与最小可验证路径，不改Java、不以本地源码或定义保存冒充执行通过。

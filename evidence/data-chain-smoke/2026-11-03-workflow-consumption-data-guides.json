@@ -1,0 +1,207 @@
+[
+  {
+    "kind": "WorkflowExecutionResource",
+    "catalog": {
+      "rootKind": "WorkflowExecutionResource",
+      "models": [
+        {
+          "kind": "WorkflowExecutionResource",
+          "name": "WorkflowExecutionResource",
+          "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+          "summary": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowExecutionResource",
+      "models": [
+        {
+          "kind": "WorkflowExecutionResource",
+          "name": "WorkflowExecutionResource",
+          "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+          "summary": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: WorkflowExecutionResourceInput)"
+          },
+          "attributes": [
+            {
+              "name": "requests",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。\nclass WorkflowExecutionResource {\n  constructor(input: WorkflowExecutionResourceInput)\n  readonly requests: DataView\n}"
+  },
+  {
+    "kind": "WorkflowExecutionGraph",
+    "catalog": {
+      "rootKind": "WorkflowExecutionGraph",
+      "models": [
+        {
+          "kind": "WorkflowExecutionGraph",
+          "name": "WorkflowExecutionGraph",
+          "jsdoc": "本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。",
+          "summary": "本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowExecutionGraph",
+      "models": [
+        {
+          "kind": "WorkflowExecutionGraph",
+          "name": "WorkflowExecutionGraph",
+          "jsdoc": "本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。",
+          "summary": "本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "workflowId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "nodeIds",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string[]"
+            },
+            {
+              "name": "requiredNodeIds",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string[]"
+            },
+            {
+              "name": "conditional",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "false | true"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: WorkflowExecutionGraph = Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>\n * DTS relation: alias Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>\n */\n本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。\ntype WorkflowExecutionGraph {\n  readonly workflowId: string\n  readonly nodeIds: string[]\n  readonly requiredNodeIds: string[]\n  readonly conditional: false | true\n}"
+  },
+  {
+    "kind": "WorkflowExecutionContext",
+    "catalog": {
+      "rootKind": "WorkflowExecutionContext",
+      "models": [
+        {
+          "kind": "WorkflowExecutionContext",
+          "name": "WorkflowExecutionContext",
+          "jsdoc": "执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。",
+          "summary": "执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowExecutionContext",
+      "models": [
+        {
+          "kind": "WorkflowExecutionContext",
+          "name": "WorkflowExecutionContext",
+          "jsdoc": "执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。",
+          "summary": "执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(ds: DataSet, workflowId: string, guard: () => void)"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。",
+              "summary": "只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。",
+              "signature": "load(): Promise<void>"
+            },
+            {
+              "name": "capture",
+              "jsdoc": "图完整性与分支可证性分别表达；不在前端求值服务端条件。",
+              "summary": "图完整性与分支可证性分别表达；不在前端求值服务端条件。",
+              "signature": "capture(): WorkflowExecutionGraph"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。\nclass WorkflowExecutionContext {\n  constructor(ds: DataSet, workflowId: string, guard: () => void)\n  只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。\n  load(): Promise<void>\n  图完整性与分支可证性分别表达；不在前端求值服务端条件。\n  capture(): WorkflowExecutionGraph\n  dispose(): void\n}"
+  },
+  {
+    "kind": "WorkflowConnectors",
+    "catalog": {
+      "rootKind": "WorkflowConnectors",
+      "models": [
+        {
+          "kind": "WorkflowConnectors",
+          "name": "WorkflowConnectors",
+          "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "summary": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowConnectors",
+      "models": [
+        {
+          "kind": "WorkflowConnectors",
+          "name": "WorkflowConnectors",
+          "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "summary": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "constructorSignature": {
+            "summary": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+            "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "add",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "add(ds: DataSet, workflowId: string, edge: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>): Promise<string>"
+            },
+            {
+              "name": "save",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "save(ds: DataSet, workflowId: string, edgeId: string): Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。\nclass WorkflowConnectors {\n  只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。\n  constructor()\n  add(ds: DataSet, workflowId: string, edge: Readonly<{\n          source: string | number;\n          target: string | number;\n      }>): Promise<string>\n  save(ds: DataSet, workflowId: string, edgeId: string): Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>\n}"
+  }
+]

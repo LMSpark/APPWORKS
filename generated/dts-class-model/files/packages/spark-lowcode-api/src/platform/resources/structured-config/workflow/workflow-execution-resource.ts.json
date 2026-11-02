@@ -1,0 +1,271 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow/workflow-execution-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/workflow/workflow-execution-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow/workflow-execution-resource\n职责：数据工作流的单节点/整流测试作为真实服务命令接入原DataSet保存链。\n边界：执行可能产生业务副作用；不重试、不伪造幂等或核验协议，不把失败节点当成功。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowExecutionGraph",
+      "WorkflowExecutionResource"
+    ]
+  },
+  "$defs": {
+    "WorkflowExecutionGraph": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionGraph",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "requiredNodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "conditional": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "workflowId",
+        "nodeIds",
+        "requiredNodeIds",
+        "conditional"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowExecutionResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionResourceInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "http": {
+          "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "workflowId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.graph.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.graph.return": {
+          "$ref": "#/$defs/WorkflowExecutionGraph"
+        },
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "object",
+          "properties": {
+            "token": {
+              "type": "string"
+            },
+            "headers": {
+              "type": "object",
+              "title": "Record<string, string>"
+            }
+          },
+          "required": [
+            "token",
+            "headers"
+          ],
+          "additionalProperties": false
+        },
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true
+      }
+    },
+    "WorkflowExecutionResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionResource",
+      "properties": {
+        "requests": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/WorkflowExecutionResourceInput"
+            }
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T22:16:21.044Z",
+  "models": {
+    "WorkflowExecutionGraph": {
+      "name": "WorkflowExecutionGraph",
+      "jsdoc": "本次执行从正式定义捕获的可达节点与必经结果；条件分支未核定时不能宣称整流完整。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    nodeIds: readonly string[];\n    requiredNodeIds: readonly string[];\n    conditional: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "requiredNodeIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "conditional",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionResourceInput": {
+      "name": "WorkflowExecutionResourceInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "graph",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "WorkflowExecutionGraph",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+              }
+            },
+            {
+              "name": "readScope",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "guard",
+              "jsdoc": "当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionResource": {
+      "name": "WorkflowExecutionResource",
+      "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: WorkflowExecutionResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "WorkflowExecutionResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "requests",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,619 @@
+[
+  {
+    "kind": "RJsonProps",
+    "catalog": {
+      "rootKind": "RJsonProps",
+      "models": [
+        {
+          "kind": "RJsonProps",
+          "name": "RJsonProps",
+          "jsdoc": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "summary": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldJson",
+            "type": "r-json",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RJsonProps",
+      "models": [
+        {
+          "kind": "RJsonProps",
+          "name": "RJsonProps",
+          "jsdoc": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "summary": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldJson",
+            "type": "r-json",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "mode",
+              "jsdoc": "默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。",
+              "summary": "默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。",
+              "typeText": "\"text\" | \"tree\" | \"table\" | \"rows\" | \"properties\" | \"form\" | \"outline\""
+            },
+            {
+              "name": "outlineChildrenField",
+              "jsdoc": "outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。",
+              "summary": "outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。",
+              "typeText": "string"
+            },
+            {
+              "name": "selectedPath",
+              "jsdoc": "outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。",
+              "summary": "outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。",
+              "typeText": "JsonPath | null"
+            },
+            {
+              "name": "valueFormat",
+              "jsdoc": "绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。",
+              "summary": "绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。",
+              "typeText": "\"text\" | \"native\""
+            },
+            {
+              "name": "valuePath",
+              "jsdoc": "编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。",
+              "summary": "编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。",
+              "typeText": "JsonPath"
+            },
+            {
+              "name": "emptyValue",
+              "jsdoc": "native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。",
+              "summary": "native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。",
+              "typeText": "JsonValue"
+            },
+            {
+              "name": "schema",
+              "jsdoc": "properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\nform模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。",
+              "summary": "properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。",
+              "typeText": "JsonSchemaObject"
+            },
+            {
+              "name": "treePolicy",
+              "jsdoc": "tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。",
+              "summary": "tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。",
+              "typeText": "JsonTreePolicy"
+            },
+            {
+              "name": "valueLabel",
+              "jsdoc": "properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。",
+              "summary": "properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。",
+              "typeText": "string"
+            },
+            {
+              "name": "height",
+              "jsdoc": "编辑区域高度，省略时320像素。",
+              "summary": "编辑区域高度，省略时320像素。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "maxHeight",
+              "jsdoc": "rows模式的最大高度；设置后按内容收缩，不强制height。",
+              "summary": "rows模式的最大高度；设置后按内容收缩，不强制height。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "includeQueryInfo",
+              "jsdoc": "dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。",
+              "summary": "dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。",
+              "summary": "rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "reorderable",
+              "jsdoc": "rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。",
+              "summary": "rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "rowAdapter",
+              "jsdoc": "rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。",
+              "summary": "rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。",
+              "typeText": "JsonArrayRowAdapter"
+            },
+            {
+              "name": "rowEditMode",
+              "jsdoc": "rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。",
+              "summary": "rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。",
+              "typeText": "\"row\" | \"inline\""
+            }
+          ],
+          "methods": [
+            {
+              "name": "onSelectedPathChange",
+              "jsdoc": "outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。",
+              "summary": "outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。",
+              "signature": "onSelectedPathChange(path: JsonPath | null): void"
+            },
+            {
+              "name": "onEditingChange",
+              "jsdoc": "rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。",
+              "summary": "rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。",
+              "signature": "onEditingChange(editing: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-json; name=FieldJson; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<string>\n * DTS relation: intersection {\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}\n */\nmodelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。\ntype RJsonProps {\n  默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。\n  readonly mode: \"text\" | \"tree\" | \"table\" | \"rows\" | \"properties\" | \"form\" | \"outline\"\n  outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。\n  readonly outlineChildrenField: string\n  outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。\n  readonly selectedPath: JsonPath | null\n  绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。\n  readonly valueFormat: \"text\" | \"native\"\n  编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。\n  readonly valuePath: JsonPath\n  native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。\n  readonly emptyValue: JsonValue\n  properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n  form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。\n  readonly schema: JsonSchemaObject\n  tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。\n  readonly treePolicy: JsonTreePolicy\n  properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。\n  readonly valueLabel: string\n  编辑区域高度，省略时320像素。\n  readonly height: number | string\n  rows模式的最大高度；设置后按内容收缩，不强制height。\n  readonly maxHeight: number | string\n  dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。\n  readonly includeQueryInfo: boolean\n  rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。\n  readonly toolbar: RToolbarProps\n  rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。\n  readonly reorderable: boolean\n  rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。\n  readonly rowAdapter: JsonArrayRowAdapter\n  rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。\n  readonly rowEditMode: \"row\" | \"inline\"\n  outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。\n  onSelectedPathChange(path: JsonPath | null): void\n  rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。\n  onEditingChange(editing: boolean): void\n}"
+  },
+  {
+    "kind": "RFormProps",
+    "catalog": {
+      "rootKind": "RFormProps",
+      "models": [
+        {
+          "kind": "RFormProps",
+          "name": "RFormProps",
+          "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+          "summary": "r-form 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkCrudDataContainerProps",
+              "targetName": "SparkCrudDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererForm",
+            "type": "r-form",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RFormProps",
+      "models": [
+        {
+          "kind": "RFormProps",
+          "name": "RFormProps",
+          "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+          "summary": "r-form 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkCrudDataContainerProps",
+              "targetName": "SparkCrudDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererForm",
+            "type": "r-form",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "gridMinWidth",
+              "jsdoc": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "summary": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "typeText": "string"
+            },
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表单容器使用的 DataView 数据线。",
+              "summary": "显式收窄为表单容器使用的 DataView 数据线。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏",
+              "summary": "结构化工具栏",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "contextDataMember",
+              "jsdoc": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "summary": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "typeText": "\"page\" | \"rows\" | \"total\" | \"requestState\" | \"value\" | \"columns\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\""
+            },
+            {
+              "name": "contextDataField",
+              "jsdoc": "上下文成员内部业务字段或点路径。",
+              "summary": "上下文成员内部业务字段或点路径。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "summary": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "labelWidth",
+              "jsdoc": "表单标签宽度",
+              "summary": "表单标签宽度",
+              "typeText": "string"
+            },
+            {
+              "name": "formProps",
+              "jsdoc": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。",
+              "summary": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。",
+              "typeText": "Record<string, unknown>"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-form; name=RendererForm; level=table-level; layer=data-view-container; directory=containers/data-views */\n/**\n * DTS declaration: RFormProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkCrudDataContainerProps\n * DTS relation: intersection SparkGridLayoutProps\n * DTS relation: intersection {\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}\n */\nr-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。\ntype RFormProps {\n  每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。\n  readonly gridMinWidth: string\n  显式收窄为表单容器使用的 DataView 数据线。\n  readonly dataSource: DataView\n  结构化工具栏\n  readonly toolbar: RToolbarProps\n  上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。\n  readonly contextDataMember: \"page\" | \"rows\" | \"total\" | \"requestState\" | \"value\" | \"columns\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\"\n  上下文成员内部业务字段或点路径。\n  readonly contextDataField: string\n  无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。\n  readonly autoColumns: false | true\n  表单标签宽度\n  readonly labelWidth: string\n  透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。\n  readonly formProps: Record<string, unknown>\n}"
+  },
+  {
+    "kind": "RButtonProps",
+    "catalog": {
+      "rootKind": "RButtonProps",
+      "models": [
+        {
+          "kind": "RButtonProps",
+          "name": "RButtonProps",
+          "jsdoc": "RButton Props 的属性契约。",
+          "summary": "RButton Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererButton",
+            "type": "r-button",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RButtonProps",
+      "models": [
+        {
+          "kind": "RButtonProps",
+          "name": "RButtonProps",
+          "jsdoc": "RButton Props 的属性契约。",
+          "summary": "RButton Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererButton",
+            "type": "r-button",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          },
+          "attributes": [
+            {
+              "name": "permAction",
+              "jsdoc": "自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。",
+              "summary": "自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。",
+              "typeText": "\"create\" | \"edit\" | \"delete\" | \"create-child\""
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。",
+              "summary": "业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "action",
+              "jsdoc": "CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\nappend-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。",
+              "summary": "CRUD 或页面动作名，由宿主内置 action runner 接管执行。",
+              "typeText": "BuiltinActionName"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\nappend-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。",
+              "summary": "目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。",
+              "typeText": "string"
+            },
+            {
+              "name": "idField",
+              "jsdoc": "目标行主键字段名。\n@default \"id\"",
+              "summary": "目标行主键字段名。",
+              "typeText": "string"
+            },
+            {
+              "name": "appendPayload",
+              "jsdoc": "append-row/prompt-append 新行初始字段值。\n适合写入固定状态，例如 {\"status\":\"pending\"}。\n@default {}",
+              "summary": "append-row/prompt-append 新行初始字段值。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "inheritFields",
+              "jsdoc": "append-row/prompt-append 从当前作用域行复制到新行的字段名。\n表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n@default []",
+              "summary": "append-row/prompt-append 从当前作用域行复制到新行的字段名。",
+              "typeText": "string[]"
+            },
+            {
+              "name": "inheritFieldMap",
+              "jsdoc": "append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\nkey 是源字段，value 是新行目标字段。\n@default {}",
+              "summary": "append-row/prompt-append 从当前作用域行复制并重命名的字段映射。",
+              "typeText": "Record<string, string>"
+            },
+            {
+              "name": "setCurrentRowOnSuccess",
+              "jsdoc": "新增成功后是否将新行设为目标视图 currentRow。\n@default false",
+              "summary": "新增成功后是否将新行设为目标视图 currentRow。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "patch",
+              "jsdoc": "patch-row/patch-current/patch-selected 的静态更新字段。\n用于批量写入固定值，例如 {\"status\":\"approved\"}。\n@default {}",
+              "summary": "patch-row/patch-current/patch-selected 的静态更新字段。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "field",
+              "jsdoc": "prompt/patch/set-field 使用的单字段名。\nfield/value 成对出现时，只更新一个字段。",
+              "summary": "prompt/patch/set-field 使用的单字段名。",
+              "typeText": "string"
+            },
+            {
+              "name": "value",
+              "jsdoc": "patch/set-field 使用的单字段值。\n与 field 配合使用。",
+              "summary": "patch/set-field 使用的单字段值。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "then",
+              "jsdoc": "当前内置动作成功后的链式动作。\n例如 append-row 成功后再 patch-current 清空草稿表单。",
+              "summary": "当前内置动作成功后的链式动作。",
+              "typeText": "ActionDescriptor"
+            },
+            {
+              "name": "successMessage",
+              "jsdoc": "操作成功后的提示文案。\n@default \"\"",
+              "summary": "操作成功后的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "failureMessage",
+              "jsdoc": "操作失败后的提示文案。\n@default \"\"",
+              "summary": "操作失败后的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "emptyMessage",
+              "jsdoc": "数据源为空或目标行不存在时的提示文案。\n@default \"\"",
+              "summary": "数据源为空或目标行不存在时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "errorMessage",
+              "jsdoc": "运行时异常时的提示文案。\n@default \"\"",
+              "summary": "运行时异常时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "validateMessage",
+              "jsdoc": "表单校验失败时的提示文案。\n@default \"\"",
+              "summary": "表单校验失败时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmMessage",
+              "jsdoc": "操作前确认文案；空字符串表示跳过确认。\n@default \"\"",
+              "summary": "操作前确认文案；空字符串表示跳过确认。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmTitle",
+              "jsdoc": "操作前确认标题。\n@default \"\"",
+              "summary": "操作前确认标题。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmType",
+              "jsdoc": "操作前确认类型。\n由 UI 消息组件解释，常见值为 warning、info、success、error。\n@default \"warning\"",
+              "summary": "操作前确认类型。",
+              "typeText": "string"
+            },
+            {
+              "name": "silent",
+              "jsdoc": "静默模式；成功/失败提示不展示。\n@default false",
+              "summary": "静默模式；成功/失败提示不展示。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "disabledWhenRow",
+              "jsdoc": "当前行字段值匹配此对象时禁用按钮。\n常用于 status 等字段控制操作可用性。\n@default {}",
+              "summary": "当前行字段值匹配此对象时禁用按钮。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "template",
+              "jsdoc": "样式模板名。\n常见值如 primary、toolbar-danger、icon-add。",
+              "summary": "样式模板名。",
+              "typeText": "string"
+            },
+            {
+              "name": "label",
+              "jsdoc": "按钮文本。\n@default \"\"",
+              "summary": "按钮文本。",
+              "typeText": "string"
+            },
+            {
+              "name": "buttonType",
+              "jsdoc": "按钮类型。\n传给底层按钮组件的视觉类型。",
+              "summary": "按钮类型。",
+              "typeText": "string"
+            },
+            {
+              "name": "buttonSize",
+              "jsdoc": "按钮尺寸。\nElement Plus 按钮尺寸只允许 default、small、large。\n@default \"default\"",
+              "summary": "按钮尺寸。",
+              "typeText": "string"
+            },
+            {
+              "name": "plain",
+              "jsdoc": "是否朴素按钮。\n@default false",
+              "summary": "是否朴素按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "text",
+              "jsdoc": "是否文本按钮。\n@default false",
+              "summary": "是否文本按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "bg",
+              "jsdoc": "文本按钮是否显示背景。\n@default false",
+              "summary": "文本按钮是否显示背景。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "link",
+              "jsdoc": "是否链接风格。\n@default false",
+              "summary": "是否链接风格。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "round",
+              "jsdoc": "是否圆角。\n@default false",
+              "summary": "是否圆角。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "circle",
+              "jsdoc": "是否圆形按钮。\n@default false",
+              "summary": "是否圆形按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "loading",
+              "jsdoc": "是否加载中。\n@default false",
+              "summary": "是否加载中。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "icon",
+              "jsdoc": "图标名称。\n使用当前图标注册表中的图标名。",
+              "summary": "图标名称。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoInsertSpace",
+              "jsdoc": "中文按钮文案是否自动插空格。\n@default false",
+              "summary": "中文按钮文案是否自动插空格。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "color",
+              "jsdoc": "自定义颜色。\n传给底层按钮组件的颜色值。",
+              "summary": "自定义颜色。",
+              "typeText": "string"
+            },
+            {
+              "name": "dark",
+              "jsdoc": "是否使用深色主题。\n@default false",
+              "summary": "是否使用深色主题。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onClick",
+              "jsdoc": "自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。",
+              "summary": "自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。",
+              "signature": "onClick(args: ...unknown[]): unknown"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-button; name=RendererButton; level=container; layer=layout-container; directory=containers/layout */\n/**\n * DTS declaration: RButtonProps = SparkNodeProps & {\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection {\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}\n */\nRButton Props 的属性契约。\ntype RButtonProps {\n  自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n  省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n  批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n  readonly permAction: \"create\" | \"edit\" | \"delete\" | \"create-child\"\n  业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。\n  readonly disabled: boolean\n  CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n  新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n  append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n  readonly action: BuiltinActionName\n  目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n  append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n  完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n  readonly dataViewKey: string\n  目标行主键字段名。\n  @default \"id\"\n  readonly idField: string\n  append-row/prompt-append 新行初始字段值。\n  适合写入固定状态，例如 {\"status\":\"pending\"}。\n  @default {}\n  readonly appendPayload: Record<string, unknown>\n  append-row/prompt-append 从当前作用域行复制到新行的字段名。\n  表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n  @default []\n  readonly inheritFields: string[]\n  append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n  key 是源字段，value 是新行目标字段。\n  @default {}\n  readonly inheritFieldMap: Record<string, string>\n  新增成功后是否将新行设为目标视图 currentRow。\n  @default false\n  readonly setCurrentRowOnSuccess: boolean\n  patch-row/patch-current/patch-selected 的静态更新字段。\n  用于批量写入固定值，例如 {\"status\":\"approved\"}。\n  @default {}\n  readonly patch: Record<string, unknown>\n  prompt/patch/set-field 使用的单字段名。\n  field/value 成对出现时，只更新一个字段。\n  readonly field: string\n  patch/set-field 使用的单字段值。\n  与 field 配合使用。\n  readonly value: unknown\n  当前内置动作成功后的链式动作。\n  例如 append-row 成功后再 patch-current 清空草稿表单。\n  readonly then: ActionDescriptor\n  操作成功后的提示文案。\n  @default \"\"\n  readonly successMessage: string\n  操作失败后的提示文案。\n  @default \"\"\n  readonly failureMessage: string\n  数据源为空或目标行不存在时的提示文案。\n  @default \"\"\n  readonly emptyMessage: string\n  运行时异常时的提示文案。\n  @default \"\"\n  readonly errorMessage: string\n  表单校验失败时的提示文案。\n  @default \"\"\n  readonly validateMessage: string\n  操作前确认文案；空字符串表示跳过确认。\n  @default \"\"\n  readonly confirmMessage: string\n  操作前确认标题。\n  @default \"\"\n  readonly confirmTitle: string\n  操作前确认类型。\n  由 UI 消息组件解释，常见值为 warning、info、success、error。\n  @default \"warning\"\n  readonly confirmType: string\n  静默模式；成功/失败提示不展示。\n  @default false\n  readonly silent: boolean\n  当前行字段值匹配此对象时禁用按钮。\n  常用于 status 等字段控制操作可用性。\n  @default {}\n  readonly disabledWhenRow: Record<string, unknown>\n  样式模板名。\n  常见值如 primary、toolbar-danger、icon-add。\n  readonly template: string\n  按钮文本。\n  @default \"\"\n  readonly label: string\n  按钮类型。\n  传给底层按钮组件的视觉类型。\n  readonly buttonType: string\n  按钮尺寸。\n  Element Plus 按钮尺寸只允许 default、small、large。\n  @default \"default\"\n  readonly buttonSize: string\n  是否朴素按钮。\n  @default false\n  readonly plain: boolean\n  是否文本按钮。\n  @default false\n  readonly text: boolean\n  文本按钮是否显示背景。\n  @default false\n  readonly bg: boolean\n  是否链接风格。\n  @default false\n  readonly link: boolean\n  是否圆角。\n  @default false\n  readonly round: boolean\n  是否圆形按钮。\n  @default false\n  readonly circle: boolean\n  是否加载中。\n  @default false\n  readonly loading: boolean\n  图标名称。\n  使用当前图标注册表中的图标名。\n  readonly icon: string\n  中文按钮文案是否自动插空格。\n  @default false\n  readonly autoInsertSpace: boolean\n  自定义颜色。\n  传给底层按钮组件的颜色值。\n  readonly color: string\n  是否使用深色主题。\n  @default false\n  readonly dark: boolean\n  自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。\n  onClick(args: ...unknown[]): unknown\n}"
+  }
+]

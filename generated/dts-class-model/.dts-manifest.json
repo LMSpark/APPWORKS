@@ -2624,7 +2624,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-10-25T12:52:48.865Z"
+      "sourceModifiedAt": "2026-11-02T21:50:49.945Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -3034,7 +3034,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-02T13:21:29.495Z"
+      "sourceModifiedAt": "2026-11-02T22:12:12.332Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3285,6 +3285,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts.json",
       "sourceModifiedAt": "2026-11-02T01:02:39.809Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts.json",
+      "sourceModifiedAt": "2026-11-02T22:16:21.044Z"
     },
     "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
@@ -3759,7 +3764,7 @@
     "src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts.json",
-      "sourceModifiedAt": "2026-11-02T05:07:47.129Z"
+      "sourceModifiedAt": "2026-11-02T22:21:02.243Z"
     },
     "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts",
@@ -4176,6 +4181,16 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
       "sourceModifiedAt": "2026-11-02T16:31:43.839Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/connectors.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connectors.ts.json",
+      "sourceModifiedAt": "2026-11-02T22:08:52.391Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json",
+      "sourceModifiedAt": "2026-11-02T22:21:02.242Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/layout-document.ts.json",
@@ -4189,7 +4204,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-fields.ts.json",
-      "sourceModifiedAt": "2026-11-02T21:28:50.336Z"
+      "sourceModifiedAt": "2026-11-02T22:59:13.303Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
@@ -4199,7 +4214,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json",
-      "sourceModifiedAt": "2026-11-02T19:10:22.756Z"
+      "sourceModifiedAt": "2026-11-02T21:47:34.643Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
@@ -4984,7 +4999,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T21:24:44.159Z"
+      "sourceModifiedAt": "2026-11-02T22:05:30.258Z"
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue.json",
+      "sourceModifiedAt": "2026-11-02T22:16:21.045Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",

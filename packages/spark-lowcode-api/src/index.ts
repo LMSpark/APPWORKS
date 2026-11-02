@@ -148,3 +148,5 @@ export type {
   LowcodeSessionStorage,
   LowcodeSessionStoreOptions,
 } from './platform/lowcode-session-store.js'
+export {WorkflowExecutionResource} from './platform/resources/structured-config/workflow/workflow-execution-resource'
+export type {WorkflowExecutionGraph} from './platform/resources/structured-config/workflow/workflow-execution-resource'

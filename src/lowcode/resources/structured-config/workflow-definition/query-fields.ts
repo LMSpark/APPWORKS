@@ -72,10 +72,16 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.effective['ValueFun'])
  if(action==='save'&&(values.length||Object.hasOwn(modelPatch,'Filter')))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(modelPatch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}: {}})
  const structural=selected.some(item=>Object.hasOwn(item.patch,'AsName')||Object.hasOwn(item.patch,'IsOutput'))
- if(action==='save'&&structural&&edges.rows.some(row=>nodeIds.includes(String(read(edges,row,'sourceID')))))throw Error('当前查询输出存在下游连接；下游引用迁移尚未核定，原草稿保留')
  const outputs=affected.flatMap(row=>{
   const id=String(nodes.getPkKey(row)),original=read(nodes,row,'output_mapping')
-  const output=JSON.stringify(buildWorkflowQueryOutput({workflowId,modelId,fields:projected.map(item=>item.effective),original}))
+  const next=buildWorkflowQueryOutput({workflowId,modelId,fields:projected.map(item=>item.effective),original})
+  if(action==='save'&&structural&&edges.rows.some(edge=>read(edges,edge,'sourceID')===id)){
+   const previous=typeof original==='string'?parseJsonDocument(original):original
+   const retained=Array.isArray(previous)&&previous.every(entry=>entry!==null&&typeof entry==='object'&&next.some(candidate=>
+    ['rowid','pid','Name','FieldType','isParent'].every(key=>candidate[key]===(entry as Record<string,unknown>)[key])))
+   if(!retained)throw Error('当前查询输出存在下游连接；下游引用迁移尚未核定，原草稿保留')
+  }
+  const output=JSON.stringify(next)
   const patch=changes(nodes,row,id)
   const equal=(left:unknown)=>JSON.stringify(typeof left==='string'?parseJsonDocument(left):left)===output
   if(Object.hasOwn(patch,'output_mapping')&&!equal(patch['output_mapping']))throw Error('节点输出存在独立修改，不能覆盖')

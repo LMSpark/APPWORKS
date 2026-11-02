@@ -1,5 +1,5 @@
 {
-  "gapCount": 3510,
+  "gapCount": 3529,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -6035,17 +6035,6 @@
       "declarationKind": "typeAlias"
     },
     {
-      "kind": "model",
-      "className": "DataSetCommandResourceIdentity",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSetCommandResourceIdentity 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 11,
-      "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "attribute",
       "className": "DataSetCommandResourceIdentity",
       "memberName": "resourceType",
@@ -6053,7 +6042,7 @@
       "chainBreak": "DataSetCommandResourceIdentity.resourceType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6065,7 +6054,7 @@
       "chainBreak": "DataSetCommandResourceIdentity.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6076,7 +6065,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 15,
+      "declarationLine": 16,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6088,7 +6077,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.resource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 16,
+      "declarationLine": 17,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6100,7 +6089,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.guard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 17,
+      "declarationLine": 18,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6112,7 +6101,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.loadRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6124,7 +6113,7 @@
       "chainBreak": "BindReadonlyCommandQueryOptions.queryColumns 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6135,7 +6124,7 @@
       "chainBreak": "EnsureDataSetFileCommandViewInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6147,7 +6136,7 @@
       "chainBreak": "EnsureDataSetFileCommandViewInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 24,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6159,7 +6148,7 @@
       "chainBreak": "EnsureDataSetFileCommandViewInput.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 25,
+      "declarationLine": 26,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6171,7 +6160,7 @@
       "chainBreak": "EnsureDataSetFileCommandViewInput.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 26,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6183,7 +6172,7 @@
       "chainBreak": "EnsureDataSetFileCommandViewInput.columns 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 27,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6195,7 +6184,7 @@
       "chainBreak": "BindCommandSubmitOptions.resource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 42,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6207,7 +6196,7 @@
       "chainBreak": "BindCommandSubmitOptions.guard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 43,
+      "declarationLine": 44,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6219,7 +6208,7 @@
       "chainBreak": "BindCommandSubmitOptions.inputFields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 44,
+      "declarationLine": 45,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6231,7 +6220,7 @@
       "chainBreak": "BindCommandSubmitOptions.createKey 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 45,
+      "declarationLine": 46,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6243,7 +6232,7 @@
       "chainBreak": "BindCommandSubmitOptions.submit 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 46,
+      "declarationLine": 47,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6255,7 +6244,7 @@
       "chainBreak": "BindCommandSubmitOptions.verify 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 47,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6267,7 +6256,7 @@
       "chainBreak": "BindCommandSubmitOptions.isUnconfirmed 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 48,
+      "declarationLine": 49,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -17384,6 +17373,160 @@
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
       "declarationLine": 22,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow/workflow-execution-resource",
+      "moduleName": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow/workflow-execution-resource",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/workflow/workflow-execution-resource 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionGraph",
+      "memberName": "workflowId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionGraph.workflowId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 10,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionGraph",
+      "memberName": "nodeIds",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionGraph.nodeIds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 11,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionGraph",
+      "memberName": "requiredNodeIds",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionGraph.requiredNodeIds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 12,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionGraph",
+      "memberName": "conditional",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionGraph.conditional 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "WorkflowExecutionResourceInput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResourceInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 15,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionResourceInput",
+      "memberName": "dataSet",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResourceInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 16,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionResourceInput",
+      "memberName": "http",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResourceInput.http 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 17,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionResourceInput",
+      "memberName": "workflowId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResourceInput.workflowId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 18,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowExecutionResourceInput",
+      "memberName": "graph",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResourceInput.graph 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 19,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowExecutionResourceInput",
+      "memberName": "readScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResourceInput.readScope 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 20,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "WorkflowExecutionResource",
+      "memberName": "requests",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResource.requests 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 31,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "WorkflowExecutionResource",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "declarationLine": 32,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
       "declarationKind": "class"
     },
     {
@@ -35726,6 +35869,76 @@
       "declarationKind": "class"
     },
     {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/connectors",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/connectors",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/connectors 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connectors.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectors",
+      "memberName": "add",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectors.add 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connectors.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectors",
+      "memberName": "save",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectors.save 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connectors.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/execution-context",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/execution-context",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/execution-context 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/execution-context.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts"
+    },
+    {
+      "kind": "constructor",
+      "className": "WorkflowExecutionContext",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionContext.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/execution-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowExecutionContext",
+      "memberName": "dispose",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowExecutionContext.dispose 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/execution-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "declarationLine": 20,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "declarationKind": "class"
+    },
+    {
       "kind": "model",
       "className": "Point",
       "reason": "missing-jsdoc",
@@ -41520,6 +41733,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel",
+      "moduleName": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue"
     },
     {
       "kind": "module",

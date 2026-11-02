@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/connectors",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/connectors",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/connectors\n职责：正式工作流连线的端点/环校验与原DataView新增、精确保存。\n边界：连线不是布局；不复制节点或草稿，未知提交仅沿原DataSet核验，不重复新增。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowConnectors"
+    ]
+  },
+  "$defs": {
+    "WorkflowConnectors": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowConnectors",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.add.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "edge": {
+              "type": "object",
+              "properties": {
+                "source": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                },
+                "target": {
+                  "anyOf": [
+                    {
+                      "type": "string"
+                    },
+                    {
+                      "type": "number"
+                    }
+                  ]
+                }
+              },
+              "required": [
+                "source",
+                "target"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.add.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "ds": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "edgeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T22:08:52.391Z",
+  "models": {
+    "WorkflowConnectors": {
+      "name": "WorkflowConnectors",
+      "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "add",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "edge",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        source: string | number;\n        target: string | number;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [
+                {
+                  "name": "ds",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "edgeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

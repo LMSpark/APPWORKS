@@ -146,7 +146,7 @@
       "title": "DataSetCommandResourceIdentity",
       "properties": {
         "resourceType": {
-          "const": "file"
+          "type": "string"
         },
         "resourceId": {
           "type": "string"
@@ -291,7 +291,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T12:52:48.865Z",
+  "generatedAt": "2026-11-02T21:50:49.945Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -358,14 +358,14 @@
     },
     "DataSetCommandResourceIdentity": {
       "name": "DataSetCommandResourceIdentity",
-      "jsdoc": "",
+      "jsdoc": "真实命令资源身份；文件命令仍为file，服务命令声明自身语义类型，不伪造文件或后端模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resourceType: 'file';\n    resourceId: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    resourceType: string;\n    resourceId: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    resourceType: 'file';\n    resourceId: string;\n}>",
+            "typeText": "Readonly<{\n    resourceType: string;\n    resourceId: string;\n}>",
             "targetName": "Readonly"
           }
         ],

@@ -3,7 +3,8 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,RendererButton,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,SparkJsonEditor,RendererButton,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
@@ -26,7 +27,51 @@ async function open(workflowId='W1'){
  const click=async(label:string)=>{const b=wrapper.findAll('button').find(b=>b.text()===label)??wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)?.find('button');expect(b,label).toBeDefined();await b!.trigger('click');await flushPromises()}
  return {wrapper,router,click}
 }
+class ExecutionBackend extends ApiBackend{
+ readonly executions:RequestConfig[]=[]
+ protected override async executeRequest(request:RequestConfig):Promise<HttpResponse<unknown>>{
+  if(request.url!=='/api/Workflow/runSingleNodeTest'&&request.url!=='/api/Workflow/runWorkflowTest')return super.executeRequest(request)
+  this.executions.push(request)
+  return {data:{Code:200,Result:{workflowId:'W1',nodeId:'N1',status:'SUCCESS',count:1,output:[{value:0}]}},status:200,statusText:'OK',headers:{}}
+ }
+}
 describe('workflow formal design page',()=>{
+ it('edits node test input through its command view, cancels without execution and shows the accepted result',async()=>{
+  const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend
+  state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await f.click('测试当前节点');expect(backend.executions).toEqual([])
+  const input=()=>f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='input')!
+  expect(input().getComponent(SparkJsonEditor).props('modelValue')).toBe('{}')
+  input().getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"START":[{"value":0,"enabled":false}]}');await flushPromises()
+  await f.click('取消测试输入');expect(backend.executions).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false)
+  await f.click('测试当前节点')
+  input().getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"START":[{"value":0,"enabled":false}]}');await flushPromises()
+  await f.click('执行测试')
+  expect(backend.executions).toHaveLength(1)
+  expect(backend.executions[0]?.data).toEqual({workflowId:'W1',nodeId:'N1',inputParams:{START:[{value:0,enabled:false}]}})
+  const result=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='result')!
+  expect(result.props('readonly')).toBe(true)
+  expect(result.getComponent(SparkJsonEditor).props('modelValue')).toContain('SUCCESS')
+  expect(state.dirty[0]?.isDirty).toBe(false)
+ })
+ it('connects original graph nodes through a cancellable formal edge and saves its exact endpoints',async()=>{
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',output_mapping:'[]'},
+   {rowid:'A',workflow_id:'W1',position_type:1,node_type:'query',name:'查询A',output_mapping:'[]'}]
+  state.http.records['Base_WorkflowConnectors']=[]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  const graph=f.wrapper.getComponent(RendererGraph)
+  expect(new Set(graph.props('connectableKeys'))).toEqual(new Set(['START','A']))
+  graph.props('onConnect')?.({source:'START',target:'A'});await flushPromises()
+  expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(true)
+  expect(f.wrapper.text()).toContain('请先保存新连线')
+  await f.click('取消连线修改');expect(state.dirty[0]?.isDirty).toBe(false)
+  graph.props('onConnect')?.({source:'START',target:'A'});await flushPromises()
+  await f.click('保存连线')
+  expect(state.http.saves.map(save=>save.table)).toEqual(['Base_WorkflowConnectors'])
+  expect(state.http.records['Base_WorkflowConnectors']).toEqual([expect.objectContaining({workflow_id:'W1',sourceID:'START',targetID:'A',params:'[]'})])
+ })
  it('binds query conditions and source value functions to the original views with a shared input catalog',async()=>{
   config.global.stubs={...config.global.stubs,JsonTreeEditor:true}
   state.http.records['Base_WorkflowConnectors']=[]

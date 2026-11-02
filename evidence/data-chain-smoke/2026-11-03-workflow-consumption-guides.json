@@ -1,0 +1,424 @@
+[
+  {
+    "kind": "RGraphProps",
+    "catalog": {
+      "rootKind": "RGraphProps",
+      "models": [
+        {
+          "kind": "RGraphProps",
+          "name": "RGraphProps",
+          "jsdoc": "r-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。",
+          "summary": "r-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<SparkTableModelProps, 'dataViewKey'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererGraph",
+            "type": "r-graph",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RGraphProps",
+      "models": [
+        {
+          "kind": "RGraphProps",
+          "name": "RGraphProps",
+          "jsdoc": "r-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。",
+          "summary": "r-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<SparkTableModelProps, 'dataViewKey'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererGraph",
+            "type": "r-graph",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "toolbar",
+              "jsdoc": "标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。",
+              "summary": "标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "backgroundPattern",
+              "jsdoc": "画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。",
+              "summary": "画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。",
+              "typeText": "\"none\" | \"dots\""
+            },
+            {
+              "name": "nodeAppearance",
+              "jsdoc": "节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。",
+              "summary": "节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。",
+              "typeText": "\"default\" | \"card\""
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "节点取rows或selectedRows；默认rows。",
+              "summary": "节点取rows或selectedRows；默认rows。",
+              "typeText": "\"rows\" | \"selectedRows\""
+            },
+            {
+              "name": "additionalNodeSources",
+              "jsdoc": "多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。",
+              "summary": "多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。",
+              "typeText": "GraphNodeSource[]"
+            },
+            {
+              "name": "edgeDataViewKey",
+              "jsdoc": "关系视图的完整绑定；省略时只呈现节点。",
+              "summary": "关系视图的完整绑定；省略时只呈现节点。",
+              "typeText": "string"
+            },
+            {
+              "name": "additionalEdgeDataViewKey",
+              "jsdoc": "补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。",
+              "summary": "补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。",
+              "typeText": "string"
+            },
+            {
+              "name": "edgeDataMember",
+              "jsdoc": "关系视图消费成员；默认rows。",
+              "summary": "关系视图消费成员；默认rows。",
+              "typeText": "\"rows\" | \"selectedRows\""
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "节点标题字段，经DataView.fieldAccess读取。",
+              "summary": "节点标题字段，经DataView.fieldAccess读取。",
+              "typeText": "string"
+            },
+            {
+              "name": "descriptionField",
+              "jsdoc": "节点描述字段，经DataView.fieldAccess读取。",
+              "summary": "节点描述字段，经DataView.fieldAccess读取。",
+              "typeText": "string"
+            },
+            {
+              "name": "nodeCaptionField",
+              "jsdoc": "节点顶部的类别文字字段，复用字段读取/脱敏权限。",
+              "summary": "节点顶部的类别文字字段，复用字段读取/脱敏权限。",
+              "typeText": "string"
+            },
+            {
+              "name": "nodeCaptionOptions",
+              "jsdoc": "对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。",
+              "summary": "对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。",
+              "typeText": "GraphCaptionOption[]"
+            },
+            {
+              "name": "nodeDefaultBadge",
+              "jsdoc": "未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。",
+              "summary": "未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。",
+              "typeText": "string"
+            },
+            {
+              "name": "nodeBadgeRules",
+              "jsdoc": "按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。",
+              "summary": "按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。",
+              "typeText": "{ field: string; value: string | number | boolean; label: string; tone?: \"primary\" | \"success\" | \"warning\" | \"danger\" | \"info\" }[]"
+            },
+            {
+              "name": "viewportControls",
+              "jsdoc": "显示放大、缩小和适应画布控件，默认true；只改变当前视口。",
+              "summary": "显示放大、缩小和适应画布控件，默认true；只改变当前视口。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "edgeSourceField",
+              "jsdoc": "边记录的起点字段，默认source。",
+              "summary": "边记录的起点字段，默认source。",
+              "typeText": "string"
+            },
+            {
+              "name": "edgeTargetField",
+              "jsdoc": "边记录的终点字段，默认target。",
+              "summary": "边记录的终点字段，默认target。",
+              "typeText": "string"
+            },
+            {
+              "name": "edgeNodeKeys",
+              "jsdoc": "端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。",
+              "summary": "端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。",
+              "typeText": "Record<string, string | number>"
+            },
+            {
+              "name": "nodePositions",
+              "jsdoc": "节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。",
+              "summary": "节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。",
+              "typeText": "Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>"
+            },
+            {
+              "name": "hiddenNodeKeys",
+              "jsdoc": "仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。",
+              "summary": "仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。",
+              "typeText": "string | number[]"
+            },
+            {
+              "name": "edgePaths",
+              "jsdoc": "关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。",
+              "summary": "关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。",
+              "typeText": "Record<string, readonly GraphCanvasPoint[]>"
+            },
+            {
+              "name": "draggableKeys",
+              "jsdoc": "允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。",
+              "summary": "允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。",
+              "typeText": "string | number[]"
+            },
+            {
+              "name": "connectableKeys",
+              "jsdoc": "允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。",
+              "summary": "允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。",
+              "typeText": "string | number[]"
+            },
+            {
+              "name": "current",
+              "jsdoc": "外部对象导航同步的高亮目标；null明确清空。",
+              "summary": "外部对象导航同步的高亮目标；null明确清空。",
+              "typeText": "null | object"
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "阻止对象选择、拖动和连线，不改变后端数据权限。",
+              "summary": "阻止对象选择、拖动和连线，不改变后端数据权限。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onNodeMove",
+              "jsdoc": "拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。",
+              "summary": "拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。",
+              "signature": "onNodeMove(event: GraphNodeMove): void"
+            },
+            {
+              "name": "onArrange",
+              "jsdoc": "整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。",
+              "summary": "整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。",
+              "signature": "onArrange(event: GraphArrange): void"
+            },
+            {
+              "name": "onConnect",
+              "jsdoc": "连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。",
+              "summary": "连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。",
+              "signature": "onConnect(event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>): void"
+            },
+            {
+              "name": "onSelect",
+              "jsdoc": "对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。",
+              "summary": "对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。",
+              "signature": "onSelect(event: GraphSelection): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-graph; name=RendererGraph; level=table-level; layer=data-view-container; directory=containers/data-views */\n/**\n * DTS declaration: RGraphProps = SparkNodeProps & Pick<SparkTableModelProps, 'dataViewKey'> & {\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection Pick<SparkTableModelProps, 'dataViewKey'>\n * DTS relation: intersection {\n    /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */\n    toolbar?: RToolbarProps;\n    /** 画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。 */\n    backgroundPattern?: 'none' | 'dots';\n    /** 节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。 */\n    nodeAppearance?: 'default' | 'card';\n    /** 节点取rows或selectedRows；默认rows。 */\n    dataMember?: 'rows' | 'selectedRows';\n    /** 多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。 */\n    additionalNodeSources?: readonly GraphNodeSource[];\n    /** 关系视图的完整绑定；省略时只呈现节点。 */\n    edgeDataViewKey?: string;\n    /** 补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。 */\n    additionalEdgeDataViewKey?: string;\n    /** 关系视图消费成员；默认rows。 */\n    edgeDataMember?: 'rows' | 'selectedRows';\n    /** 节点标题字段，经DataView.fieldAccess读取。 */\n    labelField: string;\n    /** 节点描述字段，经DataView.fieldAccess读取。 */\n    descriptionField?: string;\n    /** 节点顶部的类别文字字段，复用字段读取/脱敏权限。 */\n    nodeCaptionField?: string;\n    /** 对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。 */\n    nodeCaptionOptions?: readonly GraphCaptionOption[];\n    /** 未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。 */\n    nodeDefaultBadge?: string;\n    /** 按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。 */\n    nodeBadgeRules?: ReadonlyArray<Readonly<{\n        /** 当前节点视图字段。 */\n        field: string;\n        /** 与正式行严格比较的标量，不隐式转换。 */\n        value: string | number | boolean;\n        /** 命中规则后的徽标文字。 */\n        label: string;\n        /** 标准语义色，缺省info。 */\n        tone?: 'primary' | 'success' | 'warning' | 'danger' | 'info';\n    }>>;\n    /** 显示放大、缩小和适应画布控件，默认true；只改变当前视口。 */\n    viewportControls?: boolean;\n    /** 边记录的起点字段，默认source。 */\n    edgeSourceField?: string;\n    /** 边记录的终点字段，默认target。 */\n    edgeTargetField?: string;\n    /** 端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。 */\n    edgeNodeKeys?: Readonly<Record<string, string | number>>;\n    /** 节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。 */\n    nodePositions?: Readonly<Record<string, Readonly<{\n        x: number;\n        y: number;\n    }>>>;\n    /** 仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。 */\n    hiddenNodeKeys?: ReadonlyArray<string | number>;\n    /** 关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。 */\n    edgePaths?: Readonly<Record<string, readonly GraphCanvasPoint[]>>;\n    /** 允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。 */\n    draggableKeys?: ReadonlyArray<string | number>;\n    /** 拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。 */\n    onNodeMove?: (event: GraphNodeMove) => void;\n    /** 整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。 */\n    onArrange?: (event: GraphArrange) => void;\n    /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */\n    connectableKeys?: ReadonlyArray<string | number>;\n    /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */\n    onConnect?: (event: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>) => void;\n    /** 外部对象导航同步的高亮目标；null明确清空。 */\n    current?: Readonly<{\n        kind: 'node' | 'edge';\n        id: string | number;\n    }> | null;\n    /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */\n    disabled?: boolean;\n    /** 对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。 */\n    onSelect?: (event: GraphSelection) => void;\n}\n */\nr-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。\ntype RGraphProps {\n  标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。\n  readonly toolbar: RToolbarProps\n  画布背景呈现；dots绘制20px间距的浅色点阵，不改变网格吸附、节点坐标或交互。默认none。\n  readonly backgroundPattern: \"none\" | \"dots\"\n  节点呈现；card使用固定232×120几何、16px圆角、两行标题和轻色标题带，只改变视觉，不改权限投影或布局。默认default。\n  readonly nodeAppearance: \"default\" | \"card\"\n  节点取rows或selectedRows；默认rows。\n  readonly dataMember: \"rows\" | \"selectedRows\"\n  多个补充节点来源，分别消费绑定视图的rows和字段权限；省略为空，重复绑定同一视图只呈现一次。\n  readonly additionalNodeSources: GraphNodeSource[]\n  关系视图的完整绑定；省略时只呈现节点。\n  readonly edgeDataViewKey: string\n  补充关系视图的完整绑定，消费rows并复用端点字段/映射及布局。主键须与主关系视图唯一；省略时不继承节点视图。\n  readonly additionalEdgeDataViewKey: string\n  关系视图消费成员；默认rows。\n  readonly edgeDataMember: \"rows\" | \"selectedRows\"\n  节点标题字段，经DataView.fieldAccess读取。\n  labelField: string\n  节点描述字段，经DataView.fieldAccess读取。\n  readonly descriptionField: string\n  节点顶部的类别文字字段，复用字段读取/脱敏权限。\n  readonly nodeCaptionField: string\n  对可读类别字段按标量严格匹配；无匹配保持原文，隐藏/脱敏字段不参与映射。\n  readonly nodeCaptionOptions: GraphCaptionOption[]\n  未命中徽标规则时显示的文字；仅在规则引用字段均存在且可读时使用，颜色取类别选项或info。省略不显示。\n  readonly nodeDefaultBadge: string\n  按声明顺序匹配首个可读字段的严格值；仅决定节点徽标和颜色，不产生权限。\n  readonly nodeBadgeRules: { field: string; value: string | number | boolean; label: string; tone?: \"primary\" | \"success\" | \"warning\" | \"danger\" | \"info\" }[]\n  显示放大、缩小和适应画布控件，默认true；只改变当前视口。\n  readonly viewportControls: boolean\n  边记录的起点字段，默认source。\n  readonly edgeSourceField: string\n  边记录的终点字段，默认target。\n  readonly edgeTargetField: string\n  端点引用名到节点主键的显式映射；配置后不存在的项拒绝猜测。\n  readonly edgeNodeKeys: Record<string, string | number>\n  节点主键到中心坐标的布局。缺失位置只在画布临时排列，不自动保存。\n  readonly nodePositions: Record<string, Readonly<{\n          x: number;\n          y: number;\n      }>>\n  仅在画布隐藏这些原始主键及其关联边，默认全部呈现；不过滤DataView、不改变选择或删除记录/布局。仅匹配身份可读且唯一的节点，不能用来屏蔽无效端点诊断。\n  readonly hiddenNodeKeys: string | number[]\n  关系主键到显式折线路径；只是布局，不定义或覆盖关系端点。\n  readonly edgePaths: Record<string, readonly GraphCanvasPoint[]>\n  允许拖动的节点主键；默认全部只读。页面按布局配置身份决定，不等于模型修改授权。\n  readonly draggableKeys: string | number[]\n  允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。\n  readonly connectableKeys: string | number[]\n  外部对象导航同步的高亮目标；null明确清空。\n  readonly current: null | object\n  阻止对象选择、拖动和连线，不改变后端数据权限。\n  readonly disabled: boolean\n  拖动结束后的主键和中心坐标；页面接受后更新nodePositions，组件不保存或修改节点记录。\n  onNodeMove(event: GraphNodeMove): void\n  整图对齐事件；沿布局owner一次预检全部节点并更新nodePositions/edgePaths，失败同步取消。不等于模型写权限或保存。\n  onArrange(event: GraphArrange): void\n  连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。\n  onConnect(event: Readonly<{\n          source: string | number;\n          target: string | number;\n      }>): void\n  对象选择/双击事件；仅携带身份，不透传未检查权限的原始行。\n  onSelect(event: GraphSelection): void\n}"
+  },
+  {
+    "kind": "WorkflowConnectors",
+    "catalog": {
+      "rootKind": "WorkflowConnectors",
+      "models": [
+        {
+          "kind": "WorkflowConnectors",
+          "name": "WorkflowConnectors",
+          "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "summary": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowConnectors",
+      "models": [
+        {
+          "kind": "WorkflowConnectors",
+          "name": "WorkflowConnectors",
+          "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "summary": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+          "constructorSignature": {
+            "summary": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+            "jsdoc": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "add",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "add(ds: DataSet, workflowId: string, edge: Readonly<{\n        source: string | number;\n        target: string | number;\n    }>): Promise<string>"
+            },
+            {
+              "name": "save",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "save(ds: DataSet, workflowId: string, edgeId: string): Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。\nclass WorkflowConnectors {\n  只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。\n  constructor()\n  add(ds: DataSet, workflowId: string, edge: Readonly<{\n          source: string | number;\n          target: string | number;\n      }>): Promise<string>\n  save(ds: DataSet, workflowId: string, edgeId: string): Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>\n}"
+  },
+  {
+    "kind": "WorkflowExecutionResource",
+    "catalog": {
+      "rootKind": "WorkflowExecutionResource",
+      "models": [
+        {
+          "kind": "WorkflowExecutionResource",
+          "name": "WorkflowExecutionResource",
+          "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+          "summary": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowExecutionResource",
+      "models": [
+        {
+          "kind": "WorkflowExecutionResource",
+          "name": "WorkflowExecutionResource",
+          "jsdoc": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+          "summary": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: WorkflowExecutionResourceInput)"
+          },
+          "attributes": [
+            {
+              "name": "requests",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "命令行ID只标识本次本地捕获，不作为后端幂等键或执行实例ID。\nclass WorkflowExecutionResource {\n  constructor(input: WorkflowExecutionResourceInput)\n  readonly requests: DataView\n}"
+  },
+  {
+    "kind": "BindCommandSubmitOptions",
+    "catalog": {
+      "rootKind": "BindCommandSubmitOptions",
+      "models": [
+        {
+          "kind": "BindCommandSubmitOptions",
+          "name": "BindCommandSubmitOptions",
+          "jsdoc": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。\ninputFields — 可录入的命令参数，其余列只读\ncreateKey — 新增行的前端主键，命令须携带它以便结果未知时按主键核验\nsubmit — 执行命令并返回后端接纳行；明确失败直接抛错\nisUnconfirmed — 判定抛错属于结果未知（如网络中断、超时）；缺省全部视为明确失败\nverify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit",
+          "summary": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "BindCommandSubmitOptions",
+      "models": [
+        {
+          "kind": "BindCommandSubmitOptions",
+          "name": "BindCommandSubmitOptions",
+          "jsdoc": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。\ninputFields — 可录入的命令参数，其余列只读\ncreateKey — 新增行的前端主键，命令须携带它以便结果未知时按主键核验\nsubmit — 执行命令并返回后端接纳行；明确失败直接抛错\nisUnconfirmed — 判定抛错属于结果未知（如网络中断、超时）；缺省全部视为明确失败\nverify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit",
+          "summary": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "resource",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataSetCommandResourceIdentity"
+            },
+            {
+              "name": "guard",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataSetCommandScopeGuard"
+            },
+            {
+              "name": "inputFields",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string[]"
+            }
+          ],
+          "methods": [
+            {
+              "name": "createKey",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "createKey(): string"
+            },
+            {
+              "name": "submit",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "submit(row: DataRow): Promise<DataRow>"
+            },
+            {
+              "name": "verify",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "verify(row: DataRow): Promise<DataRow | undefined>"
+            },
+            {
+              "name": "isUnconfirmed",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "isUnconfirmed(error: unknown): boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: BindCommandSubmitOptions = Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>\n * DTS relation: alias Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>\n */\n写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。\ninputFields — 可录入的命令参数，其余列只读\ncreateKey — 新增行的前端主键，命令须携带它以便结果未知时按主键核验\nsubmit — 执行命令并返回后端接纳行；明确失败直接抛错\nisUnconfirmed — 判定抛错属于结果未知（如网络中断、超时）；缺省全部视为明确失败\nverify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit\ntype BindCommandSubmitOptions {\n  readonly resource: DataSetCommandResourceIdentity\n  readonly guard: DataSetCommandScopeGuard\n  readonly inputFields: string[]\n  createKey(): string\n  submit(row: DataRow): Promise<DataRow>\n  verify(row: DataRow): Promise<DataRow | undefined>\n  isUnconfirmed(error: unknown): boolean\n}"
+  }
+]

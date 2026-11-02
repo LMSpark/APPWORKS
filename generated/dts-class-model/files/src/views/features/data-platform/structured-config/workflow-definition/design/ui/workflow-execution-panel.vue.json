@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel\n职责：标准组件绑定原DataSet的测试命令输入与回执；不在页面发送HTTP或持有执行结果副本。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T22:16:21.045Z",
+  "models": {}
+}

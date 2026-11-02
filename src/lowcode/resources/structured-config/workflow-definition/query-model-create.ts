@@ -55,7 +55,7 @@ export async function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreat
   query:(query,metadata)=>sources.query(query,metadata),
   async prepare(source,metadata,options){
    guard()
-   const prepared=await sources.prepare(source,metadata,options)
+   const prepared=await sources.prepare(source,metadata,{...options,missingInputType:'preserve'})
    guard()
    return{...prepared,model:{...prepared.model,requestType:'query'}}
   },

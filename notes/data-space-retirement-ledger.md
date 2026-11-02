@@ -4540,3 +4540,18 @@ flowchart TD
 - 第一轮ClassModel/verify/build会话23138退出0，但随后补了无变更取消合同及夹具，不能作为最终版本门禁；已等待其结束后重新串行正式生成→verify→build（37216），最终结果待核，不并发覆盖产物。
 - 最终门禁：37216退出0，cascade-owner-classmodel-final.log正式生成、verify-final.log全仓typecheck/lint/规则与ClassModel49项、build-final.log串行构建均通过，既有2项AI模型告警与动态导入提示保留。47文件1029项数据层及29文件186项业务影响最终通过；两组包含不同范围，不将局部重测重复累计。编码目录未选应用时返回0，不证明全局编码为空；浏览器整页与全资源/全空间验收继续开放。
 - 准备按授权提交并推送origin/1031：公共级联父输入变化释放旧结果，公共无变更取消，以及正式JSON夹具校正；没有后端、权限或真实业务数据写入。首轮502原因未确定，当前可修前端旧结果呈现问题已有RED/GREEN与回归证据，全架构目标仍进行中。
+
+## 2026-11-02 全部字典定义与下游模型只读核查
+
+- 上轮为progress：852bffeb5已推送origin/1031，起始工作区干净。本轮按参考1147b00ee字典列表/设置/模型语义，对照本仓DictionaryWorkspace、DictionarySchema及正式dataDictionary场景；无后端修改。dictionary-contract-list-live.json读取完整正式模型字段，定义列表首100/总351，随后list-pages-live.json补100/100/51，351个ID均唯一。
+- 首个90目标同步工具调用超过120秒，工具明确kernel reset；复核原live-read进程已消失且无输出文件，该批不计通过。诊断重建首次process未定义在启动前失败（0请求），改用已核node路径；复用授权账号重新登录仅在RAM。改为非阻塞job、每15个落证，后续批次独立DataSet三路只读并发。每个目标经DictionaryWorkspace.load核精确定义、完整条目总数/归属和六字段标题消费，不为普通保存做全量依赖扫描。
+- dictionary-workspace-baseline.log领域97项、dictionary-page-baseline.log页面83项通过；source-page-confirmed.log模型来源及页面三文件122项通过，包含相同83项，不重复累计。
+- 编码类型统计为265个null、81个字符串0、5个字符串1。曾据此推断普通保存应拒绝空类型并写5项RED；随后核源码、既有来源测试及DATAFLOW_ARCHITECTURE.md的正式合同：严格字符串1为double，其余存量值按GetDictData字符分支。该推断不足以更改历史维护语义，已撤回临时schema/测试全部改动，git核产品/测试回到HEAD；encoding-red/green仅为已撤回假设实验，不作现有缺陷或交付证据，未修改实服定义。
+- 实服元模型分页9页得到822个唯一字典模型（runtime-consumers/consumer-pages-live.json）。旧DbId直接对351定义有161不匹配，但resolveTableResource正式合同用MetaName/sourceName而非DbId，不据此宣称161断链。runtime-name-audit-live.json按正式资源名称对应816个唯一；导入编码、Dic_Test无可见同名定义，follow_type两份定义对应4个模型。name-gaps-exact-live.json精确in查询仅返回follow_type两条，正在核应用归属及6个模型的原生运行查询，未认定物理删除或自动重挂。
+- 分批工作区及下游运行任务仍活跃，最终结果待核。本轮读取与未执行写入由白名单守卫约束；任何未返回/观察中项不算通过。浏览器、真实保存/删除完整引用、其余整页恢复及全架构目标继续开放。
+- 运行证据纠正静态匹配结论：dictionary-runtime-gaps-native-live.json经正式模型/DataSet/DataView查6个疑点及workflowStatus对照，共35读取0写入；导入编码返回3条、4个follow_type各4条、对照2条均Loaded。Dic_Test（空间A7C7F76A8E67B422AD732C39444782F0，模型A7C7F76A8E67B422AD732C39444782F0p001）明确Failed，[1003]未找到该字典，rows0/addState hidden；保留失败而非伪造空字典。
+- 稳定ID与名称须分别看：source-ids-exact-live.json确认E6CEFDA723E0951BE0849436A5AA03FF真实名称“导入导出编码”，因此模型别名“导入编码”名称未匹配不是断链。follow_type两条分属不同AppId、模型DbId可确定其中一条。resolveTableResource的resourceId=sourceName只说明原生资源标识，不能外推为后端调度只看名称；本地Java参考明确优先DbId，空值兼容名称，版本不当作实服证明。此前两份静态ID/名称audit均只作候选线索，真正Dic_Test失败以实服为准，不把其余静态差异报成断链。
+- 全部24批终态完成：dictionary-workspaces-summary-live.json共351唯一字典、1652条目，855读取、0写入；每项定义/条目Loaded、总数完整、归属正确、六标题消费均通过。已逐批核白名单守卫/0阻断，原始批次SHA256及351项结果持久保存evidence/data-chain-smoke/2026-11-02-dictionary-audit.json；不把读链通过扩展为真实保存/浏览器通过。
+- legacy-source-native-live.json32目标中部分先被空间关系过滤定义JSON错误阻断；再用同一SPARK runtime.query隔离查32目标（legacy-source-query-live.json，32读取0写入）均明确[1003]未找到字典EBEFF17BBB6443B185D6FB32FF69F0BB。加Dic_Test共33处已证实下游断链；读取时错误/rows0/写入禁用继续守卫，不按空字典成功处理。
+- 32项各有唯一现存同名定义，持久证据列模型/空间/原DbId/候选字典ID/名称及未执行状态；不把唯一名称当用户已确认业务归属。已向用户发出一次整体业务身份确认，依据AGENTS.md0.2禁止猜测重挂：确认后才考虑经原元数据DataView权限/保存/回读逐项修正，当前未写正式记录；Dic_Test无候选不创建替代字典。等待答复不阻止其他前端链继续。
+- 本轮产品/测试源码最终与852bffeb5一致，仅提交审计证据与唯一台账；97项领域及3文件122项来源/页面测试通过。dictionary-audit-verify.log全仓verify进程39667已退出0，保留既有2项AI模型警告；无源码变更，不重跑ClassModel/构建作为无关进度。最后证据JSON/文档治理仍核验后提交推送，整体目标不结题。

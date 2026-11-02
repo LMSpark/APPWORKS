@@ -1,10 +1,10 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
-import ElementPlus from 'element-plus'
+import ElementPlus, {ElSelect} from 'element-plus'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {RequestState} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, Spark, FieldSelect, FieldText, RendererButton, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import CodeClassSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue'
 import {codeModels, codeService, designText, DESIGN} from './data-code.fixture'
@@ -19,6 +19,8 @@ async function fixture() {
   service.http.records['Dict_CodeNodeType']!.push({rowid: 'D1', val: '1', txt: '分类字符串', ordIdx: '1'})
   service.http.records['Base_CodeClassTable'] = [{rowid: 'K1', Name: '订单分类', TableRowid: 'T2', TableName: '分类表',
     TextFieldName: 'code', ValueFieldName: 'id', BusFilterField: 'class_id', BusTableName: '订单', description: '原说明'}]
+  service.http.records['Base_TblField'] = [{rowid: 'F1', tblid: 'T1', enname: 'class_id', cnname: '分类ID'},
+    {rowid: 'F2', tblid: 'T2', enname: 'code', cnname: '分类编码'}, {rowid: 'F3', tblid: 'T2', enname: 'id', cnname: '分类主键'}]
   const ds = new LowcodeDataSpaceAssembler(service.runtime, service.http).assemble({config: new ScenarioViewConfig(DESIGN, designText),
     space: {dataSpaceId: DESIGN, name: '编码'}, models: codeModels(), relations: []}).dataSet
   const runtime = new PageRuntime({pageId: 'class-rule', scenarioIds: [DESIGN], scenarioInputs: {[DESIGN]: {applicationId: 'A', codeDesignId: 'C1'}}, loadScenario: async () => ds})
@@ -37,9 +39,9 @@ async function fixture() {
   wrappers.push(wrapper); await flushPromises()
   const dialog = wrapper.getComponent(CodeClassSelectorDialog)
   const click = async (label: string) => {
-    const button = wrapper.findAll('button').find(item => item.text() === label)
+    const button = wrapper.findAllComponents(RendererButton).find(item => item.props('label') === label)
     expect(button, `missing ${label}`).toBeDefined()
-    await button!.trigger('click'); await flushPromises()
+    await button!.get('button').trigger('click'); await flushPromises()
   }
   return {wrapper, dialog, nodes, main, catalog, service, click, ds}
 }
@@ -55,16 +57,75 @@ describe('classification selection through original views', () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.wrapper.findAll('tbody tr')).toHaveLength(1))
     await f.wrapper.get('tbody tr').trigger('click'); await flushPromises()
-    await f.wrapper.findAll('tbody .field-table-value')[0]!.trigger('dblclick'); await flushPromises()
-    const input = f.wrapper.find('tbody input[type="text"]')
+    await f.click('编辑')
+    const editor = f.wrapper.findComponent({name: 'code-class-edit-dialog'})
+    await vi.waitFor(() => expect(editor.findAllComponents(FieldText).some(field => field.props('field') === 'Name')).toBe(true))
+    const input = editor.findAllComponents(FieldText).find(field => field.props('field') === 'Name')!.find('input')
     expect(input.exists()).toBe(true)
     await input.setValue('维护后分类'); await input.trigger('change'); await flushPromises()
     expect(f.catalog.getEditingRow('K1')?.['Name']).toBe('维护后分类')
+    await f.click('确认编辑')
     await f.click('保存目录')
     expect(f.service.http.records['Base_CodeClassTable']![0]?.['Name']).toBe('维护后分类')
     expect(f.service.http.saves.map(save => save.table)).toEqual(['Base_CodeClassTable'])
     expect(f.main.hasEditingChanges()).toBe(true)
     expect(f.nodes.hasEditingChanges()).toBe(false)
+  })
+  it('loads business and reference field views for separate exact table identities', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('编辑')
+    const business = f.ds.getView('Base_TblField')!, reference = f.ds.getView('Base_TblField', 'referenceFields')
+    expect(reference).toBeDefined()
+    await vi.waitFor(() => expect(reference!.requestState).toBe(RequestState.Loaded))
+    expect(business.rows.map(row => row['enname'])).toEqual(['class_id'])
+    expect(reference!.rows.map(row => row['enname'])).toEqual(['code', 'id'])
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('rejects an old confirmation after the reference option query context changes', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('编辑')
+    const reference = f.ds.getView('Base_TblField', 'referenceFields')!
+    await vi.waitFor(() => expect(reference.requestState).toBe(RequestState.Loaded))
+    reference.queryContext = {...reference.queryContext, referenceTableRowid: 'OTHER'}
+    await f.click('确认编辑')
+    expect(f.wrapper.findComponent({name: 'code-class-edit-dialog'}).exists()).toBe(true)
+    expect(document.body.textContent).toContain('字段候选查询目标已改变')
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('writes a selected reference field through the standard bound control before independent directory save', async () => {
+    const f = await fixture()
+    f.service.http.records['Base_TblField']!.push({rowid: 'F4', tblid: 'T2', enname: 'code_alt', cnname: '备用编码'})
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('编辑')
+    const editor = f.wrapper.findComponent({name: 'code-class-edit-dialog'})
+    await vi.waitFor(() => expect(editor.findAllComponents(FieldSelect)).toHaveLength(3))
+    const field = editor.findAllComponents(FieldSelect).find(item => item.props('field') === 'TextFieldName')!
+    field.getComponent(ElSelect).vm.$emit('update:modelValue', 'code_alt'); await flushPromises()
+    expect(f.catalog.getEditingRow('K1')?.['TextFieldName']).toBe('code_alt')
+    await f.click('确认编辑')
+    expect(f.service.http.saves).toEqual([])
+    await f.click('保存目录')
+    expect(f.service.http.saves.map(save => save.table)).toEqual(['Base_CodeClassTable'])
+    expect(f.service.http.records['Base_CodeClassTable']![0]?.['TextFieldName']).toBe('code_alt')
+    expect(f.nodes.hasEditingChanges()).toBe(false)
+  })
+  it('cancels the editor using its original field checkpoint, preserving earlier directory and main drafts', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.updateEditingValue('K1', 'description', '先前目录修改'); f.catalog.setCurrentRowById('K1')
+    await flushPromises(); await f.click('编辑')
+    const editor = f.wrapper.findComponent({name: 'code-class-edit-dialog'})
+    await vi.waitFor(() => expect(editor.findAllComponents(FieldText).some(field => field.props('field') === 'Name')).toBe(true))
+    f.catalog.updateEditingValue('K1', 'Name', '取消此名称')
+    const cancel = editor.findAllComponents(RendererButton).find(button => button.props('label') === '取消编辑')!
+    await cancel.get('button').trigger('click'); await flushPromises()
+    expect(f.catalog.getEditingRow('K1')?.['Name']).toBe('订单分类')
+    expect(f.catalog.getEditingRow('K1')?.['description']).toBe('先前目录修改')
+    expect(f.main.hasEditingChanges()).toBe(true)
+    expect(f.nodes.hasEditingChanges()).toBe(false)
+    expect(f.service.http.saves).toEqual([])
   })
   it('keeps pending directory edits until explicitly discarded without changing node or main edits', async () => {
     const f = await fixture()

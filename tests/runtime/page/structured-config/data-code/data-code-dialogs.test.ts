@@ -37,7 +37,7 @@ async function mountEditor() {
   return wrapper
 }
 
-const dialogButtons = ['初始化数据', '编码类编辑', '编码类选择'] as const
+const dialogButtons = ['初始化数据', '编码类选择'] as const
 
 describe('data-code editor dialogs', () => {
   it('opens classification selection for the exact node through its bound DataView', async () => {

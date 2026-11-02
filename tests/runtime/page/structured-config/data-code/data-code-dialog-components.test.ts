@@ -3,13 +3,13 @@ import {mount} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {Spark} from '@spark-appworks/spark-component'
 import CodeClassSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue'
-import CodeClassEditDialog from '@/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue'
+import CodeClassEditDialog from '@/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue'
 import CodeInitDialog from '@/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue'
 
 const stub = {RendererDialog: {props: ['title'], template: '<div>{{ title }}<slot /></div>'}}
 const dialogs = [
   [CodeClassSelectorDialog, '编码类'],
-  [CodeClassEditDialog, '编码类'],
+  [CodeClassEditDialog, '分类'],
   [CodeInitDialog, 'CodeInitDataList'],
 ] as const
 

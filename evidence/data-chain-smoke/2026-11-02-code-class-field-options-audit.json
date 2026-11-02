@@ -1,0 +1,290 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "source": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+  "nativeOptions": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 28,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "success": true,
+        "diagnostics": [],
+        "codeClassFieldOptions": {
+          "businessTableId": "D85E82F7195C442C8B196C0B93D6174E",
+          "businessRows": 33,
+          "businessTotal": 33,
+          "checks": [
+            {
+              "classId": "1DA116B1DF5646BAAF92D6FC23080054",
+              "referenceTableId": "00EB54040C01C782BFE79D4F3C4F7884",
+              "referenceRows": 63,
+              "referenceTotal": 63,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": true
+            },
+            {
+              "classId": "21A5615C1492437EBC890B1E7DBFE3DE",
+              "referenceTableId": "D85E82F7195C442C8B196C0B93D6174E",
+              "referenceRows": 33,
+              "referenceTotal": 33,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": false
+            },
+            {
+              "classId": "332DCF822E1A4BEBA3E04FF13AFD559C",
+              "referenceTableId": "104F2492676FCC7777FF32D1F1F59692",
+              "referenceRows": 33,
+              "referenceTotal": 33,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": false
+            },
+            {
+              "classId": "826A37E7BCCE4B4389E932B1BC04AD17",
+              "referenceTableId": "D85E82F7195C442C8B196C0B93D6174E",
+              "referenceRows": 33,
+              "referenceTotal": 33,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": true
+            },
+            {
+              "classId": "B47AA1EF414B48849B681D21225490FA",
+              "referenceTableId": "D85E82F7195C442C8B196C0B93D6174E",
+              "referenceRows": 33,
+              "referenceTotal": 33,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": true
+            },
+            {
+              "classId": "B486BC50C1FE44D9A2C055F33BD6F780",
+              "referenceTableId": "1FBC846E45D02EE9A3FD29B0D1C20439",
+              "referenceRows": 31,
+              "referenceTotal": 31,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": true
+            },
+            {
+              "classId": "DC8BFF52FFCB4DB1A9FB6664FED1558F",
+              "referenceTableId": "883991528A5B4BE3B351AA30B085D9DC",
+              "referenceRows": 22,
+              "referenceTotal": 22,
+              "referenceIdentityMatches": true,
+              "textFieldResolved": true,
+              "valueFieldResolved": true,
+              "businessFieldResolvedForSelectedDesign": false
+            }
+          ],
+          "writes": 0
+        },
+        "views": [
+          {
+            "table": "Base_CodeDesign",
+            "view": "default",
+            "rows": 1,
+            "total": 1,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeDesign",
+            "view": "parents",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeNodeDesign",
+            "view": "default",
+            "rows": 3,
+            "total": 3,
+            "state": 3
+          },
+          {
+            "table": "Dict_CodeNodeType",
+            "view": "default",
+            "rows": 5,
+            "total": 5,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeClassTable",
+            "view": "default",
+            "rows": 7,
+            "total": 7,
+            "state": 3
+          },
+          {
+            "table": "Base_CodingSequence",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "default",
+            "rows": 33,
+            "total": 33,
+            "state": 3
+          },
+          {
+            "table": "Base_TblField",
+            "view": "referenceFields",
+            "rows": 22,
+            "total": 22,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeSerialPerform",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          }
+        ]
+      }
+    ]
+  },
+  "nativeCheckpointCancel": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 15,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "success": true,
+        "diagnostics": [],
+        "codeClassFieldCancel": {
+          "classId": "1DA116B1DF5646BAAF92D6FC23080054",
+          "referenceTableId": "00EB54040C01C782BFE79D4F3C4F7884",
+          "referenceRows": 63,
+          "referenceTotal": 63,
+          "distinctOptionUsed": true,
+          "editTracked": true,
+          "checkpointRestored": true,
+          "rereadUnchanged": true,
+          "saveAttempted": false,
+          "writes": 0
+        },
+        "views": [
+          {
+            "table": "Base_CodeDesign",
+            "view": "default",
+            "rows": 1,
+            "total": 1,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeDesign",
+            "view": "parents",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeNodeDesign",
+            "view": "default",
+            "rows": 3,
+            "total": 3,
+            "state": 3
+          },
+          {
+            "table": "Dict_CodeNodeType",
+            "view": "default",
+            "rows": 5,
+            "total": 5,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeClassTable",
+            "view": "default",
+            "rows": 7,
+            "total": 7,
+            "state": 3
+          },
+          {
+            "table": "Base_CodingSequence",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "referenceFields",
+            "rows": 63,
+            "total": 63,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeSerialPerform",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          }
+        ]
+      }
+    ]
+  },
+  "implementation": {
+    "optionViews": [
+      "868E62F90DB8118C74CDC9F6BCA61157@Base_TblField@default",
+      "868E62F90DB8118C74CDC9F6BCA61157@Base_TblField@referenceFields"
+    ],
+    "businessParameter": "busTableRowid",
+    "referenceParameter": "referenceTableRowid",
+    "owner": "original Base_CodeClassTable DataView",
+    "checkpointFields": [
+      "Name",
+      "description",
+      "BusFilterField",
+      "TextFieldName",
+      "ValueFieldName"
+    ],
+    "confirmDoesNotSave": true,
+    "catalogSaveIndependent": true,
+    "legacyPlaceholderDeleted": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue",
+    "temporaryInlineTitleEditingRemoved": true
+  },
+  "interpretation": [
+    "All seven classification reference-table output/value field names resolve through their exact table queries.",
+    "Three business-filter names are absent only for the selected design business table; these global catalog records are not proven invalid for other use cases.",
+    "No table identity, rule, business ownership, permission or backend data changed."
+  ],
+  "remaining": [
+    "Complete reference-table selection including source context and layout.",
+    "Classification create/delete and real catalog persistence smoke.",
+    "Browser complete-page acceptance and current managed application catalog reachability.",
+    "SaveView unknown remains open; original browser tab absent, no recreation or replay."
+  ],
+  "browser": {
+    "listedTabs": 0,
+    "unknownSaveOwnerRecreated": false,
+    "browserE2ePassed": false
+  },
+  "credentialDataPersisted": false
+}

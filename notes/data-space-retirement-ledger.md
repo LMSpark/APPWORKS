@@ -4820,3 +4820,14 @@ flowchart TD
 - 起初两目录读取401，按正式refresh合同正常刷新已授权RAM会话后同查询成功；不计业务失败、不保存凭据。元数据查询12次、目录发现2次均只读。evidence/data-chain-smoke/2026-11-02-code-class-maintenance-audit.json仅保存正式身份/计数/缺口，不含规则正文、值、headers或权限凭据。
 - 本轮浏览器保留标记和原标签重绑定均遇连接不可用，未新建未知保存owner、未刷新或重放；不能宣称本轮标记保留成功。浏览器整页分类维护、真实目录保存、完整引用选择及此前全架构开放项继续，目标active。未改Java、服务协议或现有权限守卫。
 - 最后48240退出0：最终9文件58项、正式ClassModel生成、完整verify/build通过，构建既有动态导入提示保留；新增台账后的文档治理与审计JSON解析也通过。审阅改什么存什么、原校验/权限/未知结果与目录草稿关闭边界，git diff --check通过。提交推送origin/1031作为检查点；本轮不称完整分类维护或全架构烟测完成。
+
+### 2026-11-02 分类字段编辑弹窗与独立候选视图恢复
+- 上轮20beb65c6已推送，干净树开始，判定progress。沿同一整体计划继续分类维护，未改后端或存量定义。研读固定参考CodeClassEdit完整表单、DataCodeEdit.busTableFieldOptions和本仓标准绑定，确认已选引用表的输出/过滤字段与业务表过滤字段是两套候选，不能复用一个目标参数互相覆盖。本轮恢复该完整局部编辑/取消环节，尚未更换引用表，保留完整来源选择器及新增/删除/保存验收，不把局部恢复改成最终范围。
+- 原Base_TblField下新增referenceFields命名视图，和default复用一个正式DataTable/模型；两个视图各有GetInputParam过滤、valueField=enname、labelField=cnname及allPages配置。业务表参数busTableRowid，引用表参数referenceTableRowid，不改模型字段、资源身份或服务协议。按标准FieldSelect/RFormProps目录、概要与指南核绑定和上下文，字段组件直接绑定原分类记录，候选直接绑定完整视图键，不手工映射数组或另造字段状态。
+- 原ui/code-class-edit-dialog.vue恢复实际业务，删除ui/dialogs下占位及主编辑器无分类目标的“编码类编辑”旧入口；从分类目录选择记录后以“编辑”打开，提供分类名、原业务表名、业务过滤字段、引用表名、引用字段/过滤字段及说明。引用表身份仍只读，完整引用表选择另补。目录临时Name/description内联编辑已删除，退回参考的只读目录→局部编辑→目录保存顺序；确认局部编辑不提交目录或节点，保存仍沿原独立分类入口。
+- 原DataView检查点只捕获本次负责的Name/description/BusFilterField/TextFieldName/ValueFieldName；取消恢复这五项并保留此前目录与主设计修改。确认核原分类行、宿主业务表编辑覆盖、原引用表ID、未知/在途保存、查询状态/参数及所有候选tblid精确归属，字段名称须在对应可读目录中。来源失效、目标变化或无效映射报错，不借旧候选确认；正式字段写权限仍由标准组件与DataView消费。
+- 测试先RED缺编辑入口/引用视图，GREEN后追加参考查询上下文切换拒绝旧确认。appendToBody导致DOM在document.body，修正测试从标准RendererButton组件实例触发及body读取错误，不修改产品迁就包装器。标准FieldSelect实际update:modelValue把code_alt写回原分类TextFieldName；确认不写入，原保存目录仅提交分类，节点未动。另覆盖两视图精确分离、取消恢复已有草稿、目录保存/未知核验及原选择命令。当前最终相关9文件61项通过，36949正在正式ClassModel生成/完整verify/build，终态另补。
+- 实服候选烟测：原编码5F320C95270EF5410F257C8FA4B90452装配，业务表D85E82F7195C442C8B196C0B93D6174E返回33/33字段；七条分类逐条按各自TableRowid读取，引用字段数量63/33/33/33/33/31/22，所有tblid与目标精确匹配，七项TextFieldName/ValueFieldName均解析。三项BusFilterField不在这一个被选业务表内，只作当前用例不匹配，不把全局分类误判为错误、物理删除或自动重挂。
+- 实服取消烟测：在1DA116B1DF5646BAAF92D6FC23080054的63个真实引用字段中取不同可读字段，仅本地改原分类TextFieldName与Name，经本次五字段原生检查点restore后局部行集一致，再正式refresh核原两值一致。候选批28次读取，取消批15次读取，写入/拦截写均0，未调用分类保存或SaveView。前端标准控件确认由组件集成测试证明；这两批实际服务证据不冒充浏览器整页或真实保存。
+- 证据evidence/data-chain-smoke/2026-11-02-code-class-field-options-audit.json保留ID/数量/结果，不含字段值、规则正文、凭据或权限。浏览器按文档检查同一browser2，tabs列表为空，原未知保存标签当前已不可见；未刷新/新建未知owner或重试写入，已有哈希与回执证据继续保留。当前不能称原标签仍存活，也不以此核销未知结果。根目标active，完整分类、引用表选择、实际保存/浏览器验收及全架构旧缺口继续。
+- 最后36949退出0：最终9文件61项、正式ClassModel生成、完整verify/build均通过；既有动态导入提示保留。核新弹窗位于参考原生ui路径、旧占位在src/tests/config无引用，git diff --check通过。审阅标准字段绑定、两视图隔离、原生检查点/查询过期与目录独立提交边界后，提交推送origin/1031检查点。当前只证明已选引用表的字段编辑/取消及实服候选，不将更换引用表、完整分类CRUD、真实保存或全架构目标宣称完成。

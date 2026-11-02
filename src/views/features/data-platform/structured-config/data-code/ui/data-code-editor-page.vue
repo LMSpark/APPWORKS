@@ -19,7 +19,6 @@
         <RendererButton label="取消修改" :disabled="busy || unconfirmed" @click="cancel" />
         <RendererButton label="编码类选择…" :disabled="busy || unconfirmed" @click="openCurrentClass" />
         <RendererButton label="初始化数据…" :disabled="busy" @click="openDialog = 'codeInit'" />
-        <RendererButton label="编码类编辑…" :disabled="busy" @click="openDialog = 'classEdit'" />
       </div>
     </template>
     <CodeClassSelectorDialog v-if="openDialog === 'classSelector' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
@@ -27,7 +26,6 @@
     <SequenceSelectorDialog v-if="openDialog === 'sequence' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
     <TimeStringDialog v-if="openDialog === 'timeString' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" :bus-table-rowid="ruleTarget.busTableRowid" @close="closeRule" />
     <CodeInitDialog v-if="openDialog === 'codeInit'" @close="openDialog = ''" />
-    <CodeClassEditDialog v-if="openDialog === 'classEdit'" @close="openDialog = ''" />
   </section>
 </template>
 
@@ -40,7 +38,6 @@ import {PAGE_RUNTIME, FieldText, RendererForm, RendererTable, RendererButton, us
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {codeNodeTypeLabel, isFixedCodeNode, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
 import CodeClassSelectorDialog from './code-class-selector-dialog.vue'
-import CodeClassEditDialog from './dialogs/code-class-edit-dialog.vue'
 import CodeInitDialog from './dialogs/code-init-dialog.vue'
 import ParentCodeDialog from './parent-code-dialog.vue'
 import SequenceSelectorDialog from './sequence-selector-dialog.vue'

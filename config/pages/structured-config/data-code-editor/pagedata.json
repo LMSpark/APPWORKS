@@ -59,7 +59,12 @@
     },
     "Base_TblField": {
       "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p007", "modelName": "Base_TblField"},
-      "views": {"default": {
+      "views": {"referenceFields": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "enname", "labelField": "cnname",
+        "queryContext": {"referenceTableRowid": ""},
+        "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true},
+        "filterExpression": {"field": "tblid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "referenceTableRowid"}}
+      }, "default": {
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "enname", "labelField": "cnname",
         "queryContext": {"busTableRowid": ""},
         "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true},

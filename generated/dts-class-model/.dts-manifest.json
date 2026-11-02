@@ -4771,25 +4771,25 @@
       "shardFile": "files/src/views/features/data-platform/shared/model/use-staged-design-page.ts.json",
       "sourceModifiedAt": "2026-11-02T03:23:57.040Z"
     },
+    "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-02T08:11:09.126Z"
+    },
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T07:52:02.482Z"
+      "sourceModifiedAt": "2026-11-02T08:08:04.161Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T07:38:03.457Z"
+      "sourceModifiedAt": "2026-11-02T08:08:04.163Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue.json",
       "sourceModifiedAt": "2026-11-01T17:32:37.089Z"
-    },
-    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.569Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue",

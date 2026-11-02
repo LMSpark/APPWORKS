@@ -47,11 +47,14 @@ export type ModelCreateHostInput = Readonly<{
   targetId: string
   sources: ModelCreateSources
   lifecycle: ModelCreateLifecycle
+  /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */
+  views?: Readonly<{models: string; fields: string}>
 }>
 
 export function createModelCreateHost(input: ModelCreateHostInput): ModelCreateHost {
   const {dataSet, targetId, sources, lifecycle} = input
-  const models = dataSet.getView('Base_DataModel', 'default'), fields = dataSet.getView('Base_DataModel_Field', 'modelInputFields')
+  const models = dataSet.getView('Base_DataModel', input.views?.models ?? 'default')
+  const fields = dataSet.getView('Base_DataModel_Field', input.views?.fields ?? 'modelInputFields')
   if (!models || !fields) throw new Error('缺少正式模型或所属字段视图配置 modelInputFields')
   const host: ModelCreateHost = {
     models, fieldSource: fields, fields: undefined, fieldContext: '', modelContext: JSON.stringify(models.queryContext),

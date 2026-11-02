@@ -20,6 +20,26 @@ async function setup(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   return {f, session, owner, reader, writes: () => f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')}
 }
 describe('native model creation with formal metadata ownership', () => {
+  it('creates through explicit host views without submitting the selected-model workspace draft', async () => {
+    const {session, reader, writes} = await setup({overviewOnly: true})
+    const ds=session.metadataDataSet, original=ds.getView('Base_DataModel')!
+    const models=original.createQueryView('workflowModels')
+    const fields=ds.getView('Base_DataModel_Field','modelInputFields')!.createQueryView('workflowFields')
+    await models.refresh()
+    const current=original.rows[0]!,currentId=original.getPkKey(current)!
+    original.updateEditingValue(currentId,'description','unrelated selected-model draft')
+    const owner=createModelCreateHost({dataSet:ds,targetId:'A',sources:reader,
+      views:{models:'workflowModels',fields:'workflowFields'},lifecycle:{assertCurrent(){},onDispatch(){}}})
+    expect(owner.models).toBe(models);expect(owner.fieldSource).toBe(fields)
+    await modelCreatePreview(owner,source)
+    const id=await modelCreateSave(owner)
+    expect(writes()).toHaveLength(1)
+    expect(original.getEditingRow(currentId)?.['description']).toBe('unrelated selected-model draft')
+    expect(original.hasEditingChanges(currentId)).toBe(true)
+    expect(models.rows.some(row=>row['rowid']===id)).toBe(true)
+    expect(JSON.stringify(writes()[0])).not.toContain('unrelated selected-model draft')
+  })
+
   it.each(['before-preview', 'before-save'] as const)('creates and reopens a named view after model browsing changes input scope %s', async timing => {
     const {f, session, owner, writes} = await setup({overviewOnly: true,
       businessRows: {SalesOrders: [{rowid: 'ORDER-1', id: 'ORDER-1'}]}})

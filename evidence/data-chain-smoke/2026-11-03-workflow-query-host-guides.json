@@ -1,0 +1,73 @@
+{
+  "catalog": {
+    "rootKind": "ModelCreateHostInput",
+    "models": [
+      {
+        "kind": "ModelCreateHostInput",
+        "name": "ModelCreateHostInput",
+        "jsdoc": "",
+        "summary": "",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n    /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ]
+      }
+    ]
+  },
+  "overview": {
+    "rootKind": "ModelCreateHostInput",
+    "models": [
+      {
+        "kind": "ModelCreateHostInput",
+        "name": "ModelCreateHostInput",
+        "jsdoc": "",
+        "summary": "",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n    /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "attributes": [
+          {
+            "name": "dataSet",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "DataSet"
+          },
+          {
+            "name": "targetId",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "string"
+          },
+          {
+            "name": "sources",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "ModelCreateSources"
+          },
+          {
+            "name": "lifecycle",
+            "jsdoc": "",
+            "summary": "",
+            "typeText": "ModelCreateLifecycle"
+          },
+          {
+            "name": "views",
+            "jsdoc": "宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。",
+            "summary": "宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。",
+            "typeText": "{ models: string; fields: string }"
+          }
+        ],
+        "methods": []
+      }
+    ]
+  },
+  "viewGuide": "type ModelCreateHostInput {\n  宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。\n  readonly views: { models: string; fields: string }\n}",
+  "modelGuide": "/**\n * DTS declaration: ModelCreateHostInput = Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n    /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n    }>;\n}>\n * DTS relation: alias Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n    /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n    }>;\n}>\n */\ntype ModelCreateHostInput {\n  readonly dataSet: DataSet\n  readonly targetId: string\n  readonly sources: ModelCreateSources\n  readonly lifecycle: ModelCreateLifecycle\n  宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。\n  readonly views: { models: string; fields: string }\n}"
+}

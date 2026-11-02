@@ -1,0 +1,1102 @@
+{
+  "repair": {
+    "kind": "workflow-query-field-type-repair",
+    "testedAt": "2026-11-02T19:05:19.420Z",
+    "mode": "repair",
+    "target": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "targets": [
+      {
+        "id": "45C751045FF584C52C84BC557CB73B5F",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "aiSort",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "4E5EF4AB9A2498AB18479BE1B5BADFFD",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "createtime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "4FCCE31E56F5AB97E86E402C975470A5",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "allowAIAdd",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "6606FC1F05D2DDA2F63795677FC0F3C6",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "DISTINCT",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "699D9987B7744E7B75F4818D48EF9F21",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "lingma_sys_is_delete",
+        "before": "varchar",
+        "after": "BIGINT"
+      },
+      {
+        "id": "6ECFA49700B7613CD5665F64646459E9",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "IsOutput",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "6FC6E2AB8DD9F0D1322D9D84CFBE1305",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "Group",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "A67D28498BD318B99C796EB38B3CE0C8",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "updatetime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "C5596DD25CD63C4ADD5F563666EF833A",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "IsPKey",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "E11B0E997EB79DBCB95B516B2E32EDB4",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "flowstate",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "F357EDC09D55A4EE8C84DCA57E1374B8",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "Order",
+        "before": "varchar",
+        "after": "INT"
+      }
+    ],
+    "property": "FieldType",
+    "phase": "complete",
+    "reads": 16,
+    "writes": 1,
+    "confirmed": true,
+    "unknownOwnerRetained": false,
+    "intentOwned": true,
+    "replayWrites": 0,
+    "error": ""
+  },
+  "preflight": {
+    "kind": "workflow-query-field-type-repair",
+    "testedAt": "2026-11-02T19:05:07.692Z",
+    "mode": "preflight",
+    "target": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "targets": [
+      {
+        "id": "45C751045FF584C52C84BC557CB73B5F",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "aiSort",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "4E5EF4AB9A2498AB18479BE1B5BADFFD",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "createtime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "4FCCE31E56F5AB97E86E402C975470A5",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "allowAIAdd",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "6606FC1F05D2DDA2F63795677FC0F3C6",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "DISTINCT",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "699D9987B7744E7B75F4818D48EF9F21",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "lingma_sys_is_delete",
+        "before": "varchar",
+        "after": "BIGINT"
+      },
+      {
+        "id": "6ECFA49700B7613CD5665F64646459E9",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "IsOutput",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "6FC6E2AB8DD9F0D1322D9D84CFBE1305",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "Group",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "A67D28498BD318B99C796EB38B3CE0C8",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "updatetime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "C5596DD25CD63C4ADD5F563666EF833A",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "IsPKey",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "E11B0E997EB79DBCB95B516B2E32EDB4",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "flowstate",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "F357EDC09D55A4EE8C84DCA57E1374B8",
+        "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+        "model": "Base_DataModel_Field",
+        "name": "Order",
+        "before": "varchar",
+        "after": "INT"
+      }
+    ],
+    "property": "FieldType",
+    "phase": "preflight-ready",
+    "reads": 6,
+    "writes": 0,
+    "confirmed": false,
+    "unknownOwnerRetained": false,
+    "intentOwned": false,
+    "replayWrites": 0,
+    "error": ""
+  },
+  "designComparison": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 5,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataModel_Field",
+        "success": true,
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+        "sourceName": "Base_DataModel_Field",
+        "sourceType": "数据库表",
+        "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "primaryKey": "rowid",
+        "fields": [
+          {
+            "id": "0FA755DB0EB24C95894EA40AF9FB668A",
+            "name": "createuser",
+            "sourceField": "createuser",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "创建人",
+            "order": 0
+          },
+          {
+            "id": "12126F012A1B409CB91B5E72D0C1BC5D",
+            "name": "Value",
+            "sourceField": "Value",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "字段值",
+            "order": 0
+          },
+          {
+            "id": "35E17B6F26F24E6F8195420AE9C8EF69",
+            "name": "rowid",
+            "sourceField": "rowid",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": true,
+            "computed": false,
+            "description": "唯一值（ID）",
+            "order": 0
+          },
+          {
+            "id": "53D69F0D89214EDCA054886578CE5D70",
+            "name": "IsOutput",
+            "sourceField": "IsOutput",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "是否输出",
+            "order": 0
+          },
+          {
+            "id": "58152AF510FB4A84A7BA0E268F65A13D",
+            "name": "dataSetId",
+            "sourceField": "dataSetId",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "数据集id",
+            "order": 0
+          },
+          {
+            "id": "59A7DECE6B2948A1AFD23FC0787B6CF1",
+            "name": "Expression",
+            "sourceField": "Expression",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "脱敏id",
+            "order": 0
+          },
+          {
+            "id": "59DD1FD63F1B4FAB9A0FBEEFB9EB4B49",
+            "name": "ValueFun",
+            "sourceField": "ValueFun",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "值函数",
+            "order": 0
+          },
+          {
+            "id": "65A829DB3FC141A9BF1A105C3F0B7C76",
+            "name": "allowAIAdd",
+            "sourceField": "allowAIAdd",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "允许AI添加",
+            "order": 0
+          },
+          {
+            "id": "663C930E4C044EF39CBF27DE0D2B673F",
+            "name": "AsName",
+            "sourceField": "AsName",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "字段别名",
+            "order": 0
+          },
+          {
+            "id": "7AC535C6490148B49C0EAE1400D02B3D",
+            "name": "IsPKey",
+            "sourceField": "IsPKey",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "是否主键",
+            "order": 0
+          },
+          {
+            "id": "7EA20FC1893B41A3A619834A1F05AB31",
+            "name": "ReportID",
+            "sourceField": "ReportID",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "报表id",
+            "order": 0
+          },
+          {
+            "id": "7ED3E890C4E24286AE43BB0C03ACC45E",
+            "name": "aiSort",
+            "sourceField": "aiSort",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "AI显示字段排序",
+            "order": 0
+          },
+          {
+            "id": "82366FA8A9084ABEBA2AAEAF30A20C19",
+            "name": "dataModelId",
+            "sourceField": "dataModelId",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "数据模型id",
+            "order": 0
+          },
+          {
+            "id": "99C65EAC94CF4DA49202BD088BC84FEE",
+            "name": "OrderType",
+            "sourceField": "OrderType",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "排序类型",
+            "order": 0
+          },
+          {
+            "id": "A8BD8576B28149D38E21B8EFF36AAD14",
+            "name": "flowstate",
+            "sourceField": "flowstate",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "流程状态",
+            "order": 0
+          },
+          {
+            "id": "A971EECE60DA4CF69E8CFA9853196DFB",
+            "name": "aiMemo",
+            "sourceField": "aiMemo",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "ai提示",
+            "order": 0
+          },
+          {
+            "id": "C2AF1294291549F988CD57D87670C5DF",
+            "name": "lingma_sys_ent",
+            "sourceField": "lingma_sys_ent",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "企业标识字段",
+            "order": 0
+          },
+          {
+            "id": "C6B9F3D1B412413D897787B0CA99CE4E",
+            "name": "Group",
+            "sourceField": "Group",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "分组字段",
+            "order": 0
+          },
+          {
+            "id": "CDCAE01122C544BB8FD855BFE16B55A2",
+            "name": "FieldType",
+            "sourceField": "FieldType",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "字段类型",
+            "order": 0
+          },
+          {
+            "id": "CF796FC30A1D433AA984EA2FD6BC44AA",
+            "name": "updateuser",
+            "sourceField": "updateuser",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "修改人",
+            "order": 0
+          },
+          {
+            "id": "D0DCF54E43AF479782D1EE72DCDBA7D2",
+            "name": "DISTINCT",
+            "sourceField": "DISTINCT",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "是否去重",
+            "order": 0
+          },
+          {
+            "id": "D36B2CC2E0C548EDB219B5AB29243511",
+            "name": "wfid",
+            "sourceField": "wfid",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "流程实例id",
+            "order": 0
+          },
+          {
+            "id": "D3C3C57A0F26429F94BE8B35AC4F7A24",
+            "name": "Name",
+            "sourceField": "Name",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "字段名称",
+            "order": 0
+          },
+          {
+            "id": "D7B1576EFE7445B18C36F5350B6D97F2",
+            "name": "Order",
+            "sourceField": "Order",
+            "type": "INT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "排序字段",
+            "order": 0
+          },
+          {
+            "id": "DD2CE92EE0E04E8FBE792912602C7F61",
+            "name": "updatetime",
+            "sourceField": "updatetime",
+            "type": "DATETIME",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "修改时间",
+            "order": 0
+          },
+          {
+            "id": "F37FD40D4EDB4C2E924CF7986F1FDDEA",
+            "name": "type",
+            "sourceField": "type",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "字段类别",
+            "order": 0
+          },
+          {
+            "id": "F8636539E603460FA9CC30E6B36A3995",
+            "name": "lingma_sys_is_delete",
+            "sourceField": "lingma_sys_is_delete",
+            "type": "BIGINT",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "是否删除",
+            "order": 0
+          },
+          {
+            "id": "F8D9404F87EF428BA9D0669D74FD4F56",
+            "name": "description",
+            "sourceField": "description",
+            "type": "VARCHAR",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "摘要",
+            "order": 0
+          },
+          {
+            "id": "FD0D5CD946424FCEBFBC493526542E10",
+            "name": "createtime",
+            "sourceField": "createtime",
+            "type": "DATETIME",
+            "output": true,
+            "primaryKey": false,
+            "computed": false,
+            "description": "创建时间",
+            "order": 0
+          }
+        ]
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "View_TblList",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "tblname": "Base_DataModel_Field",
+            "dbid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+            "DbName": "QYVirtualPlat"
+          }
+        ]
+      }
+    ]
+  },
+  "physicalComparison": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_TblField",
+        "success": true,
+        "total": 30,
+        "countReported": true,
+        "returned": 30,
+        "rows": [
+          {
+            "rowid": "009D4CC643A9855C7EEA4C79BE586370",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "Expression",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "0168C195B95C7EA1D4418B7284139B70",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "dataSetId",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "0E0A883020B8CCF8E11627D93A5DD433",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "OrderType",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "1EA570D426884D689FBDA4EB36E00926",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "lingma_sys_is_delete",
+            "DataType": "bigint"
+          },
+          {
+            "rowid": "2f1de0fd9d1311f185000242ac110008",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "lingma_sys_appid",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "3D0314122E6B42BEA8331A337D07CEEA",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "createtime",
+            "DataType": "datetime"
+          },
+          {
+            "rowid": "4410C1E953CA7B63CDEED66006248EB3",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "FieldType",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "455528C8FBAD475C907D11446B9F6F65",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "ReportID",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "62E42ECD5F01F0023A5C83D66A713AFC",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "type",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "673624A8DF0B34141EB18E1C763C4751",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "Name",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "7A0B41E991E80F9DAEDB902F2FBFD88E",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "ValueFun",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "7A9392F698FEC784A26981B4858FFE42",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "AsName",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "7E4AE409006D45F202FCBDF8AE1EB4D4",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "Order",
+            "DataType": "int"
+          },
+          {
+            "rowid": "825B691B32C4464485260B29A6CB14A8",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "rowid",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "8A7CAD0E45EF43D68A6F021999F1C107",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "description",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "9F99945277FC0B872E8A21C975DD8EAD",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "IsOutput",
+            "DataType": "int"
+          },
+          {
+            "rowid": "AA8EBBF76F593A7D2B2B916C1FA2BCE6",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "dataModelId",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "ACB8600B038441CEB926BFC68B7789B3",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "updatetime",
+            "DataType": "datetime"
+          },
+          {
+            "rowid": "B26B357E4B7B7489B63CC65B1E434C36",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "aiMemo",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "B358DAF2327342D78759632A2872B1FA",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "updateuser",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "C3D56D20E495A78D5B88E7C24442E4C7",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "allowAIAdd",
+            "DataType": "int"
+          },
+          {
+            "rowid": "C41590EA274643379B46BCB3C06B55BE",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "lingma_sys_ent",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "C437C87C139441978C1B0ADE5C4EECE9",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "flowstate",
+            "DataType": "int"
+          },
+          {
+            "rowid": "C4E0180EE6D84149947C325249B68AEE",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "createuser",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "C9663B3EBE49B9B8B82F92004AED6526",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "DISTINCT",
+            "DataType": "int"
+          },
+          {
+            "rowid": "CD0FB4B55594484FA8B1CD8698176D10",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "wfid",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "CEAB7DC672B6EAF154C5D82815F51B63",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "Group",
+            "DataType": "int"
+          },
+          {
+            "rowid": "D8ACDC1EF82501FCFA3D227D4B591FD9",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "Value",
+            "DataType": "varchar"
+          },
+          {
+            "rowid": "E157FD0670A40970842D415D95F145B9",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "aiSort",
+            "DataType": "int"
+          },
+          {
+            "rowid": "FCBB8CFBC3CCF9BF6E230F9001418DE7",
+            "tblid": "6F8C35ECCE554F4881C965D271DF5FC8",
+            "enname": "IsPKey",
+            "DataType": "int"
+          }
+        ]
+      }
+    ]
+  },
+  "before": {
+    "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "metaName": "Base_DataModel_Field",
+    "success": true,
+    "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+    "sourceName": "Base_DataModel_Field",
+    "sourceType": "数据库表",
+    "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+    "primaryKey": "rowid",
+    "fields": [
+      {
+        "id": "2A61F6BD77B9AD88D978AF80DE58793B",
+        "name": "createuser",
+        "sourceField": "createuser",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "创建人",
+        "order": 0
+      },
+      {
+        "id": "2AC0EED354A561E1B3065613A1ECAEB6",
+        "name": "dataModelId",
+        "sourceField": "dataModelId",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "数据模型id",
+        "order": 0
+      },
+      {
+        "id": "2B26F579D96A9D51F3779D92400DD540",
+        "name": "FieldType",
+        "sourceField": "FieldType",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "字段类型",
+        "order": 0
+      },
+      {
+        "id": "2C52D07D098AFC81C027FDC76752C38B",
+        "name": "lingma_sys_ent",
+        "sourceField": "lingma_sys_ent",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "企业标识字段",
+        "order": 0
+      },
+      {
+        "id": "2FE40272C1B3E477124138342414FD75",
+        "name": "wfid",
+        "sourceField": "wfid",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "流程实例id",
+        "order": 0
+      },
+      {
+        "id": "38EB3FA494485173AF23DBA04118C6D6",
+        "name": "Value",
+        "sourceField": "Value",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "字段值",
+        "order": 0
+      },
+      {
+        "id": "45C751045FF584C52C84BC557CB73B5F",
+        "name": "aiSort",
+        "sourceField": "aiSort",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "AI显示字段排序",
+        "order": 0
+      },
+      {
+        "id": "4E5EF4AB9A2498AB18479BE1B5BADFFD",
+        "name": "createtime",
+        "sourceField": "createtime",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "创建时间",
+        "order": 0
+      },
+      {
+        "id": "4FCCE31E56F5AB97E86E402C975470A5",
+        "name": "allowAIAdd",
+        "sourceField": "allowAIAdd",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "允许AI添加",
+        "order": 0
+      },
+      {
+        "id": "579720FF54C87D8CF68854B93B5BD37A",
+        "name": "OrderType",
+        "sourceField": "OrderType",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "排序类型",
+        "order": 0
+      },
+      {
+        "id": "6606FC1F05D2DDA2F63795677FC0F3C6",
+        "name": "DISTINCT",
+        "sourceField": "DISTINCT",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "是否去重",
+        "order": 0
+      },
+      {
+        "id": "699D9987B7744E7B75F4818D48EF9F21",
+        "name": "lingma_sys_is_delete",
+        "sourceField": "lingma_sys_is_delete",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "是否删除",
+        "order": 0
+      },
+      {
+        "id": "6ECFA49700B7613CD5665F64646459E9",
+        "name": "IsOutput",
+        "sourceField": "IsOutput",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "是否输出",
+        "order": 0
+      },
+      {
+        "id": "6FC6E2AB8DD9F0D1322D9D84CFBE1305",
+        "name": "Group",
+        "sourceField": "Group",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "分组字段",
+        "order": 0
+      },
+      {
+        "id": "7153B93CFA7EBDDCB9A654418D4C3EFE",
+        "name": "Name",
+        "sourceField": "Name",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "字段名称",
+        "order": 0
+      },
+      {
+        "id": "7AAD235F610DB6D4B08793EC4B9EE87E",
+        "name": "ReportID",
+        "sourceField": "ReportID",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "报表id",
+        "order": 0
+      },
+      {
+        "id": "8A5B7D2366684932BD95FC5F420AFEB6",
+        "name": "rowid",
+        "sourceField": "rowid",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": true,
+        "computed": false,
+        "description": "唯一值（ID）",
+        "order": 0
+      },
+      {
+        "id": "961B3393871245717773EB3B7402849B",
+        "name": "AsName",
+        "sourceField": "AsName",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "字段别名",
+        "order": 0
+      },
+      {
+        "id": "9EE09E41CA8E52E0FDCEA5DDE3E488B0",
+        "name": "description",
+        "sourceField": "description",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "摘要",
+        "order": 0
+      },
+      {
+        "id": "A67D28498BD318B99C796EB38B3CE0C8",
+        "name": "updatetime",
+        "sourceField": "updatetime",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "修改时间",
+        "order": 0
+      },
+      {
+        "id": "C3C453E266358424507746B6FFDF859A",
+        "name": "ValueFun",
+        "sourceField": "ValueFun",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "值函数",
+        "order": 0
+      },
+      {
+        "id": "C5596DD25CD63C4ADD5F563666EF833A",
+        "name": "IsPKey",
+        "sourceField": "IsPKey",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "是否主键",
+        "order": 0
+      },
+      {
+        "id": "D712A292D022F68191E831B903FD3E22",
+        "name": "dataSetId",
+        "sourceField": "dataSetId",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "数据集id",
+        "order": 0
+      },
+      {
+        "id": "D7CDD0018B3C292DBF5BF22E9D1BDA31",
+        "name": "Expression",
+        "sourceField": "Expression",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "脱敏id",
+        "order": 0
+      },
+      {
+        "id": "E11B0E997EB79DBCB95B516B2E32EDB4",
+        "name": "flowstate",
+        "sourceField": "flowstate",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "流程状态",
+        "order": 0
+      },
+      {
+        "id": "E429EC326C4E9AEC3CAF3D12D1CDDEBE",
+        "name": "updateuser",
+        "sourceField": "updateuser",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "修改人",
+        "order": 0
+      },
+      {
+        "id": "EB2F431F4BB52A1F2B82ED393B6102A0",
+        "name": "aiMemo",
+        "sourceField": "aiMemo",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "ai提示",
+        "order": 0
+      },
+      {
+        "id": "F357EDC09D55A4EE8C84DCA57E1374B8",
+        "name": "Order",
+        "sourceField": "Order",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "排序字段",
+        "order": 0
+      },
+      {
+        "id": "FD8874FA4F59590CD6D826C3C1B4A830",
+        "name": "type",
+        "sourceField": "type",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "字段类别",
+        "order": 0
+      }
+    ]
+  },
+  "scriptSha256": "fb80c8d0334bbc915600082351cde75b23937a6a4fd5c735292c4ed4fccec2f0",
+  "limitation": "Formal metadata FieldType repair only, no physical schema or Java changes, no workflow execution"
+}

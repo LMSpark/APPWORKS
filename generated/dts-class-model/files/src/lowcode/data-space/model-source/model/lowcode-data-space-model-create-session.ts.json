@@ -400,6 +400,22 @@
         },
         "lifecycle": {
           "$ref": "#/$defs/ModelCreateLifecycle"
+        },
+        "views": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "models",
+            "fields"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -505,7 +521,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.425Z",
+  "generatedAt": "2026-11-02T18:59:43.750Z",
   "models": {
     "ModelCreateSources": {
       "name": "ModelCreateSources",
@@ -808,11 +824,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n    /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    sources: ModelCreateSources;\n    lifecycle: ModelCreateLifecycle;\n    /** 宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -835,6 +851,12 @@
             },
             {
               "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "宿主同一DataSet内的完整模型目录与所属字段查询模板；省略时沿用设计页正式视图。",
               "readable": true,
               "writable": false
             }

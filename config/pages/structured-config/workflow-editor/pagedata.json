@@ -247,6 +247,42 @@
               }
             ]
           }
+        },
+        "modelCatalog": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "dataSpaceId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "Name",
+              "MetaName",
+              "description",
+              "Type",
+              "DbId",
+              "DbName",
+              "JoinType",
+              "ForeignKeyFields",
+              "JoinFilter",
+              "PId",
+              "requestType"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "dataSetId",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "dataSpaceId"
+            }
+          }
         }
       }
     },
@@ -293,6 +329,59 @@
               "Type": "GetInputParam",
               "ParamName": "workflowId"
             }
+          }
+        },
+        "modelInputFields": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "pageSize": 500,
+          "queryContext": {
+            "dataSpaceId": "",
+            "modelIds": []
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "dataSetId",
+              "dataModelId",
+              "Name",
+              "AsName",
+              "description",
+              "type",
+              "FieldType",
+              "IsOutput",
+              "IsPKey",
+              "Expression",
+              "ValueFun",
+              "allowAIAdd",
+              "OrderType",
+              "Order",
+              "Group"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {
+                "field": "dataSetId",
+                "operator": "eq",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "dataSpaceId"
+                }
+              },
+              {
+                "field": "dataModelId",
+                "operator": "in",
+                "value": {
+                  "Type": "GetInputParam",
+                  "ParamName": "modelIds"
+                }
+              }
+            ]
           }
         }
       }

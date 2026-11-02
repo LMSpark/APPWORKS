@@ -20,7 +20,9 @@
       "title": "LowcodeLogicView",
       "properties": {
         "navigationScenarioId": true,
-        "catalogMetaName": true
+        "catalogMetaName": true,
+        "parameterScenarioId": true,
+        "parameterModelName": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -29,10 +31,52 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.loadEditorWorkspace.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "viewId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "viewId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadEditorWorkspace.return": {
+          "type": "object",
+          "title": "Promise<readonly DataSet[]>"
+        },
+        "method.loadParameters.params": {
+          "type": "object",
+          "properties": {
+            "viewId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadParameters.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        },
         "method.loadCatalog.params": {
           "type": "object",
           "properties": {
             "scenarioId": {
+              "type": "string"
+            },
+            "targetId": {
               "type": "string"
             }
           },
@@ -47,6 +91,9 @@
           "properties": {
             "scenarioId": {
               "type": "string"
+            },
+            "viewId": {
+              "type": "string"
             }
           },
           "additionalProperties": false
@@ -58,7 +105,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T01:40:34.813Z",
+  "generatedAt": "2026-11-02T03:13:51.781Z",
   "models": {
     "LowcodeLogicView": {
       "name": "LowcodeLogicView",
@@ -80,9 +127,71 @@
               "name": "catalogMetaName",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "parameterScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "parameterModelName",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
+            {
+              "name": "loadEditorWorkspace",
+              "jsdoc": "一次调用的目录/设计与参数复用一个PageRuntime；失败时释放已装配的另一来源。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n        viewId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly DataSet[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadParameters",
+              "jsdoc": "当前逻辑视图的正式参数；元数据空间身份由宿主封装，调用方只提供业务目标。",
+              "parameters": [
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
             {
               "name": "loadCatalog",
               "parameters": [
@@ -91,6 +200,16 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "targetId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],
@@ -113,6 +232,16 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "viewId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

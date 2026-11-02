@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-02",
+  "kind": "actual-browser-native-parameter-workspace",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "navigationId": "EB720370EF06A5A656838F87E0716D6B",
+  "viewId": "D0624BDE07FA475B90D5653994A6493D",
+  "formalQueries": [
+    {
+      "model": "Base_DataViewList",
+      "filter": {
+        "Type": "cond",
+        "Field": "rowid",
+        "Operator": "equal",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": "D0624BDE07FA475B90D5653994A6493D"
+        }
+      }
+    },
+    {
+      "model": "_Base_ParamList",
+      "filter": {
+        "Type": "cond",
+        "Field": "pid",
+        "Operator": "equal",
+        "Value": null,
+        "ValueFun": {
+          "Type": "GetConstValue",
+          "Value": "D0624BDE07FA475B90D5653994A6493D"
+        }
+      }
+    }
+  ],
+  "queryObservation": {
+    "truncated": true,
+    "limits": "Only the observed precise filters are asserted; this truncated page-load event window does not prove a complete request count."
+  },
+  "draftFlow": {
+    "beforeRows": 1,
+    "afterAddRows": 2,
+    "afterCancelRows": 1,
+    "businessSaveRequests": 0,
+    "networkTruncated": false,
+    "networkHasMore": false
+  },
+  "independentFailure": {
+    "viewId": "106F4CD483394270A668AA89C24756E4",
+    "designReadError": "[1003] 数据不存在",
+    "formalBaseAndParameterVisible": true,
+    "emptyDesignEditorRendered": false,
+    "saveDesignButtonRendered": false,
+    "retryButtonRendered": true
+  },
+  "frontendCacheRecovery": {
+    "diskFilterPresent": true,
+    "initialServedModuleFilterPresent": false,
+    "afterVerifiedFrontendRestartFilterPresent": true,
+    "backendChanged": false
+  },
+  "limits": [
+    "No existing parameter record was edited, saved or deleted against the real service.",
+    "Real browser coverage: formal reads and local blank-add/cancel; CRUD, permission rejection and unknown receipt verification are native integration fixtures.",
+    "Complete reference node/source/output/preview work remains open."
+  ],
+  "screenshots": [
+    {
+      "file": "artifacts/data-chain-smoke/logic-parameters-browser-panel.png",
+      "sha256": "668a9ad93e78910197f5359bcda646aec3d8462550092a9fc0ba22596bca09e1"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-parameters-design-failure.png",
+      "sha256": "ec2a811a9d1d4289b180446a054f2d7b33802a3e0ddc4e4f401411abdb159fee"
+    }
+  ]
+}

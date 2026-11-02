@@ -2,7 +2,7 @@
  * @module app:lowcode/resources/structured-config/catalog
  * 职责：structured-config 专题目录页共用的 DataSet 装配（AppId 级联 + 选项模型刷新）。
  */
-import {buildDataViewKey, type DataSet} from '@spark-appworks/spark-data'
+import {buildDataViewKey, type DataSet, type DataViewFilterTree} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {lowcodeApi, lowcodeHttp} from '../../lowcode-runtime'
@@ -14,6 +14,8 @@ export type StructuredCatalogModelOptions = Readonly<{
   userLookup?: boolean
   treeSelect?: boolean
   fields?: readonly string[]
+  /** 当前目录实例的明确目标范围；不改写正式模型或其它视图。 */
+  filterExpression?: DataViewFilterTree
 }>
 
 export type LoadStructuredCatalogInput = Readonly<{
@@ -41,6 +43,7 @@ export async function loadStructuredConfigCatalog(input: LoadStructuredCatalogIn
       const isCatalog = spec.metaName === input.catalogMetaName
       return [spec.metaName, {modelBinding: {modelId: model.id, modelName: spec.metaName}, views: {default: {
         autoLoad: false, autoCurrentFirst: false, autoSelectFirst: false,
+        ...(spec.filterExpression ? {filterExpression: spec.filterExpression} : {}),
         ...(isCatalog && spec.userLookup ? {
           queryConfig: {...(spec.fields ? {fields: spec.fields} : {}), filterLookups: [{field: 'createuser', sourceViewKey: buildDataViewKey('Base_UserInfo', 'default', input.scenarioId),
             matchField: 'UserName', valueField: 'ROWID'}]},

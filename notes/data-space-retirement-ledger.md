@@ -4646,3 +4646,28 @@ flowchart TD
 - 浏览器通道本轮已恢复（CUA inventory有iab）；初次页面动态模块加载失败，实查5274已无监听进程，并非据此认定组件回归。仅启动本仓Vite前端（48427、frontend-browser-smoke-server.log，127.0.0.1:5274），未启动或改Java；重载后首页正常。通过原UI使用既有授权测试身份登录（不保存密码）、沿AppWorks应用导航进入16条逻辑视图目录，再从sys_edit打开D0624BDE07FA475B90D5653994A6493D，导航身份正确且实际设计可读。
 - 真实浏览器可逆操作：设计对象39字段→点击“加子项”产生本地newKey/40字段→点击“放弃修改并重读”→39字段恢复且新字段不存在；没有点击保存设计。截图artifacts/data-chain-smoke/logic-design-browser-cancel.png及脱敏审计evidence/data-chain-smoke/2026-11-02-logic-design-browser-cancel-audit.json。仅证明当前通用编辑器的真实读取/局部草稿/取消重读，不是完整参考布局、参数UI或真实SaveView保存验收；浏览器已markHandoff供后续继续。
 - 本轮提交推送origin/1031保存即时单元格按行提交标准能力及浏览器取消证据。下一步按此前语义在同一个PageRuntime接入元数据参数DataSet，精确pid目标、parid正式主键、独立保存边界及即时编辑消费；新增/删除/取消/未知结果与页面切换仍须整页验证。现有98字典、12 GetView、2逻辑视图消费失败及全架构其它开放项保持，不标目标完成。
+
+### 2026-11-02 参数DataSet与设计文件同PageRuntime接入（实施中）
+- 从已推送2ede1c6c5干净树继续，上一目标轮progress；本轮不再把标准能力通过当参数页完成，正在直接接回参考基本信息/参数工作区。
+- 参考即时保存由已生成saveOnCellExit消费，正式参数表_Base_ParamList仍在元数据空间8D1…；新增loadParameters(viewId)按pid=GetInputParam(viewId)精确读取，正式parid主键，字段parid/pid/parname/pardesc/testvalue，pid不可改、parname必填trim/唯一；query结果核pid归属及字段可见性，不能回退猜身份。loadEditorWorkspace并行装配目录/文件与参数DataSet，任一失败释放另一来源。
+- useStagedDesignPage装配回调改为loadDataSets({scenarioId,scopeId})，同一个PageRuntime承载多DataSet；干净目标切换重建整次运行、脏/unknown伴随空间保留原身份；保存可指定完整viewKey且只提交该视图，设计文件不夹带参数、参数不夹带文件。新scope测试以原DataSpaceRuntimeApi/ApiBackend补验跨来源草稿/未知状态/独立保存。类型早查发现DataSet.scenarioId可能undefined，已在PageRuntime创建前验证非空且唯一并释放非法装配，未放宽类型。
+- 首次逻辑视图组5文件23项通过（logic-workspace-first.log）；新增跨来源测试随后发现测试误把ReadonlySet pendingCreateIds当数组，及editRowById staged应检查dirtyTracking而非editingPatches，已按原生合同修正测试（未据测试误判改产品）。目前新增结果待重新核验，尚未全仓门禁、未提交；UI参数区还未接入。
+- 正式ClassModel87444已完成用于当前组件目录/指南查询；已核RendererTabs/RendererTabPane的标准数据上下文、原生slot、name/label/index合同，以及RendererForm/RendererTable及字段saveOnCellExit继承指南。接下来先完成页面接线及实际组件测试，再一次稳定门禁，避免中途反复提交公共底座而业务页仍空缺。
+- 基本信息/参数页已接线：标准RendererTabs/Pane两工作区；目录以当前rowid精确过滤并设置原currentRow，参数表完整键绑定元数据DataSet，标准saveOnCellExit即时按行提交；新增仅原生staged行，pid由原查询范围默认值提供，删除标准对话框捕获原parid并定向提交，取消与unknown核验继续原owner。新增LogicViewHttp复用既有ApiBackend真实夹具CRUD，不复制提交器；设计文件数组存储独立。
+- 整页7项通过（logic-parameters-page-native.log）：正式目录与pid数据读取、参数即时保存不夹带脏设计、空白新增取消零写、未知保存仅原入口核验、parid定向删除保留其它pid，以及原设计保存/取消。新增同运行跨DataSet草稿/unknown/独立保存回归也通过；最终影响22文件138项通过（logic-parameters-impact.log），全仓门禁进行中。
+- 真实浏览器初次显示目录目标校验错误；CDP只读网络观测发现请求Filter=null返回16行，磁盘catalog.ts已含精确过滤但Vite所发编译模块缺少该行。核对实际本仓Vite PID17380/端口5274/48427仍live后，仅重启该前端进程（新31058），新编译模块含过滤，浏览器重载即恢复，未改业务或放宽校验。网络原始headers/权限不落盘。
+- 浏览器实际读到sys_edit名称/摘要及1条sysid参数；新增空白参数使DOM行数1→2，取消后2→1，观测窗口Network.requestWillBeSent无BatchTableOperateRequestByCRUD/SaveView，truncated=false/hasMore=false，0业务保存请求。未点击业务保存或删除；实际参数CRUD尚未获得本轮测试目标授权，不做既有数据写入。
+- 继续补双来源失败边界：逻辑设计GetView1003时，原全页ready=false会把已成功读取的正式目录/参数一并隐藏。新增logic-parameter-file-boundary-red.log先失败（其它7通过）；现将设计query错误独立保留，正式参数工作区可用，设计页签只显示真实错误与重试，不渲染空JSON或开放无基线保存。显式参数保存只需当前工作区身份成立，不依赖设计文件读取成功；未伪造跨来源原子成功。
+- 最终浏览器证据evidence/data-chain-smoke/2026-11-02-logic-parameters-browser-audit.json：sys_edit目录rowid与参数pid均以相同真实目标精确过滤；加载阶段CDP窗口truncated=true，仅断言已观测到的两个正确过滤，不据此声称全页请求计数。空白新增/取消另设完整游标窗口，1→2→1行、0业务保存、truncated=false/hasMore=false；截图logic-parameters-browser-panel.png。
+- 已知失败目标106F4…浏览器真实基本信息和1条参数可见，设计页签明确1003且只给重试，无空JSON和保存入口；截图logic-parameters-design-failure.png。服务缺口仍在，不把基本参数恢复称GetView或完整逻辑视图执行已修复。
+- 参数页额外权限/未知删除补验通过：按正式查询d=false禁用删除，已落库但回执中断后沿同一删除入口核验且只1次夹具删除；逻辑视图页面10项通过（logic-parameters-permission-final.log）。整组22文件141项通过（logic-parameters-all-final.log）；未执行真实参数CRUD，已提交异步范围确认，只有用户确认后才创建/修改/清理指定临时参数。
+- 最后目标切换测试先RED（logic-parameters-dialog-scope-red.log，1失败/10通过）：尚未确认的删除弹窗随干净新目标保留旧parid。改为新PageRuntime装配时清除弹窗身份；pending/unknown保留旧Runtime的路径不清原owner。补验green与正式生成→verify→build77271运行中，尚未最终提交。本次不因门禁首轮通过而遗漏后发现的真实问题。
+- 指南对应：已沿正式generated/dts-class-model/files/packages/spark-component/src/components/containers/layout/navigation/RendererTabs/{RendererTabs,RendererTabPane}.props.ts.json核标准页签及slot；data-views/RendererForm/RendererForm.props.ts.json核默认currentRow与children字段；RendererTable/RendererTable.props.ts.json核标准children/toolbar/分页边界；FieldText继承shared-types.ts.json核editOnDblclick/saveOnCellExit。实现落logic-view-design-page.vue与同PageRuntime装配，验证对应上述整页/权限/失败来源/浏览器证据，不以API可传属性替代实际消费。
+- 最后删除确认作用域回归11项通过（logic-parameters-dialog-scope-green.log）；整组22文件141项与最后页面11项范围重叠，分别记录，不相加。最终生成/verify/build77271仍待终态；新增业务参数写入范围问题仍待用户回答，不因等待时间推定批准。
+- 用户已明确批准在sys_edit创建一条SMOKE_DATA_CHAIN_PARAM_临时参数并验证/清理同一条；授权已生效，不再把本项记作待用户确认。参数CRUD脚本仅允许GetData/GetView读，以及_Base_ParamList单行Added/Changed/Deleted、确认过的parid/pid/marker和字段；不允许SaveView或其它模型写入。登录和Token只在RAM/子进程stdin，未写凭据。
+- 实服临时记录FC0ACC4D052192DF633B62EF905D8255已真实新增、取消本地修改后回读、修改并精确回读；首个启动器因内存变量未保留失败在stdin传参之前，已核没有子进程/日志或数据请求。正式初轮2次写入均确认。
+- 清理首轮被诊断白名单过窄拦在HTTP adapter之前：原生Deleted合法携带原查询行快照，不只是主键。SDK保守归为unknown，但本地guard在dispatch计数前明确拒绝，delete未发出（writes仍2）；未重放新增/修改。保存初轮journal，单独cleanup-only进程新查询核同parid/pid/唯一marker及当次权限，允许原生删除快照字段后只发出1次删除，确认不存在；没有伪造回执、权限或后端模型。
+- 真实烟测最终通过：20读取/3次业务写入（新增1、修改1、删除1，无重放），临时参数已清理；原有参数5个正式业务字段哈希一致，原设计内容哈希一致。evidence/data-chain-smoke/2026-11-02-logic-parameter-crud-audit.json保留首轮诊断、清理终态和SHA256；这是原生DataSet/adapter实服证据，浏览器写入并未执行，不混称GUI完整CRUD。
+- 实服清理后浏览器再次加载sys_edit：仅原有1条sysid参数，SMOKE_DATA_CHAIN_PARAM_标记不存在；截图logic-parameters-browser-after-crud.png及SHA256已追加实服CRUD审计。临时业务记录已清完，无遗留待删项；首轮启动器/白名单诊断保留而不冒充产品或后端问题。
+- 最终77271退出0：最后页面11项、正式ClassModel生成、完整verify、build全部通过（logic-parameters-{dialog-scope-green,generate-last,verify-last,build-last}.log）；此前整组22文件141项及局部lint通过，范围重叠不相加。既有AI模型告警和动态导入提示保留；没有Java或权限放宽改动。
+- 本轮提交推送origin/1031保存参数工作区同PageRuntime/分来源保存、设计读取失败不连带参数、删除确认目标生命周期与实服CRUD/浏览器证据。参数当前读取/新增/修改/取消/删除/unknown核验链已分别经真实服务和原生组件夹具验证，未称全部浏览器CRUD或完整逻辑视图页面通过。下一段继续参考节点、来源、输出/预览与实际下游输入消费；98项字典、12项GetView、2项逻辑视图消费失败及全架构其它开放项仍在，目标继续active。

@@ -41,7 +41,7 @@ export class StructuredCatalogHttp extends HttpClientBase {
       const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(body.Table[0].Filter))
       rows = rows.filter(row => filter.matches(row))
     }
-    return {data: {Code: 200, Result: {primaryKeyField: name === 'Base_UserInfo' ? 'ID' : 'rowid', allowAdd: true,
+    return {data: {Code: 200, Result: {primaryKeyField: name === 'Base_UserInfo' ? 'ID' : name === '_Base_ParamList' ? 'parid' : 'rowid', allowAdd: true,
       lingma_sys_key: 'table-key', data: {Items: rows.map(row => ({...row, lingma_sys_key: 'row-key',
         lingma_sys_params: {r: [], e: [], h: [], m: [], d: false}})), Count: rows.length}}},
       status: 200, statusText: 'OK', headers: {}}

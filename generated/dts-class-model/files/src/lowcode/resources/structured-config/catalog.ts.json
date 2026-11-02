@@ -63,6 +63,16 @@
           "items": {
             "type": "string"
           }
+        },
+        "filterExpression": {
+          "anyOf": [
+            {
+              "$ref": "../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterCondition"
+            },
+            {
+              "$ref": "../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterGroup"
+            }
+          ]
         }
       },
       "required": [
@@ -161,18 +171,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T01:32:50.279Z",
+  "generatedAt": "2026-11-02T03:10:44.948Z",
   "models": {
     "StructuredCatalogModelOptions": {
       "name": "StructuredCatalogModelOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n    fields?: readonly string[];\n}>",
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n    fields?: readonly string[];\n    /** 当前目录实例的明确目标范围；不改写正式模型或其它视图。 */\n    filterExpression?: DataViewFilterTree;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n    fields?: readonly string[];\n}>",
+            "typeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n    fields?: readonly string[];\n    /** 当前目录实例的明确目标范围；不改写正式模型或其它视图。 */\n    filterExpression?: DataViewFilterTree;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -200,6 +210,12 @@
             },
             {
               "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterExpression",
+              "jsdoc": "当前目录实例的明确目标范围；不改写正式模型或其它视图。",
               "readable": true,
               "writable": false
             }

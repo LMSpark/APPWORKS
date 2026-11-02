@@ -16,7 +16,7 @@ export type StagedDesignPageConfig = Readonly<{
   scopeInputTable: string
   scopeField: string
   designViewTable: string
-  loadDataSet: (scenarioId: string) => Promise<DataSet>
+  loadDataSets: (input: Readonly<{scenarioId: string; scopeId: string}>) => Promise<readonly DataSet[]>
   missingScopeMessage: string
 }>
 
@@ -34,12 +34,19 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
   }
 
   const ownedView = (): DataView | undefined => currentDataSet()?.getView(config.designViewTable, 'default')
-  const designView = computed(() => ready.value && !loading.value && loadedScenario.value === config.scenarioId.value
-    && boundScope.value === config.scopeId.value?.trim() ? ownedView() : undefined)
+  const designView = computed(() => {
+    if (!ready.value || loading.value || loadedScenario.value !== config.scenarioId.value || boundScope.value !== config.scopeId.value?.trim()) return undefined
+    const view = ownedView()
+    return view?.loadingError ? undefined : view
+  })
+  const designError = computed(() => {loading.value; ready.value; return ownedView()?.loadingError?.message ?? ''})
 
   function hasPending(): boolean {
-    const view = ownedView()
-    return !!view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave)
+    const current = runtime.value
+    return !!current && (current.isDirty || current.call.scenarioIds.some(id => {
+      const ds = current.getDataSet(id)
+      return ds && Object.values(ds.tables).some(table => Object.values(table.views).some(view => view.hasUnconfirmedSave || view.mutating))
+    }))
   }
   useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || hasPending()}})
 
@@ -63,7 +70,7 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     try {await readDesign({dataSet: ds, scope, generation: own}); if (isCurrent(own)) ready.value = true}
     catch (cause) {if (isCurrent(own)) {
       error.value = cause instanceof Error ? cause.message : String(cause)
-      ready.value = boundScope.value === scope && hasPending()
+      ready.value = boundScope.value === scope && (hasPending() || !!ownedView()?.loadingError)
     }}
     finally {if (isCurrent(own)) loading.value = false}
   }
@@ -84,21 +91,28 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     ready.value = false; loading.value = true; error.value = ''
     try {
       if (!scenario) throw new Error('缺少导航绑定的数据空间ID')
+      const scope = requestedScope?.trim()
+      if (!scope) throw new Error(config.missingScopeMessage)
       if (busy.value) throw new Error('设计保存尚未完成，请返回原目标核验')
-      if (loadedScenario.value !== scenario || !runtime.value) {
+      if (loadedScenario.value !== scenario || !runtime.value || boundScope.value !== scope && !hasPending()) {
         if (hasPending()) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
         sparkRemove(PAGE_RUNTIME); runtime.value?.dispose(); runtime.value = undefined
         loadedScenario.value = ''; boundScope.value = ''
-        const loaded = await config.loadDataSet(scenario)
-        if (!isCurrent(own)) {loaded.destroy(); return}
-        const next = new PageRuntime({pageId: config.pageId, scenarioIds: [scenario], loadScenario: () => Promise.resolve(loaded)})
+        const loaded = await config.loadDataSets({scenarioId: scenario, scopeId: scope})
+        if (!isCurrent(own)) {loaded.forEach(ds => ds.destroy()); return}
+        if (!loaded.some(ds => ds.scenarioId === scenario)) {loaded.forEach(ds => ds.destroy()); throw new Error('设计工作区缺少主空间')}
+        const ids = loaded.map(ds => ds.scenarioId).filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
+        if (ids.length !== loaded.length || new Set(ids).size !== ids.length) {loaded.forEach(ds => ds.destroy()); throw new Error('设计工作区空间身份缺失或重复')}
+        const next = new PageRuntime({pageId: config.pageId, scenarioIds: ids, loadScenario: id => {
+          const ds = loaded.find(value => value.scenarioId === id)
+          if (!ds) throw new Error('设计工作区空间未装配')
+          return Promise.resolve(ds)
+        }})
         await next.load()
         if (!isCurrent(own)) {next.dispose(); return}
         runtime.value = next; loadedScenario.value = scenario
         sparkProvide(PAGE_RUNTIME, next)
       }
-      const scope = requestedScope?.trim()
-      if (!scope) throw new Error(config.missingScopeMessage)
       if (hasPending()) {
         if (boundScope.value !== scope) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
       } else {
@@ -108,7 +122,10 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
       }
       if (isCurrent(own)) ready.value = true
     } catch (cause) {
-      if (isCurrent(own)) error.value = cause instanceof Error ? cause.message : String(cause)
+      if (isCurrent(own)) {
+        error.value = cause instanceof Error ? cause.message : String(cause)
+        ready.value = loadedScenario.value === scenario && boundScope.value === requestedScope?.trim() && !!ownedView()?.loadingError
+      }
     } finally {
       if (isCurrent(own)) loading.value = false
     }
@@ -119,13 +136,16 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     sparkRemove(PAGE_RUNTIME); runtime.value?.dispose()
   })
 
-  async function saveChanges(): Promise<void> {
-    const ds = currentDataSet()
-    if (!active || !ds || !designView.value || busy.value) return
+  async function saveChanges(options: Readonly<{viewKey?: string; ids?: ReadonlyArray<string | number>}> = {}): Promise<void> {
+    const view = options.viewKey ? runtime.value?.resolveView(options.viewKey) : designView.value
+    const ds = view?.dataSet
+    if (!active || !ds || !ready.value || loading.value || loadedScenario.value !== config.scenarioId.value
+      || boundScope.value !== config.scopeId.value?.trim() || busy.value) return
     const own = generation
     busy.value = true; error.value = ''
     try {
-      const result = await ds.saveChanges({views: [{tableName: config.designViewTable, viewId: 'default'}]})
+      const result = await ds.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId,
+        ...(options.ids ? {ids: [...options.ids]} : {})}]})
       if (!result.success) throw new Error(result.message ?? '保存失败')
     } catch (cause) {if (isCurrent(own)) error.value = cause instanceof Error ? cause.message : String(cause)}
     finally {busy.value = false}
@@ -141,5 +161,5 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     void view.editRowById(rowId, {[field]: value})
   }
 
-  return {runtime, designView, loading, ready, busy, error, saveChanges, refreshDesign, updateDesignField}
+  return {runtime, designView, designError, loading, ready, busy, error, saveChanges, refreshDesign, updateDesignField}
 }

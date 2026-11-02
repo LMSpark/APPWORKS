@@ -2,6 +2,8 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {computed, defineComponent, h, ref} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
 import {DataSet} from '@spark-appworks/spark-data'
+import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {Spark} from '@spark-appworks/spark-component'
 import {attachStagedDesignView} from '@/lowcode/resources/repository/staged-design-file-view'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
@@ -10,25 +12,79 @@ const wrappers: Array<ReturnType<typeof mount>> = []
 const host = vi.hoisted(() => ({dirty: [] as Array<{readonly isDirty: boolean}>}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {readonly isDirty: boolean}) => host.dirty.push(source)}))
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount())})
-async function setup() {
+async function setup(options: {companion?: boolean} = {}) {
   const scope = ref('A'), writes = vi.fn(), reads = vi.fn(async (id: string) => ({rowid: id, targetId: id, designJson: '[]'}))
+  const http = new ApiBackend(); http.primaryKeys['Params'] = 'parid'
+  http.records = {Params: [{parid: 'P1', pid: 'A', testvalue: 'original'}]}
+  const owner = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {}})})
+  async function companion(target: string) {
+    const ds = DataSet.fromJson({scenarioId: 'PARAMETERS', tables: {Params: {modelBinding: {modelId: 'PARAMS', modelName: 'Params'},
+      columns: [{name: 'parid', type: 'string', isPrimaryKey: true}, {name: 'pid', type: 'string'}, {name: 'testvalue', type: 'string'}],
+      views: {default: {autoLoad: false, commitMode: 'staged', filterExpression: {field: 'pid', operator: 'eq', value: target}}}}}})
+    const view = ds.getView('Params')!; view.primaryKey = 'parid'; view.bindQueryExecutor(owner); await view.refresh()
+    return ds
+  }
+  function createDataSet() {
   const dataSet = DataSet.fromJson({scenarioId: 'SCENE', tables: {}})
   attachStagedDesignView(dataSet, {scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design',
     resourceId: 'test-design', columns: [{name: 'rowid', primary: true}, {name: 'targetId'}, {name: 'designJson'}],
     jsonFields: ['designJson'], loadRow: reads, persistRow: async row => {writes(row)}}, () => {})
+  return dataSet
+  }
+  const dataSet = createDataSet()
+  let loads = 0
   let page!: ReturnType<typeof useStagedDesignPage>
   const component = defineComponent({setup() {
     page = useStagedDesignPage({pageId: 'scope-test', scenarioId: computed(() => 'SCENE'), scopeId: computed(() => scope.value),
-      scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design', loadDataSet: async () => dataSet, missingScopeMessage: 'Missing target'})
+      scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design', loadDataSets: async input => {
+        const ds = loads++ === 0 ? dataSet : createDataSet()
+        return options.companion ? [ds, await companion(input.scopeId)] : [ds]
+      }, missingScopeMessage: 'Missing target'})
     return () => h('div')
   }})
   wrappers.push(mount(component, {global: {plugins: [Spark.createPlugin()]}}))
   await flushPromises()
   expect(page.ready.value).toBe(true)
-  return {scope, page, dataSet, writes, reads}
+  return {scope, page, dataSet, writes, reads, http}
 }
 
 describe('staged design current target', () => {
+  it('saves the companion view independently without including an edited design file', async () => {
+    const {page, writes, http} = await setup({companion: true})
+    const view = page.runtime.value!.getDataSet('PARAMETERS')!.getView('Params')!
+    page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Unsaved"}]'); await flushPromises()
+    view.updateEditingValue('P1', 'testvalue', 'Changed')
+    await page.saveChanges({viewKey: 'PARAMETERS@Params@default'})
+    expect(http.saves).toHaveLength(1)
+    expect(http.saves[0]?.table).toBe('Params')
+    expect(writes).not.toHaveBeenCalled()
+    expect(page.designView.value?.rows[0]?.['designJson']).toContain('Unsaved')
+    expect(page.designView.value?.dirtyTracking.hasPendingChanges()).toBe(true)
+  })
+  it('retains companion drafts under their original target when the route changes', async () => {
+    const {page, scope} = await setup({companion: true})
+    const ds = page.runtime.value!.getDataSet('PARAMETERS')!, view = ds.getView('Params')!
+    view.updateEditingValue('P1', 'testvalue', 'Pending')
+    scope.value = 'B'; await flushPromises()
+    expect(page.ready.value).toBe(false)
+    expect(ds.destroyed).toBe(false)
+    expect(host.dirty.at(-1)?.isDirty).toBe(true)
+    scope.value = 'A'; await flushPromises()
+    expect(page.ready.value).toBe(true)
+    expect(view.getEditingPatch('P1')).toEqual({testvalue: 'Pending'})
+  })
+  it('retains an unknown companion save and verifies through its original owner', async () => {
+    const {page, scope, http} = await setup({companion: true})
+    const view = page.runtime.value!.getDataSet('PARAMETERS')!.getView('Params')!
+    view.updateEditingValue('P1', 'testvalue', 'Accepted'); http.failAfterWrite = true
+    await page.saveChanges({viewKey: 'PARAMETERS@Params@default'})
+    expect(view.hasUnconfirmedSave).toBe(true)
+    scope.value = 'B'; await flushPromises(); expect(page.ready.value).toBe(false)
+    scope.value = 'A'; await flushPromises()
+    await page.saveChanges({viewKey: 'PARAMETERS@Params@default'})
+    expect(http.saves).toHaveLength(1)
+    expect(view.hasUnconfirmedSave).toBe(false)
+  })
   it('explicitly discards the current draft and rereads without writing', async () => {
     const {page, writes, reads} = await setup()
     page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()

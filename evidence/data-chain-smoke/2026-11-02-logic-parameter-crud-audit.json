@@ -1,0 +1,121 @@
+{
+  "date": "2026-11-02",
+  "kind": "authorized-real-service-native-DataSet-CRUD",
+  "authorization": "User explicitly approved one temporary SMOKE_DATA_CHAIN_PARAM_ parameter under sys_edit and cleanup of the same record",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "marker": "SMOKE_DATA_CHAIN_PARAM_1793591070744_bcfa59e2",
+  "recordId": "FC0ACC4D052192DF633B62EF905D8255",
+  "summary": {
+    "createConfirmed": true,
+    "editConfirmed": true,
+    "cancelReadbackVerified": true,
+    "deleteConfirmed": true,
+    "originalParameterBusinessFieldsUnchanged": true,
+    "designContentUnchanged": true,
+    "readRequests": 20,
+    "mutationRequests": 3,
+    "createReplayed": false,
+    "editReplayed": false,
+    "temporaryRecordRemaining": false
+  },
+  "initialAttempt": {
+    "target": "D0624BDE07FA475B90D5653994A6493D",
+    "marker": "SMOKE_DATA_CHAIN_PARAM_1793591070744_bcfa59e2",
+    "id": "FC0ACC4D052192DF633B62EF905D8255",
+    "idLength": 32,
+    "stage": "delete",
+    "reads": 11,
+    "writes": 2,
+    "created": true,
+    "cleaned": false,
+    "steps": [
+      {
+        "phase": "baseline",
+        "success": true,
+        "originalRows": 1,
+        "baselineHash": "986e18bdb6e50b8c9a7f237c5cb55b46718cbd1a67f2bd59b2e609054195d8db",
+        "designHash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564"
+      },
+      {
+        "phase": "create",
+        "success": true,
+        "readback": true
+      },
+      {
+        "phase": "cancel",
+        "success": true
+      },
+      {
+        "phase": "edit",
+        "success": true,
+        "readback": true
+      },
+      {
+        "phase": "cleanup",
+        "success": false,
+        "error": "Unknown save prevents cleanup; original owner retained"
+      }
+    ],
+    "error": "SPARK_SAVE_UNCONFIRMED: 保存请求已发出但未取得可确认的响应: Delete outside primary key"
+  },
+  "cleanup": {
+    "target": "D0624BDE07FA475B90D5653994A6493D",
+    "marker": "SMOKE_DATA_CHAIN_PARAM_1793591070744_bcfa59e2",
+    "id": "FC0ACC4D052192DF633B62EF905D8255",
+    "idLength": 32,
+    "stage": "complete",
+    "reads": 9,
+    "writes": 1,
+    "created": true,
+    "cleaned": true,
+    "steps": [
+      {
+        "phase": "recovery-preflight",
+        "knownDeleteNotDispatched": true,
+        "originalCreateAndEditNotReplayed": true
+      },
+      {
+        "phase": "cleanup",
+        "success": true,
+        "originalParametersUnchanged": true
+      },
+      {
+        "phase": "design-unchanged",
+        "success": true
+      }
+    ]
+  },
+  "interpretation": [
+    "Initial cleanup was blocked before the HTTP adapter by a diagnostic allowlist that was narrower than the native Deleted row snapshot contract.",
+    "Native SDK conservatively classified this pre-send exception as unconfirmed; the local guard counter proved no delete request was dispatched.",
+    "A cleanup-only run freshly confirmed the same parid, pid and unique marker, reused formal query permissions, and sent one delete. No create or edit replay.",
+    "All mutations used DataSet/DataView and the original DataSpaceRuntimeApi owner; no direct mutation request or SaveView endpoint was permitted."
+  ],
+  "limits": [
+    "Actual CRUD exercised the native SPARK data adapter; browser coverage separately verifies bound reads and local blank-add/cancel.",
+    "Comparison of original parameter records covers the five formally loaded business fields, not inaccessible storage columns.",
+    "Reference node/source/output/preview coverage is still open."
+  ],
+  "artifacts": [
+    {
+      "file": "artifacts/data-chain-smoke/logic-parameter-write-initial.json",
+      "sha256": "7dd22e35021c27f439fd1f479d73845481e9bc51d9dfb6c0e7718ae96576e097"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-parameter-write-live.json",
+      "sha256": "fc83d93eb588e3fe72ad5af7882bb47a52eb38392743e7e492dc73dbbf1f6814"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/logic-parameter-write.mts",
+      "sha256": "7492b9e244682082f97be606f0ce3f039d6f3fd86116a6610a6a9629d682a5bf"
+    }
+  ],
+  "browserReadback": {
+    "rows": 1,
+    "temporaryMarkerAbsent": true,
+    "screenshot": {
+      "file": "artifacts/data-chain-smoke/logic-parameters-browser-after-crud.png",
+      "sha256": "668a9ad93e78910197f5359bcda646aec3d8462550092a9fc0ba22596bca09e1"
+    }
+  }
+}

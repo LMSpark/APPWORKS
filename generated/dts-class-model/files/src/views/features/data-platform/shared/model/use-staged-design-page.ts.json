@@ -45,34 +45,47 @@
       },
       "additionalProperties": false,
       "$defs": {
-        "method.loadDataSet.params": {
+        "method.loadDataSets.params": {
           "type": "object",
           "properties": {
-            "scenarioId": {
-              "type": "string"
+            "input": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "scopeId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "scopeId"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
         },
-        "method.loadDataSet.return": {
+        "method.loadDataSets.return": {
           "type": "object",
-          "title": "Promise<DataSet>"
+          "title": "Promise<readonly DataSet[]>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-02T02:01:12.517Z",
+  "generatedAt": "2026-11-02T03:23:57.040Z",
   "models": {
     "StagedDesignPageConfig": {
       "name": "StagedDesignPageConfig",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    loadDataSet: (scenarioId: string) => Promise<DataSet>;\n    missingScopeMessage: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    loadDataSets: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => Promise<readonly DataSet[]>;\n    missingScopeMessage: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    loadDataSet: (scenarioId: string) => Promise<DataSet>;\n    missingScopeMessage: string;\n}>",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    loadDataSets: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => Promise<readonly DataSet[]>;\n    missingScopeMessage: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -116,13 +129,19 @@
           ],
           "methods": [
             {
-              "name": "loadDataSet",
+              "name": "loadDataSets",
               "parameters": [
                 {
-                  "name": "scenarioId",
+                  "name": "input",
                   "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        scenarioId: string;\n        scopeId: string;\n    }"
+                      }
+                    ]
                   }
                 }
               ],
@@ -131,8 +150,8 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "reference",
-                    "name": "DataSet"
+                    "type": "unknown",
+                    "name": "readonly DataSet[]"
                   }
                 ]
               }

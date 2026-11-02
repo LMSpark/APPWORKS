@@ -4076,6 +4076,21 @@
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/design-ops.ts.json",
       "sourceModifiedAt": "2026-11-02T11:19:45.299Z"
     },
+    "src/lowcode/resources/structured-config/data-code/initialization-date.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/data-code/initialization-date.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:42:19.757Z"
+    },
+    "src/lowcode/resources/structured-config/data-code/initialization-plan.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-plan.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/data-code/initialization-plan.ts.json",
+      "sourceModifiedAt": "2026-11-02T13:03:13.479Z"
+    },
+    "src/lowcode/resources/structured-config/data-code/initialization-workspace.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-workspace.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/data-code/initialization-workspace.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:47:04.141Z"
+    },
     "src/lowcode/resources/structured-config/data-code/reference-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/reference-ops.ts.json",
@@ -4084,7 +4099,7 @@
     "src/lowcode/resources/structured-config/data-code/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/resource.ts.json",
-      "sourceModifiedAt": "2026-11-02T09:06:46.308Z"
+      "sourceModifiedAt": "2026-11-02T12:33:41.421Z"
     },
     "src/lowcode/resources/structured-config/data-code/segment-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/segment-ops.ts",
@@ -4811,6 +4826,11 @@
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue.json",
       "sourceModifiedAt": "2026-11-02T11:12:45.444Z"
     },
+    "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-02T12:38:45.621Z"
+    },
     "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue.json",
@@ -4824,22 +4844,22 @@
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T11:20:37.968Z"
+      "sourceModifiedAt": "2026-11-02T12:36:31.953Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue.json",
       "sourceModifiedAt": "2026-11-02T09:51:48.907Z"
     },
-    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue": {
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue",
-      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-init-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.570Z"
+    "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:51:52.727Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-01T18:08:07.265Z"
+      "sourceModifiedAt": "2026-11-02T12:51:52.730Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
@@ -4849,12 +4869,7 @@
     "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-01T18:08:07.264Z"
-    },
-    "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts": {
-      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
-      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts.json",
-      "sourceModifiedAt": "2026-11-01T18:17:20.805Z"
+      "sourceModifiedAt": "2026-11-02T12:51:52.729Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",

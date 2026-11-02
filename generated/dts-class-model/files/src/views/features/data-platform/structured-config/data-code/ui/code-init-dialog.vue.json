@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-code/ui/code-init-dialog",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-code/ui/code-init-dialog",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/code-init-dialog\n职责：按参考初始化布局绑定当前运行空间的参数与初始化DataView。\n边界：不持候选数组或业务草稿；保存/取消/日期切换交原资源与标准字段。\nAI用途：编码设计宿主传完整主记录视图键，弹窗不接收第二份空间/设计身份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T12:38:45.621Z",
+  "models": {}
+}

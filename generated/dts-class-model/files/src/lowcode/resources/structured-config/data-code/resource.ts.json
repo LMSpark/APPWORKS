@@ -31,6 +31,19 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.initialization.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.initialization.return": {
+          "$ref": "initialization-workspace.ts.json#/$defs/CodeInitializationWorkspace"
+        },
         "method.loadReferenceSources.params": {
           "type": "object",
           "properties": {},
@@ -69,7 +82,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T09:06:46.308Z",
+  "generatedAt": "2026-11-02T12:33:41.421Z",
   "models": {
     "LowcodeDataCode": {
       "name": "LowcodeDataCode",
@@ -104,6 +117,24 @@
             }
           ],
           "methods": [
+            {
+              "name": "initialization",
+              "jsdoc": "同一运行DataSet仅有一个初始化owner；弹窗重开不重复创建或改绑视图。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "CodeInitializationWorkspace",
+                "sourcePath": "src/lowcode/resources/structured-config/data-code/initialization-workspace.ts"
+              }
+            },
             {
               "name": "loadReferenceSources",
               "jsdoc": "按本次执行应用装配原生引用表来源；由同一PageRuntime按需持有，不切换应用或保存数据。",

@@ -40,6 +40,13 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it.each([false,true])('checks saved initialization preconditions before mounting its dialog (new=%s)',async create=>{
+    const {wrapper}=create?await open({}, {applicationId:'A',codeDesignId:'NEW',create:true}):await open()
+    await vi.waitFor(()=>expect(wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='初始化数据…'&&button.get('button').attributes('disabled')===undefined)).toBe(true))
+    await wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='初始化数据…')!.get('button').trigger('click');await flushPromises()
+    expect(wrapper.text()).toContain(create?'请先保存':'必须包含顺序号串')
+    expect(state.current.http.reads.map(read=>read.table)).not.toContain('Base_CodeSerialPerform')
+  })
   it('saves the new main definition and reopens it with the native segment action enabled', async () => {
     const loaded=vi.spyOn(LowcodeDataCode,'loadEditor'),{wrapper}=await open({}, {applicationId:'A',codeDesignId:'NEW',create:true})
     await vi.waitFor(()=>expect(wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='新增分段')).toBe(true))

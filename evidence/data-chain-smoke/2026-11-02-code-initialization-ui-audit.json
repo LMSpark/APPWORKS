@@ -1,0 +1,44 @@
+{
+  "testedAt": "2026-11-02T13:11:16.6869001+00:00",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "referencePage": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+  "implementation": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+  "bindings": {
+    "host": "868E62F90DB8118C74CDC9F6BCA61157@Base_CodeDesign@default",
+    "inputs": "868E62F90DB8118C74CDC9F6BCA61157@CodeInitializationInput@default",
+    "candidates": "868E62F90DB8118C74CDC9F6BCA61157@CodeInitialization@default"
+  },
+  "automatedTests": {
+    "files": 16,
+    "passed": 139,
+    "covers": [
+      "saved main and clean node preconditions",
+      "real JSON date format, native parent queries, cycles and managed-app ownership",
+      "same-runtime owner reuse, native date parameters and result replacement",
+      "standard components edit, cancel, date change and initialization-only persistence",
+      "unknown result verification without write replay"
+    ]
+  },
+  "gates": {
+    "formalClassModelGenerated": true,
+    "verify": true,
+    "build": true,
+    "terminalSession": 43850
+  },
+  "classModelGuide": "generated/dts-class-model/files/packages/spark-component/src/components/fields/data-components/datetime/FieldDate/FieldDate.props.ts.json",
+  "browser": {
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "navigationId": "A133D679691178F192D7E9DA06829506",
+    "unsavedMainRejected": true,
+    "message": "请先保存当前编码设计及分段修改，再设置编码初始值",
+    "saveClicked": false,
+    "explicitDraftDiscarded": true,
+    "screenshot": "artifacts/data-chain-smoke/code-initialization-unsaved-guard.jpg"
+  },
+  "limits": [
+    "actual full initialization dialog and persistence need the separately requested five-record fixture authorization",
+    "layout implementation and component tests do not constitute a completed browser visual comparison",
+    "no initialization records saved or historical null node owners modified this turn",
+    "sys_edit SaveView remains unconfirmed and was not replayed"
+  ]
+}

@@ -1,5 +1,5 @@
 /**
- * @module app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog
+ * @module app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog
  * 日期/父编码弹窗的领域编排；正式值及编辑覆盖由原DataView持有，取消复用原生字段检查点。
  */
 import {computed, nextTick, onBeforeUnmount, ref, watch} from 'vue'

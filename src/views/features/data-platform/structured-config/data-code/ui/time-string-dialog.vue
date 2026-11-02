@@ -17,7 +17,7 @@
 <script setup lang="ts">
 import {FieldJson, RendererDialog, RendererForm, RendererButton} from '@spark-appworks/spark-component'
 import type {JsonSchemaObject} from '@spark-appworks/spark-json-document'
-import {useCodeNodeRuleDialog} from './use-code-node-rule-dialog'
+import {useCodeNodeRuleDialog} from './dialogs/use-code-node-rule-dialog'
 const props = defineProps<{dataViewKey: string; nodeId: string | number; busTableRowid: string}>()
 const emit = defineEmits<{close: []}>()
 const state = useCodeNodeRuleDialog(props, 'time', () => emit('close'))

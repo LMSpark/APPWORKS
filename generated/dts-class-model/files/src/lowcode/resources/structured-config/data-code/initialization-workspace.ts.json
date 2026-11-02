@@ -1,0 +1,280 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/data-code/initialization-workspace",
+    "sourcePath": "src/lowcode/resources/structured-config/data-code/initialization-workspace.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-workspace.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/data-code/initialization-workspace",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/initialization-workspace\n职责：同一DataSet持有一次初始化资源与本地日期参数视图，组合正式打开/查询/取消/保存流程。\n边界：不持候选草稿、不提交设计、不绕过资源unknown与目标守卫。\nAI用途：原生弹窗只绑定这两个视图；宿主按DataSet复用本实例。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeInitializationWorkspace"
+    ]
+  },
+  "$defs": {
+    "Options": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Options",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "runtime": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        },
+        "client": {
+          "type": "object",
+          "title": "Pick<CodeInitializationClient, 'read'>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.now.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.now.return": {
+          "type": "object",
+          "title": "Date"
+        }
+      }
+    },
+    "CodeInitializationWorkspace": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeInitializationWorkspace",
+      "properties": {
+        "inputs": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "view": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "date": {
+          "$ref": "initialization-date.ts.json#/$defs/InitializationDate"
+        }
+      },
+      "required": [
+        "date"
+      ],
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "#/$defs/Options"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.beforeDateChange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.beforeDateChange.return": true,
+        "method.reload.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.reload.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.assertClose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertClose.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T12:47:04.141Z",
+  "models": {
+    "Options": {
+      "name": "Options",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: DataSpaceRuntimeApi;\n    client: Pick<CodeInitializationClient, 'read'>;\n    now?: () => Date;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: DataSpaceRuntimeApi;\n    client: Pick<CodeInitializationClient, 'read'>;\n    now?: () => Date;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "client",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "now",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Date"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CodeInitializationWorkspace": {
+      "name": "CodeInitializationWorkspace",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(options: Options)",
+          "parameters": [
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Options",
+                "sourcePath": "src/lowcode/resources/structured-config/data-code/initialization-workspace.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "inputs",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "date",
+              "readable": true,
+              "writable": true
+            }
+          ],
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "丢弃的只有已清洁的旧查询；不在打开时取消业务修改。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "beforeDateChange",
+              "jsdoc": "日期控件默认写入前调用；先核原候选并清旧结果，再允许原生参数写入。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "reload",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertClose",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

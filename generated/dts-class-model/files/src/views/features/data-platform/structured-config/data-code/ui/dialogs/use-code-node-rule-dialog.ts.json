@@ -2,12 +2,12 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog",
-    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
-    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog.ts",
+    "name": "app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
     "packageName": "app",
-    "modulePath": "views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog",
-    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/use-code-node-rule-dialog\n日期/父编码弹窗的领域编排；正式值及编辑覆盖由原DataView持有，取消复用原生字段检查点。",
+    "modulePath": "views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog\n日期/父编码弹窗的领域编排；正式值及编辑覆盖由原DataView持有，取消复用原生字段检查点。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
@@ -42,7 +42,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-01T18:17:20.805Z",
+  "generatedAt": "2026-11-02T12:51:52.727Z",
   "models": {
     "RuleTarget": {
       "name": "RuleTarget",

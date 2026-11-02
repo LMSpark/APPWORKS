@@ -20,14 +20,14 @@
         <RendererButton :label="unconfirmed ? '核验保存结果' : '保存设计'" button-type="primary" :disabled="busy" @click="save" />
         <RendererButton label="取消修改" :disabled="busy || unconfirmed" @click="cancel" />
         <RendererButton label="编码类选择…" :disabled="busy || unconfirmed" @click="openCurrentClass" />
-        <RendererButton label="初始化数据…" :disabled="busy" @click="openDialog = 'codeInit'" />
+        <RendererButton label="初始化数据…" :disabled="busy" @click="openInitialization" />
       </div>
     </template>
     <CodeClassSelectorDialog v-if="openDialog === 'classSelector' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
     <ParentCodeDialog v-if="openDialog === 'parentCode' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" :bus-table-rowid="ruleTarget.busTableRowid" @close="closeRule" />
     <SequenceSelectorDialog v-if="openDialog === 'sequence' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
     <TimeStringDialog v-if="openDialog === 'timeString' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" :bus-table-rowid="ruleTarget.busTableRowid" @close="closeRule" />
-    <CodeInitDialog v-if="openDialog === 'codeInit'" @close="openDialog = ''" />
+    <CodeInitDialog v-if="openDialog === 'codeInit'" :data-view-key="mainKey" @close="openDialog = ''" />
     <CodeReferenceTableDialog v-if="openDialog === 'businessTable' && businessTarget" :data-view-key="mainKey" :record-id="businessTarget.id"
       target-kind="business" :validate-target="validateBusinessTarget" @close="closeBusinessTable" />
   </section>
@@ -41,8 +41,9 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, FieldText, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {codeNodeTypeLabel, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {getCodeInitializationPlan} from '@/lowcode/resources/structured-config/data-code/initialization-plan'
 import CodeClassSelectorDialog from './code-class-selector-dialog.vue'
-import CodeInitDialog from './dialogs/code-init-dialog.vue'
+import CodeInitDialog from './code-init-dialog.vue'
 import ParentCodeDialog from './parent-code-dialog.vue'
 import SequenceSelectorDialog from './sequence-selector-dialog.vue'
 import TimeStringDialog from './time-string-dialog.vue'
@@ -110,6 +111,10 @@ function validateBusinessTarget(): void {
     || (view.getEditingRow(target.id) ?? row)['BusTableRowid'] !== target.tableId) throw new Error('业务表编辑目标已改变，请重新打开')
 }
 function closeBusinessTable(): void {businessTarget.value = undefined; openDialog.value = ''}
+function openInitialization():void {
+  if(!dataSet.value||busy.value)return
+  try{getCodeInitializationPlan(dataSet.value);openDialog.value='codeInit'}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
+}
 function openCurrentClass(): void {
   const row = nodes.value?.currentRow
   if (!row || !dataSet.value || !nodes.value || nodes.value.fieldAccess(row, 'NodeType').read !== 'visible'

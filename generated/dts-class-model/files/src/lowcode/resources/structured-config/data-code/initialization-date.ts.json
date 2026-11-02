@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/data-code/initialization-date",
+    "sourcePath": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/data-code/initialization-date",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/initialization-date\n职责：按当前规则及获准读取的父编码解析初始化日期输入。\n边界：专用命名视图只查询，不改原规则选择视图，不猜缺失的日期格式。\nAI用途：初始化弹窗打开时调用，依赖同一正式运行owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "InitializationDate"
+    ]
+  },
+  "$defs": {
+    "InitializationDate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InitializationDate",
+      "properties": {
+        "visible": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "format": {
+          "type": "string"
+        },
+        "dateType": {
+          "enum": [
+            "date",
+            "month",
+            "year"
+          ]
+        },
+        "value": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "visible",
+        "format",
+        "dateType",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "Options": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Options",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "runtime": {
+          "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        },
+        "plan": {
+          "$ref": "initialization-plan.ts.json#/$defs/CodeInitializationPlan"
+        },
+        "now": {
+          "type": "object",
+          "title": "Date"
+        }
+      },
+      "required": [
+        "dataSet",
+        "runtime",
+        "plan"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-02T12:42:19.757Z",
+  "models": {
+    "InitializationDate": {
+      "name": "InitializationDate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    visible: boolean;\n    format: string;\n    dateType: 'year' | 'month' | 'date';\n    value: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    visible: boolean;\n    format: string;\n    dateType: 'year' | 'month' | 'date';\n    value: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "visible",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "format",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dateType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Options": {
+      "name": "Options",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: DataSpaceRuntimeApi;\n    plan: CodeInitializationPlan;\n    now?: Date;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: DataSpaceRuntimeApi;\n    plan: CodeInitializationPlan;\n    now?: Date;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "plan",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "now",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

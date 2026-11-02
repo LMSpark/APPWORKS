@@ -4761,3 +4761,12 @@ flowchart TD
 - 实服sys_edit节点DeveloperName行→标准值函数“接口参数”页签，候选仅sysid；选取并确认函数/行后，原字段显示{"Type":"GetInputParam","ParamName":"sysid"}，没有写成SystemData或参数记录ID。原放弃修改并重读恢复2节点；完整网络窗口1次GetView、truncated=false/hasMore=false、0保存。独立GetView Code200且整份设计SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。审计2026-11-02-logic-view-input-options-audit.json与截图保存范围，不含凭据、测试值或原始权限；没有真实SaveView、函数执行或外部调用声明。
 - 当前63467执行正式ClassModel生成/完整verify/build，终态另补。节点接口输入定义仍是独立待接目录，不能冒充视图参数；过滤专用交互、AI字段配置、输出结构、真实设计保存、节点/整体预览及全架构服务/存量开放项继续。真实SaveView写入范围仍待用户答复，当前独立工作继续，目标active。
 - 最后63467退出0：正式ClassModel生成、完整verify及build全部通过，相关8文件78项和后补参数身份4项均通过；既有动态导入提示保留。审阅视图value/label配置、原parid/pid边界、完整候选绑定及测试差异，git diff --check通过；提交推送origin/1031，继续保留节点入参、过滤、输出、保存及服务/存量断点，不称全架构完成。
+
+### 2026-11-02 节点入参与正式视图参数目录合并
+- 上轮5e00e0f0d已推送，干净树开始，判定progress。继续固定参考APPWorks APP的fieldValueFunctionOptions.inputParams与本仓原生GetInputParam语义：节点已有inputParams是当前定义的入参名称目录，视图参数由原绑定DataView提供。二者指向同一函数的ParamName键，但不是SystemData或数据授权；不能让绑定视图覆盖掉节点目录。
+- 标准FieldValueFunction复用原选项DataView及functionContext，在输入候选中按原生标量值去重，保持数字/布尔/字符串身份差异；同名正式视图项的标题和禁用状态优先，源目录不作为旧查询或权限回退，不执行函数。其它公共参数目录行为不变。检索现有业务消费者，现存外部接口页只有能力配置+输入视图，没有同时声明节点输入，因此该扩展不改变其目录；本页是明确的合并消费者。
+- 先RED证明节点项被覆盖，改标准组件后初次测试因添加disabled:false改变既有目录形状而失败，已保持原省略形式，仅保留明确true限制；19项组件测试通过，覆盖去重、正式标题优先、源节点目录移除后拒绝旧确认。先正式生成并查新ClassModel inputParameterDataViewKey指南，再接本页定义投影，不手改产物。
+- logicNodeFunctionContext只从原designJson已获准读取的选中节点inputParams投影Name及Description/description，未传Value/testvalue/FieldType或其它配置，不猜缺失类型，不另持有草稿。页面与纯投影分别RED，随后原生值函数确认测试证明nodeOnly写入原函数对象，源入参FieldType空值与extra:false等原样保留、独立参数存储无写入。33文件385项通过（logic-node-input-final-impact.log），局部eslint、正式生成、完整verify/build最后92787均退出0；既有动态导入提示保留。
+- 实服sys_edit：通过正式候选读取0416D1D8C18A4784B15CA4BDFF2F96D7“是否存在服务器或数据库”的定义，本地加入节点2→3。该接口没有已声明输出字段，故仅在本地新增SMOKE_NODE_INPUT_VALUE定义用于编辑器烟测，不宣称其是实际接口输出；未指定类型、未执行接口。参数候选同时显示sysid及六个节点入参，选“ip地址”生成{"Type":"GetInputParam","ParamName":"ip"}，原确认函数/行后再放弃修改并重读恢复2节点。
+- 完整网络窗口13次请求、truncated=false/hasMore=false，仅GetData元数据模型Base_DataModel/Base_DataModel_Field/View_TblList/Base_TblField/Base_DataServiceInterface/_Base_ParamList及GetView，无写入或接口执行。独立GetView初次401，正常刷新已授权会话后Code200，整份SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。evidence/data-chain-smoke/2026-11-02-logic-node-input-audit.json与截图记录候选名称/原生写回/取消，不含密码、测试值、原始权限或headers。
+- 定义候选缺口本轮补齐，但运行参数类型校验、真实SaveView、过滤专用交互、AI字段配置、输出结构与预览、98字典/12 GetView/2逻辑消费失败等全架构开放项继续。真实设计文件临时描述写入确认仍待用户回复，未执行；当前没有Java、权限或后端协议变更，根目标active。审阅来源定义投影及公共合并差异后提交推送本检查点，不称全架构全部通过。

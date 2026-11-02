@@ -1,0 +1,67 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "sourceInterface": {
+    "id": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+    "name": "是否存在服务器或数据库",
+    "invoked": false
+  },
+  "mode": "temporary local definition edits in original DataView, then discard; no SaveView",
+  "semantics": {
+    "merge": "Bound view inputs plus current node input definition names; exact-value dedup, bound entry priority",
+    "identity": "GetInputParam.ParamName; no SystemData or record ID substitution",
+    "types": "Unspecified source input types preserved",
+    "values": "Input values and test values are not candidate metadata"
+  },
+  "browser": {
+    "nodes": [
+      2,
+      3,
+      2
+    ],
+    "temporaryOutputField": "SMOKE_NODE_INPUT_VALUE",
+    "candidateLabels": [
+      "sysid",
+      "ip地址",
+      "账号",
+      "类型",
+      "密码",
+      "端口",
+      "表名称"
+    ],
+    "linkedField": "SMOKE_NODE_INPUT_VALUE{\"Type\":\"GetInputParam\",\"ParamName\":\"ip\"}",
+    "network": {
+      "events": 13,
+      "truncated": false,
+      "hasMore": false,
+      "paths": [
+        "/api/DataOperation/GetData",
+        "/api/ViewData/GetView"
+      ],
+      "models": [
+        "Base_DataModel",
+        "Base_DataModel_Field",
+        "View_TblList",
+        "Base_TblField",
+        "Base_DataServiceInterface",
+        "_Base_ParamList"
+      ],
+      "writes": 0
+    }
+  },
+  "screenshot": {
+    "path": "artifacts/data-chain-smoke/logic-node-input-browser.png",
+    "sha256": "28f6b129c1c10bbbbbb7606c1754e015879b945f43c15aa6f0d29af927163154"
+  },
+  "limits": [
+    "No real design write or interface invocation",
+    "Temporary output definition is not an executed API output schema",
+    "Runtime input type validation and full-page filter/output/preview acceptance remain open"
+  ],
+  "formalReadback": {
+    "code": 200,
+    "sha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "unchanged": true,
+    "normalRefreshAfter401": true
+  }
+}

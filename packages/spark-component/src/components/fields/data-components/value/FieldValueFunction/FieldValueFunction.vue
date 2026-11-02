@@ -34,7 +34,7 @@ AI用途：业务页通过r-value-function配置，不复制值函数草稿和�
 </template>
 <script setup lang="ts">
 import {computed, inject, onBeforeUnmount, ref, watch} from 'vue'
-import {DataViewFilter, getDataViewFilterFunctionDefinitions, type DataViewFilterJsonValue, type DataViewFilterValueFunction} from '@spark-appworks/spark-data'
+import {DataViewFilter, getDataViewFilterFunctionDefinitions, type DataViewFilterFunctionContext, type DataViewFilterJsonValue, type DataViewFilterValueFunction} from '@spark-appworks/spark-data'
 import {useFieldPermission} from '../../../context/useFieldPermission'
 import {useFieldOptions} from '../../../options/useFieldOptions'
 import {useFieldControlState} from '../../composables/state/useFieldControlState'
@@ -51,9 +51,13 @@ const cellProps = computed<RValueFunctionProps>(() => Object.fromEntries(Object.
 const emit = defineEmits<{'update:modelValue': [value: string]}>()
 const options = useFieldOptions({get optionDataViewKey() {return props.publicParameterDataViewKey}})
 const inputOptions = useFieldOptions({get optionDataViewKey() {return props.inputParameterDataViewKey}})
+type InputOption=NonNullable<DataViewFilterFunctionContext['inputParams']>[number]
 const context = computed(() => {
+  const inputs=new Map<InputOption['value'],InputOption>()
+  for(const {value,label,disabled} of inputOptions.flatOptions.value)inputs.set(value,{value,label,...(disabled===true?{disabled:true}:{})})
+  for(const option of props.functionContext?.inputParams??[])if(!inputs.has(option.value))inputs.set(option.value,option)
   const configured = DataViewFilter.editorContext({...props.functionContext,
-    ...(props.inputParameterDataViewKey === undefined ? {} : {inputParams: inputOptions.flatOptions.value.map(({value, label}) => ({value, label}))}),
+    ...(props.inputParameterDataViewKey === undefined ? {} : {inputParams: [...inputs.values()]}),
     ...(props.publicParameterDataViewKey === undefined ? {} : {apiPublicParams: options.flatOptions.value.map(({value, label}) => ({value, label}))})})
   return {...configured, definitions: [...(configured.definitions ?? []).filter(definition => definition.type !== 'GetConstValue'),
     {...configured.definitions?.find(definition => definition.type === 'GetConstValue'),

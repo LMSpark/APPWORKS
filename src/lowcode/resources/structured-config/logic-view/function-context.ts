@@ -17,6 +17,10 @@ export function logicNodeFunctionContext(input:Readonly<{root:JsonDocument;path:
   if(!path.length||path.length%2!==1||path.some((part,index)=>index%2===0?typeof part!=='number'||!Number.isSafeInteger(part)||part<0:part!=='ChildTables'))throw new Error('值函数节点路径无效')
   const selected=nodeAt(root,path);if(!selected)throw new Error('值函数节点不存在')
   const name=text(selected['MetaName'])
+  const definitions=selected['inputParams']
+  const inputParams=Array.isArray(definitions)?definitions.filter(isJsonObject).flatMap(parameter=>{
+    const value=text(parameter['Name']);return value?[{value,label:text(parameter['Description'])||text(parameter['description'])||value}]:[]
+  }):[]
   const relatedFields:Array<NonNullable<DataViewFilterFunctionContext['relatedFields']>[number]>=[]
   for(let length=1;length<path.length;length+=2){
     const parent=nodeAt(root,path.slice(0,length)),resource=text(parent?.['MetaName'])
@@ -24,5 +28,5 @@ export function logicNodeFunctionContext(input:Readonly<{root:JsonDocument;path:
     const label=text(parent?.['Name'])||resource
     for(const field of fields(parent))relatedFields.push({value:`${resource}.${field.name}`,label:`表[${label}]的（${field.label??field.name}）`})
   }
-  return {tables:name?[{name,label:text(selected['Name'])||name,fields:fields(selected)}]:[],relatedFields}
+  return {tables:name?[{name,label:text(selected['Name'])||name,fields:fields(selected)}]:[],relatedFields,...(inputParams.length?{inputParams}:{})}
 }

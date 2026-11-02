@@ -66,6 +66,23 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('offers node input definitions alongside the bound view parameters without losing the original node metadata',async()=>{
+    const inputs=[{Name:'nodeOnly',Description:'节点入参',FieldType:'',extra:false},{Name:'first',Description:'旧标题'}]
+    http.logicDesigns['V1']=[{Name:'Lookup',MetaName:'Lookup',Fields:[{Name:'out',ValueFun:null}],inputParams:inputs,ChildTables:[]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    await editor.get('[data-function-open]').trigger('click');await flushPromises()
+    const dialog=wrapper.getComponent(FilterValueFunctionDialog)
+    expect(dialog.props('context').inputParams).toEqual([{value:'first',label:'first'},{value:'nodeOnly',label:'节点入参'}])
+    dialog.vm.$emit('confirm',{Type:'GetInputParam',ParamName:'nodeOnly'});await flushPromises()
+    await editor.get('[data-json-save-row]').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'Lookup',MetaName:'Lookup',Fields:[{Name:'out',ValueFun:{Type:'GetInputParam',ParamName:'nodeOnly'}}],inputParams:inputs,ChildTables:[]}])
+    expect(http.saves).toHaveLength(0)
+  })
   it('binds view-parameter candidates by name and stores GetInputParam without substituting SystemData or record IDs',async()=>{
     http.logicDesigns['V1']=[{Name:'root',MetaName:'Source',Fields:[{Name:'id',ValueFun:null}],ChildTables:[]}]
     const {wrapper}=await openDesigner()

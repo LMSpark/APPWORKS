@@ -23,6 +23,12 @@ async function fixture(){
   return {ds,view,commands,original,persist,permission,active,read}
 }
 describe('original logic design node commands',()=>{
+  it('projects only node input names and labels without exposing stored values or guessing input types',()=>{
+    const root=[{Name:'Lookup',MetaName:'Lookup',Fields:[],inputParams:[{Name:'arg',description:'输入',FieldType:'',Value:'not-a-candidate',extra:0}]}]
+    const before=JSON.stringify(root),context=logicNodeFunctionContext({root,path:[0]})
+    expect(context.inputParams).toEqual([{value:'arg',label:'输入'}])
+    expect(context.systemParams).toBeUndefined();expect(JSON.stringify(root)).toBe(before)
+  })
   it('never treats aliases as resources or injects node parameters into system data',()=>{
     const root=[{Name:'alias-only',Fields:[{Name:'id'}],inputParams:[{Name:'arg'}],ChildTables:[{Name:'child-alias',Fields:[{Name:'value'}]}]}]
     const before=JSON.stringify(root)

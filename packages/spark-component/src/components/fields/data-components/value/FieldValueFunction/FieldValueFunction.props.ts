@@ -19,6 +19,6 @@ export type RValueFunctionProps = SparkNodeProps & SparkFieldSemanticProps<strin
   functionContext?: DataViewFilterFunctionContext
   /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */
   publicParameterDataViewKey?: string
-  /** GetInputParam/GetObjectArray候选所在完整视图键；消费已保存输入定义的valueField/labelField及读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */
+  /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */
   inputParameterDataViewKey?: string
 }

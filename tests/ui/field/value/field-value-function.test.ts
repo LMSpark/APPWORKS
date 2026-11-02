@@ -40,6 +40,17 @@ async function fixture(value:unknown = '{"Type":"GetApiPublicParam","ParamName":
   wrappers.push(wrapper); await flushPromises(); return {wrapper, view, readonly, opened, functionContext, optionKey, valueFormat, params: ds.getView('Params')!}
 }
 describe('standard value function field', () => {
+  it('combines readable bound inputs with declared node inputs by exact value, keeping bound labels and rejecting stale removed definitions',async()=>{
+    const f=await fixture()
+    f.functionContext.value={inputParams:[{value:'local',label:'节点入参'},{value:'access_token',label:'旧标题'}]};await flushPromises()
+    await f.wrapper.get('[data-function-open]').trigger('click');await flushPromises()
+    const dialog=f.wrapper.getComponent(FilterValueFunctionDialog)
+    expect(dialog.props('context').inputParams).toEqual([{value:'access_token',label:'令牌'},{value:'local',label:'节点入参'}])
+    const stale=dialog.vm.$.vnode.props?.['onConfirm'];if(typeof stale!=='function')throw new Error('Missing confirm handler')
+    f.functionContext.value={inputParams:[]};await flushPromises()
+    await stale({Type:'GetInputParam',ParamName:'local'});await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
   it('preserves an unsupported native definition when its dialog is cancelled',async()=>{
     const original={Type:'LegacyFunction',extra:{keep:false}},f=await fixture(original,false,false,true)
     expect(f.wrapper.get('[data-function-diagnostic]').text()).toContain('原文已保留')

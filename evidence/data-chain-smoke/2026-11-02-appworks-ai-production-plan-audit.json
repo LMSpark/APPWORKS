@@ -1,0 +1,54 @@
+{
+  "testedAt": "2026-11-02T14:29:13.1209560+00:00",
+  "kind": "appworks-migration-production-plan-review",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "baseCommit": "59d849f84f80f1f4ee7eacb551934c8ac8c253c7",
+  "plan": "notes/data-space-retirement-ledger.md#appworks-ai-production-plan-20261102",
+  "inventory": "evidence/data-chain-smoke/2026-11-02-appworks-migration-inventory.json",
+  "analysisModel": "gpt-6-astra",
+  "reasoningEffort": "high",
+  "modelTask": "higher_model_migration_plan",
+  "review": "no blocking execution findings",
+  "reviewCorrections": [
+    "distinguish 822 initial dictionary audits, 32 approved repairs and 98 remaining open failures",
+    "native page and four-file acceptance tracked separately"
+  ],
+  "workstations": 9,
+  "workPackages": 20,
+  "scopeCounts": {
+    "referenceUiFiles": 238,
+    "referenceVue": 116,
+    "referenceFeatureVue": 93,
+    "referencePageNameConvention": 45,
+    "currentVue": 96,
+    "exactReferenceVuePaths": 31,
+    "navigationRecords": 85,
+    "publishedNodes": 26,
+    "navigationUrls": 42,
+    "publishedUrls": 18,
+    "registeredPages": 37,
+    "pathAlignedNavigationUrls": 16,
+    "builtinScenarios": 16,
+    "registeredNavigationUrls": 18,
+    "unregisteredNavigationUrls": 24
+  },
+  "checks": {
+    "registeredPageSourcesExist": 37,
+    "referenceArtifactsAssigned": 116,
+    "navigationUrlsAssigned": 42,
+    "currentVueAssigned": 96,
+    "pagesConfig": "passed",
+    "productionAndTestChanges": 0,
+    "formalScenariosAssigned": 16,
+    "documentGovernance": "passed: 563 files"
+  },
+  "nextWriteMainline": "data workflow full node semantics and confirmed service feasibility",
+  "followingMainline": "Excel full import scheme and actual consumer",
+  "goalComplete": false,
+  "limitations": [
+    "No full live service revalidation this planning turn",
+    "Static scope and path counts do not prove migration completion",
+    "Service/data unknowns and deferred permissions remain explicit",
+    "No production code changed; no new temporary business records or service writes"
+  ]
+}

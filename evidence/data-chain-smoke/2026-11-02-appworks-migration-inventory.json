@@ -1,0 +1,4448 @@
+{
+  "generatedAt": "2026-11-02T14:29:12.914Z",
+  "targetHead": "59d849f84f80f1f4ee7eacb551934c8ac8c253c7",
+  "referenceRoot": "E:/r/sparkproject",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "purpose": "scope and path/config inventory only; not proof of semantics, permissions, persistence or complete migration",
+  "counts": {
+    "referenceUiFiles": 238,
+    "referenceVue": 116,
+    "referenceFeatureVue": 93,
+    "referencePageNameConvention": 45,
+    "currentVue": 96,
+    "exactReferenceVuePaths": 31,
+    "navigationRecords": 85,
+    "publishedNodes": 26,
+    "navigationUrls": 42,
+    "publishedUrls": 18,
+    "registeredPages": 37,
+    "pathAlignedNavigationUrls": 16,
+    "builtinScenarios": 16,
+    "registeredNavigationUrls": 18,
+    "unregisteredNavigationUrls": 24
+  },
+  "families": [
+    {
+      "family": "features/data-platform/structured-config",
+      "referenceVue": 19,
+      "currentExactPath": 15
+    },
+    {
+      "family": "features/application/enterprise-app-auth-application",
+      "referenceVue": 7,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/data-platform/semi-structured",
+      "referenceVue": 7,
+      "currentExactPath": 3
+    },
+    {
+      "family": "features/application/enterprise-regist-manager",
+      "referenceVue": 6,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/data-platform/database-management",
+      "referenceVue": 6,
+      "currentExactPath": 6
+    },
+    {
+      "family": "features/application/application-manager",
+      "referenceVue": 5,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/data-platform/data-set-management",
+      "referenceVue": 5,
+      "currentExactPath": 4
+    },
+    {
+      "family": "features/integration/report",
+      "referenceVue": 5,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/application/application-function-management",
+      "referenceVue": 4,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/workflow/flow-model",
+      "referenceVue": 4,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/application/data-menu",
+      "referenceVue": 3,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/governance/role-management",
+      "referenceVue": 3,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/integration/api-management",
+      "referenceVue": 3,
+      "currentExactPath": 3
+    },
+    {
+      "family": "features/workflow/flow-runtime",
+      "referenceVue": 3,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/schema/design",
+      "referenceVue": 3,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/AiChat/AppWorksAiAssistant.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/FilterValueFunctionDialog/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/JsonTreeEditor/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/RichTextEditor/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/SchemaGraph/SchemaGraphBadgeOverlay.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/SchemaGraph/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "components/business/application-option-dialog",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/application/application-context",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/governance/desensitization-rule",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/governance/navigation-permission",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/governance/user-app-authorization",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/organization/job-management",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/organization/organization-structure",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/organization/tenant-governance",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/organization/user-management",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/system/bug-manage",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/system/cache-management",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/system/data-recovery",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/system/flow-monitor",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "features/workflow/flow-append-user",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/DataBaseManage/DataBaseManage",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/FileDataManager/FileManager",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/ReportManage/ReportDesign",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/ReportManage/ReportViewer",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/appworks/field",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/appworks/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/appworks/table",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/schema/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/schema/relation",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/system/index.vue",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/system/menu",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/system/role",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    },
+    {
+      "family": "views/system/user",
+      "referenceVue": 1,
+      "currentExactPath": 0
+    }
+  ],
+  "referenceEntries": [
+    {
+      "reference": "apps/appworks/src/ui/components/AiChat/AppWorksAiAssistant.vue",
+      "workPackage": "工作台与四文件推广",
+      "kind": "reference-shared-component",
+      "family": "components/AiChat/AppWorksAiAssistant.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/AiChat/AppWorksAiAssistant.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/components/FilterValueFunctionDialog/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "reference-shared-component",
+      "family": "components/FilterValueFunctionDialog/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/FilterValueFunctionDialog/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/components/JsonTreeEditor/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "reference-shared-component",
+      "family": "components/JsonTreeEditor/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/JsonTreeEditor/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/components/RichTextEditor/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "reference-shared-component",
+      "family": "components/RichTextEditor/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/RichTextEditor/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/components/SchemaGraph/SchemaGraphBadgeOverlay.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "reference-shared-component",
+      "family": "components/SchemaGraph/SchemaGraphBadgeOverlay.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/SchemaGraph/SchemaGraphBadgeOverlay.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/components/SchemaGraph/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "reference-shared-component",
+      "family": "components/SchemaGraph/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/SchemaGraph/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/components/business/application-option-dialog/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "reference-shared-component",
+      "family": "components/business/application-option-dialog",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/components/business/application-option-dialog/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-context/ui/application-database-relations-page.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-context",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-function-management/ui/application-function-page.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-function-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-function-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-function-management/ui/blueprint-dimension-event-editor.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-function-management/ui/blueprint-dimension-source.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-function-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-function-management/ui/blueprint-dimension-source.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-function-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-function-management/ui/blueprint-source-commit-editor.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-manager/ui/application-database-dialog.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-manager/ui/application-database-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-manager/ui/application-manager-form-dialog.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-manager/ui/application-manager-form-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-manager/ui/application-manager-list.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-manager/ui/application-manager-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-manager/ui/application-manager-page.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-manager",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/application-manager/ui/application-relation-dialogs.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/application-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/application-manager/ui/application-relation-dialogs.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/data-menu/ui/data-menu-dialog.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/data-menu",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/data-menu/ui/data-menu-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/data-menu/ui/data-menu-list.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/data-menu",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/data-menu/ui/data-menu-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/data-menu/ui/data-menu-page.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/data-menu",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-content.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-audit-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-list.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/my-app-auth-request-list.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-app-auth-application",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-regist-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-regist-manager/ui/enterprise-app-auth-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-regist-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-regist-manager/ui/enterprise-audit-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-regist-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-regist-manager/ui/enterprise-config-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-regist-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-regist-manager/ui/enterprise-password-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-list.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-regist-manager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+      "workPackage": "企业与应用申请",
+      "kind": "feature-page-or-local-component",
+      "family": "features/application/enterprise-regist-manager",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "workPackage": "数据空间目录与设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/data-set-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+      "workPackage": "数据空间目录与设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/data-set-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+      "workPackage": "数据空间目录与设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/data-set-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/data-set-management/ui/data-set-auth-page.vue",
+      "workPackage": "数据空间目录与设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/data-set-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/data-set-management/ui/data-set-auth-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "workPackage": "数据空间目录与设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/data-set-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/database-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/database-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/database-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/database-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/database-management",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/database-management/ui/service-management-page.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/database-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "workPackage": "Excel导入",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "workPackage": "Excel导入",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue",
+      "workPackage": "Excel导入",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-lookup-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+      "workPackage": "Excel导入",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
+      "workPackage": "Excel导入",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
+      "workPackage": "Excel导入",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "workPackage": "JSON与文件管理",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/semi-structured",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+      "workPackage": "编码",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "workPackage": "字典",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "workPackage": "字典",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+      "workPackage": "维度设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "workPackage": "维度设计",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-rule-editor.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "workPackage": "逻辑视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "workPackage": "逻辑视图",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+      "workPackage": "数据工作流",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+      "workPackage": "数据工作流",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "workPackage": "数据工作流",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "workPackage": "数据工作流",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+      "workPackage": "数据工作流",
+      "kind": "feature-page-or-local-component",
+      "family": "features/data-platform/structured-config",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+      "workPackage": "治理与授权裁决",
+      "kind": "feature-page-or-local-component",
+      "family": "features/governance/desensitization-rule",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/governance/navigation-permission/ui/navigation-permission-page.vue",
+      "workPackage": "治理与授权裁决",
+      "kind": "feature-page-or-local-component",
+      "family": "features/governance/navigation-permission",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/governance/navigation-permission/ui/navigation-permission-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/governance/role-management/ui/role-auth-page.vue",
+      "workPackage": "治理与授权裁决",
+      "kind": "feature-page-or-local-component",
+      "family": "features/governance/role-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/governance/role-management/ui/role-auth-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/governance/role-management/ui/role-management-page.vue",
+      "workPackage": "治理与授权裁决",
+      "kind": "feature-page-or-local-component",
+      "family": "features/governance/role-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/governance/role-management/ui/role-management-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/governance/role-management/ui/role-user-page.vue",
+      "workPackage": "治理与授权裁决",
+      "kind": "feature-page-or-local-component",
+      "family": "features/governance/role-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/governance/role-management/ui/role-user-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/governance/user-app-authorization/ui/user-app-authorization-page.vue",
+      "workPackage": "治理与授权裁决",
+      "kind": "feature-page-or-local-component",
+      "family": "features/governance/user-app-authorization",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/governance/user-app-authorization/ui/user-app-authorization-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/api-management/ui/api-config-page.vue",
+      "workPackage": "外部服务/API",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/api-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/api-management/ui/api-interface-list-page.vue",
+      "workPackage": "外部服务/API",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/api-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/api-management/ui/api-management-page.vue",
+      "workPackage": "外部服务/API",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/api-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "targetExists": true,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/report/ui/report-form-dialog.vue",
+      "workPackage": "报表",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/report",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/integration/report/ui/report-form-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/report/ui/report-management-list.vue",
+      "workPackage": "报表",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/report",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/integration/report/ui/report-management-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/report/ui/report-management-page.vue",
+      "workPackage": "报表",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/report",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/integration/report/ui/report-management-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/report/ui/report-model-dialog.vue",
+      "workPackage": "报表",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/report",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/integration/report/ui/report-model-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/integration/report/ui/report-version-dialog.vue",
+      "workPackage": "报表",
+      "kind": "feature-page-or-local-component",
+      "family": "features/integration/report",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/integration/report/ui/report-version-dialog.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/organization/job-management/ui/job-management-page.vue",
+      "workPackage": "组织、岗位与用户",
+      "kind": "feature-page-or-local-component",
+      "family": "features/organization/job-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/organization/job-management/ui/job-management-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "workPackage": "组织、岗位与用户",
+      "kind": "feature-page-or-local-component",
+      "family": "features/organization/organization-structure",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/organization/tenant-governance/ui/tenant-governance-list.vue",
+      "workPackage": "组织、岗位与用户",
+      "kind": "feature-page-or-local-component",
+      "family": "features/organization/tenant-governance",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/organization/tenant-governance/ui/tenant-governance-list.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/organization/user-management/ui/user-management-page.vue",
+      "workPackage": "组织、岗位与用户",
+      "kind": "feature-page-or-local-component",
+      "family": "features/organization/user-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/organization/user-management/ui/user-management-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/system/bug-manage/ui/bug-manage-page.vue",
+      "workPackage": "系统运维",
+      "kind": "feature-page-or-local-component",
+      "family": "features/system/bug-manage",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/system/cache-management/ui/cache-management-page.vue",
+      "workPackage": "系统运维",
+      "kind": "feature-page-or-local-component",
+      "family": "features/system/cache-management",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/system/data-recovery/ui/data-recovery-page.vue",
+      "workPackage": "系统运维",
+      "kind": "feature-page-or-local-component",
+      "family": "features/system/data-recovery",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "workPackage": "系统运维",
+      "kind": "feature-page-or-local-component",
+      "family": "features/system/flow-monitor",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-append-user/ui/flow-append-user.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-append-user",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/workflow/flow-append-user/ui/flow-append-user.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-model",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/workflow/flow-model/design/ui/edge-panel/flow-design-edge-panel.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-model/design/ui/flow-design-page.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-model",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/workflow/flow-model/design/ui/flow-design-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-model",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/workflow/flow-model/design/ui/node-panel/flow-design-node-panel.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-model",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-runtime",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/workflow/flow-runtime/detail/ui/flow-run-detail-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-runtime",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page-mobile.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+      "workPackage": "业务审批流程",
+      "kind": "feature-page-or-local-component",
+      "family": "features/workflow/flow-runtime",
+      "entryNameMatchesPageConvention": true,
+      "expectedTarget": "src/views/features/workflow/flow-runtime/run-page/ui/flow-run-page.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/DataBaseManage/DataBaseManage/index.vue",
+      "workPackage": "数据库与表视图",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/DataBaseManage/DataBaseManage",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/DataBaseManage/DataBaseManage/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/FileDataManager/FileManager/index.vue",
+      "workPackage": "JSON与文件管理",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/FileDataManager/FileManager",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/FileDataManager/FileManager/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/ReportManage/ReportDesign/index.vue",
+      "workPackage": "报表",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/ReportManage/ReportDesign",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/ReportManage/ReportDesign/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/ReportManage/ReportViewer/index.vue",
+      "workPackage": "报表",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/ReportManage/ReportViewer",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/ReportManage/ReportViewer/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/appworks/field/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/appworks/field",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/appworks/field/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/appworks/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/appworks/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/appworks/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/appworks/table/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/appworks/table",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/appworks/table/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/schema/design/EdgePanel/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/schema/design",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/schema/design/EdgePanel/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/schema/design/NodePanel/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/schema/design",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/schema/design/NodePanel/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/schema/design/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/schema/design",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/schema/design/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/schema/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/schema/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/schema/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/schema/relation/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/schema/relation",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/schema/relation/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/system/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/system/index.vue",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/system/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/system/menu/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/system/menu",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/system/menu/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/system/role/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/system/role",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/system/role/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    },
+    {
+      "reference": "apps/appworks/src/ui/views/system/user/index.vue",
+      "workPackage": "宿主与系统入口",
+      "kind": "view-requires-host-or-page-classification",
+      "family": "views/system/user",
+      "entryNameMatchesPageConvention": false,
+      "expectedTarget": "src/views/views/system/user/index.vue",
+      "targetExists": false,
+      "semanticAcceptance": "not-established-by-path-inventory"
+    }
+  ],
+  "navigationEntries": [
+    {
+      "id": "02215DFBCA2079FBC076CEF7D91FBF6E",
+      "name": "申请应用授权",
+      "url": "vue:/features/application/enterprise-app-auth-application/ui/apply-app-auth-page",
+      "workPackage": "企业与应用申请",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/enterprise-app-auth-application/ui/apply-app-auth-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "0A835EB88AAC2BDFBDE344477C6827BB",
+      "name": "岗位管理",
+      "url": "vue:/features/organization/job-management/ui/job-management-page",
+      "workPackage": "组织、岗位与用户",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/organization/job-management/ui/job-management-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "0C70F74793F9E858B71E0DBDEC784D57",
+      "name": "应用系统列表",
+      "url": "vue:/features/application/application-manager/ui/application-manager-page",
+      "workPackage": "应用、菜单与蓝图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/app/AppList.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/application/application-manager/ui/application-manager-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "1364C6047118E0FCA201CFC79D8596A5",
+      "name": "权限配置",
+      "url": "vue:/features/governance/navigation-permission/ui/navigation-permission-page",
+      "workPackage": "治理与授权裁决",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/governance/navigation-permission/ui/navigation-permission-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "1B43F5D4B5EE1699E4A18BAE48EAB0FC",
+      "name": "报表管理",
+      "url": "vue:/features/integration/report/ui/report-management-page",
+      "workPackage": "报表",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/integration/report/ui/report-management-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "1B7FD70E326717B8E4B611D0431FFCBA",
+      "name": "人员管理",
+      "url": "vue:/features/organization/user-management/ui/user-management-page",
+      "workPackage": "组织、岗位与用户",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/organization/user-management/ui/user-management-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "23D8B53174DB7195CC3AE82099BDD675",
+      "name": "业务流程设计",
+      "url": "vue:/features/workflow/flow-model/ui/flow-model-list-page",
+      "workPackage": "业务审批流程",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "28F30060CD75BA684B28EEF07732CB72",
+      "name": "数据表和视图",
+      "url": "vue:/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "workPackage": "数据库与表视图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "2CA968B3513084BA2537BB0C85AE945E",
+      "name": "导航宿主",
+      "url": "vue:/features/application/data-menu/ui/data-menu-page",
+      "workPackage": "应用、菜单与蓝图",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/data-menu/ui/data-menu-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "3074BAF05FB59C2E0CB879C126A49989",
+      "name": "导航权限配置",
+      "url": "vue:/features/governance/navigation-permission/ui/navigation-permission-page",
+      "workPackage": "治理与授权裁决",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/governance/navigation-permission/ui/navigation-permission-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "348D1C50B204C779AABBE2489C5E2FDF",
+      "name": "缓存管理",
+      "url": "vue:/features/system/cache-management/ui/cache-management-page",
+      "workPackage": "系统运维",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/app/CacheManager.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "36B01771C627B9BF5CD493DC75B996A1",
+      "name": "电子表格导入导出配置",
+      "url": "vue:/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "workPackage": "Excel导入",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "3A45C53F29C2C005FF21AA06B2BCA133",
+      "name": "脱敏规则配置",
+      "url": "vue:/features/governance/desensitization-rule/ui/desensitization-rule-page",
+      "workPackage": "治理与授权裁决",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/governance/desensitization-rule/ui/desensitization-rule-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "4138A7C47ECB96EA85CA61A8A8B7191F",
+      "name": "机构管理",
+      "url": "vue:/features/organization/organization-structure/ui/organization-structure-page",
+      "workPackage": "组织、岗位与用户",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "439BD7FB0463A2FE197B9167234A81D0",
+      "name": "人员管理",
+      "url": "vue:/features/governance/role-management/ui/role-user-page",
+      "workPackage": "治理与授权裁决",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/governance/role-management/ui/role-user-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "47DA54EA853C8780976D43CF2369B096",
+      "name": "我的申请",
+      "url": "vue:/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page",
+      "workPackage": "企业与应用申请",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/enterprise-app-auth-application/ui/my-app-auth-request-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "5914FF981A7DF228ED88BBDB71353470",
+      "name": "入驻管理",
+      "url": "vue:/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page",
+      "workPackage": "企业与应用申请",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/enterprise-regist-manager/ui/enterprise-regist-manager-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "5B54AEBD5BD1BBC72710D4022589A404",
+      "name": "BUG管理",
+      "url": "vue:/features/system/bug-manage/ui/bug-manage-page",
+      "workPackage": "系统运维",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "5E9676B1E38860B023921F48FB4370DE",
+      "name": "数据工作流",
+      "url": "vue:/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "workPackage": "数据工作流",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "62DB03B06A489600FFF86F3640D5C0E7",
+      "name": "数据库管理",
+      "url": "vue:/DataBaseManage/DataBaseManage/index",
+      "workPackage": "数据库与表视图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "70D5D8FACCC201A822F64B16A441BE8F",
+      "name": "数据恢复",
+      "url": "vue:/features/system/data-recovery/ui/data-recovery-page",
+      "workPackage": "系统运维",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "78C58A7FE34F2987267A1E8AF10B2990",
+      "name": "服务器管理",
+      "url": "vue:/features/data-platform/database-management/ui/service-management-page",
+      "workPackage": "数据库与表视图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "7AB874097A1E8711A42FD845939A6E05",
+      "name": "项目蓝图",
+      "url": "vue:/features/application/application-function-management/ui/application-function-page",
+      "workPackage": "应用、菜单与蓝图",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/application-function-management/ui/application-function-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "87F0EF6AD1B64D67FFE597E7E3285994",
+      "name": "模型管理",
+      "url": "vue:/features/workflow/flow-model/ui/flow-model-list-page",
+      "workPackage": "业务审批流程",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/workflow/flow-model/ui/flow-model-list-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "88A4D51B01702C3856F4632E234BF34B",
+      "name": "维度设计",
+      "url": "vue:/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page",
+      "workPackage": "维度设计",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/data-platform/structured-config/dimension-definition/ui/dimension-design-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "name": "外部服务管理",
+      "url": "vue:/features/integration/api-management/ui/api-management-page",
+      "workPackage": "外部服务/API",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "90A82E287930A234FEC3E687C94A93EA",
+      "name": "数据空间管理",
+      "url": "vue:/features/data-platform/data-set-management/ui/data-set-list-page",
+      "workPackage": "数据空间目录与设计",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "93DF05182084B1F0E8DA7283E83BBE0C",
+      "name": "数据库管理",
+      "url": "vue:/features/application/application-context/ui/application-database-relations-page",
+      "workPackage": "应用、菜单与蓝图",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/application-context/ui/application-database-relations-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "A133D679691178F192D7E9DA06829506",
+      "name": "数据编码",
+      "url": "vue:/features/data-platform/structured-config/data-code/ui/data-code-list-page",
+      "workPackage": "编码",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "A2D63AB2AAEF156E7727094A23AEA433",
+      "name": "PDF效验管理",
+      "url": "vue:/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+      "workPackage": "PDF专题",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "A8FB2B2B161125A16FD15ED9581CD15B",
+      "name": "表和视图管理",
+      "url": "vue:/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "workPackage": "数据库与表视图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "BBA48156BAF054754E038C3A4FCBCD65",
+      "name": "逻辑视图管理",
+      "url": "vue:/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "workPackage": "逻辑视图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "C06D41607B6258106F35A0A319B71804",
+      "name": "申请列表",
+      "url": "vue:/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page",
+      "workPackage": "企业与应用申请",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/application/enterprise-app-auth-application/ui/enterprise-app-auth-application-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "CB52B21B26AD20AADDC4498613C3078D",
+      "name": "字典管理",
+      "url": "vue:/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "workPackage": "字典",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "D3F8C26067DD48BE7246A6ABDF4F3253",
+      "name": "角色分类管理",
+      "url": "vue:/features/governance/role-management/ui/role-management-page",
+      "workPackage": "治理与授权裁决",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/governance/role-management/ui/role-management-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "E0BB79BA59101F76628F1448D6351B4E",
+      "name": "数据工作流",
+      "url": "vue:/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "workPackage": "数据工作流",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "E328FBBF518141973C575D612CD75151",
+      "name": "流程监控",
+      "url": "vue:/features/system/flow-monitor/ui/flow-monitor-page",
+      "workPackage": "系统运维",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "EB720370EF06A5A656838F87E0716D6B",
+      "name": "逻辑视图",
+      "url": "vue:/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "workPackage": "逻辑视图",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "EDB0E34486FFB903E896E5C281230961",
+      "name": "数据字典",
+      "url": "vue:/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "workPackage": "字典",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "EDF7DE3E5723E127F98B2A119BE81BF9",
+      "name": "文件管理",
+      "url": "vue:/FileDataManager/FileManager/index",
+      "workPackage": "JSON与文件管理",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/FileDataManager/FileManager/index.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "FB291E325272007AEED8921C28B93CFD",
+      "name": "业务报表管理",
+      "url": "vue:/features/integration/report/ui/report-management-page",
+      "workPackage": "报表",
+      "published": false,
+      "registered": false,
+      "registeredSource": null,
+      "sourceExists": false,
+      "expectedSource": "src/views/features/integration/report/ui/report-management-page.vue",
+      "pathAligned": false,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    },
+    {
+      "id": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "name": "JSON数据管理",
+      "url": "vue:/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "workPackage": "JSON与文件管理",
+      "published": true,
+      "registered": true,
+      "registeredSource": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "sourceExists": true,
+      "expectedSource": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "pathAligned": true,
+      "scopeDisposition": "requires-semantic-contract-review",
+      "liveAcceptance": "not-established-by-inventory"
+    }
+  ],
+  "scenarioEntries": [
+    {
+      "name": "businessTableSelector",
+      "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+      "resourceId": "repository:scenario-view:34BDBE645F461A3D83282A941D6037F4",
+      "path": "config/pages/shared/business-table-selector/pagedata.json",
+      "declaredScenarioId": "34BDBE645F461A3D83282A941D6037F4",
+      "tables": [
+        {
+          "key": "Base_AppSystemList",
+          "modelBinding": {
+            "modelId": "a9bb14ed-81c4-4f68-88c2-dc9b1d86ef06",
+            "modelName": "Base_AppSystemList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_AppAndSource_Relation",
+          "modelBinding": {
+            "modelId": "400d5424-9a33-4faf-a10b-da436344b203",
+            "modelName": "Base_AppAndSource_Relation"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "_Base_TblList",
+          "modelBinding": {
+            "modelId": "06f387a1-fe18-422a-b1ef-997002c15eaa",
+            "modelName": "_Base_TblList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_TblField",
+          "modelBinding": {
+            "modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a",
+            "modelName": "Base_TblField"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "textFields",
+            "valueFields"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "宿主与系统入口"
+    },
+    {
+      "name": "dataSpaceDesign",
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "resourceId": "repository:scenario-view:8D1AB14DD8277F3E7017CD38F77B09FD",
+      "path": "config/pages/data-platform/data-space-design/pagedata.json",
+      "declaredScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "tables": [
+        {
+          "key": "ProjectToolCatalog",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "project:tool-catalog",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 2
+        },
+        {
+          "key": "ProjectToolFile",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "project:tool-file",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 6
+        },
+        {
+          "key": "DataSpaceReferenceLayout",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "reference:layout",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 2
+        },
+        {
+          "key": "DataSpaceLayoutDefinition",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "pagedata:layout",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 5
+        },
+        {
+          "key": "DataTableBindingDefinition",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "pagedata:tables",
+          "views": [
+            "fileModels",
+            "default"
+          ],
+          "configuredColumns": 6
+        },
+        {
+          "key": "DataViewDefinition",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "pagedata:views",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 22
+        },
+        {
+          "key": "DataResourceRelationDefinition",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "pagedata:resourceRelations",
+          "views": [
+            "default",
+            "graph"
+          ],
+          "configuredColumns": 10
+        },
+        {
+          "key": "DataViewCascadeDefinition",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "pagedata:viewCascades",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 20
+        },
+        {
+          "key": "Base_Desensitization_Rule",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp013",
+            "modelName": "Base_Desensitization_Rule"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "View_TblList",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+            "modelName": "View_TblList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails",
+            "sourceCandidates"
+          ],
+          "configuredColumns": 1
+        },
+        {
+          "key": "_Base_DictType",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp005",
+            "modelName": "_Base_DictType"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails",
+            "sourceCandidates"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataServiceInterface",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp006",
+            "modelName": "Base_DataServiceInterface"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails",
+            "sourceCandidates"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_JsonData",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp007",
+            "modelName": "Base_JsonData"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails",
+            "sourceCandidates"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataViewList",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp008",
+            "modelName": "Base_DataViewList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails",
+            "sourceCandidates"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "View_ViewList",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp009",
+            "modelName": "View_ViewList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails",
+            "sourceCandidates"
+          ],
+          "configuredColumns": 1
+        },
+        {
+          "key": "Base_TblField",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp010",
+            "modelName": "Base_TblField"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "_Base_ParamList",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp011",
+            "modelName": "_Base_ParamList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "sourceDetails"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp001",
+            "modelName": "Base_DataModel"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "modelOptions",
+            "default",
+            "apiInfoModels",
+            "designModels"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel_Field",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp002",
+            "modelName": "Base_DataModel_Field"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "modelInputFields",
+            "sourceInputFields",
+            "modelFields",
+            "modelFieldOptions",
+            "default",
+            "apiInfoFields",
+            "designFields"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataSet",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp000",
+            "modelName": "Base_DataSet"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "designParameters"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel_Relation",
+          "modelBinding": {
+            "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp003",
+            "modelName": "Base_DataModel_Relation"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "designRelations"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "数据空间目录与设计"
+    },
+    {
+      "name": "dataSpaceCatalog",
+      "scenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "resourceId": "repository:scenario-view:90A82E287930A234FEC3E687C94A93EA",
+      "path": "config/pages/data-platform/data-space-catalog/pagedata.json",
+      "declaredScenarioId": "90A82E287930A234FEC3E687C94A93EA",
+      "tables": [
+        {
+          "key": "Base_NavigationInfo",
+          "modelBinding": {
+            "modelId": "44402ab3-7708-4a12-adaf-5d8a2e42b9ff",
+            "modelName": "Base_NavigationInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataSet",
+          "modelBinding": {
+            "modelId": "90A82E287930A234FEC3E687C94A93EAp000",
+            "modelName": "Base_DataSet"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "catalog",
+            "designTarget"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_UserInfo",
+          "modelBinding": {
+            "modelId": "90A82E287930A234FEC3E687C94A93EAp001",
+            "modelName": "Base_UserInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "catalogUsers"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel_Field",
+          "modelBinding": {
+            "modelId": "a30f1b5b-4a2f-432c-aa71-1b597bc36e11",
+            "modelName": "Base_DataModel_Field"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_AppSystemList",
+          "modelBinding": {
+            "modelId": "acb04903-043f-4c99-9a57-a8e9bc95ce72",
+            "modelName": "Base_AppSystemList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "catalogApps"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel",
+          "modelBinding": {
+            "modelId": "e9f6c362-9ec9-4d77-bf62-cdcb5d2c1bbb",
+            "modelName": "Base_DataModel"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "数据空间目录与设计"
+    },
+    {
+      "name": "dataDictionary",
+      "scenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "resourceId": "repository:scenario-view:69B79AB779DF4C12A5595DACDF3283F1",
+      "path": "config/pages/data-platform/data-dictionary/pagedata.json",
+      "declaredScenarioId": "69B79AB779DF4C12A5595DACDF3283F1",
+      "tables": [
+        {
+          "key": "_Base_DictType",
+          "modelBinding": {
+            "modelId": "69B79AB779DF4C12A5595DACDF3283F1p000",
+            "modelName": "_Base_DictType"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "_Base_DictData",
+          "modelBinding": {
+            "modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04",
+            "modelName": "_Base_DictData"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "NavigationShowType_Content",
+            "Navigationposition"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "字典"
+    },
+    {
+      "name": "projectBlueprint",
+      "scenarioId": "7AB874097A1E8711A42FD845939A6E05",
+      "resourceId": "repository:scenario-view:7AB874097A1E8711A42FD845939A6E05",
+      "path": "config/pages/application/project-blueprint/pagedata.json",
+      "declaredScenarioId": "7AB874097A1E8711A42FD845939A6E05",
+      "tables": [
+        {
+          "key": "Base_NavigationInfo",
+          "modelBinding": {
+            "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+            "modelName": "Base_NavigationInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "catalogBindings",
+            "navigationRoot"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_AppSystemList",
+          "modelBinding": {
+            "modelId": "7AB874097A1E8711A42FD845939A6E05p001",
+            "modelName": "Base_AppSystemList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "catalogApps"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_Navigation_Desc_Version",
+          "modelBinding": {
+            "modelId": "7AB874097A1E8711A42FD845939A6E05p007",
+            "modelName": "Base_Navigation_Desc_Version"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_Navigation_DataRelation",
+          "modelBinding": {
+            "modelId": "6ab982ff-afa3-4d06-99ef-1c500b7587c6",
+            "modelName": "Base_Navigation_DataRelation"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "ProjectToolVersion",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "project:tool-version",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 6
+        },
+        {
+          "key": "ProjectToolFile",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "project:tool-file",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 6
+        },
+        {
+          "key": "RepositoryBlueprintNode",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "repository:navigation:appworks-system:records",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 28
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "应用、菜单与蓝图"
+    },
+    {
+      "name": "apiProvider",
+      "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "resourceId": "repository:scenario-view:8CBB62EBC873A38DB9E6EEF177AFC731",
+      "path": "config/pages/integration/api-provider/pagedata.json",
+      "declaredScenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
+      "tables": [
+        {
+          "key": "Base_InterfaceProvider",
+          "modelBinding": {
+            "modelId": "8CBB62EBC873A38DB9E6EEF177AFC731p000",
+            "modelName": "Base_InterfaceProvider"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "definition",
+            "create"
+          ],
+          "configuredColumns": 2
+        },
+        {
+          "key": "Base_UserInfo",
+          "modelBinding": {
+            "modelId": "8CBB62EBC873A38DB9E6EEF177AFC731p001",
+            "modelName": "Base_UserInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "外部服务/API"
+    },
+    {
+      "name": "apiConfig",
+      "scenarioId": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "resourceId": "repository:scenario-view:446B5D94A71587E9BD4D325A4DF5F6F8",
+      "path": "config/pages/integration/api-config/pagedata.json",
+      "declaredScenarioId": "446B5D94A71587E9BD4D325A4DF5F6F8",
+      "tables": [
+        {
+          "key": "Base_InterfaceProvider",
+          "modelBinding": {
+            "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p000",
+            "modelName": "Base_InterfaceProvider"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "authentication"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_InterfaceProvider_Headers",
+          "modelBinding": {
+            "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p001",
+            "modelName": "Base_InterfaceProvider_Headers"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 4
+        },
+        {
+          "key": "Base_Interface_PublicParam",
+          "modelBinding": {
+            "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p002",
+            "modelName": "Base_Interface_PublicParam"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "references"
+          ],
+          "configuredColumns": 4
+        },
+        {
+          "key": "接口公共头部信息使用类型",
+          "modelBinding": {
+            "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p004",
+            "modelName": "接口公共头部信息使用类型"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataServiceInterface",
+          "modelBinding": {
+            "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p005",
+            "modelName": "Base_DataServiceInterface"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_TblField",
+          "modelBinding": {
+            "modelId": "446B5D94A71587E9BD4D325A4DF5F6F8p006",
+            "modelName": "Base_TblField"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "外部服务/API"
+    },
+    {
+      "name": "apiInterface",
+      "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "resourceId": "repository:scenario-view:EC84BD89BDBDF46B1FE5132DD53836E5",
+      "path": "config/pages/integration/api-interface/pagedata.json",
+      "declaredScenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "tables": [
+        {
+          "key": "Base_DataServiceInterface",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p001",
+            "modelName": "Base_DataServiceInterface"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 11
+        },
+        {
+          "key": "_Base_ParamList",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p006",
+            "modelName": "_Base_ParamList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "references"
+          ],
+          "configuredColumns": 3
+        },
+        {
+          "key": "Base_InterfaceApi_Headers",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p008",
+            "modelName": "Base_InterfaceApi_Headers"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 3
+        },
+        {
+          "key": "Base_TblField",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p009",
+            "modelName": "Base_TblField"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_Interface_PublicParam",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p005",
+            "modelName": "Base_Interface_PublicParam"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_InterfaceProvider_Account",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p000",
+            "modelName": "Base_InterfaceProvider_Account"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "ContentType",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p002",
+            "modelName": "ContentType"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "request",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p003",
+            "modelName": "request"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "接口参数类型",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p004",
+            "modelName": "接口参数类型"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "ParamType",
+          "modelBinding": {
+            "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p007",
+            "modelName": "ParamType"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "外部服务/API"
+    },
+    {
+      "name": "dataCodeCatalog",
+      "scenarioId": "A133D679691178F192D7E9DA06829506",
+      "resourceId": "repository:scenario-view:A133D679691178F192D7E9DA06829506",
+      "path": "config/pages/structured-config/data-code-catalog/pagedata.json",
+      "declaredScenarioId": "A133D679691178F192D7E9DA06829506",
+      "tables": [
+        {
+          "key": "Base_CodeDesign",
+          "modelBinding": {
+            "modelId": "A133D679691178F192D7E9DA06829506p000",
+            "modelName": "Base_CodeDesign"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_AppSystemList",
+          "modelBinding": {
+            "modelId": "A133D679691178F192D7E9DA06829506p002",
+            "modelName": "Base_AppSystemList"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_UserInfo",
+          "modelBinding": {
+            "modelId": "A133D679691178F192D7E9DA06829506p003",
+            "modelName": "Base_UserInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "编码"
+    },
+    {
+      "name": "dataCodeEditor",
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "resourceId": "repository:scenario-view:868E62F90DB8118C74CDC9F6BCA61157",
+      "path": "config/pages/structured-config/data-code-editor/pagedata.json",
+      "declaredScenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "tables": [
+        {
+          "key": "Base_CodeDesign",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p000",
+            "modelName": "Base_CodeDesign"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "parents"
+          ],
+          "configuredColumns": 2
+        },
+        {
+          "key": "Base_CodeNodeDesign",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p001",
+            "modelName": "Base_CodeNodeDesign"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 1
+        },
+        {
+          "key": "Dict_CodeNodeType",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p004",
+            "modelName": "Dict_CodeNodeType"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 1
+        },
+        {
+          "key": "Base_CodeClassTable",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p005",
+            "modelName": "Base_CodeClassTable"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_CodingSequence",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p006",
+            "modelName": "Base_CodingSequence"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_TblField",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p007",
+            "modelName": "Base_TblField"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "referenceFields",
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_CodeSerialPerform",
+          "modelBinding": {
+            "modelId": "868E62F90DB8118C74CDC9F6BCA61157p008",
+            "modelName": "Base_CodeSerialPerform"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "编码"
+    },
+    {
+      "name": "workflowCatalog",
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "resourceId": "repository:scenario-view:5E9676B1E38860B023921F48FB4370DE",
+      "path": "config/pages/structured-config/workflow-catalog/pagedata.json",
+      "declaredScenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "tables": [
+        {
+          "key": "Base_WorkflowDefinition",
+          "modelBinding": {
+            "modelId": "b51532e2-5193-4f65-a24b-0ce9fcd205c8",
+            "modelName": "Base_WorkflowDefinition"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "workflowStatus",
+          "modelBinding": {
+            "modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5",
+            "modelName": "workflowStatus"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "数据工作流"
+    },
+    {
+      "name": "excelImportCatalog",
+      "scenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+      "resourceId": "repository:scenario-view:36B01771C627B9BF5CD493DC75B996A1",
+      "path": "config/pages/semi-structured/excel-import-catalog/pagedata.json",
+      "declaredScenarioId": "36B01771C627B9BF5CD493DC75B996A1",
+      "tables": [
+        {
+          "key": "Base_Import_solution",
+          "modelBinding": {
+            "modelId": "36B01771C627B9BF5CD493DC75B996A1p000",
+            "modelName": "Base_Import_solution"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "editorTarget"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataSet",
+          "modelBinding": {
+            "modelId": "c2f87e1b-09d8-4770-a93a-a21696bd5dc3",
+            "modelName": "Base_DataSet"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_UserInfo",
+          "modelBinding": {
+            "modelId": "36B01771C627B9BF5CD493DC75B996A1p001",
+            "modelName": "Base_UserInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "Excel导入"
+    },
+    {
+      "name": "pdfInspectCatalog",
+      "scenarioId": "A2D63AB2AAEF156E7727094A23AEA433",
+      "resourceId": "repository:scenario-view:A2D63AB2AAEF156E7727094A23AEA433",
+      "path": "config/pages/semi-structured/pdf-inspect-catalog/pagedata.json",
+      "declaredScenarioId": "A2D63AB2AAEF156E7727094A23AEA433",
+      "tables": [
+        {
+          "key": "Base_FileInspectConfig",
+          "modelBinding": {
+            "modelId": "6d177477-0ecb-41c2-9299-ff037935066d",
+            "modelName": "Base_FileInspectConfig"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default",
+            "definition"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "PDF专题"
+    },
+    {
+      "name": "jsonDataCatalog",
+      "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "resourceId": "repository:scenario-view:FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "path": "config/pages/semi-structured/json-data/pagedata.json",
+      "declaredScenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+      "tables": [
+        {
+          "key": "Base_JsonData",
+          "modelBinding": {
+            "modelId": "FFDEF2AED3E19A38C0FCDDC748CF939Bp000",
+            "modelName": "Base_JsonData"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 1
+        },
+        {
+          "key": "Base_UserInfo",
+          "modelBinding": {
+            "modelId": "FFDEF2AED3E19A38C0FCDDC748CF939Bp001",
+            "modelName": "Base_UserInfo"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "JSON与文件管理"
+    },
+    {
+      "name": "workflowEditor",
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "resourceId": "repository:scenario-view:0DD8D28D462F51C5790AA6FBFAE39366",
+      "path": "config/pages/structured-config/workflow-editor/pagedata.json",
+      "declaredScenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "tables": [
+        {
+          "key": "Base_WorkflowDefinition",
+          "modelBinding": {
+            "modelId": "ef912d1c-027e-4e0c-a703-d5ccce2574cc",
+            "modelName": "Base_WorkflowDefinition"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_WorkflowNodeDefinition",
+          "modelBinding": {
+            "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+            "modelName": "Base_WorkflowNodeDefinition"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_WorkflowConnectors",
+          "modelBinding": {
+            "modelId": "4f5525d8-07d9-47c2-ac31-dc59ca00966e",
+            "modelName": "Base_WorkflowConnectors"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "WorkflowLayout",
+          "modelBinding": null,
+          "resourceType": "file",
+          "resourceId": "workflow-definition:layout",
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 3
+        },
+        {
+          "key": "Base_DataModel",
+          "modelBinding": {
+            "modelId": "2ce52b10-5aeb-4422-98f7-5da8e05898f0",
+            "modelName": "Base_DataModel"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel_Field",
+          "modelBinding": {
+            "modelId": "70e18542-ba59-41d7-baa3-5f57d509bf76",
+            "modelName": "Base_DataModel_Field"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_DataModel_Relation",
+          "modelBinding": {
+            "modelId": "7b1969e4-20a7-4710-8aa3-8e9dccca0a9c",
+            "modelName": "Base_DataModel_Relation"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "asParent",
+            "asChild",
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "数据工作流"
+    },
+    {
+      "name": "excelImportEditor",
+      "scenarioId": "0F93B82141CF40852021D704B0E30BF4",
+      "resourceId": "repository:scenario-view:0F93B82141CF40852021D704B0E30BF4",
+      "path": "config/pages/semi-structured/excel-import-editor/pagedata.json",
+      "declaredScenarioId": "0F93B82141CF40852021D704B0E30BF4",
+      "tables": [
+        {
+          "key": "Base_ImportData_Config",
+          "modelBinding": {
+            "modelId": "0F93B82141CF40852021D704B0E30BF4p000",
+            "modelName": "Base_ImportData_Config"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_ImportData_Field",
+          "modelBinding": {
+            "modelId": "0F93B82141CF40852021D704B0E30BF4p002",
+            "modelName": "Base_ImportData_Field"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "ImportExportMethods",
+          "modelBinding": {
+            "modelId": "0F93B82141CF40852021D704B0E30BF4p001",
+            "modelName": "ImportExportMethods"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        },
+        {
+          "key": "Base_Import_Transform_Rule",
+          "modelBinding": {
+            "modelId": "b3ca28c2-432c-4374-ac20-bb98a85c2098",
+            "modelName": "Base_Import_Transform_Rule"
+          },
+          "resourceType": null,
+          "resourceId": null,
+          "views": [
+            "default"
+          ],
+          "configuredColumns": 0
+        }
+      ],
+      "liveAcceptance": "not-established-by-config-inventory",
+      "primaryWorkPackage": "Excel导入"
+    }
+  ],
+  "currentOnlyVue": [
+    "src/views/platform/TenantConfigPanel.vue",
+    "src/views/platform/PlatformTenantManagement.vue",
+    "src/views/platform/PlatformApps.vue",
+    "src/views/platform/LoginView.vue",
+    "src/views/platform/HomePage.vue",
+    "src/views/platform/About.vue",
+    "src/views/DataBaseManage/DataBaseManage/index.vue",
+    "src/views/app/WorkflowDesigns.vue",
+    "src/views/app/AppProjectSettingsDialog.vue",
+    "src/views/app/AppList.vue",
+    "src/views/app/CacheManager.vue",
+    "src/views/app/Settings.vue",
+    "src/views/app/demo/TemplateDslDemo.vue",
+    "src/views/app/demo/RFormCompareDemo.vue",
+    "src/views/app/demo/Dashboard.vue",
+    "src/views/app/demo/CustomRTableDemo.vue",
+    "src/views/app/demo/CapabilityDemo.vue",
+    "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
+    "src/views/app/dev-system/ProjectBlueprintTree.vue",
+    "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
+    "src/views/app/dev-system/DevSystem.vue",
+    "src/views/app/dev-system/DevPreviewTab.vue",
+    "src/views/app/dev-system/DevFileEditor.vue",
+    "src/views/app/dev-system/DevDataSetDesigner.vue",
+    "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+    "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+    "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+    "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
+    "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue",
+    "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.vue",
+    "src/views/app/dev-system/components/NodeTargetConfig.vue",
+    "src/views/app/dev-system/components/NodeStateConfig.vue",
+    "src/views/app/dev-system/components/NodeLayoutConfig.vue",
+    "src/views/app/dev-system/components/NodeBasicInfo.vue",
+    "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
+    "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue",
+    "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
+    "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
+    "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
+    "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
+    "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+    "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue",
+    "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
+    "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.vue",
+    "src/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue",
+    "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+    "src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue",
+    "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue",
+    "src/views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue",
+    "src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue",
+    "src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue",
+    "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+    "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayCreate.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue",
+    "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.vue"
+  ],
+  "limitations": [
+    "Path equality does not establish complete business semantics or even route reachability",
+    "Reference page.vue count is a naming convention, not a substitute for the authoritative navigation/use-case inventory",
+    "Non-feature reference views include host wrappers and real report pages; classification is still required",
+    "Permissions, roles and authorization pages require current AGENTS.md scope adjudication; never silently omit them or import frontend roles",
+    "This inventory issues no service writes and asserts no live page passed"
+  ],
+  "registeredPageEntries": [
+    {
+      "path": "/",
+      "title": "平台首页",
+      "icon": "HomeFilled",
+      "scope": "public",
+      "source": "src/views/platform/HomePage.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/login",
+      "title": "登录",
+      "icon": "Key",
+      "scope": "public",
+      "source": "src/views/platform/LoginView.vue",
+      "description": "用户登录页面",
+      "hidden": true,
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/about",
+      "title": "关于",
+      "icon": "InfoFilled",
+      "scope": "public",
+      "source": "src/views/platform/About.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/demo/custom-r-table",
+      "title": "r-table Demo",
+      "icon": "Grid",
+      "scope": "public",
+      "source": "src/views/app/demo/CustomRTableDemo.vue",
+      "description": "原始 RendererTable 与模板字段桥接演示",
+      "hidden": true,
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/demo/r-form-compare",
+      "title": "r-form Demo",
+      "icon": "Tickets",
+      "scope": "public",
+      "source": "src/views/app/demo/RFormCompareDemo.vue",
+      "description": "原始 RendererForm 配置式与模板式对照演示",
+      "hidden": true,
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/demo/template-dsl",
+      "title": "Template DSL Demo",
+      "icon": "SetUp",
+      "scope": "app",
+      "source": "src/views/app/demo/TemplateDslDemo.vue",
+      "description": "模板 DSL 演示页（system-page 路由占位）",
+      "hidden": true,
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/settings",
+      "title": "设置",
+      "icon": "Setting",
+      "scope": "catalog",
+      "source": "src/views/app/Settings.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/cache-manager",
+      "title": "缓存管理",
+      "icon": "Coin",
+      "scope": "app",
+      "source": "src/views/app/CacheManager.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/system/cache-management/ui/cache-management-page",
+      "title": "缓存管理",
+      "icon": "Coin",
+      "scope": "app",
+      "source": "src/views/app/CacheManager.vue",
+      "description": "AppWorks 系统导航登记的原生缓存管理页面",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "系统运维",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/app-list",
+      "title": "应用列表",
+      "icon": "Grid",
+      "scope": "catalog",
+      "source": "src/views/app/AppList.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/application/application-manager/ui/application-manager-page",
+      "title": "应用系统列表",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/app/AppList.vue",
+      "description": "AppWorks 系统导航登记的原生应用目录页面；正式目录记录仍通过SPARK data读取",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "应用、菜单与蓝图",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/tenants",
+      "title": "租户管理",
+      "icon": "OfficeBuilding",
+      "scope": "catalog",
+      "source": "src/views/platform/PlatformTenantManagement.vue",
+      "description": "平台租户管理工作台",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/apps",
+      "title": "平台应用管理",
+      "icon": "Grid",
+      "scope": "catalog",
+      "source": "src/views/platform/PlatformApps.vue",
+      "description": "跨租户项目入口",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/dashboard",
+      "title": "仪表盘",
+      "icon": "DataBoard",
+      "scope": "app",
+      "source": "src/views/app/demo/Dashboard.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/capability-demo",
+      "title": "能力管理演示",
+      "icon": "SetUp",
+      "scope": "app",
+      "source": "src/views/app/demo/CapabilityDemo.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/workflow-designs",
+      "title": "工作流设计",
+      "icon": "Share",
+      "scope": "app",
+      "source": "src/views/app/WorkflowDesigns.vue",
+      "description": "Dify-like Agent workflow 设计稿编辑页",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/dev",
+      "title": "开发工作台",
+      "icon": "Tools",
+      "scope": "app",
+      "source": "src/views/app/dev-system/DevSystem.vue",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/dbms",
+      "title": "数据库管理",
+      "icon": "DataBase",
+      "scope": "app",
+      "source": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "description": "数据库目录",
+      "workPackage": "宿主与系统入口",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/database-management/ui/service-management-page",
+      "title": "服务器管理",
+      "icon": "DataBase",
+      "scope": "app",
+      "source": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "description": "AppWorks 系统导航登记的原生数据库服务器管理页面",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据库与表视图",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/DataBaseManage/DataBaseManage/index",
+      "title": "数据库管理",
+      "icon": "DataBase",
+      "scope": "app",
+      "source": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "description": "AppWorks 系统导航登记的原生数据库管理页面",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据库与表视图",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/database-management/table-and-view/ui/table-and-view-page",
+      "aliases": [
+        "/DataBaseManage/TableAndView"
+      ],
+      "title": "表和视图管理",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "description": "AppWorks 系统导航登记的原生表和视图管理页面",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据库与表视图",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/data-set-management/design/ui/data-set-design-page",
+      "title": "数据空间设计",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "description": "保留原生业务文件路径的数据空间设计入口",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据空间目录与设计",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/data-set-management/ui/data-set-list-page",
+      "title": "数据空间目录",
+      "icon": "Grid",
+      "scope": "app",
+      "source": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "description": "正式数据空间目录只读列表",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据空间目录与设计",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/integration/api-management/ui/api-management-page",
+      "title": "外部服务管理",
+      "scope": "app",
+      "source": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "description": "外部服务商目录与独立基础定义维护",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "外部服务/API",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page",
+      "title": "数据字典",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "description": "字典方案设计目录，配置与业务数据分别维护",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "字典",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page",
+      "title": "字典数据维护",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "description": "按dictionaryId消费已保存的设计，仅维护业务数据",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "字典",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-code/ui/data-code-list-page",
+      "title": "数据编码",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "description": "编码方案目录",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "编码",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/data-code/ui/data-code-editor-page",
+      "title": "编码方案设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "description": "编码规则与辅助对话框",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "编码",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-list-page",
+      "title": "逻辑视图",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "description": "逻辑视图目录",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "逻辑视图",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/logic-view/ui/logic-view-design-page",
+      "title": "逻辑视图设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "description": "ViewData 设计 JSON",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "逻辑视图",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page",
+      "title": "数据工作流",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "description": "数据工作流目录",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据工作流",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page",
+      "title": "数据工作流设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "description": "节点与连线设计",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "数据工作流",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/json-data/ui/json-data-page",
+      "title": "JSON 数据",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "description": "JSON 目录与树内容",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "JSON与文件管理",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page",
+      "title": "Excel 导入",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "description": "Excel 导入方案目录",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "Excel导入",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page",
+      "title": "Excel 导入设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "description": "Sheet 布局与转换规则",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "Excel导入",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page",
+      "title": "PDF 识别",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "description": "PDF 规则目录",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "PDF专题",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    },
+    {
+      "path": "/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page",
+      "title": "PDF 规则设计",
+      "scope": "app",
+      "source": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+      "description": "PDF 规则 JSON",
+      "hidden": true,
+      "shellTool": false,
+      "workPackage": "PDF专题",
+      "sourceExists": true,
+      "acceptance": "not-established-by-registration"
+    }
+  ],
+  "currentVueEntries": [
+    {
+      "path": "src/views/platform/TenantConfigPanel.vue",
+      "workPackage": "宿主与系统入口",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/platform/PlatformTenantManagement.vue",
+      "workPackage": "宿主与系统入口",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/platform/PlatformApps.vue",
+      "workPackage": "宿主与系统入口",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/platform/LoginView.vue",
+      "workPackage": "宿主与系统入口",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/platform/HomePage.vue",
+      "workPackage": "宿主与系统入口",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/platform/About.vue",
+      "workPackage": "宿主与系统入口",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/DataBaseManage/DataBaseManage/index.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/integration/api-management/ui/api-management-page.vue",
+      "workPackage": "外部服务/API",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
+      "workPackage": "外部服务/API",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "workPackage": "外部服务/API",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/WorkflowDesigns.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/AppProjectSettingsDialog.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/AppList.vue",
+      "workPackage": "应用、菜单与蓝图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/CacheManager.vue",
+      "workPackage": "系统运维",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/Settings.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/demo/TemplateDslDemo.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/demo/RFormCompareDemo.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/demo/Dashboard.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/demo/CustomRTableDemo.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/demo/CapabilityDemo.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/ProjectPlanningDocumentImportDialog.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/ProjectBlueprintTree.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
+      "workPackage": "数据工作流",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
+      "workPackage": "数据工作流",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/DevSystem.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/DevPreviewTab.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/DevFileEditor.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/DevDataSetDesigner.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
+      "workPackage": "PDF专题",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
+      "workPackage": "PDF专题",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-setting.vue",
+      "workPackage": "字典",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
+      "workPackage": "字典",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
+      "workPackage": "字典",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
+      "workPackage": "逻辑视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
+      "workPackage": "逻辑视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+      "workPackage": "逻辑视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/definition/ScenarioDefinitionTextEditor.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "workPackage": "数据工作流",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "workPackage": "Excel导入",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+      "workPackage": "Excel导入",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
+      "workPackage": "JSON与文件管理",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/parameters/DataSpaceParametersEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/components/NodeTargetConfig.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/components/NodeStateConfig.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/components/NodeLayoutConfig.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/components/NodeBasicInfo.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/ReleasePane.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/PrototypePane.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/EstimatePane.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/DeliveryPane.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/DataPlanningPane.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/app/dev-system/blueprint-workspace/BlueprintReadonlyInfo.vue",
+      "workPackage": "工作台与四文件推广",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/model/rename/DataSpaceModelRename.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/ScenarioHistoryPanel.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/parent-code-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
+      "workPackage": "编码",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/source-input/DataSpaceSourceInputEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/cascades/DataSpaceCascadeEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/application-option-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/copy-table-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/view-design-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/table-relation-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/register-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/database-management/table-and-view/ui/register-database-dialog.vue",
+      "workPackage": "数据库与表视图",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayCreate.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceArrayHeaders.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/DataSpaceModelRequest.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/cascades/binding/DataSpaceBindingEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/configuration/DataSpaceTableConfiguration.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceFieldEditor.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/create/DataSpaceFieldCreate.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    },
+    {
+      "path": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/removal/DataSpaceFieldRemoval.vue",
+      "workPackage": "数据空间目录与设计",
+      "acceptance": "not-established-by-file-existence"
+    }
+  ],
+  "workPackageSummaries": [
+    {
+      "name": "工作台与四文件推广",
+      "referenceVue": 1,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "宿主与系统入口",
+      "referenceVue": 18,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "应用、菜单与蓝图",
+      "referenceVue": 13,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "企业与应用申请",
+      "referenceVue": 13,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "数据空间目录与设计",
+      "referenceVue": 5,
+      "exactPaths": 4,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "数据库与表视图",
+      "referenceVue": 7,
+      "exactPaths": 6,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "Excel导入",
+      "referenceVue": 6,
+      "exactPaths": 2,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "JSON与文件管理",
+      "referenceVue": 2,
+      "exactPaths": 1,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "编码",
+      "referenceVue": 8,
+      "exactPaths": 8,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "字典",
+      "referenceVue": 2,
+      "exactPaths": 2,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "维度设计",
+      "referenceVue": 2,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "逻辑视图",
+      "referenceVue": 2,
+      "exactPaths": 2,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "数据工作流",
+      "referenceVue": 5,
+      "exactPaths": 3,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "治理与授权裁决",
+      "referenceVue": 6,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "外部服务/API",
+      "referenceVue": 3,
+      "exactPaths": 3,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "报表",
+      "referenceVue": 7,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "组织、岗位与用户",
+      "referenceVue": 4,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "系统运维",
+      "referenceVue": 4,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    },
+    {
+      "name": "业务审批流程",
+      "referenceVue": 8,
+      "exactPaths": 0,
+      "status": "requires-full-use-case-matrix"
+    }
+  ]
+}

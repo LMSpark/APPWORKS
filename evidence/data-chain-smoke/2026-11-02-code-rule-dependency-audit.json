@@ -1,0 +1,87 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "read-only actual service; no generation execution or mutations",
+  "workflowIdentity": {
+    "scene": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "workflowId": "9F59FC5B849F48FD96E7B33BC5BC1145",
+    "nodeId": "9F59FC5B849F48FD96E7B33BC5BC1145p000",
+    "modelId": "A8A70D582FB5E5B7804FBB3BD8FBEF6E",
+    "referenceUsesSameModelIdentity": true,
+    "referenceRequiresWorkflowOwnership": true,
+    "exactModelRows": 0,
+    "exactFieldRows": 0,
+    "physicalDeletionProven": false
+  },
+  "codeRules": {
+    "nodes": 319,
+    "validObjectJson": 319,
+    "invalidJson": 0,
+    "classificationCatalog": 7,
+    "sequenceCatalog": 9,
+    "parentChecks": [
+      {
+        "nodeId": "37850B20291F2B720C1FEDDE05EB8D62",
+        "definitionId": "368E9CE13CFA5B0363C5F4C01951FA72",
+        "parentRef": "5F320C95270EF5410F257C8FA4B90452",
+        "definitionVisible": true,
+        "parentVisible": true,
+        "sameApplication": true,
+        "hasBusinessField": true
+      },
+      {
+        "nodeId": "ED662825F0182CCE688B6A7B56D8AD52",
+        "definitionId": "817E9D9515BD441972C8E26E84076D65",
+        "parentRef": "C5001DB2569274BE5131A0C4F651957C",
+        "definitionVisible": true,
+        "parentVisible": true,
+        "sameApplication": true,
+        "hasBusinessField": false
+      },
+      {
+        "nodeId": "FA13C9D8877CC23DFA54D4F0995D9383",
+        "definitionId": "EED2F476470B49827516984E3957406E",
+        "parentRef": "DCBFF988B215C89D346B48E970ADECE6",
+        "definitionVisible": true,
+        "parentVisible": true,
+        "sameApplication": false,
+        "hasBusinessField": false
+      }
+    ],
+    "ruleKeySets": [
+      "2:ConstString",
+      "5:RefCodeId,parentCodeBizField",
+      "4:EndNo,Format,Incre,StartNo",
+      "1:BusFilterField,RefTableFilterField,RefTableId,RefTableName,RefTableValueField",
+      "3:DateFormat,RefBusTableField",
+      "5:RefCodeId"
+    ],
+    "sequenceRulesAreSnapshotsNotLiveForeignKeys": true
+  },
+  "requests": [
+    {
+      "reads": 9,
+      "writes": 0,
+      "blockedWriteAttempts": 0,
+      "guard": true
+    },
+    {
+      "reads": 3,
+      "writes": 0,
+      "blockedWriteAttempts": 0,
+      "guard": true
+    }
+  ],
+  "frontendGap": {
+    "selector": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-selector-dialog.vue",
+    "editor": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/code-class-edit-dialog.vue",
+    "current": "placeholder-only dialogs with close action; no DataView binding or selection/edit writeback",
+    "reference": "classification catalog CRUD, isolated save, confirmation selecting rule for current node",
+    "repair": "restore class catalog and selected-node rule writeback via existing Base_CodeClassTable and original Base_CodeNodeDesign DataViews; separate directory persistence from design save; preserve unknown rule members and native cancel checkpoints; no backend or source-data reassignment"
+  },
+  "limitations": [
+    "Two parent rules lack required parentCodeBizField; one references a different application from its child. These are gaps under current and reference selection semantics, not authorization to rewrite data.",
+    "No raw rule values, token, headers or permission receipts persisted.",
+    "Existing SaveView unknown result remains unresolved; no replay or restore write."
+  ]
+}

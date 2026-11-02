@@ -4791,3 +4791,10 @@ flowchart TD
 - 脱敏证据evidence/data-chain-smoke/2026-11-02-workflow-code-structural-audit.json保存精确未解析身份与原生消费计数，不含原始node_config、输入值、权限或凭据。未修改Java、配置或正式数据。本轮为新增证据progress，根目标继续，保存断链及98字典/12 GetView/2逻辑消费等未核销；完整verify终态后提交推送检查点。
 - 标签2保留标记调用遇浏览器连接不可用；没有因此新建实例、刷新页面或重放保存，无法再次确认标签存活，不能声称本轮保留操作成功。未知提交的哈希、回执及上下文证据已在上一检查点落盘；服务保存结果仍未确认。
 - 最后49680退出0，完整verify通过，其中ClassModel合同4文件49项通过；本轮仅证据/台账，无生产实现变化，未重复build。检查点提交推送origin/1031；只证明上述读取范围，不把目录与结构可达当保存、执行或全架构通过。
+
+### 2026-11-02 工作流模型身份复查与编码规则消费缺口
+- 上轮bbbff13b6已推送、干净树开始，判定progress。本轮采用systematic-debugging先查根因，未动生产源码、正式数据或后端，未重放未知SaveView。固定参考workflow-design-state.getWorkflowNodeModelId对API_CALL同样使用dataOperateModId，DataWorkFlowDesign.dataModels按dataSetId归属读取；本仓该规则并非误选字段。对A8A70D582FB5E5B7804FBB3BD8FBEF6E取消流程过滤、仅精确ID回查模型及字段仍0，不能靠去掉本仓归属守卫修复。只证明当前授权范围未解析，不证明物理删除。
+- 实服完整读取319编码节点规则，全部为可解析JSON对象；分类目录7项、顺序号目录9项完整返回。顺序号节点规则为Format/StartNo/EndNo/Incre快照，不把目录ID不存在当外键断链。3个父编码引用均在84定义中可见，其中2条缺参考表单及本仓均必填的parentCodeBizField，另有1条父定义与子定义AppID不同，无法进入当前应用父编码候选；不猜字段、不跨应用重挂、不改正式记录。
+- 找到明确前端功能断链：当前dialogs/code-class-selector-dialog.vue与code-class-edit-dialog.vue仅文字和关闭按钮，无DataView绑定、分类选择/编辑及节点写回。固定参考同目录原页实际有分类目录新增/编辑/删除/独立保存及确认选择，不能把已有按钮/占位弹窗称已迁移。现存Base_CodeClassTable正式模型及7条目录可复用，无需新后端协议；后续应以该原视图维护目录、确认投影到当前Base_CodeNodeDesign.CodeNodeDesignJson及ParameterName，目录保存与设计保存分离，原生检查点取消并保留未知规则成员。修复前须沿ClassModel核标准组件合同；本轮不改当前运行页面以免丢未知保存上下文。
+- evidence/data-chain-smoke/2026-11-02-code-rule-dependency-audit.json保存身份与计数，12次只读请求/0写入/0拦截写，未保存原始规则值/凭据/权限。第一批额外执行诊断脚本默认目录查询，9次中含1个既有不存在的_Base_CodeDesign诊断模型1003，不将其误报为实际页面Base_CodeDesign失败；实际目标模型回查均成功返回空。第二批三目录读取3次全部成功。
+- 根目标继续active；原SaveView未确认、存量引用和后端合同缺口不核销。生产代码与上一轮完整verify一致，本轮只对新增证据/台账做JSON解析、diff与文档治理检查，避免重复不相关构建。

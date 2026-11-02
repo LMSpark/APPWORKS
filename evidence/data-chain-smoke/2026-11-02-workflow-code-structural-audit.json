@@ -1,0 +1,619 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "read-only authorized SPARK DataSet/DataView; no workflow execution or writes",
+  "requests": [
+    {
+      "reads": 2,
+      "writes": 0,
+      "blockedWriteAttempts": 0,
+      "readOnlyEndpointGuard": true
+    },
+    {
+      "reads": 62,
+      "writes": 0,
+      "blockedWriteAttempts": 0,
+      "readOnlyEndpointGuard": true
+    },
+    {
+      "reads": 14,
+      "writes": 0,
+      "blockedWriteAttempts": 0,
+      "readOnlyEndpointGuard": true
+    },
+    {
+      "reads": 77,
+      "writes": 0,
+      "blockedWriteAttempts": 0,
+      "readOnlyEndpointGuard": true
+    }
+  ],
+  "workflow": {
+    "definitions": 4,
+    "nodes": 21,
+    "edges": 19,
+    "graphEndpointFailures": 0,
+    "layoutsPresent": 0,
+    "layoutAcceptance": false,
+    "modelChecks": [
+      {
+        "workflowId": "CA2428C178AC4E088D2E573263AC0F08",
+        "checked": 3,
+        "checks": [
+          {
+            "nodeId": "34E47C3B875C426BB8C3DAC91C093517",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "9220F6BDD2DF4C6CAF4599939B1A1B5D",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 1,
+                "total": 1,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "834F0155A93544BFB7166301F6BD51BC",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "E9E72EC6DC284061AA41A3EA6DB0EDDC",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          }
+        ]
+      },
+      {
+        "workflowId": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+        "checked": 8,
+        "checks": [
+          {
+            "nodeId": "2195C97491FFDFAF4D0711B301DB8F06",
+            "nodeType": "add",
+            "identityReadable": true,
+            "modelField": "dataOperateModId",
+            "modelId": "AEDBE58D4F0A22833EEF11590C917CA3",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 73,
+                "total": 73,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "2B086DF90CD6ED11E89ECB3E38B32226",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "527C8AC4D82E3AB13D0BAD9B532A05CB",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "136E7C12969EADF938C5B95C803ED9AF",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 11,
+                "total": 11,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "6222AAD97EAD7F683ACFA7EB3A6567EF",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "38D712E236C3798A6287CE99C4CBB0C0",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 35,
+                "total": 35,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "CA16107C4648768FC8104FF193821573",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "39A80DC0BB6E1C45033538D3588B389F",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 35,
+                "total": 35,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "CB93F34904E86093C3B556C1989457FB",
+            "nodeType": "merge",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "F3077133E353EA0E83DBFF1967C294D6",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "63727AEDCE0BE3EC87E2E422E70F91DC",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 35,
+                "total": 35,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "F31D5F3762C10DD307A91B3C45F189E6",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          }
+        ]
+      },
+      {
+        "workflowId": "46FA11BC212B35DB921AE78568ED0E5F",
+        "checked": 7,
+        "checks": [
+          {
+            "nodeId": "13D2DE033FA3E768363E5DDC642CDD64",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "659079409CCB9815131D932E8B9CA561",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 35,
+                "total": 35,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "209B4C082ED5B222663DC5D257106EFC",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "489D4E9C8B3D558D03FE6858147D4F4A",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 35,
+                "total": 35,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "320C29C8386DDE655D187B6D5A2E71FA",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "8389929C42086F48C01D77F6E2A92190",
+            "nodeType": "merge",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "938BD60A76C50F5EE6DC7664764FE946",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "B87A51C32E2B49BFD2720467414DAD7F",
+            "nodeType": "query",
+            "identityReadable": true,
+            "modelField": "node_config",
+            "modelId": "A9D4EF599F2513F77CEDAE739EC451DE",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 13,
+                "total": 13,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "D1746468423FB00435373C691AB367D0",
+            "nodeType": "add",
+            "identityReadable": true,
+            "modelField": "dataOperateModId",
+            "modelId": "5331166EAFF85031F0A644488E639EFB",
+            "identityLooksJson": false,
+            "modelFound": true,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 35,
+                "total": 35,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "workflowId": "9F59FC5B849F48FD96E7B33BC5BC1145",
+        "checked": 3,
+        "checks": [
+          {
+            "nodeId": "9F59FC5B849F48FD96E7B33BC5BC1145p000",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelField": "dataOperateModId",
+            "modelId": "A8A70D582FB5E5B7804FBB3BD8FBEF6E",
+            "identityLooksJson": false,
+            "modelFound": false,
+            "dependencies": [
+              {
+                "table": "Base_DataModel_Field",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "default",
+                "rows": 0,
+                "total": 0,
+                "state": 0
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asParent",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              },
+              {
+                "table": "Base_DataModel_Relation",
+                "view": "asChild",
+                "rows": 0,
+                "total": 0,
+                "state": 3
+              }
+            ]
+          },
+          {
+            "nodeId": "9F59FC5B849F48FD96E7B33BC5BC1145pBEG",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          },
+          {
+            "nodeId": "9F59FC5B849F48FD96E7B33BC5BC1145pEnd",
+            "nodeType": "api_call",
+            "identityReadable": true,
+            "modelIdEmpty": true
+          }
+        ]
+      }
+    ],
+    "statusDictionary": {
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "rows": 2,
+      "doesNotResolveHistoricalGapInScenario": "8B83B0C8F01244298C28BEA2BCE2583F"
+    }
+  },
+  "code": {
+    "definitions": 84,
+    "nodes": 319,
+    "nodeTypes": 5,
+    "nodeTypeCounts": {
+      "1": 5,
+      "2": 154,
+      "3": 73,
+      "4": 84,
+      "5": 3
+    },
+    "unknownNodeTypes": 0,
+    "duplicateNodeOrders": 0,
+    "unresolvedNodeCount": 8,
+    "unresolvedParentIds": [
+      "1C4C6AD62358E94197757453683C3C5A",
+      "45E8D394490C2AE6F6248DB653AD7471"
+    ],
+    "unresolvedTableDefinitionCount": 12,
+    "unresolvedTableIds": [
+      "DB551699CA0A424B9A91103B1DDDC246",
+      "59991BCFB6414D4191D3B50C2A7F1738",
+      "BC77BFC08252434EA24571F4A64CB10A",
+      "2E5238F83D8D4F55A5EDE9C16931DD3C",
+      "0C6841DE770A4E7483F92E1D31DE17B0",
+      "24DD7B580C3D4D94BEBAC2372BE3C0FB",
+      "64AB977672DA4C3F8CE274C8E717494E",
+      "00DF2F5A261A49D296A1A1908A7BC910",
+      "39B6563BE73044F783C4DA8BE062A8F1",
+      "CF1B7790BCA04D70839652958BBC9A44"
+    ],
+    "sourceCatalogResolvedIds": 67,
+    "exactParentRequeriesInBothScenes": 0,
+    "missingTableFieldRequeryRows": 0,
+    "visibleApplicationCount": 1,
+    "visibleApplicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "distinctReferencedApplicationCount": 8,
+    "referencedApplicationsVisible": 0,
+    "nativeEditorSamples": 2,
+    "lazyDialogsNotAccepted": true
+  },
+  "interpretation": [
+    "Unresolved means not returned under current authorized scope, not proven physically deleted.",
+    "No same-name remapping, deletion, permission widening, header scope change or mutation.",
+    "401 first follow-up was auth expiry; normal authorized refresh then same reads succeeded.",
+    "Graph and definition reads do not prove workflow execution, layout persistence or code generation."
+  ],
+  "retainedSaveUnknown": {
+    "tab": 2,
+    "viewId": "D0624BDE07FA475B90D5653994A6493D",
+    "saveReplays": 0,
+    "restoreWrites": 0,
+    "priorAudit": "2026-11-02-logic-design-save-audit.json"
+  },
+  "sourcePaths": [
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+    "config/pages/structured-config/workflow-editor/pagedata.json",
+    "config/pages/structured-config/data-code-catalog/pagedata.json",
+    "config/pages/structured-config/data-code-editor/pagedata.json"
+  ]
+}

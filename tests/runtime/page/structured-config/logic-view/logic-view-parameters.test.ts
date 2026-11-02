@@ -21,12 +21,25 @@ beforeEach(() => {
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
 })
 describe('logical-view formal parameter resource', () => {
+  it('keeps parid as the current-row and save identity when a parameter name used by options is renamed',async()=>{
+    const ds=await LowcodeLogicView.loadParameters('V1')
+    try {
+      const view=ds.getView('_Base_ParamList')!;view.setCurrentRowById('P1')
+      view.updateEditingValue('P1','parname','renamed')
+      const result=await ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId,ids:['P1']}]})
+      expect(result.success).toBe(true);expect(view.currentRow?.['parid']).toBe('P1')
+      expect(view.currentRow?.['parname']).toBe('renamed')
+      expect(http.saves[0]).toMatchObject({table:'_Base_ParamList',changed:[{parid:'P1',parname:'renamed'}]})
+    }finally{ds.destroy()}
+  })
   it('loads only the target pid using the formal parid primary key', async () => {
     const ds = await LowcodeLogicView.loadParameters('V1')
     try {
       expect(ds.scenarioId).toBe(DATA_SPACE_DESIGN_FORM_KEY)
       const view = ds.getView('_Base_ParamList')!
       expect(view.primaryKey).toBe('parid')
+      expect(view.valueField).toBe('parname')
+      expect(view.labelField).toBe('parname')
       expect(view.rows.map(row => row['parid'])).toEqual(['P1'])
       expect(http.saves).toHaveLength(0)
     } finally {ds.destroy()}

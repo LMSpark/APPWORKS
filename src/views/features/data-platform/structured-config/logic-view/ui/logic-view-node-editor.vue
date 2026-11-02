@@ -65,7 +65,7 @@ import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic
 import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
 import {logicNodeFunctionContext} from '@/lowcode/resources/structured-config/logic-view/function-context'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
-const props=defineProps<{viewKey:string;view:DataView;metadata?:DataSet|undefined;disabled:boolean}>()
+const props=defineProps<{viewKey:string;view:DataView;parameterViewKey:string;metadata?:DataSet|undefined;disabled:boolean}>()
 const emit=defineEmits<{'editing-change':[value:boolean]}>()
 const path=ref<JsonPath|null>(null),tab=ref('basic'),revision=ref(0),pending=ref(new Set<string>())
 let active=true,sourceGeneration=0
@@ -100,7 +100,7 @@ const joinSchema:JsonSchemaObject={type:'object',properties:{JoinType:{type:'str
 const textLabels:Record<string,string>={Name:'名称',Description:'描述',FieldType:'类型',AsName:'别名',Expression:'表达式',OrderType:'排序类型'}
 const flagLabels:Record<string,string>={DISTINCT:'去重',IsOutput:'输出',IsPKey:'主键',Group:'分组'}
 const fieldColumns=computed<SparkNode[]>(()=>[...Object.entries(textLabels).map(([field,label])=>({type:'r-text',props:{field,label}})),
-  {type:'r-value-function',props:{field:'ValueFun',label:'值函数',valueFormat:'native',functionContext:functionContext.value,onDialogVisibleChange:(value:boolean)=>editing('value-function',value)}},
+  {type:'r-value-function',props:{field:'ValueFun',label:'值函数',valueFormat:'native',functionContext:functionContext.value,inputParameterDataViewKey:props.parameterViewKey,onDialogVisibleChange:(value:boolean)=>editing('value-function',value)}},
   {type:'r-number',props:{field:'Order',label:'排序'}},
   ...Object.entries(flagLabels).map(([field,label])=>({type:'r-checkbox',props:{field,label,trueValue:1,falseValue:0}}))])
 function select(value:JsonPath|null):void {if(value===null||!pending.value.size)path.value=value}

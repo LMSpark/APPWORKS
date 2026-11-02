@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "binding": {
+    "key": "8D1AB14DD8277F3E7017CD38F77B09FD@_Base_ParamList@default",
+    "valueField": "parname",
+    "labelField": "parname",
+    "primaryKey": "parid",
+    "scopeField": "pid"
+  },
+  "browser": {
+    "candidateNames": [
+      "sysid"
+    ],
+    "linkedField": "DeveloperName开发商名称varchar{\"Type\":\"GetInputParam\",\"ParamName\":\"sysid\"}0",
+    "restoredNodes": 2,
+    "network": {
+      "events": 1,
+      "truncated": false,
+      "hasMore": false,
+      "paths": [
+        "/api/ViewData/GetView"
+      ],
+      "writes": 0
+    }
+  },
+  "screenshot": {
+    "path": "artifacts/data-chain-smoke/logic-view-input-options-browser.png",
+    "sha256": "dd89dac9c64b45e8aaa966a2a8faf5f2d48644208f0fa4718451ac4a304aa506"
+  },
+  "limits": [
+    "No real SaveView mutation or parameter record edit",
+    "Node interface-input directory still separate and pending",
+    "Legacy standard tab label remains interface parameter; candidate values here are view input names",
+    "Description plus name display remains a reference-detail gap",
+    "Full filter/output/preview and architecture acceptance remain open"
+  ],
+  "formalReadback": {
+    "code": 200,
+    "sha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "unchanged": true
+  }
+}

@@ -40,6 +40,7 @@ export class LowcodeLogicView {
       modelBinding: {modelId: model.id, modelName: model.metaName}, columns: [{name: 'pid', immutable: true},
         {name: 'parname', required: true, trim: 'normalize', unique: true}], views: {default: {
         autoLoad: false, autoCurrentFirst: false, autoSelectFirst: false, selectionDelimiter: '', commitMode: 'staged', lockCurrentWhilePending: true,
+        valueField:'parname',labelField:'parname',
         queryContext: {viewId: target}, filterExpression: {field: 'pid', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'viewId'}},
         queryConfig: {allPages: true, fields: ['parid', 'pid', 'parname', 'pardesc', 'testvalue']},
       }},

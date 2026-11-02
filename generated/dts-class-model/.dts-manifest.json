@@ -4089,7 +4089,7 @@
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
-      "sourceModifiedAt": "2026-11-02T03:13:51.781Z"
+      "sourceModifiedAt": "2026-11-02T06:16:04.335Z"
     },
     "src/lowcode/resources/structured-config/logic-view/source-views.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
@@ -4839,7 +4839,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T04:52:37.759Z"
+      "sourceModifiedAt": "2026-11-02T06:16:04.335Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
@@ -4849,7 +4849,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue.json",
-      "sourceModifiedAt": "2026-11-02T06:02:05.908Z"
+      "sourceModifiedAt": "2026-11-02T06:16:04.336Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",

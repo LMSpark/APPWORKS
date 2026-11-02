@@ -4753,3 +4753,11 @@ flowchart TD
 - 视图参数及节点接口入参的候选仍须沿正式绑定组织，不能把pid/parid当参数名，不能按参考错误映射给SystemData。过滤专用编辑、AI字段配置、输出结构、实服设计写入、节点/整体预览及全架构其它开放项保持；真实SaveView范围确认仍待回复，不阻止其它工作，根目标active。
 - 最终补验已完成：从子节点createuser行选祖先开发商名称候选，确认函数及行后原字段显示原生{"Type":"GetTableField","Field":"Base_AppSystemList.DeveloperName"}，再原取消恢复2节点。独立完整窗口仅2次GetView、0写入，另GetView Code200且整份设计SHA未变，审计已补浏览器计数/写回值/截图和正式回读。83993的lint再发现复杂数组记法及可选label回退规则，已按公开类型改Array与??，局部eslint通过；当前8878重新执行最终77项/正式生成/完整verify/build，终态待补。
 - 最后8878退出0：8文件77项、正式ClassModel生成、完整verify及build全部通过；构建既有动态导入提示保留。审阅原设计读取权限、候选MetaName身份、路径/取消和新增纯投影helper差异，git diff --check通过；本检查点提交推送origin/1031，保留参数候选、过滤、输出、保存及服务合同等开放项，不称全架构通过。
+
+### 2026-11-02 视图参数绑定GetInputParam候选
+- 上轮89e355fe6已推送且干净树开始，判定progress。沿上一轮实服语义对照，视图参数名只供GetInputParam，不按参考错误灌入SystemData；本轮直接复用已加载的正式参数DataView及标准FieldValueFunction.inputParameterDataViewKey，不手工映射候选数组、不新增查询/草稿/保存通道。
+- LowcodeLogicView原参数视图明确valueField/labelField=parname，保存主键仍为正式parid，pid目标过滤/结果核验、唯一参数名和保存权限守卫不变。宿主将完整8D…@_Base_ParamList@default键传给节点编辑器，再由标准选项链按字段读取权限消费。候选值不是记录ID、pid或测试值；显示暂用参数名，参考“中文名[参数名]”显示仍属细节差距。原标准页签文案“接口参数”未改成全局另一套命名。
+- 先RED两项（缺视图候选与valueField为旧身份），配置/标准绑定后8文件78项通过（logic-view-input-options-green.log），局部eslint通过。补原生参数改名身份验收：parname从first变renamed后，当前行仍P1、保存changed仍parid=P1；该资源文件4项通过（identity.log，新增1项）。这是夹具保存链，不冒充实服参数写入；本轮未修改任何真实参数记录。
+- 实服sys_edit节点DeveloperName行→标准值函数“接口参数”页签，候选仅sysid；选取并确认函数/行后，原字段显示{"Type":"GetInputParam","ParamName":"sysid"}，没有写成SystemData或参数记录ID。原放弃修改并重读恢复2节点；完整网络窗口1次GetView、truncated=false/hasMore=false、0保存。独立GetView Code200且整份设计SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。审计2026-11-02-logic-view-input-options-audit.json与截图保存范围，不含凭据、测试值或原始权限；没有真实SaveView、函数执行或外部调用声明。
+- 当前63467执行正式ClassModel生成/完整verify/build，终态另补。节点接口输入定义仍是独立待接目录，不能冒充视图参数；过滤专用交互、AI字段配置、输出结构、真实设计保存、节点/整体预览及全架构服务/存量开放项继续。真实SaveView写入范围仍待用户答复，当前独立工作继续，目标active。
+- 最后63467退出0：正式ClassModel生成、完整verify及build全部通过，相关8文件78项和后补参数身份4项均通过；既有动态导入提示保留。审阅视图value/label配置、原parid/pid边界、完整候选绑定及测试差异，git diff --check通过；提交推送origin/1031，继续保留节点入参、过滤、输出、保存及服务/存量断点，不称全架构完成。

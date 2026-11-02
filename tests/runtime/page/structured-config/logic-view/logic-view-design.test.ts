@@ -66,6 +66,23 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('binds view-parameter candidates by name and stores GetInputParam without substituting SystemData or record IDs',async()=>{
+    http.logicDesigns['V1']=[{Name:'root',MetaName:'Source',Fields:[{Name:'id',ValueFun:null}],ChildTables:[]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    await editor.get('[data-function-open]').trigger('click');await flushPromises()
+    const dialog=wrapper.getComponent(FilterValueFunctionDialog)
+    expect(dialog.props('context').inputParams).toEqual([{value:'first',label:'first'}])
+    expect(dialog.props('context').systemParams??[]).not.toContainEqual(expect.objectContaining({value:'first'}))
+    dialog.vm.$emit('confirm',{Type:'GetInputParam',ParamName:'first'});await flushPromises()
+    await editor.get('[data-json-save-row]').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'root',MetaName:'Source',Fields:[{Name:'id',ValueFun:{Type:'GetInputParam',ParamName:'first'}}],ChildTables:[]}])
+    expect(http.saves).toHaveLength(0)
+  })
   it('supplies current source fields and ancestor references from the selected definition without alias-as-resource fallback',async()=>{
     http.logicDesigns['V1']=[{Name:'OrdersAlias',MetaName:'Orders',Fields:[{Name:'id',Description:'订单编号'}],ChildTables:[{Name:'LinesAlias',MetaName:'Lines',Fields:[{Name:'amount',Description:'金额',ValueFun:null}],ChildTables:[]}]}]
     const {wrapper}=await openDesigner()

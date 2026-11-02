@@ -17,7 +17,7 @@
         </RendererTabPane>
         <RendererTabPane :index="1" name="design" label="视图数据设计" :data-view-key="designKey">
           <template v-if="designView">
-      <LogicViewNodeEditor :view-key="designKey" :view="designView" :metadata="runtime?.getDataSet(LowcodeLogicView.parameterScenarioId)" :disabled="busy || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
+      <LogicViewNodeEditor :view-key="designKey" :view="designView" :parameter-view-key="parameterKey" :metadata="runtime?.getDataSet(LowcodeLogicView.parameterScenarioId)" :disabled="busy || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
       <details><summary>完整设计</summary><RendererForm :data-view-key="designKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
         <FieldJson field="designJson" label="完整设计" mode="tree" :height="360" :readonly="busy || nodeEditing" :on-editing-change="value=>completeEditing=value" />
       </RendererForm></details>

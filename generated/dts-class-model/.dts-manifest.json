@@ -2759,7 +2759,7 @@
     "packages/spark-data/src/strategies/cascade/cascade-delegate.ts": {
       "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-delegate.ts",
       "shardFile": "files/packages/spark-data/src/strategies/cascade/cascade-delegate.ts.json",
-      "sourceModifiedAt": "2026-11-01T23:48:43.224Z"
+      "sourceModifiedAt": "2026-11-02T00:23:40.380Z"
     },
     "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts": {
       "sourceFile": "packages/spark-data/src/strategies/cascade/cascade-value-binding.ts",
@@ -3044,7 +3044,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.590Z"
+      "sourceModifiedAt": "2026-11-02T00:20:44.059Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
@@ -3234,7 +3234,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.665Z"
+      "sourceModifiedAt": "2026-11-02T00:07:30.911Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",

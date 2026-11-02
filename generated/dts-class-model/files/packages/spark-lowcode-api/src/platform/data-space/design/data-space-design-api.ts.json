@@ -659,7 +659,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.590Z",
+  "generatedAt": "2026-11-02T00:20:44.059Z",
   "models": {
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",
@@ -1488,7 +1488,7 @@
             },
             {
               "name": "decodeRelations",
-              "jsdoc": "将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。\n@param rows 已由调用方核定归属、完整性和数据权限的正式行；不执行查询或推导前端级联。\n@returns 保留来源身份、资源端点、完整过滤及删除配置的只读关系。",
+              "jsdoc": "将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。\n@param rows 已由调用方核定归属、完整性和数据权限的正式行；不执行查询或推导前端级联。\n@returns 保留来源身份、资源端点、完整过滤及删除配置的只读关系。\n@throws 正式行损坏、过滤未配置或损坏时，报告空间与关系身份并拒绝整批，不跳过或修写原记录。",
               "parameters": [
                 {
                   "name": "rows",

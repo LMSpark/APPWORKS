@@ -1,0 +1,398 @@
+{
+  "date": "2026-11-02",
+  "baseCommit": "17895c5e8a52d08f676076de13c2c6ea0dc152e2",
+  "scope": "three sampled spaces; read only; formal relation conversion",
+  "rows": [
+    {
+      "relationId": "233DD50D425D444C9850F5E918950432",
+      "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "parentModelId": "4EFB2CBC9E62D6D288DD1200D06DAAB4",
+      "childModelId": "0C29366252F30395A83BDC4B9FD5A0E9p000",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "233DD50D425D444C9850F5E918950432",
+        "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+        "success": false,
+        "error": "正式关系 233DD50D425D444C9850F5E918950432（空间 0C29366252F30395A83BDC4B9FD5A0E9）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "605F01942DC94209BEA45F0688ECC3F2",
+      "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "parentModelId": "0C29366252F30395A83BDC4B9FD5A0E9p001",
+      "childModelId": "932B1D7E7FB16CB98259F8E59BC3FB50",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "605F01942DC94209BEA45F0688ECC3F2",
+        "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+        "success": false,
+        "error": "正式关系 605F01942DC94209BEA45F0688ECC3F2（空间 0C29366252F30395A83BDC4B9FD5A0E9）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "694DB7EDABD54DB08A344F36B751564D",
+      "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "parentModelId": "4EFB2CBC9E62D6D288DD1200D06DAAB4",
+      "childModelId": "0C29366252F30395A83BDC4B9FD5A0E9p000",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"SysId\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_AppSystemList.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "694DB7EDABD54DB08A344F36B751564D",
+        "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+        "success": true
+      }
+    },
+    {
+      "relationId": "1780661A9A1341D6A0686FE31B6ABA8A",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p001",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "1780661A9A1341D6A0686FE31B6ABA8A",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 1780661A9A1341D6A0686FE31B6ABA8A（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "2620F631A62347EB9FE11897F2BCA7D8",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "74932499FED1F7F3CC813E3357E11BB1",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p000",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"pid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "2620F631A62347EB9FE11897F2BCA7D8",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": true
+      }
+    },
+    {
+      "relationId": "431D98FC035447CBB5A98E3A28E385E8",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p003",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p004",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"tblid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface_1.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "431D98FC035447CBB5A98E3A28E385E8",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": true
+      }
+    },
+    {
+      "relationId": "477BE47D3A0447F3B4E0934BA3F99D0D",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "ED62805519C2A8A8AAF498D807156000",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "477BE47D3A0447F3B4E0934BA3F99D0D",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 477BE47D3A0447F3B4E0934BA3F99D0D（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "4D21D2BD40F249FEA0A954F1CC66A001",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "C8F11F114879896788F4FAEF5F863656",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "4D21D2BD40F249FEA0A954F1CC66A001",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 4D21D2BD40F249FEA0A954F1CC66A001（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "50CE466792994ED3880E4DF536701E2F",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "CEBF4A43A2421DA8671F188714FD23E0",
+      "childModelId": "74932499FED1F7F3CC813E3357E11BB1",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "50CE466792994ED3880E4DF536701E2F",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 50CE466792994ED3880E4DF536701E2F（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "6DC9E510F4C54899AE1B47A060522167",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p000",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "6DC9E510F4C54899AE1B47A060522167",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 6DC9E510F4C54899AE1B47A060522167（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "6F183BF762634B5CA84E829ECDA0A53C",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p003",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "6F183BF762634B5CA84E829ECDA0A53C",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 6F183BF762634B5CA84E829ECDA0A53C（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "773718EB40C34393AB62E26EB787FCF2",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "74932499FED1F7F3CC813E3357E11BB1",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p000",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "773718EB40C34393AB62E26EB787FCF2",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 773718EB40C34393AB62E26EB787FCF2（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "A48C2317FDE543D1974F2BA817319802",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "74932499FED1F7F3CC813E3357E11BB1",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "A48C2317FDE543D1974F2BA817319802",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 A48C2317FDE543D1974F2BA817319802（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "C7A47D9496F346E3BB7538F92B7E7507",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "CEBF4A43A2421DA8671F188714FD23E0",
+      "childModelId": "74932499FED1F7F3CC813E3357E11BB1",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "C7A47D9496F346E3BB7538F92B7E7507",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 C7A47D9496F346E3BB7538F92B7E7507（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "DAFCF7C98AD44219B57F1CC150230423",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "CEBF4A43A2421DA8671F188714FD23E0",
+      "childModelId": "C8F11F114879896788F4FAEF5F863656",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "DAFCF7C98AD44219B57F1CC150230423",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 DAFCF7C98AD44219B57F1CC150230423（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "F0864C3B77244B2ABA7B4BD7A06B513C",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "ED62805519C2A8A8AAF498D807156000",
+      "childModelId": "C8F11F114879896788F4FAEF5F863656",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"proId\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_InterfaceProvider_Account.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "F0864C3B77244B2ABA7B4BD7A06B513C",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": true
+      }
+    },
+    {
+      "relationId": "F47149EEABC245A88391C23B88350B95",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "74932499FED1F7F3CC813E3357E11BB1",
+      "childModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p001",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"tblid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "F47149EEABC245A88391C23B88350B95",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": true
+      }
+    },
+    {
+      "relationId": "FBA537A66629453BA42680DE74F8336B",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "parentModelId": "4E4FEECFD41A4EF8B0D090237407E8D2p007",
+      "childModelId": "10D02DC78BC09E231BF269A449657490",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "FBA537A66629453BA42680DE74F8336B",
+        "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+        "success": false,
+        "error": "正式关系 FBA537A66629453BA42680DE74F8336B（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    },
+    {
+      "relationId": "0C10DA706A824346BFABAB1799F0DBB6",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "C0A31822426B4B35B38FE2157D8D3EF5p001",
+      "childModelId": "0876BC0BA11DFD14EA06F3DE5508D58D",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"tblid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "0C10DA706A824346BFABAB1799F0DBB6",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "3F15C976D01FD45CBA6D4B170BBDBEAC",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "80B64213B859AA2902B8A643D3A154CD",
+      "childModelId": "C2EBBA91721E914FAEB7870093E4C775",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"ApiID\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "3F15C976D01FD45CBA6D4B170BBDBEAC",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "51553229D41FB120AF231BB6A5D510CD",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "80B64213B859AA2902B8A643D3A154CD",
+      "childModelId": "DBF32EF130821E8F8A07A05D61DE3457",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"pid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "51553229D41FB120AF231BB6A5D510CD",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "90EF5D2423DF4CB69B5DEB409C514981",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "C0A31822426B4B35B38FE2157D8D3EF5p001",
+      "childModelId": "C0A31822426B4B35B38FE2157D8D3EF5p002",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"pid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "90EF5D2423DF4CB69B5DEB409C514981",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "9B8BFF8083D0455FAE933BA13497D8D7",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "C0A31822426B4B35B38FE2157D8D3EF5p001",
+      "childModelId": "3FE80C10E868D24F52E72C99F4CE0D0E",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"interfaceId\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "9B8BFF8083D0455FAE933BA13497D8D7",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "BC5F640539513F3A0EFFA56A4DC611C6",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "80B64213B859AA2902B8A643D3A154CD",
+      "childModelId": "9DEAC89445E8F63DB7A8D4C5ED5E632E",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"SIID\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "BC5F640539513F3A0EFFA56A4DC611C6",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "C7E86A6AD033F42C5DA38C7D4EEC1DA7",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "80B64213B859AA2902B8A643D3A154CD",
+      "childModelId": "A52F2A5B30E97112D26FBEBA3A3BE4BD",
+      "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"interfaceId\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataServiceInterface.rowid\"}}]}",
+      "filterConfigured": true,
+      "decodeResult": {
+        "relationId": "C7E86A6AD033F42C5DA38C7D4EEC1DA7",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": true
+      }
+    },
+    {
+      "relationId": "EFD80262920E4B3F93C261ABADB3351B",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "parentModelId": "C0A31822426B4B35B38FE2157D8D3EF5p001",
+      "childModelId": "0876BC0BA11DFD14EA06F3DE5508D58D",
+      "storedFilter": "",
+      "filterConfigured": false,
+      "decodeResult": {
+        "relationId": "EFD80262920E4B3F93C261ABADB3351B",
+        "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+        "success": false,
+        "error": "正式关系 EFD80262920E4B3F93C261ABADB3351B（空间 C0A31822426B4B35B38FE2157D8D3EF5）解码失败: $: 过滤定义不是有效 JSON"
+      }
+    }
+  ],
+  "counts": {
+    "total": 26,
+    "configuredAndDecoded": 12,
+    "unconfigured": 14
+  },
+  "finalBoundModelErrors": [
+    {
+      "kind": "bound-formal-model",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "metaName": "ContentType",
+      "success": false,
+      "error": "正式关系 EFD80262920E4B3F93C261ABADB3351B（空间 C0A31822426B4B35B38FE2157D8D3EF5）解码失败: 关系未配置过滤定义，无法装配为查询关系"
+    },
+    {
+      "kind": "bound-formal-model",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "metaName": "request",
+      "success": false,
+      "error": "正式关系 1780661A9A1341D6A0686FE31B6ABA8A（空间 4E4FEECFD41A4EF8B0D090237407E8D2）解码失败: 关系未配置过滤定义，无法装配为查询关系"
+    },
+    {
+      "kind": "bound-formal-model",
+      "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "metaName": "应用系统状态",
+      "success": false,
+      "error": "正式关系 233DD50D425D444C9850F5E918950432（空间 0C29366252F30395A83BDC4B9FD5A0E9）解码失败: 关系未配置过滤定义，无法装配为查询关系"
+    }
+  ],
+  "readRequests": 11,
+  "writeRequests": 0,
+  "readOnlyGuard": true,
+  "changesAppliedToService": false,
+  "limitations": [
+    "Backend relation records are not native DataResourceRelation truth",
+    "Empty stored filters remain unchanged; no matching-all filter invented",
+    "Formal conversion rejects the entire relation collection",
+    "This diagnostic does not prove the sampled spaces have active production pages using these relations",
+    "32 dictionary source repair candidates still await business identity confirmation"
+  ]
+}

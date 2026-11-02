@@ -22,6 +22,29 @@ it('decodes metadata query relations with the same formal contract, without muta
   expect(() => DataSpaceDesignApi.decodeRelations([{...row, filter: 'invalid'}])).toThrow()
 })
 
+it.each([
+  {filter: '{\\"Type\\":\\"and\\"}', parentModId: 'P', detail: '过滤定义不是有效 JSON'},
+  {filter: '', parentModId: '', detail: 'parentModId'},
+])('identifies the exact space and relation when decoding fails: $detail', ({filter, parentModId, detail}) => {
+  const valid = {rowid: 'FIRST', dataSetId: 'SPACE', parentModId: 'P', childModId: 'C', parentTable: 'Parents', childTable: 'Children',
+    filter: JSON.stringify({Type: 'cond', Field: 'active', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: false}})}
+  const damaged = {...valid, rowid: 'DAMAGED', filter, parentModId}, rows = [valid, damaged], original = structuredClone(rows)
+  let failure: unknown
+  try {DataSpaceDesignApi.decodeRelations(rows)} catch (error) {failure = error}
+  expect(failure).toBeInstanceOf(Error)
+  expect((failure as Error).message).toContain('SPACE')
+  expect((failure as Error).message).toContain('DAMAGED')
+  expect((failure as Error).message).toContain(detail)
+  expect(rows).toEqual(original)
+})
+
+it.each(['', ' \t ', null])('distinguishes an unconfigured relation filter from damaged JSON: %j', filter => {
+  const row = {rowid: 'EMPTY', dataSetId: 'SPACE', parentModId: 'P', childModId: 'C', parentTable: 'Parents', childTable: 'Children', filter}
+  expect(() => DataSpaceDesignApi.decodeRelations([row])).toThrow('未配置过滤定义')
+  expect(() => DataSpaceDesignApi.decodeRelations([row])).toThrow('EMPTY')
+  expect(row.filter).toBe(filter)
+})
+
 it('resolves native table resource semantics from the formal source without I/O', () => {
   const model = {id: 'MODEL-1', metaName: 'QueryOrders', name: 'QueryOrders', sourceName: 'physical_orders',
     sourceId: 'DB-1', sourceType: '数据库表', primaryKey: 'rowid', businessMain: false, fields: [], raw: {}}

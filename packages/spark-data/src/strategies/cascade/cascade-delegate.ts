@@ -1,4 +1,5 @@
 import { Logger } from '@spark-appworks/spark-utils'
+import { RequestState } from '../../types'
 import type { DataView } from '../../data-view'
 import { DataViewCascadeValueBinding } from './cascade-value-binding'
 import { DataViewQueryCascadeInputs } from './query-cascade-inputs'
@@ -57,6 +58,9 @@ export class CascadeDelegate {
         const changedInput = cascades.some((cascade, index) => (cascade.inputBindings?.length ?? 0) > 0
           && !DataViewCascadeValueBinding.equal(previous?.[index], next[index]))
         previous = next
+        // 空展示正在等待父查询时，原编排会在 await 后读取最新输入；不要提前完成原调用。
+        // 已有旧行则仍走下方重置，避免新父查询失败后残留上一父对象的数据。
+        if (this.host.requestState === RequestState.Preparing && !manual && this.host.rows.length === 0) return
         if (next.some(value => value === null)) {
           this.host.clearAll()
           return

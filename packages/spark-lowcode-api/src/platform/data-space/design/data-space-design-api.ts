@@ -249,22 +249,18 @@ function relationDependencyOptions(rows: readonly DataSpaceFormalRow[]): Readonl
   }))
 }
 
-function dataSpaceRelations(
-  rows: readonly DataSpaceFormalRow[],
-): readonly LowcodeModelRelationRecord[] {
-  return rows.map((row) => {
-    return {
-      sourceRelationId: requiredText(formalRowId(row), 'relation rowid'),
-      dataSpaceId: requiredText(formalText(row, ['dataSetId', 'DataSetId', 'datasetid']), 'relation dataSetId'),
-      parentModelId: requiredText(formalText(row, ['parentModId', 'ParentModId', 'parentmodid']), 'relation parentModId'),
-      childModelId: requiredText(formalText(row, ['childModId', 'ChildModId', 'childmodid']), 'relation childModId'),
-      parentResourceName: requiredText(formalText(row, ['parentTable', 'ParentTable', 'parenttable']), 'relation parentTable'),
-      childResourceName: requiredText(formalText(row, ['childTable', 'ChildTable', 'childtable']), 'relation childTable'),
-      filterExpression: serializedText(row['filter'] ?? row['Filter']),
-      dependencyType: formalText(row, ['depType', 'DepType', 'deptype', 'dependencyType']),
-      cascadeDelete: binary(row['cascadeDel'] ?? row['cascadeDelete']),
-    }
-  })
+function dataSpaceRelation(row: DataSpaceFormalRow): LowcodeModelRelationRecord {
+  return {
+    sourceRelationId: requiredText(formalRowId(row), 'relation rowid'),
+    dataSpaceId: requiredText(formalText(row, ['dataSetId', 'DataSetId', 'datasetid']), 'relation dataSetId'),
+    parentModelId: requiredText(formalText(row, ['parentModId', 'ParentModId', 'parentmodid']), 'relation parentModId'),
+    childModelId: requiredText(formalText(row, ['childModId', 'ChildModId', 'childmodid']), 'relation childModId'),
+    parentResourceName: requiredText(formalText(row, ['parentTable', 'ParentTable', 'parenttable']), 'relation parentTable'),
+    childResourceName: requiredText(formalText(row, ['childTable', 'ChildTable', 'childtable']), 'relation childTable'),
+    filterExpression: serializedText(row['filter'] ?? row['Filter']),
+    dependencyType: formalText(row, ['depType', 'DepType', 'deptype', 'dependencyType']),
+    cascadeDelete: binary(row['cascadeDel'] ?? row['cascadeDelete']),
+  }
 }
 
 /** 正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。 */
@@ -599,10 +595,21 @@ export class DataSpaceDesignApi {
    * 将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。
    * @param rows 已由调用方核定归属、完整性和数据权限的正式行；不执行查询或推导前端级联。
    * @returns 保留来源身份、资源端点、完整过滤及删除配置的只读关系。
+   * @throws 正式行损坏、过滤未配置或损坏时，报告空间与关系身份并拒绝整批，不跳过或修写原记录。
    */
   public static decodeRelations(rows: readonly DataSpaceFormalRow[]): readonly DataSpaceFormalRelation[] {
-    return Object.freeze(dataSpaceRelations(rows).map(relation => Object.freeze({...relation,
-      filterExpression: DataViewFilterCodec.decode(relation.filterExpression)})))
+    return Object.freeze(rows.map(row => {
+      try {
+        const relation = dataSpaceRelation(row)
+        if (!relation.filterExpression.trim()) throw new LowcodeApiError(0, '关系未配置过滤定义，无法装配为查询关系')
+        return Object.freeze({...relation, filterExpression: DataViewFilterCodec.decode(relation.filterExpression)})
+      } catch (error) {
+        const space = formalText(row, ['dataSetId', 'DataSetId', 'datasetid']) || '未知空间'
+        const relationId = formalRowId(row) || '缺少rowid'
+        throw new LowcodeApiError(error instanceof LowcodeApiError ? error.code : 0,
+          `正式关系 ${relationId}（空间 ${space}）解码失败: ${error instanceof Error ? error.message : String(error)}`)
+      }
+    }))
   }
 
   /** 完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。 */

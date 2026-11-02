@@ -4555,3 +4555,16 @@ flowchart TD
 - legacy-source-native-live.json32目标中部分先被空间关系过滤定义JSON错误阻断；再用同一SPARK runtime.query隔离查32目标（legacy-source-query-live.json，32读取0写入）均明确[1003]未找到字典EBEFF17BBB6443B185D6FB32FF69F0BB。加Dic_Test共33处已证实下游断链；读取时错误/rows0/写入禁用继续守卫，不按空字典成功处理。
 - 32项各有唯一现存同名定义，持久证据列模型/空间/原DbId/候选字典ID/名称及未执行状态；不把唯一名称当用户已确认业务归属。已向用户发出一次整体业务身份确认，依据AGENTS.md0.2禁止猜测重挂：确认后才考虑经原元数据DataView权限/保存/回读逐项修正，当前未写正式记录；Dic_Test无候选不创建替代字典。等待答复不阻止其他前端链继续。
 - 本轮产品/测试源码最终与852bffeb5一致，仅提交审计证据与唯一台账；97项领域及3文件122项来源/页面测试通过。dictionary-audit-verify.log全仓verify进程39667已退出0，保留既有2项AI模型警告；无源码变更，不重跑ClassModel/构建作为无关进度。最后证据JSON/文档治理仍核验后提交推送，整体目标不结题。
+
+## 2026-11-02 关系解码定位与首次级联等待回归
+
+- 上轮为progress：17895c5e8已推送origin/1031，起始工作区干净。32项字典来源修复仍待用户业务身份确认，不重挂或视为已批准。本轮沿上轮三个空间装配错误读取Base_DataModel_Relation，relation-parse-raw-live.json共26行。
+- 原始文本的转义展示曾被初步误判成坏JSON；逐行正式decodeRelations的relation-identity-live.json纠正：12条非空过滤均能解码，14条空字符串失败。空关系是未配置完整查询条件，不认定DB记录物理损坏；当前DataSpaceFormalRelation.filterExpression要求完整过滤，既有实现对空值同样拒绝。不能默认匹配全部、跳过关系、猜depType级联或修写服务记录。公开读取的错误须能区分未配置与语法损坏并定位关系身份。
+- 公共DataSpaceDesignApi.decodeRelations统一逐行投影/解码并捕获该行错误，保留原错误原因与LowcodeApiError code，加空间ID/关系rowid；空白/null过滤明确报告“关系未配置过滤定义，无法装配为查询关系”。返回仍整批失败，不提供部分成功副本，不更改原记录。
+- TDD：relation-identity-red.log2新增失败/原169通过，证明缺少身份提示；第一轮green的前置“有效行”误用了空过滤，实际正确报FIRST，修正为正式非空过滤后green-2.log171通过。relation-empty-red.log3新增失败/171通过；final.log174通过。API全包relation-identity-api-impact.log30文件1213项通过，定向lint通过。
+- 实服relation-identity-final-live.json11读取0写入，三个空间均报告具体空过滤关系：C0A318…/EFD802…、4E4FEE…/178066…、0C2936…/233DD5…。三次装配依然失败，不能称数据已修复。证据evidence/data-chain-smoke/2026-11-02-relation-audit.json保存26行及原过滤、12/14分类与三项最终错误。后端关系不等于原生关系真源，该样本装配不证明对应线上页面当前使用全部关系。
+- 业务影响首轮7文件225项中224通过，唯一已有用例“显式级联约束经sole codec”失败；cascade-preparing-red.log独立稳定复现await child.requestData返回时仍Loading。根因上轮852bffeb5移除Preparing跳过后，首次父加载事件重启子查询，原等待调用提前结束。收窄恢复：Preparing且无旧行且非manual时复用原编排读最新输入；已有旧行继续reset清空，保留失败不显示上一父数据的修复。
+- 修复后cascade-preparing-green.log37项通过、spark-data全包data-impact.log47文件1029项通过（含已有旧行/失败/取消保护）。API1213项与数据1029项不同包不重叠；业务225项最终复验执行中。首轮ClassModel→verify→build仍运行，稍后稳定版本须刷新正式生成并最终门禁；全架构目标不结题。
+- 最终业务影响relation-identity-app-final.log7文件225项全部通过，包含37项首次级联等待回归，不重复累计。首轮verify（65847）在消费者台账过期退出1，未运行build；变更只是测试/源码行号移动，正式generate:lowcode-contracts刷新仍611端点/200消费者，无新后端协议。已在源码稳定后串行ClassModel→verify→build（99235）最终验证，不能以首轮部分通过代替。
+- 最终门禁99235退出0：正式消费者台账刷新、ClassModel编译生成、全仓verify与串行build均通过（relation-identity-*-final.log）；既有2项AI模型告警及动态导入提示保留。API30文件1213项、数据47文件1029项、业务7文件225项最终通过，局部174/37等不重复累计。
+- 浏览器只作能力复查：读computer-use技能后，cua.getState仍明确browser access host unavailable，browsers=[]；未导航、未输入登录、未宣称浏览器整页通过，未用其它浏览器自动化旁路。当前14条空过滤、33处字典下游及其余全架构未闭合项继续开放。本批仅改公共错误定位/首次级联等待并持久化只读证据，准备提交推送origin/1031。

@@ -1859,12 +1859,12 @@
     "packages/spark-component/src/components/fields/context/useFieldContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useFieldContext.ts.json",
-      "sourceModifiedAt": "2026-10-18T16:46:39.880Z"
+      "sourceModifiedAt": "2026-11-02T02:44:28.577Z"
     },
     "packages/spark-component/src/components/fields/context/useFieldPermission.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useFieldPermission.ts.json",
-      "sourceModifiedAt": "2026-11-01T16:18:49.423Z"
+      "sourceModifiedAt": "2026-11-02T02:44:28.579Z"
     },
     "packages/spark-component/src/components/fields/context/useResolvedFieldContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useResolvedFieldContext.ts",
@@ -1949,7 +1949,7 @@
     "packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts.json",
-      "sourceModifiedAt": "2026-10-18T16:46:39.880Z"
+      "sourceModifiedAt": "2026-11-02T02:44:28.574Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useChoiceFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useChoiceFieldState.ts",
@@ -1964,7 +1964,7 @@
     "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/composables/state/useFieldControlState.ts.json",
-      "sourceModifiedAt": "2026-10-18T16:46:39.882Z"
+      "sourceModifiedAt": "2026-11-02T02:44:28.576Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useFileFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useFileFieldState.ts",
@@ -2299,7 +2299,7 @@
     "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.528Z"
+      "sourceModifiedAt": "2026-11-02T02:44:28.580Z"
     },
     "packages/spark-component/src/components/fields/non-data-components/FieldTableCellScope.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/non-data-components/FieldTableCellScope.vue",
@@ -2364,7 +2364,7 @@
     "packages/spark-component/src/components/shared-types.ts": {
       "sourceFile": "packages/spark-component/src/components/shared-types.ts",
       "shardFile": "files/packages/spark-component/src/components/shared-types.ts.json",
-      "sourceModifiedAt": "2026-11-01T23:29:16.756Z"
+      "sourceModifiedAt": "2026-11-02T02:44:28.573Z"
     },
     "packages/spark-component/src/components/SparkComponentRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/SparkComponentRenderer.vue",

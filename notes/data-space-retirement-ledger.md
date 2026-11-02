@@ -4635,3 +4635,14 @@ flowchart TD
 - 消费专题新增23次只读（含1次错误Type标签诊断、1次正确17条清点、17运行查询、4身份/设计复核）/0写入；参数专题14次只读另外计算，本轮合计37读取/0写入。两失败继续开放，不因本地测试绿灯核销。
 - 最终2572退出0：按钮绑定/布尔修正后4文件20项通过，正式ClassModel生成、全仓verify与build串行全部通过（design-discard-{final-tests,generate-final,verify-final,build-final}.log）；前序21文件127项影响测试及局部eslint通过，范围重叠不累计。既有AI模型告警和构建动态导入提示保留。
 - 本轮提交推送origin/1031保存显式取消、完整设计操作绑定/未知结果入口提示及两份实服只读审计；无Java修改、无实服写入、无浏览器整页验收。下一实现继续参数多空间PageRuntime接入及参考完整节点/来源/输出语义，现存98项字典运行失败、12项GetView差异、两项逻辑视图下游失败与其它台账项均不擅自核销；目标继续active。
+
+### 2026-11-02 参数工作区即时保存所需标准组件能力
+- 从0847e2d11已推送干净树继续，上一目标轮progress；参数工作区正式链仍是同PageRuntime中的元数据DataSet（parid/pid）与设计文件DataSet，独立保存确认，不重新造表或同名映射。
+- 参考参数结束单元格编辑即时保存；当前标准editOnDblclick只关闭输入且保留草稿。Ruling: 先在标准字段补saveOnCellExit（默认false）再由参数页声明使用 — 这是参考业务顺序的直接缺口，遵循0.4标准组件优先 — 若合同不成立会影响显式启用的页面，旧默认行为必须回归；不以页面私有保存器替代。
+- 标准测试使用真实DataView/DataSet/DataSpaceRuntimeApi与既有ApiBackend读写夹具；最初夹具误选默认多选框input，不能当产品故障。改为单值选择并断言原生编辑覆盖确已产生后，cell-save-red-field.log两项RED分别为缺少按行保存与缺少校验错误呈现。
+- 已实现标准saveOnCellExit：blur/Enter经原DataSet.saveChanges精确选中一个视图/一行，所有权限/校验/回执继续原owner；Esc仍按既有合同只退出输入，失败保留草稿并显示错误，不能自动重放。属性经shared-types→Basic/Control→FieldContext→Renderer消费；原生字段绑定负责保存行身份，页面不拼请求。首轮cell-save-green.log新2项及既有单元格组通过；新增未知保存不重放/原入口回读核验与旧编辑器失效两项正在核验，尚未全仓门禁、未提交、无实服写入。
+- cell-save-final.log为2文件11项通过，包含未知保存已落库但回执中断后的原DataSet核验（只1次实际夹具写入）、未确认状态保留、旧行编辑器失效；cell-save-lint.log局部eslint通过，typecheck及正式ClassModel36322退出0。saveOnCellExit指南已进入shared-types正式产物，FieldText继承链沿该声明查到；未手改生成文件。
+- 全部UI影响面55文件718项通过（cell-save-ui-impact.log），完整verify95332退出0、build90637退出0（cell-save-{verify,build}.log）。默认不启用保存的既有单元格行为仍通过；新属性尚未接入参数页面，不将平台能力通过称参数工作区已完成。
+- 浏览器通道本轮已恢复（CUA inventory有iab）；初次页面动态模块加载失败，实查5274已无监听进程，并非据此认定组件回归。仅启动本仓Vite前端（48427、frontend-browser-smoke-server.log，127.0.0.1:5274），未启动或改Java；重载后首页正常。通过原UI使用既有授权测试身份登录（不保存密码）、沿AppWorks应用导航进入16条逻辑视图目录，再从sys_edit打开D0624BDE07FA475B90D5653994A6493D，导航身份正确且实际设计可读。
+- 真实浏览器可逆操作：设计对象39字段→点击“加子项”产生本地newKey/40字段→点击“放弃修改并重读”→39字段恢复且新字段不存在；没有点击保存设计。截图artifacts/data-chain-smoke/logic-design-browser-cancel.png及脱敏审计evidence/data-chain-smoke/2026-11-02-logic-design-browser-cancel-audit.json。仅证明当前通用编辑器的真实读取/局部草稿/取消重读，不是完整参考布局、参数UI或真实SaveView保存验收；浏览器已markHandoff供后续继续。
+- 本轮提交推送origin/1031保存即时单元格按行提交标准能力及浏览器取消证据。下一步按此前语义在同一个PageRuntime接入元数据参数DataSet，精确pid目标、parid正式主键、独立保存边界及即时编辑消费；新增/删除/取消/未知结果与页面切换仍须整页验证。现有98字典、12 GetView、2逻辑视图消费失败及全架构其它开放项保持，不标目标完成。

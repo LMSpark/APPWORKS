@@ -1,0 +1,32 @@
+{
+  "date": "2026-11-02",
+  "kind": "actual-browser-native-ui",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "navigationId": "EB720370EF06A5A656838F87E0716D6B",
+  "viewId": "D0624BDE07FA475B90D5653994A6493D",
+  "browserAccessRestored": true,
+  "frontendService": {
+    "port": 5274,
+    "initialFailure": "Dev service was no longer listening; page import failed",
+    "recovered": true
+  },
+  "authenticatedWithAuthorizedTestAccount": true,
+  "flow": [
+    "application navigation",
+    "logic view catalog: 16 records",
+    "open sys_edit",
+    "native local add-child: 39 to 40 fields",
+    "discard and reread: 40 to 39 fields"
+  ],
+  "restoredFieldsVisible": true,
+  "saveButtonClicked": false,
+  "limits": [
+    "No real SaveView write",
+    "This is generic design editor read/local-edit/cancel acceptance, not the full reference design UI",
+    "saveOnCellExit is not yet wired to the logical-view parameter workspace"
+  ],
+  "screenshot": {
+    "file": "artifacts/data-chain-smoke/logic-design-browser-cancel.png",
+    "sha256": "e2df9e5fabe7992f8e4c974b40a6ff648892c0b0cb220e92b45cd531e7d2fe70"
+  }
+}

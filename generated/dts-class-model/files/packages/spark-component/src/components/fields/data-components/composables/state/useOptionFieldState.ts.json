@@ -127,6 +127,12 @@
             "custom"
           ]
         },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "optionLabelField": {
           "type": "string"
         },

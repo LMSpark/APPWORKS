@@ -169,6 +169,12 @@
             true
           ]
         },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "placeholder": {
           "type": "string"
         },

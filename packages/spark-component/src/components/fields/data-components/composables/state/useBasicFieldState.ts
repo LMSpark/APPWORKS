@@ -24,6 +24,7 @@ type BasicFieldProps<TValue> = FieldPermissionProps<TValue> & FieldComposablePro
     | 'titleClassName' | 'valueClassName'
     | 'sortable'
     | 'editOnDblclick'
+    | 'saveOnCellExit'
   >>
 
 /** Use Basic Field State Options 的调用配置。 */

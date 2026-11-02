@@ -14,6 +14,8 @@ import { useControlledFieldChange } from '../value/useControlledFieldChange'
 
 /** 字段上下文对控件层暴露的只读显示和校验状态。 */
 type FieldContextStateLike = {
+  /** 由原字段绑定保存指定原始行，复用DataSet校验及保存owner。 */
+  saveEditingRow?: (row: DataRow) => Promise<void>
   /** 权限及宿主交互锁定后的写入可用性。 */
   isCurrentFieldEditable: ComputedRef<boolean>
   /** 字段绑定的数据列名。 */
@@ -65,6 +67,7 @@ type FieldControlProps = FieldComposableProps<Pick<SparkNodeProps,
   | 'titleClassName' | 'valueClassName'
   | 'sortable'
   | 'editOnDblclick'
+  | 'saveOnCellExit'
 >>
 
 /** 创建字段控件运行态所需的输入。 */
@@ -83,6 +86,7 @@ export function useFieldControlState<TValue>(options: UseFieldControlStateOption
   const fieldCtx = useFieldContext({
     type: options.props.type ?? options.fieldType,
     ...(options.props.editOnDblclick !== undefined ? {editOnDblclick: options.props.editOnDblclick} : {}),
+    ...(options.props.saveOnCellExit !== undefined ? {saveOnCellExit: options.props.saveOnCellExit} : {}),
     width: options.props.width,
     get header() {return options.props.header},
     ...(options.props.minWidth !== undefined ? {minWidth: options.props.minWidth} : {}),

@@ -60,6 +60,19 @@
       ],
       "additionalProperties": false,
       "$defs": {
+        "method.saveEditingRow.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.saveEditingRow.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.isTableCellHidden.params": {
           "type": "object",
           "properties": {
@@ -241,6 +254,12 @@
             "custom"
           ]
         },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "onChange": {
           "type": "object",
           "title": "(...args: unknown[]) => void | Promise<void>"
@@ -284,7 +303,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T16:46:39.882Z",
+  "generatedAt": "2026-11-02T02:44:28.576Z",
   "models": {
     "FieldContextStateLike": {
       "name": "FieldContextStateLike",
@@ -296,7 +315,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 权限及宿主交互锁定后的写入可用性。 */\n    isCurrentFieldEditable: ComputedRef<boolean>;\n    /** 字段绑定的数据列名。 */\n    fieldName: ComputedRef<string>;\n    /** 字段显示标题，通常来自列标题或组件 title。 */\n    displayLabel: ComputedRef<string>;\n    /** 当前字段在当前上下文下是否隐藏。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 当前字段是否应该渲染；隐藏和权限判断后的最终结果。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** 当前字段的展示文本。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 指定表格行中的该字段单元格是否隐藏。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** 指定表格行中的该字段单元格展示文本。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** 当前字段的表单校验规则。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
+        "declarationTypeText": "{\n    /** 由原字段绑定保存指定原始行，复用DataSet校验及保存owner。 */\n    saveEditingRow?: (row: DataRow) => Promise<void>;\n    /** 权限及宿主交互锁定后的写入可用性。 */\n    isCurrentFieldEditable: ComputedRef<boolean>;\n    /** 字段绑定的数据列名。 */\n    fieldName: ComputedRef<string>;\n    /** 字段显示标题，通常来自列标题或组件 title。 */\n    displayLabel: ComputedRef<string>;\n    /** 当前字段在当前上下文下是否隐藏。 */\n    isCurrentFieldHidden: ComputedRef<boolean>;\n    /** 当前字段是否应该渲染；隐藏和权限判断后的最终结果。 */\n    shouldRenderCurrentField: ComputedRef<boolean>;\n    /** 当前字段的展示文本。 */\n    currentDisplayValue: ComputedRef<string>;\n    /** 指定表格行中的该字段单元格是否隐藏。 */\n    isTableCellHidden: (row: DataRow) => boolean;\n    /** 指定表格行中的该字段单元格展示文本。 */\n    getTableCellDisplayValue: (row: DataRow) => string;\n    /** 当前字段的表单校验规则。 */\n    validationRules: ComputedRef<FormItemRule[]>;\n}",
         "members": {
           "attributes": [
             {
@@ -343,6 +362,29 @@
             }
           ],
           "methods": [
+            {
+              "name": "saveEditingRow",
+              "jsdoc": "由原字段绑定保存指定原始行，复用DataSet校验及保存owner。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataRow"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
             {
               "name": "isTableCellHidden",
               "jsdoc": "指定表格行中的该字段单元格是否隐藏。",
@@ -482,7 +524,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick' | 'saveOnCellExit'>>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -491,7 +533,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'onChange' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick' | 'saveOnCellExit'>>",
             "targetName": "FieldComposableProps"
           }
         ],

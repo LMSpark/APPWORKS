@@ -129,6 +129,12 @@
             true,
             "custom"
           ]
+        },
+        "saveOnCellExit": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false
@@ -202,7 +208,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T16:46:39.880Z",
+  "generatedAt": "2026-11-02T02:44:28.574Z",
   "models": {
     "BasicFieldProps": {
       "name": "BasicFieldProps",
@@ -214,7 +220,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "FieldPermissionProps<TValue> & FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
+        "declarationTypeText": "FieldPermissionProps<TValue> & FieldComposableProps<Pick<SparkNodeProps, 'type' | 'children'>> & FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick' | 'saveOnCellExit'>>",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -228,7 +234,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick'>>",
+            "typeText": "FieldComposableProps<Pick<SparkFieldSemanticProps, 'width' | 'minWidth' | 'showOverflowTooltip' | 'header' | 'resizable' | 'titleAlign' | 'valueAlign' | 'headerCellClassName' | 'cellClassName' | 'titleClassName' | 'valueClassName' | 'sortable' | 'editOnDblclick' | 'saveOnCellExit'>>",
             "targetName": "FieldComposableProps"
           }
         ],

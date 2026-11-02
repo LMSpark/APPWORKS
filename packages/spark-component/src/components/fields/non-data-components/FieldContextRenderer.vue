@@ -58,11 +58,12 @@ AI用途：需要理解 field context renderer 的实际渲染结构、slot/tool
       <template #default="{ row }">
         <template v-if="!resolveTableCellHidden(row)">
           <div v-if="editOnDblclick" class="field-table-cell" @dblclick="beginCellEdit(row, $event)"
-            @focusout="endCellEdit" @keydown.enter="editing = false" @keydown.esc="editing = false">
+            @focusout="endCellEdit" @keydown.enter="finishCellEdit" @keydown.esc="editing = false">
             <slot v-if="editing && canEditCell(row)" name="form" />
             <slot v-else name="table-cell" :row="row" :value="resolveTableCellDisplayValue(row)">
               <span :class="['field-table-value', tableValueClassName]">{{ resolveTableCellDisplayValue(row) }}</span>
             </slot>
+            <span v-if="saveError && isContextRow(row)" role="alert">{{ saveError }}</span>
           </div>
           <slot v-else name="table-cell" :row="row" :value="resolveTableCellDisplayValue(row)">
             <span :class="['field-table-value', tableValueClassName]">{{ resolveTableCellDisplayValue(row) }}</span>
@@ -136,6 +137,10 @@ type Props = SparkNodeProps & {
   bindingError?: string | undefined
   /** 表格双击编辑使用字段本身的form槽，不建立第二份值。 */
   editOnDblclick?: boolean | undefined
+  /** 显式启用按原DataSet提交当前行。 */
+  saveOnCellExit?: boolean | undefined
+  /** 字段绑定提供的原始行保存入口。 */
+  saveEditingRow?: ((row: DataRow) => Promise<void>) | undefined
   /** 原绑定当前行，与表格事件已确认的行一致时才允许进入输入。 */
   editingContextRow?: DataRow | null | undefined
   /** 字段消费正式权限与宿主锁定后的可写性。 */
@@ -194,10 +199,15 @@ type Props = SparkNodeProps & {
 
 const props = defineProps<Props>()
 const editing = ref(false)
+const saving = ref(false), saveError = ref('')
+let saveGeneration = 0
+watch(() => [props.editingContextRow, props.fieldName, props.editOnDblclick], () => {saveGeneration++; saveError.value = ''})
 watch(() => [props.editingContextRow, props.isCurrentFieldEditable, props.fieldName, props.editOnDblclick], () => {editing.value = false})
+function isContextRow(row: DataRow): boolean {
+  return props.editingContextRow != null && toRaw(row) === toRaw(props.editingContextRow)
+}
 function canEditCell(row: DataRow): boolean {
-  return props.isCurrentFieldEditable === true && props.editingContextRow != null
-    && toRaw(row) === toRaw(props.editingContextRow)
+  return !saving.value && props.isCurrentFieldEditable === true && isContextRow(row)
 }
 async function beginCellEdit(row: DataRow, event: MouseEvent): Promise<void> {
   if (!canEditCell(row)) return
@@ -208,7 +218,18 @@ async function beginCellEdit(row: DataRow, event: MouseEvent): Promise<void> {
 }
 function endCellEdit(event: FocusEvent): void {
   if (event.currentTarget instanceof HTMLElement && event.relatedTarget instanceof Node && event.currentTarget.contains(event.relatedTarget)) return
+  void finishCellEdit()
+}
+async function finishCellEdit(): Promise<void> {
+  if (!editing.value || saving.value) return
   editing.value = false
+  if (!props.saveOnCellExit) return
+  const row = props.editingContextRow, save = props.saveEditingRow, own = saveGeneration
+  if (!row || !canEditCell(row) || !save) {saveError.value = '单元格缺少当前行保存能力'; return}
+  saving.value = true; saveError.value = ''
+  try {await save(row)}
+  catch (cause) {if (own === saveGeneration) saveError.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {saving.value = false}
 }
 
 const resolvedContext = useResolvedFieldContext()

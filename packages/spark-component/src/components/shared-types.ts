@@ -205,6 +205,8 @@ export type SparkFieldSemanticProps<TValue = unknown> = {
    * 失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。
    */
   editOnDblclick?: boolean
+  /** 表格双击编辑在失焦或Enter结束时，经原DataSet保存该行全部待提交字段；默认false。仅保存当前行，不提交其它行或视图。Esc仅退出输入；验证失败或未知结果保留原草稿及owner，不自动重放。 */
+  saveOnCellExit?: boolean
   /**
    * 占位文案。
    * 当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。

@@ -6,7 +6,7 @@
  */
 import { computed, getCurrentInstance } from 'vue'
 import { useFormDisabled } from 'element-plus'
-import { FieldVisibility } from '@spark-appworks/spark-data'
+import { DataView, FieldVisibility } from '@spark-appworks/spark-data'
 import type { DataColumn } from '@spark-appworks/spark-data'
 import type { DataRow } from '@spark-appworks/spark-data'
 import { PAGE_SERVICE } from '../../internal'
@@ -228,6 +228,15 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     return () => valid() && isCurrentFieldEditable.value
   }
 
+  async function saveEditingRow(row: DataRow): Promise<void> {
+    const view = dataSource.value
+    if (!(view instanceof DataView) || !view.dataSet || !isCurrentFieldEditable.value) throw new Error('FIELD_ROW_SAVE: 当前字段没有可写的原生视图')
+    const id = view.getPkKey(row), current = contextData.value
+    if (id === undefined || !current || view.getPkKey(current) !== id) throw new Error('FIELD_ROW_SAVE: 单元格行身份已变化')
+    const result = await view.dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+    if (!result.success) throw new Error(result.message ?? '单元格保存未确认，请通过原保存入口核验')
+  }
+
   return {
     bindingError,
     permissionMode,
@@ -255,6 +264,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     syncValue,
     validationRules,
     captureWriteGuard,
+    saveEditingRow,
     captureBindingGuard: binding.captureWriteGuard,
     writeField,
   }

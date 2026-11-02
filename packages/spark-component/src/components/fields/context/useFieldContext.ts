@@ -21,6 +21,10 @@ export type FieldContextProps = {
 type: string
   /** 表格单元格是否允许双击进入字段控件。 */
   editOnDblclick?: boolean
+  /** 结束单元格编辑时保存原视图当前行。 */
+  saveOnCellExit?: boolean
+  /** 原字段绑定提供的原生按行保存，不复制草稿。 */
+  saveEditingRow?: (row: DataRow) => Promise<void>
   /** 字段绑定当前原始行；用于核对单元格身份，不复制编辑覆盖。 */
   editingContextRow: DataRow | null
   /** 当前字段经权限和交互锁定后是否可编辑。 */
@@ -70,6 +74,7 @@ validationRules: FormItemRule[]}
 
 /** Field Permission For Context 的运行上下文。 */
 type FieldPermissionForContext = {
+  saveEditingRow?: (row: DataRow) => Promise<void>
   /** 停算配置的只读诊断，不改变字段值可见性。 */
   bindingError?: ComputedRef<string | undefined>
   /** 原字段绑定的行上下文；不复制运行数据。 */
@@ -107,6 +112,7 @@ type FieldContextInputProps = FieldComposableProps<Pick<SparkNodeProps,
   | 'titleClassName' | 'valueClassName'
   | 'sortable'
   | 'editOnDblclick'
+  | 'saveOnCellExit'
 >> & {
     /** 类型标识。 */
 type: string}
@@ -125,6 +131,8 @@ export function useFieldContext(
       ...(permission.bindingError?.value ? {bindingError: permission.bindingError.value} : {}),
       type: fieldProps.type,
       ...(fieldProps.editOnDblclick !== undefined ? {editOnDblclick: fieldProps.editOnDblclick} : {}),
+      ...(fieldProps.saveOnCellExit !== undefined ? {saveOnCellExit: fieldProps.saveOnCellExit} : {}),
+      ...(permission.saveEditingRow ? {saveEditingRow: permission.saveEditingRow} : {}),
       editingContextRow: permission.contextData.value,
       isCurrentFieldEditable: permission.isCurrentFieldEditable.value,
       displayLabel: permission.displayLabel.value,

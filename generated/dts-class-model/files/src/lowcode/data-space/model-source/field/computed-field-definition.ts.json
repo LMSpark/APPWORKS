@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/field/computed-field-definition",
+    "sourcePath": "src/lowcode/data-space/model-source/field/computed-field-definition.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/field/computed-field-definition.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/field/computed-field-definition",
+    "jsdoc": "@module app:lowcode/data-space/model-source/field/computed-field-definition\n职责：两类元数据宿主共用计算字段正式定义的纯内容约束。\n边界：不校验引用、身份权限或保存；调用方按各自领域验证ValueFun。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T23:43:20.514Z",
+  "models": {}
+}

@@ -6,6 +6,7 @@
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceFieldValue} from './lowcode-data-space-field-value'
+import {buildComputedFieldDefinition} from './computed-field-definition'
 import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture, verifyAndDiscardDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '../data-space-definition-save'
 
 export type FieldCreateStatus = 'idle' | 'editing' | 'saving' | 'unknown' | 'readback' | 'different'
@@ -165,14 +166,9 @@ function fieldCreateValues(host: FieldCreateHost): DataRow {
   if (host.viewId === 'modelFields') for (const key of ['Name', 'description']) {
     if (typeof row[key] === 'string') row[key] = row[key].trim()
   }
-  for (const key of ['Name', 'AsName']) if (typeof row[key] !== 'string' || key === 'Name' && !row[key].trim() || row[key] !== row[key].trim()
-    || /[\u0000-\u001f\u007f]/.test(row[key]) || row[key] === '_pk') throw new Error('字段名称必须是非空文本，别名可留空；不能含首尾空白、控制字符或使用保留字段_pk')
-  if (typeof row['description'] !== 'string' || row['IsOutput'] !== 0 && row['IsOutput'] !== 1) throw new Error('说明或输出开关格式无效')
-  if (String(row['Name']).length > 100 || String(row['AsName']).length > 100 || row['description'].length > 200) throw new Error('名称和规范别名不能超过100个字符，描述不能超过200个字符')
+  const definition=buildComputedFieldDefinition({targetId:host.targetId,modelId:host.modelId},row)
   new LowcodeDataSpaceFieldValue({dataSet: host.dataSet, targetId: host.targetId, modelId: host.modelId, viewId: host.viewId}).validate(row['ValueFun'])
-  return {dataSetId: host.targetId, dataModelId: host.modelId, type: 'dataModel', FieldType: '计算字段', IsPKey: 0,
-    Name: row['Name'], AsName: row['AsName'], description: row['description'], ValueFun: row['ValueFun'], IsOutput: row['IsOutput'],
-    Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
+  return definition
 }
 
 function fieldCreateFinish(host: FieldCreateHost): void {

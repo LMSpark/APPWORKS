@@ -14,7 +14,8 @@ function read(view:DataView,row:DataRow,field:string):unknown{
 }
 function loaded(dataSet:DataSet,table:string,workflowId:string):DataView{
  const view=dataSet.getView(table)
- if(!view||view.destroyed||view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total||view.queryContext['workflowId']!==workflowId)throw Error('查询输入的正式视图未完整读取或目标已变化')
+ const pending=table==='Base_DataModel_Field'&&view?view.dirtyTracking.pendingDeleteIds.size-view.dirtyTracking.pendingCreateIds.size:0
+ if(!view||view.destroyed||view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length+pending!==view.total||view.queryContext['workflowId']!==workflowId)throw Error('查询输入的正式视图未完整读取或目标已变化')
  return view
 }
 function identity(view:DataView,row:DataRow):string{

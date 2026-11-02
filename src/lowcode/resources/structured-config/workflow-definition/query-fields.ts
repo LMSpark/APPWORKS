@@ -3,24 +3,15 @@
  * 职责：查询字段显示与输出配置和引用同一模型的节点输出目录沿原DataSet同步提交。
  * 边界：不持有草稿、不查询全空间、不执行流程；尚未核定的下游输出引用明确阻断结构变更。
  */
-import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
+import type {DataSet} from '@spark-appworks/spark-data'
 import {buildWorkflowQueryOutput} from './query-output'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {validateWorkflowQueryInputChanges} from './query-inputs'
+import {workflowQueryFieldScope,readWorkflowFieldValue as read,workflowFieldChanges as changes} from './query-field-context'
+import {validateWorkflowComputedField} from './query-computed-fields'
 
 const allowed=new Set(['description','AsName','IsOutput','OrderType','Order','Group','ValueFun'])
 const projectionFields=['rowid','dataSetId','dataModelId','type','Name','AsName','FieldType','description','IsOutput','IsPKey']
-function read(view:DataView,row:DataRow,field:string):unknown{
- if(view.fieldAccess(row,field).read!=='visible')throw Error(`查询字段配置不可读: ${field}`)
- return row[field]
-}
-function loaded(view:DataView|undefined):DataView{
- if(!view||view.destroyed||view.mutating||view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total)throw Error('查询配置尚未完整读取')
- return view
-}
-function changes(view:DataView,row:DataRow,id:string):Record<string,unknown>{
- return {...Object.fromEntries(Object.entries(view.dirtyTracking.getDiff(id,row)).map(([key,diff])=>[key,diff.to])),...view.getEditingPatch(id)}
-}
 /** 保存原字段编辑覆盖和同模型节点输出；未知批次只交原DataSet核验，其他节点草稿保持原位。 */
 export async function saveWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string){
  const result=await updateWorkflowQueryFields(dataSet,workflowId,nodeId,'save')
@@ -30,14 +21,7 @@ export async function saveWorkflowQueryFields(dataSet:DataSet,workflowId:string,
 /** 取消本字段批次及可确认属于同一派生结果的节点输出；不撤销已确认提交，不丢弃其他节点编辑。 */
 export async function cancelWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string):Promise<void>{await updateWorkflowQueryFields(dataSet,workflowId,nodeId,'cancel')}
 async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string,action:'save'|'cancel'){
- if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询配置目标已失效')
- const nodes=loaded(dataSet.getView('Base_WorkflowNodeDefinition')),fields=loaded(dataSet.getView('Base_DataModel_Field')),
-  models=loaded(dataSet.getView('Base_DataModel')),edges=loaded(dataSet.getView('Base_WorkflowConnectors'))
- if([nodes,fields,models,edges].some(view=>view.queryContext['workflowId']!==workflowId))throw Error('查询配置目标已变化')
- const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId),model=models.rows[0]
- if(!node||models.rows.length!==1||!model||read(nodes,node,'workflow_id')!==workflowId||read(nodes,node,'node_type')!=='query')throw Error('当前不是所属工作流的唯一查询节点模型')
- const modelId=read(nodes,node,'node_config')
- if(typeof modelId!=='string'||!modelId||models.getPkKey(model)!==modelId||read(models,model,'dataSetId')!==workflowId)throw Error('查询模型归属不符')
+ const {nodes,fields,models,edges,model,modelId}=workflowQueryFieldScope(dataSet,workflowId,nodeId)
  if([fields,nodes,models].some(view=>view.hasUnconfirmedSave)){
   if(action==='cancel')throw Error('请先核验查询配置原提交')
   return dataSet.saveChanges({views:[fields,nodes,models].map(view=>({tableName:view.tableName,viewId:view.viewId}))})
@@ -45,19 +29,21 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  const modelPatch=changes(models,model,modelId),modelChanged=Object.keys(modelPatch).length>0
  if(Object.keys(modelPatch).some(field=>!['Filter','description'].includes(field)))throw Error('请先处理查询模型的其他定义修改')
  if(action==='save')for(const field of Object.keys(modelPatch))if(models.fieldAccess(model,field).write!=='allowed')throw Error(`查询模型字段不可修改: ${field}`)
- if(fields.dirtyTracking.pendingCreateIds.size||fields.dirtyTracking.pendingDeleteIds.size)throw Error('字段新增和删除须先完成专用引用命令')
+ if(fields.dirtyTracking.pendingDeleteIds.size)throw Error('字段删除须先完成专用引用命令')
  const projected=fields.rows.map(row=>{
   const id=fields.getPkKey(row)
   if(typeof id!=='string')throw Error('查询字段正式身份缺失')
   const patch=changes(fields,row,id)
-  if(action==='save'&&Object.keys(patch).some(key=>!allowed.has(key)))throw Error('本次只维护字段说明、输出及排序分组；其他字段须使用相应配置命令')
+  const creating=fields.dirtyTracking.isPendingCreate(id)
+  if(action==='save'&&creating)validateWorkflowComputedField(dataSet,workflowId,nodeId,fields.getEditingRow(id)??row,id)
+  if(action==='save'&&!creating&&Object.keys(patch).some(key=>!allowed.has(key)))throw Error('本次只维护字段说明、输出及排序分组；其他字段须使用相应配置命令')
   if(action==='save')for(const field of Object.keys(patch))if(fields.fieldAccess(row,field).write!=='allowed')throw Error(`查询字段不可修改: ${field}`)
   if(action==='save')for(const field of ['Order','Group'])if(Object.hasOwn(patch,field)&&(!Number.isSafeInteger(patch[field])||Number(patch[field])<0))throw Error('排序顺序和分组标记须为非负整数')
   if(action==='save'&&Object.hasOwn(patch,'OrderType')&&!['','ascending','descending'].includes(String(patch['OrderType'])))throw Error('排序方向无效')
   const effective=fields.getEditingRow(id)??row
-  return {id,patch,row:Object.fromEntries(projectionFields.map(field=>[field,read(fields,row,field)])),effective:{...Object.fromEntries(projectionFields.map(field=>[field,read(fields,row,field)])),...effective}}
+  return {id,patch,creating,row:Object.fromEntries(projectionFields.map(field=>[field,read(fields,row,field)])),effective:{...Object.fromEntries(projectionFields.map(field=>[field,read(fields,row,field)])),...effective}}
  })
- const selected=projected.filter(item=>Object.keys(item.patch).length>0)
+ const selected=projected.filter(item=>item.creating||Object.keys(item.patch).length>0)
  const affected=nodes.rows.filter(row=>read(nodes,row,'workflow_id')===workflowId&&['query','copy'].includes(String(read(nodes,row,'node_type')))&&read(nodes,row,'node_config')===modelId)
  const nodeIds=affected.map(row=>{
   const id=nodes.getPkKey(row);if(typeof id!=='string')throw Error('查询节点正式身份缺失')

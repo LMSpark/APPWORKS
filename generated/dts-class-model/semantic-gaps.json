@@ -1,5 +1,5 @@
 {
-  "gapCount": 3529,
+  "gapCount": 3539,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -24138,6 +24138,17 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/data-space/model-source/field/computed-field-definition",
+      "moduleName": "app:lowcode/data-space/model-source/field/computed-field-definition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/data-space/model-source/field/computed-field-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/data-space/model-source/field/computed-field-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/field/computed-field-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/field/computed-field-definition.ts"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-create-session",
       "moduleName": "app:lowcode/data-space/model-source/field/lowcode-data-space-field-create-session",
       "reason": "weak-module-jsdoc",
@@ -36078,6 +36089,110 @@
       "declarationLine": 33,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/query-computed-fields",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/query-computed-fields",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/query-computed-fields 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Values",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Values 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Values",
+      "memberName": "Name",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Values.Name 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Values",
+      "memberName": "description",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Values.description 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Values",
+      "memberName": "ValueFun",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Values.ValueFun 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Values",
+      "memberName": "IsOutput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Values.IsOutput 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "constructor",
+      "className": "WorkflowComputedFields",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowComputedFields.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "model",
+      "className": "WorkflowComputedFields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowComputedFields 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/query-field-context",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/query-field-context",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/query-field-context 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts"
     },
     {
       "kind": "module",

@@ -9,6 +9,7 @@ import {openWorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
 import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
+import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/query-computed-fields'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 
@@ -31,6 +32,37 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it('stages a computed field in the original query view, cancels without writes, and saves its output with a stable native identity',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  const values={Name:'computedZero',description:'零',ValueFun:JSON.stringify({Type:'GetConstValue',Value:0}),IsOutput:1 as const}
+  const cancelled=await WorkflowComputedFields.add(ds,'W1','N1',values)
+  expect(fields.dirtyTracking.isPendingCreate(cancelled)).toBe(true);expect(http.saves).toHaveLength(0)
+  await cancelWorkflowQueryFields(ds,'W1','N1');expect(fields.rows).toHaveLength(0);expect(http.saves).toHaveLength(0)
+  const id=await WorkflowComputedFields.add(ds,'W1','N1',values)
+  await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.records['Base_DataModel_Field']).toEqual([expect.objectContaining({rowid:id,dataSetId:'W1',dataModelId:'M1',Name:'computedZero',FieldType:'计算字段',type:'dataModel',IsPKey:0,ValueFun:values.ValueFun})])
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toContainEqual(expect.objectContaining({rowid:id,Name:'computedZero',FieldType:'计算字段'}))
+  await expect(WorkflowComputedFields.add(ds,'W1','N1',values)).rejects.toThrow('名称')
+  const pendingNode=vi.spyOn(nodes,'hasUnconfirmedSave','get').mockReturnValue(true)
+  await expect(WorkflowComputedFields.add(ds,'W1','N1',{...values,Name:'other'})).rejects.toThrow('核验')
+  expect(fields.dirtyTracking.pendingCreateIds.size).toBe(0)
+  pendingNode.mockRestore()
+ })
+ it('preserves the computed field native identity and original output batch when its save response is lost',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  const id=await WorkflowComputedFields.add(ds,'W1','N1',{Name:'zero',description:'',ValueFun:JSON.stringify({Type:'GetConstValue',Value:0}),IsOutput:1})
+  http.failAfterWrite=true;await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
+  const writes=http.saves.length
+  await expect(cancelWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('核验')
+  http.failAfterWrite=false;await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.saves).toHaveLength(writes);expect(http.records['Base_DataModel_Field']).toHaveLength(1)
+  expect(http.records['Base_DataModel_Field']![0]?.['rowid']).toBe(id)
+  expect(fields.hasUnconfirmedSave).toBe(false)
+ })
  it('allows additive query outputs with downstream edges but preserves the guard for removing or renaming existing outputs',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:JSON.stringify([

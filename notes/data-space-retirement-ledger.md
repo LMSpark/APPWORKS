@@ -5460,3 +5460,18 @@ ClassModel目录/概要/columns/format指南已读，onEditingChange是方法投
 
 
 新分页检查点最终验证：126工作流测试（12文件）、typecheck、全仓lint、前端build:fe、pages-config/workflow-designs/page-thin/docs均exit0；ClassModel正式生成完成后再打包，无并发manifest问题。高阶限定复核无确定阻断，源码仅query-inputs及相应回归；生成噪声继续完整JSON归一比较后恢复，保留真实查询叶合同JSDoc派生及manifest。目录浏览器刷新Total4恢复，截图workflow-pagination-cleaned-directory，tab7无草稿handoff；tab6保留上一unknown现场，不重跑。按用户授权提交推送此真实消费检查点，全目标仍active。
+
+**2026-11-03 查询计算字段完整工作卡（接5419f81f0，implementing）。**高阶与主控固定参考核对：新增/编辑计算字段为type=dataModel、FieldType=计算字段、IsPKey=0；参考新增初始不输出，编辑仅计算字段，保持rowid。参考syncDataModelFields按缺失列表删除旧字段，但node-panel未核到专门删除入口，不能说参考已有完整CRUD交互。目标明确新增/编辑/删除及取消、共享节点输出同步、下游引用保护与实际消费一起验收，不退化为单按钮。
+
+Ruling: 数据空间field-create/edit/remove宿主的dataSpaceId及模型关系/GetRefData引用语义不能伪装成workflowId/祖先GetInputParam；不临时追加假上下文套用。公共新增行身份、编辑、删除、取消、权限与未知保存复用原DataView/DataSet，工作流输出派生复用query-output、统一保存复用query-fields；确有重复的纯字段约束应抽取共用，而不是复制整个会话状态机。结构字段改名/删除须核工作流范围内模型Filter、字段ValueFun、节点输入/输出及连线条件的真实引用；现有数据空间remove-references明确跳过GetInputParam，不能当作工作流无依赖证明。普通保存不因此全查，只有显式结构命令按需求读取依赖。原查询守卫和服务授权不变。
+
+完整验收卡：原视图暂存新增、取消0写；新增保存/独立回读/重开；稳定fieldId修改名称/说明/ValueFun，取消及保存；输出根与共享节点同步；有明确下游引用时列位置拒绝删除/改名且保留草稿，显式清除引用保存后才允许结构修改；删除取消、实际删除核空、重开无残留。实服新停用图沿已验证PageParam1/1：常量0准确类型→开始参数引用→B消费A计算结果→整流；关闭输出须同时查目录与实际返回。Java只读getCalcData按FieldType精确识别、alias作结果键、GetInputParam多值变数组，其他函数没有绑定当前结果行，且未按IsOutput筛选；这些只列待实服缺陷，不能声称支持任意本行公式或关闭输出已生效。名称/别名碰撞可能putAll覆盖实际数据，必须阻止。最后精确实例/全部定义清理核空。当前无新实服写入、无夹具残留；本卡尚未实施/验收完成，全目标active。
+
+
+**计算字段卡已开始实现，未关闭。**新增WorkflowComputedFields.add只在原Base_DataModel_Field/default暂存，身份由原DataView产生；默认不输出，与参考一致。保存query-fields纳入原生pendingCreate并按同批同步节点输出、取消丢弃新增、不创建第二份会话草稿；未知提交先交原DataSet核验。公共query-field-context统一范围/完整性/身份验证，只有字段视图计入原生新增/删除数量；query-inputs相应接受合法待新增数量，字段归属/读取仍检查。默认字段投影补实际allowAIAdd以保存新增固定值0，没有放宽保存校验；Expression空/allowAIAdd0作为本次新增固定属性保护。新增时任何相关原视图unknown都先拒绝，避免往原未知捕获混入新意图。
+
+真实重复约束已抽到computed-field-definition纯构建函数，原数据空间field-create-session与工作流共用名称/别名、说明长度、输出标志和正式默认定义；值函数及引用仍按各自领域校验，不伪造dataSpaceId宿主上下文。测试先红确认工作流无新增合同，随后分别暴露pendingCreate完整性、allowAIAdd保存投影缺口，修正后新增/取消0写/稳定原生ID/输出同步及丢失回执后原批次核验不重放通过。新增同名、未知节点提交拒绝同样有回归。
+
+扩大共享回归发现旧数据空间field-create测试“retries a failed readback”失败；将创建宿主临时换成HEAD原文复跑仍失败，随后逐字恢复当前文件（workflow-computed-shared-readback-head-baseline.log），证明非纯定义抽取造成。根因：failNextFieldRead在派发前设置，被新增行权限刷新先消耗，正式readback反而成功；现只在原fields.loadFromServer正式读回处注入真实查询失败，原owner.verify恢复且写入仅1次。不是修改产品忽略错误，也未放宽断言。
+
+当前14文件186相关测试exit0（工作流128+共享58），最新新增unknown守卫后定向20测试exit0；typecheck、全仓lint、build:fe、pages-config/workflow-designs/page-thin/docs通过。正式ClassModel已生成并查询WorkflowComputedFields目录/概要/指南，待提交前只保留真实派生。高阶限定静态复核无确定阻断。本轮无新增实服写入/无临时数据，旧未知执行审计不重放。下一步同一完整卡：标准原视图新增/编辑Dialog、名称/函数/输出绑定；显式结构命令按工作流依赖拒绝有引用的改名/删除、取消与原捕获恢复；新停用图计算常量0→祖先参数→B实际消费→关闭输出真实对照→引用清除后删除→实例/定义清理核空。不能把此底层检查点称完整CRUD或实服计算消费通过。

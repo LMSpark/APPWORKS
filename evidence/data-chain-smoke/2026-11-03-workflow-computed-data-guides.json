@@ -1,0 +1,42 @@
+[
+  {
+    "kind": "WorkflowComputedFields",
+    "catalog": {
+      "rootKind": "WorkflowComputedFields",
+      "models": [
+        {
+          "kind": "WorkflowComputedFields",
+          "name": "WorkflowComputedFields",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowComputedFields",
+      "models": [
+        {
+          "kind": "WorkflowComputedFields",
+          "name": "WorkflowComputedFields",
+          "jsdoc": "",
+          "summary": "",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "add",
+              "jsdoc": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "summary": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "signature": "add(dataSet: DataSet, workflowId: string, nodeId: string, input: Values): Promise<string>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "class WorkflowComputedFields {\n  constructor()\n  新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。\n  add(dataSet: DataSet, workflowId: string, nodeId: string, input: Values): Promise<string>\n}"
+  }
+]

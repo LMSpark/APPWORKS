@@ -315,6 +315,7 @@
               "IsOutput",
               "IsPKey",
               "Expression",
+              "allowAIAdd",
               "ValueFun",
               "OrderType",
               "Order",

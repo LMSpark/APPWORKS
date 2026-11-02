@@ -483,9 +483,9 @@ describe('computed field creation', () => {
     expect(owner.getState().status).toBe('editing')
   })
   it('retries a failed readback without reissuing creation', async () => {
-    const {f, owner, writes} = await setup(), release = f.holdModelResponse()
-    const saving = owner.save(); const rejected = expect(saving).rejects.toThrow()
-    await flushPromises(); f.failNextFieldRead(); release(); await rejected
+    const {f, owner, fields, writes} = await setup(), load = fields.loadFromServer.bind(fields)
+    vi.spyOn(fields, 'loadFromServer').mockImplementationOnce(async options => {f.failNextFieldRead(); return load(options)})
+    await expect(owner.save()).rejects.toThrow('field read unavailable')
     expect(owner.getState().status).toBe('readback')
     expect(await owner.verify()).toBeTypeOf('string')
     expect(writes()).toHaveLength(1)

@@ -3731,10 +3731,15 @@
       "shardFile": "files/src/lowcode/data-space/model-source/data-space-definition-save.ts.json",
       "sourceModifiedAt": "2026-10-30T20:12:39.401Z"
     },
+    "src/lowcode/data-space/model-source/field/computed-field-definition.ts": {
+      "sourceFile": "src/lowcode/data-space/model-source/field/computed-field-definition.ts",
+      "shardFile": "files/src/lowcode/data-space/model-source/field/computed-field-definition.ts.json",
+      "sourceModifiedAt": "2026-11-02T23:43:20.514Z"
+    },
     "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-create-session.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.404Z"
+      "sourceModifiedAt": "2026-11-02T23:43:20.515Z"
     },
     "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session.ts",
@@ -4201,15 +4206,25 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts.json",
       "sourceModifiedAt": "2026-11-01T20:13:59.393Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts.json",
+      "sourceModifiedAt": "2026-11-02T23:43:20.515Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts.json",
+      "sourceModifiedAt": "2026-11-02T23:41:11.385Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-fields.ts.json",
-      "sourceModifiedAt": "2026-11-02T22:59:13.303Z"
+      "sourceModifiedAt": "2026-11-02T23:42:18.923Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-02T23:19:51.836Z"
+      "sourceModifiedAt": "2026-11-02T23:39:43.758Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",

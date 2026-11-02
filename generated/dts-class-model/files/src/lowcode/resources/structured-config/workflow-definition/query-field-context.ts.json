@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/query-field-context",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/query-field-context",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-context\n职责：查询字段命令共用原视图及目标身份。\n边界：不复制行、权限或编辑状态；仅字段视图计入原生待新增/删除数量。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T23:41:11.385Z",
+  "models": {}
+}

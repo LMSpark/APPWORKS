@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/structured-config/workflow-definition/query-inputs
- * 职责：按当前工作流正式连线定位祖先，提供已核定平面开始输出与模型过滤字段。
+ * 职责：按当前工作流正式连线定位祖先，提供已核定开始参数、查询叶字段及模型过滤字段。
  * 边界：只读原DataView及其权限；不猜测items路径，不执行值函数，不修改定义。
  */
 import {RequestState,DataViewOptionCatalog,DataViewFilter,DataViewFilterCodec,type DataSet,type DataView,type DataRow,type DataColumn} from '@spark-appworks/spark-data'
@@ -22,7 +22,7 @@ function identity(view:DataView,row:DataRow):string{
  if(typeof id!=='string'||!id.trim()||view.getPkKey(row)!==id)throw Error('查询输入记录身份无效')
  return id
 }
-/** 候选值遵循顶层GetInputParam的两段合同，未验证的查询层次输出只提供诊断，不生成假路径。 */
+/** 候选值遵循顶层GetInputParam两段合同；查询目录的items叶字段按实际平面行投影，合成根不作为运行参数。 */
 export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string):{
  inputs:Array<{value:string;label:string}>;columns:DataColumn[];diagnostics:string[]
 }{
@@ -69,16 +69,22 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
   const node=byId.get(id);if(!node)throw Error('祖先节点身份缺失')
   if(nodes.hasEditingChanges(id)||nodes.dirtyTracking.hasPendingChanges(id))throw Error('祖先节点仍有未保存修改')
   const position=read(nodes,node,'position_type'),name=read(nodes,node,'name'),raw=read(nodes,node,'output_mapping')
-  if(String(position)!=='0'){diagnostics.push(`节点 ${typeof name==='string'?name:id} 的层次输出尚待执行合同验证`);continue}
+  const start=String(position)==='0',query=String(position)==='1'&&read(nodes,node,'node_type')==='query'
+  if(!start&&!query){diagnostics.push(`节点 ${typeof name==='string'?name:id} 的输出尚待执行合同验证`);continue}
   const output=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
-  if(!Array.isArray(output)||!output.every(isRecord))throw Error('开始节点输出必须是对象数组')
+  if(!Array.isArray(output)||!output.every(isRecord))throw Error('祖先节点输出必须是对象数组')
+  if(query&&!output.length){diagnostics.push(`节点 ${typeof name==='string'?name:id} 缺少查询输出目录`);continue}
+  const roots=query?output.filter(item=>item['pid']===null):[],items=roots.find(item=>item['Name']==='items'),count=roots.find(item=>item['Name']==='Count')
+  if(query&&(roots.length!==2||!items||!count||items['FieldType']!=='Array'||items['isParent']!==true||count['FieldType']!=='int'||count['isParent']!==false))throw Error('祖先查询输出根结构无法确认')
   const outputIds=new Set<string>()
   for(const item of output){
    const field=item['Name'],outputId=item['rowid']
    if(typeof field!=='string'||!field.trim()||typeof outputId!=='string'||!outputId||outputIds.has(outputId))throw Error('开始输出名称或身份缺失或重复')
    outputIds.add(outputId)
+   if(query&&(item===items||item===count))continue
    if(id.includes('.')||field.includes('.'))throw Error('节点或字段名称含点，不能猜测递归路径')
-   if(item['isParent']===true||item['pid']!==undefined&&item['pid']!==null&&item['pid']!=='')throw Error('开始输出不是已核定的平面参数')
+   if(query?(item['pid']!==items?.['rowid']||item['isParent']!==false||typeof item['FieldType']!=='string'||!item['FieldType'].trim()):
+    item['isParent']===true||item['pid']!==undefined&&item['pid']!==null&&item['pid']!=='')throw Error('祖先输出不是已核定的字段结构')
    const value=`${id}.${field}`
    if(values.has(value))throw Error('开始输出参数名称重复')
    values.add(value);inputs.push({value,label:`${typeof name==='string'&&name?name:id} · ${typeof item['Description']==='string'&&item['Description']?item['Description']:field}`})

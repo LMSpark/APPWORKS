@@ -1,0 +1,61 @@
+[
+  {
+    "kind": "WorkflowQueryInputs",
+    "catalog": {
+      "rootKind": "WorkflowQueryInputs",
+      "models": [
+        {
+          "kind": "WorkflowQueryInputs",
+          "name": "WorkflowQueryInputs",
+          "jsdoc": "本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。",
+          "summary": "本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowQueryInputs",
+      "models": [
+        {
+          "kind": "WorkflowQueryInputs",
+          "name": "WorkflowQueryInputs",
+          "jsdoc": "本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。",
+          "summary": "本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(dataSet: DataSet, workflowId: string, nodeId: string)"
+          },
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            }
+          ],
+          "methods": [
+            {
+              "name": "refresh",
+              "jsdoc": "每次从原视图重算，失效时先清空候选；目录更新不回写业务定义或自动选择参数。",
+              "summary": "每次从原视图重算，失效时先清空候选；目录更新不回写业务定义或自动选择参数。",
+              "signature": "refresh(): {\n        error: string;\n        inputs: {\n            value: string;\n            label: string;\n        }[];\n        diagnostics: string[];\n        columns: DataColumn[];\n    }"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放本次临时投影，保留原工作流定义与所有编辑覆盖。",
+              "summary": "释放本次临时投影，保留原工作流定义与所有编辑覆盖。",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。\nclass WorkflowQueryInputs {\n  constructor(dataSet: DataSet, workflowId: string, nodeId: string)\n  readonly view: DataView\n  readonly dataViewKey: string\n  每次从原视图重算，失效时先清空候选；目录更新不回写业务定义或自动选择参数。\n  refresh(): {\n          error: string;\n          inputs: {\n              value: string;\n              label: string;\n          }[];\n          diagnostics: string[];\n          columns: DataColumn[];\n      }\n  释放本次临时投影，保留原工作流定义与所有编辑覆盖。\n  dispose(): void\n}"
+  }
+]

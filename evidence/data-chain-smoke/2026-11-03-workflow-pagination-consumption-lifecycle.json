@@ -1,0 +1,131 @@
+{
+  "kind": "actual-service-parameterized-query-consumption",
+  "testedAt": "2026-11-02T23:33:45.753Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "workflowId": "901113477F9A430498D8F821B896A44B",
+  "scope": "disabled temporary table-trigger workflow; explicit PageParam 1/1; sys_edit real view",
+  "sourceViewId": "D0624BDE07FA475B90D5653994A6493D",
+  "positiveA": {
+    "workflowId": "901113477F9A430498D8F821B896A44B",
+    "nodeId": "B799F13DEC5B26188907BBAEEC7C82AE",
+    "status": "SUCCESS",
+    "count": 1,
+    "rowids": [
+      "D99A1DCE9894698799101EFD70F8FC76"
+    ],
+    "outputFlat": true
+  },
+  "negativeA": {
+    "workflowId": "901113477F9A430498D8F821B896A44B",
+    "nodeId": "B799F13DEC5B26188907BBAEEC7C82AE",
+    "status": "SUCCESS",
+    "count": 0,
+    "emptyOutput": true
+  },
+  "singleB": {
+    "workflowId": "901113477F9A430498D8F821B896A44B",
+    "nodeId": "7F1BF1E317A18E2E3780BB2563C71A63",
+    "status": "SUCCESS",
+    "count": 1,
+    "rowids": [
+      "D99A1DCE9894698799101EFD70F8FC76"
+    ]
+  },
+  "whole": {
+    "outcome": "success",
+    "completeness": "complete",
+    "nodes": [
+      {
+        "workflowId": "901113477F9A430498D8F821B896A44B",
+        "nodeId": "3DD01372B7987B3D0644BFE1BA27E23D",
+        "status": "SUCCESS",
+        "count": 1,
+        "rowids": [
+          "D99A1DCE9894698799101EFD70F8FC76"
+        ],
+        "outputIsRowArray": true
+      },
+      {
+        "workflowId": "901113477F9A430498D8F821B896A44B",
+        "nodeId": "B799F13DEC5B26188907BBAEEC7C82AE",
+        "status": "SUCCESS",
+        "count": 1,
+        "rowids": [
+          "D99A1DCE9894698799101EFD70F8FC76"
+        ],
+        "outputIsRowArray": true
+      },
+      {
+        "workflowId": "901113477F9A430498D8F821B896A44B",
+        "nodeId": "7F1BF1E317A18E2E3780BB2563C71A63",
+        "status": "SUCCESS",
+        "count": 1,
+        "rowids": [
+          "D99A1DCE9894698799101EFD70F8FC76"
+        ],
+        "outputIsRowArray": true
+      },
+      {
+        "workflowId": "901113477F9A430498D8F821B896A44B",
+        "nodeId": "9118597CDD5D08457422A3A1AB3A0CDE",
+        "status": "SUCCESS",
+        "count": 0,
+        "rowids": [],
+        "outputIsRowArray": true
+      }
+    ]
+  },
+  "runtime": {
+    "instanceId": "E994A33076F549D5BCD215E52C350F7C",
+    "records": 4,
+    "allTerminalSuccess": true,
+    "independentlyRead": true,
+    "nativeDeletePermissionChecked": true,
+    "cleanup": {
+      "workflowId": "901113477F9A430498D8F821B896A44B",
+      "instanceId": "E994A33076F549D5BCD215E52C350F7C",
+      "ids": [
+        "07996B91282D4069AABFFC62DAEEDC77",
+        "4E59D64917F14852B01E9E4AB0918AAB",
+        "E916824E195943A183D52E33FE7FCDF8",
+        "EAD4731CE227484AB0D11A31CED408D0"
+      ],
+      "mode": "cleanup",
+      "phase": "confirmed",
+      "reads": 12,
+      "writes": 1,
+      "error": "",
+      "noReplay": true,
+      "unknownOwnerRetained": false
+    }
+  },
+  "cleanup": {
+    "definitionRecords": 93,
+    "instanceRecords": 4,
+    "totalDistinctRecords": 97,
+    "extras": {
+      "reads": 18,
+      "writes": 4,
+      "phase": "confirmed"
+    },
+    "base": {
+      "reads": 60,
+      "writes": 3,
+      "confirmed": true
+    },
+    "independentNodeWideInstanceAbsent": true,
+    "remainingRecords": 0,
+    "retiredAttachedDefinitionNode": 1,
+    "finalDefinitionCleanupRecords": 92
+  },
+  "oldUnknown": "Preserved unchanged; no replay and no success backfill.",
+  "verifiedContract": "Saved query items leaf Name is consumed as nodeId.fieldName in actual flat business rows; items/Count synthetic roots are not runtime fields.",
+  "limitations": [
+    "Default empty pagination configuration still has a real service error.",
+    "Explicit size=1 verification does not prove full paging, total semantics or other source types.",
+    "copy and other node output contracts are not opened by this result.",
+    "Full 1:1 page layout, four-file migration, field types, calculated fields and remaining page flows remain open."
+  ],
+  "backendModified": false,
+  "executionReplays": 0
+}

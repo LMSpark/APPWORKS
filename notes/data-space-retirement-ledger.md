@@ -5437,3 +5437,26 @@ ClassModel目录/概要/columns/format指南已读，onEditingChange是方法投
 
 
 本轮最终验证补录：125工作流测试（12文件）、12执行资源测试（独立package配置）、typecheck、全仓lint及pages-config/workflow-designs/page-thin/docs均exit0；正式ClassModel编译生成完成。首次build:fe与生成并行时manifest短暂被替换导致失败，属本次检查调度错误；待生成完全结束后顺序重跑build:fe exit0，不隐瞒首轮失败。25份生成文件经完整JSON去generatedAt/编译器编号/JSONSchema required集合顺序比较完全等价后git restore，保留真实服务资源语义、来源类型JSDoc、新类/视图及manifest/semantic-gaps实际产物，不手改生成文件。高阶限定复核未发现新增确定阻断。当前数据夹具0，原执行unknown审计不重放，A→B/整流明确未通过，全目标继续active；下一轮先核现有服务分页正式合同与最小可验证路径，不改Java、不以本地源码或定义保存冒充执行通过。
+
+
+**2026-11-03 分页断点继续验证，新旧请求严格分离。**上一轮为有效进展。参考1147b00ee查询节点保存默认config为空，不能把参考行为当服务已通过；本机JavagetQueryPageParam有显式PageParam分支且底层checkPageParam拒绝非法范围，但默认2000与本机MAX2000相符，无法仅凭当前源码解释部署错误，不猜服务版本/上限。实际0DD8查询全部10个query节点，3条既有config明确保存PageParam1/1（机器证据workflow-pagination-existing-configs），只证明存储，不证明执行。高阶复核允许新身份、新配置、新请求验证，并要求真实rowid准确一致及不存在rowid负例零行，防止size1掩盖未过滤；旧执行unknown不回填、不重放。
+
+新停用分页夹具901113477F9A430498D8F821B896A44B，SMOKE_DATA_CHAIN_WORKFLOW_PAGINATION_1793661068254，start=3DD01372B7987B3D0644BFE1BA27E23D；17读0写预检、3写47读确认定义/参数/开始三记录，真实触发表与rowid参数同上轮，尚无模型/连接或执行。独立workflow-pagination-fixture脚本/checkpoint持有创建及清理身份，不可重建。当前正式待清理3，unknown提交0；旧执行unknown审计保留。下一步新A明确保存PageParam1/1及参数映射后单次实服验证，若再报错停止，不自动改分页继续碰撞；有效时仍须B实际消费及整流全卡，不以单页单节点缩小目标。
+
+
+新分页A已实服正反例通过，旧unknown不变。模型6BD2E609E4465EB8310F0D7691166992、节点B799F13DEC5B26188907BBAEEC7C82AE、31字段单次创建确认；首次独立RAM读401只刷新授权会话后重读，未重放创建。准备脚本零写预检误按字符串2判断实际数值2，修正断言后12读0写通过，4写14读分别保存开始派生输出、START→A边E6270A8DDF3BCA763C767FDBD64E3CDB、A.config.PageParam1/1、A.sysid=START.rowid及rowid输出；4读独立核对，prepare-intent已confirmed。浏览器关闭干净视图重开，确认正式PageParam值后，新A正例执行SUCCESS/complete/count1，实际平面output[0].rowid精确等于输入本应用ID；独立不同命令以不存在主键执行SUCCESS/count0/output[]，排除分页size1掩盖过滤未生效。结果只落最小身份/状态/主键，截图与positive/negative-intent均confirmed，无未知新请求、无重跑旧请求；默认空分页配置及其它来源不据此宣称通过。
+
+依据该真实平面行输出开始补查询叶候选：正式目录items/Count根保留配置归属，但GetInputParam只生成A.叶Name，绝不生成A.items.Name或合成Count。仅普通query节点开放；copy及其它未执行类型继续诊断。新领域测试先红复现缺少候选，已绿覆盖叶别名、根排除、坏pid/parent/点名/空类型/重复ID及copy未核定保护；完整回归及ClassModel刷新待执行。当前新分页夹具37条（基础3+A33+边1），尚无B/END/清理模型，未执行整流，未清理，不可调用base cleanup，须先清掉额外节点/字段/模型/边。旧92已全清理结论不变。
+
+
+新分页图B准备已落库并独立确认：模型574EDECCB9321EF72284444C7D729BD2、节点7F1BF1E317A18E2E3780BB2563C71A63及31字段；B准备12读0写预检后5写16读保存END及A→B→END、B.PageParam1/1、B.sysid=GetInputParam(B799F13DEC5B26188907BBAEEC7C82AE.rowid)与rowid输出。4读核4节点/3边及B映射，精确END身份见workflow-pagination-end-identity.json。尚未执行B/整流；现73条临时记录待清理，需先取得实例清理来源才发整流。查询叶126工作流测试exit0、受改lint exit0、正式ClassModel生成exit0并查询WorkflowQueryInputs目录/概要/指南（evidence/data-chain-smoke/2026-11-03-workflow-query-leaf-guides.json）。全目标active，不称整卡完成。
+
+
+**2026-11-03 新分页完整消费工作卡实服通过（严格限定明确PageParam1/1）。**B参数标准设置器重开恢复A.rowid，候选只有START参数和A真实叶字段，无items/合成Count；取消设置器不改定义。单B输入使用已确认A实际rowid，SUCCESS/count1且输出主键一致。运行实例清理模型E438BD6B2FDFEE096F554100BC4B38D3沿真实Base_Workflow_NodeInstance创建18字段，附带节点1C90784A8C7E3079C330817CDC7B371B退役，节点/实例ID/status及原rowid四输出1写确认；独立四节点实例查询0。
+
+随后原浏览器WorkflowExecution/DataSet发唯一整流请求，startParams=[{rowid:本应用ID}]，表触发按真实Base_AppSystemList主键重载。正式图START 3DD01372B7987B3D0644BFE1BA27E23D→A B799F13DEC5B26188907BBAEEC7C82AE→B 7F1BF1E317A18E2E3780BB2563C71A63→END 9118597CDD5D08457422A3A1AB3A0CDE，回执success/complete，四节点均SUCCESS；START/A/B各count1且实际rowid均精确等于启动主键，END count0/output[]。编辑器虚拟化DOM只含首节点，改用正式只读编辑器全选复制读取整份JSON，逐节点校验身份/状态/主键后只保存最小摘要，不把首屏片段当完整结果。单独实例DataView返回4条同workflow_instance_id=E994A33076F549D5BCD215E52C350F7C，节点ID集合与执行图完全一致、均终态SUCCESS。
+
+清理：四实例6读0写逐行权限/终态预检，原DataSet1写12读确认精确4条删除，再按四node_id查询独立0；清理模型保留至此。随后9读0写精确预检，按边→额外节点→80字段→3模型四写十八读确认89附加记录独立不存在；基础三写六十读确认开始/参数/停用定义三记录不存在。本轮收尾92条定义+4实例共96条记录独立核空；计入执行前已退役的清理模型附带节点，累计97条不同临时记录全部清理，当前待清理0。高阶限定静态复核查询叶投影无确定阻断。机器证据evidence/data-chain-smoke/2026-11-03-workflow-pagination-consumption-lifecycle.json；截图workflow-pagination-b-flat-option/single-a-positive/single-a-negative/single-b/whole-success见artifacts/data-chain-smoke。旧unknown请求审计保留，不回填通过、不重放；默认空分页服务错误仍开放，不能将明确单页成功扩大为默认全量、所有来源或copy已通过。完整查询节点A类型/计算字段/全量分页语义及参考1:1/四文件和全仓余页继续同总目标active。
+
+
+新分页检查点最终验证：126工作流测试（12文件）、typecheck、全仓lint、前端build:fe、pages-config/workflow-designs/page-thin/docs均exit0；ClassModel正式生成完成后再打包，无并发manifest问题。高阶限定复核无确定阻断，源码仅query-inputs及相应回归；生成噪声继续完整JSON归一比较后恢复，保留真实查询叶合同JSDoc派生及manifest。目录浏览器刷新Total4恢复，截图workflow-pagination-cleaned-directory，tab7无草稿handoff；tab6保留上一unknown现场，不重跑。按用户授权提交推送此真实消费检查点，全目标仍active。

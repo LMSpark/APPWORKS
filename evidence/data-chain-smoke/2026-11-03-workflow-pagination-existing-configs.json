@@ -1,0 +1,24 @@
+{
+  "readRequests": 1,
+  "writeRequests": 0,
+  "total": 10,
+  "returned": 10,
+  "explicitConfigurations": [
+    {
+      "nodeId": "209B4C082ED5B222663DC5D257106EFC",
+      "workflowId": "46FA11BC212B35DB921AE78568ED0E5F",
+      "config": "{\"PageParam\":{\"index\":1,\"size\":1}}"
+    },
+    {
+      "nodeId": "CA16107C4648768FC8104FF193821573",
+      "workflowId": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+      "config": "{\"PageParam\":{\"index\":1,\"size\":1}}"
+    },
+    {
+      "nodeId": "F3077133E353EA0E83DBFF1967C294D6",
+      "workflowId": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+      "config": "{\"PageParam\":{\"index\":1,\"size\":1}}"
+    }
+  ],
+  "runtimeSupportUnproven": true
+}

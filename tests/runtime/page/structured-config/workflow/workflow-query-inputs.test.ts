@@ -18,6 +18,21 @@ function fixture(){
  return ds
 }
 describe('workflow query input definitions',()=>{
+ it('offers saved query leaf names as flat runtime fields without offering items or synthetic Count roots',()=>{
+  const ds=fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  const output=[{rowid:'ITEMS',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},
+   {rowid:'AF',pid:'ITEMS',Name:'actualAlias',Description:'真实字段',FieldType:'varchar',isParent:false}]
+  nodes.appendRow({rowid:'A',workflow_id:'W',position_type:1,node_type:'query',node_config:'OTHER_MODEL',name:'上游查询',output_mapping:JSON.stringify(output)});nodes.total=nodes.rows.length
+  edges.appendRow({rowid:'SA',workflow_id:'W',sourceID:'START',targetID:'A'});edges.appendRow({rowid:'AQ',workflow_id:'W',sourceID:'A',targetID:'QUERY'});edges.total=edges.rows.length
+  expect(workflowQueryInputPresentation(ds,'W','QUERY').inputs).toEqual([{value:'START.code',label:'开始 · 编码'},{value:'A.actualAlias',label:'上游查询 · 真实字段'}])
+  for(const patch of [{pid:'UNKNOWN'},{isParent:true},{Name:'items.actualAlias'},{FieldType:''},{rowid:'ITEMS'}]){
+   nodes.updateRowById('A',{output_mapping:JSON.stringify([...output.slice(0,2),{...output[2],...patch}])})
+   expect(()=>workflowQueryInputPresentation(ds,'W','QUERY')).toThrow()
+  }
+  nodes.updateRowById('A',{node_type:'copy',output_mapping:JSON.stringify(output)})
+  expect(workflowQueryInputPresentation(ds,'W','QUERY').inputs).toEqual([{value:'START.code',label:'开始 · 编码'}])
+  expect(workflowQueryInputPresentation(ds,'W','QUERY').diagnostics).not.toEqual([])
+ })
  it('validates changed source functions and filters with the same formal model and ancestor catalog',()=>{
   const ds=fixture()
   expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:[JSON.stringify({Type:'GetConstValue',Value:0}),JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})]})).not.toThrow()

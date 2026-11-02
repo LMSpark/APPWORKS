@@ -57,6 +57,12 @@
             false,
             true
           ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -155,18 +161,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.796Z",
+  "generatedAt": "2026-11-02T01:32:50.279Z",
   "models": {
     "StructuredCatalogModelOptions": {
       "name": "StructuredCatalogModelOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n    fields?: readonly string[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n}>",
+            "typeText": "Readonly<{\n    metaName: string;\n    sortExpression?: ReadonlyArray<{\n        field: string;\n        direction: 'asc' | 'desc';\n    }>;\n    userLookup?: boolean;\n    treeSelect?: boolean;\n    fields?: readonly string[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -189,6 +195,11 @@
             },
             {
               "name": "treeSelect",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
               "readable": true,
               "writable": false
             }

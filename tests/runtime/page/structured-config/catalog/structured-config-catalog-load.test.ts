@@ -19,7 +19,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 
 beforeEach(() => {
   http = new StructuredCatalogHttp({
-    Base_DataViewList: [{rowid: 'V1', AppId: 'APP', name: 'A', createuser: 'U-ROW'}],
+    Base_DataViewList: [{rowid: 'V1', sysid: 'APP', name: 'A', createuser: 'U-ROW'}],
     Base_WorkflowDefinition: [{rowid: 'W1', name: 'B', workflow_key: 'B', status: '1'}],
     workflowStatus: [],
     Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
@@ -27,7 +27,8 @@ beforeEach(() => {
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
     buildFormalModels({
-      Base_DataViewList: ['rowid', 'AppId', 'name', 'description', 'createuser', 'crttime'],
+      Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'crttime'],
+      Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
       Base_UserInfo: ['ID', 'ROWID', 'UserName'],
     }).find(m => m.metaName === metaName),
   ))

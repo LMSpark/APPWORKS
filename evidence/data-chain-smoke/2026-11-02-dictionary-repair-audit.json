@@ -1,0 +1,610 @@
+{
+  "date": "2026-11-02",
+  "scope": "User-confirmed 32 Base_DataModel.DbId repairs only; Dic_Test excluded",
+  "summary": {
+    "approved": 32,
+    "writeRequests": 32,
+    "saveConfirmed": 32,
+    "metadataReadback": 32,
+    "consumerQueryPassed": 32,
+    "failed": 0
+  },
+  "results": [
+    {
+      "modelId": "0464B93AADA1C2571C006B05177F1CB0",
+      "scenarioId": "9AA19C426E9E45DFB3A5F149D4E42DD3",
+      "modelName": "DataBaseType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "28B06BB4CFB44231B0C0AC1130361287",
+      "beforeSourceId": "28B06BB4CFB44231B0C0AC1130361287",
+      "alreadyApplied": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": false,
+      "saveConfirmed": true
+    },
+    {
+      "modelId": "04FF7D0BA25F84382B932CCD3BE4F6FF",
+      "scenarioId": "F3DDC451F63E42698BCC34120C3A9F4A",
+      "modelName": "Dict_Page_Popup",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "D706CAC133D04BDC968DA9A28119B72E",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "0B58FE1426A094720CFC4B91320707CA",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "ContentType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "022D503978B432108659D1EAF7A6CB80",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 4,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "18C00706323BAF33E55DE4D320E8212D",
+      "scenarioId": "7F953C2A10C9492F9E72F1DC44B264F4",
+      "modelName": "Dict_Desktop_AppType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "C43779B4B6424CEBB38D3E23D1C94D7B",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 6,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "19D6DBA2F44305A8639EB9B78E382D90",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "接口参数类型",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "B11CF50C99C64C4DB4B6411FF43E31B7",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "32980CA11B7EB60F5BF9DEAD2CB15848",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "interface_type",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "6C26CD75E31943D5BC2AD1D4A8D6AF5F",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 7,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "36BBB59D65DBBE7C2809F679F3B84D47",
+      "scenarioId": "C1953B2F46884AB992E2198A9ED87DD5",
+      "modelName": "login_policy",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "6C619472BFB343AAA5ABD4A7DD403923",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 3,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "3FE9111E07E44B41A4764B705863644E",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "功能导航状态字典",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "B69360385D6546929F9F0BD756818633",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 6,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "498C239DB9F381DCEEB0988C388F20B6",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "request",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "B0E8101D29BBF21B8E75122CB26FD123",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "59B825452344A7677972F7AC1F51E374",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "Navigationposition",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "5BFAFA09FE5D58B02F9994D6712B7098",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 3,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "60D69C353C5C5DD76A468097C6FC322B",
+      "scenarioId": "4EC1856FCF47485487128D18A4E60514",
+      "modelName": "Dict_state",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "65A42FD6D13013EE0492DF0713D24B8C",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "6242374829808BCB365FF4637AFF3BC2",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "FieldType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "96F2ECCFC33AD4432A98F7C997CE0D23",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 4,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "70A0DE041B2397D0404D1340FE64FF0A",
+      "scenarioId": "9B34840DD81C4DA9863226BE80CB0886",
+      "modelName": "DataType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "DB2A2F1B56DB9C78967CDF569C5234E9",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 1,
+        "returned": 1,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "75951E1E0237070222FA01EC10076B69",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "Json数据属性类型",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "2E19115EAEE84FE191252DF42298FE3D",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 5,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "7987F5B505DAE7AA26A4545B26CA42FD",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "modelName": "request",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "B0E8101D29BBF21B8E75122CB26FD123",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "81797C67D7C4AD09B3DDF85148C296A8",
+      "scenarioId": "B3224B7C774247A59C48DDF6F3E0BB99",
+      "modelName": "接口公共头部信息使用类型",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "D7F531C8DA4842B682DD9248A8539DFC",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 3,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "873B3B5F9AE8B9A465040483A67BA8E5",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "NavigationShowType_Content",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "6AC2214E0E68E3D0C642A23F7224B666",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "8E8B5DDB496434A03EAAD46DA8C61F7F",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "功能导航类型",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "AB179AE8352149B98A6EFBF5C0D46082",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "936DB41A2FF01549FC29E62426EC963E",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "ReturnType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "DFDDAA02B61E4692A3C1491A0A0B2667",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "9C0FFF5428FCE2AB3099D7CDBAFC0E6F",
+      "scenarioId": "C3905A5B9F554E98B99D360E32B5296E",
+      "modelName": "login_policy",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "6C619472BFB343AAA5ABD4A7DD403923",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 3,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "A4A1789749EEEED17430CA0092E1AF9F",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "接口输入参数获取方式字典",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "321D469B7668471E9D79F65CC66AA784",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "A574EC4EBF4DC36E134E3135EA32F656",
+      "scenarioId": "4E4FEECFD41A4EF8B0D090237407E8D2",
+      "modelName": "接口公共头部信息使用类型",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "D7F531C8DA4842B682DD9248A8539DFC",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 3,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "A6C65C3D1EEDE2841C0618E5A545A151",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "NavigationType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "497F49189A50E0DD05708D1C8A0D6FBC",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 5,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "A723399E34785E906766F242C831F7CC",
+      "scenarioId": "F3DDC451F63E42698BCC34120C3A9F4A",
+      "modelName": "Dict_Desktop_AppType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "C43779B4B6424CEBB38D3E23D1C94D7B",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 6,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "AE3D11611A6713019A5A0C60CD57325E",
+      "scenarioId": "90DDA91F5F4F40299504919143521DEF",
+      "modelName": "授权对象类型",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "7be96e3544714499b756baeeadb4258b",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 3,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "B1FBF5B8142BAFDDAAF9DA0720D4A318",
+      "scenarioId": "C0A31822426B4B35B38FE2157D8D3EF5",
+      "modelName": "ParamType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "861D4D513ED0961AFD147B5FB63325B5",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 13,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "B6C7F0CAA2766E829EA4C4F9132C8F9D",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "NavigationConType",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "CD3296C6137C96E4A3185F02CD568883",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 15,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "C4E0D34EB9CF1FCF41A4624F9CFF050C",
+      "scenarioId": "3774703F8FED4F4F91B6000624E8885D",
+      "modelName": "NavChildrenLocation",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "E3CC4E93FE3943A388213DBE8D76EABD",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 4,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "E4534302655ACD763EA970A0ED101AE7",
+      "scenarioId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "modelName": "应用系统状态",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "B4104A2FDC3E43E48DA50A94E0F1F3FD",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 6,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "ED0C02E32CA73A5C100B6C21F566A685",
+      "scenarioId": "DC5693854C824E6ABCF6E202F454E087",
+      "modelName": "状态",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "ef34b83af05d447d8e74815d8e90fc31",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "F1BF724D999257979250E2DE13B4852F",
+      "scenarioId": "7F953C2A10C9492F9E72F1DC44B264F4",
+      "modelName": "Dict_Page_Popup",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "D706CAC133D04BDC968DA9A28119B72E",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    },
+    {
+      "modelId": "F6D78B4785CF80A6C06D773A725E78F5",
+      "scenarioId": "F3DDC451F63E42698BCC34120C3A9F4A",
+      "modelName": "DesktopStyle",
+      "oldSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "expectedSourceId": "D9B5E9C08E65491EAD161ABD61C80A53",
+      "beforeSourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "saveConfirmed": true,
+      "metadataReadback": true,
+      "consumer": {
+        "success": true,
+        "total": 2,
+        "returned": 2,
+        "countReported": true
+      },
+      "success": true,
+      "writeSent": true
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "artifacts/data-chain-smoke/dictionary-repair-first-live.json",
+      "sha256": "9867b0006fa19196a0e441827969612ef7720b9dacf18f7611a516484bcde381"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/dictionary-repair-live.json",
+      "sha256": "0d4df3d3c0350fd49d90f714e07683cd5d4d4c7dda73a1030340622bcf9db097"
+    },
+    {
+      "file": "artifacts/data-chain-smoke/repair-dictionaries.mts",
+      "sha256": "033cdb1e888a35f79f65b300e74759b80f11c120331643978992ecbcf5d48f4a"
+    }
+  ],
+  "limits": [
+    "Runtime query sampled first two rows; this is not full business-page acceptance.",
+    "Other 98 historical dictionary runtime failures from previous audit remain unresolved; no repair authorized here.",
+    "No backend source or deployed service changed."
+  ]
+}

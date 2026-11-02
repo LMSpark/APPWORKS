@@ -13,6 +13,7 @@ export type StructuredCatalogModelOptions = Readonly<{
   sortExpression?: ReadonlyArray<{field: string; direction: 'asc' | 'desc'}>
   userLookup?: boolean
   treeSelect?: boolean
+  fields?: readonly string[]
 }>
 
 export type LoadStructuredCatalogInput = Readonly<{
@@ -41,9 +42,9 @@ export async function loadStructuredConfigCatalog(input: LoadStructuredCatalogIn
       return [spec.metaName, {modelBinding: {modelId: model.id, modelName: spec.metaName}, views: {default: {
         autoLoad: false, autoCurrentFirst: false, autoSelectFirst: false,
         ...(isCatalog && spec.userLookup ? {
-          queryConfig: {filterLookups: [{field: 'createuser', sourceViewKey: buildDataViewKey('Base_UserInfo', 'default', input.scenarioId),
+          queryConfig: {...(spec.fields ? {fields: spec.fields} : {}), filterLookups: [{field: 'createuser', sourceViewKey: buildDataViewKey('Base_UserInfo', 'default', input.scenarioId),
             matchField: 'UserName', valueField: 'ROWID'}]},
-        } : {queryConfig: {allPages: true}}),
+        } : {queryConfig: {allPages: true, ...(spec.fields ? {fields: spec.fields} : {})}}),
         sortExpression: spec.sortExpression ?? [{field: model.primaryKey, direction: 'asc'}],
         ...(spec.metaName === 'Base_UserInfo' ? {valueField: 'ROWID', labelField: 'UserName'} : {}),
         ...(spec.treeSelect ? {valueField: 'rowid', labelField: 'Name', treeConfig: {idField: 'rowid', parentIdField: 'Mrowid',

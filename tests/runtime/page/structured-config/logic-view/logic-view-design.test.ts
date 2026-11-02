@@ -11,7 +11,8 @@ import {buildFormalModels, StructuredCatalogHttp} from '../catalog/structured-co
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
 let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
-  Base_DataViewList: ['rowid', 'AppId', 'name', 'createuser'],
+  Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser'],
+  Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
   Base_UserInfo: ['ID', 'ROWID', 'UserName'],
 })
 vi.mock('@/lowcode/lowcode-runtime', () => ({

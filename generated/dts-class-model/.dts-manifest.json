@@ -4044,7 +4044,7 @@
     "src/lowcode/resources/structured-config/catalog.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/catalog.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.796Z"
+      "sourceModifiedAt": "2026-11-02T01:32:50.279Z"
     },
     "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
@@ -4069,7 +4069,7 @@
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
-      "sourceModifiedAt": "2026-11-02T01:13:40.240Z"
+      "sourceModifiedAt": "2026-11-02T01:40:34.813Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
@@ -4819,7 +4819,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-31T19:04:44.962Z"
+      "sourceModifiedAt": "2026-11-02T01:34:24.838Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",

@@ -12,14 +12,25 @@ export class LowcodeLogicView {
 
   static async loadCatalog(scenarioId: string): Promise<DataSet> {
     const {assertCurrent} = readStructuredConfigScope('逻辑视图')
-    return loadStructuredConfigCatalog({
+    const dataSet = await loadStructuredConfigCatalog({
       scenarioId, assertCurrent,
       catalogMetaName: this.catalogMetaName,
       models: [
         {metaName: this.catalogMetaName, userLookup: true, sortExpression: [{field: 'rowid', direction: 'asc'}]},
-        {metaName: 'Base_UserInfo'},
+        {metaName: 'Base_UserInfo', fields: ['ID', 'ROWID', 'UserName']},
+        {metaName: 'Base_AppSystemList', fields: ['rowid', 'AppDesc', 'AppName']},
       ],
     })
+    try {
+    const catalog = dataSet.getView(this.catalogMetaName, 'default'), apps = dataSet.getView('Base_AppSystemList', 'default')
+    const table = dataSet.getTable(this.catalogMetaName)
+    if (!catalog || !apps || !table) throw new Error('逻辑视图目录缺少正式视图')
+    catalog.commitMode = 'staged'; catalog.lockCurrentWhilePending = true
+    table.updateColumn('name', {required: true, immutable: true, trim: 'normalize'})
+    table.updateColumn('sysid', {required: true, immutable: true})
+    apps.valueField = 'rowid'; apps.labelField = 'AppDesc'
+    return dataSet
+    } catch (error) {dataSet.destroy(); throw error}
   }
 
   static async loadEditor(scenarioId: string): Promise<DataSet> {

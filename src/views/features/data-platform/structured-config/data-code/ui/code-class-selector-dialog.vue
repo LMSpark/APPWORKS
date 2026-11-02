@@ -1,17 +1,22 @@
 <!--
 @module app:views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog
 职责：绑定原分类目录，确认后将已保存规则映射写回原编码节点，取消不改节点。
-边界：只消费本次PageRuntime与DataView，不提交目录或设计，不替代分类维护页。
+边界：只消费本次PageRuntime与DataView，目录独立保存，不提交设计或替代引用字段选择。
 AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完整节点绑定及稳定主键。
 -->
 <template>
-  <RendererDialog :model-value="true" :data-view-key="catalogKey" title="编码类选择" :width="820" :close-disabled="loading" @update:model-value="cancel">
+  <RendererDialog :model-value="true" :data-view-key="catalogKey" title="编码类选择" :width="820" :close-disabled="busy || dirty" @update:model-value="cancel">
     <p v-if="error" role="alert">{{ error }}</p>
     <p v-if="loading" role="status">正在读取分类规则…</p>
+    <p v-if="unconfirmed" role="status">目录保存结果尚未确认，请先核验。</p>
+    <div v-if="ready">
+      <RendererButton :label="unconfirmed ? '核验目录保存结果' : '保存目录'" :disabled="busy || !dirty" @click="saveCatalog" />
+      <RendererButton label="放弃目录修改" :disabled="busy || unconfirmed || !dirty" @click="discardCatalog" />
+    </div>
     <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :highlight-current-row="true" :max-height="420" />
     <template #footer>
-      <RendererButton label="取消" :disabled="loading" @click="cancel" />
-      <RendererButton label="确定" button-type="primary" :disabled="!ready || loading || !selected || dirty" @click="confirm" />
+      <RendererButton label="取消" :disabled="busy || unconfirmed" @click="cancel" />
+      <RendererButton label="确定" button-type="primary" :disabled="!ready || busy || !selected || dirty" @click="confirm" />
     </template>
   </RendererDialog>
 </template>
@@ -19,18 +24,22 @@ AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {buildDataViewKey, parseDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {codeNodeTypeLabel, selectCodeClass} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {codeNodeTypeLabel, saveCodeClasses, selectCodeClass} from '@/lowcode/resources/structured-config/data-code/design-ops'
 const props = defineProps<{dataViewKey: string; nodeId: string | number}>()
 const emit = defineEmits<{close: []}>()
 const {sparkConsume} = useSparkComponent({type: 'code-class-selector-dialog'}), runtime = sparkConsume(PAGE_RUNTIME)
 const target = {...props}, parsed = parseDataViewKey(target.dataViewKey)
 const catalogKey = parsed?.scope ? buildDataViewKey('Base_CodeClassTable', 'default', parsed.scope) : ''
-const catalog = shallowRef<DataView>(), ready = ref(false), loading = ref(true), error = ref(''), revision = ref(0)
+const catalog = shallowRef<DataView>(), ready = ref(false), loading = ref(true), acting = ref(false), error = ref(''), revision = ref(0)
 let active = true, nodes: DataView | undefined, original: DataRow | null = null, unsubscribe: (() => void) | undefined
 const selected = computed(() => {revision.value; return catalog.value?.currentRow})
+const busy = computed(() => {revision.value; return loading.value || acting.value || catalog.value?.mutating === true})
+const unconfirmed = computed(() => {revision.value; return catalog.value?.hasUnconfirmedSave === true})
 const dirty = computed(() => {revision.value; return !!catalog.value && (catalog.value.hasUnconfirmedSave || catalog.value.hasEditingChanges() || catalog.value.dirtyTracking.hasPendingChanges())})
-const fields: SparkNode[] = Object.entries({Name: '名称', TableName: '引用表名', ValueFieldName: '引用表过滤字段', TextFieldName: '引用字段', BusFilterField: '业务表过滤字段'})
-  .map(([field, label]) => ({type: 'r-text', props: {field, label, readonly: true}}))
+const fields = computed<SparkNode[]>(() => Object.entries({Name: '名称', TableName: '引用表名', ValueFieldName: '引用表过滤字段', TextFieldName: '引用字段',
+  BusFilterField: '业务表过滤字段', BusTableName: '业务表名', description: '说明'})
+  .map(([field, label]) => ({type: 'r-text', props: {field, label, editOnDblclick: true,
+    readonly: !['Name', 'description'].includes(field) || !ready.value || busy.value || unconfirmed.value, onChange: guardEdit}})))
 function assertTarget(): DataView {
   if (!active || props.dataViewKey !== target.dataViewKey || props.nodeId !== target.nodeId || !nodes || nodes.destroyed || !original
     || runtime?.resolveView(target.dataViewKey) !== nodes || nodes.currentRow !== original || nodes.getPkKey(original) !== target.nodeId
@@ -38,14 +47,38 @@ function assertTarget(): DataView {
   return catalog.value
 }
 function confirm(): void {
-  if (!ready.value || loading.value || dirty.value) return
+  if (!ready.value || busy.value || dirty.value) return
   try {
     const view = assertTarget(), row = view.currentRow, id = row ? view.getPkKey(row) : undefined
     if (!view.dataSet || id === undefined) throw new Error('请选择已保存的分类规则')
     selectCodeClass(view.dataSet, target.nodeId, id); emit('close')
   } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }
-function cancel(): void {if (!loading.value) emit('close')}
+function guardEdit(): void {
+  assertTarget()
+  if (!ready.value || busy.value || unconfirmed.value) throw new Error('分类目录当前不可编辑')
+}
+function cancel(): void {
+  if (busy.value || unconfirmed.value) return
+  if (dirty.value) {error.value = '请先保存或明确放弃目录修改'; return}
+  emit('close')
+}
+async function saveCatalog(): Promise<void> {
+  if (busy.value) return
+  acting.value = true; error.value = ''
+  try {
+    const view = assertTarget()
+    if (!view.dataSet) throw new Error('分类目录数据空间已释放')
+    const result = await saveCodeClasses(view.dataSet)
+    if (!result.success) throw new Error(result.message ?? '目录保存未完整确认')
+  } catch (cause) {if (active) error.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {if (active) {acting.value = false; revision.value++}}
+}
+function discardCatalog(): void {
+  if (busy.value || unconfirmed.value) return
+  try {assertTarget().discardPendingChanges(); error.value = ''; revision.value++}
+  catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+}
 async function open(): Promise<void> {
   try {
     if (!parsed?.scope || parsed.tableName !== 'Base_CodeNodeDesign') throw new Error('分类规则缺少完整节点视图绑定')

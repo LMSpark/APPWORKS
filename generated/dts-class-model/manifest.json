@@ -15816,7 +15816,7 @@
         "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
         "packageName": "app",
         "modulePath": "views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog",
-        "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog\n职责：绑定原分类目录，确认后将已保存规则映射写回原编码节点，取消不改节点。\n边界：只消费本次PageRuntime与DataView，不提交目录或设计，不替代分类维护页。\nAI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完整节点绑定及稳定主键。",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog\n职责：绑定原分类目录，确认后将已保存规则映射写回原编码节点，取消不改节点。\n边界：只消费本次PageRuntime与DataView，目录独立保存，不提交设计或替代引用字段选择。\nAI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完整节点绑定及稳定主键。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

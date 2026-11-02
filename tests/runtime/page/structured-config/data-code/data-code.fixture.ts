@@ -11,7 +11,7 @@ export function codeModels() {
     ['Base_CodeDesign', 0, ['rowid', 'AppID', 'AppName', 'Name', 'BusTableRowid', 'BusTableName', 'KeyFields', 'CodeDescription', 'CodeExample']],
     ['Base_CodeNodeDesign', 1, ['rowid', 'CodeDesignID', 'NodeNo', 'NodeType', 'ParameterName', 'CodeNodeDesignJson', 'description']],
     ['Dict_CodeNodeType', 4, ['rowid', 'val', 'txt', 'ordIdx']],
-    ['Base_CodeClassTable', 5, ['rowid', 'Name', 'TableRowid', 'TableName', 'TextFieldName', 'ValueFieldName', 'BusFilterField']],
+    ['Base_CodeClassTable', 5, ['rowid', 'Name', 'TableRowid', 'TableName', 'TextFieldName', 'ValueFieldName', 'BusFilterField', 'BusTableName', 'description']],
     ['Base_CodingSequence', 6, ['rowid', 'Name', 'Incre', 'StartNo', 'EndNo', 'Format']],
     ['Base_TblField', 7, ['rowid', 'tblid', 'enname', 'cnname']],
     ['Base_CodeSerialPerform', 8, ['rowid', 'CodeDesignID', 'NodeDesignId', 'NodeCode', 'Code', 'LoopCodeSplitStr']],

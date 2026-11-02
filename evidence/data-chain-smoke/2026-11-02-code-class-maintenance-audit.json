@@ -1,0 +1,317 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "actualService": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 11,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "success": true,
+        "diagnostics": [],
+        "codeClassCatalogCancel": {
+          "classId": "1DA116B1DF5646BAAF92D6FC23080054",
+          "catalogRows": 7,
+          "catalogTotal": 7,
+          "nameDescriptionReadableWritable": true,
+          "cancelRestored": true,
+          "rereadUnchanged": true,
+          "validation": [
+            {
+              "classId": "1DA116B1DF5646BAAF92D6FC23080054",
+              "missingFields": []
+            },
+            {
+              "classId": "21A5615C1492437EBC890B1E7DBFE3DE",
+              "missingFields": []
+            },
+            {
+              "classId": "332DCF822E1A4BEBA3E04FF13AFD559C",
+              "missingFields": []
+            },
+            {
+              "classId": "826A37E7BCCE4B4389E932B1BC04AD17",
+              "missingFields": []
+            },
+            {
+              "classId": "B47AA1EF414B48849B681D21225490FA",
+              "missingFields": []
+            },
+            {
+              "classId": "B486BC50C1FE44D9A2C055F33BD6F780",
+              "missingFields": []
+            },
+            {
+              "classId": "DC8BFF52FFCB4DB1A9FB6664FED1558F",
+              "missingFields": []
+            }
+          ],
+          "saveAttempted": false,
+          "writes": 0
+        },
+        "views": [
+          {
+            "table": "Base_CodeDesign",
+            "view": "default",
+            "rows": 1,
+            "total": 1,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeDesign",
+            "view": "parents",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeNodeDesign",
+            "view": "default",
+            "rows": 3,
+            "total": 3,
+            "state": 3
+          },
+          {
+            "table": "Dict_CodeNodeType",
+            "view": "default",
+            "rows": 5,
+            "total": 5,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeClassTable",
+            "view": "default",
+            "rows": 7,
+            "total": 7,
+            "state": 3
+          },
+          {
+            "table": "Base_CodingSequence",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeSerialPerform",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          }
+        ]
+      }
+    ]
+  },
+  "formalDiscovery": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 2,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "label": "code-editor",
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "success": true,
+        "total": 9,
+        "models": [
+          {
+            "name": "Base_CodeDesign",
+            "resource": "Base_CodeDesign",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_CodeNodeDesign",
+            "resource": "Base_CodeNodeDesign",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_StructureType",
+            "resource": "Base_StructureType",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_AppSystemList",
+            "resource": "Base_AppSystemList",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Dict_CodeNodeType",
+            "resource": "Dict_CodeNodeType",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_CodeClassTable",
+            "resource": "Base_CodeClassTable",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_CodingSequence",
+            "resource": "Base_CodingSequence",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_TblField",
+            "resource": "Base_TblField",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          },
+          {
+            "name": "Base_CodeSerialPerform",
+            "resource": "Base_CodeSerialPerform",
+            "space": "868E62F90DB8118C74CDC9F6BCA61157"
+          }
+        ]
+      },
+      {
+        "label": "reference-business-table-selector",
+        "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+        "success": true,
+        "total": 10,
+        "models": [
+          {
+            "name": "_Base_TblList",
+            "resource": "_Base_TblList",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "_Base_Form",
+            "resource": "_Base_Form",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "fieldArr",
+            "resource": "fieldArr",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "Base_AppAndSource_Relation",
+            "resource": "Base_AppAndSource_Relation",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "Base_TblField",
+            "resource": "Base_TblField",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "_base_dbInfo",
+            "resource": "_base_dbInfo",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "_Base_ViewList",
+            "resource": "_Base_ViewList",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "Base_DataModel",
+            "resource": "Base_DataModel",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "Base_AppSystemList",
+            "resource": "Base_AppSystemList",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          },
+          {
+            "name": "Base_DataModel_Field",
+            "resource": "Base_DataModel_Field",
+            "space": "34BDBE645F461A3D83282A941D6037F4"
+          }
+        ]
+      }
+    ]
+  },
+  "formalContracts": [
+    {
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "metaName": "Base_CodeClassTable",
+      "modelId": "868E62F90DB8118C74CDC9F6BCA61157p005",
+      "primaryKey": "rowid",
+      "success": true,
+      "requiredMaintenanceMembers": [
+        {
+          "id": "08290ABF334542BDAA95F93CC4D9C870",
+          "name": "description",
+          "sourceField": "description",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "摘要",
+          "order": 0
+        },
+        {
+          "id": "2FF1E90FE8CE4EBBB39ECADEC0652353",
+          "name": "BusTableName",
+          "sourceField": "BusTableName",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "业务表名",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+      "metaName": "_Base_TblList",
+      "modelId": "06f387a1-fe18-422a-b1ef-997002c15eaa",
+      "primaryKey": "rowid",
+      "success": true,
+      "referenceTableDbIdOutput": false
+    },
+    {
+      "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+      "metaName": "Base_TblField",
+      "modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a",
+      "primaryKey": "rowid",
+      "success": true
+    }
+  ],
+  "formalMetadataReadRequests": 12,
+  "authExpiry": {
+    "initialQueries": 2,
+    "businessFailure": false,
+    "normalRefreshSucceeded": true
+  },
+  "implementation": {
+    "addedClassProjection": [
+      "BusTableName",
+      "description"
+    ],
+    "editableCatalogFields": [
+      "Name",
+      "description"
+    ],
+    "saveScope": [
+      "Base_CodeClassTable@default"
+    ],
+    "mainAndNodeNotSubmitted": true,
+    "unknownSaveReconcilesWithoutReplay": "native DataView with fixture verification",
+    "liveSaveAttempted": false
+  },
+  "remaining": [
+    "Reference table and field picker; business filter editing; complete add/edit/delete workflow and reference layout.",
+    "Real directory save and browser whole-page acceptance.",
+    "Current managed application selector cannot reach historical code ownership; no reassignments or permission changes.",
+    "SaveView unknown result remains unresolved; no retry or restore write."
+  ],
+  "browser": {
+    "handoffRevalidationFailedThisTurn": true,
+    "oldSaveTabNotRefreshedOrRecreated": true
+  },
+  "credentialsPersisted": false
+}

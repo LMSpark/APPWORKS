@@ -24,6 +24,28 @@ export function isFixedCodeNode(dataSet: DataSet, row: Readonly<DataRow>): boole
 const sequenceFields = {Name: '名称', Incre: '增量', StartNo: '开始段', EndNo: '结束段', Format: '起始值-最大值'}
 
 /**
+ * 仅提交分类目录本次变更，未知结果由原DataView核验，不夹带主设计或节点。
+ * @param dataSet 当前编码设计实例。 @returns 原分类视图的保存结果。
+ */
+export async function saveCodeClasses(dataSet: DataSet) {
+  if (dataSet.scenarioId !== SCENE) throw new Error('编码设计场景身份不匹配')
+  const view = dataSet.getView('Base_CodeClassTable')
+  if (!view) throw new Error('分类目录视图缺失')
+  if (!view.hasUnconfirmedSave) for (const row of view.rows) {
+    const id = view.getPkKey(row)
+    if (id === undefined || !view.hasEditingChanges(id) && !view.dirtyTracking.hasPendingChanges(id)) continue
+    const effective = editableRow(view, row)
+    for (const [field, label] of Object.entries({Name: '分类名称', BusTableName: '业务表名', BusFilterField: '业务表过滤字段',
+      TableRowid: '引用表', TableName: '引用表名', TextFieldName: '引用字段', ValueFieldName: '引用表过滤字段'})) {
+      if (view.fieldAccess(row, field).read !== 'visible') throw new Error('分类规则字段不可读')
+      const value = effective[field]
+      if (typeof value !== 'string' || !value.trim()) throw new Error(`${label}不能为空`)
+    }
+  }
+  return dataSet.saveChanges({views: [{tableName: 'Base_CodeClassTable', viewId: 'default'}]})
+}
+
+/**
  * 将已保存分类的引用映射复制到当前编码段，不提交目录或设计。
  * @param dataSet 当前编码设计实例。 @param nodeId 原节点主键。 @param classId 已保存分类主键。
  */

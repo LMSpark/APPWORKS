@@ -47,7 +47,7 @@
       "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p005", "modelName": "Base_CodeClassTable"},
       "views": {"default": {
         "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
-        "queryConfig": {"fields": ["rowid", "Name", "TableRowid", "TableName", "TextFieldName", "ValueFieldName", "BusFilterField"]}
+        "queryConfig": {"fields": ["rowid", "Name", "TableRowid", "TableName", "TextFieldName", "ValueFieldName", "BusFilterField", "BusTableName", "description"]}
       }}
     },
     "Base_CodingSequence": {

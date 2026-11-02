@@ -4054,7 +4054,7 @@
     "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/design-ops.ts.json",
-      "sourceModifiedAt": "2026-11-02T07:28:18.332Z"
+      "sourceModifiedAt": "2026-11-02T07:50:35.970Z"
     },
     "src/lowcode/resources/structured-config/data-code/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
@@ -4774,7 +4774,7 @@
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T07:38:03.454Z"
+      "sourceModifiedAt": "2026-11-02T07:52:02.482Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",

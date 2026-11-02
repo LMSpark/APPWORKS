@@ -2174,7 +2174,7 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue.json",
-      "sourceModifiedAt": "2026-11-02T04:20:56.478Z"
+      "sourceModifiedAt": "2026-11-02T04:25:51.562Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue",

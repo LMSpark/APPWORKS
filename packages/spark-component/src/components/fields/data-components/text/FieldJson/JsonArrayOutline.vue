@@ -73,4 +73,7 @@ onUnmounted(()=>dataSet.value?.destroy())
 </script>
 <style scoped>
 .json-array-outline {width:100%;min-width:0;}
+.json-array-outline :deep(.field-display) {display:block;}
+.json-array-outline :deep(.field-label) {display:none;}
+.json-array-outline :deep(.field-value) {white-space:nowrap;}
 </style>

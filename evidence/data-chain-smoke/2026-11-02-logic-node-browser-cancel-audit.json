@@ -11,7 +11,8 @@
     "Clicked original discard-and-reread action; node selection released and two original nodes returned",
     "Unconfirmed fill was separately cancelled without file submission",
     "Confirmed visible outline width 294 pixels after one-column form configuration",
-    "Final standard display-only cell presentation has zero node inputs; clicking exact child text opens original node editor, empty baseline description retained; visible outline width 284 pixels"
+    "Final standard display-only cell presentation has zero node inputs; clicking exact child text opens original node editor, empty baseline description retained; visible outline width 284 pixels",
+    "Outline-only CSS uses block field display, hides repeated detail titles and keeps values nowrap; screenshot visually reviewed after correction. Desktop breakpoint has two panes; default viewport restored. Horizontal tree/table overflow remains scrollable."
   ],
   "saveDesignClicked": false,
   "limits": [
@@ -21,6 +22,16 @@
   ],
   "screenshot": {
     "path": "artifacts/data-chain-smoke/logic-node-browser-cancel.png",
-    "sha256": "8044b9ac8367abf54a2215b48fdb5b5c0178c0b59376ef5bbfaf966ab837c4bc"
+    "sha256": "4e3f511b18c881698357aaf6cada95b332e6334760f0b81010253ae4f8ae5adf"
+  },
+  "desktopScreenshot": {
+    "path": "artifacts/data-chain-smoke/logic-node-browser-desktop.png",
+    "sha256": "1eca6ad5417eabb2f4f658fa476447d0eadd791c5a654b1f183085418573780f",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "columns": "361.328px 722.672px",
+    "viewportRestored": true
   }
 }

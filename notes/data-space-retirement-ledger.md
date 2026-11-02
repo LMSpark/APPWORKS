@@ -4697,3 +4697,6 @@ flowchart TD
 - 指南对应：FieldJson.props正式生成产物核outline/valuePath/form/rows/onEditingChange；FieldCheckbox.props核trueValue/falseValue；RendererForm核gridColumns及标准数据上下文；原生Fields测试及浏览器回读对应这些真实消费。下一段仍须来源选择/节点增删、输入参数、正式过滤和值函数交互、字段批量操作、节点预览及输出工作区；本轮基础/字段/联表是实施进展，不是参考1:1整页完成。98字典、12 GetView、2逻辑消费失败及未保存预览合同缺口和全架构其它开放项均保持，目标active。
 - 最后36240退出0：文字呈现修正后2文件16项、标准字段/表格33文件363项、正式ClassModel生成、完整verify及build全部通过（logic-node-{outline-display-green,standard-impact,checkpoint-generate,checkpoint-verify,checkpoint-build}.log）。已审阅原文件owner与页面diff，git diff --check退出0；既有AI模型告警/动态导入提示保留。生成器产生的TypeScript内部iterator编号变动随正式产物保留，未手工改生成文件。
 - 本检查点提交推送origin/1031，保存标准JSON节点只读选择、原字段基础/Fields/联表绑定、目录许可守卫、未确认输入保护与取消实服证据；无Java改动、无实服SaveView写入、不称完整逻辑视图或全架构通过。下一轮从来源候选命名DataView及原节点新增/删除语义继续，不重写已有字典/API来源读取能力。
+- d556ce9c3acbd5433aa85f47b412e36ba765123d已推送并以ls-remote核origin/1031相同，工作树当时干净。最终截图复查又发现标准detail标题/值的通用布局使只读节点文字竖排；继续在outline内部限定field-display为block、隐藏重复标题、值nowrap，不改其它detail宿主。新截图已目检为单行节点文字；默认窄屏和1440×900的900断点两侧已验，桌面两列361.328/722.672，试验视口已reset，横向内容仍由原表格滚动。
+- 浏览器审计追加最终窄屏与桌面截图SHA，CSS修正的正式生成/verify/build43923正在执行，未提前把该修正称最终门禁已过；根目标及来源/节点操作/预览剩余工作保持。
+- CSS修正最后43923退出0：正式生成、完整verify、完整build均通过（logic-node-display-{generate,verify,build}.log），既有动态导入提示保留；该补充仅影响outline内呈现，先前标准字段/表格33文件363项及节点页面14项的行为验证仍对应同一逻辑实现。补充提交推送origin/1031；当前节点/字段/联表配置和取消链是已验证进展，仍不核销来源选择、预览及全架构其它开放项。

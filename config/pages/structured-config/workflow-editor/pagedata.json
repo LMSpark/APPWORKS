@@ -46,12 +46,48 @@
         }
       }
     },
+    "Base_DataSet": {
+      "modelBinding": {
+        "modelId": "6ef78ae1-e97e-4749-8f3a-5b2f01ba0995",
+        "modelName": "Base_DataSet"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {"workflowId": ""},
+          "queryConfig": {"fields": ["rowid", "Type", "inputParams"], "allPages": true},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "workflowId"}},
+              {"field": "Type", "operator": "eq", "value": "workflow"}
+            ]
+          }
+        }
+      }
+    },
     "Base_WorkflowNodeDefinition": {
       "modelBinding": {
         "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
         "modelName": "Base_WorkflowNodeDefinition"
       },
       "views": {
+        "start": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {"workflowId": ""},
+          "queryConfig": {"fields": ["rowid", "workflow_id", "position_type", "name", "output_mapping"], "allPages": true},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "workflow_id", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "workflowId"}},
+              {"field": "position_type", "operator": "eq", "value": "0"}
+            ]
+          }
+        },
         "default": {
           "autoLoad": true,
           "autoCurrentFirst": false,

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 999,
+  "scannedFileCount": 1000,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14066,6 +14066,19 @@
         "symbols": [
           "LowcodeWorkflowDefinition"
         ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/start-parameters",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/start-parameters",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/start-parameters\n职责：保留开始参数元数据，校验参数身份并派生开始输出；提交原DataSet中的两份正式记录。\n边界：不查询、不持有草稿、不推导权限、不重放未知提交，也不执行工作流。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/main.ts": {

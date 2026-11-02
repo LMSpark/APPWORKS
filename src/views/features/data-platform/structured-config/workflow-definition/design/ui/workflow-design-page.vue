@@ -32,6 +32,16 @@
           :draggable-keys="layoutEditableKeys" :on-node-move="moveLayout" :on-arrange="arrangeLayout" background-pattern="dots" />
         <aside>
           <template v-if="selectedKind === 'node' && selectedNode">
+            <section v-if="isStartNode">
+              <h2>开始输入参数</h2>
+              <p v-if="startParametersMissing && !loading" role="alert">当前流程缺少唯一的开始参数定义或开始节点</p>
+              <RendererForm v-if="!startParametersMissing" :data-view-key="parametersKey" :auto-columns="false" :show-data-view-meta="false">
+                <FieldJson :data-view-key="parametersKey" field="inputParams" label="输入参数" mode="rows" :children="parameterFields" :row-adapter="parameterAdapter" :readonly="locked" :on-editing-change="value=>pending('start.parameters',value)" />
+              </RendererForm>
+              <RendererButton :label="startUnconfirmed ? '核验开始参数保存结果' : '保存开始参数'" :disabled="busy || pendingPart('start') || startParametersMissing" @click="saveStartParameters" />
+              <RendererButton label="取消开始参数修改" :disabled="busy || unconfirmed" @click="cancelStartParameters" />
+            </section>
+            <template v-else>
             <h2>节点配置</h2>
             <RendererForm :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false">
               <FieldText :data-view-key="nodesKey" field="name" label="节点名称" :readonly="locked" />
@@ -65,6 +75,7 @@
               <h3>作为子模型的原服务关系</h3>
               <RendererTable :data-view-key="childRelationsKey" :children="relationFields" />
             </section>
+            </template>
           </template>
           <template v-else-if="selectedKind === 'edge' && selectedEdge">
             <h2>连线配置</h2>
@@ -95,6 +106,7 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
+import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
 const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
@@ -102,6 +114,7 @@ const scene=LowcodeWorkflowDefinition.designScenarioId,nodesTable='Base_Workflow
 const nodesKey=buildDataViewKey(nodesTable,'default',scene),edgesKey=buildDataViewKey(edgesTable,'default',scene),definitionKey=buildDataViewKey('Base_WorkflowDefinition','default',scene)
 const modelTable='Base_DataModel',fieldsTable='Base_DataModel_Field',relationsTable='Base_DataModel_Relation'
 const modelKey=buildDataViewKey(modelTable,'default',scene),fieldsKey=buildDataViewKey(fieldsTable,'default',scene)
+const parametersKey=buildDataViewKey('Base_DataSet','default',scene)
 const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),childRelationsKey=buildDataViewKey(relationsTable,'asChild',scene)
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
@@ -119,6 +132,12 @@ const hasPending=computed(()=>{revision.value;return acting.value||inputs.value.
 useSystemPageDirtySource({get isDirty(){return opening.value||hasPending.value}})
 const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.currentRow})
 const selectedEdge=computed(()=>{revision.value;return view(edgesTable)?.currentRow})
+const isStartNode=computed(()=>{revision.value;const node=selectedNode.value;return !!node&&view(nodesTable)?.fieldAccess(node,'position_type').read==='visible'&&String(node['position_type']).trim()==='0'})
+const startView=()=>dataSet.value?.getView(nodesTable,'start')
+const startParametersMissing=computed(()=>{revision.value;const params=view('Base_DataSet'),start=startView(),node=selectedNode.value;return !node||params?.rows.length!==1||params.getPkKey(params.rows[0]!)!==workflowId.value||start?.rows.length!==1||start.getPkKey(start.rows[0]!)!==view(nodesTable)?.getPkKey(node)})
+const startUnconfirmed=computed(()=>{revision.value;return view('Base_DataSet')?.hasUnconfirmedSave===true||startView()?.hasUnconfirmedSave===true})
+const parameterAdapter=computed(()=>workflowStartParameterAdapter(String(selectedNode.value?.['name']??'开始')))
+const parameterFields:SparkNode[]=Object.entries({Name:'参数名称',FieldType:'数据类型',Value:'默认值',Description:'参数说明'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
 function nodeModelId(row:DataRow):string{
  const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
  if(nodes.fieldAccess(row,'position_type').read!=='visible')throw new Error('节点位置类型不可读')
@@ -161,8 +180,28 @@ function selectObject(event:SparkComponent.GraphSelection):void{
  const target=view(event.kind==='node'?nodesTable:edgesTable),row=target?.rows.find(row=>target.getPkKey(row)===event.id)
  if(!row){event.control.cancel=true;return}
  target?.setCurrentRow(row);selectedKind.value=event.kind;revision.value++
- if(event.kind==='node')void loadNodeModel(row)
+ if(event.kind==='node'){if(isStartNode.value)void loadStartParameters();else void loadNodeModel(row)}
 }
+async function loadStartParameters():Promise<void>{
+ const params=view('Base_DataSet'),start=startView(),own=generation
+ try{if(!params||!start)throw Error('开始参数正式视图缺失');await Promise.all([params.refresh(),start.refresh()]);if(params.loadingError)throw params.loadingError;if(start.loadingError)throw start.loadingError}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+}
+async function saveStartParameters():Promise<void>{
+ if(busy.value||pendingPart('start')||loadedTarget.value!==workflowId.value||!dataSet.value||!isStartNode.value)return
+ const own=generation;acting.value=true;error.value=''
+ try{
+  const result=await saveWorkflowStartParameters(dataSet.value,workflowId.value);if(!result.success)throw Error(result.message??'开始参数保存未完整确认')
+  const targets=[view('Base_DataSet'),startView()],nodes=view(nodesTable)
+  if(targets.every(target=>target&&!target.hasUnconfirmedSave&&!target.hasEditingChanges()&&!target.dirtyTracking.hasPendingChanges())&&nodes&&!nodes.hasEditingChanges()&&!nodes.dirtyTracking.hasPendingChanges()){
+   const selectedId=nodes.currentRow?nodes.getPkKey(nodes.currentRow):undefined
+   await nodes.refresh();if(nodes.loadingError)throw nodes.loadingError
+   if(active&&own===generation&&selectedId!==undefined)nodes.setCurrentRow(nodes.rows.find(row=>nodes.getPkKey(row)===selectedId)??null)
+  }
+ }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function cancelStartParameters():void{if(busy.value||unconfirmed.value)return;try{view('Base_DataSet')?.discardPendingChanges();startView()?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function loadNodeModel(row:DataRow):Promise<void>{
  const model=view(modelTable),own=generation;if(!model)return
  try{const modelId=nodeModelId(row);if(!modelId)return;model.queryContext={...model.queryContext,modelId};await model.refresh();if(model.loadingError)throw model.loadingError}

@@ -25,6 +25,33 @@ async function open(workflowId='W1'){
  return {wrapper,router,click}
 }
 describe('workflow formal design page',()=>{
+ it('lazily binds start parameters, preserves metadata and saves their derived output through original views',async()=>{
+  const param={rowid:'P1',Name:'code',Value:'old',FieldType:'string',Description:'原说明',ValueFun:{value:false},extra:0}
+  state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:JSON.stringify([param])},{rowid:'W2',Type:'workflow',inputParams:'[]'}]
+  Object.assign(state.http.records['Base_WorkflowNodeDefinition']![0]!,{position_type:'0',output_mapping:'[]'})
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  expect(state.http.reads.some(read=>read.table==='Base_DataSet')).toBe(false)
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.text()).toContain('开始输入参数'))
+  const json=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='inputParams')!
+  expect(json.props('dataViewKey')).toBe(`${WORKFLOW_DESIGN}@Base_DataSet@default`);expect(json.props('mode')).toBe('rows')
+  await json.get('tbody tr').trigger('click');await json.get('[data-json-edit]').trigger('click');await flushPromises()
+  await json.findAll('tbody input')[2]!.setValue('changed');await flushPromises()
+  expect(f.wrapper.findAll('button').find(button=>button.text()==='保存开始参数')?.attributes('disabled')).toBeDefined()
+  await json.get('[data-json-save-row]').trigger('click');await flushPromises();await f.click('保存开始参数')
+  expect(state.http.saves.map(save=>save.table)).toEqual(['Base_DataSet','Base_WorkflowNodeDefinition'])
+  expect(JSON.parse(String(state.http.records['Base_DataSet']![0]!['inputParams']))).toEqual([{...param,Value:'changed'}])
+  expect(JSON.parse(String(state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']))).toEqual([expect.objectContaining({rowid:'P1',Name:'code',Description:'原说明'})])
+  expect(state.http.records['Base_DataSet']![1]!['inputParams']).toBe('[]')
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  const editing=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='inputParams')!
+  await editing.get('tbody tr').trigger('click');await editing.get('[data-json-edit]').trigger('click');await flushPromises()
+  await editing.findAll('tbody input')[2]!.setValue('未确认输入');await flushPromises()
+  await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/design')
+  await f.click('取消开始参数修改')
+  expect(state.dirty[0]?.isDirty).toBe(false);expect(state.http.saves).toHaveLength(2)
+  expect(editing.text()).toContain('changed');expect(editing.text()).not.toContain('未确认输入')
+ })
  it('binds graph nodes and connectors to the independent formal scene and saves only node edits',async()=>{
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   const graph=f.wrapper.getComponent(RendererGraph)

@@ -1,0 +1,119 @@
+{
+  "testedAt": "2026-11-02T15:14:57.606Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "expiredSessionAttempt": {
+    "readRequests": 3,
+    "writeRequests": 0,
+    "status": 401
+  },
+  "sessionRefreshedInMemory": true,
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 11,
+  "exampleFunctionPosts": 0,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "kind": "native-workflow-start-parameter-probe",
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "definitionCount": 1,
+      "startNodeCount": 1,
+      "ownerMatches": true,
+      "parameterCount": 1,
+      "inputParamsWrite": "allowed",
+      "outputMappingWrite": "allowed",
+      "localCancel": true,
+      "saveAttempted": false
+    },
+    {
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "success": true,
+      "diagnostics": [],
+      "views": [
+        {
+          "table": "Base_WorkflowDefinition",
+          "view": "default",
+          "rows": 1,
+          "total": 1,
+          "state": 3
+        },
+        {
+          "table": "Base_DataSet",
+          "view": "default",
+          "rows": 1,
+          "total": 1,
+          "state": 3
+        },
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "view": "default",
+          "rows": 3,
+          "total": 3,
+          "state": 3
+        },
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "view": "start",
+          "rows": 1,
+          "total": 1,
+          "state": 3
+        },
+        {
+          "table": "Base_WorkflowConnectors",
+          "view": "default",
+          "rows": 2,
+          "total": 2,
+          "state": 3
+        },
+        {
+          "table": "WorkflowLayout",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Field",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "asParent",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "asChild",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "No workflow parameter or node save sent to actual service",
+    "No workflow execution",
+    "Parameter contents and credentials omitted"
+  ]
+}

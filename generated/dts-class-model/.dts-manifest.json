@@ -4176,6 +4176,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/resource.ts.json",
       "sourceModifiedAt": "2026-11-01T19:54:04.024Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts.json",
+      "sourceModifiedAt": "2026-11-02T15:13:34.454Z"
+    },
     "src/main.ts": {
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
@@ -4929,7 +4934,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T14:56:08.624Z"
+      "sourceModifiedAt": "2026-11-02T15:12:40.588Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",

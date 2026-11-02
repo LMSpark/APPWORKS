@@ -49,6 +49,7 @@ describe('workflow formal design DataSet',()=>{
   it('queries only the target workflow even when the node ownership field is not output, then saves and cancels through native views',async()=>{
     // Historical configuration before the output repair must still reject explicit owner writes.
     const config=JSON.parse(await readFile('config/pages/structured-config/workflow-editor/pagedata.json','utf8'))
+    delete config.tables.Base_WorkflowNodeDefinition.views.start
     config.tables.Base_WorkflowNodeDefinition.views.default.queryConfig.fields=config.tables.Base_WorkflowNodeDefinition.views.default.queryConfig.fields.filter((field:string)=>field!=='workflow_id')
     const text=JSON.stringify(config)
     const models=workflowDesignModels(false)

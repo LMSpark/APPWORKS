@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 983,
+  "scannedFileCount": 984,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13769,6 +13769,19 @@
         "modulePath": "lowcode/resources/structured-config/logic-view/field-row-adapter",
         "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/field-row-adapter\n职责：将正式逻辑字段的布尔/数字标记投影给标准数字复选框。\n边界：只转换当前确认行；未改标记及未知成员保持原值，不保存、不持有草稿。",
         "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/logic-view/function-context.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/function-context.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/function-context",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/function-context.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/function-context.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/function-context",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/function-context\n职责：从原逻辑设计的选中节点及祖先投影值函数字段目录。\n边界：只读定义，不查询数据、不以节点别名猜资源名、不替换系统参数目录或执行函数。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },

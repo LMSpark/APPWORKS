@@ -66,6 +66,16 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('supplies current source fields and ancestor references from the selected definition without alias-as-resource fallback',async()=>{
+    http.logicDesigns['V1']=[{Name:'OrdersAlias',MetaName:'Orders',Fields:[{Name:'id',Description:'订单编号'}],ChildTables:[{Name:'LinesAlias',MetaName:'Lines',Fields:[{Name:'amount',Description:'金额',ValueFun:null}],ChildTables:[]}]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.findAll('[data-logic-node-outline] .el-table__body-wrapper tbody tr')[1]!.trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    expect(wrapper.findComponent(FieldValueFunction).props('functionContext')).toEqual({tables:[{name:'Lines',label:'LinesAlias',fields:[{name:'amount',label:'金额'}]}],relatedFields:[{value:'Orders.id',label:'表[OrdersAlias]的（订单编号）'}]})
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  })
   it('confirms a standard value-function dialog into the original field as a native object',async()=>{
     const field={Name:'id',ValueFun:{Type:'GetConstValue',Value:0},extra:{keep:1}}
     http.logicDesigns['V1']=[{Name:'root',Fields:[field],ChildTables:[]}]

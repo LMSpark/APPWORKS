@@ -4742,3 +4742,14 @@ flowchart TD
 - 当前9113是修正期间旧门禁，不能替代最终源码的正式生成/完整verify/build终态。真实设计文件写入确认仍待回复，未执行；没有改Java、权限或聚合执行归属。本次只证明定义编辑/取消，不证明函数运行、后端聚合、完整上下文候选及参考整页。
 - 下一段仍须按正式视图接视图参数/节点入参/关联字段等候选，核GetInputParam与SystemData语义差异，不把参数ID冒充参数名或把不同函数上下文混为一组；过滤专用交互、AI字段配置、输出结构、实服保存、节点/整体预览及全架构开放项继续，目标active。
 - 最后92785退出0：最终源码正式ClassModel生成、完整verify和build通过；33文件378项影响与最后2文件40项复核均已通过。最终标准弹窗补截图并明确取消弹窗/行编辑，另有原生对象false→原取消/回读证据；审阅diff和git diff --check无问题，提交推送origin/1031。固定参考FilterBuilder/utils.ts317确认systemParams/inputParams分别映射，不得因GetInputParam旧示例就混同；留待下一段按实际函数消费核定。当前根目标仍active。
+
+### 2026-11-02 值函数候选与参数执行域核查
+- 上轮ed469ac97已推送，干净树开始，判定progress。本轮核固定参考APPWorks APP的viewParamValueOptions、createAppWorksValueFunctionContext及buildJoinRelatedFieldOptions。参考把视图参数名传入systemParams，但本仓SystemData目录是用户/部门/企业/时间等系统上下文，不能把两种含义按同名“参数”照搬。
+- 只读Java参考GetInputParam.java从输入map取ParamName，SystemData.java固定switch且未知名返回null。实服以原生DataSet/DataView、正式_Base_ParamList模型、queryContext和pid过滤对照：GetInputParam的SMOKE_DATA_CHAIN_PARAM绑定sys_edit，total1/返回1且全部pid精确匹配；相同自定义名放SystemData，total50/返回20且pid不全匹配。这是目标过滤失败，不是通过；不修改后端、不放宽权限、不把系统参数候选替换成视图参数。原参数工作区已有onRequestComplete目标守卫继续保留。
+- 诊断过程分别记录：最初直接runtime.query未走DataView.queryContext绑定，GetInputParam total0，不能拿它判定原生链失败；其参数字段是资源调用输入，DataView管线另通过DataViewFilter.bindInputParams绑定显式上下文。原生对照首次漏views.default被assembler拦截，随后遇401按授权正常刷新会话再读，最终12次只读请求、0拦截写、0实际写；不存凭据或原始响应行。2026-11-02-logic-function-context-audit.json保存计数/范围与边界。
+- 已补纯定义投影logicNodeFunctionContext：当前节点MetaName+Fields提供引用表及字段，完整祖先路径提供MetaName.Field关联目录；Name只作展示标签，不把别名猜成资源名，不查询业务数据、不注入SystemData/输入参数。原designJson读取权限、当前编辑值和精确路径仍是唯一来源；页面的definition root/selected node/context都是计算投影，不持有另一份草稿。
+- 按当前ClassModel的FieldValueFunction.functionContext及DataViewFilterFunctionContext.tables/relatedFields合同接线。页面先RED（首次夹具未进入行编辑，纠正后确证functionContext为undefined），随后GREEN；8文件77项通过，含父子别名与物理MetaName分离、未知成员保留、无MetaName不退别名、非ChildTables路径拒绝与原定义不变。初次verify发现引用了未从包面导出的成员类型以及JsonValue过宽，已沿公开Context成员派生类型并收窄JsonDocument，未新增扁平导出或断言；当前83993重跑最终门禁。
+- 真实浏览器已核子节点Base_MainBody_RoleUser引用表仅其正式源名，引用字段17项；关联表字段为祖先Base_AppSystemList的26字段，名称/标题对应原定义。取消弹窗和行编辑，完整网络窗口0请求，无保存。截图logic-function-context-browser.png。候选选择→原生函数确认与取消的最终补验待下项；没有真实SaveView或函数运行声明。
+- 视图参数及节点接口入参的候选仍须沿正式绑定组织，不能把pid/parid当参数名，不能按参考错误映射给SystemData。过滤专用编辑、AI字段配置、输出结构、实服设计写入、节点/整体预览及全架构其它开放项保持；真实SaveView范围确认仍待回复，不阻止其它工作，根目标active。
+- 最终补验已完成：从子节点createuser行选祖先开发商名称候选，确认函数及行后原字段显示原生{"Type":"GetTableField","Field":"Base_AppSystemList.DeveloperName"}，再原取消恢复2节点。独立完整窗口仅2次GetView、0写入，另GetView Code200且整份设计SHA未变，审计已补浏览器计数/写回值/截图和正式回读。83993的lint再发现复杂数组记法及可选label回退规则，已按公开类型改Array与??，局部eslint通过；当前8878重新执行最终77项/正式生成/完整verify/build，终态待补。
+- 最后8878退出0：8文件77项、正式ClassModel生成、完整verify及build全部通过；构建既有动态导入提示保留。审阅原设计读取权限、候选MetaName身份、路径/取消和新增纯投影helper差异，git diff --check通过；本检查点提交推送origin/1031，保留参数候选、过滤、输出、保存及服务合同等开放项，不称全架构通过。

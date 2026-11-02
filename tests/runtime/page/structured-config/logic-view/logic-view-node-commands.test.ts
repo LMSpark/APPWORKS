@@ -2,6 +2,7 @@ import {afterEach,describe,expect,it,vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
 import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
+import {logicNodeFunctionContext} from '@/lowcode/resources/structured-config/logic-view/function-context'
 import {attachStagedDesignView,setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import type {PageDataSpaceModelSourcePrepared} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 const sets:DataSet[]=[]
@@ -22,6 +23,13 @@ async function fixture(){
   return {ds,view,commands,original,persist,permission,active,read}
 }
 describe('original logic design node commands',()=>{
+  it('never treats aliases as resources or injects node parameters into system data',()=>{
+    const root=[{Name:'alias-only',Fields:[{Name:'id'}],inputParams:[{Name:'arg'}],ChildTables:[{Name:'child-alias',Fields:[{Name:'value'}]}]}]
+    const before=JSON.stringify(root)
+    expect(logicNodeFunctionContext({root,path:[0,'ChildTables',0]})).toEqual({tables:[],relatedFields:[]})
+    expect(()=>logicNodeFunctionContext({root,path:[0,'Fields',0]})).toThrow(/路径/)
+    expect(JSON.stringify(root)).toBe(before)
+  })
   it('projects known flag representations and preserves untouched or unknown source values',()=>{
     const original={Name:'id',IsOutput:true,IsPKey:'0',DISTINCT:1,extra:{keep:0}}
     const projected=logicFieldRowAdapter.read(original)

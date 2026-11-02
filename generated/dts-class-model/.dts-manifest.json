@@ -4076,6 +4076,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts.json",
       "sourceModifiedAt": "2026-11-02T05:38:30.475Z"
     },
+    "src/lowcode/resources/structured-config/logic-view/function-context.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/function-context.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/logic-view/function-context.ts.json",
+      "sourceModifiedAt": "2026-11-02T06:09:09.453Z"
+    },
     "src/lowcode/resources/structured-config/logic-view/node-commands.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/node-commands.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json",
@@ -4844,7 +4849,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue.json",
-      "sourceModifiedAt": "2026-11-02T05:45:16.585Z"
+      "sourceModifiedAt": "2026-11-02T06:02:05.908Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",

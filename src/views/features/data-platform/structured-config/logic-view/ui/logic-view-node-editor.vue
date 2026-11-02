@@ -63,6 +63,7 @@ import {FieldJson, RendererButton,RendererDialog,RendererTable,RendererForm, Ren
 import {LogicViewSourceViews,type LogicViewSourceType} from '@/lowcode/resources/structured-config/logic-view/source-views'
 import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
 import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
+import {logicNodeFunctionContext} from '@/lowcode/resources/structured-config/logic-view/function-context'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 const props=defineProps<{viewKey:string;view:DataView;metadata?:DataSet|undefined;disabled:boolean}>()
 const emit=defineEmits<{'editing-change':[value:boolean]}>()
@@ -98,10 +99,10 @@ const joinFilterSchema:JsonSchemaObject={type:'object',properties:{JoinFilter:{t
 const joinSchema:JsonSchemaObject={type:'object',properties:{JoinType:{type:'string',title:'联表类型',oneOf:[{const:'LEFT',title:'左连接'},{const:'RIGHT',title:'右连接'},{const:'INNER',title:'内连接'},{const:'FULL',title:'全连接'}]},ForeignKeyFields:{type:'string',title:'外键字段'}}}
 const textLabels:Record<string,string>={Name:'名称',Description:'描述',FieldType:'类型',AsName:'别名',Expression:'表达式',OrderType:'排序类型'}
 const flagLabels:Record<string,string>={DISTINCT:'去重',IsOutput:'输出',IsPKey:'主键',Group:'分组'}
-const fieldColumns:SparkNode[]=[...Object.entries(textLabels).map(([field,label])=>({type:'r-text',props:{field,label}})),
-  {type:'r-value-function',props:{field:'ValueFun',label:'值函数',valueFormat:'native',onDialogVisibleChange:(value:boolean)=>editing('value-function',value)}},
+const fieldColumns=computed<SparkNode[]>(()=>[...Object.entries(textLabels).map(([field,label])=>({type:'r-text',props:{field,label}})),
+  {type:'r-value-function',props:{field:'ValueFun',label:'值函数',valueFormat:'native',functionContext:functionContext.value,onDialogVisibleChange:(value:boolean)=>editing('value-function',value)}},
   {type:'r-number',props:{field:'Order',label:'排序'}},
-  ...Object.entries(flagLabels).map(([field,label])=>({type:'r-checkbox',props:{field,label,trueValue:1,falseValue:0}}))]
+  ...Object.entries(flagLabels).map(([field,label])=>({type:'r-checkbox',props:{field,label,trueValue:1,falseValue:0}}))])
 function select(value:JsonPath|null):void {if(value===null||!pending.value.size)path.value=value}
 function editing(key:string,value:boolean):void {if(value)pending.value.add(key);else pending.value.delete(key);emit('editing-change',pending.value.size>0)}
 function closeSource():void {sourceGeneration++;sourceOpen.value=false;sourceView.value=undefined;sourceBusy.value=false;editing('source',false)}
@@ -145,15 +146,17 @@ watch(()=>props.view,(view,_,cleanup)=>{
   view.events.on('editingChanged',changed);view.events.on('rowsChanged',changed)
   cleanup(()=>{view.events.off('editingChanged',changed);view.events.off('rowsChanged',changed)})
 },{immediate:true})
-const selectedNode=computed(()=>{
+const designRoots=computed(()=>{
   revision.value
   const row=props.view.currentRow
   if(!row||!path.value||props.view.fieldAccess(row,'designJson').read!=='visible')return undefined
   try {const id=props.view.getPkKey(row),value=id===undefined?row:props.view.getEditingRow(id)??row
-    const node=getValueAtJsonPath(parseJsonDocument(String(value['designJson'])),path.value)
-    return isJsonObject(node)&&!Array.isArray(node)?node:undefined
+    return parseJsonDocument(String(value['designJson']))
   }catch{return undefined}
 })
+const selectedNode=computed(()=>{const root=designRoots.value;if(root===undefined||!path.value)return undefined
+  const node=getValueAtJsonPath(root,path.value);return isJsonObject(node)&&!Array.isArray(node)?node:undefined})
+const functionContext=computed(()=>{const root=designRoots.value;return root!==undefined&&path.value&&selectedNode.value?logicNodeFunctionContext({root,path:path.value}):{}})
 const hasFields=computed(()=>Array.isArray(selectedNode.value?.['Fields']))
 const hasOutputFields=computed(()=>{const fields=selectedNode.value?.['Fields'];return Array.isArray(fields)&&fields.length>0})
 const nodeNotice=computed(()=>{

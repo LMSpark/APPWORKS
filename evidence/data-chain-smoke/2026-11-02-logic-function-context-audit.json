@@ -1,0 +1,89 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "semanticFinding": {
+    "reference": "view parameters were supplied as systemParams",
+    "source": "SystemData resolves fixed request/system fields and unknown names return null; GetInputParam reads the input map",
+    "actual": "Native DataView context binds GetInputParam precisely; custom SystemData does not restrict target as intended",
+    "ruling": "Do not substitute view parameter names into SystemData candidates or replace built-in system fields"
+  },
+  "nativeProbe": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 12,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "kind": "native-function-filter",
+        "type": "GetInputParam",
+        "success": true,
+        "total": 1,
+        "returned": 1,
+        "allRowsMatchTarget": true
+      },
+      {
+        "kind": "native-function-filter",
+        "type": "SystemData",
+        "success": true,
+        "total": 50,
+        "returned": 20,
+        "allRowsMatchTarget": false
+      }
+    ]
+  },
+  "directApiProbe": {
+    "scope": "initial diagnostic only; direct runtime.query does not bind DataView queryContext and cannot prove native input behavior",
+    "results": [
+      {
+        "success": true,
+        "total": 0,
+        "returned": 0
+      },
+      {
+        "success": true,
+        "total": 50,
+        "returned": 1
+      }
+    ],
+    "readRequests": 9
+  },
+  "changes": {
+    "definitionCatalog": "Selected source MetaName and Fields plus ancestor MetaName.Field references; no alias-as-resource fallback",
+    "systemParams": "Not overridden",
+    "inputCandidates": "Still pending proper native view binding"
+  },
+  "limits": [
+    "No design SaveView",
+    "No reference/Java edits",
+    "No function execution acceptance beyond the two read-filter probes",
+    "Broad SystemData result is a failed target restriction, not acceptance"
+  ],
+  "browser": {
+    "sourceTable": "Base_MainBody_RoleUser",
+    "sourceFields": 17,
+    "ancestorSource": "Base_AppSystemList",
+    "ancestorFields": 26,
+    "linkedField": "createuser创建人varchar{\"Type\":\"GetTableField\",\"Field\":\"Base_AppSystemList.DeveloperName\"}0",
+    "restoredNodes": 2,
+    "network": {
+      "events": 2,
+      "truncated": false,
+      "hasMore": false,
+      "paths": [
+        "/api/ViewData/GetView"
+      ],
+      "writes": 0
+    },
+    "screenshot": {
+      "path": "artifacts/data-chain-smoke/logic-function-context-browser.png",
+      "sha256": "f049c1702a557b187796772659386850230987f1dd7f6544da20bc5d0329c912"
+    }
+  },
+  "formalReadback": {
+    "code": 200,
+    "sha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "unchanged": true
+  }
+}

@@ -1,0 +1,356 @@
+{
+  "testedAt": "2026-11-02T14:49:52.992Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "preflight": {
+    "kind": "single-workflow-node-owner-output-metadata",
+    "testedAt": "2026-11-02T14:43:51.687Z",
+    "mode": "preflight",
+    "phase": "preflight-ready",
+    "targetScenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+    "fieldId": "FC441DFADA6B66DD4F2C945C13FDC6C6",
+    "field": "workflow_id",
+    "property": "IsOutput",
+    "expectedBefore": 0,
+    "requestedAfter": null,
+    "reads": 6,
+    "writes": 0,
+    "saveConfirmed": false,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0,
+    "checks": [
+      "exact field, workflow model and original IsOutput=0 verified; IsOutput write allowed"
+    ]
+  },
+  "repair": {
+    "kind": "single-workflow-node-owner-output-metadata",
+    "testedAt": "2026-11-02T14:47:51.281Z",
+    "mode": "repair",
+    "phase": "complete",
+    "targetScenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+    "fieldId": "FC441DFADA6B66DD4F2C945C13FDC6C6",
+    "field": "workflow_id",
+    "property": "IsOutput",
+    "expectedBefore": 0,
+    "requestedAfter": 1,
+    "reads": 16,
+    "writes": 1,
+    "saveConfirmed": true,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0,
+    "checks": [
+      "exact field, workflow model and original IsOutput=0 verified; IsOutput write allowed",
+      "single IsOutput=1 persisted and independently decoded on original node model"
+    ]
+  },
+  "before": {
+    "kind": "native-workflow-ownership-probe",
+    "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "workflowId": "CA2428C178AC4E088D2E573263AC0F08",
+    "nodes": 3,
+    "edges": 2,
+    "nodeOwnerColumn": false,
+    "nodeOwnerProjected": false,
+    "nodeAdd": "enabled",
+    "nodeOwnerCreateAccess": {
+      "read": "invisible",
+      "write": "denied",
+      "component": "hidden",
+      "required": false,
+      "writeMode": "readonly"
+    },
+    "edgeOwnerCreateAccess": {
+      "read": "visible",
+      "write": "allowed",
+      "required": false,
+      "component": "editable",
+      "writeMode": "editable"
+    },
+    "nodeFields": [
+      {
+        "field": "rowid",
+        "newAccess": {
+          "read": "visible",
+          "write": "denied",
+          "required": false,
+          "component": "readonly",
+          "writeMode": "readonly"
+        },
+        "readableRows": 3
+      },
+      {
+        "field": "workflow_id",
+        "newAccess": {
+          "read": "invisible",
+          "write": "denied",
+          "component": "hidden",
+          "required": false,
+          "writeMode": "readonly"
+        },
+        "readableRows": 3
+      },
+      {
+        "field": "name",
+        "newAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "readableRows": 3
+      },
+      {
+        "field": "node_type",
+        "newAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "readableRows": 3
+      },
+      {
+        "field": "node_config",
+        "newAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "readableRows": 3
+      },
+      {
+        "field": "config",
+        "newAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "readableRows": 3
+      },
+      {
+        "field": "dataOperateModId",
+        "newAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "readableRows": 3
+      }
+    ],
+    "createAllowedWithoutOwner": false,
+    "saveAttempted": false
+  },
+  "after": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 9,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "kind": "native-workflow-ownership-probe",
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "workflowId": "CA2428C178AC4E088D2E573263AC0F08",
+        "nodes": 3,
+        "edges": 2,
+        "localCreateCancel": {
+          "ownerDefaultMatches": true,
+          "cancelRestored": true,
+          "before": 3,
+          "after": 3,
+          "saveAttempted": false
+        },
+        "nodeOwnerColumn": true,
+        "nodeOwnerProjected": false,
+        "nodeAdd": "enabled",
+        "nodeOwnerCreateAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "edgeOwnerCreateAccess": {
+          "read": "visible",
+          "write": "allowed",
+          "required": false,
+          "component": "editable",
+          "writeMode": "editable"
+        },
+        "nodeFields": [
+          {
+            "field": "rowid",
+            "newAccess": {
+              "read": "visible",
+              "write": "denied",
+              "required": false,
+              "component": "readonly",
+              "writeMode": "readonly"
+            },
+            "readableRows": 3
+          },
+          {
+            "field": "workflow_id",
+            "newAccess": {
+              "read": "visible",
+              "write": "allowed",
+              "required": false,
+              "component": "editable",
+              "writeMode": "editable"
+            },
+            "readableRows": 3
+          },
+          {
+            "field": "name",
+            "newAccess": {
+              "read": "visible",
+              "write": "allowed",
+              "required": false,
+              "component": "editable",
+              "writeMode": "editable"
+            },
+            "readableRows": 3
+          },
+          {
+            "field": "node_type",
+            "newAccess": {
+              "read": "visible",
+              "write": "allowed",
+              "required": false,
+              "component": "editable",
+              "writeMode": "editable"
+            },
+            "readableRows": 3
+          },
+          {
+            "field": "node_config",
+            "newAccess": {
+              "read": "visible",
+              "write": "allowed",
+              "required": false,
+              "component": "editable",
+              "writeMode": "editable"
+            },
+            "readableRows": 3
+          },
+          {
+            "field": "config",
+            "newAccess": {
+              "read": "visible",
+              "write": "allowed",
+              "required": false,
+              "component": "editable",
+              "writeMode": "editable"
+            },
+            "readableRows": 3
+          },
+          {
+            "field": "dataOperateModId",
+            "newAccess": {
+              "read": "visible",
+              "write": "allowed",
+              "required": false,
+              "component": "editable",
+              "writeMode": "editable"
+            },
+            "readableRows": 3
+          }
+        ],
+        "createAllowedWithoutOwner": false,
+        "saveAttempted": false
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "success": true,
+        "diagnostics": [],
+        "views": [
+          {
+            "table": "Base_WorkflowDefinition",
+            "view": "default",
+            "rows": 1,
+            "total": 1,
+            "state": 3
+          },
+          {
+            "table": "Base_WorkflowNodeDefinition",
+            "view": "default",
+            "rows": 3,
+            "total": 3,
+            "state": 3
+          },
+          {
+            "table": "Base_WorkflowConnectors",
+            "view": "default",
+            "rows": 2,
+            "total": 2,
+            "state": 3
+          },
+          {
+            "table": "WorkflowLayout",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_DataModel",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_DataModel_Field",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_DataModel_Relation",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_DataModel_Relation",
+            "view": "asParent",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_DataModel_Relation",
+            "view": "asChild",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          }
+        ]
+      }
+    ]
+  },
+  "scope": {
+    "backendChanges": 0,
+    "permissionChanges": 0,
+    "persistedWorkflowNodes": 0,
+    "workflowExecutions": 0
+  },
+  "limits": [
+    "ownership projection remains absent in current page queryConfig",
+    "no browser node-save/reopen lifecycle tested",
+    "createAllowedWithoutOwner is policy, not measured service create",
+    "readableRows counts field access, not presence of returned values"
+  ]
+}

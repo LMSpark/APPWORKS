@@ -5164,3 +5164,17 @@ flowchart LR
 本轮下一动作：核机器清单覆盖性及文档一致性→保存并推送本检查点→下一执行轮从“数据工作流：节点语义及正式服务可行性”第一项开始。当前源码无未提交实施；本轮选择器回显只完成调查，未生成新业务补丁。全目标active。
 
 **本轮方案审查与交付记录。**高阶模型完成分析及写入后的只读复核，未发现阻止执行的重大问题。已采纳两项收紧：字典822/130/32/98的历史证据含义明确，原生与四文件验收分列且绑定具体页面/消费者。机器附件逐项覆盖116参考Vue、42蓝图URL、37注册项、96当前Vue及16场景，均有工位工作包归属；非feature项仍保留细分裁决状态，不因此算完成。20工作包及9工位数量已核。`pnpm run verify:docs`通过（563文件），`pnpm run verify:pages-config`通过，生产/测试/配置源码变化为0；不以这两项检查冒充业务实服验收。复核证据 `evidence/data-chain-smoke/2026-11-02-appworks-ai-production-plan-audit.json`。按已授权提交推送本方案，下一轮从数据工作流完整语义/服务工位开始；全目标继续active。
+
+#### 2026-11-02 工作流语义工位与节点归属断链实服修复
+
+以固定参考提交1147b00ee为准完成高阶模型只读分析，范围为数据工作流，不混入审批流。参考 DataWorkFlowDesign.ts、use-workflow-design-page.ts、节点/边面板与 runtime-api.ts。节点边界由position_type（0开始、1普通、2结束）确定；普通编辑类型为query/copy/add/edit/delete/merge。query/copy的node_config是查询模型ID，增改删用dataOperateModId；copy的config表达目标库表且执行会写数据；merge使用input_mapping树及output_mapping，不能按普通模型节点处理。api_call仅见类型/历史入口，普通编辑及已部署执行能力仍待核实，不自动改写历史节点。
+
+开始参数实际承接Base_DataSet（rowid=流程ID、Type=workflow、inputParams），须保留Description、ValueFun及额外字段，不能照搬参考清空字段行为。连接器sourceID/targetID是节点ID；参考条件使用Base_DataModel_Relation的parentModId/childModId匹配节点端点。当前asParent/asChild的模型关系视图继续保留，不能全局改成节点条件或擅自重挂历史关系。参考装载时隐式创建缺失DataSet/边界、删除节点时直接删除关联模型、AI应用时跳过不支持项等行为均不作为目标要求。布局仍独立文件提交；单节点及全流程test端点可能执行真实写入，不作为只读烟测调用。本地Java只支持源码判断，本轮未修改、运行或部署Java，未调用执行端点。
+
+**正式服务事实。**设计场景0DD8D28D462F51C5790AA6FBFAE39366中Base_DataSet正式模型6ef78ae1-e97e-4749-8f3a-5b2f01ba0995已经存在；抽查流程CA2428C178AC4E088D2E573263AC0F08有同ID的workflow记录，inputParams为有效JSON数组（不保存业务参数值）。该流程查询返回3节点、2连线；按dataSetId查询模型关系返回0条，不能据此捏造条件配置。当前pagedata尚未接入Base_DataSet。
+
+**已修复一处真实断链。**节点正式模型7d1d8b43-7067-4f80-99d8-11dabd683b2a的workflow_id字段FC441DFADA6B66DD4F2C945C13FDC6C6原IsOutput=0，导致装配缺列、新增字段访问denied，原DataView无法派生查询归属默认值。预检6次读取、0写入，精确核对场景/模型/字段及原IsOutput修改权限；用户明确授权后，仅经原元数据DataSet将该字段IsOutput改为1，1次写请求、16次读取，独立实例及正式模型均确认输出已开启。无权限规则修改、无后端修改、无未知结果、无重放。
+
+新建运行实例实服回读（9次读取、0写）确认归属列存在、新增字段访问allowed。再独立实服查询（9读、0写）后执行原DataView内存addRow：未手传workflow_id，原查询默认值自动填当前流程ID；discardPendingChanges取消后恢复原3节点、脏状态清空。未保存任何节点、未执行工作流，不能将此核销为节点CRUD或整页验收。原页queryConfig仍未显式投影workflow_id；历史output=false夹具仍有回归价值，不据本次数据修复删除拒绝测试。探针readableRows表示字段访问计数，不证明响应值存在；createAllowedWithoutOwner为策略标记，不是实服创建结果。
+
+证据：`evidence/data-chain-smoke/2026-11-02-workflow-owner-output-repair-audit.json`。本轮生产源码未改；下一步按完整用例补节点归属投影、开始参数/节点源与输出/条件的原DataView配置及测试，删除过时缺口提示前先落实对应能力，再做明确范围的真实保存/重开/清理。原5条编码初始化临时记录此前已验并清理，不重复创建。SaveView未知结果仍按原记录禁止重放。全目标继续active。

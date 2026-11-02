@@ -6,8 +6,9 @@
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import {buildWorkflowQueryOutput} from './query-output'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {validateWorkflowQueryInputChanges} from './query-inputs'
 
-const allowed=new Set(['description','AsName','IsOutput','OrderType','Order','Group'])
+const allowed=new Set(['description','AsName','IsOutput','OrderType','Order','Group','ValueFun'])
 const projectionFields=['rowid','dataSetId','dataModelId','type','Name','AsName','FieldType','description','IsOutput','IsPKey']
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`查询字段配置不可读: ${field}`)
@@ -37,6 +38,13 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  if(!node||models.rows.length!==1||!model||read(nodes,node,'workflow_id')!==workflowId||read(nodes,node,'node_type')!=='query')throw Error('当前不是所属工作流的唯一查询节点模型')
  const modelId=read(nodes,node,'node_config')
  if(typeof modelId!=='string'||!modelId||models.getPkKey(model)!==modelId||read(models,model,'dataSetId')!==workflowId)throw Error('查询模型归属不符')
+ if([fields,nodes,models].some(view=>view.hasUnconfirmedSave)){
+  if(action==='cancel')throw Error('请先核验查询配置原提交')
+  return dataSet.saveChanges({views:[fields,nodes,models].map(view=>({tableName:view.tableName,viewId:view.viewId}))})
+ }
+ const modelPatch=changes(models,model,modelId),modelChanged=Object.keys(modelPatch).length>0
+ if(Object.keys(modelPatch).some(field=>!['Filter','description'].includes(field)))throw Error('请先处理查询模型的其他定义修改')
+ if(action==='save')for(const field of Object.keys(modelPatch))if(models.fieldAccess(model,field).write!=='allowed')throw Error(`查询模型字段不可修改: ${field}`)
  if(fields.dirtyTracking.pendingCreateIds.size||fields.dirtyTracking.pendingDeleteIds.size)throw Error('字段新增和删除须先完成专用引用命令')
  const projected=fields.rows.map(row=>{
   const id=fields.getPkKey(row)
@@ -57,11 +65,12 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
   return id
  })
  const targets={views:[{tableName:fields.tableName,viewId:fields.viewId,ids:selected.map(item=>item.id)},
-  {tableName:nodes.tableName,viewId:nodes.viewId,ids:nodeIds}]}
- if(fields.hasUnconfirmedSave||nodes.hasUnconfirmedSave){if(action==='cancel')throw Error('请先核验查询配置原提交');return dataSet.saveChanges(targets)}
+  {tableName:nodes.tableName,viewId:nodes.viewId,ids:nodeIds},{tableName:models.tableName,viewId:models.viewId,ids:modelChanged?[modelId]:[]}]}
  const pendingOutputs=affected.some(row=>Object.hasOwn(changes(nodes,row,String(nodes.getPkKey(row))),'output_mapping'))
- if(action==='cancel'&&!pendingOutputs){fields.discardPendingChanges(selected.map(item=>item.id));return}
- if(!selected.length&&!pendingOutputs)return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:[]}]})
+ if(action==='cancel'&&!pendingOutputs){fields.discardPendingChanges(projected.map(item=>item.id));models.discardPendingChanges([modelId]);return}
+ if(!selected.length&&!pendingOutputs&&!modelChanged)return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:[]}]})
+ const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.effective['ValueFun'])
+ if(action==='save'&&(values.length||Object.hasOwn(modelPatch,'Filter')))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(modelPatch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}: {}})
  const structural=selected.some(item=>Object.hasOwn(item.patch,'AsName')||Object.hasOwn(item.patch,'IsOutput'))
  if(action==='save'&&structural&&edges.rows.some(row=>nodeIds.includes(String(read(edges,row,'sourceID')))))throw Error('当前查询输出存在下游连接；下游引用迁移尚未核定，原草稿保留')
  const outputs=affected.flatMap(row=>{
@@ -76,10 +85,11 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
   if(action==='save'&&nodes.fieldAccess(row,'output_mapping').write!=='allowed')throw Error('当前查询不允许同步节点输出')
   return [{id,output}]
  })
- if(action==='cancel'){nodes.discardPendingChanges(outputs.map(item=>item.id));fields.discardPendingChanges(selected.map(item=>item.id));return}
+ if(action==='cancel'){nodes.discardPendingChanges(outputs.map(item=>item.id));fields.discardPendingChanges(projected.map(item=>item.id));models.discardPendingChanges([modelId]);return}
  // 原字段覆盖仍由DataSet统一校验应用；先检查所有节点后才暂存派生输出。
  fields.assertQuerySaveColumns({ids:selected.map(item=>item.id),includeEditingRows:true})
+ if(modelChanged)models.assertQuerySaveColumns({ids:[modelId],includeEditingRows:true})
  for(const item of outputs)nodes.updateEditingValue(item.id,'output_mapping',item.output)
  return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:selected.map(item=>item.id)},
-  {tableName:nodes.tableName,viewId:nodes.viewId,ids:outputs.map(item=>item.id)}]})
+  {tableName:nodes.tableName,viewId:nodes.viewId,ids:outputs.map(item=>item.id)},targets.views[2]??{tableName:models.tableName,viewId:models.viewId,ids:[]}]})
 }

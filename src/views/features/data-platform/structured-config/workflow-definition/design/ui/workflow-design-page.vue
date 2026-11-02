@@ -60,6 +60,9 @@
             <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
             <section v-if="validModel">
               <h2>模型配置</h2>
+              <WorkflowQueryConfiguration v-if="isQueryNode && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
+                :node-id="selectedQueryId" :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('query.'+key,value)" />
+              <template v-else>
               <RendererForm :data-view-key="modelKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
                 <FieldText field="Name" label="模型名称" :readonly="true" />
                 <FieldText field="MetaName" label="来源资源" :readonly="true" />
@@ -70,8 +73,9 @@
               <RendererButton label="取消模型说明修改" :disabled="busy || unconfirmed" @click="cancel(modelTable)" />
               <h3>字段与参数</h3>
               <RendererTable :data-view-key="fieldsKey" :children="modelFields" :highlight-current-row="true" />
-              <RendererButton :label="isUnconfirmed(fieldsTable) || isQueryNode && isUnconfirmed(nodesTable) ? '核验查询字段保存结果' : '保存字段配置'" :disabled="busy || pendingPart('nodes')" @click="saveFields" />
-              <RendererButton label="取消字段配置修改" :disabled="busy || unconfirmed" @click="cancelFields" />
+              </template>
+              <RendererButton :label="isQueryNode ? (isUnconfirmed(fieldsTable) || isUnconfirmed(nodesTable) || isUnconfirmed(modelTable) ? '核验查询配置保存结果' : '保存查询配置') : '保存字段配置'" :disabled="busy || pendingPart('nodes') || pendingPart('query')" @click="saveFields" />
+              <RendererButton :label="isQueryNode ? '取消查询配置修改' : '取消字段配置修改'" :disabled="busy || unconfirmed" @click="cancelFields" />
               <h3>作为父模型的原服务关系</h3>
               <RendererTable :data-view-key="parentRelationsKey" :children="relationFields" />
               <h3>作为子模型的原服务关系</h3>
@@ -121,6 +125,7 @@ import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowco
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
+import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
 const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
@@ -179,18 +184,14 @@ const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;i
 const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
 const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
 const isQueryNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='query'})
-function queryFieldReadonly(row:Readonly<DataRow>,primary=false):boolean{
- const target=view(fieldsTable)
- return locked.value||!isQueryNode.value||!target||target.fieldAccess(row,'type').read!=='visible'||row['type']!=='dataModel'
-  ||primary&&(target.fieldAccess(row,'IsPKey').read!=='visible'||Number(row['IsPKey'])===1)
-}
+const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
 const modelFields=computed<SparkNode[]>(()=>[
  {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
- {type:'r-text',props:{field:'AsName',label:'输出名称',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row)}},
- {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row,true)}},
+ {type:'r-text',props:{field:'AsName',label:'输出名称',readonly:true}},
+ {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0,readonly:true}},
  ...Object.entries({type:'分类',FieldType:'字段类型',description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,showCellControl:field==='description',cellReadonly:()=>field!=='description'||locked.value}})),
- {type:'r-select',props:{field:'OrderType',label:'排序方向',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row),options:[{label:'不排序',value:''},{label:'升序',value:'ascending'},{label:'降序',value:'descending'}]}},
- ...Object.entries({Order:'排序顺序',Group:'分组标记'}).map(([field,label])=>({type:'r-number',props:{field,label,showCellControl:true,step:1,precision:0,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row)}})),
+ {type:'r-text',props:{field:'OrderType',label:'排序方向',readonly:true}},
+ ...Object.entries({Order:'排序顺序',Group:'分组标记'}).map(([field,label])=>({type:'r-number',props:{field,label,readonly:true}})),
 ])
 const relationFields:SparkNode[]=Object.entries({parentModId:'父模型',childModId:'子模型',depType:'原服务关系类型',filter:'原服务条件',description:'说明'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
 const layoutRow=computed(()=>{revision.value;return view(layoutTable)?.rows[0]})

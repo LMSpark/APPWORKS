@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-data:query/data-view-option-catalog",
+    "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts",
+    "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
+    "packageName": "@spark-appworks/spark-data",
+    "modulePath": "query/data-view-option-catalog",
+    "jsdoc": "@module @spark-appworks/spark-data:query/data-view-option-catalog\n职责：为标准组件提供本次实例的派生选项目录视图，不复制正式业务记录或保存草稿。\n边界：调用方从当次可读定义投影value/label；失效时清空，释放仅删除自有目录。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewOptionCatalog"
+    ]
+  },
+  "$defs": {
+    "DataViewOptionCatalog": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewOptionCatalog",
+      "properties": {
+        "view": {
+          "$ref": "../data-view.ts.json#/$defs/DataView"
+        },
+        "dataViewKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "$ref": "../dataset.ts.json#/$defs/DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replace.params": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "value": {
+                    "type": "string"
+                  },
+                  "label": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "value",
+                  "label"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replace.return": true,
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T21:41:58.255Z",
+  "models": {
+    "DataViewOptionCatalog": {
+      "name": "DataViewOptionCatalog",
+      "jsdoc": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(dataSet: DataSet)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet",
+                "sourcePath": "packages/spark-data/src/dataset.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "replace",
+              "jsdoc": "候选未变时不替换视图，避免使标准编辑器会话无故失效；只接受字符串身份与标题。",
+              "parameters": [
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "{\n        value: string;\n        label: string;\n    }"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放本次自有目录，保留原模型、视图和所有业务草稿。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

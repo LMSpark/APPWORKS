@@ -1,7 +1,7 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
-import {DataView} from '@spark-appworks/spark-data'
+import {DataView,DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
@@ -29,6 +29,26 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it('saves source ValueFun and model Filter together, recovers the original unknown batch before changed ancestor validation, and cancels both scopes',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',node_config:'',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},
+   {rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'查询',output_mapping:JSON.stringify([{rowid:'ITEMS',pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false},{rowid:'F1',pid:'ITEMS',Name:'code',Description:'编码',FieldType:'varchar',isParent:false}]),input_mapping:'keep input',config:'keep config'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'N1'}]
+  http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',Name:'code',AsName:'',type:'dataModel',FieldType:'varchar',description:'编码',IsOutput:1,IsPKey:0,ValueFun:''},
+   {rowid:'INPUT',dataSetId:'W1',dataModelId:'M1',Name:'request',AsName:'',type:'inputParams',FieldType:'varchar',description:'来源入参',IsOutput:0,IsPKey:0,ValueFun:''}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  const filter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:{Type:'GetInputParam',ParamName:'START.code'}}))
+  fields.updateEditingValue('INPUT','ValueFun',JSON.stringify({Type:'GetConstValue',Value:0}));models.updateEditingValue('M1','Filter',filter)
+  http.failAfterWrite=true;await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
+  const writes=http.saves.length;expect(writes).toBe(2)
+  http.failAfterWrite=false;edges.replaceRows([]);edges.total=0
+  await saveWorkflowQueryFields(ds,'W1','N1');expect(http.saves).toHaveLength(writes)
+  expect(http.records['Base_DataModel']![0]?.['Filter']).toBe(filter)
+  expect(http.records['Base_DataModel_Field']!.find(row=>row['rowid']==='INPUT')?.['ValueFun']).toBe(JSON.stringify({Type:'GetConstValue',Value:0}))
+  expect(http.records['Base_WorkflowNodeDefinition']![1]).toMatchObject({input_mapping:'keep input',config:'keep config'})
+  models.updateEditingValue('M1','Filter','');fields.updateEditingValue('INPUT','ValueFun',JSON.stringify({Type:'GetConstValue',Value:false}))
+  await cancelWorkflowQueryFields(ds,'W1','N1');expect(models.hasEditingChanges()).toBe(false);expect(fields.hasEditingChanges()).toBe(false)
+ })
  it('saves selected field changes and every shared query-node output while preserving other node drafts',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   const mapping=(root:string)=>JSON.stringify([{rowid:root,pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true},

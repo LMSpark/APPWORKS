@@ -66,6 +66,32 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.fields.params": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "array",
+              "items": {
+                "$ref": "../../types.ts.json#/$defs/DataColumn"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fields.return": {
+          "type": "array",
+          "items": {
+            "allOf": [
+              {
+                "$ref": "data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+              },
+              {
+                "type": "object",
+                "title": "Pick<DataColumn, 'label'>"
+              }
+            ]
+          }
+        },
         "method.editorContext.params": {
           "type": "object",
           "properties": {
@@ -183,7 +209,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.190Z",
+  "generatedAt": "2026-11-02T21:23:29.458Z",
   "models": {
     "DataViewFilterParseResult": {
       "name": "DataViewFilterParseResult",
@@ -218,6 +244,47 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "fields",
+              "jsdoc": "由原字段元信息生成编辑校验目录；计算字段不作为来源查询条件，标签保留。",
+              "parameters": [
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataColumn[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "array",
+                "elementType": {
+                  "type": "intersection",
+                  "types": [
+                    {
+                      "type": "reference",
+                      "name": "DataViewFilterField",
+                      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
+                    },
+                    {
+                      "type": "reference",
+                      "name": "Pick",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "DataColumn",
+                          "sourcePath": "packages/spark-data/src/types.ts"
+                        },
+                        {
+                          "type": "literal",
+                          "value": "label"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            },
             {
               "name": "editorContext",
               "jsdoc": "为定义编辑器合并内置系统参数与调用方候选，复用同一值函数目录。\n同名内置参数保留标准定义；显式函数覆盖（包括禁用声明）保留给下游，重复装配不扩大候选范围。\n@param context 调用方的模型、字段、参数及扩展函数上下文。\n@returns 保留扩展能力和候选的编辑上下文，不执行值函数或授予数据权限。",

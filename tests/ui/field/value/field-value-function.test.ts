@@ -40,6 +40,18 @@ async function fixture(value:unknown = '{"Type":"GetApiPublicParam","ParamName":
   wrappers.push(wrapper); await flushPromises(); return {wrapper, view, readonly, opened, functionContext, optionKey, valueFormat, params: ds.getView('Params')!}
 }
 describe('standard value function field', () => {
+  it('discards only the bound row dialog and rejects its late confirmation',async()=>{
+    const f=await fixture('',true)
+    await f.wrapper.findAll('[data-function-open]')[1]!.trigger('click');await flushPromises()
+    const dialog=f.wrapper.getComponent(FilterValueFunctionDialog)
+    const stale=dialog.vm.$.vnode.props?.['onConfirm'];if(typeof stale!=='function')throw Error('Missing confirm handler')
+    f.view.discardPendingChanges(['a']);await flushPromises()
+    expect(f.wrapper.findComponent(FilterValueFunctionDialog).exists()).toBe(true)
+    f.view.discardPendingChanges(['b']);await flushPromises()
+    expect(f.wrapper.findComponent(FilterValueFunctionDialog).exists()).toBe(false)
+    await stale({Type:'GetConstValue',Value:'discarded'});await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
   it('combines readable bound inputs with declared node inputs by exact value, keeping bound labels and rejecting stale removed definitions',async()=>{
     const f=await fixture()
     f.functionContext.value={inputParams:[{value:'local',label:'节点入参'},{value:'access_token',label:'旧标题'}]};await flushPromises()

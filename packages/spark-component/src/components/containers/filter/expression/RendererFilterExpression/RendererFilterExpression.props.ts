@@ -23,6 +23,8 @@ export type RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpress
   columns: readonly DataColumn[]
   /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */
   functionContext?: DataViewFilterFunctionContext
+  /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */
+  inputParameterDataViewKey?: string
   /** 最大嵌套层数；省略沿用公共编辑器默认值。 */
   maxDepth?: number
   /** 最大条件数；省略沿用公共编辑器默认值。 */

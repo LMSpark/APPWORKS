@@ -5,8 +5,10 @@
  * AI用途：构造、序列化和校验完整字段过滤树。
  */
 import { DATA_VIEW_FILTER_OPERATORS, getDataViewFilterFieldOperators, getDataViewFilterFunctionDefinitions, isUnaryDataViewFilterOperator } from './data-view-filter-catalog'
+import type {DataColumn} from '../../types'
 import type {
   DataViewFilterCondition,
+  DataViewFilterField,
   DataViewFilterGroup,
   DataViewFilterFunctionContext,
   DataViewFilterFunctionTableField,
@@ -130,6 +132,15 @@ function readNode(input: unknown, context: FilterReadContext): DataViewFilterTre
 
 /** 不可变的 SPARK 公开过滤树；解析失败不代表清空，也不产生可查询的部分树。 */
 export class DataViewFilter {
+  /** 由原字段元信息生成编辑校验目录；计算字段不作为来源查询条件，标签保留。 */
+  static fields(columns:readonly DataColumn[]):ReadonlyArray<DataViewFilterField & Pick<DataColumn,'label'>>{
+    return columns.filter(column=>!column.isComputed&&!column.computeExpression).map(column=>{
+      const type=column.type
+      const fieldType:DataViewFilterField['type']=['number','int','integer','decimal','float','double'].includes(type)?'number'
+        :type==='boolean'||type==='bool'?'boolean':type==='date'?'date':type==='datetime'?'datetime':type==='enum'?'select':'text'
+      return {name:column.name,type:fieldType,...column.label===undefined?{}:{label:column.label}}
+    })
+  }
   /**
    * 为定义编辑器合并内置系统参数与调用方候选，复用同一值函数目录。
    * 同名内置参数保留标准定义；显式函数覆盖（包括禁用声明）保留给下游，重复装配不扩大候选范围。

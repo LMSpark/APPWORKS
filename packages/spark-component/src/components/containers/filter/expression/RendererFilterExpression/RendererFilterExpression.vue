@@ -20,10 +20,12 @@ import {useDataViewEventBridge} from '../../../runtime/useDataViewEventBridge'
 import {resolveDataViewEditingRow, writeDataViewEditingValue} from '../../../../fields/context/dataViewEditing'
 import FilterExpressionEditor from '../FilterExpressionEditor/FilterExpressionEditor.vue'
 import type {RFilterExpressionProps} from './RendererFilterExpression.props'
+import {useInputParameterFunctionContext} from '../../../../fields/options/useInputParameterFunctionContext'
 
 const props = withDefaults(defineProps<RFilterExpressionProps>(), {type: 'r-filter-expression', format: 'tree', display: 'dialog', displayMode: 'box', clearable: undefined})
+const inputContext=useInputParameterFunctionContext(props)
 const editorOptions = computed(() => ({
-  functionContext: DataViewFilter.editorContext(props.functionContext),
+  functionContext: DataViewFilter.editorContext(inputContext.value),
   ...(props.placeholder === undefined ? {} : {placeholder: props.placeholder}),
   ...(props.title === undefined ? {} : {title: props.title}),
   ...(props.clearable === undefined ? {} : {clearable: props.clearable}),
@@ -82,8 +84,8 @@ const parsed = computed(() => {
 const problem = computed(() => aggregateError.value?.message || (!resolvedView.value || identity.value === undefined ? '过滤定义未绑定有效数据行'
   : !resolvedView.value.columns.some(column => column.name === props.field) ? `过滤定义字段不存在：${props.field}` : accessState.value.error || parsed.value.error))
 watch([resolvedView, identity, rawValue, editable, () => props.field, () => props.format,
-  () => props.display], invalidate, {deep: true, flush: 'sync'})
-watch([() => props.columns, () => props.functionContext, () => props.maxDepth, () => props.maxRules], () => {
+  () => props.display, () => props.inputParameterDataViewKey], invalidate, {deep: true, flush: 'sync'})
+watch([() => props.columns, inputContext, () => props.maxDepth, () => props.maxRules], () => {
   candidateRevision.value++; error.value = ''
 }, {deep: true, flush: 'sync'})
 const applyForRevision = computed(() => {

@@ -3,7 +3,7 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,FieldJson,RendererButton,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,RendererButton,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
@@ -27,6 +27,39 @@ async function open(workflowId='W1'){
  return {wrapper,router,click}
 }
 describe('workflow formal design page',()=>{
+ it('binds query conditions and source value functions to the original views with a shared input catalog',async()=>{
+  config.global.stubs={...config.global.stubs,JsonTreeEditor:true}
+  state.http.records['Base_WorkflowConnectors']=[]
+  Object.assign(state.http.records['Base_DataModel']![0]!,{Type:'数据库',Filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:0}))})
+  Object.assign(state.http.records['Base_DataModel_Field']![0]!,{type:'dataModel',FieldType:'int',IsOutput:0,AsName:'',ValueFun:''})
+  state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([
+   {rowid:'ITEMS',pid:null,Name:'items',FieldType:'Array',isParent:true},
+   {rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},
+  ])
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererFilterExpression).exists()).toBe(true))
+  const filter=f.wrapper.getComponent(RendererFilterExpression),value=f.wrapper.findAllComponents(FieldValueFunction)[0]!
+  expect(filter.props('dataViewKey')).toBe(`${WORKFLOW_DESIGN}@Base_DataModel@default`)
+  expect(filter.props('field')).toBe('Filter');expect(filter.props('format')).toBe('spark-json')
+  expect(filter.props('inputParameterDataViewKey')).toMatch(new RegExp(`^${WORKFLOW_DESIGN}@optionCatalog_`))
+  expect(value.props('inputParameterDataViewKey')).toBe(filter.props('inputParameterDataViewKey'))
+  expect(f.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='保存查询配置')).toBe(true)
+  expect(f.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='保存模型说明')).toBe(false)
+  expect(state.http.saves).toEqual([])
+  const fieldTable=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_DataModel_Field@'))!
+  await fieldTable.get('tbody tr').trigger('click');await flushPromises()
+  await fieldTable.get('[data-function-open]').trigger('click');await flushPromises()
+  expect(f.wrapper.findAllComponents(FilterValueFunctionDialog).some(dialog=>dialog.props('modelValue'))).toBe(true)
+  await f.click('取消查询配置修改')
+  expect(f.wrapper.findAllComponents(FilterValueFunctionDialog).some(dialog=>dialog.props('modelValue'))).toBe(false)
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  await filter.get('input[aria-label="数字常量"]').setValue('3');await flushPromises()
+  expect(state.dirty[0]?.isDirty).toBe(true)
+  await f.click('取消查询配置修改')
+  expect(filter.get('input[aria-label="数字常量"]').element).toHaveProperty('value','0')
+  expect(state.dirty[0]?.isDirty).toBe(false);expect(state.http.saves).toEqual([])
+ })
  it('selects a native source, cancels its preview and creates the query model, fields and node through the same runtime',async()=>{
   state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
   state.http.records['View_TblList']=[{rowid:'T1',tblname:'Orders',tbldesc:'订单',dbid:'DB1',DbName:'main'}]
@@ -221,7 +254,7 @@ describe('workflow formal design page',()=>{
   const nodeName=f.wrapper.findAllComponents(FieldText).find(field=>field.props('dataViewKey')?.includes('@Base_WorkflowNodeDefinition@')&&field.props('field')==='name')!
   await nodeName.get('input').setValue('未保存节点名称');await flushPromises()
   const description=fields.findAllComponents(FieldText).find(field=>field.props('field')==='description'&&field.find('input').exists())!
-  await description.get('input').setValue('正式字段说明');await flushPromises();await f.click('保存字段配置')
+  await description.get('input').setValue('正式字段说明');await flushPromises();await f.click('保存查询配置')
   expect(state.http.saves.map(s=>s.table)).toEqual(['Base_DataModel_Field'])
   expect(state.http.records['Base_DataModel_Field']?.find(row=>row['rowid']==='F2')?.['Name']).toBe('target')
   expect(state.http.records['Base_WorkflowNodeDefinition']?.find(row=>row['rowid']==='N1')?.['name']).toBe('查询订单')

@@ -110,12 +110,7 @@ export class FilterExpressionEditorDraft {
 
   /** 查询条件只选择来源字段；框架标识与读取后计算的值不作为查询输入，旧条件保留原文并由校验诊断。 */
   static fields(columns: readonly Data.DataColumn[]): ReadonlyArray<Data.DataViewFilterField & Pick<Data.DataColumn, 'label'>> {
-    return columns.filter(column => !column.isComputed && !column.computeExpression).map(column => {
-      const type = column.type
-      const fieldType: Data.DataViewFilterField['type'] = ['number', 'int', 'integer', 'decimal', 'float', 'double'].includes(type) ? 'number'
-        : type === 'boolean' || type === 'bool' ? 'boolean' : type === 'date' ? 'date' : type === 'datetime' ? 'datetime' : type === 'enum' ? 'select' : 'text'
-      return { name: column.name, type: fieldType, ...(column.label === undefined ? {} : {label: column.label}) }
-    })
+    return DataViewFilter.fields(columns)
   }
 
   /** 从已有正式树创建独立草稿；缺失树或单条件用临时根组承接编辑。 */

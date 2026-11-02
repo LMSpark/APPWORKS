@@ -4568,3 +4568,16 @@ flowchart TD
 - 最终业务影响relation-identity-app-final.log7文件225项全部通过，包含37项首次级联等待回归，不重复累计。首轮verify（65847）在消费者台账过期退出1，未运行build；变更只是测试/源码行号移动，正式generate:lowcode-contracts刷新仍611端点/200消费者，无新后端协议。已在源码稳定后串行ClassModel→verify→build（99235）最终验证，不能以首轮部分通过代替。
 - 最终门禁99235退出0：正式消费者台账刷新、ClassModel编译生成、全仓verify与串行build均通过（relation-identity-*-final.log）；既有2项AI模型告警及动态导入提示保留。API30文件1213项、数据47文件1029项、业务7文件225项最终通过，局部174/37等不重复累计。
 - 浏览器只作能力复查：读computer-use技能后，cua.getState仍明确browser access host unavailable，browsers=[]；未导航、未输入登录、未宣称浏览器整页通过，未用其它浏览器自动化旁路。当前14条空过滤、33处字典下游及其余全架构未闭合项继续开放。本批仅改公共错误定位/首次级联等待并持久化只读证据，准备提交推送origin/1031。
+
+## 2026-11-02 全部可见字典模型运行查询核查
+
+- 上轮为progress：072a65f23已推送origin/1031，起始工作区干净。32项存量来源修复仍待业务身份确认，本轮不视为已批准，不改后端或正式记录。刷新当前正式元模型9页，dictionary-runtime-full-inventory-live.json得到822唯一模型ID及822唯一空间/Name查询身份，服务端总数一致。
+- 以原DataSpaceRuntimeApi.query正式模型名/空间执行，每目标pageSize=1，记录countReported/returned/total及错误；只验证运行读管线，不声称条目全量、DataView整页、写入或浏览器通过。目标fields=[]仅控制诊断输出不记录条目内容，不改正式模型字段；所有查询仍走当次服务端授权结果。
+- 3路独立只读批次，每批30模型落到dictionary-runtime-full-<offset>-live.json，后台job避免工具超时丢证；白名单守卫允许已核读端点，任何未知写端点在发送前拒绝。批次初查540目标468成功/72失败，成功均有真实服务端总数；最终计数待任务终态，不把已读样本外推822全部通过。
+- 新增失败类型包括名称回退找不到字典及“不安全的模型表名”；样本含modelName=工单优先级选项/sourceName=work-item-priority，以及多个PMP-CRM前缀字典。当前是服务实际拒绝，尚不将连字符相关性推断为完整校验规则，不改名、不改写协议、不放宽守卫。读取范围包括当前授权可见历史/其他应用模型，不能直接将全部失败计作APPWorks当前发布页故障；需结合正式归属与入口消费继续分类。
+- 全部28批已终态完成：822查询、692成功（687有数据/5空结果，均countReported=true）、130失败；白名单822读取/0写入/0阻断。失败逐项保留：EBEFF17…来源32、Dic_Test1、workflowStatus名称回退1、不安全模型表名96；无瞬时错误重试覆盖首轮。持久证据evidence/data-chain-smoke/2026-11-02-dictionary-runtime-full-audit.json保存822身份/结果、28批SHA256、分类及限制，不保存条目内容。
+- unsafe-sources-live.json精确查96拒绝模型的39个不同来源ID，39条均存在且TypeName逐项匹配MetaName；96个sourceName都含连字符。只能证明当前执行拒绝与现存来源共存，不能据此猜完整校验规则、宣布漏洞、在前端转义/重命名规避或修改Java。解决方向是由实际服务责任方核定字典语义资源标识与安全检查合同；本仓保留现有守卫及错误，不发明后端协议。
+- workflowStatus缺口须与物理缺失分开：missing-name-live.json找到F64D7DC20CA14DC99C6729DEA36C63D6正式定义；8B83B0C8F01244298C28BEA2BCE2583F下模型7D9D244F0F8F4965B7FD969545691002的DbId为空且运行报未找到。同名且DbId同样为空的其它3模型可成功，故不能泛化为空ID必错。workflow-status-recheck-live.json独立复核该失败及两组对照，失败仍在，对照各2条；身份/服务缓存/部署差异原因仍未证实，不自动重挂此模型。
+- 范围纠偏：当前15份config/pages正式pagedata所涉20个字典模型全部实际查询成功，130失败没有落在此20模型；不证明15页完整验收、所有发布节点或其它来源通过。仅对publishedNodeIds直接相同身份的交集另查7模型无失败，该交集不替代导航→场景映射验收。历史/其它应用来源仍属平台消费缺口，按实际入口归属继续核查。
+- 后续方案：32项仅在用户确认候选业务来源后，按原元数据DataView权限/保存/回读修正；Dic_Test无来源不造字典或删除引用；workflowStatus保留精确失败/对照待服务归属核定；96项不做前端旁路。独立的已批准前端整页恢复继续推进，不以这些待核项阻止其它工作，也不把它们改称已通过。
+- 本轮源码/测试与072a65f23一致，仅证据和唯一台账变更。dictionary-runtime-full-verify.log全仓verify由24004退出0确认，既有2项AI模型警告保留；无公开源码变更不重建ClassModel或重复构建。最后证据/文档检查后按授权提交推送，整体目标继续活动。

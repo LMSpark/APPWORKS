@@ -109,6 +109,7 @@ describe('data-code list page', () => {
   })
 
   it('opens a new design target in the same catalog dialog', async () => {
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor')
     const {wrapper, router} = await openList()
     await wrapper.findAll('button').find(b => b.text() === '新增编码')!.trigger('click')
     await flushPromises()
@@ -116,6 +117,21 @@ describe('data-code list page', () => {
     expect(router.currentRoute.value.path).toBe('/code')
     expect(wrapper.getComponent(DataCodeEditor).props('applicationId')).toBe('TARGET')
     expect(wrapper.getComponent(DataCodeEditor).props('codeDesignId')).toMatch(/^[A-F0-9]{32}$/)
+    expect(wrapper.getComponent(DataCodeEditor).props('create')).toBe(true)
+    const editor = wrapper.getComponent(DataCodeEditor)
+    await vi.waitFor(() => expect(editor.findAllComponents(FieldText).some(field => field.props('field') === 'Name' && field.find('input').exists())).toBe(true))
+    const design = await loaded.mock.results[0]!.value as DataSet, main = design.getView('Base_CodeDesign')!
+    expect(main.dirtyTracking.pendingCreateIds.has(String(editor.props('codeDesignId')))).toBe(true)
+    expect(main.currentRow).toMatchObject({AppID: 'TARGET', Name: '', BusTableRowid: ''})
+    const name = editor.findAllComponents(FieldText).find(field => field.props('field') === 'Name')!
+    await name.get('input').setValue('本地新增名称'); await name.get('input').trigger('change'); await flushPromises()
+    expect(main.getEditingRow(String(editor.props('codeDesignId')))?.['Name']).toBe('本地新增名称')
+    expect(http.saves).toEqual([])
+    await vi.waitFor(() => expect(wrapper.findAll('button').find(button => button.text() === '放弃修改并关闭')!.attributes('disabled')).toBeUndefined())
+    await wrapper.findAll('button').find(button => button.text() === '放弃修改并关闭')!.trigger('click')
+    await vi.waitFor(() => expect(wrapper.findComponent(DataCodeEditor).exists()).toBe(false))
+    expect(http.records['Base_CodeDesign']).toHaveLength(2)
+    expect(http.saves).toEqual([])
     wrapper.unmount()
   })
 

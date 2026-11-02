@@ -25,7 +25,7 @@ beforeEach(() => {
   config.global.stubs = stubs
 })
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks()})
-async function open(query: Record<string, string> = {codeDesignId: 'C1', applicationId: 'A'}, hostTarget?: {applicationId?: string; codeDesignId?: string}) {
+async function open(query: Record<string, string> = {codeDesignId: 'C1', applicationId: 'A'}, hostTarget?: {applicationId?: string; codeDesignId?: string; create?: boolean}) {
   const router = createRouter({history: createMemoryHistory(), routes: [{path: '/editor', component: DataCodeEditor,
     props: hostTarget ?? false, meta: {blueprintScenarioId: 'A133D679691178F192D7E9DA06829506'}}, {path: '/other', component: {template: '<p>其他页</p>'}}]})
   await router.push({path: '/editor', query}); await router.isReady()
@@ -36,6 +36,19 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it('rejects create mode for an already existing identity without overwriting it', async () => {
+    const {wrapper} = await open({}, {applicationId: 'A', codeDesignId: 'C1', create: true})
+    await vi.waitFor(() => expect(wrapper.text()).toContain('新增编码身份已存在'))
+    expect(state.current.http.saves).toEqual([])
+    expect(state.current.http.records['Base_CodeDesign']![0]?.['Name']).toBe('订单编码')
+  })
+  it('uses the formal create denial instead of inventing writable new-record permissions', async () => {
+    state.current.http.denyAdd.add('Base_CodeDesign')
+    const {wrapper} = await open({}, {applicationId: 'A', codeDesignId: 'NEW', create: true})
+    await vi.waitFor(() => expect(wrapper.text()).toContain('不允许新增'))
+    expect(state.current.http.saves).toEqual([])
+    expect(state.current.http.records['Base_CodeDesign']).toHaveLength(2)
+  })
   it('rejects a missing managed application before querying design records', async () => {
     const {wrapper} = await open({codeDesignId: 'C1'})
     expect(wrapper.text()).toContain('applicationId')

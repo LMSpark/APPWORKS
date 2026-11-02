@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-02",
+  "scope": "current frontend browser; native staged new design, local name edit and explicit discard only",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "navigationId": "A133D679691178F192D7E9DA06829506",
+  "before": "new dialog reported missing design because create mode was not passed",
+  "after": {
+    "newNameFieldEditable": true,
+    "unsavedDialogCloseGuardVisible": true,
+    "explicitDiscardClosedDialog": true,
+    "catalogRereadObserved": true,
+    "saveClicked": false
+  },
+  "network": {
+    "truncated": false,
+    "hasMore": false,
+    "apiRequests": 11,
+    "paths": [
+      "/api/DataOperation/GetData"
+    ],
+    "businessMutationRequests": []
+  },
+  "screenshots": [
+    "artifacts/data-chain-smoke/code-create-missing-before.jpg",
+    "artifacts/data-chain-smoke/code-create-draft-after.jpg",
+    "artifacts/data-chain-smoke/code-create-cancel-after.jpg"
+  ],
+  "limits": [
+    "business-table selection and segment creation remain to be restored",
+    "no real persistence acceptance",
+    "sys_edit prior unknown SaveView was not replayed"
+  ],
+  "repeatInputCheck": {
+    "blurredDomValueMatched": true,
+    "explicitDiscardClosedDialog": true,
+    "apiRequests": 10,
+    "paths": [
+      "/api/DataOperation/GetData"
+    ],
+    "businessMutationRequests": [],
+    "truncated": false,
+    "hasMore": false
+  }
+}

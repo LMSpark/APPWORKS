@@ -16,7 +16,7 @@
       <RendererDialog v-if="designTarget" :model-value="true" :title="designTarget.create ? '新增编码' : '编码方案设计'"
         :data-view-key="catalogKey" :width="960" :destroy-on-close="true" :close-disabled="designPending"
         @update:model-value="closeDesign">
-        <DataCodeEditor ref="designPage" :application-id="designTarget.applicationId" :code-design-id="designTarget.codeDesignId" @saved="savedDesign" />
+        <DataCodeEditor ref="designPage" :application-id="designTarget.applicationId" :code-design-id="designTarget.codeDesignId" :create="designTarget.create" @saved="savedDesign" />
         <template #footer>
           <RendererButton v-if="designPage?.hasPending" label="放弃修改并关闭" :disabled="designPage?.busy || designPage?.unconfirmed" @click="discardDesign" />
           <RendererButton label="关闭" :disabled="designPending" @click="closeDesign(false)" />
@@ -94,8 +94,8 @@ function openDesign(codeDesignId: string, create: boolean): void {
   if (!selectedApplication.value || designTarget.value) return
   designTarget.value = {applicationId: selectedApplication.value, codeDesignId, create}
 }
-async function closeDesign(open: boolean): Promise<void> {
-  if (open || designPending.value) return
+async function closeDesign(open: boolean, discarded = false): Promise<void> {
+  if (open || designPage.value?.unconfirmed || (discarded ? designPage.value?.hasPending : designPending.value)) return
   const own = generation
   designTarget.value = undefined
   try {await view.value?.refresh()}
@@ -105,7 +105,7 @@ async function savedDesign(): Promise<void> {await closeDesign(false)}
 async function discardDesign(): Promise<void> {
   if (designPage.value?.busy || designPage.value?.unconfirmed) return
   if (designPage.value?.discardChanges() !== true) return
-  await closeDesign(false)
+  await closeDesign(false, true)
 }
 watch(scenarioId, async id => {
   const own = ++generation

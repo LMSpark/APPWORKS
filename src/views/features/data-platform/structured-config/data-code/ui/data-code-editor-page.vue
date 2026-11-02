@@ -48,6 +48,8 @@ const props = defineProps<{
   applicationId?: string
   /** 宿主传入的编码主记录ID；独立路由入口仅在两个目标prop均未提供时读取URL参数。 */
   codeDesignId?: string
+  /** 仅由目录宿主明确传入新增模式；沿原查询准备正式身份，不由URL或查询缺失推断。 */
+  create?: boolean
 }>()
 const emit = defineEmits<{saved: []}>()
 const route = useRoute(), openDialog = ref(''), error = ref(''), saving = ref(false), revision = ref(0)
@@ -103,12 +105,13 @@ function openRule(row: DataRow): void {
   if ((typeof nodeId !== 'string' && typeof nodeId !== 'number') || needsBusinessFields && (typeof busTableRowid !== 'string' || !busTableRowid)) {error.value = '缺少编码段或业务表身份'; return}
   ruleTarget.value = {nodeId, busTableRowid: typeof busTableRowid === 'string' ? busTableRowid : ''}; openDialog.value = dialog
 }
-watch([applicationId, codeDesignId], async ([app, code]) => {
+watch([applicationId, codeDesignId, () => props.create], async ([app, code, create]) => {
   const own = ++generation
   unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet.value = undefined
   error.value = ''; openDialog.value = ''; opening.value = true; saving.value = false
   try {
     if (!app.trim() || !code.trim()) throw new Error('缺少唯一 applicationId 或 codeDesignId 参数')
+    if (create && !hostTarget.value) throw new Error('新增编码必须由目录宿主提供完整目标')
     const loaded = await LowcodeDataCode.loadEditor(scene)
     if (!active || own !== generation) {loaded.destroy(); return}
     const page = new PageRuntime({pageId: 'data-code-editor-page', scenarioIds: [scene, LowcodeDataCode.referenceScenarioId],
@@ -124,7 +127,19 @@ watch([applicationId, codeDesignId], async ([app, code]) => {
     dataSet.value = loaded
     const changed = () => revision.value++
     unsubscribe = loaded.onAnyViewChange({rowsChanged: changed, editingChanged: changed, requestStateChanged: changed, selectedRowsChanged: changed})
-    sparkProvide(PAGE_RUNTIME, page); loaded.triggerAutoLoad()
+    sparkProvide(PAGE_RUNTIME, page)
+    if (create) {
+      const view = loaded.getView('Base_CodeDesign')
+      if (!view || view.primaryKey !== 'rowid') throw new Error('新增编码缺少正式主记录视图')
+      await view.refresh()
+      if (!active || own !== generation) return
+      if (view.loadingError) throw view.loadingError
+      if (view.rows.length) throw new Error('新增编码身份已存在，请从目录打开原设计')
+      const added = await view.addRowWithIdentity({field: 'rowid', value: code}, {AppID: app, Name: '', BusTableRowid: '', BusTableName: '', KeyFields: '', CodeDescription: '', CodeExample: ''})
+      if (!active || own !== generation) return
+      view.setCurrentRow(added); view.setSelectedRows([added])
+    }
+    loaded.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) opening.value = false}
 }, {immediate: true})
@@ -141,7 +156,7 @@ async function save(): Promise<void> {
 function cancel(): boolean {
   if (busy.value) return false
   if (unconfirmed.value) {error.value = '保存结果尚未确认，请先核验保存结果'; return false}
-  try {main.value?.discardPendingChanges(); nodes.value?.discardPendingChanges(); error.value = ''; return !hasPending.value}
+  try {nodes.value?.discardPendingChanges(); main.value?.discardPendingChanges(); error.value = ''; return !hasPending.value}
   catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return false}
 }
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})

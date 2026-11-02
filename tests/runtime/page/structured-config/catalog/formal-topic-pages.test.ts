@@ -41,6 +41,16 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it('does not open a nonexistent workflow or allocate a random identity for unsupported creation',async()=>{
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(Workflow,{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
+    await wrapper.findAll('button').find(button=>button.text()==='新增工作流')!.trigger('click');await flushPromises()
+    expect(wrapper.findComponent({name:'WorkflowEditorStub'}).exists()).toBe(false)
+    expect(wrapper.text()).toContain('业务编码生成能力尚未确认')
+    expect(state.http.saves).toEqual([])
+  })
   it.each(['dirty','busy','unknown'])('guards the workflow dialog while %s and permits only a safe explicit discard',async kind=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()

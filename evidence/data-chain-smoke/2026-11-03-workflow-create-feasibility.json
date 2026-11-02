@@ -1,0 +1,79 @@
+{
+  "kind": "actual-service-read-only-creation-dependencies",
+  "testedAt": "2026-11-02T16:41:24.129Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "codeRule": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 2,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "metaName": "Base_CodeDesign",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "E06753D019382D5E479264B70258ADE0",
+            "Name": "工作流编码",
+            "BusTableRowid": "F73ED4B293524AD7A251D37DEE659CCF",
+            "BusTableName": "Base_WorkflowDefinition",
+            "KeyFields": "rowid",
+            "AppID": "00BE6ED455CD4BD7B785C61A12A1E67D"
+          }
+        ]
+      },
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "metaName": "Base_CodeNodeDesign",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "returned": 2,
+        "rows": [
+          {
+            "rowid": "657275A0D95CE7533E831CEAA6987262",
+            "CodeDesignID": "E06753D019382D5E479264B70258ADE0",
+            "NodeNo": 2,
+            "NodeType": 4,
+            "CodeNodeDesignJson": "{\"Format\":\"00001-99999\",\"StartNo\":\"1\",\"EndNo\":\"1\",\"Incre\":\"1\"}"
+          },
+          {
+            "rowid": "9C2A952158891E4006F11A5F3B298A5F",
+            "CodeDesignID": "E06753D019382D5E479264B70258ADE0",
+            "NodeNo": 1,
+            "NodeType": 2,
+            "CodeNodeDesignJson": "{\"ConstString\":\"WF\"}"
+          }
+        ]
+      }
+    ]
+  },
+  "assignmentModelLookup": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataModel",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "returned": 0,
+        "rows": []
+      }
+    ]
+  },
+  "assignmentCalls": 0,
+  "writeRequests": 0,
+  "conclusion": "Reference assign-before-create conflicts with local backend requiring an existing business row. Deployment order support unverified. Zero metadata matches do not prove allocation rows absent."
+}

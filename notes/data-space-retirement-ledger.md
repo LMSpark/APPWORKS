@@ -5221,3 +5221,12 @@ flowchart LR
 高阶模型补核本地Java HEAD e1eccc1b56c225212481ba276302d5e6b288e883：WorkflowExec.evaluateCondition对结果行allMatch，matchesJoinCondition直接data.get(field)，未见pid/点路径解析；特殊计数是lingma_sys_count，不能猜等同Count；该比较函数仅见NULL/NOT_NULL/EQUAL/NOT_EQUAL/GREAT/LESS，其余返回false。仅本地源码，实际部署待核，前端IN等完整JSON保存夹具不代表执行支持。现对层次输出明确诊断，保留原条件原文只读；正常编辑/新增不猜路径，未知保存及原删除核验仍保留。新增根Count+items.Count夹具先红后绿。下一工位继续工作流正式新建及参考原生整页差距，再按已批主线推进Excel等完整包；不得跳为总体验收通过。
 
 限定最终复核：高阶模型静态复核未发现本轮保护逻辑的确定重要阻塞；层次输出保留原文，资源及页面双层限制，原未知owner核验和删除重试先于目录检查，模型关系视图独立。模型未运行测试或访问服务。
+
+
+**2026-11-03 继续：正式新建服务可行性与定义表单当前行断链。**上一轮5d0369294已推送且工作区干净，属实质进展。沿固定参考核新建：映射信息设置含名称、正式状态候选、版本默认1、触发类型/时间/表/操作/条件及描述，提交先businessCode.assign固定rowid与E06753D019382D5E479264B70258ADE0规则，再创建定义。参考新增却硬编码activeType=table，不能当正确时间触发合同。实服3读0写核实该规则确绑定Base_WorkflowDefinition、KeyFields=rowid、BusTableRowid=F73ED4B293524AD7A251D37DEE659CCF，分段WF+顺序；Base_DataModel精确MetaName=Base_CodeAndBusInfo返回0，只证明该查询范围无正式回读模型，不能证明分配记录不存在。未调用有副作用的GetCodeString GET。证据evidence/data-chain-smoke/2026-11-03-workflow-create-feasibility.json。
+
+高阶模型复核参考先领码后创建与本地Java首次领码要求业务行存在相冲突；GetCodeValue同样查询正式业务行，不能靠新增字段值函数绕过。部署行为仍待核，不改后端，不先插空码占位、不生成随机码、不用示例编码替代。完整新建须分别确认编码分配/计数、定义、同ID数据空间、开始/结束节点，布局仍独立；未知只核原提交，部分成功仅处理未完成步骤，不能假事务或自动回退计数。编码独立只读核验、业务码约束、启用时机、边界节点合同及databaseName/dbName映射继续开放。Ruling：移除当前随机UUID直接打开不存在设计的错误新建分支，明确报告尚不能创建；这是删错及服务缺口显式化，不是新建完成，也不缩减完整恢复范围。后续先恢复标准新建表单/取消及既有流程编辑，真实保存待服务顺序与核验合同成立。
+
+浏览器截图暴露定义头部名称/编码空白，已由实际标准字段测试先红复现：定义查询结果存在但default.autoCurrentFirst=false，Form消费currentRow为空。仅设计场景精确workflowId视图改autoCurrentFirst=true，保留目录视图、autoSelectFirst=false及唯一目标校验；W1/W2夹具各显示本目标、缺失目标仍不装载设计。真实浏览器刷新重开既有流程后显示上期填报数据/WF00001，未修改记录。截图artifacts/data-chain-smoke/2026-11-03-workflow-definition-header.png。当前工作流/目录77测试及类型检查通过；新增错误分支删除的测试先红，最终检查待收口。全目标active。
+
+本轮最终：工作流及目录8文件78测试通过，受改Vue/TS ESLint、verify:pages-config/workflow-designs/docs及单独前端打包通过；正式ClassModel生成1001文件，仅恢复12份已全文核对为纯编译器符号数字变化的无关分片。真实目录点击新增只显示业务编码能力未确认，不再打开随机不存在设计；没有领码、占位、执行或清理写入。pnpm run typecheck最终回执exit0。新建完整方案未通过，不将修复头部及删除伪入口作为整页验收；继续既有流程完整编辑/新建表单恢复，领码合同待实际部署证据。

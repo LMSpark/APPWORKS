@@ -9,7 +9,7 @@
       "views": {
         "default": {
           "autoLoad": true,
-          "autoCurrentFirst": false,
+          "autoCurrentFirst": true,
           "autoSelectFirst": false,
           "selectionDelimiter": "",
           "commitMode": "staged",

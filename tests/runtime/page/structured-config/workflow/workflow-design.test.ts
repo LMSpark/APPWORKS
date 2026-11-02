@@ -27,6 +27,16 @@ async function open(workflowId='W1'){
  return {wrapper,router,click}
 }
 describe('workflow formal design page',()=>{
+ it.each([{id:'W1',name:'当前流程',code:'WF_CURRENT'},{id:'W2',name:'其他流程',code:'WF_OTHER'}])('binds only the queried $id definition as the form current row',async target=>{
+  state.http.records['Base_WorkflowDefinition']=[{rowid:'W1',name:'当前流程',workflow_key:'WF_CURRENT'},{rowid:'W2',name:'其他流程',workflow_key:'WF_OTHER'}]
+  const f=await open(target.id);await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  const name=f.wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='name')!
+  await vi.waitFor(()=>expect(name.find('input').exists()).toBe(true))
+  expect(name.get('input').element.value).toBe(target.name)
+  const code=f.wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='workflow_key')!
+  expect(code.get('input').element.value).toBe(target.code)
+  expect(state.http.saves).toEqual([])
+ })
  it('binds connector conditions to node endpoints, cancels unapplied input and clears only the condition record',async()=>{
   const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
   state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([{rowid:'OUT',Name:'Count',Description:'数量',FieldType:'int'}])

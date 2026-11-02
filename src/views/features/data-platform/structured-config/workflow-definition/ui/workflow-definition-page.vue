@@ -60,7 +60,7 @@ const fields = computed<SparkNode[]>(() => [
     optionDataViewKey: buildDataViewKey('workflowStatus', 'default', scenarioId.value)}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
-function createFlow(): void {if(!designTarget.value)designTarget.value=crypto.randomUUID().replaceAll('-', '').toUpperCase()}
+function createFlow(): void {error.value='暂不能创建工作流：业务编码生成能力尚未确认。'}
 function openDesign(): void {if(selected.value&&!designTarget.value)designTarget.value=selected.value}
 function closeDesign(open:boolean):void{if(!open&&!designPending.value)designTarget.value=''}
 function discardDesign():void{if(designPage.value?.busy||designPage.value?.unconfirmed)return;if(designPage.value?.discardChanges()===true)closeDesign(false)}

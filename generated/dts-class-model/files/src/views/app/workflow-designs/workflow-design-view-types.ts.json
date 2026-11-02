@@ -1217,6 +1217,9 @@
               "type": "object",
               "title": "(payload: WheelEvent) => void"
             },
+            "prefix": {
+              "type": "string"
+            },
             "property": {
               "type": "string"
             },
@@ -1314,9 +1317,6 @@
               "type": "string"
             },
             "inlist": true,
-            "prefix": {
-              "type": "string"
-            },
             "typeof": {
               "type": "string"
             },

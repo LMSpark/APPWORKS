@@ -3024,7 +3024,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-01T21:26:27.216Z"
+      "sourceModifiedAt": "2026-11-02T11:57:08.484Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3235,6 +3235,26 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts.json",
       "sourceModifiedAt": "2026-10-25T07:53:43.531Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:14:36.229Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:04:35.825Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:04:35.825Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts.json",
+      "sourceModifiedAt": "2026-11-02T12:12:37.227Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 988,
+  "scannedFileCount": 992,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -11132,6 +11132,66 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/code-sequence-range",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/data-code/code-sequence-range",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/code-sequence-range\n职责：校验待用顺序值并转换为正式Code的前驱，遵循本行格式与增量。\n边界：不查询、不聚合、不保存；null表示尚无已用值，不把最小值减成无效字母。\nAI用途：初始化语义资源提交InitVal时使用，禁止固定减1或浮点转换长整数。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "CodeSequenceRange"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-client",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/data-code/initialization-client",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-client\n职责：沿实际CodeInitDataList合同读取服务端生成的前段组合与待用值。\n边界：结果不提供写权限，不写Base_CodeSerialPerform，不在浏览器排列业务组合。\nAI用途：初始化DataView资源适配内部消费；页面不得绕过数据空间调用该客户端。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "CodeInitializationInput",
+          "CodeInitializationClient"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-projection",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/data-code/initialization-projection",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-projection\n职责：把服务端初始化组合与原正式记录基线对应，保持语义身份及权限来源。\n边界：不补节点归属、不创建正式行、不持编辑草稿，不将函数结果当权限。\nAI用途：初始化资源查询与保存回读共用同一身份校验。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "CodeInitializationTarget",
+          "InitializationCandidate"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/structured-config/data-code/initialization-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-resource\n职责：编码初始化组合接入唯一DataView编辑及保存链，适配原正式分配记录owner。\n边界：仅持查询/提交基线；不创建第二草稿、不补历史节点归属、不重放未知写入。\nAI用途：宿主传当前DataSet、正式runtime和目标读取器，标准组件绑定返回视图。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts.json",
       "module": {
@@ -17754,6 +17814,22 @@
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
     },
+    "CodeInitializationClient": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts.json"
+    },
+    "CodeInitializationInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-client.ts.json"
+    },
+    "CodeInitializationTarget": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts.json"
+    },
+    "CodeSequenceRange": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts.json"
+    },
     "CodeTableSelection": {
       "sourcePath": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
       "file": "files/src/lowcode/resources/structured-config/data-code/reference-ops.ts.json"
@@ -19409,6 +19485,10 @@
     "InferColumnValue": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "InitializationCandidate": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts.json"
     },
     "InlineAlign": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/action/RendererToolbar/RendererToolbar.types.ts",

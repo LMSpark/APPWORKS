@@ -1,0 +1,93 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/initialization-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-resource\n职责：编码初始化组合接入唯一DataView编辑及保存链，适配原正式分配记录owner。\n边界：仅持查询/提交基线；不创建第二草稿、不补历史节点归属、不重放未知写入。\nAI用途：宿主传当前DataSet、正式runtime和目标读取器，标准组件绑定返回视图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Options": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Options",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "runtime": {
+          "$ref": "../../../data-space/runtime/data-space-runtime-api.ts.json#/$defs/DataSpaceRuntimeApi"
+        },
+        "client": {
+          "type": "object",
+          "title": "Pick<CodeInitializationClient, 'read'>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readTarget.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readTarget.return": {
+          "$ref": "initialization-projection.ts.json#/$defs/CodeInitializationTarget"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T12:12:37.227Z",
+  "models": {
+    "Options": {
+      "name": "Options",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: DataSpaceRuntimeApi;\n    client: Pick<CodeInitializationClient, 'read'>;\n    readTarget: () => CodeInitializationTarget;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    runtime: DataSpaceRuntimeApi;\n    client: Pick<CodeInitializationClient, 'read'>;\n    readTarget: () => CodeInitializationTarget;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "client",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readTarget",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "CodeInitializationTarget",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

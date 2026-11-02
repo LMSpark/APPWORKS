@@ -1,0 +1,98 @@
+{
+  "testedAt": "2026-11-02T12:08:33.058Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "current native semantic DataView reading actual function and formal model; local editing/cancel only",
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 13,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "success": true,
+      "diagnostics": [],
+      "initializationResourceAudit": {
+        "success": true,
+        "candidateRows": 18,
+        "legacyRecords": 2,
+        "sourceRows": 2,
+        "sourceHasDraft": false,
+        "nativeEditCancel": true,
+        "independentRereadUnchanged": true,
+        "saveAttempted": false
+      },
+      "views": [
+        {
+          "table": "Base_CodeDesign",
+          "view": "default",
+          "rows": 1,
+          "total": 1,
+          "state": 3
+        },
+        {
+          "table": "Base_CodeDesign",
+          "view": "parents",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_CodeNodeDesign",
+          "view": "default",
+          "rows": 3,
+          "total": 3,
+          "state": 3
+        },
+        {
+          "table": "Dict_CodeNodeType",
+          "view": "default",
+          "rows": 5,
+          "total": 5,
+          "state": 3
+        },
+        {
+          "table": "Base_CodeClassTable",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_CodingSequence",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "referenceFields",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_CodeSerialPerform",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        }
+      ]
+    }
+  ],
+  "limits": [
+    "not yet wired to reference-shaped UI",
+    "no actual initialization save or null/minimum-value write accepted",
+    "legacy node ownership remains unchanged",
+    "not whole-page or architecture acceptance"
+  ]
+}

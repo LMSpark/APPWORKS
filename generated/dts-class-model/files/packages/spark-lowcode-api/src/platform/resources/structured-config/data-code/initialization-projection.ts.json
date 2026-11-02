@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-projection",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-projection.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/initialization-projection",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/initialization-projection\n职责：把服务端初始化组合与原正式记录基线对应，保持语义身份及权限来源。\n边界：不补节点归属、不创建正式行、不持编辑草稿，不将函数结果当权限。\nAI用途：初始化资源查询与保存回读共用同一身份校验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeInitializationTarget",
+      "InitializationCandidate"
+    ]
+  },
+  "$defs": {
+    "CodeInitializationTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeInitializationTarget",
+      "properties": {
+        "codeId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "format": {
+          "type": "string"
+        },
+        "increment": {
+          "type": "number"
+        },
+        "loopColumns": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "codeId",
+        "nodeId",
+        "date",
+        "format",
+        "increment",
+        "loopColumns"
+      ],
+      "additionalProperties": false
+    },
+    "InitializationCandidate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "InitializationCandidate",
+      "properties": {
+        "row": {
+          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "recordId": {
+          "type": "string"
+        },
+        "prefix": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "row",
+        "recordId",
+        "prefix"
+      ],
+      "additionalProperties": false
+    },
+    "Access": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Access",
+      "properties": {
+        "read": {
+          "enum": [
+            "masked",
+            "invisible",
+            "visible"
+          ]
+        },
+        "write": {
+          "enum": [
+            "denied",
+            "allowed"
+          ]
+        },
+        "component": {
+          "enum": [
+            "hidden",
+            "readonly",
+            "editable"
+          ]
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "writeMode": {
+          "enum": [
+            "required",
+            "readonly",
+            "editable"
+          ]
+        }
+      },
+      "required": [
+        "read",
+        "write",
+        "component",
+        "required",
+        "writeMode"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-02T12:04:35.825Z",
+  "models": {
+    "CodeInitializationTarget": {
+      "name": "CodeInitializationTarget",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "CodeInitializationInput & Readonly<{\n    format: string;\n    increment: number;\n    loopColumns: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "CodeInitializationInput",
+            "targetName": "CodeInitializationInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    format: string;\n    increment: number;\n    loopColumns: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "format",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "increment",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "loopColumns",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "InitializationCandidate": {
+      "name": "InitializationCandidate",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    row: DataRow;\n    recordId: string;\n    prefix: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    row: DataRow;\n    recordId: string;\n    prefix: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "row",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recordId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "prefix",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Access": {
+      "name": "Access",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<DataView['newRowFieldAccess']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<DataView['newRowFieldAccess']>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

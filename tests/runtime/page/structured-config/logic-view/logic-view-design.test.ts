@@ -3,7 +3,7 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, RendererButton, RendererToolbar, RendererForm, RendererFilter} from '@spark-appworks/spark-component'
+import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, FieldValueFunction, FilterValueFunctionDialog, RendererButton, RendererToolbar, RendererForm, RendererFilter} from '@spark-appworks/spark-component'
 import LogicViewDesign from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
@@ -33,7 +33,7 @@ async function openDesigner() {
     meta: {blueprintScenarioId: LowcodeLogicView.navigationScenarioId}}]})
   await router.push({path: '/design', query: {viewId: 'V1'}}); await router.isReady()
   const registry = Spark.createRegistry()
-  for (const [type, component] of Object.entries({'r-text': FieldText, 'r-json': FieldJson, 'r-number': FieldNumber, 'r-checkbox': FieldCheckbox, 'r-button': RendererButton, 'r-toolbar': RendererToolbar, 'r-form': RendererForm, 'r-filter':RendererFilter})) registry.register({type, component})
+  for (const [type, component] of Object.entries({'r-text': FieldText, 'r-json': FieldJson, 'r-value-function':FieldValueFunction, 'r-number': FieldNumber, 'r-checkbox': FieldCheckbox, 'r-button': RendererButton, 'r-toolbar': RendererToolbar, 'r-form': RendererForm, 'r-filter':RendererFilter})) registry.register({type, component})
   const wrapper = mount(RouterView, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin({registry})]}})
   mounted.push(wrapper); await flushPromises()
   return {wrapper, router}
@@ -66,6 +66,21 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('confirms a standard value-function dialog into the original field as a native object',async()=>{
+    const field={Name:'id',ValueFun:{Type:'GetConstValue',Value:0},extra:{keep:1}}
+    http.logicDesigns['V1']=[{Name:'root',Fields:[field],ChildTables:[]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    await editor.get('[data-function-open]').trigger('click');await flushPromises()
+    wrapper.getComponent(FilterValueFunctionDialog).vm.$emit('confirm',{Type:'GetConstValue',Value:false});await flushPromises()
+    await editor.get('[data-json-save-row]').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'root',Fields:[{...field,ValueFun:{Type:'GetConstValue',Value:false}}],ChildTables:[]}])
+    expect(http.saves).toHaveLength(0)
+  })
   it('displays boolean field flags correctly and preserves their wire types when another field is edited',async()=>{
     const field={Name:'id',AsName:'old',IsOutput:true,IsPKey:false,DISTINCT:true,Group:false,extra:7}
     http.logicDesigns['V1']=[{Name:'root',Fields:[field],ChildTables:[]}]

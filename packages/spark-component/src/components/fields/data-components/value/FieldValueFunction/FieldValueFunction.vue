@@ -59,10 +59,12 @@ const context = computed(() => {
     {...configured.definitions?.find(definition => definition.type === 'GetConstValue'),
       type: 'GetConstValue', label: '常量', fields: [{key: 'Value', label: '常量值', control: 'json' as const, required: true}]}]}
 })
-const state = useFieldPermission<string>({props, type: 'r-value-function', fallbackValue: '', coerce: value => typeof value === 'string' ? value : '',
+const state = useFieldPermission<string>({props, type: 'r-value-function', fallbackValue: '',
+  coerce: value => props.valueFormat==='native' ? value===null||value===undefined?'':JSON.stringify(value)??'' : typeof value === 'string' ? value : '',
+  toSourceValue: value => {if(props.valueFormat!=='native')return value;if(!value)return null;const parsed:unknown=JSON.parse(value);return parsed},
   formatDisplay: value => {
     if (!value) return ''
-    try {const parsed: unknown = JSON.parse(String(value)); return parsed && typeof parsed === 'object' && 'Type' in parsed ? String(parsed.Type) : '原始文本'}
+    try {const parsed: unknown = props.valueFormat==='native'&&typeof value!=='string'?value:JSON.parse(String(value)); return parsed && typeof parsed === 'object' && 'Type' in parsed ? String(parsed.Type) : '原始文本'}
     catch {return '原始文本'}
   }})
 const {fieldCtx, handleControlledChange} = useFieldControlState({props, fieldType: 'r-value-function', state, emitUpdate: value => emit('update:modelValue', value)})
@@ -87,7 +89,7 @@ const diagnostic = computed(() => {
   return ''
 })
 watch([state.dataSource, state.contextData, state.fieldName, state.fieldValue, state.isCurrentFieldEditable,
-  () => props.publicParameterDataViewKey, () => props.inputParameterDataViewKey], () => {
+  () => props.publicParameterDataViewKey, () => props.inputParameterDataViewKey, () => props.valueFormat], () => {
   revision.value++; visible.value = false; error.value = ''
 }, {flush: 'sync'})
 watch(visible, value => props.onDialogVisibleChange?.(value), {flush: 'sync'})

@@ -4732,3 +4732,13 @@ flowchart TD
 - 仍有过滤/值函数专用交互、字段AI配置差距、输出结构、真实设计保存、节点/整体预览及全架构其它开放项；98字典、12 GetView、2逻辑消费失败和预览服务合同缺口不核销，目标active。
 - 最后1058被no-dynamic-delete拦截，已改为Reflect.deleteProperty保持缺失成员语义；未绕过lint。重新7文件56项通过并正式生成完成，当前27866进行完整verify/build。真实SaveView描述临时标记及恢复的具体范围已发出一次确认，等待用户答复；现有参数/服务商临时记录授权不自动扩为设计文件写入，其余可独立工作继续。
 - 最后27866退出0：7文件56项、正式ClassModel生成、完整verify和build全部通过；动态导入既有提示保留。最终差异已审阅，字段布尔适配/批量命令/页面接线及烟测证据作为检查点提交推送origin/1031，等待真实SaveView具体写入确认期间不阻塞后续其它断链，根目标active。
+
+### 2026-11-02 标准值函数原生对象接线
+- 上轮b8107dbf1已推送且工作树干净，判定progress。本轮沿参考字段值函数设置/清空确认语义，确认参考最终ValueFun为原生函数对象或null；当前标准FieldValueFunction只支持JSON文本，不能把业务JSON字段改存字符串迁就组件。
+- 先从ClassModel目录定位FieldValueFunction及FilterValueFunctionDialog，查概要/指南和现有实现；复用useFieldPermission现有coerce/toSourceValue及useFieldControlState。标准组件新增显式valueFormat=text/native，默认文本不变；native编辑器/事件仍为JSON文本，绑定字段在确认时写对象，清空null。打开/取消/未知旧函数不转换原值；失权、换绑定、换格式、卸载使旧弹窗确认失效。没有页面侧第二草稿、执行函数或新保存通道。
+- RED证明原生对象无法显示GetConstValue；实现后原生表单确认0/false、原取消、清空null、表格第二行且当前行不移动、存储格式切换拒绝旧回调及未知函数取消保持原对象通过。标准组件先正式生成ClassModel并核新valueFormat指南，再把本页ValueFun子字段从r-json替换为r-value-function native；页面RED缺设置入口，GREEN证明原生false对象进入原designJson，未知字段和独立参数存储保留。公共弹窗状态继续汇总原页面输入保护。
+- 33文件378项影响测试通过（logic-native-function-final-impact.log）。门禁35550发现JSON.parse(value) as unknown违反仓内无断言规则，已用unknown局部变量替代；审阅时收紧默认text呈现引入一次原生表单摘要回归，追加focused发现，已按useFieldPermission对coerce后的字符串与表格原值双入口纠正；最新2文件40项通过（final-focused.log），不把中间失败当已验收。
+- 实服浏览器：sys_edit选Base_AppSystemList/DeveloperName，标准字段行编辑→值函数设置→常量JSON树切布尔false→确认函数→确认行。首字段显示{"Type":"GetConstValue","Value":false}；展开完整设计查ValueFun行，类型对象/2成员，未写成字符串。原放弃修改并重读恢复2节点并释放选中；完整网络窗口1次GetView，truncated=false/hasMore=false，无SaveView。另独立GetView Code200且原SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。证据2026-11-02-logic-native-function-browser-audit.json及staged截图，不含凭据或参数值。
+- 当前9113是修正期间旧门禁，不能替代最终源码的正式生成/完整verify/build终态。真实设计文件写入确认仍待回复，未执行；没有改Java、权限或聚合执行归属。本次只证明定义编辑/取消，不证明函数运行、后端聚合、完整上下文候选及参考整页。
+- 下一段仍须按正式视图接视图参数/节点入参/关联字段等候选，核GetInputParam与SystemData语义差异，不把参数ID冒充参数名或把不同函数上下文混为一组；过滤专用交互、AI字段配置、输出结构、实服保存、节点/整体预览及全架构开放项继续，目标active。
+- 最后92785退出0：最终源码正式ClassModel生成、完整verify和build通过；33文件378项影响与最后2文件40项复核均已通过。最终标准弹窗补截图并明确取消弹窗/行编辑，另有原生对象false→原取消/回读证据；审阅diff和git diff --check无问题，提交推送origin/1031。固定参考FilterBuilder/utils.ts317确认systemParams/inputParams分别映射，不得因GetInputParam旧示例就混同；留待下一段按实际函数消费核定。当前根目标仍active。

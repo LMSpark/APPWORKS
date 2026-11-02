@@ -10,7 +10,7 @@ import JsonTreeEditor from '../../../../packages/spark-component/src/components/
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = []
 const originalStubs = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = originalStubs})
-async function fixture(value = '{"Type":"GetApiPublicParam","ParamName":"access_token"}', table = false, grouped = false) {
+async function fixture(value:unknown = '{"Type":"GetApiPublicParam","ParamName":"access_token"}', table = false, grouped = false, native = false) {
   registerAllRenderers()
   const ds = SparkData.fromJson({scenarioId: 'S', dataSetName: 'S', tables: {
     Headers: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'value', type: 'string'}],
@@ -23,12 +23,13 @@ async function fixture(value = '{"Type":"GetApiPublicParam","ParamName":"access_
   const view = ds.getView('Headers')!; view.setCurrentRowById('a')
   const readonly = ref(false), opened = vi.fn(), functionContext = ref<DataViewFilterFunctionContext>({})
   const optionKey = ref('S@Params@default')
+  const valueFormat=ref<'native'|'text'>(native?'native':'text')
   const host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'value-function-test'})
     sparkProvide(PAGE_RUNTIME, runtime)
     return () => {
       const children: SparkNode[] = [{type: 'r-value-function', props: {field: 'value', label: '值函数', onDialogVisibleChange: opened,
-        functionContext: functionContext.value, readonly: readonly.value, publicParameterDataViewKey: optionKey.value, inputParameterDataViewKey: optionKey.value}}]
+        valueFormat:valueFormat.value,functionContext: functionContext.value, readonly: readonly.value, publicParameterDataViewKey: optionKey.value, inputParameterDataViewKey: optionKey.value}}]
       return h(table ? RendererTable : RendererForm, {autoColumns: false, showPagination: false, dataViewKey: 'S@Headers@default', showDataViewMeta: false,
         children: grouped ? [{type: 'r-text', props: {field: '__group', label: '输出信息', children}}] : children})
     }
@@ -36,9 +37,46 @@ async function fixture(value = '{"Type":"GetApiPublicParam","ParamName":"access_
   const stubs = {...config.global.stubs}; delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']; delete stubs['el-button']; delete stubs['el-table']; delete stubs['el-table-column']
   config.global.stubs = stubs
   const wrapper = mount(host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()], stubs: {...stubs, JsonTreeEditor: true}}})
-  wrappers.push(wrapper); await flushPromises(); return {wrapper, view, readonly, opened, functionContext, optionKey, params: ds.getView('Params')!}
+  wrappers.push(wrapper); await flushPromises(); return {wrapper, view, readonly, opened, functionContext, optionKey, valueFormat, params: ds.getView('Params')!}
 }
 describe('standard value function field', () => {
+  it('preserves an unsupported native definition when its dialog is cancelled',async()=>{
+    const original={Type:'LegacyFunction',extra:{keep:false}},f=await fixture(original,false,false,true)
+    expect(f.wrapper.get('[data-function-diagnostic]').text()).toContain('原文已保留')
+    await f.wrapper.get('[data-function-open]').trigger('click');await flushPromises()
+    f.wrapper.getComponent(FilterValueFunctionDialog).vm.$emit('update:modelValue',false);await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.view.rows[0]?.['value']).toEqual(original)
+  })
+  it('invalidates native dialog callbacks when the storage format changes',async()=>{
+    const original={Type:'GetConstValue',Value:0},f=await fixture(original,false,false,true)
+    await f.wrapper.get('[data-function-open]').trigger('click');await flushPromises()
+    const callback=f.wrapper.getComponent(FilterValueFunctionDialog).vm.$.vnode.props?.['onConfirm']
+    if(typeof callback!=='function')throw new Error('Missing confirm handler')
+    f.valueFormat.value='text';await flushPromises()
+    await callback({Type:'GetConstValue',Value:'stale'});await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.view.rows[0]?.['value']).toEqual(original)
+  })
+  it('writes a native function in the selected table cell without moving current row',async()=>{
+    const original={Type:'GetConstValue',Value:false},f=await fixture(original,true,false,true)
+    await f.wrapper.findAll('[data-function-open]')[1]!.trigger('click');await flushPromises()
+    f.wrapper.getComponent(FilterValueFunctionDialog).vm.$emit('confirm',{Type:'GetConstValue',Value:false});await flushPromises()
+    expect(f.view.getEditingRow('b')?.['value']).toEqual(original)
+    expect(f.view.getEditingRow('a')?.['value']).toEqual(original);expect(f.view.currentRow?.['id']).toBe('a')
+  })
+  it('edits a native function object without stringifying storage and cancels through the original DataView',async()=>{
+    const original={Type:'GetConstValue',Value:false}
+    const f=await fixture(original,false,false,true)
+    expect(f.wrapper.text()).toContain('GetConstValue')
+    expect(f.view.hasEditingChanges()).toBe(false)
+    await f.wrapper.get('[data-function-open]').trigger('click');await flushPromises()
+    f.wrapper.getComponent(FilterValueFunctionDialog).vm.$emit('confirm',{Type:'GetConstValue',Value:0});await flushPromises()
+    expect(f.view.getEditingRow('a')?.['value']).toEqual({Type:'GetConstValue',Value:0})
+    expect(f.view.rows[0]?.['value']).toEqual(original)
+    f.view.discardEditingRows();await flushPromises()
+    expect(f.view.getEditingRow('a')?.['value']).toEqual(original)
+    await f.wrapper.get('[data-function-clear]').trigger('click');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['value']).toBeNull()
+  })
   it('preserves an explicit constant-function restriction when configuring the JSON control', async () => {
     const f = await fixture()
     f.functionContext.value = {definitions: [{type: 'GetConstValue', label: '常量', enabled: () => false, fields: []}]}

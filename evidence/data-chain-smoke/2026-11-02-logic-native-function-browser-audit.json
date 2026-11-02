@@ -1,0 +1,53 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "mode": "native DataView local field edit and discard; no SaveView",
+  "steps": [
+    "Select Base_AppSystemList and DeveloperName field",
+    "Open standard row editor and value-function dialog",
+    "Select boolean constant false in standard JSON tree",
+    "Confirm function then row into original design field",
+    "Expand complete design and verify ValueFun is object with two members",
+    "Discard and reread original design"
+  ],
+  "proof": {
+    "fieldText": "DeveloperName ValueFun {\"Type\":\"GetConstValue\",\"Value\":false}",
+    "objectRows": [
+      [
+        "ValueFun",
+        "对象",
+        "2 个字段"
+      ]
+    ],
+    "restoredNodes": 2,
+    "selectionReleased": true
+  },
+  "network": {
+    "events": 1,
+    "truncated": false,
+    "hasMore": false,
+    "paths": [
+      "/api/ViewData/GetView"
+    ],
+    "writes": 0
+  },
+  "screenshot": {
+    "path": "artifacts/data-chain-smoke/logic-native-function-browser-staged.png",
+    "sha256": "af3494c109047113f7474df60a1a18b54184c89fd978dbbe6c64f30ce4739e03"
+  },
+  "formalReadback": {
+    "code": 200,
+    "sha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "unchanged": true
+  },
+  "limits": [
+    "No real SaveView mutation",
+    "No function execution or backend aggregate acceptance",
+    "Full function context candidates and filter/output workspace remain open"
+  ],
+  "dialogScreenshot": {
+    "path": "artifacts/data-chain-smoke/logic-native-function-browser-dialog.png",
+    "sha256": "050fee41532cc46a7172571b6e8af4aa5841e1fe4e8a87e63609c3be1cae662d",
+    "scope": "final standard dialog opened then cancelled; row editor cancelled; no function confirmation"
+  }
+}

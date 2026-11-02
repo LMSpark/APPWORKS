@@ -1,0 +1,182 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "nativeActualService": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 11,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+        "success": true,
+        "diagnostics": [],
+        "codeClassDeleteCancel": {
+          "classId": "1DA116B1DF5646BAAF92D6FC23080054",
+          "catalogRows": 7,
+          "catalogTotal": 7,
+          "deleteAvailability": "enabled",
+          "pendingDeleteTracked": true,
+          "cancelRestored": true,
+          "nodeSnapshotsUnchanged": true,
+          "rereadTargetPresent": true,
+          "saveAttempted": false,
+          "writes": 0
+        },
+        "views": [
+          {
+            "table": "Base_CodeDesign",
+            "view": "default",
+            "rows": 1,
+            "total": 1,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeDesign",
+            "view": "parents",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeNodeDesign",
+            "view": "default",
+            "rows": 3,
+            "total": 3,
+            "state": 3
+          },
+          {
+            "table": "Dict_CodeNodeType",
+            "view": "default",
+            "rows": 5,
+            "total": 5,
+            "state": 3
+          },
+          {
+            "table": "Base_CodeClassTable",
+            "view": "default",
+            "rows": 7,
+            "total": 7,
+            "state": 3
+          },
+          {
+            "table": "Base_CodingSequence",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_TblField",
+            "view": "referenceFields",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          },
+          {
+            "table": "Base_CodeSerialPerform",
+            "view": "default",
+            "rows": 0,
+            "total": 0,
+            "state": 0
+          }
+        ]
+      }
+    ]
+  },
+  "implementation": {
+    "action": "Base_CodeClassTable DataView.removeRow, existing staged commit mode",
+    "permission": "RendererButton permAction=delete plus original DataView delete guard",
+    "saveScope": [
+      "Base_CodeClassTable@default"
+    ],
+    "codeNodeSnapshotsNotDeleted": true,
+    "unknownVerificationDoesNotReplay": true,
+    "confirmationRequiredForExistingRows": true,
+    "confirmationUsesStandardDialog": true,
+    "capturedClassIdentityRevalidatedBeforeStaging": true
+  },
+  "sourcePicker": {
+    "actualReferenceModes": [
+      "Table"
+    ],
+    "modeEvidence": "BusinessTableSelector queryType defaults Table; queryTypes defaults empty; resolveQueryTypes falls back to [queryType]",
+    "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+    "formalModels": [
+      {
+        "metaName": "Base_AppSystemList",
+        "modelId": "a9bb14ed-81c4-4f68-88c2-dc9b1d86ef06",
+        "primaryKey": "rowid",
+        "outputFields": [
+          "AppName",
+          "AppDesc",
+          "lingma_sys_ent",
+          "rowid"
+        ]
+      },
+      {
+        "metaName": "Base_AppAndSource_Relation",
+        "modelId": "400d5424-9a33-4faf-a10b-da436344b203",
+        "primaryKey": "rowid",
+        "outputFields": [
+          "conName",
+          "type",
+          "conid",
+          "isRef",
+          "rowid",
+          "sysid",
+          "cnName"
+        ]
+      }
+    ],
+    "currentApplication": "D99A1DCE9894698799101EFD70F8FC76",
+    "visibleApplicationRows": 1,
+    "visibleDatabaseRows": 1,
+    "visibleDatabaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+    "storedDistinctReferenceTables": 5,
+    "tablesInCurrentDatabase": [
+      "00EB54040C01C782BFE79D4F3C4F7884",
+      "883991528A5B4BE3B351AA30B085D9DC",
+      "D85E82F7195C442C8B196C0B93D6174E"
+    ],
+    "otherStoredReferences": [
+      {
+        "rowid": "104F2492676FCC7777FF32D1F1F59692",
+        "dbid": "E7D2C6E2E0E24D3CA507040136B71F54"
+      },
+      {
+        "rowid": "1FBC846E45D02EE9A3FD29B0D1C20439",
+        "dbid": "E7D2C6E2E0E24D3CA507040136B71F54"
+      }
+    ],
+    "exactTableIdsExistWithoutDatabaseConstraint": [
+      "104F2492676FCC7777FF32D1F1F59692",
+      "1FBC846E45D02EE9A3FD29B0D1C20439"
+    ],
+    "physicalDeletionProven": false,
+    "readRequests": 13
+  },
+  "diagnosticAuth": {
+    "initialExpiredReads": 3,
+    "staleHelperClosureReadsAfterRefresh": 3,
+    "normalRefreshSucceeded": true,
+    "helperNowRequiresExplicitCurrentRamToken": true,
+    "productAuthBugClaimed": false,
+    "credentialsPersisted": false
+  },
+  "remaining": [
+    "Complete reference-table source selection and application/database visibility semantics.",
+    "Class creation; actual catalog deletion/save smoke not performed.",
+    "Browser whole-page acceptance and unresolved SaveView outcome.",
+    "New draft deletion behavior will be aligned with reference when class creation is restored."
+  ],
+  "realServiceDeleteWrites": 0
+}

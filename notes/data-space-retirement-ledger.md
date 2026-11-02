@@ -4831,3 +4831,17 @@ flowchart TD
 - 实服取消烟测：在1DA116B1DF5646BAAF92D6FC23080054的63个真实引用字段中取不同可读字段，仅本地改原分类TextFieldName与Name，经本次五字段原生检查点restore后局部行集一致，再正式refresh核原两值一致。候选批28次读取，取消批15次读取，写入/拦截写均0，未调用分类保存或SaveView。前端标准控件确认由组件集成测试证明；这两批实际服务证据不冒充浏览器整页或真实保存。
 - 证据evidence/data-chain-smoke/2026-11-02-code-class-field-options-audit.json保留ID/数量/结果，不含字段值、规则正文、凭据或权限。浏览器按文档检查同一browser2，tabs列表为空，原未知保存标签当前已不可见；未刷新/新建未知owner或重试写入，已有哈希与回执证据继续保留。当前不能称原标签仍存活，也不以此核销未知结果。根目标active，完整分类、引用表选择、实际保存/浏览器验收及全架构旧缺口继续。
 - 最后36949退出0：最终9文件61项、正式ClassModel生成、完整verify/build均通过；既有动态导入提示保留。核新弹窗位于参考原生ui路径、旧占位在src/tests/config无引用，git diff --check通过。审阅标准字段绑定、两视图隔离、原生检查点/查询过期与目录独立提交边界后，提交推送origin/1031检查点。当前只证明已选引用表的字段编辑/取消及实服候选，不将更换引用表、完整分类CRUD、真实保存或全架构目标宣称完成。
+
+### 2026-11-02 分类目录删除闭环与引用表来源范围核实
+- 上轮f70e0b1c4已推送、干净树开始，判定progress。继续同一完整分类维护目标，固定参考CodeClassSelector.handleDelete与saveCodeClassChanges：删除目录记录先暂存再独立保存；编码节点存的是五项映射快照，不含分类目录外键，因此不能级联删除或重写节点。原参考删除后历史快照继续存在，与资源删除完整性分开核定，不猜测扫描全部模型或自动清理数据。
+- 查ClassModel DataView.removeRow/discardPendingChanges指南及RButtonProps的dataViewKey/permAction合同，确认staged只标pending-delete；本页已有正式staged视图，使用完整分类视图键和标准按钮permAction=delete，原查询守卫仍由DataView核验。removeClass捕获原当前行主键、原运行实例及编码节点目标，拒绝忙碌/未确认保存，不另造删除数组、权限判断、接口或提交器；结果false/失败明确报错。
+- 先RED四项缺删除入口，接线后验证：原视图暂存删除→明确放弃恢复；仅提交目标分类目录、不改节点快照和主设计草稿；原查询delete拒绝让按钮禁用且无暂存；删除回执未知后同入口核验仅一次写入。初次测试错把正式DataView删除载荷当只含PK，实际保留原捕获行；测试改核唯一目标PK与目录范围，不修改原数据层捕获合同。最终9文件65项通过，正式ClassModel刷新、完整verify/build的57091已退出0，既有动态导入提示保留。
+- 实服仅验证本地暂存删除取消，不作真实删除：原编码实例分类目录7/7，选择1DA116B1DF5646BAAF92D6FC23080054，原查询delete=enabled且commitMode=staged，removeRow后pending-delete被跟踪；原discard恢复局部目录，节点行集未变，再正式refresh核该分类仍在且名称未变。白名单11次读取、0写入、0拦截写，未调用目录保存、SaveView或真实删除，不能将夹具保存验收冒充实服删除通过。
+- 诊断两次401分开记录：首轮旧会话过期，正常refresh Code200；原REPL helper闭包仍持旧会话引用，第二轮还是旧凭据读失败。改诊断helper为必须显式接收本次RAM token、拒绝会话回退后同读通过。新凭据有效期正常，未改产品鉴权或持久化凭据，不将诊断旧闭包误报产品服务故障；两批失败各3次只读请求，均0写入。
+- Ruling：完整引用表选择的本用例只需Table模式——固定参考BusinessTableSelector默认queryType=Table、queryTypes=[]，resolveQueryTypes退回[queryType]，分类页没有传其它类型。不为本用例新增参考未启用的字典/视图工作区；这不缩减全架构字典/逻辑视图等独立目标。
+- 引用来源进一步核实：34BDBE645F461A3D83282A941D6037F4内正式Base_AppSystemList模型a9bb14ed-81c4-4f68-88c2-dc9b1d86ef06；Base_AppAndSource_Relation模型400d5424-9a33-4faf-a10b-da436344b203。当前同一执行域目录应用只D99…、数据库关系只EBEFF17BBB6443B185D6FB32FF69F0BB；7分类的5个不同引用表ID按该dbid+精确ID查到3个。其它104F2492676FCC7777FF32D1F1F59692和1FBC846E45D02EE9A3FD29B0D1C20439在同一_Base_TblList取消业务dbid条件、保持原授权/headers按精确ID均能读到；再沿正式8D…@View_TblList精确ID确认二者dbid均E7D2C6E2E0E24D3CA507040136B71F54。它们存在于另一个数据库，不能定为表丢失、改ID或同名重挂，也不放宽权限或伪造应用数据库候选。
+- 来源核实13次读取，与11次删除取消分开；evidence/data-chain-smoke/2026-11-02-code-class-delete-audit.json保存正式身份/数量/结果，不含规则值、凭据、headers或权限。本轮无Java、正式数据或后端协议变更。完整引用表选择、应用/数据库可见范围语义、分类新增、真实保存/删除与浏览器整页及原SaveView未知继续，根目标active；不称分类CRUD或全架构已通过。
+- 提交前补核固定参考公共editable.ts的createEditableTableDeleteHandler，发现既有记录暂存删除前还需删除确认。先补RED确认取消无变更，再用标准RendererDialog/RendererButton恢复确认，捕获分类PK；确认时重查原编码目标/视图及当前分类身份后才removeRow，取消确认不产生目录变更。弹窗锁定避免后台目录换目标；不复制ElMessageBox或另建删除状态真源。当前只保存待确认目标ID，不保存行草稿。参考待新增行可直接移除的行为留待分类新增恢复时按合同接入，不把此点称已完成。
+- 最终确认交互后的9文件66项通过、正式ClassModel生成完成，51791正在最终完整verify/build。此前57091对应确认弹窗前源码，不能代替最终门禁；最终终态另补。独立实服暂存/取消证据仍有效，但确认弹窗只由组件集成测试证明，未声明浏览器实服删除确认通过。
+- 最后51791退出0：最终确认弹窗源码的9文件66项、正式ClassModel生成、完整verify/build通过，既有动态导入提示保留；git diff --check通过。审阅确认前无暂存、确认后原目标重核、权限拒绝、独立提交/取消与未知不重放后，提交推送origin/1031检查点。
+- 下一段来源选择还需按需装配正式34…数据空间：当前PageRuntime.#load直接Promise.allSettled加载全部声明场景，暂未见独立场景懒加载公开入口。先核完整公共合同再选择承接方式，不能为对话框复制外层DataSet owner、伪造PageRuntime或在业务层另造共享缓存。本条是当前源码事实与待核实项，不表示新框架已批准或已实现；按实际阻断再补最小公共能力。根目标仍active。

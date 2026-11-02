@@ -4779,7 +4779,7 @@
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T08:08:04.161Z"
+      "sourceModifiedAt": "2026-11-02T08:40:10.470Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",

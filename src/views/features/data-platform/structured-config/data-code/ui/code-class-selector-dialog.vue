@@ -11,6 +11,7 @@ AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完
     <p v-if="unconfirmed" role="status">目录保存结果尚未确认，请先核验。</p>
     <div v-if="ready">
       <RendererButton label="编辑" :disabled="busy || unconfirmed || !selected" @click="editClass" />
+      <RendererButton :data-view-key="catalogKey" label="删除" perm-action="delete" :disabled="busy || unconfirmed || !selected" @click="removeClass" />
       <RendererButton :label="unconfirmed ? '核验目录保存结果' : '保存目录'" :disabled="busy || !dirty" @click="saveCatalog" />
       <RendererButton label="放弃目录修改" :disabled="busy || unconfirmed || !dirty" @click="discardCatalog" />
     </div>
@@ -18,6 +19,14 @@ AI用途：恢复分类编码段的来源选择时复用此弹窗，并提供完
     <template #footer>
       <RendererButton label="取消" :disabled="busy || unconfirmed" @click="cancel" />
       <RendererButton label="确定" button-type="primary" :disabled="!ready || busy || !selected || dirty" @click="confirm" />
+    </template>
+  </RendererDialog>
+  <RendererDialog v-if="removing" :model-value="true" :data-view-key="catalogKey" title="删除确认" :width="420" :append-to-body="true"
+    :close-disabled="acting" @update:model-value="cancelRemoveClass">
+    <p>确定删除所选分类规则？</p>
+    <template #footer>
+      <RendererButton label="取消删除" :disabled="acting" @click="cancelRemoveClass" />
+      <RendererButton :data-view-key="catalogKey" label="确定删除" perm-action="delete" :disabled="acting || unconfirmed" @click="confirmRemoveClass" />
     </template>
   </RendererDialog>
   <CodeClassEditDialog v-if="editing" :data-view-key="catalogKey" :class-id="editing.classId" :bus-table-rowid="editing.busTableRowid" @close="editing = undefined" />
@@ -35,9 +44,10 @@ const target = {...props}, parsed = parseDataViewKey(target.dataViewKey)
 const catalogKey = parsed?.scope ? buildDataViewKey('Base_CodeClassTable', 'default', parsed.scope) : ''
 const catalog = shallowRef<DataView>(), ready = ref(false), loading = ref(true), acting = ref(false), error = ref(''), revision = ref(0)
 const editing = shallowRef<{classId: string | number; busTableRowid: string}>()
+const removing = shallowRef<{id: string | number}>()
 let active = true, nodes: DataView | undefined, original: DataRow | null = null, unsubscribe: (() => void) | undefined
 const selected = computed(() => {revision.value; return catalog.value?.currentRow})
-const busy = computed(() => {revision.value; return loading.value || acting.value || !!editing.value || catalog.value?.mutating === true})
+const busy = computed(() => {revision.value; return loading.value || acting.value || !!editing.value || !!removing.value || catalog.value?.mutating === true})
 const unconfirmed = computed(() => {revision.value; return catalog.value?.hasUnconfirmedSave === true})
 const dirty = computed(() => {revision.value; return !!catalog.value && (catalog.value.hasUnconfirmedSave || catalog.value.hasEditingChanges() || catalog.value.dirtyTracking.hasPendingChanges())})
 const fields: SparkNode[] = Object.entries({Name: '名称', TableName: '引用表名', ValueFieldName: '引用表过滤字段', TextFieldName: '引用字段'})
@@ -71,6 +81,27 @@ function cancel(): void {
   if (busy.value || unconfirmed.value) return
   if (dirty.value) {error.value = '请先保存或明确放弃目录修改'; return}
   emit('close')
+}
+function removeClass(): void {
+  if (!ready.value || busy.value || unconfirmed.value) return
+  try {
+    const view = assertTarget(), row = view.currentRow, id = row ? view.getPkKey(row) : undefined
+    if (id === undefined) throw new Error('请选择要删除的分类规则')
+    removing.value = {id}
+  } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
+}
+function cancelRemoveClass(): void {if (!acting.value) removing.value = undefined}
+async function confirmRemoveClass(): Promise<void> {
+  if (!ready.value || loading.value || acting.value || unconfirmed.value || !removing.value) return
+  const id = removing.value.id
+  acting.value = true; error.value = ''
+  try {
+    const view = assertTarget(), row = view.currentRow
+    if (!row || view.getPkKey(row) !== id) throw new Error('分类删除目标已改变，请重新选择')
+    const result = await view.removeRow(id)
+    if (result === false || typeof result === 'object' && !result.success) throw new Error(typeof result === 'object' ? result.message ?? '删除未完成' : '删除未完成')
+  } catch (cause) {if (active) error.value = cause instanceof Error ? cause.message : String(cause)}
+  finally {if (active) {removing.value = undefined; acting.value = false; revision.value++}}
 }
 async function saveCatalog(): Promise<void> {
   if (busy.value) return

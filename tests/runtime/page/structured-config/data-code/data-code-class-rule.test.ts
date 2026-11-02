@@ -12,8 +12,9 @@ import * as CodeDesignOps from '@/lowcode/resources/structured-config/data-code/
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], original = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = original})
-async function fixture() {
+async function fixture(denyDelete = false) {
   const service = codeService()
+  if (denyDelete) service.http.denyDelete.add('Base_CodeClassTable')
   service.http.records['Base_CodeNodeDesign']![0] = {rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 1,
     ParameterName: '原分类', CodeNodeDesignJson: '{"keep":false}'}
   service.http.records['Dict_CodeNodeType']!.push({rowid: 'D1', val: '1', txt: '分类字符串', ordIdx: '1'})
@@ -38,15 +39,75 @@ async function fixture() {
   }}), {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper); await flushPromises()
   const dialog = wrapper.getComponent(CodeClassSelectorDialog)
-  const click = async (label: string) => {
+  const click = async (label: string, confirmDelete = true) => {
     const button = wrapper.findAllComponents(RendererButton).find(item => item.props('label') === label)
     expect(button, `missing ${label}`).toBeDefined()
     await button!.get('button').trigger('click'); await flushPromises()
+    if (label === '删除' && confirmDelete) {
+      const confirmation = wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '确定删除')
+      if (confirmation) {await confirmation.get('button').trigger('click'); await flushPromises()}
+    }
   }
   return {wrapper, dialog, nodes, main, catalog, service, click, ds}
 }
 
 describe('classification selection through original views', () => {
+  it('requires deletion confirmation and leaves every draft unchanged when the confirmation is cancelled', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('删除', false)
+    expect(f.catalog.dirtyTracking.pendingDeleteIds.size).toBe(0)
+    expect(document.body.textContent).toContain('删除确认')
+    await f.click('取消删除')
+    expect(f.catalog.hasEditingChanges()).toBe(false)
+    expect(f.catalog.rows).toHaveLength(1)
+    expect(f.main.hasEditingChanges()).toBe(true)
+    expect(f.nodes.hasEditingChanges()).toBe(false)
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('stages deletion in the original directory and restores it on explicit discard', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('删除')
+    expect(f.catalog.dirtyTracking.pendingDeleteIds.has('K1')).toBe(true)
+    expect(f.service.http.saves).toEqual([])
+    await f.click('放弃目录修改')
+    expect(f.catalog.rows.some(row => row['rowid'] === 'K1')).toBe(true)
+    expect(f.catalog.dirtyTracking.pendingDeleteIds.size).toBe(0)
+    expect(f.main.hasEditingChanges()).toBe(true)
+    expect(f.nodes.hasEditingChanges()).toBe(false)
+  })
+  it('saves only the selected directory deletion without deleting or rewriting code node snapshots', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('删除'); await f.click('保存目录')
+    expect(f.service.http.records['Base_CodeClassTable']).toEqual([])
+    expect(f.service.http.saves.map(save => save.table)).toEqual(['Base_CodeClassTable'])
+    expect(f.service.http.saves[0]?.deleted.map(row => row['rowid'])).toEqual(['K1'])
+    expect(f.service.http.records['Base_CodeNodeDesign']![0]?.['CodeNodeDesignJson']).toBe('{"keep":false}')
+    expect(f.main.hasEditingChanges()).toBe(true)
+  })
+  it('consumes the original query delete denial for the selected classification', async () => {
+    const f = await fixture(true)
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises()
+    const button = f.wrapper.findAllComponents(RendererButton).find(item => item.props('label') === '删除')!
+    expect(button.get('button').attributes('disabled')).toBeDefined()
+    await button.get('button').trigger('click'); await flushPromises()
+    expect(f.catalog.dirtyTracking.pendingDeleteIds.size).toBe(0)
+    expect(f.service.http.saves).toEqual([])
+  })
+  it('verifies an unknown directory deletion without replaying the delete request', async () => {
+    const f = await fixture()
+    await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))
+    f.catalog.setCurrentRowById('K1'); await flushPromises(); await f.click('删除')
+    f.service.http.failAfterWrite = true; await f.click('保存目录')
+    expect(f.catalog.hasUnconfirmedSave).toBe(true)
+    await f.click('核验目录保存结果')
+    expect(f.catalog.hasUnconfirmedSave).toBe(false)
+    expect(f.service.http.saves).toHaveLength(1)
+    expect(f.service.http.records['Base_CodeClassTable']).toEqual([])
+  })
   it('reads the original business table title and description needed by the maintenance form', async () => {
     const f = await fixture()
     await vi.waitFor(() => expect(f.catalog.requestState).toBe(RequestState.Loaded))

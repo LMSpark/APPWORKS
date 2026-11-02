@@ -1,0 +1,29 @@
+{
+  "testedAt": "2026-11-02T11:35:53.136Z",
+  "scope": "actual read-only service probe; not UI or persistence acceptance",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+  "codeId": "5F320C95270EF5410F257C8FA4B90452",
+  "sequenceNodeId": "510B7FEDA1F27B121C926333BAB4132C",
+  "path": "/api/Codeing/CodeInitDataList",
+  "date": "",
+  "status": 200,
+  "code": 200,
+  "resultType": "array",
+  "rows": 18,
+  "fields": [
+    "1",
+    "2",
+    "min",
+    "max",
+    "InitVal",
+    "rowid"
+  ],
+  "permissionReceiptsPresent": false,
+  "mutationRequests": 0,
+  "limitations": [
+    "read response cannot grant edit/create authority",
+    "requires original Base_CodeSerialPerform query and save owner",
+    "reference initialization page is not yet restored"
+  ]
+}

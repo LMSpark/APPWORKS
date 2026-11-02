@@ -1,0 +1,25 @@
+{
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "authorization": "user approved one temporary SMOKE_DATA_CHAIN_CODE_ definition, one fixed-string segment, native save/readback and cleanup",
+  "kind": "native-code-parent-first-smoke",
+  "testedAt": "2026-11-02T11:35:21.238Z",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+  "id": "3C4EAA07275C4CAD80FF04F29C9F3089",
+  "nodeId": "54D2BDF2C38A47396F0B09B5F482E89E",
+  "name": "SMOKE_DATA_CHAIN_CODE_1793618813404",
+  "phase": "complete",
+  "readRequests": 48,
+  "writeRequests": 5,
+  "confirmedSaves": 5,
+  "cleanupConfirmed": true,
+  "checks": [
+    "formal source projection, main-create permissions and pending-parent guard",
+    "main saved, independently reopened, child create enabled",
+    "native segment save, JSON readback, local cancel",
+    "independent update and compiled description readback",
+    "exact child then main cleanup and same-ID absence readbacks"
+  ],
+  "replayWrites": 0,
+  "unknownOwnerRetained": false
+}

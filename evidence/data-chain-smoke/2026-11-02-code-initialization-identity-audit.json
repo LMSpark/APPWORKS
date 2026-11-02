@@ -1,0 +1,67 @@
+{
+  "testedAt": "2026-11-02T11:42:12.918Z",
+  "scope": "read-only comparison; no migration or record updates",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+  "codeId": "5F320C95270EF5410F257C8FA4B90452",
+  "sequenceNodeId": "510B7FEDA1F27B121C926333BAB4132C",
+  "service": {
+    "rows": 18,
+    "persistedCandidateIds": [
+      "CCB3D89D7FEE44FEAD3B109AB3E195EA",
+      "96F1CDE669384A4FAC6A33A0BD5F6529"
+    ],
+    "range": "001-999",
+    "permissionReceipts": false
+  },
+  "nativeCodeAndNodeQuery": [
+    {
+      "table": "Base_CodeSerialPerform",
+      "view": "default",
+      "rows": 0,
+      "total": 0,
+      "state": 3
+    }
+  ],
+  "nativeCodeOnlyComparison": {
+    "rows": 64,
+    "total": 64,
+    "readableNodeOwner": 64,
+    "blankNodeOwner": 64,
+    "matchingNodeOwner": 0,
+    "candidateIds": 2,
+    "candidateMatches": [
+      {
+        "id": "CCB3D89D7FEE44FEAD3B109AB3E195EA",
+        "returned": true,
+        "codeOwnerMatches": true,
+        "nodeOwner": null
+      },
+      {
+        "id": "96F1CDE669384A4FAC6A33A0BD5F6529",
+        "returned": true,
+        "codeOwnerMatches": true,
+        "nodeOwner": null
+      }
+    ]
+  },
+  "formalNodeField": {
+    "id": "9A8D1ABA54FD481090CAFFDE87DCDADA",
+    "name": "NodeDesignId",
+    "sourceField": "NodeDesignId",
+    "type": "varchar",
+    "output": true,
+    "primaryKey": false,
+    "computed": false,
+    "description": "任务 ID",
+    "order": 0
+  },
+  "evidenceType": {
+    "actualService": true,
+    "actualNativeModelQuery": true,
+    "javaSourceOnlyReference": true
+  },
+  "interpretation": "Existing function-selected IDs are excluded by the node-equality query because formal NodeDesignId is null; this is not proof of deletion or grounds to assign an owner.",
+  "proposedBoundary": "Read exact service-selected record IDs through the original formal code ownership query and preserve the original NodeDesignId on Code-only edits. Reject conflicting nonempty node ownership or missing/duplicate identities; never turn returned existing IDs into creates.",
+  "mutationRequests": 0
+}

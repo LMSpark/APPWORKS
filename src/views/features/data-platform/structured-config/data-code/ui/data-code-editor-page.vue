@@ -14,6 +14,7 @@
         <RendererButton label="设置业务表及其字段" :disabled="busy || unconfirmed" @click="openBusinessTable" />
         <FieldText field="CodeDescription" label="编码描述" :readonly="true" />
         <FieldText field="CodeExample" label="编码示例" :readonly="true" />
+        <RendererButton label="刷新示例" :data-view-key="mainKey" :disabled="busy || unconfirmed" @click="refreshExample" />
       </RendererForm>
       <CodeSegmentEditor ref="segmentEditor" :data-view-key="nodesKey" :interaction-locked="saving || loading || !!openDialog" @select="openRule" />
       <div class="structured-editor-actions">
@@ -32,7 +33,6 @@
       target-kind="business" :validate-target="validateBusinessTarget" @close="closeBusinessTable" />
   </section>
 </template>
-
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
@@ -49,7 +49,6 @@ import SequenceSelectorDialog from './sequence-selector-dialog.vue'
 import TimeStringDialog from './time-string-dialog.vue'
 import CodeReferenceTableDialog from './code-reference-table-dialog.vue'
 import CodeSegmentEditor from './code-segment-editor.vue'
-
 const props = defineProps<{
   /** 宿主传入的被管理应用ID；提供任一目标prop时必须同时提供另一项，不从路由补齐。 */
   applicationId?: string
@@ -182,6 +181,13 @@ async function save(): Promise<void> {
   finally {if (active && own === generation) {saving.value = false; revision.value++}}
   if (saved && active && own === generation) emit('saved')
 }
+async function refreshExample():Promise<void>{
+  if(!dataSet.value||busy.value||unconfirmed.value)return
+  const own=generation;saving.value=true;error.value=''
+  try{await LowcodeDataCode.example(dataSet.value).refresh()}
+  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+  finally{if(active&&own===generation){saving.value=false;revision.value++}}
+}
 function cancel(): boolean {
   if (busy.value) return false
   if (unconfirmed.value) {error.value = '保存结果尚未确认，请先核验保存结果'; return false}
@@ -190,7 +196,6 @@ function cancel(): boolean {
 }
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
 </script>
-
 <style scoped>
 .structured-editor-page {display:grid; gap:16px; padding:24px;}
 .structured-editor-page h1 {margin:0; font-size:1.25rem;}

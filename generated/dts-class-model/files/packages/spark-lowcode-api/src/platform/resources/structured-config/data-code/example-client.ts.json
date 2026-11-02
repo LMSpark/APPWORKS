@@ -1,0 +1,235 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/example-client",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/example-client.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/example-client.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/structured-config/data-code/example-client",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/structured-config/data-code/example-client\n职责：读取实服TestGetCodeString生成的示例；不分配正式编码，不保存设计。\n边界：仅供语义DataView资源适配调用，保留服务拒绝并拒绝失效执行域。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CodeExampleNode",
+      "CodeExampleInput",
+      "CodeExampleClient"
+    ]
+  },
+  "$defs": {
+    "CodeExampleNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeExampleNode",
+      "properties": {
+        "NodeNo": {
+          "type": "number"
+        },
+        "NodeType": {
+          "type": "number"
+        },
+        "CodeNodeDesignJson": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "NodeNo",
+        "NodeType",
+        "CodeNodeDesignJson"
+      ],
+      "additionalProperties": false
+    },
+    "CodeExampleInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeExampleInput",
+      "properties": {
+        "busTableId": {
+          "type": "string"
+        },
+        "nodes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/CodeExampleNode"
+          }
+        }
+      },
+      "required": [
+        "busTableId",
+        "nodes"
+      ],
+      "additionalProperties": false
+    },
+    "CodeExampleClient": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CodeExampleClient",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "http": {
+              "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "scenarioId": {
+                  "type": "string"
+                },
+                "readScope": {
+                  "type": "object",
+                  "title": "() => DataSpaceRequestScope"
+                }
+              },
+              "required": [
+                "scenarioId",
+                "readScope"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/CodeExampleInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T13:21:29.493Z",
+  "models": {
+    "CodeExampleNode": {
+      "name": "CodeExampleNode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    NodeNo: number;\n    NodeType: number;\n    CodeNodeDesignJson: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    NodeNo: number;\n    NodeType: number;\n    CodeNodeDesignJson: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "NodeNo",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "NodeType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "CodeNodeDesignJson",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CodeExampleInput": {
+      "name": "CodeExampleInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    busTableId: string;\n    nodes: readonly CodeExampleNode[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    busTableId: string;\n    nodes: readonly CodeExampleNode[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "busTableId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CodeExampleClient": {
+      "name": "CodeExampleClient",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(http: HttpClientBase, options: Readonly<{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }>)",
+          "parameters": [
+            {
+              "name": "http",
+              "type": {
+                "type": "reference",
+                "name": "HttpClientBase"
+              }
+            },
+            {
+              "name": "options",
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        scenarioId: string;\n        readScope: () => DataSpaceRequestScope;\n    }"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "read",
+              "jsdoc": "@param input 当前可读编辑节点；调用方核业务身份及字段权限。\n@returns 服务生成的示例字符串，不代表已保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "CodeExampleInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/example-client.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

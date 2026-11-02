@@ -114,6 +114,7 @@ export { DictionaryWorkspace } from './platform/resources/structured-config/dict
 export { DesignResourceRejection } from './platform/resources/shared/http-record-guards.js'
 export { LogicViewDesignClient } from './platform/resources/structured-config/logic-view/design-client.js'
 export { CodeInitializationClient } from './platform/resources/structured-config/data-code/initialization-client.js'
+export { CodeExampleClient, type CodeExampleInput, type CodeExampleNode } from './platform/resources/structured-config/data-code/example-client.js'
 export { createCodeInitializationView } from './platform/resources/structured-config/data-code/initialization-resource.js'
 export type { CodeInitializationTarget } from './platform/resources/structured-config/data-code/initialization-projection.js'
 export type { LogicViewDesignPayload } from './platform/resources/structured-config/logic-view/design-client.js'

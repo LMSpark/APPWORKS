@@ -31,6 +31,19 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.example.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.example.return": {
+          "$ref": "example-workspace.ts.json#/$defs/CodeExampleWorkspace"
+        },
         "method.initialization.params": {
           "type": "object",
           "properties": {
@@ -82,7 +95,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T12:33:41.421Z",
+  "generatedAt": "2026-11-02T13:24:30.575Z",
   "models": {
     "LowcodeDataCode": {
       "name": "LowcodeDataCode",
@@ -117,6 +130,24 @@
             }
           ],
           "methods": [
+            {
+              "name": "example",
+              "jsdoc": "同一实例复用只读示例资源；生成值回写原主视图草稿，不保存定义。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "CodeExampleWorkspace",
+                "sourcePath": "src/lowcode/resources/structured-config/data-code/example-workspace.ts"
+              }
+            },
             {
               "name": "initialization",
               "jsdoc": "同一运行DataSet仅有一个初始化owner；弹窗重开不重复创建或改绑视图。",

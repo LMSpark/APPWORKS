@@ -1,0 +1,50 @@
+{
+  "testedAt": "2026-11-02T13:29:02.695Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "kind": "native-code-example-workspace-audit",
+  "implementation": [
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/example-client.ts",
+    "src/lowcode/resources/structured-config/data-code/example-plan.ts",
+    "src/lowcode/resources/structured-config/data-code/example-workspace.ts",
+    "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue"
+  ],
+  "binding": "868E62F90DB8118C74CDC9F6BCA61157@Base_CodeDesign@default",
+  "previewBinding": "868E62F90DB8118C74CDC9F6BCA61157@CodeExamplePreview@default",
+  "live": {
+    "kind": "native-code-example-workspace",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "success": true,
+    "resultLength": 6,
+    "resultReadOnly": true,
+    "mainDraftMatched": true,
+    "nativeCancel": true,
+    "independentMainUnchanged": true,
+    "allocationRows": 64,
+    "independentAllocationsUnchanged": true,
+    "saveAttempted": false
+  },
+  "requests": {
+    "reads": 19,
+    "functionPosts": 1,
+    "crud": 0,
+    "blocked": 0
+  },
+  "limitations": [
+    "Actual service test generated a preview, edited then canceled the original main DataView and independently reread; it did not persist CodeExample",
+    "Original design-save persistence tested against formal-query permission fixture; new live fixture authorization still pending",
+    "Current source read/cancel smoke is not browser visual parity acceptance",
+    "sys_edit SaveView unconfirmed and never replayed"
+  ],
+  "automatedTests": {
+    "passed": 153,
+    "files": 18,
+    "log": "artifacts/data-chain-smoke/code-example-related-final.log"
+  },
+  "gates": {
+    "verify": true,
+    "terminalSession": 33125,
+    "build": true,
+    "readOnlyReview": "no confirmed findings",
+    "classModelGenerated": true
+  }
+}

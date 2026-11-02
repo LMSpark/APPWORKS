@@ -6,6 +6,7 @@ import ElementPlus, {ElSelect, ElInputNumber} from 'element-plus'
 import {Spark, registerAllRenderers, RendererForm, FieldText, RendererTable, RendererButton} from '@spark-appworks/spark-component'
 import {RequestState, type DataRow} from '@spark-appworks/spark-data'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
+import {CodeExampleWorkspace} from '@/lowcode/resources/structured-config/data-code/example-workspace'
 import {createSourceDataSet, sourceRecords} from './source-picker/fixture'
 import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
@@ -40,6 +41,19 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it('refreshes the example through its semantic view, shows the original draft and cancels without saving',async()=>{
+    vi.spyOn(LowcodeDataCode,'example').mockImplementation(ds=>new CodeExampleWorkspace({dataSet:ds,client:{read:async()=> 'BROWSER_EXAMPLE'}}))
+    const loaded=vi.spyOn(LowcodeDataCode,'loadEditor'),{wrapper}=await open()
+    await vi.waitFor(()=>expect(wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='刷新示例')).toBe(true))
+    await wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='刷新示例')!.get('button').trigger('click');await flushPromises()
+    const ds=await loaded.mock.results[0]!.value,main=ds.getView('Base_CodeDesign')!
+    expect(main.getEditingRow('C1')?.['CodeExample']).toBe('BROWSER_EXAMPLE')
+    const field=wrapper.findAllComponents(FieldText).find(component=>component.props('field')==='CodeExample')!
+    expect((field.get('input').element as HTMLInputElement).value).toBe('BROWSER_EXAMPLE')
+    await wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='取消修改')!.get('button').trigger('click');await flushPromises()
+    expect(main.hasEditingChanges()).toBe(false);expect(state.current.http.saves).toEqual([])
+    expect((field.get('input').element as HTMLInputElement).value).toBe('A')
+  })
   it.each([false,true])('checks saved initialization preconditions before mounting its dialog (new=%s)',async create=>{
     const {wrapper}=create?await open({}, {applicationId:'A',codeDesignId:'NEW',create:true}):await open()
     await vi.waitFor(()=>expect(wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='初始化数据…'&&button.get('button').attributes('disabled')===undefined)).toBe(true))

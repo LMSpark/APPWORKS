@@ -4953,3 +4953,15 @@ flowchart TD
 - 实服先沿本仓原DataSet读取正式主/节点/字典及可读BusTableRowid，然后诊断调用固定字符串示例，HTTP200/Code200且Result字符串与输入一致；再发送固定串+yyyyMMdd日期+001-999/Incre2顺序号的纯请求配置，返回符合固定前缀+8位日期+001。总计3次函数POST，0次CRUD、0次正式GetCodeString取号；未新增或保存设计记录。函数诊断使用fetch，不能把它描述为业务页已接DataView。
 - 首次组合前后查询误沿default的CodeDesignID+空NodeDesignId范围，返回0，证据不足；随后在同一临时只读实例中按精确当前CodeDesignID查询全部64条正式分配记录，再调用同一示例函数并重新查询，64条完整返回值排序比较未变。未重挂null节点归属、未写64条，未以空查询假称完整基线。证据evidence/data-chain-smoke/2026-11-02-code-example-service-audit.json；结果不证明其他类型/其他范围绝无副作用。
 - 已定位下一实施链：当前生效主/分段DataView（含未保存编辑）→数据层语义示例查询→原函数→目标及编辑版本仍匹配→原主DataView.CodeExample编辑覆盖→原saveDataCodeDesign持久化。固定串须从当前ParameterName编译，不能发送保存前过期JSON；失败、换目标、权限变化和并发修改都不得覆盖原草稿。当前生产编辑器仍只有只读CodeExample，没有刷新入口，本轮只确认实服合同与断点，不称恢复完成。其余全架构缺口继续按原台账；sys_edit未知保存未重放，整体目标active。
+
+### 2026-11-02 编码示例原生DataView断链修复
+- 上轮7fd8a576a已实证示例函数可用，本轮依据同一整体批准计划恢复刷新链，不改变后端、不扩大权限、不执行五条尚未授权的初始化fixture。using-superpowers/executing-plans/TDD/verification-before-completion用于本轮执行；独立只读review_code_example按executing-plans末尾审查要求核全改动，未发现确定缺陷，未代替本轮实际验证。
+- CodeExampleClient仅实现已实测POST /api/Codeing/TestGetCodeString/{busTableId}及codeNodesList请求根、字符串Result，原执行头+固定场景；捕获token和headers副本，原对象在await期间被原地修改租户/token也会STALE拒绝。保留业务错误，不把对象结果猜成字符串，不重试CRUD或正式取号。包合同3测试先缺模块RED再GREEN。
+- getCodeExamplePlan从原主/节点DataView读取当前编辑覆盖，核场景、唯一currentRow、查询应用/编码身份、可读名称/业务表/CodeExample、原CodeExample可写及节点归属。节点按实际类型字典解析，拒绝空/null/重复/非法序号、不可读/无效规则JSON；固定字符串由本次ParameterName编译到请求JSON，其他规则原样语义序列化，按NodeNo排序，不修改节点草稿或另造记录。
+- 同一DataSet的CodeExampleWorkspace由LowcodeDataCode.example WeakMap复用；新增code-example/TestGetCodeString语义资源CodeExamplePreview，只有一次查询结果，没有后端伪模型或可编辑副本。原生DataView.refresh进入数据层client，结果只读且无增删改权限；异步前后重核业务签名、当前正式权限、原CodeExample草稿值和生命周期，符合后才updateEditingValue写回原Base_CodeDesign。失败保留原示例，后续明确刷新才再查询；原saveDataCodeDesign才提交主/节点变更，原discardPendingChanges取消示例。
+- 原生编辑页新增完整mainKey绑定的标准RendererButton“刷新示例”，由已有saving/loading及离开守卫管理操作锁定；没有页面HTTP/候选数组/新保存入口。正式ClassModel编译刷新后查RendererButton的dataViewKey/disabled/label及实现click合同，再接按钮；Vue标准FieldText显示原CodeExample覆盖。组件测试先缺factory RED，再验证点击→原主草稿→标准字段显示→取消恢复，0保存。
+- 相关18文件153测试通过：覆盖当前规则编译/只在设计保存时持久化、单独取消保留节点编辑、节点/示例/应用并发改变及实例释放时迟到响应不覆盖、服务失败/明确重试、原查询响应中CodeExample不可写和节点JSON脱敏时0函数调用。源码lint已过。完整门禁第一轮发现rows.includes(row)推断过窄的TS2345，已显式DataRow[]修复，当前33125正在重新生成ClassModel并执行verify/build，不把首轮失败算通过。
+- 新生产接线实服烟测（非仅诊断fetch）成功：原DataSet/PageRuntime装配当前真实3节点→CodeExamplePreview.refresh→CodeExampleClient HTTP→原主CodeExample草稿匹配→原主取消→独立主定义回读及精确编码所属64条分配记录回读均不变。19正式读取+1函数POST，0CRUD、0正式取号、0保存，结果字符串只记录长度6，不泄漏业务值。证据evidence/data-chain-smoke/2026-11-02-code-example-workspace-audit.json。代码类型注解修正不改变此运行逻辑。
+- 实服CodeExample真实持久化、当前应用完整浏览器布局及五条初始化fixture仍需后续验证，本轮没有借读/取消证明落库；正式保存链以同一原查询权限夹具核验。sys_edit SaveView未知继续不重放，其余全架构缺口继续按唯一台账推进；整体目标active。
+
+- 最终33125退出0：正式ClassModel重新编译生成、完整verify（类型检查、全仓lint、规则及ClassModel检查）、build全部通过；目录及page-thin门禁通过。18文件153项相关测试通过，独立只读审查未发现确定缺陷；证据JSON同步最终门禁状态。首轮TS2345失败日志保留为历史，不能替代最终通过快照。本轮按已授权提交/推送检查点，整体目标仍active，不声称全架构/整页已完成。

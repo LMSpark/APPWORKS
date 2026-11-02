@@ -90,7 +90,7 @@ describe('workflow formal design page',()=>{
   expect(f.wrapper.getComponent(RendererGraph).props('draggableKeys')).toEqual([])
   await f.click('核验布局保存结果');expect(state.uploads).toHaveLength(1);expect(state.dirty[0]?.isDirty).toBe(false)
  })
- it.each([{type:'query',expected:'订单模型'},{type:'copy',expected:'订单模型'},{type:'add',expected:'目标模型'}])('resolves $type node model ownership before loading fields',async({type,expected})=>{
+ it.each([{type:'query',expected:'订单模型'},{type:'copy',expected:'订单模型'},{type:'add',expected:'目标模型'},{type:'edit',expected:'目标模型'},{type:'delete',expected:'目标模型'}])('resolves $type node model ownership before loading fields',async({type,expected})=>{
   state.http.records['Base_WorkflowNodeDefinition']![0]!['node_type']=type
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   expect(state.http.reads.some(r=>r.table==='Base_DataModel')).toBe(false)
@@ -98,6 +98,15 @@ describe('workflow formal design page',()=>{
   await vi.waitFor(()=>expect(f.wrapper.findAll('input').map(input=>input.element.value)).toContain(expected))
   expect(f.wrapper.findAllComponents(FieldJson).some(field=>field.props('field')==='node_config')).toBe(false)
   expect(state.http.reads.some(r=>r.table==='Base_DataModel_Field')).toBe(true)
+  expect(state.http.saves).toEqual([])
+ })
+ it.each([{type:'query',position:0},{type:'query',position:2},{type:'merge',position:1},{type:'api_call',position:1},{type:'future_type',position:1}])('does not treat $type at position $position as an owned data model',async({type,position})=>{
+  Object.assign(state.http.records['Base_WorkflowNodeDefinition']![0]!,{node_type:type,position_type:position})
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  expect(state.http.reads.some(read=>['Base_DataModel','Base_DataModel_Field','Base_DataModel_Relation'].includes(read.table))).toBe(false)
+  expect(f.wrapper.text()).not.toContain('模型配置')
+  expect(state.http.records['Base_WorkflowNodeDefinition']![0]).toMatchObject({node_type:type,position_type:position,node_config:'M1',dataOperateModId:'M2'})
   expect(state.http.saves).toEqual([])
  })
  it('persists field descriptions independently of pending node edits and leaves other models unchanged',async()=>{

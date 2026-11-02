@@ -12,7 +12,7 @@
         <FieldText field="name" label="工作流名称" :readonly="true" />
         <FieldText field="workflow_key" label="工作流编码" :readonly="true" />
       </RendererForm>
-      <p role="status">节点新增归属尚缺正式模型合同。布局与节点配置分别保存。</p>
+      <p role="status">布局与节点配置分别保存。</p>
       <p v-if="unconfirmed" role="status">保存结果尚未确认，请使用原保存入口核验，勿重复创建。</p>
       <p v-if="layoutMissing" role="status">布局文件不存在；创建前画布位置仅供预览。</p>
       <p v-if="layoutError" role="alert">布局内容无效：{{ layoutError }}</p>
@@ -121,7 +121,11 @@ const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.current
 const selectedEdge=computed(()=>{revision.value;return view(edgesTable)?.currentRow})
 function nodeModelId(row:DataRow):string{
  const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
+ if(nodes.fieldAccess(row,'position_type').read!=='visible')throw new Error('节点位置类型不可读')
+ const position=String(row['position_type']??'').trim()
+ if(position!==''&&position!=='1')return ''
  const type=typeof row['node_type']==='string'?row['node_type'].trim().toLowerCase():''
+ if(!['query','copy','add','edit','delete'].includes(type))return ''
  const field=type==='query'||type==='copy'?'node_config':'dataOperateModId'
  if(nodes.fieldAccess(row,field).read!=='visible')throw new Error('节点模型身份不可读')
  const id=row[field];return typeof id==='string'?id.trim():''
@@ -161,7 +165,7 @@ function selectObject(event:SparkComponent.GraphSelection):void{
 }
 async function loadNodeModel(row:DataRow):Promise<void>{
  const model=view(modelTable),own=generation;if(!model)return
- try{const modelId=nodeModelId(row);model.queryContext={...model.queryContext,modelId};await model.refresh();if(model.loadingError)throw model.loadingError}
+ try{const modelId=nodeModelId(row);if(!modelId)return;model.queryContext={...model.queryContext,modelId};await model.refresh();if(model.loadingError)throw model.loadingError}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
 }
 onBeforeRouteLeave(()=>!hasPending.value)

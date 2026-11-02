@@ -5178,3 +5178,11 @@ flowchart LR
 新建运行实例实服回读（9次读取、0写）确认归属列存在、新增字段访问allowed。再独立实服查询（9读、0写）后执行原DataView内存addRow：未手传workflow_id，原查询默认值自动填当前流程ID；discardPendingChanges取消后恢复原3节点、脏状态清空。未保存任何节点、未执行工作流，不能将此核销为节点CRUD或整页验收。原页queryConfig仍未显式投影workflow_id；历史output=false夹具仍有回归价值，不据本次数据修复删除拒绝测试。探针readableRows表示字段访问计数，不证明响应值存在；createAllowedWithoutOwner为策略标记，不是实服创建结果。
 
 证据：`evidence/data-chain-smoke/2026-11-02-workflow-owner-output-repair-audit.json`。本轮生产源码未改；下一步按完整用例补节点归属投影、开始参数/节点源与输出/条件的原DataView配置及测试，删除过时缺口提示前先落实对应能力，再做明确范围的真实保存/重开/清理。原5条编码初始化临时记录此前已验并清理，不重复创建。SaveView未知结果仍按原记录禁止重放。全目标继续active。
+
+**后续实施中：节点归属投影及节点语义。**沿已批准完整工作流包继续implementing，不另建计划。涉及workflow-editor/pagedata、workflow-design-page及该页原测试；本次只接通已修复正式归属列、按已核实六类节点及边界语义决定模型读取，不新增业务写入范围。验证原生新增/取消/保存夹具、跨流程隔离、拒绝新增及旧非输出模型保护；实服只读查询和本地新增取消。正式ClassModel生成已完成（999文件），按manifest定位DataView目录及摘要，再查data-view.ts.json的fieldAccess、refresh指南；沿原DataView消费权限及查询，不新建页面数据链。开始参数、来源及条件仍属同一整页包未完成项，不能以本次子步骤核销。
+
+**本轮阶段结果。**页面节点queryConfig已正式投影workflow_id，实服9次只读查询返回的3节点归属实际值全部等于当前流程；内存新增不手传归属时自动填入当前流程，取消恢复3节点且无脏记录，网络写入0。新证据`evidence/data-chain-smoke/2026-11-02-workflow-node-projection-smoke-audit.json`。测试先复现缺少归属值，再通过正式投影修复；夹具验证新增/取消/保存/重查、其他流程记录不变、拒绝新增，另验证当前投影遇正式模型不输出归属时装配拒绝，保留旧配置非输出字段拒绝写入的历史测试。
+
+页面同时修正节点模型读取：边界位置0/2、merge、api_call及未知类型不按拥有模型的节点加载；query/copy读取node_config，add/edit/delete读取dataOperateModId；保留原记录配置。测试先复现5种错误查询，再验证修复。移除已过期的“归属尚缺正式模型合同”提示，不因此新增节点创建或执行入口。高阶模型只读复核未发现确定重要缺陷；明确普通addRow显式data可覆盖默认归属，当前证明仅为不手传时自动填入，不能宣称显式错误归属已被拒绝；后续新增业务命令必须固定当前流程身份并校验目标，不能接纳任意外部归属。
+
+验证：工作流5文件37测试通过；`pnpm run typecheck`、受改Vue/TS的ESLint、verify:pages-config、verify:workflow-designs、verify:docs（563文件）、verify:page-thin通过。正式ClassModel编译生成999文件已刷新；核对12个无源码变化的生成分片仅有编译器iterator/unscopables数字ID变化后恢复这些噪声，保留页面生成分片和来源清单更新，未手改产物。`pnpm run build:check`在额外严格vue-tsc步骤失败，诊断为多个本轮未修改文件中的TS6133/TS6196未使用声明（含lowcode-data-space-view-design.ts、既有测试和vite.config.ts）；不能声称该命令通过，也未扩大本轮范围批量清理。随后单独运行`node scripts/build-frontend.mjs`生产打包成功（依赖注解/动态导入警告仍有）。本轮实服无业务写入、无节点保存、无执行；真实CRUD/重开、完整开始参数/来源/条件及四文件闭环均未核销。整体目标active，下一实施继续同一工作流整页包。

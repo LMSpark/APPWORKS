@@ -65,6 +65,7 @@
           "queryConfig": {
             "fields": [
               "rowid",
+              "workflow_id",
               "name",
               "description",
               "node_key",

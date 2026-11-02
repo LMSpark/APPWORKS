@@ -6,6 +6,7 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
 import {openWorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 
@@ -28,6 +29,63 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it('saves selected field changes and every shared query-node output while preserving other node drafts',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  const mapping=(root:string)=>JSON.stringify([{rowid:root,pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true},
+   {rowid:`${root}C`,pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false},
+   {rowid:'F1',pid:root,Name:'name',Description:'名称',FieldType:'varchar',isParent:false,custom:'keep'}])
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:mapping('R1')},
+   {rowid:'N2',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:mapping('R2')},
+   {rowid:'N3',workflow_id:'W1',node_type:'query',node_config:'M3',name:'unchanged',output_mapping:'[]'}]
+  http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',Name:'name',AsName:'',type:'dataModel',FieldType:'varchar',IsOutput:1,description:'名称'}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('F1','AsName','title');nodes.updateEditingValue('N3','name','other draft')
+  await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.records['Base_DataModel_Field']![0]?.['AsName']).toBe('title')
+  for(const id of ['N1','N2'])expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===id)?.['output_mapping']))[2]).toMatchObject({rowid:'F1',Name:'title',custom:'keep'})
+  expect(nodes.getEditingRow('N3')?.['name']).toBe('other draft')
+  expect(http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='N3')?.['name']).toBe('unchanged')
+  expect(http.saves.map(save=>save.table).sort()).toEqual(['Base_DataModel_Field','Base_WorkflowNodeDefinition'].sort())
+  const originalAccess=nodes.fieldAccess.bind(nodes)
+  const nodeAccess=vi.spyOn(nodes,'fieldAccess').mockImplementation((row,field)=>{
+   const access=originalAccess(row,field)
+   return field==='output_mapping'?{...access,write:'denied',writeMode:'readonly'}:access
+  })
+  fields.updateEditingValue('F1','Order',1)
+  await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.saves.at(-1)?.table).toBe('Base_DataModel_Field')
+  nodeAccess.mockRestore()
+  fields.updateEditingValue('F1','description','changed description')
+  http.failAfterWrite=true
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow()
+  const writes=http.saves.length
+  http.failAfterWrite=false
+  http.records['Base_DataModel_Field']![0]!['description']='名称'
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('SPARK_SAVE_UNVERIFIABLE')
+  expect(http.saves).toHaveLength(writes)
+  http.records['Base_DataModel_Field']![0]!['description']='changed description'
+  await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.saves).toHaveLength(writes)
+  expect(fields.hasEditingChanges()||fields.dirtyTracking.hasPendingChanges()).toBe(false)
+  expect(nodes.getEditingRow('N3')?.['name']).toBe('other draft')
+  fields.updateEditingValue('F1','description','cancel derived output')
+  vi.spyOn(ds,'saveChanges').mockRejectedValueOnce(Error('before dispatch'))
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('before dispatch')
+  expect(nodes.hasEditingChanges('N1')).toBe(true)
+  await cancelWorkflowQueryFields(ds,'W1','N1')
+  expect(nodes.hasEditingChanges('N1')).toBe(false)
+  expect(fields.hasEditingChanges()).toBe(false)
+  expect(nodes.getEditingRow('N3')?.['name']).toBe('other draft')
+  nodes.updateEditingValue('N2','name','affected draft')
+  fields.updateEditingValue('F1','AsName','later')
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('其他修改')
+  expect(fields.getEditingRow('F1')?.['AsName']).toBe('later')
+  expect(nodes.getEditingRow('N2')?.['name']).toBe('affected draft')
+  expect(http.saves).toHaveLength(writes)
+  await cancelWorkflowQueryFields(ds,'W1','N1')
+  expect(fields.hasEditingChanges()).toBe(false)
+  expect(nodes.getEditingRow('N2')?.['name']).toBe('affected draft')
+ })
  it('creates a query node with its confirmed model and output identities, without saving an unrelated node draft',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N0',workflow_id:'W1',name:'Kept'},{rowid:'N2',workflow_id:'W2',name:'Other'}]

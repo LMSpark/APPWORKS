@@ -70,8 +70,8 @@
               <RendererButton label="取消模型说明修改" :disabled="busy || unconfirmed" @click="cancel(modelTable)" />
               <h3>字段与参数</h3>
               <RendererTable :data-view-key="fieldsKey" :children="modelFields" :highlight-current-row="true" />
-              <RendererButton :label="isUnconfirmed(fieldsTable) ? '核验字段说明保存结果' : '保存字段说明'" :disabled="busy" @click="save(fieldsTable)" />
-              <RendererButton label="取消字段说明修改" :disabled="busy || unconfirmed" @click="cancel(fieldsTable)" />
+              <RendererButton :label="isUnconfirmed(fieldsTable) || isQueryNode && isUnconfirmed(nodesTable) ? '核验查询字段保存结果' : '保存字段配置'" :disabled="busy || pendingPart('nodes')" @click="saveFields" />
+              <RendererButton label="取消字段配置修改" :disabled="busy || unconfirmed" @click="cancelFields" />
               <h3>作为父模型的原服务关系</h3>
               <RendererTable :data-view-key="parentRelationsKey" :children="relationFields" />
               <h3>作为子模型的原服务关系</h3>
@@ -119,6 +119,7 @@ import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workf
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
 import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
+import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
@@ -177,7 +178,20 @@ function nodeModelId(row:DataRow):string{
 const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;if(!row)return '';try{return nodeModelId(row)}catch{return ''}})
 const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
 const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
-const modelFields=computed<SparkNode[]>(()=>Object.entries({Name:'字段名称',AsName:'输出名称',type:'分类',FieldType:'字段类型',description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,showCellControl:true,cellReadonly:()=>field!=='description'||locked.value}})))
+const isQueryNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='query'})
+function queryFieldReadonly(row:Readonly<DataRow>,primary=false):boolean{
+ const target=view(fieldsTable)
+ return locked.value||!isQueryNode.value||!target||target.fieldAccess(row,'type').read!=='visible'||row['type']!=='dataModel'
+  ||primary&&(target.fieldAccess(row,'IsPKey').read!=='visible'||Number(row['IsPKey'])===1)
+}
+const modelFields=computed<SparkNode[]>(()=>[
+ {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
+ {type:'r-text',props:{field:'AsName',label:'输出名称',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row)}},
+ {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row,true)}},
+ ...Object.entries({type:'分类',FieldType:'字段类型',description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,showCellControl:field==='description',cellReadonly:()=>field!=='description'||locked.value}})),
+ {type:'r-select',props:{field:'OrderType',label:'排序方向',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row),options:[{label:'不排序',value:''},{label:'升序',value:'ascending'},{label:'降序',value:'descending'}]}},
+ ...Object.entries({Order:'排序顺序',Group:'分组标记'}).map(([field,label])=>({type:'r-number',props:{field,label,showCellControl:true,step:1,precision:0,cellReadonly:(row:Readonly<DataRow>)=>queryFieldReadonly(row)}})),
+])
 const relationFields:SparkNode[]=Object.entries({parentModId:'父模型',childModId:'子模型',depType:'原服务关系类型',filter:'原服务条件',description:'说明'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
 const layoutRow=computed(()=>{revision.value;return view(layoutTable)?.rows[0]})
 const layoutMissing=computed(()=>{revision.value;const target=view(layoutTable);return target?.requestState===RequestState.Loaded&&!target.loadingError&&target.rows.length===0})
@@ -280,6 +294,24 @@ async function save(table:string):Promise<void>{
  const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
  acting.value=true;error.value=''
  try{const result=await ds.saveChanges({views:[{tableName:table,viewId:'default'}]});if(!result.success)throw new Error(result.message??'保存未完整确认')}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+async function saveFields():Promise<void>{
+ if(!isQueryNode.value){await save(fieldsTable);return}
+ const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
+ if(busy.value||!ds||typeof id!=='string'||loadedTarget.value!==workflowId.value)return
+ acting.value=true;error.value=''
+ try{const result=await saveWorkflowQueryFields(ds,workflowId.value,id);if(!result?.success)throw Error(result?.message??'查询字段保存未完整确认')}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+async function cancelFields():Promise<void>{
+ if(!isQueryNode.value){cancel(fieldsTable);return}
+ const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
+ if(busy.value||unconfirmed.value||!ds||typeof id!=='string')return
+ acting.value=true;error.value=''
+ try{await cancelWorkflowQueryFields(ds,workflowId.value,id)}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }

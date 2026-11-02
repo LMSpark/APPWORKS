@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/query-fields",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/query-fields",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-fields\n职责：查询字段显示与输出配置和引用同一模型的节点输出目录沿原DataSet同步提交。\n边界：不持有草稿、不查询全空间、不执行流程；尚未核定的下游输出引用明确阻断结构变更。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T20:40:53.480Z",
+  "models": {}
+}

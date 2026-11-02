@@ -1,0 +1,235 @@
+[
+  {
+    "kind": "SparkNodeProps",
+    "catalog": {
+      "rootKind": "SparkNodeProps",
+      "models": [
+        {
+          "kind": "SparkNodeProps",
+          "name": "SparkNodeProps",
+          "jsdoc": "SPARK 组件共享基类（第一层）：所有 SPARK 组件 props 的统一起点。\n说明：\n- type 由渲染器路由与组件默认值共同决定\n- id 对应 SparkNode.id 的运行时映射\n- children 必须对齐 `SparkNode.children` 的真实运行时形态\n- registry 分支会直接把 `node.children` 透传给目标组件\n- `children` 允许包含文本子节点，因此不能错误收窄成 `SparkNode[]`\n- 只消费结构子节点的容器，应在本地使用 `getSparkNodeChildren()` 再收窄",
+          "summary": "SPARK 组件共享基类（第一层）：所有 SPARK 组件 props 的统一起点。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "SparkNodeProps",
+      "models": [
+        {
+          "kind": "SparkNodeProps",
+          "name": "SparkNodeProps",
+          "jsdoc": "SPARK 组件共享基类（第一层）：所有 SPARK 组件 props 的统一起点。\n说明：\n- type 由渲染器路由与组件默认值共同决定\n- id 对应 SparkNode.id 的运行时映射\n- children 必须对齐 `SparkNode.children` 的真实运行时形态\n- registry 分支会直接把 `node.children` 透传给目标组件\n- `children` 允许包含文本子节点，因此不能错误收窄成 `SparkNode[]`\n- 只消费结构子节点的容器，应在本地使用 `getSparkNodeChildren()` 再收窄",
+          "summary": "SPARK 组件共享基类（第一层）：所有 SPARK 组件 props 的统一起点。",
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型标识。\n来源通常是 `SparkNode.type`，也可能在运行时由组件默认值补齐，\n主要用于渲染器路由、调试信息展示，以及少量组件内部的类型分支判断。",
+              "summary": "组件类型标识。",
+              "typeText": "string"
+            },
+            {
+              "name": "id",
+              "jsdoc": "组件实例的稳定标识。\n它通常对应 `SparkNode.id`，可用于：\n- 页面脚本按名称查询节点\n- 事件回调、日志、调试面板定位具体组件\n- 某些容器对子节点做稳定 key 推导",
+              "summary": "组件实例的稳定标识。",
+              "typeText": "string"
+            },
+            {
+              "name": "children",
+              "jsdoc": "原始子节点载荷，必须严格对齐 `SparkNode.children` 的运行时形态。\n注意：\n- 这里不只会出现结构化 `SparkNode`\n- 还可能出现字符串、数字等文本子节点\n- 只接受结构节点的组件，必须在本地显式收窄，而不能在共享层提前写死为 `SparkNode[]`",
+              "summary": "原始子节点载荷，必须严格对齐 `SparkNode.children` 的运行时形态。",
+              "typeText": "SparkNodeChildren"
+            },
+            {
+              "name": "permissionDeniedMode",
+              "jsdoc": "权限不足时的呈现策略。\n- `disable`：保留可见但禁用（默认）\n- `hide`：直接隐藏组件",
+              "summary": "权限不足时的呈现策略。",
+              "typeText": "\"disable\" | \"hide\""
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: SparkNodeProps = {\n    /**\n     * 组件类型标识。\n     *\n     * 来源通常是 `SparkNode.type`，也可能在运行时由组件默认值补齐，\n     * 主要用于渲染器路由、调试信息展示，以及少量组件内部的类型分支判断。\n     */\n    type?: string;\n    /**\n     * 组件实例的稳定标识。\n     *\n      * 它通常对应 `SparkNode.id`，可用于：\n     * - 页面脚本按名称查询节点\n     * - 事件回调、日志、调试面板定位具体组件\n     * - 某些容器对子节点做稳定 key 推导\n     */\n    id?: string;\n    /**\n     * 原始子节点载荷，必须严格对齐 `SparkNode.children` 的运行时形态。\n     *\n     * 注意：\n     * - 这里不只会出现结构化 `SparkNode`\n     * - 还可能出现字符串、数字等文本子节点\n     * - 只接受结构节点的组件，必须在本地显式收窄，而不能在共享层提前写死为 `SparkNode[]`\n     */\n    children?: SparkNodeChildren;\n    /**\n     * 权限不足时的呈现策略。\n     * - `disable`：保留可见但禁用（默认）\n     * - `hide`：直接隐藏组件\n     */\n    permissionDeniedMode?: 'disable' | 'hide';\n}\n */\nSPARK 组件共享基类（第一层）：所有 SPARK 组件 props 的统一起点。\n说明：\n- type 由渲染器路由与组件默认值共同决定\n- id 对应 SparkNode.id 的运行时映射\n- children 必须对齐 `SparkNode.children` 的真实运行时形态\n- registry 分支会直接把 `node.children` 透传给目标组件\n- `children` 允许包含文本子节点，因此不能错误收窄成 `SparkNode[]`\n- 只消费结构子节点的容器，应在本地使用 `getSparkNodeChildren()` 再收窄\ntype SparkNodeProps {\n  组件类型标识。\n  来源通常是 `SparkNode.type`，也可能在运行时由组件默认值补齐，\n  主要用于渲染器路由、调试信息展示，以及少量组件内部的类型分支判断。\n  readonly type: string\n  组件实例的稳定标识。\n  它通常对应 `SparkNode.id`，可用于：\n  - 页面脚本按名称查询节点\n  - 事件回调、日志、调试面板定位具体组件\n  - 某些容器对子节点做稳定 key 推导\n  readonly id: string\n  原始子节点载荷，必须严格对齐 `SparkNode.children` 的运行时形态。\n  注意：\n  - 这里不只会出现结构化 `SparkNode`\n  - 还可能出现字符串、数字等文本子节点\n  - 只接受结构节点的组件，必须在本地显式收窄，而不能在共享层提前写死为 `SparkNode[]`\n  readonly children: SparkNodeChildren\n  权限不足时的呈现策略。\n  - `disable`：保留可见但禁用（默认）\n  - `hide`：直接隐藏组件\n  readonly permissionDeniedMode: \"disable\" | \"hide\"\n}"
+  },
+  {
+    "kind": "SparkFieldSemanticProps",
+    "catalog": {
+      "rootKind": "SparkFieldSemanticProps",
+      "models": [
+        {
+          "kind": "SparkFieldSemanticProps",
+          "name": "SparkFieldSemanticProps",
+          "jsdoc": "字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。",
+          "summary": "字段语义层（无根）。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "SparkFieldSemanticProps",
+      "models": [
+        {
+          "kind": "SparkFieldSemanticProps",
+          "name": "SparkFieldSemanticProps",
+          "jsdoc": "字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。",
+          "summary": "字段语义层（无根）。",
+          "attributes": [
+            {
+              "name": "dataViewKey",
+              "jsdoc": "值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。",
+              "summary": "值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。",
+              "typeText": "string"
+            },
+            {
+              "name": "dataMember",
+              "jsdoc": "值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。",
+              "summary": "值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "dataField",
+              "jsdoc": "数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。",
+              "summary": "数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。",
+              "typeText": "string"
+            },
+            {
+              "name": "width",
+              "jsdoc": "字段宽度。\n主要用于输入类、选择类、文件类字段的控件宽度控制。\n这里统一约定为数值宽度，由具体组件决定如何映射到样式层。",
+              "summary": "字段宽度。",
+              "typeText": "number"
+            },
+            {
+              "name": "minWidth",
+              "jsdoc": "表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。",
+              "summary": "表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。",
+              "typeText": "number"
+            },
+            {
+              "name": "showOverflowTooltip",
+              "jsdoc": "表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。",
+              "summary": "表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "header",
+              "jsdoc": "表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。",
+              "summary": "表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。",
+              "typeText": "SparkNode"
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "表格列是否允许拖动列宽。\n字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。",
+              "summary": "表格列是否允许拖动列宽。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "clearable",
+              "jsdoc": "是否允许清空当前值。\n适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n具体组件可按自身能力决定是否真正消费该配置。",
+              "summary": "是否允许清空当前值。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "直接传入的受控字段值。\n对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。",
+              "summary": "直接传入的受控字段值。",
+              "typeText": "TValue"
+            },
+            {
+              "name": "value",
+              "jsdoc": "跨框架配置模型值。\n页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。",
+              "summary": "跨框架配置模型值。",
+              "typeText": "TValue"
+            },
+            {
+              "name": "field",
+              "jsdoc": "字段绑定名。\n常见语义是从当前上下文数据中读取 `currentRow[field]`，\n也可作为表单写回、明细展示、列渲染时的字段定位键。",
+              "summary": "字段绑定名。",
+              "typeText": "string"
+            },
+            {
+              "name": "label",
+              "jsdoc": "展示标签。\n常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。",
+              "summary": "展示标签。",
+              "typeText": "string"
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "只读状态。\n表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n它与完全禁用或隐藏是不同层级的语义。",
+              "summary": "只读状态。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "editOnDblclick",
+              "jsdoc": "表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。\n使用所属DataView已被表格接受的当前行，不继承外层窗口的行；仍消费字段权限及编辑覆盖。\n失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。",
+              "summary": "表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "saveOnCellExit",
+              "jsdoc": "表格双击编辑在失焦或Enter结束时，经原DataSet保存该行全部待提交字段；默认false。仅保存当前行，不提交其它行或视图。Esc仅退出输入；验证失败或未知结果保留原草稿及owner，不自动重放。",
+              "summary": "表格双击编辑在失焦或Enter结束时，经原DataSet保存该行全部待提交字段；默认false。仅保存当前行，不提交其它行或视图。Esc仅退出输入；验证失败或未知结果保留原草稿及owner，不自动重放。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "占位文案。\n当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。",
+              "summary": "占位文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "titleAlign",
+              "jsdoc": "表头/详情标题对齐方向。\n用于表格表头及详情项标题的水平对齐控制。",
+              "summary": "表头/详情标题对齐方向。",
+              "typeText": "\"left\" | \"center\" | \"right\""
+            },
+            {
+              "name": "valueAlign",
+              "jsdoc": "值区对齐方向。\n用于表格单元格及详情项值区的水平对齐控制。",
+              "summary": "值区对齐方向。",
+              "typeText": "\"left\" | \"center\" | \"right\""
+            },
+            {
+              "name": "headerCellClassName",
+              "jsdoc": "表格表头单元格 CSS 类名。\n直接映射到 `el-table-column` 的 `label-class-name`。",
+              "summary": "表格表头单元格 CSS 类名。",
+              "typeText": "string"
+            },
+            {
+              "name": "cellClassName",
+              "jsdoc": "表格单元格 CSS 类名。\n直接映射到 `el-table-column` 的 `class-name`。",
+              "summary": "表格单元格 CSS 类名。",
+              "typeText": "string"
+            },
+            {
+              "name": "titleClassName",
+              "jsdoc": "详情/表单标题 CSS 类名。",
+              "summary": "详情/表单标题 CSS 类名。",
+              "typeText": "string"
+            },
+            {
+              "name": "valueClassName",
+              "jsdoc": "详情/表格值区 CSS 类名。",
+              "summary": "详情/表格值区 CSS 类名。",
+              "typeText": "string"
+            },
+            {
+              "name": "sortable",
+              "jsdoc": "是否允许排序。\n- true: 前端排序\n- 'custom': 服务端排序\n- false: 禁用排序",
+              "summary": "是否允许排序。",
+              "typeText": "boolean | unknown"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onChange",
+              "jsdoc": "字段值变更回调。\n统一由字段控制层透传给事件分发器，替代隐式监听提取。",
+              "summary": "字段值变更回调。",
+              "signature": "onChange(args: ...unknown[]): void | Promise<void>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: SparkFieldSemanticProps = {\n    /** 值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。 */\n    dataViewKey?: string;\n    /** 值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。 */\n    dataMember?: DataMember | `${DataMember}`;\n    /** 数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。 */\n    dataField?: string;\n    /**\n     * 字段宽度。\n     *\n     * 主要用于输入类、选择类、文件类字段的控件宽度控制。\n     * 这里统一约定为数值宽度，由具体组件决定如何映射到样式层。\n     */\n    width?: number;\n    /** 表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。 */\n    minWidth?: number;\n    /** 表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。 */\n    showOverflowTooltip?: boolean;\n    /** 表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。 */\n    header?: SparkNode;\n    /**\n     * 表格列是否允许拖动列宽。\n     *\n     * 字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。\n     */\n    resizable?: boolean;\n    /**\n     * 是否允许清空当前值。\n     *\n     * 适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n     * 具体组件可按自身能力决定是否真正消费该配置。\n     */\n    clearable?: boolean;\n    /**\n     * 直接传入的受控字段值。\n     *\n     * 对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。\n     */\n    modelValue?: TValue;\n    /**\n     * 跨框架配置模型值。\n     *\n     * 页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n     */\n    value?: TValue;\n    /**\n     * 字段绑定名。\n     *\n     * 常见语义是从当前上下文数据中读取 `currentRow[field]`，\n     * 也可作为表单写回、明细展示、列渲染时的字段定位键。\n     */\n    field?: string;\n    /**\n     * 展示标签。\n     * 常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。\n     */\n    label?: string;\n    /**\n     * 只读状态。\n     *\n     * 表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n     * 它与完全禁用或隐藏是不同层级的语义。\n     */\n    readonly?: boolean;\n    /**\n     * 表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。\n     * 使用所属DataView已被表格接受的当前行，不继承外层窗口的行；仍消费字段权限及编辑覆盖。\n     * 失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。\n     */\n    editOnDblclick?: boolean;\n    /** 表格双击编辑在失焦或Enter结束时，经原DataSet保存该行全部待提交字段；默认false。仅保存当前行，不提交其它行或视图。Esc仅退出输入；验证失败或未知结果保留原草稿及owner，不自动重放。 */\n    saveOnCellExit?: boolean;\n    /**\n     * 占位文案。\n     * 当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。\n     */\n    placeholder?: string;\n    /**\n     * 字段值变更回调。\n     *\n     * 统一由字段控制层透传给事件分发器，替代隐式监听提取。\n     */\n    onChange?: (...args: unknown[]) => void | Promise<void>;\n    /**\n     * 表头/详情标题对齐方向。\n     * 用于表格表头及详情项标题的水平对齐控制。\n     */\n    titleAlign?: 'left' | 'center' | 'right';\n    /**\n     * 值区对齐方向。\n     * 用于表格单元格及详情项值区的水平对齐控制。\n     */\n    valueAlign?: 'left' | 'center' | 'right';\n    /**\n     * 表格表头单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `label-class-name`。\n     */\n    headerCellClassName?: string;\n    /**\n     * 表格单元格 CSS 类名。\n     * 直接映射到 `el-table-column` 的 `class-name`。\n     */\n    cellClassName?: string;\n    /**\n     * 详情/表单标题 CSS 类名。\n     */\n    titleClassName?: string;\n    /**\n     * 详情/表格值区 CSS 类名。\n     */\n    valueClassName?: string;\n    /**\n     * 是否允许排序。\n     * - true: 前端排序\n     * - 'custom': 服务端排序\n     * - false: 禁用排序\n     */\n    sortable?: boolean | 'custom';\n}\n */\n字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。\ntype SparkFieldSemanticProps {\n  值所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。\n  readonly dataViewKey: string\n  值的数据成员，默认currentRow。currentRow/value的字段可按数据权限编辑，其余成员只读。\n  readonly dataMember: unknown\n  数据成员的字段；优先于field。字段编辑必须定位实际列，选项来源仍由optionDataViewKey或字段级联定义。\n  readonly dataField: string\n  字段宽度。\n  主要用于输入类、选择类、文件类字段的控件宽度控制。\n  这里统一约定为数值宽度，由具体组件决定如何映射到样式层。\n  readonly width: number\n  表格父容器中字段的最小宽度（像素）；未指定固定width时参与剩余空间分配，其他宿主不改变布局。\n  readonly minWidth: number\n  表格单元格文本溢出时省略并显示提示；默认关闭，提示使用经数据权限处理的渲染文本，其他宿主不受影响。\n  readonly showOverflowTooltip: boolean\n  表格字段标题下的标准组件区域；用于表头筛选等交互，子组件遵循自身数据绑定与权限。与children分组字段分别配置，不定义另一套列或查询。\n  readonly header: SparkNode\n  表格列是否允许拖动列宽。\n  字段作为 r-table 列渲染时映射到 `el-table-column` 的 `resizable`。\n  readonly resizable: boolean\n  是否允许清空当前值。\n  适用于输入类、选择类、时间类、文件类等可回到“空值”状态的字段。\n  具体组件可按自身能力决定是否真正消费该配置。\n  readonly clearable: boolean\n  直接传入的受控字段值。\n  对应 Vue v-model 标准命名，支持 `v-model=\"xxx\"` 写法。\n  readonly modelValue: TValue\n  跨框架配置模型值。\n  页面配置可继续使用 `value` 表达字段当前值；Vue 渲染适配层会在下发组件前映射为 `modelValue`。\n  readonly value: TValue\n  字段绑定名。\n  常见语义是从当前上下文数据中读取 `currentRow[field]`，\n  也可作为表单写回、明细展示、列渲染时的字段定位键。\n  readonly field: string\n  展示标签。\n  常用于表单项标题、详情项名称、字段说明等“人类可读”的字段名展示。\n  readonly label: string\n  只读状态。\n  表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n  它与完全禁用或隐藏是不同层级的语义。\n  readonly readonly: boolean\n  表格中双击当前字段进入原标准控件编辑，缺省false；非表格宿主不受影响。\n  使用所属DataView已被表格接受的当前行，不继承外层窗口的行；仍消费字段权限及编辑覆盖。\n  失焦/Enter结束单元格输入但不保存或放弃草稿；切换行、视图或失去写权限时退出。\n  readonly editOnDblclick: boolean\n  表格双击编辑在失焦或Enter结束时，经原DataSet保存该行全部待提交字段；默认false。仅保存当前行，不提交其它行或视图。Esc仅退出输入；验证失败或未知结果保留原草稿及owner，不自动重放。\n  readonly saveOnCellExit: boolean\n  占位文案。\n  当组件无值且支持 placeholder 时，用来提示用户预期输入或显示内容格式。\n  readonly placeholder: string\n  表头/详情标题对齐方向。\n  用于表格表头及详情项标题的水平对齐控制。\n  readonly titleAlign: \"left\" | \"center\" | \"right\"\n  值区对齐方向。\n  用于表格单元格及详情项值区的水平对齐控制。\n  readonly valueAlign: \"left\" | \"center\" | \"right\"\n  表格表头单元格 CSS 类名。\n  直接映射到 `el-table-column` 的 `label-class-name`。\n  readonly headerCellClassName: string\n  表格单元格 CSS 类名。\n  直接映射到 `el-table-column` 的 `class-name`。\n  readonly cellClassName: string\n  详情/表单标题 CSS 类名。\n  readonly titleClassName: string\n  详情/表格值区 CSS 类名。\n  readonly valueClassName: string\n  是否允许排序。\n  - true: 前端排序\n  - 'custom': 服务端排序\n  - false: 禁用排序\n  readonly sortable: boolean | unknown\n  字段值变更回调。\n  统一由字段控制层透传给事件分发器，替代隐式监听提取。\n  onChange(args: ...unknown[]): void | Promise<void>\n}"
+  }
+]

@@ -207,7 +207,12 @@ describe('workflow formal design page',()=>{
   expect(state.http.records['Base_WorkflowNodeDefinition']![0]).toMatchObject({node_type:type,position_type:position,node_config:'M1',dataOperateModId:'M2'})
   expect(state.http.saves).toEqual([])
  })
- it('persists field descriptions independently of pending node edits and leaves other models unchanged',async()=>{
+ it('persists non-output field descriptions independently of pending node edits and leaves other models unchanged',async()=>{
+  Object.assign(state.http.records['Base_DataModel_Field']![0]!,{type:'dataModel',IsOutput:0,FieldType:'varchar',AsName:''})
+  state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([
+   {rowid:'ITEMS',pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true},
+   {rowid:'COUNT',pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false},
+  ])
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
   await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererTable).some(t=>t.props('dataViewKey')?.includes('@Base_DataModel_Field@'))).toBe(true))
@@ -216,7 +221,7 @@ describe('workflow formal design page',()=>{
   const nodeName=f.wrapper.findAllComponents(FieldText).find(field=>field.props('dataViewKey')?.includes('@Base_WorkflowNodeDefinition@')&&field.props('field')==='name')!
   await nodeName.get('input').setValue('未保存节点名称');await flushPromises()
   const description=fields.findAllComponents(FieldText).find(field=>field.props('field')==='description'&&field.find('input').exists())!
-  await description.get('input').setValue('正式字段说明');await flushPromises();await f.click('保存字段说明')
+  await description.get('input').setValue('正式字段说明');await flushPromises();await f.click('保存字段配置')
   expect(state.http.saves.map(s=>s.table)).toEqual(['Base_DataModel_Field'])
   expect(state.http.records['Base_DataModel_Field']?.find(row=>row['rowid']==='F2')?.['Name']).toBe('target')
   expect(state.http.records['Base_WorkflowNodeDefinition']?.find(row=>row['rowid']==='N1')?.['name']).toBe('查询订单')

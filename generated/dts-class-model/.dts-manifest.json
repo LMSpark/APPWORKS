@@ -4176,6 +4176,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts.json",
       "sourceModifiedAt": "2026-11-01T20:13:59.393Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-fields.ts.json",
+      "sourceModifiedAt": "2026-11-02T20:40:53.480Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json",
@@ -4184,7 +4189,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json",
-      "sourceModifiedAt": "2026-11-02T20:10:59.290Z"
+      "sourceModifiedAt": "2026-11-02T20:40:19.182Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/query-output.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-output.ts.json",
+      "sourceModifiedAt": "2026-11-02T20:40:19.180Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
@@ -4959,7 +4969,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T19:31:05.005Z"
+      "sourceModifiedAt": "2026-11-02T20:37:17.988Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue",

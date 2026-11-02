@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/query-output",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/query-output",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-output\n职责：从当前查询模型字段派生节点输出目录，新建与编辑共用同一结构与身份规则。\n边界：只做领域投影，不查询、保存或推导权限；调用方先沿原DataView核对可读字段及完整范围。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Row": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Row",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "original": true
+      },
+      "required": [
+        "workflowId",
+        "modelId",
+        "fields"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-02T20:40:19.180Z",
+  "models": {
+    "Row": {
+      "name": "Row",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    original?: unknown;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    original?: unknown;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "original",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

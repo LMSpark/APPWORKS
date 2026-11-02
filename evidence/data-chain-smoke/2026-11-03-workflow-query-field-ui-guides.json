@@ -1,0 +1,598 @@
+[
+  {
+    "kind": "RCheckboxProps",
+    "catalog": {
+      "rootKind": "RCheckboxProps",
+      "models": [
+        {
+          "kind": "RCheckboxProps",
+          "name": "RCheckboxProps",
+          "jsdoc": "RCheckbox Props 的属性契约。",
+          "summary": "RCheckbox Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<boolean>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldCheckbox",
+            "type": "r-checkbox",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RCheckboxProps",
+      "models": [
+        {
+          "kind": "RCheckboxProps",
+          "name": "RCheckboxProps",
+          "jsdoc": "RCheckbox Props 的属性契约。",
+          "summary": "RCheckbox Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<boolean>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldCheckbox",
+            "type": "r-checkbox",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "trueValue",
+              "jsdoc": "Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags.",
+              "summary": "Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags.",
+              "typeText": "boolean | string | number"
+            },
+            {
+              "name": "falseValue",
+              "jsdoc": "Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags.",
+              "summary": "Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags.",
+              "typeText": "boolean | string | number"
+            },
+            {
+              "name": "checkedText",
+              "jsdoc": "选中状态下展示的文本。",
+              "summary": "选中状态下展示的文本。",
+              "typeText": "string"
+            },
+            {
+              "name": "uncheckedText",
+              "jsdoc": "未选中状态下展示的文本。",
+              "summary": "未选中状态下展示的文本。",
+              "typeText": "string"
+            },
+            {
+              "name": "checkboxText",
+              "jsdoc": "复选框旁边的标签文本。",
+              "summary": "复选框旁边的标签文本。",
+              "typeText": "string"
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "Additional table-cell restriction; true makes this row readonly and can never grant write permission.",
+              "summary": "Additional table-cell restriction; true makes this row readonly and can never grant write permission.",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-checkbox; name=FieldCheckbox; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RCheckboxProps = SparkNodeProps & SparkFieldSemanticProps<boolean> & {\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<boolean>\n * DTS relation: intersection {\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}\n */\nRCheckbox Props 的属性契约。\ntype RCheckboxProps {\n  Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags.\n  readonly trueValue: boolean | string | number\n  Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags.\n  readonly falseValue: boolean | string | number\n  选中状态下展示的文本。\n  readonly checkedText: string\n  未选中状态下展示的文本。\n  readonly uncheckedText: string\n  复选框旁边的标签文本。\n  readonly checkboxText: string\n  Additional table-cell restriction; true makes this row readonly and can never grant write permission.\n  cellReadonly(row: Readonly<DataRow>): boolean\n}"
+  },
+  {
+    "kind": "RNumberProps",
+    "catalog": {
+      "rootKind": "RNumberProps",
+      "models": [
+        {
+          "kind": "RNumberProps",
+          "name": "RNumberProps",
+          "jsdoc": "RNumber Props 的属性契约。",
+          "summary": "RNumber Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]>",
+              "targetName": "SparkRangeNumericFieldProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldNumber",
+            "type": "r-number",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RNumberProps",
+      "models": [
+        {
+          "kind": "RNumberProps",
+          "name": "RNumberProps",
+          "jsdoc": "RNumber Props 的属性契约。",
+          "summary": "RNumber Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]>",
+              "targetName": "SparkRangeNumericFieldProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldNumber",
+            "type": "r-number",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "step",
+              "jsdoc": "增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。",
+              "summary": "增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。",
+              "typeText": "number"
+            },
+            {
+              "name": "controlsPosition",
+              "jsdoc": "增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。",
+              "summary": "增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。",
+              "typeText": "\"\" | \"right\""
+            },
+            {
+              "name": "precision",
+              "jsdoc": "数值展示与写回时使用的小数精度。",
+              "summary": "数值展示与写回时使用的小数精度。",
+              "typeText": "number"
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。",
+              "summary": "表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "summary": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-number; name=FieldNumber; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RNumberProps = SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & {\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]>\n * DTS relation: intersection {\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}\n */\nRNumber Props 的属性契约。\ntype RNumberProps {\n  增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。\n  readonly step: number\n  增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。\n  readonly controlsPosition: \"\" | \"right\"\n  数值展示与写回时使用的小数精度。\n  readonly precision: number\n  表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。\n  readonly showCellControl: boolean\n  常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。\n  cellReadonly(row: Readonly<DataRow>): boolean\n}"
+  },
+  {
+    "kind": "RSelectProps",
+    "catalog": {
+      "rootKind": "RSelectProps",
+      "models": [
+        {
+          "kind": "RSelectProps",
+          "name": "RSelectProps",
+          "jsdoc": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。\n没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。\ndataMember=value且未指定dataField/field时，控件选择绑定视图的一条记录；选项值须为该视图主键。\n此模式读取选中主键数组中的单个值，选择/清空经DataView.setSelectedRows，不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。",
+          "summary": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkOptionFieldProps<string | number>",
+              "targetName": "SparkOptionFieldProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldSelect",
+            "type": "r-select",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RSelectProps",
+      "models": [
+        {
+          "kind": "RSelectProps",
+          "name": "RSelectProps",
+          "jsdoc": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。\n没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。\ndataMember=value且未指定dataField/field时，控件选择绑定视图的一条记录；选项值须为该视图主键。\n此模式读取选中主键数组中的单个值，选择/清空经DataView.setSelectedRows，不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。",
+          "summary": "单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkOptionFieldProps<string | number>",
+              "targetName": "SparkOptionFieldProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldSelect",
+            "type": "r-select",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "presentation",
+              "jsdoc": "单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。",
+              "summary": "单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。",
+              "typeText": "\"select\" | \"tabs\""
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。",
+              "summary": "表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。",
+              "summary": "逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-select; name=FieldSelect; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RSelectProps = SparkNodeProps & SparkOptionFieldProps<string | number> & {\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkOptionFieldProps<string | number>\n * DTS relation: intersection {\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}\n */\n单值选择字段的属性契约。下拉选项在展开时挂载，关闭后释放；标题读取当前同一选项源并严格匹配值类型。\n没有匹配选项时显示原值，不自动选中其他候选；选择、清空和取消沿原字段DataView处理。\ndataMember=value且未指定dataField/field时，控件选择绑定视图的一条记录；选项值须为该视图主键。\n此模式读取选中主键数组中的单个值，选择/清空经DataView.setSelectedRows，不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。\ntype RSelectProps {\n  单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。\n  readonly presentation: \"select\" | \"tabs\"\n  表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。\n  readonly showCellControl: boolean\n  逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。\n  cellReadonly(row: Readonly<DataRow>): boolean\n}"
+  },
+  {
+    "kind": "RTextProps",
+    "catalog": {
+      "rootKind": "RTextProps",
+      "models": [
+        {
+          "kind": "RTextProps",
+          "name": "RTextProps",
+          "jsdoc": "RText Props 的属性契约。",
+          "summary": "RText Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldText",
+            "type": "r-text",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RTextProps",
+      "models": [
+        {
+          "kind": "RTextProps",
+          "name": "RTextProps",
+          "jsdoc": "RText Props 的属性契约。",
+          "summary": "RText Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldText",
+            "type": "r-text",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "filterAlternatives",
+              "jsdoc": "常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。",
+              "summary": "常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。",
+              "typeText": "{ field: string; operator: DataViewFilterOperator }[]"
+            },
+            {
+              "name": "displayFallbackFields",
+              "jsdoc": "只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。",
+              "summary": "只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。",
+              "typeText": "string[]"
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。",
+              "summary": "表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "maxlength",
+              "jsdoc": "表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。",
+              "summary": "表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。",
+              "typeText": "number"
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。",
+              "summary": "只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。",
+              "typeText": "string"
+            },
+            {
+              "name": "showPassword",
+              "jsdoc": "表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。",
+              "summary": "表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "displayFormatter",
+              "jsdoc": "只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。",
+              "summary": "只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。",
+              "signature": "displayFormatter(value: unknown): string"
+            },
+            {
+              "name": "cellReadonly",
+              "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "summary": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-text; name=FieldText; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<string>\n * DTS relation: intersection {\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}\n */\nRText Props 的属性契约。\ntype RTextProps {\n  常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。\n  readonly filterAlternatives: { field: string; operator: DataViewFilterOperator }[]\n  只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。\n  readonly displayFallbackFields: string[]\n  表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。\n  readonly showCellControl: boolean\n  表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。\n  readonly maxlength: number\n  只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。\n  readonly emptyText: string\n  表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。\n  readonly showPassword: boolean\n  只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。\n  displayFormatter(value: unknown): string\n  常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。\n  cellReadonly(row: Readonly<DataRow>): boolean\n}"
+  },
+  {
+    "kind": "RTableProps",
+    "catalog": {
+      "rootKind": "RTableProps",
+      "models": [
+        {
+          "kind": "RTableProps",
+          "name": "RTableProps",
+          "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+          "summary": "r-table 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkInteractiveDataContainerProps",
+              "targetName": "SparkInteractiveDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererTable",
+            "type": "r-table",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RTableProps",
+      "models": [
+        {
+          "kind": "RTableProps",
+          "name": "RTableProps",
+          "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+          "summary": "r-table 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkInteractiveDataContainerProps",
+              "targetName": "SparkInteractiveDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererTable",
+            "type": "r-table",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表格容器使用的 DataView 数据线。",
+              "summary": "显式收窄为表格容器使用的 DataView 数据线。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "border",
+              "jsdoc": "是否显示纵向边框。默认 true（resizable 启用时强制开启）。",
+              "summary": "是否显示纵向边框。默认 true（resizable 启用时强制开启）。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "stripe",
+              "jsdoc": "是否开启斑马纹。",
+              "summary": "是否开启斑马纹。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "highlightCurrentRow",
+              "jsdoc": "是否高亮当前行。",
+              "summary": "是否高亮当前行。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "行数据的 Key，用于树形表格。",
+              "summary": "行数据的 Key，用于树形表格。",
+              "typeText": "string"
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "是否允许拖动列宽，默认 true。",
+              "summary": "是否允许拖动列宽，默认 true。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
+              "summary": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "showPagination",
+              "jsdoc": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。",
+              "summary": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "maxHeight",
+              "jsdoc": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "summary": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "pagination",
+              "jsdoc": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
+              "summary": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
+              "typeText": "{ pageSizes?: number[]; showJumper?: boolean }"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏\n提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。",
+              "summary": "结构化工具栏",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "filter",
+              "jsdoc": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\nchildren 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。",
+              "summary": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。",
+              "typeText": "RFilterProps"
+            },
+            {
+              "name": "actions",
+              "jsdoc": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n提示词模板：默认动作 message-row / delete-row。",
+              "summary": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。",
+              "typeText": "RToolbarProps"
+            }
+          ],
+          "methods": [
+            {
+              "name": "rowClassName",
+              "jsdoc": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。",
+              "summary": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。",
+              "signature": "rowClassName(context: TableRowClassContext): string"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-table; name=RendererTable; level=table-level; layer=data-view-container; directory=containers/data-views */\n/**\n * DTS declaration: RTableProps = SparkNodeProps & SparkInteractiveDataContainerProps & {\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkInteractiveDataContainerProps\n * DTS relation: intersection {\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}\n */\nr-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。\ntype RTableProps {\n  显式收窄为表格容器使用的 DataView 数据线。\n  readonly dataSource: DataView\n  是否显示纵向边框。默认 true（resizable 启用时强制开启）。\n  readonly border: boolean\n  是否开启斑马纹。\n  readonly stripe: boolean\n  是否高亮当前行。\n  readonly highlightCurrentRow: boolean\n  行数据的 Key，用于树形表格。\n  readonly rowKey: string\n  是否允许拖动列宽，默认 true。\n  readonly resizable: boolean\n  设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。\n  readonly autoColumns: boolean\n  是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。\n  readonly showPagination: boolean\n  表格主体最大高度；数值为像素，不包含工具栏和分页器。\n  readonly maxHeight: number | string\n  分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。\n  readonly pagination: { pageSizes?: number[]; showJumper?: boolean }\n  结构化工具栏\n  提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n  readonly toolbar: RToolbarProps\n  统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n  未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n  children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n  readonly filter: RFilterProps\n  行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n  提示词模板：默认动作 message-row / delete-row。\n  readonly actions: RToolbarProps\n  返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n  只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n  函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n  rowClassName(context: TableRowClassContext): string\n}"
+  }
+]

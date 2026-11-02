@@ -1,5 +1,5 @@
 {
-  "gapCount": 3489,
+  "gapCount": 3497,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -35775,6 +35775,17 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/query-fields",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/query-fields",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/query-fields 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-fields.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/resources/structured-config/workflow-definition/query-model-create",
       "moduleName": "app:lowcode/resources/structured-config/workflow-definition/query-model-create",
       "reason": "weak-module-jsdoc",
@@ -35876,6 +35887,87 @@
       "declarationLine": 18,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
       "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/query-output",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/query-output",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/query-output 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "Input",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 2,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "workflowId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.workflowId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "modelId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "fields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "original",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.original 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",

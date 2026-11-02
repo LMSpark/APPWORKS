@@ -5,6 +5,7 @@
  */
 import {RequestState,type DataRow,type DataView} from '@spark-appworks/spark-data'
 import {openWorkflowQueryModelCreate} from './query-model-create'
+import {buildWorkflowQueryOutput} from './query-output'
 import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
 
 type Input=Parameters<typeof openWorkflowQueryModelCreate>[0]
@@ -14,7 +15,6 @@ function read(view:DataView,row:DataRow,field:string):unknown{
  return row[field]
 }
 function text(value:unknown):string{return typeof value==='string'?value:''}
-function id():string{return crypto.randomUUID().replaceAll('-','').toUpperCase()}
 
 /** 一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。 */
 export class WorkflowQueryNodeCreate {
@@ -71,20 +71,8 @@ export class WorkflowQueryNodeCreate {
    fields.queryContext={...template.queryContext,dataSpaceId:workflowId,modelIds:[modelId]}
    await fields.refresh();this.guard()
    if(fields.loadingError||fields.requestState!==RequestState.Loaded||fields.rows.length!==fields.total)throw Error('查询模型字段未完整读取')
-   const items=id(),names=new Set<string>(),identities=new Set<string>()
-   output=[{rowid:items,pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true},
-    {rowid:id(),pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false}]
-   for(const row of fields.rows){
-    if(read(fields,row,'dataSetId')!==workflowId||read(fields,row,'dataModelId')!==modelId)throw Error('查询字段不属于当前模型')
-    const fieldId=read(fields,row,'rowid'),type=read(fields,row,'type'),flag=read(fields,row,'IsOutput')
-    if(typeof fieldId!=='string'||!fieldId||identities.has(fieldId)||!['dataModel','inputParams'].includes(text(type))||![0,1,'0','1'].includes(flag as string|number))throw Error('查询字段身份、用途或输出标志无效')
-    identities.add(fieldId)
-    if(type!=='dataModel'||Number(flag)!==1)continue
-    const fieldName=text(read(fields,row,'AsName'))||text(read(fields,row,'Name')),fieldType=text(read(fields,row,'FieldType'))
-    if(!fieldName||!fieldType||names.has(fieldName))throw Error('查询输出名称或类型缺失或重复')
-    names.add(fieldName)
-    output.push({rowid:fieldId,pid:items,Name:fieldName,Description:text(read(fields,row,'description')),FieldType:fieldType,isParent:false})
-   }
+   output=buildWorkflowQueryOutput({workflowId,modelId,fields:fields.rows.map(row=>Object.fromEntries(
+    ['rowid','dataSetId','dataModelId','type','IsOutput','IsPKey','AsName','Name','FieldType','description'].map(field=>[field,read(fields,row,field)])))})
   }finally{fields.dataTable?.destroyView(fields.viewId)}
   this.preflightNode()
   const values={workflow_id:workflowId,position_type:1,node_type:'query',node_config:modelId,name,description,input_mapping:'[]',output_mapping:JSON.stringify(output),config:''}

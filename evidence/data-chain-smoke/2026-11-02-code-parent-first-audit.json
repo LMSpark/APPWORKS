@@ -1,0 +1,57 @@
+{
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "referenceFacts": {
+    "page": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/use-data-code-editor-page.ts",
+    "save": "handleSave validates form only; at least one segment belongs to validateRefreshPreconditions called by handleRefreshExample",
+    "owner": "apps/appworks/src/data/api/StructuredConfig/DataCodeEdit.ts:AppWorksCodeDesignManager.save accepts empty nodes"
+  },
+  "correction": "removed the falsely inferred nonempty-segment save guard; preserved native pending-parent create restriction",
+  "nativeScenarioTests": {
+    "passed": 6,
+    "covers": [
+      "parent save then child creation and readback",
+      "parent receipt interruption blocks children",
+      "same save verification does not replay",
+      "last-segment deletion accepted by original save contract"
+    ]
+  },
+  "pageAndRelatedTests": {
+    "files": 11,
+    "passed": 90
+  },
+  "gates": {
+    "formalClassModelGenerated": true,
+    "verify": true,
+    "build": true
+  },
+  "realServiceScope": "preflight only; no persisted CRUD acceptance while authorization pending",
+  "preflight": {
+    "kind": "native-code-parent-first-smoke",
+    "testedAt": "2026-11-02T11:29:13.598Z",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "id": "3C4EAA07275C4CAD80FF04F29C9F3089",
+    "name": "SMOKE_DATA_CHAIN_CODE_1793618813404",
+    "phase": "preflight-complete",
+    "readRequests": 29,
+    "writeRequests": 0,
+    "confirmedSaves": 0,
+    "cleanupConfirmed": false,
+    "checks": [
+      "formal source projection, main-create permissions and pending-parent guard"
+    ],
+    "replayWrites": 0,
+    "unknownOwnerRetained": false
+  },
+  "browser": {
+    "noticeShown": true,
+    "pendingParentButtonDisabled": true,
+    "explicitDiscardClosed": true,
+    "screenshot": "artifacts/data-chain-smoke/code-parent-first-notice.jpg"
+  },
+  "limits": [
+    "real temporary code creation and cleanup await user response",
+    "sys_edit SaveView still unconfirmed",
+    "code initialization is currently a placeholder; not whole-page accepted"
+  ]
+}

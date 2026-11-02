@@ -5,6 +5,7 @@
     <p v-if="loading" role="status">正在读取编码设计…</p>
     <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
     <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验保存结果。</p>
+    <p v-if="newDefinition" role="status">先保存主定义，再进入设计维护分段。</p>
     <p v-if="missingDefinition" role="alert">当前应用下未找到该编码设计</p>
     <template v-if="hasDefinition">
       <RendererForm :data-view-key="mainKey" :show-data-view-meta="false" :auto-columns="false" :grid-columns="2">
@@ -76,6 +77,7 @@ const loading = computed(() => {revision.value; return opening.value || !!dataSe
   view.requestState === RequestState.Preparing || view.requestState === RequestState.Loading))})
 const busy = computed(() => saving.value || loading.value || !!openDialog.value || segmentEditor.value?.busy === true)
 const unconfirmed = computed(() => {revision.value; return [main.value, nodes.value].some(view => view?.hasUnconfirmedSave === true)})
+const newDefinition = computed(() => {revision.value; return (main.value?.dirtyTracking.pendingCreateIds.size ?? 0) > 0})
 const hasDefinition = computed(() => {revision.value; return main.value?.rows.length === 1})
 const missingDefinition = computed(() => {revision.value; return main.value?.requestState === RequestState.Loaded && !main.value.rows.length})
 const queryError = computed(() => {revision.value; return Object.values(dataSet.value?.tables ?? {}).flatMap(table => table.viewList)

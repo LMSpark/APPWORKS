@@ -6,6 +6,7 @@ import {RequestState} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {codeModels, DESIGN} from './data-code.fixture'
+import {addCodeSegment, changeCodeSegmentType} from '@/lowcode/resources/structured-config/data-code/segment-ops'
 import {saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
 
 const SCENE = DESIGN
@@ -49,15 +50,52 @@ async function open(applicationId = 'A', codeDesignId = 'C1') {
 }
 
 describe('formal code-design scenario', () => {
-  it('does not persist a new main definition before its required segment design exists', async () => {
+  it('persists a new main definition before allowing child creation, then saves and rereads its segment', async () => {
     const {ds, http} = await open('A', 'NEW')
     const main = ds.getView('Base_CodeDesign')!, nodes = ds.getView('Base_CodeNodeDesign')!
     const added = await main.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {AppID: 'A', Name: '新增编码', BusTableRowid: 'T1'})
     main.setCurrentRow(added); main.setSelectedRows([added])
     await vi.waitFor(() => expect(nodes.requestState).toBe(RequestState.Loaded))
-    await expect(saveDataCodeDesign(ds)).rejects.toThrow('请先维护分段设计数据')
-    expect(main.dirtyTracking.pendingCreateIds.has('NEW')).toBe(true)
-    expect(http.saves).toEqual([])
+    expect(nodes.addActionState()).toBe('disabled')
+    await expect(addCodeSegment(ds)).rejects.toThrow('DATA_VIEW_ADD_PARENT_PENDING')
+    expect((await saveDataCodeDesign(ds)).success).toBe(true)
+    expect(main.dirtyTracking.pendingCreateIds.has('NEW')).toBe(false)
+    expect(http.saves.map(item => item.table)).toEqual(['Base_CodeDesign'])
+    await main.refresh();main.setCurrentRowById('NEW');main.setSelectedRows([main.currentRow!]);await nodes.refresh()
+    expect(nodes.addActionState()).toBe('enabled')
+    const segment = await addCodeSegment(ds), id = nodes.getPkKey(segment)!
+    changeCodeSegmentType(ds,{id,previous:''},2)
+    nodes.updateEditingValue(id,'ParameterName','NEW_PREFIX')
+    expect((await saveDataCodeDesign(ds)).success).toBe(true)
+    await main.refresh();await nodes.refresh()
+    expect(main.rows).toEqual([expect.objectContaining({rowid:'NEW',Name:'新增编码',CodeDescription:'固定字符串(NEW_PREFIX)'})])
+    expect(nodes.rows).toEqual([expect.objectContaining({CodeDesignID:'NEW',NodeType:2,ParameterName:'NEW_PREFIX',CodeNodeDesignJson:'{"ConstString":"NEW_PREFIX"}'})])
+    expect(http.records['Base_CodeNodeDesign']!.filter(row=>row['CodeDesignID']==='C1')).toHaveLength(1)
+  })
+  it('keeps child creation blocked after an interrupted parent receipt and verifies the same save without replay', async () => {
+    const {ds,http}=await open('A','NEW'),main=ds.getView('Base_CodeDesign')!,nodes=ds.getView('Base_CodeNodeDesign')!
+    const added=await main.addRowWithIdentity({field:'rowid',value:'NEW'},{AppID:'A',Name:'未知回执编码',BusTableRowid:'T1'})
+    main.setCurrentRow(added);main.setSelectedRows([added]);await nodes.refresh()
+    http.failAfterWrite=true
+    await expect(saveDataCodeDesign(ds)).rejects.toThrow()
+    expect(main.hasUnconfirmedSave).toBe(true)
+    await expect(addCodeSegment(ds)).rejects.toThrow('保存未确认')
+    expect(http.saves).toHaveLength(1)
+    expect((await saveDataCodeDesign(ds)).success).toBe(true)
+    expect(http.saves).toHaveLength(1)
+    expect(main.hasUnconfirmedSave).toBe(false)
+    await nodes.refresh()
+    expect(nodes.addActionState()).toBe('enabled')
+    expect(http.records['Base_CodeDesign']!.filter(row=>row['rowid']==='NEW')).toHaveLength(1)
+  })
+  it('saves an explicitly confirmed last-segment deletion without imposing the example-generation precondition', async () => {
+    const {ds,http}=await open(),nodes=ds.getView('Base_CodeNodeDesign')!
+    await nodes.removeRow('N1')
+    expect((await saveDataCodeDesign(ds)).success).toBe(true)
+    await nodes.refresh()
+    expect(nodes.rows).toEqual([])
+    expect(http.records['Base_CodeNodeDesign']).toEqual([expect.objectContaining({rowid:'N2',CodeDesignID:'C2'})])
+    expect(http.records['Base_CodeDesign']!.find(row=>row['rowid']==='C1')?.['CodeDescription']).toBe('')
   })
   it('queries the selected design and its nodes without loading rule-maintenance data', async () => {
     const {ds, http} = await open()

@@ -40,6 +40,26 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it('saves the new main definition and reopens it with the native segment action enabled', async () => {
+    const loaded=vi.spyOn(LowcodeDataCode,'loadEditor'),{wrapper}=await open({}, {applicationId:'A',codeDesignId:'NEW',create:true})
+    await vi.waitFor(()=>expect(wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='新增分段')).toBe(true))
+    const ds=await loaded.mock.results[0]!.value,main=ds.getView('Base_CodeDesign')!
+    expect(wrapper.text()).toContain('先保存主定义，再进入设计维护分段')
+    expect(wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='新增分段')!.get('button').attributes('disabled')).toBeDefined()
+    main.updateEditingValue('NEW','Name','新编码')
+    main.updateEditingValue('NEW','BusTableRowid','T1')
+    main.updateEditingValue('NEW','BusTableName','订单')
+    await wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='保存设计')!.get('button').trigger('click');await flushPromises()
+    await vi.waitFor(()=>expect(state.current.http.records['Base_CodeDesign']).toContainEqual(expect.objectContaining({rowid:'NEW',Name:'新编码'})))
+    expect(main.hasUnconfirmedSave).toBe(false);expect(main.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(state.current.http.saves.map(save=>save.table)).toEqual(['Base_CodeDesign'])
+    wrapper.unmount()
+    const reopened=(await open({applicationId:'A',codeDesignId:'NEW'})).wrapper
+    await vi.waitFor(()=>expect(reopened.findAllComponents(RendererButton).some(button=>button.props('label')==='新增分段')).toBe(true))
+    expect(reopened.text()).not.toContain('先保存主定义，再进入设计维护分段')
+    expect(reopened.findAllComponents(RendererButton).find(button=>button.props('label')==='新增分段')!.get('button').attributes('disabled')).toBeUndefined()
+    expect(state.current.http.records['Base_CodeNodeDesign']).toHaveLength(2)
+  })
   it('adds a native segment to a stored definition, edits its type and literal, and saves through the original views', async () => {
     const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
     await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '新增分段')).toBe(true))
@@ -88,9 +108,6 @@ describe('code editor formal main and node views', () => {
     await click('取消删除分段'); expect(nodes.rows).toHaveLength(1)
     await click('删除分段'); await click('确定删除分段')
     expect(nodes.dirtyTracking.pendingDeleteIds.has('N1')).toBe(true)
-    expect(state.current.http.saves).toEqual([])
-    await click('保存设计')
-    await vi.waitFor(() => expect(wrapper.text()).toContain('请先维护分段设计数据'))
     expect(state.current.http.saves).toEqual([])
     await click('取消修改'); expect(nodes.rows[0]?.['rowid']).toBe('N1')
     expect(nodes.dirtyTracking.pendingDeleteIds.size).toBe(0)

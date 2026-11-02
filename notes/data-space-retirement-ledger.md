@@ -4899,3 +4899,13 @@ flowchart TD
 - sys_edit按用户已授权范围仅追加只读核实一次GetView：compactHash仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564，marker不存在，0重放/0恢复。证据evidence/data-chain-smoke/2026-11-02-logic-design-readonly-followup.json；不能因基线仍在而将先前未知回执改写为成功，SaveView持久化仍未验收。未改后端或权限。
 - 初次完整verify发现新UI的选中值类型允许boolean而命令只接受string/number，以及测试隐式any；已在选择边界拒绝boolean并补显式DataRow，不扩大写入身份。中途verify/build通过仅代表其运行时版本，补下游消费后最终正式生成+完整verify/build由66931执行，最终终态待追加再提交。根目标active，未把本切片当全架构完成。
 - 最终66931退出0：正式ClassModel再生成、完整verify（含49项ClassModel门禁）、build全部通过；相关12文件89项GREEN，git diff --check通过。保留既有AI模型警告与动态导入提示，无后端改动。提交当前分段修复及脱敏证据推送origin/1031；全架构目标未完成，下一轮继续新编码父子新增合同、规则完整性/布局差距与原台账服务/数据缺口，sys_edit真实落盘失败仍单列且不重放。
+
+### 2026-11-02 新编码父子链纠偏：区分保存与示例生成
+- 上轮a1d36a193及此前25398b31c确有错误语义判断，当前显式撤回“保存必须至少一个分段”的活动规则。重新核定固定参考1147b00ee：use-data-code-editor-page.ts 的validateRefreshPreconditions仅由handleRefreshExample调用，校验Name/BusTableRowid及非空分段；handleSave仅form.validate后调用codeDesign.save。DataCodeEdit.ts的AppWorksCodeDesignManager.save允许payload.nodes为空，无至少一段保存校验。台账4887—4889及4896—4901关于“参考保存要求非空”的结论为历史误读，不得继续作为实施合同，先前GREEN测试也不能证明该判断正确。
+- 原生SPARK data级联父记录pending-create禁止子新增有正式代码/测试，继续保留。删除页面领域额外空分段保存门槛，恢复参考允许的先保存主定义→回读/重新进入→维护分段的流程，不改spark-data守卫，不加新权限、无绑定视图、本地草稿或第二提交器。主定义创建后宿主原saved关闭并刷新目录，重开不再create；新增页展示“先保存主定义，再进入设计维护分段”，状态来自原DataView pendingCreate。
+- 测试先RED两处错误空段保存门槛（code-parent-first-red.log），移除后GREEN：正式新主保存仅写主视图，回读后新增原身份子节点，原DataSet编译与保存固定串，独立refresh逐值匹配，原C1/C2节点不变；确认删除末分段允许保存空描述。旧UI删除取消测试保留，不再断言错误保存规则。
+- 新UI流程测试先RED缺新增状态提示，补后11文件89项通过；另补父保存回执中断：原主视图unknown期间addCodeSegment被拒绝，再次saveDataCodeDesign仅原管线核验，写次数保持1，确认后子新增启用，6项场景测试通过。当前实服编码创建范围经异步问题待用户确认，不以等待时间推定同意；可独立工作继续。完整生成/verify/build及实服状态终态另补，整体目标active，sys_edit未知保存不重放。
+- 最终补验11文件90项通过；67744正式生成、完整verify/build终态退出0。浏览器原标签5复用会话观察新增提示与disabled父守卫，显式放弃草稿后回目录并markHandoff，截图artifacts/data-chain-smoke/code-parent-first-notice.jpg；未点保存。脱敏证据evidence/data-chain-smoke/2026-11-02-code-parent-first-audit.json。
+- 实服预检首次401后沿原refresh合同正常续用会话，无密码读写。预检还纠正诊断脚本此前误把旧来源ID D85E…当编码节点表/物理字段ID的假设：实际字段为部门类且主键字段名rowid。最终按本次查询的唯一物理表名Base_CodeNodeDesign分页选中，再从本次字段视图读取rowid，经生产projectCodeReferenceSelection/applyCodeBusinessTable仅写原主草稿并丢弃；29读0写，phase=preflight-complete。没有改来源记录或沿旧ID执行持久化。该纠正属于诊断目标选择，不将脚本假设误报为业务来源损坏。
+- 当前真实临时编码创建/分段保存/清理仍待异步问题回答，等待不等于同意；已准备artifacts/data-chain-smoke/code-parent-first-write.mts，带显式allowTemporaryCode、精确新身份/SMOKE标记、原查询来源映射、未知owner保留/不重放及子先父后清理；预检模式禁止CRUD端点。未真实创建编码记录，不能据内存测试和预检宣称实服新增闭环通过。
+- 下一项源码明确缺口：本仓dialogs/code-init-dialog.vue仅文案占位，无原设计/节点目标、日期/循环组或查询保存；参考原生code-init-dialog与DataCodeEdit.codeInitDataList依赖designer.code initialize-code-data（参考目录映射/Codeing/CodeInitDataList）及原Base_CodeSerialPerform查询/保存，须先核实际服务合同，不把占位弹窗算验收，不向前端发明新协议。整体目标active，适时提交当前纠偏至origin/1031。

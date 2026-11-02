@@ -3,10 +3,11 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTable, RendererDialog, RendererButton, RendererForm, FieldText, FieldSelect, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, FieldText, FieldSelect, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
+import WorkflowTrigger from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue'
 vi.mock('@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue',()=>({default:{name:'WorkflowEditorStub',props:['rowid'],data:()=>({hasPending:false,busy:false,unconfirmed:false}),methods:{discardChanges(this:{hasPending:boolean}){this.hasPending=false;return true}},template:'<div>workflow-editor</div>'}}))
 import Excel from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
@@ -29,6 +30,7 @@ const original = {...config.global.stubs}, wrappers: VueWrapper[] = []
 beforeEach(() => {
   state.appId='D99A1DCE9894698799101EFD70F8FC76'
   state.http = new ApiBackend(); state.http.primaryKeys['Base_FileInspectConfig'] = 'id'
+  state.http.primaryKeys['_base_dbInfo']='Id'
   state.http.records = {
     Base_WorkflowDefinition: [{rowid: 'W1', name: '入库流程', workflow_key: 'INBOUND', description: '正式流程', status: '1'}],
     workflowStatus: [{rowid: 'STATUS1', val: '1', txt: '已启用', ordIdx: 1}],
@@ -43,6 +45,41 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['cancel-picker','confirm-cancel','confirm-save','search-empty'])('uses the real trigger selector with %s through the original definition view',async outcome=>{
+    Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',dbName:'old_db',tblName:'OldTable',tblid:'OLD',filter:'old-filter'})
+    state.http.records['_base_dbInfo']=[{Id:'D1',Name:'physical_db',Remark:'显示备注'},{Id:'D2',Name:'other_db'}]
+    state.http.records['_Base_TblList']=[{rowid:'T1',dbid:'D1',tblname:'Orders',tbldesc:'订单'},{rowid:'T2',dbid:'D2',tblname:'Other',tbldesc:'其他'}]
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.getComponent(RendererTable).text()).toContain('入库流程'))
+    const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)!;expect(b,label).toBeDefined();expect(b.props('disabled')).not.toBe(true);b.vm.$emit('click');await flushPromises()}
+    await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('触发表…')
+    await vi.waitFor(()=>expect(wrapper.findComponent(WorkflowTrigger).exists()).toBe(true))
+    const picker=wrapper.getComponent(WorkflowTrigger)
+    await vi.waitFor(()=>expect(picker.findComponent(FieldSelect).exists()).toBe(true))
+    const database=picker.getComponent(FieldSelect)
+    expect(database.props('dataMember')).toBe('value');expect(database.props('dataViewKey')).toBe(`${WORKFLOW}@_base_dbInfo@default`)
+    await database.get('.el-select__wrapper').trigger('click');await flushPromises()
+    await database.findAllComponents({name:'ElOption'}).find(option=>option.props('label')==='physical_db')!.trigger('click');await flushPromises()
+    const table=picker.getComponent(RendererTable)
+    await vi.waitFor(()=>expect(table.text()).toContain('Orders'));expect(table.text()).not.toContain('Other')
+    await table.get('tbody tr').trigger('click');await flushPromises()
+    if(outcome==='search-empty'){
+      const filters=picker.getComponent(RendererFilter);filters.vm.filterModel['tblname']='Other';await filters.vm.search();await flushPromises()
+      expect(table.text()).not.toContain('Orders');expect(table.text()).not.toContain('Other')
+      expect(picker.findAllComponents(RendererButton).find(b=>b.props('label')==='确认触发表')!.props('disabled')).toBe(true)
+    }
+    const cancelled=outcome==='cancel-picker'||outcome==='search-empty'
+    if(cancelled)await click('取消选择');else await click('确认触发表')
+    expect(wrapper.findComponent(WorkflowTrigger).exists()).toBe(false);expect(state.http.saves).toEqual([])
+    const form=wrapper.getComponent(RendererForm),targetName=()=>form.findAllComponents(FieldText).find(field=>field.props('field')==='tblName')!.get('input').element.value
+    expect(targetName()).toBe(cancelled?'OldTable':'Orders')
+    if(outcome==='confirm-save'){
+      await click('保存定义');expect(state.http.saves.map(save=>save.table)).toEqual(['Base_WorkflowDefinition'])
+      expect(state.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid:'W1',dbName:'physical_db',tblName:'Orders',tblid:'T1',filter:''})])
+    }else{await click('取消定义修改');expect(targetName()).toBe('OldTable');expect(state.http.saves).toEqual([])}
+  })
   it.each(['confirmed','lost-receipt','invalid-name','scope-changed','catalog-refresh-failed','status-selection'])('edits and cancels an existing definition with %s without touching other definitions',async outcome=>{
     state.http.records['Base_WorkflowDefinition']![0]!['version']='1'
     state.http.records['Base_WorkflowDefinition']![0]!['status']=2

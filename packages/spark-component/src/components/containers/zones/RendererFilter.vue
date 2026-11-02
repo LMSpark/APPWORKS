@@ -106,7 +106,7 @@ import DataViewMetaBar from '../data-views/DataViewMetaBar.vue'
 import { useFilterPanel } from '../runtime/container-filter'
 import { useDataViewEventBridge } from '../runtime/useDataViewEventBridge'
 import FilterExpressionEditor from '../filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
-import type { RFilterProps as Props } from './RendererFilter.types'
+import type { RFilterProps as Props, RendererFilterApi } from './RendererFilter.types'
 
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-filter',
@@ -308,7 +308,9 @@ function handleToggleCollapsed() {
 }
 
 // 面向脚本/测试暴露过滤模型与活跃数，便于读取/赋值或断言。
+const api:RendererFilterApi={search:handleSearch}
 defineExpose({
+  ...api,
   filterModel,
   activeFilterCount,
 })

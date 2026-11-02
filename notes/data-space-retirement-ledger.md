@@ -5241,3 +5241,14 @@ flowchart LR
 本轮继续：真实数字状态候选通过标准下拉选择后保存被拒，新增回归先红；现statusCode=val+空字符串计算列及原视图valueField、DataColumn.optionsView共用它，原val与原已有状态不改。目录13测试通过，新增状态选择实际保存string1，未修改状态时number2仍保留。实服原配置装配8读0写确认val为number、statusCode为string1/2、选项view.valueField=statusCode，4定义/2选项可读且edit视图未自动加载；证据workflow-status-option-types.json。修正诊断脚本的严格字符串比较后单记录fixture预检7读0写ready；没有创建记录。脚本高阶模型静态核wx意图、范围、unknown保留，补齐已确认删除后的只读续核、inspect数量。已提出新的1条停用临时定义浏览器保存/回读/清理范围确认，当前待答复，不挪用已结束三记录授权。
 
 本轮最终检查：工作流及目录8文件84测试、pnpm run typecheck、受改Vue/TS ESLint、verify:pages-config/workflow-designs/page-thin/docs和单独前端打包通过。正式ClassModel已生成1001文件，保留目录页面真实产物；恢复12个仅编译器iterator/unscopables数字变化的已核无关分片。高阶模型复核与真实读取/取消、类型计算列8读0写及单记录fixture预检均已归档。本轮没有任何正式CRUD保存或领码/执行调用；单记录创建待用户答复。完整触发表/时间/条件/应用候选、正式新建及四文件/执行验收仍开放，build:check既有unused声明错误未核销。
+
+
+**2026-11-03 触发表选择链恢复及零写入浏览器验收。**继续固定参考1147b00ee的数据库→表目录→确认草稿→外层保存/取消语义，不改Java、不改蓝图URL。目录同一DataSet接入正式_base_dbInfo（09e9afae-a093-494e-8699-4f0ed4cfe68e，PK Id）和_Base_TblList（75ea2f93-1a69-44c5-a1df-9f3664437ce8，PK rowid），仅投影Id/Name/Remark与rowid/dbid/tblname/tbldesc，不读取连接凭据。数据库选择的原生级联按选中PK数组以in约束dbid；初始eq不接数组已纠正。表分页20及手动名称/描述查询由原DataView和RendererFilter承接。autoQuery=false同时阻止父级联时，公共RendererFilterApi.search公开原查询按钮动作；页面在数据库选择时调用同一动作，不另造过滤或查询。公共声明正式生成1002个ClassModel文件后，重新查询目录、概要、属性和search方法指南；证据workflow-trigger-guides。
+
+选择命令核当前结果及readSnapshot、唯一库表归属、目标模型/rowid/queryContext、当前字段权限；只对实际变化字段建立原DataView检查点，失败仅回滚四字段，保留无关草稿。高阶模型发现同库同表且filter空时空检查点报错，现完整核验后空变化正常返回，补零编辑/零保存且保留无关草稿回归。选择器还核打开时四字段签名、目标切换及迟到结果，不以旧页缓存确认；取消选择器不写定义，确认只改原编辑视图，外层取消恢复。
+
+实服只读核数据库32条，QYVirtualPlat下表目录222条。原WF00001绑定表9137069151984ECE97083EE72E967F2F与字段在当前查询范围返回0，登记为当前范围未返回，不能当物理删除或猜同名重挂。Base_TblField的tblid/DataTypeName当前非输出，条件字段目录未恢复，不扩权限。真实浏览器完成选库、20条分页呈现、Base_NavigationInfo筛选唯一、确认入本地草稿、外层取消恢复HR_New_XC_GZFPJL；独立精确回读dbName=spark_payroll、原tblid/tblName/filter未变，探针1读0写，无保存点击、无流程执行。证据2026-11-03-workflow-trigger-browser-cancel.json及本机截图workflow-trigger-picker.png。此前两条workflowStatus修正及三记录fixture已经完成并清理，本次用户重复到达的同一范围答复不重放；新的单定义编辑fixture仍未获对应答复且未创建。
+
+当前相关76测试、typecheck、受改文件ESLint、pages-config/workflow-designs/page-thin/docs及单独前端打包通过；最终目录/工作流组合回归与提交尚在进行，不能核销完整工作流、正式新建领码顺序、触发执行或全架构目标。生成器11个只含iterator/unscopables数字变化的分片经归一比对后恢复，保留实际公共search合同及页面产物。
+
+最终组合回归11文件104测试通过（另公共筛选53测试已通过），typecheck及上述检查/打包全部确认exit0。独立回读原定义1读0写通过，选择器浏览器截图已保存。待提交检查点；正式触发表保存、正式新建及执行仍未验收。

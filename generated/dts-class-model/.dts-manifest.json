@@ -1074,7 +1074,7 @@
     "packages/spark-component/src/components/containers/index.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/index.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/index.ts.json",
-      "sourceModifiedAt": "2026-10-11T23:12:10.304Z"
+      "sourceModifiedAt": "2026-11-02T17:31:24.645Z"
     },
     "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/layout/action/RendererButton/RendererButton.props.ts",
@@ -1514,12 +1514,12 @@
     "packages/spark-component/src/components/containers/zones/RendererFilter.types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFilter.types.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
-      "sourceModifiedAt": "2026-10-11T06:11:50.996Z"
+      "sourceModifiedAt": "2026-11-02T17:31:24.644Z"
     },
     "packages/spark-component/src/components/containers/zones/RendererFilter.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFilter.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/zones/RendererFilter.vue.json",
-      "sourceModifiedAt": "2026-10-16T04:52:16.906Z"
+      "sourceModifiedAt": "2026-11-02T17:31:24.644Z"
     },
     "packages/spark-component/src/components/containers/zones/RendererFooter.types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFooter.types.ts",
@@ -2354,7 +2354,7 @@
     "packages/spark-component/src/components/index.ts": {
       "sourceFile": "packages/spark-component/src/components/index.ts",
       "shardFile": "files/packages/spark-component/src/components/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.530Z"
+      "sourceModifiedAt": "2026-11-02T17:31:24.646Z"
     },
     "packages/spark-component/src/components/internal.ts": {
       "sourceFile": "packages/spark-component/src/components/internal.ts",
@@ -2439,7 +2439,7 @@
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
       "shardFile": "files/packages/spark-component/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.543Z"
+      "sourceModifiedAt": "2026-11-02T17:31:24.647Z"
     },
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
@@ -4186,6 +4186,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts.json",
       "sourceModifiedAt": "2026-11-02T15:13:34.454Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts.json",
+      "sourceModifiedAt": "2026-11-02T17:40:00.171Z"
+    },
     "src/main.ts": {
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
@@ -4944,12 +4949,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T17:02:31.369Z"
+      "sourceModifiedAt": "2026-11-02T17:25:13.049Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue.json",
-      "sourceModifiedAt": "2026-10-25T07:53:43.580Z"
+      "sourceModifiedAt": "2026-11-02T17:33:54.537Z"
     },
     "src/views/features/integration/api-management/ui/api-config-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",

@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog",
-    "jsdoc": "app 的 views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
-    "jsdocSource": "inferred",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog\n职责：绑定原目录DataSet的数据库、表视图，确认触发表选择，取消不写目标。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-25T07:53:43.580Z",
+  "generatedAt": "2026-11-02T17:33:54.537Z",
   "models": {}
 }

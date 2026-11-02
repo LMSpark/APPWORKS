@@ -7,6 +7,12 @@
 import type { SparkNodeProps } from '../../shared-types'
 import type { SparkNode, DataViewFilterFunctionContext } from '@spark-appworks/spark-data'
 
+/** 标准筛选器实例动作；复用当前绑定视图和已输入筛选项，不另建查询状态。 */
+export type RendererFilterApi = {
+  /** 与点击查询相同：应用当前筛选输入并查询绑定DataView，保留其正式级联约束；绑定失效、字段错误或替换被拒时沿原错误呈现，不扩大权限。 */
+  search(): Promise<void>
+}
+
 /**
  * `r-filter` / `RendererFilter` 完整属性定义。
  *
@@ -22,7 +28,7 @@ export type RFilterProps = SparkNodeProps & {
     id?: string
     /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */
     children?: SparkNode[]
-  
+
     // ── 组件配置（rule.json 或原生 Vue） ─────────────────────────────────────
     /**
      * 筛选区附加 CSS class。

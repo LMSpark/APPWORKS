@@ -57,7 +57,7 @@ it.each(['omitted', undefined, true, false] as const)('applies filter input acco
     if (automatic === false) {
       expect(list).not.toHaveBeenCalled()
       expect(view.filterExpression).toBeUndefined()
-      await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click'); await flushPromises()
+      await filter.vm.search(); await flushPromises()
     }
     expect(list).toHaveBeenCalledOnce()
     expect(view.filterExpression).toEqual({field: 'Name', operator: 'contains', value: 'A'})

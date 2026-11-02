@@ -8,7 +8,7 @@
     <p v-if="error || selectionState.error" role="alert">{{ error || selectionState.error }}</p>
     <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :toolbar="toolbar"
       :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
-    <WorkflowTriggerTableDialog v-if="triggerOpen" :workflow-id="selected" @close="triggerOpen = false" />
+    <WorkflowTriggerTableDialog v-if="triggerOpen && editTarget" :workflow-id="editTarget" :data-view-key="editKey" :validate-target="validateTriggerTarget" @applied="revision++" @close="triggerOpen = false" />
     <RendererDialog v-if="editTarget" :model-value="true" title="映射信息设置" :data-view-key="editKey" width="920px" :append-to-body="true" :destroy-on-close="true" :close-disabled="definitionPending" @update:model-value="closeDefinition">
       <p v-if="editBusy" role="status">正在处理工作流定义…</p>
       <p v-if="error" role="alert">{{ error }}</p>
@@ -21,6 +21,7 @@
         <FieldText field="activeType" label="触发类型" :readonly="true" />
         <FieldText field="timeExp" label="时间表达式" :readonly="true" />
         <FieldText field="tblName" label="触发表" :readonly="true" />
+        <RendererButton label="选择触发表" :disabled="definitionLocked" @click="triggerOpen = true" />
         <FieldText field="tableOperate" label="操作方式" :readonly="true" />
         <FieldTextarea field="filter" label="条件原文" :readonly="true" />
         <FieldTextarea field="description" label="描述" :readonly="definitionLocked" />
@@ -82,7 +83,7 @@ const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '新增工作流', permAction: 'create', disabled: loading.value, onClick: createFlow}},
   {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || loading.value, onClick: openDesign}},
   {type: 'r-button', props: {label:'编辑定义',disabled:!selected.value||loading.value||!!editTarget.value,onClick:openDefinition}},
-  {type: 'r-button', props: {label: '触发表…', disabled: !selected.value || loading.value, onClick: () => {triggerOpen.value = true}}},
+  {type: 'r-button', props: {label: '触发表…', disabled: !selected.value || loading.value, onClick: openTrigger}},
   {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
 ]}))
 const fields = computed<SparkNode[]>(() => [
@@ -95,6 +96,11 @@ const fields = computed<SparkNode[]>(() => [
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
 function createFlow(): void {error.value='暂不能创建工作流：业务编码生成能力尚未确认。'}
 function openDesign(): void {if(selected.value&&!designTarget.value&&!editTarget.value)designTarget.value=selected.value}
+async function openTrigger():Promise<void>{await openDefinition();if(editReady.value)triggerOpen.value=true}
+function validateTriggerTarget():void{
+ const target=editor(),row=target?.currentRow
+ if(editBusy.value||!editReady.value||!row||target?.getPkKey(row)!==editTarget.value||target.queryContext['definitionId']!==editTarget.value||target.hasUnconfirmedSave)throw Error('工作流定义目标已变化或正在保存')
+}
 async function openDefinition():Promise<void>{
  if(!selected.value||editTarget.value||designTarget.value)return
  const id=selected.value,target=editor(),own=generation;if(!target)return
@@ -108,7 +114,7 @@ async function openDefinition():Promise<void>{
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation)editBusy.value=false}
 }
-function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){editTarget.value='';editReady.value=false}}
+function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){triggerOpen.value=false;editTarget.value='';editReady.value=false}}
 function cancelDefinition():void{if(definitionLocked.value)return;try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function saveDefinition():Promise<void>{
  const target=editor(),ds=runtime?.getDataSet(scenarioId.value),id=editTarget.value,own=generation

@@ -20,6 +20,7 @@ export {
 
 // ── 组件 re-exports（leaf barrel 统一导出）──────────────────────────────────
 export { RendererFilter } from './containers/index.js'
+export type { RendererFilterApi } from './containers/index.js'
 export {
   RendererDetail,
   RendererForm,

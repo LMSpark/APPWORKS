@@ -114,6 +114,7 @@ export type {
   InlineAlign,
   InlineJustify,
   RFilterProps,
+  RendererFilterApi,
   REditorProps,
   RHeaderProps,
   RFooterProps,

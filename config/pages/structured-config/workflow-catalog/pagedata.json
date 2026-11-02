@@ -15,6 +15,14 @@
         "filterExpression": {"field":"rowid","operator":"eq","value":{"Type":"GetInputParam","ParamName":"definitionId"}}
       }}
     },
+    "_base_dbInfo": {
+      "modelBinding":{"modelId":"09e9afae-a093-494e-8699-4f0ed4cfe68e","modelName":"_base_dbInfo"},
+      "views":{"default":{"autoLoad":false,"autoCurrentFirst":false,"autoSelectFirst":false,"selectionDelimiter":"","valueField":"Id","labelField":"Name","queryConfig":{"fields":["Id","Name","Remark"],"allPages":true},"sortExpression":[{"field":"Name","direction":"asc"}]}}
+    },
+    "_Base_TblList": {
+      "modelBinding":{"modelId":"75ea2f93-1a69-44c5-a1df-9f3664437ce8","modelName":"_Base_TblList"},
+      "views":{"default":{"autoLoad":false,"autoCurrentFirst":false,"autoSelectFirst":false,"selectionDelimiter":"","pageSize":20,"queryConfig":{"fields":["rowid","dbid","tblname","tbldesc"]},"sortExpression":[{"field":"tblname","direction":"asc"}]}}
+    },
     "workflowStatus": {
       "modelBinding": {"modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5", "modelName": "workflowStatus"},
       "columns": [{"name":"statusCode","type":"string","computeExpression":"val + ''"}],
@@ -24,5 +32,5 @@
       }}
     }
   },
-  "resourceRelations": [], "viewCascades": []
+  "resourceRelations": [], "viewCascades": [{"kind":"query","cascadeId":"workflow-trigger-database-tables","parentTable":"_base_dbInfo","parentViewId":"default","childTable":"_Base_TblList","childViewId":"default","autoLoad":true,"filterBindings":[{"targetField":"dbid","operator":"in"}]}]
 }

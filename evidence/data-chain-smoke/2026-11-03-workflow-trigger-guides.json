@@ -1,0 +1,346 @@
+{
+  "catalog": {
+    "rootKind": "RTableProps",
+    "models": [
+      {
+        "kind": "RTableProps",
+        "name": "RTableProps",
+        "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+        "summary": "r-table 组件公开属性接口。",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkInteractiveDataContainerProps",
+            "targetName": "SparkInteractiveDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+          }
+        ],
+        "component": {
+          "name": "RendererTable",
+          "type": "r-table",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      }
+    ]
+  },
+  "overview": [
+    {
+      "rootKind": "RTableProps",
+      "models": [
+        {
+          "kind": "RTableProps",
+          "name": "RTableProps",
+          "jsdoc": "r-table 组件公开属性接口。\n页面只声明标准子组件 children；子组件依据父组件类型及数据上下文渲染。\n命名规范：组件 type `r-table` → 接口名 `RTableProps`。",
+          "summary": "r-table 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkInteractiveDataContainerProps",
+              "targetName": "SparkInteractiveDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 显式收窄为表格容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 是否显示纵向边框。默认 true（resizable 启用时强制开启）。 */\n    border?: boolean;\n    /** 是否开启斑马纹。 */\n    stripe?: boolean;\n    /** 是否高亮当前行。 */\n    highlightCurrentRow?: boolean;\n    /** 行数据的 Key，用于树形表格。 */\n    rowKey?: string;\n    /**\n     * 返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n     * 只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n     * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。\n     */\n    rowClassName?: (context: TableRowClassContext) => string;\n    /** 是否允许拖动列宽，默认 true。 */\n    resizable?: boolean;\n    /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */\n    autoColumns?: boolean;\n    /** 是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。 */\n    showPagination?: boolean;\n    /** 表格主体最大高度；数值为像素，不包含工具栏和分页器。 */\n    maxHeight?: number | string;\n    /** 分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。 */\n    pagination?: {\n        /** 可选每页条数，默认10/20/50/100。 */\n        pageSizes?: number[];\n        /** 是否显示直接跳页输入，默认true。 */\n        showJumper?: boolean;\n    };\n    /**\n     * 结构化工具栏\n     * 提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。\n     */\n    toolbar?: RToolbarProps;\n    /**\n     * 统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n     * 未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\n     * children 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。\n     */\n    filter?: RFilterProps;\n    /**\n     * 行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n     * 提示词模板：默认动作 message-row / delete-row。\n     */\n    actions?: RToolbarProps;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererTable",
+            "type": "r-table",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表格容器使用的 DataView 数据线。",
+              "summary": "显式收窄为表格容器使用的 DataView 数据线。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "border",
+              "jsdoc": "是否显示纵向边框。默认 true（resizable 启用时强制开启）。",
+              "summary": "是否显示纵向边框。默认 true（resizable 启用时强制开启）。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "stripe",
+              "jsdoc": "是否开启斑马纹。",
+              "summary": "是否开启斑马纹。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "highlightCurrentRow",
+              "jsdoc": "是否高亮当前行。",
+              "summary": "是否高亮当前行。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "rowKey",
+              "jsdoc": "行数据的 Key，用于树形表格。",
+              "summary": "行数据的 Key，用于树形表格。",
+              "typeText": "string"
+            },
+            {
+              "name": "resizable",
+              "jsdoc": "是否允许拖动列宽，默认 true。",
+              "summary": "是否允许拖动列宽，默认 true。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
+              "summary": "设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "showPagination",
+              "jsdoc": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。",
+              "summary": "是否显示分页器。默认 true；SelfRef或allPages完整集合查询不显示。有编辑覆盖、待提交变更或未确认提交时禁止翻页，继续由原DataView核验查询替换。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "maxHeight",
+              "jsdoc": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "summary": "表格主体最大高度；数值为像素，不包含工具栏和分页器。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "pagination",
+              "jsdoc": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
+              "summary": "分页器呈现；只配置可选每页条数及跳转框，当前页/每页条数和查询仍由绑定DataView管理。",
+              "typeText": "{ pageSizes?: number[]; showJumper?: boolean }"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏\n提示词模板：默认动作 append-row / refresh / delete-current；当表格开启多选（type=selection）时，使用 delete-selected 批量删除已选择行。",
+              "summary": "结构化工具栏",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "filter",
+              "jsdoc": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。\n未配置时不显示；filter: {} 使用默认配置显示完整表达式编辑器，无需 children。\nchildren 可补充绑定模型字段的常用筛选项；dataViewKey 默认沿用表格视图，显式指定时过滤该命名视图。",
+              "summary": "统一过滤区，完整配置交给 r-filter，使用 DataView 的过滤合同。",
+              "typeText": "RFilterProps"
+            },
+            {
+              "name": "actions",
+              "jsdoc": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。\n提示词模板：默认动作 message-row / delete-row。",
+              "summary": "行动作复用 RToolbarProps，以 children 编排标准动作子组件。",
+              "typeText": "RToolbarProps"
+            }
+          ],
+          "methods": [
+            {
+              "name": "rowClassName",
+              "jsdoc": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。\n只改变呈现，不过滤DataView、不修改查询、当前行、选中集合或编辑草稿。\n函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。",
+              "summary": "返回附加行样式类名，空字符串表示不附加；与标准选择样式合并。",
+              "signature": "rowClassName(context: TableRowClassContext): string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "rootKind": "RTableProps",
+      "models": [
+        {
+          "kind": "RFilterProps",
+          "name": "RFilterProps",
+          "jsdoc": "`r-filter` / `RendererFilter` 完整属性定义。\n容器统一过滤入口：通过 `dataViewKey` 绑定 DataView，未指定时继承父级 DATA_SOURCE。\n完整表达式编辑器使用 DataViewFilterTree / DataView.executeFilter；\n可选的常用筛选子组件通过同一 useFilterPanel / DataView.setFilter 同步。\n过滤属于绑定视图，表格、树、列表共享视图时消费同一结果；容器不另建过滤或查询逻辑。",
+          "summary": "`r-filter` / `RendererFilter` 完整属性定义。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。 */\n    autoQuery?: boolean | undefined;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilter",
+            "type": "r-filter",
+            "level": "container",
+            "layer": "zone-container",
+            "directory": "containers/zones"
+          },
+          "attributes": [
+            {
+              "name": "type",
+              "jsdoc": "组件类型固定为 `r-filter`。",
+              "summary": "组件类型固定为 `r-filter`。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "id",
+              "jsdoc": "节点标识。",
+              "summary": "节点标识。",
+              "typeText": "string"
+            },
+            {
+              "name": "children",
+              "jsdoc": "常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。",
+              "summary": "常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。",
+              "typeText": "{ length: number; toString: (() => string) & (() => string); toLocaleString: { (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; } & { (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; }; pop: (() => string | number | SparkNode | undefined) & (() => SparkNode | undefined); push: ((...items: (string | number | SparkNode)[]) => number) & ((...items: SparkNode[]) => number); concat: { (...items: ConcatArray<string | number | SparkNode>[]): (string | number | SparkNode)[]; (...items: (string | number | SparkNode | ConcatArray<string | number | SparkNode>)[]): (string | ... 1 more ... | SparkNode)[]; } & { ...; }; join: ((separator?: string) => string) & ((separator?: string) => string); reverse: (() => (string | number | SparkNode)[]) & (() => SparkNode[]); shift: (() => string | number | SparkNode | undefined) & (() => SparkNode | undefined); slice: ((start?: number, end?: number) => (string | number | SparkNode)[]) & ((start?: number, end?: number) => SparkNode[]); sort: ((compareFn?: ((a: string | number | SparkNode, b: string | number | SparkNode) => number) | undefined) => SparkNodeChildren & SparkNode[]) & ((compareFn?: ((a: SparkNode, b: SparkNode) => number) | undefined) => SparkNodeChildren & SparkNode[]); splice: { (start: number, deleteCount?: number): (string | number | SparkNode)[]; (start: number, deleteCount: number, ...items: (string | number | SparkNode)[]): (string | ... 1 more ... | SparkNode)[]; } & { ...; }; unshift: ((...items: (string | number | SparkNode)[]) => number) & ((...items: SparkNode[]) => number); indexOf: ((searchElement: string | number | SparkNode, fromIndex?: number) => number) & ((searchElement: SparkNode, fromIndex?: number) => number); lastIndexOf: ((searchElement: string | number | SparkNode, fromIndex?: number) => number) & ((searchElement: SparkNode, fromIndex?: number) => number); every: { <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => value is S, thisArg?: any): this is S[]; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, array: (string | ... 1 more ... | SparkNode)[]) => unkno...; some: ((predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => unknown, thisArg?: any) => boolean) & ((predicate: (value: SparkNode, index: number, array: SparkNode[]) => unknown, thisArg?: any) => boolean); forEach: ((callbackfn: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => void, thisArg?: any) => void) & ((callbackfn: (value: SparkNode, index: number, array: SparkNode[]) => void, thisArg?: any) => void); map: (<U>(callbackfn: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => U, thisArg?: any) => U[]) & (<U>(callbackfn: (value: SparkNode, index: number, array: SparkNode[]) => U, thisArg?: any) => U[]); filter: { <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => value is S, thisArg?: any): S[]; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, array: (string | ... 1 more ... | SparkNode)[]) => unknown, this...; reduce: { (callbackfn: (previousValue: string | number | SparkNode, currentValue: string | number | SparkNode, currentIndex: number, array: (string | number | SparkNode)[]) => string | ... 1 more ... | SparkNode): string | ... 1 more ... | SparkNode; (callbackfn: (previousValue: string | ... 1 more ... | SparkNode, currentV...; reduceRight: { (callbackfn: (previousValue: string | number | SparkNode, currentValue: string | number | SparkNode, currentIndex: number, array: (string | number | SparkNode)[]) => string | ... 1 more ... | SparkNode): string | ... 1 more ... | SparkNode; (callbackfn: (previousValue: string | ... 1 more ... | SparkNode, currentV...; find: { <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, obj: (string | number | SparkNode)[]) => value is S, thisArg?: any): S | undefined; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, obj: (string | ... 1 more ... | SparkNode)[]) => unknown...; findIndex: ((predicate: (value: string | number | SparkNode, index: number, obj: (string | number | SparkNode)[]) => unknown, thisArg?: any) => number) & ((predicate: (value: SparkNode, index: number, obj: SparkNode[]) => unknown, thisArg?: any) => number); fill: ((value: string | number | SparkNode, start?: number, end?: number) => SparkNodeChildren & SparkNode[]) & ((value: SparkNode, start?: number, end?: number) => SparkNodeChildren & SparkNode[]); copyWithin: ((target: number, start: number, end?: number) => SparkNodeChildren & SparkNode[]) & ((target: number, start: number, end?: number) => SparkNodeChildren & SparkNode[]); entries: (() => ArrayIterator<[number, string | number | SparkNode]>) & (() => ArrayIterator<[number, SparkNode]>); keys: (() => ArrayIterator<number>) & (() => ArrayIterator<number>); values: (() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>); includes: ((searchElement: string | number | SparkNode, fromIndex?: number) => boolean) & ((searchElement: SparkNode, fromIndex?: number) => boolean); flatMap: (<U, This = undefined>(callback: (this: This, value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => U | readonly U[], thisArg?: This | undefined) => U[]) & (<U, This = undefined>(callback: (this: This, value: SparkNode, index: number, array: SparkNode[]) => U | readonly U[], t...; flat: (<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[]) & (<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[]); at: ((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined); \"__@iterator@228604\": (() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>); \"__@unscopables@228606\": { length?: false | true; toString?: false | true; toLocaleString?: false | true; pop?: false | true; push?: false | true; concat?: false | true; join?: false | true; reverse?: false | true; shift?: false | true; slice?: false | true; sort?: false | true; splice?: false | true; unshift?: false | true; indexOf?: false | true; lastIndexOf?: false | true; every?: false | true; some?: false | true; forEach?: false | true; map?: false | true; filter?: false | true; reduce?: false | true; reduceRight?: false | true; find?: false | true; findIndex?: false | true; fill?: false | true; copyWithin?: false | true; entries?: false | true; keys?: false | true; values?: false | true; includes?: false | true; flatMap?: false | true; flat?: false | true; at?: false | true; \"__@iterator@228604\"?: false | true; \"__@unscopables@228606\"?: false | true } }"
+            },
+            {
+              "name": "class",
+              "jsdoc": "筛选区附加 CSS class。\n@remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。",
+              "summary": "筛选区附加 CSS class。",
+              "typeText": "string"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "DataView 定位键（dataViewKey）。\n@remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。",
+              "summary": "DataView 定位键（dataViewKey）。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoQuery",
+              "jsdoc": "输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。",
+              "summary": "输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "expressionDisplay",
+              "jsdoc": "完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。",
+              "summary": "完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。",
+              "typeText": "\"dialog\" | \"inline\""
+            },
+            {
+              "name": "filterFunctionContext",
+              "jsdoc": "值函数的明确编辑上下文；不从页面表名猜后端模型名称。",
+              "summary": "值函数的明确编辑上下文；不从页面表名猜后端模型名称。",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "collapsible",
+              "jsdoc": "是否允许折叠。",
+              "summary": "是否允许折叠。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "defaultCollapsed",
+              "jsdoc": "初始是否折叠。",
+              "summary": "初始是否折叠。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "autoFitMinWidth",
+              "jsdoc": "自适应最小宽度。",
+              "summary": "自适应最小宽度。",
+              "typeText": "string"
+            },
+            {
+              "name": "itemSpan",
+              "jsdoc": "每个筛选项占据的栅格列数。",
+              "summary": "每个筛选项占据的栅格列数。",
+              "typeText": "number"
+            },
+            {
+              "name": "actionSpan",
+              "jsdoc": "操作区占据的栅格列数，默认跟随 itemSpan。",
+              "summary": "操作区占据的栅格列数，默认跟随 itemSpan。",
+              "typeText": "number"
+            },
+            {
+              "name": "gridColumns",
+              "jsdoc": "CSS Grid 列数。",
+              "summary": "CSS Grid 列数。",
+              "typeText": "number"
+            },
+            {
+              "name": "gridGap",
+              "jsdoc": "栅格间距。",
+              "summary": "栅格间距。",
+              "typeText": "string | number"
+            },
+            {
+              "name": "gridAutoRows",
+              "jsdoc": "栅格行高。",
+              "summary": "栅格行高。",
+              "typeText": "string"
+            },
+            {
+              "name": "showDataViewMeta",
+              "jsdoc": "是否显示 DataView 元信息栏。",
+              "summary": "是否显示 DataView 元信息栏。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "showAggregateSummary",
+              "jsdoc": "是否显示全量聚合摘要。",
+              "summary": "是否显示全量聚合摘要。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "showSelectionSummary",
+              "jsdoc": "是否显示选区聚合摘要。",
+              "summary": "是否显示选区聚合摘要。",
+              "typeText": "false | true"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    {
+      "rootKind": "RTableProps",
+      "models": []
+    }
+  ],
+  "guides": [
+    {
+      "kind": "RFilterProps",
+      "attributeName": "children",
+      "guide": "/** SPARK component type=r-filter; name=RendererFilter; level=container; layer=zone-container; directory=containers/zones */\n`r-filter` / `RendererFilter` 完整属性定义。\n容器统一过滤入口：通过 `dataViewKey` 绑定 DataView，未指定时继承父级 DATA_SOURCE。\n完整表达式编辑器使用 DataViewFilterTree / DataView.executeFilter；\n可选的常用筛选子组件通过同一 useFilterPanel / DataView.setFilter 同步。\n过滤属于绑定视图，表格、树、列表共享视图时消费同一结果；容器不另建过滤或查询逻辑。\ntype RFilterProps {\n  常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。\n  readonly children: { length: number; toString: (() => string) & (() => string); toLocaleString: { (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; } & { (): string; (locales: string | string[], options?: Intl.NumberFormatOptions & Intl.DateTimeFormatOptions): string; }; pop: (() => string | number | SparkNode | undefined) & (() => SparkNode | undefined); push: ((...items: (string | number | SparkNode)[]) => number) & ((...items: SparkNode[]) => number); concat: { (...items: ConcatArray<string | number | SparkNode>[]): (string | number | SparkNode)[]; (...items: (string | number | SparkNode | ConcatArray<string | number | SparkNode>)[]): (string | ... 1 more ... | SparkNode)[]; } & { ...; }; join: ((separator?: string) => string) & ((separator?: string) => string); reverse: (() => (string | number | SparkNode)[]) & (() => SparkNode[]); shift: (() => string | number | SparkNode | undefined) & (() => SparkNode | undefined); slice: ((start?: number, end?: number) => (string | number | SparkNode)[]) & ((start?: number, end?: number) => SparkNode[]); sort: ((compareFn?: ((a: string | number | SparkNode, b: string | number | SparkNode) => number) | undefined) => SparkNodeChildren & SparkNode[]) & ((compareFn?: ((a: SparkNode, b: SparkNode) => number) | undefined) => SparkNodeChildren & SparkNode[]); splice: { (start: number, deleteCount?: number): (string | number | SparkNode)[]; (start: number, deleteCount: number, ...items: (string | number | SparkNode)[]): (string | ... 1 more ... | SparkNode)[]; } & { ...; }; unshift: ((...items: (string | number | SparkNode)[]) => number) & ((...items: SparkNode[]) => number); indexOf: ((searchElement: string | number | SparkNode, fromIndex?: number) => number) & ((searchElement: SparkNode, fromIndex?: number) => number); lastIndexOf: ((searchElement: string | number | SparkNode, fromIndex?: number) => number) & ((searchElement: SparkNode, fromIndex?: number) => number); every: { <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => value is S, thisArg?: any): this is S[]; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, array: (string | ... 1 more ... | SparkNode)[]) => unkno...; some: ((predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => unknown, thisArg?: any) => boolean) & ((predicate: (value: SparkNode, index: number, array: SparkNode[]) => unknown, thisArg?: any) => boolean); forEach: ((callbackfn: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => void, thisArg?: any) => void) & ((callbackfn: (value: SparkNode, index: number, array: SparkNode[]) => void, thisArg?: any) => void); map: (<U>(callbackfn: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => U, thisArg?: any) => U[]) & (<U>(callbackfn: (value: SparkNode, index: number, array: SparkNode[]) => U, thisArg?: any) => U[]); filter: { <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => value is S, thisArg?: any): S[]; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, array: (string | ... 1 more ... | SparkNode)[]) => unknown, this...; reduce: { (callbackfn: (previousValue: string | number | SparkNode, currentValue: string | number | SparkNode, currentIndex: number, array: (string | number | SparkNode)[]) => string | ... 1 more ... | SparkNode): string | ... 1 more ... | SparkNode; (callbackfn: (previousValue: string | ... 1 more ... | SparkNode, currentV...; reduceRight: { (callbackfn: (previousValue: string | number | SparkNode, currentValue: string | number | SparkNode, currentIndex: number, array: (string | number | SparkNode)[]) => string | ... 1 more ... | SparkNode): string | ... 1 more ... | SparkNode; (callbackfn: (previousValue: string | ... 1 more ... | SparkNode, currentV...; find: { <S extends string | number | SparkNode>(predicate: (value: string | number | SparkNode, index: number, obj: (string | number | SparkNode)[]) => value is S, thisArg?: any): S | undefined; (predicate: (value: string | ... 1 more ... | SparkNode, index: number, obj: (string | ... 1 more ... | SparkNode)[]) => unknown...; findIndex: ((predicate: (value: string | number | SparkNode, index: number, obj: (string | number | SparkNode)[]) => unknown, thisArg?: any) => number) & ((predicate: (value: SparkNode, index: number, obj: SparkNode[]) => unknown, thisArg?: any) => number); fill: ((value: string | number | SparkNode, start?: number, end?: number) => SparkNodeChildren & SparkNode[]) & ((value: SparkNode, start?: number, end?: number) => SparkNodeChildren & SparkNode[]); copyWithin: ((target: number, start: number, end?: number) => SparkNodeChildren & SparkNode[]) & ((target: number, start: number, end?: number) => SparkNodeChildren & SparkNode[]); entries: (() => ArrayIterator<[number, string | number | SparkNode]>) & (() => ArrayIterator<[number, SparkNode]>); keys: (() => ArrayIterator<number>) & (() => ArrayIterator<number>); values: (() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>); includes: ((searchElement: string | number | SparkNode, fromIndex?: number) => boolean) & ((searchElement: SparkNode, fromIndex?: number) => boolean); flatMap: (<U, This = undefined>(callback: (this: This, value: string | number | SparkNode, index: number, array: (string | number | SparkNode)[]) => U | readonly U[], thisArg?: This | undefined) => U[]) & (<U, This = undefined>(callback: (this: This, value: SparkNode, index: number, array: SparkNode[]) => U | readonly U[], t...; flat: (<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[]) & (<A, D extends number = 1>(this: A, depth?: D | undefined) => FlatArray<A, D>[]); at: ((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined); \"__@iterator@228604\": (() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>); \"__@unscopables@228606\": { length?: false | true; toString?: false | true; toLocaleString?: false | true; pop?: false | true; push?: false | true; concat?: false | true; join?: false | true; reverse?: false | true; shift?: false | true; slice?: false | true; sort?: false | true; splice?: false | true; unshift?: false | true; indexOf?: false | true; lastIndexOf?: false | true; every?: false | true; some?: false | true; forEach?: false | true; map?: false | true; filter?: false | true; reduce?: false | true; reduceRight?: false | true; find?: false | true; findIndex?: false | true; fill?: false | true; copyWithin?: false | true; entries?: false | true; keys?: false | true; values?: false | true; includes?: false | true; flatMap?: false | true; flat?: false | true; at?: false | true; \"__@iterator@228604\"?: false | true; \"__@unscopables@228606\"?: false | true } }\n}"
+    },
+    {
+      "kind": "RFilterProps",
+      "attributeName": "autoQuery",
+      "guide": "/** SPARK component type=r-filter; name=RendererFilter; level=container; layer=zone-container; directory=containers/zones */\n`r-filter` / `RendererFilter` 完整属性定义。\n容器统一过滤入口：通过 `dataViewKey` 绑定 DataView，未指定时继承父级 DATA_SOURCE。\n完整表达式编辑器使用 DataViewFilterTree / DataView.executeFilter；\n可选的常用筛选子组件通过同一 useFilterPanel / DataView.setFilter 同步。\n过滤属于绑定视图，表格、树、列表共享视图时消费同一结果；容器不另建过滤或查询逻辑。\ntype RFilterProps {\n  输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。\n  readonly autoQuery: false | true\n}"
+    },
+    {
+      "kind": "SparkOptionFieldProps",
+      "attributeName": "optionDataViewKey",
+      "guide": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；指定 `optionDataViewKey` 后，运行时只从该动态 DataView 读取候选，缺少 runtime 或视图时报告绑定错误，不回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`\ntype SparkOptionFieldProps {\n  选项 DataView 定位键。\n  完整键例如 `CATALOG@Categories@default`，从本次运行实例的DataView生成候选。\n  直接查询在途或失败时不使用旧候选、不回退静态options；错误可见，原字段值保留，恢复成功后再允许选择。\n  readonly optionDataViewKey: string\n}"
+    }
+  ],
+  "methods": [
+    {
+      "methodName": "createEditingCheckpoint",
+      "guide": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。\nclass DataView {\n  捕获一行指定字段的编辑检查点，供局部弹窗确认/取消；值仍由本DataView持有。\n  @param id 当前视图内的行主键，不移动当前行或选择。\n  @param fields 本次交互负责的已声明字段；不能为空，也不能包含主键字段。\n  @returns restore一次性恢复打开前的编辑覆盖，保留范围外修改，并在整体恢复后通知值变化；release仅释放检查点，保留编辑，不保存数据。\n  @remarks 支持稳定的待新增行，取消仅恢复编辑覆盖，保留新增。不能回滚已应用或已提交数据，也不授予权限；查询身份、原行、待提交状态变化或视图销毁后不能恢复；不参与序列化。\n  createEditingCheckpoint(id: string | number, fields: readonly string[]): {\n          restore(): void;\n          release(): void;\n      }\n}"
+    },
+    {
+      "methodName": "readSnapshot",
+      "guide": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。\nclass DataView {\n  读取当前结果的独立展示快照。仅输出已声明字段，隐藏值省略、脱敏值替换为掩码，排除内部主键与查询凭据。\n  不包含未提交编辑；分页信息来自同一视图。正式查询未完成、失败或已被查询链标记失效时拒绝读取旧结果。\n  本地配置视图可以直接读取；此方法不授予保存权限，也不执行查询或序列化设计配置。\n  readSnapshot(): {\n          fields: string[];\n          rows: DataRow[];\n          total: number;\n          page: number;\n          pageSize: number;\n      }\n}"
+    },
+    {
+      "methodName": "setSelectedRows",
+      "guide": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。\nclass DataView {\n  设置多选行（覆盖式）。\n  @param rows 新的选中行列表。\n  @param originatorId 可选变更来源标识，用于级联订阅方避免回环。\n  setSelectedRows(rows: DataRow[], originatorId?: string): void\n}"
+    },
+    {
+      "methodName": "refresh",
+      "guide": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。\nclass DataView {\n  拒绝覆盖未保存变更或未确认提交的原查询；通过检查后置 Idle 并按当前视图输入重新查询。\n  使用当前queryConfig，不在调用点维护另一份查询模式。\n  refresh(): Promise<void>\n}"
+    }
+  ],
+  "actionGuide": "/** SPARK component type=r-filter; name=RendererFilter; level=container; layer=zone-container; directory=containers/zones */\n标准筛选器实例动作；复用当前绑定视图和已输入筛选项，不另建查询状态。\ntype RendererFilterApi {\n  与点击查询相同：应用当前筛选输入并查询绑定DataView，保留其正式级联约束；绑定失效、字段错误或替换被拒时沿原错误呈现，不扩大权限。\n  search(): Promise<void>\n}"
+}

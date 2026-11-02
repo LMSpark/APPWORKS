@@ -1,0 +1,136 @@
+{
+  "kind": "definition-edit-save-smoke-preflight",
+  "testedAt": "2026-11-02T17:10:48.079Z",
+  "initialAttempt": {
+    "kind": "definition-edit-fixture",
+    "testedAt": "2026-11-02T17:04:40.103Z",
+    "id": "A2D43973F22F47668B563CA46D39ACFE",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+    "key": "SE39ACFE",
+    "phase": "failed",
+    "error": "disabled status source unavailable",
+    "mode": "preflight",
+    "reads": 7,
+    "writes": 0,
+    "confirmed": 0,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "ready": {
+    "kind": "definition-edit-fixture",
+    "testedAt": "2026-11-02T17:09:34.252Z",
+    "id": "A2D43973F22F47668B563CA46D39ACFE",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_EDIT_6D39ACFE",
+    "key": "SE39ACFE",
+    "phase": "preflight-ready",
+    "mode": "preflight",
+    "reads": 7,
+    "writes": 0,
+    "confirmed": 0,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "statusTypes": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "workflowStatus",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "returned": 2,
+        "rows": [
+          {
+            "rowid": "25438B7DDF3643DDB82C401D807824EE",
+            "val": 2,
+            "txt": "停用"
+          },
+          {
+            "rowid": "267730441E724E2A8980F6F6D97C1C12",
+            "val": 1,
+            "txt": "启用"
+          }
+        ]
+      }
+    ]
+  },
+  "formalTypes": [
+    {
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "metaName": "Base_WorkflowDefinition",
+      "success": true,
+      "modelId": "b51532e2-5193-4f65-a24b-0ce9fcd205c8",
+      "sourceName": "Base_WorkflowDefinition",
+      "sourceType": "数据库表",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "5A8D2BEBCE8E5FDF809E02D77FC4688C",
+          "name": "status",
+          "sourceField": "status",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "状态",
+          "order": 0
+        },
+        {
+          "id": "F4241F6C1B0461198A76A8C9B25AA75C",
+          "name": "version",
+          "sourceField": "version",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "流程版本号",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "metaName": "workflowStatus",
+      "success": true,
+      "modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5",
+      "sourceName": "workflowStatus",
+      "sourceType": "字典",
+      "sourceId": "F64D7DC20CA14DC99C6729DEA36C63D6",
+      "primaryKey": "",
+      "fields": [
+        {
+          "id": "11A9511995A3660E588A9D0711C9240B",
+          "name": "txt",
+          "sourceField": "txt",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "文本",
+          "order": 0
+        },
+        {
+          "id": "CCE618FA4888AED46425CCF888E279DB",
+          "name": "val",
+          "sourceField": "val",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "值",
+          "order": 0
+        }
+      ]
+    }
+  ],
+  "scriptSha256": "7ef2fecc5cc1de706a3e9230c579ed105019d278cc9c1b3db727b6f9f5aaa64a",
+  "authorization": "pending",
+  "fixtureCreated": false
+}

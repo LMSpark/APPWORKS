@@ -3,16 +3,23 @@
   "tables": {
     "Base_WorkflowDefinition": {
       "modelBinding": {"modelId": "b51532e2-5193-4f65-a24b-0ce9fcd205c8", "modelName": "Base_WorkflowDefinition"},
+      "columns": [{"name":"name","required":true,"trim":"normalize"},{"name":"status","required":true,"optionsView":{"tableName":"workflowStatus","valueField":"statusCode"}},{"name":"version","required":true,"pattern":"^[1-9][0-9]*$","patternMessage":"版本号须为正整数"},{"name":"workflow_key","immutable":true},{"name":"sysid","immutable":true}],
       "views": {"default": {
         "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
         "queryConfig": {"fields": ["rowid", "name", "workflow_key", "description", "status", "version", "timeExp", "tblName", "tableOperate", "filter", "dbName", "tblid", "activeType", "sysid", "createtime", "updatetime"]},
         "sortExpression": [{"field": "rowid", "direction": "asc"}]
+      }, "edit": {
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "commitMode": "staged",
+        "queryContext": {"definitionId":""},
+        "queryConfig": {"fields": ["rowid", "name", "workflow_key", "description", "status", "version", "timeExp", "tblName", "tableOperate", "filter", "dbName", "tblid", "activeType", "sysid"]},
+        "filterExpression": {"field":"rowid","operator":"eq","value":{"Type":"GetInputParam","ParamName":"definitionId"}}
       }}
     },
     "workflowStatus": {
       "modelBinding": {"modelId": "8475c6ee-0d8f-48cb-936f-27892ba774e5", "modelName": "workflowStatus"},
+      "columns": [{"name":"statusCode","type":"string","computeExpression":"val + ''"}],
       "views": {"default": {
-        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "statusCode", "labelField": "txt",
         "queryConfig": {"fields": ["rowid", "val", "txt", "ordIdx"], "allPages": true}, "sortExpression": [{"field": "ordIdx", "direction": "asc"}]
       }}
     }

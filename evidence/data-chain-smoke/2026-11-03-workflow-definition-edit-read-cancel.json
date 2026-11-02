@@ -1,0 +1,69 @@
+{
+  "kind": "actual-service-browser-read-edit-cancel",
+  "testedAt": "2026-11-02T17:01:50.325Z",
+  "workflowId": "46FA11BC212B35DB921AE78568ED0E5F",
+  "before": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "46FA11BC212B35DB921AE78568ED0E5F",
+            "name": "上期填报数据",
+            "workflow_key": "WF00001",
+            "version": "1",
+            "status": 2
+          }
+        ]
+      }
+    ]
+  },
+  "after": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "46FA11BC212B35DB921AE78568ED0E5F",
+            "name": "上期填报数据",
+            "workflow_key": "WF00001",
+            "version": "1",
+            "status": 2
+          }
+        ]
+      }
+    ]
+  },
+  "browser": {
+    "statusLabel": "停用",
+    "version": "1",
+    "localNameEditCancelled": true,
+    "closeDisabledWhileDirty": true,
+    "saveActionInvoked": false,
+    "triggerFieldsReadonly": true
+  },
+  "readbackUnchanged": true,
+  "screenshot": "artifacts/data-chain-smoke/2026-11-03-workflow-definition-edit-cancel.png"
+}

@@ -5230,3 +5230,14 @@ flowchart LR
 浏览器截图暴露定义头部名称/编码空白，已由实际标准字段测试先红复现：定义查询结果存在但default.autoCurrentFirst=false，Form消费currentRow为空。仅设计场景精确workflowId视图改autoCurrentFirst=true，保留目录视图、autoSelectFirst=false及唯一目标校验；W1/W2夹具各显示本目标、缺失目标仍不装载设计。真实浏览器刷新重开既有流程后显示上期填报数据/WF00001，未修改记录。截图artifacts/data-chain-smoke/2026-11-03-workflow-definition-header.png。当前工作流/目录77测试及类型检查通过；新增错误分支删除的测试先红，最终检查待收口。全目标active。
 
 本轮最终：工作流及目录8文件78测试通过，受改Vue/TS ESLint、verify:pages-config/workflow-designs/docs及单独前端打包通过；正式ClassModel生成1001文件，仅恢复12份已全文核对为纯编译器符号数字变化的无关分片。真实目录点击新增只显示业务编码能力未确认，不再打开随机不存在设计；没有领码、占位、执行或清理写入。pnpm run typecheck最终回执exit0。新建完整方案未通过，不将修复头部及删除伪入口作为整页验收；继续既有流程完整编辑/新建表单恢复，领码合同待实际部署证据。
+
+
+**2026-11-03 既有工作流基础信息编辑工位。**上一轮f876f837c已推送。按固定参考映射信息设置语义，先恢复既有定义的名称、状态、版本、描述；编码/所属应用及尚未恢复完整选择链的触发字段只读保留，不称完整表单或新建通过。目录同一DataSet新增Base_WorkflowDefinition.edit，以definitionId精确按rowid查询并自动当前行；标准Form/Text/Select/Textarea直接绑定完整键，正式状态视图供选项，原DataColumn校验名称必填、正整数版本及状态候选，原DataSet.saveChanges仅提交edit视图当前ID；取消同ID原生discardPendingChanges。关闭/路由守卫保留草稿和unknown，保存已确认但目录刷新失败分阶段提示，重试0重复写。ClassModel目录、概要、属性及方法指南已查询（workflow-edit-guides证据）；公共数据逻辑不在页面重写。
+
+测试发现并修复scope失效后的选择computed抛出未处理渲染异常：现显式显示原错误并返回空选择，不放行旧查询。最初模拟只改X-AppId而固定token不符合正式DataSpaceRequestScope合同，已核LowcodeApi.readRequestScope的token确含应用ID和修订，修正夹具后原owner拒写0请求，未另造页面scope算法。高阶模型静态复核未见确定重要阻塞，建议的刷新失败与执行应用改变测试均补。当前目录12测试通过无Unhandled error；后续真实数值状态选择回归又复现保存0写失败，正在核类型。
+
+实服定义status/version和状态字典val正式声明均varchar，但GetData返回status=number2、val=number2/1；浏览器名称/停用/版本1可读，名称本地修改后取消恢复且关闭重新可用，未点保存；独立回读原定义完全相同。证据evidence/data-chain-smoke/2026-11-03-workflow-definition-edit-read-cancel.json及截图workflow-definition-edit-cancel.png。单记录新fixture脚本已准备，当前仅预检7读0写因val严格字符串检查拒绝；后续精确查询确认val数字，非来源再次反置。预检脚本将按已知编码语义比较字符串，生产选项仍需按正式字段类型经本仓计算列承接，不能页面逐值强转或忽略保存错误。新临时记录尚未创建、未获本轮新增保存范围授权。全目标active。
+
+本轮继续：真实数字状态候选通过标准下拉选择后保存被拒，新增回归先红；现statusCode=val+空字符串计算列及原视图valueField、DataColumn.optionsView共用它，原val与原已有状态不改。目录13测试通过，新增状态选择实际保存string1，未修改状态时number2仍保留。实服原配置装配8读0写确认val为number、statusCode为string1/2、选项view.valueField=statusCode，4定义/2选项可读且edit视图未自动加载；证据workflow-status-option-types.json。修正诊断脚本的严格字符串比较后单记录fixture预检7读0写ready；没有创建记录。脚本高阶模型静态核wx意图、范围、unknown保留，补齐已确认删除后的只读续核、inspect数量。已提出新的1条停用临时定义浏览器保存/回读/清理范围确认，当前待答复，不挪用已结束三记录授权。
+
+本轮最终检查：工作流及目录8文件84测试、pnpm run typecheck、受改Vue/TS ESLint、verify:pages-config/workflow-designs/page-thin/docs和单独前端打包通过。正式ClassModel已生成1001文件，保留目录页面真实产物；恢复12个仅编译器iterator/unscopables数字变化的已核无关分片。高阶模型复核与真实读取/取消、类型计算列8读0写及单记录fixture预检均已归档。本轮没有任何正式CRUD保存或领码/执行调用；单记录创建待用户答复。完整触发表/时间/条件/应用候选、正式新建及四文件/执行验收仍开放，build:check既有unused声明错误未核销。

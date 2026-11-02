@@ -1,8 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
-import {createMemoryHistory, createRouter} from 'vue-router'
+import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
+import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTable, RendererDialog, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, RendererForm, FieldText, FieldSelect, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
@@ -12,11 +13,11 @@ import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/p
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: () => {}}))
-const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi}))
+const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,appId:'D99A1DCE9894698799101EFD70F8FC76'}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),
-  lowcodeApi: {readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}}), dataSpace: {
+  lowcodeApi: {readRequestScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'formal topic'}),
       readModelBatch: async ({dataSpaceId, metaNames}: {dataSpaceId: string; metaNames: string[]}) => topicModels(dataSpaceId).filter(model => metaNames.includes(model.metaName)),
@@ -26,6 +27,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 }))
 const original = {...config.global.stubs}, wrappers: VueWrapper[] = []
 beforeEach(() => {
+  state.appId='D99A1DCE9894698799101EFD70F8FC76'
   state.http = new ApiBackend(); state.http.primaryKeys['Base_FileInspectConfig'] = 'id'
   state.http.records = {
     Base_WorkflowDefinition: [{rowid: 'W1', name: '入库流程', workflow_key: 'INBOUND', description: '正式流程', status: '1'}],
@@ -34,13 +36,62 @@ beforeEach(() => {
     Base_DataSet: [{rowid: 'S1', Name: '订单空间'}], Base_UserInfo: [{ID: 'USER1', ROWID: 'U1', UserName: '张三'}],
     Base_FileInspectConfig: [{id: 'P1', name: '发票规则', description: '正式PDF规则', enabled: 1}],
   }
-  state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
+  state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId}})})
   registerAllRenderers()
   const stubs = {...original}; for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[key]
   config.global.stubs = stubs
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['confirmed','lost-receipt','invalid-name','scope-changed','catalog-refresh-failed','status-selection'])('edits and cancels an existing definition with %s without touching other definitions',async outcome=>{
+    state.http.records['Base_WorkflowDefinition']![0]!['version']='1'
+    state.http.records['Base_WorkflowDefinition']![0]!['status']=2
+    state.http.records['workflowStatus']=[{rowid:'STATUS1',val:1,txt:'已启用',ordIdx:1},{rowid:'STATUS2',val:2,txt:'停用',ordIdx:2}]
+    state.http.records['Base_WorkflowDefinition']!.push({rowid:'W2',name:'另一个流程',workflow_key:'KEEP',status:'1',version:'1'})
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}},{path:'/other',component:{template:'<div>other</div>'}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
+    const click=async(label:string)=>{const button=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label);expect(button,label).toBeDefined();expect(button!.props('disabled')).not.toBe(true);button!.vm.$emit('click');await flushPromises()}
+    await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
+    await vi.waitFor(()=>expect(wrapper.getComponent(RendererDialog).props('title')).toBe('映射信息设置'))
+    await vi.waitFor(()=>expect(wrapper.findComponent(RendererForm).exists()).toBe(true))
+    const field=()=>wrapper.getComponent(RendererForm).findAllComponents(FieldText).find(item=>item.props('field')==='name')!
+    await field().get('input').setValue('待取消');await flushPromises()
+    await router.push('/other');expect(router.currentRoute.value.path).toBe('/catalog')
+    await click('取消定义修改')
+    expect(field().get('input').element.value).toBe('入库流程');expect(state.http.saves).toEqual([])
+    await field().get('input').setValue(outcome==='invalid-name'?'   ':'正式修改');await flushPromises()
+    if(outcome==='status-selection'){
+      const status=wrapper.getComponent(RendererForm).getComponent(FieldSelect)
+      await status.get('.el-select__wrapper').trigger('click');await flushPromises()
+      const option=status.findAllComponents({name:'ElOption'}).find(item=>item.props('label')==='已启用')!
+      expect(option).toBeDefined();await option.trigger('click');await flushPromises()
+    }
+    if(outcome==='lost-receipt')state.http.failAfterWrite=true
+    if(outcome==='scope-changed')state.appId='OTHER_APP'
+    if(outcome==='catalog-refresh-failed')state.http.beforeSave=async()=>{vi.spyOn(state.runtime,'executeQuery').mockRejectedValueOnce(Error('目录读取失败'))}
+    await click('保存定义')
+    if(outcome==='scope-changed'){expect(state.http.saves).toEqual([]);return}
+    if(outcome==='invalid-name'){
+      expect(state.http.saves).toEqual([]);await click('取消定义修改');expect(field().get('input').element.value).toBe('入库流程');return
+    }
+    if(outcome==='catalog-refresh-failed'){
+      expect(wrapper.text()).toContain('定义保存已确认，目录刷新失败')
+      expect(state.http.saves).toHaveLength(1);await click('保存定义');expect(state.http.saves).toHaveLength(1)
+    }
+    if(outcome==='lost-receipt'){
+      expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
+      expect(wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='取消定义修改')!.props('disabled')).toBe(true)
+      await router.push('/other');expect(router.currentRoute.value.path).toBe('/catalog')
+      await click('核验定义保存结果')
+    }
+    expect(state.http.saves).toHaveLength(1)
+    expect(state.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid:'W1',name:'正式修改'})])
+    expect(state.http.records['Base_WorkflowDefinition']!.find(row=>row['rowid']==='W2')?.['name']).toBe('另一个流程')
+    expect(state.http.records['Base_WorkflowDefinition']!.find(row=>row['rowid']==='W1')?.['status']).toBe(outcome==='status-selection'?'1':2)
+    expect(wrapper.getComponent(RendererTable).text()).toContain('正式修改')
+  })
   it('does not open a nonexistent workflow or allocate a random identity for unsupported creation',async()=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
     await router.push('/catalog');await router.isReady()

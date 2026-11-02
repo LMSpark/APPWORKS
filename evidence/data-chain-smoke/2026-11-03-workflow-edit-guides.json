@@ -1,0 +1,175 @@
+{
+  "catalog": {
+    "rootKind": "RFormProps",
+    "models": [
+      {
+        "kind": "RFormProps",
+        "name": "RFormProps",
+        "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+        "summary": "r-form 组件公开属性接口。",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkCrudDataContainerProps",
+            "targetName": "SparkCrudDataContainerProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkGridLayoutProps",
+            "targetName": "SparkGridLayoutProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}"
+          }
+        ],
+        "component": {
+          "name": "RendererForm",
+          "type": "r-form",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      }
+    ]
+  },
+  "overviews": [
+    {
+      "rootKind": "RFormProps",
+      "models": [
+        {
+          "kind": "RFormProps",
+          "name": "RFormProps",
+          "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+          "summary": "r-form 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkCrudDataContainerProps",
+              "targetName": "SparkCrudDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererForm",
+            "type": "r-form",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "gridMinWidth",
+              "jsdoc": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "summary": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "typeText": "string"
+            },
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表单容器使用的 DataView 数据线。",
+              "summary": "显式收窄为表单容器使用的 DataView 数据线。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏",
+              "summary": "结构化工具栏",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "contextDataMember",
+              "jsdoc": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "summary": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "typeText": "\"page\" | \"rows\" | \"total\" | \"requestState\" | \"value\" | \"columns\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\""
+            },
+            {
+              "name": "contextDataField",
+              "jsdoc": "上下文成员内部业务字段或点路径。",
+              "summary": "上下文成员内部业务字段或点路径。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "summary": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "labelWidth",
+              "jsdoc": "表单标签宽度",
+              "summary": "表单标签宽度",
+              "typeText": "string"
+            },
+            {
+              "name": "formProps",
+              "jsdoc": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。",
+              "summary": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。",
+              "typeText": "Record<string, unknown>"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    {
+      "rootKind": "RFormProps",
+      "models": []
+    },
+    {
+      "rootKind": "RFormProps",
+      "models": []
+    }
+  ],
+  "guides": [
+    {
+      "kind": "SparkOptionFieldProps",
+      "attributeName": "optionDataViewKey",
+      "guide": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；指定 `optionDataViewKey` 后，运行时只从该动态 DataView 读取候选，缺少 runtime 或视图时报告绑定错误，不回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`\ntype SparkOptionFieldProps {\n  选项 DataView 定位键。\n  完整键例如 `CATALOG@Categories@default`，从本次运行实例的DataView生成候选。\n  直接查询在途或失败时不使用旧候选、不回退静态options；错误可见，原字段值保留，恢复成功后再允许选择。\n  readonly optionDataViewKey: string\n}"
+    },
+    {
+      "kind": "SparkGridLayoutProps",
+      "attributeName": "gridColumns",
+      "guide": "Grid 布局容器语义。\n适用于 form、detail、dialog、section 等需要统一声明内容区 CSS Grid 布局的容器。\ntype SparkGridLayoutProps {\n  CSS Grid 列数\n  readonly gridColumns: number\n}"
+    },
+    {
+      "kind": "DataColumn",
+      "attributeName": "pattern",
+      "guide": "数据列定义\n分为两个部分：\n- **数据属性**（name, type, isPrimaryKey, ...）：描述数据结构，供校验 / 计算列 / CRUD 使用\n- **渲染属性**（label, visible, editable, ...）：描述 UI 呈现方式，供表格 / 表单组件消费\n渲染属性均为可选，不影响纯数据层使用。\nUI 组件通过 `DataSource.columns` 或 `DataView.columns` 读取列元数据。\ntype DataColumn {\n  正则校验模式（字符串形式，运行时编译为 RegExp）。\n  @example `\"^[\\\\w.-]+@[\\\\w.-]+\\\\.\\\\w+$\"`\n  readonly pattern: string\n}"
+    },
+    {
+      "kind": "DataColumn",
+      "attributeName": "computeExpression",
+      "guide": "数据列定义\n分为两个部分：\n- **数据属性**（name, type, isPrimaryKey, ...）：描述数据结构，供校验 / 计算列 / CRUD 使用\n- **渲染属性**（label, visible, editable, ...）：描述 UI 呈现方式，供表格 / 表单组件消费\n渲染属性均为可选，不影响纯数据层使用。\nUI 组件通过 `DataSource.columns` 或 `DataView.columns` 读取列元数据。\ntype DataColumn {\n  计算列表达式（JS 表达式字符串）。\n  行字段直接引用（无需前缀），外部上下文通过 `ctx` 对象引用，\n  子表聚合通过 `$sum` / `$count` / `$avg` / `$min` / `$max` / `$list` / `$join` 函数。\n  当前源码按 DataResourceRelation 的 `childTable` 匹配子资源 default 视图。\n  计算列先于 `view.aggregates` 求值，因此视图级聚合可以聚合计算列。\n  @example `\"price * qty\"`\n  `\"firstName + ' ' + lastName\"`\n  `\"ctx.taxRate ? amount * ctx.taxRate : amount\"`\n  `\"$sum('OrderItems', 'amount')\"`\n  `\"$count('OrderItems')\"`\n  `\"$join('Tags', 'name', ' | ')\"`\n  readonly computeExpression: string\n}"
+    }
+  ],
+  "methods": [
+    {
+      "kind": "DataView",
+      "methodName": "discardPendingChanges",
+      "guide": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。\nclass DataView {\n  丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。\n  discardPendingChanges(ids?: (string | number)[]): number\n}"
+    },
+    {
+      "kind": "DataSet",
+      "methodName": "saveChanges",
+      "guide": "Data Set 的语义模型。\nclass DataSet {\n  保存 DataSet 范围内的编辑态和 staged 变更。\n  默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n  场景视图先捕获请求配置与变更，再按原查询 owner 串行分组保存；各来源独立确认，不提供跨来源事务。\n  中途抛错时已确认视图保留接纳结果，未确认视图保留变更，不返回汇总成功结果；本地 CRUD 视图按资源关系顺序提交。\n  来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。\n  saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>\n}"
+    }
+  ]
+}

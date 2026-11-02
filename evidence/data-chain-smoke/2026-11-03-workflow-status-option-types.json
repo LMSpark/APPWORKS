@@ -1,0 +1,58 @@
+{
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 8,
+  "exampleFunctionPosts": 0,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "kind": "option-field-types",
+      "table": "workflowStatus",
+      "valueField": "statusCode",
+      "success": true,
+      "rows": [
+        {
+          "rawType": "number",
+          "valueType": "string",
+          "value": "1",
+          "label": "启用"
+        },
+        {
+          "rawType": "number",
+          "valueType": "string",
+          "value": "2",
+          "label": "停用"
+        }
+      ]
+    },
+    {
+      "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+      "success": true,
+      "diagnostics": [],
+      "views": [
+        {
+          "table": "Base_WorkflowDefinition",
+          "view": "default",
+          "rows": 4,
+          "total": 4,
+          "state": 3
+        },
+        {
+          "table": "Base_WorkflowDefinition",
+          "view": "edit",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "workflowStatus",
+          "view": "default",
+          "rows": 2,
+          "total": 2,
+          "state": 3
+        }
+      ]
+    }
+  ]
+}

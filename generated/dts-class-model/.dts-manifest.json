@@ -4944,7 +4944,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T16:43:57.068Z"
+      "sourceModifiedAt": "2026-11-02T17:02:31.369Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",

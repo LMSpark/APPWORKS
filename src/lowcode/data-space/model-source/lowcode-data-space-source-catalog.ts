@@ -27,7 +27,8 @@ export type PageDataSpaceModelSourcePrepared = Readonly<{
 }>
 export type PageDataSpaceModelSourceReader = Readonly<{
   query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{rows: readonly PageDataSpaceModelSource[]; total: number}>>
-  prepare(source: PageDataSpaceModelSource, dataSet: DataSet): Promise<PageDataSpaceModelSourcePrepared>
+  /** 模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */
+  prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?:Readonly<{missingInputType?:'string-default'|'preserve'}>): Promise<PageDataSpaceModelSourcePrepared>
 }>
 /** 正式来源的输出字段映射，不重新定义来源模型。 */
 type SourceConfig = Readonly<{

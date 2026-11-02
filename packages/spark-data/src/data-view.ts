@@ -3851,6 +3851,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
   /** 将 ViewMetadata 配置字段应用到当前视图实例（不创建新实例，不处理 rows）。 */
   /**
    * 将 ViewMetadata 配置字段应用到当前视图实例（不创建新实例，不处理 rows）。
+   * 未传入的分页成员保持当前值；新实例的初始分页由原生字段默认值提供。
    *
    * @param vc 要应用的视图配置片段。
    */
@@ -3883,8 +3884,8 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
       }
       Object.assign(this.aggregates, vc.aggregates)
     }
-    this.page = vc.page ?? 1
-    this.pageSize = vc.pageSize ?? 20
+    if (vc.page !== undefined) this.page = vc.page
+    if (vc.pageSize !== undefined) this.pageSize = vc.pageSize
     this._rebuildColumnMap()
     if (vc.filterExpression !== undefined && this._shouldApplyStaticLocalFilter()) {
       this._syncStaticLocalFilterRows()

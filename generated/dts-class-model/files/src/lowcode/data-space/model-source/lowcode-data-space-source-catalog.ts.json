@@ -261,6 +261,18 @@
             "dataSet": {
               "type": "object",
               "title": "DataSet"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "missingInputType": {
+                  "enum": [
+                    "string-default",
+                    "preserve"
+                  ]
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -392,7 +404,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-25T07:25:48.275Z",
+  "generatedAt": "2026-11-02T05:07:47.129Z",
   "models": {
     "PageDataSpaceModelSourceType": {
       "name": "PageDataSpaceModelSourceType",
@@ -655,11 +667,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
+        "declarationTypeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    /** 模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
+            "typeText": "Readonly<{\n    query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>;\n    /** 模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。 */\n    prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -703,6 +715,7 @@
             },
             {
               "name": "prepare",
+              "jsdoc": "模型创建沿既有字符串缺省；逻辑视图输入定义可显式保留未发布的类型。两者均不把隐藏/脱敏值当默认值。",
               "parameters": [
                 {
                   "name": "source",
@@ -717,6 +730,22 @@
                   "type": {
                     "type": "reference",
                     "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        missingInputType?: 'string-default' | 'preserve';\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

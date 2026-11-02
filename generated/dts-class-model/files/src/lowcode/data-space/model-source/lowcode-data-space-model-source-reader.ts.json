@@ -183,6 +183,18 @@
             "dataSet": {
               "type": "object",
               "title": "DataSet"
+            },
+            "options": {
+              "type": "object",
+              "properties": {
+                "missingInputType": {
+                  "enum": [
+                    "string-default",
+                    "preserve"
+                  ]
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -194,7 +206,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.730Z",
+  "generatedAt": "2026-11-02T05:07:47.131Z",
   "models": {
     "PageDataSpaceModelSourceQuery": {
       "name": "PageDataSpaceModelSourceQuery",
@@ -300,6 +312,22 @@
                   "type": {
                     "type": "reference",
                     "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        missingInputType?: 'string-default' | 'preserve';\n    }"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

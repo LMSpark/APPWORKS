@@ -48,11 +48,13 @@ const staticFields: Readonly<Partial<Record<PageDataSpaceModelSourceType, readon
 /** 六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。 */
 export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSourceReader {
   readonly #scopeToken: string
+  readonly #scopeAppId: string | undefined
 
-  public constructor() { this.#scopeToken = lowcodeApi.readRequestScope().token }
+  public constructor() { const scope=lowcodeApi.readRequestScope();this.#scopeToken=scope.token;this.#scopeAppId=scope.headers['X-AppId'] }
 
   private assertCurrent(): void {
-    if (lowcodeApi.readRequestScope().token !== this.#scopeToken) {
+    const current=lowcodeApi.readRequestScope()
+    if (current.token !== this.#scopeToken || current.headers['X-AppId'] !== this.#scopeAppId) {
       throw new Error('SPARK_EXECUTION_SCOPE_STALE: 模型来源读取身份已失效')
     }
   }
@@ -133,7 +135,7 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
     return Object.freeze({rows: Object.freeze(rows), total: context.total})
   }
 
-  public async prepare(source: PageDataSpaceModelSource, dataSet: DataSet): Promise<PageDataSpaceModelSourcePrepared> {
+  public async prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options:Readonly<{missingInputType?:'string-default'|'preserve'}>={}): Promise<PageDataSpaceModelSourcePrepared> {
     const spec = LowcodeDataSpaceSourceCatalog.config(source.type)
     const id = scalar(source.id)
     if (!id) throw new Error('模型来源身份缺失')
@@ -188,9 +190,13 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
         const name = visible({context: params, row, fieldName: 'parname'})
         if (!name || names.has(name)) throw new Error('来源参数名缺失或重复')
         names.add(name)
+        let fieldType=''
+        if(params.getColumn('parzdtype')&&(options.missingInputType!=='preserve'||params.fieldAccess(row,'parzdtype').read!=='invisible'))
+          fieldType=visible({context:params,row,fieldName:'parzdtype'})
+        if(!fieldType&&options.missingInputType!=='preserve')fieldType='varchar'
         fields.push(field({type: 'inputParams', Name: name,
           description: visible({context: params, row, fieldName: 'pardesc', optionalPresentation: true}),
-          FieldType: (params.getColumn('parzdtype') ? visible({context: params, row, fieldName: 'parzdtype'}) : '') || 'varchar',
+          FieldType: fieldType,
           IsPKey: 0, IsOutput: 0}))
       }
     }

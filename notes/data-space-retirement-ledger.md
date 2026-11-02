@@ -4711,3 +4711,13 @@ flowchart TD
 - 首个接口0416D1D8C18A4784B15CA4BDFF2F96D7只读其正式参数（安全投影parid/pid/parname/pardesc，无测试值）：total6，只读首5条，未核全参数。未调用接口、未保存节点、未修正来源。evidence/data-chain-smoke/2026-11-02-logic-source-candidate-contract-audit.json记录正式身份/计数与限制，不存密码、参数值、原始权限或headers。
 - 当前新方法无UI变更；原节点/字段/联表基础绑定保持。正式生成/完整verify/build54793待最后终态；来源候选接线、节点增删、输入参数、过滤/函数交互、预览及全架构开放项继续，不把平台能力或目录读取通过称整页通过。
 - 最后54793已退出0：12文件172项影响测试、正式ClassModel生成、完整verify、完整build全部通过（logic-source-add-table-{impact,generate,verify,build}.log），既有告警保留。检查点提交推送origin/1031，工作继续active；下一步在同一8D元数据DataSet按需装入来源命名视图，再将原来源准备与新增/删除命令接到节点工作区。此处没有实服业务写入或来源UI完成声明。
+
+### 2026-11-02 四类来源与原节点增删烟测
+- 在原8D元数据DataSet按需装配来源命名视图，复用现存来源模板、正式模型读取、assembler与DataSpaceRuntimeApi；已有参数表使用原生createQueryView，不替换参数实例/草稿。来源对话框使用标准RendererTable/RendererFilter及完整模型绑定；节点新增/删除只更新原designJson字段，异步取消、目标切换、应用/令牌变化和原值版本变化拒绝过期结果。
+- 表/字典/接口/JSON四类来源经真实浏览器分别新增本地节点2→3，再沿原放弃修改并重读恢复2；删除原根子树2→0后回读恢复2。没有点击实服保存设计，没有修改正式来源，没有执行外部接口。证据2026-11-02-logic-source-browser-audit.json记录两个完整网络窗口10+31次观察、0业务写入及0外部执行；窗口不包含最终分页补验。最终独立GetView Code200，SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564；首次读401后正常刷新授权会话再读，未存令牌。
+- 真实Base_NavigationInfo返回63字段、两个IsPKey。参考的first-key/rowid回退不能照搬；只读Java参考表明PrimaryKeyFields是单字段联表/去重捷径，不等同DataTable复合身份。保留全部源字段标记，复合时单字段捷径留空并提示，不阻止配置、不猜一个字段或逗号串。接口参数类型未发布时保留空定义并提示运行校验未验证；通用reader既有默认行为不变，仅逻辑来源显式选择preserve，隐藏类型不读原值、脱敏仍拒绝。共享reader补同令牌切应用身份失效校验。
+- 烟测发现局部configure选择属性会把sourceCandidates页大小10重置20。RED证明根因是DataView.applyViewConfig无条件重置分页，不是序列化丢值；改为仅更新已传分页成员，构造默认值仍由原生字段提供，删除临时重复恢复分页。实服确认10/page，名称Base_NavigationInfo及数据库QYVirtualPlat筛选total1，取消后原2节点。新增原生片段测试覆盖页码/页大小独立更新。
+- 原生指南核createQueryView/clearSelectedRows及配置片段，标准RendererFilter和字段子组件继续绑定原DataView。初次误用不存在setSelectedValues已删除，测试夹具漏注册r-filter已补；初次非空断言等lint错误已修正。此前过度阻止复合键和未知输入类型的实现均按上项语义纠正，不拿参考缺陷当要求。
+- 74文件1234测试通过（logic-source-complete-impact.log），覆盖完整spark-data及结构化页面/来源读取；正式ClassModel已刷新，未手改产物。首次完整verify因测试移动留下空dataview目录触发子目录超限；已确认空目录并非递归删除，重跑原完整verify/build，终态另补。既有数据权限和后端保持不变。
+- 尚未完成：真实SaveView写入验收、完整输入参数编辑/过滤与值函数交互、字段批量操作、未保存预览合同及整页1:1。98字典、12 GetView、2逻辑消费失败及其余全架构开放项继续保留；本轮为progress，根目标active，不称全部烟测通过。
+- 最后62297退出0：完整verify与build通过，74文件1234项测试及正式ClassModel生成均已通过；构建既有动态导入提示保留。最终实服分页/过滤补验与独立GetView哈希一致，截图及审计已落盘。审阅原节点命令、来源装配、页面生命周期与公共分页差异，提交推送本检查点；目标继续active。

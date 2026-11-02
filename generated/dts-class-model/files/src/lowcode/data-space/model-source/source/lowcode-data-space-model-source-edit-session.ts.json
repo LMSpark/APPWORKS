@@ -33,7 +33,7 @@
         },
         "prepare": {
           "type": "object",
-          "title": "(source: PageDataSpaceModelSource, dataSet: DataSet) => Promise<PageDataSpaceModelSourcePrepared>"
+          "title": "(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{ missingInputType?: \"string-default\" | \"preserve\"; }>) => Promise<PageDataSpaceModelSourcePrepared>"
         }
       },
       "required": [

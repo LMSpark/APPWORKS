@@ -3,7 +3,7 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, RendererButton, RendererToolbar, RendererForm} from '@spark-appworks/spark-component'
+import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, RendererButton, RendererToolbar, RendererForm, RendererFilter} from '@spark-appworks/spark-component'
 import LogicViewDesign from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
@@ -16,6 +16,9 @@ const models = buildFormalModels({
   Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser'],
   Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
   Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+  View_TblList:['rowid','tblname','tbldesc','dbid','DbName'],
+  Base_TblField:['rowid','tblid','enname','cnname','description','DataType','IsPKey'],
+  Base_DataServiceInterface:['rowid','Name','Desc','ProviderID'],
 })
 const parameterBase = buildFormalModels({_Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'testvalue']})[0]!
 models.push({...parameterBase, primaryKey: 'parid', fields: parameterBase.fields.map(field => ({...field, primaryKey: field.name === 'parid'}))})
@@ -30,7 +33,7 @@ async function openDesigner() {
     meta: {blueprintScenarioId: LowcodeLogicView.navigationScenarioId}}]})
   await router.push({path: '/design', query: {viewId: 'V1'}}); await router.isReady()
   const registry = Spark.createRegistry()
-  for (const [type, component] of Object.entries({'r-text': FieldText, 'r-json': FieldJson, 'r-number': FieldNumber, 'r-checkbox': FieldCheckbox, 'r-button': RendererButton, 'r-toolbar': RendererToolbar, 'r-form': RendererForm})) registry.register({type, component})
+  for (const [type, component] of Object.entries({'r-text': FieldText, 'r-json': FieldJson, 'r-number': FieldNumber, 'r-checkbox': FieldCheckbox, 'r-button': RendererButton, 'r-toolbar': RendererToolbar, 'r-form': RendererForm, 'r-filter':RendererFilter})) registry.register({type, component})
   const wrapper = mount(RouterView, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin({registry})]}})
   mounted.push(wrapper); await flushPromises()
   return {wrapper, router}
@@ -63,6 +66,78 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('keeps an incomplete database source visible as an error without inventing its database identity',async()=>{
+    http.records['View_TblList']=[{rowid:'T',tblname:'Orphan',tbldesc:'',dbid:null,DbName:null}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='表')!.trigger('click');await flushPromises()
+    const dialog=wrapper.get('[data-logic-source-dialog]')
+    await dialog.get('tbody tr').trigger('click');await flushPromises()
+    await dialog.findAll('button').find(button=>button.text()==='确认添加')!.trigger('click');await flushPromises()
+    expect(dialog.text()).toContain('数据库来源缺少数据库身份')
+    expect(wrapper.findAll('[data-logic-node-outline] tbody tr')).toHaveLength(0)
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  })
+  it('preserves an unspecified interface input type without silently declaring varchar',async()=>{
+    http.records['Base_DataServiceInterface']=[{rowid:'I',Name:'Lookup',Desc:'读取',ProviderID:'PROVIDER'}]
+    http.records['Base_TblField']=[]
+    http.records['_Base_ParamList']!.push({parid:'IP',pid:'I',parname:'arg',pardesc:'输入'})
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='接口')!.trigger('click');await flushPromises()
+    const dialog=wrapper.get('[data-logic-source-dialog]')
+    await dialog.get('tbody tr').trigger('click');await flushPromises()
+    await dialog.findAll('button').find(button=>button.text()==='确认添加')!.trigger('click');await flushPromises()
+    expect(wrapper.find('[data-logic-source-dialog]').exists()).toBe(false)
+    const complete=wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='完整设计')!
+    const design=JSON.parse(complete.get('textarea').element.value)
+    expect(design[0].inputParams).toEqual([expect.objectContaining({Name:'arg',FieldType:''})])
+    expect(wrapper.findAll('[data-logic-node-outline] tbody tr')).toHaveLength(1)
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  })
+  it('drops a late source read after cancel and target switch without adding a node to either design',async()=>{
+    http.records['Base_DataViewList']!.push({rowid:'V2',sysid:'APP',name:'View Two',description:'other'})
+    const {wrapper,router}=await openDesigner()
+    const original=service.readModel.getMockImplementation()!
+    let release:()=>void=()=>{};const wait=new Promise<void>(resolve=>{release=resolve})
+    service.readModel.mockImplementation(async input=>{if(input.metaName==='View_TblList')await wait;return original(input)})
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='表')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-source-dialog]').findAll('button').find(button=>button.text()==='取消')!.trigger('click');await flushPromises()
+    await router.push({path:'/design',query:{viewId:'V2'}});await flushPromises();release();await flushPromises()
+    expect(router.currentRoute.value.query['viewId']).toBe('V2')
+    expect(wrapper.find('[data-logic-source-dialog]').exists()).toBe(false)
+    expect(wrapper.text()).not.toContain('LOGIC_SOURCE_STALE')
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  })
+  it('selects a formal table source and stages a node through the original field before explicit design save',async()=>{
+    http.records['View_TblList']=[{rowid:'T',tblname:'Orders',tbldesc:'订单',dbid:'DB',DbName:'Business'}]
+    http.records['Base_TblField']=[{rowid:'F',tblid:'T',enname:'id',cnname:'编号',description:'',DataType:'varchar',IsPKey:1}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='表')!.trigger('click');await flushPromises()
+    const dialog=wrapper.get('[data-logic-source-dialog]')
+    await dialog.get('.el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    await dialog.findAll('button').find(button=>button.text()==='确认添加')!.trigger('click');await flushPromises()
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+    expect(wrapper.findAll('[data-logic-node-outline] tbody tr')).toHaveLength(1)
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']?.[0]).toMatchObject({Name:'Orders',MetaName:'Orders',Type:'数据库表',DbId:'DB',PrimaryKeyFields:'id',Fields:[{Name:'id',FieldType:'varchar',IsOutput:1}]})
+    expect(http.saves).toHaveLength(0)
+  })
+  it('removes a selected subtree only as a cancellable original-field edit',async()=>{
+    http.logicDesigns['V1']=[{Name:'root',ChildTables:[{Name:'child',ChildTables:[]}]},{Name:'other',ChildTables:[]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.findAll('[data-logic-node-outline] tbody tr')[0]!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='删除节点')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='确认删除节点')!.trigger('click');await flushPromises()
+    expect(wrapper.findAll('[data-logic-node-outline] tbody tr')).toHaveLength(1)
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+    await wrapper.findAll('button').find(button=>button.text()==='放弃修改并重读')!.trigger('click');await flushPromises()
+    expect(wrapper.findAll('[data-logic-node-outline] tbody tr')).toHaveLength(3)
+    expect(http.saves).toHaveLength(0)
+  })
   it('confirms a field edit in the original node without coercing its value function, numeric order or unknown members',async()=>{
     const field={Name:'id',AsName:'old',ValueFun:{Type:'GetConstValue',Value:0},Order:2,IsOutput:1,extra:{keep:false}}
     http.logicDesigns['V1']=[{Name:'root',Type:'数据库表',Fields:[field],ChildTables:[]}]

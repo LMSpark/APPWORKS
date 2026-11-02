@@ -1,0 +1,117 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "mode": "native DataView local edits and discard; no real SaveView",
+  "smoke": [
+    {
+      "source": "table",
+      "name": "Base_NavigationInfo",
+      "rows": [
+        2,
+        3,
+        2
+      ],
+      "sourceFields": 63,
+      "primaryFlags": 2,
+      "singleKeyShortcut": "empty; no guessing"
+    },
+    {
+      "operation": "remove original subtree then discard",
+      "rows": [
+        2,
+        0,
+        2
+      ]
+    },
+    {
+      "source": "json",
+      "name": "TestJSON0819",
+      "rows": [
+        2,
+        3,
+        2
+      ]
+    },
+    {
+      "source": "dict",
+      "name": "hr_performance_result_grade",
+      "rows": [
+        2,
+        3,
+        2
+      ]
+    },
+    {
+      "source": "interface definition",
+      "name": "是否存在服务器或数据库",
+      "rows": [
+        2,
+        3,
+        2
+      ],
+      "unknownInputTypes": "preserved empty",
+      "invoked": false
+    }
+  ],
+  "network": {
+    "windows": [
+      {
+        "events": 10,
+        "truncated": false,
+        "hasMore": false
+      },
+      {
+        "events": 31,
+        "truncated": false,
+        "hasMore": false
+      }
+    ],
+    "businessWrites": 0,
+    "externalInvocations": 0,
+    "paths": [
+      "/api/DataOperation/GetData",
+      "/api/ViewData/GetView",
+      "/__spark/repository-scenarios"
+    ],
+    "scope": "four-source windows; final pagination followup excluded"
+  },
+  "pagination": {
+    "pageSize": 10,
+    "totalBeforeFilter": 1146,
+    "totalAfterNameAndDatabaseFilter": 1
+  },
+  "finalDom": {
+    "names": [
+      "数据库表",
+      "Base_AppSystemList",
+      "数据库表",
+      "Base_MainBody_RoleUser"
+    ],
+    "rows": 2
+  },
+  "limitations": [
+    "No actual SaveView write",
+    "Interface execution and runtime parameter validation unverified",
+    "Full reference page and architecture still open"
+  ],
+  "screenshots": [
+    {
+      "path": "artifacts/data-chain-smoke/logic-sources-browser-staged.png",
+      "sha256": "ea57d644cd8723495da10211d64c7c9c041f1516d3d8ca35b5ff915d3117076b"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/logic-sources-browser-pagination.png",
+      "sha256": "8af7a19c5c02feb9e32ff94ba242c00ff7a45ff81ae1e4d8375c3dc0994a4141"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/logic-sources-browser-clean.png",
+      "sha256": "6296dea642712c677fbf1e3c9b7ef834efbcaaa714bbb9537cd5411cb54a151f"
+    }
+  ],
+  "formalReadback": {
+    "sha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "code": 200,
+    "unchanged": true
+  }
+}

@@ -83,6 +83,12 @@ function metadataFixture(): DataSet {
 }
 
 describe('LowcodeDataSpaceModelSourceReader', () => {
+  it('rejects an application change with the same login token before issuing a source query',async()=>{
+    const reader=new LowcodeDataSpaceModelSourceReader()
+    readRequestScope.mockReturnValue({token:'scope-a',headers:{'X-AppId':'other-app'}})
+    await expect(reader.query({type:'table'},metadata)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(runtimeQuery).not.toHaveBeenCalled()
+  })
   beforeEach(() => {
     runtimeQuery.mockReset()
     loadDictionaryDefinition.mockReset().mockImplementation(() => dictionaryFixture())
@@ -473,7 +479,7 @@ describe('LowcodeDataSpaceModelSourceReader', () => {
     await expect(reader.query({type: 'table'}, metadata)).rejects.toThrow(/读取身份已失效/)
   })
 
-  it('does not turn a masked ProviderID or returned masked parzdtype into a fallback', async () => {
+  it.each(['string-default','preserve'] as const)('does not turn a masked ProviderID or masked parzdtype into a fallback with %s', async missingInputType => {
     runtimeQuery.mockResolvedValue(context('Base_DataServiceInterface', [{...sourceRows.interface.row,
       lingma_sys_params: {m: ['ProviderID']}}]))
     const reader = new LowcodeDataSpaceModelSourceReader()
@@ -485,6 +491,6 @@ describe('LowcodeDataSpaceModelSourceReader', () => {
       : identity.metaName === 'Base_TblField' ? context('Base_TblField', [])
         : context('Base_DataServiceInterface', [sourceRows.interface.row])))
     const source = (await reader.query({type: 'interface'}, metadata)).rows[0]!
-    await expect(reader.prepare(source, metadata)).rejects.toThrow(/parzdtype.*不可读/)
+    await expect(reader.prepare(source, metadata,{missingInputType})).rejects.toThrow(/parzdtype.*不可读/)
   })
 })

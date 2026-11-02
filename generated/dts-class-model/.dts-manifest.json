@@ -2629,7 +2629,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-01T23:52:11.262Z"
+      "sourceModifiedAt": "2026-11-02T05:21:42.247Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -3719,12 +3719,12 @@
     "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.730Z"
+      "sourceModifiedAt": "2026-11-02T05:07:47.131Z"
     },
     "src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/lowcode-data-space-source-catalog.ts.json",
-      "sourceModifiedAt": "2026-10-25T07:25:48.275Z"
+      "sourceModifiedAt": "2026-11-02T05:07:47.129Z"
     },
     "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration.ts",
@@ -4071,10 +4071,20 @@
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/design-ops.ts.json",
       "sourceModifiedAt": "2026-11-02T04:09:10.982Z"
     },
+    "src/lowcode/resources/structured-config/logic-view/node-commands.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/node-commands.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json",
+      "sourceModifiedAt": "2026-11-02T05:19:37.107Z"
+    },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
       "sourceModifiedAt": "2026-11-02T03:13:51.781Z"
+    },
+    "src/lowcode/resources/structured-config/logic-view/source-views.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/logic-view/source-views.ts.json",
+      "sourceModifiedAt": "2026-11-02T05:21:42.248Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
@@ -4819,7 +4829,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T04:17:08.179Z"
+      "sourceModifiedAt": "2026-11-02T04:52:37.759Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
@@ -4829,7 +4839,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue.json",
-      "sourceModifiedAt": "2026-11-02T04:17:33.807Z"
+      "sourceModifiedAt": "2026-11-02T05:09:12.963Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",

@@ -4770,3 +4770,14 @@ flowchart TD
 - 实服sys_edit：通过正式候选读取0416D1D8C18A4784B15CA4BDFF2F96D7“是否存在服务器或数据库”的定义，本地加入节点2→3。该接口没有已声明输出字段，故仅在本地新增SMOKE_NODE_INPUT_VALUE定义用于编辑器烟测，不宣称其是实际接口输出；未指定类型、未执行接口。参数候选同时显示sysid及六个节点入参，选“ip地址”生成{"Type":"GetInputParam","ParamName":"ip"}，原确认函数/行后再放弃修改并重读恢复2节点。
 - 完整网络窗口13次请求、truncated=false/hasMore=false，仅GetData元数据模型Base_DataModel/Base_DataModel_Field/View_TblList/Base_TblField/Base_DataServiceInterface/_Base_ParamList及GetView，无写入或接口执行。独立GetView初次401，正常刷新已授权会话后Code200，整份SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。evidence/data-chain-smoke/2026-11-02-logic-node-input-audit.json与截图记录候选名称/原生写回/取消，不含密码、测试值、原始权限或headers。
 - 定义候选缺口本轮补齐，但运行参数类型校验、真实SaveView、过滤专用交互、AI字段配置、输出结构与预览、98字典/12 GetView/2逻辑消费失败等全架构开放项继续。真实设计文件临时描述写入确认仍待用户回复，未执行；当前没有Java、权限或后端协议变更，根目标active。审阅来源定义投影及公共合并差异后提交推送本检查点，不称全架构全部通过。
+
+### 2026-11-02 用户授权真实SaveView烟测：成功回执但内容未落盘
+- 上轮e4d3144b7已推送，当前生产代码工作树干净。原计划继续过滤组件核查，仅做读取，尚未改代码；随后用户明确授权在sys_edit首节点描述写SMOKE_DATA_CHAIN_DESIGN_标记、原DataView保存/独立回读/恢复，且未知结果停止不重放。本轮切到该已授权实服保存用例，不再登记为“等待SaveView授权”。
+- 原浏览器1句柄多次browser.user unavailable；按文档保持同一iab浏览器，新建标签2并正常以已授权账号登录同一127.0.0.1:5274服务，企业领码科技/用户wangtao，未保存凭据。恢复后通过原导航身份EB720370EF06A5A656838F87E0716D6B进入应用D99…和目标D062…；不能因旧标签失控或重新登录就重放任何写入。当前unknown owner保留在标签2。
+- 独立GetView Code200读取基线，首节点Description确为已存在的空字符串，整份hash daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564；提交前再次只读核对基线未变。仅通过原FieldJson基础描述输入SMOKE_DATA_CHAIN_DESIGN_1793601486269，并由“当前值”反馈证实接纳到原designJson编辑域。预期仅该字段变化的整份hash b17fef98a757328dc0495214e4b8d820ff8347c7b88b0445afad14489994bb29。
+- 只点击一次原保存设计，经原DataSet/DataView→LogicViewDesignClient发SaveView，payload viewId精确、整份payload哈希等于上述预期；Code200/Result保存成功。非敏感执行域核对X-AppId D99…、X-FormKey EB720…、tenant/visit/x-FirstFolder均NewApp，未打印Authorization。请求结构与固定参考executor.saveViewDesign的{viewId,data}一致，没有改后端合同或绕过原owner。
+- 实际失败：同一原保存owner自动GetView Code200仍读到原基线hash，独立GetView两次也相同，标记均不存在。前端正确触发DESIGN_SAVE_UNCONFIRMED，保留原捕获提交及核验入口，普通放弃按钮禁用。第一次查看普通重读被禁用后没有旁路，不点恢复、不重放保存。完整CDP窗口api仅SaveView+GetView，SaveView总数1，truncated=false/hasMore=false；另有一个字体资源不纳入API路径。原服务内容仍在，但不能把“内容从未变”称恢复写入成功。
+- 只读源码线索：本地Java ViewDataServiceImpl.saveView调用fileFeignClient.uploadFileByStr后直接返回保存成功，没有unwrap其AjaxResult；FileFeignClient返回类型为AjaxResult。这是可能的虚假成功路径，不证明部署服务使用该实现或已确认根因。禁止修改/启动/部署Java、直接调文件写接口或伪造成功回读来补此断链。
+- evidence/data-chain-smoke/2026-11-02-logic-design-save-audit.json记录授权范围、单次提交/正式回执/原owner与独立回读、非敏感执行域、哈希及恢复限制；截图logic-design-save-unknown.png。新缺口：SaveView持久化未通过，服务“成功”回执与实际读取不一致，需服务责任方核查文件提交结果/读写落点。按用户“未知时停止”保持本次写入流程停止，0重放/0恢复写入；不是全局目标暂停或完成。
+- 本轮无生产代码、测试实现或后端变更，只补实服失败证据与唯一台账；90485正在完整verify，终态另补。后续保留标签2 unknown上下文，不靠刷新/重建实例伪装结清；过滤专用交互、AI字段配置、输出结构/预览及98字典、12 GetView、2逻辑消费失败等全架构其它开放项继续，根目标active。
+- 最后90485退出0，完整verify通过；它证明当前代码/合同检查通过，不证明本次SaveView落盘。保存烟测明确失败且unknown上下文保留，当前服务内容仍与基线一致。本轮仅将失败证据和台账提交推送origin/1031，无生产代码/Java修改，不追加实服写入。

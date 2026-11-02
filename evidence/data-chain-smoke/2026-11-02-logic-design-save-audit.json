@@ -1,0 +1,74 @@
+{
+  "date": "2026-11-02",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "authorization": "User approved first-node Description temporary marker, native save/readback, restore; stop writes on unknown result",
+  "outcome": "FAILED_PERSISTENCE_UNKNOWN",
+  "marker": "SMOKE_DATA_CHAIN_DESIGN_1793601486269",
+  "baselineHash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+  "expectedMutationHash": "b17fef98a757328dc0495214e4b8d820ff8347c7b88b0445afad14489994bb29",
+  "submission": {
+    "count": 1,
+    "target": "D0624BDE07FA475B90D5653994A6493D",
+    "payloadHash": "b17fef98a757328dc0495214e4b8d820ff8347c7b88b0445afad14489994bb29",
+    "receipt": {
+      "code": 200,
+      "type": "success",
+      "result": "保存成功"
+    },
+    "scope": {
+      "X-AppId": "D99A1DCE9894698799101EFD70F8FC76",
+      "X-FormKey": "EB720370EF06A5A656838F87E0716D6B",
+      "tenant-id": "NewApp",
+      "visit-tenant-id": "NewApp",
+      "x-FirstFolder": "NewApp"
+    }
+  },
+  "nativeOwnerReadback": {
+    "code": 200,
+    "hash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "markerPresent": false
+  },
+  "independentReadback": {
+    "code": 200,
+    "hash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "markerPresent": false,
+    "baselineStillPresent": true
+  },
+  "network": {
+    "totalObservedRequests": 3,
+    "apiPaths": [
+      "/api/ViewData/SaveView",
+      "/api/ViewData/GetView"
+    ],
+    "truncated": false,
+    "hasMore": false,
+    "replays": 0,
+    "restoreWrites": 0
+  },
+  "ui": {
+    "status": "DESIGN_SAVE_UNCONFIRMED",
+    "originalEntryRetained": true,
+    "ordinaryDiscardDisabled": true,
+    "tabId": "2"
+  },
+  "restoration": {
+    "state": "Original content remains present; no restore write sent because submission outcome is unconfirmed",
+    "completedSaveRestoreSmoke": false
+  },
+  "sourceAnalysis": {
+    "referenceFrontend": "Pinned executor saveViewDesign uses identical {viewId,data} payload",
+    "localJavaInference": "saveView calls fileFeignClient.uploadFileByStr and returns success without unwrapping its AjaxResult; possible false success path, not proof of deployed cause",
+    "javaChanged": false
+  },
+  "screenshot": {
+    "path": "artifacts/data-chain-smoke/logic-design-save-unknown.png",
+    "sha256": "8974c76074df801e79903fa4f7d5edc6ee3548df4d3eb36a0757169392190524"
+  },
+  "limitations": [
+    "Actual SaveView persistence is not accepted",
+    "No retries, alternate write endpoint, permission change, or backend change",
+    "Unknown browser owner and captured submission retained for read-only verification"
+  ]
+}

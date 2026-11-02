@@ -1,0 +1,560 @@
+{
+  "repair": {
+    "kind": "workflow-query-node-type-repair",
+    "testedAt": "2026-11-02T19:16:33.768Z",
+    "mode": "repair",
+    "target": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "targets": [
+      {
+        "id": "0E61A2C26E02FFF30632C22441A78406",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "input_mapping",
+        "before": "varchar",
+        "after": "TEXT"
+      },
+      {
+        "id": "70F8C0D9274B8DA68EEF90EE9EDC77FB",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "createtime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "7D47BB10E6D488DFB51FA195F8A46898",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "updatetime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "8800B9B19FCFA552A13DF44B81569315",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "position_type",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "DBB1C65E23B5695B4838C01FCA944E37",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "flowstate",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "EB2A64AC8D1EBCABDA4A90211BF59DC6",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "lingma_sys_is_delete",
+        "before": "varchar",
+        "after": "BIGINT"
+      },
+      {
+        "id": "F6C4C2FFF876F04EC820672CFF44075E",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "output_mapping",
+        "before": "varchar",
+        "after": "TEXT"
+      }
+    ],
+    "property": "FieldType",
+    "phase": "complete",
+    "reads": 16,
+    "writes": 1,
+    "confirmed": true,
+    "unknownOwnerRetained": false,
+    "intentOwned": true,
+    "replayWrites": 0,
+    "error": ""
+  },
+  "preflight": {
+    "kind": "workflow-query-node-type-repair",
+    "testedAt": "2026-11-02T19:16:16.168Z",
+    "mode": "preflight",
+    "target": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "targets": [
+      {
+        "id": "0E61A2C26E02FFF30632C22441A78406",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "input_mapping",
+        "before": "varchar",
+        "after": "TEXT"
+      },
+      {
+        "id": "70F8C0D9274B8DA68EEF90EE9EDC77FB",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "createtime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "7D47BB10E6D488DFB51FA195F8A46898",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "updatetime",
+        "before": "varchar",
+        "after": "DATETIME"
+      },
+      {
+        "id": "8800B9B19FCFA552A13DF44B81569315",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "position_type",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "DBB1C65E23B5695B4838C01FCA944E37",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "flowstate",
+        "before": "varchar",
+        "after": "INT"
+      },
+      {
+        "id": "EB2A64AC8D1EBCABDA4A90211BF59DC6",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "lingma_sys_is_delete",
+        "before": "varchar",
+        "after": "BIGINT"
+      },
+      {
+        "id": "F6C4C2FFF876F04EC820672CFF44075E",
+        "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+        "model": "Base_WorkflowNodeDefinition",
+        "name": "output_mapping",
+        "before": "varchar",
+        "after": "TEXT"
+      }
+    ],
+    "property": "FieldType",
+    "phase": "preflight-ready",
+    "reads": 6,
+    "writes": 0,
+    "confirmed": false,
+    "unknownOwnerRetained": false,
+    "intentOwned": false,
+    "replayWrites": 0,
+    "error": ""
+  },
+  "physicalTable": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "View_TblList",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "538A408204004315BB5D336BA6A95C85",
+            "tblname": "Base_WorkflowNodeDefinition",
+            "dbid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+            "DbName": "QYVirtualPlat"
+          }
+        ]
+      }
+    ]
+  },
+  "physicalFields": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_TblField",
+        "success": true,
+        "total": 22,
+        "countReported": true,
+        "returned": 22,
+        "rows": [
+          {
+            "rowid": "05C64967A43446B3839ADA0CBC4DAA75",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "flowstate",
+            "DataType": "INT"
+          },
+          {
+            "rowid": "0AD5C5456A534123BEBB67970EFA2C96",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "lingma_sys_ent",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "0E14CA9891BDD09657B162026A9B9E68",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "name",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "122388DB62E94207839528761EA6406C",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "rowid",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "1F630431EC5B88300CE8C9CDD565D9E8",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "dataOperateModId",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "21E1A2BE41B047439E8D1CA0033ED81F",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "wfid",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "280ACAA0D5A2460AA370A311C7BDF92C",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "createuser",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "31ebb9be9d1311f185000242ac110008",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "lingma_sys_appid",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "33E80FA528FF12DBEE8F745E75511031",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "output_mapping",
+            "DataType": "TEXT"
+          },
+          {
+            "rowid": "6D5CB8DB235B425F9EE703A2C3313309",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "lingma_sys_is_delete",
+            "DataType": "BIGINT"
+          },
+          {
+            "rowid": "7DD1E29D813231C40A4DCACC50ABCC9D",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "config",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "86F61500EF807C304DFD4982E909FDB6",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "workflow_id",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "95CFDA1E800E406BBB7AB914EC844727",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "ReportID",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "A91123F809824B58A10FAD4431B0585E",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "updateuser",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "B0852C7DCEA04C37AC8BA818EC191D0D",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "description",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "BD1360E8E0B6B216EF8D1B09665E3118",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "node_config",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "C8D12DA3F9394CCDA2055B94141B5337",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "createtime",
+            "DataType": "DATETIME"
+          },
+          {
+            "rowid": "D2044F260D9C02FA4053ED63423EE327",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "input_mapping",
+            "DataType": "TEXT"
+          },
+          {
+            "rowid": "D3E17A776AA349CC9E28AFE17AD04713",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "updatetime",
+            "DataType": "DATETIME"
+          },
+          {
+            "rowid": "EFA432B3F2EA6AF85282AACDEBD54BFF",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "node_key",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "F17B95F22F162A32264BD18B9706435D",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "node_type",
+            "DataType": "VARCHAR"
+          },
+          {
+            "rowid": "F90D12356CACCDE113C4DD83DD60F5DA",
+            "tblid": "538A408204004315BB5D336BA6A95C85",
+            "enname": "position_type",
+            "DataType": "INT"
+          }
+        ]
+      }
+    ]
+  },
+  "before": {
+    "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "metaName": "Base_WorkflowNodeDefinition",
+    "success": true,
+    "modelId": "7d1d8b43-7067-4f80-99d8-11dabd683b2a",
+    "sourceName": "Base_WorkflowNodeDefinition",
+    "sourceType": "数据库表",
+    "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+    "primaryKey": "rowid",
+    "fields": [
+      {
+        "id": "03EB50ECE4072A488AD6FF2760EDC5B8",
+        "name": "description",
+        "sourceField": "description",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "摘要",
+        "order": 0
+      },
+      {
+        "id": "05D5C3BDA871E550687BD0F6327FFF6D",
+        "name": "rowid",
+        "sourceField": "rowid",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": true,
+        "computed": false,
+        "description": "唯一标识 ID",
+        "order": 0
+      },
+      {
+        "id": "0E61A2C26E02FFF30632C22441A78406",
+        "name": "input_mapping",
+        "sourceField": "input_mapping",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "输入参数映射",
+        "order": 0
+      },
+      {
+        "id": "34C792B607F5F87782DCCB394102E7DA",
+        "name": "ReportID",
+        "sourceField": "ReportID",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "报表 ID",
+        "order": 0
+      },
+      {
+        "id": "48FD88D98E2A1C851073ED0953EB1A2A",
+        "name": "dataOperateModId",
+        "sourceField": "dataOperateModId",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "数据处理模型 ID",
+        "order": 0
+      },
+      {
+        "id": "4D8DD8513EDF6C29D68ABE1B29C7C004",
+        "name": "node_key",
+        "sourceField": "node_key",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "节点唯一编码",
+        "order": 0
+      },
+      {
+        "id": "5E5E3CDB2FBD3C21AB11584E525A74DC",
+        "name": "node_config",
+        "sourceField": "node_config",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "节点配置 JSON",
+        "order": 0
+      },
+      {
+        "id": "70F8C0D9274B8DA68EEF90EE9EDC77FB",
+        "name": "createtime",
+        "sourceField": "createtime",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "创建时间",
+        "order": 0
+      },
+      {
+        "id": "7CD75ACF8CF9420988A968C1C8E49A87",
+        "name": "name",
+        "sourceField": "name",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "节点名称",
+        "order": 0
+      },
+      {
+        "id": "7D47BB10E6D488DFB51FA195F8A46898",
+        "name": "updatetime",
+        "sourceField": "updatetime",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "修改时间",
+        "order": 0
+      },
+      {
+        "id": "8800B9B19FCFA552A13DF44B81569315",
+        "name": "position_type",
+        "sourceField": "position_type",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "节点位置类型",
+        "order": 0
+      },
+      {
+        "id": "ABE3E38B99AA02C12A57F996672413B6",
+        "name": "node_type",
+        "sourceField": "node_type",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "节点类型",
+        "order": 0
+      },
+      {
+        "id": "C09BE6EC8F8B3F54377F3F15E7C6B02C",
+        "name": "config",
+        "sourceField": "config",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "配置信息",
+        "order": 0
+      },
+      {
+        "id": "C5919F3712D956754AEA0875AF63591C",
+        "name": "createuser",
+        "sourceField": "createuser",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "创建人",
+        "order": 0
+      },
+      {
+        "id": "CAC15B0385A05794B7AF06387B28277F",
+        "name": "updateuser",
+        "sourceField": "updateuser",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "修改人",
+        "order": 0
+      },
+      {
+        "id": "CB495A1A1209E28F90A952CFF255E778",
+        "name": "wfid",
+        "sourceField": "wfid",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "流程实例 ID",
+        "order": 0
+      },
+      {
+        "id": "DBB1C65E23B5695B4838C01FCA944E37",
+        "name": "flowstate",
+        "sourceField": "flowstate",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "流程状态",
+        "order": 0
+      },
+      {
+        "id": "EB2A64AC8D1EBCABDA4A90211BF59DC6",
+        "name": "lingma_sys_is_delete",
+        "sourceField": "lingma_sys_is_delete",
+        "type": "varchar",
+        "output": false,
+        "primaryKey": false,
+        "computed": false,
+        "description": "逻辑删除标记",
+        "order": 0
+      },
+      {
+        "id": "F6C4C2FFF876F04EC820672CFF44075E",
+        "name": "output_mapping",
+        "sourceField": "output_mapping",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "输出参数规则",
+        "order": 0
+      },
+      {
+        "id": "FC441DFADA6B66DD4F2C945C13FDC6C6",
+        "name": "workflow_id",
+        "sourceField": "workflow_id",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "工作流定义 ID",
+        "order": 0
+      }
+    ]
+  },
+  "scriptSha256": "b60894b6c9d9cd5aae6f588c06b10974fd0f3f7fc0fc7cfd8c9265977f9f3ea6",
+  "limitation": "Formal metadata only; no physical schema or Java change; no workflow execution"
+}

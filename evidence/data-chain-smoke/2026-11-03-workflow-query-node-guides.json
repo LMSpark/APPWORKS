@@ -1,0 +1,107 @@
+{
+  "catalog": {
+    "rootKind": "WorkflowQueryNodeCreate",
+    "models": [
+      {
+        "kind": "WorkflowQueryNodeCreate",
+        "name": "WorkflowQueryNodeCreate",
+        "jsdoc": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。",
+        "summary": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。"
+      }
+    ]
+  },
+  "overview": {
+    "rootKind": "WorkflowQueryNodeCreate",
+    "models": [
+      {
+        "kind": "WorkflowQueryNodeCreate",
+        "name": "WorkflowQueryNodeCreate",
+        "jsdoc": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。",
+        "summary": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。",
+        "constructorSignature": {
+          "summary": "",
+          "jsdoc": "",
+          "signature": "constructor(input: Input, modelOwner: Model, nodes: DataView)"
+        },
+        "attributes": [
+          {
+            "name": "model",
+            "jsdoc": "原查询模型创建owner，保留来源预览、取消及未知批次核验。",
+            "summary": "原查询模型创建owner，保留来源预览、取消及未知批次核验。",
+            "typeText": "Pick<Model, 'getState' | 'preview' | 'setName'>"
+          },
+          {
+            "name": "modelId",
+            "jsdoc": "已独立确认的模型身份；失败后仍用于继续原节点创建。",
+            "summary": "已独立确认的模型身份；失败后仍用于继续原节点创建。",
+            "typeText": "string"
+          },
+          {
+            "name": "nodeId",
+            "jsdoc": "原生新增行的唯一节点身份，核验时不得生成新身份。",
+            "summary": "原生新增行的唯一节点身份，核验时不得生成新身份。",
+            "typeText": "string"
+          },
+          {
+            "name": "nodeNotApplied",
+            "jsdoc": "原节点批次已独立确认未生效；核验入口不得再次派发创建。",
+            "summary": "原节点批次已独立确认未生效；核验入口不得再次派发创建。",
+            "typeText": "boolean"
+          },
+          {
+            "name": "pending",
+            "jsdoc": "保留来源预览、原保存捕获和模型已成功但节点未确认的状态。",
+            "summary": "保留来源预览、原保存捕获和模型已成功但节点未确认的状态。",
+            "typeText": "boolean"
+          }
+        ],
+        "methods": [
+          {
+            "name": "save",
+            "jsdoc": "保存或核验同一创建意图；已确认模型及节点不重复提交。",
+            "summary": "保存或核验同一创建意图；已确认模型及节点不重复提交。",
+            "signature": "save(): Promise<string>"
+          },
+          {
+            "name": "cancel",
+            "jsdoc": "仅取消未提交的来源预览；部分成功保留原身份，不静默删除正式模型。",
+            "summary": "仅取消未提交的来源预览；部分成功保留原身份，不静默删除正式模型。",
+            "signature": "cancel(): void"
+          },
+          {
+            "name": "abandonNotApplied",
+            "jsdoc": "明确放弃已确认未生效的原模型批次；不重发创建请求。",
+            "summary": "明确放弃已确认未生效的原模型批次；不重发创建请求。",
+            "signature": "abandonNotApplied(): Promise<void>"
+          },
+          {
+            "name": "discardModelLocalChanges",
+            "jsdoc": "明确撤销原模型目标的后续本地修改并核验；确认身份仍交本命令继续创建节点。",
+            "summary": "明确撤销原模型目标的后续本地修改并核验；确认身份仍交本命令继续创建节点。",
+            "signature": "discardModelLocalChanges(): Promise<void>"
+          },
+          {
+            "name": "resubmitNotApplied",
+            "jsdoc": "独立确认未生效后显式重提同一节点；原身份及创建字段必须保持不变。",
+            "summary": "独立确认未生效后显式重提同一节点；原身份及创建字段必须保持不变。",
+            "signature": "resubmitNotApplied(): Promise<string>"
+          }
+        ]
+      }
+    ]
+  },
+  "methods": [
+    {
+      "methodName": "save",
+      "guide": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。\nclass WorkflowQueryNodeCreate {\n  保存或核验同一创建意图；已确认模型及节点不重复提交。\n  save(): Promise<string>\n}"
+    },
+    {
+      "methodName": "cancel",
+      "guide": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。\nclass WorkflowQueryNodeCreate {\n  仅取消未提交的来源预览；部分成功保留原身份，不静默删除正式模型。\n  cancel(): void\n}"
+    },
+    {
+      "methodName": "resubmitNotApplied",
+      "guide": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。\nclass WorkflowQueryNodeCreate {\n  独立确认未生效后显式重提同一节点；原身份及创建字段必须保持不变。\n  resubmitNotApplied(): Promise<string>\n}"
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create\n职责：标准组件绑定原来源候选和预览，触发同实例查询模型及节点创建命令。\n边界：不保存候选数组、不发HTTP、不生成第二份正式草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T19:36:17.415Z",
+  "models": {}
+}

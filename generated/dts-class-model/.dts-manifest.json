@@ -4181,6 +4181,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json",
       "sourceModifiedAt": "2026-11-02T19:10:22.756Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json",
+      "sourceModifiedAt": "2026-11-02T19:54:41.678Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/resource.ts.json",
@@ -4954,7 +4959,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T16:29:53.194Z"
+      "sourceModifiedAt": "2026-11-02T19:31:05.005Z"
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue.json",
+      "sourceModifiedAt": "2026-11-02T19:36:17.415Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",

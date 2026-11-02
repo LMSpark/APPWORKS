@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/query-node-create",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/query-node-create",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：先确认查询模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。\n边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowQueryNodeCreate"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "sources": {
+          "$ref": "../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+        },
+        "assertCurrent": {
+          "type": "object",
+          "title": "() => void"
+        }
+      },
+      "required": [
+        "dataSet",
+        "workflowId",
+        "sources",
+        "assertCurrent"
+      ],
+      "additionalProperties": false
+    },
+    "Model": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Model",
+      "properties": {
+        "save": {
+          "type": "object",
+          "title": "() => Promise<string>"
+        },
+        "preview": {
+          "type": "object",
+          "title": "(source: Readonly<{ type: PageDataSpaceModelSourceType; id: string; name: string; description: string; dbid: string; databaseName: string; providerId: string; }>) => Promise<void>"
+        },
+        "getState": {
+          "type": "object",
+          "title": "() => ReturnType<typeof modelCreateGetState>"
+        },
+        "setName": {
+          "type": "object",
+          "title": "(name: string) => void"
+        },
+        "discard": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "verify": {
+          "type": "object",
+          "title": "() => Promise<Readonly<{ confirmed: boolean; modelId: string | null; }>>"
+        },
+        "abandonNotApplied": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        },
+        "discardLocalChanges": {
+          "type": "object",
+          "title": "() => Promise<string>"
+        }
+      },
+      "required": [
+        "save",
+        "preview",
+        "getState",
+        "setName",
+        "discard",
+        "verify",
+        "abandonNotApplied",
+        "discardLocalChanges"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowQueryNodeCreate": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowQueryNodeCreate",
+      "properties": {
+        "model": {
+          "type": "object",
+          "title": "Pick<Model, 'getState' | 'preview' | 'setName'>"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "nodeNotApplied": {
+          "type": "boolean"
+        },
+        "pending": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            },
+            "modelOwner": {
+              "$ref": "#/$defs/Model"
+            },
+            "nodes": {
+              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.abandonNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardModelLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardModelLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.resubmitNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resubmitNotApplied.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-02T19:54:41.678Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Parameters<typeof openWorkflowQueryModelCreate>[0]",
+        "members": {}
+      }
+    },
+    "Model": {
+      "name": "Model",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<typeof openWorkflowQueryModelCreate>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<typeof openWorkflowQueryModelCreate>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowQueryNodeCreate": {
+      "name": "WorkflowQueryNodeCreate",
+      "jsdoc": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Input, modelOwner: Model, nodes: DataView)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Input",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
+              }
+            },
+            {
+              "name": "modelOwner",
+              "type": {
+                "type": "reference",
+                "name": "Model",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
+              }
+            },
+            {
+              "name": "nodes",
+              "type": {
+                "type": "reference",
+                "name": "DataView"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "jsdoc": "原查询模型创建owner，保留来源预览、取消及未知批次核验。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "已独立确认的模型身份；失败后仍用于继续原节点创建。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "原生新增行的唯一节点身份，核验时不得生成新身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeNotApplied",
+              "jsdoc": "原节点批次已独立确认未生效；核验入口不得再次派发创建。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pending",
+              "jsdoc": "保留来源预览、原保存捕获和模型已成功但节点未确认的状态。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "save",
+              "jsdoc": "保存或核验同一创建意图；已确认模型及节点不重复提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "仅取消未提交的来源预览；部分成功保留原身份，不静默删除正式模型。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "abandonNotApplied",
+              "jsdoc": "明确放弃已确认未生效的原模型批次；不重发创建请求。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardModelLocalChanges",
+              "jsdoc": "明确撤销原模型目标的后续本地修改并核验；确认身份仍交本命令继续创建节点。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resubmitNotApplied",
+              "jsdoc": "独立确认未生效后显式重提同一节点；原身份及创建字段必须保持不变。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

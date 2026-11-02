@@ -1,0 +1,437 @@
+{
+  "kind": "workflow-query-create-browser-lifecycle",
+  "status": "creation-cancel-reopen-fresh-query-edit-cleanup-confirmed-immediate-edit-chain-failed",
+  "testedAt": "2026-11-02T19:44:31.286Z",
+  "fixture": {
+    "kind": "native-workflow-query-create-fixture",
+    "testedAt": "2026-11-02T19:37:55.145Z",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460",
+    "workflowId": "DF08C3D072FE487CA60451755FFCD657",
+    "workflowKey": "SMCD657",
+    "lifecycle": "created",
+    "acknowledged": {
+      "create-definition": true,
+      "create-parameters": true,
+      "create-node": true
+    },
+    "deleted": {},
+    "initialParams": "[{\"rowid\":\"PARAM_DF08C3D072FE487CA60451755FFCD657\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460_START\",\"Value\":\"before\",\"ValueFun\":null,\"smokeKeep\":false}]",
+    "nodeId": "FDEFAE7E2C1BC7AC6F78ABCE052195EE",
+    "mode": "create",
+    "phase": "created",
+    "reads": 44,
+    "writes": 3,
+    "confirmedSaves": 3,
+    "cleanupConfirmed": false,
+    "replayWrites": 0,
+    "checks": [
+      "original create permissions and formal identity API available",
+      "formal inactive status 2 confirmed",
+      "three temporary records and submitted fields independently verified; no execution endpoint"
+    ],
+    "unknownOwnerRetained": false
+  },
+  "previewCancel": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 2,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_DataModel",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "returned": 0,
+        "rows": []
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_WorkflowNodeDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "FDEFAE7E2C1BC7AC6F78ABCE052195EE",
+            "workflow_id": "DF08C3D072FE487CA60451755FFCD657",
+            "position_type": 0,
+            "name": "SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460_START",
+            "node_type": "query",
+            "node_config": ""
+          }
+        ]
+      }
+    ]
+  },
+  "creation": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 4,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_DataModel",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "Name": "SMOKE_DATA_CHAIN_QUERY_MODEL_5FFCD657",
+            "MetaName": "TestJSON0819",
+            "Type": "JSON",
+            "DbId": "EB63C2BFA0394BD58D777E56B3810F09",
+            "DbName": "",
+            "requestType": "query"
+          }
+        ]
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_DataModel_Field",
+        "success": true,
+        "total": 6,
+        "countReported": true,
+        "returned": 6,
+        "rows": [
+          {
+            "rowid": "193AAFE3206D7CFBD0723F6FD60E592D",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "dataModelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "Name": "value",
+            "type": "dataModel",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0
+          },
+          {
+            "rowid": "1C4AD21FD1CDE0AFEDAE068B002C0988",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "dataModelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "Name": "id",
+            "type": "dataModel",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0
+          },
+          {
+            "rowid": "801783E888FCBD71F25F3975915807EF",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "dataModelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "Name": "haschild",
+            "type": "dataModel",
+            "FieldType": "bool",
+            "IsOutput": 1,
+            "IsPKey": 0
+          },
+          {
+            "rowid": "BC1C924377C74FDD2F517CECAB411ED0",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "dataModelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "Name": "name",
+            "type": "dataModel",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0
+          },
+          {
+            "rowid": "CE4784490C0621D131F24BB640B52FBA",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "dataModelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "Name": "type",
+            "type": "dataModel",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0
+          },
+          {
+            "rowid": "E5566FEE9459BC931C350AE921B13D48",
+            "dataSetId": "DF08C3D072FE487CA60451755FFCD657",
+            "dataModelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "Name": "pid",
+            "type": "dataModel",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "IsPKey": 0
+          }
+        ]
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_WorkflowNodeDefinition",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "returned": 2,
+        "rows": [
+          {
+            "rowid": "B0875CB705BC22DC04BE30407AC50E26",
+            "workflow_id": "DF08C3D072FE487CA60451755FFCD657",
+            "position_type": 1,
+            "node_type": "query",
+            "node_config": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "name": "SMOKE_DATA_CHAIN_QUERY_MODEL_5FFCD657",
+            "description": "",
+            "input_mapping": "[]",
+            "output_mapping": "[{\"rowid\":\"BC017E64002A41CE94B30770FCA6523B\",\"pid\":null,\"Name\":\"items\",\"Description\":\"数据项\",\"FieldType\":\"Array\",\"isParent\":true},{\"rowid\":\"F4AEF77551274B8EAA7F90AE3D106A17\",\"pid\":null,\"Name\":\"Count\",\"Description\":\"数据总数\",\"FieldType\":\"int\",\"isParent\":false},{\"rowid\":\"193AAFE3206D7CFBD0723F6FD60E592D\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"value\",\"Description\":\"属性值（值函数）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"1C4AD21FD1CDE0AFEDAE068B002C0988\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"id\",\"Description\":\"主键（记录路径）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"801783E888FCBD71F25F3975915807EF\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"haschild\",\"Description\":\"是否包含子项\",\"FieldType\":\"bool\",\"isParent\":false},{\"rowid\":\"BC1C924377C74FDD2F517CECAB411ED0\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"name\",\"Description\":\"属性名称\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"CE4784490C0621D131F24BB640B52FBA\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"type\",\"Description\":\"属性类型\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"E5566FEE9459BC931C350AE921B13D48\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"pid\",\"Description\":\"记录父级id\",\"FieldType\":\"varchar\",\"isParent\":false}]",
+            "config": ""
+          },
+          {
+            "rowid": "FDEFAE7E2C1BC7AC6F78ABCE052195EE",
+            "workflow_id": "DF08C3D072FE487CA60451755FFCD657",
+            "position_type": 0,
+            "node_type": "query",
+            "node_config": "",
+            "name": "SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460_START",
+            "description": null,
+            "input_mapping": "[]",
+            "output_mapping": "[]",
+            "config": ""
+          }
+        ]
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_DataSet",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "DF08C3D072FE487CA60451755FFCD657",
+            "Type": "workflow",
+            "inputParams": "[{\"rowid\":\"PARAM_DF08C3D072FE487CA60451755FFCD657\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460_START\",\"Value\":\"before\",\"ValueFun\":null,\"smokeKeep\":false}]"
+          }
+        ]
+      }
+    ]
+  },
+  "creationIdentity": {
+    "workflowId": "DF08C3D072FE487CA60451755FFCD657",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460",
+    "modelName": "SMOKE_DATA_CHAIN_QUERY_MODEL_5FFCD657",
+    "sourceType": "json",
+    "sourceName": "TestJSON0819",
+    "phase": "confirmed",
+    "maximumModels": 1,
+    "maximumFields": 6,
+    "maximumNodes": 1,
+    "noExecution": true,
+    "noReplay": true,
+    "clickedAt": "2026-11-02T19:40:32.531Z",
+    "modelId": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+    "nodeId": "B0875CB705BC22DC04BE30407AC50E26",
+    "fieldIds": [
+      "193AAFE3206D7CFBD0723F6FD60E592D",
+      "1C4AD21FD1CDE0AFEDAE068B002C0988",
+      "801783E888FCBD71F25F3975915807EF",
+      "BC1C924377C74FDD2F517CECAB411ED0",
+      "CE4784490C0621D131F24BB640B52FBA",
+      "E5566FEE9459BC931C350AE921B13D48"
+    ]
+  },
+  "nodeCancel": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_WorkflowNodeDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "B0875CB705BC22DC04BE30407AC50E26",
+            "workflow_id": "DF08C3D072FE487CA60451755FFCD657",
+            "position_type": 1,
+            "node_type": "query",
+            "node_config": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+            "name": "SMOKE_DATA_CHAIN_QUERY_MODEL_5FFCD657",
+            "description": "",
+            "input_mapping": "[]",
+            "output_mapping": "[{\"rowid\":\"BC017E64002A41CE94B30770FCA6523B\",\"pid\":null,\"Name\":\"items\",\"Description\":\"数据项\",\"FieldType\":\"Array\",\"isParent\":true},{\"rowid\":\"F4AEF77551274B8EAA7F90AE3D106A17\",\"pid\":null,\"Name\":\"Count\",\"Description\":\"数据总数\",\"FieldType\":\"int\",\"isParent\":false},{\"rowid\":\"193AAFE3206D7CFBD0723F6FD60E592D\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"value\",\"Description\":\"属性值（值函数）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"1C4AD21FD1CDE0AFEDAE068B002C0988\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"id\",\"Description\":\"主键（记录路径）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"801783E888FCBD71F25F3975915807EF\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"haschild\",\"Description\":\"是否包含子项\",\"FieldType\":\"bool\",\"isParent\":false},{\"rowid\":\"BC1C924377C74FDD2F517CECAB411ED0\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"name\",\"Description\":\"属性名称\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"CE4784490C0621D131F24BB640B52FBA\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"type\",\"Description\":\"属性类型\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"E5566FEE9459BC931C350AE921B13D48\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"pid\",\"Description\":\"记录父级id\",\"FieldType\":\"varchar\",\"isParent\":false}]",
+            "config": ""
+          }
+        ]
+      }
+    ]
+  },
+  "editRejected": {
+    "error": "[500] 编辑权限校验失败；根因：权限token校验失败，pkValue类型不支持",
+    "readback": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 1,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_WorkflowNodeDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "B0875CB705BC22DC04BE30407AC50E26",
+              "workflow_id": "DF08C3D072FE487CA60451755FFCD657",
+              "position_type": 1,
+              "node_type": "query",
+              "node_config": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+              "name": "SMOKE_DATA_CHAIN_QUERY_MODEL_5FFCD657",
+              "description": "",
+              "input_mapping": "[]",
+              "output_mapping": "[{\"rowid\":\"BC017E64002A41CE94B30770FCA6523B\",\"pid\":null,\"Name\":\"items\",\"Description\":\"数据项\",\"FieldType\":\"Array\",\"isParent\":true},{\"rowid\":\"F4AEF77551274B8EAA7F90AE3D106A17\",\"pid\":null,\"Name\":\"Count\",\"Description\":\"数据总数\",\"FieldType\":\"int\",\"isParent\":false},{\"rowid\":\"193AAFE3206D7CFBD0723F6FD60E592D\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"value\",\"Description\":\"属性值（值函数）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"1C4AD21FD1CDE0AFEDAE068B002C0988\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"id\",\"Description\":\"主键（记录路径）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"801783E888FCBD71F25F3975915807EF\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"haschild\",\"Description\":\"是否包含子项\",\"FieldType\":\"bool\",\"isParent\":false},{\"rowid\":\"BC1C924377C74FDD2F517CECAB411ED0\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"name\",\"Description\":\"属性名称\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"CE4784490C0621D131F24BB640B52FBA\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"type\",\"Description\":\"属性类型\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"E5566FEE9459BC931C350AE921B13D48\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"pid\",\"Description\":\"记录父级id\",\"FieldType\":\"varchar\",\"isParent\":false}]",
+              "config": ""
+            }
+          ]
+        }
+      ]
+    },
+    "noRepeatedSave": true,
+    "localDraftDiscarded": true
+  },
+  "rootCauseSource": "DataSpaceQueryContext.acceptSaveReceipt assigns query table systemKey to added row as row mutation credential",
+  "noWorkflowExecution": true,
+  "cleanupPending": false,
+  "freshQueryEdit": {
+    "readback": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 1,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_WorkflowNodeDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "B0875CB705BC22DC04BE30407AC50E26",
+              "workflow_id": "DF08C3D072FE487CA60451755FFCD657",
+              "position_type": 1,
+              "node_type": "query",
+              "node_config": "0459FB33D84B30C0C49B2CFA41A8E0CB",
+              "name": "SMOKE_DATA_CHAIN_QUERY_MODEL_5FFCD657",
+              "description": "SMOKE_DATA_CHAIN_QUERY_NODE_AFTER_REOPEN",
+              "input_mapping": "[]",
+              "output_mapping": "[{\"rowid\":\"BC017E64002A41CE94B30770FCA6523B\",\"pid\":null,\"Name\":\"items\",\"Description\":\"数据项\",\"FieldType\":\"Array\",\"isParent\":true},{\"rowid\":\"F4AEF77551274B8EAA7F90AE3D106A17\",\"pid\":null,\"Name\":\"Count\",\"Description\":\"数据总数\",\"FieldType\":\"int\",\"isParent\":false},{\"rowid\":\"193AAFE3206D7CFBD0723F6FD60E592D\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"value\",\"Description\":\"属性值（值函数）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"1C4AD21FD1CDE0AFEDAE068B002C0988\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"id\",\"Description\":\"主键（记录路径）\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"801783E888FCBD71F25F3975915807EF\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"haschild\",\"Description\":\"是否包含子项\",\"FieldType\":\"bool\",\"isParent\":false},{\"rowid\":\"BC1C924377C74FDD2F517CECAB411ED0\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"name\",\"Description\":\"属性名称\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"CE4784490C0621D131F24BB640B52FBA\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"type\",\"Description\":\"属性类型\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"E5566FEE9459BC931C350AE921B13D48\",\"pid\":\"BC017E64002A41CE94B30770FCA6523B\",\"Name\":\"pid\",\"Description\":\"记录父级id\",\"FieldType\":\"varchar\",\"isParent\":false}]",
+              "config": ""
+            }
+          ]
+        }
+      ]
+    },
+    "onlyDescriptionChanged": true,
+    "usedFreshFormalQuery": true,
+    "doesNotProveReceiptChainFixed": true
+  },
+  "cleanup": {
+    "extra": {
+      "kind": "workflow-query-extra-cleanup",
+      "mode": "cleanup",
+      "workflowId": "DF08C3D072FE487CA60451755FFCD657",
+      "targets": [
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "ids": [
+            "B0875CB705BC22DC04BE30407AC50E26"
+          ]
+        },
+        {
+          "table": "Base_DataModel_Field",
+          "ids": [
+            "193AAFE3206D7CFBD0723F6FD60E592D",
+            "1C4AD21FD1CDE0AFEDAE068B002C0988",
+            "801783E888FCBD71F25F3975915807EF",
+            "BC1C924377C74FDD2F517CECAB411ED0",
+            "CE4784490C0621D131F24BB640B52FBA",
+            "E5566FEE9459BC931C350AE921B13D48"
+          ]
+        },
+        {
+          "table": "Base_DataModel",
+          "ids": [
+            "0459FB33D84B30C0C49B2CFA41A8E0CB"
+          ]
+        }
+      ],
+      "reads": 40,
+      "writes": 3,
+      "phase": "complete",
+      "confirmed": [
+        "Base_WorkflowNodeDefinition",
+        "Base_DataModel_Field",
+        "Base_DataModel"
+      ],
+      "error": "",
+      "unknownOwnerRetained": false,
+      "replayWrites": 0
+    },
+    "original": {
+      "kind": "native-workflow-query-create-fixture",
+      "testedAt": "2026-11-02T19:49:05.309Z",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "marker": "SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460",
+      "workflowId": "DF08C3D072FE487CA60451755FFCD657",
+      "workflowKey": "SMCD657",
+      "lifecycle": "cleaned",
+      "acknowledged": {
+        "create-definition": true,
+        "create-parameters": true,
+        "create-node": true,
+        "delete-node": true,
+        "delete-parameters": true,
+        "delete-definition": true
+      },
+      "deleted": {
+        "node": true,
+        "parameters": true,
+        "definition": true
+      },
+      "initialParams": "[{\"rowid\":\"PARAM_DF08C3D072FE487CA60451755FFCD657\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_QUERY_1793648269460_START\",\"Value\":\"before\",\"ValueFun\":null,\"smokeKeep\":false}]",
+      "nodeId": "FDEFAE7E2C1BC7AC6F78ABCE052195EE",
+      "mode": "cleanup",
+      "phase": "cleaned",
+      "reads": 60,
+      "writes": 3,
+      "confirmedSaves": 3,
+      "cleanupConfirmed": true,
+      "replayWrites": 0,
+      "checks": [
+        "three exact temporary records independently absent"
+      ],
+      "unknownOwnerRetained": false
+    },
+    "outstandingFixtureRecords": 0
+  },
+  "screenshots": [
+    "artifacts/data-chain-smoke/2026-11-03-workflow-query-reopened.png",
+    "artifacts/data-chain-smoke/2026-11-03-workflow-query-cleaned.png"
+  ]
+}

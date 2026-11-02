@@ -16,6 +16,8 @@
       <p v-if="unconfirmed" role="status">保存结果尚未确认，请使用原保存入口核验，勿重复创建。</p>
       <p v-if="layoutMissing" role="status">布局文件不存在；创建前画布位置仅供预览。</p>
       <p v-if="layoutError" role="alert">布局内容无效：{{ layoutError }}</p>
+      <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId"
+        :disabled="locked || (hasPending && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
       <div>
         <RendererButton v-if="layoutMissing" label="创建布局" :data-view-key="layoutKey" perm-action="create" :disabled="locked" @click="createLayout" />
         <RendererButton v-if="layoutRow" label="自动对齐" :disabled="locked || !!layoutError" @click="graphApi?.arrange()" />
@@ -117,6 +119,7 @@ import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workf
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
 import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
+import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
@@ -128,11 +131,12 @@ const parametersKey=buildDataViewKey('Base_DataSet','default',scene)
 const conditionKey=buildDataViewKey(relationsTable,'connector',scene),conditionView=()=>dataSet.value?.getView(relationsTable,'connector')
 const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),childRelationsKey=buildDataViewKey(relationsTable,'asChild',scene)
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
+const queryCreateApi=ref<InstanceType<typeof WorkflowQueryNodeCreate>>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
 const dataSet=shallowRef<DataSet>(),opening=ref(false),ready=ref(false),acting=ref(false),error=ref(''),revision=ref(0),selectedKind=ref<'node'|'edge'>(),inputs=ref(new Set<string>()),loadedTarget=ref('')
 let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,active=true
 const view=(table:string)=>dataSet.value?.getView(table)
-const views=computed(()=>Object.values(dataSet.value?.tables??{}).flatMap(table=>table.viewList))
+const views=computed(()=>{revision.value;return Object.values(dataSet.value?.tables??{}).flatMap(table=>table.viewList)})
 const validTarget=computed(()=>{revision.value;return view('Base_WorkflowDefinition')?.rows.length===1})
 const missing=computed(()=>ready.value&&!validTarget.value)
 const loading=computed(()=>{revision.value;return opening.value||views.value.some(v=>v.requestState===RequestState.Preparing||v.requestState===RequestState.Loading)})
@@ -242,6 +246,12 @@ async function loadNodeModel(row:DataRow):Promise<void>{
  try{const modelId=nodeModelId(row);if(!modelId)return;model.queryContext={...model.queryContext,modelId};await model.refresh();if(model.loadingError)throw model.loadingError}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
 }
+async function queryNodeCreated(id:string):Promise<void>{
+ const nodes=view(nodesTable),row=nodes?.rows.find(row=>nodes.getPkKey(row)===id)
+ if(!nodes||!row)throw Error('已创建节点未返回当前工作流')
+ nodes.setCurrentRow(row);selectedKind.value='node';revision.value++
+ await loadNodeModel(row)
+}
 onBeforeRouteLeave(()=>!hasPending.value)
 onBeforeRouteUpdate(()=>!hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
@@ -299,7 +309,7 @@ function writeLayout(nodes:ReadonlyArray<Readonly<{id:string|number;x:number;y:n
 function moveLayout(event:SparkComponent.GraphNodeMove):void{try{writeLayout([event],event.edges);error.value=''}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function arrangeLayout(event:SparkComponent.GraphArrange):void{try{writeLayout(event.nodes,event.edges);error.value=''}catch(cause){event.control.cancel=true;error.value=cause instanceof Error?cause.message:String(cause)}}
 function cancel(table:string):void{if(busy.value||unconfirmed.value)return;try{view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
+function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{if(queryCreateApi.value&&!queryCreateApi.value.discardChanges())return false;for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
 onBeforeUnmount(()=>{active=false;generation++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
 </script>
 <style scoped>

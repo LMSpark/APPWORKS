@@ -3,7 +3,7 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,FieldJson,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,RendererButton,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
@@ -23,10 +23,38 @@ async function open(workflowId='W1'){
  const router=createRouter({history:createMemoryHistory(),routes:[{path:'/design',component:WorkflowDesign,meta:{blueprintScenarioId:'5E9676B1E38860B023921F48FB4370DE'}},{path:'/other',component:{template:'<div>other</div>'}}]})
  await router.push({path:'/design',query:{workflowId}});await router.isReady()
  const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
- const click=async(label:string)=>{const b=wrapper.findAll('button').find(b=>b.text()===label);expect(b,label).toBeDefined();await b!.trigger('click');await flushPromises()}
+ const click=async(label:string)=>{const b=wrapper.findAll('button').find(b=>b.text()===label)??wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)?.find('button');expect(b,label).toBeDefined();await b!.trigger('click');await flushPromises()}
  return {wrapper,router,click}
 }
 describe('workflow formal design page',()=>{
+ it('selects a native source, cancels its preview and creates the query model, fields and node through the same runtime',async()=>{
+  state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
+  state.http.records['View_TblList']=[{rowid:'T1',tblname:'Orders',tbldesc:'订单',dbid:'DB1',DbName:'main'}]
+  state.http.records['Base_TblField']=[{rowid:'SF1',tblid:'T1',enname:'code',cnname:'编码',DataType:'varchar',IsPKey:1}]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  const choose=async()=>{
+   await f.click('新增查询节点')
+   await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererTable).some(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))).toBe(true))
+   const table=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))!
+   await vi.waitFor(()=>expect(table.find('tbody tr').exists()).toBe(true))
+   await table.get('tbody tr').trigger('click');await flushPromises()
+   await f.click('确认来源')
+   await vi.waitFor(()=>expect(document.body.textContent).toContain('查询模型与字段预览'))
+  }
+  await choose();expect(state.dirty[0]?.isDirty).toBe(true)
+  await f.click('取消新增节点');expect(state.http.saves).toEqual([])
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  await choose();await f.click('创建查询节点')
+  await vi.waitFor(()=>expect(state.http.saves).toHaveLength(3))
+  expect(state.http.saves.map(save=>save.table)).toEqual(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'])
+  const node=state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['name']==='Orders')!
+  const model=state.http.records['Base_DataModel']!.find(row=>row['rowid']===node['node_config'])!
+  expect(node).toMatchObject({workflow_id:'W1',node_type:'query',position_type:1})
+  expect(model).toMatchObject({dataSetId:'W1',requestType:'query',MetaName:'Orders',DbId:'DB1'})
+  await vi.waitFor(()=>expect(state.dirty[0]?.isDirty).toBe(false))
+  expect(state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='N2')?.['name']).toBe('其他节点')
+  await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')
+ })
  it.each([{id:'W1',name:'当前流程',code:'WF_CURRENT'},{id:'W2',name:'其他流程',code:'WF_OTHER'}])('binds only the queried $id definition as the form current row',async target=>{
   state.http.records['Base_WorkflowDefinition']=[{rowid:'W1',name:'当前流程',workflow_key:'WF_CURRENT'},{rowid:'W2',name:'其他流程',workflow_key:'WF_OTHER'}]
   const f=await open(target.id);await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))

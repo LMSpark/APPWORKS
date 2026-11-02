@@ -1,0 +1,25 @@
+{
+  "testedAt": "2026-11-02T11:14:39.755Z",
+  "previousOutcome": "FAILED_PERSISTENCE_UNKNOWN",
+  "outcome": "BASELINE_STILL_RETURNED_SAVE_SMOKE_NOT_ACCEPTED",
+  "replayWrites": 0,
+  "restoreWrites": 0,
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 1,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "kind": "logic-design-readonly-followup",
+      "viewId": "D0624BDE07FA475B90D5653994A6493D",
+      "success": true,
+      "compactHash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+      "canonicalHash": "a4697e9cb2d98947db732525e729f6f635a98aad5866134a16fe608632ecbd0c",
+      "matchesRecordedBaseline": true,
+      "markerPresent": false,
+      "noEdit": true,
+      "noSave": true
+    }
+  ]
+}

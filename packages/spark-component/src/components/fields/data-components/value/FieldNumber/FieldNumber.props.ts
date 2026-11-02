@@ -4,6 +4,7 @@
  * 边界：只描述 field-level/data-field 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 field number 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
+import type {DataRow} from '@spark-appworks/spark-data'
 import type { SparkNodeProps, SparkRangeNumericFieldProps } from '../../../../shared-types'
 
 /** RNumber Props 的属性契约。 */
@@ -13,4 +14,9 @@ export type RNumberProps = SparkNodeProps & SparkRangeNumericFieldProps<number |
   /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */
   controlsPosition?: '' | 'right'
   /** 数值展示与写回时使用的小数精度。 */
-    precision?: number}
+  precision?: number
+  /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */
+  showCellControl?: boolean
+  /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */
+  cellReadonly?: (row: Readonly<DataRow>) => boolean
+}

@@ -57,7 +57,7 @@ export function selectCodeClass(dataSet: DataSet, nodeId: string | number, class
   if (nodes.hasUnconfirmedSave || main.hasUnconfirmedSave) throw new Error('请先核验设计保存结果')
   catalog.assertResultReplacementAllowed()
   if (nodes.fieldAccess(row, 'CodeDesignID').read !== 'visible' || row['CodeDesignID'] !== main.getPkKey(owner)) throw new Error('编码节点不属于当前设计')
-  if (nodes.fieldAccess(row, 'NodeType').read !== 'visible' || codeNodeTypeLabel(dataSet, row['NodeType']) !== '分类字符串') throw new Error('当前编码段不是分类字符串')
+  if (nodes.fieldAccess(row, 'NodeType').read !== 'visible' || codeNodeTypeLabel(dataSet, editableRow(nodes, row)['NodeType']) !== '分类字符串') throw new Error('当前编码段不是分类字符串')
   const selected = catalog.rows.find(item => catalog.getPkKey(item) === classId)
   if (!selected) throw new Error('请选择已保存的分类规则')
   const read = (field: string): string => {
@@ -117,7 +117,7 @@ export function selectCodingSequence(dataSet: DataSet, nodeId: string | number, 
   if (!nodes || !sequences || !row || nodes.getPkKey(row) !== nodeId) throw new Error('编码段目标已改变，请重新打开')
   sequences.assertResultReplacementAllowed()
   if (nodes.hasUnconfirmedSave || dataSet.getView('Base_CodeDesign')?.hasUnconfirmedSave) throw new Error('请先核验设计保存结果')
-  if (nodes.fieldAccess(row, 'NodeType').read !== 'visible' || codeNodeTypeLabel(dataSet, row['NodeType']) !== '顺序号串') throw new Error('当前编码段不是顺序号串')
+  if (nodes.fieldAccess(row, 'NodeType').read !== 'visible' || codeNodeTypeLabel(dataSet, editableRow(nodes, row)['NodeType']) !== '顺序号串') throw new Error('当前编码段不是顺序号串')
   const selected = sequences.rows.find(item => sequences.getPkKey(item) === sequenceId)
   if (!selected) throw new Error('请选择已保存的顺序号规则')
   const values = sequenceValues(sequences, selected)
@@ -153,7 +153,7 @@ export async function saveDataCodeDesign(dataSet: DataSet) {
   if (mainKey === undefined) throw new Error('编码设计缺少正式主键')
   const views = [{tableName: 'Base_CodeDesign', viewId: 'default'}, {tableName: 'Base_CodeNodeDesign', viewId: 'default'}]
   if (main.hasUnconfirmedSave || nodes.hasUnconfirmedSave) return dataSet.saveChanges({views})
-  if (main.dirtyTracking.pendingCreateIds.has(mainKey) && nodes.rows.length === 0) throw new Error('请先维护分段设计数据')
+  if (nodes.rows.length === 0 && (main.dirtyTracking.pendingCreateIds.has(mainKey) || nodes.hasEditingChanges() || nodes.dirtyTracking.hasPendingChanges())) throw new Error('请先维护分段设计数据')
   if (nodes.hasEditingChanges() || nodes.dirtyTracking.hasPendingChanges()) {
     const effective = nodes.rows.map(row => editableRow(nodes, row))
     const writes: Array<{id: string | number; value: string}> = []

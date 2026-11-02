@@ -37,8 +37,9 @@
     },
     "Dict_CodeNodeType": {
       "modelBinding": {"modelId": "868E62F90DB8118C74CDC9F6BCA61157p004", "modelName": "Dict_CodeNodeType"},
+      "columns": [{"name": "nodeTypeValue", "type": "number", "computeExpression": "val * 1"}],
       "views": {"default": {
-        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "val", "labelField": "txt",
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "nodeTypeValue", "labelField": "txt",
         "queryConfig": {"fields": ["rowid", "val", "txt", "ordIdx"], "allPages": true},
         "sortExpression": [{"field": "ordIdx", "direction": "asc"}]
       }}

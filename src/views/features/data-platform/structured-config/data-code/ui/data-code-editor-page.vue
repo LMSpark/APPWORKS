@@ -14,7 +14,7 @@
         <FieldText field="CodeDescription" label="编码描述" :readonly="true" />
         <FieldText field="CodeExample" label="编码示例" :readonly="true" />
       </RendererForm>
-      <RendererTable :data-view-key="nodesKey" :children="nodeFields" :actions="nodeActions" :show-data-view-meta="false" />
+      <CodeSegmentEditor ref="segmentEditor" :data-view-key="nodesKey" :interaction-locked="saving || loading || !!openDialog" @select="openRule" />
       <div class="structured-editor-actions">
         <RendererButton :label="unconfirmed ? '核验保存结果' : '保存设计'" button-type="primary" :disabled="busy" @click="save" />
         <RendererButton label="取消修改" :disabled="busy || unconfirmed" @click="cancel" />
@@ -35,17 +35,18 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
-import {buildDataViewKey, RequestState, type DataRow, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type DataRow, type DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, FieldText, RendererForm, RendererTable, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, FieldText, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
-import {codeNodeTypeLabel, isFixedCodeNode, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
+import {codeNodeTypeLabel, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
 import CodeClassSelectorDialog from './code-class-selector-dialog.vue'
 import CodeInitDialog from './dialogs/code-init-dialog.vue'
 import ParentCodeDialog from './parent-code-dialog.vue'
 import SequenceSelectorDialog from './sequence-selector-dialog.vue'
 import TimeStringDialog from './time-string-dialog.vue'
 import CodeReferenceTableDialog from './code-reference-table-dialog.vue'
+import CodeSegmentEditor from './code-segment-editor.vue'
 
 const props = defineProps<{
   /** 宿主传入的被管理应用ID；提供任一目标prop时必须同时提供另一项，不从路由补齐。 */
@@ -63,6 +64,7 @@ function closeRule(): void {openDialog.value = ''; ruleTarget.value = undefined}
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-code-editor-page'})
 const scene = LowcodeDataCode.designScenarioId
 const dataSet = shallowRef<DataSet>()
+const segmentEditor = ref<InstanceType<typeof CodeSegmentEditor>>()
 const opening = ref(false)
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const hostTarget = computed(() => props.applicationId !== undefined || props.codeDesignId !== undefined)
@@ -72,25 +74,17 @@ const mainKey = buildDataViewKey('Base_CodeDesign', 'default', scene), nodesKey 
 const main = computed(() => dataSet.value?.getView('Base_CodeDesign')), nodes = computed(() => dataSet.value?.getView('Base_CodeNodeDesign'))
 const loading = computed(() => {revision.value; return opening.value || !!dataSet.value && Object.values(dataSet.value.tables).some(table => table.viewList.some(view =>
   view.requestState === RequestState.Preparing || view.requestState === RequestState.Loading))})
-const busy = computed(() => saving.value || loading.value || !!openDialog.value)
+const busy = computed(() => saving.value || loading.value || !!openDialog.value || segmentEditor.value?.busy === true)
 const unconfirmed = computed(() => {revision.value; return [main.value, nodes.value].some(view => view?.hasUnconfirmedSave === true)})
 const hasDefinition = computed(() => {revision.value; return main.value?.rows.length === 1})
 const missingDefinition = computed(() => {revision.value; return main.value?.requestState === RequestState.Loaded && !main.value.rows.length})
 const queryError = computed(() => {revision.value; return Object.values(dataSet.value?.tables ?? {}).flatMap(table => table.viewList)
   .find(view => view.loadingError)?.loadingError?.message ?? ''})
-const hasPending = computed(() => {revision.value; return saving.value || !!openDialog.value || [main.value, nodes.value].some(view =>
+const hasPending = computed(() => {revision.value; return saving.value || !!openDialog.value || segmentEditor.value?.busy === true || [main.value, nodes.value].some(view =>
   view && (view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))})
 defineExpose({hasPending, busy, unconfirmed, discardChanges: cancel})
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
-const nodeFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'NodeNo', label: '段号', readonly: true, width: 90}},
-  {type: 'r-select', props: {field: 'NodeType', label: '类型', readonly: true, width: 180,
-    optionDataViewKey: buildDataViewKey('Dict_CodeNodeType', 'default', scene)}},
-  {type: 'r-text', props: {field: 'ParameterName', label: '参数名称', showCellControl: true,
-    cellReadonly: (row: Readonly<DataRow>) => saving.value || !dataSet.value || !isFixedCodeNode(dataSet.value, row)}},
-]
-const nodeActions = {children: [{type: 'r-button', props: {label: '选择', onClick: openRule}}]}
 function openBusinessTable(): void {
   if (busy.value || unconfirmed.value) return
   try {
@@ -117,14 +111,14 @@ function closeBusinessTable(): void {businessTarget.value = undefined; openDialo
 function openCurrentClass(): void {
   const row = nodes.value?.currentRow
   if (!row || !dataSet.value || !nodes.value || nodes.value.fieldAccess(row, 'NodeType').read !== 'visible'
-    || codeNodeTypeLabel(dataSet.value, row['NodeType']) !== '分类字符串') {error.value = '请选择分类字符串编码段'; return}
+    || codeNodeTypeLabel(dataSet.value, (nodes.value.getEditingRow(nodes.value.getPkKey(row)!) ?? row)['NodeType']) !== '分类字符串') {error.value = '请选择分类字符串编码段'; return}
   openRule(row)
 }
 function openRule(row: DataRow): void {
   if (busy.value || unconfirmed.value || !nodes.value || !main.value || !dataSet.value || !row || typeof row !== 'object') return
   const owner = main.value.currentRow
   if (!owner || nodes.value.fieldAccess(row, 'NodeType').read !== 'visible') return
-  const label = codeNodeTypeLabel(dataSet.value, row['NodeType'])
+  const label = codeNodeTypeLabel(dataSet.value, (nodes.value.getEditingRow(nodes.value.getPkKey(row)!) ?? row)['NodeType'])
   const dialog = label.includes('时间字符串') ? 'timeString' : label === '父编码串' ? 'parentCode' : label === '顺序号串' ? 'sequence' : label === '分类字符串' ? 'classSelector' : ''
   if (!dialog) {error.value = '该类型规则尚未恢复'; return}
   const needsBusinessFields = dialog === 'timeString' || dialog === 'parentCode'

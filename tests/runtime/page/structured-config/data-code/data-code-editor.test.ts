@@ -2,11 +2,12 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
-import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererForm, FieldText, RendererButton} from '@spark-appworks/spark-component'
-import {RequestState} from '@spark-appworks/spark-data'
+import ElementPlus, {ElSelect, ElInputNumber} from 'element-plus'
+import {Spark, registerAllRenderers, RendererForm, FieldText, RendererTable, RendererButton} from '@spark-appworks/spark-component'
+import {RequestState, type DataRow} from '@spark-appworks/spark-data'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {createSourceDataSet, sourceRecords} from './source-picker/fixture'
+import SequenceSelectorDialog from '@/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue'
 import DataCodeEditor from '@/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'
 import {codeService, designText} from './data-code.fixture'
 
@@ -39,6 +40,79 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it('adds a native segment to a stored definition, edits its type and literal, and saves through the original views', async () => {
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '新增分段')).toBe(true))
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '新增分段')!.get('button').trigger('click'); await flushPromises()
+    const ds = await loaded.mock.results[0]!.value, nodes = ds.getView('Base_CodeNodeDesign')!
+    expect(nodes.dirtyTracking.pendingCreateIds.size).toBe(1)
+    const id = [...nodes.dirtyTracking.pendingCreateIds][0]!
+    expect(nodes.currentRow).toMatchObject({CodeDesignID: 'C1', NodeNo: 2, NodeType: ''})
+    const type = wrapper.findAllComponents(ElSelect).find(select => select.props('modelValue') === '')!
+    expect(type).toBeDefined(); expect(type.props('disabled')).toBe(false)
+    expect(ds.getView('Dict_CodeNodeType')!.rows[0]).toMatchObject({val: '2', nodeTypeValue: 2})
+    type.vm.$emit('update:modelValue', 2); await flushPromises()
+    const parameter = wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'ParameterName' && field.find('input').exists() && (field.get('input').element as HTMLInputElement).value === '')!
+    expect(parameter.get('input').attributes('disabled')).toBeUndefined()
+    await parameter.get('input').setValue('X2'); await parameter.get('input').trigger('change'); await flushPromises()
+    expect(nodes.getEditingRow(id)).toMatchObject({NodeType: 2, ParameterName: 'X2'})
+    const numberInput = wrapper.findAllComponents(ElInputNumber).find(input => input.props('modelValue') === 2)!
+    expect(numberInput.props('disabled')).toBe(false)
+    numberInput.vm.$emit('update:modelValue', 3); await flushPromises()
+    expect(nodes.getEditingRow(id)?.['NodeNo']).toBe(3)
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '保存设计')!.get('button').trigger('click'); await flushPromises()
+    await vi.waitFor(() => expect(state.current.http.records['Base_CodeNodeDesign']).toContainEqual(expect.objectContaining({CodeDesignID: 'C1', ParameterName: 'X2', CodeNodeDesignJson: '{"ConstString":"X2"}'})))
+    expect(state.current.http.records['Base_CodeDesign']![0]?.['CodeDescription']).toBe('固定字符串(A)+固定字符串(X2)')
+    expect(state.current.http.records['Base_CodeNodeDesign']![1]?.['CodeDesignID']).toBe('C2')
+  })
+  it('cancels only a newly staged segment and preserves existing main edits', async () => {
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '新增分段')).toBe(true))
+    const ds = await loaded.mock.results[0]!.value, main = ds.getView('Base_CodeDesign')!, nodes = ds.getView('Base_CodeNodeDesign')!
+    main.updateEditingValue('C1', 'Name', '此前草稿')
+    const click = async (label: string) => {await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === label)!.get('button').trigger('click'); await flushPromises()}
+    await click('新增分段'); expect(nodes.dirtyTracking.pendingCreateIds.size).toBe(1)
+    await click('删除分段')
+    expect(nodes.dirtyTracking.pendingCreateIds.size).toBe(0)
+    expect(nodes.rows.map((row: DataRow) => row['rowid'])).toEqual(['N1'])
+    expect(main.getEditingRow('C1')?.['Name']).toBe('此前草稿')
+    expect(state.current.http.saves).toEqual([])
+  })
+  it('requires confirmation before staging a persisted segment deletion and restores it on design cancel', async () => {
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '删除分段')).toBe(true))
+    const ds = await loaded.mock.results[0]!.value, nodes = ds.getView('Base_CodeNodeDesign')!
+    nodes.setCurrentRowById('N1'); nodes.setSelectedRows([nodes.currentRow!]); await flushPromises()
+    const click = async (label: string) => {await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === label)!.get('button').trigger('click'); await flushPromises()}
+    await click('删除分段'); expect(nodes.dirtyTracking.pendingDeleteIds.size).toBe(0)
+    await click('取消删除分段'); expect(nodes.rows).toHaveLength(1)
+    await click('删除分段'); await click('确定删除分段')
+    expect(nodes.dirtyTracking.pendingDeleteIds.has('N1')).toBe(true)
+    expect(state.current.http.saves).toEqual([])
+    await click('保存设计')
+    await vi.waitFor(() => expect(wrapper.text()).toContain('请先维护分段设计数据'))
+    expect(state.current.http.saves).toEqual([])
+    await click('取消修改'); expect(nodes.rows[0]?.['rowid']).toBe('N1')
+    expect(nodes.dirtyTracking.pendingDeleteIds.size).toBe(0)
+  })
+  it('clears the old rule atomically on type change and restores it on cancel', async () => {
+    state.current.http.records['Dict_CodeNodeType']!.push({rowid: 'D4', val: '4', txt: '顺序号串', ordIdx: '4'})
+    const loaded = vi.spyOn(LowcodeDataCode, 'loadEditor'), {wrapper} = await open()
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererButton).some(button => button.props('label') === '新增分段')).toBe(true))
+    const ds = await loaded.mock.results[0]!.value, nodes = ds.getView('Base_CodeNodeDesign')!
+    nodes.setCurrentRowById('N1'); await flushPromises()
+    const type = wrapper.findAllComponents(ElSelect).find(select => select.props('modelValue') === 2 && select.props('disabled') === false)!
+    expect(type).toBeDefined(); type.vm.$emit('update:modelValue', 4); await flushPromises()
+    expect(nodes.getEditingRow('N1')).toMatchObject({NodeType: 4, ParameterName: '', CodeNodeDesignJson: ''})
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '选择')!.get('button').trigger('click'); await flushPromises()
+    expect(wrapper.findComponent(SequenceSelectorDialog).exists()).toBe(true)
+    expect(wrapper.findComponent(SequenceSelectorDialog).text()).not.toContain('不是顺序号串')
+    await wrapper.findComponent(SequenceSelectorDialog).findAllComponents(RendererButton).find(button => button.props('label') === '关闭')!.get('button').trigger('click'); await flushPromises()
+    await wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '取消修改')!.get('button').trigger('click'); await flushPromises()
+    expect(nodes.hasEditingChanges()).toBe(false)
+    expect(nodes.currentRow).toMatchObject({NodeType: 2, ParameterName: 'A', CodeNodeDesignJson: '{"ConstString":"A"}'})
+    expect(state.current.http.saves).toEqual([])
+  })
   it('selects a business table through the same deferred source space, changes only its three mappings and cancels through the original main view', async () => {
     Object.assign(state.current.http.records, sourceRecords())
     const source = await createSourceDataSet(state.current.http), loadSource = vi.spyOn(LowcodeDataCode, 'loadReferenceSources').mockResolvedValue(source)

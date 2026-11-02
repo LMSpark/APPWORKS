@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/data-code/ui/code-segment-editor",
+    "sourcePath": "src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/data-code/ui/code-segment-editor",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/code-segment-editor\n职责：以标准表格/字段维护原编码分段，确认删除后仅暂存，规则选择交回宿主。\n边界：所有字段与选择绑定原DataView；不保存、不持草稿，不替代父记录新增守卫。\nAI用途：编码编辑器内的窄分段区域，传入完整节点绑定及宿主交互锁。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T11:09:58.256Z",
+  "models": {}
+}

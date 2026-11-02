@@ -4887,3 +4887,15 @@ flowchart TD
 - 业务表恢复后补查创建语义：固定参考保存校验明确“请先维护分段设计数据”，现有saveDataCodeDesign却可只新增主定义。测试先RED且内存正式管线实证保存1个主视图新增1成功，确认真实缺口。仅新增主记录提交在没有分段时显式拒绝、保留原pending-create；不为普通已存记录名称编辑增加全量依赖扫描，不修改原生pending父记录守卫；未知保存优先仍沿原DataSet核验，绝不被新业务校验阻断。该负向保存只在夹具执行，不在未授权实服新增范围点击保存。
 - 42936对应添加最终空分段创建校验前源码已退出0，不能充当最终门禁；7299正在最终相关组/生成/完整verify/build，终态另补后提交推送。完整分段新增/删除、表头筛选与四区布局、真实编码保存及全架构旧缺口继续；sys_edit未知SaveView不重放，未改后端，根目标active。
 - 最终7299退出0：最终11文件83项、正式ClassModel生成、完整verify/build通过；既有两项AI模型警告与动态导入提示保留。审阅主映射三字段/分类五字段显式范围、全字段权限预检、原子检查点回滚、调用/业务表目标变化拒绝、来源与主草稿取消边界，以及仅创建时空分段拒绝且未知核验优先；git diff --check通过，提交推送origin/1031。下一段须沿本仓正式合同恢复分段操作，先核新父记录与子节点的身份/新增/保存责任，不绕过现有pending父守卫或为套接口造本地数组。整体目标未完成。
+
+### 2026-11-02 分段原生链恢复进行中（本轮接续）
+- 执行主线仍为参考APPWorks 1147b00ee与本仓原DataSet/DataView；未改后端，未持久写入编码/分类。用户已授权sys_edit首节点描述临时修改与恢复，但前次SaveView结果未知的证据继续优先：不重放、不盲目恢复，现仍待确认。
+- 现有编码补原视图新增分段、选择、类型切换原子清空旧规则、针对新增行取消及持久行确认后暂存删除；根宿主复用原保存/取消责任。原生pending-create父记录禁止新增级联子记录的守卫有既有测试，当前不绕过，不造无绑定视图/本地数组，完整新编码创建仍是缺口。
+- 实服正式Base_CodeNodeDesign字段读取确认NodeNo/NodeType为int且输出，description不输出；不能把未读取说明当空值覆盖。Dict_CodeNodeType原val为文本，新增DataTable单行computeExpression `val * 1`作为选项valueField，保留原val并沿正式计算字段链，修复实际DATA_VIEW_SAVE_VALIDATION数值校验失败。
+- 标准r-number缺逐行表格控件，先新增测试RED，按既有r-text/r-select合同扩展FieldTableCellScope+showCellControl/cellReadonly，2项标准组件测试GREEN；数值编辑写原行数值patch，不移动currentRow，隐藏/脱敏不渲染输入且只读不能放权。接下来正式生成ClassModel再由业务消费，最终整组/verify/build及实服暂存取消尚待完成，不声明通过。
+- 本轮新增末分段删除负向测试RED；保存守卫补为本次分段变更导致空节点时拒绝（新增主记录仍拒绝空节点），unknown核验优先不变，普通仅改主名称不新增全量查询。当前改动未提交，终态另记。
+- 下游消费补验发现新增的类型切换原patch已改变，但根规则入口、分类/顺序号弹窗及两项选择命令仍按旧行NodeType判断；新增测试先RED不能打开切换后的顺序号弹窗，再修为同一DataView的getEditingRow覆盖，规则JSON与参数仍原视图持有。日期/父编码公共弹窗已从current()取覆盖，不重复修。最终12文件89项通过，含空分段保存拒绝、暂存删除确认与取消、原有分类/来源回归。
+- 实服原SPARK data适配/组装链对既有5F320C95270EF5410F257C8FA4B90452按原AppID输入查询，执行应用头继续D99未切换：原3分段→addCodeSegment→数值计算选项→类型/参数暂存→removeCodeSegments定向取消→独立refresh逐值一致。10读取、0写入、0被阻止写入，未尝试save。证据evidence/data-chain-smoke/2026-11-02-code-segment-stage-audit.json。浏览器新增编码页面实证“新增分段”disabled，随后显式放弃关闭；截图artifacts/data-chain-smoke/code-segment-pending-parent.jpg，未点保存。HMR曾刷新尚在读取的弹窗，最终稳定版本重验后正常丢弃，无外部写入。
+- sys_edit按用户已授权范围仅追加只读核实一次GetView：compactHash仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564，marker不存在，0重放/0恢复。证据evidence/data-chain-smoke/2026-11-02-logic-design-readonly-followup.json；不能因基线仍在而将先前未知回执改写为成功，SaveView持久化仍未验收。未改后端或权限。
+- 初次完整verify发现新UI的选中值类型允许boolean而命令只接受string/number，以及测试隐式any；已在选择边界拒绝boolean并补显式DataRow，不扩大写入身份。中途verify/build通过仅代表其运行时版本，补下游消费后最终正式生成+完整verify/build由66931执行，最终终态待追加再提交。根目标active，未把本切片当全架构完成。
+- 最终66931退出0：正式ClassModel再生成、完整verify（含49项ClassModel门禁）、build全部通过；相关12文件89项GREEN，git diff --check通过。保留既有AI模型警告与动态导入提示，无后端改动。提交当前分段修复及脱敏证据推送origin/1031；全架构目标未完成，下一轮继续新编码父子新增合同、规则完整性/布局差距与原台账服务/数据缺口，sys_edit真实落盘失败仍单列且不重放。

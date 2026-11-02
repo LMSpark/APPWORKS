@@ -2254,12 +2254,12 @@
     "packages/spark-component/src/components/fields/data-components/value/FieldNumber/FieldNumber.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/value/FieldNumber/FieldNumber.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/value/FieldNumber/FieldNumber.props.ts.json",
-      "sourceModifiedAt": "2026-10-15T06:04:43.945Z"
+      "sourceModifiedAt": "2026-11-02T11:06:06.257Z"
     },
     "packages/spark-component/src/components/fields/data-components/value/FieldNumber/FieldNumber.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/value/FieldNumber/FieldNumber.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/value/FieldNumber/FieldNumber.vue.json",
-      "sourceModifiedAt": "2026-10-15T06:04:43.947Z"
+      "sourceModifiedAt": "2026-11-02T11:06:06.258Z"
     },
     "packages/spark-component/src/components/fields/data-components/value/FieldRate/FieldRate.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/value/FieldRate/FieldRate.props.ts",
@@ -4054,7 +4054,7 @@
     "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/design-ops.ts.json",
-      "sourceModifiedAt": "2026-11-02T10:13:36.938Z"
+      "sourceModifiedAt": "2026-11-02T11:12:45.443Z"
     },
     "src/lowcode/resources/structured-config/data-code/reference-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
@@ -4065,6 +4065,11 @@
       "sourceFile": "src/lowcode/resources/structured-config/data-code/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/data-code/resource.ts.json",
       "sourceModifiedAt": "2026-11-02T09:06:46.308Z"
+    },
+    "src/lowcode/resources/structured-config/data-code/segment-ops.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/segment-ops.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/data-code/segment-ops.ts.json",
+      "sourceModifiedAt": "2026-11-02T10:46:32.562Z"
     },
     "src/lowcode/resources/structured-config/dictionary/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/dictionary/resource.ts",
@@ -4784,17 +4789,22 @@
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-class-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T09:29:52.918Z"
+      "sourceModifiedAt": "2026-11-02T11:12:45.444Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue.json",
       "sourceModifiedAt": "2026-11-02T10:02:37.102Z"
     },
+    "src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/code-segment-editor.vue.json",
+      "sourceModifiedAt": "2026-11-02T11:09:58.256Z"
+    },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T10:03:33.746Z"
+      "sourceModifiedAt": "2026-11-02T11:12:45.443Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
@@ -4814,7 +4824,7 @@
     "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/sequence-selector-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-01T18:40:10.934Z"
+      "sourceModifiedAt": "2026-11-02T11:12:45.445Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/time-string-dialog.vue",

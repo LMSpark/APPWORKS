@@ -5,7 +5,14 @@
 AI用途：需要理解 field number 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <FieldContextRenderer v-bind="fieldCtx">
+  <FieldContextRenderer v-bind="fieldCtx" :edit-on-dblclick="props.showCellControl ? false : props.editOnDblclick">
+    <template #table-cell="{row, value}">
+      <span v-if="!props.showCellControl || permission.isTableCellMasked(row)" :class="['field-table-value', props.valueClassName]">{{ value }}</span>
+      <FieldTableCellScope v-else :source="permission.dataSource.value ?? undefined" :row="row">
+        <FieldNumber v-bind="cellProps" :readonly="props.readonly || props.cellReadonly?.(row) === true"
+          @update:model-value="value => emitFieldValueUpdate(emit, value)" />
+      </FieldTableCellScope>
+    </template>
     <template #form>
       <div v-if="isRangeFilter" class="field-number-range">
         <el-input-number
@@ -55,6 +62,7 @@ import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composab
 import { coerceNumberRangeValue } from '../../composables/value/fieldValueCoercion'
 import { useRangeFilterMode } from '../../composables/value/useRangeFilterMode'
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
+import FieldTableCellScope from '../../../non-data-components/FieldTableCellScope.vue'
 import type { RNumberProps } from './FieldNumber.props'
 import { computed } from 'vue'
 
@@ -63,6 +71,9 @@ const props = withDefaults(defineProps<RNumberProps>(), {
 })
 
 const emit = defineEmits<FieldValueUpdateEmits<number | [number | undefined, number | undefined]>>()
+
+const cellProps = computed<RNumberProps>(() => Object.fromEntries(Object.entries(props)
+  .filter(([key, value]) => value !== undefined && key !== 'modelValue' && key !== 'value')))
 
 function formatNumberValue(value: unknown): string {
   if (Array.isArray(value)) return value.map(item => formatNumberValue(item)).join(' ~ ')

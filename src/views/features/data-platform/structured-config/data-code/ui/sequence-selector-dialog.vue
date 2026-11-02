@@ -95,7 +95,7 @@ async function open(): Promise<void> {
     nodes = runtime?.resolveView(target.dataViewKey) ?? undefined
     if (!nodes?.setCurrentRowById(target.nodeId) || !nodes.dataSet) throw new Error('当前编码段不存在')
     original = nodes.currentRow
-    if (!original || nodes.fieldAccess(original, 'NodeType').read !== 'visible' || codeNodeTypeLabel(nodes.dataSet, original['NodeType']) !== '顺序号串') throw new Error('当前编码段不是顺序号串')
+    if (!original || nodes.fieldAccess(original, 'NodeType').read !== 'visible' || codeNodeTypeLabel(nodes.dataSet, (nodes.getEditingRow(target.nodeId) ?? original)['NodeType']) !== '顺序号串') throw new Error('当前编码段不是顺序号串')
     view.value = runtime?.resolveView(sequenceKey) ?? undefined
     if (!view.value) throw new Error('顺序号目录视图缺失')
     const changed = () => revision.value++

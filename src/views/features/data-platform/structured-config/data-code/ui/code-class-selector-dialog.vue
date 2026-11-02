@@ -152,7 +152,7 @@ async function open(): Promise<void> {
     nodes = runtime?.resolveView(target.dataViewKey) ?? undefined
     if (!nodes?.setCurrentRowById(target.nodeId) || !nodes.dataSet) throw new Error('当前编码段不存在')
     original = nodes.currentRow
-    if (!original || nodes.fieldAccess(original, 'NodeType').read !== 'visible' || codeNodeTypeLabel(nodes.dataSet, original['NodeType']) !== '分类字符串') throw new Error('当前编码段不是分类字符串')
+    if (!original || nodes.fieldAccess(original, 'NodeType').read !== 'visible' || codeNodeTypeLabel(nodes.dataSet, (nodes.getEditingRow(target.nodeId) ?? original)['NodeType']) !== '分类字符串') throw new Error('当前编码段不是分类字符串')
     catalog.value = runtime?.resolveView(catalogKey) ?? undefined
     if (!catalog.value) throw new Error('分类目录视图缺失')
     const changed = () => revision.value++

@@ -24,183 +24,6 @@
       "type": "object",
       "title": "RNumberProps",
       "properties": {
-        "type": {
-          "type": "string"
-        },
-        "id": {
-          "type": "string"
-        },
-        "children": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNodeChildren"
-        },
-        "permissionDeniedMode": {
-          "enum": [
-            "disable",
-            "hide"
-          ]
-        },
-        "dataViewKey": {
-          "type": "string"
-        },
-        "dataMember": {
-          "enum": [
-            "page",
-            "rows",
-            "total",
-            "requestState",
-            "value",
-            "columns",
-            "currentRow",
-            "selectedRows",
-            "aggregateResult",
-            "selectionAggregateResult",
-            "pageSize",
-            "mutating",
-            "loadingError",
-            "mutatingError"
-          ]
-        },
-        "dataField": {
-          "type": "string"
-        },
-        "width": {
-          "type": "number"
-        },
-        "minWidth": {
-          "type": "number"
-        },
-        "showOverflowTooltip": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "header": {
-          "$ref": "../../../../../../../spark-data/src/node-tree/spark-node.ts.json#/$defs/SparkNode"
-        },
-        "resizable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "clearable": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "modelValue": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "array",
-              "items": false,
-              "prefixItems": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "number"
-                }
-              ]
-            }
-          ]
-        },
-        "value": {
-          "anyOf": [
-            {
-              "type": "number"
-            },
-            {
-              "type": "array",
-              "items": false,
-              "prefixItems": [
-                {
-                  "type": "number"
-                },
-                {
-                  "type": "number"
-                }
-              ]
-            }
-          ]
-        },
-        "field": {
-          "type": "string"
-        },
-        "label": {
-          "type": "string"
-        },
-        "readonly": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "editOnDblclick": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "saveOnCellExit": {
-          "enum": [
-            false,
-            true
-          ]
-        },
-        "placeholder": {
-          "type": "string"
-        },
-        "onChange": {
-          "type": "object",
-          "title": "(...args: unknown[]) => void | Promise<void>"
-        },
-        "titleAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "valueAlign": {
-          "enum": [
-            "left",
-            "right",
-            "center"
-          ]
-        },
-        "headerCellClassName": {
-          "type": "string"
-        },
-        "cellClassName": {
-          "type": "string"
-        },
-        "titleClassName": {
-          "type": "string"
-        },
-        "valueClassName": {
-          "type": "string"
-        },
-        "sortable": {
-          "enum": [
-            false,
-            true,
-            "custom"
-          ]
-        },
-        "max": {
-          "type": "number"
-        },
-        "min": {
-          "type": "number"
-        },
-        "filterMode": {
-          "const": "range"
-        },
         "step": {
           "type": "number"
         },
@@ -212,12 +35,29 @@
         },
         "precision": {
           "type": "number"
+        },
+        "showCellControl": {
+          "type": "boolean"
         }
       },
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.cellReadonly.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.cellReadonly.return": {
+          "type": "boolean"
+        }
+      }
     }
   },
-  "generatedAt": "2026-10-15T06:04:43.945Z",
+  "generatedAt": "2026-11-02T11:06:06.257Z",
   "models": {
     "RNumberProps": {
       "name": "RNumberProps",
@@ -231,7 +71,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & {\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkRangeNumericFieldProps<number | [number | undefined, number | undefined]> & {\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -245,7 +85,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n}"
+            "typeText": "{\n    /** 增减按钮的步长，正数，省略为1；不会强制将手动输入值对齐到步长。普通输入和区间两端共用。 */\n    step?: number;\n    /** 增减按钮位置：省略或空字符串为两侧，right为右侧上下排列；不改变绑定值。 */\n    controlsPosition?: '' | 'right';\n    /** 数值展示与写回时使用的小数精度。 */\n    precision?: number;\n    /** 表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
           }
         ],
         "members": {
@@ -267,6 +107,37 @@
               "jsdoc": "数值展示与写回时使用的小数精度。",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行数字输入，默认false；优先于editOnDblclick，绑定原DataView单元格，不移动当前行。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
             }
           ]
         }

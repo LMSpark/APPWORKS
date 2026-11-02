@@ -3,6 +3,13 @@ import {fixture} from './fixture'
 import {getCodeInitializationPlan} from '@/lowcode/resources/structured-config/data-code/initialization-plan'
 import {resolveCodeInitializationDate} from '@/lowcode/resources/structured-config/data-code/initialization-date'
 describe('saved initialization plan and date contract',()=>{
+  it.each([['yyyyMMdd','YYYYMMDD','date','YYYY-MM-DD','2026-11-02'],['yyyyMM','YYYYMM','month','YYYY-MM','2026-11'],['yy','YY','year','YYYY','2026']])(
+    'separates display pattern %s from the confirmed service date input',async(pattern,format,dateType,valueFormat,value)=>{
+      const {ds,service}=await fixture()
+      service.http.records['Base_CodeNodeDesign']!.find(row=>row['rowid']==='TIME')!['CodeNodeDesignJson']=JSON.stringify({DateFormat:pattern})
+      await ds.getView('Base_CodeNodeDesign')!.refresh()
+      expect(await resolveCodeInitializationDate({dataSet:ds,runtime:service.runtime,plan:getCodeInitializationPlan(ds),now:new Date(2026,10,2)})).toMatchObject({format,dateType,valueFormat,value})
+    })
   it('does not turn a missing stored segment number into a zero-based segment',async()=>{
     const {ds,service}=await fixture()
     service.http.records['Base_CodeNodeDesign']!.find(row=>row['rowid']==='TIME')!['NodeNo']=null
@@ -14,7 +21,7 @@ describe('saved initialization plan and date contract',()=>{
     const {ds,service}=await fixture(),plan=getCodeInitializationPlan(ds)
     expect(plan).toMatchObject({codeId:'C1',nodeId:'SEQ',format:'001-999',increment:2,loopColumns:['1','2']})
     const date=await resolveCodeInitializationDate({dataSet:ds,runtime:service.runtime,plan,now:new Date(2026,10,2)})
-    expect(date).toEqual({visible:true,format:'YYYYMM',dateType:'month',value:'202611'})
+    expect(date).toEqual({visible:true,format:'YYYYMM',valueFormat:'YYYY-MM',dateType:'month',value:'2026-11'})
     expect(service.http.saves).toEqual([])
   })
   it('rejects an unsaved main or modified segments before querying initialization data',async()=>{
@@ -37,7 +44,7 @@ describe('saved initialization plan and date contract',()=>{
     service.http.records['Base_CodeDesign']!.push({rowid:'P1',AppID:'A',Name:'父编码'})
     await nodes.refresh()
     const original=JSON.stringify(ds.getView('Base_CodeDesign','parents')!.filterExpression)
-    expect(await resolveCodeInitializationDate({dataSet:ds,runtime:service.runtime,plan:getCodeInitializationPlan(ds),now:new Date(2026,10,2)})).toEqual({visible:true,format:'YYYY-MM-DD',dateType:'date',value:'2026-11-02'})
+    expect(await resolveCodeInitializationDate({dataSet:ds,runtime:service.runtime,plan:getCodeInitializationPlan(ds),now:new Date(2026,10,2)})).toEqual({visible:true,format:'YYYY-MM-DD',valueFormat:'YYYY-MM-DD',dateType:'date',value:'2026-11-02'})
     expect(JSON.stringify(ds.getView('Base_CodeDesign','parents')!.filterExpression)).toBe(original)
     expect(nodes.rows.every(row=>row['CodeDesignID']==='C1')).toBe(true)
   })

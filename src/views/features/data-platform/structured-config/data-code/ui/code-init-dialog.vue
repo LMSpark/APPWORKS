@@ -14,7 +14,7 @@ AI用途：编码设计宿主传完整主记录视图键，弹窗不接收第二
       <div class="code-init-toolbar">
         <RendererForm :data-view-key="inputsKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
           <FieldText field="range" label="序号区间：" :readonly="true" />
-          <FieldDate v-if="date.visible" field="date" label="日期：" :date-type="date.dateType" :format="date.format" :value-format="date.format"
+          <FieldDate v-if="date.visible" field="date" label="日期：" :date-type="date.dateType" :format="date.format" :value-format="date.valueFormat"
             :readonly="busy || dirty || unconfirmed" :on-change="beforeDateChange" />
         </RendererForm>
         <RendererButton :label="unconfirmed ? '核验保存结果' : '保存'" button-type="primary" :disabled="busy || !dirty && !unconfirmed" @click="save" />
@@ -38,7 +38,7 @@ import type {InitializationDate} from '@/lowcode/resources/structured-config/dat
 const props=defineProps<{dataViewKey:string}>(),emit=defineEmits<{close:[]}>()
 const {sparkConsume}=useSparkComponent({type:'code-init-dialog'}),runtime=sparkConsume(PAGE_RUNTIME),target=props.dataViewKey
 const workspace=shallowRef<CodeInitializationWorkspace>(),loading=ref(true),acting=ref(false),ready=ref(false),error=ref(''),revision=ref(0)
-const date=ref<InitializationDate>({visible:false,format:'',dateType:'date',value:''})
+const date=ref<InitializationDate>({visible:false,format:'',valueFormat:'',dateType:'date',value:''})
 let active=true,unsubscribe:(()=>void)|undefined
 const scope=parseDataViewKey(target)?.scope
 const inputsKey=scope?buildDataViewKey('CodeInitializationInput','default',scope):'',candidateKey=scope?buildDataViewKey('CodeInitialization','default',scope):''

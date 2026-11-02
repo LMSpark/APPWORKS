@@ -13,7 +13,7 @@ type Options=Readonly<{dataSet:DataSet;runtime:DataSpaceRuntimeApi;client:Pick<C
 export class CodeInitializationWorkspace {
   readonly inputs:DataView
   readonly view:DataView
-  date:InitializationDate={visible:false,format:'',dateType:'date',value:''}
+  date:InitializationDate={visible:false,format:'',valueFormat:'',dateType:'date',value:''}
   private plan:CodeInitializationPlan|undefined
   constructor(private readonly options:Options){
     const {dataSet}=options

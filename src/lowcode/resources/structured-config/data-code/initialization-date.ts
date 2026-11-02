@@ -8,13 +8,16 @@ import {DataViewFilter,type DataSet,type DataView} from '@spark-appworks/spark-d
 import type {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {getCodeInitializationPlan,readInitializationNodes,type CodeInitializationPlan,type InitializationNode} from './initialization-plan'
 
-export type InitializationDate=Readonly<{visible:boolean;format:string;dateType:'year'|'month'|'date';value:string}>
+export type InitializationDate=Readonly<{visible:boolean;format:string;valueFormat:string;dateType:'year'|'month'|'date';value:string}>
 type Options=Readonly<{dataSet:DataSet;runtime:DataSpaceRuntimeApi;plan:CodeInitializationPlan;now?:Date}>
 function dateInput(raw:string,now:Date):InitializationDate {
   const format=raw.replace(/yyyy/g,'YYYY').replace(/yy/g,'YY').replace(/dd/g,'DD')
   if(!format||/[A-Za-z]/.test(format.replace(/YYYY|YY|MM|DD/g,'')))throw new Error('初始化日期格式尚无法确认')
   const values:Record<string,string>={YYYY:String(now.getFullYear()),YY:String(now.getFullYear()).slice(-2),MM:String(now.getMonth()+1).padStart(2,'0'),DD:String(now.getDate()).padStart(2,'0')}
-  return {visible:true,format,dateType:format.includes('DD')?'date':format.includes('MM')?'month':'year',value:format.replace(/YYYY|YY|MM|DD/g,token=>values[token]??'')}
+  const dateType=format.includes('DD')?'date':format.includes('MM')?'month':'year'
+  // 实服DateUtil按分隔符解析日期；紧凑显示值会被误读为整年，不能直接作为请求值。
+  const valueFormat=dateType==='date'?'YYYY-MM-DD':dateType==='month'?'YYYY-MM':'YYYY'
+  return {visible:true,format,valueFormat,dateType,value:valueFormat.replace(/YYYY|MM|DD/g,token=>values[token]??'')}
 }
 /** @param options 当前已核设计、原查询owner及日期时钟。 @returns 可绑定标准日期字段的输入合同。 */
 export async function resolveCodeInitializationDate(options:Options):Promise<InitializationDate>{
@@ -52,5 +55,5 @@ export async function resolveCodeInitializationDate(options:Options):Promise<Ini
     }finally{path.delete(codeId)}
   }
   const pattern=await find(plan.codeId,plan.nodes);guard()
-  return pattern?dateInput(pattern,options.now??new Date()):{visible:false,format:'',dateType:'date',value:''}
+  return pattern?dateInput(pattern,options.now??new Date()):{visible:false,format:'',valueFormat:'',dateType:'date',value:''}
 }

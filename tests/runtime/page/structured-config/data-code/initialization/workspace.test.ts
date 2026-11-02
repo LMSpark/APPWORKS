@@ -5,9 +5,9 @@ describe('initialization workspace native date and candidate lifecycle',()=>{
     const {workspace,calls}=await workspaceFixture()
     const first=workspace.view
     await workspace.open()
-    expect(workspace.date).toMatchObject({visible:true,format:'YYYYMM',value:'202611'})
-    expect(calls).toEqual([{date:'202611'}])
-    expect(workspace.inputs.getEditingRow('INPUT')).toMatchObject({date:'202611',range:'001-999'})
+    expect(workspace.date).toMatchObject({visible:true,format:'YYYYMM',value:'2026-11'})
+    expect(calls).toEqual([{date:'2026-11'}])
+    expect(workspace.inputs.getEditingRow('INPUT')).toMatchObject({date:'2026-11',range:'001-999'})
     expect(workspace.view.rows[0]).toMatchObject({prefix:'A202611',InitVal:'005',recordId:'OLD'})
     await workspace.open();expect(workspace.view).toBe(first)
     expect(calls).toHaveLength(2)
@@ -17,10 +17,10 @@ describe('initialization workspace native date and candidate lifecycle',()=>{
     const key=workspace.view.getPkKey(workspace.view.rows[0]!)!
     workspace.view.updateEditingValue(key,'InitVal','007')
     expect(()=>workspace.beforeDateChange()).toThrow()
-    expect(workspace.inputs.getEditingRow('INPUT')?.['date']).toBe('202611')
-    workspace.cancel();workspace.beforeDateChange();workspace.inputs.updateEditingValue('INPUT','date','202612')
+    expect(workspace.inputs.getEditingRow('INPUT')?.['date']).toBe('2026-11')
+    workspace.cancel();workspace.beforeDateChange();workspace.inputs.updateEditingValue('INPUT','date','2026-12')
     await workspace.reload()
-    expect(calls.at(-1)).toEqual({date:'202612'})
+    expect(calls.at(-1)).toEqual({date:'2026-12'})
     expect(workspace.view.rows[0]).toMatchObject({prefix:'A202612',recordId:'',InitVal:'001'})
   })
   it('saves only initialization changes, and requires explicit cancel before closing an edited resource',async()=>{

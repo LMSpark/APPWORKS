@@ -28,6 +28,9 @@
         "format": {
           "type": "string"
         },
+        "valueFormat": {
+          "type": "string"
+        },
         "dateType": {
           "enum": [
             "date",
@@ -42,6 +45,7 @@
       "required": [
         "visible",
         "format",
+        "valueFormat",
         "dateType",
         "value"
       ],
@@ -75,18 +79,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T12:42:19.757Z",
+  "generatedAt": "2026-11-02T13:38:50.946Z",
   "models": {
     "InitializationDate": {
       "name": "InitializationDate",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    visible: boolean;\n    format: string;\n    dateType: 'year' | 'month' | 'date';\n    value: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    visible: boolean;\n    format: string;\n    valueFormat: string;\n    dateType: 'year' | 'month' | 'date';\n    value: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    visible: boolean;\n    format: string;\n    dateType: 'year' | 'month' | 'date';\n    value: string;\n}>",
+            "typeText": "Readonly<{\n    visible: boolean;\n    format: string;\n    valueFormat: string;\n    dateType: 'year' | 'month' | 'date';\n    value: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -99,6 +103,11 @@
             },
             {
               "name": "format",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueFormat",
               "readable": true,
               "writable": false
             },

@@ -31,7 +31,7 @@ describe('initialization original-path standard-component dialog',()=>{
   it('binds range, date and candidate fields to the same runtime and saves only initialization records',async()=>{
     const f=await open()
     expect(f.wrapper.getComponent(RendererDialog).props('title')).toBe('设置初始编码')
-    expect(f.wrapper.getComponent(FieldDate).props()).toMatchObject({field:'date',dateType:'month',valueFormat:'YYYYMM'})
+    expect(f.wrapper.getComponent(FieldDate).props()).toMatchObject({field:'date',dateType:'month',valueFormat:'YYYY-MM'})
     expect((f.value().get('input').element as HTMLInputElement).value).toBe('005')
     await f.value().get('input').setValue('007');await flushPromises()
     expect(f.wrapper.getComponent(FieldDate).props('readonly')).toBe(true)
@@ -46,8 +46,8 @@ describe('initialization original-path standard-component dialog',()=>{
     f.wrapper.getComponent(RendererDialog).vm.$emit('update:modelValue',false);await flushPromises()
     expect(f.closed).not.toHaveBeenCalled();expect(f.workspace.view.hasEditingChanges()).toBe(true)
     await f.click('取消修改');expect(f.workspace.view.hasEditingChanges()).toBe(false)
-    f.wrapper.getComponent(ElDatePicker).vm.$emit('update:modelValue','202612');await flushPromises()
-    await vi.waitFor(()=>expect(f.calls.at(-1)).toEqual({date:'202612'}))
+    f.wrapper.getComponent(ElDatePicker).vm.$emit('update:modelValue','2026-12');await flushPromises()
+    await vi.waitFor(()=>expect(f.calls.at(-1)).toEqual({date:'2026-12'}))
     expect(f.workspace.view.rows[0]?.['prefix']).toBe('A202612')
     expect(f.service.http.saves).toEqual([])
   })
@@ -62,7 +62,7 @@ describe('initialization original-path standard-component dialog',()=>{
   })
   it('does not clear the candidate result for an unchanged date value',async()=>{
     const f=await open(),count=f.calls.length
-    f.wrapper.getComponent(ElDatePicker).vm.$emit('update:modelValue','202611');await flushPromises()
+    f.wrapper.getComponent(ElDatePicker).vm.$emit('update:modelValue','2026-11');await flushPromises()
     expect(f.workspace.view.rows).toHaveLength(1);expect(f.calls).toHaveLength(count)
   })
 })

@@ -1,5 +1,5 @@
 {
-  "gapCount": 3462,
+  "gapCount": 3463,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -34707,12 +34707,24 @@
     {
       "kind": "attribute",
       "className": "InitializationDate",
+      "memberName": "valueFormat",
+      "reason": "missing-jsdoc",
+      "chainBreak": "InitializationDate.valueFormat 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "InitializationDate",
       "memberName": "dateType",
       "reason": "missing-jsdoc",
       "chainBreak": "InitializationDate.dateType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "interface"
     },
@@ -34724,7 +34736,7 @@
       "chainBreak": "InitializationDate.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 14,
+      "declarationLine": 15,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "interface"
     },
@@ -34735,7 +34747,7 @@
       "chainBreak": "Options 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 16,
+      "declarationLine": 17,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "typeAlias"
     },
@@ -34747,7 +34759,7 @@
       "chainBreak": "Options.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 17,
+      "declarationLine": 18,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "interface"
     },
@@ -34759,7 +34771,7 @@
       "chainBreak": "Options.runtime 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "interface"
     },
@@ -34771,7 +34783,7 @@
       "chainBreak": "Options.plan 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "interface"
     },
@@ -34783,7 +34795,7 @@
       "chainBreak": "Options.now 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/data-code/initialization-date.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "src/lowcode/resources/structured-config/data-code/initialization-date.ts",
       "declarationKind": "interface"
     },

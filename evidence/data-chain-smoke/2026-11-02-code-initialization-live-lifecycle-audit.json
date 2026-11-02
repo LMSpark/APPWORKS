@@ -1,0 +1,253 @@
+{
+  "testedAt": "2026-11-02T13:47:49.545Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "kind": "native-browser-initialization-and-example-lifecycle",
+  "fixture": {
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "codeId": "34D948423536420C8EA5AADC84F2590B",
+    "name": "SMOKE_DATA_CHAIN_INIT_1793626530494",
+    "nodeIds": [
+      "389A2D3075C7DE72FD233735B8702E90",
+      "EEE099084C21EFB2C6BCBF9DC286838F",
+      "D76AB60E1604115F50C772B84507E364"
+    ],
+    "sequenceNodeId": "D76AB60E1604115F50C772B84507E364",
+    "allocationId": "9EDF77A3462B67831CF50DDA24EB594E",
+    "maximumRecords": 5
+  },
+  "authorization": "User explicitly approved this five-record temporary fixture, verification and cleanup in this turn",
+  "dateContract": {
+    "initialWrongRequest": "20261102",
+    "initialWrongSegment": "+202611020101",
+    "correctRequest": "2026-11-02",
+    "correctSegment": "20261102",
+    "probes": [
+      {
+        "date": "20261102",
+        "status": 200,
+        "code": 200,
+        "rows": [
+          {
+            "1": "SMOKE",
+            "2": "+202611020101",
+            "InitVal": "001",
+            "rowid": ""
+          }
+        ],
+        "message": "成功"
+      },
+      {
+        "date": "2026-11-02",
+        "status": 200,
+        "code": 200,
+        "rows": [
+          {
+            "1": "SMOKE",
+            "2": "20261102",
+            "InitVal": "001",
+            "rowid": ""
+          }
+        ],
+        "message": "成功"
+      },
+      {
+        "date": "2026-11",
+        "status": 200,
+        "code": 200,
+        "rows": [
+          {
+            "1": "SMOKE",
+            "2": "20261101",
+            "InitVal": "001",
+            "rowid": ""
+          }
+        ],
+        "message": "成功"
+      },
+      {
+        "date": "2026",
+        "status": 200,
+        "code": 200,
+        "rows": [
+          {
+            "1": "SMOKE",
+            "2": "20260101",
+            "InitVal": "001",
+            "rowid": ""
+          }
+        ],
+        "message": "成功"
+      }
+    ],
+    "backendModified": false
+  },
+  "seed": {
+    "kind": "native-initialization-ui-fixture",
+    "testedAt": "2026-11-02T13:35:40.195Z",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "id": "34D948423536420C8EA5AADC84F2590B",
+    "nodeId": "D76AB60E1604115F50C772B84507E364",
+    "nodeIds": [
+      "389A2D3075C7DE72FD233735B8702E90",
+      "EEE099084C21EFB2C6BCBF9DC286838F",
+      "D76AB60E1604115F50C772B84507E364"
+    ],
+    "name": "SMOKE_DATA_CHAIN_INIT_1793626530494",
+    "phase": "seeded",
+    "readRequests": 40,
+    "writeRequests": 2,
+    "confirmedSaves": 2,
+    "cleanupConfirmed": false,
+    "checks": [
+      "own main and three typed nodes saved and independently reread"
+    ],
+    "replayWrites": 0,
+    "unknownOwnerRetained": false
+  },
+  "initialization": {
+    "firstNextValue": "005",
+    "firstStoredCode": "003",
+    "secondNextValue": "007",
+    "secondStoredCode": "005",
+    "increment": 2,
+    "samePhysicalRecord": true,
+    "browserSaveClicks": 2,
+    "local009CanceledTo007": true,
+    "dirtyDateInputDisabled": true,
+    "otherDate": "2026-11-03",
+    "otherDateNextValue": "001",
+    "otherDateSaved": false,
+    "originalDateRequeryNextValue": "007",
+    "independentFirst": {
+      "kind": "native-initialization-ui-fixture",
+      "testedAt": "2026-11-02T13:41:47.964Z",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "id": "34D948423536420C8EA5AADC84F2590B",
+      "nodeId": "D76AB60E1604115F50C772B84507E364",
+      "nodeIds": [
+        "389A2D3075C7DE72FD233735B8702E90",
+        "EEE099084C21EFB2C6BCBF9DC286838F",
+        "D76AB60E1604115F50C772B84507E364"
+      ],
+      "name": "SMOKE_DATA_CHAIN_INIT_1793626530494",
+      "phase": "inspected",
+      "readRequests": 9,
+      "writeRequests": 0,
+      "confirmedSaves": 0,
+      "cleanupConfirmed": false,
+      "checks": [
+        "allocation-independent-readback:9EDF77A3462B67831CF50DDA24EB594E"
+      ],
+      "replayWrites": 0,
+      "unknownOwnerRetained": false
+    },
+    "independentSecond": {
+      "kind": "native-initialization-ui-fixture",
+      "testedAt": "2026-11-02T13:43:39.828Z",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "id": "34D948423536420C8EA5AADC84F2590B",
+      "nodeId": "D76AB60E1604115F50C772B84507E364",
+      "nodeIds": [
+        "389A2D3075C7DE72FD233735B8702E90",
+        "EEE099084C21EFB2C6BCBF9DC286838F",
+        "D76AB60E1604115F50C772B84507E364"
+      ],
+      "name": "SMOKE_DATA_CHAIN_INIT_1793626530494",
+      "phase": "inspected",
+      "readRequests": 9,
+      "writeRequests": 0,
+      "confirmedSaves": 0,
+      "cleanupConfirmed": false,
+      "checks": [
+        "allocation-independent-readback:9EDF77A3462B67831CF50DDA24EB594E"
+      ],
+      "replayWrites": 0,
+      "unknownOwnerRetained": false
+    }
+  },
+  "example": {
+    "sameTemporaryCode": true,
+    "browserRefresh": true,
+    "browserDesignSaveClicks": 1,
+    "independentReadback": {
+      "kind": "native-initialization-ui-fixture",
+      "testedAt": "2026-11-02T13:45:13.251Z",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+      "id": "34D948423536420C8EA5AADC84F2590B",
+      "nodeId": "D76AB60E1604115F50C772B84507E364",
+      "nodeIds": [
+        "389A2D3075C7DE72FD233735B8702E90",
+        "EEE099084C21EFB2C6BCBF9DC286838F",
+        "D76AB60E1604115F50C772B84507E364"
+      ],
+      "name": "SMOKE_DATA_CHAIN_INIT_1793626530494",
+      "phase": "inspected",
+      "readRequests": 9,
+      "writeRequests": 0,
+      "confirmedSaves": 0,
+      "cleanupConfirmed": false,
+      "checks": [
+        "original main CodeExample independently reread",
+        "allocation-independent-readback:9EDF77A3462B67831CF50DDA24EB594E"
+      ],
+      "replayWrites": 0,
+      "unknownOwnerRetained": false
+    },
+    "allocationUnchanged": true
+  },
+  "cleanup": {
+    "kind": "native-initialization-ui-fixture",
+    "testedAt": "2026-11-02T13:45:53.103Z",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "id": "34D948423536420C8EA5AADC84F2590B",
+    "nodeId": "D76AB60E1604115F50C772B84507E364",
+    "nodeIds": [
+      "389A2D3075C7DE72FD233735B8702E90",
+      "EEE099084C21EFB2C6BCBF9DC286838F",
+      "D76AB60E1604115F50C772B84507E364"
+    ],
+    "name": "SMOKE_DATA_CHAIN_INIT_1793626530494",
+    "phase": "complete",
+    "readRequests": 13,
+    "writeRequests": 3,
+    "confirmedSaves": 3,
+    "cleanupConfirmed": true,
+    "checks": [
+      "original main CodeExample independently reread",
+      "allocation-independent-readback:9EDF77A3462B67831CF50DDA24EB594E",
+      "exact allocation, three nodes and main deleted with independent absence checks"
+    ],
+    "replayWrites": 0,
+    "unknownOwnerRetained": false
+  },
+  "automatedTests": {
+    "files": 18,
+    "passed": 156,
+    "log": "artifacts/data-chain-smoke/init-date-wire-related-complete.log"
+  },
+  "gates": {
+    "classModelGenerated": true,
+    "verify": true,
+    "build": true,
+    "terminalSession": 94018,
+    "readOnlyReview": "no confirmed findings"
+  },
+  "screenshots": [
+    "artifacts/data-chain-smoke/code-initialization-live-save.jpg",
+    "artifacts/data-chain-smoke/code-example-live-design-save.jpg",
+    "artifacts/data-chain-smoke/code-initialization-live-cleanup.jpg"
+  ],
+  "limits": [
+    "Only this fixed/date/sequence fixture tested, not all code configurations or complete page visual parity",
+    "Minimum/null value persistence not tested",
+    "Script request counters exclude browser request counts; only explicit browser save actions counted",
+    "Business table draft-to-rule-dialog source mismatch found this turn remains pending repair",
+    "sys_edit SaveView remains unconfirmed and never replayed"
+  ]
+}

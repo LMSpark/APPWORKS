@@ -4965,3 +4965,14 @@ flowchart TD
 - 实服CodeExample真实持久化、当前应用完整浏览器布局及五条初始化fixture仍需后续验证，本轮没有借读/取消证明落库；正式保存链以同一原查询权限夹具核验。sys_edit SaveView未知继续不重放，其余全架构缺口继续按唯一台账推进；整体目标active。
 
 - 最终33125退出0：正式ClassModel重新编译生成、完整verify（类型检查、全仓lint、规则及ClassModel检查）、build全部通过；目录及page-thin门禁通过。18文件153项相关测试通过，独立只读审查未发现确定缺陷；证据JSON同步最终门禁状态。首轮TS2345失败日志保留为历史，不能替代最终通过快照。本轮按已授权提交/推送检查点，整体目标仍active，不声称全架构/整页已完成。
+
+### 2026-11-02 五条授权临时记录实服初始化闭环与日期断链修复
+- 上轮40dfcb419已推送，属于有效progress。本轮用户明确回复“允许创建、验证并清理这5条临时记录”，不再等待/重复询问；以同一D99/DataSchemaManage执行应用、原868E编码DataSet新建SMOKE_DATA_CHAIN_INIT_1793626530494，主ID34D948423536420C8EA5AADC84F2590B；固定/日期/顺序号节点389A2D3075C7DE72FD233735B8702E90、EEE099084C21EFB2C6BCBF9DC286838F、D76AB60E1604115F50C772B84507E364，最后只生成一条分配9EDF77A3462B67831CF50DDA24EB594E。seed原主保存→节点新增保存→新PageRuntime独立回读通过（40读2写）；不触碰已有业务定义。
+- 真浏览器沿原目录应用选择→选中标记行→方案设计→初始化数据发现新断链，尚未分配写入时停下：date=20261102的GET返回日期段+202611020101，date=2026-11-02返回20261102；同一已保存yyyyMMdd规则下的4个GET还核2026-11/2026各补默认日/月。源码DateUtil.formatDate按非数字分隔，8位紧凑字符串被当作整年，此为原参考valueFormat与displayFormat相同的真实缺陷，不按错误参考照搬，也不改Java。
+- TDD新增3个RED覆盖yyyyMMdd显示/ISO日请求、yyyyMM显示/分隔月请求、yy显示/完整四位年请求；初始化日期合同增加valueFormat，与format分开，FieldDate沿标准valueFormat写入原输入DataView（YYYY-MM-DD / YYYY-MM / YYYY），传入原GET，服务端按DateFormat生成真正业务前段。旧测试中的紧凑请求断言改为实证合同，fixture模拟服务端输出时去除请求分隔符，不改变持久前段A202611。16项日期/工作区/组件测试先RED后GREEN；未增加第二草稿或页面日期转换请求旁路。
+- 浏览器修复后重新选择同一已存临时记录（HMR重载清了目录选择，未重建记录），初始化展示SMOKE20261102/001；输入005后日期与普通关闭锁定，一次原保存确认，独立新实例检查物理Code003/节点归属/前段/唯一真实ID通过（9读0写）。再改007一次原保存确认，独立回读同一ID物理Code005通过；暂存009期间日期锁定，原取消恢复007；切20261103查询SMOKE20261103/001不保存，再切原日期回读007。没有第二条分配，没有未知重放。
+- 在同一已授权临时主定义上追加相邻示例闭环，无新增记录：真实“刷新示例”得到SMOKE20261102001→原“保存设计”保存后返回目录→第三个独立新实例核原主CodeExample已落库、同一分配仍Code005（9读0写）。因此上一轮“示例持久化仅夹具验证”的缺口现已补实服证据；不扩展为任意业务字段来源/父编码或全页面1:1通过。
+- 清理严格按原查询与权限：分配删除保存并回读0→精确3节点删除保存并回读0→主定义删除保存并回读主/分配0，13读3写、3确认保存、cleanupConfirmed=true、unknownOwnerRetained=false；最终浏览器目录刷新No Data并保存截图。总对象严格5条；脚本测得写请求5（seed2+cleanup3），另浏览器明确点击初始化保存2次、主设计保存1次，浏览器网络请求数量未独立仪表化，不伪称全程测得8个HTTP请求。0未知写重放。
+- 完整证据evidence/data-chain-smoke/2026-11-02-code-initialization-live-lifecycle-audit.json，含独立seed/inspect/cleanup回执及日期GET差异；旧初始化UI/示例workspace快照增加followUpAudit指向新证据，旧时间点的“待授权/未落库”限制不当作当前状态。截图artifacts/data-chain-smoke/code-initialization-live-save.jpg、code-example-live-design-save.jpg、code-initialization-live-cleanup.jpg。
+- 最终94018退出0：正式ClassModel重新生成、完整verify、build全部通过；34013的18文件156项相关测试通过。按executing-plans要求review_init_date独立只读审查整组日期改动，未发现确定缺陷，未代替主会话实服证据。无后端修改、无权限扩展、无原sys_edit SaveView重放；后者仍未确认。初始化最小值null、其他格式/父链/多顺序号的真实写入及整页视觉仍未验，不能称整个编码或全架构通过。
+- 本轮另核到下一处真实源码断点（尚未修复）：data-code-editor-page.vue:132的时间/父编码openRule仍读owner['BusTableRowid']基线，而业务表选择applyCodeBusinessTable已把新ID写入原主getEditingRow；未保存新表时规则字段目录会继续沿旧表查询。共享use-code-node-rule-dialog.current也没有对主视图当前有效业务表重核。下一步先用当前原生主视图暂存新表、开时间/父规则的测试复现，再统一读取有效业务身份并拒绝打开后目标变更；不为它新建业务记录。原选择器四面板/筛选/回显差距继续登记，未用今日日期修复掩盖。整体目标active。

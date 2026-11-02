@@ -1,5 +1,5 @@
 {
-  "testedAt": "2026-11-02T13:11:16.6869001+00:00",
+  "testedAt": "2026-11-02T21:11:16.6869001+08:00",
   "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
   "referencePage": "apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
   "implementation": "src/views/features/data-platform/structured-config/data-code/ui/code-init-dialog.vue",
@@ -40,5 +40,6 @@
     "layout implementation and component tests do not constitute a completed browser visual comparison",
     "no initialization records saved or historical null node owners modified this turn",
     "sys_edit SaveView remains unconfirmed and was not replayed"
-  ]
+  ],
+  "followUpAudit": "evidence/data-chain-smoke/2026-11-02-code-initialization-live-lifecycle-audit.json"
 }

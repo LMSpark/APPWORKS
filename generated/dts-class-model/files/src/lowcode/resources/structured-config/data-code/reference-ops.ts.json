@@ -7,17 +7,17 @@
     "sourceFile": "src/lowcode/resources/structured-config/data-code/reference-ops.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/data-code/reference-ops",
-    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/reference-ops\n职责：从原生引用来源视图投影获准读取的表/字段选择，并原子写回当前分类映射。\n边界：只消费DataView原查询与编辑检查点，不查询、不持草稿、不提交目录或更改权限。\nAI用途：引用表选择弹窗确认时复用，保持来源身份、字段读取与目标写入责任清晰。",
+    "jsdoc": "@module app:lowcode/resources/structured-config/data-code/reference-ops\n职责：从原生来源视图投影获准读取的表/字段选择，原子写回编码业务表或分类映射。\n边界：只消费DataView原查询与编辑检查点，不查询、不持草稿、不提交目录或更改权限。\nAI用途：引用表选择弹窗确认时复用，保持来源身份、字段读取与目标写入责任清晰。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "CodeClassReferenceSelection"
+      "CodeTableSelection"
     ]
   },
   "$defs": {
-    "CodeClassReferenceSelection": {
+    "CodeTableSelection": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "CodeClassReferenceSelection",
+      "title": "CodeTableSelection",
       "properties": {
         "TableRowid": {
           "type": "string"
@@ -45,10 +45,10 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T09:20:29.019Z",
+  "generatedAt": "2026-11-02T10:03:33.745Z",
   "models": {
-    "CodeClassReferenceSelection": {
-      "name": "CodeClassReferenceSelection",
+    "CodeTableSelection": {
+      "name": "CodeTableSelection",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {

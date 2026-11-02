@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-02",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "browser current source; staged new code business-table selection and explicit cancellation only",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "navigationId": "A133D679691178F192D7E9DA06829506",
+  "sourceScenarioId": "34BDBE645F461A3D83282A941D6037F4",
+  "observed": {
+    "sourceApp": "DataSchemaManage",
+    "database": "QYVirtualPlat",
+    "table": "Base_CodeNodeDesign",
+    "sourceTablesTotal": 222,
+    "displayChoice": "参数",
+    "keyChoice": "唯一标识 ID",
+    "mainTableNameUpdated": true,
+    "pickerCancelPreservedMainTableAndName": true,
+    "explicitDiscardClosedDesign": true,
+    "catalogRereadObserved": true,
+    "saveClicked": false
+  },
+  "network": {
+    "apiRequests": 21,
+    "paths": [
+      "/api/DataOperation/GetData"
+    ],
+    "businessMutationRequests": [],
+    "truncated": false,
+    "hasMore": false
+  },
+  "screenshot": "artifacts/data-chain-smoke/code-business-selected.jpg",
+  "limits": [
+    "KeyFields native patch and atomic rollback proven by component tests, browser observes visible selections and main table label",
+    "no real persistence verification",
+    "reference four-panel/header-filter layout and segment maintenance still incomplete",
+    "no replay of prior unknown sys_edit SaveView"
+  ]
+}

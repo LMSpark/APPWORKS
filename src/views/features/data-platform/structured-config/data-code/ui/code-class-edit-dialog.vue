@@ -24,7 +24,7 @@ AI用途：为当前分类编辑引用表和字段；提供完整分类绑定、
       <RendererButton label="确认编辑" button-type="primary" :disabled="!ready || loading || closing || choosingReference" @click="confirm" />
     </template>
   </RendererDialog>
-  <CodeReferenceTableDialog v-if="choosingReference" :data-view-key="dataViewKey" :class-id="classId" :validate-target="validateReferenceTarget" @applied="referenceApplied" @close="choosingReference = false" />
+  <CodeReferenceTableDialog v-if="choosingReference" :data-view-key="dataViewKey" :record-id="classId" target-kind="class" :validate-target="validateReferenceTarget" @applied="referenceApplied" @close="choosingReference = false" />
 </template>
 <script setup lang="ts">
 import {onBeforeUnmount, ref, watch} from 'vue'

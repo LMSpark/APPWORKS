@@ -6,6 +6,7 @@ import {RequestState} from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {codeModels, DESIGN} from './data-code.fixture'
+import {saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
 
 const SCENE = DESIGN
 const pages: PageRuntime[] = []
@@ -48,6 +49,16 @@ async function open(applicationId = 'A', codeDesignId = 'C1') {
 }
 
 describe('formal code-design scenario', () => {
+  it('does not persist a new main definition before its required segment design exists', async () => {
+    const {ds, http} = await open('A', 'NEW')
+    const main = ds.getView('Base_CodeDesign')!, nodes = ds.getView('Base_CodeNodeDesign')!
+    const added = await main.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {AppID: 'A', Name: '新增编码', BusTableRowid: 'T1'})
+    main.setCurrentRow(added); main.setSelectedRows([added])
+    await vi.waitFor(() => expect(nodes.requestState).toBe(RequestState.Loaded))
+    await expect(saveDataCodeDesign(ds)).rejects.toThrow('请先维护分段设计数据')
+    expect(main.dirtyTracking.pendingCreateIds.has('NEW')).toBe(true)
+    expect(http.saves).toEqual([])
+  })
   it('queries the selected design and its nodes without loading rule-maintenance data', async () => {
     const {ds, http} = await open()
     expect(ds.getView('Base_CodeDesign')!.rows.map(row => row['rowid'])).toEqual(['C1'])

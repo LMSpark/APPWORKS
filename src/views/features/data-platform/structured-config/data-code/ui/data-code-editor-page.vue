@@ -10,6 +10,7 @@
       <RendererForm :data-view-key="mainKey" :show-data-view-meta="false" :auto-columns="false" :grid-columns="2">
         <FieldText field="Name" label="名称" :readonly="saving" />
         <FieldText field="BusTableName" label="业务表" :readonly="true" />
+        <RendererButton label="设置业务表及其字段" :disabled="busy || unconfirmed" @click="openBusinessTable" />
         <FieldText field="CodeDescription" label="编码描述" :readonly="true" />
         <FieldText field="CodeExample" label="编码示例" :readonly="true" />
       </RendererForm>
@@ -26,6 +27,8 @@
     <SequenceSelectorDialog v-if="openDialog === 'sequence' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" @close="closeRule" />
     <TimeStringDialog v-if="openDialog === 'timeString' && ruleTarget" :data-view-key="nodesKey" :node-id="ruleTarget.nodeId" :bus-table-rowid="ruleTarget.busTableRowid" @close="closeRule" />
     <CodeInitDialog v-if="openDialog === 'codeInit'" @close="openDialog = ''" />
+    <CodeReferenceTableDialog v-if="openDialog === 'businessTable' && businessTarget" :data-view-key="mainKey" :record-id="businessTarget.id"
+      target-kind="business" :validate-target="validateBusinessTarget" @close="closeBusinessTable" />
   </section>
 </template>
 
@@ -42,6 +45,7 @@ import CodeInitDialog from './dialogs/code-init-dialog.vue'
 import ParentCodeDialog from './parent-code-dialog.vue'
 import SequenceSelectorDialog from './sequence-selector-dialog.vue'
 import TimeStringDialog from './time-string-dialog.vue'
+import CodeReferenceTableDialog from './code-reference-table-dialog.vue'
 
 const props = defineProps<{
   /** 宿主传入的被管理应用ID；提供任一目标prop时必须同时提供另一项，不从路由补齐。 */
@@ -54,6 +58,7 @@ const props = defineProps<{
 const emit = defineEmits<{saved: []}>()
 const route = useRoute(), openDialog = ref(''), error = ref(''), saving = ref(false), revision = ref(0)
 const ruleTarget = shallowRef<{nodeId: string | number; busTableRowid: string}>()
+const businessTarget = shallowRef<{id: string | number; row: DataRow; generation: number; tableId: unknown; create: boolean}>()
 function closeRule(): void {openDialog.value = ''; ruleTarget.value = undefined}
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-code-editor-page'})
 const scene = LowcodeDataCode.designScenarioId
@@ -86,6 +91,29 @@ const nodeFields: SparkNode[] = [
     cellReadonly: (row: Readonly<DataRow>) => saving.value || !dataSet.value || !isFixedCodeNode(dataSet.value, row)}},
 ]
 const nodeActions = {children: [{type: 'r-button', props: {label: '选择', onClick: openRule}}]}
+function openBusinessTable(): void {
+  if (busy.value || unconfirmed.value) return
+  try {
+    const view = main.value, row = view?.currentRow, id = row ? view?.getPkKey(row) : undefined
+    if (!view || !row || id === undefined) throw new Error('编码业务表目标缺失')
+    for (const field of ['BusTableRowid', 'BusTableName', 'KeyFields']) {
+      const access = view.fieldAccess(row, field)
+      if (access.read !== 'visible' || access.write !== 'allowed') throw new Error('业务表映射字段不可读写')
+    }
+    businessTarget.value = {id, row, generation, tableId: (view.getEditingRow(id) ?? row)['BusTableRowid'], create: props.create === true}
+    validateBusinessTarget(); openDialog.value = 'businessTable'
+  } catch (cause) {businessTarget.value = undefined; error.value = cause instanceof Error ? cause.message : String(cause)}
+}
+function validateBusinessTarget(): void {
+  const target = businessTarget.value, view = main.value, row = view?.currentRow
+  if (!active || !target || target.generation !== generation || target.create !== (props.create === true) || !view || !row
+    || runtime?.resolveView(mainKey) !== view || row !== target.row || view.getPkKey(row) !== target.id
+    || view.queryContext['applicationId'] !== applicationId.value || view.queryContext['codeDesignId'] !== codeDesignId.value
+    || view.hasUnconfirmedSave || view.mutating || view.fieldAccess(row, 'AppID').read !== 'visible'
+    || (view.getEditingRow(target.id) ?? row)['AppID'] !== applicationId.value
+    || (view.getEditingRow(target.id) ?? row)['BusTableRowid'] !== target.tableId) throw new Error('业务表编辑目标已改变，请重新打开')
+}
+function closeBusinessTable(): void {businessTarget.value = undefined; openDialog.value = ''}
 function openCurrentClass(): void {
   const row = nodes.value?.currentRow
   if (!row || !dataSet.value || !nodes.value || nodes.value.fieldAccess(row, 'NodeType').read !== 'visible'
@@ -108,7 +136,7 @@ function openRule(row: DataRow): void {
 watch([applicationId, codeDesignId, () => props.create], async ([app, code, create]) => {
   const own = ++generation
   unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet.value = undefined
-  error.value = ''; openDialog.value = ''; opening.value = true; saving.value = false
+  error.value = ''; openDialog.value = ''; businessTarget.value = undefined; opening.value = true; saving.value = false
   try {
     if (!app.trim() || !code.trim()) throw new Error('缺少唯一 applicationId 或 codeDesignId 参数')
     if (create && !hostTarget.value) throw new Error('新增编码必须由目录宿主提供完整目标')

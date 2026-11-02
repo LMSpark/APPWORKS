@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog",
-    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog\n职责：以正式来源视图选择应用、数据库、引用表和两个字段，确认暂存到原分类。\n边界：复用当前PageRuntime的按需来源空间；不保存、不复制候选或维护第二份草稿。\nAI用途：分类编辑器内的引用表选择，完整绑定及目标身份由宿主传入。",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/data-code/ui/code-reference-table-dialog\n职责：以正式来源视图选择应用、数据库、表和两个字段，确认暂存到原分类或编码业务表。\n边界：复用当前PageRuntime的按需来源空间；不保存、不复制候选或维护第二份草稿。\nAI用途：分类编辑器内的引用表选择，完整绑定及目标身份由宿主传入。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-02T09:18:32.367Z",
+  "generatedAt": "2026-11-02T10:02:37.102Z",
   "models": {}
 }

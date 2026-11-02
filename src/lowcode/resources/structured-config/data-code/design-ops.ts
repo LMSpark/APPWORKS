@@ -153,6 +153,7 @@ export async function saveDataCodeDesign(dataSet: DataSet) {
   if (mainKey === undefined) throw new Error('编码设计缺少正式主键')
   const views = [{tableName: 'Base_CodeDesign', viewId: 'default'}, {tableName: 'Base_CodeNodeDesign', viewId: 'default'}]
   if (main.hasUnconfirmedSave || nodes.hasUnconfirmedSave) return dataSet.saveChanges({views})
+  if (main.dirtyTracking.pendingCreateIds.has(mainKey) && nodes.rows.length === 0) throw new Error('请先维护分段设计数据')
   if (nodes.hasEditingChanges() || nodes.dirtyTracking.hasPendingChanges()) {
     const effective = nodes.rows.map(row => editableRow(nodes, row))
     const writes: Array<{id: string | number; value: string}> = []

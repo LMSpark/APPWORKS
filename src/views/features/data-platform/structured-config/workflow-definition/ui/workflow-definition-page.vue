@@ -9,21 +9,32 @@
     <RendererTable v-if="ready" :data-view-key="catalogKey" :children="fields" :toolbar="toolbar"
       :stripe="true" :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
     <WorkflowTriggerTableDialog v-if="triggerOpen" :workflow-id="selected" @close="triggerOpen = false" />
+    <RendererDialog v-if="designTarget" :model-value="true" title="数据工作流设计" :data-view-key="catalogKey"
+      width="94vw" top="3vh" :append-to-body="true" :destroy-on-close="true" :close-disabled="designPending" @update:model-value="closeDesign">
+      <WorkflowDesign ref="designPage" :rowid="designTarget" />
+      <template #footer>
+        <RendererButton v-if="designPage?.hasPending" label="放弃修改并关闭" :disabled="designPage?.busy || designPage?.unconfirmed" @click="discardDesign" />
+        <RendererButton label="关闭" :disabled="designPending" @click="closeDesign(false)" />
+      </template>
+    </RendererDialog>
   </section>
 </template>
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {useRoute, useRouter} from 'vue-router'
+import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
-import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
+import WorkflowDesign from '../design/ui/workflow-design-page.vue'
 
 const route = useRoute()
-const router = useRouter()
+const designTarget=ref(''),designPage=ref<{hasPending:boolean;busy:boolean;unconfirmed:boolean;discardChanges:()=>boolean}>()
+const designPending=computed(()=>designPage.value?.hasPending===true||designPage.value?.busy===true)
+useSystemPageDirtySource({get isDirty(){return designPending.value}})
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-definition-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const triggerOpen = ref(false)
@@ -35,7 +46,6 @@ const selected = computed(() => {
 })
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeWorkflowDefinition.catalogMetaName, 'default', scenarioId.value))
-const designPath = '/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page'
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '新增工作流', permAction: 'create', disabled: loading.value, onClick: createFlow}},
   {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || loading.value, onClick: openDesign}},
@@ -50,13 +60,10 @@ const fields = computed<SparkNode[]>(() => [
     optionDataViewKey: buildDataViewKey('workflowStatus', 'default', scenarioId.value)}},
 ])
 function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
-function createFlow(): void {void openDesignRoute(crypto.randomUUID().replaceAll('-', '').toUpperCase())}
-async function openDesign(): Promise<void> {if (selected.value) await openDesignRoute(selected.value)}
-async function openDesignRoute(workflowId: string): Promise<void> {
-  const scope = parseApplicationPathScope(route.path)
-  const path = scope ? buildApplicationPath(scope, designPath) : designPath
-  await router.push({path, query: {workflowId}})
-}
+function createFlow(): void {if(!designTarget.value)designTarget.value=crypto.randomUUID().replaceAll('-', '').toUpperCase()}
+function openDesign(): void {if(selected.value&&!designTarget.value)designTarget.value=selected.value}
+function closeDesign(open:boolean):void{if(!open&&!designPending.value)designTarget.value=''}
+function discardDesign():void{if(designPage.value?.busy||designPage.value?.unconfirmed)return;if(designPage.value?.discardChanges()===true)closeDesign(false)}
 watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''

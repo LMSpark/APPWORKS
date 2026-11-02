@@ -1,0 +1,348 @@
+{
+  "kind": "authorized-actual-service-browser-smoke",
+  "testedAt": "2026-11-02T16:21:55.166Z",
+  "statusRepair": {
+    "kind": "exact-workflow-status-source-repair",
+    "testedAt": "2026-11-02T15:54:07.866Z",
+    "mode": "repair",
+    "phase": "complete",
+    "dictionaryId": "F64D7DC20CA14DC99C6729DEA36C63D6",
+    "entries": [
+      {
+        "id": "25438B7DDF3643DDB82C401D807824EE",
+        "before": {
+          "val": "停用",
+          "txt": "2"
+        },
+        "after": {
+          "val": "2",
+          "txt": "停用"
+        }
+      },
+      {
+        "id": "267730441E724E2A8980F6F6D97C1C12",
+        "before": {
+          "val": "启用",
+          "txt": "1"
+        },
+        "after": {
+          "val": "1",
+          "txt": "启用"
+        }
+      }
+    ],
+    "reads": 16,
+    "writes": 1,
+    "confirmed": true,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0,
+    "checks": [
+      "exact dictionary and two entry baselines verified; original val/txt permissions allow edit",
+      "two entries independently corrected; non-target members preserved"
+    ]
+  },
+  "fixtureCreationAttempts": [
+    {
+      "code": 0,
+      "audit": {
+        "kind": "native-workflow-start-ui-fixture",
+        "testedAt": "2026-11-02T15:55:13.147Z",
+        "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+        "marker": "SMOKE_DATA_CHAIN_WORKFLOW_1793634913131",
+        "workflowId": "F457501D2C214563940FFFF1E3A67AF6",
+        "lifecycle": "creating",
+        "acknowledged": {},
+        "deleted": {},
+        "pending": "create-definition",
+        "mode": "create",
+        "phase": "save:Base_WorkflowDefinition",
+        "reads": 16,
+        "writes": 0,
+        "confirmedSaves": 0,
+        "cleanupConfirmed": false,
+        "replayWrites": 0,
+        "checks": [
+          "original create permissions and formal identity API available",
+          "formal inactive status 2 confirmed",
+          "FAILED: DATA_VIEW_SAVE_VALIDATION: Base_WorkflowDefinition@default.status: 状态 必须是字符串"
+        ],
+        "unknownOwnerRetained": false
+      }
+    },
+    {
+      "code": 0,
+      "audit": {
+        "kind": "native-workflow-start-ui-fixture",
+        "testedAt": "2026-11-02T15:57:10.469Z",
+        "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+        "marker": "SMOKE_DATA_CHAIN_WORKFLOW_1793634913131",
+        "workflowId": "F457501D2C214563940FFFF1E3A67AF6",
+        "lifecycle": "creating",
+        "acknowledged": {},
+        "deleted": {},
+        "pending": "create-definition",
+        "mode": "resume-unsent",
+        "phase": "save:Base_WorkflowDefinition",
+        "reads": 16,
+        "writes": 1,
+        "confirmedSaves": 0,
+        "cleanupConfirmed": false,
+        "replayWrites": 0,
+        "checks": [
+          "original create permissions and formal identity API available",
+          "formal inactive status 2 confirmed",
+          "prior zero-write validation failure verified; exact same temporary identity independently absent",
+          "FAILED: [500] insert异常:org.springframework.dao.DataIntegrityViolationException: PreparedStatementCallback; Data truncation: Data too long for column 'workflow_key' at row 1"
+        ],
+        "unknownOwnerRetained": false
+      }
+    },
+    {
+      "code": 0,
+      "audit": {
+        "kind": "native-workflow-start-ui-fixture",
+        "testedAt": "2026-11-02T16:01:29.064Z",
+        "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+        "marker": "SMOKE_DATA_CHAIN_WORKFLOW_1793634913131",
+        "workflowId": "F457501D2C214563940FFFF1E3A67AF6",
+        "workflowKey": "SM67AF6",
+        "lifecycle": "creating",
+        "acknowledged": {},
+        "deleted": {},
+        "pending": "create-definition",
+        "mode": "resume-rejected",
+        "phase": "save:Base_WorkflowDefinition",
+        "reads": 16,
+        "writes": 1,
+        "confirmedSaves": 0,
+        "cleanupConfirmed": false,
+        "replayWrites": 0,
+        "checks": [
+          "original create permissions and formal identity API available",
+          "formal inactive status 2 confirmed",
+          "exact known rejection verified; same temporary identity independently absent before corrected payload",
+          "FAILED: [500] insert异常:org.springframework.jdbc.UncategorizedSQLException: PreparedStatementCallback; uncategorized SQLException; SQL state [HY000]; error code [1364]; Field 'version' doesn't have a default value"
+        ],
+        "unknownOwnerRetained": false
+      }
+    },
+    {
+      "code": 0,
+      "audit": {
+        "kind": "native-workflow-start-ui-fixture",
+        "testedAt": "2026-11-02T16:03:40.853Z",
+        "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+        "marker": "SMOKE_DATA_CHAIN_WORKFLOW_1793634913131",
+        "workflowId": "F457501D2C214563940FFFF1E3A67AF6",
+        "workflowKey": "SM67AF6",
+        "lifecycle": "creating",
+        "acknowledged": {
+          "create-definition": true
+        },
+        "deleted": {},
+        "initialParams": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"Value\":\"before\",\"ValueFun\":null,\"smokeKeep\":false}]",
+        "pending": "create-parameters",
+        "mode": "resume-version",
+        "phase": "save:Base_DataSet",
+        "reads": 25,
+        "writes": 2,
+        "confirmedSaves": 1,
+        "cleanupConfirmed": false,
+        "replayWrites": 0,
+        "checks": [
+          "original create permissions and formal identity API available",
+          "formal inactive status 2 confirmed",
+          "exact known rejection verified; same temporary identity independently absent before corrected payload",
+          "FAILED: [500] insert异常:org.springframework.jdbc.UncategorizedSQLException: PreparedStatementCallback; uncategorized SQLException; SQL state [HY000]; error code [1364]; Field 'Name' doesn't have a default value"
+        ],
+        "unknownOwnerRetained": false
+      }
+    },
+    {
+      "code": 0,
+      "audit": {
+        "kind": "native-workflow-start-ui-fixture",
+        "testedAt": "2026-11-02T16:06:26.303Z",
+        "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+        "marker": "SMOKE_DATA_CHAIN_WORKFLOW_1793634913131",
+        "workflowId": "F457501D2C214563940FFFF1E3A67AF6",
+        "workflowKey": "SM67AF6",
+        "lifecycle": "created",
+        "acknowledged": {
+          "create-definition": true,
+          "create-parameters": true,
+          "create-node": true
+        },
+        "deleted": {},
+        "initialParams": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"Value\":\"before\",\"ValueFun\":null,\"smokeKeep\":false}]",
+        "nodeId": "B1C6805F250FB0D1578BEEB128BCBDA2",
+        "mode": "resume-parameters",
+        "phase": "created",
+        "reads": 41,
+        "writes": 2,
+        "confirmedSaves": 2,
+        "cleanupConfirmed": false,
+        "replayWrites": 0,
+        "checks": [
+          "one acknowledged definition preserved; rejected parameter and uncreated node independently absent",
+          "three temporary records and submitted fields independently verified; no execution endpoint"
+        ],
+        "unknownOwnerRetained": false
+      }
+    }
+  ],
+  "browser": {
+    "cancelUnapplied": "before restored",
+    "saveZero": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 2,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_DataSet",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "F457501D2C214563940FFFF1E3A67AF6",
+              "inputParams": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"Value\":\"0\",\"ValueFun\":null,\"smokeKeep\":false}]"
+            }
+          ]
+        },
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_WorkflowNodeDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "B1C6805F250FB0D1578BEEB128BCBDA2",
+              "output_mapping": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"pid\":null,\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"isParent\":false}]"
+            }
+          ]
+        }
+      ]
+    },
+    "addSecond": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 2,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_DataSet",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "F457501D2C214563940FFFF1E3A67AF6",
+              "inputParams": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"Value\":\"0\",\"ValueFun\":null,\"smokeKeep\":false},{\"Description\":\"SMOKE_SECOND\",\"ValueFun\":null,\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"FieldType\":\"string\",\"Value\":\"false\",\"Name\":\"smoke_second\",\"rowid\":\"B4FC7D5D4C14491FB97B75EE5690C961\"}]"
+            }
+          ]
+        },
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_WorkflowNodeDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "B1C6805F250FB0D1578BEEB128BCBDA2",
+              "output_mapping": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"pid\":null,\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"isParent\":false},{\"rowid\":\"B4FC7D5D4C14491FB97B75EE5690C961\",\"pid\":null,\"Name\":\"smoke_second\",\"Description\":\"SMOKE_SECOND\",\"FieldType\":\"string\",\"isParent\":false}]"
+            }
+          ]
+        }
+      ]
+    },
+    "removeSecond": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 2,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_DataSet",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "F457501D2C214563940FFFF1E3A67AF6",
+              "inputParams": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"Value\":\"0\",\"ValueFun\":null,\"smokeKeep\":false}]"
+            }
+          ]
+        },
+        {
+          "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "metaName": "Base_WorkflowNodeDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "B1C6805F250FB0D1578BEEB128BCBDA2",
+              "output_mapping": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"pid\":null,\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"isParent\":false}]"
+            }
+          ]
+        }
+      ]
+    },
+    "layoutWrites": 0,
+    "workflowExecutions": 0
+  },
+  "cleanup": {
+    "kind": "native-workflow-start-ui-fixture",
+    "testedAt": "2026-11-02T16:21:35.899Z",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_1793634913131",
+    "workflowId": "F457501D2C214563940FFFF1E3A67AF6",
+    "workflowKey": "SM67AF6",
+    "lifecycle": "cleaned",
+    "acknowledged": {
+      "create-definition": true,
+      "create-parameters": true,
+      "create-node": true,
+      "delete-node": true,
+      "delete-parameters": true,
+      "delete-definition": true
+    },
+    "deleted": {
+      "node": true,
+      "parameters": true,
+      "definition": true
+    },
+    "initialParams": "[{\"rowid\":\"PARAM_F457501D2C214563940FFFF1E3A67AF6\",\"Name\":\"smoke_param\",\"Description\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131\",\"FieldType\":\"string\",\"NodeName\":\"SMOKE_DATA_CHAIN_WORKFLOW_1793634913131_START\",\"Value\":\"before\",\"ValueFun\":null,\"smokeKeep\":false}]",
+    "nodeId": "B1C6805F250FB0D1578BEEB128BCBDA2",
+    "mode": "cleanup",
+    "phase": "cleaned",
+    "reads": 57,
+    "writes": 3,
+    "confirmedSaves": 3,
+    "cleanupConfirmed": true,
+    "replayWrites": 0,
+    "checks": [
+      "three exact temporary records independently absent"
+    ],
+    "unknownOwnerRetained": false
+  }
+}

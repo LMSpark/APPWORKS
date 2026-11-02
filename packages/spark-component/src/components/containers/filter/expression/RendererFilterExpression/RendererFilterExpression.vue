@@ -46,6 +46,15 @@ const editingForRevision = computed(() => {
 })
 useDataViewEventBridge({resolvedView, onEditingChanged: refresh, onRowsChanged: invalidate,
   onCleared: invalidate, onConfigChanged: invalidate, onRequestStateChanged: invalidate})
+watch(resolvedView,(view,_previous,cleanup)=>{
+  if(!view)return
+  const discarded=(ids:ReadonlyArray<string|number>|undefined):void=>{
+    const key=identity.value
+    if(ids===undefined||(key!==undefined&&ids.includes(key)))invalidate()
+  }
+  view.events.on('editingDiscarded',discarded)
+  cleanup(()=>view.events.off('editingDiscarded',discarded))
+},{immediate:true})
 const currentRow = computed(() => {tick.value; return resolveDataViewEditingRow(resolvedView.value, row.value) ?? row.value})
 const identity = computed(() => {tick.value; return row.value ? resolvedView.value?.getPkKey(row.value) : undefined})
 const accessState = computed(() => {

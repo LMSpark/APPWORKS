@@ -3,8 +3,10 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,FieldJson,RendererTable,RendererGraph,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
@@ -25,6 +27,37 @@ async function open(workflowId='W1'){
  return {wrapper,router,click}
 }
 describe('workflow formal design page',()=>{
+ it('binds connector conditions to node endpoints, cancels unapplied input and clears only the condition record',async()=>{
+  const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
+  state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([{rowid:'OUT',Name:'Count',Description:'数量',FieldType:'int'}])
+  state.http.records['Base_DataModel_Relation']!.push({rowid:'RC',dataSetId:'W1',parentModId:'N1',childModId:'N1',filter:originalFilter})
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  expect(state.http.reads.some(read=>read.table==='Base_DataModel_Relation')).toBe(false)
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'edge',id:'E1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererFilterExpression).exists()).toBe(true))
+  const editor=f.wrapper.getComponent(RendererFilterExpression)
+  expect(editor.props('dataViewKey')).toBe(`${WORKFLOW_DESIGN}@Base_DataModel_Relation@connector`)
+  expect(editor.props('format')).toBe('spark-json');expect(editor.props('columns')).toEqual([{name:'Count',label:'数量',type:'int'}])
+  await editor.get('input[aria-label="数字常量"]').setValue('3');await flushPromises()
+  expect(f.wrapper.findAll('button').find(button=>button.text()==='保存条件')?.attributes('disabled')).toBeDefined()
+  await f.click('取消条件修改');expect(state.dirty[0]?.isDirty).toBe(false)
+  expect(editor.get('input[aria-label="数字常量"]').element).toHaveProperty('value','0')
+  await editor.get('input[aria-label="数字常量"]').setValue('3');await flushPromises();await editor.get('[data-action="apply"]').trigger('click');await flushPromises()
+  await f.click('保存条件')
+  expect(state.http.saves.map(save=>save.table)).toEqual(['Base_DataModel_Relation'])
+  expect(DataViewFilterCodec.parseStored(String(state.http.records['Base_DataModel_Relation']!.find(row=>row['rowid']==='RC')!['filter']))!.toJSON()).toEqual({field:'Count',operator:'eq',value:3})
+  await editor.get('[data-action="clear"]').trigger('click');await flushPromises()
+  const save=WorkflowConnectorCondition.save.bind(WorkflowConnectorCondition)
+  vi.spyOn(WorkflowConnectorCondition,'save').mockImplementationOnce(async(ds,...args)=>{
+   vi.spyOn(ds,'saveChanges').mockResolvedValueOnce({success:false,message:'明确拒绝删除'});return save(ds,...args)
+  })
+  await f.click('保存条件')
+  expect(f.wrapper.text()).toContain('重试条件删除');expect(f.wrapper.text()).not.toContain('新增条件')
+  expect(state.http.saves).toHaveLength(1)
+  await f.click('重试条件删除')
+  expect(state.http.records['Base_DataModel_Relation']).toEqual([{rowid:'R1',dataSetId:'W1',parentModId:'M1',childModId:'M2',description:'模型关系'}])
+  expect(state.http.records['Base_WorkflowConnectors']).toHaveLength(1);expect(state.http.saves[1]?.deleted).toEqual([expect.objectContaining({rowid:'RC'})])
+ })
  it('lazily binds start parameters, preserves metadata and saves their derived output through original views',async()=>{
   const param={rowid:'P1',Name:'code',Value:'old',FieldType:'string',Description:'原说明',ValueFun:{value:false},extra:0}
   state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:JSON.stringify([param])},{rowid:'W2',Type:'workflow',inputParams:'[]'}]

@@ -2,10 +2,11 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {RendererTable, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
+vi.mock('@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue',()=>({default:{name:'WorkflowEditorStub',props:['rowid'],data:()=>({hasPending:false,busy:false,unconfirmed:false}),methods:{discardChanges(this:{hasPending:boolean}){this.hasPending=false;return true}},template:'<div>workflow-editor</div>'}}))
 import Excel from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
@@ -40,6 +41,25 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['dirty','busy','unknown'])('guards the workflow dialog while %s and permits only a safe explicit discard',async kind=>{
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(Workflow,{global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
+    await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='打开设计')!.trigger('click');await flushPromises()
+    const editor=wrapper.getComponent({name:'WorkflowEditorStub'})
+    await editor.setData({hasPending:kind!=='busy',busy:kind==='busy',unconfirmed:kind==='unknown'})
+    expect(wrapper.getComponent(RendererDialog).props('closeDisabled')).toBe(true)
+    wrapper.getComponent(RendererDialog).vm.$emit('update:modelValue',false);await flushPromises()
+    expect(wrapper.findComponent({name:'WorkflowEditorStub'}).exists()).toBe(true)
+    const discard=wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='放弃修改并关闭')
+    if(kind==='dirty'){
+      expect(discard?.props('disabled')).toBe(false);discard!.vm.$emit('click');await flushPromises()
+      expect(wrapper.findComponent({name:'WorkflowEditorStub'}).exists()).toBe(false)
+    }else if(kind==='unknown')expect(discard?.props('disabled')).toBe(true)
+    expect(state.http.saves).toEqual([])
+  })
   it.each([
     [Workflow, WORKFLOW, '入库流程', 'workflowId', 'W1', 'Base_WorkflowDefinition'],
     [Excel, EXCEL, '订单导入', 'importConfigId', 'E1', 'Base_Import_solution'],
@@ -56,9 +76,10 @@ describe('formal topic catalog pages', () => {
     expect(open().attributes('disabled')).toBeDefined()
     await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click'); await flushPromises()
     await open().trigger('click'); await flushPromises()
-    if (scenarioId === EXCEL) {
+    if (scenarioId === EXCEL || scenarioId === WORKFLOW) {
       expect(push).not.toHaveBeenCalled()
-      expect(wrapper.getComponent({name:'ExcelEditorStub'}).props('schemeRowid')).toBe(identity)
+      if(scenarioId===EXCEL)expect(wrapper.getComponent({name:'ExcelEditorStub'}).props('schemeRowid')).toBe(identity)
+      else expect(wrapper.getComponent({name:'WorkflowEditorStub'}).props('rowid')).toBe(identity)
       expect(router.currentRoute.value.path).toBe('/catalog')
     } else expect(push).toHaveBeenCalledWith(expect.objectContaining({query: {[parameter]: identity}}))
     expect(state.http.reads.some(read => read.table === metaName)).toBe(true)

@@ -40,6 +40,28 @@ function fixture() {
 }
 
 describe('query column ownership', () => {
+  it('removes only the deleted row editing overlay and restores the query baseline on cancellation', async () => {
+    const f=fixture()
+    try{
+      await Promise.all([f.view.refresh(),f.other.refresh()])
+      f.view.updateEditingValue('1','text','deleted draft');f.other.updateEditingValue('1','text','other view draft')
+      expect(await f.view.removeRow('1')).toBe(true)
+      expect(f.view.hasEditingChanges('1')).toBe(false)
+      expect(f.other.getEditingRow('1')?.['text']).toBe('other view draft')
+      expect(f.view.dirtyTracking.pendingDeleteIds.has('1')).toBe(true)
+      f.view.discardPendingChanges()
+      expect(f.view.rows[0]?.['text']).toBe('before');expect(f.view.hasEditingChanges()).toBe(false)
+      expect(f.other.getEditingRow('1')?.['text']).toBe('other view draft')
+    }finally{f.ds.destroy()}
+  })
+  it('retains the editing overlay when staged deletion is denied',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh();f.view.updateEditingValue('1','text','retained draft');f.view.allowDelete=false
+      await expect(f.view.removeRow('1')).rejects.toThrow('DATA_VIEW_DELETE_DISABLED')
+      expect(f.view.getEditingRow('1')?.['text']).toBe('retained draft');expect(f.view.hasEditingChanges('1')).toBe(true)
+    }finally{f.ds.destroy()}
+  })
   it('uses the bound query catalogue for derived views without querying or persisting it', () => {
     const ds = DataSet.fromJson({scenarioId: 'SPACE', tables: {File: {resourceType: 'file', resourceId: 'config',
       columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'text', type: 'string'},

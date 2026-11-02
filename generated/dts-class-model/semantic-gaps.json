@@ -1,5 +1,5 @@
 {
-  "gapCount": 3466,
+  "gapCount": 3472,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -35559,6 +35559,77 @@
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
       "declarationLine": 13,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/structured-config/workflow-definition/connector-condition",
+      "moduleName": "app:lowcode/resources/structured-config/workflow-definition/connector-condition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/structured-config/workflow-definition/connector-condition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectorCondition",
+      "memberName": "load",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectorCondition.load 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectorCondition",
+      "memberName": "columns",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectorCondition.columns 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectorCondition",
+      "memberName": "presentation",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectorCondition.presentation 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectorCondition",
+      "memberName": "add",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectorCondition.add 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationLine": 25,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "method",
+      "className": "WorkflowConnectorCondition",
+      "memberName": "save",
+      "reason": "missing-jsdoc",
+      "chainBreak": "WorkflowConnectorCondition.save 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "declarationLine": 26,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
       "declarationKind": "class"
     },
     {

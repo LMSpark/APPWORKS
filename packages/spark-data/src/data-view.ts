@@ -2853,7 +2853,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   /**
-   * 本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交）；
+   * 本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交），成功后清除此行编辑覆盖；取消恢复原查询基线。
    * commitMode='immediate' 且已配置 API 时立即调用 crud.deleteRecord。
    *
    * @param id 目标行主键值。
@@ -2872,6 +2872,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     if (result) {
       this.dirtyTrackingDelegate.trackDelete(id, snapshot)
       this.#explicitNewRowIds.delete(id)
+      this.discardEditingRows([id])
     }
     return result
   }

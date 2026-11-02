@@ -17,7 +17,7 @@ export type RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpress
   display?: 'dialog' | 'inline'
   /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */
   displayMode?: 'box' | 'inline'
-  /** 存在未应用草稿或编辑弹窗时通知true；取消、应用接受、换绑定、失权及释放后通知false。 */
+  /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */
   onEditingChange?: (editing: boolean) => void
   /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */
   columns: readonly DataColumn[]

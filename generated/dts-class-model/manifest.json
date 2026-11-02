@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1000,
+  "scannedFileCount": 1001,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14025,6 +14025,21 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/connector-condition",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/connector-condition",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/connector-condition\n职责：按流程及连接器的节点端点维护条件，提供源节点输出字段目录。\n边界：不把模型关系改成节点条件，不持有草稿、不执行过滤或工作流；读写和未知回执归原DataView。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowConnectorCondition"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout-document.ts.json",
       "module": {
@@ -22888,6 +22903,10 @@
     "WorkerClassModelKnowledgeProvider": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-client.ts",
       "file": "files/packages/spark-ai/src/class-model/knowledge/worker-knowledge-client.ts.json"
+    },
+    "WorkflowConnectorCondition": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json"
     },
     "WorkflowControlEdgeSlot": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",

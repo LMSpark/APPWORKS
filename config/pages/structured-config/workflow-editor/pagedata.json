@@ -303,6 +303,21 @@
         "modelName": "Base_DataModel_Relation"
       },
       "views": {
+        "connector": {
+          "autoLoad": false,
+          "autoCurrentFirst": true,
+          "commitMode": "staged",
+          "queryContext": {"workflowId": "", "sourceNodeId": "", "targetNodeId": ""},
+          "queryConfig": {"fields": ["rowid", "dataSetId", "parentModId", "childModId", "parentTable", "childTable", "depType", "filter", "cascadeDel", "description"], "allPages": true},
+          "filterExpression": {
+            "logic": "and",
+            "filters": [
+              {"field": "dataSetId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "workflowId"}},
+              {"field": "parentModId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "sourceNodeId"}},
+              {"field": "childModId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "targetNodeId"}}
+            ]
+          }
+        },
         "asParent": {
           "autoLoad": false,
           "autoCurrentFirst": false,

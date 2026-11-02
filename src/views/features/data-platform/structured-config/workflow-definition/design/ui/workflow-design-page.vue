@@ -8,7 +8,7 @@
     <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
     <p v-if="missing" role="alert">当前工作流不存在</p>
     <template v-if="ready && validTarget">
-      <RendererForm :data-view-key="definitionKey" :auto-columns="false" :show-data-view-meta="false">
+      <RendererForm :data-view-key="definitionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
         <FieldText field="name" label="工作流名称" :readonly="true" />
         <FieldText field="workflow_key" label="工作流编码" :readonly="true" />
       </RendererForm>
@@ -22,7 +22,7 @@
         <RendererButton v-if="layoutRow" :label="isUnconfirmed(layoutTable) ? '核验布局保存结果' : '保存布局'" :disabled="busy || pendingPart('layout')" @click="save(layoutTable)" />
         <RendererButton v-if="layoutRow" label="取消布局修改" :disabled="busy || unconfirmed" @click="cancel(layoutTable)" />
       </div>
-      <RendererForm v-if="layoutRow && layoutError" :data-view-key="layoutKey" :auto-columns="false" :show-data-view-meta="false">
+      <RendererForm v-if="layoutRow && layoutError" :data-view-key="layoutKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
         <FieldJson field="content" label="布局原文" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('layout.content',value)" />
       </RendererForm>
       <div class="workflow-workspaces">
@@ -35,7 +35,7 @@
             <section v-if="isStartNode">
               <h2>开始输入参数</h2>
               <p v-if="startParametersMissing && !loading" role="alert">当前流程缺少唯一的开始参数定义或开始节点</p>
-              <RendererForm v-if="!startParametersMissing" :data-view-key="parametersKey" :auto-columns="false" :show-data-view-meta="false">
+              <RendererForm v-if="!startParametersMissing" :data-view-key="parametersKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
                 <FieldJson :data-view-key="parametersKey" field="inputParams" label="输入参数" mode="rows" :children="parameterFields" :row-adapter="parameterAdapter" :readonly="locked" :on-editing-change="value=>pending('start.parameters',value)" />
               </RendererForm>
               <RendererButton :label="startUnconfirmed ? '核验开始参数保存结果' : '保存开始参数'" :disabled="busy || pendingPart('start') || startParametersMissing" @click="saveStartParameters" />
@@ -43,7 +43,7 @@
             </section>
             <template v-else>
             <h2>节点配置</h2>
-            <RendererForm :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false">
+            <RendererForm :data-view-key="nodesKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
               <FieldText :data-view-key="nodesKey" field="name" label="节点名称" :readonly="locked" />
               <FieldText field="description" label="节点描述" :readonly="locked" />
               <FieldText field="node_type" label="节点类型" :readonly="true" />
@@ -58,7 +58,7 @@
             <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
             <section v-if="validModel">
               <h2>模型配置</h2>
-              <RendererForm :data-view-key="modelKey" :auto-columns="false" :show-data-view-meta="false">
+              <RendererForm :data-view-key="modelKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
                 <FieldText field="Name" label="模型名称" :readonly="true" />
                 <FieldText field="MetaName" label="来源资源" :readonly="true" />
                 <FieldText field="Type" label="资源类型" :readonly="true" />
@@ -79,7 +79,7 @@
           </template>
           <template v-else-if="selectedKind === 'edge' && selectedEdge">
             <h2>连线配置</h2>
-            <RendererForm :data-view-key="edgesKey" :auto-columns="false" :show-data-view-meta="false">
+            <RendererForm :data-view-key="edgesKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
               <FieldText field="name" label="连线名称" :readonly="locked" />
               <FieldText field="description" label="连线描述" :readonly="locked" />
               <FieldText field="sourceID" label="来源节点" :readonly="true" />
@@ -88,6 +88,15 @@
             </RendererForm>
             <RendererButton :label="isUnconfirmed(edgesTable) ? '核验连线保存结果' : '保存连线'" :disabled="busy || pendingPart('edges')" @click="save(edgesTable)" />
             <RendererButton label="取消连线修改" :disabled="busy || unconfirmed" @click="cancel(edgesTable)" />
+            <h3>连线条件</h3>
+            <p v-if="conditionState.error" role="alert">{{ conditionState.error }}</p>
+            <RendererButton v-if="conditionState.ready && !conditionState.row && !conditionUnconfirmed && !conditionDeleting" label="新增条件" :data-view-key="conditionKey" perm-action="create" :disabled="locked || !!conditionState.error" @click="changeCondition('add')" />
+            <RendererFilterExpression v-if="conditionState.row && !conditionState.error" :data-view-key="conditionKey" field="filter" format="spark-json" display="inline" :columns="conditionState.columns" :function-context="conditionState.functionContext" :readonly="locked" :on-editing-change="value=>pending('condition.filter',value)" />
+            <RendererForm v-if="conditionState.row && conditionState.error" :data-view-key="conditionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
+              <FieldJson field="filter" label="原条件" mode="text" :readonly="true" />
+            </RendererForm>
+            <RendererButton v-if="conditionState.row || conditionUnconfirmed || conditionDeleting" :label="conditionUnconfirmed ? '核验条件保存结果' : conditionDeleting ? '重试条件删除' : '保存条件'" :disabled="busy || pendingPart('condition') || (!!conditionState.error && !conditionUnconfirmed && !conditionDeleting)" @click="changeCondition('save')" />
+            <RendererButton v-if="conditionState.ready" label="取消条件修改" :disabled="busy || unconfirmed" @click="cancelCondition" />
           </template>
           <p v-else>请选择节点或连线后编辑</p>
         </aside>
@@ -107,7 +116,8 @@ import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/w
 import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
 import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
-const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,FieldText,FieldJson,useSparkComponent}=SparkComponent
+import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
+const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
 const scene=LowcodeWorkflowDefinition.designScenarioId,nodesTable='Base_WorkflowNodeDefinition',edgesTable='Base_WorkflowConnectors'
@@ -115,6 +125,7 @@ const nodesKey=buildDataViewKey(nodesTable,'default',scene),edgesKey=buildDataVi
 const modelTable='Base_DataModel',fieldsTable='Base_DataModel_Field',relationsTable='Base_DataModel_Relation'
 const modelKey=buildDataViewKey(modelTable,'default',scene),fieldsKey=buildDataViewKey(fieldsTable,'default',scene)
 const parametersKey=buildDataViewKey('Base_DataSet','default',scene)
+const conditionKey=buildDataViewKey(relationsTable,'connector',scene),conditionView=()=>dataSet.value?.getView(relationsTable,'connector')
 const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),childRelationsKey=buildDataViewKey(relationsTable,'asChild',scene)
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
@@ -132,6 +143,16 @@ const hasPending=computed(()=>{revision.value;return acting.value||inputs.value.
 useSystemPageDirtySource({get isDirty(){return opening.value||hasPending.value}})
 const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.currentRow})
 const selectedEdge=computed(()=>{revision.value;return view(edgesTable)?.currentRow})
+const selectedEdgeId=computed(()=>{revision.value;const row=selectedEdge.value;return row?view(edgesTable)?.getPkKey(row):undefined})
+const conditionUnconfirmed=computed(()=>{revision.value;return conditionView()?.hasUnconfirmedSave===true})
+const conditionDeleting=computed(()=>{revision.value;return (conditionView()?.dirtyTracking.pendingDeleteIds.size??0)>0})
+const conditionState=computed(()=>{
+ revision.value
+ const empty={ready:false,row:undefined,columns:[],functionContext:{},error:''},ds=dataSet.value,id=selectedEdgeId.value
+ if(selectedKind.value!=='edge'||!ds||id===undefined||conditionView()?.requestState!==RequestState.Loaded)return empty
+ try{const state=WorkflowConnectorCondition.presentation(ds,workflowId.value,id);return{...state,ready:true,error:state.outputError}}
+ catch(cause){return{...empty,error:cause instanceof Error?cause.message:String(cause)}}
+})
 const isStartNode=computed(()=>{revision.value;const node=selectedNode.value;return !!node&&view(nodesTable)?.fieldAccess(node,'position_type').read==='visible'&&String(node['position_type']).trim()==='0'})
 const startView=()=>dataSet.value?.getView(nodesTable,'start')
 const startParametersMissing=computed(()=>{revision.value;const params=view('Base_DataSet'),start=startView(),node=selectedNode.value;return !node||params?.rows.length!==1||params.getPkKey(params.rows[0]!)!==workflowId.value||start?.rows.length!==1||start.getPkKey(start.rows[0]!)!==view(nodesTable)?.getPkKey(node)})
@@ -181,7 +202,21 @@ function selectObject(event:SparkComponent.GraphSelection):void{
  if(!row){event.control.cancel=true;return}
  target?.setCurrentRow(row);selectedKind.value=event.kind;revision.value++
  if(event.kind==='node'){if(isStartNode.value)void loadStartParameters();else void loadNodeModel(row)}
+ else void loadCondition()
 }
+async function loadCondition():Promise<void>{
+ const ds=dataSet.value,id=selectedEdgeId.value,own=generation;if(!ds||id===undefined)return
+ try{await WorkflowConnectorCondition.load(ds,workflowId.value,id)}catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+}
+async function changeCondition(action:'add'|'save'):Promise<void>{
+ const ds=dataSet.value,id=selectedEdgeId.value,own=generation
+ if(!ds||id===undefined||busy.value||loadedTarget.value!==workflowId.value||pendingPart('condition'))return
+ acting.value=true;error.value=''
+ try{if(action==='add')await WorkflowConnectorCondition.add(ds,workflowId.value,id);else{const result=await WorkflowConnectorCondition.save(ds,workflowId.value,id);if(!result.success)throw Error(result.message??'条件保存未完整确认')}}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function cancelCondition():void{if(busy.value||unconfirmed.value)return;try{conditionView()?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function loadStartParameters():Promise<void>{
  const params=view('Base_DataSet'),start=startView(),own=generation
  try{if(!params||!start)throw Error('开始参数正式视图缺失');await Promise.all([params.refresh(),start.refresh()]);if(params.loadingError)throw params.loadingError;if(start.loadingError)throw start.loadingError}

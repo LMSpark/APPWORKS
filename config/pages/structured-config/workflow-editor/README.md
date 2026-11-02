@@ -12,6 +12,10 @@
 
 节点选中后按参考语义定位模型：普通query/copy使用node_config，add/edit/delete使用dataOperateModId；开始/结束、merge及未确认类型不按拥有独立模型处理。node_config是模型身份，不能当作JSON配置编辑。模型视图同时限定workflowId对应dataSetId和本次modelId，模型选中后由显式原生级联查询字段与父、子两类原服务关系。关系只呈现已有后端记录，不当成本仓resourceRelations或SQL join，也不将模型端点改解释为节点条件。未选中节点前不加载模型及字段；缺失或跨流程引用不回退其他模型。
 
-开始节点按需查询Base_DataSet（rowid=workflowId、Type=workflow）及节点start命名视图。标准FieldJson rows绑定inputParams，标准字段子组件维护名称、类型、默认值及说明；行草稿/取消由公共组件负责，保留ValueFun与未知成员。确认时校验名称和稳定身份，派生开始output_mapping，明确选择这两份正式记录经DataSet保存，不夹带默认节点视图的其他编辑；未知结果先核验原owner，不重放、不承诺事务。缺失或重复定义明确提示，不在读取时创建记录。实服已验证1定义、1开始节点、1参数及本地修改取消（11读、0写）；保存/重开、下游执行、参考字段候选及完整交互仍待真实验收。
+开始节点按需查询Base_DataSet（rowid=workflowId、Type=workflow）及节点start命名视图。标准FieldJson rows绑定inputParams，标准字段子组件维护名称、类型、默认值及说明；行草稿/取消由公共组件负责，保留ValueFun与未知成员。确认时校验名称和稳定身份，派生开始output_mapping，明确选择这两份正式记录经DataSet保存，不夹带默认节点视图的其他编辑；未知结果先核验原owner，不重放、不承诺事务。缺失或重复定义明确提示，不在读取时创建记录。2026-11-03已用授权三条临时记录完成实服浏览器编辑、取消、默认值0保存、新增第二参数、删除第二参数及每次独立回读，输出映射同步；三记录已清理并独立核空。证据为evidence/data-chain-smoke/2026-11-03-workflow-start-browser-lifecycle.json。下游执行、参考字段候选及完整交互仍待真实验收。
+
+连线选中后，Base_DataModel_Relation.connector按当前workflowId及源、目标节点ID查询条件；原asParent/asChild继续表示模型关系。标准过滤器直接绑定原filter字段，显式新增、保存、清空和取消走原DataView；清空删除条件，不删除连接器。明确删除失败保留原待办供重试或取消，未知提交只核验原owner。层次输出字段的实际服务路径合同未确认时保留条件原文只读并提示，不猜点路径、不把根Count等同服务计数。当前条件CRUD及失败分支通过夹具，未在线写入或执行条件，保存回读不证明所有运算符可执行。
+
+目录在原导航身份下以标准对话框打开此原路径组件，仅传目标rowid；未保存、忙碌或未知结果阻止关闭，安全时可显式放弃。目录“新增工作流”的正式新建表单及持久链仍未恢复，不能用随机目标打开设计代替新建。
 
 模型及字段说明可各自沿所绑定视图保存、取消，其他模型定义属性目前仅呈现。存量一条操作节点引用的模型在当次正式查询中不可解析，未擅自创建或重挂；节点新增、字段和关系完整配置、执行与1:1操作仍待恢复。完整状态及证据统一记录在 `notes/data-space-retirement-ledger.md`。

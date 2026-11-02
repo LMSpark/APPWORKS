@@ -2776,7 +2776,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T05:23:16.001Z",
+  "generatedAt": "2026-11-02T15:49:29.105Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -6276,7 +6276,7 @@
             },
             {
               "name": "removeRow",
-              "jsdoc": "本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交）；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.deleteRecord。\n@param id 目标行主键值。",
+              "jsdoc": "本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交），成功后清除此行编辑覆盖；取消恢复原查询基线。\ncommitMode='immediate' 且已配置 API 时立即调用 crud.deleteRecord。\n@param id 目标行主键值。",
               "parameters": [
                 {
                   "name": "id",

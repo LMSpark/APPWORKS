@@ -1,0 +1,140 @@
+{
+  "date": "2026-11-02",
+  "kind": "real-service-source-candidate-contract-read",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "8D1AB14DD8277F3E7017CD38F77B09FD",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 6,
+  "writeRequests": 0,
+  "externalInterfacesInvoked": false,
+  "candidateQueries": [
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "View_TblList",
+      "success": true,
+      "total": 1146,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {
+          "rowid": "6EB57351E4484D089629CD53147B8D77",
+          "tblname": "Base_DataAccountDeveloper",
+          "tbldesc": "数据账号与开发商账号关系表",
+          "dbid": null,
+          "DbName": null
+        }
+      ]
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "_Base_DictType",
+      "success": true,
+      "total": 351,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {
+          "rowid": "003709DDDB8469AC580AFFABFDEE70EE",
+          "TypeName": "hr_performance_result_grade",
+          "functiondesc": "考核结果等级"
+        }
+      ]
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataServiceInterface",
+      "success": true,
+      "total": 87,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {
+          "rowid": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+          "Name": "是否存在服务器或数据库",
+          "Desc": null,
+          "ProviderID": "BA0159D310154FEC9CFEF05558DEA012"
+        }
+      ]
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_JsonData",
+      "success": true,
+      "total": 11,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {
+          "rowid": "164E9619378943B298687C28B02983E2",
+          "name": "测试新增json文件"
+        }
+      ]
+    }
+  ],
+  "followupQueries": [
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "View_TblList",
+      "success": true,
+      "total": 222,
+      "countReported": true,
+      "returned": 1,
+      "rows": [
+        {
+          "rowid": "00EB54040C01C782BFE79D4F3C4F7884",
+          "tblname": "Base_NavigationInfo",
+          "tbldesc": "导航配置主表",
+          "dbid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat"
+        }
+      ]
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "_Base_ParamList",
+      "success": true,
+      "total": 6,
+      "countReported": true,
+      "returned": 5,
+      "rows": [
+        {
+          "parid": "1EDDBEFB793A4DF58CA1D7DDE4D01577",
+          "pid": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+          "parname": "ip"
+        },
+        {
+          "parid": "658346F860B041C8A745A8BD1866F5A0",
+          "pid": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+          "parname": "uid"
+        },
+        {
+          "parid": "9622D6F7D2834F03A8211E3BEE2A42FD",
+          "pid": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+          "parname": "type"
+        },
+        {
+          "parid": "C949F03B9B8B4C899A9691FE9B3B9836",
+          "pid": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+          "parname": "pwd"
+        },
+        {
+          "parid": "CBC83243C3E24D97ACC15AF81DD1CAF8",
+          "pid": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+          "parname": "port"
+        }
+      ]
+    }
+  ],
+  "observations": [
+    "First sampled physical-table directory row has dbid/DbName null. Do not treat its rowid as database identity. Existing source preparation rejects missing database identity.",
+    "Filtered EBEFF database source returns 222 total candidates; first has explicit database identity/name.",
+    "Interface parameter query reports six rows; only first five read with safe projection. Not full parameter acceptance.",
+    "Four candidate directory reads are not source execution or full source-field preparation."
+  ],
+  "next": "Attach source definitions lazily to the existing metadata DataSet; reuse createQueryView for auxiliary queries on existing parameter table; keep parameter drafts and original query owners intact.",
+  "limits": [
+    "Candidate metadata only; no external API execution",
+    "No credentials, parameter values, raw permissions or auth headers persisted",
+    "No source repair, node write or design SaveView request"
+  ]
+}

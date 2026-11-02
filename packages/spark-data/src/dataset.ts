@@ -1026,7 +1026,24 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     }
 
     const table = new DataTable(tableName, columns)
-    this.tables[tableName] = table
+    return this._attachNewTable(table)
+  }
+
+  /**
+   * 按需将原生表定义加入当前空间，保留模型绑定、资源、字段及命名视图配置。
+   * 不替换已有表/视图/草稿，不查询数据、不授予权限、不绑定查询或保存owner；调用方继续绑定该资源的正式owner。
+   * 新视图进入当前DataSet的订阅和释放链；重复表名、无效定义或已释放空间明确报错。
+   */
+  addTableFromJson(metadata: TableMetadata | Record<string, unknown>): DataTable {
+    if (this.destroyed) throw new Error(`DataSet "${this.dataSetName}" has been destroyed`)
+    const table = DataTable.fromJson(metadata)
+    try {return this._attachNewTable(table)}
+    catch (cause) {table.destroy();throw cause}
+  }
+
+  private _attachNewTable(table: DataTable): DataTable {
+    if (this.tables[table.tableName]) throw new Error(`Table "${table.tableName}" already exists in DataSet "${this.dataSetName}"`)
+    this.tables[table.tableName] = table
     table.setDataSet(this)
     table.forEachView(view => this._subscribeNewView(view))
     return table

@@ -4700,3 +4700,14 @@ flowchart TD
 - d556ce9c3acbd5433aa85f47b412e36ba765123d已推送并以ls-remote核origin/1031相同，工作树当时干净。最终截图复查又发现标准detail标题/值的通用布局使只读节点文字竖排；继续在outline内部限定field-display为block、隐藏重复标题、值nowrap，不改其它detail宿主。新截图已目检为单行节点文字；默认窄屏和1440×900的900断点两侧已验，桌面两列361.328/722.672，试验视口已reset，横向内容仍由原表格滚动。
 - 浏览器审计追加最终窄屏与桌面截图SHA，CSS修正的正式生成/verify/build43923正在执行，未提前把该修正称最终门禁已过；根目标及来源/节点操作/预览剩余工作保持。
 - CSS修正最后43923退出0：正式生成、完整verify、完整build均通过（logic-node-display-{generate,verify,build}.log），既有动态导入提示保留；该补充仅影响outline内呈现，先前标准字段/表格33文件363项及节点页面14项的行为验证仍对应同一逻辑实现。补充提交推送origin/1031；当前节点/字段/联表配置和取消链是已验证进展，仍不核销来源选择、预览及全架构其它开放项。
+
+### 2026-11-02 来源选择按需装配的原生DataSet缺口
+- 上轮为progress，d556ce9c3/12ddf0c0d已推送；本轮从12ddf0c0d干净树继续参考固定APPWorks APP的来源确认和删除语义：选中节点则加入ChildTables，否则加入根数组；删除节点及整棵子树并回到父节点，不删除正式来源目录。
+- 读取现有LowcodeDataSpaceSourceCatalog/ModelSourceReader及config/pages/data-platform/data-space-design/pagedata.json，确认可以复用来源模型、查询投影和sourceCandidates/sourceDetails命名视图，不能直接照搬原模型创建器的字段默认/参数类型。参考resolvePrimaryKey回退rowid、DbId回退source.rowid均须按真实来源核定，不能视为业务要求。
+- 当前同PageRuntime已有元数据8D…DataSet承载参数；不能再装第二个同ID空间，也不能重建整个DataSet丢参数草稿。原生addTable仅接受列，无法保留正式modelBinding与命名视图；replaceFromJson会替换现有对象。Ruling: 在spark-data补addTableFromJson，复用DataTable.fromJson和原表挂接/订阅链，保留模型绑定、资源、列及命名视图；不查询、不授予权限、不绑定或复制原查询结果。重复名称、已释放owner拒绝；其它表/草稿不变。此能力直接用于当前来源对话框的按需结构装配，不引入第二份元数据配置。
+- 正式ClassModel现有DataSet.addTable概要及DataTable.fromJson合同已核对；发现DataView.createQueryView已有原生辅助查询能力，后续对已有_Base_ParamList增加sourceDetails直接复用它，不另造视图owner/权限，也不重复读取正式模型来替换既有绑定。新增来源表仍须从正式模型经原assembler校验，再挂接并绑定原DataSpaceRuntimeApi；不能只addTableFromJson就称来源已接入。
+- 新测试先RED（logic-source-add-table-red.log，3项因缺少方法失败）；实现后3文件17项通过（green.log），覆盖原参数实例/草稿保留、modelBinding/resource/命名视图原样保留、DataSet订阅与释放、同名拒绝保留原表、已释放空间拒绝。数据集影响12文件172项通过（impact.log）。方法已通过正式生成链产出指南，未手改生成文件；来源UI尚未调用本次新能力，不称来源选择完成。
+- 实服原生SPARK data只读6次：四类候选目录View_TblList/_Base_DictType/Base_DataServiceInterface/Base_JsonData均成功，total分别1146/351/87/11，各只取首行且countReported=true。首个表来源6EB57351E4484D089629CD53147B8D77的dbid/DbName均null；不据此认定所有候选错误，不把该rowid当数据库ID。按现存数据库EBEFF过滤返回222候选，首个Base_NavigationInfo带真实dbid/DbName，说明可用与缺归属来源须逐项区分。
+- 首个接口0416D1D8C18A4784B15CA4BDFF2F96D7只读其正式参数（安全投影parid/pid/parname/pardesc，无测试值）：total6，只读首5条，未核全参数。未调用接口、未保存节点、未修正来源。evidence/data-chain-smoke/2026-11-02-logic-source-candidate-contract-audit.json记录正式身份/计数与限制，不存密码、参数值、原始权限或headers。
+- 当前新方法无UI变更；原节点/字段/联表基础绑定保持。正式生成/完整verify/build54793待最后终态；来源候选接线、节点增删、输入参数、过滤/函数交互、预览及全架构开放项继续，不把平台能力或目录读取通过称整页通过。
+- 最后54793已退出0：12文件172项影响测试、正式ClassModel生成、完整verify、完整build全部通过（logic-source-add-table-{impact,generate,verify,build}.log），既有告警保留。检查点提交推送origin/1031，工作继续active；下一步在同一8D元数据DataSet按需装入来源命名视图，再将原来源准备与新增/删除命令接到节点工作区。此处没有实服业务写入或来源UI完成声明。

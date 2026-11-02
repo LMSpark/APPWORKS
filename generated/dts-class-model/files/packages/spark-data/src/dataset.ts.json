@@ -486,6 +486,26 @@
         "method.addTable.return": {
           "$ref": "data-table.ts.json#/$defs/DataTable"
         },
+        "method.addTableFromJson.params": {
+          "type": "object",
+          "properties": {
+            "metadata": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/TableMetadata"
+                },
+                {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.addTableFromJson.return": {
+          "$ref": "data-table.ts.json#/$defs/DataTable"
+        },
         "method.assertCanRemoveTable.params": {
           "type": "object",
           "properties": {
@@ -799,7 +819,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:17:13.909Z",
+  "generatedAt": "2026-11-02T04:32:36.629Z",
   "models": {
     "DataSetConfig": {
       "name": "DataSetConfig",
@@ -1534,6 +1554,44 @@
                       "name": "DataColumn",
                       "sourcePath": "packages/spark-data/src/types.ts"
                     }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataTable",
+                "sourcePath": "packages/spark-data/src/data-table.ts"
+              }
+            },
+            {
+              "name": "addTableFromJson",
+              "jsdoc": "按需将原生表定义加入当前空间，保留模型绑定、资源、字段及命名视图配置。\n不替换已有表/视图/草稿，不查询数据、不授予权限、不绑定查询或保存owner；调用方继续绑定该资源的正式owner。\n新视图进入当前DataSet的订阅和释放链；重复表名、无效定义或已释放空间明确报错。",
+              "parameters": [
+                {
+                  "name": "metadata",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "TableMetadata",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
               ],

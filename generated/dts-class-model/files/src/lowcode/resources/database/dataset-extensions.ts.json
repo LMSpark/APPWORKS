@@ -341,6 +341,11 @@
           "type": "object",
           "title": "(tableName: string, columns: SparkData.DataColumn[]) => SparkData.DataTable"
         },
+        "addTableFromJson": {
+          "type": "object",
+          "title": "(metadata: SparkData.TableMetadata | Record<string, unknown>) => SparkData.DataTable"
+        },
+        "_attachNewTable": true,
         "assertCanRemoveTable": {
           "type": "object",
           "title": "(tableName: string) => void"
@@ -497,6 +502,8 @@
         "commitSnapshot",
         "restoreSnapshot",
         "addTable",
+        "addTableFromJson",
+        "_attachNewTable",
         "assertCanRemoveTable",
         "removeTable",
         "assertRemovableTable",

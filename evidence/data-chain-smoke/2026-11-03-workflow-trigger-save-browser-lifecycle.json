@@ -1,0 +1,244 @@
+{
+  "date": "2026-11-03",
+  "productHead": "8be226ce0b91f488839c35e86a59482be25dc612",
+  "kind": "actual-service-workflow-trigger-browser-lifecycle",
+  "fixtureId": "806B196D9DA046DC8043DF41830B647D",
+  "authorization": "explicit one stopped trigger definition, followed by user persistent full CRUD smoke authorization",
+  "preflight": {
+    "kind": "workflow-trigger-save-fixture",
+    "testedAt": "2026-11-02T18:27:47.558Z",
+    "id": "806B196D9DA046DC8043DF41830B647D",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+    "key": "ST0B647D",
+    "phase": "preflight-ready",
+    "mode": "preflight",
+    "reads": 7,
+    "writes": 0,
+    "confirmed": 0,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "create": {
+    "kind": "workflow-trigger-save-fixture",
+    "testedAt": "2026-11-02T18:29:22.458Z",
+    "id": "806B196D9DA046DC8043DF41830B647D",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+    "key": "ST0B647D",
+    "phase": "created",
+    "created": true,
+    "mode": "create",
+    "reads": 15,
+    "writes": 1,
+    "confirmed": 1,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "baseline": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "806B196D9DA046DC8043DF41830B647D",
+            "name": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+            "workflow_key": "ST0B647D",
+            "description": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+            "status": 2,
+            "version": "1",
+            "timeExp": "",
+            "tblName": "",
+            "tableOperate": "",
+            "filter": "",
+            "dbName": "",
+            "tblid": "",
+            "activeType": "table",
+            "sysid": "D99A1DCE9894698799101EFD70F8FC76"
+          }
+        ]
+      }
+    ]
+  },
+  "tableSave": {
+    "browserClicks": 1,
+    "readback": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 1,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+          "metaName": "Base_WorkflowDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "806B196D9DA046DC8043DF41830B647D",
+              "name": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+              "workflow_key": "ST0B647D",
+              "description": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+              "status": 2,
+              "version": "1",
+              "timeExp": "",
+              "tblName": "Base_NavigationInfo",
+              "tableOperate": "delete,add,edit",
+              "filter": "{\"Type\":\"cond\",\"Field\":\"Number\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}",
+              "dbName": "QYVirtualPlat",
+              "tblid": "00EB54040C01C782BFE79D4F3C4F7884",
+              "activeType": "table",
+              "sysid": "D99A1DCE9894698799101EFD70F8FC76"
+            }
+          ]
+        }
+      ]
+    },
+    "decodedFilter": {
+      "field": "Number",
+      "operator": "eq",
+      "value": 0
+    },
+    "otherFieldsUnchanged": true,
+    "reopened": true
+  },
+  "timeCancelReadback": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "806B196D9DA046DC8043DF41830B647D",
+            "name": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+            "workflow_key": "ST0B647D",
+            "description": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+            "status": 2,
+            "version": "1",
+            "timeExp": "",
+            "tblName": "Base_NavigationInfo",
+            "tableOperate": "delete,add,edit",
+            "filter": "{\"Type\":\"cond\",\"Field\":\"Number\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}",
+            "dbName": "QYVirtualPlat",
+            "tblid": "00EB54040C01C782BFE79D4F3C4F7884",
+            "activeType": "table",
+            "sysid": "D99A1DCE9894698799101EFD70F8FC76"
+          }
+        ]
+      }
+    ]
+  },
+  "timeSave": {
+    "browserClicks": 1,
+    "readback": {
+      "kind": "actual-service-via-current-source-SPARK-data",
+      "readOnlyEndpointGuard": true,
+      "readRequests": 1,
+      "exampleFunctionPosts": 0,
+      "blockedWriteAttempts": 0,
+      "writeRequests": 0,
+      "results": [
+        {
+          "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+          "metaName": "Base_WorkflowDefinition",
+          "success": true,
+          "total": 1,
+          "countReported": true,
+          "returned": 1,
+          "rows": [
+            {
+              "rowid": "806B196D9DA046DC8043DF41830B647D",
+              "name": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+              "workflow_key": "ST0B647D",
+              "description": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+              "status": 2,
+              "version": "1",
+              "timeExp": "0 0 9 * * ?",
+              "tblName": "Base_NavigationInfo",
+              "tableOperate": "delete,add,edit",
+              "filter": "{\"Type\":\"cond\",\"Field\":\"Number\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}",
+              "dbName": "QYVirtualPlat",
+              "tblid": "00EB54040C01C782BFE79D4F3C4F7884",
+              "activeType": "time",
+              "sysid": "D99A1DCE9894698799101EFD70F8FC76"
+            }
+          ]
+        }
+      ]
+    },
+    "changedFields": [
+      "activeType",
+      "timeExp"
+    ],
+    "otherFieldsUnchanged": true,
+    "reopened": true
+  },
+  "cleanupInitial401": {
+    "kind": "workflow-trigger-save-fixture",
+    "testedAt": "2026-11-02T18:35:53.570Z",
+    "id": "806B196D9DA046DC8043DF41830B647D",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+    "key": "ST0B647D",
+    "phase": "failed",
+    "created": true,
+    "error": "Request failed with status code 401",
+    "mode": "cleanup",
+    "reads": 2,
+    "writes": 0,
+    "confirmed": 0,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "cleanup": {
+    "kind": "workflow-trigger-save-fixture",
+    "testedAt": "2026-11-02T18:36:07.302Z",
+    "id": "806B196D9DA046DC8043DF41830B647D",
+    "marker": "SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D",
+    "key": "ST0B647D",
+    "phase": "cleaned",
+    "created": true,
+    "deleted": true,
+    "mode": "cleanup",
+    "reads": 14,
+    "writes": 1,
+    "confirmed": 1,
+    "unknownOwnerRetained": false,
+    "replayWrites": 0
+  },
+  "replayWrites": 0,
+  "explicitWorkflowExecutions": 0,
+  "codeAllocations": 0,
+  "businessRowWrites": 0,
+  "statusAlways": 2,
+  "scopeLimit": "Persistence and reopen verified; enabled scheduling/event execution not tested",
+  "scripts": {
+    "fixtureSha256": "8c2c0224c5d094dc533456fa546e20512e408217e41d3d566cf93209f9f4af34"
+  },
+  "screenshots": [
+    "artifacts/data-chain-smoke/2026-11-03-workflow-trigger-save-reopened.png",
+    "artifacts/data-chain-smoke/2026-11-03-workflow-trigger-save-cleaned.png"
+  ]
+}

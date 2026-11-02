@@ -1,0 +1,167 @@
+{
+  "date": "2026-11-03",
+  "kind": "query-node-readonly-preflight",
+  "nodes": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_WorkflowNodeDefinition",
+        "success": true,
+        "total": 10,
+        "countReported": true,
+        "returned": 5,
+        "rows": [
+          {
+            "rowid": "13D2DE033FA3E768363E5DDC642CDD64",
+            "workflow_id": "46FA11BC212B35DB921AE78568ED0E5F",
+            "node_type": "query",
+            "node_config": "659079409CCB9815131D932E8B9CA561",
+            "position_type": 1,
+            "dataOperateModId": "",
+            "name": "HR_New_XC_DepMonthList（1）"
+          },
+          {
+            "rowid": "209B4C082ED5B222663DC5D257106EFC",
+            "workflow_id": "46FA11BC212B35DB921AE78568ED0E5F",
+            "node_type": "query",
+            "node_config": "489D4E9C8B3D558D03FE6858147D4F4A",
+            "position_type": 1,
+            "dataOperateModId": "",
+            "name": "HR_New_XC_GZFPJL"
+          },
+          {
+            "rowid": "527C8AC4D82E3AB13D0BAD9B532A05CB",
+            "workflow_id": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+            "node_type": "query",
+            "node_config": "136E7C12969EADF938C5B95C803ED9AF",
+            "position_type": 1,
+            "dataOperateModId": "",
+            "name": "view_fp_userlist"
+          },
+          {
+            "rowid": "6222AAD97EAD7F683ACFA7EB3A6567EF",
+            "workflow_id": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+            "node_type": "query",
+            "node_config": "38D712E236C3798A6287CE99C4CBB0C0",
+            "position_type": 1,
+            "dataOperateModId": "",
+            "name": "HR_New_XC_DepMonthList（1）"
+          },
+          {
+            "rowid": "B87A51C32E2B49BFD2720467414DAD7F",
+            "workflow_id": "46FA11BC212B35DB921AE78568ED0E5F",
+            "node_type": "query",
+            "node_config": "A9D4EF599F2513F77CEDAE739EC451DE",
+            "position_type": 1,
+            "dataOperateModId": "",
+            "name": "view_depgz_accout"
+          }
+        ]
+      }
+    ]
+  },
+  "modelsAndSpaces": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 2,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_DataModel",
+        "success": true,
+        "total": 5,
+        "countReported": true,
+        "returned": 5,
+        "rows": [
+          {
+            "rowid": "136E7C12969EADF938C5B95C803ED9AF",
+            "MetaName": "view_fp_userlist",
+            "dataSetId": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+            "requestType": "query",
+            "Type": "数据库视图",
+            "DbId": "9940AC7ACDFC4700A5C2391ED3D1F091",
+            "DbName": "spark_payroll"
+          },
+          {
+            "rowid": "38D712E236C3798A6287CE99C4CBB0C0",
+            "MetaName": "HR_New_XC_DepMonthList",
+            "dataSetId": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+            "requestType": "query",
+            "Type": "数据库表",
+            "DbId": "9940AC7ACDFC4700A5C2391ED3D1F091",
+            "DbName": "spark_payroll"
+          },
+          {
+            "rowid": "489D4E9C8B3D558D03FE6858147D4F4A",
+            "MetaName": "HR_New_XC_GZFPJL",
+            "dataSetId": "46FA11BC212B35DB921AE78568ED0E5F",
+            "requestType": "query",
+            "Type": "数据库表",
+            "DbId": "9940AC7ACDFC4700A5C2391ED3D1F091",
+            "DbName": "spark_payroll"
+          },
+          {
+            "rowid": "659079409CCB9815131D932E8B9CA561",
+            "MetaName": "HR_New_XC_DepMonthList",
+            "dataSetId": "46FA11BC212B35DB921AE78568ED0E5F",
+            "requestType": "query",
+            "Type": "数据库表",
+            "DbId": "9940AC7ACDFC4700A5C2391ED3D1F091",
+            "DbName": "spark_payroll"
+          },
+          {
+            "rowid": "A9D4EF599F2513F77CEDAE739EC451DE",
+            "MetaName": "view_depgz_accout",
+            "dataSetId": "46FA11BC212B35DB921AE78568ED0E5F",
+            "requestType": "query",
+            "Type": "数据库视图",
+            "DbId": "9940AC7ACDFC4700A5C2391ED3D1F091",
+            "DbName": "spark_payroll"
+          }
+        ]
+      },
+      {
+        "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+        "metaName": "Base_DataSet",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "returned": 2,
+        "rows": [
+          {
+            "rowid": "46FA11BC212B35DB921AE78568ED0E5F",
+            "Name": "上期填报数据"
+          },
+          {
+            "rowid": "A5B5AFDE72D82E7064ADCBC1BB56C902",
+            "Name": "获取上期人员信息"
+          }
+        ]
+      }
+    ]
+  },
+  "summary": {
+    "queryNodeTotal": 10,
+    "sampledNodes": 5,
+    "modelsFound": 5,
+    "requestTypesAllQuery": true,
+    "workflowSpacesFound": 2,
+    "readRequests": 3,
+    "writeRequests": 0
+  },
+  "limits": [
+    "Five node sample only, not all ten",
+    "No execution or mapping fields validated",
+    "Existing source reachability not yet verified; do not rebuild existing models"
+  ],
+  "next": "Follow the current query-node workstation card in data-space-retirement-ledger.md"
+}

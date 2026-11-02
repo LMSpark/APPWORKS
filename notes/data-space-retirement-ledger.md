@@ -5131,7 +5131,7 @@ flowchart LR
 
 #### 六、下一批按部就班工作卡
 
-**当前卡：范围与工艺重整。**本轮交付本总表、全量机器清点及高阶模型分析结论；代码仍为59d849f84，不继续选择器零散补丁。工作卡与实际状态写回本节，后续从本入口读取，无需重读五千行历史才能找下一动作。
+**当前卡：数据工作流完整节点业务包（implementing）。**总方案已批准并执行，生产源码检查点为8be226ce0。基础定义与触发表/条件/操作方式/时间类型/Cron已分别完成真实保存、独立回读、重开及临时记录清理；不代表工作流整页或执行完成。下一动作是查询节点的“创建/选择来源→模型与字段→输入输出映射→范围保存/取消/重开”完整闭环，详见下述工作卡和本台账最新证据。用户已持续授权烟测完整CRUD，不再逐夹具人工确认；保留原权限、unknown不重放与测试记录精确清理。正式新建领码顺序、启用执行、层次输出消费者等仍独立开放。
 
 **下一主线：数据工作流完整节点业务包。**
 
@@ -5143,6 +5143,15 @@ flowchart LR
 - [ ] 实施工位：先RED复现完整新增节点闭环断点，再实现已证服务支持的节点/映射/连线/取消/分阶段保存；同步删除替代的页面临时状态。字段类型/枚举与命令签名以本包确认后的合同为准，不在总计划中虚构。
 - [ ] 验收工位：纯查询节点先验读→新建/修改/取消→保存独立回读→重开→单节点/整流输出；写入或外部接口类型先核实际副作用及授权目标，不能用纯查询通过证明所有节点可执行。真实阻塞只挂对应分支，继续其他类型。
 - [ ] 交付工位：矩阵逐项结论、精确服务阻塞、独立复核、必要门禁、提交推送；只有完整包通过才标整页闭环，否则保持开放并明确下一个未通过用例。
+
+**查询节点当前实施卡（高阶模型2026-11-03补核）。**以同一工作流DataSet承接节点、模型及字段，不加载第二套数据空间设计会话。普通query节点的workflow_id、position_type、node_type、node_config分别校验；node_config为查询模型rowid，dataOperateModId不可偷换。模型dataSetId=workflowId、requestType=query，字段dataModelId/modelId及dataSetId归属一致，来源输入为inputParams、输出为dataModel。参考来源选择后直到node-panel保存才写requestType；本地Java executeQueryNode精确查询requestType=query，必须成组补齐才能验收。config中的既有分页配置保留，不照搬参考清空query.config。下列步骤仍待实施，不作已完成事实：
+
+1. 只读取证：刷新0DD8正式节点/模型/字段及六类来源输出、长度/必填/创建权限；抽现有query节点核node_config→模型requestType→字段→映射，并核工作流同ID的Base_DataSet及共享模型引用。
+2. 宿主适配：现有source-catalog/source-reader复用字段映射与可读性校验，但reader硬限DATA_SPACE_DESIGN_FORM_KEY，需支持当前正式来源视图并保留身份守卫；既有model-create-session还要求dataSpaceId/modelInputFields，不能直接当现成工作流创建器。
+3. 按需目录：workflow-editor补必要来源候选/详情、工作流模型核名目录、模型输入字段视图及DbId投影，选中模型视图不能假装完整核名目录。不能为普通保存全量核依赖。
+4. 原生命令：一次确定节点/模型/字段身份，按源支持读取字段及输入，保留未改成员；显式views/ids分阶段保存及回读，已确认部分成功不重写，unknown保留原身份核验。
+5. 完整交互：标准组件表达来源/字段/输入输出映射、取消与重开；源替换和节点删除先核本流引用，不照搬无条件模型级联删除；items字段与根Count不能猜成执行路径。
+6. 验收：跨工作流/应用切换、迟到、取消、字段身份、部分成功及未知不重放，加真实查询节点定义CRUD、独立回读、重开和清理；后续再推进copy/CRUD/merge/连线，API_CALL需核正式普通节点合同。本地Java只作源码证据，不修改或启动。
 
 **随后：Excel完整导入方案包。**文件：参考 `features/data-platform/semi-structured/excel-import/ui/` 全六Vue及use-excel-import-editor-page.ts；本仓同路径、`src/lowcode/resources/semi-structured/excel-import/resource.ts`、`config/pages/semi-structured/excel-import-editor/pagedata.json`；测试 `tests/runtime/page/semi-structured/excel-import-*`。
 
@@ -5284,3 +5293,16 @@ ClassModel目录/概要/columns/format指南已读，onEditingChange是方法投
 本轮最终：目录与工作流12文件113测试通过，新增领域5测试在最终目标失效守卫修正后再次通过；typecheck、受改ESLint（最后两处非空断言已改显式失效诊断）、pages-config/workflow-designs/page-thin/docs及前端独立打包通过，最终正式ClassModel刷新进行中。高阶复核新增functionContext无重要问题；配置编辑不等于部署函数执行已支持。基础定义单记录完整生命周期证据已归档，保存时产品HEAD=d7443692f，并记录本机夹具脚本SHA256。本轮真实写入仅授权夹具创建/三字段浏览器保存/清理，条件环节始终0写/0执行；准备提交条件编辑与烟测证据检查点。
 
 最终typecheck再次exit0，ClassModel正式生成1004文件；15个仅编译编号/时间戳/对象顺序变化的旧分片经语义归一比对恢复。所有本轮检查已终结，未保留未知写入owner。单记录夹具已清理，独立后台tab6保留作为后续烟测入口，原tab5不再操作；当前准备提交推送。
+
+
+**2026-11-03 触发配置真实保存验收准备。**上一轮8be226ce0已推送。基础定义单记录授权已完整结束且清理，不复用。新增唯一停用夹具806B196D9DA046DC8043DF41830B647D（SMOKE_DATA_CHAIN_WORKFLOW_TRIGGER_830B647D，短码ST0B647D）只准备未创建；原生DataSet预检7读0写ready。计划同一条status2定义在浏览器保存QYVirtualPlat/Base_NavigationInfo触发表映射、Number=0条件及add/edit/delete，再切time并存Cron=0 0 9 * * ?，两次均独立回读全部字段，再按原权限清理。只读现有表的元数据，不调用该表业务CRUD；不领码、不建参数/节点/布局、不启用或执行。浏览器每步wx独立意图，结果未独立确认则cleanup脚本也拒绝，unknown停止不重放。方案与SHA见workflow-trigger-save-preflight.json，当前新增写入范围待确认，实际创建0。
+
+
+**2026-11-03 用户更新持续目标授权。**用户明确“烟测允许CURD全套操作，不用人工确认”，后续在既定迁移/烟测范围直接执行，不再为每个夹具或CRUD重复询问；本轮触发夹具也已单独明确允许。仍以原SPARK data、当次权限和真实回执执行，使用有唯一标记的测试记录并清理，未知结果停止重放，不扩后端/权限，不把此授权理解为任意删除存量业务数据。当前806B196D9DA046DC8043DF41830B647D已创建1写15读并独立确认，status2，原定义表全字段基线1读0写已取得；浏览器执行中，不重建同一夹具。
+
+
+**2026-11-03 触发配置完整保存与重开烟测闭环。**同一夹具806B196D9DA046DC8043DF41830B647D（产品HEAD8be226ce0）经原页面/标准组件选择QYVirtualPlat/Base_NavigationInfo、三操作delete/add/edit、人数Number等于显式数字0。表配置只点击保存一次，独立精确回读1读0写确认dbName/tblName/tblid/tableOperate及filter，原生DataViewFilterCodec解码为{field:Number,operator:eq,value:0}，除5目标字段外全行基线不变，status2。关闭重开真实查询恢复三选项及条件摘要。
+
+再切时间类型并填0 0 9 * * ?后取消，界面恢复表类型/空Cron且已保存的条件、多选不变，独立1读0写整行等于表保存结果；重新设置time/Cron，仅一次保存，独立1读0写只activeType/timeExp改变，其余含状态/表/条件/三操作未变。关闭重开显示时间类型、Cron、原表及Number=0。两次浏览器保存均wx意图且独立确认，无unknown/重放。清理第一次2预读401且0写，原RAM会话刷新后1次删除保存14读确认并独立核空；目录可视Total4恢复。无正式编码分配、不建参数/节点/布局、不修改目标业务表、不启用或调用执行。实际调度/事件消费仍未验证，不能以配置保存通过核销执行。完整证据workflow-trigger-save-browser-lifecycle.json；截图reopened/cleaned；准备提交推送本轮证据，不为文档/只读验证重跑无关全仓编译。
+
+**查询节点下一工位只读基线。**高阶模型完整分析已合入当前工作卡，主控复核本地WorkflowExec.executeQueryNode按node_config+requestType=query查模型，现有source-reader仍硬限数据空间设计场景，不能直接当工作流来源读取器。实服原SPARK data在0DD8查询node_type=query共10条、抽前5条，再精确读取5个模型与2个workflow同ID空间（共3读0写）：均模型存在、requestType=query、dataSetId与节点workflow_id对应，2空间均存在。position_type实际number1，dataOperateModId为空，不能把参考字符串型目标当已验证服务类型。样本外5条、来源可达、映射、共享引用和执行尚未核，不能外推全10条通过或重建既有模型。证据workflow-query-node-chain-readonly.json。下一步按当前卡补来源宿主与查询节点完整闭环；全目标active，CRUD持续授权不再逐项询问。

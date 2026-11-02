@@ -1,0 +1,57 @@
+{
+  "testedAt": "2026-11-02T13:18:01.580Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "kind": "code-example-service-contract-audit",
+  "request": {
+    "method": "POST",
+    "endpoint": "/api/Codeing/TestGetCodeString/{busTableRowid}",
+    "bodyRoot": "codeNodesList",
+    "executionApplicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "managedApplicationId": "00BE6ED455CD4BD7B785C61A12A1E67D",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "nodeTypes": [
+      2,
+      3,
+      4
+    ],
+    "sequenceFormat": "001-999",
+    "sequenceIncrement": 2
+  },
+  "probe": {
+    "kind": "code-example-service-probe",
+    "mode": "combined",
+    "scenarioId": "868E62F90DB8118C74CDC9F6BCA61157",
+    "httpStatus": 200,
+    "code": 200,
+    "resultType": "string",
+    "matchesExpectedShape": true,
+    "message": "成功",
+    "allocationBaselineRows": 64,
+    "allocationRowsUnchanged": true,
+    "functionPosts": 1,
+    "crudRequests": 0,
+    "designWrites": 0,
+    "allocationCalls": 0
+  },
+  "nativeBaselineReadRequests": 17,
+  "totals": {
+    "functionPosts": 3,
+    "crudRequests": 0,
+    "formalAllocationEndpoints": 0
+  },
+  "sourceOnly": {
+    "javaController": "lowcode-mainbody/src/main/java/com/htong/controller/CodeController.java:82",
+    "javaImplementation": "lowcode-mainbody/src/main/java/com/htong/service/impl/CodeServiceImpl.java:56",
+    "javaExampleSequenceBranch": "lowcode-mainbody/src/main/java/com/htong/service/impl/CodeServiceImpl.java:745",
+    "requestModel": "lowcode-framework/lowcode-base-service/src/main/java/com/htong/model/CodeNodesList.java:17"
+  },
+  "limits": [
+    "Diagnostic function POST used fetch; native metadata and allocation baselines used original DataSet; no production page integration claimed",
+    "First combined baseline used node-scoped query and returned zero; final baseline corrected to exact code owner and compared all 64 returned rows",
+    "Source indicates example-only branch; source alone does not prove deployed behavior for every node type",
+    "Actual sequence example returned lower bound 001 with increment 2; no production sequence was allocated",
+    "Reference refresh updates CodeExample draft; current editor still lacks refresh action",
+    "Five-record initialization fixture remains uncreated pending separate authorization",
+    "sys_edit SaveView remains unconfirmed; no replay"
+  ]
+}

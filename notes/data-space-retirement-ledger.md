@@ -4945,3 +4945,11 @@ flowchart TD
 - 当前页面接线快照提交推送，完整布局目视对照、真实日期切换/初始化保存及最小值null、原台账其余架构缺口继续，不称整页/全架构全部通过；整体目标active。
 
 - 最终43850快照：新增NodeNo=null不可被Number(null)误判为0的回归，先RED后修复，保留合法数字0。最终16文件139项通过；正式ClassModel重新生成、完整verify及build日志均完成通过（init-ui-*-complete.log），替代此前138项快照。旧终端句柄已回收，直接核对落盘日志末尾确认结果，没有重启测试或重放实服写入。五条新临时记录授权仍待回复，准备脚本未运行；现提交前端初始化接线检查点，整体目标继续active。
+
+### 2026-11-02 编码示例链路实服核查
+- 上轮4b57f3fa9已提交并推送，属于有效progress；本轮未将等待五条临时数据授权当作同意，未运行初始化seed脚本，转向同一编码页尚缺的示例完整链路。
+- 固定参考1147b00ee的data-code-editor-page.vue和use-data-code-editor-page.ts:583-638：刷新先核名称/业务表及非空分段，用当前编辑分段按NodeNo排序调用DataCodeEdit.refreshExample，成功仅更新CodeExample草稿，保存设计时才落库；失败保留原示例，loadRevision/active拒绝过期返回。原参考api.create(designer.code,test-code)只是服务路由抽象，不等于本仓已接SPARK data，也不能直接搬入业务Vue。
+- 追至正式路由POST /Codeing/TestGetCodeString/{busTableRowid}，请求根codeNodesList；Java CodeNodesList的JsonProperty验证实际名称，不照抄Controller注释中的nodes/type/value示例。Java实现testGetCodeString先查业务表、库和第一行业务数据，按段号排序，固定/日期/顺序/父引用各按示例分支计算；顺序号isExample在持久分配分支前返回，父编码示例读取已有CodeExample而不递归正式取号。仅为本地源码推断，不修改/编译/启动Java，不据此宣称实服全能力。
+- 实服先沿本仓原DataSet读取正式主/节点/字典及可读BusTableRowid，然后诊断调用固定字符串示例，HTTP200/Code200且Result字符串与输入一致；再发送固定串+yyyyMMdd日期+001-999/Incre2顺序号的纯请求配置，返回符合固定前缀+8位日期+001。总计3次函数POST，0次CRUD、0次正式GetCodeString取号；未新增或保存设计记录。函数诊断使用fetch，不能把它描述为业务页已接DataView。
+- 首次组合前后查询误沿default的CodeDesignID+空NodeDesignId范围，返回0，证据不足；随后在同一临时只读实例中按精确当前CodeDesignID查询全部64条正式分配记录，再调用同一示例函数并重新查询，64条完整返回值排序比较未变。未重挂null节点归属、未写64条，未以空查询假称完整基线。证据evidence/data-chain-smoke/2026-11-02-code-example-service-audit.json；结果不证明其他类型/其他范围绝无副作用。
+- 已定位下一实施链：当前生效主/分段DataView（含未保存编辑）→数据层语义示例查询→原函数→目标及编辑版本仍匹配→原主DataView.CodeExample编辑覆盖→原saveDataCodeDesign持久化。固定串须从当前ParameterName编译，不能发送保存前过期JSON；失败、换目标、权限变化和并发修改都不得覆盖原草稿。当前生产编辑器仍只有只读CodeExample，没有刷新入口，本轮只确认实服合同与断点，不称恢复完成。其余全架构缺口继续按原台账；sys_edit未知保存未重放，整体目标active。

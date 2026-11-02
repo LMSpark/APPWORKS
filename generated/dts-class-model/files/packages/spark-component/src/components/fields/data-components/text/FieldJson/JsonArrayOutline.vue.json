@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonArrayOutline",
+    "sourcePath": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
+    "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/data-components/text/FieldJson/JsonArrayOutline",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonArrayOutline\n职责：将JSON对象数组及其子数组呈现为标准子字段的只读树表，通知精确选择路径。\n边界：局部DataView只呈现原字段可读值，不写JSON、不查询、不保存、不产生业务身份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [],
+    "componentName": "FieldJson",
+    "componentType": "r-json",
+    "componentLevel": "field-level",
+    "componentLayer": "data-field",
+    "componentDirectory": "fields/data-components"
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T04:20:56.478Z",
+  "models": {}
+}

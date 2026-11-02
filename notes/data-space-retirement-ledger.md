@@ -4671,3 +4671,29 @@ flowchart TD
 - 实服清理后浏览器再次加载sys_edit：仅原有1条sysid参数，SMOKE_DATA_CHAIN_PARAM_标记不存在；截图logic-parameters-browser-after-crud.png及SHA256已追加实服CRUD审计。临时业务记录已清完，无遗留待删项；首轮启动器/白名单诊断保留而不冒充产品或后端问题。
 - 最终77271退出0：最后页面11项、正式ClassModel生成、完整verify、build全部通过（logic-parameters-{dialog-scope-green,generate-last,verify-last,build-last}.log）；此前整组22文件141项及局部lint通过，范围重叠不相加。既有AI模型告警和动态导入提示保留；没有Java或权限放宽改动。
 - 本轮提交推送origin/1031保存参数工作区同PageRuntime/分来源保存、设计读取失败不连带参数、删除确认目标生命周期与实服CRUD/浏览器证据。参数当前读取/新增/修改/取消/删除/unknown核验链已分别经真实服务和原生组件夹具验证，未称全部浏览器CRUD或完整逻辑视图页面通过。下一段继续参考节点、来源、输出/预览与实际下游输入消费；98项字典、12项GetView、2项逻辑视图消费失败及全架构其它开放项仍在，目标继续active。
+
+### 2026-11-02 逻辑视图输出预览合同实服对照
+- 从e3455ec85已推送干净树继续；上一轮参数真实CRUD证据已终态。本轮按systematic-debugging沿固定参考1147b00ee的previewOutput→viewDataExecutor→GetViewData，以及只读Java实现追踪，不修改参考仓/Java，不把源码当部署能力证明。
+- 先真实GetView读取sys_edit，遍历全部设计节点：Base_AppSystemList及子节点Base_MainBody_RoleUser均数据库表、DbId=EBEFF17BBB6443B185D6FB32FF69F0BB，无外部接口节点；仅在此已知数据库设计上执行只读预览探针。
+- 精确参考输出预览请求{PageParam:{index:1,size:1},Table:原保存设计数组}实服HTTP200/Code1003。源码getViewData把第一个Table.DbId当逻辑视图ID再getView，而设计节点DbId实际是数据库身份；此处不能照搬参考代码称预览已恢复。
+- 独立对照{PageParam:{index:1,size:1},Table:[{DbId:真实sys_edit视图ID}]}实服HTTP200/Code200，返回Count/Items/hasNextPage/Action，0行；这是无参数的已保存设计查询，不能据此证明业务数据为空，更不能冒充未保存设计预览。Action原文和业务行均未落盘。
+- 节点预览另走原生DataSpaceRuntimeApi，按参考previewScene=732153B66CC6BF097121E59E4FEB13B0及两个节点名称逐项查询首行，均成功（total1/181、countReported=true、各返回1）。这纠正了仅凭该场景候选元数据目录推断节点查询不可用的风险；真实查询成功仍不证明节点改过的DbId/Fields/子树已参与，因为参考节点预览只提交模型名/查询选项。
+- evidence/data-chain-smoke/2026-11-02-logic-preview-contract-audit.json保留脱敏对照：5次业务读取/0写入，设计SHA与此前CRUD基线一致；登录刷新只在RAM，不记录凭据。前两条HTTP请求为诊断合同探针，非业务页面新HTTP入口；节点两条经当前原生SPARK data查询链。
+- Ruling: 未保存设计预览作为已证实服务合同差距保持开放，不以保存后查询替代、不伪造空成功、不猜新协议、不改Java；节点/来源编辑继续恢复并写回原文件DataView。标准FieldJson已具备valuePath/rows/form与原字段取消、权限和未知状态链；RendererTree只消费DataView，不能把手工节点数组当绑定完成。后续布局需沿原设计字段的稳定路径与标准组件实现，保留39成员及未知字段，不另建节点草稿真源。
+- 本轮无产品代码改动，不重复产品构建；新增证据及台账待与下一稳定实施检查点一并提交。98项字典、12项GetView、2项逻辑视图消费及整页节点/来源/输出等开放范围保持，目标active，未把本次5读称全架构烟测通过。
+
+### 2026-11-02 逻辑视图节点原字段绑定恢复（检查点实施）
+- 上一目标轮为progress：输出预览5读实服对照已揭示参考合同断链；本轮按批准主线继续节点编辑，未把已保存查询替代未保存预览。固定参考页左树/右侧基础与联表工作区、Fields及原参数读取合同，不变更后端。
+- 正式ClassModel生成89838退出0后查询FieldJson.props目录/概要/指南：已有valuePath/rows/form/property接纳原字段，但无对象数组子树选择；本轮补标准outline模式，只读标准子字段呈现同名子数组，选择通知相对原字段的精确路径，不新增JSON身份或保存。selectedPath只是呈现路径，结构重排须清选择。内部DataView是原字段可读值的展示投影，不能成为持久草稿真源。
+- 先RED：logic-node-outline-red.log夹具漏列type导致column.type错误，修正夹具后red-valid.log因无outline能力失败，未据夹具错误改产品。实现后发现树包装行与原DataView行非同一引用，字段链正确拒绝显示；改回原行身份，下一步又暴露旧视图在子字段释放前被销毁，改为按渲染代际换表并在nextTick释放旧视图/卸载后释放当前视图，最终原生嵌套选择与换原行清选择通过。
+- 新logic-view-node-editor.vue在原designJson上以[0,ChildTables,0]等精确路径绑定标准FieldJson：节点树、基础表单、条件原值、Fields子组件行编辑、联表设置均复用原DataView。选中节点只保存路径；hasFields仅按原查询可见性核结构，不拷贝字段值/节点作为第二草稿。复杂值函数使用native JSON字段、排序用数字字段、0/1标志用标准Checkbox trueValue/falseValue，保留未知成员，不把对象写成[object Object]。
+- 已删页面designTree computed及手工updateDesignField接线；完整设计保留为折叠的绑定FieldJson，而非手传modelValue。节点与完整编辑的未确认输入互锁保存，注册系统页dirty source；真实路由更新/离开守卫保留未确认输入。最初导航测试直接mount业务组件未进入RouterView，路由实例守卫未被调度；改为真实RouterView夹具后确认跨目标被阻止，未放宽产品守卫。
+- 接线实测发现原attachStagedDesignView查询用了明确只读的dataSetCommandQueryResultFromLocalRows；手工updateEditingValue旧路径可改，标准绑定却正确禁用。Ruling: 不改只读公共helper，不在组件放行；在原文件owner增加显式editing字段合同，由当次正式目录editActionState及原scope guard决定，仅designJson可编辑，并在文件提交前重核目录许可。逻辑视图复用现有JSON文档资源同类目录编辑守卫，不复制数据库权限、不按账号放行；其它未声明editing的命令视图保持原合同。
+- 文件夹具旧的空目录DataSet因此正确拒绝保存；文件运输单测补明确原目录编辑状态夹具，真实页面仍由原DataSpaceRuntimeApi/ApiBackend正式权限返回控制。新增缺少原目录许可时designJson.write=denied，手工塞草稿后保存仍在发出HTTP前DESIGN_EDIT_DENIED，0文件写入。
+- 页面第一次12项通过后补未确认文本路由保护，随后3文件38项通过；26文件242项通过（logic-node-final-tests.log），另新增完整Fields行编辑保真测试后页面14项通过（logic-node-field-preservation.log），覆盖对象ValueFun、数字Order、未知extra及其它节点原值不被别名修改带走。范围重叠不累计。
+- 首轮verify暴露两个as Record类型断言违反本仓AI生成规则，已以显式类型字典替代；下一轮正式生成/verify/build92241退出0，既有动态导入提示保留。之后浏览器检查发现节点树可访问DOM有行但截图宽度0：原因为RendererForm默认24列而outline字段只占1列，已显式gridColumns=1并补标准容器width100%，实测可见宽284/294像素。
+- 浏览器还复现禁用输入框吞节点文字点击，标准内部FieldTableCellScope补创建时displayOnly模式，默认原控件行为不变；outline用标准详情只读呈现且无重复字段标题，最终0个节点input，精确点击Base_MainBody_RoleUser文字可正常打开子节点。该展示修正先RED后GREEN（logic-node-outline-display-{red,green}.log），末次2文件16项通过，全部字段/表格影响33文件363项通过（logic-node-standard-impact.log）。最后正式生成/verify/build36240仍待终态，未提前提交。
+- 真实浏览器：sys_edit选子节点→native键盘输入SMOKE_DATA_CHAIN_LOCAL_CANCEL→当前值反馈证实进入原字段→原放弃修改并重读→释放选择、恢复2个原节点；另一个尚未接纳的fill输入通过取消输入恢复，无保存设计点击。独立GetView回读SHA仍daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564。evidence/data-chain-smoke/2026-11-02-logic-node-browser-cancel-audit.json与截图logic-node-browser-cancel.png保存范围和最终文字点击证明，不称实服SaveView验证。
+- 指南对应：FieldJson.props正式生成产物核outline/valuePath/form/rows/onEditingChange；FieldCheckbox.props核trueValue/falseValue；RendererForm核gridColumns及标准数据上下文；原生Fields测试及浏览器回读对应这些真实消费。下一段仍须来源选择/节点增删、输入参数、正式过滤和值函数交互、字段批量操作、节点预览及输出工作区；本轮基础/字段/联表是实施进展，不是参考1:1整页完成。98字典、12 GetView、2逻辑消费失败及未保存预览合同缺口和全架构其它开放项均保持，目标active。
+- 最后36240退出0：文字呈现修正后2文件16项、标准字段/表格33文件363项、正式ClassModel生成、完整verify及build全部通过（logic-node-{outline-display-green,standard-impact,checkpoint-generate,checkpoint-verify,checkpoint-build}.log）。已审阅原文件owner与页面diff，git diff --check退出0；既有AI模型告警/动态导入提示保留。生成器产生的TypeScript内部iterator编号变动随正式产物保留，未手工改生成文件。
+- 本检查点提交推送origin/1031，保存标准JSON节点只读选择、原字段基础/Fields/联表绑定、目录许可守卫、未确认输入保护与取消实服证据；无Java改动、无实服SaveView写入、不称完整逻辑视图或全架构通过。下一轮从来源候选命名DataView及原节点新增/删除语义继续，不重写已有字典/API来源读取能力。

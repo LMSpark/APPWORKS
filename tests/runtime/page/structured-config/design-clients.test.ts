@@ -96,7 +96,10 @@ it('requires the owning DataSet to carry a formal scenario before attaching desi
 })
 
 it('edits, cancels and saves a real design array through the existing DataSet owner without losing nested fields', async () => {
-  const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {}}); sets.push(dataSet)
+  const dataSet = DataSet.fromJson({scenarioId:'SPACE',tables:{Base_DataViewList:{resourceType:'static-data',
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true}],views:{default:{rows:[{rowid:'V1'}]}}}}})
+  sets.push(dataSet)
+  vi.spyOn(dataSet.getView('Base_DataViewList')!,'editActionState').mockReturnValue('enabled')
   let stored = [{Name: 'Orders', Fields: [{Name: 'id', IsOutput: 0}], ChildTables: [{Name: 'Lines', Fields: []}], custom: {keep: false}}]
   const writes: unknown[] = []
   http.post = async <T>(url: string, data?: unknown): Promise<T> => {
@@ -121,6 +124,19 @@ it('edits, cancels and saves a real design array through the existing DataSet ow
   await view.refresh()
   expect(JSON.parse(String(view.rows[0]?.['designJson']))).toEqual(changed)
   expect(view.hasUnconfirmedSave).toBe(false)
+})
+
+it('does not grant design editing or dispatch a file write without the original directory permission',async()=>{
+  const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{}});sets.push(dataSet)
+  const writes:unknown[]=[]
+  http.post=async<T>(url:string,data?:unknown):Promise<T>=>{if(url.endsWith('GetView'))return {Code:200,Result:[]} as T;writes.push(data);return {Code:200,Result:'保存成功'} as T}
+  attachLogicViewDesignEdit({dataSet,http,guard:()=>{},readScope})
+  setDesignScopeValue({dataSet,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
+  const view=dataSet.getView(LOGIC_VIEW_DESIGN_VIEW)!;await view.refresh()
+  expect(view.fieldAccess(view.rows[0]!,'designJson').write).toBe('denied')
+  view.updateEditingValue('V1','designJson','[{"Name":"blocked"}]')
+  await expect(dataSet.saveChanges({views:[{tableName:LOGIC_VIEW_DESIGN_VIEW,viewId:'default'}]})).rejects.toThrow('DESIGN_EDIT_DENIED')
+  expect(writes).toEqual([])
 })
 
 const sets: DataSet[] = []

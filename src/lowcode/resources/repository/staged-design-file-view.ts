@@ -22,6 +22,8 @@ export type StagedDesignAttachOptions = Readonly<{
   columns: readonly StagedDesignColumn[]
   /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */
   jsonFields?: readonly string[]
+  /** 文件定义字段的编辑授权由当次正式目录查询提供；省略仍为只读查询结果。不能用于数据库权限推导。 */
+  editing?: Readonly<{fields: readonly string[]; allowed: (scopeId:string)=>boolean}>
   loadRow: (scopeId: string) => Promise<Record<string, unknown>>
   persistRow: (row: Readonly<DataRow>) => Promise<void>
 }>
@@ -89,6 +91,17 @@ export function attachStagedDesignView(
     if (scopeId() !== expected) throw new Error('DESIGN_SCOPE_STALE: 设计目标已变化，请重开对应目标')
   }
   const pending = new WeakMap<object, Readonly<{row: DataRow; scope: string}>>()
+  const queryResult = async (rows:readonly DataRow[], scope:string) => {
+    const result=await dataSetCommandQueryResultFromLocalRows(editView,rows,()=>assertScope(scope))
+    const editing=options.editing
+    if(!editing)return result
+    const allowed=()=>{assertScope(scope);return editing.allowed(scope)}
+    return {...result,fieldAccess:(key:unknown,field:string)=>{
+      const access=result.fieldAccess(key,field)
+      const writable=access.read==='visible'&&editing.fields.includes(field)&&allowed()
+      return {...access,write:writable?'allowed' as const:'denied' as const,component:writable?'editable' as const:access.component,writeMode:writable?'editable' as const:'readonly' as const}
+    },editActionState:(key:unknown)=>result.viewActionState(key)==='enabled'&&allowed()?'enabled' as const:'disabled' as const}
+  }
   const canonical = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(canonical)
     if (isJsonObject(value)) return Object.fromEntries(Object.keys(value).sort().map(key => [key, canonical(value[key])]))
@@ -112,12 +125,13 @@ export function attachStagedDesignView(
       assertScope(scope)
       const pk = String(row['rowid'] ?? scope)
       if (pk !== scope || row[options.scopeField] !== scope) throw new Error('DESIGN_SCOPE_STALE: 设计回读目标不一致')
-      return dataSetCommandQueryResultFromLocalRows(target, [{...row, rowid: pk}], () => assertScope(scope))
+      return queryResult([{...row, rowid: pk}],scope)
     },
     save: async command => {
       guard()
       const receipts = []
       for (const change of command.changes) {
+        if(options.editing&&!options.editing.allowed(scopeId()))throw new Error('DESIGN_EDIT_DENIED: 当前目录查询不允许编辑设计')
         if (change.changes.changed?.length !== 1 || change.changes.added?.length || change.changes.deleted?.length) {
           throw new Error('DESIGN_SAVE_SINGLE_ROW: 设计保存只接受一条已读取记录的修改')
         }
@@ -149,7 +163,7 @@ export function attachStagedDesignView(
           changed: [saved],
           deleted: [],
           changedFields: [fields],
-          context: await dataSetCommandQueryResultFromLocalRows(editView, [saved], () => assertScope(captured.scope)),
+          context: await queryResult([saved],captured.scope),
         })
         pending.delete(change.context)
       }

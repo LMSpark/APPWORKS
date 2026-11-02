@@ -17,8 +17,11 @@
         </RendererTabPane>
         <RendererTabPane :index="1" name="design" label="视图数据设计" :data-view-key="designKey">
           <template v-if="designView">
-      <JsonTreeEditor v-model="designTree" :height="360" />
-      <RendererButton :data-view-key="designKey" :label="designView?.hasUnconfirmedSave ? '核验设计保存结果' : '保存设计'" button-type="primary" :disabled="busy" @click="save" />
+      <LogicViewNodeEditor :view-key="designKey" :view="designView" :disabled="busy || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
+      <details><summary>完整设计</summary><RendererForm :data-view-key="designKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
+        <FieldJson field="designJson" label="完整设计" mode="tree" :height="360" :readonly="busy || nodeEditing" :on-editing-change="value=>completeEditing=value" />
+      </RendererForm></details>
+      <RendererButton :data-view-key="designKey" :label="designView?.hasUnconfirmedSave ? '核验设计保存结果' : '保存设计'" button-type="primary" :disabled="busy || nodeEditing || completeEditing" @click="save" />
       <RendererButton :data-view-key="designKey" label="放弃修改并重读" :disabled="busy || designView?.hasUnconfirmedSave === true" @click="reload" />
           </template>
           <template v-else><p role="alert">{{ designError }}</p><RendererButton :data-view-key="designKey" label="重试读取设计" :disabled="busy" @click="retryDesign" /></template>
@@ -35,9 +38,11 @@
 
 <script setup lang="ts">
 import {computed, ref, watch} from 'vue'
-import {useRoute} from 'vue-router'
+import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
-import {JsonTreeEditor, RendererButton, RendererDialog, RendererForm, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
+import {FieldJson, RendererButton, RendererDialog, RendererForm, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
+import LogicViewNodeEditor from './logic-view-node-editor.vue'
 import {LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
@@ -49,7 +54,12 @@ const designKey = computed(() => buildDataViewKey(LOGIC_VIEW_DESIGN_VIEW, 'defau
 const catalogKey = computed(() => buildDataViewKey(LowcodeLogicView.catalogMetaName, 'default', scenarioId.value))
 const parameterKey = buildDataViewKey(LowcodeLogicView.parameterModelName, 'default', LowcodeLogicView.parameterScenarioId)
 const activeTab = ref('basic'), revision = ref(0), deleteId = ref<string | number>(), parameterBusy = ref(false)
-const {runtime, designView, designError, loading, ready, busy, error, saveChanges, refreshDesign, updateDesignField} = useStagedDesignPage({
+const nodeEditing=ref(false),completeEditing=ref(false)
+useSystemPageDirtySource({get isDirty(){return nodeEditing.value||completeEditing.value}})
+const retainInput=()=>!(nodeEditing.value||completeEditing.value)
+onBeforeRouteUpdate(retainInput)
+onBeforeRouteLeave(retainInput)
+const {runtime, designView, designError, loading, ready, busy, error, saveChanges, refreshDesign} = useStagedDesignPage({
   pageId: 'logic-view-design-page',
   scenarioId,
   scopeId: viewId,
@@ -84,10 +94,6 @@ const parameterToolbar = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '删除参数', permAction: 'delete', disabled: busy.value || parameterState.value.unknown || parameterState.value.mutating,
     onClick: () => {const view = parameterView.value, row = view?.currentRow; if (view && row) deleteId.value = view.getPkKey(row)}}},
 ]}))
-const designTree = computed({
-  get: () => String(designView.value?.rows[0]?.['designJson'] ?? ''),
-  set: value => updateDesignField(designView.value, 'designJson', value),
-})
 async function save(): Promise<void> {await saveChanges()}
 async function reload(): Promise<void> {await refreshDesign({discardChanges: true})}
 async function retryDesign(): Promise<void> {await refreshDesign()}

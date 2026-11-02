@@ -16,7 +16,9 @@ const props = defineProps<{
   source: DataView | undefined
   /** Original table row; no edit overlay is duplicated in this host. */
   row: DataRow
+  /** 创建宿主时选择标准只读详情呈现，避免在只读树表中生成禁用输入框；默认保留原单元格控件。切换此模式须重建宿主。 */
+  displayOnly?: boolean
 }>()
-useSparkComponent({type: 'r-field-cell-control'})
+useSparkComponent({type: props.displayOnly === true ? 'r-field-cell-detail' : 'r-field-cell-control'})
 provide(TABLE_FIELD_CELL, {source: () => props.source, row: () => props.row})
 </script>

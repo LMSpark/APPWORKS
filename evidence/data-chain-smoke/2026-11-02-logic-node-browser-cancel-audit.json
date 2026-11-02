@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-02",
+  "kind": "real-browser-native-node-edit-and-cancel",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "baselineHash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+  "readbackHash": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+  "serverDesignUnchanged": true,
+  "steps": [
+    "Selected the database child at exact original JSON path [0,ChildTables,0]",
+    "Typed local marker via native browser keyboard; current-value feedback confirmed original field accepted it",
+    "Clicked original discard-and-reread action; node selection released and two original nodes returned",
+    "Unconfirmed fill was separately cancelled without file submission",
+    "Confirmed visible outline width 294 pixels after one-column form configuration",
+    "Final standard display-only cell presentation has zero node inputs; clicking exact child text opens original node editor, empty baseline description retained; visible outline width 284 pixels"
+  ],
+  "saveDesignClicked": false,
+  "limits": [
+    "No actual SaveView write was executed",
+    "No full reference-page acceptance",
+    "Fields and join dialogs observed, not all browser-edited"
+  ],
+  "screenshot": {
+    "path": "artifacts/data-chain-smoke/logic-node-browser-cancel.png",
+    "sha256": "8044b9ac8367abf54a2215b48fdb5b5c0178c0b59376ef5bbfaf966ab837c4bc"
+  }
+}

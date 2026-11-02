@@ -19,7 +19,13 @@ export type JsonArrayRowAdapter = {
 /** modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。 */
 export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */
-  mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form'
+  mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline'
+  /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */
+  outlineChildrenField?: string
+  /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */
+  selectedPath?: JsonPath | null
+  /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */
+  onSelectedPathChange?: (path: JsonPath | null) => void
   /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */
   valueFormat?: 'text' | 'native'
   /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */

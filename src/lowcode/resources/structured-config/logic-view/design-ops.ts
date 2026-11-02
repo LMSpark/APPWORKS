@@ -21,6 +21,11 @@ export function attachLogicViewDesignEdit(options: Readonly<{dataSet: DataSet; h
     designViewTable: LOGIC_VIEW_DESIGN_VIEW,
     resourceId: 'logic-view-design',
     jsonFields: ['designJson'],
+    editing:{fields:['designJson'],allowed:viewId=>{
+      guard()
+      const catalog=dataSet.getView('Base_DataViewList'),row=catalog?.rows.find(item=>catalog.getPkKey(item)===viewId)
+      return !!catalog&&!!row&&catalog.editActionState(row)==='enabled'
+    }},
     columns: [{name: 'rowid', primary: true}, {name: 'viewId'}, {name: 'designJson'}],
     loadRow: async viewId => {
       const payload = await client.read(viewId)

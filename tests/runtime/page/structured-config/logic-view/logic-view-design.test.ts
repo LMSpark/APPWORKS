@@ -1,9 +1,9 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
-import {createMemoryHistory, createRouter} from 'vue-router'
+import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import ElementPlus from 'element-plus'
-import {Spark, FieldText, RendererButton, RendererToolbar, RendererForm} from '@spark-appworks/spark-component'
+import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, RendererButton, RendererToolbar, RendererForm} from '@spark-appworks/spark-component'
 import LogicViewDesign from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
@@ -30,8 +30,8 @@ async function openDesigner() {
     meta: {blueprintScenarioId: LowcodeLogicView.navigationScenarioId}}]})
   await router.push({path: '/design', query: {viewId: 'V1'}}); await router.isReady()
   const registry = Spark.createRegistry()
-  for (const [type, component] of Object.entries({'r-text': FieldText, 'r-button': RendererButton, 'r-toolbar': RendererToolbar, 'r-form': RendererForm})) registry.register({type, component})
-  const wrapper = mount(LogicViewDesign, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin({registry})]}})
+  for (const [type, component] of Object.entries({'r-text': FieldText, 'r-json': FieldJson, 'r-number': FieldNumber, 'r-checkbox': FieldCheckbox, 'r-button': RendererButton, 'r-toolbar': RendererToolbar, 'r-form': RendererForm})) registry.register({type, component})
+  const wrapper = mount(RouterView, {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin({registry})]}})
   mounted.push(wrapper); await flushPromises()
   return {wrapper, router}
 }
@@ -63,6 +63,48 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('confirms a field edit in the original node without coercing its value function, numeric order or unknown members',async()=>{
+    const field={Name:'id',AsName:'old',ValueFun:{Type:'GetConstValue',Value:0},Order:2,IsOutput:1,extra:{keep:false}}
+    http.logicDesigns['V1']=[{Name:'root',Type:'数据库表',Fields:[field],ChildTables:[]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    await editor.get('.el-table__body-wrapper tbody td:nth-child(4) input').setValue('new alias');await flushPromises()
+    await editor.get('[data-json-save-row]').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(b=>b.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'root',Type:'数据库表',Fields:[{...field,AsName:'new alias'}],ChildTables:[]}])
+    expect(http.saves).toHaveLength(0)
+  })
+  it('retains unconfirmed node text when navigation requests another target',async()=>{
+    http.logicDesigns['V1']=[{Name:'root',Type:'数据库表',Description:'original',Fields:[],ChildTables:[]}]
+    http.records['Base_DataViewList']!.push({rowid:'V2',sysid:'APP',name:'View Two',description:'other'})
+    const {wrapper,router}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const input=wrapper.get<HTMLInputElement>('[data-logic-node-editor] [data-json-member="Description"] input')
+    input.element.value='unfinished';await input.trigger('input');await flushPromises()
+    expect(wrapper.findAll('button').find(b=>b.text()==='保存设计')!.attributes('disabled')).toBeDefined()
+    await router.push({path:'/design',query:{viewId:'V2'}});await flushPromises()
+    expect(router.currentRoute.value.query['viewId']).toBe('V1')
+    expect(input.element.value).toBe('unfinished')
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  })
+  it('edits a selected child in the original design field and preserves unknown members and siblings',async()=>{
+    http.logicDesigns['V1']=[{Name:'root',Type:'数据库表',extra:{keep:7},ChildTables:[{Name:'child',Type:'字典',Description:'old',Fields:[],unknown:9}]}]
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    const rows=wrapper.findAll('[data-logic-node-outline] .el-table__body-wrapper tbody tr')
+    expect(rows).toHaveLength(2)
+    await rows[1]!.trigger('click');await flushPromises()
+    const input=wrapper.get('[data-logic-node-editor] [data-json-member="Description"] input')
+    expect(input.attributes('disabled')).toBeUndefined()
+    await input.setValue('child edited');await flushPromises()
+    await wrapper.findAll('button').find(b=>b.text()==='保存设计')!.trigger('click');await flushPromises()
+    expect(http.logicDesigns['V1']).toEqual([{Name:'root',Type:'数据库表',extra:{keep:7},ChildTables:[{Name:'child',Type:'字典',Description:'child edited',Fields:[],unknown:9}]}])
+    expect(http.saves).toHaveLength(0)
+  })
   it('keeps formal parameters usable when the separate design file cannot be read', async () => {
     http.missingDesigns.add('V1')
     const {wrapper} = await openDesigner()

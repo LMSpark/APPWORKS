@@ -64,6 +64,26 @@
           "items": {
             "type": "string"
           }
+        },
+        "editing": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "allowed": {
+              "type": "object",
+              "title": "(scopeId: string) => boolean"
+            }
+          },
+          "required": [
+            "fields",
+            "allowed"
+          ],
+          "additionalProperties": false
         }
       },
       "additionalProperties": false,
@@ -124,7 +144,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.788Z",
+  "generatedAt": "2026-11-02T04:09:10.982Z",
   "models": {
     "StagedDesignColumn": {
       "name": "StagedDesignColumn",
@@ -160,11 +180,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    resourceId: string;\n    columns: readonly StagedDesignColumn[];\n    /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */\n    jsonFields?: readonly string[];\n    loadRow: (scopeId: string) => Promise<Record<string, unknown>>;\n    persistRow: (row: Readonly<DataRow>) => Promise<void>;\n}>",
+        "declarationTypeText": "Readonly<{\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    resourceId: string;\n    columns: readonly StagedDesignColumn[];\n    /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */\n    jsonFields?: readonly string[];\n    /** 文件定义字段的编辑授权由当次正式目录查询提供；省略仍为只读查询结果。不能用于数据库权限推导。 */\n    editing?: Readonly<{\n        fields: readonly string[];\n        allowed: (scopeId: string) => boolean;\n    }>;\n    loadRow: (scopeId: string) => Promise<Record<string, unknown>>;\n    persistRow: (row: Readonly<DataRow>) => Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    resourceId: string;\n    columns: readonly StagedDesignColumn[];\n    /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */\n    jsonFields?: readonly string[];\n    loadRow: (scopeId: string) => Promise<Record<string, unknown>>;\n    persistRow: (row: Readonly<DataRow>) => Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    resourceId: string;\n    columns: readonly StagedDesignColumn[];\n    /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */\n    jsonFields?: readonly string[];\n    /** 文件定义字段的编辑授权由当次正式目录查询提供；省略仍为只读查询结果。不能用于数据库权限推导。 */\n    editing?: Readonly<{\n        fields: readonly string[];\n        allowed: (scopeId: string) => boolean;\n    }>;\n    loadRow: (scopeId: string) => Promise<Record<string, unknown>>;\n    persistRow: (row: Readonly<DataRow>) => Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -198,6 +218,12 @@
             {
               "name": "jsonFields",
               "jsdoc": "JSON文本字段按解析后的结构核验，其他字段逐值比较。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "editing",
+              "jsdoc": "文件定义字段的编辑授权由当次正式目录查询提供；省略仍为只读查询结果。不能用于数据库权限推导。",
               "readable": true,
               "writable": false
             }

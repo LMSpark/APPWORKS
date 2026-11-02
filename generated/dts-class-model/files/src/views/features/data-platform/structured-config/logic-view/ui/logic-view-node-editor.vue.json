@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor",
+    "sourcePath": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor\n职责：按原设计字段的精确节点路径编排节点树、基础、字段及关联配置。\n边界：标准FieldJson写回原DataView，不查询来源、不复制节点草稿、不单独保存。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-02T04:17:33.807Z",
+  "models": {}
+}

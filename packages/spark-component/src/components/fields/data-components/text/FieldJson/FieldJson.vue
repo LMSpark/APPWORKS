@@ -6,13 +6,15 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
 -->
 <template>
   <JsonViewRows v-if="props.dataMember === 'rows'" v-bind="props.dataViewKey === undefined ? {} : {dataViewKey: props.dataViewKey}" data-member="rows"
-    :include-query-info="props.includeQueryInfo" :mode="mode === 'rows' || mode === 'properties' || mode === 'form' ? 'table' : mode" :height="height" />
+    :include-query-info="props.includeQueryInfo" :mode="mode === 'rows' || mode === 'properties' || mode === 'form' || mode === 'outline' ? 'table' : mode" :height="height" />
   <FieldContextRenderer v-else v-bind="fieldCtx">
     <template #form>
       <p v-if="error" role="alert">{{ error }}</p>
       <el-button v-if="completeMode && (completeInput || writing || rejectedInput)" link size="small" data-json-cancel-editor-input
         :disabled="writing || !permission.isCurrentFieldEditable.value" @mousedown.prevent @click="resetEditor">取消输入</el-button>
-      <JsonObjectForm v-if="mode === 'form'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
+      <JsonArrayOutline v-if="mode === 'outline'" :key="revision" :model-value="editorText" :children="props.children"
+        :children-field="props.outlineChildrenField" :selected-path="props.selectedPath" :height="height" @select-path="props.onSelectedPathChange?.($event)" />
+      <JsonObjectForm v-else-if="mode === 'form'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
         :schema="props.schema" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonObjectProperties v-else-if="mode === 'properties'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
         :schema="props.schema" :value-label="props.valueLabel" :height="height" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
@@ -34,6 +36,7 @@ import FieldContextRenderer from '../../../non-data-components/FieldContextRende
 import SparkJsonEditor from '../../../../editors/SparkJsonEditor.vue'
 import JsonTreeEditor from '../../../../editors/JsonTreeEditor.vue'
 import JsonArrayRows from './JsonArrayRows.vue'
+import JsonArrayOutline from './JsonArrayOutline.vue'
 import JsonViewRows from './JsonViewRows.vue'
 import JsonObjectProperties from './JsonObjectProperties.vue'
 import JsonObjectForm from './JsonObjectForm.vue'

@@ -1,5 +1,5 @@
 {
-  "gapCount": 3364,
+  "gapCount": 3366,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -5431,6 +5431,22 @@
       "componentLayer": "data-field",
       "componentDirectory": "fields/data-components",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonArrayOutline",
+      "moduleName": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonArrayOutline",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "@spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonArrayOutline 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
+      "declarationLine": 1,
+      "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
+      "componentName": "FieldJson",
+      "componentType": "r-json",
+      "componentLevel": "field-level",
+      "componentLayer": "data-field",
+      "componentDirectory": "fields/data-components"
     },
     {
       "kind": "module",
@@ -33550,7 +33566,7 @@
       "chainBreak": "StagedDesignAttachOptions.loadRow 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 18,
+      "declarationLine": 23,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -33562,7 +33578,7 @@
       "chainBreak": "StagedDesignAttachOptions.persistRow 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 19,
+      "declarationLine": 24,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -33573,7 +33589,7 @@
       "chainBreak": "SetDesignScopeValueInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 21,
+      "declarationLine": 26,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -33585,7 +33601,7 @@
       "chainBreak": "SetDesignScopeValueInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 22,
+      "declarationLine": 27,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "interface"
     },
@@ -33597,7 +33613,7 @@
       "chainBreak": "SetDesignScopeValueInput.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 23,
+      "declarationLine": 28,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "interface"
     },
@@ -33609,7 +33625,7 @@
       "chainBreak": "SetDesignScopeValueInput.field 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 24,
+      "declarationLine": 29,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "interface"
     },
@@ -33621,7 +33637,7 @@
       "chainBreak": "SetDesignScopeValueInput.scopeId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/repository/staged-design-file-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "declarationLine": 25,
+      "declarationLine": 30,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "interface"
     },
@@ -39835,6 +39851,17 @@
       "declarationFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor",
+      "moduleName": "app:views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue"
     },
     {
       "kind": "module",

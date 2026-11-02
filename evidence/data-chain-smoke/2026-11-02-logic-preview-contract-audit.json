@@ -1,0 +1,97 @@
+{
+  "date": "2026-11-02",
+  "kind": "read-only-logic-view-preview-contract",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "target": "D0624BDE07FA475B90D5653994A6493D",
+  "scene": "EB720370EF06A5A656838F87E0716D6B",
+  "readRequests": 5,
+  "mutationRequests": 0,
+  "sourceNodes": [
+    {
+      "depth": 0,
+      "name": "Base_AppSystemList",
+      "type": "数据库表",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "outputType": "Table",
+      "childCount": 1
+    },
+    {
+      "depth": 1,
+      "name": "Base_MainBody_RoleUser",
+      "type": "数据库表",
+      "dbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "outputType": "Table",
+      "childCount": 0
+    }
+  ],
+  "referencePayload": {
+    "page": {
+      "index": 1,
+      "size": 1
+    },
+    "table": "original-saved-design-nodes",
+    "designSha256": "daa42a2ff97b0a5998eb96fa57990f62703d2552c5b6966df9bb8cfa9a650564",
+    "status": 200,
+    "code": 1003,
+    "message": "[1003] 数据不存在"
+  },
+  "savedViewPayload": {
+    "page": {
+      "index": 1,
+      "size": 1
+    },
+    "table": [
+      {
+        "DbId": "D0624BDE07FA475B90D5653994A6493D"
+      }
+    ],
+    "status": 200,
+    "code": 200,
+    "resultKeys": [
+      "Count",
+      "Items",
+      "hasNextPage",
+      "Action"
+    ],
+    "returned": 0,
+    "count": 0,
+    "hasNextPage": false,
+    "actionType": "string",
+    "actionKeys": []
+  },
+  "conclusion": "Reference unsaved-design preview payload fails on actual service. Saved view identity query succeeds; these are distinct semantics. Do not substitute saved result for unsaved preview.",
+  "limits": [
+    "No business rows or permission contents persisted",
+    "No backend changes",
+    "Service source is reference only; actual responses recorded separately",
+    "No data-layer preview API or UI implemented in this probe"
+  ],
+  "nodeQueryProbe": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readRequests": 2,
+    "writeRequests": 0,
+    "blockedWriteAttempts": 0,
+    "results": [
+      {
+        "scenarioId": "732153B66CC6BF097121E59E4FEB13B0",
+        "metaName": "Base_AppSystemList",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1
+      },
+      {
+        "scenarioId": "732153B66CC6BF097121E59E4FEB13B0",
+        "metaName": "Base_MainBody_RoleUser",
+        "success": true,
+        "total": 181,
+        "countReported": true,
+        "returned": 1
+      }
+    ],
+    "limits": [
+      "Canonical registered-model query only; edited node source, fields and child joins were not submitted",
+      "First page without node-specific parameters; not full business-result acceptance"
+    ]
+  }
+}

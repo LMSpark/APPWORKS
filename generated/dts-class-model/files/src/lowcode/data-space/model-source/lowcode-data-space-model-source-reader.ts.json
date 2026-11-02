@@ -154,7 +154,12 @@
       "$defs": {
         "constructor.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "metadata": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
           "additionalProperties": false
         },
         "method.query.params": {
@@ -206,7 +211,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T05:07:47.131Z",
+  "generatedAt": "2026-11-02T18:42:52.628Z",
   "models": {
     "PageDataSpaceModelSourceQuery": {
       "name": "PageDataSpaceModelSourceQuery",
@@ -248,8 +253,20 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor()",
-          "parameters": []
+          "jsdoc": "显式宿主复用本次正式元数据实例（例如工作流）；省略时保留数据空间设计场景合同。绑定后不能借同场景的新实例继续查询。",
+          "signatureText": "constructor(metadata?: DataSet)",
+          "parameters": [
+            {
+              "name": "metadata",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
         },
         "declarationRelations": [
           {

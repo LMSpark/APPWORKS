@@ -5306,3 +5306,14 @@ ClassModel目录/概要/columns/format指南已读，onEditingChange是方法投
 再切时间类型并填0 0 9 * * ?后取消，界面恢复表类型/空Cron且已保存的条件、多选不变，独立1读0写整行等于表保存结果；重新设置time/Cron，仅一次保存，独立1读0写只activeType/timeExp改变，其余含状态/表/条件/三操作未变。关闭重开显示时间类型、Cron、原表及Number=0。两次浏览器保存均wx意图且独立确认，无unknown/重放。清理第一次2预读401且0写，原RAM会话刷新后1次删除保存14读确认并独立核空；目录可视Total4恢复。无正式编码分配、不建参数/节点/布局、不修改目标业务表、不启用或调用执行。实际调度/事件消费仍未验证，不能以配置保存通过核销执行。完整证据workflow-trigger-save-browser-lifecycle.json；截图reopened/cleaned；准备提交推送本轮证据，不为文档/只读验证重跑无关全仓编译。
 
 **查询节点下一工位只读基线。**高阶模型完整分析已合入当前工作卡，主控复核本地WorkflowExec.executeQueryNode按node_config+requestType=query查模型，现有source-reader仍硬限数据空间设计场景，不能直接当工作流来源读取器。实服原SPARK data在0DD8查询node_type=query共10条、抽前5条，再精确读取5个模型与2个workflow同ID空间（共3读0写）：均模型存在、requestType=query、dataSetId与节点workflow_id对应，2空间均存在。position_type实际number1，dataOperateModId为空，不能把参考字符串型目标当已验证服务类型。样本外5条、来源可达、映射、共享引用和执行尚未核，不能外推全10条通过或重建既有模型。证据workflow-query-node-chain-readonly.json。下一步按当前卡补来源宿主与查询节点完整闭环；全目标active，CRUD持续授权不再逐项询问。
+
+
+**2026-11-03 查询节点来源链实服核验与正式投影纠错。**继续当前完整节点业务包，不另起总计划。LowcodeDataSpaceModelSourceReader允许显式绑定本次元数据DataSet，保留缺省设计场景限制，逐次核实例身份、命名视图、模型绑定、当前应用/token和查询签名；同场景替换实例及销毁实例拒绝，不复制来源查询/保存逻辑。新回归已先红后绿43测试；与工作流组合10文件125测试exit0。工作流同一pagedata接8个正式来源模型，候选10条分页、详情allPages，均懒加载；View_TblList/View_ViewList正式无PK，不伪造主键。Base_TblField非输出description未提升，呈现按已有cnname回退。
+
+实服28读0写核正式字段后发现_Base_DictType.TypeName/functiondesc、Base_TblField.IsPKey三项IsOutput=0。经原元数据DataView当次字段写权限精确修正，仅3个标志；6读0写预检，1写20读取得ack及独立正式模型回读，unknown=false、重放0，意图complete。TypeName和IsPKey分别阻断来源名称及字段主键策划；functiondesc为呈现/过滤完整性，不夸大为所有来源硬阻断。IsOutput是投影配置，不是授权算法；原服务权限未修改。证据workflow-source-output-repair.json。
+
+修复后原生配置20读0写，无装配diagnostics，字典/表候选分别351/1148总量、每页10条，Base_NavigationInfo字段63/63；再15读0写核六来源候选均Loaded：表1148、字典351、接口87、JSON11、逻辑视图16、数据库视图126。非查询来源保持未加载；无额外保存/执行。证据workflow-source-native-readback及workflow-all-source-candidates-readonly。该结果只证明原生候选/字段读取和投影恢复，尚未证明source-reader.prepare、浏览器来源选择、节点新增、模型字段提交、映射/共享引用和执行。下一步仍按当前完整节点卡接模型目录/字段宿主与来源选择，再做完整保存取消重开，不将本检查点称整包完成。
+
+当前typecheck、受改TS ESLint、pages-config、workflow-designs均exit0；正式ClassModel已生成1004文件，11份纯compiler符号编号及4份仅时间戳/对象顺序的无关分片经全文或JSON归一核对恢复，保留来源构造合同、manifest与semantic-gaps真实产物。新增三字段修复已归档，不存在未核验写入owner；既有sys_edit未知与完整新建领码/执行缺口继续开放。全目标active。
+
+高阶模型限定静态复核本轮无确定阻塞；指出后续无PK来源需沿当前行指针确认，不能调用要求selectedRows的selected()。ClassModel构造语义位于概要，不属于methodGuide；首次把constructor当方法查询失败后按正式query概要+query/prepare方法指南完成并归档workflow-source-guides。docs检查exit0。

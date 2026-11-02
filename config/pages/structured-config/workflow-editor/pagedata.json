@@ -421,6 +421,638 @@
           }
         }
       }
+    },
+    "View_TblList": {
+      "modelBinding": {
+        "modelId": "045d98fa-e0b7-4361-ae05-670abba38d9c",
+        "modelName": "View_TblList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "tblname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblname",
+              "tbldesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "tblname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblname",
+              "tbldesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "tblname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblname",
+              "tbldesc",
+              "dbid",
+              "DbName"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "_Base_DictType": {
+      "modelBinding": {
+        "modelId": "642b9697-ac17-4e12-8e71-fe2ef60b8756",
+        "modelName": "_Base_DictType"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "TypeName",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TypeName",
+              "functiondesc"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "TypeName",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TypeName",
+              "functiondesc"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "TypeName",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "TypeName",
+              "functiondesc"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_DataServiceInterface": {
+      "modelBinding": {
+        "modelId": "d8a3cca4-2ddf-43e4-a03b-186f0c90d344",
+        "modelName": "Base_DataServiceInterface"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "Name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "Desc",
+              "ProviderID"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "Name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "Desc",
+              "ProviderID"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "Name",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "Name",
+              "Desc",
+              "ProviderID"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_JsonData": {
+      "modelBinding": {
+        "modelId": "ac898e41-1867-4465-9b83-22828666c494",
+        "modelName": "Base_JsonData"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_DataViewList": {
+      "modelBinding": {
+        "modelId": "76dc1bd7-6b56-4af7-aef5-3e7cd389099c",
+        "modelName": "Base_DataViewList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "name",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "name"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "View_ViewList": {
+      "modelBinding": {
+        "modelId": "c916ac15-27cf-4b4a-b9f1-bad9f25b26d7",
+        "modelName": "View_ViewList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "vewname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "vewname",
+              "vewdesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "vewname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "vewname",
+              "vewdesc",
+              "dbid",
+              "DbName"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "vewname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "vewname",
+              "vewdesc",
+              "dbid",
+              "DbName"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "Base_TblField": {
+      "modelBinding": {
+        "modelId": "03664d15-ee7e-4bdf-a896-005edbf783dd",
+        "modelName": "Base_TblField"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataType",
+              "IsPKey"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataType",
+              "IsPKey"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "tblid",
+              "enname",
+              "cnname",
+              "DataType",
+              "IsPKey"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
+    },
+    "_Base_ParamList": {
+      "modelBinding": {
+        "modelId": "3a9ac554-dfba-4c63-b6be-f3b0bf778121",
+        "modelName": "_Base_ParamList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "parid",
+          "labelField": "parname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "parid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ]
+          }
+        },
+        "sourceCandidates": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "parid",
+          "labelField": "parname",
+          "pageSize": 10,
+          "sortExpression": [
+            {
+              "field": "parid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ]
+          }
+        },
+        "sourceDetails": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "parid",
+          "labelField": "parname",
+          "pageSize": 500,
+          "sortExpression": [
+            {
+              "field": "parid",
+              "direction": "asc"
+            }
+          ],
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "parzdtype"
+            ],
+            "allPages": true,
+            "maxRows": 50000
+          }
+        }
+      }
     }
   },
   "resourceRelations": [],

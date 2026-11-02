@@ -1,0 +1,68 @@
+{
+  "catalog": {
+    "rootKind": "LowcodeDataSpaceModelSourceReader",
+    "models": [
+      {
+        "kind": "LowcodeDataSpaceModelSourceReader",
+        "name": "LowcodeDataSpaceModelSourceReader",
+        "jsdoc": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。",
+        "summary": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。",
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "PageDataSpaceModelSourceReader",
+            "targetName": "PageDataSpaceModelSourceReader"
+          }
+        ]
+      }
+    ]
+  },
+  "overview": {
+    "rootKind": "LowcodeDataSpaceModelSourceReader",
+    "models": [
+      {
+        "kind": "LowcodeDataSpaceModelSourceReader",
+        "name": "LowcodeDataSpaceModelSourceReader",
+        "jsdoc": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。",
+        "summary": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。",
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "PageDataSpaceModelSourceReader",
+            "targetName": "PageDataSpaceModelSourceReader"
+          }
+        ],
+        "constructorSignature": {
+          "summary": "显式宿主复用本次正式元数据实例（例如工作流）；省略时保留数据空间设计场景合同。绑定后不能借同场景的新实例继续查询。",
+          "jsdoc": "显式宿主复用本次正式元数据实例（例如工作流）；省略时保留数据空间设计场景合同。绑定后不能借同场景的新实例继续查询。",
+          "signature": "constructor(metadata?: DataSet)"
+        },
+        "attributes": [],
+        "methods": [
+          {
+            "name": "query",
+            "jsdoc": "",
+            "summary": "",
+            "signature": "query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n        rows: readonly PageDataSpaceModelSource[];\n        total: number;\n    }>>"
+          },
+          {
+            "name": "prepare",
+            "jsdoc": "",
+            "summary": "",
+            "signature": "prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n        missingInputType?: 'string-default' | 'preserve';\n    }>): Promise<PageDataSpaceModelSourcePrepared>"
+          }
+        ]
+      }
+    ]
+  },
+  "methods": [
+    {
+      "methodName": "query",
+      "guide": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。\nclass LowcodeDataSpaceModelSourceReader {\n  query(input: PageDataSpaceModelSourceQuery, dataSet: DataSet): Promise<Readonly<{\n          rows: readonly PageDataSpaceModelSource[];\n          total: number;\n      }>>\n}"
+    },
+    {
+      "methodName": "prepare",
+      "guide": "六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。\nclass LowcodeDataSpaceModelSourceReader {\n  prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{\n          missingInputType?: 'string-default' | 'preserve';\n      }>): Promise<PageDataSpaceModelSourcePrepared>\n}"
+    }
+  ]
+}

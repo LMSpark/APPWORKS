@@ -61,11 +61,11 @@ async function dictionaryFixture(row: Record<string, unknown> = dictionaryDefini
   await view.loadFromServer()
   return dataSet
 }
-function metadataFixture(): DataSet {
+function metadataFixture(scenarioId='8D1AB14DD8277F3E7017CD38F77B09FD'): DataSet {
   const definitions = [...Object.values(sourceRows).map(source => ({name: source.metaName, key: 'rowid', fields: Object.keys(source.row)})),
     {name: 'Base_TblField', key: 'rowid', fields: ['rowid', 'tblid', 'enname', 'cnname', 'description', 'DataType', 'IsPKey']},
     {name: '_Base_ParamList', key: 'parid', fields: ['parid', 'pid', 'parname', 'pardesc', 'parzdtype']}]
-  const dataSet = DataSet.fromJson({scenarioId: '8D1AB14DD8277F3E7017CD38F77B09FD', dataSetName: 'metadata', tables: Object.fromEntries(definitions.map(model => [model.name, {
+  const dataSet = DataSet.fromJson({scenarioId, dataSetName: 'metadata', tables: Object.fromEntries(definitions.map(model => [model.name, {
     tableName: model.name, modelBinding: {modelId: `fixture-${model.name}`, modelName: model.name},
     columns: [...new Set(model.fields)].map(name => ({name, type: 'string', isPrimaryKey: name === model.key})),
     views: {default: {}, sourceCandidates: {queryConfig: {fields: model.fields}, pageSize: 10, autoCurrentFirst: false, autoSelectFirst: false},
@@ -83,6 +83,29 @@ function metadataFixture(): DataSet {
 }
 
 describe('LowcodeDataSpaceModelSourceReader', () => {
+  it('binds the source reader to the supplied workflow metadata instance and rejects a same-scene replacement',async()=>{
+    const scene='0DD8D28D462F51C5790AA6FBFAE39366',workflow=metadataFixture(scene),replacement=metadataFixture(scene)
+    try{
+      runtimeQuery.mockResolvedValue(context('View_TblList',[sourceRows.table.row],1,false,scene))
+      const reader=new LowcodeDataSpaceModelSourceReader(workflow)
+      expect((await reader.query({type:'table'},workflow)).rows[0]).toMatchObject({id:'T1',name:'Orders',databaseName:'main'})
+      const count=runtimeQuery.mock.calls.length
+      await expect(reader.query({type:'table'},replacement)).rejects.toThrow('元数据空间')
+      expect(runtimeQuery).toHaveBeenCalledTimes(count)
+      workflow.destroy();await expect(reader.query({type:'table'},workflow)).rejects.toThrow('元数据空间')
+      expect(runtimeQuery).toHaveBeenCalledTimes(count)
+    }finally{workflow.destroy();replacement.destroy()}
+  })
+  it('retains default design-scene and execution-scope guards when workflow sources are supported',async()=>{
+    const workflow=metadataFixture('0DD8D28D462F51C5790AA6FBFAE39366')
+    try{
+      await expect(new LowcodeDataSpaceModelSourceReader().query({type:'table'},workflow)).rejects.toThrow('元数据空间')
+      const reader=new LowcodeDataSpaceModelSourceReader(workflow)
+      readRequestScope.mockReturnValue({token:'scope-b',headers:{'X-AppId':'app-b'}})
+      await expect(reader.query({type:'table'},workflow)).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+      expect(runtimeQuery).not.toHaveBeenCalled()
+    }finally{workflow.destroy()}
+  })
   it('rejects an application change with the same login token before issuing a source query',async()=>{
     const reader=new LowcodeDataSpaceModelSourceReader()
     readRequestScope.mockReturnValue({token:'scope-a',headers:{'X-AppId':'other-app'}})

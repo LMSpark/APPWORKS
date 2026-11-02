@@ -1,0 +1,1119 @@
+{
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 20,
+  "exampleFunctionPosts": 0,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "metaName": "_Base_DictType",
+      "success": true,
+      "modelId": "642b9697-ac17-4e12-8e71-fe2ef60b8756",
+      "sourceName": "_Base_DictType",
+      "sourceType": "数据库表",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "0226CEB5CD9266E441EA361DE41EAA3A",
+          "name": "rowid",
+          "sourceField": "rowid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": true,
+          "computed": false,
+          "description": "唯一标识 ID",
+          "order": 0
+        },
+        {
+          "id": "045E65C9C9C00EF485C9E34F1900E2DE",
+          "name": "createtime",
+          "sourceField": "createtime",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "创建时间",
+          "order": 0
+        },
+        {
+          "id": "0853B91D105FF7885B22BAAADCA135BA",
+          "name": "TypeName",
+          "sourceField": "TypeName",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "字典类型名称",
+          "order": 0
+        },
+        {
+          "id": "0C72FEB31FC3BC45B06584748519DAEC",
+          "name": "fiveValue",
+          "sourceField": "fiveValue",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "第五文本标题",
+          "order": 0
+        },
+        {
+          "id": "0D7838375896D82D395776894FA556EE",
+          "name": "updateuser",
+          "sourceField": "updateuser",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "修改人",
+          "order": 0
+        },
+        {
+          "id": "209074E65156CB9B92EDC345771A7CFA",
+          "name": "fourthvalue",
+          "sourceField": "fourthvalue",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "第四文本标题",
+          "order": 0
+        },
+        {
+          "id": "26E1B58AE52B91D9FB5FC5AB77CAF0CE",
+          "name": "AppId",
+          "sourceField": "AppId",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "应用 ID",
+          "order": 0
+        },
+        {
+          "id": "373E2F1C64EBAF11836D34C1B552D289",
+          "name": "txt",
+          "sourceField": "txt",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "值名称",
+          "order": 0
+        },
+        {
+          "id": "4C002A8946DB1CC89F5343A82697FDA6",
+          "name": "dictionaryType",
+          "sourceField": "dictionaryType",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "字典类型代码",
+          "order": 0
+        },
+        {
+          "id": "58120C45CC9A97ED4E19F00AA68B123D",
+          "name": "wfid",
+          "sourceField": "wfid",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "流程实例 ID",
+          "order": 0
+        },
+        {
+          "id": "5F22D9A7B24602674822BF35BC6B17C5",
+          "name": "ReportID",
+          "sourceField": "ReportID",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "报表 ID",
+          "order": 0
+        },
+        {
+          "id": "624F933A26FE4AA00C503C9728882EE2",
+          "name": "val",
+          "sourceField": "val",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "键名称",
+          "order": 0
+        },
+        {
+          "id": "63DA1081D58C6876DE984EEBE53F1E92",
+          "name": "functiondesc",
+          "sourceField": "functiondesc",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "功能描述",
+          "order": 0
+        },
+        {
+          "id": "6D193CCDF6D8516A8B5B008F14365145",
+          "name": "crttime",
+          "sourceField": "crttime",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "创建时间",
+          "order": 0
+        },
+        {
+          "id": "997A796A23BD962E584B32EB86C550AE",
+          "name": "createuser",
+          "sourceField": "createuser",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "创建人",
+          "order": 0
+        },
+        {
+          "id": "A8C108A7EF49C5A071BF35114B72F6C0",
+          "name": "description",
+          "sourceField": "description",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "摘要",
+          "order": 0
+        },
+        {
+          "id": "AC4F55F67F6B809DE409E7EDBDE49DA2",
+          "name": "modid",
+          "sourceField": "modid",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "模块 ID",
+          "order": 0
+        },
+        {
+          "id": "C1E8F5979A52477EADF32400E228410A",
+          "name": "updatetime",
+          "sourceField": "updatetime",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "修改时间",
+          "order": 0
+        },
+        {
+          "id": "CDE5CBB092E27D00AAAE2D1D0F58F1B5",
+          "name": "author",
+          "sourceField": "author",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "作者",
+          "order": 0
+        },
+        {
+          "id": "CE8994CE74CEA0BE947EB793DAF2EB32",
+          "name": "ModName",
+          "sourceField": "ModName",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "模块名称",
+          "order": 0
+        },
+        {
+          "id": "D2D12D5CE09C473FFC3CCA80D81EEBF1",
+          "name": "StructureTypeID",
+          "sourceField": "StructureTypeID",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "领域分类 ID",
+          "order": 0
+        },
+        {
+          "id": "D90CF3AD55710F5272E45246779256FE",
+          "name": "lingma_sys_is_delete",
+          "sourceField": "lingma_sys_is_delete",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "逻辑删除标记",
+          "order": 0
+        },
+        {
+          "id": "FA02D3273C344AF88A9CC61B49D698B3",
+          "name": "remark",
+          "sourceField": "remark",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "备注",
+          "order": 0
+        },
+        {
+          "id": "FB9990016E6D4F20A09C4293F744C795",
+          "name": "secondValue",
+          "sourceField": "secondValue",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "第二文本标题",
+          "order": 0
+        },
+        {
+          "id": "FCB152C08CE877FA2596C2F7066AB324",
+          "name": "thirdValue",
+          "sourceField": "thirdValue",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "第三文本标题",
+          "order": 0
+        },
+        {
+          "id": "FEB676B3843805AA55AAF80E05F326DA",
+          "name": "flowstate",
+          "sourceField": "flowstate",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "流程状态",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "metaName": "Base_TblField",
+      "success": true,
+      "modelId": "03664d15-ee7e-4bdf-a896-005edbf783dd",
+      "sourceName": "Base_TblField",
+      "sourceType": "数据库表",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "06CE4509B82E1C12E09DE498F43657AF",
+          "name": "object_id",
+          "sourceField": "object_id",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "对象 ID",
+          "order": 0
+        },
+        {
+          "id": "07BC4B5DB153EE4D8DC07D5AF04BED10",
+          "name": "Spare3",
+          "sourceField": "Spare3",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "预留字段 3",
+          "order": 0
+        },
+        {
+          "id": "13C0207682E1491DCC645F162A0B3DB4",
+          "name": "Spare2",
+          "sourceField": "Spare2",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "预留字段 2",
+          "order": 0
+        },
+        {
+          "id": "23F97DEEFC00D724D9E8415A7045F07B",
+          "name": "maxVal",
+          "sourceField": "maxVal",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "最大值",
+          "order": 0
+        },
+        {
+          "id": "30FBA3D607AFC6D02B45AD92FECE1BDA",
+          "name": "ValueFun",
+          "sourceField": "ValueFun",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "值计算函数",
+          "order": 0
+        },
+        {
+          "id": "32F9AD91EA72C9B520D83328BDD476A2",
+          "name": "ReportID",
+          "sourceField": "ReportID",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "报表 ID",
+          "order": 0
+        },
+        {
+          "id": "3C94D9E333139C3AED5719BFC55B71FD",
+          "name": "isGrowth",
+          "sourceField": "isGrowth",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "是否自增长",
+          "order": 0
+        },
+        {
+          "id": "4A5D21CAE60F57458D2B6F132E655572",
+          "name": "cnname",
+          "sourceField": "cnname",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "中文名",
+          "order": 0
+        },
+        {
+          "id": "554DB7E2E7E3822649E41550B5D4D9D2",
+          "name": "flowstate",
+          "sourceField": "flowstate",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "流程状态",
+          "order": 0
+        },
+        {
+          "id": "5DF732C9E92F033B55A97F984E808D21",
+          "name": "crttime",
+          "sourceField": "crttime",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "创建时间",
+          "order": 0
+        },
+        {
+          "id": "5E349CD98AC48EB6E884783F03FF5083",
+          "name": "DefaultValueType",
+          "sourceField": "DefaultValueType",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "默认值类型",
+          "order": 0
+        },
+        {
+          "id": "6048290DBF916AE6DAABD8C1C927A1AB",
+          "name": "encryption_rule",
+          "sourceField": "encryption_rule",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "加密规则",
+          "order": 0
+        },
+        {
+          "id": "6988AAAFFC90C57C32C53C87DECACCB6",
+          "name": "enname",
+          "sourceField": "enname",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "字段名",
+          "order": 0
+        },
+        {
+          "id": "6B5E042CEDB02D8721363C580A8FBE20",
+          "name": "minVal",
+          "sourceField": "minVal",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "最小值",
+          "order": 0
+        },
+        {
+          "id": "6E2B3BF61F0199C627F87188D38219B4",
+          "name": "DataLen",
+          "sourceField": "DataLen",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "字段长度",
+          "order": 0
+        },
+        {
+          "id": "761E3D5571ADF1D12832E3C73E9D3A95",
+          "name": "createtime",
+          "sourceField": "createtime",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "创建时间",
+          "order": 0
+        },
+        {
+          "id": "77DBE55C0BE7F48B8E7DBD0B3EAAD3F5",
+          "name": "DataTypeRowid",
+          "sourceField": "DataTypeRowid",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "数据类型字典 ID",
+          "order": 0
+        },
+        {
+          "id": "7C127109531A0B3CE1B1AC0E3CC1A8C2",
+          "name": "updatetime",
+          "sourceField": "updatetime",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "修改时间",
+          "order": 0
+        },
+        {
+          "id": "7FCA1A43009B6D4F3C8A563CD87BAFC7",
+          "name": "SettingParamJwt",
+          "sourceField": "SettingParamJwt",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "设置 JWT 参数",
+          "order": 0
+        },
+        {
+          "id": "84FFEF498A03D8C8F02BBE5195312CD9",
+          "name": "updateuser",
+          "sourceField": "updateuser",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "修改人",
+          "order": 0
+        },
+        {
+          "id": "89EAB2DD9CA6F2A9D0E4EEDDC534B59D",
+          "name": "tblname",
+          "sourceField": "tblname",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "表名",
+          "order": 0
+        },
+        {
+          "id": "8B52C8F99D055FAAE0F89019440AAEEB",
+          "name": "ordIdx",
+          "sourceField": "ordIdx",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "排序",
+          "order": 0
+        },
+        {
+          "id": "8D8DCB30F6BB662061C963FDFA4B5B23",
+          "name": "IsPKey",
+          "sourceField": "IsPKey",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "是否为主键",
+          "order": 0
+        },
+        {
+          "id": "8E0B8042323628612CC781F544B9D87D",
+          "name": "tblid",
+          "sourceField": "tblid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "所属表 ID",
+          "order": 0
+        },
+        {
+          "id": "95F0698D8D06BC5F1C6701B82C84CD5E",
+          "name": "rowid",
+          "sourceField": "rowid",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": true,
+          "computed": false,
+          "description": "唯一标识 ID",
+          "order": 0
+        },
+        {
+          "id": "97B31F53963C78F6B835D457822D6B86",
+          "name": "AsName",
+          "sourceField": "AsName",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "别名",
+          "order": 0
+        },
+        {
+          "id": "99E66369EC5152AE738F5B74FDD4DA9F",
+          "name": "functiondesc",
+          "sourceField": "functiondesc",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "功能描述",
+          "order": 0
+        },
+        {
+          "id": "9BF692E03B0986CBCF5EAB7CD73EE7E7",
+          "name": "StateField",
+          "sourceField": "StateField",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "状态表字段",
+          "order": 0
+        },
+        {
+          "id": "A941C87BBD3BD80A0CE5EB1DB00303B8",
+          "name": "createuser",
+          "sourceField": "createuser",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "创建人",
+          "order": 0
+        },
+        {
+          "id": "AAAE677EAC9E3479788709BB091388E5",
+          "name": "UseCtrlName",
+          "sourceField": "UseCtrlName",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "使用控件名称",
+          "order": 0
+        },
+        {
+          "id": "B3357CD5CA6701EA71655ABC9B6E23AF",
+          "name": "lingma_sys_is_delete",
+          "sourceField": "lingma_sys_is_delete",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "逻辑删除标记",
+          "order": 0
+        },
+        {
+          "id": "B37730868634619409F720987C7564B7",
+          "name": "Spare1",
+          "sourceField": "Spare1",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "预留字段 1",
+          "order": 0
+        },
+        {
+          "id": "B537E3791C2C737A5E9BCD0270C10926",
+          "name": "IsSys",
+          "sourceField": "IsSys",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "是否系统字段",
+          "order": 0
+        },
+        {
+          "id": "BE581647F45706C057856F9CF56A0A8F",
+          "name": "Memo",
+          "sourceField": "Memo",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "备忘",
+          "order": 0
+        },
+        {
+          "id": "C261AA68C6E1C7F3BAFDC850C813D522",
+          "name": "IsNill",
+          "sourceField": "IsNill",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "是否为空",
+          "order": 0
+        },
+        {
+          "id": "C357BEAF7B7EF548953CE54DCFE5B7AB",
+          "name": "DesenID",
+          "sourceField": "DesenID",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "脱敏规则 ID",
+          "order": 0
+        },
+        {
+          "id": "DA6646ED5DA121FA6F64814F73A2AB0A",
+          "name": "DXExpression",
+          "sourceField": "DXExpression",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "DX 表达式",
+          "order": 0
+        },
+        {
+          "id": "E3F74AD955C73D27B0D6A23895A0AD68",
+          "name": "IsUQ",
+          "sourceField": "IsUQ",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "是否唯一",
+          "order": 0
+        },
+        {
+          "id": "E645064E63D7BA700BAC451EF9C6B644",
+          "name": "applyFormat",
+          "sourceField": "applyFormat",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "应用类型",
+          "order": 0
+        },
+        {
+          "id": "EB5C5611A2EE76C8448C67920A61E269",
+          "name": "wfid",
+          "sourceField": "wfid",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "流程实例 ID",
+          "order": 0
+        },
+        {
+          "id": "EB876DEC6C974BAF2E1B26789731CFC6",
+          "name": "description",
+          "sourceField": "description",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "摘要",
+          "order": 0
+        },
+        {
+          "id": "EF6A6EC4B088F54A644CC39FEAFA9781",
+          "name": "DataType",
+          "sourceField": "DataType",
+          "type": "varchar",
+          "output": true,
+          "primaryKey": false,
+          "computed": false,
+          "description": "字段类型",
+          "order": 0
+        },
+        {
+          "id": "F257265D96F5DD6964C364695731EE6B",
+          "name": "allowAIAdd",
+          "sourceField": "allowAIAdd",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "允许 AI 添加",
+          "order": 0
+        },
+        {
+          "id": "F31062AC5B579A3E68C045568EEE9EF1",
+          "name": "SQLExpression",
+          "sourceField": "SQLExpression",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "数据库表达式",
+          "order": 0
+        },
+        {
+          "id": "F4C4F0028C3E0705704EA5AA72244F86",
+          "name": "DefaultValue",
+          "sourceField": "DefaultValue",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "默认值",
+          "order": 0
+        },
+        {
+          "id": "F63A573B95FCD73F9F453E907F96C1CE",
+          "name": "DataTableExpression",
+          "sourceField": "DataTableExpression",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "表表达式",
+          "order": 0
+        },
+        {
+          "id": "F9E8E95B543D7F85DFF14B886304126F",
+          "name": "IsOldSys",
+          "sourceField": "IsOldSys",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "是否应用到老系统",
+          "order": 0
+        },
+        {
+          "id": "FCE62965783C5C43FC7BC022A78A6369",
+          "name": "status",
+          "sourceField": "status",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "状态",
+          "order": 0
+        },
+        {
+          "id": "FF001E47556E9B286634FB24BC67D1CC",
+          "name": "DataTypeName",
+          "sourceField": "DataTypeName",
+          "type": "varchar",
+          "output": false,
+          "primaryKey": false,
+          "computed": false,
+          "description": "字段类型名称",
+          "order": 0
+        }
+      ]
+    },
+    {
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "success": true,
+      "diagnostics": [],
+      "views": [
+        {
+          "table": "Base_WorkflowDefinition",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "Base_DataSet",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "view": "start",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_WorkflowConnectors",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "WorkflowLayout",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Field",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "connector",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "asParent",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "asChild",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_TblList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_TblList",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 1148,
+          "state": 3
+        },
+        {
+          "table": "View_TblList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_DictType",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_DictType",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 351,
+          "state": 3
+        },
+        {
+          "table": "_Base_DictType",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataServiceInterface",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataServiceInterface",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataServiceInterface",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_JsonData",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_JsonData",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_JsonData",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataViewList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataViewList",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataViewList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_ViewList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_ViewList",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_ViewList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "sourceDetails",
+          "rows": 63,
+          "total": 63,
+          "state": 3
+        },
+        {
+          "table": "_Base_ParamList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_ParamList",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_ParamList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        }
+      ]
+    }
+  ],
+  "limitation": "Native source views and formal projection only; source-reader prepare, browser source selection and node execution not yet verified"
+}

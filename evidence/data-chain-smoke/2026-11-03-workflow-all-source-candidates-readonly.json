@@ -1,0 +1,270 @@
+{
+  "kind": "actual-service-via-current-source-SPARK-data",
+  "readOnlyEndpointGuard": true,
+  "readRequests": 15,
+  "exampleFunctionPosts": 0,
+  "blockedWriteAttempts": 0,
+  "writeRequests": 0,
+  "results": [
+    {
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "success": true,
+      "diagnostics": [],
+      "views": [
+        {
+          "table": "Base_WorkflowDefinition",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "Base_DataSet",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "Base_WorkflowNodeDefinition",
+          "view": "start",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_WorkflowConnectors",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 3
+        },
+        {
+          "table": "WorkflowLayout",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Field",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "connector",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "asParent",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "view": "asChild",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_TblList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_TblList",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 1148,
+          "state": 3
+        },
+        {
+          "table": "View_TblList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_DictType",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_DictType",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 351,
+          "state": 3
+        },
+        {
+          "table": "_Base_DictType",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataServiceInterface",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataServiceInterface",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 87,
+          "state": 3
+        },
+        {
+          "table": "Base_DataServiceInterface",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_JsonData",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_JsonData",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 11,
+          "state": 3
+        },
+        {
+          "table": "Base_JsonData",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataViewList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_DataViewList",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 16,
+          "state": 3
+        },
+        {
+          "table": "Base_DataViewList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_ViewList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "View_ViewList",
+          "view": "sourceCandidates",
+          "rows": 10,
+          "total": 126,
+          "state": 3
+        },
+        {
+          "table": "View_ViewList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "Base_TblField",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_ParamList",
+          "view": "default",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_ParamList",
+          "view": "sourceCandidates",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        },
+        {
+          "table": "_Base_ParamList",
+          "view": "sourceDetails",
+          "rows": 0,
+          "total": 0,
+          "state": 0
+        }
+      ]
+    }
+  ],
+  "limitation": "Six native candidate views only; source preparation and node execution remain open"
+}

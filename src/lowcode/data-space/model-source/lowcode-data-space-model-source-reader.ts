@@ -49,8 +49,14 @@ const staticFields: Readonly<Partial<Record<PageDataSpaceModelSourceType, readon
 export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSourceReader {
   readonly #scopeToken: string
   readonly #scopeAppId: string | undefined
+  readonly #metadata: DataSet | undefined
+  readonly #metadataScene: string
 
-  public constructor() { const scope=lowcodeApi.readRequestScope();this.#scopeToken=scope.token;this.#scopeAppId=scope.headers['X-AppId'] }
+  /** 显式宿主复用本次正式元数据实例（例如工作流）；省略时保留数据空间设计场景合同。绑定后不能借同场景的新实例继续查询。 */
+  public constructor(metadata?:DataSet) {
+    const scope=lowcodeApi.readRequestScope();this.#scopeToken=scope.token;this.#scopeAppId=scope.headers['X-AppId']
+    this.#metadata=metadata;this.#metadataScene=metadata?.scenarioId??LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY
+  }
 
   private assertCurrent(): void {
     const current=lowcodeApi.readRequestScope()
@@ -91,7 +97,7 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
     const view = dataSet.getView(metaName, viewId)
     const assertView = (): void => {
       this.assertCurrent()
-      if (dataSet.destroyed || dataSet.scenarioId !== LowcodePlatform.DATA_SPACE_DESIGN_FORM_KEY
+      if (dataSet.destroyed || dataSet.scenarioId !== this.#metadataScene || this.#metadata!==undefined&&dataSet!==this.#metadata
         || !view || view.destroyed || dataSet.getView(metaName, viewId) !== view
         || view.dataTable?.modelBinding?.modelName !== metaName || view.dataSet !== dataSet) {
         throw new Error('模型来源元数据空间或命名视图已失效')

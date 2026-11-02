@@ -88,6 +88,35 @@ function activeApi(http: DataSpaceFixtureHttpClient): LowcodeApi {
 }
 
 describe('DataSpaceRuntimeApi', () => {
+  it('reads the exact newly saved row before allowing its next edit and never uses the table credential as a row credential',async()=>{
+    const http=new DataSpaceFixtureHttpClient(),api=activeApi(http),identity={scenarioId:'SCENE',metaName:'Orders'}
+    http.queryResults=[http.result,{primaryKeyField:'rowid',data:{Count:1,Items:[{rowid:'NEW',salary:120,lingma_sys_key:'NEW-ROW-KEY',lingma_sys_params:{e:['salary'],d:true}}]}}]
+    const context=await api.dataSpace.runtime.query(identity,{fields:['rowid','salary']})
+    http.saveResult={maplistadd:[{physical:[{rowid:'NEW',salary:120}]}]}
+    const receipt=(await api.dataSpace.runtime.save({changes:[{identity,context,changes:{added:[{rowid:'NEW',salary:120}]}}]}))[0]!
+    expect(http.saveRequests).toHaveLength(1);expect(http.queryRequests).toHaveLength(2)
+    expect(receipt.context.total).toBe(2);expect(receipt.context.hasPendingSavedRowPermissions).toBe(false)
+    expect(JSON.stringify(http.queryRequests[1]?.data)).toContain('NEW')
+    expect(receipt.context.buildSaveRequest({changed:[{rowid:'NEW',salary:121}]})[0]?.CrudModel.Changed)
+      .toEqual([{rowid:'NEW',salary:121,lingma_sys_key:'NEW-ROW-KEY'}])
+  })
+  it('confirms the write when new-row permission reads fail and only retries reads through the recovery entry',async()=>{
+    const http=new DataSpaceFixtureHttpClient(),api=activeApi(http),identity={scenarioId:'SCENE',metaName:'Orders'}
+    const empty={primaryKeyField:'rowid',data:{Count:0,Items:[]}}
+    http.queryResults=[http.result,empty]
+    const context=await api.dataSpace.runtime.query(identity)
+    http.saveResult={maplistadd:[{physical:[{rowid:'NEW',salary:120}]}]}
+    const receipt=(await api.dataSpace.runtime.save({changes:[{identity,context,changes:{added:[{rowid:'NEW',salary:120}]}}]}))[0]!
+    expect(receipt.context.hasPendingSavedRowPermissions).toBe(true)
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(receipt.context)).toBe(false)
+    http.queryResults=[empty]
+    await expect(api.dataSpace.runtime.refreshSavedRowPermissions(receipt.context)).rejects.toThrow('SPARK_SAVED_ROW_')
+    expect(http.saveRequests).toHaveLength(1)
+    http.queryResults=[{primaryKeyField:'rowid',data:{Count:1,Items:[{rowid:'NEW',salary:120,lingma_sys_key:'RECOVERED-ROW',lingma_sys_params:{e:['salary']}}]}}]
+    const refreshed=await api.dataSpace.runtime.refreshSavedRowPermissions(receipt.context)
+    expect(refreshed.hasPendingSavedRowPermissions).toBe(false);expect(http.saveRequests).toHaveLength(1)
+    expect(refreshed.buildSaveRequest({changed:[{rowid:'NEW',salary:121}]})[0]?.CrudModel.Changed[0]?.['lingma_sys_key']).toBe('RECOVERED-ROW')
+  })
   it('keeps the query lifetime through real token refresh but invalidates identity and application round trips', async () => {
     const values = new Map<string, string>()
     const storage = {
@@ -1015,6 +1044,127 @@ describe('DataSet actual SPARK batch save', () => {
 })
 
 describe('DataView original query execution boundary', () => {
+  it('keeps the original owner recoverable when query parameters change during a permission read', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {salary: 200})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'NEW', salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 0, Items: []}}]
+      await view.saveChanges()
+      await view.editRowById('ROW-1', {salary: 125})
+      const originalContext = view.queryContext
+      const fresh = {primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'NEW', salary: 200, lingma_sys_key: 'FRESH', lingma_sys_params: {e: ['salary']}},
+      ]}}
+      http.queryResults = [fresh]
+      let release!: () => void, started!: () => void
+      const readStarted = new Promise<void>(resolve => {started = resolve})
+      http.queryStarted = started
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      const refresh = view.refreshSavedRowPermissions()
+      await readStarted
+      view.queryContext = {otherTarget: true}
+      release()
+      await expect(refresh).rejects.toThrow('DATA_VIEW_SAVED_ROW_PERMISSIONS_STALE')
+      view.queryContext = originalContext
+      http.queryResults = [fresh]
+      await view.refreshSavedRowPermissions()
+      expect(view.hasPendingSavedRowPermissions).toBe(false)
+      expect(findRow(view, 'ROW-1')?.['salary']).toBe(125)
+      expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+      expect(http.saveRequests).toHaveLength(1)
+    } finally {ds.destroy()}
+  })
+  it.each([false, true])('restores formal aliased primary-key permissions after add (unknown=%s)', async unknown => {
+    const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
+    try {
+      const model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = {
+        id: 'MODEL-1', metaName: 'Payroll', name: 'Payroll', sourceName: 'PayrollSalary', sourceId: 'RESOURCE-1',
+        sourceType: 'table', primaryKey: 'rowid', businessMain: true, raw: {}, fields: [
+          {id: 'KEY', modelId: 'MODEL-1', name: 'physical_id', canonicalName: 'rowid', type: 'string', primaryKey: true,
+            description: '', output: true, computed: false, order: 0, orderType: '', raw: {}},
+          {id: 'SALARY', modelId: 'MODEL-1', name: 'physical_salary', canonicalName: 'salary', type: 'number', primaryKey: false,
+            description: '', output: true, computed: false, order: 1, orderType: '', raw: {}},
+        ],
+      }
+      api.dataSpace.runtime.bindModelView(view, model)
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'ALIASED'}, {salary: 200})
+      if (unknown) {
+        http.saveError = new Error('socket closed')
+        await expect(view.saveChanges()).rejects.toThrow('socket closed')
+        http.saveError = undefined
+      }
+      http.saveResult = {maplistadd: [{physical: [{physical_id: 'ALIASED', physical_salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'ALIASED', salary: 200, lingma_sys_key: 'ALIASED-ROW-KEY', lingma_sys_params: {e: ['salary'], d: true}},
+      ]}}]
+      await view.saveChanges()
+      expect(view.hasPendingSavedRowPermissions).toBe(false)
+      expect(JSON.stringify(http.queryRequests.at(-1)?.data)).toContain('physical_id')
+      await view.editRowById('ALIASED', {salary: 201})
+      http.saveResult = {maplistedit: [{physical: [{physical_id: 'ALIASED', physical_salary: 201}]}]}
+      await view.saveChanges()
+      expect(JSON.stringify(http.saveRequests.at(-1)?.data)).toContain('ALIASED-ROW-KEY')
+    } finally {ds.destroy()}
+  })
+  it('leaves an older pending row unchanged when a later add obtains its own permissions', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'A'}, {salary: 200})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'A', salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 0, Items: []}}]
+      await view.saveChanges()
+      await view.addRowWithIdentity({field: 'rowid', value: 'B'}, {salary: 300})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'B', salary: 300}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'B', salary: 301, lingma_sys_key: 'B-ROW', lingma_sys_params: {e: ['salary']}},
+      ]}}]
+      await view.saveChanges()
+      expect(view.hasPendingSavedRowPermissions).toBe(true)
+      expect(findRow(view, 'A')?.['salary']).toBe(200)
+      expect(findRow(view, 'B')?.['salary']).toBe(301)
+      expect(view.fieldAccess(findRow(view, 'A'), 'salary').write).toBe('denied')
+      expect(view.fieldAccess(findRow(view, 'B'), 'salary').write).toBe('allowed')
+      expect(http.saveRequests).toHaveLength(2)
+    } finally {ds.destroy()}
+  })
+  it('recovers confirmed new-row permissions with reads while preserving another dirty row and a later overlay', async () => {
+    const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
+    try {
+      await view.loadFromServer()
+      await view.addRowWithIdentity({field: 'rowid', value: 'NEW'}, {salary: 200})
+      http.saveResult = {maplistadd: [{physical: [{rowid: 'NEW', salary: 200}]}]}
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 0, Items: []}}]
+      await ds.saveChanges()
+      expect(view.hasPendingSavedRowPermissions).toBe(true)
+      expect(view.hasUnconfirmedSave).toBe(false)
+      await view.editRowById('ROW-1', {salary: 125})
+      view.updateEditingValue('ROW-1', 'salary', 130)
+      http.queryResults = [{primaryKeyField: 'rowid', data: {Count: 1, Items: [
+        {rowid: 'NEW', salary: 201, lingma_sys_key: 'FORMAL-NEW', lingma_sys_params: {e: ['salary'], d: true}},
+      ]}}]
+      let release!: () => void
+      http.queryGate = new Promise<void>(resolve => {release = resolve})
+      const refresh = view.refreshSavedRowPermissions()
+      await expect(ds.saveChanges()).rejects.toThrow('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY')
+      await expect(view.refreshSavedRowPermissions()).rejects.toThrow('DATA_VIEW_SAVED_ROW_PERMISSIONS')
+      view.updateEditingValue('ROW-1', 'salary', 135)
+      release()
+      await refresh
+      expect(view.hasPendingSavedRowPermissions).toBe(false)
+      expect(view.total).toBe(2)
+      expect(findRow(view, 'NEW')?.['salary']).toBe(201)
+      expect(findRow(view, 'ROW-1')?.['salary']).toBe(125)
+      expect(view.hasEditingChanges('ROW-1')).toBe(true)
+      expect(view.dirtyTracking.isDirty('ROW-1')).toBe(true)
+      expect(http.saveRequests).toHaveLength(1)
+      await view.editRowById('NEW', {salary: 202})
+      expect(view.dirtyTracking.isDirty('NEW')).toBe(true)
+    } finally {ds.destroy()}
+  })
   it('serializes DataView distinct configuration and explicit false overrides through the runtime query', async () => {
     const http = new DataSpaceFixtureHttpClient(), {ds, view} = connectedView(http)
     try {
@@ -1323,6 +1473,11 @@ describe('DataView original query execution boundary', () => {
     expect(http.saveRequests).toHaveLength(1)
     expect(view.rows).toContainEqual(expect.objectContaining({rowid: 'STABLE', salary: 110}))
     expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+    expect(view.hasPendingSavedRowPermissions).toBe(false)
+    await view.editRowById('STABLE', {salary: 111})
+    http.saveResult = {maplistedit: [{physical: [{rowid: 'STABLE', salary: 111}]}]}
+    await view.saveChanges()
+    expect(JSON.stringify(http.saveRequests[1]?.data)).toContain('STABLE-KEY')
     ds.destroy()
   })
 
@@ -1542,7 +1697,7 @@ describe('DataView original query execution boundary', () => {
     ds.destroy()
   })
 
-  it('clears an overlay left on a removed pending create without touching another pending row', async () => {
+  it('keeps a removed pending create discarded without touching another pending row', async () => {
     const http = new DataSpaceFixtureHttpClient()
     const { ds, view } = connectedView(http)
     await view.loadFromServer()
@@ -1551,7 +1706,7 @@ describe('DataView original query execution boundary', () => {
     await view.removeRow('ROW-NEW')
     await view.editRowById('ROW-1', { salary: 120 })
 
-    expect(view.discardPendingChanges(['ROW-NEW'])).toBe(1)
+    expect(view.discardPendingChanges(['ROW-NEW'])).toBe(0)
 
     expect(view.rows.find(row => row['rowid'] === 'ROW-NEW')).toBeUndefined()
     expect(view.hasEditingChanges('ROW-NEW')).toBe(false)

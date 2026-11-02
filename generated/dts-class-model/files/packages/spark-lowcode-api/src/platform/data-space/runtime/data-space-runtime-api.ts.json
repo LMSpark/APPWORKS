@@ -350,11 +350,24 @@
         "method.save.return": {
           "type": "object",
           "title": "Promise<DataSpaceRuntimeSaveResult>"
+        },
+        "method.refreshSavedRowPermissions.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "query/data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refreshSavedRowPermissions.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.592Z",
+  "generatedAt": "2026-11-02T20:20:57.819Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -836,6 +849,31 @@
                     "type": "reference",
                     "name": "DataSpaceRuntimeSaveResult",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "jsdoc": "已确认新增行的权限精确回读；不提交数据、不重放保存，也不重查整页。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
                   }
                 ]
               }

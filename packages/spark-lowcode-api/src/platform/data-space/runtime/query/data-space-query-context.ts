@@ -72,6 +72,7 @@ export class DataSpaceQueryContext {
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
   readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
   readonly #explicitNewRowIds = new Set<string | number>()
+  readonly #pendingSavedRowKeys = new Set<string>()
   #invalid = false
   #aggregateResult = false
   #model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> | undefined
@@ -120,6 +121,59 @@ export class DataSpaceQueryContext {
       if (rowKey) this.#permissions.set(rowKey, this.#permissions.has(rowKey) ? null
         : new DataSpaceRowPermission({row, ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})}))
     }
+    this.markSavedRowsPending(this.#pendingSavedRowKeys)
+  }
+
+  private markSavedRowsPending(keys: Iterable<string>): void {
+    for (const key of keys) {
+      this.#pendingSavedRowKeys.add(key)
+      this.#permissions.set(key, new DataSpaceRowPermission({missingAuthPolicy: 'visible-readonly'}))
+    }
+  }
+
+  /** 已确认新增但尚未获得正式行查询权限；不是写入结果未知。 */
+  public get hasPendingSavedRowPermissions(): boolean {this.assertCurrent(); return this.#pendingSavedRowKeys.size > 0}
+
+  /** 仅用于同一运行owner的精确回读，保留正式主键值类型。 */
+  public get pendingSavedRowIds(): readonly unknown[] {
+    this.assertCurrent()
+    return Object.freeze(this.#snapshot.rows.filter(row => this.#pendingSavedRowKeys.has(canonicalKey(this.rowKeyValue(row))))
+      .map(row => this.rowKeyValue(row)))
+  }
+
+  /** 同owner正式查询的私有快照接回指定新增行；不采用保存回执中自带的权限，不改变其他行和总数。 */
+  public withSavedRowPermissions(queried: DataSpaceQueryContext, ids?: readonly unknown[]): DataSpaceQueryContext {
+    this.assertCurrent(); queried.assertCurrent(); queried.assertIdentity(this.#identity)
+    if (queried.#scope !== this.#scope || queried.keyField !== this.keyField
+      || JSON.stringify(queried.#model) !== JSON.stringify(this.#model)) throw new Error('SPARK_SAVED_ROW_SCOPE: 新增行查询身份或模型不一致')
+    const expected = ids === undefined ? this.#pendingSavedRowKeys : new Set(ids.map(canonicalKey))
+    if (ids !== undefined && (expected.size !== ids.length || [...expected].some(key => !this.#pendingSavedRowKeys.has(key)))) {
+      throw new Error('SPARK_SAVED_ROW_IDENTITY: 回读目标不是原待确认行权限身份')
+    }
+    const originalKeys = new Set(this.#snapshot.rows.map(row => canonicalKey(this.rowKeyValue(row))))
+    const found = new Map<string, DataSpaceRow>(), seen = new Set<string>()
+    for (const row of queried.#snapshot.rows) {
+      const key = canonicalKey(queried.rowKeyValue(row))
+      if (seen.has(key) || (!expected.has(key) && (ids === undefined || !originalKeys.has(key)))) {
+        throw new Error('SPARK_SAVED_ROW_IDENTITY: 新增行查询身份重复、不可读或超出范围')
+      }
+      seen.add(key)
+      if (!expected.has(key)) continue
+      if (queried.fieldAccess(queried.rowKeyValue(row), queried.keyField).read !== 'visible') throw new Error('SPARK_SAVED_ROW_IDENTITY: 新增行主键不可读')
+      found.set(key, row)
+    }
+    if (found.size !== expected.size || queried.total !== seen.size) throw new Error('SPARK_SAVED_ROW_INCOMPLETE: 新增行查询未完整返回')
+    const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({Result: {
+      data: {Items: this.#snapshot.rows.map(row => found.get(canonicalKey(this.rowKeyValue(row))) ?? row), Count: this.#snapshot.total},
+      primaryKeyField: this.#snapshot.primaryKey, allowAdd: this.#snapshot.allowAdd, lingma_sys_key: this.#snapshot.systemKey,
+    }})
+    const next = new DataSpaceQueryContext({identity: this.#identity,
+      snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) next.bindFormalModel(this.#model)
+    next.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !expected.has(key)))
+    this.assertCurrent(); queried.assertCurrent()
+    return next
   }
 
   private get keyField(): string { return this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
@@ -343,7 +397,7 @@ export class DataSpaceQueryContext {
       const key = canonicalKey(this.rowKeyValue(row))
       if (!key || this.keyField === '_pk' || keys.has(key)) throw new Error('SPARK 新增回执行身份缺失或重复')
       keys.add(key)
-      return this.#snapshot.systemKey ? { ...row, lingma_sys_key: this.#snapshot.systemKey } : { ...row }
+      return { ...row }
     })
     const total = Math.max(0, this.#snapshot.total + added.length - deleted.size)
     const snapshot = new DataSpaceQueryTable(this.#identity).applyResult({ Result: {
@@ -355,6 +409,8 @@ export class DataSpaceQueryContext {
       scope: this.#scope, readScope: this.#readScope,
       ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
     if (this.#model) context.bindFormalModel(this.#model)
+    context.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !deleted.has(key)))
+    context.markSavedRowsPending(added.map(row => canonicalKey(this.rowKeyValue(row))))
     for (const row of receipt.added) {
       const id = this.rowKeyValue(row)
       if (typeof id === 'string' || typeof id === 'number') this.#explicitNewRowIds.delete(id)
@@ -412,6 +468,7 @@ export class DataSpaceQueryContext {
     if (mode !== 'add') {
       const key = canonicalKey(this.rowKeyValue(copy))
       if (!key) return copy
+      if (this.#pendingSavedRowKeys.has(key)) throw new Error('SPARK_SAVED_ROW_PERMISSIONS_PENDING: 新增已确认，请先取得正式行查询权限')
       const originals = this.#snapshot.rows.filter(item => canonicalKey(this.rowKeyValue(item)) === key)
       if (originals.length > 1) throw new Error(`SPARK 保存行主键在原查询结果中不唯一: ${key}`)
       token = originals[0]?.['lingma_sys_key']

@@ -410,6 +410,13 @@
         "countReported": {
           "type": "boolean"
         },
+        "hasPendingSavedRowPermissions": {
+          "type": "boolean"
+        },
+        "pendingSavedRowIds": {
+          "type": "array",
+          "items": true
+        },
         "resultPrimaryKey": {
           "type": "string"
         },
@@ -667,6 +674,19 @@
         },
         "method.hasUnconfirmedSave.return": {
           "type": "boolean"
+        },
+        "method.refreshSavedRowPermissions.params": {
+          "type": "object",
+          "properties": {
+            "context": {
+              "$ref": "#/$defs/DataViewQueryResult"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refreshSavedRowPermissions.return": {
+          "type": "object",
+          "title": "Promise<DataViewQueryResult>"
         },
         "method.abandonUnconfirmedSave.params": {
           "type": "object",
@@ -1228,6 +1248,9 @@
           }
         },
         "hasUnconfirmedSave": {
+          "type": "boolean"
+        },
+        "hasPendingSavedRowPermissions": {
           "type": "boolean"
         },
         "cascade": {
@@ -2409,6 +2432,15 @@
         "method.abandonUnconfirmedSave.return": {
           "type": "boolean"
         },
+        "method.refreshSavedRowPermissions.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshSavedRowPermissions.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.saveQueryViews.params": {
           "type": "object",
           "properties": {
@@ -2776,7 +2808,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T15:49:29.105Z",
+  "generatedAt": "2026-11-02T20:22:25.171Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -3210,11 +3242,11 @@
       "jsdoc": "单次查询的私有结果能力；持有原行身份、权限呈现与新增身份准备，不公开签名快照。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */\n    prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 保存已确认，但新增行尚待原查询返回正式行权限。 */\n    hasPendingSavedRowPermissions?: boolean;\n    pendingSavedRowIds?: readonly unknown[];\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */\n    prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */\n    prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
+            "typeText": "Readonly<{\n    /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */\n    undefinedChanges?: 'clear';\n    /** 来源是否明确返回总数；未提供不等于总数为零。 */\n    countReported?: boolean;\n    /** 保存已确认，但新增行尚待原查询返回正式行权限。 */\n    hasPendingSavedRowPermissions?: boolean;\n    pendingSavedRowIds?: readonly unknown[];\n    /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */\n    resultPrimaryKey?: string;\n    rows: readonly DataViewQueryRow[];\n    total: number;\n    assertIdentity(identity: DataViewQueryIdentity): void;\n    rowKey(row: DataViewQueryRow): unknown;\n    prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>;\n    /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */\n    prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>;\n    /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */\n    isFieldReadOnly?(field: string): boolean;\n    fieldAccess(rowKey: unknown, field: string): DataViewFieldAccess;\n    readFieldAccess(row: DataViewQueryRow, field: string): DataViewFieldAccess['read'];\n    addActionState(available?: boolean): DataViewActionState;\n    editActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    deleteActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    createChildActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n    viewActionState(rowKey: unknown, available?: boolean): DataViewActionState;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -3229,6 +3261,17 @@
             {
               "name": "countReported",
               "jsdoc": "来源是否明确返回总数；未提供不等于总数为零。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingSavedRowPermissions",
+              "jsdoc": "保存已确认，但新增行尚待原查询返回正式行权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingSavedRowIds",
               "readable": true,
               "writable": false
             },
@@ -3549,11 +3592,11 @@
       "jsdoc": "一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+            "typeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -3698,6 +3741,31 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "jsdoc": "仅重读已确认新增行的权限，不重新提交保存。",
+              "parameters": [
+                {
+                  "name": "context",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryResult",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataViewQueryResult",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                ]
               }
             },
             {
@@ -4422,6 +4490,12 @@
             },
             {
               "name": "hasUnconfirmedSave",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasPendingSavedRowPermissions",
+              "jsdoc": "已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。",
               "readable": true,
               "writable": false
             },
@@ -6465,6 +6539,21 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "jsdoc": "只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
               }
             },
             {

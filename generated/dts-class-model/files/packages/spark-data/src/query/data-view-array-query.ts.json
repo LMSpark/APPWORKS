@@ -28,6 +28,16 @@
             true
           ]
         },
+        "hasPendingSavedRowPermissions": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "pendingSavedRowIds": {
+          "type": "array",
+          "items": true
+        },
         "resultPrimaryKey": {
           "type": "string"
         },

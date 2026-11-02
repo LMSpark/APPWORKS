@@ -2629,7 +2629,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-02T15:49:29.105Z"
+      "sourceModifiedAt": "2026-11-02T20:22:25.171Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -3059,7 +3059,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.592Z"
+      "sourceModifiedAt": "2026-11-02T20:20:57.819Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3114,7 +3114,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.599Z"
+      "sourceModifiedAt": "2026-11-02T20:04:41.837Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
@@ -4184,7 +4184,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json",
-      "sourceModifiedAt": "2026-11-02T19:54:41.678Z"
+      "sourceModifiedAt": "2026-11-02T20:10:59.290Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",

@@ -256,6 +256,13 @@
       "type": "object",
       "title": "DataSpaceQueryContext",
       "properties": {
+        "hasPendingSavedRowPermissions": {
+          "type": "boolean"
+        },
+        "pendingSavedRowIds": {
+          "type": "array",
+          "items": true
+        },
         "resultPrimaryKey": {
           "type": "string"
         },
@@ -306,6 +313,22 @@
           "additionalProperties": false
         },
         "method.bindFormalModel.return": true,
+        "method.withSavedRowPermissions.params": {
+          "type": "object",
+          "properties": {
+            "queried": {
+              "$ref": "#/$defs/DataSpaceQueryContext"
+            },
+            "ids": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.withSavedRowPermissions.return": {
+          "$ref": "#/$defs/DataSpaceQueryContext"
+        },
         "method.prepareNewRow.params": {
           "type": "object",
           "properties": {
@@ -517,7 +540,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.599Z",
+  "generatedAt": "2026-11-02T20:04:41.837Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -801,6 +824,18 @@
         "members": {
           "attributes": [
             {
+              "name": "hasPendingSavedRowPermissions",
+              "jsdoc": "已确认新增但尚未获得正式行查询权限；不是写入结果未知。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pendingSavedRowIds",
+              "jsdoc": "仅用于同一运行owner的精确回读，保留正式主键值类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "resultPrimaryKey",
               "jsdoc": "本次结果行的稳定身份；汇总结果为空，不改变来源模型的正式主键，不将汇总行作为CRUD原行基线。",
               "readable": true,
@@ -870,6 +905,35 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "withSavedRowPermissions",
+              "jsdoc": "同owner正式查询的私有快照接回指定新增行；不采用保存回执中自带的权限，不改变其他行和总数。",
+              "parameters": [
+                {
+                  "name": "queried",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                },
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
               }
             },
             {

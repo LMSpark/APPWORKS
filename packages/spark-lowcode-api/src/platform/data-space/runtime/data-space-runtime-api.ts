@@ -39,7 +39,7 @@ type DataSpaceQueryWithConfigInput = Readonly<{
   config: DataSpaceRequestConfig
   view?: SparkData.DataView
   accept?: (context: DataSpaceQueryContext) => void
-  definition?: unknown
+  definition?: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 }>
 /** 未确认批次的核验输入：当前 scope、本次再提交的批次及其签名。 */
 type DataSpaceRuntimeVerifyCommand = Readonly<{scope: string; changes: readonly DataSpaceRuntimeSaveChange[]
@@ -47,7 +47,7 @@ type DataSpaceRuntimeVerifyCommand = Readonly<{scope: string; changes: readonly 
 /** 单模型核验结论；applied 时 receipt 为回读行，可交原上下文接纳。 */
 type DataSpaceRuntimeVerifyOutcome = Readonly<{state: 'applied' | 'absent' | 'unknown'
   requested: ReturnType<DataSpaceQueryContext['prepareSaveChanges']>
-  receipt: Parameters<DataSpaceQueryContext['acceptSaveReceipt']>[0]['receipt']}>
+  receipt: Parameters<DataSpaceQueryContext['acceptSaveReceipt']>[0]['receipt']; queried?: DataSpaceQueryContext}>
 type DataSpaceRuntimeQueryFlight = Promise<DataSpaceQueryContext>
 type DataSpaceRuntimeQueryFlights = Set<DataSpaceRuntimeQueryFlight>
 /** 来源类型改变时须仍成立的查询特征；由运行请求或持久视图配置提供。 */
@@ -78,7 +78,7 @@ export class DataSpaceRuntimeApi {
   /** 结果未确认的保存批次：同批原查询上下文共享一条记录，再次保存只核验、不重放。 */
   readonly #unconfirmed = new Map<DataSpaceQueryContext, DataSpaceRuntimeUnconfirmed>()
   /** 每个查询基线的原查询选项与请求配置；核验回读沿用其调用参数，仅替换为主键过滤。 */
-  readonly #queryOrigins = new WeakMap<DataSpaceQueryContext, Readonly<{options: DataSpaceQueryOptions; config: DataSpaceRequestConfig}>>()
+  readonly #queryOrigins = new WeakMap<DataSpaceQueryContext, Readonly<Pick<DataSpaceQueryWithConfigInput, 'identity' | 'options' | 'config' | 'accept' | 'definition'>>>()
 
   /** 建立共享查询缓存与保存请求 owner，使用同一个请求 scope 读取器。 */
   public constructor(options: DataSpaceRuntimeApiOptions) {
@@ -114,13 +114,13 @@ export class DataSpaceRuntimeApi {
   /** 页面释放沿SparkData.DataView生命周期清理页面级结果。 */
   public releaseQueryCache(page: object): void {this.queryCache.releaseResults(page)}
 
-  private async queryWithConfig(input: DataSpaceQueryWithConfigInput): Promise<DataSpaceQueryContext> {
+  private async queryWithConfig(input: DataSpaceQueryWithConfigInput, heldMutationKeys?: ReadonlySet<string>): Promise<DataSpaceQueryContext> {
     const {identity, options, config, view, accept, definition} = input
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(identity).identity
     const key = this.resourceKey(scope, normalized)
     const mutation = this.#mutationFlights.get(key)
-    if (mutation !== undefined) await mutation
+    if (mutation !== undefined && !heldMutationKeys?.has(key)) await mutation
     this.assertScope(scope)
     const cacheType = view?.queryConfig.cacheType
     const cache = view && cacheType && cacheType !== 'none' ? {
@@ -146,7 +146,7 @@ export class DataSpaceRuntimeApi {
       if (cache === undefined) accept?.(context)
       this.assertScope(scope)
       this.#contexts.set(context, key)
-      this.#queryOrigins.set(context, {options, config})
+      this.#queryOrigins.set(context, {identity: normalized, options, config, ...(accept === undefined ? {} : {accept}), ...(definition === undefined ? {} : {definition})})
       return context
     } finally {
       flights.delete(flight)
@@ -398,14 +398,22 @@ export class DataSpaceRuntimeApi {
       }
       finally {this.invalidateQueryCache()}
       this.assertScope(scope)
-      receipts.forEach((receipt, index) => {
+      for (const [index, receipt] of receipts.entries()) {
         const change = changes[index]
         if (change === undefined) throw new Error('SPARK 保存缺少基线目标')
         this.#contexts.delete(change.context)
         this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
         const origin = this.#queryOrigins.get(change.context)
         if (origin) this.#queryOrigins.set(receipt.context, origin)
-      })
+        if (receipt.added.length && receipt.context.hasPendingSavedRowPermissions) {
+          try {
+            const context = await this.refreshSavedPermissions(receipt.context, change.identity, scope, new Set(keys), receipt.added.map(row => receipt.context.rowKey(row)))
+            receipts[index] = {...receipt, context, added: receipt.added.map(row => context.rows.find(queried =>
+              Object.is(context.rowKey(queried), receipt.context.rowKey(row))) ?? row)}
+          }
+          catch {this.assertScope(scope)} // 写回执已确认；行权限读取失败保留只读待恢复状态，不重新提交。
+        }
+      }
       return receipts
     }).finally(() => this.assertScope(scope))
     const tail = run.then(() => undefined, () => undefined)
@@ -435,11 +443,19 @@ export class DataSpaceRuntimeApi {
       return changes.map((change, index) => {
         const outcome = outcomes[index]
         if (!outcome) throw new Error('save outcome missing for change')
-        const receipt = change.context.acceptSaveReceipt({requested: outcome.requested, receipt: outcome.receipt})
+        let receipt = change.context.acceptSaveReceipt({requested: outcome.requested, receipt: outcome.receipt})
         this.#contexts.delete(change.context)
         this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
         const origin = this.#queryOrigins.get(change.context)
         if (origin) this.#queryOrigins.set(receipt.context, origin)
+        if (outcome.queried && receipt.added.length) {
+          try {
+            const context = receipt.context.withSavedRowPermissions(outcome.queried, receipt.added.map(row => receipt.context.rowKey(row)))
+            this.#contexts.delete(receipt.context); this.#contexts.set(context, this.resourceKey(scope, change.identity))
+            if (origin) this.#queryOrigins.set(context, origin)
+            receipt = {...receipt, context}
+          } catch {this.assertScope(scope)}
+        }
         return receipt
       })
     }
@@ -464,31 +480,73 @@ export class DataSpaceRuntimeApi {
     if (keys.some(item => !item)) return unknown
     const origin = this.#queryOrigins.get(change.context)
     const {sort, tree, ...base}: DataSpaceQueryOptions = origin?.options ?? {}
+    const requestKey = origin?.definition?.fields.find(field => field.canonicalName === keyField)?.name ?? keyField
+    const fields = base.fields === undefined || base.fields.some(field => (typeof field === 'string' ? field : field.name) === requestKey)
+      ? base.fields : [...base.fields, requestKey]
     void sort; void tree
     const context = await this.queryWithConfig({
       identity: change.identity,
-      options: {...base, filter: SparkData.DataViewFilter.condition({field: keyField, operator: 'in', value: keys}),
+      options: {...base, ...(fields === undefined ? {} : {fields}), filter: SparkData.DataViewFilter.condition({field: requestKey, operator: 'in', value: keys}),
         page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
       config: origin?.config ?? DataSpaceRequestConfig.resolveQuery(),
+      ...(origin?.accept === undefined ? {} : {accept: origin.accept}),
+      ...(origin?.definition === undefined ? {} : {definition: origin.definition}),
     })
     if (context.rows.some(row => !keys.includes(key(row)))) return unknown
     const found = new Map(context.rows.map(row => [String(context.rowKey(row) ?? '').trim(), row]))
+    if (found.size !== context.rows.length || context.total !== context.rows.length) return unknown
     const same = (left: unknown, right: unknown) => Object.is(left, right) || JSON.stringify(left) === JSON.stringify(right)
     const states = [
       ...added.map(item => found.has(item) ? 'applied' : 'absent'),
       ...changed.map(row => {
         const actual = found.get(key(row))
-        const fields = Object.keys(row).filter(field => field !== keyField)
-        if (!actual || fields.some(field => !Object.hasOwn(actual, field))) return 'unknown'
-        const equal = fields.filter(field => same(actual[field], row[field])).length
-        return equal === fields.length ? 'applied' : equal === 0 ? 'absent' : 'unknown'
+        const changedFields = Object.keys(row).filter(field => field !== keyField)
+        if (!actual || changedFields.some(field => !Object.hasOwn(actual, field))) return 'unknown'
+        const equal = changedFields.filter(field => same(actual[field], row[field])).length
+        return equal === changedFields.length ? 'applied' : equal === 0 ? 'absent' : 'unknown'
       }),
       ...deleted.map(item => found.has(item) ? 'absent' : 'applied'),
     ]
     const state = states.every(item => item === 'applied') ? 'applied' : states.every(item => item === 'absent') ? 'absent' : 'unknown'
-    return {state, requested, receipt: {metaName: change.identity.metaName,
+    return {state, requested, queried: context, receipt: {metaName: change.identity.metaName,
       added: added.map(item => found.get(item) ?? {}), changed: changed.map(row => found.get(key(row)) ?? {}),
       deleted: [...(requested.deleted ?? [])]}}
+  }
+
+  private async refreshSavedPermissions(context: DataSpaceQueryContext, identity: DataSpaceQueryIdentity, scope: string,
+    heldMutationKeys?: ReadonlySet<string>, targetIds?: readonly unknown[]): Promise<DataSpaceQueryContext> {
+    this.assertContextOwner(scope, {identity, context, changes: {}})
+    if (!context.hasPendingSavedRowPermissions) return context
+    const ids = (targetIds ?? context.pendingSavedRowIds).map(id => {
+      if (typeof id !== 'string' && typeof id !== 'number') throw new Error('SPARK_SAVED_ROW_IDENTITY: 新增行缺少精确回读身份')
+      return id
+    }), origin = this.#queryOrigins.get(context), key = context.resultPrimaryKey
+    if (!origin || !key || key === '_pk') throw new Error('SPARK_SAVED_ROW_IDENTITY: 新增行缺少精确回读身份')
+    const requestKey = origin.definition?.fields.find(field => field.canonicalName === key)?.name ?? key
+    const {sort, tree, page, ...base} = origin.options
+    const fields = base.fields === undefined || base.fields.some(field => (typeof field === 'string' ? field : field.name) === requestKey)
+      ? base.fields : [...base.fields, requestKey]
+    void sort; void tree; void page
+    const queried = await this.queryWithConfig({identity, config: origin.config,
+      options: {...base, ...(fields === undefined ? {} : {fields}), filter: SparkData.DataViewFilter.condition({field: requestKey, operator: 'in', value: ids}),
+        page: {index: 1, size: ids.length}, allPages: true, maxRows: ids.length + 1, singleFlight: false},
+      ...(origin.accept === undefined ? {} : {accept: origin.accept}),
+      ...(origin.definition === undefined ? {} : {definition: origin.definition}),
+    }, heldMutationKeys)
+    this.assertScope(scope); this.assertContextOwner(scope, {identity, context, changes: {}})
+    if (queried.rows.some(row => !ids.some(id => Object.is(id, queried.rowKey(row))))) throw new Error('SPARK_SAVED_ROW_IDENTITY: 回读超出新增目标')
+    const next = context.withSavedRowPermissions(queried, targetIds)
+    // 只读恢复不消费原基线；DataView仍须核对读取期间的参数及生命周期后才接纳新结果。
+    // 若调用方因参数改变拒收，原基线仍可用于保留草稿和重试读取；只有成功写入消费基线。
+    this.#contexts.set(next, this.resourceKey(scope, identity)); this.#queryOrigins.set(next, origin)
+    return next
+  }
+
+  /** 已确认新增行的权限精确回读；不提交数据、不重放保存，也不重查整页。 */
+  public async refreshSavedRowPermissions(context: DataSpaceQueryContext): Promise<DataSpaceQueryContext> {
+    const origin = this.#queryOrigins.get(context)
+    if (!origin) throw new Error('SPARK_SAVED_ROW_OWNER: 新增行基线不属于当前运行owner')
+    return this.refreshSavedPermissions(context, origin.identity, this.currentScope())
   }
 
   private assertContextOwner(scope: string, change: DataSpaceRuntimeSaveCommand['changes'][number]): void {

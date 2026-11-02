@@ -459,9 +459,38 @@ describe('SPARK save private query baseline', () => {
     expect(accepted.context.rows).toEqual([{ id: 2, name: 'Retain' }, { id: 3, name: 'Actual' }])
     expect(accepted.context.total).toBe(2)
     expect(accepted.context.countReported).toBe(context.countReported)
-    expect(accepted.context.buildSaveRequest({ changed: [{ id: 3, name: 'Next' }] })[0]?.CrudModel.Changed)
-      .toEqual([{ id: 3, name: 'Next', lingma_sys_key: 'model-token' }])
+    expect(accepted.context.editActionState(3)).not.toBe('enabled')
+    expect(accepted.context.deleteActionState(3)).not.toBe('enabled')
+    expect(accepted.context.fieldAccess(3,'name')).toMatchObject({read:'visible',write:'denied'})
+    expect(()=>accepted.context.buildSaveRequest({changed:[{id:3,name:'Next'}]})).toThrow()
     expect(context.rows).toHaveLength(2)
+  })
+
+  it('adopts only the exact saved rows from a formal query and retains the list total and unrelated credentials', () => {
+    const {context}=fixture([{id:2,name:'Retain',lingma_sys_key:'old-row',lingma_sys_params:{e:['name'],d:true}}])
+    const accepted=context.acceptSaveReceipt({requested:{added:[{id:0,name:'Zero'},{id:3,name:'Three'}]},
+      receipt:{metaName:'Orders',added:[{id:0,name:'Zero'},{id:3,name:'Three'}],changed:[],deleted:[]}}).context
+    const table=new DataSpaceQueryTable({scenarioId:'SCENE',metaName:'Orders'})
+    const queried=new DataSpaceQueryContext({identity:table.identity,scope:'scope',readScope:()=> 'scope',snapshot:table.applyResult({Result:{
+      primaryKeyField:'id',data:{Count:2,Items:[{id:0,name:'Zero',lingma_sys_key:'new-zero',lingma_sys_params:{e:['name'],d:true}},
+        {id:3,name:'Three',secret:'hidden',bank:'masked',lingma_sys_key:'new-three',lingma_sys_params:{e:[],h:['secret'],m:['bank'],d:false}}]}}})})
+    const enriched=accepted.withSavedRowPermissions(queried)
+    expect(accepted.hasPendingSavedRowPermissions).toBe(true)
+    expect(enriched.hasPendingSavedRowPermissions).toBe(false)
+    expect(enriched.total).toBe(3);expect(enriched.rows.map(row=>row['id'])).toEqual([2,0,3])
+    expect(enriched.buildSaveRequest({changed:[{id:0,name:'Next'},{id:2,name:'Kept'}]})[0]?.CrudModel.Changed)
+      .toEqual([{id:0,name:'Next',lingma_sys_key:'new-zero'},{id:2,name:'Kept',lingma_sys_key:'old-row'}])
+    expect(enriched.fieldAccess(3,'secret').read).toBe('invisible');expect(enriched.fieldAccess(3,'bank').read).toBe('masked')
+    expect(enriched.fieldAccess(3,'name').write).toBe('denied');expect(enriched.deleteActionState(3)).not.toBe('enabled')
+  })
+
+  it.each([[{id:3}], [{id:3},{id:3}], [{id:4}]])('rejects incomplete, duplicate or unrelated saved-row permission queries %j',rows=>{
+    const {context}=fixture()
+    const accepted=context.acceptSaveReceipt({requested:{added:[{id:3},{id:4}]},receipt:{metaName:'Orders',added:[{id:3},{id:4}],changed:[],deleted:[]}}).context
+    const table=new DataSpaceQueryTable({scenarioId:'SCENE',metaName:'Orders'})
+    const queried=new DataSpaceQueryContext({identity:table.identity,scope:'scope',readScope:()=> 'scope',snapshot:table.applyResult({Result:{primaryKeyField:'id',data:rows}})})
+    expect(()=>accepted.withSavedRowPermissions(queried)).toThrow('SPARK_SAVED_ROW_')
+    expect(accepted.hasPendingSavedRowPermissions).toBe(true)
   })
 
   it.each([{}, { id: 0 }, { id: '' }])('rejects missing or colliding new receipt identity %j', row => {

@@ -96,6 +96,7 @@ export class WorkflowQueryNodeCreate {
  private async readback():Promise<void>{
   const nodeId=this.#nodeId,values=this.#nodeValues
   if(!nodeId||!values)throw Error('原查询节点创建身份缺失')
+  if(this.nodes.hasPendingSavedRowPermissions){await this.nodes.refreshSavedRowPermissions();this.guard()}
   const view=this.nodes.createQueryView(`queryNodeVerify:${nodeId}`)
   try{
    view.filterExpression={logic:'and',filters:[{field:'workflow_id',operator:'eq',value:this.input.workflowId},{field:'rowid',operator:'eq',value:nodeId}]}

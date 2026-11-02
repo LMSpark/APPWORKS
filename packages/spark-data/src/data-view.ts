@@ -177,6 +177,9 @@ type DataViewQueryResult = Readonly<{
   undefinedChanges?: 'clear'
   /** 来源是否明确返回总数；未提供不等于总数为零。 */
   countReported?: boolean
+  /** 保存已确认，但新增行尚待原查询返回正式行权限。 */
+  hasPendingSavedRowPermissions?: boolean
+  pendingSavedRowIds?: readonly unknown[]
   /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */
   resultPrimaryKey?: string
   rows: readonly DataViewQueryRow[]
@@ -212,6 +215,8 @@ type DataViewQueryExecutor = Readonly<{
   save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>
   /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */
   hasUnconfirmedSave?(context: DataViewQueryResult): boolean
+  /** 仅重读已确认新增行的权限，不重新提交保存。 */
+  refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>
   /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */
   abandonUnconfirmedSave?(context: DataViewQueryResult): void
   /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */
@@ -429,6 +434,7 @@ rows: DataRow[] = []
   validateQueryResult: ((result: DataViewQueryResult) => void | Promise<void>) | undefined
   #resourceIdentity: DataViewResourceIdentity | undefined
   #queryResult: DataViewQueryResult | undefined
+  #refreshingSavedRowPermissions = false
   #queryResultRefreshIdentity: string | undefined
   #computedQueryToken: object | undefined
   #queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
@@ -2194,6 +2200,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    */
   assertResultReplacementAllowed(): void {
     this.checkDestroyed()
+    if (this.#refreshingSavedRowPermissions) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY: 新增行权限正在回读')
     if (this.hasUnconfirmedSave) {
       throw new DataViewUnsavedChangesError(`DATA_VIEW_UNCONFIRMED_SAVE: ${this.tableName}@${this.viewId} 存在未确认提交，请先通过原保存入口核验`)
     }
@@ -2967,6 +2974,55 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return capture !== undefined && capture.executor.hasUnconfirmedSave?.(capture.context) === true
   }
 
+  /** 已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。 */
+  get hasPendingSavedRowPermissions(): boolean {
+    return this.currentQueryResult()?.hasPendingSavedRowPermissions === true
+  }
+
+  /** 只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。 */
+  async refreshSavedRowPermissions(): Promise<void> {
+    this.checkDestroyed()
+    const context = this.currentQueryResult(), executor = this.#queryExecutor
+    if (!context?.hasPendingSavedRowPermissions) return
+    if (this.mutating || this.requestState === RequestState.Loading || !executor?.refreshSavedRowPermissions) {
+      throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS: 当前不能恢复新增行权限')
+    }
+    const identity = this.refreshIdentity()
+    this._trackMutating(1)
+    this.#refreshingSavedRowPermissions = true
+    try {
+      const refreshed = await executor.refreshSavedRowPermissions(context)
+      this.checkDestroyed()
+      if (this.#queryResult !== context || this.#queryExecutor !== executor || identity !== this.refreshIdentity()) {
+        throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_STALE: 原查询身份已改变')
+      }
+      const pending = new Set(context.pendingSavedRowIds ?? [])
+      for (const baseline of context.rows) {
+        const key = context.rowKey(baseline)
+        if (!pending.has(key)) continue
+        const accepted = refreshed.rows.find(row => Object.is(refreshed.rowKey(row), key))
+        if (!accepted) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_ROW: 缺少正式新增行')
+        const id = this.getPkKey(dataRowFromRecord(structuredClone(baseline)))
+        if (id === undefined) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_ROW: 缺少本地身份')
+        const current = this.getRowById(id)
+        if (!current) continue
+        const patch: DataRow = {}
+        for (const field of new Set([...Object.keys(baseline), ...Object.keys(accepted)])) {
+          if (field === '_pk' || this.effectivePkFields.includes(field) || this.computedColumnNames.has(field)) continue
+          if (this.sameQuerySaveValue(current[field], baseline[field])) patch[field] = accepted[field]
+        }
+        this.updateRowById(id, structuredClone(patch))
+        if (this._editingPatches.has(id)) this._editingOriginalRows.set(id, structuredClone(accepted))
+        this.rebaseQuerySaveDirty(id, accepted)
+      }
+      this.#queryResult = refreshed
+      this.emitRowsChanged()
+    } finally {
+      this.#refreshingSavedRowPermissions = false
+      this._trackMutating(-1)
+    }
+  }
+
   /** 同一运行实例先捕获请求配置并校验全部变更，再按原查询owner串行提交；有未知提交时本轮仅核验原捕获，各来源独立确认。 */
   static async saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>> {
     const recovering = targets.some(target => target.view.hasUnconfirmedSave)
@@ -3287,6 +3343,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /** @internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。 */
   assertQuerySaveColumns(input: DataViewQuerySaveValidationInput): void {
+    if (this.#refreshingSavedRowPermissions) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY: 新增行权限正在回读')
     this.validateQuerySaveColumns(this.previewQuerySave(input), input.includeEditingRows)
   }
 
@@ -3834,6 +3891,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
 
   /** CrudDelegate 回调：追踪并发 CRUD 请求数，维护 mutating / mutatingError */
   private _trackMutating(delta: 1 | -1, error?: Error | null): void {
+    if (delta === 1 && this.#refreshingSavedRowPermissions) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY: 新增行权限正在回读')
     if (delta === 1) this.assertResultWritable()
     this._mutatingCount = Math.max(0, this._mutatingCount + delta)
     this.mutating = this._mutatingCount > 0

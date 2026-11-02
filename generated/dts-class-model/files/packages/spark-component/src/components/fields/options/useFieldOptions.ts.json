@@ -126,6 +126,13 @@
         "valueSeparator": {
           "type": "string"
         },
+        "valueMode": {
+          "enum": [
+            "array",
+            "auto",
+            "separated-string"
+          ]
+        },
         "multiple": {
           "enum": [
             false,
@@ -323,7 +330,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T23:37:11.343Z",
+  "generatedAt": "2026-11-02T17:55:39.970Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -360,11 +367,11 @@
       "jsdoc": "Field Option Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator'>> & {\n    multiple?: boolean | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator'>>",
+            "typeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>>",
             "targetName": "FieldComposableProps"
           },
           {

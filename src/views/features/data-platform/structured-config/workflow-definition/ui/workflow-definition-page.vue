@@ -18,11 +18,11 @@
         <FieldText field="workflow_key" label="编码" :readonly="true" />
         <FieldText field="version" label="版本号" :readonly="definitionLocked" />
         <FieldText field="sysid" label="所属应用ID" :readonly="true" />
-        <FieldText field="activeType" label="触发类型" :readonly="true" />
-        <FieldText field="timeExp" label="时间表达式" :readonly="true" />
+        <FieldRadio field="activeType" label="触发类型" :options="triggerTypes" :readonly="definitionLocked" />
+        <FieldText field="timeExp" label="时间表达式" placeholder="请输入时间表达式（Cron）" :readonly="definitionLocked" />
         <FieldText field="tblName" label="触发表" :readonly="true" />
         <RendererButton label="选择触发表" :disabled="definitionLocked" @click="triggerOpen = true" />
-        <FieldText field="tableOperate" label="操作方式" :readonly="true" />
+        <FieldCheckboxGroup field="tableOperate" label="操作方式" :options="triggerOperations" value-mode="separated-string" value-separator="," :readonly="definitionLocked" />
         <FieldTextarea field="filter" label="条件原文" :readonly="true" />
         <FieldTextarea field="description" label="描述" :readonly="definitionLocked" />
       </RendererForm>
@@ -48,7 +48,7 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute,onBeforeRouteLeave,onBeforeRouteUpdate} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererForm, FieldText, FieldSelect, FieldTextarea, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererForm, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, FieldTextarea, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
@@ -60,6 +60,8 @@ const designPending=computed(()=>designPage.value?.hasPending===true||designPage
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-definition-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const triggerOpen = ref(false)
+const triggerTypes=[{label:'表',value:'table'},{label:'时间',value:'time'}]
+const triggerOperations=[{label:'删除',value:'delete'},{label:'添加',value:'add'},{label:'编辑',value:'edit'}]
 const editTarget=ref(''),editReady=ref(false),editBusy=ref(false)
 const editor=()=>runtime?.getDataSet(scenarioId.value)?.getView(LowcodeWorkflowDefinition.catalogMetaName,'edit')
 const definitionUnconfirmed=computed(()=>{revision.value;return editor()?.hasUnconfirmedSave===true})

@@ -48,6 +48,7 @@ type FieldOptionProps = FieldComposableProps<Pick<
   | 'optionDataMember'
   | 'optionDataField'
   | 'valueSeparator'
+  | 'valueMode'
 >> & {multiple?: boolean | undefined}
 
 /** Use Field Options Return 的语义模型。 */
@@ -243,6 +244,15 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   }
 
   function toControlValue(value: unknown, multiple: boolean): unknown {
+    if (!cascade.definition.value && multiple && props.valueMode !== undefined) {
+      if(Array.isArray(value))return value
+      const values=typeof value==='string'?DataViewSelectionValue.split(value,valueSeparator.value):normalizeOptionValues(value)
+      return values.map(token=>{
+        const matches=flatOptions.value.filter(option=>String(option.value)===String(token))
+        if(matches.length>1)throw Error('FIELD_OPTION_VALUE: 分隔字符串候选编码不唯一')
+        return matches[0]?.value??token
+      })
+    }
     if (cascade.definition.value?.valueFormat !== 'selection-string') return value
     if (value !== null && value !== undefined && typeof value !== 'string') throw new Error('FIELD_CASCADE_VALUE: 选中字符串格式不匹配')
     const tokens = DataViewSelectionValue.split(value, valueSeparator.value)
@@ -251,7 +261,17 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
 
   function toSourceValue(value: unknown): unknown {
     if(!optionsAvailable.value)throw new Error(cascade.definition.value?'FIELD_CASCADE_VALUE: 当前选项尚不可用':'FIELD_OPTION_VALUE: 当前选项尚不可用')
-    if (!cascade.definition.value) return value
+    if (!cascade.definition.value) {
+      const current=binding.activeRow.value?.[binding.fieldName.value]
+      if(Array.isArray(value)&&(props.valueMode==='separated-string'||props.valueMode==='auto'&&typeof current==='string')) {
+        if(valueSeparator.value===''&&value.length>1)throw Error('FIELD_OPTION_VALUE: 空分隔符不能表达多个选项')
+        return DataViewSelectionValue.join(value.map(item=>{
+          if(typeof item!=='string'&&typeof item!=='number'&&typeof item!=='boolean')throw Error('FIELD_OPTION_VALUE: 分隔字符串只接受标量选项值')
+          return String(item)
+        }),valueSeparator.value)
+      }
+      return value
+    }
     if (cascade.definition.value.valueFormat !== 'selection-string') return value
     const values: unknown[] = Array.isArray(value) ? value : value === null || value === undefined ? [] : [value]
     const tokens = values.map(item => {

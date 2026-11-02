@@ -63,6 +63,31 @@ function mountFieldCheckboxGroup(
 }
 
 describe('FieldCheckboxGroup 复选组组件', () => {
+  it('decodes explicitly separated values and writes the same string field without a second model',async()=>{
+    const model=reactive<Record<string,unknown>>({operations:'add,edit'})
+    const wrapper=mountFieldCheckboxGroup(model,'operations',{valueMode:'separated-string',valueSeparator:',',options:[{label:'添加',value:'add'},{label:'编辑',value:'edit'},{label:'删除',value:'delete'}]})
+    const group=wrapper.findComponent(ElCheckboxGroupStub)
+    expect(group.props('modelValue')).toEqual(['add','edit'])
+    group.vm.$emit('update:modelValue',['edit','delete']);await nextTick()
+    expect(model['operations']).toBe('edit,delete')
+    group.vm.$emit('update:modelValue',[]);await nextTick();expect(model['operations']).toBe('')
+    wrapper.unmount()
+  })
+  it.each([['auto','tech','tech,product'],['auto',['tech'],['tech','product']],['array','tech',['tech','product']]] as const)('honors explicit %s storage using the current field shape',async(valueMode,initial,expected)=>{
+    const model=reactive<Record<string,unknown>>({departments:initial})
+    const wrapper=mountFieldCheckboxGroup(model,'departments',{valueMode,options:[{label:'技术',value:'tech'},{label:'产品',value:'product'}]})
+    const group=wrapper.findComponent(ElCheckboxGroupStub)
+    expect(group.props('modelValue')).toEqual(['tech'])
+    group.vm.$emit('update:modelValue',['tech','product']);await nextTick()
+    expect(model['departments']).toEqual(expected);wrapper.unmount()
+  })
+  it('resolves numeric candidates with a custom separator and preserves readonly values',async()=>{
+    const model=reactive<Record<string,unknown>>({departments:'1|2'})
+    const wrapper=mountFieldCheckboxGroup(model,'departments',{valueMode:'separated-string',valueSeparator:'|',options:[{label:'一',value:1},{label:'二',value:2}],readonly:true})
+    const group=wrapper.findComponent(ElCheckboxGroupStub)
+    expect(group.props('modelValue')).toEqual([1,2]);expect(group.props('disabled')).toBe(true)
+    group.vm.$emit('update:modelValue',[2]);await nextTick();expect(model['departments']).toBe('1|2');wrapper.unmount()
+  })
   const departmentOptions = [
     { label: '技术部', value: 'tech' },
     { label: '产品部', value: 'product' },

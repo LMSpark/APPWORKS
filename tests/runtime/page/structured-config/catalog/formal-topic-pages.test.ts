@@ -3,7 +3,7 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, FieldText, FieldSelect, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import Workflow from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'
@@ -45,6 +45,36 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['save','cancel'])('edits trigger type and Cron through standard bound fields and %s',async outcome=>{
+    Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',activeType:'table',timeExp:'original-expression',tblid:'KEEP_TABLE',filter:'keep-filter',tableOperate:'add,edit'})
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Workflow,meta:{blueprintScenarioId:WORKFLOW}}]})
+    await router.push('/catalog');await router.isReady()
+    const wrapper=mount(Workflow,{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('入库流程'))
+    const click=async(label:string)=>{const b=wrapper.findAllComponents(RendererButton).find(b=>b.props('label')===label)!;expect(b.props('disabled')).not.toBe(true);b.vm.$emit('click');await flushPromises()}
+    await wrapper.getComponent(RendererTable).get('tbody tr').trigger('click');await flushPromises();await click('编辑定义')
+    await vi.waitFor(()=>expect(wrapper.findComponent(RendererForm).exists()).toBe(true))
+    const form=wrapper.getComponent(RendererForm),radio=form.getComponent(FieldRadio)
+    expect(radio.props('field')).toBe('activeType')
+    await radio.findAllComponents({name:'ElRadio'}).find(r=>r.props('value')==='time')!.get('input').setValue(true)
+    const cron=form.findAllComponents(FieldText).find(f=>f.props('field')==='timeExp')!
+    await cron.get('input').setValue('0 0 9 * * ?');await flushPromises()
+    const operations=form.getComponent(FieldCheckboxGroup)
+    expect(operations.props('field')).toBe('tableOperate');expect(operations.props('valueMode')).toBe('separated-string')
+    const checkboxes=operations.findAllComponents({name:'ElCheckbox'})
+    expect(checkboxes.find(c=>c.props('label')==='add')!.get('input').element.checked).toBe(true)
+    expect(checkboxes.find(c=>c.props('label')==='edit')!.get('input').element.checked).toBe(true)
+    await checkboxes.find(c=>c.props('label')==='delete')!.get('input').setValue(true);await flushPromises()
+    expect(state.http.saves).toEqual([])
+    if(outcome==='cancel'){
+      await click('取消定义修改');expect(cron.get('input').element.value).toBe('original-expression');expect(state.http.saves).toEqual([])
+      expect(operations.findAllComponents({name:'ElCheckbox'}).find(c=>c.props('label')==='delete')!.get('input').element.checked).toBe(false)
+    }else{
+      await click('保存定义');expect(state.http.saves).toHaveLength(1)
+      expect(state.http.saves[0]?.changed).toEqual([expect.objectContaining({rowid:'W1',activeType:'time',timeExp:'0 0 9 * * ?',tableOperate:'add,edit,delete'})])
+    }
+    expect(state.http.records['Base_WorkflowDefinition']![0]).toMatchObject({tblid:'KEEP_TABLE',filter:'keep-filter',tableOperate:outcome==='cancel'?'add,edit':'add,edit,delete'})
+  })
   it.each(['cancel-picker','confirm-cancel','confirm-save','search-empty'])('uses the real trigger selector with %s through the original definition view',async outcome=>{
     Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',dbName:'old_db',tblName:'OldTable',tblid:'OLD',filter:'old-filter'})
     state.http.records['_base_dbInfo']=[{Id:'D1',Name:'physical_db',Remark:'显示备注'},{Id:'D2',Name:'other_db'}]

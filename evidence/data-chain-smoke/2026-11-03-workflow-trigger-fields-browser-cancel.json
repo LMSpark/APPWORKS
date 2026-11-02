@@ -1,0 +1,59 @@
+{
+  "date": "2026-11-03",
+  "reference": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "browser": {
+    "definitionId": "46FA11BC212B35DB921AE78568ED0E5F",
+    "initial": {
+      "activeType": "table",
+      "timeExp": "",
+      "tableOperate": ""
+    },
+    "draft": {
+      "activeType": "time",
+      "timeExp": "0 0 9 * * ?",
+      "operations": [
+        "add",
+        "edit"
+      ]
+    },
+    "cancelRestored": true,
+    "saveClicked": false,
+    "executions": 0
+  },
+  "independentReadback": {
+    "kind": "actual-service-via-current-source-SPARK-data",
+    "readOnlyEndpointGuard": true,
+    "readRequests": 1,
+    "exampleFunctionPosts": 0,
+    "blockedWriteAttempts": 0,
+    "writeRequests": 0,
+    "results": [
+      {
+        "scenarioId": "5E9676B1E38860B023921F48FB4370DE",
+        "metaName": "Base_WorkflowDefinition",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "returned": 1,
+        "rows": [
+          {
+            "rowid": "46FA11BC212B35DB921AE78568ED0E5F",
+            "activeType": "table",
+            "timeExp": "",
+            "tableOperate": "",
+            "status": 2,
+            "tblid": "9137069151984ECE97083EE72E967F2F",
+            "tblName": "HR_New_XC_GZFPJL",
+            "dbName": "spark_payroll",
+            "filter": ""
+          }
+        ]
+      }
+    ]
+  },
+  "limits": [
+    "No deployed Cron scheduling or table trigger execution tested",
+    "Formal save of these trigger fields has not been tested",
+    "Form status number2 display remains a gap; strict primitive option identity preserved"
+  ]
+}

@@ -5252,3 +5252,16 @@ flowchart LR
 当前相关76测试、typecheck、受改文件ESLint、pages-config/workflow-designs/page-thin/docs及单独前端打包通过；最终目录/工作流组合回归与提交尚在进行，不能核销完整工作流、正式新建领码顺序、触发执行或全架构目标。生成器11个只含iterator/unscopables数字变化的分片经归一比对后恢复，保留实际公共search合同及页面产物。
 
 最终组合回归11文件104测试通过（另公共筛选53测试已通过），typecheck及上述检查/打包全部确认exit0。独立回读原定义1读0写通过，选择器浏览器截图已保存。待提交检查点；正式触发表保存、正式新建及执行仍未验收。
+
+
+**2026-11-03 触发设置字段及公共选项编码工位。**上一轮06ba5f38e已推送且远端一致，旧待提交字样仅历史状态。本轮沿固定参考workflow-definition-page/model完整触发语义继续：activeType=table/time、timeExp原Cron字符串、tableOperate=delete/add/edit逗号编码，切换不擅自清空表/条件/其他触发配置。Java仅只读核消费者：WorkflowServiceImpl按activeType/status及操作类型过滤、按dbName@tblName分组；WorkflowQuartzSyncService在status1/time/nonblank Cron时创建计划。此为源码证据，未当实际部署证明。正式服务禁止本轮保存或执行时间触发。
+
+先查当前ClassModel目录/概要/继承属性指南，首次猜SparkDataFieldProps无此类，沿源码继承纠正为SparkFieldSemanticProps后成功，未凭缺项重造组件。标准FieldRadio、FieldText直接绑定原edit视图，新增真实控件保存/取消回归先因缺组件失败后通过。操作方式发现SparkOptionFieldProps已有valueMode/valueSeparator声明，但useFieldOptions普通多选链未消费；不在页面实现parse/serialize，补公共helper显式模式读取/写回，缺省行为不变，旧field cascade优先。页面使用标准FieldCheckboxGroup valueMode=separated-string、separator逗号及固定领域枚举，不持第二份数组。公共测试先复现原字符串被显示为[]，再补原字段写回/清空、自定义分隔符、只读、显式auto保留原形与array。数据权限和取消/保存仍原DataView。
+
+高阶模型指出新增通用转换会丢多选级联嵌套数组、混淆1与字符串1、空分隔符仅保留首值；已改原生Array原样保留结构/类型，只有字符串token做候选解析且编码歧义拒绝，空分隔符多值及非标量序列化拒绝。补field-value-mode覆盖上述范围，原field-cascade-options回归通过。参考操作编码固定排序在消费者只是集合匹配，本仓保留标准控件的选择次序，不以重排制造页面草稿。
+
+另实服表单状态显示裸2而非停用，尝试复用公共findOptionLabel导致既有typed0生命周期回归失败（数字0不得借字符串0候选显示），该尝试已撤回，未修改测试放宽合同。保留严格原始类型身份，状态来源varchar实际返回number的显示/读入类型差距继续开放，不能说上一轮计算列已解决表单显示。
+
+真实浏览器三字段activeType=time/Cron=0 0 9 * * ?/add+edit只写原草稿，取消后表类型、空Cron/操作全部恢复；原绑定表未变，关闭守卫恢复。独立精确回读1读0写确认activeType/table、原tblid/dbName/tblName/filter及status2，0流程执行、无保存点击、未创建任何fixture。证据workflow-trigger-fields-browser-cancel，指南workflow-trigger-fields-guides；截图本机workflow-trigger-fields-cancel.png。10文件92选择组件与页面测试通过，受改ESLint通过；最终typecheck/正式ClassModel及高阶复核进行中，后续按结果登记。完整工作流/正式创建领码、条件目录、AI Cron和触发实际执行未验收，全目标active。
+
+最终检查：选择类及页面10文件92测试、工作流/目录11文件106测试均通过；typecheck首次因新增测试从未导出的barrel导入SparkOptionValueMode失败，改为测试引用已有shared-types真源后重跑exit0，无产品扩导出。受改ESLint、pages-config/workflow-designs/page-thin/docs、独立前端打包exit0。正式ClassModel1002文件已刷新；11个编号噪声及3个只含时间戳/顺序/编号的无关分片经比对恢复，保留公共helper和页面真实产物。高阶模型最终复核确认四项问题已修，本范围无其他确定重要阻塞。真实保存/执行仍未验收，新的单定义fixture授权仍待答复且未创建；本轮不消费此前已清理的三记录授权。准备提交本轮完整触发字段编辑检查点。

@@ -1,0 +1,101 @@
+{
+  "catalog": {
+    "rootKind": "RRadioProps",
+    "models": [
+      {
+        "kind": "RRadioProps",
+        "name": "RRadioProps",
+        "jsdoc": "RRadio Props 的属性契约。",
+        "summary": "RRadio Props 的属性契约。",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "SparkNodeProps",
+            "targetName": "SparkNodeProps"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "SparkButtonOptionFieldProps<string | number>",
+            "targetName": "SparkButtonOptionFieldProps"
+          }
+        ],
+        "component": {
+          "name": "FieldRadio",
+          "type": "r-radio",
+          "level": "field-level",
+          "layer": "data-field",
+          "directory": "fields/data-components"
+        }
+      }
+    ]
+  },
+  "overview": [
+    {
+      "rootKind": "RRadioProps",
+      "models": [
+        {
+          "kind": "RRadioProps",
+          "name": "RRadioProps",
+          "jsdoc": "RRadio Props 的属性契约。",
+          "summary": "RRadio Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkButtonOptionFieldProps<string | number>",
+              "targetName": "SparkButtonOptionFieldProps"
+            }
+          ],
+          "component": {
+            "name": "FieldRadio",
+            "type": "r-radio",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [],
+          "methods": []
+        }
+      ]
+    },
+    {
+      "rootKind": "RRadioProps",
+      "models": []
+    },
+    {
+      "rootKind": "RRadioProps",
+      "models": []
+    }
+  ],
+  "guides": [
+    {
+      "kind": "SparkOptionSourceProps",
+      "attributeName": "options",
+      "guide": "选项源配置（源层通用）：\n只描述“候选项本身的结构”，不包含 field 语义，也不负责动态 DataViewKey 绑定。\n适合：\n- 静态枚举\n- 小规模本地 options\n- 构建期即可确定的树形/级联候选项\n注意：\n- 这里的 `options` 只是在类型层描述“本地直接传入的候选项”\n- 若具体字段组件还支持 `optionDataViewKey`，动态候选项会在运行时由共享解析链补进来，而不是受这里的静态类型声明限制\ntype SparkOptionSourceProps {\n  可选项数组。\n  通常用于静态枚举场景，例如状态、性别、开关类型等固定候选列表。\n  readonly options: unknown[]\n}"
+    },
+    {
+      "kind": "SparkOptionFieldProps",
+      "attributeName": "valueMode",
+      "guide": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；指定 `optionDataViewKey` 后，运行时只从该动态 DataView 读取候选，缺少 runtime 或视图时报告绑定错误，不回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`\ntype SparkOptionFieldProps {\n  主值持久化模式。\n  用于声明当前选项字段把选中结果写回 `field` 时，应保留数组，\n  还是按 `valueSeparator` 序列化成单个字符串。\n  readonly valueMode: \"array\" | \"auto\" | \"separated-string\"\n}"
+    },
+    {
+      "kind": "SparkOptionFieldProps",
+      "attributeName": "valueSeparator",
+      "guide": "带选项字段属性（第三层）：\n为具备 field 语义的“选项类字段组件”统一收口静态选项、动态选项解析和常见行为开关。\n适用范围：\n- select / multi-select / radio / checkbox-group\n- cascader / tree-select / transfer\n- entity-picker / icon-picker 等基于候选项选择值的字段组件\n说明：\n- `options / optionLabelField / optionValueField / optionDisabledField / optionChildrenField` 继承自 `SparkOptionSourceProps`\n- `options` 表示本地静态候选项入口；指定 `optionDataViewKey` 后，运行时只从该动态 DataView 读取候选，缺少 runtime 或视图时报告绑定错误，不回退到本地 `options`\n- `optionDataViewKey` 负责指向动态选项数据源，而不是选项对象内部的主键字段\n- 某些组件可通过为 `SparkOptionFieldProps<TValue, TOption>` 传入更具体的 `TOption` 收窄本地 `options` 类型，无需在组件 props 中重复声明 `options`\n- 如果某组件只有“候选项结构”语义，而没有 field/value/placeholder 等字段语义，可直接复用 `SparkOptionSourceProps`\ntype SparkOptionFieldProps {\n  值分隔符。\n  当组件处于多选语义，但主字段 `field` 选择以单个字符串而不是数组形式持久化时，\n  使用该分隔符把多个候选值序列化到主字段中。\n  示例：\n  - 当前选中值为 `[101, 102]`\n  - `valueSeparator` 为 `,`\n  - 最终写入 `field` 为 `101,102`\n  readonly valueSeparator: string\n}"
+    },
+    {
+      "kind": "SparkFieldSemanticProps",
+      "attributeName": "field",
+      "guide": "字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。\ntype SparkFieldSemanticProps {\n  字段绑定名。\n  常见语义是从当前上下文数据中读取 `currentRow[field]`，\n  也可作为表单写回、明细展示、列渲染时的字段定位键。\n  readonly field: string\n}"
+    },
+    {
+      "kind": "SparkFieldSemanticProps",
+      "attributeName": "readonly",
+      "guide": "字段语义层（无根）。\n只描述 field 组件自己的值/标签/占位等编辑语义，\n不引入 `SparkNodeProps`，以便具体组件能够显式挂在根层上而不形成重复继承。\ntype SparkFieldSemanticProps {\n  只读状态。\n  表示组件仍可见、通常仍参与布局，但不允许用户修改值；\n  它与完全禁用或隐藏是不同层级的语义。\n  readonly readonly: boolean\n}"
+    }
+  ]
+}

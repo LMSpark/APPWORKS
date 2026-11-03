@@ -1,0 +1,399 @@
+{
+  "date": "2026-11-04",
+  "scope": "named parentResult child DataView; full architecture goal remains active",
+  "implementation": [
+    "same DataSet formal-model scope",
+    "parent context and exact row reference ownership",
+    "parent lifecycle invalidation and late acceptance rejection",
+    "no child HTTP or new save owner"
+  ],
+  "sdk": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-03T20:07:27.198Z",
+    "reads": 9,
+    "writes": 0,
+    "blockedWrites": 0,
+    "spaceId": "1F49F13969BD165B93B527C8FA5BC799",
+    "marker": "SMOKE_DCPR_1793736127735",
+    "checks": [
+      {
+        "name": "Navigation-parent-084BA65BB3AF9F10BF3383EF2870BD8F",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name"
+        ],
+        "rows": [
+          {
+            "rowid": "084BA65BB3AF9F10BF3383EF2870BD8F",
+            "Name": "SMOKE_DCPR_1793736127735_PARENT"
+          },
+          {
+            "rowid": "F8C6D1925A6B063E674AC6AE77F8A916",
+            "Name": "SMOKE_DCPR_1793736127735_CHILD"
+          }
+        ],
+        "total": 2,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "Navigation-child-084BA65BB3AF9F10BF3383EF2870BD8F",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "241DA366AF52F39DD1A8E45E81CAC9DB",
+            "Name": "lingma_sys_ent",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          },
+          {
+            "rowid": "98955244076693AA138EC13107ACB8FB",
+            "Name": "Name",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          },
+          {
+            "rowid": "C3052F2E70E7DD63AF1D7AE0EDAAA081",
+            "Name": "rowid",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          }
+        ],
+        "total": 3,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "Navigation-other-084BA65BB3AF9F10BF3383EF2870BD8F",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "98955244076693AA138EC13107ACB8FB",
+            "Name": "Name",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          }
+        ],
+        "total": 1,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "Navigation-parent-F8C6D1925A6B063E674AC6AE77F8A916",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name"
+        ],
+        "rows": [
+          {
+            "rowid": "084BA65BB3AF9F10BF3383EF2870BD8F",
+            "Name": "SMOKE_DCPR_1793736127735_PARENT"
+          },
+          {
+            "rowid": "F8C6D1925A6B063E674AC6AE77F8A916",
+            "Name": "SMOKE_DCPR_1793736127735_CHILD"
+          }
+        ],
+        "total": 2,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "Navigation-child-F8C6D1925A6B063E674AC6AE77F8A916",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "0EE588CA320E3AEC680B4C40ACCA66B8",
+            "Name": "dataModelId",
+            "dataModelId": "F8C6D1925A6B063E674AC6AE77F8A916"
+          },
+          {
+            "rowid": "244AD60908F17A3CFAA1ED6DAC34DEC4",
+            "Name": "lingma_sys_ent",
+            "dataModelId": "F8C6D1925A6B063E674AC6AE77F8A916"
+          },
+          {
+            "rowid": "60C314669A6D09FA2AA675E806FB5D2E",
+            "Name": "rowid",
+            "dataModelId": "F8C6D1925A6B063E674AC6AE77F8A916"
+          },
+          {
+            "rowid": "F39C4D5074DF33E655356A5E7CE716AC",
+            "Name": "Name",
+            "dataModelId": "F8C6D1925A6B063E674AC6AE77F8A916"
+          }
+        ],
+        "total": 4,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "Navigation-other-F8C6D1925A6B063E674AC6AE77F8A916",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "F39C4D5074DF33E655356A5E7CE716AC",
+            "Name": "Name",
+            "dataModelId": "F8C6D1925A6B063E674AC6AE77F8A916"
+          }
+        ],
+        "total": 1,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "empty-parent-child",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [],
+        "total": 0,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "changed-parent-plan-child",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "241DA366AF52F39DD1A8E45E81CAC9DB",
+            "Name": "lingma_sys_ent",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          },
+          {
+            "rowid": "98955244076693AA138EC13107ACB8FB",
+            "Name": "Name",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          },
+          {
+            "rowid": "C3052F2E70E7DD63AF1D7AE0EDAAA081",
+            "Name": "rowid",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          }
+        ],
+        "total": 3,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "changed-parent-plan-other",
+        "resultKind": "navigation",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "C3052F2E70E7DD63AF1D7AE0EDAAA081",
+            "Name": "rowid",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          }
+        ],
+        "total": 1,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      },
+      {
+        "name": "Hierarchy-single-child",
+        "resultKind": "hierarchy",
+        "primaryKey": "",
+        "fields": [
+          "rowid",
+          "Name",
+          "dataModelId"
+        ],
+        "rows": [
+          {
+            "rowid": "241DA366AF52F39DD1A8E45E81CAC9DB",
+            "Name": "lingma_sys_ent",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          },
+          {
+            "rowid": "98955244076693AA138EC13107ACB8FB",
+            "Name": "Name",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          },
+          {
+            "rowid": "C3052F2E70E7DD63AF1D7AE0EDAAA081",
+            "Name": "rowid",
+            "dataModelId": "084BA65BB3AF9F10BF3383EF2870BD8F"
+          }
+        ],
+        "total": 3,
+        "page": 1,
+        "pageSize": 20,
+        "countReported": false
+      }
+    ],
+    "limitation": "Original runtime/DataSet named view integration only; browser and persisted pagedata reopen are separate acceptance"
+  },
+  "browser": {
+    "artifact": "2026-11-04-parent-result-browser.json",
+    "screenshot": "2026-11-04-parent-result-browser.png",
+    "documentReads": [
+      8,
+      7
+    ],
+    "writes": 0,
+    "configuration": "RAM diagnostic module, not persisted pagedata"
+  },
+  "cleanup": {
+    "failedSeed": {
+      "phase": "cleaned",
+      "error": "",
+      "pending": false,
+      "reads": 15,
+      "writes": 1,
+      "blockedWrites": 0,
+      "spaceId": "2182108E1F6493602C3CA2BE045CCF70",
+      "marker": "SMOKE_DATA_CHAIN_PARENT_RESULT_1793735850980",
+      "results": [
+        {
+          "table": "Base_DataSet",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        },
+        {
+          "table": "Base_DataModel",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        },
+        {
+          "table": "Base_DataModel_Field",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        },
+        {
+          "table": "Base_DataModel_Relation",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        }
+      ],
+      "noReplay": true
+    },
+    "independentAbsence": {
+      "phase": "confirmed",
+      "error": "",
+      "testedAt": "2026-11-03T20:21:40.217Z",
+      "reads": 4,
+      "writes": 0,
+      "blockedWrites": 0,
+      "spaceId": "1F49F13969BD165B93B527C8FA5BC799",
+      "results": [
+        {
+          "metaName": "Base_DataSet",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        },
+        {
+          "metaName": "Base_DataModel",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        },
+        {
+          "metaName": "Base_DataModel_Field",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        },
+        {
+          "metaName": "Base_DataModel_Relation",
+          "total": 0,
+          "returned": 0,
+          "countReported": true
+        }
+      ]
+    },
+    "successfulFixture": {
+      "records": 15,
+      "creatorExit": 0,
+      "reads": 135,
+      "batches": 6,
+      "pending": false,
+      "phase": "cleaned"
+    }
+  },
+  "verification": {
+    "targetedTests": 47,
+    "relatedFiles": 78,
+    "relatedTests": 1759,
+    "runtimeApiTests": 139,
+    "classModelTests": 49,
+    "rootTypecheck": "passed",
+    "changedLint": "passed",
+    "build": "passed",
+    "pageThin": "passed",
+    "packageDiagnosticBaseline": {
+      "sparkData": [
+        51,
+        51
+      ],
+      "sparkLowcodeApi": [
+        9,
+        9
+      ],
+      "introduced": []
+    },
+    "codingRules": "one existing positional-parameter violation unchanged"
+  },
+  "limitations": [
+    "live SDK and browser preceded final target-input rejection guard; final guard covered by controlled-response tests and related regression",
+    "child Table sort affordance still exposed and not exercised",
+    "pagedata persistence/reopen unverified",
+    "failed 51-character parent registered name exceeded deployed PId storage; exact limit unverified",
+    "Foreign, LEFT no-match, aggregates, full reference page matrix remain open"
+  ],
+  "review": "static high-model review; did not independently run service or tests"
+}

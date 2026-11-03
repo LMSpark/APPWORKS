@@ -5790,3 +5790,21 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 
 - 本段最终证据：相关78文件1736测试通过；原runtime-api独立139通过；最后规则形状守卫调整39项针对性测试通过，之后仅补类型别名JSDoc。正式root typecheck及所有受改源/测试lint通过；包级HEAD/current51/51与9/9，无新增；规则HEAD/current同一既存位置参数告警各1，无新增。正式ClassModel最终重新编译后7根目录/概要/指南已查询，49项校验、build:fe与page-thin通过。semantic-gaps 3637→3636、无新增，补齐移动模型别名JSDoc；规范比较恢复105份等价派生噪声，保留15份真实修改以及正式新增/删除产物，不手改生成合同。
 - 高阶复核提出的指数scope、层级误用flatJoin命名空间、ForeignKeyFields错名及DbId/PId回退均已用针对性RED→GREEN修正。最后源码由本会话结合回归核对；不将高阶静态意见当作其独立执行测试或实服证据。实服leaf证据4读0写0新夹具，无清理遗留；完整子模型树和具名子视图Browser尚未验收。证据evidence/data-chain-smoke/2026-11-04-nested-owner.json及guides.json。全目标active，继续上列parentResult工位，不将本次owner检查点当整卡完成。
+
+### 2026-11-04 parentResult具名子视图（实施中）
+
+- 延续8cecbdf72之后的同一卡。新增queryConfig.parentResult完整父键+直接childModelName，显式none；同DataSet/正式目标模型/无环，禁止子独立过滤、排序、输入、投影改写、查询级联与聚合等被忽略输入。原Runtime executor在派发前核模型及默认投影，沿公共DataViewParentResult等待父原查询，再读取原child Context，不发第二次HTTP。Generic owner缺parentResults能力在派发前拒绝。
+- DataView.captureChildResult捕获原父请求代次/currentRow/rootContext，派发返回后和异步validate后核原capture；每次消费已接纳结果沿#parentResultGuard核验。CascadeDelegate独立按引用/代次订阅，不用结构相等代替父身份；父切换/开始查询/失败/释放清旧子rows与selection，manual等待显式刷新，auto沿原requestData/requestRefresh合并最新读取。子refresh/destroy不清父HTTP缓存，不invalidate共享child Context。disposing事件在移除监听前发出，_isDisposing阻止新查询/写入但保留内部销毁getter清理能力。
+- 高阶复核2项Important已RED→GREEN：加载中父切换曾被busy空行分支吞掉，现保留一次最新源的延期刷新；无效配置曾留下半提交并拆旧订阅，现候选完整校验后再提交，失败保留原配置及订阅。createQueryView首次绑定前不reset请求代次，避免误判owner改绑。另明确阻止context/投影/查询级联静默忽略，投影配置按结构比较但父行身份仍按引用。
+- 针对测试已44项通过，覆盖初次依赖/直接父在途/重复父键/空父/手动/自动晚到/失败不重试父HTTP/兄弟释放/缓存/错误配置原样保持/跨空间/环/独立h-m与写入口拒绝。扩大回归已有78文件1753通过，独立runtime139通过（后续预检调整尚待最终回归）；root typecheck、改动lint及包HEAD/current51/51、9/9已通过一轮，规则同一旧告警各1无新增，最终编译和检查尚待收口。
+- 实服准备：parent-result-native-preflight-run原进程21544/exec66080已真实exit0，原source reader/catalog 17读0写，三个来源唯一且可准备。新parent-result-native-lifecycle-checkpoint.json尚不存在，准备使用全新唯一marker/ID，原DataSet创建并精确清理，不重建已清理旧ID；当前尚无新临时记录写入。后续拟3个模型及11字段+1空间共15条元数据，2个不同注册子模型可读同物理表，Navigation验证多路径，Hierarchy仍单子。只修改自有临时元数据，不改源业务行/后端/授权/流程，不领码；未知写入结果只核验不重放。
+- 全目标active。本段尚未实服父子图或标准Table Browser验收，未提交本段代码；其他历史开放项保持。
+
+- 实服过程如实收敛：首夹具marker SMOKE_DATA_CHAIN_PARENT_RESULT_1793735850980（父注册名51字符）在第二行PId保存时报500超长，exec37905退出1且原creator OS进程已不存在；未重放写入。独立33812/exec49061四读确认仅空间2182108E1F6493602C3CA2BE045CCF70存在，3模型/11字段/关系均0；27436/exec69291经原catalog DataSet仅删该空空间，15读1批，四表回读均0，pending=false/cleaned/exit0。该失败批次以独立结果核验关闭，原失败checkpoint保留历史pending，不伪改为成功；不据此猜后端列精确上限或修改后端。
+- 新夹具SMOKE_DCPR_1793736127735使用短注册名，空间1F49F13969BD165B93B527C8FA5BC799，原creator31828/exec94999创建3模型+11字段+空间共15条，44读2批独立确认。首只读探针19108语法错误退出1、无验收证据；修脚本后20616实读6次但原生装配scope误拒（未通过），由DataSet.fromJson重开RED确认DataTable.setDataSet先于tables注册，已改为结构就绪统一重挂订阅，26868同一夹具再读9次0写confirmed、10项观测。2注册子模型同物理来源，各父3/4条完整字段与1条Name字段，父切换/空父/子刷新不新发HTTP，父计划改过滤仅增1读；单子Hierarchy成功，Count未知/只读键均保留。不以9读覆盖此前失败6读，未重建/重放任何旧记录。
+- 浏览器IAB tab1经原登录表单复用受保护授权账号，再经真实AppWorks URL进入既有导航身份。诊断页消费同一PageRuntime/DataSet，3个标准RendererTable绑定完整键；实际点击第二父行得到4+1、子当前行独立、清空得0+0（读数仍7）、恢复首行3+1、刷新父时旧子行先清空且增1读、完成恢复3+1、重开新实例再次7读。两文档8+7读0写，截图与DOM摘要保存evidence/data-chain-smoke/2026-11-04-parent-result-browser.png/json；配置来自诊断模块RAM，不是pagedata已保存重开，未称整页或四文件验收。
+- 浏览器关闭后原creator按other/child/parent/space原删除owner清理，累计135读6批（创建2+删除4）、pending空、cleaned，真实exit0；22076/exec63754独立4读0写核Base_DataSet/Model/Field/Relation总数和返回均0，exit0。首失败空间与成功15条均无遗留，不重建这些ID。无源业务数据写、无流程执行/领码、无文件配置写、无后端或授权变更。
+- 最后补目标输入元数据守卫：等待validate期间或接纳后目标投影/过滤变化也拒收，不能只检查父引用；47项针对测试通过，相关78文件1759通过，root typecheck与改动lint通过，包诊断51/51、9/9无新增，规则既存位置参数各1无新增。真实9读/Browser验证先于此最后拒收守卫，末段仅受控响应和回归验证，没有为重测重建夹具；ClassModel刷新/最终门禁进行中。
+- 开放项须继续：parentResult独立子过滤/排序本段明确不支持（应改父计划），但RendererTable仍给子表显示排序入口；源码确认会调用setSort，当前未点击该未适配入口，不将组件完整行为计为通过。下一步沿标准组件能力消除此误导入口并验收；另需原pagedata设计保存/重开、真实失败/应用切换/多级及更多权限矩阵。PId字段对合法长注册名的容量/校验合同仍待核，不凭短夹具成功关闭。全目标active，Foreign/LEFT/聚合与全页矩阵旧项保留。
+
+- 本段检查点：正式ClassModel刷新及指南查询完成，ClassModel 4文件49测试通过，build:fe与verify:page-thin通过；相关回归78文件1759测试、目标47测试及runtime独立139测试如上。生成器输出按语义等价比较恢复无关时间戳/编译符号漂移，保留真实公共合同变更。主架构说明已纠正parentResult未实现的过期文字，正式证据汇总evidence/data-chain-smoke/2026-11-04-parent-result.json，浏览器证据及截图同目录。准备提交推送本段；全目标仍active，下一段先消除标准子Table排序入口与实际支持能力不一致。

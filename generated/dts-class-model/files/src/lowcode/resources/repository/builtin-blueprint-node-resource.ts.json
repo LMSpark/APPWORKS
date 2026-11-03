@@ -19,6 +19,12 @@
       "type": "object",
       "title": "Executor",
       "properties": {
+        "parentResults": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "localAggregates": {
           "enum": [
             false,

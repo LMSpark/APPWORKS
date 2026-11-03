@@ -13,7 +13,7 @@ import { DataSpaceRequest, DataSpaceSaveUnconfirmedError } from './protocol/data
 import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
 import { captureDataSpaceViewQuery } from './query/data-space-query-options.js'
 import { DataSpaceDesignApi } from '../design/data-space-design-api.js'
-import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
+import { DataSpaceQueryContext } from './query/data-space-query-context.js'
 import { DataSpaceRequestConfig } from './protocol/data-space-request-config.js'
 import { DataSpaceSourceInput } from './query/data-space-source-input.js'
 import { DataSpaceQueryAggregation } from './query/data-space-query-aggregation.js'
@@ -69,6 +69,8 @@ type DataSpaceRuntimeQuerySource = Pick<Awaited<ReturnType<DataSpaceDesignApi['r
 
 /** 拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。 */
 export class DataSpaceRuntimeApi {
+  /** 父结果来源由同一运行owner校验正式模型并消费，不另发HTTP。 */
+  readonly parentResults = true
   /** 正式服务汇总必须消费后端结果；旧view.aggregates不能按分页行或选择缓存计算。静态数组绑定其本地owner。 */
   readonly localAggregates = false
   private readonly queryCache: DataSpaceQueryCache
@@ -243,6 +245,24 @@ export class DataSpaceRuntimeApi {
 
   /** 命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。 */
   public async executeQuery(view: SparkData.DataView, params: SparkData.QueryParams): Promise<DataSpaceQueryContext> {
+    if (params.parentResult) {
+      SparkData.DataViewParentResult.validateRequest(view, params)
+      const binding = view.dataTable ? this.#models.get(view.dataTable) : undefined
+      if (!binding) throw new Error('SPARK_PARENT_MODEL: 父来源需要正式目标模型绑定')
+      this.assertScope(binding.scope)
+      const expected = DataSpaceDesignApi.createFieldProjection(binding.model)
+        .filter(field => view.dataTable?.columns.some(column => column.name === field.resourceField))
+      SparkData.DataViewParentResult.validateProjection(view, expected)
+      await SparkData.DataViewParentResult.request(view)
+      this.assertScope(binding.scope)
+      const source = SparkData.DataViewParentResult.resolve(view)
+      if (!source) throw new Error('SPARK_PARENT_MODEL: 父来源不存在')
+      const result = source.readChildResult(params.parentResult.childModelName)
+      if (!(result instanceof DataSpaceQueryContext)) throw new Error('SPARK_PARENT_OWNER: 父结果不属于正式查询owner')
+      result.assertIdentity({scenarioId: view.dataSet?.scenarioId ?? '', metaName: binding.model.metaName})
+      result.bindFormalModel(binding.model)
+      return result
+    }
     const command = captureDataSpaceViewQuery(view, params)
     const config = DataSpaceRequestConfig.resolveQuery(view.dataTable ?? undefined)
     const binding = view.dataTable ? this.#models.get(view.dataTable) : undefined

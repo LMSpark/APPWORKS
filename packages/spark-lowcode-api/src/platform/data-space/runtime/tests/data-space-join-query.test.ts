@@ -1,4 +1,4 @@
-import {afterEach, describe, expect, it} from 'vitest'
+import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DataSet, DataViewQuery} from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {DataSpaceDesignApi} from '../../design/data-space-design-api'
@@ -8,10 +8,12 @@ class JoinHttp extends HttpClientBase {
   readonly calls: RequestConfig[] = []
   rowExtras: Record<string, unknown> = {}
   nestedRowExtras?: readonly Record<string, unknown>[]
+  responseGate?: Promise<void>
   beforeResponse?: () => void
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.calls.push(config)
     this.beforeResponse?.()
+    await this.responseGate
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: true, data: {Items: [
       {orderId: 'P', caption: 'Parent', detailId: 'C1', detailName: 'One', ...this.rowExtras, ...this.nestedRowExtras?.[0]},
       {orderId: 'P', caption: 'Parent', detailId: 'C2', detailName: 'Two', ...this.rowExtras, ...this.nestedRowExtras?.[1]},
@@ -261,4 +263,250 @@ it('uses exact original parent references for duplicate keys and refuses stale p
   expect(() => view.readChildResult('Details')).toThrow('READ_RESULT')
   view.destroy()
   expect(() => second.rows).toThrow('STALE')
+})
+
+
+it('binds a named child view to the current parent result without a second HTTP query', async () => {
+  const {ds, view, http} = setup()
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [{modelName: 'Details', fields: ['detailId', 'detailName']}]}
+  http.nestedRowExtras = [{Details: [{detailId: 'FIRST', detailName: 'One'}]}, {Details: [{detailId: 'SECOND', detailName: 'Two'}]}]
+  const child = ds.getView('DetailConfig')!
+  child.queryConfig = DataViewQuery.parse({pagination: 'none', parentResult: {dataViewKey: 'SPACE@Orders@default', childModelName: 'Details'}})
+  await child.requestData()
+  expect(child.readSnapshot().rows[0]?.['detailId']).toBe('FIRST')
+  expect(child.resultKind).toBe('navigation')
+  expect(child.primaryKey).toBe('')
+  expect(http.calls).toHaveLength(1)
+  view.setCurrentRow(view.rows[1]!)
+  expect(() => child.readSnapshot()).toThrow()
+  await child.requestData()
+  expect(child.readSnapshot().rows[0]?.['detailId']).toBe('SECOND')
+  expect(http.calls).toHaveLength(1)
+})
+
+
+function parentResultViews(autoQuery = true) {
+  const fixture = setup(), {ds, view, http} = fixture
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [{modelName: 'Details', fields: ['detailId', 'detailName']}]}
+  http.nestedRowExtras = [{Details: [{detailId: 'FIRST', detailName: 'One'}]}, {Details: [{detailId: 'SECOND', detailName: 'Two'}]}]
+  const child = ds.getView('DetailConfig')!
+  child.queryConfig = {pagination: 'none', autoQuery, parentResult: {dataViewKey: 'SPACE@Orders@default', childModelName: 'Details'}}
+  return {...fixture, child}
+}
+describe('named parent-result lifecycle', () => {
+  it('keeps manual children stale until explicit refresh and accepts an empty parent', async () => {
+    const {view, child, http} = parentResultViews(false)
+    await child.requestData()
+    view.setCurrentRow(view.rows[1]!)
+    expect(child.rows).toEqual([])
+    expect(() => child.readSnapshot()).toThrow()
+    await child.refresh()
+    expect(child.readSnapshot().rows[0]?.['detailId']).toBe('SECOND')
+    view.setCurrentRow(null)
+    await child.refresh()
+    expect(child.readSnapshot().rows).toEqual([])
+    expect(child.countReported).toBe(false)
+    expect(child.primaryKey).toBe('')
+    expect(http.calls).toHaveLength(1)
+  })
+  it('waits for a direct in-flight parent query without duplicating HTTP', async () => {
+    const {view, child, http} = parentResultViews()
+    let release: (() => void) | undefined
+    http.responseGate = new Promise<void>(resolve => {release = resolve})
+    const parent = view.loadFromServer(), derived = child.loadFromServer()
+    await Promise.resolve()
+    expect(http.calls).toHaveLength(1)
+    release?.(); await Promise.all([parent, derived])
+    expect(child.readSnapshot().rows[0]?.['detailId']).toBe('FIRST')
+    expect(http.calls).toHaveLength(1)
+  })
+  it('rejects a parent switch during asynchronous child validation', async () => {
+    const {view, child, http} = parentResultViews(false)
+    await view.loadFromServer()
+    let release: (() => void) | undefined, entered: (() => void) | undefined
+    const ready = new Promise<void>(resolve => {entered = resolve})
+    child.validateQueryResult = () => {entered?.(); return new Promise<void>(resolve => {release = resolve})}
+    const pending = child.loadFromServer()
+    await ready
+    view.setCurrentRow(view.rows[1]!)
+    release?.()
+    await expect(pending).rejects.toThrow('PARENT_STALE')
+    expect(child.rows).toEqual([])
+    child.validateQueryResult = undefined
+    await child.refresh()
+    expect(child.readSnapshot().rows[0]?.['detailId']).toBe('SECOND')
+    expect(http.calls).toHaveLength(1)
+  })
+  it('does not invalidate parent cache or another child consumer when one child is refreshed or destroyed', async () => {
+    const {view, child, runtime, http} = parentResultViews()
+    view.queryConfig = {...view.queryConfig, cacheType: 'page'}
+    const other = child.createQueryView('other')
+    await child.requestData(); await other.requestData()
+    const invalidate = vi.spyOn(runtime, 'invalidateQueryCache'), release = vi.spyOn(runtime, 'releaseQueryCache')
+    await child.refresh()
+    expect(invalidate).not.toHaveBeenCalled()
+    child.destroy()
+    expect(release).not.toHaveBeenCalled()
+    expect(other.readSnapshot().rows[0]?.['detailId']).toBe('FIRST')
+    await view.loadFromServer()
+    expect(http.calls).toHaveLength(1)
+  })
+  it('clears old children on parent failure without retrying parent HTTP', async () => {
+    const {view, child, http} = parentResultViews()
+    await child.requestData()
+    http.beforeResponse = () => {throw new Error('parent unavailable')}
+    await view.refresh()
+    expect(child.rows).toEqual([])
+    expect(() => child.readSnapshot()).toThrow()
+    const calls = http.calls.length
+    await child.refresh()
+    expect(http.calls).toHaveLength(calls)
+    expect(() => child.readSnapshot()).toThrow()
+  })
+  it('releases a parent dependency before its listeners disappear', async () => {
+    const {view, child} = parentResultViews()
+    await child.requestData()
+    view.destroy()
+    expect(child.rows).toEqual([])
+    expect(() => child.readSnapshot()).toThrow()
+  })
+  it.each(['filter', 'sort', 'fields'] as const)('rejects an independent child %s before any HTTP', async key => {
+    const {child, http} = parentResultViews()
+    const params = key === 'filter' ? {filter: {field: 'detailId', operator: 'eq' as const, value: 'C'}}
+      : key === 'sort' ? {sort: 'detailId:asc'} : {fields: ['detailId']}
+    await expect(child.loadFromServer(params)).rejects.toThrow(/PARENT_QUERY|parentResult/)
+    expect(http.calls).toHaveLength(0)
+  })
+  it('rejects cross-space, wrong model and cyclic parent bindings before HTTP', () => {
+    const {child, view, http} = parentResultViews()
+    for (const parentResult of [
+      {dataViewKey: 'OTHER@Orders@default', childModelName: 'Details'},
+      {dataViewKey: 'SPACE@Orders@default', childModelName: 'Orders'},
+    ]) expect(() => {child.queryConfig = {pagination: 'none', parentResult}}).toThrow(/PARENT/)
+    child.queryConfig = {pagination: 'none', parentResult: {dataViewKey: 'SPACE@Orders@default', childModelName: 'Details'}}
+    expect(() => {view.queryConfig = {pagination: 'none', parentResult: {dataViewKey: 'SPACE@Details@default', childModelName: 'Orders'}}}).toThrow('CYCLE')
+    expect(http.calls).toHaveLength(0)
+  })
+  it.each(['h', 'm'] as const)('consumes child %s independently of the parent and rejects all mutations', async permission => {
+    const {child, http} = parentResultViews()
+    http.rowExtras = {lingma_sys_key: 'PARENT', lingma_sys_params: {h: ['caption']}}
+    http.nestedRowExtras = [{Details: [{detailId: 'C', detailName: 'Private', lingma_sys_key: 'CHILD',
+      lingma_sys_params: {[permission]: ['detailName'], e: ['detailName'], d: true}}]}, {Details: []}]
+    await child.requestData()
+    const row = child.readSnapshot().rows[0]!
+    if (permission === 'h') expect(row).not.toHaveProperty('detailName')
+    else expect(row['detailName']).toBe('••••')
+    expect(row).not.toHaveProperty('lingma_sys_key')
+    expect(child.addActionState()).not.toBe('enabled')
+    await expect(child.editRowById('C', {detailName: 'Changed'})).rejects.toThrow()
+    expect(() => child.deleteRowById('C')).toThrow()
+    expect(http.calls).toHaveLength(1)
+  })
+})
+
+
+it.each([{context: {search: 'ignored'}}, {projection: []}])('does not silently ignore an independent derived query input %j', async params => {
+  const {child, http} = parentResultViews()
+  await expect(child.loadFromServer(params)).rejects.toThrow('PARENT_QUERY')
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('retains the latest automatic parent change while an earlier child acceptance is pending', async () => {
+  const {view, child, http} = parentResultViews(false)
+  await view.loadFromServer()
+  child.queryConfig = {...child.queryConfig, autoQuery: true}
+  let release: (() => void) | undefined, entered: (() => void) | undefined, first = true
+  const ready = new Promise<void>(resolve => {entered = resolve})
+  child.validateQueryResult = () => {
+    if (!first) return
+    first = false; entered?.()
+    return new Promise<void>(resolve => {release = resolve})
+  }
+  const pending = child.loadFromServer()
+  await ready
+  view.setCurrentRow(view.rows[1]!)
+  release?.()
+  await expect(pending).rejects.toThrow('PARENT_STALE')
+  await vi.waitFor(() => expect(child.readSnapshot().rows[0]?.['detailId']).toBe('SECOND'))
+  expect(http.calls).toHaveLength(1)
+})
+
+it('keeps a valid parent binding and its subscriptions after an invalid configuration is rejected', async () => {
+  const {view, child, http} = parentResultViews()
+  await child.requestData()
+  const before = child.toJson().queryConfig
+  expect(() => {child.queryConfig = {pagination: 'none', parentResult: {dataViewKey: 'WRONG@Orders@default', childModelName: 'Details'}}}).toThrow('PARENT_SCOPE')
+  expect(child.toJson().queryConfig).toEqual(before)
+  view.setCurrentRow(view.rows[1]!)
+  expect(child.rows).toEqual([])
+  await child.requestData()
+  expect(child.readSnapshot().rows[0]?.['detailId']).toBe('SECOND')
+  expect(http.calls).toHaveLength(1)
+})
+
+
+it('rejects a separately configured child projection before querying its parent', async () => {
+  const {child, http} = parentResultViews()
+  child.fieldProjection = child.fieldProjection.slice(0, 1)
+  await expect(child.loadFromServer()).rejects.toThrow('PARENT_QUERY')
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('compares default projection metadata without depending on object property order', async () => {
+  const {child, http} = parentResultViews()
+  child.fieldProjection = child.fieldProjection.map(field => {
+    const {viewField, resourceField, ...rest} = field
+    return {viewField, resourceField, ...rest}
+  })
+  await child.requestData()
+  expect(child.readSnapshot().rows[0]?.['detailId']).toBe('FIRST')
+  expect(http.calls).toHaveLength(1)
+})
+
+it('does not issue upstream queries for a conflicting independent query cascade', async () => {
+  const {ds, child, http} = parentResultViews()
+  ds.addCascade({parentTable: 'RootConfig', parentViewId: 'default', childTable: 'DetailConfig', childViewId: 'default',
+    filterBindings: [{sourceField: 'orderId', targetField: 'detailId'}]})
+  await expect(child.requestData()).rejects.toThrow('PARENT_QUERY')
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('preserves a current child result when only the parent autoQuery preference changes', async () => {
+  const {view, child, http} = parentResultViews()
+  await child.requestData()
+  view.queryConfig = {...view.queryConfig, autoQuery: false}
+  expect(child.readSnapshot().rows[0]?.['detailId']).toBe('FIRST')
+  expect(http.calls).toHaveLength(1)
+})
+
+
+it('restores a configured parent-result DataSet before any view owner is bound', () => {
+  const {ds} = parentResultViews()
+  const restored = DataSet.fromJson(ds.toJson())
+  sets.push(restored)
+  expect(restored.getView('DetailConfig')!.queryConfig.parentResult?.dataViewKey).toBe('SPACE@Orders@default')
+})
+
+
+it('rejects child projection changes during asynchronous acceptance and after publication', async () => {
+  const {view, child, http} = parentResultViews(false)
+  await view.loadFromServer()
+  let release: (() => void) | undefined, entered: (() => void) | undefined
+  const ready = new Promise<void>(resolve => {entered = resolve})
+  child.validateQueryResult = () => {entered?.(); return new Promise<void>(resolve => {release = resolve})}
+  const pending = child.loadFromServer()
+  await ready
+  const original = child.fieldProjection
+  child.fieldProjection = original.slice(0, 1)
+  release?.()
+  await expect(pending).rejects.toThrow('PARENT_QUERY')
+  expect(child.rows).toEqual([])
+  child.fieldProjection = original; child.validateQueryResult = undefined
+  await child.refresh()
+  child.filterExpression = {field: 'detailId', operator: 'eq', value: 'ignored'}
+  expect(() => child.readSnapshot()).toThrow(/PARENT/)
+  expect(http.calls).toHaveLength(1)
 })

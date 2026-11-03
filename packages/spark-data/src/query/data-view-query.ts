@@ -4,6 +4,7 @@
  * 边界：不保存查询结果或权限，不发送HTTP；线协议字段名由适配器转换。
  * AI用途：配置DataView.queryConfig后调用refresh，过滤、排序及翻页沿用同一配置。
  */
+import {parseDataViewKey} from '../core/data-view-key'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataViewQueryChild, QueryParams, ViewMetadata} from '../types'
 import {DataViewFilterLookup} from './data-view-filter-lookup'
@@ -41,8 +42,19 @@ export class DataViewQuery {
 
   /** 校验配置并复制冻结；拒绝未知属性，空对象恢复默认查询。 */
   static parse(input: unknown, path = 'queryConfig'): NonNullable<ViewMetadata['queryConfig']> {
-    const value = this.object(input, ['outputType', 'tree', 'pagination', 'allPages', 'distinct', 'maxRows', 'fields', 'children', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
+    const value = this.object(input, ['parentResult', 'outputType', 'tree', 'pagination', 'allPages', 'distinct', 'maxRows', 'fields', 'children', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
     const result: { -readonly [K in keyof NonNullable<ViewMetadata['queryConfig']>]: NonNullable<ViewMetadata['queryConfig']>[K] } = {}
+    if (value['parentResult'] !== undefined) {
+      const parent = this.object(value['parentResult'], ['dataViewKey', 'childModelName'], `${path}.parentResult`)
+      const dataViewKey = this.text(parent['dataViewKey'], `${path}.parentResult.dataViewKey`)
+      if (!parseDataViewKey(dataViewKey)?.scope) throw new TypeError(`${path}.parentResult 必须使用完整父视图键`)
+      result.parentResult = Object.freeze({dataViewKey, childModelName: this.text(parent['childModelName'], `${path}.parentResult.childModelName`)})
+      if (value['pagination'] !== 'none') throw new TypeError(`${path}.parentResult 必须显式使用pagination none`)
+      for (const key of ['outputType', 'tree', 'allPages', 'distinct', 'maxRows', 'fields', 'children', 'filterLookups', 'sourceInputMode']) {
+        if (value[key] !== undefined) throw new TypeError(`${path}.parentResult 与 ${key} 冲突`)
+      }
+      if (value['cacheType'] !== undefined && value['cacheType'] !== 'none') throw new TypeError(`${path}.parentResult 不另设结果缓存`)
+    }
     if (value['pagination'] !== undefined) {
       if (value['pagination'] !== 'paged' && value['pagination'] !== 'none') throw new TypeError(`${path}.pagination 只支持 paged 或 none`)
       result.pagination = value['pagination']
@@ -103,7 +115,7 @@ export class DataViewQuery {
 
   /** 从完整请求中只捕获查询配置；分页、过滤、身份等继续使用原请求合同。 */
   static capture(params: QueryParams): NonNullable<ViewMetadata['queryConfig']> {
-    return this.parse({pagination: params.pagination, outputType: params.outputType, tree: params.tree, allPages: params.allPages, distinct: params.distinct,
+    return this.parse({parentResult: params.parentResult, pagination: params.pagination, outputType: params.outputType, tree: params.tree, allPages: params.allPages, distinct: params.distinct,
       maxRows: params.maxRows, fields: params.fields, children: params.children, sourceInputMode: params.sourceInputMode})
   }
 

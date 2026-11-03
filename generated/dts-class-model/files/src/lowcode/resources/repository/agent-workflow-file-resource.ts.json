@@ -176,6 +176,12 @@
       "type": "object",
       "title": "FileQueryExecutor",
       "properties": {
+        "parentResults": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "localAggregates": {
           "enum": [
             false,

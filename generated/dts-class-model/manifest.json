@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1034,
+  "scannedFileCount": 1035,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9366,6 +9366,21 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DataViewOptionCatalog"
+        ]
+      }
+    },
+    "packages/spark-data/src/query/data-view-parent-result.ts": {
+      "file": "files/packages/spark-data/src/query/data-view-parent-result.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:query/data-view-parent-result",
+        "sourcePath": "packages/spark-data/src/query/data-view-parent-result.ts",
+        "sourceFile": "packages/spark-data/src/query/data-view-parent-result.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "query/data-view-parent-result",
+        "jsdoc": "@module @spark-appworks/spark-data:query/data-view-parent-result\n职责：定位显式父结果依赖并等待原父查询，验证同实例模型与依赖无环。\n边界：不读取存储、不复制业务行或授权、不发第二套请求。\nAI用途：具名子视图沿原查询owner消费父行的正式子集合。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataViewParentResult"
         ]
       }
     },
@@ -19421,6 +19436,10 @@
     "DataViewOptionCatalog": {
       "sourcePath": "packages/spark-data/src/query/data-view-option-catalog.ts",
       "file": "files/packages/spark-data/src/query/data-view-option-catalog.ts.json"
+    },
+    "DataViewParentResult": {
+      "sourcePath": "packages/spark-data/src/query/data-view-parent-result.ts",
+      "file": "files/packages/spark-data/src/query/data-view-parent-result.ts.json"
     },
     "DataViewPermissionState": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",

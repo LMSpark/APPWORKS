@@ -43,6 +43,22 @@
                 "type": "string"
               }
             },
+            "parentResult": {
+              "type": "object",
+              "properties": {
+                "dataViewKey": {
+                  "type": "string"
+                },
+                "childModelName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dataViewKey",
+                "childModelName"
+              ],
+              "additionalProperties": false
+            },
             "outputType": {
               "type": "string"
             },

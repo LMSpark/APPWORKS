@@ -23,6 +23,11 @@
       "type": "object",
       "title": "DataViewEventMap",
       "properties": {
+        "disposing": {
+          "type": "array",
+          "items": false,
+          "prefixItems": []
+        },
         "currentRowChanged": {
           "type": "array",
           "items": false,
@@ -158,6 +163,7 @@
         }
       },
       "required": [
+        "disposing",
         "currentRowChanged",
         "selectedRowsChanged",
         "rowsChanged",
@@ -630,6 +636,9 @@
       "type": "object",
       "title": "DataViewQueryExecutor",
       "properties": {
+        "parentResults": {
+          "type": "boolean"
+        },
         "localAggregates": {
           "type": "boolean"
         },
@@ -1666,6 +1675,47 @@
         },
         "method.readChildResult.return": {
           "$ref": "#/$defs/DataViewQueryResult"
+        },
+        "method.captureChildResult.params": {
+          "type": "object",
+          "properties": {
+            "modelName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureChildResult.return": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "$ref": "#/$defs/DataViewQueryResult"
+            },
+            "parentRow": {
+              "anyOf": [
+                {
+                  "$ref": "types.ts.json#/$defs/DataRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "version": {
+              "type": "number"
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "required": [
+            "result",
+            "parentRow",
+            "version",
+            "assertCurrent"
+          ],
+          "additionalProperties": false
         },
         "method.readSnapshot.params": {
           "type": "object",
@@ -2870,14 +2920,14 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T19:15:28.272Z",
+  "generatedAt": "2026-11-03T20:20:43.489Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
       "jsdoc": "DataView 事件映射",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Record<string, any[]> & {\n    /** 当前行变化 */\n    currentRowChanged: [currentRow: DataRow | null, originatorId?: string];\n    /** 选中行变化 */\n    selectedRowsChanged: [selectedRows: DataRow[], originatorId?: string];\n    /** 行数据批量变化（防抖 16ms） */\n    rowsChanged: [];\n    /** 编辑态字段变化 */\n    editingFieldChanged: [event: DataViewEditingFieldChangeEvent];\n    /** 编辑态 patch 集合变化 */\n    editingChanged: [];\n    /** 显式取消编辑；undefined 表示全部行 */\n    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined];\n    /** 数据已清空 */\n    cleared: [];\n    /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */\n    configChanged: [];\n    /** 请求状态变化（Idle→Loading→Loaded/Failed） */\n    requestStateChanged: [requestState: RequestState];\n    /** 查询结果已接纳并完成计算/自动指针；不包含初始灌入、普通编辑、失败或过期响应。 */\n    requestCompleted: [];\n    /** CRUD 变更状态变化 */\n    mutatingChanged: [mutating: boolean];\n    /** aggregateResult 已重算 */\n    summaryChanged: [];\n    /** selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged） */\n    selectionSummaryChanged: [];\n    /** CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作 */\n    'crud:before': [CrudLifecycleEvent];\n    /** CRUD 提交后事件——业务脚本可根据 result 执行联动 */\n    'crud:after': [CrudLifecycleEvent];\n}",
+        "declarationTypeText": "Record<string, any[]> & {\n    /** 移除订阅前通知释放，此时视图已不可再查询。 */\n    disposing: [];\n    /** 当前行变化 */\n    currentRowChanged: [currentRow: DataRow | null, originatorId?: string];\n    /** 选中行变化 */\n    selectedRowsChanged: [selectedRows: DataRow[], originatorId?: string];\n    /** 行数据批量变化（防抖 16ms） */\n    rowsChanged: [];\n    /** 编辑态字段变化 */\n    editingFieldChanged: [event: DataViewEditingFieldChangeEvent];\n    /** 编辑态 patch 集合变化 */\n    editingChanged: [];\n    /** 显式取消编辑；undefined 表示全部行 */\n    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined];\n    /** 数据已清空 */\n    cleared: [];\n    /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */\n    configChanged: [];\n    /** 请求状态变化（Idle→Loading→Loaded/Failed） */\n    requestStateChanged: [requestState: RequestState];\n    /** 查询结果已接纳并完成计算/自动指针；不包含初始灌入、普通编辑、失败或过期响应。 */\n    requestCompleted: [];\n    /** CRUD 变更状态变化 */\n    mutatingChanged: [mutating: boolean];\n    /** aggregateResult 已重算 */\n    summaryChanged: [];\n    /** selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged） */\n    selectionSummaryChanged: [];\n    /** CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作 */\n    'crud:before': [CrudLifecycleEvent];\n    /** CRUD 提交后事件——业务脚本可根据 result 执行联动 */\n    'crud:after': [CrudLifecycleEvent];\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -2886,11 +2936,17 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 当前行变化 */\n    currentRowChanged: [currentRow: DataRow | null, originatorId?: string];\n    /** 选中行变化 */\n    selectedRowsChanged: [selectedRows: DataRow[], originatorId?: string];\n    /** 行数据批量变化（防抖 16ms） */\n    rowsChanged: [];\n    /** 编辑态字段变化 */\n    editingFieldChanged: [event: DataViewEditingFieldChangeEvent];\n    /** 编辑态 patch 集合变化 */\n    editingChanged: [];\n    /** 显式取消编辑；undefined 表示全部行 */\n    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined];\n    /** 数据已清空 */\n    cleared: [];\n    /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */\n    configChanged: [];\n    /** 请求状态变化（Idle→Loading→Loaded/Failed） */\n    requestStateChanged: [requestState: RequestState];\n    /** 查询结果已接纳并完成计算/自动指针；不包含初始灌入、普通编辑、失败或过期响应。 */\n    requestCompleted: [];\n    /** CRUD 变更状态变化 */\n    mutatingChanged: [mutating: boolean];\n    /** aggregateResult 已重算 */\n    summaryChanged: [];\n    /** selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged） */\n    selectionSummaryChanged: [];\n    /** CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作 */\n    'crud:before': [CrudLifecycleEvent];\n    /** CRUD 提交后事件——业务脚本可根据 result 执行联动 */\n    'crud:after': [CrudLifecycleEvent];\n}"
+            "typeText": "{\n    /** 移除订阅前通知释放，此时视图已不可再查询。 */\n    disposing: [];\n    /** 当前行变化 */\n    currentRowChanged: [currentRow: DataRow | null, originatorId?: string];\n    /** 选中行变化 */\n    selectedRowsChanged: [selectedRows: DataRow[], originatorId?: string];\n    /** 行数据批量变化（防抖 16ms） */\n    rowsChanged: [];\n    /** 编辑态字段变化 */\n    editingFieldChanged: [event: DataViewEditingFieldChangeEvent];\n    /** 编辑态 patch 集合变化 */\n    editingChanged: [];\n    /** 显式取消编辑；undefined 表示全部行 */\n    editingDiscarded: [ids: ReadonlyArray<string | number> | undefined];\n    /** 数据已清空 */\n    cleared: [];\n    /** 视图配置变化（分页、排序、过滤、主键、树、聚合等） */\n    configChanged: [];\n    /** 请求状态变化（Idle→Loading→Loaded/Failed） */\n    requestStateChanged: [requestState: RequestState];\n    /** 查询结果已接纳并完成计算/自动指针；不包含初始灌入、普通编辑、失败或过期响应。 */\n    requestCompleted: [];\n    /** CRUD 变更状态变化 */\n    mutatingChanged: [mutating: boolean];\n    /** aggregateResult 已重算 */\n    summaryChanged: [];\n    /** selectionAggregateResult 已单独重算（仅选中行变更时触发，数据变更走 summaryChanged） */\n    selectionSummaryChanged: [];\n    /** CRUD 提交前事件——业务脚本可调用 event.cancel() 取消操作 */\n    'crud:before': [CrudLifecycleEvent];\n    /** CRUD 提交后事件——业务脚本可根据 result 执行联动 */\n    'crud:after': [CrudLifecycleEvent];\n}"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "disposing",
+              "jsdoc": "移除订阅前通知释放，此时视图已不可再查询。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "currentRowChanged",
               "jsdoc": "当前行变化",
@@ -3707,16 +3763,22 @@
       "jsdoc": "一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */\n    parentResults?: boolean;\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+            "typeText": "Readonly<{\n    /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */\n    parentResults?: boolean;\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "parentResults",
+              "jsdoc": "是否承接parentResult来源；缺少能力时须在派发前拒绝。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "localAggregates",
               "jsdoc": "false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。",
@@ -5198,6 +5260,29 @@
                 "type": "reference",
                 "name": "DataViewQueryResult",
                 "sourcePath": "packages/spark-data/src/data-view.ts"
+              }
+            },
+            {
+              "name": "captureChildResult",
+              "jsdoc": "捕获当前父行与原结果代次；仅保存引用和校验器，不复制业务行或权限。",
+              "parameters": [
+                {
+                  "name": "modelName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        /** 原owner提供的直接子结果。 */\n        result: DataViewQueryResult;\n        /** 本次公开父行引用，null表示未选父行。 */\n        parentRow: DataRow | null;\n        /** 原父查询请求代次，同键刷新也必须重新捕获。 */\n        version: number;\n        /** 复核当前父行、查询代次、结果与执行域仍然一致。 */\n        assertCurrent: () => void;\n    }"
+                  }
+                ]
               }
             },
             {

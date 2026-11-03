@@ -1,0 +1,157 @@
+{
+  "status": "observed",
+  "fixture": "SMOKE_DCPR_1793736127735",
+  "observations": [
+    {
+      "name": "clicked-second-parent-and-independent-child-current",
+      "parent": {
+        "state": 3,
+        "rows": 2,
+        "current": "SMOKE_DCPR_1793736127735_CHILD",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "child": {
+        "state": 3,
+        "rows": 4,
+        "current": "rowid",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "other": {
+        "state": 3,
+        "rows": 1,
+        "current": "Name",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "reads": 7,
+      "writes": 0,
+      "blockedWrites": 0
+    },
+    {
+      "name": "empty-parent",
+      "parent": {
+        "state": 3,
+        "rows": 2,
+        "current": null,
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "child": {
+        "state": 3,
+        "rows": 0,
+        "current": null,
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "other": {
+        "state": 3,
+        "rows": 0,
+        "current": null,
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "reads": 7,
+      "writes": 0,
+      "blockedWrites": 0
+    },
+    {
+      "name": "first-parent-restored",
+      "parent": {
+        "state": 3,
+        "rows": 2,
+        "current": "SMOKE_DCPR_1793736127735_PARENT",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "child": {
+        "state": 3,
+        "rows": 3,
+        "current": "lingma_sys_ent",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "other": {
+        "state": 3,
+        "rows": 1,
+        "current": "Name",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "reads": 7,
+      "writes": 0,
+      "blockedWrites": 0
+    },
+    {
+      "name": "parent-refresh-inflight-observed-AX",
+      "parentState": 2,
+      "childState": 0,
+      "childRows": 0,
+      "otherState": 0,
+      "otherRows": 0,
+      "reads": 8,
+      "writes": 0
+    },
+    {
+      "name": "parent-refresh-completed",
+      "parent": {
+        "state": 3,
+        "rows": 2,
+        "current": "SMOKE_DCPR_1793736127735_PARENT",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "child": {
+        "state": 3,
+        "rows": 3,
+        "current": "lingma_sys_ent",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "other": {
+        "state": 3,
+        "rows": 1,
+        "current": "Name",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "reads": 8,
+      "writes": 0,
+      "blockedWrites": 0
+    },
+    {
+      "name": "browser-reopened-new-dataset",
+      "parent": {
+        "state": 3,
+        "rows": 2,
+        "current": "SMOKE_DCPR_1793736127735_PARENT",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "child": {
+        "state": 3,
+        "rows": 3,
+        "current": "lingma_sys_ent",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "other": {
+        "state": 3,
+        "rows": 1,
+        "current": "Name",
+        "resultKind": "navigation",
+        "primaryKey": ""
+      },
+      "reads": 7,
+      "writes": 0,
+      "blockedWrites": 0
+    }
+  ],
+  "documentReadCounts": [
+    8,
+    7
+  ],
+  "writes": 0,
+  "limitation": "Diagnostic page uses standard RendererTable and native runtime; config is in-memory, not a persisted pagedata reopen; independent child sorting/filter controls are not accepted here"
+}

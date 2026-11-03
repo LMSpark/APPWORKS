@@ -29,6 +29,7 @@ import type {
 import { SaveRuleValidator } from './validation/save-rule-validator'
 
 import { DataViewFilter } from './query/filter/data-view-filter'
+import {DataViewParentResult} from './query/data-view-parent-result'
 import { DataViewQuery } from './query/data-view-query'
 import {DataViewSource, type DataViewSourceAdapter, type DataViewSourceSnapshot, type DataViewSourceAdoptOptions,
   type DataViewSourceVersion, type DataViewSourceHistoryStatus, type DataViewSourceWriteAttemptStatus} from './query/data-view-source'
@@ -66,6 +67,8 @@ import type { RowDiff, SaveChangesData } from './strategies/crud/dirty-tracking-
 /** DataView 事件映射 */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type DataViewEventMap = Record<string, any[]> & {
+  /** 移除订阅前通知释放，此时视图已不可再查询。 */
+  disposing: []
   /** 当前行变化 */
     currentRowChanged: [currentRow: DataRow | null, originatorId?: string]
     /** 选中行变化 */
@@ -209,6 +212,8 @@ type DataViewQueryResult = Readonly<{
 }>
 /** 一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。 */
 type DataViewQueryExecutor = Readonly<{
+  /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */
+  parentResults?: boolean
   /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */
   localAggregates?: boolean
   /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */
@@ -412,6 +417,8 @@ viewId: string
     const config = DataViewQuery.parse(value)
     this.assertResultReplacementAllowed()
     if (JSON.stringify(config) === JSON.stringify(this._queryConfig)) return
+    const parentChanged = JSON.stringify(config.parentResult) !== JSON.stringify(this._queryConfig.parentResult)
+    if (parentChanged && config.parentResult && this._dataTable?.dataSet) DataViewParentResult.resolve(this, config)
     const autoQueryOnly = DataViewQuery.differsOnlyInAutoQuery(config, this._queryConfig)
     if (this._queryConfig.cacheType && this._queryConfig.cacheType !== 'none' && config.cacheType !== this._queryConfig.cacheType) {
       this.#queryExecutor?.invalidateQueryCache?.()
@@ -425,6 +432,10 @@ viewId: string
     this._resultStale = true
     this.setRequestState(RequestState.Idle)
     this.emitConfigChanged()
+    if (parentChanged && this.dataSet) {
+      if (this.currentLoadRequestId > 0 || this.#queryResult || this.rows.length > 0) this.resetState()
+      this.cascade.setupCascade()
+    }
   }
 
     /** 行数据集合。 */
@@ -441,6 +452,7 @@ rows: DataRow[] = []
    */
   validateQueryResult: ((result: DataViewQueryResult) => void | Promise<void>) | undefined
   #resourceIdentity: DataViewResourceIdentity | undefined
+  #parentResultGuard: (() => void) | undefined
   #queryResult: DataViewQueryResult | undefined
   #refreshingSavedRowPermissions = false
   #queryResultRefreshIdentity: string | undefined
@@ -821,6 +833,7 @@ rows: DataRow[] = []
 
   private currentQueryResult(): DataViewQueryResult | undefined {
     this.checkDestroyed()
+    this.#parentResultGuard?.()
     this.#queryResult?.assertIdentity(this.queryIdentity())
     return this.#queryResult
   }
@@ -834,6 +847,25 @@ rows: DataRow[] = []
     const parent = this.currentRow === null ? null : this.#queryOriginalRows.get(this.currentRow)
     if (parent === undefined) throw new Error('DATA_VIEW_CHILD_PARENT: 当前父行不是本次查询行')
     return context.childResult(parent, modelName)
+  }
+
+  /** 捕获当前父行与原结果代次；仅保存引用和校验器，不复制业务行或权限。 */
+  captureChildResult(modelName: string): Readonly<{
+    /** 原owner提供的直接子结果。 */
+    result: DataViewQueryResult
+    /** 本次公开父行引用，null表示未选父行。 */
+    parentRow: DataRow | null
+    /** 原父查询请求代次，同键刷新也必须重新捕获。 */
+    version: number
+    /** 复核当前父行、查询代次、结果与执行域仍然一致。 */
+    assertCurrent: () => void
+  }> {
+    const result = this.readChildResult(modelName), parentRow = this.currentRow
+    const version = this.currentLoadRequestId, context = this.#queryResult
+    return {result, parentRow, version, assertCurrent: () => {
+      if (this.destroyed || this.currentLoadRequestId !== version || this.#queryResult !== context
+        || this.currentRow !== parentRow || this.readChildResult(modelName) !== result) throw new Error('DATA_VIEW_PARENT_STALE: 父结果或当前行已变化')
+    }}
   }
 
   /** 当前查询结果的语义；未查询的视图不声明结果种类。 */
@@ -1457,6 +1489,7 @@ treeManager?: TreeManager | undefined
   /** 并发 CRUD 请求计数器（支持多操作同时在途） */
   private _mutatingCount = 0
   /** 销毁状态标记 */
+  private _isDisposing = false
   private _isDestroyed = false
   /** 失败后保留的结果基线在重试期间也不可写；只有成功登记新结果才恢复。 */
   private _resultStale = false
@@ -1761,7 +1794,7 @@ protected logger = Logger('DataView')
 
   /** 视图是否已销毁 */
   get destroyed(): boolean {
-    return this._isDestroyed
+    return this._isDestroyed || this._isDisposing
   }
 
   // ─────────────────────────────────────────────
@@ -1817,6 +1850,10 @@ protected logger = Logger('DataView')
    */
   async requestData(): Promise<void> {
     this.assertResultReplacementAllowed()
+    if (this.queryConfig.parentResult) {
+      DataViewParentResult.resolve(this)
+      DataViewParentResult.validateRequest(this, DataViewQuery.capture(this.queryConfig))
+    }
     let requestId = this.currentLoadRequestId
     if (this.requestState !== RequestState.Idle) {
       if (this._pendingRequestData) return this._pendingRequestData
@@ -1825,7 +1862,7 @@ protected logger = Logger('DataView')
     }
 
     // 没有输入依赖的本地视图可直接完成；其余视图走同一输入编排。
-    if (this._shouldApplyStaticLocalFilter() && !this.queryConfig.filterLookups?.length
+    if (this._shouldApplyStaticLocalFilter() && !this.queryConfig.parentResult && !this.queryConfig.filterLookups?.length
       && !this.dataSet?.getParentCascades(this.tableName, this.viewId).length) {
       this._syncStaticLocalFilterRows()
       this.selectionDelegate.applyAutoFirst()
@@ -1877,7 +1914,7 @@ protected logger = Logger('DataView')
       const mergedFilter = this._mergeRemoteFilters(cascadeFilter, this.filterExpression)
       if (mergedFilter !== undefined) params.filter = mergedFilter
 
-      if (this._shouldApplyStaticLocalFilter()) {
+      if (this._shouldApplyStaticLocalFilter() && !this.queryConfig.parentResult) {
         try {
           const filter = await DataViewFilterLookup.resolve(this, mergedFilter)
           if (this._isDestroyed || requestId !== this.currentLoadRequestId) return
@@ -1963,6 +2000,19 @@ protected logger = Logger('DataView')
       if (this.queryConfig.cacheType && this.queryConfig.cacheType !== 'none' && !this.#queryExecutor?.invalidateQueryCache) {
         throw new Error('DATA_VIEW_QUERY_CACHE_UNSUPPORTED: 当前数据资源未接入结果缓存')
       }
+      let parentCapture: ReturnType<DataView['captureChildResult']> | undefined
+      let assertParentInputs: (() => void) | undefined
+      if (loadParams.parentResult || this.queryConfig.parentResult) {
+        if (!this.#queryExecutor?.parentResults) throw new Error('DATA_VIEW_PARENT_UNSUPPORTED: 当前查询owner未承接父结果来源')
+        if (JSON.stringify(loadParams.parentResult) !== JSON.stringify(this.queryConfig.parentResult)) throw new Error('DATA_VIEW_PARENT_QUERY: 父来源仅由视图配置声明')
+        DataViewParentResult.validateRequest(this, loadParams)
+        const projection = structuredClone(this.fieldProjection), table = this.dataTable, dataSet = this.dataSet
+        assertParentInputs = () => {
+          if (resultRefreshIdentity !== this.refreshIdentity() || this.dataTable !== table || this.dataSet !== dataSet) throw new Error('DATA_VIEW_PARENT_QUERY: 子视图查询身份已变化')
+          DataViewParentResult.validateRequest(this, {})
+          DataViewParentResult.validateProjection(this, projection)
+        }
+      }
       let queryResult: DataViewQueryResult | undefined
       let result: CrudResult
       if (this.queryConfig.filterLookups?.length) {
@@ -1973,6 +2023,12 @@ protected logger = Logger('DataView')
       }
       if (this.#queryExecutor !== undefined) {
         queryResult = await this.#queryExecutor.executeQuery(this, loadParams)
+        if (loadParams.parentResult) {
+          const parent = DataViewParentResult.resolve(this)
+          if (!parent) throw new Error('DATA_VIEW_PARENT_SOURCE: 父来源不存在')
+          parentCapture = parent.captureChildResult(loadParams.parentResult.childModelName)
+          if (parentCapture.result !== queryResult) throw new Error('DATA_VIEW_PARENT_SOURCE: owner返回了不同父结果')
+        }
         result = { success: true, data: { rows: queryResult.rows, total: queryResult.total } }
       } else {
         result = await this.crudDelegate.list(loadParams)
@@ -1988,7 +2044,13 @@ protected logger = Logger('DataView')
           queryResult.assertIdentity(this.queryIdentity())
           if (this.validateQueryResult) await this.validateQueryResult(queryResult)
           if (requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
-          this.ingestQueryResult(queryResult, resultRefreshIdentity)
+          parentCapture?.assertCurrent()
+          assertParentInputs?.()
+          if (parentCapture && parentCapture.result !== queryResult) throw new Error('DATA_VIEW_PARENT_SOURCE: owner返回了不同父结果')
+          const previousGuard = this.#parentResultGuard
+          const captured = parentCapture
+          this.#parentResultGuard = captured ? () => {assertParentInputs?.(); captured.assertCurrent()} : undefined
+          try {this.ingestQueryResult(queryResult, resultRefreshIdentity)} catch (error) {this.#parentResultGuard = previousGuard; throw error}
         } else {
           this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))
         }
@@ -2157,7 +2219,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    */
   async refresh(): Promise<void> {
     this.assertResultReplacementAllowed()
-    this.#queryExecutor?.invalidateQueryCache?.()
+    if (!this.queryConfig.parentResult) this.#queryExecutor?.invalidateQueryCache?.()
     return this.reloadQuery()
   }
 
@@ -2203,8 +2265,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   private refreshIdentity(): string {
+    const {autoQuery: _autoQuery, ...queryConfig} = this.queryConfig
     return JSON.stringify([this.#queryExecutor ? this.queryIdentity() : [this.dataSet?.scenarioId, this.tableName],
-      this.viewId, this.queryContext, this.queryConfig, this.filterExpression, this.sortExpression, this.page, this.pageSize])
+      this.viewId, this.queryContext, queryConfig, this.filterExpression, this.sortExpression, this.page, this.pageSize])
   }
 
   private readonly clearRefreshRequest = (): void => {
@@ -2241,6 +2304,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    */
   assertResultReplacementAllowed(): void {
     this.checkDestroyed()
+    if (this._isDisposing) throw new Error('DATA_VIEW_DISPOSING: 视图正在释放')
     if (this.#refreshingSavedRowPermissions) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY: 新增行权限正在回读')
     if (this.hasUnconfirmedSave) {
       throw new DataViewUnsavedChangesError(`DATA_VIEW_UNCONFIRMED_SAVE: ${this.tableName}@${this.viewId} 存在未确认提交，请先通过原保存入口核验`)
@@ -2252,6 +2316,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   private assertResultWritable(): void {
     this.checkDestroyed()
+    if (this._isDisposing) throw new Error('DATA_VIEW_DISPOSING: 视图正在释放')
     this.#queryResult?.assertIdentity(this.queryIdentity())
     if (this.#queryResult?.resultPrimaryKey === '') {
       throw new Error(`DATA_VIEW_KEYLESS_READONLY: ${this.tableName}@${this.viewId} 无可写记录身份的查询结果不可修改`)
@@ -3565,6 +3630,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   private resetStateInternal(options: { emitEvents: boolean }): void {
     this.currentLoadRequestId++
+    this.#parentResultGuard = undefined
     this.#queryResult = undefined
     this.#queryResultRefreshIdentity = undefined
     this._rebuildColumnMap()
@@ -3864,8 +3930,10 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
    * DataTable引用保留以提供明确的销毁后诊断；DataSet不再通过订阅闭包持有本视图。
    */
   destroy(): void {
-    if (this._isDestroyed) return
-    this.#queryExecutor?.releaseQueryCache?.(this.dataSet ?? this)
+    if (this._isDestroyed || this._isDisposing) return
+    this._isDisposing = true
+    this.events.emit('disposing')
+    if (!this.queryConfig.parentResult) this.#queryExecutor?.releaseQueryCache?.(this.dataSet ?? this)
     this.clearRefreshRequest()
     this._dataTable?.dataSet?._unsubscribeView(this)
     this.currentLoadRequestId++
@@ -3913,6 +3981,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
 
     // 11. 标记为已销毁
     this._isDestroyed = true
+    this._isDisposing = false
   }
 
   /** 检查视图是否已销毁 */

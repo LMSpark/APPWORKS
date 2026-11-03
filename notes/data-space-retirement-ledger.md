@@ -5684,3 +5684,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 原换源/表达式两文件246测试通过，扩大原改名/删除/字段/关系/数组共7文件496测试通过；typecheck/受改lint通过，AI规则本次受改文件HEAD与当前均0违例。ClassModel正式再编译并查询六对象目录概要指南，43份已证明等价噪声恢复，保留实际nextModel输入合同及源hash。最终ClassModel验证/构建正在同一exec3867等待终态，不能提前称通过。证据2026-11-03-join-source-migration.json。
 - 本轮实服写入0/执行0/新夹具0，原清理记录不重建。配置维护真实换源预览/取消/保存/独立回读/重开/精确清理仍待本卡后续；ChildTables与SQL返回身份/权限、Foreign层级实服消费仍未通过，整体active。
 - 最终exec3867已真实exit0：ClassModel验证4文件49项通过、build:fe通过、page-thin通过；未放宽规则或断言。当前为换源元数据迁移本地验证检查点，后续先跑实服临时模型CRUD与清理，再核运行消费；不将496项本地测试冒充全架构或实服Join完成。
+
+### 2026-11-03 原生换源实服烟测（implementing）
+- 32c9877c4推送后进入真实服务。原生openLowcodeDataSpaceDesignSession入口17读0写预检通过，正式Base_DataModel/Field/DataSet来源同库；Node诊断宿主补真实相对URL基址，不改产品。受保护凭据仍存在，外层为EnterpriseName/TenantName/Credential封装；EnterpriseName登录返回企业不存在，按原已授权TenantName=NewApp的受保护admin测试身份登录成功，密码仅解密到内存且未输出/落盘。不是新建前端身份放行规则。
+- 原目录8读0写预检后仅创建新标记SMOKE_DATA_CHAIN_JOIN_SOURCE_1793711957374，空间7741F82DD5609C786F5D1441B282B2C6；原DataSet确认2次写入，共空间1/模型2/字段7=10条，未执行流程或查询业务数据。模型5BA2D7CD561945B0E96F2AA6314F99FA（父）/77E9576ED889F1E9FDC6BED43118078D（子），精确字段ID见artifacts/data-chain-smoke/join-source-native-lifecycle-checkpoint.json。
+- 初次独立回读断言误用loadModelFields复用视图：切换子模型后父DataView引用同步指向新字段，计数失真；原批次已返回成功且pending空。已修检查器为读取当下拷贝，只读16次确认原10条身份/归属/父引用/来源/别名，0重放/0新增。原owner保留进程35708；后续核验与换源进程35512。父来源预览/取消正在同一后续进程中；夹具仍在，不能写已清理或实服验收完成。
+- 两次真实来源替换均已完成：父Base_DataModel→Base_DataModel_Field，原owner预览/取消后DB不变，单批保存同时迁移子JoinFilter右端物理前缀并独立重开；子Base_DataModel_Field→Base_DataModel，dataModelId→dataSetId，原字段ID82C88B0F6B09F9AE2CDCD9C539DAEB76、输出AsName=dataModelId及ShortName=smokeChild保留。后续owner128读2写，全部pending空，未重放。额外独立SPARK进程完整回读模型2/字段7/关系0，正式SQL原文和Foreign正确。
+- 已经原模型删除入口先清子+4字段、再父+3字段、最后原目录无模型检查后删空间；清理owner104读3写，精确删除10身份。额外独立四表Base_DataSet/Model/Field/Relation回读总数均0。全生命周期创建2+换源2+清理3=7次数据库批次，流程执行0、业务数据改动0、文件写0，夹具checkpoint已标cleaned，禁止重建。原创建/换源owner已exit0，清理ownerfinish已发送，终态仍待进程核验。证据evidence/data-chain-smoke/2026-11-03-join-source-native-live.json。
+- 高阶下一运行工位已复核：先通过原数据层/HTTP身份链做已有TableInput非空ChildTables只读协议探针，核一父两子重复根键、LEFT未命中、别名冲突与真实字段/行权限；再补显式子查询配置与明确只读结果投影，完整绑定/重复行保留/释放一起验收。禁止根rowid冒充结果唯一键、拼伪主键、表token冒充行权限、前端合并父子权限或借聚合标志绕开合同。Foreign层级独立验收。源码和本轮配置回读均不冒充部署Join执行通过；全架构目标保持active。本轮无浏览器UI验收，需在整页矩阵中保留该范围限制。
+- 本轮三个原进程最终均真实exit0（创建35708、换源35512、清理19560）；清理finish后关闭stdin才释放readline句柄，没有终止未决批次。无未确认所有者、无保留夹具。verify:docs与diff --check通过；本轮仅新增实服证据和同一台账，无生产代码变化，不重复冒称新跑496测试。下一卡按上述协议探针继续，目标active。

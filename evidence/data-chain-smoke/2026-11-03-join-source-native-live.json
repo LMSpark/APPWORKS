@@ -1,0 +1,356 @@
+{
+  "date": "2026-11-03",
+  "codeCommit": "32c9877c4d9b9d422d42d170417593b12b2925b2",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "status": "live metadata source migration and exact cleanup confirmed",
+  "scope": "Native design/catalog/DataSet owners against the running service, no browser UI interaction or joined business query execution this turn",
+  "fixture": {
+    "marker": "SMOKE_DATA_CHAIN_JOIN_SOURCE_1793711957374",
+    "spaceId": "7741F82DD5609C786F5D1441B282B2C6",
+    "parentId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+    "childId": "77E9576ED889F1E9FDC6BED43118078D",
+    "fields": [
+      {
+        "id": "2EDA56956924F284A4C70D6863E0B0DF",
+        "modelId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+        "name": "rowid"
+      },
+      {
+        "id": "FA310FC262445E795324E7712C0B6649",
+        "modelId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "DC609ADF570A435372CEA9E22C84FB62",
+        "modelId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+        "name": "Name"
+      },
+      {
+        "id": "9B52FAD61C2E2AF241578DA930134B0E",
+        "modelId": "77E9576ED889F1E9FDC6BED43118078D",
+        "name": "rowid"
+      },
+      {
+        "id": "F57D2512E4DC54F7D50A4AC65A07FCEF",
+        "modelId": "77E9576ED889F1E9FDC6BED43118078D",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "DF32F9A6BDFA74C92AA5161CBB865CBA",
+        "modelId": "77E9576ED889F1E9FDC6BED43118078D",
+        "name": "Name"
+      },
+      {
+        "id": "82C88B0F6B09F9AE2CDCD9C539DAEB76",
+        "modelId": "77E9576ED889F1E9FDC6BED43118078D",
+        "name": "dataModelId"
+      }
+    ],
+    "createdRecords": 10,
+    "retainedRecords": 0
+  },
+  "confirmed": [
+    {
+      "step": "native source preflight",
+      "reads": 17,
+      "writes": 0,
+      "sources": [
+        "Base_DataModel",
+        "Base_DataModel_Field",
+        "Base_DataSet"
+      ],
+      "sameDatabase": true
+    },
+    {
+      "step": "catalog preflight",
+      "reads": 8,
+      "writes": 0
+    },
+    {
+      "step": "create",
+      "nativeBatches": 2,
+      "records": {
+        "spaces": 1,
+        "models": 2,
+        "fields": 7
+      },
+      "confirmed": true
+    },
+    {
+      "step": "parent source",
+      "from": "Base_DataModel",
+      "to": "Base_DataModel_Field",
+      "previewCancelUnchanged": true,
+      "nativeBatches": 1,
+      "dependentJoinFilterPrefixMigrated": true,
+      "independentReadAndReopen": true
+    },
+    {
+      "step": "child source",
+      "from": "Base_DataModel_Field",
+      "to": "Base_DataModel",
+      "foreign": {
+        "fieldId": "82C88B0F6B09F9AE2CDCD9C539DAEB76",
+        "before": "dataModelId",
+        "after": "dataSetId",
+        "outputAlias": "dataModelId"
+      },
+      "fixedSqlAlias": "smokeChild",
+      "nativeBatches": 1,
+      "independentReadAndReopen": true
+    },
+    {
+      "step": "native cleanup",
+      "nativeBatches": 3,
+      "order": [
+        "child and four fields",
+        "parent and three fields",
+        "space catalog"
+      ],
+      "exactDeletedRecords": 10,
+      "independentFourTablesAllZero": true
+    }
+  ],
+  "savedProjection": [
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel",
+      "success": true,
+      "total": 2,
+      "countReported": true,
+      "returned": 2,
+      "rows": [
+        {
+          "rowid": "5BA2D7CD561945B0E96F2AA6314F99FA",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "Name": "SMOKE_DATA_CHAIN_JOIN_SOURCE_1793711957374_PARENT",
+          "MetaName": "Base_DataModel_Field",
+          "ShortName": "",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "PId": "",
+          "JoinType": "",
+          "ForeignKeyFields": "",
+          "JoinFilter": ""
+        },
+        {
+          "rowid": "77E9576ED889F1E9FDC6BED43118078D",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "Name": "SMOKE_DATA_CHAIN_JOIN_SOURCE_1793711957374_CHILD",
+          "MetaName": "Base_DataModel",
+          "ShortName": "smokeChild",
+          "Type": "数据库表",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "PId": "SMOKE_DATA_CHAIN_JOIN_SOURCE_1793711957374_PARENT",
+          "JoinType": "LEFT",
+          "ForeignKeyFields": "dataSetId",
+          "JoinFilter": "{\"Type\":\"cond\",\"Field\":\"smokeChild.dataSetId\",\"Operator\":\"equal\",\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"Base_DataModel_Field.rowid\"}}"
+        }
+      ]
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel_Field",
+      "success": true,
+      "total": 7,
+      "countReported": true,
+      "returned": 7,
+      "rows": [
+        {
+          "rowid": "2EDA56956924F284A4C70D6863E0B0DF",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+          "Name": "rowid",
+          "AsName": "",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "82C88B0F6B09F9AE2CDCD9C539DAEB76",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "77E9576ED889F1E9FDC6BED43118078D",
+          "Name": "dataSetId",
+          "AsName": "dataModelId",
+          "IsPKey": 0,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "9B52FAD61C2E2AF241578DA930134B0E",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "77E9576ED889F1E9FDC6BED43118078D",
+          "Name": "rowid",
+          "AsName": "",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "DC609ADF570A435372CEA9E22C84FB62",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+          "Name": "Name",
+          "AsName": "",
+          "IsPKey": 0,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "DF32F9A6BDFA74C92AA5161CBB865CBA",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "77E9576ED889F1E9FDC6BED43118078D",
+          "Name": "Name",
+          "AsName": "",
+          "IsPKey": 0,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "F57D2512E4DC54F7D50A4AC65A07FCEF",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "77E9576ED889F1E9FDC6BED43118078D",
+          "Name": "lingma_sys_ent",
+          "AsName": "",
+          "IsPKey": 1,
+          "IsOutput": 1
+        },
+        {
+          "rowid": "FA310FC262445E795324E7712C0B6649",
+          "dataSetId": "7741F82DD5609C786F5D1441B282B2C6",
+          "dataModelId": "5BA2D7CD561945B0E96F2AA6314F99FA",
+          "Name": "lingma_sys_ent",
+          "AsName": "",
+          "IsPKey": 1,
+          "IsOutput": 1
+        }
+      ]
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel_Relation",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    }
+  ],
+  "finalAbsence": [
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataSet",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel_Field",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    },
+    {
+      "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "metaName": "Base_DataModel_Relation",
+      "success": true,
+      "total": 0,
+      "countReported": true,
+      "returned": 0,
+      "rows": []
+    }
+  ],
+  "ownerAudit": {
+    "creation": {
+      "reads": 42,
+      "writes": 2,
+      "replayWrites": 0
+    },
+    "source": {
+      "reads": 128,
+      "writes": 2,
+      "replayWrites": 0
+    },
+    "cleanup": {
+      "phase": "cleaned",
+      "error": "",
+      "pending": "",
+      "reads": 104,
+      "writes": 3,
+      "blockedWrites": 0,
+      "executions": 0,
+      "spaceId": "7741F82DD5609C786F5D1441B282B2C6",
+      "marker": "SMOKE_DATA_CHAIN_JOIN_SOURCE_1793711957374",
+      "deleted": [
+        "77E9576ED889F1E9FDC6BED43118078D",
+        "9B52FAD61C2E2AF241578DA930134B0E",
+        "F57D2512E4DC54F7D50A4AC65A07FCEF",
+        "DF32F9A6BDFA74C92AA5161CBB865CBA",
+        "82C88B0F6B09F9AE2CDCD9C539DAEB76",
+        "5BA2D7CD561945B0E96F2AA6314F99FA",
+        "2EDA56956924F284A4C70D6863E0B0DF",
+        "FA310FC262445E795324E7712C0B6649",
+        "DC609ADF570A435372CEA9E22C84FB62",
+        "7741F82DD5609C786F5D1441B282B2C6"
+      ],
+      "noReplay": true
+    },
+    "executions": 0,
+    "unknownRemaining": false,
+    "repositoryOrRemoteFileWrites": 0,
+    "processes": {
+      "creation": {
+        "pid": 35708,
+        "exitCode": 0
+      },
+      "source": {
+        "pid": 35512,
+        "exitCode": 0
+      },
+      "cleanup": {
+        "pid": 19560,
+        "exitCode": 0
+      }
+    }
+  },
+  "diagnosticCorrections": [
+    "Node-only diagnostic host resolved browser relative URLs against the actual dev server; product code unchanged",
+    "Protected credential wrapper read correctly; original authorized NewApp test tenant used; no password persisted or printed",
+    "First independent field checker retained a reusable DataView reference; copied each returned field collection before selecting the next model, independently verified the acknowledged seed with zero replay",
+    "Source follow-up did not recreate any acknowledged model or field"
+  ],
+  "limitations": [
+    "No browser interaction was performed in this turn",
+    "No nonempty ChildTables runtime query, SQL joined result identity or permission contract proven",
+    "No workflow executed, no business rows changed",
+    "Existing unrelated DepTable PId=UserInfo gap unchanged",
+    "Whole architecture migration, runtime smoke matrix and global gates remain active"
+  ],
+  "nextWorkstation": [
+    "Read-only protocol probe through the original data layer and existing TableInput/HTTP identity chain, not page-level requests",
+    "Capture real nonempty ChildTables request and one-parent/two-child flat output, LEFT no match, result identity and permissions",
+    "Only then add explicit DataView child query configuration and read-only joined result projection with complete binding/release tests",
+    "Do not fabricate entity primary keys, infer row permissions, merge parent/child authorizations, or reuse aggregate flags",
+    "Foreign hierarchy runs a separate actual-service matrix"
+  ],
+  "verification": {
+    "docs": "passed",
+    "diffCheck": "passed",
+    "productCodeChangedThisTurn": false,
+    "previousLocalRegression": {
+      "codeCommit": "32c9877c4",
+      "files": 7,
+      "passed": 496,
+      "scope": "historical passing local verification, not rerun for evidence-only change"
+    }
+  }
+}

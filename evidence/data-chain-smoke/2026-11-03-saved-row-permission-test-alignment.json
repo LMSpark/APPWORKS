@@ -1,0 +1,47 @@
+{
+  "baseCommit": "19afec1ec2d12109e1c53593dc35e6b1d2770f1b",
+  "scope": "Existing six test failures; no production permission behavior changed",
+  "rootCause": "DataSpaceRuntimeApi.save confirms the original write then reads formal permissions only for newly created row IDs. Earlier assertions treated the last read as a write or omitted the additional permission read.",
+  "checks": {
+    "submissionTests": {
+      "file": "tests/runtime/auth-nav/data-space/metadata/lowcode-data-space-submit.test.ts",
+      "assertions": [
+        "one configured write endpoint",
+        "original signed create/delete receipt",
+        "exact B primary-key permission query",
+        "fresh returned row permission accepted",
+        "incompatible routes fail before any write"
+      ]
+    },
+    "fieldWorkspaceTests": {
+      "file": "tests/runtime/page/design/native/fields/data-space-field-staging.test.ts",
+      "assertions": [
+        "one native batch",
+        "two post-write reads: new ID permission then current model structure",
+        "other model editing/applied/created/deleted state unchanged",
+        "original source input and model changes persisted",
+        "independent reopen verifies stored results"
+      ]
+    }
+  },
+  "results": {
+    "originalFailingFiles": {
+      "files": 2,
+      "passed": 91,
+      "failed": 0
+    },
+    "nativeRuntimePackage": {
+      "cwd": "packages/spark-lowcode-api",
+      "file": "src/platform/data-space/runtime/data-space-runtime-api.test.ts",
+      "passed": 136,
+      "failed": 0
+    },
+    "typecheck": "baseline passed",
+    "changedTestsLint": "passed"
+  },
+  "limitations": [
+    "Full repository test suite and all rule gates are not proven passing",
+    "133 retained workflow structure test definitions still await cleanup",
+    "Real relationship runtime consumer remains unverified"
+  ]
+}

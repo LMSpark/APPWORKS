@@ -5639,3 +5639,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终仓库门禁差距：总verify停在AI规则。新代码4处规则违例已修正（身份运行校验、声明式数组类型、命名参数），受改文件与HEAD比较剩余相同5项既有违例；不改规则/基线。原目录门禁4处既有超限保留；新图测试改放已有 native/relation 目录，未扩大原超限目录。
 - 全量test:run观察到失败后约8分钟仍未出最终统计，已只停止本次测试进程树，不称全量通过。失败两文件单独重现6失败85通过；以只读HEAD源码load-hook对照相同两份未修改测试，仍同名6失败85通过。具体为创建/不兼容路由断言及4种其他模型草稿共存时读取次数断言，尚须逐项核语义修复，不能仅改断言放行。详见 evidence/data-chain-smoke/2026-11-03-workflow-component-checkpoint-verification.json。
 - 最后机械规则修复后：4文件59测试、迁位图9测试、typecheck/lint/build:fe/page-thin通过，ClassModel再生成/目录概要指南/正式verify:class-model（4文件49测试）通过。其余门禁AI模型/蓝图SSOT/Ajax/领码/wire-query通过；lowcode-contracts发现既有消费索引过期，经正式生成器刷新为205消费者后检查通过，未修改后端。完整结构卡及全目标继续 implementing。
+
+### 2026-11-03 基线失败语义核查（implementing）
+- 上轮已推送19afec1ec，实服关联隔离与三次差异查询为实质progress；本轮起始工作区干净，typecheck通过。沿同一目标核6项失败，不重建133条正式夹具。
+- 根因依据：DataSpaceRuntimeApi.save 在新增回执确认后调用原 refreshSavedPermissions，只按新增主键回读正式权限；失败保留已确认写入及待恢复行权限，不重放。其正式运行测试已覆盖独立行凭据与恢复。因此两个最后请求断言及四个单次读取断言已过期，不能删除权限回读迁就它们。
+- 实施限两份原失败测试：分别断言唯一写入端点/原生回执、按新增ID的后置权限查询、返回正式行权限；字段组合保存区分精确权限回读与本模型结构回读，同时保持其他模型草稿/未加载视图/重开数据验收。先保留原6项RED证据，再运行两文件、公共新增权限与相关保存回归；不改生产权限行为、后端或规则门禁。
+- 首次增强断言后两端点场景通过，四字段场景的严格范围断言准确揭示读取顺序：两次均在写入后，先新增ID权限、后本模型字段结构。前述“新增前结构读取”假设已由原 FieldEditSession.confirm/readback 与请求证据否定，现按实际合同修正顺序断言；未改变生产代码。
+
+- 基线6失败已按正式权限回读合同对齐：两文件91测试全通过；API包以其自身vitest配置执行 runtime/data-space-runtime-api.test.ts，136测试通过。注意根vitest配置不包含此API目录内联测试，不能把根命令传入该路径当作已经执行。新增断言核唯一写入、精确新ID回读、正式新行权限、同模型结构回读和异模型草稿保留；未修改生产权限代码。受改测试lint通过。机器证据 evidence/data-chain-smoke/2026-11-03-saved-row-permission-test-alignment.json。
+- 实服会话401只刷新原RAM会话并重做只读；正式模型目录按 MetaName=Base_Workflow_NodeInstance 查询成功且总数0，当前无可复用实例模型。Java runSingleNodeTest 只构建结果的源码事实不能当作实服实例不存在证明；独立实例查询及133条正式夹具清理仍未完成。

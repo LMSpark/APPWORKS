@@ -298,15 +298,32 @@ describe('persisted DataTable submission configuration', () => {
       if (operation === 'create') {
         await runtime.view.addRowWithIdentity({field: 'id', value: 'B'}, {title: 'Created'})
         runtime.http.receipt = {maplistadd: [{PhysicalOrders: [{id: 'B', title: 'Created'}]}]}
+        runtime.http.queryResponse = async () => ({primaryKeyField: 'id', data: {Items: [
+          {id: 'B', title: 'Created', lingma_sys_key: 'CREATED-ROW-SIGNED', lingma_sys_params: {e: ['title'], d: true}},
+        ], Count: 1}})
       } else {
         await runtime.view.removeRow('A')
         runtime.http.receipt = {maplistdelete: [{PhysicalOrders: [{id: 'A'}]}]}
       }
       await expect(runtime.dataSet.saveChanges()).resolves.toMatchObject({success: true,
         data: operation === 'create' ? {createdCount: 1} : {deletedCount: 1}})
-      const request = runtime.http.requests.at(-1)
+      const writes = runtime.http.requests.filter(request => Array.isArray(request.data))
+      expect(writes).toHaveLength(1)
+      const request = writes[0]
       expect(request?.url).toBe(`/api/orders/${operation}`)
       expect(JSON.stringify(request?.data)).toContain(operation === 'create' ? 'TABLE-SIGNED' : 'SIGNED')
+      expect(runtime.http.requests.map(request => request.url)).toEqual(operation === 'create'
+        ? ['/api/DataOperation/GetData', '/api/orders/create', '/api/DataOperation/GetData']
+        : ['/api/DataOperation/GetData', '/api/orders/delete'])
+      if (operation === 'create') {
+        expect(runtime.http.requests.at(-1)?.data).toMatchObject({Table: [{Name: 'Orders', Filter: {
+          Field: 'id', Operator: 'in', ValueFun: {Type: 'GetConstValue', Value: ['B']},
+        }}]})
+        expect(runtime.view.hasPendingSavedRowPermissions).toBe(false)
+        const created = runtime.view.rows.find(row => row['id'] === 'B')!
+        expect(runtime.view.fieldAccess(created, 'title').write).toBe('allowed')
+        expect(created).not.toHaveProperty('lingma_sys_key')
+      }
       expect(runtime.view.dirtyTracking.hasPendingChanges()).toBe(false)
       expect(runtime.view.rows).toHaveLength(operation === 'create' ? 2 : 0)
     } finally {runtime.dataSet.destroy()}
@@ -327,8 +344,22 @@ describe('persisted DataTable submission configuration', () => {
       runtime.table.setApi({create: {url: '/api/both'}, update: {url: '/api/both'}})
       runtime.http.receipt = {maplistadd: [{PhysicalOrders: [{id: 'B', title: 'Created'}]}],
         maplistedit: [{PhysicalOrders: [{id: 'A', title: 'Accepted'}]}]}
+      runtime.http.queryResponse = async () => ({primaryKeyField: 'id', data: {Items: [
+        {id: 'B', title: 'Created', lingma_sys_key: 'CREATED-ROW-SIGNED', lingma_sys_params: {e: ['title']}},
+      ], Count: 1}})
       await expect(runtime.view.saveChanges()).resolves.toMatchObject({success: true, data: {createdCount: 1, savedCount: 1}})
-      expect(runtime.http.requests.at(-1)?.url).toBe('/api/both')
+      const writes = runtime.http.requests.filter(request => Array.isArray(request.data))
+      expect(writes).toHaveLength(1)
+      expect(writes[0]?.url).toBe('/api/both')
+      expect(runtime.http.requests.map(request => request.url)).toEqual([
+        '/api/DataOperation/GetData', '/api/both', '/api/DataOperation/GetData',
+      ])
+      expect(runtime.http.requests.at(-1)?.data).toMatchObject({Table: [{Name: 'Orders', Filter: {
+        Field: 'id', Operator: 'in', ValueFun: {Type: 'GetConstValue', Value: ['B']},
+      }}]})
+      expect(runtime.view.hasPendingSavedRowPermissions).toBe(false)
+      expect(runtime.view.rows.find(row => row['id'] === 'A')?.['title']).toBe('Accepted')
+      expect(runtime.view.fieldAccess(runtime.view.rows.find(row => row['id'] === 'B')!, 'title').write).toBe('allowed')
     } finally {runtime.dataSet.destroy()}
   })
 

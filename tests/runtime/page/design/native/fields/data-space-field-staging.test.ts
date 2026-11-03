@@ -550,9 +550,20 @@ describe('workspace creation preserves independent model drafts', () => {
     expect(inputView.getEditingRow('I1')?.['ValueFun']).toBe('{"Type":"GetConstValue","Value":0}')
     expect(model.getState().status).toBe('idle')
     const reads = f.requests.slice(start).filter(request => request.url?.endsWith('/GetData'))
-    // 新增列仍核验字段结构；普通来源入参直接消费同批的原生回执。
-    expect(reads).toHaveLength(1)
+    // 回执后先按新增ID恢复权限，再回读本模型字段结构；普通来源入参不另开查询。
+    expect(reads).toHaveLength(2)
     for (const request of reads) expect(request.data).toMatchObject({Table: [{Name: 'Base_DataModel_Field', inputParams: expect.arrayContaining([{Name: 'modelId', Value: 'M1'}])}]})
+    expect(reads[0]?.data).toMatchObject({Table: [{Filter: {
+      Field: 'rowid', Operator: 'in', ValueFun: {Type: 'GetConstValue', Value: [id]},
+    }}]})
+    expect(reads[1]?.data).toMatchObject({Table: [{Filter: {Type: 'and', Filters: [
+      {Field: 'dataSetId', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: 'A'}},
+      {Field: 'dataModelId', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: 'M1'}},
+      {Field: 'type', Operator: 'equal', ValueFun: {Type: 'GetConstValue', Value: 'dataModel'}},
+    ]}}]})
+    for (const read of reads) expect(f.requests.indexOf(read)).toBeGreaterThan(f.requests.indexOf(writes()[0]!))
+    expect(view.hasPendingSavedRowPermissions).toBe(false)
+    expect(view.fieldAccess(view.rows.find(row => row['rowid'] === id)!, 'description').write).toBe('allowed')
     const reopened = await f.open('A'), freshFields = await reopened.loadModelFields('M1'), freshInputs = await reopened.loadSourceInputFields('M1')
     expect(freshFields.getEditingRow(id)).toMatchObject({Name: 'total', AsName: 'totalOutput'})
     expect(freshFields.getEditingRow('PARENT')?.['description']).toBe('当前模型字段')

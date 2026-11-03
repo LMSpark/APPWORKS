@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1020,
+  "scannedFileCount": 1022,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -9751,7 +9751,7 @@
         "sourceFile": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
         "packageName": "@spark-appworks/spark-data",
         "modulePath": "strategies/crud/dirty-tracking-delegate",
-        "jsdoc": "@module @spark-appworks/spark-data:strategies/crud/dirty-tracking-delegate\n职责：提供 spark-data 数据管线中的 dirty tracking delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDirtyTrackingDelegate — 本地变更追踪委托（三态：新增 / 编辑 / 待删除）\n## 背景\nDataView.rows 与 UI 双向绑定，增删改立即反映到界面，但不自动提交服务端。\n本 delegate 追踪三种\"本地-only\"操作，由 saveChanges() 统一提交。\n| DataView 方法      | 本地 rows | 服务端 | 追踪类型        |\n|--------------------|-----------|--------|-----------------|\n| addRow(data)       | 立即追加  | ❌     | pending create  |\n| editRowById(id, d) | 立即更新  | ❌     | dirty update    |\n| removeRow(id)      | 立即删除  | ❌     | pending delete  |\n## 行级状态机\n```\n[server-clean]\n├─ editRowById  → [dirty update]\n│     └─ removeRow → [pending delete]（清除 dirty）\n└─ removeRow    → [pending delete]\n[pending create]（本地新行，服务端不存在）\n├─ editRowById  → 无需额外标记（行本身就是最新状态）\n└─ removeRow    → 取消创建（不产生 server delete）\n```\n## 快照弱引用策略\n- **dirty update 快照** (`_dirtySnapshots`)：`WeakRef`——仅用于 diff/撤销，\n内存紧张时允许 GC 回收，saveChanges 降级为\"提交当前行数据\"。\n- **pending delete 快照** (`_deleteSnapshots`)：强引用——提交失败可将行还原回 UI。",
+        "jsdoc": "@module @spark-appworks/spark-data:strategies/crud/dirty-tracking-delegate\n职责：提供 spark-data 数据管线中的 dirty tracking delegate 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDirtyTrackingDelegate — 本地变更追踪委托（三态：新增 / 编辑 / 待删除）\n## 背景\nDataView.rows 与 UI 双向绑定，增删改立即反映到界面，但不自动提交服务端。\n本 delegate 追踪三种\"本地-only\"操作，由 saveChanges() 统一提交。\n| DataView 方法      | 本地 rows | 服务端 | 追踪类型        |\n|--------------------|-----------|--------|-----------------|\n| addRow(data)       | 立即追加  | ❌     | pending create  |\n| editRowById(id, d) | 立即更新  | ❌     | dirty update    |\n| removeRow(id)      | 立即删除  | ❌     | pending delete  |\n## 行级状态机\n```\n[server-clean]\n├─ editRowById  → [dirty update]\n│     └─ removeRow → [pending delete]（清除 dirty）\n└─ removeRow    → [pending delete]\n[pending create]（本地新行，服务端不存在）\n├─ editRowById  → 无需额外标记（行本身就是最新状态）\n└─ removeRow    → 取消创建（不产生 server delete）\n```\n## 快照生命周期\n- **dirty update 快照** (`_dirtySnapshots`)：强引用——用于 diff、保存字段选择与撤销，\n保存确认、取消、转为删除或销毁时释放；不能因 GC 丢失未提交差异。\n- **pending delete 快照** (`_deleteSnapshots`)：强引用——提交失败可将行还原回 UI。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "FieldChange",
@@ -14184,6 +14184,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/query-field-references",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-field-references",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-references\n职责：显式计算字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。\n边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-fields.ts.json",
       "module": {
@@ -16473,6 +16486,19 @@
         "packageName": "app",
         "modulePath": "views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor",
         "jsdoc": "@module app:views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor\n职责：按原设计字段的精确节点路径编排节点树、基础、字段及关联配置。\n边界：标准FieldJson写回原DataView，不查询来源、不复制节点草稿、不单独保存。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue": {
+      "file": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor",
+        "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue",
+        "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor\n职责：标准表单直接绑定原字段视图的本次新增/编辑行。\n边界：确认只应用原编辑覆盖，保存与取消批次归查询宿主，不复制字段草稿。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

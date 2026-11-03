@@ -18,6 +18,8 @@
       :readonly="disabled || !!presentation.error" :on-editing-change="value=>emit('pendingChange','filter',value)" />
   </template>
   <h3>字段与来源参数</h3>
+  <WorkflowComputedFieldEditor :data-set="dataSet" :workflow-id="workflowId" :node-id="nodeId" :revision="revision" :disabled="disabled"
+    :input-parameter-data-view-key="inputs.dataViewKey" @pending-change="value=>emit('pendingChange','computed',value)" />
   <RendererTable :data-view-key="fieldsKey" :children="children" :highlight-current-row="true" />
 </template>
 <script setup lang="ts">
@@ -25,6 +27,7 @@ import {computed,onBeforeUnmount,shallowRef,watch} from 'vue'
 import {buildDataViewKey,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
 import {RendererForm,RendererTable,RendererFilterExpression,FieldText} from '@spark-appworks/spark-component'
 import {WorkflowQueryInputs} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
+import WorkflowComputedFieldEditor from './workflow-computed-field-editor.vue'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;revision:number;disabled:boolean}>()
 const emit=defineEmits<{pendingChange:[key:string,value:boolean]}>()
 const inputs=new WorkflowQueryInputs(props.dataSet,props.workflowId,props.nodeId)

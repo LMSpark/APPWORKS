@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor\n职责：标准表单直接绑定原字段视图的本次新增/编辑行。\n边界：确认只应用原编辑覆盖，保存与取消批次归查询宿主，不复制字段草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-03T00:12:00.482Z",
+  "models": {}
+}

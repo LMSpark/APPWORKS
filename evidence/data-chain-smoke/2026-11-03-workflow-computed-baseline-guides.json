@@ -1,0 +1,215 @@
+[
+  {
+    "kind": "DirtyTrackingDelegate",
+    "catalog": {
+      "rootKind": "DirtyTrackingDelegate",
+      "models": [
+        {
+          "kind": "DirtyTrackingDelegate",
+          "name": "DirtyTrackingDelegate",
+          "jsdoc": "Dirty Tracking Delegate 的语义模型。",
+          "summary": "Dirty Tracking Delegate 的语义模型。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DirtyTrackingDelegate",
+      "models": [
+        {
+          "kind": "DirtyTrackingDelegate",
+          "name": "DirtyTrackingDelegate",
+          "jsdoc": "Dirty Tracking Delegate 的语义模型。",
+          "summary": "Dirty Tracking Delegate 的语义模型。",
+          "constructorSignature": {
+            "summary": "创建 Dirty Tracking Delegate 实例。",
+            "jsdoc": "创建 Dirty Tracking Delegate 实例。",
+            "signature": "constructor(getColumns: () => readonly DataColumn[] | undefined, getComputedColumnNames: () => ReadonlySet<string>, getPrimaryKeyFields: () => string[])"
+          },
+          "attributes": [
+            {
+              "name": "dirtyRowIds",
+              "jsdoc": "全部 dirty-update 行主键（ReadonlySet）",
+              "summary": "全部 dirty-update 行主键（ReadonlySet）",
+              "typeText": "ReadonlySet<string | number>"
+            },
+            {
+              "name": "pendingCreateIds",
+              "jsdoc": "待新增行主键（ReadonlySet——与 _createRows 同步，零分配）",
+              "summary": "待新增行主键（ReadonlySet——与 _createRows 同步，零分配）",
+              "typeText": "ReadonlySet<string | number>"
+            },
+            {
+              "name": "pendingCreateRows",
+              "jsdoc": "待新增行数组",
+              "summary": "待新增行数组",
+              "typeText": "DataRow[]"
+            },
+            {
+              "name": "pendingDeleteIds",
+              "jsdoc": "待删除行主键（ReadonlySet）",
+              "summary": "待删除行主键（ReadonlySet）",
+              "typeText": "ReadonlySet<string | number>"
+            }
+          ],
+          "methods": [
+            {
+              "name": "trackCreate",
+              "jsdoc": "将行登记为\"待新增\"。\n特殊情况：若该 id 曾被登记为待删除（先删后撤销），则改为撤销删除，\n新行直接进入 clean 状态（仅还原，不重复追踪新增）。",
+              "summary": "将行登记为\"待新增\"。",
+              "signature": "trackCreate(id: string | number, row: DataRow): void"
+            },
+            {
+              "name": "cancelCreate",
+              "jsdoc": "取消指定行的\"待新增\"登记。\n场景：pending create 行在未保存前被用户删除——无需 server delete，直接遗忘。\n@returns 该行是否确实是 pending create（false = 不是，无操作）",
+              "summary": "取消指定行的\"待新增\"登记。",
+              "signature": "cancelCreate(id: string | number): boolean"
+            },
+            {
+              "name": "markDirty",
+              "jsdoc": "标注指定行为手工编辑（dirty update）。\n- pending create 行：**忽略**（新行本身就是最终数据，无需记录\"编辑前\"快照）\n- 连续编辑同一行：**不覆盖快照**（diff 始终相对于服务端原始值）\n@param id 行主键\n@param original 编辑**前**的行对象（浅拷贝并保留至 dirty 状态结束）",
+              "summary": "标注指定行为手工编辑（dirty update）。",
+              "signature": "markDirty(id: string | number, original: DataRow): void"
+            },
+            {
+              "name": "clearDirty",
+              "jsdoc": "清除指定行（或全部）的 dirty-update 状态。\n@param id 不传则清除全部",
+              "summary": "清除指定行（或全部）的 dirty-update 状态。",
+              "signature": "clearDirty(id?: string | number): void"
+            },
+            {
+              "name": "trackDelete",
+              "jsdoc": "将行登记为\"待删除\"。\n特殊情况：若该行是 pending create（从未在服务端存在），\n直接取消新增，**不产生** server delete。\n@param id 行主键\n@param snapshot 被删除行的完整快照（强引用，提交失败时用于还原 UI）",
+              "summary": "将行登记为\"待删除\"。",
+              "signature": "trackDelete(id: string | number, snapshot: DataRow): void"
+            },
+            {
+              "name": "cancelDelete",
+              "jsdoc": "撤销指定行（或全部）的 pending-delete 状态。\n注意：撤销仅清除追踪记录，**不**自动将行还原回 rows——\n由调用方（DataView）负责将快照 appendRow 回去。",
+              "summary": "撤销指定行（或全部）的 pending-delete 状态。",
+              "signature": "cancelDelete(id?: string | number): void"
+            },
+            {
+              "name": "clearAll",
+              "jsdoc": "清除全部三态追踪状态（视图全量刷新 / 销毁时调用）。",
+              "summary": "清除全部三态追踪状态（视图全量刷新 / 销毁时调用）。",
+              "signature": "clearAll(): void"
+            },
+            {
+              "name": "hasPendingChanges",
+              "jsdoc": "是否存在任意未提交的本地变更（新增 / 编辑 / 待删除）。\n@param id 不传 → 整个视图；传入 id → 指定行（任意态）",
+              "summary": "是否存在任意未提交的本地变更（新增 / 编辑 / 待删除）。",
+              "signature": "hasPendingChanges(id?: string | number): boolean"
+            },
+            {
+              "name": "isDirty",
+              "jsdoc": "是否有 dirty-update 未提交。\n@param id 不传 → 整体；传入 id → 指定行",
+              "summary": "是否有 dirty-update 未提交。",
+              "signature": "isDirty(id?: string | number): boolean"
+            },
+            {
+              "name": "isPendingCreate",
+              "jsdoc": "指定行是否是待新增状态",
+              "summary": "指定行是否是待新增状态",
+              "signature": "isPendingCreate(id: string | number): boolean"
+            },
+            {
+              "name": "isPendingDelete",
+              "jsdoc": "指定行是否是待删除状态",
+              "summary": "指定行是否是待删除状态",
+              "signature": "isPendingDelete(id: string | number): boolean"
+            },
+            {
+              "name": "getPendingDeleteSnapshot",
+              "jsdoc": "获取 pending-delete 行的快照（提交失败时用于还原 UI）。",
+              "summary": "获取 pending-delete 行的快照（提交失败时用于还原 UI）。",
+              "signature": "getPendingDeleteSnapshot(id: string | number): DataRow | undefined"
+            },
+            {
+              "name": "getOriginal",
+              "jsdoc": "获取指定行在首次手工编辑**前**的快照（dirty update 专用）。\n@returns 快照；行不脏时返回 undefined",
+              "summary": "获取指定行在首次手工编辑**前**的快照（dirty update 专用）。",
+              "signature": "getOriginal(id: string | number): DataRow | undefined"
+            },
+            {
+              "name": "getDiff",
+              "jsdoc": "计算指定行的字段级变更明细（dirty update 专用）。\n@param id 行主键\n@param current 当前行对象\n@returns 字段名 → `{ from, to }`；行不脏时返回 `{}`",
+              "summary": "计算指定行的字段级变更明细（dirty update 专用）。",
+              "signature": "getDiff(id: string | number, current: DataRow): RowDiff"
+            },
+            {
+              "name": "executeChanges",
+              "jsdoc": "将所有待提交变更（新增 / 手工编辑 / 删除）逐条保存到服务端。\n提交顺序：**新增 → 更新 → 删除**（依赖关系最少）。\n任意单行失败**不中断**后续行；失败行保留对应追踪状态。\n@param host 提供行数据读写的宿主（DataView 实现此接口）\n@param crud CRUD 网络操作接口（通常为 CrudDelegate）\n@param ids 指定要保存的行主键列表；不传则保存全部待提交变更",
+              "summary": "将所有待提交变更（新增 / 手工编辑 / 删除）逐条保存到服务端。",
+              "signature": "executeChanges(host: DataView, crud: CrudDelegate, ids?: (string | number)[]): Promise<CrudResult<SaveChangesData>>"
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁——清理所有内存状态",
+              "summary": "销毁——清理所有内存状态",
+              "signature": "destroy(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "Dirty Tracking Delegate 的语义模型。\nclass DirtyTrackingDelegate {\n  创建 Dirty Tracking Delegate 实例。\n  constructor(getColumns: () => readonly DataColumn[] | undefined, getComputedColumnNames: () => ReadonlySet<string>, getPrimaryKeyFields: () => string[])\n  全部 dirty-update 行主键（ReadonlySet）\n  readonly dirtyRowIds: ReadonlySet<string | number>\n  待新增行主键（ReadonlySet——与 _createRows 同步，零分配）\n  readonly pendingCreateIds: ReadonlySet<string | number>\n  待新增行数组\n  readonly pendingCreateRows: DataRow[]\n  待删除行主键（ReadonlySet）\n  readonly pendingDeleteIds: ReadonlySet<string | number>\n  将行登记为\"待新增\"。\n  特殊情况：若该 id 曾被登记为待删除（先删后撤销），则改为撤销删除，\n  新行直接进入 clean 状态（仅还原，不重复追踪新增）。\n  trackCreate(id: string | number, row: DataRow): void\n  取消指定行的\"待新增\"登记。\n  场景：pending create 行在未保存前被用户删除——无需 server delete，直接遗忘。\n  @returns 该行是否确实是 pending create（false = 不是，无操作）\n  cancelCreate(id: string | number): boolean\n  标注指定行为手工编辑（dirty update）。\n  - pending create 行：**忽略**（新行本身就是最终数据，无需记录\"编辑前\"快照）\n  - 连续编辑同一行：**不覆盖快照**（diff 始终相对于服务端原始值）\n  @param id 行主键\n  @param original 编辑**前**的行对象（浅拷贝并保留至 dirty 状态结束）\n  markDirty(id: string | number, original: DataRow): void\n  清除指定行（或全部）的 dirty-update 状态。\n  @param id 不传则清除全部\n  clearDirty(id?: string | number): void\n  将行登记为\"待删除\"。\n  特殊情况：若该行是 pending create（从未在服务端存在），\n  直接取消新增，**不产生** server delete。\n  @param id 行主键\n  @param snapshot 被删除行的完整快照（强引用，提交失败时用于还原 UI）\n  trackDelete(id: string | number, snapshot: DataRow): void\n  撤销指定行（或全部）的 pending-delete 状态。\n  注意：撤销仅清除追踪记录，**不**自动将行还原回 rows——\n  由调用方（DataView）负责将快照 appendRow 回去。\n  cancelDelete(id?: string | number): void\n  清除全部三态追踪状态（视图全量刷新 / 销毁时调用）。\n  clearAll(): void\n  是否存在任意未提交的本地变更（新增 / 编辑 / 待删除）。\n  @param id 不传 → 整个视图；传入 id → 指定行（任意态）\n  hasPendingChanges(id?: string | number): boolean\n  是否有 dirty-update 未提交。\n  @param id 不传 → 整体；传入 id → 指定行\n  isDirty(id?: string | number): boolean\n  指定行是否是待新增状态\n  isPendingCreate(id: string | number): boolean\n  指定行是否是待删除状态\n  isPendingDelete(id: string | number): boolean\n  获取 pending-delete 行的快照（提交失败时用于还原 UI）。\n  getPendingDeleteSnapshot(id: string | number): DataRow | undefined\n  获取指定行在首次手工编辑**前**的快照（dirty update 专用）。\n  @returns 快照；行不脏时返回 undefined\n  getOriginal(id: string | number): DataRow | undefined\n  计算指定行的字段级变更明细（dirty update 专用）。\n  @param id 行主键\n  @param current 当前行对象\n  @returns 字段名 → `{ from, to }`；行不脏时返回 `{}`\n  getDiff(id: string | number, current: DataRow): RowDiff\n  将所有待提交变更（新增 / 手工编辑 / 删除）逐条保存到服务端。\n  提交顺序：**新增 → 更新 → 删除**（依赖关系最少）。\n  任意单行失败**不中断**后续行；失败行保留对应追踪状态。\n  @param host 提供行数据读写的宿主（DataView 实现此接口）\n  @param crud CRUD 网络操作接口（通常为 CrudDelegate）\n  @param ids 指定要保存的行主键列表；不传则保存全部待提交变更\n  executeChanges(host: DataView, crud: CrudDelegate, ids?: (string | number)[]): Promise<CrudResult<SaveChangesData>>\n  销毁——清理所有内存状态\n  destroy(): void\n}"
+  },
+  {
+    "kind": "WorkflowComputedFields",
+    "catalog": {
+      "rootKind": "WorkflowComputedFields",
+      "models": [
+        {
+          "kind": "WorkflowComputedFields",
+          "name": "WorkflowComputedFields",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowComputedFields",
+      "models": [
+        {
+          "kind": "WorkflowComputedFields",
+          "name": "WorkflowComputedFields",
+          "jsdoc": "",
+          "summary": "",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "remove",
+              "jsdoc": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
+              "summary": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
+              "signature": "remove(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>"
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
+              "summary": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
+              "signature": "confirm(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>"
+            },
+            {
+              "name": "begin",
+              "jsdoc": "对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。",
+              "summary": "对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。",
+              "signature": "begin(dataSet: DataSet, workflowId: string, nodeId: string): Promise<string>"
+            },
+            {
+              "name": "add",
+              "jsdoc": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "summary": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "signature": "add(dataSet: DataSet, workflowId: string, nodeId: string, input: Values): Promise<string>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "class WorkflowComputedFields {\n  constructor()\n  明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。\n  remove(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>\n  确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。\n  confirm(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>\n  对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。\n  begin(dataSet: DataSet, workflowId: string, nodeId: string): Promise<string>\n  新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。\n  add(dataSet: DataSet, workflowId: string, nodeId: string, input: Values): Promise<string>\n}"
+  }
+]

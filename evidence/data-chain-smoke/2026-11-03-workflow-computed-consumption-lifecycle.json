@@ -1,0 +1,74 @@
+{
+  "kind": "actual-service-and-native-data-chain-smoke",
+  "testedAt": "2026-11-03T01:22:00.272Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "workflowId": "81F8E6E413FE4C9794CAB0A15CE438D7",
+  "disabledThroughout": true,
+  "scope": {
+    "querySources": "sys_edit",
+    "pagination": {
+      "index": 1,
+      "size": 1
+    },
+    "computedFieldId": "ED8DF93DE7ACE2B43616EA989007013E"
+  },
+  "confirmed": {
+    "blankAddCancelZeroWrites": true,
+    "confirmBeforeUnifiedSaveZeroWrites": true,
+    "constantZeroActualNumber": true,
+    "inputFunctionActualStartPrimaryKey": true,
+    "bRestoredStandardFunctionBinding": true,
+    "singleBActualComputedValueConsumed": true,
+    "wholeGraph": {
+      "nodeIds": [
+        "55CBE463FC1A7D2D653979F2B7FF377A",
+        "9ED06BA379B43095AD04F5EFDF18CCFD",
+        "6405718B79C6C252C36FDED14B50F86E",
+        "2299DF7E00E435FCDC7BC68F73F522E0"
+      ],
+      "status": "SUCCESS",
+      "integrity": "complete",
+      "aComputedEqualsStartRowId": true,
+      "bReturnedSamePrimaryKey": true
+    },
+    "referencedDeleteAndRenameBlockedAt": "Base_DataModel_Field[6B224A0C187F6346E362FAC2272417D0].ValueFun",
+    "blockedRenameCancelledAndIndependentlyUnchanged": true,
+    "referenceExplicitlyChangedAndIndependentlyConfirmed": true,
+    "renameSameIdAndOutputSynchronized": true,
+    "stagedDeleteDidNotWrite": true,
+    "deleteCancelRestored": true,
+    "deletedFieldAndOutputIndependentlyAbsent": true
+  },
+  "rootCauseRepair": {
+    "component": "DirtyTrackingDelegate",
+    "cause": "WeakRef-only original dirty baseline could be garbage collected while dirty IDs remain",
+    "repair": "Retain original dirty baseline until existing save/cancel/delete/destroy lifecycle releases it",
+    "actualGcRegression": "red before fix, green after fix",
+    "lateEditGuardsUnchanged": true
+  },
+  "cleanup": {
+    "distinctDefinitionRecords": 94,
+    "distinctRuntimeRecords": 4,
+    "totalDistinctRecords": 98,
+    "remaining": 0,
+    "instanceId": "8351A8319CBF44E3A3E95A6720A4CE94",
+    "instanceRecordIds": [
+      "0FAB68829E2C446D89AE41F6509F5EF8",
+      "19E99D53EC7A48E9B0277B0033D52150",
+      "55D21F9E8B7B4E929CD71F1EC8866D14",
+      "832B5F403F3846E2878C2FD30188E75A"
+    ],
+    "attachedRuntimeNodeRetiredBeforeExecution": true,
+    "allDefinitionAndRuntimeAbsenceIndependentlyConfirmed": true,
+    "directoryTotalAfterCleanup": 4
+  },
+  "limitations": [
+    "IsOutput=0 raw single-node reply exceeded declared output directory; whole consumer contract impact remains open",
+    "Only explicit PageParam 1/1 verified; default empty pagination service issue remains open",
+    "No post-delete execution was issued",
+    "Not proof of all workflow node types, four-file migration, reference layout parity or all repository pages"
+  ],
+  "backendChanged": false,
+  "unknownNewWrites": 0,
+  "oldUnknownExecutionReplayed": false
+}

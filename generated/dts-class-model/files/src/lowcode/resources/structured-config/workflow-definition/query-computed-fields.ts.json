@@ -52,6 +52,72 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "fieldId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.confirm.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "fieldId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirm.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.begin.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.begin.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
         "method.add.params": {
           "type": "object",
           "properties": {
@@ -78,7 +144,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T23:43:20.515Z",
+  "generatedAt": "2026-11-03T00:40:59.562Z",
   "models": {
     "Values": {
       "name": "Values",
@@ -130,6 +196,131 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "remove",
+              "jsdoc": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fieldId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fieldId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "begin",
+              "jsdoc": "对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
             {
               "name": "add",
               "jsdoc": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",

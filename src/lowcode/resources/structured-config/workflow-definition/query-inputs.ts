@@ -47,7 +47,10 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
   const kind=read(fields,row,'type')
   if(kind==='inputParams')continue
   if(kind!=='dataModel')throw Error('查询字段用途尚未承接')
-  const name=read(fields,row,'Name'),type=read(fields,row,'FieldType'),description=read(fields,row,'description')
+  const fieldId=fields.getPkKey(row),effective=fieldId===undefined?row:fields.getEditingRow(fieldId)??row
+  for(const field of ['Name','FieldType','description'])read(fields,row,field)
+  const name=effective['Name'],type=effective['FieldType'],description=effective['description']
+  if(name===''&&fieldId!==undefined&&fields.dirtyTracking.isPendingCreate(fieldId))continue
   if(typeof name!=='string'||!name.trim()||columnNames.has(name)||typeof type!=='string'||!type.trim())throw Error('过滤字段名称或类型缺失或重复')
   columnNames.add(name);columns.push({name,type:type.toLowerCase(),label:typeof description==='string'&&description?description:name})
  }

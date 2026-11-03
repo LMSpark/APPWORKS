@@ -3,7 +3,7 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,SparkJsonEditor,RendererButton,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,SparkJsonEditor,RendererButton,RendererDialog,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
@@ -36,6 +36,49 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('binds the computed field dialog to the original row, cancels an unfinished addition without writes, and saves only after confirming the dialog',async()=>{
+  config.global.stubs={...config.global.stubs,JsonTreeEditor:true}
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'查询',output_mapping:'[]'}]
+  state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Field']=[]
+  state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await f.click('新增计算字段')
+  const dialog=()=>f.wrapper.findAllComponents(RendererDialog).find(item=>item.props('title')==='新增计算字段')!
+  expect(dialog().props('dataViewKey')).toBe(`${WORKFLOW_DESIGN}@Base_DataModel_Field@default`)
+  expect(state.http.saves).toHaveLength(0)
+  await f.click('取消字段编辑');expect(state.dirty[0]?.isDirty).toBe(false)
+  await f.click('新增计算字段')
+  await dialog().findAllComponents(FieldText).find(field=>field.props('field')==='Name')!.get('input').setValue('computedZero')
+  await f.click('确认字段编辑');expect(state.http.saves).toHaveLength(0)
+  await f.click('保存查询配置')
+  expect(state.http.records['Base_DataModel_Field']).toEqual([expect.objectContaining({Name:'computedZero',FieldType:'计算字段',IsOutput:0,IsPKey:0,dataSetId:'W1',dataModelId:'M1'})])
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  const id=state.http.records['Base_DataModel_Field']![0]?.['rowid'],writes=state.http.saves.length
+  await f.click('编辑计算字段')
+  const editing=()=>f.wrapper.findAllComponents(RendererDialog).find(item=>item.props('title')==='编辑计算字段')!
+  await editing().findAllComponents(FieldText).find(field=>field.props('field')==='description')!.get('input').setValue('取消说明')
+  await f.click('取消字段编辑');expect(state.dirty[0]?.isDirty).toBe(false);expect(state.http.saves).toHaveLength(writes)
+  await f.click('编辑计算字段')
+  await editing().findAllComponents(FieldText).find(field=>field.props('field')==='description')!.get('input').setValue('已修改')
+  await editing().getComponent(FieldValueFunction).get('[data-function-open]').trigger('click');await flushPromises()
+  editing().getComponent(FilterValueFunctionDialog).vm.$emit('confirm',{Type:'GetConstValue',Value:0});await flushPromises()
+  await f.click('确认字段编辑');expect(state.http.saves).toHaveLength(writes)
+  await f.click('保存查询配置')
+  expect(state.http.records['Base_DataModel_Field']![0]).toMatchObject({rowid:id,description:'已修改',ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
+  await f.click('编辑计算字段')
+  await editing().findAllComponents(FieldText).find(field=>field.props('field')==='Name')!.get('input').setValue('computedRenamed')
+  await f.click('确认字段编辑');await f.click('保存查询配置')
+  expect(state.http.records['Base_DataModel_Field']![0]).toMatchObject({rowid:id,Name:'computedRenamed'})
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  const beforeDelete=state.http.saves.length
+  await f.click('删除计算字段');expect(state.http.saves).toHaveLength(beforeDelete);expect(state.dirty[0]?.isDirty).toBe(true)
+  await f.click('取消查询配置修改');expect(state.dirty[0]?.isDirty).toBe(false)
+  const fieldsTable=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_DataModel_Field@'))!
+  await fieldsTable.get('tbody tr').trigger('click');await flushPromises()
+  await f.click('删除计算字段');await f.click('保存查询配置')
+  expect(state.http.records['Base_DataModel_Field']).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false)
+ })
  it('edits node test input through its command view, cancels without execution and shows the accepted result',async()=>{
   const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend
   state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})

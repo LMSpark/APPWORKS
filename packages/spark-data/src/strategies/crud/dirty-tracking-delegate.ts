@@ -31,10 +31,10 @@
  *     └─ removeRow    → 取消创建（不产生 server delete）
  * ```
  *
- * ## 快照弱引用策略
+ * ## 快照生命周期
  *
- * - **dirty update 快照** (`_dirtySnapshots`)：`WeakRef`——仅用于 diff/撤销，
- *   内存紧张时允许 GC 回收，saveChanges 降级为"提交当前行数据"。
+ * - **dirty update 快照** (`_dirtySnapshots`)：强引用——用于 diff、保存字段选择与撤销，
+ *   保存确认、取消、转为删除或销毁时释放；不能因 GC 丢失未提交差异。
  * - **pending delete 快照** (`_deleteSnapshots`)：强引用——提交失败可将行还原回 UI。
  */
 
@@ -125,11 +125,11 @@ constructor(
   /** 被手工编辑的行主键集合 */
   private _dirtyIds = new Set<string | number>()
   /**
-   * 首次编辑前的行快照（弱引用）。
+   * 首次编辑前的行快照（强引用）。
    * 连续编辑不覆盖——diff 始终相对于服务端原始值。
-   * WeakRef：GC 压力下允许回收，saveChanges 降级为"提交当前数据"。
+   * 保留至原 dirty 状态结束，异步查询及 GC 不改变保存差异。
    */
-  private _dirtySnapshots = new Map<string | number, WeakRef<DataRow>>()
+  private _dirtySnapshots = new Map<string | number, DataRow>()
 
   // ── pending deletes ───────────────────────
   /** 待删除行主键集合 */
@@ -182,7 +182,7 @@ constructor(
    * - 连续编辑同一行：**不覆盖快照**（diff 始终相对于服务端原始值）
    *
    * @param id       行主键
-   * @param original 编辑**前**的行对象（浅拷贝后以 WeakRef 包装）
+   * @param original 编辑**前**的行对象（浅拷贝并保留至 dirty 状态结束）
    */
   markDirty(id: string | number, original: DataRow): void {
     if (this._createRows.has(id)) return   // pending create 不需要 dirty 追踪
@@ -192,12 +192,12 @@ constructor(
       if (fields) {
         const snapshot: DataRow = {}
         for (const f of fields) snapshot[f] = original[f]
-        this._dirtySnapshots.set(id, new WeakRef(snapshot))
+        this._dirtySnapshots.set(id, snapshot)
       } else {
         const snapshot = Object.fromEntries(
           Object.entries(original).filter(([field]) => !field.startsWith('lingma_sys_')),
         )
-        this._dirtySnapshots.set(id, new WeakRef(snapshot))
+        this._dirtySnapshots.set(id, snapshot)
       }
     }
     this._dirtyIds.add(id)
@@ -329,10 +329,10 @@ constructor(
   /**
    * 获取指定行在首次手工编辑**前**的快照（dirty update 专用）。
    *
-   * @returns 快照；行不脏或弱引用已被 GC 回收时返回 undefined
+   * @returns 快照；行不脏时返回 undefined
    */
   getOriginal(id: string | number): DataRow | undefined {
-    return this._dirtySnapshots.get(id)?.deref()
+    return this._dirtySnapshots.get(id)
   }
 
   /**
@@ -340,10 +340,10 @@ constructor(
    *
    * @param id      行主键
    * @param current 当前行对象
-   * @returns 字段名 → `{ from, to }`；行不脏或快照已被 GC 回收时返回 `{}`
+   * @returns 字段名 → `{ from, to }`；行不脏时返回 `{}`
    */
   getDiff(id: string | number, current: DataRow): RowDiff {
-    const original = this._dirtySnapshots.get(id)?.deref()
+    const original = this._dirtySnapshots.get(id)
     if (!original) return {}
 
     const diff: RowDiff = {}

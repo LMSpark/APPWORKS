@@ -1,0 +1,584 @@
+[
+  {
+    "kind": "WorkflowComputedFields",
+    "catalog": {
+      "rootKind": "WorkflowComputedFields",
+      "models": [
+        {
+          "kind": "WorkflowComputedFields",
+          "name": "WorkflowComputedFields",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowComputedFields",
+      "models": [
+        {
+          "kind": "WorkflowComputedFields",
+          "name": "WorkflowComputedFields",
+          "jsdoc": "",
+          "summary": "",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "remove",
+              "jsdoc": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
+              "summary": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
+              "signature": "remove(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>"
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
+              "summary": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
+              "signature": "confirm(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>"
+            },
+            {
+              "name": "begin",
+              "jsdoc": "对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。",
+              "summary": "对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。",
+              "signature": "begin(dataSet: DataSet, workflowId: string, nodeId: string): Promise<string>"
+            },
+            {
+              "name": "add",
+              "jsdoc": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "summary": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "signature": "add(dataSet: DataSet, workflowId: string, nodeId: string, input: Values): Promise<string>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "class WorkflowComputedFields {\n  constructor()\n  明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。\n  remove(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>\n  确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。\n  confirm(dataSet: DataSet, workflowId: string, nodeId: string, fieldId: string): Promise<void>\n  对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。\n  begin(dataSet: DataSet, workflowId: string, nodeId: string): Promise<string>\n  新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。\n  add(dataSet: DataSet, workflowId: string, nodeId: string, input: Values): Promise<string>\n}"
+  },
+  {
+    "kind": "RDialogProps",
+    "catalog": {
+      "rootKind": "RDialogProps",
+      "models": [
+        {
+          "kind": "RDialogProps",
+          "name": "RDialogProps",
+          "jsdoc": "RDialog Props 的属性契约。",
+          "summary": "RDialog Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkVisibilityContainerProps",
+              "targetName": "SparkVisibilityContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "DialogFullscreenOptions",
+              "targetName": "DialogFullscreenOptions"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererDialog",
+            "type": "r-dialog",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RDialogProps",
+      "models": [
+        {
+          "kind": "RDialogProps",
+          "name": "RDialogProps",
+          "jsdoc": "RDialog Props 的属性契约。",
+          "summary": "RDialog Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkVisibilityContainerProps",
+              "targetName": "SparkVisibilityContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "DialogFullscreenOptions",
+              "targetName": "DialogFullscreenOptions"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererDialog",
+            "type": "r-dialog",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          },
+          "attributes": [
+            {
+              "name": "header",
+              "jsdoc": "结构化头部",
+              "summary": "结构化头部",
+              "typeText": "RHeaderProps"
+            },
+            {
+              "name": "footer",
+              "jsdoc": "结构化底部",
+              "summary": "结构化底部",
+              "typeText": "RFooterProps"
+            },
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "summary": "对话框标题",
+              "typeText": "string"
+            },
+            {
+              "name": "width",
+              "jsdoc": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。",
+              "summary": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。",
+              "typeText": "string | number"
+            },
+            {
+              "name": "top",
+              "jsdoc": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "summary": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "typeText": "string"
+            },
+            {
+              "name": "appendToBody",
+              "jsdoc": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "summary": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "destroyOnClose",
+              "jsdoc": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "summary": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "控制显隐",
+              "summary": "控制显隐",
+              "typeText": "false | true"
+            },
+            {
+              "name": "closeDisabled",
+              "jsdoc": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "summary": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区 CSS 类名",
+              "summary": "内容区 CSS 类名",
+              "typeText": "string"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-dialog; name=RendererDialog; level=container; layer=layout-container; directory=containers/layout */\n/**\n * DTS declaration: RDialogProps = LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & DialogFullscreenOptions & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}\n * DTS relation: intersection LayoutDataContextProps\n * DTS relation: intersection SparkVisibilityContainerProps\n * DTS relation: intersection SparkGridLayoutProps\n * DTS relation: intersection DialogFullscreenOptions\n * DTS relation: intersection {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}\n */\nRDialog Props 的属性契约。\ntype RDialogProps {\n  结构化头部\n  readonly header: RHeaderProps\n  结构化底部\n  readonly footer: RFooterProps\n  对话框标题\n  readonly title: string\n  弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。\n  readonly width: string | number\n  距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。\n  readonly top: string\n  挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。\n  readonly appendToBody: false | true\n  关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。\n  readonly destroyOnClose: false | true\n  控制显隐\n  readonly modelValue: false | true\n  禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。\n  readonly closeDisabled: false | true\n  内容区 CSS 类名\n  readonly bodyClass: string\n}"
+  },
+  {
+    "kind": "RFormProps",
+    "catalog": {
+      "rootKind": "RFormProps",
+      "models": [
+        {
+          "kind": "RFormProps",
+          "name": "RFormProps",
+          "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+          "summary": "r-form 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkCrudDataContainerProps",
+              "targetName": "SparkCrudDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererForm",
+            "type": "r-form",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RFormProps",
+      "models": [
+        {
+          "kind": "RFormProps",
+          "name": "RFormProps",
+          "jsdoc": "r-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。",
+          "summary": "r-form 组件公开属性接口。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkCrudDataContainerProps",
+              "targetName": "SparkCrudDataContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererForm",
+            "type": "r-form",
+            "level": "table-level",
+            "layer": "data-view-container",
+            "directory": "containers/data-views"
+          },
+          "attributes": [
+            {
+              "name": "gridMinWidth",
+              "jsdoc": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "summary": "每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。",
+              "typeText": "string"
+            },
+            {
+              "name": "dataSource",
+              "jsdoc": "显式收窄为表单容器使用的 DataView 数据线。",
+              "summary": "显式收窄为表单容器使用的 DataView 数据线。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "结构化工具栏",
+              "summary": "结构化工具栏",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "contextDataMember",
+              "jsdoc": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "summary": "上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。",
+              "typeText": "\"page\" | \"rows\" | \"total\" | \"requestState\" | \"value\" | \"columns\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\""
+            },
+            {
+              "name": "contextDataField",
+              "jsdoc": "上下文成员内部业务字段或点路径。",
+              "summary": "上下文成员内部业务字段或点路径。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoColumns",
+              "jsdoc": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "summary": "无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "labelWidth",
+              "jsdoc": "表单标签宽度",
+              "summary": "表单标签宽度",
+              "typeText": "string"
+            },
+            {
+              "name": "formProps",
+              "jsdoc": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。",
+              "summary": "透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。",
+              "typeText": "Record<string, unknown>"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-form; name=RendererForm; level=table-level; layer=data-view-container; directory=containers/data-views */\n/**\n * DTS declaration: RFormProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGridLayoutProps & {\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkCrudDataContainerProps\n * DTS relation: intersection SparkGridLayoutProps\n * DTS relation: intersection {\n    /** 每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。 */\n    gridMinWidth?: string;\n    /** 显式收窄为表单容器使用的 DataView 数据线。 */\n    dataSource?: DataView;\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。 */\n    contextDataMember?: DataMember | `${DataMember}`;\n    /** 上下文成员内部业务字段或点路径。 */\n    contextDataField?: string;\n    /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */\n    autoColumns?: boolean;\n    /** 表单标签宽度 */\n    labelWidth?: string;\n    /** 透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。 */\n    formProps?: Record<string, unknown>;\n}\n */\nr-form 组件公开属性接口。\n命名规范：组件 type `r-form` → 接口名 `RFormProps`。\ntype RFormProps {\n  每项最小宽度（如220px）；提供时按容器宽度自动换行，优先于固定gridColumns。\n  readonly gridMinWidth: string\n  显式收窄为表单容器使用的 DataView 数据线。\n  readonly dataSource: DataView\n  结构化工具栏\n  readonly toolbar: RToolbarProps\n  上下文 DataView 成员，默认 currentRow。当前行包含原视图的编辑覆盖，丢弃后恢复；默认插槽row/model与字段子组件消费同一上下文。汇总成员保持汇总语义。\n  readonly contextDataMember: \"page\" | \"rows\" | \"total\" | \"requestState\" | \"value\" | \"columns\" | \"currentRow\" | \"selectedRows\" | \"aggregateResult\" | \"selectionAggregateResult\" | \"pageSize\" | \"mutating\" | \"loadingError\" | \"mutatingError\"\n  上下文成员内部业务字段或点路径。\n  readonly contextDataField: string\n  无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。\n  readonly autoColumns: false | true\n  表单标签宽度\n  readonly labelWidth: string\n  透传给 el-form 的显式属性和监听器。容器阻止浏览器原生提交导航，显式监听器仍执行；保存由DataView动作触发，不拦截字段键盘事件。\n  readonly formProps: Record<string, unknown>\n}"
+  },
+  {
+    "kind": "RTextProps",
+    "catalog": {
+      "rootKind": "RTextProps",
+      "models": [
+        {
+          "kind": "RTextProps",
+          "name": "RTextProps",
+          "jsdoc": "RText Props 的属性契约。",
+          "summary": "RText Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldText",
+            "type": "r-text",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RTextProps",
+      "models": [
+        {
+          "kind": "RTextProps",
+          "name": "RTextProps",
+          "jsdoc": "RText Props 的属性契约。",
+          "summary": "RText Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldText",
+            "type": "r-text",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "filterAlternatives",
+              "jsdoc": "常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。",
+              "summary": "常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。",
+              "typeText": "{ field: string; operator: DataViewFilterOperator }[]"
+            },
+            {
+              "name": "displayFallbackFields",
+              "jsdoc": "只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。",
+              "summary": "只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。",
+              "typeText": "string[]"
+            },
+            {
+              "name": "showCellControl",
+              "jsdoc": "表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。",
+              "summary": "表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "maxlength",
+              "jsdoc": "表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。",
+              "summary": "表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。",
+              "typeText": "number"
+            },
+            {
+              "name": "emptyText",
+              "jsdoc": "只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。",
+              "summary": "只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。",
+              "typeText": "string"
+            },
+            {
+              "name": "showPassword",
+              "jsdoc": "表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。",
+              "summary": "表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "displayFormatter",
+              "jsdoc": "只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。",
+              "summary": "只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。",
+              "signature": "displayFormatter(value: unknown): string"
+            },
+            {
+              "name": "cellReadonly",
+              "jsdoc": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "summary": "常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-text; name=FieldText; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<string>\n * DTS relation: intersection {\n    /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */\n    filterAlternatives?: Array<{\n        field: string;\n        operator: DataViewFilterOperator;\n    }>;\n    /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */\n    displayFormatter?: (value: unknown) => string;\n    /** 只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。 */\n    displayFallbackFields?: string[];\n    /** 表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。 */\n    showCellControl?: boolean;\n    /** 常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。 */\n    maxlength?: number;\n    /** 只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。 */\n    emptyText?: string;\n    /** 表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。 */\n    showPassword?: boolean;\n}\n */\nRText Props 的属性契约。\ntype RTextProps {\n  常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。\n  readonly filterAlternatives: { field: string; operator: DataViewFilterOperator }[]\n  只读行呈现的有序字段回退；每个字段须由当前绑定 DataView 判定为 visible，空值、隐藏及脱敏值跳过。\n  readonly displayFallbackFields: string[]\n  表格中直接显示逐行文本输入，默认false沿用文本/双击编辑。优先于editOnDblclick；绑定原DataView单元格，不移动当前行或改变存储值。\n  readonly showCellControl: boolean\n  表单文本输入框最大字符数；仅限制用户输入，不截断已有值，不替代模型校验。省略时不限制。\n  readonly maxlength: number\n  只读呈现时空字符串/null/undefined的显示文字，默认空；不写入字段，不替换隐藏或脱敏结果，输入控件仍编辑原值。\n  readonly emptyText: string\n  表单输入按密码遮盖并提供显示切换，默认false；只影响输入呈现，不改变存储值，也不替代字段读取权限或脱敏。\n  readonly showPassword: boolean\n  只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。\n  displayFormatter(value: unknown): string\n  常驻单元格的附加只读限制；只能收窄原DataView权限，不能授予写入权限。\n  cellReadonly(row: Readonly<DataRow>): boolean\n}"
+  },
+  {
+    "kind": "RValueFunctionProps",
+    "catalog": {
+      "rootKind": "RValueFunctionProps",
+      "models": [
+        {
+          "kind": "RValueFunctionProps",
+          "name": "RValueFunctionProps",
+          "jsdoc": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "summary": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldValueFunction",
+            "type": "r-value-function",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RValueFunctionProps",
+      "models": [
+        {
+          "kind": "RValueFunctionProps",
+          "name": "RValueFunctionProps",
+          "jsdoc": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "summary": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldValueFunction",
+            "type": "r-value-function",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "valueFormat",
+              "jsdoc": "字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。",
+              "summary": "字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。",
+              "typeText": "\"text\" | \"native\""
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。",
+              "summary": "函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "publicParameterDataViewKey",
+              "jsdoc": "GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "summary": "GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "typeText": "string"
+            },
+            {
+              "name": "inputParameterDataViewKey",
+              "jsdoc": "GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "summary": "GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "typeText": "string"
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。",
+              "summary": "表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            },
+            {
+              "name": "onDialogVisibleChange",
+              "jsdoc": "弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。",
+              "summary": "弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。",
+              "signature": "onDialogVisibleChange(visible: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-value-function; name=FieldValueFunction; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RValueFunctionProps = SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<string>\n * DTS relation: intersection {\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}\n */\nr-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。\ntype RValueFunctionProps {\n  字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。\n  readonly valueFormat: \"text\" | \"native\"\n  函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。\n  readonly functionContext: DataViewFilterFunctionContext\n  GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。\n  readonly publicParameterDataViewKey: string\n  GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。\n  readonly inputParameterDataViewKey: string\n  表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。\n  cellReadonly(row: Readonly<DataRow>): boolean\n  弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。\n  onDialogVisibleChange(visible: boolean): void\n}"
+  }
+]

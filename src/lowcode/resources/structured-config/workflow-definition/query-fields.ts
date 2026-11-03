@@ -7,8 +7,9 @@ import type {DataSet} from '@spark-appworks/spark-data'
 import {buildWorkflowQueryOutput} from './query-output'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {validateWorkflowQueryInputChanges} from './query-inputs'
-import {workflowQueryFieldScope,readWorkflowFieldValue as read,workflowFieldChanges as changes} from './query-field-context'
+import {workflowQueryFieldScope,workflowQueryDraftSignature,readWorkflowFieldValue as read,workflowFieldChanges as changes} from './query-field-context'
 import {validateWorkflowComputedField} from './query-computed-fields'
+import {assertWorkflowFieldStructureChanges} from './query-field-references'
 
 const allowed=new Set(['description','AsName','IsOutput','OrderType','Order','Group','ValueFun'])
 const projectionFields=['rowid','dataSetId','dataModelId','type','Name','AsName','FieldType','description','IsOutput','IsPKey']
@@ -29,21 +30,28 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  const modelPatch=changes(models,model,modelId),modelChanged=Object.keys(modelPatch).length>0
  if(Object.keys(modelPatch).some(field=>!['Filter','description'].includes(field)))throw Error('请先处理查询模型的其他定义修改')
  if(action==='save')for(const field of Object.keys(modelPatch))if(models.fieldAccess(model,field).write!=='allowed')throw Error(`查询模型字段不可修改: ${field}`)
- if(fields.dirtyTracking.pendingDeleteIds.size)throw Error('字段删除须先完成专用引用命令')
- const projected=fields.rows.map(row=>{
+ const deletingIds=[...fields.dirtyTracking.pendingDeleteIds]
+ const deletedRows=deletingIds.map(id=>{const row=fields.dirtyTracking.getPendingDeleteSnapshot(id);if(!row)throw Error('字段删除缺少原记录');return row})
+ const projected=[...fields.rows,...deletedRows].map(row=>{
   const id=fields.getPkKey(row)
   if(typeof id!=='string')throw Error('查询字段正式身份缺失')
   const patch=changes(fields,row,id)
   const creating=fields.dirtyTracking.isPendingCreate(id)
+  const deleting=fields.dirtyTracking.pendingDeleteIds.has(id)
+  const computed=read(fields,row,'FieldType')==='计算字段'
+  if(deleting&&!computed)throw Error('只能通过本命令删除计算字段')
   if(action==='save'&&creating)validateWorkflowComputedField(dataSet,workflowId,nodeId,fields.getEditingRow(id)??row,id)
-  if(action==='save'&&!creating&&Object.keys(patch).some(key=>!allowed.has(key)))throw Error('本次只维护字段说明、输出及排序分组；其他字段须使用相应配置命令')
+  if(action==='save'&&!creating&&!deleting&&computed&&Object.keys(patch).length)validateWorkflowComputedField(dataSet,workflowId,nodeId,fields.getEditingRow(id)??row,id)
+  if(action==='save'&&!creating&&Object.keys(patch).some(key=>!allowed.has(key)&&!(key==='Name'&&computed)))throw Error('本次只维护字段说明、输出及排序分组；其他字段须使用相应配置命令')
   if(action==='save')for(const field of Object.keys(patch))if(fields.fieldAccess(row,field).write!=='allowed')throw Error(`查询字段不可修改: ${field}`)
   if(action==='save')for(const field of ['Order','Group'])if(Object.hasOwn(patch,field)&&(!Number.isSafeInteger(patch[field])||Number(patch[field])<0))throw Error('排序顺序和分组标记须为非负整数')
   if(action==='save'&&Object.hasOwn(patch,'OrderType')&&!['','ascending','descending'].includes(String(patch['OrderType'])))throw Error('排序方向无效')
-  const effective=fields.getEditingRow(id)??row
-  return {id,patch,creating,row:Object.fromEntries(projectionFields.map(field=>[field,read(fields,row,field)])),effective:{...Object.fromEntries(projectionFields.map(field=>[field,read(fields,row,field)])),...effective}}
+  const effective=deleting?{...row,IsOutput:0}:fields.getEditingRow(id)??row
+  const baseline=creating?row:{...row,...Object.fromEntries(Object.entries(fields.dirtyTracking.getDiff(id,row)).map(([key,diff])=>[key,diff.from]))}
+  const original=Object.fromEntries(projectionFields.map(field=>{read(fields,row,field);return[field,baseline[field]]}))
+  return {id,patch,creating,deleting,computed,row:original,effective:{...original,...effective}}
  })
- const selected=projected.filter(item=>item.creating||Object.keys(item.patch).length>0)
+ const selected=projected.filter(item=>item.creating||item.deleting||Object.keys(item.patch).length>0)
  const affected=nodes.rows.filter(row=>read(nodes,row,'workflow_id')===workflowId&&['query','copy'].includes(String(read(nodes,row,'node_type')))&&read(nodes,row,'node_config')===modelId)
  const nodeIds=affected.map(row=>{
   const id=nodes.getPkKey(row);if(typeof id!=='string')throw Error('查询节点正式身份缺失')
@@ -57,11 +65,16 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  if(!selected.length&&!pendingOutputs&&!modelChanged)return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:[]}]})
  const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.effective['ValueFun'])
  if(action==='save'&&(values.length||Object.hasOwn(modelPatch,'Filter')))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(modelPatch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}: {}})
- const structural=selected.some(item=>Object.hasOwn(item.patch,'AsName')||Object.hasOwn(item.patch,'IsOutput'))
+ const structural=(item:typeof projected[number])=>item.deleting||['Name','AsName','IsOutput'].some(key=>Object.hasOwn(item.patch,key))
+ const draft=workflowQueryDraftSignature([fields,nodes,models,edges])
+ if(action==='save')await assertWorkflowFieldStructureChanges(dataSet,workflowId,nodeId,selected.filter(item=>!item.creating&&item.computed&&(item.deleting
+  ||['Name','AsName'].some(key=>Object.hasOwn(item.patch,key))||Number(item.row['IsOutput'])===1&&Number(item.effective['IsOutput'])!==1)).map(item=>({before:item.row,...item.deleting?{}:{after:item.effective}})))
+ if(action==='save'&&workflowQueryDraftSignature([fields,nodes,models,edges])!==draft)throw Error('查询配置草稿已变化；保留当前修改，未提交旧派生结果')
+ const uncheckedStructural=selected.some(item=>structural(item)&&!item.computed)
  const outputs=affected.flatMap(row=>{
   const id=String(nodes.getPkKey(row)),original=read(nodes,row,'output_mapping')
   const next=buildWorkflowQueryOutput({workflowId,modelId,fields:projected.map(item=>item.effective),original})
-  if(action==='save'&&structural&&edges.rows.some(edge=>read(edges,edge,'sourceID')===id)){
+  if(action==='save'&&uncheckedStructural&&edges.rows.some(edge=>read(edges,edge,'sourceID')===id)){
    const previous=typeof original==='string'?parseJsonDocument(original):original
    const retained=Array.isArray(previous)&&previous.every(entry=>entry!==null&&typeof entry==='object'&&next.some(candidate=>
     ['rowid','pid','Name','FieldType','isParent'].every(key=>candidate[key]===(entry as Record<string,unknown>)[key])))

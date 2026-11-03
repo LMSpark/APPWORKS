@@ -1,0 +1,65 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/query-field-references",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/query-field-references",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-references\n职责：显式计算字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。\n边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Change": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Change",
+      "properties": {
+        "before": {
+          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "after": {
+          "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        }
+      },
+      "required": [
+        "before"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-03T01:14:06.934Z",
+  "models": {
+    "Change": {
+      "name": "Change",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    before: DataRow;\n    after?: DataRow;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    before: DataRow;\n    after?: DataRow;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "before",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

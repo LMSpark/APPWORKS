@@ -4,6 +4,14 @@
  * 边界：不复制行、权限或编辑状态；仅字段视图计入原生待新增/删除数量。
  */
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
+import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
+/** 捕获原视图的身份集合和原生delta；异步检查不允许把迟到覆盖夹带进旧派生结果。 */
+export function workflowQueryDraftSignature(views:readonly DataView[]):string{
+ return JSON.stringify(views.map(view=>{
+  const ids=[...new Set([...view.rows.map(row=>view.getPkKey(row)),...view.dirtyTracking.pendingDeleteIds].map(id=>{if(typeof id!=='string')throw Error('查询配置记录身份缺失');return id}))].sort()
+  return [view.tableName,view.viewId,view.queryContext,definitionTargetDraftSignature(view,ids)]
+ }))
+}
 export function readWorkflowFieldValue(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`查询字段配置不可读: ${field}`)
  return row[field]

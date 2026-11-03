@@ -32,6 +32,80 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it.each(['remove','save'])('preserves late field edits while async structure checks run: %s',async action=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  http.records['Base_DataModel_Field']=[{rowid:'C',dataSetId:'W1',dataModelId:'M1',type:'dataModel',FieldType:'计算字段',Name:'oldName',AsName:'',description:'',IsPKey:0,IsOutput:1,ValueFun:'',Expression:'',allowAIAdd:0}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  let release=()=>{},entered=()=>{}
+  const gate=new Promise<void>(resolve=>{release=resolve}),waiting=new Promise<void>(resolve=>{entered=resolve})
+  http.interceptors.request.use({onRequest:async request=>{
+   const body=request.data as {Table?:Array<{Name?:string}>}|undefined
+   if(request.url==='/api/DataOperation/GetData'&&body?.Table?.[0]?.Name==='Base_DataModel_Relation'){entered();await gate}
+   return request
+  }})
+  if(action==='save')fields.updateEditingValue('C','Name','firstName')
+  const running=action==='remove'?WorkflowComputedFields.remove(ds,'W1','N1','C'):saveWorkflowQueryFields(ds,'W1','N1')
+  const rejected=expect(running).rejects.toThrow('变化')
+  await waiting;fields.updateEditingValue('C',action==='remove'?'description':'Name','lateEdit');release();await rejected
+  expect(fields.getEditingRow('C')?.[action==='remove'?'description':'Name']).toBe('lateEdit')
+  expect(fields.dirtyTracking.pendingDeleteIds.size).toBe(0);expect(http.saves).toHaveLength(0)
+  expect(nodes.hasEditingChanges('N1')).toBe(false)
+ })
+ it('renames a confirmed computed field from the original dirty baseline and keeps its output identity',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  http.records['Base_DataModel_Field']=[{rowid:'C',dataSetId:'W1',dataModelId:'M1',type:'dataModel',FieldType:'计算字段',Name:'oldName',AsName:'',description:'',IsPKey:0,IsOutput:1,ValueFun:'',Expression:'',allowAIAdd:0}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('C','Name','newName');await WorkflowComputedFields.confirm(ds,'W1','N1','C')
+  expect(fields.rows[0]?.['Name']).toBe('newName');expect(http.saves).toHaveLength(0)
+  await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.records['Base_DataModel_Field']![0]).toMatchObject({rowid:'C',Name:'newName'})
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toContainEqual(expect.objectContaining({rowid:'C',Name:'newName'}))
+ })
+ it('rejects deleting a computed field with a downstream parameter reference, ignores matching constant text, and cancels or saves the original deletion with output synchronization',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_DataModel']!.push({rowid:'M4',dataSetId:'W1',Name:'Downstream'})
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:JSON.stringify([
+   {rowid:'ROOT',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:'C',pid:'ROOT',Name:'calc',FieldType:'计算字段',isParent:false}])},
+   {rowid:'N4',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M4',output_mapping:'[]'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'EDGE',workflow_id:'W1',sourceID:'N1',targetID:'N4'}]
+  http.records['Base_DataModel_Field']=[{rowid:'C',dataSetId:'W1',dataModelId:'M1',type:'dataModel',FieldType:'计算字段',Name:'calc',AsName:'',description:'',IsPKey:0,IsOutput:1,ValueFun:'',Expression:'',allowAIAdd:0},
+   {rowid:'INPUT',dataSetId:'W1',dataModelId:'M4',type:'inputParams',Name:'request',ValueFun:JSON.stringify({Type:'GetInputParam',ParamName:'N1.calc'})}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};fields.filterExpression={field:'dataModelId',operator:'eq',value:'M1'}
+  await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  await expect(WorkflowComputedFields.remove(ds,'W1','N1','C')).rejects.toThrow('INPUT')
+  expect(fields.dirtyTracking.pendingDeleteIds.size).toBe(0);expect(http.saves).toHaveLength(0)
+  http.records['Base_DataModel_Field']![1]!['ValueFun']=JSON.stringify({Type:'GetTableField',Field:'calc'})
+  await expect(WorkflowComputedFields.remove(ds,'W1','N1','C')).rejects.toThrow('GetTableField')
+  http.records['Base_DataModel_Field']![1]!['ValueFun']=JSON.stringify({Type:'GetConstValue',Value:{Type:'GetInputParam',ParamName:'N1.calc'}})
+  http.records['Base_DataSet']![0]!['inputParams']=JSON.stringify([{Name:'legacy',ValueFun:{Type:'GetInputParam',ParamName:'N1.calc'}}])
+  await expect(WorkflowComputedFields.remove(ds,'W1','N1','C')).rejects.toThrow('inputParams')
+  http.records['Base_DataSet']![0]!['inputParams']='[]'
+  http.records['Base_DataModel_Field']![0]!['Name']='changed-concurrently'
+  await expect(WorkflowComputedFields.remove(ds,'W1','N1','C')).rejects.toThrow('变化')
+  http.records['Base_DataModel_Field']![0]!['Name']='calc'
+  http.denyDelete.add('Base_DataModel_Field')
+  await expect(WorkflowComputedFields.remove(ds,'W1','N1','C')).rejects.toThrow('权限')
+  http.denyDelete.clear()
+  await WorkflowComputedFields.remove(ds,'W1','N1','C')
+  expect(fields.dirtyTracking.pendingDeleteIds.has('C')).toBe(true)
+  await cancelWorkflowQueryFields(ds,'W1','N1');expect(fields.rows[0]?.['rowid']).toBe('C');expect(http.saves).toHaveLength(0)
+  await WorkflowComputedFields.remove(ds,'W1','N1','C');await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.records['Base_DataModel_Field']!.map(row=>row['rowid'])).toEqual(['INPUT'])
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toEqual([
+   expect.objectContaining({rowid:'ROOT',Name:'items'}),expect.objectContaining({rowid:'COUNT',Name:'Count'})])
+ })
+ it('keeps an unfinished computed dialog row in the original view and rejects saving until its required name is valid',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  const id=await WorkflowComputedFields.begin(ds,'W1','N1')
+  expect(fields.rows[0]).toMatchObject({rowid:id,Name:'',FieldType:'计算字段',IsOutput:0})
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('名称')
+  expect(http.saves).toHaveLength(0)
+  await cancelWorkflowQueryFields(ds,'W1','N1');expect(fields.rows).toHaveLength(0)
+ })
  it('stages a computed field in the original query view, cancels without writes, and saves its output with a stable native identity',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:'[]'}]

@@ -20,6 +20,8 @@
         :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('execution.'+key,value)" />
       <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId"
         :disabled="locked || (hasPending && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
+      <WorkflowQuerySourceEdit v-if="dataSet" :key="loadedTarget" ref="querySourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :revision="revision"
+        :eligible="selectedKind === 'node' && isQueryNode && validModel && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" :on-saved="queryNodeCreated" @pending-change="value=>pending('source.query',value)" />
       <WorkflowNodeRemove v-if="dataSet" :key="loadedTarget" ref="nodeRemoveApi" :data-set="dataSet" :workflow-id="workflowId"
         :node-id="selectedQueryId" :eligible="selectedKind === 'node' && isQueryNode && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
       <div>
@@ -131,6 +133,7 @@ import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
+import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
 import WorkflowNodeRemove from './workflow-node-remove.vue'
 import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
 import WorkflowExecutionPanel from './workflow-execution-panel.vue'
@@ -146,6 +149,7 @@ const conditionKey=buildDataViewKey(relationsTable,'connector',scene),conditionV
 const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),childRelationsKey=buildDataViewKey(relationsTable,'asChild',scene)
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
 const queryCreateApi=ref<InstanceType<typeof WorkflowQueryNodeCreate>>()
+const querySourceApi=ref<InstanceType<typeof WorkflowQuerySourceEdit>>()
 const nodeRemoveApi=ref<InstanceType<typeof WorkflowNodeRemove>>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
 const dataSet=shallowRef<DataSet>(),opening=ref(false),ready=ref(false),acting=ref(false),error=ref(''),revision=ref(0),selectedKind=ref<'node'|'edge'>(),inputs=ref(new Set<string>()),loadedTarget=ref('')
@@ -157,7 +161,7 @@ const missing=computed(()=>ready.value&&!validTarget.value)
 const loading=computed(()=>{revision.value;return opening.value||views.value.some(v=>v.requestState===RequestState.Preparing||v.requestState===RequestState.Loading)})
 const busy=computed(()=>acting.value||loading.value||inputs.value.has('execution.running'))
 const unconfirmed=computed(()=>{revision.value;return views.value.some(v=>v.hasUnconfirmedSave)})
-const locked=computed(()=>busy.value||unconfirmed.value||inputs.value.has('remove.node')||loadedTarget.value!==workflowId.value)
+const locked=computed(()=>busy.value||unconfirmed.value||inputs.value.has('remove.node')||inputs.value.has('source.query')||loadedTarget.value!==workflowId.value)
 const hasPending=computed(()=>{revision.value;return acting.value||inputs.value.size>0||views.value.some(v=>v.hasUnconfirmedSave||v.hasEditingChanges()||v.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty(){return opening.value||hasPending.value}})
 const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.currentRow})
@@ -373,7 +377,7 @@ function writeLayout(nodes:ReadonlyArray<Readonly<{id:string|number;x:number;y:n
 function moveLayout(event:SparkComponent.GraphNodeMove):void{try{writeLayout([event],event.edges);error.value=''}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function arrangeLayout(event:SparkComponent.GraphArrange):void{try{writeLayout(event.nodes,event.edges);error.value=''}catch(cause){event.control.cancel=true;error.value=cause instanceof Error?cause.message:String(cause)}}
 function cancel(table:string):void{if(busy.value||unconfirmed.value)return;try{view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{if(nodeRemoveApi.value&&!nodeRemoveApi.value.discardChanges())return false;if(queryCreateApi.value&&!queryCreateApi.value.discardChanges())return false;for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
+function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{if(querySourceApi.value&&!querySourceApi.value.discardChanges())return false;if(nodeRemoveApi.value&&!nodeRemoveApi.value.discardChanges())return false;if(queryCreateApi.value&&!queryCreateApi.value.discardChanges())return false;for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
 onBeforeUnmount(()=>{active=false;generation++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
 </script>
 <style scoped>

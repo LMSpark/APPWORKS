@@ -149,14 +149,14 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
       <RendererButton v-if="workspaceActions" data-action="cancel-create" :disabled="blocked" @click="discard" label="取消选择" />
       </template>
     <template v-if="unresolved">
-      <p v-if="state.data?.status === 'configuration'" role="alert">数据库定义已确认，视图配置尚未完整确认。继续核验只接续配置阶段，不会重复提交数据库。</p>
+      <p v-if="state.data?.status === 'configuration'" role="alert">数据库定义已确认，{{ configurationLabel ?? '视图配置' }}尚未完整确认。继续核验只接续配置阶段，不会重复提交数据库。</p>
       <p v-else-if="modelId && state.data && 'abandonNotApplied' in state.data && state.data.abandonNotApplied" role="alert">原数据库批次已确认未生效。可明确放弃本次来源意图；该操作只清理原批次目标，不会改写数据库或视图配置。</p>
       <p v-else-if="modelId" role="alert">{{ synchronizing ? '字段同步' : '来源替换' }}尚未完整确认。核验原批次会保留本地修改；未知或不完整回执不能采用当前正式结果。</p>
       <p v-else-if="state.data && 'canDiscardLocalChanges' in state.data && state.data.canDiscardLocalChanges" role="alert">数据库新增批次已完整确认，但模型或字段目标仍有后续本地修改。默认核验会保留修改；只有明确放弃这些原目标修改后才继续正式回读。</p>
       <p v-else role="alert">{{ synchronizing ? '字段同步' : '新增' }}尚未完整确认。核验会检查原SPARK批次并保留模型与字段本地修改，不会重放数据库写入；确认后如仍有后续修改，可单独明确放弃再继续回读。</p>
       <ul><li v-for="item in state.data?.verification ?? []" :key="`${item.table}:${item.id}`">{{ item.table }} · {{ item.id }}：{{ item.result }}</li></ul>
       <div class="actions">
-        <RendererButton data-action="verify-create" :disabled="busy || disabled" @click="verify" :label="state.data?.status === 'configuration' ? '继续核验视图配置' : modelId ? '核验原来源批次（保留本地修改）' : '核验原模型及字段批次（保留本地修改）'" />
+        <RendererButton data-action="verify-create" :disabled="busy || disabled" @click="verify" :label="state.data?.status === 'configuration' ? `继续核验${configurationLabel ?? '视图配置'}` : modelId ? '核验原来源批次（保留本地修改）' : '核验原模型及字段批次（保留本地修改）'" />
         <RendererButton v-if="!modelId && state.data && 'canAbandonNotApplied' in state.data && state.data.canAbandonNotApplied" data-action="abandon-not-applied-create" :disabled="busy || disabled" @click="abandonNotAppliedCreate" label="放弃未生效的本次新增" />
         <RendererButton v-if="!modelId && state.data && 'canDiscardLocalChanges' in state.data && state.data.canDiscardLocalChanges" data-action="discard-confirmed-create-edits" :disabled="busy || disabled" @click="discardConfirmedCreateEdits" label="放弃模型及字段后续修改并继续核验" />
         <RendererButton v-if="modelId && state.data && 'discardRecovered' in state.data && state.data.discardRecovered" data-action="discard-source-recovery" :disabled="busy || disabled" @click="discardRecovered" label="放弃本地新修改并继续核验" />

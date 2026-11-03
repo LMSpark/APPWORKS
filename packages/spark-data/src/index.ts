@@ -24,7 +24,7 @@ export { SparkData } from './spark-data'
 
 // ===== 核心类（框架层必要直接引用）=====
 
-export { DataSet } from './dataset'
+export { DataSet, DataSetSavePreflightError } from './dataset'
 export { DataTable } from './data-table'
 export { DataView, type DataViewNewRowIdentity, type DataViewChildRowInput } from './data-view'
 export type {DataViewSourceHistoryStatus, DataViewSourceHistoryAttempt, DataViewSourceVersion, DataViewSourceWriteAttemptStatus} from './query/data-view-source'

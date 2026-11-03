@@ -15,17 +15,18 @@ function filter(value:unknown){
  return DataViewFilterCodec.parseStored(value)
 }
 /** 只在删除、改名或撤销已有输出时调用；每次重新读取正式依赖，不保存权限或引用快照。 */
-export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workflowId:string,nodeId:string,changes:readonly Change[]):Promise<void>{
+export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workflowId:string,nodeId:string,changes:readonly Change[],options:Readonly<{scope?:'model'|'node-output'}>={}):Promise<void>{
  if(!changes.length)return
  const initial=workflowQueryFieldScope(dataSet,workflowId,nodeId),{nodes,fields,models,edges,modelId}=initial
  const contexts=JSON.stringify([nodes.queryContext,fields.queryContext,models.queryContext,edges.queryContext])
  const draft=workflowQueryDraftSignature([nodes,fields,models,edges])
- const consumers=nodes.rows.filter(row=>read(nodes,row,'node_config')===modelId&&['query','copy'].includes(String(read(nodes,row,'node_type')))).map(row=>String(nodes.getPkKey(row)))
+ const nodeOutputOnly=options.scope==='node-output'
+ const consumers=nodeOutputOnly?[nodeId]:nodes.rows.filter(row=>read(nodes,row,'node_config')===modelId&&['query','copy'].includes(String(read(nodes,row,'node_type')))).map(row=>String(nodes.getPkKey(row)))
  const references=new Set<string>(),removedIds=new Set(changes.filter(change=>!change.after).map(change=>String(change.before['rowid'])))
  const affected=changes.map(change=>({id:String(change.before['rowid']),name:String(change.before['Name']),
-  checkName:!change.after||change.before['Name']!==change.after['Name'],
-  outputName:output(change.before),checkOutput:!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1,
-  params:new Set(!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1
+  checkName:!nodeOutputOnly&&(!change.after||change.before['Name']!==change.after['Name']),
+  outputName:output(change.before),checkOutput:!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1||nodeOutputOnly&&change.before['FieldType']!==change.after['FieldType'],
+  params:new Set(!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1||nodeOutputOnly&&change.before['FieldType']!==change.after['FieldType']
    ?consumers.map(id=>`${id}.${output(change.before)}`):[])}))
  const views:DataView[]=[]
  function guard():void{
@@ -38,7 +39,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   if(Array.isArray(value)){value.forEach((child,index)=>visit(child,`${location}[${index}]`,fieldNames));return}
   if(!isRecord(value))return
   if(value['Type']==='GetConstValue')return
-  if(value['Type']==='GetTableField')throw Error(`GetTableField关联字段引用合同尚未核定: ${location}`)
+  if(value['Type']==='GetTableField'&&!nodeOutputOnly)throw Error(`GetTableField关联字段引用合同尚未核定: ${location}`)
   if(value['Type']==='GetInputParam'){
    if(affected.some(change=>change.params.has(String(value['ParamName']))))references.add(location)
    return
@@ -68,7 +69,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
  try{
   guard()
   const results=await Promise.allSettled([
-   query('Base_DataModel',['rowid','dataSetId','Filter']),
+   query('Base_DataModel',['rowid','dataSetId','Filter','JoinFilter']),
    query('Base_DataModel_Field',['rowid','dataSetId','dataModelId','Name','AsName','FieldType','IsPKey','IsOutput','ValueFun']),
    query('Base_DataModel_Relation',['rowid','dataSetId','parentModId','childModId','filter']),
    query('Base_DataSet',['rowid','Type','inputParams']),
@@ -78,14 +79,14 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   for(const change of changes){
    const matches=fieldView?.rows.filter(row=>row['rowid']===change.before['rowid'])??[],row=matches[0]
    if(!fieldView||matches.length!==1||!row||['dataSetId','dataModelId','Name','AsName','FieldType','IsPKey','IsOutput'].some(key=>read(fieldView,row,key)!==change.before[key]))throw Error('正式字段已变化，请重新读取后处理结构修改')
-   if(!change.after?fieldView.deleteActionState(row)!=='enabled':['Name','AsName','IsOutput'].some(key=>change.before[key]!==change.after?.[key]&&fieldView.fieldAccess(row,key).write!=='allowed'))throw Error('当前正式查询不再允许该字段结构操作：权限已变化')
+   if(!nodeOutputOnly&&(!change.after?fieldView.deleteActionState(row)!=='enabled':['Name','AsName','IsOutput'].some(key=>change.before[key]!==change.after?.[key]&&fieldView.fieldAccess(row,key).write!=='allowed')))throw Error('当前正式查询不再允许该字段结构操作：权限已变化')
   }
   for(const view of views)for(const row of view.rows){
    const id=String(view.getPkKey(row)),location=`${view.tableName}[${id}]`
    if(view.tableName==='Base_DataModel'){
-    const parsed=filter(read(view,row,'Filter'));if(parsed)visit(parsed.toJSON(),`${location}.Filter`,new Set(id===modelId?affected.filter(change=>change.checkName).map(change=>change.name):[]))
+    for(const key of ['Filter','JoinFilter']){const parsed=filter(read(view,row,key));if(parsed)visit(parsed.toJSON(),`${location}.${key}`,new Set(id===modelId?affected.filter(change=>change.checkName).map(change=>change.name):[]))}
    }else if(view.tableName==='Base_DataModel_Field'){
-    if(!removedIds.has(id))visit(document(read(view,row,'ValueFun')),`${location}.ValueFun`)
+    if(nodeOutputOnly||!removedIds.has(id))visit(document(read(view,row,'ValueFun')),`${location}.ValueFun`)
    }else if(view.tableName==='Base_DataSet')visit(document(read(view,row,'inputParams')),`${location}.inputParams`)
    else{
     const source=read(view,row,'parentModId'),parsed=filter(read(view,row,'filter'))

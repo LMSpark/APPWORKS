@@ -1,0 +1,336 @@
+{
+  "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+  "firstAttempt": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "sourceModelId": "2F264852340D4641727ECA886061E316",
+    "modelName": "SMOKE_DATA_CHAIN_ISOLATED_A_EF1D343B",
+    "phase": "not-applied-native-preflight",
+    "createdAt": "2026-11-03T08:16:10.214Z",
+    "scope": {
+      "model": 1,
+      "fields": 30,
+      "nodeRebind": false,
+      "execution": false
+    },
+    "unknown": "stop and verify original owner; never replay creation",
+    "error": "DATA_VIEW_SAVE_VALIDATION: Base_DataModel.DISTINCT expected string",
+    "formalScopeUnchanged": true,
+    "serverCreatedModels": 0,
+    "serverCreatedFields": 0,
+    "originalOwnerRecovery": "not tested: HMR rebuilt host",
+    "doNotReplay": true
+  },
+  "creation": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "sourceModelId": "2F264852340D4641727ECA886061E316",
+    "modelName": "SMOKE_DATA_CHAIN_ISOLATED_A_V2_EF1D343B",
+    "phase": "confirmed",
+    "createdAt": "2026-11-03T08:40:38.180Z",
+    "priorCreation": "not-applied-native-preflight; complete original workflow scope unchanged",
+    "metadataTypes": "4 native integer declarations repaired and independently confirmed",
+    "scope": {
+      "model": 1,
+      "fields": 30,
+      "nodeRebind": false,
+      "execution": false
+    },
+    "unknown": "verify the same original owner, never replay",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "fieldIds": [
+      {
+        "from": "0CF264A4B6A739A24F5AA821923D303C",
+        "to": "F51050C3DDCC092D7296C2BE8558AF18"
+      },
+      {
+        "from": "18F42A05FBC55CD99E9121E41C321B53",
+        "to": "CF2E131A8C27596073201DE61161F2D6"
+      },
+      {
+        "from": "227914F5E281705046D7F99F55B75522",
+        "to": "58C134526063FAB1332451DAD621131F"
+      },
+      {
+        "from": "25E8F69289D18667AC9AAC153CBCBF03",
+        "to": "BB043B501B44D4CFA37E14FC8B09DDB4"
+      },
+      {
+        "from": "3ABBB9724E8CF8CAB83C460EB11EB053",
+        "to": "128DB954EF0723C66E2F314ADA03E4D7"
+      },
+      {
+        "from": "3C39DD44A719D411AB0F8823826AE853",
+        "to": "071B65FA82948DDBC91BF27AEC3ACCC7"
+      },
+      {
+        "from": "3DC92B77C87D56D8E1FD8A8F0B050C17",
+        "to": "1CE5EDD6FF84DC256BBE99A458B0E097"
+      },
+      {
+        "from": "3E8176719B2F239600F90B81AE91DB13",
+        "to": "EB061E643DD88C316C48CDBA2B4EE21D"
+      },
+      {
+        "from": "3F97AB7B0C6E0ABE6F9D121648A52590",
+        "to": "0AFF7736F56E1C14F88BBA56BE8B674C"
+      },
+      {
+        "from": "40F28D9C83BA399682C8946A0324FEC2",
+        "to": "C8F533BB1672E7A73705FD4070B9D49E"
+      },
+      {
+        "from": "411D8DFEFA03A70AC96867F685C1503A",
+        "to": "D85D76912D473B007445F9D86FB6BD9F"
+      },
+      {
+        "from": "43AD45F52B866C625579A6207B3F1859",
+        "to": "95C603356267665A2772360946B499EA"
+      },
+      {
+        "from": "4960F753D997378652F89120FCB8A122",
+        "to": "26E4D67FE570251742303A620ED52E36"
+      },
+      {
+        "from": "67785A464D993CAC7894F82EAF27407D",
+        "to": "E0135E7245644E306673CD41D0E7EAF3"
+      },
+      {
+        "from": "7104AB68BD8DAC075C88A783476D5456",
+        "to": "58D21FCF026A6ABADEFC2AC5948D44BD"
+      },
+      {
+        "from": "73B2DA99B4278B5DBD6FD878DD19BBD1",
+        "to": "CB4FC8CB53685E30EC3E093FAE31CBF0"
+      },
+      {
+        "from": "7A076DC21D0B86CDEB43A4CFA307E3DB",
+        "to": "997D861BA9B6559BBDB098696AF6D5EE"
+      },
+      {
+        "from": "8190349A902D7EFD951BF6A06BB5BCF1",
+        "to": "23CBE37B478F078CC49DAF716FD481D8"
+      },
+      {
+        "from": "884B3DFFB7C01FEFC89A5143A3F72DCC",
+        "to": "37D3EB08147EBE036B764491811F5F7C"
+      },
+      {
+        "from": "8E90622FA7A80D159374D08F4F075833",
+        "to": "4A6CF16CAD665EC653CD2C45E3780C7B"
+      },
+      {
+        "from": "9179D72B31A0EA627A950032B6B0F2E1",
+        "to": "01ADD306F8EFAF16C765613AA27605F8"
+      },
+      {
+        "from": "96DF23C4454BEDEB8CBBF42E754B4563",
+        "to": "A70CA91F0203071210B26D12BFFAC417"
+      },
+      {
+        "from": "9BD4E248026218B85BFF18B83E1BE1EC",
+        "to": "8F4ECB93B763F1F7E0D09D9CE22E15CD"
+      },
+      {
+        "from": "B5D1F32BBBD501786B6EFF81EF59B5D3",
+        "to": "A1E7A5A45F71B3284BB27C09E8D4A71A"
+      },
+      {
+        "from": "B8B6810E0753CBEB541BBA1434AFE4C8",
+        "to": "95CF6871D75DCEDDF2A3200CC88F703E"
+      },
+      {
+        "from": "BB1703AF06977CDF7608B92158C4A659",
+        "to": "E4724038AC7334BD0CA90121A28C15E6"
+      },
+      {
+        "from": "BD091BF774EA608338198423AFC4E930",
+        "to": "D9D629C568BF853BF470D51260DBD2EA"
+      },
+      {
+        "from": "D92510FFF757625A12490BE4AB60512F",
+        "to": "A61361A90DFB3A3819B82A9AD5617496"
+      },
+      {
+        "from": "E119029A7081FE822049FB4EFA0BFA2E",
+        "to": "DCECC3537392B2863EF44E8B33DA23F4"
+      },
+      {
+        "from": "FF4CF9C7F96F0AED07C6FFE589A85C27",
+        "to": "8E7E1A253F419BA9A94F274CC2BCA426"
+      }
+    ],
+    "nodeNotRebound": true,
+    "originalProjectionPreserved": true,
+    "retainedDefinitions": 71
+  },
+  "binding": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "fromModelId": "2F264852340D4641727ECA886061E316",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "phase": "confirmed",
+    "sourceOperation": "synchronize-current",
+    "preview": {
+      "additions": 0,
+      "removals": 0,
+      "all30FieldDefinitionsPreserved": true
+    },
+    "scope": {
+      "nodeFields": [
+        "node_config",
+        "output_mapping"
+      ],
+      "sourceDataExpectedWrites": 0,
+      "execute": false
+    },
+    "beforeSnapshotSHA256": "89b46fb4837c1cca16f5d4005962e99e22a5d8f14320cfedf1e281781a1fd41a",
+    "unknown": "retain and verify original node capture; do not replay source or fork",
+    "exactPublishedReadback": true,
+    "preservedProjection": {
+      "Base_DataModel": 37,
+      "Base_DataModel_Field": 27,
+      "Base_WorkflowNodeDefinition": 12
+    },
+    "changedNodeFields": [
+      "node_config",
+      "output_mapping"
+    ],
+    "retainedDefinitions": 71,
+    "execute": false
+  },
+  "firstExecution": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "phase": "confirmed",
+    "mode": "node",
+    "input": {},
+    "expected": {
+      "status": "SUCCESS",
+      "returnedRows": 1,
+      "allowedRowIds": [
+        "227914F5E281705046D7F99F55B75522",
+        "58C134526063FAB1332451DAD621131F"
+      ],
+      "Name": "IsOutput",
+      "tenant": "NewApp"
+    },
+    "scope": "query node only; PageParam 1/1; source table now includes both original and copied field definition",
+    "noReplay": true,
+    "result": {
+      "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+      "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0.385,
+      "count": 1,
+      "output": [
+        {
+          "lingma_sys_ent": "NewApp",
+          "rowid": "227914F5E281705046D7F99F55B75522",
+          "Name": "IsOutput"
+        }
+      ]
+    },
+    "outcome": "success",
+    "completeness": "complete",
+    "evidence": "visible browser WorkflowExecutionResource/DataSet receipt",
+    "businessTotalCountClaim": false,
+    "definitionsUnchanged": true
+  },
+  "isolatedFilter": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "phase": "confirmed",
+    "field": "Filter",
+    "from": {
+      "field": "Name",
+      "value": "IsOutput"
+    },
+    "to": {
+      "field": "Name",
+      "value": "Name"
+    },
+    "otherCondition": "dataSetId equals same retained workflow",
+    "cancelIndependentReadback": true,
+    "scope": "only isolated model Filter; original shared model/fields/nodes preserved; no execution",
+    "changedFields": [
+      "Filter",
+      "updatetime"
+    ],
+    "othersPreserved": true,
+    "storedFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"dataSetId\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"10335E6A43E44DA09F27C560EF1D343B\"}},{\"Type\":\"cond\",\"Field\":\"Name\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"Name\"}}]}"
+  },
+  "isolatedA": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "phase": "confirmed",
+    "mode": "node",
+    "expected": {
+      "status": "SUCCESS",
+      "Name": "Name",
+      "count": 1,
+      "allowedRowIds": [
+        "411D8DFEFA03A70AC96867F685C1503A",
+        "D85D76912D473B007445F9D86FB6BD9F"
+      ]
+    },
+    "input": {},
+    "noReplay": true,
+    "result": {
+      "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+      "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0.427,
+      "count": 1,
+      "output": [
+        {
+          "lingma_sys_ent": "NewApp",
+          "rowid": "411D8DFEFA03A70AC96867F685C1503A",
+          "Name": "Name"
+        }
+      ]
+    }
+  },
+  "originalShared": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "5B747CE390FBF1E6A7282C75C3A863B9",
+    "modelId": "2F264852340D4641727ECA886061E316",
+    "phase": "confirmed",
+    "mode": "node",
+    "expected": {
+      "status": "SUCCESS",
+      "Name": "IsOutput",
+      "count": 1,
+      "allowedRowIds": [
+        "227914F5E281705046D7F99F55B75522",
+        "58C134526063FAB1332451DAD621131F"
+      ]
+    },
+    "input": {},
+    "noReplay": true,
+    "result": {
+      "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+      "nodeId": "5B747CE390FBF1E6A7282C75C3A863B9",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0.382,
+      "count": 1,
+      "output": [
+        {
+          "Name": "IsOutput",
+          "rowid": "227914F5E281705046D7F99F55B75522",
+          "lingma_sys_ent": "NewApp"
+        }
+      ]
+    }
+  },
+  "differentialConsumptionConfirmed": true,
+  "definitionsUnchangedAfterExecution": true,
+  "retainedDefinitions": 71,
+  "scope": "shared isolation and distinguishable per-model consumption; different-source replacement and final cleanup still open"
+}

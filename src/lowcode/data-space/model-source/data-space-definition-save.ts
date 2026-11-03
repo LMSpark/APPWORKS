@@ -4,7 +4,7 @@
  * 边界：不持有业务数据、权限或请求实现；各定义owner负责领域校验，原数据层负责提交回执。
  * AI用途：模型工作区统一保存，所有阶段预检通过后才应用并派发一个批次。
  */
-import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {RequestState,DataSetSavePreflightError,type DataSet,type DataView} from '@spark-appworks/spark-data'
 
 export type DataSpaceDefinitionCapture = Readonly<{
   tableName: string
@@ -101,7 +101,10 @@ export class DataSpaceDefinitionSave {
       })
       const batch: DataSpaceDefinitionCaptureBatch = {targets: capture, verified: false}
       stage = 'dispatched'; parts.forEach(part => part.dispatched(batch))
-      const saved = await first.dataSet.saveChanges({applyEditingRows: false, views})
+      const saved = await first.dataSet.saveChanges({applyEditingRows: false, views}).catch((cause:unknown)=>{
+        if(cause instanceof DataSetSavePreflightError){batch.verified=true;batch.resolution='not-applied';stage='applying'}
+        throw cause
+      })
       try {assertDefinitionReceipt(saved, batch)} catch (cause) {batch.receiptInvalid = true; throw cause}
       batch.verified = true
       batch.resolution = 'confirmed'

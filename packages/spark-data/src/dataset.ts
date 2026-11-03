@@ -22,6 +22,14 @@ import type { HttpClientBase } from '@spark-appworks/spark-utils'
 import { deepClone, Logger, isRecord, SparkAIModel } from '@spark-appworks/spark-utils'
 
 const dsLogger = Logger('DataSet')
+
+/** 本次DataSet提交在派发任何保存前被原生预检拒绝；不表示其他提交或来源已回滚。 */
+export class DataSetSavePreflightError extends Error {
+  constructor(cause: unknown) {
+    super(cause instanceof Error ? cause.message : String(cause), {cause})
+    this.name = 'DataSetSavePreflightError'
+  }
+}
 import {
   commitDataSetSnapshot,
   getDataSetSnapshot,
@@ -1481,21 +1489,27 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     const targets = recovering ? requested.filter(target => target.view.hasUnconfirmedSave) : requested
     if (recovering) options = {...options, applyEditingRows: false}
     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
-    this.assertScenarioSaveTargets(targets, mode, options)
-    if (this.scenarioId !== undefined) {
-      const active = recovering ? [] : targets.filter(target => hasPendingChanges(target.view, target.ids)
-        || ((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids)))
-      const assertPrepared: Array<() => void> = []
-      for (const target of active) {
-        const preparation = target.view.prepareQuerySave({ ...(target.ids === undefined ? {} : { ids: target.ids }),
-          includeEditingRows: options?.applyEditingRows ?? true })
-        if (preparation !== undefined) assertPrepared.push(await preparation)
+    try {
+      this.assertScenarioSaveTargets(targets, mode, options)
+      if (this.scenarioId !== undefined) {
+        const active = recovering ? [] : targets.filter(target => hasPendingChanges(target.view, target.ids)
+          || ((options?.applyEditingRows ?? true) && hasEditingChanges(target.view, target.ids)))
+        const assertPrepared: Array<() => void> = []
+        for (const target of active) {
+          const preparation = target.view.prepareQuerySave({ ...(target.ids === undefined ? {} : { ids: target.ids }),
+            includeEditingRows: options?.applyEditingRows ?? true })
+          if (preparation !== undefined) assertPrepared.push(await preparation)
+        }
+        for (const check of assertPrepared) check()
+        for (const target of active) {
+          target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
+            includeEditingRows: options?.applyEditingRows ?? true })
+        }
       }
-      for (const check of assertPrepared) check()
-      for (const target of active) {
-        target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
-          includeEditingRows: options?.applyEditingRows ?? true })
-      }
+    } catch (cause) {
+      // A failed recovery preflight cannot certify the earlier unknown submission.
+      if (recovering) throw cause
+      throw new DataSetSavePreflightError(cause)
     }
     if (mode === 'transaction') {
       return this.withCascadeSuspended(() => this.saveChangesInTransaction(targets, options))

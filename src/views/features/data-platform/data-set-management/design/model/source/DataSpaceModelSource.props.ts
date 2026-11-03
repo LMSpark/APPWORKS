@@ -9,7 +9,9 @@ import type {LowcodeDataSpaceDesignSession} from '@/lowcode/data-space/view-desi
 /** 来源创建组件的当前会话范围。 */
 export type DataSpaceModelSourceProps = {
   /** 当前目标空间的正式元数据会话。 */
-  session: LowcodeDataSpaceDesignSession
+  session: Pick<LowcodeDataSpaceDesignSession, 'metadataDataSet' | 'getModelCreate' | 'getModelSourceEdit'>
+  /** 来源确认后接续的配置责任，例如工作流节点来源与输出；省略沿用数据空间视图文案。 */
+  configurationLabel?: string
   /** 元数据变更后的呈现修订。 */
   revision: number
   /** 页面忙时收紧交互。 */

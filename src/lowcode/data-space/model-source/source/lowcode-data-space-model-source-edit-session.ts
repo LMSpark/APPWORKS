@@ -535,6 +535,13 @@ function modelSourceEditProjectSourceContract(host: ModelSourceEditHost, preview
     ? DataSpaceDesignApi.resolveSourcePrimaryKey(fields.map(row => ({name: String(row['Name'] ?? ''), primaryKey: Number(row['IsPKey']) === 1}))) : '') : null, after: modelSourceEditProjectSourceModel(host, preview)}
 }
 
+/** 按原owner当前选择重新投影合同；确认类型或参数后的预检不得沿用首次预览快照。 */
+export function modelSourceEditCurrentContract(host: ModelSourceEditHost): SourceContractChange {
+  modelSourceEditAssertOwner(host)
+  if (!host.flow.preview) throw new Error('来源尚无当前预览合同')
+  return modelSourceEditProjectSourceContract(host, host.flow.preview)
+}
+
 /** 确认已有字段的来源合同差异；取消或重新预览会清除确认，不改正式行。 */
 export function modelSourceEditConfirmFieldContract(host: ModelSourceEditHost, input: Readonly<{fieldId: string; accepted: boolean}>) {
   const preview = modelSourceEditSelected(host)

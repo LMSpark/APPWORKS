@@ -1,0 +1,98 @@
+{
+  "workflowDesignScene": "0DD8D28D462F51C5790AA6FBFAE39366",
+  "modelId": "2ce52b10-5aeb-4422-98f7-5da8e05898f0",
+  "physicalSourceTable": "5438CCE06B5F4D21B8110CEBF2565E0F",
+  "physicalAudit": [
+    {
+      "fieldId": "174F435C417B9CE77DE2A7D02D52CF12",
+      "name": "createtime",
+      "formal": "varchar",
+      "physical": "datetime",
+      "valueType": "string"
+    },
+    {
+      "fieldId": "1BEB867F348C5D5D82DFF2FF061E9E28",
+      "name": "items",
+      "formal": "varchar",
+      "physical": "text",
+      "valueType": "object"
+    },
+    {
+      "fieldId": "4AA2AC894208DB778AEDCA4938F525E9",
+      "name": "flowstate",
+      "formal": "varchar",
+      "physical": "int",
+      "valueType": "number"
+    },
+    {
+      "fieldId": "59230B6D625B9412F1BF9C5A86437614",
+      "name": "DISTINCT",
+      "formal": "varchar",
+      "physical": "int",
+      "valueType": "number"
+    },
+    {
+      "fieldId": "AAA501D89F99BED44A89AD5CDDD1301F",
+      "name": "IsBusinessMain",
+      "formal": "varchar",
+      "physical": "int",
+      "valueType": "number"
+    },
+    {
+      "fieldId": "AB70C07E8F5E0414F7F43C341DA2A5EF",
+      "name": "IsBusiness",
+      "formal": "varchar",
+      "physical": "int",
+      "valueType": "number"
+    },
+    {
+      "fieldId": "B3D10DC20D6BF7CE8D3E8250EB162622",
+      "name": "updatetime",
+      "formal": "varchar",
+      "physical": "datetime",
+      "valueType": "string"
+    },
+    {
+      "fieldId": "C8A45DAC6B270372D149AC4400BC71A5",
+      "name": "lingma_sys_is_delete",
+      "formal": "varchar",
+      "physical": "bigint",
+      "valueType": "undefined"
+    }
+  ],
+  "repair": {
+    "phase": "confirmed",
+    "reads": 16,
+    "writes": 1,
+    "targets": [
+      {
+        "id": "4AA2AC894208DB778AEDCA4938F525E9",
+        "name": "flowstate",
+        "from": "varchar",
+        "to": "int"
+      },
+      {
+        "id": "59230B6D625B9412F1BF9C5A86437614",
+        "name": "DISTINCT",
+        "from": "varchar",
+        "to": "int"
+      },
+      {
+        "id": "AAA501D89F99BED44A89AD5CDDD1301F",
+        "name": "IsBusinessMain",
+        "from": "varchar",
+        "to": "int"
+      },
+      {
+        "id": "AB70C07E8F5E0414F7F43C341DA2A5EF",
+        "name": "IsBusiness",
+        "from": "varchar",
+        "to": "int"
+      }
+    ],
+    "allOtherMetadataRowsPreserved": true,
+    "formalReadback": true
+  },
+  "retainedWorkflowUnchanged": true,
+  "backendCodeChanges": false
+}

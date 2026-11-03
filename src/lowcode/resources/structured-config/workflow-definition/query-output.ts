@@ -17,6 +17,21 @@ function mapping(value:unknown):Row[]{
  if(!Array.isArray(parsed)||!parsed.every(isRecord))throw Error('查询输出必须是对象数组')
  return parsed
 }
+function originalParts(previous:Row[],fields:ReadonlyMap<string,Readonly<Row>>){
+ const ids=new Set<string>(),roots=previous.filter(row=>row['pid']===null),items=roots.find(row=>row['Name']==='items'),count=roots.find(row=>row['Name']==='Count')
+ if(previous.length&&(roots.length!==2||!items||!count||items['FieldType']!=='Array'||items['isParent']!==true||count['FieldType']!=='int'||count['isParent']!==false))throw Error('原查询输出根结构无法确认，原文保留')
+ for(const row of previous){const key=text(row['rowid']);if(!key||ids.has(key))throw Error('原查询输出身份缺失或重复');ids.add(key)
+  if(row===items||row===count){if(fields.has(key))throw Error('查询输出根身份与字段冲突');continue}
+  if(row['pid']!==items?.['rowid']||row['isParent']!==false||fields.get(key)?.['type']!=='dataModel')throw Error('原查询输出条目不能归属当前字段，不能自动丢弃')
+ }
+ return{items,count}
+}
+/** 新增候选尚无正式ID时仍须独立核旧输出；不补造候选身份或要求旧字段合同已可运行。 */
+export function assertWorkflowQueryOutputIdentity(input:Readonly<{workflowId:string;modelId:string;fields:ReadonlyArray<Readonly<Row>>;original:unknown}>):void{
+ const fields=new Map<string,Readonly<Row>>()
+ for(const field of input.fields){const key=text(field['rowid']);if(!key||fields.has(key)||field['dataSetId']!==input.workflowId||field['dataModelId']!==input.modelId||!['dataModel','inputParams'].includes(String(field['type'])))throw Error('原查询字段身份或归属无效');fields.set(key,field)}
+ originalParts(mapping(input.original),fields)
+}
 /** 保留既有根与字段ID及未知属性，拒绝无法归属的旧条目；只有正式dataModel输出列进入items。 */
 export function buildWorkflowQueryOutput(input:Input):Row[]{
  if(!input.workflowId.trim()||!input.modelId.trim())throw Error('查询输出缺少工作流或模型身份')
@@ -36,7 +51,7 @@ export function buildWorkflowQueryOutput(input:Input):Row[]{
   if(!text(field['FieldType'])||outputNames.has(outputName))throw Error('查询输出名称或类型缺失或重复')
   outputNames.add(outputName);output.push(field)
  }
- const previous=mapping(input.original),roots=previous.filter(row=>row['pid']===null),previousIds=new Set<string>()
+ const previous=mapping(input.original)
  const oldFields=new Map<string,Readonly<Row>>(),removals=new Set<string>(),mapped=new Map<string,string>(),targets=new Set<string>()
  if(input.transition){
   const transition=input.transition
@@ -50,22 +65,12 @@ export function buildWorkflowQueryOutput(input:Input):Row[]{
    targets.add(key)
   }
  }
- for(const row of previous){
-  const key=text(row['rowid'])
-  if(!key||previousIds.has(key))throw Error('原查询输出身份缺失或重复')
-  previousIds.add(key)
- }
- const items=roots.find(row=>row['Name']==='items'),count=roots.find(row=>row['Name']==='Count')
- if(previous.length&&(roots.length!==2||!items||!count||items['FieldType']!=='Array'||items['isParent']!==true
-  ||count['FieldType']!=='int'||count['isParent']!==false))throw Error('原查询输出根结构无法确认，原文保留')
+ const {items,count}=originalParts(previous,input.transition?oldFields:new Map(input.fields.map(field=>[String(field['rowid']),field])))
  const root:Row=items?{...items}:{rowid:id(),pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true}
  const total:Row=count?{...count}:{rowid:id(),pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false}
  const leaves=new Map<string,Row>()
  for(const row of previous){
   if(row===items||row===count)continue
-  const before=input.transition?oldFields.get(String(row['rowid'])):input.fields.find(field=>field['rowid']===row['rowid'])
-  if(row['pid']!==root['rowid']||row['isParent']!==false
-   ||before?.['type']!=='dataModel')throw Error('原查询输出条目不能归属当前字段，不能自动丢弃')
   const oldId=String(row['rowid']);if(removals.has(oldId))continue
   const target=mapped.get(oldId)??oldId
   if(leaves.has(target))throw Error('原查询输出迁移目标重复')

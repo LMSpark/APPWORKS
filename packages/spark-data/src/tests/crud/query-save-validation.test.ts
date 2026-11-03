@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { DataSet } from '../../dataset'
+import { DataSet, DataSetSavePreflightError } from '../../dataset'
 import { DataView } from '../../data-view'
 import type { DataRow } from '../../types'
 import { DataValidator } from '../../validation/validation'
@@ -55,6 +55,19 @@ async function resourceOwners(beforeDatabaseSave: () => Promise<void> = async ()
 }
 
 describe('formal query-save column validation', () => {
+  it('does not certify an existing unknown batch as not dispatched when recovery options fail preflight', async () => {
+    const f = await resourceOwners(undefined, true)
+    f.orderOwner.save.mockImplementation(async () => {throw new Error('receipt lost')})
+    f.orderOwner.hasUnconfirmedSave.mockReturnValue(true)
+    try {
+      f.orders.updateEditingValue('1', 'title', 'Submitted')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('receipt lost')
+      expect(f.orders.hasUnconfirmedSave).toBe(true)
+      const error = await f.dataSet.saveChanges({mode: 'transaction'}).catch((cause: unknown) => cause)
+      expect(error).toBeInstanceOf(Error);expect(error).not.toBeInstanceOf(DataSetSavePreflightError)
+      expect(f.orders.hasUnconfirmedSave).toBe(true);expect(f.orderOwner.save).toHaveBeenCalledTimes(1)
+    } finally {f.dataSet.destroy()}
+  })
   it.each(['save', 'cancel'] as const)('recovers only an unknown source, then allows the undispatched draft to %s', async action => {
     const f = await resourceOwners(undefined, true), persist = f.orderOwner.save.getMockImplementation()!
     let receipt: Awaited<ReturnType<typeof persist>> | undefined

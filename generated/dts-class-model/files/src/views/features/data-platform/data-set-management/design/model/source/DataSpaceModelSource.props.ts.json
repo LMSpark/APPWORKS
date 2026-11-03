@@ -20,7 +20,30 @@
       "title": "DataSpaceModelSourceProps",
       "properties": {
         "session": {
-          "$ref": "../../../../../../../lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json#/$defs/LowcodeDataSpaceDesignSession"
+          "type": "object",
+          "properties": {
+            "metadataDataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "getModelCreate": {
+              "type": "object",
+              "title": "() => ModelCreateHandle"
+            },
+            "getModelSourceEdit": {
+              "type": "object",
+              "title": "(modelId: string) => ModelSourceEditHandle"
+            }
+          },
+          "required": [
+            "metadataDataSet",
+            "getModelCreate",
+            "getModelSourceEdit"
+          ],
+          "additionalProperties": false
+        },
+        "configurationLabel": {
+          "type": "string"
         },
         "revision": {
           "type": "number"
@@ -54,7 +77,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-13T22:16:57.201Z",
+  "generatedAt": "2026-11-03T07:52:02.051Z",
   "models": {
     "DataSpaceModelSourceProps": {
       "name": "DataSpaceModelSourceProps",
@@ -64,7 +87,7 @@
         "name": "DataSpaceModelSource"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前目标空间的正式元数据会话。 */\n    session: LowcodeDataSpaceDesignSession;\n    /** 元数据变更后的呈现修订。 */\n    revision: number;\n    /** 页面忙时收紧交互。 */\n    disabled?: boolean;\n    /** 在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。 */\n    workspaceActions?: boolean;\n    /** 新增时点击来源“确定”即沿原owner完成校验及提交；失败进入原预览/核验。已有模型替换仍须确认字段差异。 */\n    confirmOnSelection?: boolean;\n    /** 指定已有模型时执行保留字段合同的来源替换；省略时创建模型。 */\n    modelId?: string;\n}",
+        "declarationTypeText": "{\n    /** 当前目标空间的正式元数据会话。 */\n    session: Pick<LowcodeDataSpaceDesignSession, 'metadataDataSet' | 'getModelCreate' | 'getModelSourceEdit'>;\n    /** 来源确认后接续的配置责任，例如工作流节点来源与输出；省略沿用数据空间视图文案。 */\n    configurationLabel?: string;\n    /** 元数据变更后的呈现修订。 */\n    revision: number;\n    /** 页面忙时收紧交互。 */\n    disabled?: boolean;\n    /** 在元模型紧凑工作区显示原操作入口，保留同一绑定和编辑实例。 */\n    workspaceActions?: boolean;\n    /** 新增时点击来源“确定”即沿原owner完成校验及提交；失败进入原预览/核验。已有模型替换仍须确认字段差异。 */\n    confirmOnSelection?: boolean;\n    /** 指定已有模型时执行保留字段合同的来源替换；省略时创建模型。 */\n    modelId?: string;\n}",
         "members": {
           "attributes": [
             {
@@ -72,6 +95,12 @@
               "jsdoc": "当前目标空间的正式元数据会话。",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "configurationLabel",
+              "jsdoc": "来源确认后接续的配置责任，例如工作流节点来源与输出；省略沿用数据空间视图文案。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "revision",

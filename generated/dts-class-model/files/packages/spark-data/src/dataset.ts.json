@@ -10,10 +10,25 @@
     "jsdoc": "@module @spark-appworks/spark-data:dataset\n职责：持有单场景或本地数据表、多视图、资源关系及输入级联，协调订阅和保存。\n边界：场景身份只读，场景保存使用既有查询 owner 且不保证事务，多空间由 PageRuntime 持有。\nAI用途：解析视图、组织级联或保存场景内多个模型时确认数据集的不变量。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
+      "DataSetSavePreflightError",
       "DataSet"
     ]
   },
   "$defs": {
+    "DataSetSavePreflightError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSavePreflightError",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "cause": true
+          },
+          "additionalProperties": false
+        }
+      }
+    },
     "DataSetConfig": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -819,8 +834,35 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T04:32:36.629Z",
+  "generatedAt": "2026-11-03T08:35:43.925Z",
   "models": {
+    "DataSetSavePreflightError": {
+      "name": "DataSetSavePreflightError",
+      "jsdoc": "本次DataSet提交在派发任何保存前被原生预检拒绝；不表示其他提交或来源已回滚。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(cause: unknown)",
+          "parameters": [
+            {
+              "name": "cause",
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {}
+      }
+    },
     "DataSetConfig": {
       "name": "DataSetConfig",
       "jsdoc": "Data Set Config 的配置结构。",

@@ -9,6 +9,7 @@ import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
+import WorkflowSourceEdit from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,dirty:[] as Array<{isDirty:boolean}>,layoutText:null as string|null,uploads:[] as string[],denyLayout:false,loseLayoutReceipt:false}))
@@ -36,6 +37,18 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('keeps the source command mounted when old model views are invalidated, and cancels before creating any records',async()=>{
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'查询订单',node_type:'query',position_type:1,node_config:'M1',output_mapping:'[]'},{rowid:'N2',workflow_id:'W1',name:'共享订单',node_type:'query',position_type:1,node_config:'M1',output_mapping:'[]'}]
+  state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]
+  Object.assign(state.http.records['Base_DataModel']![0]!,{Type:'数据库表',requestType:'query',DbId:'DB',DbName:'database'})
+  Object.assign(state.http.records['Base_DataModel_Field']![0]!,{type:'dataModel',FieldType:'varchar',IsPKey:1,IsOutput:1})
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await f.click('选择模型');await vi.waitFor(()=>expect(document.body.textContent).toContain('共享模型'))
+  const source=f.wrapper.getComponent(WorkflowSourceEdit),ds=source.props('dataSet');ds.getView('Base_DataModel')!.clearAll();await flushPromises()
+  expect(f.wrapper.getComponent(WorkflowSourceEdit).vm.$.uid).toBe(source.vm.$.uid);expect(document.body.textContent).toContain('隔离模型名称')
+  await f.click('取消来源选择');expect(state.http.saves).toHaveLength(0);expect(state.dirty[0]?.isDirty).toBe(false)
+ })
  it('previews, cancels and saves shared query node deletion without unmounting the original command when selection disappears',async()=>{
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'查询',output_mapping:'[]'},{rowid:'N3',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'共享查询',output_mapping:'[]'}]
   state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]

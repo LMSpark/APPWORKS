@@ -993,6 +993,9 @@
           "type": "boolean"
         },
         "resultKind": true,
+        "countReported": {
+          "type": "boolean"
+        },
         "reportedPrimaryKey": {
           "type": "string"
         },
@@ -1656,6 +1659,9 @@
             },
             "pageSize": {
               "type": "number"
+            },
+            "countReported": {
+              "type": "boolean"
             }
           },
           "required": [
@@ -2828,7 +2834,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T15:03:51.043Z",
+  "generatedAt": "2026-11-03T18:46:08.793Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4179,6 +4185,12 @@
               "writable": false
             },
             {
+              "name": "countReported",
+              "jsdoc": "来源是否明确报告总数；false表示未知，undefined表示结果未声明此能力。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "reportedPrimaryKey",
               "jsdoc": "来源报告的实际键，仅作结果信息，不授予实体操作身份。",
               "readable": true,
@@ -5105,7 +5117,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        fields: string[];\n        rows: DataRow[];\n        total: number;\n        page: number;\n        pageSize: number;\n    }"
+                "name": "{\n        fields: string[];\n        rows: DataRow[];\n        total: number;\n        page: number;\n        pageSize: number;\n        countReported?: boolean;\n    }"
               }
             },
             {

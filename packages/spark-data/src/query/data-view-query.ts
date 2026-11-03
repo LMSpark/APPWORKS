@@ -24,7 +24,7 @@ export class DataViewQuery {
    * @returns true表示容器可呈现分页，false表示呈现完整集合。
    */
   static isPaginated(config: NonNullable<ViewMetadata['queryConfig']>): boolean {
-    return config.tree === undefined && config.outputType !== 'SelfRefData' && config.allPages !== true
+    return config.pagination !== 'none' && config.tree === undefined && config.outputType !== 'SelfRefData' && config.allPages !== true
   }
 
   /** 查询配置编辑的常用输出类型候选；不是协议白名单，parse仍保留未列出的扩展类型。 */
@@ -41,8 +41,13 @@ export class DataViewQuery {
 
   /** 校验配置并复制冻结；拒绝未知属性，空对象恢复默认查询。 */
   static parse(input: unknown, path = 'queryConfig'): NonNullable<ViewMetadata['queryConfig']> {
-    const value = this.object(input, ['outputType', 'tree', 'allPages', 'distinct', 'maxRows', 'fields', 'children', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
+    const value = this.object(input, ['outputType', 'tree', 'pagination', 'allPages', 'distinct', 'maxRows', 'fields', 'children', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
     const result: { -readonly [K in keyof NonNullable<ViewMetadata['queryConfig']>]: NonNullable<ViewMetadata['queryConfig']>[K] } = {}
+    if (value['pagination'] !== undefined) {
+      if (value['pagination'] !== 'paged' && value['pagination'] !== 'none') throw new TypeError(`${path}.pagination 只支持 paged 或 none`)
+      result.pagination = value['pagination']
+    }
+    if (value['pagination'] === 'none' && value['allPages'] === true) throw new TypeError(`${path}.pagination none 与 allPages 冲突`)
     if (value['cacheType'] !== undefined) {
       const type = value['cacheType']
       if (type !== 'none' && type !== 'page' && type !== 'browser') throw new TypeError(`${path}.cacheType 只支持 none、page 或 browser`)
@@ -98,7 +103,7 @@ export class DataViewQuery {
 
   /** 从完整请求中只捕获查询配置；分页、过滤、身份等继续使用原请求合同。 */
   static capture(params: QueryParams): NonNullable<ViewMetadata['queryConfig']> {
-    return this.parse({outputType: params.outputType, tree: params.tree, allPages: params.allPages, distinct: params.distinct,
+    return this.parse({pagination: params.pagination, outputType: params.outputType, tree: params.tree, allPages: params.allPages, distinct: params.distinct,
       maxRows: params.maxRows, fields: params.fields, children: params.children, sourceInputMode: params.sourceInputMode})
   }
 

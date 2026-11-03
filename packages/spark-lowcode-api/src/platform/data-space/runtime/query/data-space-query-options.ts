@@ -81,7 +81,7 @@ function viewQuerySort(value: string | undefined, fields: readonly DataSpaceView
 /** DataView 是 GetData 的查询输入；本地组织配置不推导服务器节点或业务身份。 */
 export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): DataSpaceViewQueryCommand {
   const allowed = ['page', 'pageSize', 'sort', 'filter', 'fields', 'viewId', 'viewConfig', 'projection', 'context',
-    'treeMode', 'tree', 'outputType', 'allPages', 'distinct', 'maxRows', 'singleFlight', 'sourceInputMode', 'children']
+    'pagination', 'treeMode', 'tree', 'outputType', 'allPages', 'distinct', 'maxRows', 'singleFlight', 'sourceInputMode', 'children']
   for (const key of Object.keys(params)) {
     if (params[key] !== undefined && !allowed.includes(key)) throw new TypeError(`SPARK DataView 不支持查询参数: ${key}`)
   }
@@ -105,9 +105,10 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
   const filter = filterSource === undefined ? undefined : DataViewFilter.parse(filterSource)
   if (filter !== undefined && !filter.ok) throw new TypeError(filter.issues.map(issue => `${issue.path}: ${issue.message}`).join('\n'))
   const page = { index: params.page ?? view.page, size: params.pageSize ?? view.pageSize }
-  requireDataSpaceQueryPage(page)
+  if (queryConfig.pagination === 'none' && (params.page !== undefined || params.pageSize !== undefined)) throw new TypeError('pagination none 与 page/pageSize 冲突')
+  if (queryConfig.pagination !== 'none') requireDataSpaceQueryPage(page)
   const options: DataSpaceQueryOptions = {
-    ...queryConfig, ...(queryConfig.children === undefined ? {} : {children: bindChildren(queryConfig.children)}), page, fields, sort: viewQuerySort(params.sort, fields),
+    ...queryConfig, ...(queryConfig.children === undefined ? {} : {children: bindChildren(queryConfig.children)}), ...(queryConfig.pagination === 'none' ? {} : {page}), fields, sort: viewQuerySort(params.sort, fields),
     ...(filter?.ok ? { filter: filter.value.bindInputParams(context) } : {}),
     inputParams: Object.entries(context).map(([name, value]) => ({
       name: requireViewText(name, '输入参数名'), value,
@@ -119,6 +120,9 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
 
 /** 原 SPARK 查询输入映射；权限、请求身份与缓存策略不进入 wire 表。 */
 export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): DataSpaceWireQueryOptions {
+  const pagination: unknown = options.pagination
+  if (pagination !== undefined && pagination !== 'paged' && pagination !== 'none') throw new TypeError('pagination 只支持 paged 或 none')
+  if (options.pagination === 'none' && (options.page !== undefined || options.allPages === true)) throw new TypeError('pagination none 与 page/allPages 冲突')
   const children = options.children === undefined ? undefined : DataViewQuery.capture({
     ...(options.outputType === undefined ? {} : {outputType: options.outputType}), children: options.children}).children
   if (options.distinct !== undefined && typeof options.distinct !== 'boolean') throw new TypeError('distinct 必须是布尔值')

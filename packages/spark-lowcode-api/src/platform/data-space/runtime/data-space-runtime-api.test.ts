@@ -515,10 +515,10 @@ describe('DataSpace runtime save owner', () => {
     expect(http.queryRequests).toHaveLength(2)
   })
 
-  it('treats an accepted but unreadable receipt as unconfirmed, verifies without replay and then allows an explicit save', async () => {
+  it.each(['paged', 'none'] as const)('verifies an unreadable receipt without replay then permits an explicit save (pagination=%s)', async pagination => {
     const http = new DataSpaceFixtureHttpClient()
     const api = activeApi(http)
-    const context = await api.dataSpace.runtime.query(identity)
+    const context = await api.dataSpace.runtime.query(identity, {pagination})
     const command = { changes: [{ identity, context, changes: { changed: [{ rowid: 'ROW-1', salary: 120 }] } }] }
     http.saveResult = {}
     await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
@@ -1076,7 +1076,7 @@ describe('DataView original query execution boundary', () => {
       expect(http.saveRequests).toHaveLength(1)
     } finally {ds.destroy()}
   })
-  it.each([false, true])('restores formal aliased primary-key permissions after add (unknown=%s)', async unknown => {
+  it.each([[false, 'paged'], [true, 'paged'], [false, 'none'], [true, 'none']] as const)('restores formal aliased primary-key permissions after add (unknown=%s pagination=%s)', async (unknown, pagination) => {
     const http = new DataSpaceFixtureHttpClient(), {api, ds, view} = connectedView(http)
     try {
       const model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> = {
@@ -1089,6 +1089,7 @@ describe('DataView original query execution boundary', () => {
         ],
       }
       api.dataSpace.runtime.bindModelView(view, model)
+      view.queryConfig = {pagination}
       await view.loadFromServer()
       await view.addRowWithIdentity({field: 'rowid', value: 'ALIASED'}, {salary: 200})
       if (unknown) {

@@ -654,7 +654,9 @@ async executeTransaction<T = DataSetTransactionResponse>(
     params?: QueryParams,
     endpoint?: HttpEndpoint & { pagination?: { pageParam?: string; sizeParam?: string; sortParam?: string } }
   ): Record<string, unknown> {
+    if (params?.pagination === 'none') throw new Error('DATA_VIEW_UNPAGED_UNSUPPORTED: HTTP来源尚未声明无分页与完整集合预算合同')
     const query: Record<string, unknown> = { ...params }
+    delete query['pagination']
 
     if (endpoint?.pagination && params) {
       const { pageParam = 'page', sizeParam = 'size', sortParam = 'sort' } = endpoint.pagination

@@ -5756,3 +5756,18 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 实服进程15044实际exit0，原runtime普通正式元数据查询1读0写，Count已报告、根私有成员未公开、字段读取可见；无新增夹具。嵌套拒收由受控响应测试验证，本轮未新增实服嵌套或浏览器验收。证据2026-11-04-nested-result-boundary.json及同名前缀guides.json。高阶提交前复核未发现新的确定重要问题。
 - 下一连续工位已高阶核对：现有allPages仍要求Count、isPaginated不是无分页合同；须显式设计有界无分页并保留countReported未知语义。随后原查询owner沿声明路径拆出每层独立只读Context，以DataView内部原行引用定位命名子视图，处理父切换/刷新/失效/销毁，不能页面缓存或按主键猜归属；Hierarchy混合模型缺判别仍开放。此为待实现建议，不是已实现事实。
 - 全目标继续active；Foreign空条件服务缺口、LEFT纯ON、完整嵌套消费、子Join聚合、设计器子计划/pagedata重开、剩余整页烟测和全仓门禁均未关闭。
+
+### 2026-11-04 嵌套消费前置：显式无分页（实施中）
+
+- 延续同一嵌套工位，不另起总计划。前一工位已提交推送20e07db2a；本轮新增queryConfig.pagination=paged/none，none不补页参数，明确拒绝页码/页大小及allPages冲突，公共SPARK查询按maxRows拒超限，DataView及readSnapshot保留countReported=false，不以返回长度冒充正式总数。
+- 已完成受控RED→GREEN：配置与持久往返、原分页偏好保留、低层wire无PageParam/冲突零派发/预算、正式视图未知Count、完整选项独立查询。高阶复核发现并修复save未知结果核验、新增权限回读和完整选项继承none后强制分页的冲突：独立辅助读取明确paged，原业务视图none不变。未知回执不重放及带别名新增权限回读纳入paged/none组合。
+- 通用HTTP owner尚未声明无分页及预算合同：明确派发前返回DATA_VIEW_UNPAGED_UNSUPPORTED，不透传前端pagination标志；此来源能力仍是开放项，不宣称所有来源都支持none。数组/文件沿公共isPaginated消费。
+- 当前相关回归77文件1711测试通过，包独立runtime-api 139测试通过。根typecheck正式脚本已exit0；直接无参数vue-tsc曾报既有未使用声明，不能混同正式门禁。首次lint命令参数被壳层合并导致未执行，已改显式文件列表；后修复低层枚举校验的lint诊断，最终lint待记录。ClassModel刷新及49校验、build/page-thin已有通过，源文件最后调整后再次刷新已exit0，最终产物核验待收口。
+- 实服：发现5273前端代理未运行，已仅恢复前端dev server，受保护凭据登录成功；内存工具状态丢失、探针脚本const声明错误及观察超时导致前两次没有可采信完成证据，均已核原node进程不存在，无写入授权请求。修正只读脚本后改用可持续exec进程91513执行，不因观察超时重放。当前实服对照尚待终态，不记通过。
+- 后续仍须原owner拆分层级结果、独立只读子Context、精确父行引用绑定及生命周期、标准组件与实服嵌套验收。全目标active，Foreign/LEFT等服务缺口及整页矩阵保留。
+
+- 实服终态更正：exec91513已真实exit0，修正脚本经原runtime完成同一正式模型分页/无分页对照2读0写、0新夹具，分页请求带PageParam，无分页不带；两者实际Count均报告，未验证实服缺Count或嵌套owner。先前内存工具探针无artifact且OS进程已缺失，不采信其exit或请求数；未重放写入。前端dev server由exec94527持续托管，未动后端。
+- 最后补充已报Count与返回行数不符的无分页拒收，109项协议测试通过；正式根typecheck及受改文件lint已exit0，包级HEAD/current诊断51/51与9/9、无新增。最终整范围回归及最后编译派生产物检查继续执行，待终态后记录。
+
+- 本段最终收口：最后源码相关77文件1712测试通过，独立runtime-api139通过；ClassModel正式再次生成后查询目录/概要/指南，49校验通过，build:fe与page-thin通过。根正式typecheck、受改文件lint通过；规则基线有同一既存refreshSavedPermissions五位置参数告警（HEAD/current各1），无新增，不宣称全仓规则全绿。ClassModel等价归一比较后恢复102份无语义噪声，保留7份真实公开合同/派生位置变更，semantic-gaps差异仅原诊断行号移动。
+- 证据evidence/data-chain-smoke/2026-11-04-unpaged-query.json与guides.json；实服2读0写0新夹具，已无待清理记录。高阶最终静态复核无新确定Important/Critical，未独立执行服务或测试。此段为嵌套完整消费的前置能力，后续原owner拆分、子视图绑定/生命周期和整卡实服仍开放；全目标继续active。

@@ -133,3 +133,30 @@ describe('public query result boundary for unowned nested authorization', () => 
     expect(result.readFieldAccess(result.rows[0]!, 'payload')).toBe('invisible')
   })
 })
+
+
+describe('formal view explicit unpaged query', () => {
+  it('publishes unknown Count without silently requesting a page', async () => {
+    const {view, http} = setup()
+    view.queryConfig = {pagination: 'none', maxRows: 5}
+    http.value = {Code: 200, Result: {data: [{rowid: 'ROOT', caption: 'Unpaged'}]}}
+    await view.loadFromServer()
+    expect(view.rows).toHaveLength(1)
+    expect(view.countReported).toBe(false)
+    expect(view.readSnapshot().countReported).toBe(false)
+    await expect(view.loadFromServer({page: 1})).rejects.toThrow('pagination')
+    expect(http.calls).toBe(1)
+  })
+})
+
+
+describe('unpaged source auxiliary reads', () => {
+  it('uses an explicitly paged complete option query without changing source preferences', async () => {
+    const {view, http} = setup()
+    view.queryConfig = {pagination: 'none', maxRows: 5}
+    http.value = response({plain: true})
+    expect(await view.queryOptionRows({fields: ['caption']})).toEqual([{caption: 'Before'}])
+    expect(view.queryConfig.pagination).toBe('none')
+    expect(http.calls).toBe(1)
+  })
+})

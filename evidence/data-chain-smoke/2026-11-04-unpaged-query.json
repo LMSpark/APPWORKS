@@ -1,0 +1,72 @@
+{
+  "scope": "Explicit unpaged SPARK query prerequisite for nested result consumption",
+  "live": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-03T18:53:15.290Z",
+    "reads": 2,
+    "writes": 0,
+    "blockedWrites": 0,
+    "newFixtures": 0,
+    "checks": [
+      {
+        "name": "existing-formal-metadata-read",
+        "total": 1,
+        "returned": 1,
+        "countReported": true,
+        "privateRootMembersExposed": false,
+        "fieldAccess": "visible"
+      },
+      {
+        "name": "explicit-unpaged-real-query",
+        "returned": 1,
+        "countReported": true,
+        "pageParameterPresent": false
+      }
+    ],
+    "limitation": "Actual flat metadata paged/unpaged query only; missing Count and nested consumption use controlled fixtures or remain pending"
+  },
+  "focusedProtocolTests": 109,
+  "runtimeApiTests": 139,
+  "typecheck": "passed formal root command",
+  "changedLint": "passed",
+  "packageDiagnostics": {
+    "spark-data": {
+      "head": 51,
+      "current": 51,
+      "introduced": 0
+    },
+    "spark-lowcode-api": {
+      "head": 9,
+      "current": 9,
+      "introduced": 0
+    }
+  },
+  "pending": [
+    "Nested per-model result owner and named child DataView lifecycle",
+    "Generic HTTP unpaged contract unsupported and rejected before dispatch",
+    "Actual missing-Count service acceptance not claimed",
+    "Whole architecture and whole page smoke matrix remain active"
+  ],
+  "regression": {
+    "files": 77,
+    "tests": 1712
+  },
+  "classModelVerification": {
+    "files": 4,
+    "tests": 49
+  },
+  "build": "passed",
+  "pageThin": "passed",
+  "rulesBaseline": {
+    "head": 1,
+    "current": 1,
+    "introduced": 0,
+    "existing": "refreshSavedPermissions positional parameter count"
+  },
+  "generatedNormalization": {
+    "equivalentRestored": 102,
+    "realChangesRetained": 7
+  },
+  "highModelReview": "No new confirmed Important/Critical; static review only"
+}

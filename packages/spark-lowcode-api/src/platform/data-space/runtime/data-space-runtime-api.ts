@@ -497,7 +497,7 @@ export class DataSpaceRuntimeApi {
     const context = await this.queryWithConfig({
       identity: change.identity,
       options: {...base, ...(fields === undefined ? {} : {fields}), filter: SparkData.DataViewFilter.condition({field: requestKey, operator: 'in', value: keys}),
-        page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
+        pagination: 'paged', page: {index: 1, size: Math.max(keys.length, 1)}, allPages: true, maxRows: keys.length + 1, singleFlight: false},
       config: origin?.config ?? DataSpaceRequestConfig.resolveQuery(),
       ...(origin?.accept === undefined ? {} : {accept: origin.accept}),
       ...(origin?.definition === undefined ? {} : {definition: origin.definition}),
@@ -539,7 +539,7 @@ export class DataSpaceRuntimeApi {
     void sort; void tree; void page
     const queried = await this.queryWithConfig({identity, config: origin.config,
       options: {...base, ...(fields === undefined ? {} : {fields}), filter: SparkData.DataViewFilter.condition({field: requestKey, operator: 'in', value: ids}),
-        page: {index: 1, size: ids.length}, allPages: true, maxRows: ids.length + 1, singleFlight: false},
+        pagination: 'paged', page: {index: 1, size: ids.length}, allPages: true, maxRows: ids.length + 1, singleFlight: false},
       ...(origin.accept === undefined ? {} : {accept: origin.accept}),
       ...(origin.definition === undefined ? {} : {definition: origin.definition}),
     }, heldMutationKeys)

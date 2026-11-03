@@ -244,3 +244,40 @@ describe('DataView owns query configuration', () => {
     expect(view.rows).toEqual([])
   })
 })
+
+
+describe('explicit unpaged query contract', () => {
+  it('roundtrips none and preserves saved page preferences without injecting them', async () => {
+    const {view, load} = fixture()
+    view.page = 3; view.pageSize = 7
+    view.queryConfig = DataViewQuery.parse({pagination: 'none', maxRows: 100})
+    expect(DataViewQuery.isPaginated(view.queryConfig)).toBe(false)
+    await view.refresh()
+    expect(load.mock.calls[0]?.[0]).toMatchObject({pagination: 'none', maxRows: 100})
+    expect(load.mock.calls[0]?.[0]).not.toHaveProperty('page')
+    expect(load.mock.calls[0]?.[0]).not.toHaveProperty('pageSize')
+    expect(view.page).toBe(3); expect(view.pageSize).toBe(7)
+    expect(DataView.fromJson(view.toJson(), 'Nodes', 'unpaged').queryConfig).toEqual(view.queryConfig)
+  })
+  it('rejects ambiguous allPages and invalid mode', () => {
+    expect(() => DataViewQuery.parse({pagination: 'none', allPages: true})).toThrow('allPages')
+    expect(() => DataViewQuery.parse({pagination: 'automatic'})).toThrow('pagination')
+  })
+})
+
+
+describe('HTTP source pagination capability', () => {
+  it('rejects unsupported none before dispatch instead of leaking the frontend option', async () => {
+    const ds = DataSet.fromJson({dataSetName: 'HTTP', tables: {Items: {
+      columns: [{name: 'id', type: 'string'}], api: {list: {url: '/items', method: 'GET', params: {page: 1}}},
+      views: {default: {queryConfig: {pagination: 'none'}}},
+    }}})
+    sets.push(ds)
+    const client = createRequest(), get = vi.spyOn(client, 'get').mockResolvedValue({rows: [], total: 0})
+    ds.setSharedHttpClient(client)
+    const result = await ds.getView('Items')!.loadFromServer()
+    expect(result.success).toBe(false)
+    expect(result.error?.message).toContain('UNPAGED_UNSUPPORTED')
+    expect(get).not.toHaveBeenCalled()
+  })
+})

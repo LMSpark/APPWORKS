@@ -601,7 +601,7 @@ rows: DataRow[] = []
         temporary.bindQueryExecutor({ localAggregates: executor.localAggregates !== false,
           executeQuery: (_view, params) => executor.executeQuery(this, params) },
           this.#resourceIdentity ? {resource: this.#resourceIdentity} : undefined)
-        const result = await temporary.loadFromServer({ page: 1, allPages: true, treeMode: 'flat',
+        const result = await temporary.loadFromServer({ pagination: 'paged', page: 1, allPages: true, treeMode: 'flat',
           ...(optionFilter === undefined ? {} : { filter: optionFilter }),
           context: mergedContext })
         if (!result.success || temporary.total !== temporary.rows.length) {
@@ -825,6 +825,8 @@ rows: DataRow[] = []
 
   /** 当前查询结果的语义；未查询的视图不声明结果种类。 */
   get resultKind(): DataViewQueryResult['resultKind'] { return this.currentQueryResult()?.resultKind }
+  /** 来源是否明确报告总数；false表示未知，undefined表示结果未声明此能力。 */
+  get countReported(): boolean | undefined { return this.currentQueryResult()?.countReported }
   /** 来源报告的实际键，仅作结果信息，不授予实体操作身份。 */
   get reportedPrimaryKey(): string | undefined { return this.currentQueryResult()?.reportedPrimaryKey }
 
@@ -833,7 +835,7 @@ rows: DataRow[] = []
    * 不包含未提交编辑；分页信息来自同一视图。正式查询未完成、失败或已被查询链标记失效时拒绝读取旧结果。
    * 本地配置视图可以直接读取；此方法不授予保存权限，也不执行查询或序列化设计配置。
    */
-  readSnapshot(): {fields: string[]; rows: DataRow[]; total: number; page: number; pageSize: number} {
+  readSnapshot(): {fields: string[]; rows: DataRow[]; total: number; page: number; pageSize: number; countReported?: boolean} {
     this.checkDestroyed()
     if (this._resultStale || (!this._isLocalConfiguration() && this.requestState !== RequestState.Loaded)) {
       throw new Error('DATA_VIEW_READ_RESULT: 尚未取得有效查询结果')
@@ -843,7 +845,8 @@ rows: DataRow[] = []
       const access = this.fieldAccess(row, field)
       return access.read === 'visible' ? [[field, row[field]]] : access.read === 'masked' ? [[field, '••••']] : []
     })))
-    return structuredClone({fields, rows, total: this.total, page: this.page, pageSize: this.pageSize})
+    return structuredClone({fields, rows, total: this.total, page: this.page, pageSize: this.pageSize,
+      ...(this.countReported === undefined ? {} : {countReported: this.countReported})})
   }
 
   // ─────────────────────────────────────────────
@@ -3721,8 +3724,12 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
   private withViewQueryDefaults(params: QueryParams): QueryParams {
     params.viewId ??= this.viewId
     params.viewConfig ??= this._buildRemoteViewConfig()
-    params.page ??= this.page
-    params.pageSize ??= this.pageSize
+    if (params.pagination === 'none') {
+      if (params.page !== undefined || params.pageSize !== undefined) throw new TypeError('pagination none 与 page/pageSize 冲突')
+    } else {
+      params.page ??= this.page
+      params.pageSize ??= this.pageSize
+    }
     if (params.filter === undefined && this.filterExpression !== undefined) params.filter = this.filterExpression
     if (params.sort === undefined && this.sortExpression !== undefined) params.sort = this._serializeSort(this.sortExpression)
     if (this.#queryExecutor !== undefined || this.fieldProjection.length > 0 || Object.keys(this.queryContext).length > 0) {

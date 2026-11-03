@@ -66,9 +66,10 @@ export class DataSpaceQueryResource {
     const captured: DataSpaceQueryOptions = { ...structuredClone(values), ...(filter === undefined ? {} : { filter }) }
     // SelfRef is a complete collection, with an array or Items/Count envelope.
     const selfRef = captured.tree !== undefined || captured.outputType === 'SelfRefData'
+    const unpaged = captured.pagination === 'none'
     const allPages = !selfRef && captured.allPages === true
     const maxRows = captured.maxRows ?? 50_000
-    if ((allPages || selfRef) && (!Number.isSafeInteger(maxRows) || maxRows <= 0)) {
+    if ((allPages || selfRef || unpaged) && (!Number.isSafeInteger(maxRows) || maxRows <= 0)) {
       throw new TypeError('数据资源全量查询 maxRows 必须是正整数')
     }
     table.buildRequest(captured)
@@ -84,11 +85,11 @@ export class DataSpaceQueryResource {
       if (!selfRef && (pageSize !== undefined || allPages) && !snapshot.countReported) {
         throw new Error(`数据资源分页缺少后端总数: ${table.identity.metaName}`)
       }
-      if (selfRef && snapshot.rows.length > maxRows) {
-        throw new Error(`数据资源SelfRef集合超过maxRows ${maxRows}: ${table.identity.metaName}`)
+      if ((selfRef || unpaged) && snapshot.rows.length > maxRows) {
+        throw new Error(`数据资源完整集合超过maxRows ${maxRows}: ${table.identity.metaName}`)
       }
-      if (selfRef && snapshot.countReported && snapshot.total !== snapshot.rows.length) {
-        throw new Error(`数据资源SelfRef集合不完整: ${table.identity.metaName}`)
+      if ((selfRef || unpaged) && snapshot.countReported && snapshot.total !== snapshot.rows.length) {
+        throw new Error(`数据资源完整集合不完整: ${table.identity.metaName}`)
       }
       return snapshot
     }

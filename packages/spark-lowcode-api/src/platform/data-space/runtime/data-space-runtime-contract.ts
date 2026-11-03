@@ -53,6 +53,8 @@ export type DataSpaceQueryInput = Readonly<{ name: string; value: unknown }>
 export type DataSpaceQueryOptions = Readonly<{
   filter?: DataViewFilter | null
   sort?: readonly DataSpaceQuerySort[]
+  /** none显式省略PageParam，保留总数未知并按maxRows限制结果。 */
+  pagination?: QueryParams['pagination']
   page?: DataSpaceQueryPage
   allPages?: boolean
   distinct?: boolean

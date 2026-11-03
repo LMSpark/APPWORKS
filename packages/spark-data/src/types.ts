@@ -684,7 +684,7 @@ export type ViewMetadata = {
   /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */
   queryContext?: DataViewQueryContext
   /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */
-  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'distinct' | 'maxRows' | 'fields' | 'children' | 'sourceInputMode'> & {
+  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'pagination' | 'allPages' | 'distinct' | 'maxRows' | 'fields' | 'children' | 'sourceInputMode'> & {
     /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */
     cacheType?: 'none' | 'page' | 'browser'
     /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */
@@ -1598,6 +1598,8 @@ export type DataViewQueryChild = Readonly<{
  * 分页查询参数 - 支持权限快照传递
  */
 export type QueryParams = {
+  /** paged保留既有分页；none显式不发送分页参数，与显式页码/页大小及allPages冲突。 */
+  pagination?: 'paged' | 'none'
   /** 页码 */
   page?: number
   /** 每页大小 */

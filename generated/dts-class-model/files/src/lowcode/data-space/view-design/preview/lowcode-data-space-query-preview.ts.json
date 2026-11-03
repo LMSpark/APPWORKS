@@ -46,6 +46,12 @@
             "outputType": {
               "type": "string"
             },
+            "pagination": {
+              "enum": [
+                "none",
+                "paged"
+              ]
+            },
             "allPages": {
               "enum": [
                 false,

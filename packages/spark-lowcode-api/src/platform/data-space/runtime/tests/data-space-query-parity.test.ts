@@ -712,3 +712,34 @@ describe('SPARK scenario model request parity', () => {
       expect(() => new DataSpaceQueryTable(identity)).toThrow()
     })
 })
+
+
+describe('explicit unpaged resource reads', () => {
+  it('rejects page and allPages conflicts before dispatch', async () => {
+    const http = new DataSpaceRequestFixtureHttp()
+    const resource = new DataSpaceQueryResource({http, readScope: () => ({token: 'S1', headers: {}})})
+    for (const conflict of [{page: {index: 1, size: 20}}, {allPages: true}]) {
+      await expect(resource.query({scenarioId: 'SCENE', metaName: 'Orders'},
+        {pagination: 'none', ...conflict})).rejects.toThrow('pagination')
+    }
+    expect(http.calls).toHaveLength(0)
+  })
+  it('keeps missing Count unknown and enforces a bounded unpaged result', async () => {
+    const http = new DataSpaceRequestFixtureHttp()
+    http.response = {Result: {data: [{id: 1}, {id: 2}]}}
+    const resource = new DataSpaceQueryResource({http, readScope: () => ({token: 'S1', headers: {}})})
+    const result = await resource.query({scenarioId: 'SCENE', metaName: 'Orders'}, {pagination: 'none', maxRows: 2})
+    expect(result.countReported).toBe(false)
+    expect(result.rows).toHaveLength(2)
+    expect(JSON.stringify(http.calls[0]?.data)).not.toContain('PageParam')
+    await expect(resource.query({scenarioId: 'SCENE', metaName: 'Orders'}, {pagination: 'none', maxRows: 1})).rejects.toThrow('maxRows')
+  })
+})
+
+
+it('rejects an explicitly unpaged response that reports more rows than it returned', async () => {
+  const http = new DataSpaceRequestFixtureHttp()
+  http.response = {Result: {data: {Items: [{id: 1}], Count: 2}}}
+  const resource = new DataSpaceQueryResource({http, readScope: () => ({token: 'S1', headers: {}})})
+  await expect(resource.query({scenarioId: 'SCENE', metaName: 'Orders'}, {pagination: 'none'})).rejects.toThrow('不完整')
+})

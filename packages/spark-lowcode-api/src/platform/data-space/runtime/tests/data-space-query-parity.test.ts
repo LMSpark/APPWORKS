@@ -500,8 +500,8 @@ describe('SPARK scenario model request parity', () => {
       expect(body.PageParam).toEqual(outputType === 'SelfRefData' ? undefined : {index: 2, size: 5})
       expect(context.rows[0]).toMatchObject({OrderId: 'A', amount: 20})
       expect(context.reportedPrimaryKey).toBe('OrderId')
-      expect(context.rowKey(context.rows[0]!)).toBe(outputType === 'Join' ? undefined : 'A')
-      expect(context.editActionState('A')).toBe(outputType === 'Join' ? 'hidden' : 'enabled')
+      expect(context.rowKey(context.rows[0]!)).toBe(['Join', 'Navigation', 'HierarchyData'].includes(outputType) ? undefined : 'A')
+      expect(context.editActionState('A')).toBe(['Join', 'Navigation', 'HierarchyData'].includes(outputType) ? 'hidden' : 'enabled')
       resource.dispose()
     })
 

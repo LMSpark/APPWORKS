@@ -3,8 +3,8 @@ import {DataViewQuery} from '../../../query/data-view-query'
 import {DataView} from '../../../data-view'
 
 describe('explicit Join child query configuration', () => {
-  it('captures and roundtrips nested formal model names, output fields and filters', () => {
-    const input = {outputType: 'Join', children: [{modelName: 'Details', fields: ['detailId', 'amount'],
+  it.each(['Join', 'Navigation', 'HierarchyData'])('captures and roundtrips nested formal models for %s', outputType => {
+    const input = {outputType, children: [{modelName: 'Details', fields: ['detailId', 'amount'],
       filter: {field: 'amount', operator: 'gt', value: 0}, children: [{modelName: 'Products', fields: ['productName']}]}]}
     const parsed = DataViewQuery.parse(input)
     expect(parsed).toEqual(input)
@@ -21,7 +21,7 @@ describe('explicit Join child query configuration', () => {
   })
 
   it.each([
-    {children: []}, {outputType: 'Table', children: []}, {outputType: 'HierarchyData', children: []},
+    {children: []}, {outputType: 'Table', children: []},
     {outputType: 'Join', children: null}, {outputType: 'Join', children: [{}]},
     {outputType: 'Join', children: [{modelName: ' ', fields: ['id']}]},
     {outputType: 'Join', children: [{modelName: 'Details', fields: []}]},

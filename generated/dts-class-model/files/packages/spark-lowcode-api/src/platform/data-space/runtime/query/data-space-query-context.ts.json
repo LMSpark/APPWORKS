@@ -241,7 +241,9 @@
         "resultKind": {
           "enum": [
             "entity",
-            "join"
+            "join",
+            "navigation",
+            "hierarchy"
           ]
         },
         "columns": {
@@ -261,6 +263,28 @@
         },
         "method.readScope.return": {
           "type": "string"
+        },
+        "method.readChild.params": {
+          "type": "object",
+          "properties": {
+            "parent": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/DataSpaceRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "modelName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readChild.return": {
+          "$ref": "#/$defs/DataSpaceQueryContext"
         }
       }
     },
@@ -280,6 +304,8 @@
           "enum": [
             "entity",
             "join",
+            "navigation",
+            "hierarchy",
             "aggregate"
           ]
         },
@@ -322,6 +348,28 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.childResult.params": {
+          "type": "object",
+          "properties": {
+            "parent": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/DataSpaceRow"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "modelName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.childResult.return": {
+          "$ref": "#/$defs/DataSpaceQueryContext"
         },
         "method.bindFormalModel.params": {
           "type": "object",
@@ -570,7 +618,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T16:43:47.017Z",
+  "generatedAt": "2026-11-03T19:19:33.636Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -788,11 +836,11 @@
       "jsdoc": "原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join';\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join';\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -820,7 +868,7 @@
             },
             {
               "name": "resultKind",
-              "jsdoc": "显式连接结果是只读投影，不把重复根键当成实体身份。",
+              "jsdoc": "显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。",
               "readable": true,
               "writable": false
             },
@@ -838,6 +886,41 @@
               "type": {
                 "type": "intrinsic",
                 "name": "string"
+              }
+            },
+            {
+              "name": "readChild",
+              "jsdoc": "原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。",
+              "parameters": [
+                {
+                  "name": "parent",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSpaceRow",
+                        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "modelName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
               }
             }
           ]
@@ -923,6 +1006,41 @@
             }
           ],
           "methods": [
+            {
+              "name": "childResult",
+              "jsdoc": "按正式直接子模型名读取独立只读结果；仅接受本结果原行或空父选择。",
+              "parameters": [
+                {
+                  "name": "parent",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "DataSpaceRow",
+                        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": null
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "modelName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            },
             {
               "name": "bindFormalModel",
               "parameters": [

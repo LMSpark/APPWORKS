@@ -9,6 +9,7 @@ import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestSco
 import { collectDataSpaceQueryPages } from '../protocol/data-space-pagination'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { DataSpaceRequest } from '../protocol/data-space-request'
+import {DataSpaceQueryNested} from './data-space-query-nested'
 import { DataSpaceQueryContext } from './data-space-query-context'
 import { DataSpaceRequestConfig } from '../protocol/data-space-request-config'
 
@@ -86,10 +87,10 @@ export class DataSpaceQueryResource {
         throw new Error(`数据资源分页缺少后端总数: ${table.identity.metaName}`)
       }
       if ((selfRef || unpaged) && snapshot.rows.length > maxRows) {
-        throw new Error(`数据资源完整集合超过maxRows ${maxRows}: ${table.identity.metaName}`)
+        throw new Error(`数据资源${selfRef ? 'SelfRef' : '完整'}集合超过maxRows ${maxRows}: ${table.identity.metaName}`)
       }
       if ((selfRef || unpaged) && snapshot.countReported && snapshot.total !== snapshot.rows.length) {
-        throw new Error(`数据资源完整集合不完整: ${table.identity.metaName}`)
+        throw new Error(`数据资源${selfRef ? 'SelfRef' : '完整'}集合不完整: ${table.identity.metaName}`)
       }
       return snapshot
     }
@@ -104,10 +105,14 @@ export class DataSpaceQueryResource {
       snapshot = Object.freeze({ ...snapshot, rows: collection.rows, total: collection.total })
     }
     assertCurrent()
+    const readScope = () => {projection?.assertCurrent(); return this.contextScope()}
+    if (projection?.nested) return DataSpaceQueryNested.read({identity: table.identity, snapshot, scope, readScope,
+      mode: projection.nested.mode, node: projection.nested.root, maxRows})
     return new DataSpaceQueryContext({ identity: table.identity, snapshot, scope,
-      ...(captured.outputType === 'Join' ? {resultKind: 'join' as const} : {}),
+      ...(captured.outputType === 'Join' ? {resultKind: 'join' as const} : captured.outputType === 'Navigation'
+        ? {resultKind: 'navigation' as const} : captured.outputType === 'HierarchyData' ? {resultKind: 'hierarchy' as const} : {}),
       ...(projection === undefined ? {} : {columns: projection.columns}),
-      readScope: () => {projection?.assertCurrent(); return this.contextScope()} })
+      readScope })
   }
 
   private contextScope(): string {

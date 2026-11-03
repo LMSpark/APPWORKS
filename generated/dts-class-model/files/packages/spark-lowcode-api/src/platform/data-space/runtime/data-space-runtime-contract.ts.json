@@ -50,6 +50,25 @@
             "title": "DataColumn"
           }
         },
+        "nested": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "navigation",
+                "hierarchy"
+              ]
+            },
+            "root": {
+              "$ref": "query/data-space-query-nested.ts.json#/$defs/DataSpaceQueryNestedNode"
+            }
+          },
+          "required": [
+            "mode",
+            "root"
+          ],
+          "additionalProperties": false
+        },
         "owner": {
           "type": "object",
           "additionalProperties": true
@@ -333,7 +352,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-03T18:43:45.213Z",
+  "generatedAt": "2026-11-03T19:08:42.801Z",
   "models": {
     "DataSpaceQueryIdentity": {
       "name": "DataSpaceQueryIdentity",
@@ -369,11 +388,11 @@
       "jsdoc": "正式绑定内部生成的结果投影与模型图守卫，不作为GetData请求或业务页面输入。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
+            "typeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */\n    nested?: Readonly<{\n        mode: 'navigation' | 'hierarchy';\n        root: DataSpaceQueryNestedNode;\n    }>;\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -382,6 +401,12 @@
             {
               "name": "columns",
               "jsdoc": "最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nested",
+              "jsdoc": "原查询owner已捕获的层级模型树，不进入GetData封包。",
               "readable": true,
               "writable": false
             },
@@ -632,11 +657,11 @@
       "jsdoc": "查询输入独立于结果权限；singleFlight 由请求生命周期所有者处理。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    /** none显式省略PageParam，保留总数未知并按maxRows限制结果。 */\n    pagination?: QueryParams['pagination'];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    /** 显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */\n    children?: QueryParams['children'];\n}>",
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    /** none显式省略PageParam，保留总数未知并按maxRows限制结果。 */\n    pagination?: QueryParams['pagination'];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    /** 显式同场景SQL子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */\n    children?: QueryParams['children'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    /** none显式省略PageParam，保留总数未知并按maxRows限制结果。 */\n    pagination?: QueryParams['pagination'];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    /** 显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */\n    children?: QueryParams['children'];\n}>",
+            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    /** none显式省略PageParam，保留总数未知并按maxRows限制结果。 */\n    pagination?: QueryParams['pagination'];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    /** 显式同场景SQL子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */\n    children?: QueryParams['children'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -711,7 +736,7 @@
             },
             {
               "name": "children",
-              "jsdoc": "显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。",
+              "jsdoc": "显式同场景SQL子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。",
               "readable": true,
               "writable": false
             }

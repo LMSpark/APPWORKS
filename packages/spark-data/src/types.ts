@@ -1616,7 +1616,7 @@ export type QueryParams = {
    * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。
    */
   outputType?: string
-  /** 仅Join使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。 */
+  /** Join、Navigation与HierarchyData使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。 */
   children?: readonly DataViewQueryChild[]
   /**
    * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。

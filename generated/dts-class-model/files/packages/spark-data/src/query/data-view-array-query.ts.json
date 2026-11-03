@@ -42,6 +42,8 @@
           "enum": [
             "join",
             "entity",
+            "navigation",
+            "hierarchy",
             "aggregate"
           ]
         },
@@ -56,6 +58,10 @@
         },
         "resultPrimaryKey": {
           "type": "string"
+        },
+        "childResult": {
+          "type": "object",
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
         },
         "rows": {
           "type": "array",

@@ -52,8 +52,10 @@ type DataSpaceQueryContextOptions = Readonly<{
   scope: string
   readScope: () => string
   missingAuthPolicy?: DataSpaceMissingAuthPolicy
-  /** 显式连接结果是只读投影，不把重复根键当成实体身份。 */
-  resultKind?: 'entity' | 'join'
+  /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */
+  resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy'
+  /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */
+  readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext
   /** 本次正式输出列；不修改共享模型字段。 */
   columns?: readonly DataColumn[]
 }>
@@ -86,12 +88,13 @@ const denied = Object.freeze({ read: 'invisible', write: 'denied', component: 'h
 
 /** 持有本次查询的实体键或只读投影及逐行读取语义；消费者不得取得签名或替换基线。 */
 export class DataSpaceQueryContext {
+  readonly #readChild: DataSpaceQueryContextOptions['readChild']
   readonly #identity: DataSpaceQueryIdentity
   readonly #snapshot: DataSpaceQueryContextOptions['snapshot']
   readonly #scope: string
   readonly #readScope: () => string
   readonly #missingAuthPolicy: DataSpaceQueryContextOptions['missingAuthPolicy']
-  readonly #joinResult: boolean
+  readonly #readonlyKind: 'join' | 'navigation' | 'hierarchy' | undefined
   readonly #columns: readonly DataColumn[] | undefined
   readonly #rows: readonly DataSpaceRow[]
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
@@ -105,12 +108,13 @@ export class DataSpaceQueryContext {
   /** 保留原快照并登记行权限；剔除根凭据，拒收尚无路径owner的后代授权行，重复身份不授予权限。 */
   public constructor(options: DataSpaceQueryContextOptions) {
     if (!options.scope.trim()) throw new Error('SPARK_QUERY_CONTEXT_STALE: scope 不能为空')
+    this.#readChild = options.readChild
     this.#identity = Object.freeze({ ...options.identity })
     this.#snapshot = options.snapshot
     this.#scope = options.scope
     this.#readScope = options.readScope
-    this.#joinResult = options.resultKind === 'join'
-    this.#missingAuthPolicy = options.missingAuthPolicy ?? (this.#joinResult ? 'visible-readonly' : undefined)
+    this.#readonlyKind = options.resultKind === 'entity' ? undefined : options.resultKind
+    this.#missingAuthPolicy = options.missingAuthPolicy ?? (this.#readonlyKind ? 'visible-readonly' : undefined)
     this.#columns = options.columns === undefined ? undefined
       : Object.freeze(options.columns.map(column => Object.freeze(structuredClone(column))))
     this.#rows = Object.freeze(options.snapshot.rows.map((row, index) => {
@@ -130,6 +134,14 @@ export class DataSpaceQueryContext {
       return publicRow
     }))
     this.assertCurrent()
+  }
+
+  /** 按正式直接子模型名读取独立只读结果；仅接受本结果原行或空父选择。 */
+  public childResult(parent: DataSpaceRow | null, modelName: string): DataSpaceQueryContext {
+    this.assertCurrent()
+    if (parent !== null && !this.#rows.includes(parent)) throw new Error('SPARK_NESTED_PARENT: 父行不是本次查询原行')
+    if (!this.#readChild) throw new Error('SPARK_NESTED_MODEL: 本结果没有正式子查询')
+    return this.#readChild(parent, modelName)
   }
 
   public bindFormalModel(model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: Readonly<{aggregateResult?: boolean}> = {}): void {
@@ -200,7 +212,7 @@ export class DataSpaceQueryContext {
     }})
     const next = new DataSpaceQueryContext({identity: this.#identity,
       snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
-      resultKind: this.#joinResult ? 'join' : 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      resultKind: this.#readonlyKind ?? 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
       ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
     if (this.#model) next.bindFormalModel(this.#model)
     next.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !expected.has(key)))
@@ -208,10 +220,10 @@ export class DataSpaceQueryContext {
     return next
   }
 
-  private get keyField(): string { return this.#joinResult || this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
+  private get keyField(): string { return this.#readonlyKind || this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
 
   /** 查询结果语义；连接投影与聚合分别标明，均不改变来源模型。 */
-  public get resultKind(): 'entity' | 'join' | 'aggregate' { return this.#joinResult ? 'join' : this.#aggregateResult ? 'aggregate' : 'entity' }
+  public get resultKind(): 'entity' | 'join' | 'navigation' | 'hierarchy' | 'aggregate' { return this.#readonlyKind ?? (this.#aggregateResult ? 'aggregate' : 'entity') }
   /** 来源实际报告的键；连接结果保留根键作为来源信息，不用于实体操作。 */
   public get reportedPrimaryKey(): string { return this.#snapshot.primaryKey }
   /** 本次正式投影列；只存在于本结果生命周期。 */
@@ -446,7 +458,7 @@ export class DataSpaceQueryContext {
     const context = new DataSpaceQueryContext({ identity: this.#identity,
       snapshot: Object.freeze({ ...snapshot, countReported: this.#snapshot.countReported }),
       scope: this.#scope, readScope: this.#readScope,
-      resultKind: this.#joinResult ? 'join' : 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      resultKind: this.#readonlyKind ?? 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
       ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
     if (this.#model) context.bindFormalModel(this.#model)
     context.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !deleted.has(key)))
@@ -493,8 +505,9 @@ export class DataSpaceQueryContext {
   }
 
   private assertModelSaveAllowed(changes: DataSpaceSaveChanges): void {
-    if (this.#joinResult && ((changes.added?.length ?? 0) > 0 || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
-      throw new Error('SPARK_JOIN_RESULT_READONLY: 连接投影不能作为实体保存基线')
+    if (this.#readonlyKind && ((changes.added?.length ?? 0) > 0 || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
+      throw new Error(this.#readonlyKind === 'join' ? 'SPARK_JOIN_RESULT_READONLY: 连接投影不能作为实体保存基线'
+        : 'SPARK_NESTED_RESULT_READONLY: 层级结果不能作为实体保存基线')
     }
     if (this.keyField === '' && ((changes.added?.length ?? 0) > 0
       || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {

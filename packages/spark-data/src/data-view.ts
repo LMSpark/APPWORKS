@@ -181,13 +181,15 @@ type DataViewQueryResult = Readonly<{
   hasPendingSavedRowPermissions?: boolean
   pendingSavedRowIds?: readonly unknown[]
   /** 结果语义由查询owner声明；连接及聚合不能作为实体编辑基线。 */
-  resultKind?: 'entity' | 'join' | 'aggregate'
+  resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy' | 'aggregate'
   /** 来源实际报告的键；与本结果可写实体键分开，不修改模型或持久配置。 */
   reportedPrimaryKey?: string | undefined
   /** 本次正式结果列，只覆盖本视图显示目录；不替代查询候选目录或共享模型字段。 */
   columns?: readonly DataColumn[] | undefined
   /** 本结果可用于实体操作的主键；空表示只读行集合，不表示后端未报告键。省略沿用视图配置。 */
   resultPrimaryKey?: string
+  /** 原层级owner按精确父行引用返回直接子结果。 */
+  childResult?(parent: DataViewQueryRow | null, modelName: string): DataViewQueryResult
   rows: readonly DataViewQueryRow[]
   total: number
   assertIdentity(identity: DataViewQueryIdentity): void
@@ -821,6 +823,17 @@ rows: DataRow[] = []
     this.checkDestroyed()
     this.#queryResult?.assertIdentity(this.queryIdentity())
     return this.#queryResult
+  }
+
+  /** 从本次已加载结果读取当前父行的正式子结果；不按业务主键回找，不发起第二次查询。 */
+  readChildResult(modelName: string): DataViewQueryResult {
+    if (this._resultStale || this.requestState !== RequestState.Loaded
+      || this.#queryResultRefreshIdentity !== this.refreshIdentity()) throw new Error('DATA_VIEW_READ_RESULT: 父结果尚未加载或已失效')
+    const context = this.currentQueryResult()
+    if (!context?.childResult) throw new Error('DATA_VIEW_CHILD_RESULT: 当前结果没有正式子集合')
+    const parent = this.currentRow === null ? null : this.#queryOriginalRows.get(this.currentRow)
+    if (parent === undefined) throw new Error('DATA_VIEW_CHILD_PARENT: 当前父行不是本次查询行')
+    return context.childResult(parent, modelName)
   }
 
   /** 当前查询结果的语义；未查询的视图不声明结果种类。 */

@@ -17,7 +17,7 @@ import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
 import { DataSpaceRequestConfig } from './protocol/data-space-request-config.js'
 import { DataSpaceSourceInput } from './query/data-space-source-input.js'
 import { DataSpaceQueryAggregation } from './query/data-space-query-aggregation.js'
-import {DataSpaceQueryJoin} from './query/data-space-query-join'
+import {DataSpaceQueryGraph} from './query/data-space-query-graph'
 
 /** 运行 owner 的 HTTP 通道和请求身份读取器；scope 变更使旧基线失效。 */
 type DataSpaceRuntimeApiOptions = Readonly<{
@@ -336,7 +336,7 @@ export class DataSpaceRuntimeApi {
       if (queryFields && !queryFields.some(field => field.name === name)) queryFields.push({name, group})
     }
     if (options.children?.length && aggregateResult) throw new Error('SPARK_JOIN_AGGREGATE: 显式子Join的全图聚合尚未承接')
-    const join = DataSpaceQueryJoin.resolve({view, model, options: {...options, ...(queryFields === undefined ? {} : {fields: queryFields})},
+    const join = DataSpaceQueryGraph.resolve({view, model, options: {...options, ...(queryFields === undefined ? {} : {fields: queryFields})},
       readModel: table => {const entry = this.#models.get(table); if (entry) this.assertScope(entry.scope); return entry?.model}})
     const context = await this.queryWithConfig({
       ...(join === undefined ? {} : {projection: join.projection}),

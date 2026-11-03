@@ -5771,3 +5771,22 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 
 - 本段最终收口：最后源码相关77文件1712测试通过，独立runtime-api139通过；ClassModel正式再次生成后查询目录/概要/指南，49校验通过，build:fe与page-thin通过。根正式typecheck、受改文件lint通过；规则基线有同一既存refreshSavedPermissions五位置参数告警（HEAD/current各1），无新增，不宣称全仓规则全绿。ClassModel等价归一比较后恢复102份无语义噪声，保留7份真实公开合同/派生位置变更，semantic-gaps差异仅原诊断行号移动。
 - 证据evidence/data-chain-smoke/2026-11-04-unpaged-query.json与guides.json；实服2读0写0新夹具，已无待清理记录。高阶最终静态复核无新确定Important/Critical，未独立执行服务或测试。此段为嵌套完整消费的前置能力，后续原owner拆分、子视图绑定/生命周期和整卡实服仍开放；全目标继续active。
+
+### 2026-11-04 正式层级结果owner（实施中）
+
+- 延续原嵌套工位：在正式DataView配置开放Navigation/HierarchyData显式子计划，SQL模型图解析器由原Join改名合并为DataSpaceQueryGraph，扁平结果全图唯一列与分层结果逐模型列分开；原非显式Navigation/Hierarchy叶封包保持原样。正式元数据字段核对为ForeignKeyFields，不能用协议Foreign冒充正式记录字段；SQL数据库身份核实际DbId，不能使用含PId回退的通用sourceId证明。
+- 新DataSpaceQueryNested由原Resource/projection内部调用，发布前沿声明集合拆出每层原行凭据并创建独立navigation/hierarchy只读Context，父公开行不携带声明子集合，未知授权对象仍拒收，不递归删权限后冒充消费。WeakMap按原公开父行引用索引，DataView.readChildResult用既有#queryOriginalRows定位当前行，重复业务键不能串父；空父返回所属声明模型空只读结果。Count未知保留。
+- Navigation按正式子模型注册名，多子模型各自路径；Hierarchy单子模型Items可唯一判定，多模型混合派发前拒绝。路径/字段冲突、非法形状、64层显式子计划、10000模型节点、50000结果Context及总后代maxRows有界拒收，不截断。SQL层级来源按每个模型独立DbId核对，扁平Join才要求同库/全图限定名唯一；跨库与Foreign空JoinFilter服务消费仍未通过实证。
+- TDD及高阶复核发现并修正：深层scope重复祖先链曾指数增长，guard计数RED→GREEN后只调用一次根守卫；Foreign正式字段错名正反例RED→GREEN；缺DbId误用PId回退正反例RED→GREEN；父queryContext改变后读取子结果需比对#queryResultRefreshIdentity，重复父键/查询失效/销毁测试已通过。上一无分页检查点最后改错误文案后未重跑独立runtime-api，当前检出2条SelfRef文案断言失败，已恢复原SelfRef文案并139项通过，不把该问题归为服务失败。
+- 已有相关回归78文件1731通过（后续新增边界仍待最终扩大回归）；独立runtime-api139通过；正式root typecheck与改动lint已通过一轮。包基线新增2条仅新测试夹具类型诊断已修，最后基线待核。ClassModel最后源码调整后需再次正式刷新并验证，不将先前生成当最新。
+- 实服只读exec32370/原进程7580真实exit0：4读0写0新夹具，原正式metadata分页、无分页、Navigation叶、Hierarchy叶均1行；两种层级叶实际countReported=false、entityKey为空、只读kind正确。仅叶查询，不代表正式子模型图、具名子DataView或Browser验收，证据待写nested-owner.json。
+- 尚未实现parentResult具名子DataView绑定、父切换/刷新自动更新及应用/失败/迟到结果的整条失效接线；当前仅原Context失效/根实例销毁的后代失效及DataView当前查询身份核验。不可把原owner解析测试当成全卡完成。下段须补正式绑定和生命周期，再用新临时元数据夹具实服嵌套+标准Table验证并清理；禁止重建已清理旧ID。
+- 全架构目标active，既有Foreign空条件/LEFT纯ON服务缺口、Join聚合、设计器子计划/pagedata重开及剩余完整页面矩阵保留。未改后端，未新增角色/权限逻辑，未新建正式业务记录。
+
+- 下一连续工位高阶只读设计已回收，接在同一卡执行：queryConfig.parentResult只引用完整父视图键及直接childModelName，目标保持自身正式modelBinding并显式none；同DataSet、唯一父/子模型、无循环，拒绝子自己的远程过滤/排序/树/聚合/children/allPages，不能静默忽略调用参数。runtime原executor先分派该来源，沿父readChildResult返回原只读Context，不进第二次HTTP或新保存owner。
+- 生命周期须按公共链完成：DataView只捕获父view/结果/当前行/子Context的引用及核验函数，不复制业务行/权限；接纳前、异步验收后、读取时复核。沿CascadeDelegate现有setup/teardown与generation释放扩展专门分支，比较引用而非结构相等，不伪造filterBindings。父切换/开始刷新/失败/同键新响应即时使子旧结果不可消费；空父采用原owner空结果，autoQuery=false等待显式刷新，父Failed不自动重试HTTP。子消费者失效不能invalidate共享Context而误伤兄弟。
+- 同步补公共释放事件（父在removeAllListeners前明确不可再查询）及parentResult配置变化重挂订阅；依赖环需涵盖原查询依赖。子refresh只重读当前父派生结果，不触发原executor全局清父HTTP缓存。验证延迟接纳、共享兄弟释放、父/子销毁、应用scope、跨空间/错误模型/冲突参数0派发及新增修改删除保存0写。
+- 实服验收工位使用全新唯一临时空间、父模型及两个不同注册子模型（可同物理表，明确JoinFilter），原DataSet创建与独立回读；3个标准Table绑定父及两个具名子视图，核父切换、子选择、空集合、过滤刷新、失败恢复、关闭重开/应用切换与释放；单子Hierarchy沿同链验证，最后精确清理全部临时记录。Foreign空条件和混合Hierarchy判别继续单列，不用假数据显示通过。此段仅待执行设计，不是已实现能力或实服证据。
+
+- 本段最终证据：相关78文件1736测试通过；原runtime-api独立139通过；最后规则形状守卫调整39项针对性测试通过，之后仅补类型别名JSDoc。正式root typecheck及所有受改源/测试lint通过；包级HEAD/current51/51与9/9，无新增；规则HEAD/current同一既存位置参数告警各1，无新增。正式ClassModel最终重新编译后7根目录/概要/指南已查询，49项校验、build:fe与page-thin通过。semantic-gaps 3637→3636、无新增，补齐移动模型别名JSDoc；规范比较恢复105份等价派生噪声，保留15份真实修改以及正式新增/删除产物，不手改生成合同。
+- 高阶复核提出的指数scope、层级误用flatJoin命名空间、ForeignKeyFields错名及DbId/PId回退均已用针对性RED→GREEN修正。最后源码由本会话结合回归核对；不将高阶静态意见当作其独立执行测试或实服证据。实服leaf证据4读0写0新夹具，无清理遗留；完整子模型树和具名子视图Browser尚未验收。证据evidence/data-chain-smoke/2026-11-04-nested-owner.json及guides.json。全目标active，继续上列parentResult工位，不将本次owner检查点当整卡完成。

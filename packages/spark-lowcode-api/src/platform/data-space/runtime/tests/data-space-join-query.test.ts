@@ -7,13 +7,14 @@ import {DataSpaceRuntimeApi} from '../data-space-runtime-api'
 class JoinHttp extends HttpClientBase {
   readonly calls: RequestConfig[] = []
   rowExtras: Record<string, unknown> = {}
+  nestedRowExtras?: readonly Record<string, unknown>[]
   beforeResponse?: () => void
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.calls.push(config)
     this.beforeResponse?.()
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: true, data: {Items: [
-      {orderId: 'P', caption: 'Parent', detailId: 'C1', detailName: 'One', ...this.rowExtras},
-      {orderId: 'P', caption: 'Parent', detailId: 'C2', detailName: 'Two', ...this.rowExtras},
+      {orderId: 'P', caption: 'Parent', detailId: 'C1', detailName: 'One', ...this.rowExtras, ...this.nestedRowExtras?.[0]},
+      {orderId: 'P', caption: 'Parent', detailId: 'C2', detailName: 'Two', ...this.rowExtras, ...this.nestedRowExtras?.[1]},
     ], Count: 2}}}, status: 200, statusText: 'OK', headers: {}}
   }
 }
@@ -187,4 +188,77 @@ describe('public DataView explicit Join query', () => {
     expect(view.columns.map(column => column.name)).toEqual(['orderId', 'caption', 'detailId', 'detailName', 'productId', 'productLabel'])
     expect(view.rows[0]?.['productLabel']).toBe('One')
   })
+})
+
+
+describe('formal nested graph owner', () => {
+  it.each(['Navigation', 'HierarchyData'] as const)('publishes independent child results through %s DataView', async outputType => {
+    const {view, http} = setup()
+    view.queryConfig = DataViewQuery.parse({outputType, pagination: 'none', children: [{modelName: 'Details', fields: ['detailId', 'detailName']}]})
+    http.rowExtras = {[outputType === 'Navigation' ? 'Details' : 'Items']: [{detailId: 'C', detailName: 'child',
+      lingma_sys_key: 'CHILD', lingma_sys_params: {m: ['detailName'], e: ['detailName']}}]}
+    await view.loadFromServer()
+    expect(view.resultKind).toBe(outputType === 'Navigation' ? 'navigation' : 'hierarchy')
+    expect(view.primaryKey).toBe('')
+    expect(view.columns.map(column => column.name)).toEqual(['orderId', 'caption'])
+    const child = view.readChildResult('Details')
+    expect(child.rows[0]?.['detailId']).toBe('C')
+    expect(child.readFieldAccess(child.rows[0]!, 'detailName')).toBe('masked')
+    expect(child.resultPrimaryKey).toBe('')
+    const request = http.calls[0]?.data as {Table: Record<string, unknown>[]}
+    expect(request.Table[0]).toMatchObject({OutputType: outputType, ChildTables: [{Name: 'Details', OutputType: outputType}]})
+    expect(http.calls).toHaveLength(1)
+  })
+})
+
+
+it('keeps nested SQL source and field namespaces per model rather than applying flat Join limits', async () => {
+  const {view, http} = setup({ShortName: 'p', DbId: 'OTHER'}, {}, 'orderId')
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [{modelName: 'Details', fields: ['orderId', 'detailName']}]}
+  http.rowExtras = {Details: [{orderId: 'C', detailName: 'Child'}]}
+  await view.loadFromServer()
+  expect(view.readChildResult('Details').rows[0]?.['orderId']).toBe('C')
+  expect(http.calls).toHaveLength(1)
+})
+
+
+it('keeps a formal Foreign-only nested plan distinct from flat SQL Join requirements', async () => {
+  const {view, http} = setup({JoinType: '', JoinFilter: '', ForeignKeyFields: 'parentId'})
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [{modelName: 'Details', fields: ['detailId']}]}
+  http.rowExtras = {Details: []}
+  await view.loadFromServer()
+  expect(view.readChildResult('Details').rows).toEqual([])
+  expect(http.calls).toHaveLength(1)
+})
+
+
+it('does not invent a Foreign metadata member as a nested relation contract', async () => {
+  const {view, http} = setup({JoinType: '', JoinFilter: '', Foreign: 'parentId'})
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [{modelName: 'Details', fields: ['detailId']}]}
+  await expect(view.loadFromServer()).rejects.toThrow('RELATION')
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it.each(['Join', 'Navigation'])('requires an actual database identity rather than the PId source fallback for %s', async outputType => {
+  const {view, http} = setup({DbId: ''})
+  view.queryConfig = DataViewQuery.parse({outputType, pagination: 'none', children: [{modelName: 'Details', fields: ['detailId']}]})
+  await expect(view.loadFromServer()).rejects.toThrow('SOURCE')
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('uses exact original parent references for duplicate keys and refuses stale parent reads', async () => {
+  const {view, http} = setup()
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [{modelName: 'Details', fields: ['detailId']}]}
+  http.nestedRowExtras = [{Details: [{detailId: 'FIRST'}]}, {Details: [{detailId: 'SECOND'}]}]
+  await view.loadFromServer()
+  expect(view.readChildResult('Details').rows[0]?.['detailId']).toBe('FIRST')
+  view.setCurrentRow(view.rows[1]!)
+  const second = view.readChildResult('Details')
+  expect(second.rows[0]?.['detailId']).toBe('SECOND')
+  view.queryContext = {search: 'changed'}
+  expect(() => view.readChildResult('Details')).toThrow('READ_RESULT')
+  view.destroy()
+  expect(() => second.rows).toThrow('STALE')
 })

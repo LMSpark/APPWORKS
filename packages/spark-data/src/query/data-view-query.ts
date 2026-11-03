@@ -69,7 +69,7 @@ export class DataViewQuery {
     }
     if (value['outputType'] !== undefined) result.outputType = this.text(value['outputType'], `${path}.outputType`)
     if (value['children'] !== undefined) {
-      if (result.outputType !== 'Join') throw new TypeError(`${path}.children 仅用于显式Join查询`)
+      if (!['Join', 'Navigation', 'HierarchyData'].includes(result.outputType ?? '')) throw new TypeError(`${path}.children 仅用于显式Join或层级查询`)
       result.children = this.parseChildren(value['children'], `${path}.children`, [])
     }
     if (value['allPages'] !== undefined) {

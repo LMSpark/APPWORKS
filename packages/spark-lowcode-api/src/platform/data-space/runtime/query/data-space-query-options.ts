@@ -135,7 +135,7 @@ export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): Dat
     ...(children === undefined ? {} : {children: children.map(child => {
       const parsed = child.filter === undefined ? undefined : DataViewFilter.parse(child.filter)
       if (parsed && !parsed.ok) throw new TypeError('SPARK_JOIN_FILTER: 子查询过滤树无效')
-      return {modelName: child.modelName, options: encodeDataSpaceQueryOptions({outputType: 'Join', fields: child.fields,
+      return {modelName: child.modelName, options: encodeDataSpaceQueryOptions({outputType: options.outputType ?? 'Join', fields: child.fields,
         children: child.children ?? [], ...(parsed?.ok ? {filter: parsed.value} : {}),
         ...(options.inputParams === undefined ? {} : {inputParams: options.inputParams})})}
     })}),

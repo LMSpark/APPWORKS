@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join",
-    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
-    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-graph",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
     "packageName": "@spark-appworks/spark-lowcode-api",
-    "modulePath": "platform/data-space/runtime/query/data-space-query-join",
-    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join\n职责：解析当前DataSet的显式SQL子查询及正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-graph",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-graph\n职责：解析当前DataSet的显式SQL模型查询图及分层正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "DataSpaceQueryJoin"
+      "DataSpaceQueryGraph"
     ]
   },
   "$defs": {
@@ -76,10 +76,10 @@
       ],
       "additionalProperties": false
     },
-    "JoinInput": {
+    "QueryGraphInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "JoinInput",
+      "title": "QueryGraphInput",
       "properties": {
         "view": {
           "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
@@ -107,10 +107,10 @@
         }
       }
     },
-    "DataSpaceQueryJoin": {
+    "DataSpaceQueryGraph": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "DataSpaceQueryJoin",
+      "title": "DataSpaceQueryGraph",
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -121,7 +121,7 @@
           "type": "object",
           "properties": {
             "input": {
-              "$ref": "#/$defs/JoinInput"
+              "$ref": "#/$defs/QueryGraphInput"
             }
           },
           "additionalProperties": false
@@ -145,11 +145,11 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T15:48:16.143Z",
+  "generatedAt": "2026-11-03T19:23:24.365Z",
   "models": {
     "Model": {
       "name": "Model",
-      "jsdoc": "",
+      "jsdoc": "原运行owner读取并绑定的正式模型定义，不从查询响应推导结构。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
@@ -163,8 +163,8 @@
         "members": {}
       }
     },
-    "JoinInput": {
-      "name": "JoinInput",
+    "QueryGraphInput": {
+      "name": "QueryGraphInput",
       "jsdoc": "当前视图的正式子计划解析输入；正式定义继续归原运行owner所有。",
       "declarationKind": "typeAlias",
       "typeAlias": {
@@ -215,7 +215,7 @@
                 "elementType": {
                   "type": "reference",
                   "name": "Model",
-                  "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts"
+                  "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts"
                 }
               }
             }
@@ -223,13 +223,13 @@
         }
       }
     },
-    "DataSpaceQueryJoin": {
-      "name": "DataSpaceQueryJoin",
-      "jsdoc": "仅解析显式非空子Join；原单表、叶Join和聚合查询保持各自原责任方。",
+    "DataSpaceQueryGraph": {
+      "name": "DataSpaceQueryGraph",
+      "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "仅解析显式非空子Join；原单表、叶Join和聚合查询保持各自原责任方。",
+          "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
           "signatureText": "constructor()",
           "parameters": []
         },
@@ -243,8 +243,8 @@
                   "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "JoinInput",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts"
+                    "name": "QueryGraphInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts"
                   }
                 }
               ],

@@ -397,7 +397,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@234871": {
+            "__@iterator@235039": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -452,7 +452,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@234871"
+            "__@iterator@235039"
           ],
           "additionalProperties": false
         },
@@ -1023,7 +1023,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@234871": {
+            "__@iterator@235039": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1078,7 +1078,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@234871"
+            "__@iterator@235039"
           ],
           "additionalProperties": false
         },
@@ -1304,7 +1304,7 @@
               "type": "object",
               "title": "(index: number) => string | undefined"
             },
-            "__@iterator@234871": {
+            "__@iterator@235039": {
               "type": "object",
               "title": "() => StringIterator<string>"
             }
@@ -1359,7 +1359,7 @@
             "matchAll",
             "replaceAll",
             "at",
-            "__@iterator@234871"
+            "__@iterator@235039"
           ],
           "additionalProperties": false
         },
@@ -1597,7 +1597,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@234871": {
+                "__@iterator@235039": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1652,7 +1652,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@234871"
+                "__@iterator@235039"
               ],
               "additionalProperties": false
             },
@@ -1882,7 +1882,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@234871": {
+                "__@iterator@235039": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -1937,7 +1937,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@234871"
+                "__@iterator@235039"
               ],
               "additionalProperties": false
             },
@@ -2873,7 +2873,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@234871": {
+                "__@iterator@235039": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -2928,7 +2928,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@234871"
+                "__@iterator@235039"
               ],
               "additionalProperties": false
             },
@@ -3158,7 +3158,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@234871": {
+                "__@iterator@235039": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -3213,7 +3213,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@234871"
+                "__@iterator@235039"
               ],
               "additionalProperties": false
             },
@@ -6279,7 +6279,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-03T18:43:11.957Z",
+  "generatedAt": "2026-11-03T19:08:42.800Z",
   "models": {
     "SparkEventEmitter": {
       "name": "SparkEventEmitter",
@@ -10716,7 +10716,7 @@
       "jsdoc": "分页查询参数 - 支持权限快照传递",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** paged保留既有分页；none显式不发送分页参数，与显式页码/页大小及allPages冲突。 */\n    pagination?: 'paged' | 'none';\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。 */\n    allPages?: boolean;\n    /** 请求服务器在查询结果上应用 DISTINCT，不在前端对已返回行去重；省略时由责任方按false处理。 */\n    distinct?: boolean;\n    /** 完整集合允许的最大行数，正安全整数；SPARK API省略时为50000，超限报错而非截断。 */\n    maxRows?: number;\n    /**\n     * 查询责任方的输出模式。SPARK API默认Table；SelfRefData表示完整节点集合。\n     * JSON来源可直接返回节点集合；需要定位节点时另配tree，来源要求由正式查询责任方校验。\n     * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。\n     */\n    outputType?: string;\n    /** 仅Join使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。 */\n    children?: readonly DataViewQueryChild[];\n    /**\n     * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。\n     * direct用于接口/逻辑视图来源测试，须提供全部正式来源参数，不执行其取值函数；不改变查询身份、数据权限或持久定义。\n     * 由支持正式来源绑定的查询责任方执行，不能把此属性作为后端协议字段透传。\n     */\n    sourceInputMode?: 'mapped' | 'direct';\n    /**\n     * 显式服务器节点查询参数，交由正式查询owner执行；不同于DataView.treeConfig的树呈现结构。\n     * 字段使用视图输出名，由正式模型绑定owner映射到模型Name；不从当前行或模型关系猜测节点。\n     */\n    tree?: Readonly<{\n        /** 节点主键字段，非空。 */\n        keyField: string;\n        /** 父节点字段，非空。 */\n        parentField: string;\n        /** 本次查询的节点ID，非空字符串；根值也须显式提供。 */\n        nodeId: string;\n        /** 子节点存在标志字段；省略时SPARK API使用hasChild。 */\n        hasChildrenField?: string;\n        /** child查询直接子节点；parent定位祖先及各级同级节点；省略时为child。 */\n        mode?: 'child' | 'parent';\n    }>;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: DataViewFilterTree;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的输出字段名；可由queryConfig持久声明，省略时使用视图投影。身份及依赖字段由查询适配器补齐。 */\n    fields?: readonly string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
+        "declarationTypeText": "{\n    /** paged保留既有分页；none显式不发送分页参数，与显式页码/页大小及allPages冲突。 */\n    pagination?: 'paged' | 'none';\n    /** 页码 */\n    page?: number;\n    /** 每页大小 */\n    pageSize?: number;\n    /** 请求查询责任方读取过滤条件下的完整集合；省略或false保留分页。SPARK API逐页校验后一次发布结果。 */\n    allPages?: boolean;\n    /** 请求服务器在查询结果上应用 DISTINCT，不在前端对已返回行去重；省略时由责任方按false处理。 */\n    distinct?: boolean;\n    /** 完整集合允许的最大行数，正安全整数；SPARK API省略时为50000，超限报错而非截断。 */\n    maxRows?: number;\n    /**\n     * 查询责任方的输出模式。SPARK API默认Table；SelfRefData表示完整节点集合。\n     * JSON来源可直接返回节点集合；需要定位节点时另配tree，来源要求由正式查询责任方校验。\n     * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。\n     */\n    outputType?: string;\n    /** Join、Navigation与HierarchyData使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。 */\n    children?: readonly DataViewQueryChild[];\n    /**\n     * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。\n     * direct用于接口/逻辑视图来源测试，须提供全部正式来源参数，不执行其取值函数；不改变查询身份、数据权限或持久定义。\n     * 由支持正式来源绑定的查询责任方执行，不能把此属性作为后端协议字段透传。\n     */\n    sourceInputMode?: 'mapped' | 'direct';\n    /**\n     * 显式服务器节点查询参数，交由正式查询owner执行；不同于DataView.treeConfig的树呈现结构。\n     * 字段使用视图输出名，由正式模型绑定owner映射到模型Name；不从当前行或模型关系猜测节点。\n     */\n    tree?: Readonly<{\n        /** 节点主键字段，非空。 */\n        keyField: string;\n        /** 父节点字段，非空。 */\n        parentField: string;\n        /** 本次查询的节点ID，非空字符串；根值也须显式提供。 */\n        nodeId: string;\n        /** 子节点存在标志字段；省略时SPARK API使用hasChild。 */\n        hasChildrenField?: string;\n        /** child查询直接子节点；parent定位祖先及各级同级节点；省略时为child。 */\n        mode?: 'child' | 'parent';\n    }>;\n    /** 排序字符串 */\n    sort?: string;\n    /** 过滤条件 */\n    filter?: DataViewFilterTree;\n    /** 搜索关键字 */\n    search?: string;\n    /** 要查询的输出字段名；可由queryConfig持久声明，省略时使用视图投影。身份及依赖字段由查询适配器补齐。 */\n    fields?: readonly string[];\n    /** 要包含的关联数据 */\n    include?: string[];\n    /** 视图 ID */\n    viewId?: string;\n    /** 视图配置 */\n    viewConfig?: ViewMetadata;\n    /** 当前 DataView 的字段投影。 */\n    projection?: readonly DataViewFieldProjection[];\n    /** 当前 DataView 的运行查询上下文。 */\n    context?: DataViewQueryContext;\n    /** 树模式 */\n    treeMode?: 'flat' | 'nested';\n    /** 父节点 ID */\n    parentId?: string | number | null;\n    /** 根节点 ID */\n    rootId?: string | number | null;\n    /** 最大展开深度 */\n    depthLimit?: number;\n    /** 最大返回行数 */\n    limit?: number;\n    /** 扩展参数 */\n    [key: string]: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -10763,7 +10763,7 @@
             },
             {
               "name": "children",
-              "jsdoc": "仅Join使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。",
+              "jsdoc": "Join、Navigation与HierarchyData使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。",
               "readable": true,
               "writable": false
             },

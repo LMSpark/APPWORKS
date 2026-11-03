@@ -5,6 +5,7 @@
  * AI用途：构造过滤、排序、分页和显式树查询。
  */
 import type { DataColumn, DataViewFilter, DataViewFilterJsonValue, QueryParams } from '@spark-appworks/spark-data'
+import type {DataSpaceQueryNestedNode} from './query/data-space-query-nested'
 import type { OrderType } from '../../../contracts/lowcode-wire-query'
 
 /** 后端场景注册身份；metaName 是模型 Name，不是物理资源名。 */
@@ -13,6 +14,8 @@ export type DataSpaceQueryIdentity = Readonly<{ scenarioId: string; metaName: st
 export type DataSpaceQueryProjection = Readonly<{
   /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */
   columns: readonly DataColumn[]
+  /** 原查询owner已捕获的层级模型树，不进入GetData封包。 */
+  nested?: Readonly<{mode: 'navigation' | 'hierarchy'; root: DataSpaceQueryNestedNode}>
   /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */
   owner: object
   /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */
@@ -66,6 +69,6 @@ export type DataSpaceQueryOptions = Readonly<{
   /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */
   outputFieldMode?: 'MODEL' | 'REQUEST'
   outputType?: string
-  /** 显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */
+  /** 显式同场景SQL子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */
   children?: QueryParams['children']
 }>

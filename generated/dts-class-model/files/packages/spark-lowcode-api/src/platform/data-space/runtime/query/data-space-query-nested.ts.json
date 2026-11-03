@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-nested",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-nested",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-nested\n职责：沿正式模型路径将原层级响应拆成各自只读查询上下文。\n边界：不推导关联、不重新查询、不公开原嵌套凭据，不生成可提交实体身份。\nAI用途：由原查询owner承接Navigation及可唯一判定的HierarchyData子集合。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "DataSpaceQueryNestedNode",
+      "DataSpaceQueryNested"
+    ]
+  },
+  "$defs": {
+    "DataSpaceQueryNestedNode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryNestedNode",
+      "properties": {
+        "model": {
+          "type": "object",
+          "title": "Model"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataSpaceQueryNestedNode"
+          }
+        }
+      },
+      "required": [
+        "model",
+        "columns",
+        "children"
+      ],
+      "additionalProperties": false
+    },
+    "NestedInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NestedInput",
+      "properties": {
+        "identity": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
+        },
+        "snapshot": {
+          "type": "object",
+          "title": "ReturnType<DataSpaceQueryTable['applyResult']>"
+        },
+        "node": {
+          "$ref": "#/$defs/DataSpaceQueryNestedNode"
+        },
+        "mode": {
+          "enum": [
+            "navigation",
+            "hierarchy"
+          ]
+        },
+        "scope": {
+          "type": "string"
+        },
+        "maxRows": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "type": "string"
+        }
+      }
+    },
+    "DataSpaceQueryNested": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryNested",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.validatePlan.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "#/$defs/DataSpaceQueryNestedNode"
+            },
+            "mode": true
+          },
+          "additionalProperties": false
+        },
+        "method.validatePlan.return": true,
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NestedInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "$ref": "data-space-query-context.ts.json#/$defs/DataSpaceQueryContext"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T19:20:19.440Z",
+  "models": {
+    "DataSpaceQueryNestedNode": {
+      "name": "DataSpaceQueryNestedNode",
+      "jsdoc": "单层正式模型及已捕获输出列，子集合路径来自显式查询计划。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本运行owner已核对的正式模型。 */\n    model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>;\n    /** 本层独立规范输出列，不与兄弟模型合并。 */\n    columns: readonly DataColumn[];\n    /** 已声明的直接子模型，叶节点为空。 */\n    children: readonly DataSpaceQueryNestedNode[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本运行owner已核对的正式模型。 */\n    model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>;\n    /** 本层独立规范输出列，不与兄弟模型合并。 */\n    columns: readonly DataColumn[];\n    /** 已声明的直接子模型，叶节点为空。 */\n    children: readonly DataSpaceQueryNestedNode[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "jsdoc": "本运行owner已核对的正式模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "本层独立规范输出列，不与兄弟模型合并。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "已声明的直接子模型，叶节点为空。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NestedInput": {
+      "name": "NestedInput",
+      "jsdoc": "原响应及执行域，所有后代共同消费同一范围与有界预算。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 根模型的正式场景与注册名。 */\n    identity: DataSpaceQueryIdentity;\n    /** 原协议解析后的私有根快照，尚含声明子集合。 */\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    /** 本次正式模型树及逐层输出列。 */\n    node: DataSpaceQueryNestedNode;\n    /** Navigation按注册名分组，Hierarchy按唯一子模型Items分组。 */\n    mode: 'navigation' | 'hierarchy';\n    /** 捕获的原查询执行域，不生成新授权域。 */\n    scope: string;\n    /** 原owner的当前域及模型图校验，后代沿同一祖先链核对。 */\n    readScope: () => string;\n    /** 根行及所有后代共享的正安全整数行数预算，超限整份拒收。 */\n    maxRows: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 根模型的正式场景与注册名。 */\n    identity: DataSpaceQueryIdentity;\n    /** 原协议解析后的私有根快照，尚含声明子集合。 */\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    /** 本次正式模型树及逐层输出列。 */\n    node: DataSpaceQueryNestedNode;\n    /** Navigation按注册名分组，Hierarchy按唯一子模型Items分组。 */\n    mode: 'navigation' | 'hierarchy';\n    /** 捕获的原查询执行域，不生成新授权域。 */\n    scope: string;\n    /** 原owner的当前域及模型图校验，后代沿同一祖先链核对。 */\n    readScope: () => string;\n    /** 根行及所有后代共享的正安全整数行数预算，超限整份拒收。 */\n    maxRows: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "identity",
+              "jsdoc": "根模型的正式场景与注册名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "snapshot",
+              "jsdoc": "原协议解析后的私有根快照，尚含声明子集合。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "node",
+              "jsdoc": "本次正式模型树及逐层输出列。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "Navigation按注册名分组，Hierarchy按唯一子模型Items分组。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scope",
+              "jsdoc": "捕获的原查询执行域，不生成新授权域。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "maxRows",
+              "jsdoc": "根行及所有后代共享的正安全整数行数预算，超限整份拒收。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "jsdoc": "原owner的当前域及模型图校验，后代沿同一祖先链核对。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryNested": {
+      "name": "DataSpaceQueryNested",
+      "jsdoc": "私有原结果拆分责任方；按精确公开父行引用索引直接子上下文。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "私有原结果拆分责任方；按精确公开父行引用索引直接子上下文。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "validatePlan",
+              "jsdoc": "派发前校验正式子集合路径、模型判别和模型树预算；不读取业务行。",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSpaceQueryNestedNode",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts"
+                  }
+                },
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "unknown",
+                    "name": "NestedInput['mode']"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "完整核对模型树与后代预算后发布；子层不伪造后端Count。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NestedInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

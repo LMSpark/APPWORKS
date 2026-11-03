@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1033,
+  "scannedFileCount": 1034,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10780,18 +10780,34 @@
         ]
       }
     },
-    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts": {
-      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts.json",
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts.json",
       "module": {
-        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join",
-        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
-        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-graph",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
-        "modulePath": "platform/data-space/runtime/query/data-space-query-join",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join\n职责：解析当前DataSet的显式SQL子查询及正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
+        "modulePath": "platform/data-space/runtime/query/data-space-query-graph",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-graph\n职责：解析当前DataSet的显式SQL模型查询图及分层正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "DataSpaceQueryJoin"
+          "DataSpaceQueryGraph"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-nested",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/runtime/query/data-space-query-nested",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-nested\n职责：沿正式模型路径将原层级响应拆成各自只读查询上下文。\n边界：不推导关联、不重新查询、不公开原嵌套凭据，不生成可提交实体身份。\nAI用途：由原查询owner承接Navigation及可唯一判定的HierarchyData子集合。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DataSpaceQueryNestedNode",
+          "DataSpaceQueryNested"
         ]
       }
     },
@@ -19006,6 +19022,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json"
     },
+    "DataSpaceQueryGraph": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-graph.ts.json"
+    },
     "DataSpaceQueryIdentity": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json"
@@ -19014,9 +19034,13 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json"
     },
-    "DataSpaceQueryJoin": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts.json"
+    "DataSpaceQueryNested": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts.json"
+    },
+    "DataSpaceQueryNestedNode": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-nested.ts.json"
     },
     "DataSpaceQueryOptions": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",

@@ -71,6 +71,8 @@ export class DataSpaceSourceControls {
         const original = dataSet.getView(spec.metaName, 'sourceCandidates')
         if (!original || original.dataTable?.modelBinding?.modelName !== spec.metaName) throw new Error(`来源目录缺少正式候选视图：${spec.metaName}`)
         const view = original.createQueryView(this.#prefix)
+        // 原reader可用此命名视图定位当前来源；候选搜索由下面的显式级联独立持有筛选。
+        view.filterExpression = undefined
         view.configure({...view.toJson(), autoCurrentFirst: false, autoSelectFirst: false, selectionDelimiter: '', valueField: 'rowid', labelField: spec.name})
         this.#candidates.set(type, view)
         dataSet.addCascade({kind: 'query', cascadeId: `${this.#prefix}_${type}`,

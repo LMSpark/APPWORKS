@@ -1,0 +1,235 @@
+{
+  "kind": "actual-browser-SPARK-data-physical-source-replacement",
+  "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+  "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+  "sourceChange": {
+    "kind": "workflow-isolated-physical-source-change",
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "from": "Base_DataModel_Field",
+    "to": "Base_DataModel",
+    "toTableId": "5438CCE06B5F4D21B8110CEBF2565E0F",
+    "removedFields": [
+      {
+        "id": "1CE5EDD6FF84DC256BBE99A458B0E097",
+        "name": "dataModelId"
+      },
+      {
+        "id": "23CBE37B478F078CC49DAF716FD481D8",
+        "name": "FieldType"
+      },
+      {
+        "id": "26E4D67FE570251742303A620ED52E36",
+        "name": "Order"
+      },
+      {
+        "id": "37D3EB08147EBE036B764491811F5F7C",
+        "name": "type"
+      },
+      {
+        "id": "58C134526063FAB1332451DAD621131F",
+        "name": "IsOutput"
+      },
+      {
+        "id": "58D21FCF026A6ABADEFC2AC5948D44BD",
+        "name": "ValueFun"
+      },
+      {
+        "id": "A1E7A5A45F71B3284BB27C09E8D4A71A",
+        "name": "Value"
+      },
+      {
+        "id": "A61361A90DFB3A3819B82A9AD5617496",
+        "name": "aiMemo"
+      },
+      {
+        "id": "A70CA91F0203071210B26D12BFFAC417",
+        "name": "IsPKey"
+      },
+      {
+        "id": "BB043B501B44D4CFA37E14FC8B09DDB4",
+        "name": "Expression"
+      },
+      {
+        "id": "CB4FC8CB53685E30EC3E093FAE31CBF0",
+        "name": "AsName"
+      },
+      {
+        "id": "D9D629C568BF853BF470D51260DBD2EA",
+        "name": "Group"
+      },
+      {
+        "id": "DCECC3537392B2863EF44E8B33DA23F4",
+        "name": "aiSort"
+      },
+      {
+        "id": "E0135E7245644E306673CD41D0E7EAF3",
+        "name": "OrderType"
+      },
+      {
+        "id": "F51050C3DDCC092D7296C2BE8558AF18",
+        "name": "allowAIAdd"
+      }
+    ],
+    "status": "confirmed",
+    "doNotReplay": true,
+    "confirmedDiff": [
+      {
+        "table": "Base_DataModel",
+        "id": "4E222C09D403DF2AAB37EED000798EBF",
+        "changed": [
+          "MetaName",
+          "updatetime"
+        ],
+        "values": {
+          "MetaName": {
+            "before": "Base_DataModel_Field",
+            "after": "Base_DataModel"
+          },
+          "updatetime": {
+            "before": "2026-11-03T17:05:34",
+            "after": "2026-11-03T17:45:24"
+          }
+        }
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "1CE5EDD6FF84DC256BBE99A458B0E097",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "23CBE37B478F078CC49DAF716FD481D8",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "26E4D67FE570251742303A620ED52E36",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "37D3EB08147EBE036B764491811F5F7C",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "58C134526063FAB1332451DAD621131F",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "58D21FCF026A6ABADEFC2AC5948D44BD",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "A1E7A5A45F71B3284BB27C09E8D4A71A",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "A61361A90DFB3A3819B82A9AD5617496",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "A70CA91F0203071210B26D12BFFAC417",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "BB043B501B44D4CFA37E14FC8B09DDB4",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "CB4FC8CB53685E30EC3E093FAE31CBF0",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "D9D629C568BF853BF470D51260DBD2EA",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "DCECC3537392B2863EF44E8B33DA23F4",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "E0135E7245644E306673CD41D0E7EAF3",
+        "removed": true
+      },
+      {
+        "table": "Base_DataModel_Field",
+        "id": "F51050C3DDCC092D7296C2BE8558AF18",
+        "removed": true
+      }
+    ],
+    "retainedDefinitions": 56
+  },
+  "filter": {
+    "status": "confirmed",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "field": "Filter",
+    "Name": "SMOKE_DATA_CHAIN_QUERY_MODEL_STRUCT_A_EF1D343B",
+    "doNotReplay": true,
+    "diff": [
+      {
+        "table": "Base_DataModel",
+        "id": "4E222C09D403DF2AAB37EED000798EBF",
+        "keys": [
+          "Filter",
+          "updatetime"
+        ]
+      }
+    ]
+  },
+  "execution": {
+    "status": "confirmed",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "doNotReplay": true,
+    "expectedName": "SMOKE_DATA_CHAIN_QUERY_MODEL_STRUCT_A_EF1D343B",
+    "expectedRowid": "2F264852340D4641727ECA886061E316",
+    "receipt": {
+      "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+      "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0.011,
+      "count": 1,
+      "output": [
+        {
+          "lingma_sys_ent": "NewApp",
+          "rowid": "2F264852340D4641727ECA886061E316",
+          "Name": "SMOKE_DATA_CHAIN_QUERY_MODEL_STRUCT_A_EF1D343B"
+        }
+      ]
+    },
+    "completeness": "complete"
+  },
+  "definitionsUnchangedByExecution": true,
+  "projection": {
+    "models": 37,
+    "fields": 27,
+    "nodes": 12
+  },
+  "retainedDefinitions": 56,
+  "pickerRegression": {
+    "beforeMatching": 1,
+    "formalMatching": 5,
+    "afterUiMatching": 5,
+    "rootCause": "Bound-source lookup filter inherited by candidate search cascade",
+    "fix": "Independent candidate search filter; original lookup retained"
+  },
+  "screenshot": "artifacts/data-chain-smoke/workflow-source-physical-change-success.jpg",
+  "open": [
+    "shared model relationship isolation",
+    "Join/PId/Foreign source contracts",
+    "last consumer and incident edge/condition removal",
+    "instance audit and final fixture cleanup"
+  ]
+}

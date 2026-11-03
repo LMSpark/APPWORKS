@@ -255,6 +255,24 @@ describe('LowcodeDataSpaceModelSourceReader', () => {
     expect(metadata.viewCascades).toEqual([])
   })
 
+  it('does not inherit a bound-source lookup filter into the picker search cascade', async () => {
+    const reader = new LowcodeDataSpaceModelSourceReader()
+    runtimeQuery.mockResolvedValue(context('View_TblList', [sourceRows.table.row]))
+    await reader.query({type: 'table', keyword: 'Orders'}, metadata)
+    const original = metadata.getView('View_TblList', 'sourceCandidates')!
+    const lookup = original.filterExpression
+    const controls = new DataSpaceSourceControls(metadata, vi.fn())
+    try {
+      controls.setOpen(true)
+      await vi.waitFor(() => expect(controls.results.total).toBe(1))
+      expect(runtimeQuery.mock.calls.at(-1)?.[1].filter).toBeUndefined()
+      controls.search.updateEditingValue('search', 'keyword', 'Other')
+      await vi.waitFor(() => expect(runtimeQuery.mock.calls.at(-1)?.[1].filter?.toJSON()).toEqual(
+        {field: 'tblname', operator: 'contains', value: 'Other'}))
+      expect(original.filterExpression).toEqual(lookup)
+    } finally {controls.dispose()}
+  })
+
   it('isolates two model pickers and refuses a late result after closing or disposal', async () => {
     let release!: (result: DataSpaceQueryContext) => void
     runtimeQuery.mockImplementationOnce(() => new Promise<DataSpaceQueryContext>(resolve => {release = resolve}))

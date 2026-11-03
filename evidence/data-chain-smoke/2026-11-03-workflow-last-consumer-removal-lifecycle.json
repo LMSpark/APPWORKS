@@ -1,0 +1,104 @@
+{
+  "kind": "actual-browser-last-consumer-and-incident-record-deletion",
+  "conditionFixture": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "startNodeId": "FD491ABE6A7B63AD4B4C42A102616FC4",
+    "edgeId": "EDCB04891A8ABC9068428BDB7DF2BA32",
+    "edgeIds": [
+      "DD521216A7B151D80985B18E2B8ED373",
+      "EDCB04891A8ABC9068428BDB7DF2BA32",
+      "DE2874F01663A070B0599EACE080C84C"
+    ],
+    "sharedNodeId": "5B747CE390FBF1E6A7282C75C3A863B9",
+    "endNodeId": "641E4DA28CEB23DD748F471AF8E3E7DA",
+    "conditionId": "99C64EED93631DEB7860A9B92FC136EC",
+    "mode": "prepare",
+    "phase": "acknowledged",
+    "pending": "",
+    "confirmed": [
+      "saved-condition"
+    ],
+    "reads": 14,
+    "writes": 1,
+    "error": "",
+    "noReplay": true,
+    "unknownOwnerRetained": false,
+    "independentConfirmed": true
+  },
+  "deletion": {
+    "status": "confirmed",
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "modelId": "4E222C09D403DF2AAB37EED000798EBF",
+    "fieldIds": [
+      "01ADD306F8EFAF16C765613AA27605F8",
+      "071B65FA82948DDBC91BF27AEC3ACCC7",
+      "0AFF7736F56E1C14F88BBA56BE8B674C",
+      "128DB954EF0723C66E2F314ADA03E4D7",
+      "4A6CF16CAD665EC653CD2C45E3780C7B",
+      "8E7E1A253F419BA9A94F274CC2BCA426",
+      "8F4ECB93B763F1F7E0D09D9CE22E15CD",
+      "95C603356267665A2772360946B499EA",
+      "95CF6871D75DCEDDF2A3200CC88F703E",
+      "997D861BA9B6559BBDB098696AF6D5EE",
+      "C8F533BB1672E7A73705FD4070B9D49E",
+      "CF2E131A8C27596073201DE61161F2D6",
+      "D85D76912D473B007445F9D86FB6BD9F",
+      "E4724038AC7334BD0CA90121A28C15E6",
+      "EB061E643DD88C316C48CDBA2B4EE21D"
+    ],
+    "edgeIds": [
+      "DD521216A7B151D80985B18E2B8ED373",
+      "EDCB04891A8ABC9068428BDB7DF2BA32"
+    ],
+    "conditionIds": [
+      "99C64EED93631DEB7860A9B92FC136EC"
+    ],
+    "cancelVerified": true,
+    "doNotReplay": true,
+    "retainedDefinitions": 37,
+    "fullProjectionPreserved": true
+  },
+  "stagingFormalUnchanged": true,
+  "cancelFormalUnchanged": true,
+  "independentFiveTableExactRemainder": true,
+  "fullModelFieldNodeProjectionExactRemainder": true,
+  "projection": {
+    "models": 37,
+    "fields": 27,
+    "nodes": 12
+  },
+  "survivingConsumerExecution": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "nodeId": "5B747CE390FBF1E6A7282C75C3A863B9",
+    "status": "confirmed",
+    "doNotReplay": true,
+    "expectedName": "IsOutput",
+    "expectedRowid": "227914F5E281705046D7F99F55B75522",
+    "receipt": {
+      "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+      "nodeId": "5B747CE390FBF1E6A7282C75C3A863B9",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0.389,
+      "count": 1,
+      "output": [
+        {
+          "Name": "IsOutput",
+          "rowid": "227914F5E281705046D7F99F55B75522",
+          "lingma_sys_ent": "NewApp"
+        }
+      ]
+    },
+    "completeness": "complete"
+  },
+  "definitionProjectionUnchangedByExecution": true,
+  "retainedDefinitions": 37,
+  "cumulativeCreatedDefinitions": 74,
+  "cumulativeCleanedDefinitions": 37,
+  "noWholeWorkflowExecution": true,
+  "instancesAudit": "not-yet-performed",
+  "screenshot": "artifacts/data-chain-smoke/workflow-last-consumer-removal-shared-success.jpg"
+}

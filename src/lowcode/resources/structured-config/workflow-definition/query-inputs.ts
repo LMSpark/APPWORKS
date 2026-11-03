@@ -5,8 +5,7 @@
  */
 import {RequestState,DataViewOptionCatalog,DataViewFilter,DataViewFilterCodec,type DataSet,type DataView,type DataRow,type DataColumn} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
-import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {isRecord} from '@spark-appworks/spark-utils'
+import {workflowOutputFields} from './output-fields'
 
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`查询输入定义不可读: ${field}`)
@@ -75,20 +74,10 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
   const position=read(nodes,node,'position_type'),name=read(nodes,node,'name'),raw=read(nodes,node,'output_mapping')
   const start=String(position)==='0',query=String(position)==='1'&&read(nodes,node,'node_type')==='query'
   if(!start&&!query){diagnostics.push(`节点 ${typeof name==='string'?name:id} 的输出尚待执行合同验证`);continue}
-  const output=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
-  if(!Array.isArray(output)||!output.every(isRecord))throw Error('祖先节点输出必须是对象数组')
+  const output=workflowOutputFields({nodeId:id,position,nodeType:start?'query':read(nodes,node,'node_type'),mapping:raw})
   if(query&&!output.length){diagnostics.push(`节点 ${typeof name==='string'?name:id} 缺少查询输出目录`);continue}
-  const roots=query?output.filter(item=>item['pid']===null):[],items=roots.find(item=>item['Name']==='items'),count=roots.find(item=>item['Name']==='Count')
-  if(query&&(roots.length!==2||!items||!count||items['FieldType']!=='Array'||items['isParent']!==true||count['FieldType']!=='int'||count['isParent']!==false))throw Error('祖先查询输出根结构无法确认')
-  const outputIds=new Set<string>()
   for(const item of output){
-   const field=item['Name'],outputId=item['rowid']
-   if(typeof field!=='string'||!field.trim()||typeof outputId!=='string'||!outputId||outputIds.has(outputId))throw Error('开始输出名称或身份缺失或重复')
-   outputIds.add(outputId)
-   if(query&&(item===items||item===count))continue
-   if(id.includes('.')||field.includes('.'))throw Error('节点或字段名称含点，不能猜测递归路径')
-   if(query?(item['pid']!==items?.['rowid']||item['isParent']!==false||typeof item['FieldType']!=='string'||!item['FieldType'].trim()):
-    item['isParent']===true||item['pid']!==undefined&&item['pid']!==null&&item['pid']!=='')throw Error('祖先输出不是已核定的字段结构')
+   const field=item['Name'] as string
    const value=`${id}.${field}`
    if(values.has(value))throw Error('开始输出参数名称重复')
    values.add(value);inputs.push({value,label:`${typeof name==='string'&&name?name:id} · ${typeof item['Description']==='string'&&item['Description']?item['Description']:field}`})

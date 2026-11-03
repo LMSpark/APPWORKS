@@ -188,6 +188,7 @@ describe('workflow formal design page',()=>{
  })
  it('binds connector conditions to node endpoints, cancels unapplied input and clears only the condition record',async()=>{
   const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
+  state.http.records['Base_WorkflowNodeDefinition']![0]!['position_type']=0
   state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([{rowid:'OUT',Name:'Count',Description:'数量',FieldType:'int'}])
   state.http.records['Base_DataModel_Relation']!.push({rowid:'RC',dataSetId:'W1',parentModId:'N1',childModId:'N1',filter:originalFilter})
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
@@ -197,6 +198,7 @@ describe('workflow formal design page',()=>{
   const editor=f.wrapper.getComponent(RendererFilterExpression)
   expect(editor.props('dataViewKey')).toBe(`${WORKFLOW_DESIGN}@Base_DataModel_Relation@connector`)
   expect(editor.props('format')).toBe('spark-json');expect(editor.props('columns')).toEqual([{name:'Count',label:'数量',type:'int'}])
+  expect(editor.props('allowedOperators')).toEqual(['eq','ne','gt','lt'])
   await editor.get('input[aria-label="数字常量"]').setValue('3');await flushPromises()
   expect(f.wrapper.findAll('button').find(button=>button.text()==='保存条件')?.attributes('disabled')).toBeDefined()
   await f.click('取消条件修改');expect(state.dirty[0]?.isDirty).toBe(false)

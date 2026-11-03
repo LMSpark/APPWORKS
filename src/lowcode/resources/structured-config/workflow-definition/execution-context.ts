@@ -5,6 +5,7 @@
  */
 import {DataViewFilterCodec,RequestState,type DataSet,type DataView,type DataRow,type DataViewFilterTree} from '@spark-appworks/spark-data'
 import type {WorkflowExecutionGraph} from '@spark-appworks/spark-lowcode-api'
+import {validateWorkflowConditionFilter} from './connector-condition'
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`执行图字段不可读: ${field}`)
  return row[field]
@@ -71,7 +72,8 @@ export class WorkflowExecutionContext{
    if(typeof id!=='string'||!id||ids.has(id)||view.getPkKey(row)!==id||read(view,row,'dataSetId')!==this.workflowId||!graph.pairs.has(pair))throw Error('执行条件身份或端点归属不符')
    if(conditions.has(pair))throw Error('同一连线端点存在多条条件')
    const raw=read(view,row,'filter');if(raw!==null&&raw!==undefined&&typeof raw!=='string')throw Error('执行条件格式无效')
-   DataViewFilterCodec.parseStored(raw);conditions.set(pair,typeof raw==='string'&&raw.trim()!=='');ids.add(id)
+   const parsed=DataViewFilterCodec.parseStored(raw);if(parsed)validateWorkflowConditionFilter(parsed)
+   conditions.set(pair,typeof raw==='string'&&raw.trim()!=='');ids.add(id)
   }
   const required=new Set([graph.start])
   let changed=true

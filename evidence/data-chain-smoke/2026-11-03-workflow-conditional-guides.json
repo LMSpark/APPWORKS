@@ -1,0 +1,344 @@
+[
+  {
+    "kind": "WorkflowConnectorCondition",
+    "catalog": {
+      "rootKind": "WorkflowConnectorCondition",
+      "models": [
+        {
+          "kind": "WorkflowConnectorCondition",
+          "name": "WorkflowConnectorCondition",
+          "jsdoc": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。",
+          "summary": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowConnectorCondition",
+      "models": [
+        {
+          "kind": "WorkflowConnectorCondition",
+          "name": "WorkflowConnectorCondition",
+          "jsdoc": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。",
+          "summary": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。",
+          "constructorSignature": {
+            "summary": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。",
+            "jsdoc": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "load",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "load(dataSet: DataSet, workflowId: string, edgeId: string | number): Promise<DataView>"
+            },
+            {
+              "name": "columns",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "columns(dataSet: DataSet, workflowId: string, edgeId: string | number): DataColumn[]"
+            },
+            {
+              "name": "presentation",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "presentation(dataSet: DataSet, workflowId: string, edgeId: string | number): {\n        row: DataRow | undefined;\n        columns: DataColumn[];\n        outputError: string;\n        functionContext: {\n            definitions: {\n                enabled: () => false;\n                type: string;\n                label: string;\n                fields: readonly import(\"@spark-appworks/spark-data\").DataViewFilterFunctionField[];\n                validate?: (value: import(\"@spark-appworks/spark-data\").DataViewFilterValueFunction, context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext) => string | null;\n            }[];\n        };\n        allowedOperators: readonly (\"eq\" | \"ne\" | \"gt\" | \"gte\" | \"lt\" | \"lte\" | \"is-null\" | \"is-not-null\" | \"contains\" | \"not-contains\" | \"starts-with\" | \"not-starts-with\" | \"ends-with\" | \"not-ends-with\" | \"in\" | \"not-in\" | \"is-empty\" | \"is-not-empty\")[];\n    }"
+            },
+            {
+              "name": "add",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "add(dataSet: DataSet, workflowId: string, edgeId: string | number): Promise<DataRow>"
+            },
+            {
+              "name": "save",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "save(dataSet: DataSet, workflowId: string, edgeId: string | number): Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。\nclass WorkflowConnectorCondition {\n  同一正式模型下的专用条件视图；原模型关系视图及连接器记录保持独立。\n  constructor()\n  load(dataSet: DataSet, workflowId: string, edgeId: string | number): Promise<DataView>\n  columns(dataSet: DataSet, workflowId: string, edgeId: string | number): DataColumn[]\n  presentation(dataSet: DataSet, workflowId: string, edgeId: string | number): {\n          row: DataRow | undefined;\n          columns: DataColumn[];\n          outputError: string;\n          functionContext: {\n              definitions: {\n                  enabled: () => false;\n                  type: string;\n                  label: string;\n                  fields: readonly import(\"@spark-appworks/spark-data\").DataViewFilterFunctionField[];\n                  validate?: (value: import(\"@spark-appworks/spark-data\").DataViewFilterValueFunction, context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext) => string | null;\n              }[];\n          };\n          allowedOperators: readonly (\"eq\" | \"ne\" | \"gt\" | \"gte\" | \"lt\" | \"lte\" | \"is-null\" | \"is-not-null\" | \"contains\" | \"not-contains\" | \"starts-with\" | \"not-starts-with\" | \"ends-with\" | \"not-ends-with\" | \"in\" | \"not-in\" | \"is-empty\" | \"is-not-empty\")[];\n      }\n  add(dataSet: DataSet, workflowId: string, edgeId: string | number): Promise<DataRow>\n  save(dataSet: DataSet, workflowId: string, edgeId: string | number): Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>\n}"
+  },
+  {
+    "kind": "RFilterExpressionProps",
+    "catalog": {
+      "rootKind": "RFilterExpressionProps",
+      "models": [
+        {
+          "kind": "RFilterExpressionProps",
+          "name": "RFilterExpressionProps",
+          "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "summary": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilterExpression"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RFilterExpressionProps",
+      "models": [
+        {
+          "kind": "RFilterExpressionProps",
+          "name": "RFilterExpressionProps",
+          "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "summary": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilterExpression"
+          },
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "summary": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "typeText": "string"
+            },
+            {
+              "name": "format",
+              "jsdoc": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "summary": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "typeText": "\"tree\" | \"spark-json\""
+            },
+            {
+              "name": "display",
+              "jsdoc": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "summary": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "typeText": "\"dialog\" | \"inline\""
+            },
+            {
+              "name": "displayMode",
+              "jsdoc": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "summary": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "typeText": "\"box\" | \"inline\""
+            },
+            {
+              "name": "columns",
+              "jsdoc": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "summary": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "typeText": "DataColumn[]"
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "summary": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "inputParameterDataViewKey",
+              "jsdoc": "输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。",
+              "summary": "输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。",
+              "typeText": "string"
+            },
+            {
+              "name": "maxDepth",
+              "jsdoc": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "summary": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "typeText": "number"
+            },
+            {
+              "name": "maxRules",
+              "jsdoc": "最大条件数；省略沿用公共编辑器默认值。",
+              "summary": "最大条件数；省略沿用公共编辑器默认值。",
+              "typeText": "number"
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务锁定只收紧原字段的数据权限。",
+              "summary": "业务锁定只收紧原字段的数据权限。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "summary": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。",
+              "summary": "存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。",
+              "signature": "onEditingChange(editing: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component name=RendererFilterExpression */\n/**\n * DTS declaration: RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}\n * DTS relation: intersection LayoutDataContextProps\n * DTS relation: intersection Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>\n * DTS relation: intersection {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}\n */\nr-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。\ntype RFilterExpressionProps {\n  存放过滤定义的字段；与过滤树内部的条件字段不同。\n  field: string\n  tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。\n  readonly format: \"tree\" | \"spark-json\"\n  默认dialog；inline在绑定位置编辑，应用才写回原DataView。\n  readonly display: \"dialog\" | \"inline\"\n  弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。\n  readonly displayMode: \"box\" | \"inline\"\n  过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。\n  columns: DataColumn[]\n  可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。\n  readonly functionContext: DataViewFilterFunctionContext\n  输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。\n  readonly inputParameterDataViewKey: string\n  最大嵌套层数；省略沿用公共编辑器默认值。\n  readonly maxDepth: number\n  最大条件数；省略沿用公共编辑器默认值。\n  readonly maxRules: number\n  业务锁定只收紧原字段的数据权限。\n  readonly disabled: boolean\n  只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。\n  readonly readonly: boolean\n  存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。\n  onEditingChange(editing: boolean): void\n}"
+  },
+  {
+    "kind": "FilterExpressionEditorProps",
+    "catalog": {
+      "rootKind": "FilterExpressionEditorProps",
+      "models": [
+        {
+          "kind": "FilterExpressionEditorProps",
+          "name": "FilterExpressionEditorProps",
+          "jsdoc": "完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
+          "summary": "完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
+          "component": {
+            "name": "FilterExpressionEditor"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "FilterExpressionEditorProps",
+      "models": [
+        {
+          "kind": "FilterExpressionEditorProps",
+          "name": "FilterExpressionEditorProps",
+          "jsdoc": "完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
+          "summary": "完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。",
+          "component": {
+            "name": "FilterExpressionEditor"
+          },
+          "attributes": [
+            {
+              "name": "display",
+              "jsdoc": "默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。",
+              "summary": "默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。",
+              "typeText": "\"dialog\" | \"inline\""
+            },
+            {
+              "name": "displayMode",
+              "jsdoc": "弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。",
+              "summary": "弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。",
+              "typeText": "\"box\" | \"inline\""
+            },
+            {
+              "name": "placeholder",
+              "jsdoc": "空条件入口提示；省略或undefined为“空”，显式空字符串保留。",
+              "summary": "空条件入口提示；省略或undefined为“空”，显式空字符串保留。",
+              "typeText": "string"
+            },
+            {
+              "name": "title",
+              "jsdoc": "条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。",
+              "summary": "条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。",
+              "typeText": "string"
+            },
+            {
+              "name": "clearable",
+              "jsdoc": "是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。",
+              "summary": "是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "dialogWidth",
+              "jsdoc": "常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。",
+              "summary": "常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。",
+              "typeText": "string | number"
+            },
+            {
+              "name": "autoFullscreenBelow",
+              "jsdoc": "视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。",
+              "summary": "视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。",
+              "typeText": "number"
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataViewFilterTree"
+            },
+            {
+              "name": "columns",
+              "jsdoc": "字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。",
+              "summary": "字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。",
+              "typeText": "Data.DataColumn[]"
+            },
+            {
+              "name": "allowedOperators",
+              "jsdoc": "消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。",
+              "summary": "消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。",
+              "typeText": "DataViewFilterOperator[]"
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "maxDepth",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "number"
+            },
+            {
+              "name": "maxRules",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "number"
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。",
+              "summary": "可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "applyError",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "null | string"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。",
+              "summary": "未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。",
+              "signature": "onEditingChange(editing: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component name=FilterExpressionEditor */\n/**\n * DTS declaration: FilterExpressionEditorProps = {\n    /** 默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。 */\n    displayMode?: 'box' | 'inline';\n    /** 空条件入口提示；省略或undefined为“空”，显式空字符串保留。 */\n    placeholder?: string | undefined;\n    /** 条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。 */\n    title?: string | undefined;\n    /** 是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。 */\n    clearable?: boolean | undefined;\n    /** 常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。 */\n    dialogWidth?: string | number | undefined;\n    /** 视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。 */\n    autoFullscreenBelow?: number | undefined;\n    /** 未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。 */\n    onEditingChange?: (editing: boolean) => void;\n    modelValue?: Data.DataViewFilterTree | undefined;\n    /** 字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。 */\n    columns: readonly Data.DataColumn[];\n    /** 消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。 */\n    allowedOperators?: readonly Data.DataViewFilterOperator[];\n    functionContext?: Data.DataViewFilterFunctionContext;\n    maxDepth?: number;\n    maxRules?: number;\n    disabled?: boolean;\n    /** 可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。 */\n    readonly?: boolean;\n    applyError?: string | null | undefined;\n}\n */\n完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。\ntype FilterExpressionEditorProps {\n  默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。\n  readonly display: \"dialog\" | \"inline\"\n  弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。\n  readonly displayMode: \"box\" | \"inline\"\n  空条件入口提示；省略或undefined为“空”，显式空字符串保留。\n  readonly placeholder: string\n  条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。\n  readonly title: string\n  是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。\n  readonly clearable: boolean\n  常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。\n  readonly dialogWidth: string | number\n  视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。\n  readonly autoFullscreenBelow: number\n  readonly modelValue: DataViewFilterTree\n  字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。\n  columns: Data.DataColumn[]\n  消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。\n  readonly allowedOperators: DataViewFilterOperator[]\n  readonly functionContext: DataViewFilterFunctionContext\n  readonly maxDepth: number\n  readonly maxRules: number\n  readonly disabled: boolean\n  可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。\n  readonly readonly: boolean\n  readonly applyError: null | string\n  未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。\n  onEditingChange(editing: boolean): void\n}"
+  }
+]

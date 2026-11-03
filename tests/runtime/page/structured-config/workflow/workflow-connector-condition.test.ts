@@ -9,10 +9,10 @@ import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 const pages:PageRuntime[]=[]
 afterEach(()=>pages.splice(0).forEach(page=>page.dispose()))
-const filter=DataViewFilterCodec.serializeStored(DataViewFilter.group({logic:'or',filters:[{field:'Count',operator:'eq',value:0},{field:'Count',operator:'in',value:[0,false,'']}]}))
+const filter=DataViewFilterCodec.serializeStored(DataViewFilter.group({logic:'or',filters:[{field:'Count',operator:'eq',value:0},{field:'Count',operator:'eq',value:false},{field:'Count',operator:'eq',value:''}]}))
 async function fixture(){
  const http=new ApiBackend()
- http.records={Base_WorkflowDefinition:[{rowid:'W1'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'来源',output_mapping:JSON.stringify([{rowid:'P1',Name:'Count',Description:'数量',FieldType:'int'}])},{rowid:'N2',workflow_id:'W1',name:'目标'},{rowid:'NX',workflow_id:'W2',name:'其他'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N2'},{rowid:'E2',workflow_id:'W2',sourceID:'NX',targetID:'NX'}],Base_DataModel_Relation:[{rowid:'RM',dataSetId:'W1',parentModId:'M1',childModId:'M2',filter:'原模型关系'},{rowid:'RO',dataSetId:'W1',parentModId:'N2',childModId:'N1',filter:'反向条件'},{rowid:'RW2',dataSetId:'W2',parentModId:'N1',childModId:'N2',filter:'其他流程旧条件'}]}
+ http.records={Base_WorkflowDefinition:[{rowid:'W1'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',position_type:0,node_type:'query',name:'来源',output_mapping:JSON.stringify([{rowid:'P1',Name:'Count',Description:'数量',FieldType:'int'}])},{rowid:'N2',workflow_id:'W1',name:'目标'},{rowid:'NX',workflow_id:'W2',name:'其他'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N2'},{rowid:'E2',workflow_id:'W2',sourceID:'NX',targetID:'NX'}],Base_DataModel_Relation:[{rowid:'RM',dataSetId:'W1',parentModId:'M1',childModId:'M2',filter:'原模型关系'},{rowid:'RO',dataSetId:'W1',parentModId:'N2',childModId:'N1',filter:'反向条件'},{rowid:'RW2',dataSetId:'W2',parentModId:'N1',childModId:'N2',filter:'其他流程旧条件'}]}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'工作流设计'},models:workflowDesignModels(),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent:()=>{}})}}).dataSet
  const page=new PageRuntime({pageId:'condition-test',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W1'}},loadScenario:async()=>ds});pages.push(page);await page.load()
@@ -20,6 +20,36 @@ async function fixture(){
  return{http,ds}
 }
 describe('workflow connector condition',()=>{
+ it.each([
+  {field:'Count',operator:'in' as const,value:[0,1]},
+  {field:'Count',operator:'eq' as const,value:{Type:'GetInputParam',ParamName:'N1.Count'}},
+  {field:'items',operator:'eq' as const,value:0},
+  {field:'Count',operator:'is-null' as const},
+  {field:'Count',operator:'is-not-null' as const},
+ ])('refuses unsupported new condition semantics without writing or discarding the draft: %j',async tree=>{
+  const f=await fixture(),view=await WorkflowConnectorCondition.load(f.ds,'W1','E1'),row=await WorkflowConnectorCondition.add(f.ds,'W1','E1'),id=view.getPkKey(row)!
+  const value=DataViewFilterCodec.serializeStored(DataViewFilter.condition(tree));view.updateEditingValue(id,'filter',value)
+  await expect(WorkflowConnectorCondition.save(f.ds,'W1','E1')).rejects.toThrow()
+  expect(view.getEditingRow(id)?.['filter']).toBe(value);expect(f.http.saves).toEqual([])
+ })
+ it('preserves an unchanged legacy condition whose runtime operator has not been verified',async()=>{
+  const f=await fixture(),legacy=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'in',value:[0,1]}))
+  f.http.records['Base_DataModel_Relation']!.push({rowid:'RC',dataSetId:'W1',parentModId:'N1',childModId:'N2',filter:legacy})
+  await WorkflowConnectorCondition.load(f.ds,'W1','E1');await WorkflowConnectorCondition.save(f.ds,'W1','E1')
+  expect(f.http.records['Base_DataModel_Relation']!.find(row=>row['rowid']==='RC')?.['filter']).toBe(legacy);expect(f.http.saves).toEqual([])
+ })
+ it('uses only actual flat query leaves for connector conditions and keeps the stored output roots intact',async()=>{
+  const f=await fixture(),output=[
+   {rowid:'I',pid:null,Name:'items',FieldType:'Array',isParent:true},
+   {rowid:'C',pid:null,Name:'Count',FieldType:'int',isParent:false},
+   {rowid:'F',pid:'I',Name:'resultAlias',Description:'真实结果',FieldType:'varchar',isParent:false},
+  ]
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']![0]!,{node_type:'query',position_type:1,output_mapping:JSON.stringify(output)})
+  await f.ds.getView('Base_WorkflowNodeDefinition')!.refresh();await WorkflowConnectorCondition.load(f.ds,'W1','E1')
+  expect(WorkflowConnectorCondition.columns(f.ds,'W1','E1')).toEqual([{name:'resultAlias',label:'真实结果',type:'varchar'}])
+  expect(f.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']).toBe(JSON.stringify(output))
+  expect(f.http.saves).toEqual([])
+ })
  it('preserves existing conditions while diagnosing hierarchical output instead of inventing field paths',async()=>{
   const f=await fixture();f.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([{rowid:'C',pid:null,Name:'Count'},{rowid:'I',pid:null,Name:'items',isParent:true},{rowid:'IC',pid:'I',Name:'Count'}])
   f.http.records['Base_DataModel_Relation']!.push({rowid:'RC',dataSetId:'W1',parentModId:'N1',childModId:'N2',filter})

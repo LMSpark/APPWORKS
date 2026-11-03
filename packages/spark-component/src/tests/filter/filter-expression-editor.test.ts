@@ -83,6 +83,19 @@ function editor(modelValue?: ReturnType<DataViewFilter['toJSON']>) {
   return wrapper
 }
 
+it('retains an existing operator but refuses application after the consumer narrows its supported operators',async()=>{
+ const wrapper=editor({field:'Name',operator:'contains',value:'kept'})
+ await wrapper.setProps({allowedOperators:['eq']})
+ await wrapper.get('[data-action="open"]').trigger('click')
+ await new DOMWrapper(document.body).get('[data-action="apply"]').trigger('click');await flushPromises()
+ expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+ expect(new DOMWrapper(document.body).get('[role="alert"]').text()).toContain('运算符')
+ expect(new DOMWrapper(document.body).get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('kept')
+ await wrapper.setProps({allowedOperators:['eq','contains']})
+ await new DOMWrapper(document.body).get('[data-action="apply"]').trigger('click');await flushPromises()
+ expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([{field:'Name',operator:'contains',value:'kept'}])
+})
+
 describe('lazy filter field catalogues', () => {
   const value = {Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'name', FkFieldName: 'id'}
   function pendingFields() {

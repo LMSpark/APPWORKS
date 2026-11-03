@@ -19,6 +19,7 @@ import {useLayoutDataContext} from '../../../runtime/layout-data-context'
 import {useDataViewEventBridge} from '../../../runtime/useDataViewEventBridge'
 import {resolveDataViewEditingRow, writeDataViewEditingValue} from '../../../../fields/context/dataViewEditing'
 import FilterExpressionEditor from '../FilterExpressionEditor/FilterExpressionEditor.vue'
+import {FilterExpressionEditorDraft} from '../FilterExpressionEditor/FilterExpressionEditor.props'
 import type {RFilterExpressionProps} from './RendererFilterExpression.props'
 import {useInputParameterFunctionContext} from '../../../../fields/options/useInputParameterFunctionContext'
 
@@ -33,6 +34,7 @@ const editorOptions = computed(() => ({
   ...(props.autoFullscreenBelow === undefined ? {} : {autoFullscreenBelow: props.autoFullscreenBelow}),
   ...(props.maxDepth === undefined ? {} : {maxDepth: props.maxDepth}),
   ...(props.maxRules === undefined ? {} : {maxRules: props.maxRules}),
+  ...(props.allowedOperators === undefined ? {} : {allowedOperators: props.allowedOperators}),
 }))
 const {resolvedView, row, aggregateError} = useLayoutDataContext(props)
 const formDisabled = useFormDisabled()
@@ -85,7 +87,7 @@ const problem = computed(() => aggregateError.value?.message || (!resolvedView.v
   : !resolvedView.value.columns.some(column => column.name === props.field) ? `过滤定义字段不存在：${props.field}` : accessState.value.error || parsed.value.error))
 watch([resolvedView, identity, rawValue, editable, () => props.field, () => props.format,
   () => props.display, () => props.inputParameterDataViewKey], invalidate, {deep: true, flush: 'sync'})
-watch([() => props.columns, inputContext, () => props.maxDepth, () => props.maxRules], () => {
+watch([() => props.columns, () => props.allowedOperators, inputContext, () => props.maxDepth, () => props.maxRules], () => {
   candidateRevision.value++; error.value = ''
 }, {deep: true, flush: 'sync'})
 const applyForRevision = computed(() => {
@@ -95,6 +97,8 @@ const applyForRevision = computed(() => {
     try {
       const filter = tree === undefined ? undefined : DataViewFilter.parse(tree)
       if (filter && !filter.ok) throw new Error(filter.issues.map(issue => issue.message).join('\n'))
+      if(filter&&props.allowedOperators!==undefined){const issues=filter.value.validate({fields:FilterExpressionEditorDraft.fields(props.columns,props.allowedOperators)})
+        if(issues.length)throw Error(issues.map(issue=>`${issue.path}: ${issue.message}`).join('\n'))}
       const value = props.format === 'spark-json' ? DataViewFilterCodec.serializeStored(filter?.value) : filter?.value.toJSON()
       if (!writeDataViewEditingValue({source: resolvedView.value, row: row.value, field: props.field, value})) throw new Error('过滤定义编辑目标已失效')
     } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}

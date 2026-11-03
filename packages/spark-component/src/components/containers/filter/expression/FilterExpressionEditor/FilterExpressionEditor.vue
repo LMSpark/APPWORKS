@@ -60,13 +60,13 @@ const functionVisible = ref(false)
 const functionValue = ref<DataViewFilterValueFunction>()
 const baseline = ref('')
 const originalJson = ref('')
-const fields = computed(() => FilterExpressionEditorDraft.fields(props.columns))
+const fields = computed(() => FilterExpressionEditorDraft.fields(props.columns,props.allowedOperators))
 const summary = computed(() => FilterExpressionEditorDraft.summarize({tree: props.modelValue, columns: props.columns, context: props.functionContext}))
 const writeLocked = computed(() => props.disabled || props.readonly)
 const checking = ref(false)
 let checkRevision = 0, alive = true
 const invalidateCheck = (): void => {checkRevision++; checking.value = false}
-watch([() => props.functionContext, () => props.columns, () => props.modelValue, () => props.maxDepth, () => props.maxRules,
+watch([() => props.functionContext, () => props.columns, () => props.allowedOperators, () => props.modelValue, () => props.maxDepth, () => props.maxRules,
   writeLocked, visible, rawJson, jsonMode, () => draft.value.root], invalidateCheck, {deep: true, flush: 'sync'})
 let functionTarget: FilterExpressionEditorCondition | undefined
 let awaitingApplication = false

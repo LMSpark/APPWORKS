@@ -8,7 +8,7 @@ import type {FilterExpressionEditorProps} from '../FilterExpressionEditor/Filter
 
 /** r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。 */
 export type RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpressionEditorProps,
-  'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow'> & {
+  'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {
   /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */
   field: string
   /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */

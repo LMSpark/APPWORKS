@@ -1,0 +1,343 @@
+{
+  "date": "2026-11-03",
+  "scope": "Query output leaves and original connector condition CRUD with controlled real execution",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "workflowId": "76C4EA03D56D4FC296BE4650A86B9A66",
+  "disabledThroughout": true,
+  "backendModified": false,
+  "cases": [
+    {
+      "case": "single-true",
+      "phase": "confirmed",
+      "completeness": "complete",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "runtimeInstanceId": "6EA65F0941594D4FB15842DC2A9B3953",
+      "runtimeRecordIds": [
+        "48D2C57DF5A04989AF5D0E19D5B295FE",
+        "5ECCBEE239134237AD02863AE046B30A",
+        "7B2175E2B7FC4B89BA8F4D6BB7478C98",
+        "BB1CEEF64ED143008EA3CE2217388ABF"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "single-false",
+      "phase": "confirmed",
+      "completeness": "unverified",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "runtimeInstanceId": "DC1C77189EA3425E9E8B1DB55D0FFB17",
+      "runtimeRecordIds": [
+        "5EC60859BB3C4F9486FA7E5D838824E3",
+        "839E0149747B4CF58E9AF0926DC8153D"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "all-true",
+      "phase": "confirmed",
+      "commandId": "e7662461-fc0e-4123-87ba-c265ae799d67",
+      "completeness": "complete",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "runtimeInstanceId": "DD3E556654424F1A891065FFB5DB6220",
+      "runtimeRecordIds": [
+        "08689FFD6574499BABFCB65DC09C39E9",
+        "3C38899242F540368D40533C59DA1980",
+        "6C6703D8C23446DA8BEADA4278802FED",
+        "918923873405401585AECC4CE622165E"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "partial-false",
+      "phase": "confirmed",
+      "commandId": "1413ab2a-b609-4f87-a79d-3ba8e033d4f5",
+      "completeness": "unverified",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "runtimeInstanceId": "1C2971971B11403AA26E3D6AA6F306AB",
+      "runtimeRecordIds": [
+        "47C28EF895654EE49A16BF55D091A309",
+        "F368DD2C68BA4DA592121CBE3E08C0E0"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "gt-true",
+      "phase": "confirmed",
+      "commandId": "913ef911-d1dc-4f38-8f39-dfbbc308596f",
+      "completeness": "complete",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "runtimeInstanceId": "B4D1B1F2A3F54AA19F1DABD9E731A320",
+      "runtimeRecordIds": [
+        "182A09AAC4644F8F86CA4BC8E36C0C00",
+        "6302B3D0EAD448D594BE4EC709D33E02",
+        "DBEAC971C9194314B1B2E44026CCFCE2",
+        "FE03AA2DC8194926A232F6494E9726CC"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "gt-false",
+      "phase": "confirmed",
+      "commandId": "7698a007-b475-4843-ac9a-7e021f09b069",
+      "completeness": "unverified",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "runtimeInstanceId": "8223E2DB2EE24E7BBDB2570142871808",
+      "runtimeRecordIds": [
+        "9DE4BB3E9A33495E9AB7D45959FDD01F",
+        "F0F3C783DDF4414E91986AE0DEC22429"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "lt-true",
+      "phase": "confirmed",
+      "commandId": "65f08f11-02f0-4b0c-b49e-d36df577d324",
+      "completeness": "complete",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "runtimeInstanceId": "5E5E44359C2D46708C1FF8B8EA90B4DD",
+      "runtimeRecordIds": [
+        "20785A22754B488F9CB2CBACD82AB6E3",
+        "C1799703A1A3420EB235FBFA6F41E5D7",
+        "DDF4A9422CB94665A7AC4A8325444597",
+        "FB53274BC6D2464D8BB856B3E421A87E"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "lt-false",
+      "phase": "confirmed",
+      "commandId": "2b9892c1-2abc-489f-946c-174dd6fee812",
+      "completeness": "unverified",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "runtimeInstanceId": "5B6595888771421B9C21D7FAD0D1BB17",
+      "runtimeRecordIds": [
+        "2979C62E3BDA4FB08B505F53DDFAC6CF",
+        "4D69FBB2355A47B185D008843BFECA6A"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "null-false",
+      "phase": "observed-mismatch",
+      "commandId": "9542b0c3-bb1d-4c63-928a-2c63557724b8",
+      "completeness": "complete",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "actualNodeIds": [
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "BF9DD5C6D7B537967F028EC26AD1A281",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "runtimeInstanceId": "4268B43BD5ED47F2AEFB5E664A5AB587",
+      "runtimeRecordIds": [
+        "3553E29E05724977A7B28981BD805F0F",
+        "D22D1D713F0B43C5A70EBD9B87B732AD",
+        "DA97632BAC1A4300B41749DAD3751936",
+        "F440D38560AB4B9CBE75FDE7C62561FA"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "notnull-true",
+      "phase": "observed-mismatch",
+      "commandId": "0b715581-1ed1-4ba3-9453-157f11ca41c6",
+      "completeness": "unverified",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "actualNodeIds": [
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "742FB7465A666FA4B474FDBA77B91EB7"
+      ],
+      "runtimeInstanceId": "1F13146524D240B2BDC6A334CA9CC27A",
+      "runtimeRecordIds": [
+        "E1419D0A320143379E299220E99629E9",
+        "ECAAF0B96272461BA1BAE292C267B7AE"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "empty-false",
+      "phase": "confirmed",
+      "commandId": "cd5a27f2-1d75-48d7-ac32-40412bf04585",
+      "completeness": "unverified",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09"
+      ],
+      "runtimeInstanceId": "611124BCBA37424180E9ADD4B0B45BB6",
+      "runtimeRecordIds": [
+        "6C0F9CB39BF54A0CA659D5E889836444",
+        "A10B9E0AB834411498007A4246AC110F"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    },
+    {
+      "case": "empty-unconditional",
+      "phase": "confirmed",
+      "commandId": "093899c5-b4be-4302-92d2-c618d4823859",
+      "completeness": "complete",
+      "expectedNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "actualNodeIds": [
+        "742FB7465A666FA4B474FDBA77B91EB7",
+        "FC673D8E6BA84CED847573FB5D333C09",
+        "A0E595A06E0A81B4AAED359AA17FA4FF",
+        "BF9DD5C6D7B537967F028EC26AD1A281"
+      ],
+      "runtimeInstanceId": "426802EC08954F83AB14D324E99DF0BD",
+      "runtimeRecordIds": [
+        "030E7FA216E4460B8970BA1CD9E09067",
+        "972CFA0AF37C4089B8AC288D2BF9D87B",
+        "9B4AFCA9F19144DEBC4CC11EC1D59EFC",
+        "D8B3F20DC2A042979AD7F8D92D86A7FB"
+      ],
+      "cleaned": true,
+      "noReplay": true
+    }
+  ],
+  "cleanup": {
+    "distinctDefinitions": 95,
+    "distinctRuntimeRecords": 36,
+    "totalDistinctRecords": 131,
+    "remaining": 0,
+    "definitionBreakdown": {
+      "workflow": 1,
+      "parameters": 1,
+      "nodes": 5,
+      "models": 3,
+      "fields": 81,
+      "edges": 3,
+      "conditions": 1
+    },
+    "directoryTotal": 4,
+    "baseCheckpoint": "artifacts/data-chain-smoke/workflow-conditional-fixture-checkpoint.json",
+    "extrasAudit": "artifacts/data-chain-smoke/workflow-conditional-extras-cleanup-cleanup-audit.json"
+  },
+  "uiVerified": [
+    "query flat leaves excluding synthetic roots",
+    "new draft cancel",
+    "applied draft cancel",
+    "save and independent reopen",
+    "condition alias reference prevents field delete and alias change",
+    "clear condition then same field alias save and delete synchronizes output"
+  ],
+  "knownGaps": [
+    "Real service is-null and is-not-null results contradict intended scalar field semantics; both preserved as observed-mismatch, not passed",
+    "Frontend restricts new or changed conditions to eq/ne/gt/lt scalar constants; explicit execution rejects unsupported saved conditions without rewriting them",
+    "Pruned branch execution remains product unverified; controlled expectation is not a service completeness proof",
+    "Other scalar field types and date comparisons not covered",
+    "Default empty pagination, IsOutput=0 reply scope, source replacement, shared-model deletion, copy, remaining node types and whole architecture remain open"
+  ],
+  "verification": {
+    "relatedTests": {
+      "files": 14,
+      "passed": 215
+    },
+    "executionResourceTests": {
+      "files": 1,
+      "passed": 12
+    },
+    "standardFilterTests": 71,
+    "typecheck": "exit0",
+    "lint": "exit0",
+    "frontendBuild": "exit0",
+    "classModelGenerate": "exit0",
+    "pagesConfig": "exit0",
+    "workflowDesigns": "exit0",
+    "pageThin": "exit0",
+    "docs": "exit0",
+    "highModelLimitedReview": "no confirmed regression"
+  },
+  "screenshots": [
+    "artifacts/data-chain-smoke/workflow-conditional-cleaned-directory.png"
+  ],
+  "unknownNewCommands": 0
+}

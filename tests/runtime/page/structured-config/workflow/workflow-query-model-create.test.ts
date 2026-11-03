@@ -63,6 +63,25 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(http.records['Base_DataModel_Field']![0]).toMatchObject({rowid:'C',Name:'newName'})
   expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toContainEqual(expect.objectContaining({rowid:'C',Name:'newName'}))
  })
+ it('protects connector conditions that reference a computed output alias rather than its physical field name',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'},
+   {rowid:'N4',workflow_id:'W1',position_type:2,node_type:'query',node_config:'',output_mapping:'[]'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'EDGE',workflow_id:'W1',sourceID:'N1',targetID:'N4'}]
+  http.records['Base_DataModel_Field']=[{rowid:'C',dataSetId:'W1',dataModelId:'M1',type:'dataModel',FieldType:'计算字段',Name:'physicalName',AsName:'resultAlias',description:'',IsPKey:0,IsOutput:1,ValueFun:'',Expression:'',allowAIAdd:0}]
+  http.records['Base_DataModel_Relation']=[{rowid:'CONDITION',dataSetId:'W1',parentModId:'N1',childModId:'N4',filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'resultAlias',operator:'eq',value:0}))}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};fields.filterExpression={field:'dataModelId',operator:'eq',value:'M1'}
+  await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  await expect(WorkflowComputedFields.remove(ds,'W1','N1','C')).rejects.toThrow('CONDITION')
+  fields.updateEditingValue('C','AsName','nextAlias')
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('CONDITION')
+  expect(fields.getEditingRow('C')?.['AsName']).toBe('nextAlias');expect(http.saves).toHaveLength(0)
+  await cancelWorkflowQueryFields(ds,'W1','N1')
+  fields.updateEditingValue('C','Name','nextPhysicalName');await WorkflowComputedFields.confirm(ds,'W1','N1','C')
+  await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.records['Base_DataModel_Field']![0]).toMatchObject({Name:'nextPhysicalName',AsName:'resultAlias'})
+  expect(http.records['Base_DataModel_Relation']![0]!['filter']).toBe(DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'resultAlias',operator:'eq',value:0})))
+ })
  it('rejects deleting a computed field with a downstream parameter reference, ignores matching constant text, and cancels or saves the original deletion with output synchronization',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_DataModel']!.push({rowid:'M4',dataSetId:'W1',Name:'Downstream'})
@@ -152,6 +171,16 @@ describe('workflow query model creation in the original DataSet',()=>{
   await cancelWorkflowQueryFields(ds,'W1','N1')
   fields.updateEditingValue('F1','IsOutput',0);await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('下游')
   expect(http.saves).toHaveLength(writes)
+ })
+ it.each(['is-null','is-not-null'] as const)('refuses an existing %s connector condition before dispatch while preserving its original definition',async operator=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query'},{rowid:'END',workflow_id:'W1',position_type:2,node_type:'query'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'END'}]
+  const filter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'existingField',operator}))
+  http.records['Base_DataModel_Relation']=[{rowid:'C',dataSetId:'W1',parentModId:'START',childModId:'END',filter}]
+  await Promise.all([nodes.refresh(),edges.refresh()]);const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  await expect(context.load()).rejects.toThrow('运算符')
+  expect(http.records['Base_DataModel_Relation']![0]!['filter']).toBe(filter);expect(http.saves).toHaveLength(0);context.dispose()
  })
  it('captures the saved execution graph and distinguishes mandatory results from conditional branches',async()=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!

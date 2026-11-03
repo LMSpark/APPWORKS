@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/output-fields",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/output-fields",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output-fields\n职责：按已验证的开始平面参数及普通查询叶合同解析实际输出字段。\n边界：纯结构投影，不读写视图、不求值、不把合成items/Count映射为实际行字段。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-03T01:34:53.611Z",
+  "models": {}
+}

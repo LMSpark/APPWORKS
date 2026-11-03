@@ -100,7 +100,7 @@
             <h3>连线条件</h3>
             <p v-if="conditionState.error" role="alert">{{ conditionState.error }}</p>
             <RendererButton v-if="conditionState.ready && !conditionState.row && !conditionUnconfirmed && !conditionDeleting" label="新增条件" :data-view-key="conditionKey" perm-action="create" :disabled="locked || !!conditionState.error" @click="changeCondition('add')" />
-            <RendererFilterExpression v-if="conditionState.row && !conditionState.error" :data-view-key="conditionKey" field="filter" format="spark-json" display="inline" :columns="conditionState.columns" :function-context="conditionState.functionContext" :readonly="locked" :on-editing-change="value=>pending('condition.filter',value)" />
+            <RendererFilterExpression v-if="conditionState.row && !conditionState.error" :data-view-key="conditionKey" field="filter" format="spark-json" display="inline" :columns="conditionState.columns" :function-context="conditionState.functionContext" :allowed-operators="conditionState.allowedOperators" :readonly="locked" :on-editing-change="value=>pending('condition.filter',value)" />
             <RendererForm v-if="conditionState.row && conditionState.error" :data-view-key="conditionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
               <FieldJson field="filter" label="原条件" mode="text" :readonly="true" />
             </RendererForm>
@@ -163,7 +163,7 @@ const conditionUnconfirmed=computed(()=>{revision.value;return conditionView()?.
 const conditionDeleting=computed(()=>{revision.value;return (conditionView()?.dirtyTracking.pendingDeleteIds.size??0)>0})
 const conditionState=computed(()=>{
  revision.value
- const empty={ready:false,row:undefined,columns:[],functionContext:{},error:''},ds=dataSet.value,id=selectedEdgeId.value
+ const empty={ready:false,row:undefined,columns:[],functionContext:{},allowedOperators:undefined,error:''},ds=dataSet.value,id=selectedEdgeId.value
  if(id!==undefined&&view(edgesTable)?.dirtyTracking.isPendingCreate(id))return {...empty,error:'请先保存新连线，再维护连线条件'}
  if(selectedKind.value!=='edge'||!ds||id===undefined||conditionView()?.requestState!==RequestState.Loaded)return empty
  try{const state=WorkflowConnectorCondition.presentation(ds,workflowId.value,id);return{...state,ready:true,error:state.outputError}}

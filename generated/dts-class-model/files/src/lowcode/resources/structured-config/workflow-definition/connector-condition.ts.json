@@ -123,36 +123,37 @@
             "functionContext": {
               "type": "object",
               "properties": {
-                "tables": {
+                "definitions": {
                   "type": "array",
                   "items": {
                     "type": "object",
                     "properties": {
-                      "name": {
+                      "enabled": {
+                        "type": "object",
+                        "title": "() => false"
+                      },
+                      "type": {
+                        "type": "string"
+                      },
+                      "label": {
                         "type": "string"
                       },
                       "fields": {
                         "type": "array",
                         "items": {
                           "type": "object",
-                          "properties": {
-                            "name": {
-                              "type": "string"
-                            },
-                            "label": {
-                              "type": "string"
-                            }
-                          },
-                          "required": [
-                            "name",
-                            "label"
-                          ],
-                          "additionalProperties": false
+                          "title": "import(\"@spark-appworks/spark-data\").DataViewFilterFunctionField"
                         }
+                      },
+                      "validate": {
+                        "type": "object",
+                        "title": "(value: import(\"@spark-appworks/spark-data\").DataViewFilterValueFunction, context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext) => string | null"
                       }
                     },
                     "required": [
-                      "name",
+                      "enabled",
+                      "type",
+                      "label",
                       "fields"
                     ],
                     "additionalProperties": false
@@ -160,16 +161,42 @@
                 }
               },
               "required": [
-                "tables"
+                "definitions"
               ],
               "additionalProperties": false
+            },
+            "allowedOperators": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "eq",
+                  "ne",
+                  "gt",
+                  "gte",
+                  "lt",
+                  "lte",
+                  "is-null",
+                  "is-not-null",
+                  "contains",
+                  "not-contains",
+                  "starts-with",
+                  "not-starts-with",
+                  "ends-with",
+                  "not-ends-with",
+                  "in",
+                  "not-in",
+                  "is-empty",
+                  "is-not-empty"
+                ]
+              }
             }
           },
           "required": [
             "row",
             "columns",
             "outputError",
-            "functionContext"
+            "functionContext",
+            "allowedOperators"
           ],
           "additionalProperties": false
         },
@@ -230,7 +257,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T16:31:43.839Z",
+  "generatedAt": "2026-11-03T02:37:10.545Z",
   "models": {
     "WorkflowConnectorCondition": {
       "name": "WorkflowConnectorCondition",
@@ -367,7 +394,7 @@
               ],
               "type": {
                 "type": "unknown",
-                "name": "{\n        row: DataRow | undefined;\n        columns: DataColumn[];\n        outputError: string;\n        functionContext: {\n            tables: {\n                name: string;\n                fields: {\n                    name: string;\n                    label: string;\n                }[];\n            }[];\n        };\n    }"
+                "name": "{\n        row: DataRow | undefined;\n        columns: DataColumn[];\n        outputError: string;\n        functionContext: {\n            definitions: {\n                enabled: () => false;\n                type: string;\n                label: string;\n                fields: readonly import(\"@spark-appworks/spark-data\").DataViewFilterFunctionField[];\n                validate?: (value: import(\"@spark-appworks/spark-data\").DataViewFilterValueFunction, context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext) => string | null;\n            }[];\n        };\n        allowedOperators: readonly (\"eq\" | \"ne\" | \"gt\" | \"gte\" | \"lt\" | \"lte\" | \"is-null\" | \"is-not-null\" | \"contains\" | \"not-contains\" | \"starts-with\" | \"not-starts-with\" | \"ends-with\" | \"not-ends-with\" | \"in\" | \"not-in\" | \"is-empty\" | \"is-not-empty\")[];\n    }"
               }
             },
             {

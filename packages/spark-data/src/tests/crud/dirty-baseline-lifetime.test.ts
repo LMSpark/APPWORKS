@@ -1,9 +1,10 @@
 import {execFileSync} from 'node:child_process'
-import {resolve} from 'node:path'
+import {dirname,resolve} from 'node:path'
+import {fileURLToPath} from 'node:url'
 import {expect,it} from 'vitest'
 
 it('retains an applied edit baseline across garbage collection until its tracking lifecycle ends',()=>{
- const modulePath=resolve('src/strategies/crud/dirty-tracking-delegate.ts')
+ const modulePath=resolve(dirname(fileURLToPath(import.meta.url)),'../../strategies/crud/dirty-tracking-delegate.ts')
  const script=`
   import assert from 'node:assert/strict';
   import {pathToFileURL} from 'node:url';

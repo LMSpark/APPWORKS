@@ -41,6 +41,21 @@ function fixture(format: 'tree' | 'spark-json' = 'tree', value: unknown = undefi
 }
 
 describe('standard filter definition binding', () => {
+  it('keeps drafts while narrowing operators and refuses both stale callbacks and unsupported bound updates',async()=>{
+    const original={field:'Name',operator:'contains' as const,value:'original'},f=fixture('tree',original,'inline')
+    f.presentation.value={allowedOperators:['eq','contains']};await flushPromises()
+    const editor=f.wrapper.getComponent(FilterExpressionEditor),instance=editor.vm.$.uid
+    await f.wrapper.get('input[aria-label="文本常量"]').setValue('draft')
+    const oldApply=editor.vm.$.vnode.props?.['onUpdate:modelValue'] as (value:unknown)=>void
+    f.presentation.value={allowedOperators:['eq']};await flushPromises()
+    expect(f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid).toBe(instance)
+    expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('draft')
+    oldApply({field:'Name',operator:'eq',value:'stale'});expect(f.view.hasEditingChanges('a')).toBe(false)
+    editor.vm.$emit('update:modelValue',{field:'Name',operator:'contains',value:'unsupported'});await flushPromises()
+    expect(f.view.hasEditingChanges('a')).toBe(false);expect(f.wrapper.text()).toContain('运算符')
+    editor.vm.$emit('update:modelValue',{field:'Name',operator:'eq',value:'accepted'});await flushPromises()
+    expect(f.view.getEditingRow('a')?.['predicate']).toEqual({field:'Name',operator:'eq',value:'accepted'})
+  })
   it.each([
     ['tree', 'dialog'], ['spark-json', 'dialog'], ['tree', 'inline'], ['spark-json', 'inline'],
   ] as const)('keeps the independent %s/%s draft when field and function candidates update', async (format, display) => {

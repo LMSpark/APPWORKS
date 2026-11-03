@@ -24,6 +24,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
  const references=new Set<string>(),removedIds=new Set(changes.filter(change=>!change.after).map(change=>String(change.before['rowid'])))
  const affected=changes.map(change=>({id:String(change.before['rowid']),name:String(change.before['Name']),
   checkName:!change.after||change.before['Name']!==change.after['Name'],
+  outputName:output(change.before),checkOutput:!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1,
   params:new Set(!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1
    ?consumers.map(id=>`${id}.${output(change.before)}`):[])}))
  const views:DataView[]=[]
@@ -33,7 +34,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
    ||JSON.stringify([nodes.queryContext,fields.queryContext,models.queryContext,edges.queryContext])!==contexts
    ||workflowQueryDraftSignature([nodes,fields,models,edges])!==draft)throw Error('字段引用检查目标、草稿或原提交状态已变化；保留当前修改')
  }
- function visit(value:unknown,location:string,fieldNames=false):void{
+ function visit(value:unknown,location:string,fieldNames:ReadonlySet<string>=new Set()):void{
   if(Array.isArray(value)){value.forEach((child,index)=>visit(child,`${location}[${index}]`,fieldNames));return}
   if(!isRecord(value))return
   if(value['Type']==='GetConstValue')return
@@ -43,7 +44,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
    return
   }
   if(value['Type']==='GetExpData')throw Error(`字段引用尚不能从不透明表达式核定: ${location}`)
-  if(fieldNames&&typeof value['field']==='string'&&affected.some(change=>change.checkName&&change.name===value['field']))references.add(`${location}.field`)
+  if(typeof value['field']==='string'&&fieldNames.has(value['field']))references.add(`${location}.field`)
   for(const [key,child] of Object.entries(value))visit(child,`${location}.${key}`,fieldNames)
  }
  async function query(name:string,columns:string[]):Promise<DataView>{
@@ -82,13 +83,13 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   for(const view of views)for(const row of view.rows){
    const id=String(view.getPkKey(row)),location=`${view.tableName}[${id}]`
    if(view.tableName==='Base_DataModel'){
-    const parsed=filter(read(view,row,'Filter'));if(parsed)visit(parsed.toJSON(),`${location}.Filter`,id===modelId)
+    const parsed=filter(read(view,row,'Filter'));if(parsed)visit(parsed.toJSON(),`${location}.Filter`,new Set(id===modelId?affected.filter(change=>change.checkName).map(change=>change.name):[]))
    }else if(view.tableName==='Base_DataModel_Field'){
     if(!removedIds.has(id))visit(document(read(view,row,'ValueFun')),`${location}.ValueFun`)
    }else if(view.tableName==='Base_DataSet')visit(document(read(view,row,'inputParams')),`${location}.inputParams`)
    else{
     const source=read(view,row,'parentModId'),parsed=filter(read(view,row,'filter'))
-    if(parsed)visit(parsed.toJSON(),`${location}.filter`,source===modelId||consumers.includes(String(source)))
+    if(parsed)visit(parsed.toJSON(),`${location}.filter`,new Set(consumers.includes(String(source))?affected.filter(change=>change.checkOutput).map(change=>change.outputName):source===modelId?affected.filter(change=>change.checkName).map(change=>change.name):[]))
    }
   }
   const descendants=new Set(consumers)

@@ -3,11 +3,23 @@
  * 职责：按流程及连接器的节点端点维护条件，提供源节点输出字段目录。
  * 边界：不把模型关系改成节点条件，不持有草稿、不执行过滤或工作流；读写和未知回执归原DataView。
  */
-import {DataViewFilterCodec,RequestState,type DataSet,type DataView,type DataRow,type DataColumn} from '@spark-appworks/spark-data'
-import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {isRecord} from '@spark-appworks/spark-utils'
+import {DataViewFilter,DataViewFilterCodec,getDataViewFilterFieldOperators,getDataViewFilterFunctionDefinitions,RequestState,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterOperator,type DataViewFilterTree} from '@spark-appworks/spark-data'
+import {workflowOutputFields} from './output-fields'
 
 const table='Base_DataModel_Relation',viewId='connector'
+const allowedOperators:readonly DataViewFilterOperator[]=['eq','ne','gt','lt']
+const functionContext={definitions:getDataViewFilterFunctionDefinitions(DataViewFilter.editorContext({})).filter(definition=>definition.type!=='GetConstValue').map(definition=>({...definition,enabled:()=>false}))}
+/** 设计时可带真实字段目录；显式执行仍核已存定义的服务运算/常量合同，不求值或改写原条件。 */
+export function validateWorkflowConditionFilter(filter:DataViewFilter,columns?:readonly DataColumn[]):void{
+ if(columns){const issues=filter.validate({fields:DataViewFilter.fields(columns).map(field=>({...field,operators:getDataViewFilterFieldOperators(field).filter(operator=>allowedOperators.includes(operator))}))})
+  if(issues.length)throw Error(issues.map(issue=>`${issue.path}: ${issue.message}`).join('\n'))}
+ function visit(tree:DataViewFilterTree):void{
+  if('logic' in tree){tree.filters.forEach(visit);return}
+  if(!allowedOperators.includes(tree.operator))throw Error(`工作流连线执行不支持运算符 ${tree.operator}；原条件保留，请修改已验证的条件后再执行`)
+  if(tree.value!==undefined&&tree.value!==null&&!['string','number','boolean'].includes(typeof tree.value))throw Error('连线条件当前只支持标量常量；该执行路径不能解析祖先参数或其他值函数')
+ }
+ visit(filter.toJSON())
+}
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`连线条件字段不可读: ${field}`)
  return row[field]
@@ -44,14 +56,9 @@ export class WorkflowConnectorCondition{
  }
  static columns(dataSet:DataSet,workflowId:string,edgeId:string|number):DataColumn[]{
   const {nodes,source}=scope(dataSet,workflowId,edgeId),raw=read(nodes,source,'output_mapping')
-  const values=raw===null||raw===undefined||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
-  if(!Array.isArray(values))throw Error('源节点输出映射必须是对象数组')
-  const names=new Set<string>()
-  const entries:readonly unknown[]=values
-  if(entries.some(value=>isRecord(value)&&(value['isParent']===true||value['pid']!==undefined&&value['pid']!==null&&value['pid']!=='')))throw Error('层次输出的条件字段运行合同尚未确认；原条件保留')
+  const entries=workflowOutputFields({nodeId:String(nodes.getPkKey(source)),position:read(nodes,source,'position_type'),nodeType:read(nodes,source,'node_type'),mapping:raw})
   return entries.map(value=>{
-   if(!isRecord(value)||typeof value['Name']!=='string'||!value['Name'].trim())throw Error('源节点输出字段缺少名称')
-   const name=value['Name'];if(names.has(name))throw Error('源节点输出字段名称重复');names.add(name)
+   const name=value['Name'] as string
    return{name,label:typeof value['Description']==='string'&&value['Description']?value['Description']:name,type:typeof value['FieldType']==='string'?value['FieldType'].toLowerCase():'string'}
   })
  }
@@ -59,9 +66,7 @@ export class WorkflowConnectorCondition{
   const context=scope(dataSet,workflowId,edgeId),row=loaded(context)
   let columns:DataColumn[]=[],outputError=''
   try{columns=this.columns(dataSet,workflowId,edgeId)}catch(cause){outputError=cause instanceof Error?cause.message:String(cause)}
-  const raw=context.nodes.fieldAccess(context.source,'name').read==='visible'?context.source['name']:undefined
-  const name=typeof raw==='string'&&raw?raw:'源节点'
-  return{row,columns,outputError,functionContext:{tables:[{name,fields:columns.map(column=>({name:column.name,label:column.label??column.name}))}]}}
+  return{row,columns,outputError,functionContext,allowedOperators}
  }
  static async add(dataSet:DataSet,workflowId:string,edgeId:string|number):Promise<DataRow>{
   const context=scope(dataSet,workflowId,edgeId),{view,nodes,source,target}=context
@@ -79,13 +84,14 @@ export class WorkflowConnectorCondition{
   const options={views:[{tableName:table,viewId}]}
   if(view.hasUnconfirmedSave){loaded({...context,view});return dataSet.saveChanges(options)}
   if(view.dirtyTracking.pendingDeleteIds.size){loaded(context);return dataSet.saveChanges(options)}
-  this.columns(dataSet,workflowId,edgeId)
+  const columns=this.columns(dataSet,workflowId,edgeId)
   const row=loaded(context);if(!row)throw Error('当前连线没有条件记录')
   const id=view.getPkKey(row);if(id===undefined)throw Error('条件身份缺失')
   const value=view.getEditingRow(id)?.['filter']
   if(view.fieldAccess(row,'filter').read!=='visible')throw Error('连线条件不可读')
   if(value!==undefined&&value!==null&&typeof value!=='string')throw Error('连线条件必须是SPARK JSON文本')
   const parsed=DataViewFilterCodec.parseStored(value)
+  if(parsed&&(view.dirtyTracking.isPendingCreate(id)||value!==row['filter']||Object.hasOwn(view.dirtyTracking.getDiff(id,row),'filter')))validateWorkflowConditionFilter(parsed,columns)
   if(!parsed)await view.removeRow(id)
   return dataSet.saveChanges(options)
  }

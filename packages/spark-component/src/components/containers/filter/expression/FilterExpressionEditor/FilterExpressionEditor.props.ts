@@ -5,7 +5,7 @@
 import { reactive } from 'vue'
 import { isRecord } from '@spark-appworks/spark-utils'
 import {
-  DataViewFilter, getDataViewFilterFunctionDefinitions, isUnaryDataViewFilterOperator,
+  DataViewFilter, getDataViewFilterFieldOperators, getDataViewFilterFunctionDefinitions, isUnaryDataViewFilterOperator,
 } from '@spark-appworks/spark-data'
 import type * as Data from '@spark-appworks/spark-data'
 
@@ -30,6 +30,8 @@ export type FilterExpressionEditorProps = {
   modelValue?: Data.DataViewFilterTree | undefined
   /** 字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。 */
   columns: readonly Data.DataColumn[]
+  /** 消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。 */
+  allowedOperators?: readonly Data.DataViewFilterOperator[]
   functionContext?: Data.DataViewFilterFunctionContext
   maxDepth?: number
   maxRules?: number
@@ -109,8 +111,8 @@ export class FilterExpressionEditorDraft {
   private readonly originalFunctions = new Set<string>()
 
   /** 查询条件只选择来源字段；框架标识与读取后计算的值不作为查询输入，旧条件保留原文并由校验诊断。 */
-  static fields(columns: readonly Data.DataColumn[]): ReadonlyArray<Data.DataViewFilterField & Pick<Data.DataColumn, 'label'>> {
-    return DataViewFilter.fields(columns)
+  static fields(columns: readonly Data.DataColumn[],allowedOperators?:readonly Data.DataViewFilterOperator[]): ReadonlyArray<Data.DataViewFilterField & Pick<Data.DataColumn, 'label'>> {
+    return DataViewFilter.fields(columns).map(field=>allowedOperators===undefined?field:{...field,operators:getDataViewFilterFieldOperators(field).filter(operator=>allowedOperators.includes(operator))})
   }
 
   /** 从已有正式树创建独立草稿；缺失树或单条件用临时根组承接编辑。 */

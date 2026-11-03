@@ -1,0 +1,1431 @@
+{
+  "date": "2026-11-03",
+  "baseCommit": "ebe3a54fa34b76e7fe0605aaf267e1941a80b8f7",
+  "status": "Controlled deployed SQL Join protocol evidence acquired; public frontend integration and LEFT completeness remain unverified or failed",
+  "scope": {
+    "channel": "Original DataSpaceRequest and DataSpaceQueryTable diagnostic subclass, running service GetData, no page-level request path or backend change",
+    "browserUi": false,
+    "workflowExecutions": 0,
+    "businessSourceWrites": 0
+  },
+  "fixture": {
+    "marker": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776",
+    "spaceId": "645E7932F41EFEE6E8F96AFA74AA2DCF",
+    "parentId": "DA32404277777CD81852626DDA9735C9",
+    "childId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+    "fields": [
+      {
+        "id": "9DEDEAACDCD59D0B034D9DB2F87F6DCD",
+        "modelId": "DA32404277777CD81852626DDA9735C9",
+        "name": "rowid"
+      },
+      {
+        "id": "4C73EDD1A972D8DBAC14DBEF5CF82BDD",
+        "modelId": "DA32404277777CD81852626DDA9735C9",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F",
+        "modelId": "DA32404277777CD81852626DDA9735C9",
+        "name": "Name"
+      },
+      {
+        "id": "DC8B6F072DF4A5A0D067A904C95472BD",
+        "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+        "name": "rowid"
+      },
+      {
+        "id": "A63B1D19B8A239A698610A14FF100A47",
+        "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "3B63273A237E1AE85C3A86D1F4FD3F38",
+        "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+        "name": "Name"
+      },
+      {
+        "id": "D4D70FFBB17123DF718DAE8DBBADC591",
+        "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+        "name": "dataModelId"
+      }
+    ],
+    "formalJoinType": "LEFT",
+    "parentSqlAlias": "smokeParent",
+    "childSqlAlias": "smokeChild",
+    "formalChildOutputAliases": [
+      {
+        "id": "DC8B6F072DF4A5A0D067A904C95472BD",
+        "name": "rowid",
+        "alias": "childRowId"
+      },
+      {
+        "id": "3B63273A237E1AE85C3A86D1F4FD3F38",
+        "name": "Name",
+        "alias": "childName"
+      },
+      {
+        "id": "D4D70FFBB17123DF718DAE8DBBADC591",
+        "name": "dataModelId",
+        "alias": "childParentId"
+      }
+    ],
+    "createdRecords": 10,
+    "retainedRecords": 0
+  },
+  "writes": {
+    "createBatches": 2,
+    "childAliasBatch": 1,
+    "cleanupBatches": 3,
+    "totalMetadataBatches": 6,
+    "replayedBatches": 0,
+    "fileWrites": 0
+  },
+  "unsentIntent": {
+    "spaceId": "340088360783A41937F8CEBA0CE8FBA5",
+    "diagnosticError": "SPARK_SAVE_UNCONFIRMED: 保存请求已发出但未取得可确认的响应: fixture forbids other endpoint /api/LoginAuthority/refresh",
+    "databaseBatchesDispatched": 0,
+    "independentAbsent": true,
+    "classification": "not applied: authentication refresh blocked locally before any business batch; exact ID independently absent after original authenticated refresh",
+    "replayed": false,
+    "reusedIdentity": false
+  },
+  "observations": [
+    {
+      "finding": "Leaf structure",
+      "actual": "Null descendant ChildTables causes deployed 500; each leaf must provide []"
+    },
+    {
+      "finding": "Formal connection configuration",
+      "actual": "Empty formal JoinType causes deployed 500 even with diagnostic LEFT request; proper temporary formal LEFT configuration enabled execution"
+    },
+    {
+      "finding": "Output namespace",
+      "actual": "Different request aliases for the same original Name were rejected; unique formal child AsName values enabled execution; final duplicate destination rowid was rejected with 400"
+    },
+    {
+      "finding": "Multiplicity",
+      "actual": "One child returns 1 row; two children return 2 flat rows with one distinct root rowid"
+    },
+    {
+      "finding": "Credentials and context default",
+      "actual": "Returned Join rows have neither lingma_sys_key nor lingma_sys_params. Raw diagnostic context defaults allow missing auth, showing single-row edit/add enabled; duplicate root keys hide operations and fields. These UI states are not service row authorization."
+    },
+    {
+      "finding": "LEFT no match",
+      "actual": "Child filter no match, ON constant mismatch, pure field mismatch, explicit LEFT and explicit non-main child all return 0 rows despite existing root. Deployment cause is not confirmed."
+    }
+  ],
+  "finalProtocol": {
+    "kind": "readonly-existing-metadata-join-protocol",
+    "testedAt": "2026-11-03T14:00:24.944Z",
+    "reads": 10,
+    "writes": 0,
+    "blockedWrites": 0,
+    "newFixtures": 0,
+    "executions": 0,
+    "requests": [
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "dataModelId",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "DA32404277777CD81852626DDA9735C9"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "Name",
+                      "Operator": "in",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": [
+                          "Name"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "childRowId"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": []
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      },
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "dataModelId",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "DA32404277777CD81852626DDA9735C9"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "Name",
+                      "Operator": "in",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": [
+                          "Name",
+                          "rowid"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "childRowId"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": []
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      },
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "dataModelId",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "DA32404277777CD81852626DDA9735C9"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "Name",
+                      "Operator": "in",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": [
+                          "__SMOKE_NO_SUCH_FIELD__"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "childRowId"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": []
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      },
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": null,
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "childRowId"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": [],
+                "JoinFilter": {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "smokeChild.dataModelId",
+                      "Operator": "equal",
+                      "ValueFun": {
+                        "Type": "GetTableField",
+                        "Field": "smokeParent.rowid"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "smokeChild.Name",
+                      "Operator": "equal",
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "__SMOKE_NO_SUCH_FIELD__"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      },
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": null,
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "childRowId"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": [],
+                "JoinFilter": {
+                  "Type": "cond",
+                  "Field": "smokeChild.dataModelId",
+                  "Operator": "equal",
+                  "ValueFun": {
+                    "Type": "GetTableField",
+                    "Field": "smokeParent.Name"
+                  }
+                }
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      },
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": null,
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "childRowId"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": [],
+                "JoinFilter": {
+                  "Type": "cond",
+                  "Field": "smokeChild.dataModelId",
+                  "Operator": "equal",
+                  "ValueFun": {
+                    "Type": "GetTableField",
+                    "Field": "smokeParent.Name"
+                  }
+                },
+                "JoinType": "LEFT"
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      },
+      {
+        "Table": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "OutputType": "Join",
+            "Filter": {
+              "Type": "cond",
+              "Field": "rowid",
+              "Operator": "equal",
+              "Value": null,
+              "ValueFun": {
+                "Type": "GetConstValue",
+                "Value": "DA32404277777CD81852626DDA9735C9"
+              }
+            },
+            "inputParams": [],
+            "DISTINCT": false,
+            "IsBusinessMain": 1,
+            "ChildTables": [
+              {
+                "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+                "OutputType": "Table",
+                "Filter": {
+                  "Type": "and",
+                  "Filters": [
+                    {
+                      "Type": "cond",
+                      "Field": "dataModelId",
+                      "Operator": "equal",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": "DA32404277777CD81852626DDA9735C9"
+                      }
+                    },
+                    {
+                      "Type": "cond",
+                      "Field": "Name",
+                      "Operator": "in",
+                      "Value": null,
+                      "ValueFun": {
+                        "Type": "GetConstValue",
+                        "Value": [
+                          "Name",
+                          "rowid"
+                        ]
+                      }
+                    }
+                  ]
+                },
+                "inputParams": [],
+                "DISTINCT": false,
+                "IsBusinessMain": 0,
+                "Fields": [
+                  {
+                    "Name": "rowid",
+                    "IsOutput": true,
+                    "AsName": "rowid"
+                  },
+                  {
+                    "Name": "Name",
+                    "IsOutput": true,
+                    "AsName": "childName"
+                  },
+                  {
+                    "Name": "dataModelId",
+                    "IsOutput": true,
+                    "AsName": "childParentId"
+                  }
+                ],
+                "ChildTables": []
+              }
+            ],
+            "Fields": [
+              {
+                "Name": "rowid",
+                "IsOutput": true
+              },
+              {
+                "Name": "Name",
+                "IsOutput": true,
+                "AsName": "parentName"
+              }
+            ]
+          }
+        ],
+        "OutputFieldMode": "REQUEST",
+        "PageParam": {
+          "index": 1,
+          "size": 10
+        }
+      }
+    ],
+    "results": [
+      {
+        "name": "formal-endpoint-configuration",
+        "success": true,
+        "rows": [
+          {
+            "lingma_sys_ent": "NewApp",
+            "DbName": "QYVirtualPlat",
+            "addApi": null,
+            "updateApi": null,
+            "PId": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "ShortName": "smokeChild",
+            "updatetime": "2026-11-03T21:48:16",
+            "Filter": null,
+            "cacheType": null,
+            "IsBusiness": 0,
+            "topValue": null,
+            "lingma_sys_is_delete": 0,
+            "ReportID": null,
+            "Type": "数据库表",
+            "selfType": "child",
+            "updateuser": "U00001",
+            "MetaName": "Base_DataModel_Field",
+            "PrimaryKeyFields": "rowid",
+            "description": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776",
+            "wfid": null,
+            "JoinFilter": "{\"Type\":\"cond\",\"Field\":\"smokeChild.dataModelId\",\"Operator\":\"equal\",\"ValueFun\":{\"Type\":\"GetTableField\",\"Field\":\"smokeParent.rowid\"}}",
+            "flowstate": 0,
+            "parentField": null,
+            "dataSetId": "645E7932F41EFEE6E8F96AFA74AA2DCF",
+            "RequestComplete": null,
+            "items": null,
+            "createtime": "2026-11-03T21:48:16",
+            "OutputType": "Table",
+            "JoinType": "LEFT",
+            "ForeignKeyFields": "dataModelId",
+            "requestType": null,
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_CHILD",
+            "hasChildField": null,
+            "DISTINCT": 0,
+            "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+            "deleteApi": null,
+            "IsBusinessMain": 0,
+            "rowid": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+            "createuser": "U00001"
+          },
+          {
+            "lingma_sys_ent": "NewApp",
+            "DbName": "QYVirtualPlat",
+            "addApi": null,
+            "updateApi": null,
+            "PId": "",
+            "ShortName": "smokeParent",
+            "updatetime": "2026-11-03T21:48:16",
+            "Filter": null,
+            "cacheType": null,
+            "IsBusiness": 0,
+            "topValue": null,
+            "lingma_sys_is_delete": 0,
+            "ReportID": null,
+            "Type": "数据库表",
+            "selfType": "child",
+            "updateuser": "U00001",
+            "MetaName": "Base_DataModel",
+            "PrimaryKeyFields": "rowid",
+            "description": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776",
+            "wfid": null,
+            "JoinFilter": "",
+            "flowstate": 0,
+            "parentField": null,
+            "dataSetId": "645E7932F41EFEE6E8F96AFA74AA2DCF",
+            "RequestComplete": null,
+            "items": null,
+            "createtime": "2026-11-03T21:48:16",
+            "OutputType": "Table",
+            "JoinType": "",
+            "ForeignKeyFields": "",
+            "requestType": null,
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "hasChildField": null,
+            "DISTINCT": 0,
+            "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+            "deleteApi": null,
+            "IsBusinessMain": 1,
+            "rowid": "DA32404277777CD81852626DDA9735C9",
+            "createuser": "U00001"
+          }
+        ],
+        "requestJoinType": "omitted; use formal LEFT/PId/JoinFilter",
+        "warning": "Explicit diagnostic child tree is supplied; automatic PId discovery and Foreign hierarchy are not proven"
+      },
+      {
+        "name": "parent-independent",
+        "success": true,
+        "total": 1,
+        "rows": [
+          {
+            "Name": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "lingma_sys_ent": "NewApp",
+            "rowid": "DA32404277777CD81852626DDA9735C9"
+          }
+        ],
+        "editStates": [
+          "enabled"
+        ]
+      },
+      {
+        "name": "child-independent",
+        "success": true,
+        "total": 2,
+        "rows": [
+          {
+            "childName": "Name",
+            "lingma_sys_ent": "NewApp",
+            "childParentId": "DA32404277777CD81852626DDA9735C9",
+            "childRowId": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F"
+          },
+          {
+            "childName": "rowid",
+            "lingma_sys_ent": "NewApp",
+            "childParentId": "DA32404277777CD81852626DDA9735C9",
+            "childRowId": "9DEDEAACDCD59D0B034D9DB2F87F6DCD"
+          }
+        ],
+        "editStates": [
+          "disabled",
+          "disabled"
+        ]
+      },
+      {
+        "name": "one-child",
+        "success": true,
+        "total": 1,
+        "countReported": true,
+        "primaryKey": "rowid",
+        "rows": [
+          {
+            "parentName": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "rowid": "DA32404277777CD81852626DDA9735C9",
+            "childName": "Name",
+            "childParentId": "DA32404277777CD81852626DDA9735C9",
+            "childRowId": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F"
+          }
+        ],
+        "distinctRootKeys": 1,
+        "duplicateRootKeys": 0,
+        "rowPermissionPresence": [
+          {
+            "key": false,
+            "params": false
+          }
+        ],
+        "distinctRowCredentials": 0,
+        "addState": "enabled",
+        "editStates": [
+          "enabled"
+        ],
+        "fieldAccess": [
+          {
+            "rowid": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            },
+            "parentName": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            },
+            "childRowId": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            },
+            "childName": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            },
+            "childParentId": {
+              "read": "visible",
+              "write": "allowed",
+              "component": "editable",
+              "required": false,
+              "writeMode": "editable"
+            }
+          }
+        ],
+        "response": {
+          "Code": 200,
+          "Message": "操作成功",
+          "Result": {
+            "data": {
+              "Count": 1,
+              "Items": [
+                {
+                  "parentName": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+                  "rowid": "DA32404277777CD81852626DDA9735C9",
+                  "childName": "Name",
+                  "childParentId": "DA32404277777CD81852626DDA9735C9",
+                  "childRowId": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F"
+                }
+              ],
+              "hasNextPage": null,
+              "Action": "get"
+            },
+            "primaryKeyField": "rowid",
+            "allowAdd": true,
+            "lingma_sys_key": "[present]"
+          },
+          "Type": "success",
+          "Extras": "",
+          "Time": "2026-11-03 22:00:22"
+        }
+      },
+      {
+        "name": "two-children",
+        "success": true,
+        "total": 2,
+        "countReported": true,
+        "primaryKey": "rowid",
+        "rows": [
+          {
+            "parentName": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "rowid": "DA32404277777CD81852626DDA9735C9",
+            "childName": "Name",
+            "childParentId": "DA32404277777CD81852626DDA9735C9",
+            "childRowId": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F"
+          },
+          {
+            "parentName": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+            "rowid": "DA32404277777CD81852626DDA9735C9",
+            "childName": "rowid",
+            "childParentId": "DA32404277777CD81852626DDA9735C9",
+            "childRowId": "9DEDEAACDCD59D0B034D9DB2F87F6DCD"
+          }
+        ],
+        "distinctRootKeys": 1,
+        "duplicateRootKeys": 1,
+        "rowPermissionPresence": [
+          {
+            "key": false,
+            "params": false
+          },
+          {
+            "key": false,
+            "params": false
+          }
+        ],
+        "distinctRowCredentials": 0,
+        "addState": "enabled",
+        "editStates": [
+          "hidden",
+          "hidden"
+        ],
+        "fieldAccess": [
+          {
+            "rowid": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "parentName": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "childRowId": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "childName": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "childParentId": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            }
+          },
+          {
+            "rowid": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "parentName": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "childRowId": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "childName": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            },
+            "childParentId": {
+              "read": "invisible",
+              "write": "denied",
+              "component": "hidden",
+              "required": false,
+              "writeMode": "readonly"
+            }
+          }
+        ],
+        "response": {
+          "Code": 200,
+          "Message": "操作成功",
+          "Result": {
+            "data": {
+              "Count": 2,
+              "Items": [
+                {
+                  "parentName": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+                  "rowid": "DA32404277777CD81852626DDA9735C9",
+                  "childName": "Name",
+                  "childParentId": "DA32404277777CD81852626DDA9735C9",
+                  "childRowId": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F"
+                },
+                {
+                  "parentName": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776_PARENT",
+                  "rowid": "DA32404277777CD81852626DDA9735C9",
+                  "childName": "rowid",
+                  "childParentId": "DA32404277777CD81852626DDA9735C9",
+                  "childRowId": "9DEDEAACDCD59D0B034D9DB2F87F6DCD"
+                }
+              ],
+              "hasNextPage": null,
+              "Action": "get"
+            },
+            "primaryKeyField": "rowid",
+            "allowAdd": true,
+            "lingma_sys_key": "[present]"
+          },
+          "Type": "success",
+          "Extras": "",
+          "Time": "2026-11-03 22:00:23"
+        }
+      },
+      {
+        "name": "no-child-match",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "primaryKey": "rowid",
+        "rows": [],
+        "distinctRootKeys": 0,
+        "duplicateRootKeys": 0,
+        "rowPermissionPresence": [],
+        "distinctRowCredentials": 0,
+        "addState": "enabled",
+        "editStates": [],
+        "fieldAccess": [],
+        "response": {
+          "Code": 200,
+          "Message": "操作成功",
+          "Result": {
+            "data": {
+              "Count": 0,
+              "Items": [],
+              "hasNextPage": null,
+              "Action": "get"
+            },
+            "primaryKeyField": "rowid",
+            "allowAdd": true,
+            "lingma_sys_key": "[present]"
+          },
+          "Type": "success",
+          "Extras": "",
+          "Time": "2026-11-03 22:00:23"
+        }
+      },
+      {
+        "name": "left-unmatched-on",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "primaryKey": "rowid",
+        "rows": [],
+        "distinctRootKeys": 0,
+        "duplicateRootKeys": 0,
+        "rowPermissionPresence": [],
+        "distinctRowCredentials": 0,
+        "addState": "enabled",
+        "editStates": [],
+        "fieldAccess": [],
+        "response": {
+          "Code": 200,
+          "Message": "操作成功",
+          "Result": {
+            "data": {
+              "Count": 0,
+              "Items": [],
+              "hasNextPage": null,
+              "Action": "get"
+            },
+            "primaryKeyField": "rowid",
+            "allowAdd": true,
+            "lingma_sys_key": "[present]"
+          },
+          "Type": "success",
+          "Extras": "",
+          "Time": "2026-11-03 22:00:23"
+        }
+      },
+      {
+        "name": "left-unmatched-field",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "primaryKey": "rowid",
+        "rows": [],
+        "distinctRootKeys": 0,
+        "duplicateRootKeys": 0,
+        "rowPermissionPresence": [],
+        "distinctRowCredentials": 0,
+        "addState": "enabled",
+        "editStates": [],
+        "fieldAccess": [],
+        "response": {
+          "Code": 200,
+          "Message": "操作成功",
+          "Result": {
+            "data": {
+              "Count": 0,
+              "Items": [],
+              "hasNextPage": null,
+              "Action": "get"
+            },
+            "primaryKeyField": "rowid",
+            "allowAdd": true,
+            "lingma_sys_key": "[present]"
+          },
+          "Type": "success",
+          "Extras": "",
+          "Time": "2026-11-03 22:00:24"
+        }
+      },
+      {
+        "name": "left-unmatched-field-explicit-type",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "primaryKey": "rowid",
+        "rows": [],
+        "distinctRootKeys": 0,
+        "duplicateRootKeys": 0,
+        "rowPermissionPresence": [],
+        "distinctRowCredentials": 0,
+        "addState": "enabled",
+        "editStates": [],
+        "fieldAccess": [],
+        "response": {
+          "Code": 200,
+          "Message": "操作成功",
+          "Result": {
+            "data": {
+              "Count": 0,
+              "Items": [],
+              "hasNextPage": null,
+              "Action": "get"
+            },
+            "primaryKeyField": "rowid",
+            "allowAdd": true,
+            "lingma_sys_key": "[present]"
+          },
+          "Type": "success",
+          "Extras": "",
+          "Time": "2026-11-03 22:00:24"
+        }
+      },
+      {
+        "name": "duplicate-output-alias",
+        "success": false,
+        "error": "[400] 返回字段别名冲突：rowid"
+      }
+    ]
+  },
+  "initialFailures": {
+    "nullLeaf": [
+      {
+        "name": "one-child",
+        "error": "[500] Cannot invoke \"java.util.List.stream()\" because \"childTables\" is null"
+      },
+      {
+        "name": "two-children",
+        "error": "[500] Cannot invoke \"java.util.List.stream()\" because \"childTables\" is null"
+      },
+      {
+        "name": "no-child-match",
+        "error": "[500] Cannot invoke \"java.util.List.stream()\" because \"childTables\" is null"
+      },
+      {
+        "name": "duplicate-output-alias",
+        "error": "[500] Cannot invoke \"java.util.List.stream()\" because \"childTables\" is null"
+      }
+    ],
+    "nullJoinType": [
+      {
+        "name": "one-child",
+        "error": "[500] Cannot invoke \"com.htong.enums.JoinType.name()\" because the return value of \"com.htong.join.Table.getJoinType()\" is null"
+      },
+      {
+        "name": "two-children",
+        "error": "[500] Cannot invoke \"com.htong.enums.JoinType.name()\" because the return value of \"com.htong.join.Table.getJoinType()\" is null"
+      },
+      {
+        "name": "no-child-match",
+        "error": "[500] Cannot invoke \"com.htong.enums.JoinType.name()\" because the return value of \"com.htong.join.Table.getJoinType()\" is null"
+      },
+      {
+        "name": "duplicate-output-alias",
+        "error": "[500] Cannot invoke \"com.htong.enums.JoinType.name()\" because the return value of \"com.htong.join.Table.getJoinType()\" is null"
+      }
+    ],
+    "formalAliasConflict": [
+      {
+        "name": "one-child",
+        "error": "[400] 请求字段别名冲突：模型输出名 Name 映射到多个别名"
+      },
+      {
+        "name": "two-children",
+        "error": "[400] 请求字段别名冲突：模型输出名 Name 映射到多个别名"
+      },
+      {
+        "name": "no-child-match",
+        "error": "[400] 请求字段别名冲突：模型输出名 Name 映射到多个别名"
+      },
+      {
+        "name": "duplicate-output-alias",
+        "error": "[400] 请求字段别名冲突：模型输出名 Name 映射到多个别名"
+      }
+    ]
+  },
+  "cleanup": {
+    "nativeOwner": {
+      "phase": "cleanup-confirmed",
+      "error": "",
+      "pending": "",
+      "reads": 108,
+      "writes": 5,
+      "blockedWrites": 0,
+      "executions": 0,
+      "marker": "SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776",
+      "spaceId": "645E7932F41EFEE6E8F96AFA74AA2DCF",
+      "parentId": "DA32404277777CD81852626DDA9735C9",
+      "childId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+      "fieldIds": [
+        {
+          "id": "9DEDEAACDCD59D0B034D9DB2F87F6DCD",
+          "modelId": "DA32404277777CD81852626DDA9735C9",
+          "name": "rowid"
+        },
+        {
+          "id": "4C73EDD1A972D8DBAC14DBEF5CF82BDD",
+          "modelId": "DA32404277777CD81852626DDA9735C9",
+          "name": "lingma_sys_ent"
+        },
+        {
+          "id": "1AC1B1CBB4E2CDDBAC093F4C6CF1A80F",
+          "modelId": "DA32404277777CD81852626DDA9735C9",
+          "name": "Name"
+        },
+        {
+          "id": "DC8B6F072DF4A5A0D067A904C95472BD",
+          "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+          "name": "rowid"
+        },
+        {
+          "id": "A63B1D19B8A239A698610A14FF100A47",
+          "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+          "name": "lingma_sys_ent"
+        },
+        {
+          "id": "3B63273A237E1AE85C3A86D1F4FD3F38",
+          "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+          "name": "Name"
+        },
+        {
+          "id": "D4D70FFBB17123DF718DAE8DBBADC591",
+          "modelId": "0EC205FD4F1597CFDF5B8ADEC2BEBFD5",
+          "name": "dataModelId"
+        }
+      ],
+      "lifecycle": "cleaned",
+      "noReplay": true,
+      "deletedchild": true,
+      "deletedparent": true,
+      "checks": [
+        "ten exact temporary records independently read",
+        "native child and parent model removal followed by catalog deletion confirmed"
+      ]
+    },
+    "independentFourTableAbsence": [
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataSet",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "returned": 0,
+        "rows": []
+      },
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataModel",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "returned": 0,
+        "rows": []
+      },
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataModel_Field",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "returned": 0,
+        "rows": []
+      },
+      {
+        "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+        "metaName": "Base_DataModel_Relation",
+        "success": true,
+        "total": 0,
+        "countReported": true,
+        "returned": 0,
+        "rows": []
+      }
+    ],
+    "processExitCodes": {
+      "localUnsentIntent": 0,
+      "actualFixture": 0,
+      "aliasPreparation": 0,
+      "finalProtocol": 0
+    },
+    "observationLimit": "Tracked creation, alias, final probe and original cleanup owners exited 0. Initial formal alias-conflict probe PID 30724 was observed missing after its complete result file; its exit code was not retained."
+  },
+  "localSourceExplanation": {
+    "deploymentCauseProven": false,
+    "explanation": "Reference Java recursively adds child default conditions and merges child conditions into root WHERE. NULL child rows can be excluded even under LEFT. No explicit LEFT to INNER rewrite was found.",
+    "references": [
+      {
+        "path": "E:/lowcode-jdk17/lowcode-framework/lowcode-anyline/src/main/java/com/htong/service/CrudServiceImpl.java",
+        "lines": "3346,3452-3458,3514-3632"
+      },
+      {
+        "path": "E:/lowcode-jdk17/lowcode-framework/lowcode-anyline/src/main/java/com/htong/util/ConditionUtils.java",
+        "lines": "449,493-494,519-524"
+      },
+      {
+        "path": "E:/lowcode-jdk17/lowcode-framework/lowcode-anyline/src/main/java/com/htong/config/permission/DataPermissionAspect.java",
+        "lines": "549-561"
+      }
+    ]
+  },
+  "remaining": [
+    "Public explicit DataView child query plan and request serialization with full identity, alias and lifecycle checks",
+    "Read-only joined result projection preserving all duplicate-root rows, without fake entity keys or inferred row authorization",
+    "Real DataView and standard component binding and release verification",
+    "Deployed LEFT unmatched parent preservation, cause and service-side contract resolution; no frontend row synthesis or permission bypass",
+    "INNER and Foreign hierarchy matrix, field denied/hidden/masked behavior, page regressions and whole architecture gates"
+  ],
+  "noProductionCodeChanged": true
+}

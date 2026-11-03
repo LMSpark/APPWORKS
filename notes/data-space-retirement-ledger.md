@@ -5693,3 +5693,14 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 已经原模型删除入口先清子+4字段、再父+3字段、最后原目录无模型检查后删空间；清理owner104读3写，精确删除10身份。额外独立四表Base_DataSet/Model/Field/Relation回读总数均0。全生命周期创建2+换源2+清理3=7次数据库批次，流程执行0、业务数据改动0、文件写0，夹具checkpoint已标cleaned，禁止重建。原创建/换源owner已exit0，清理ownerfinish已发送，终态仍待进程核验。证据evidence/data-chain-smoke/2026-11-03-join-source-native-live.json。
 - 高阶下一运行工位已复核：先通过原数据层/HTTP身份链做已有TableInput非空ChildTables只读协议探针，核一父两子重复根键、LEFT未命中、别名冲突与真实字段/行权限；再补显式子查询配置与明确只读结果投影，完整绑定/重复行保留/释放一起验收。禁止根rowid冒充结果唯一键、拼伪主键、表token冒充行权限、前端合并父子权限或借聚合标志绕开合同。Foreign层级独立验收。源码和本轮配置回读均不冒充部署Join执行通过；全架构目标保持active。本轮无浏览器UI验收，需在整页矩阵中保留该范围限制。
 - 本轮三个原进程最终均真实exit0（创建35708、换源35512、清理19560）；清理finish后关闭stdin才释放readline句柄，没有终止未决批次。无未确认所有者、无保留夹具。verify:docs与diff --check通过；本轮仅新增实服证据和同一台账，无生产代码变化，不重复冒称新跑496测试。下一卡按上述协议探针继续，目标active。
+
+### 2026-11-03 非空ChildTables运行协议探针（implementing）
+- 上轮ebe3a54fa已推送且旧换源夹具为cleaned。本轮先沿原DataSpaceRequest/DataSpaceQueryTable做受控GetData只读探针，不在页面另拼请求、不改后端。现有8D元数据端点父独立1/子独立2行；非空子树先发现leaf.ChildTables=null，显式leaf[]后再发现正式JoinType空。各7读0写，实际响应分别留join-runtime-protocol-null-leaf.json/null-type.json；不能仅填ChildTables即称完成。
+- 新运行夹具首次创建意图340088360783A41937F8CEBA0CE8FBA5被诊断认证白名单挡住refresh，实际数据库批次0；原保存包装为unconfirmed。沿原刷新协议取得真实新令牌后，独立查该精确ID总数0，确认为本地未派发/未应用，未重放原意图。已保留not-applied证据及原checkpoint，使用新唯一意图，不复用该ID。诊断白名单补允许原认证refresh，未扩大业务写端点。
+- 当前新夹具SMOKE_DATA_CHAIN_JOIN_RUNTIME_1793713552776，空间645E7932F41EFEE6E8F96AFA74AA2DCF，模型2/字段7/空间1=10条，原目录+DataSet2批确认。正式LEFT/PId/JoinFilter和smokeParent/smokeChild双端别名。原DataSet再1批仅改子3字段AsName，独立读回childRowId/childName/childParentId，正式输出唯一；最初请求端Name别名不同触发实际400冲突，保留原响应，不误记为Join条件错误。
+- 真实SQL连接已返回：一子1行，两子2行且根rowid重复；最终重复输出别名被实际服务400拒绝。原始Join行无lingma_sys_key/params；诊断Context缺省导致单行edit/add enabled，重复根键则操作/字段隐藏。这是既有上下文默认消费及身份冲突，不是部署行授权。此前中途曾据edit状态口头误判有行权限，已查原始响应并明确更正；实际签名存在性均false。当前ChildTables公共入口/只读投影/重复行绑定仍缺，不能以原Context默认可编辑当授权。
+- 子Filter无匹配返回0；含常量的ON无匹配也返回0，尚不判原因。正在同一新夹具做纯字段与字段不匹配、正式LEFT与请求显式LEFT对照，区分类型传播及表达式消费。尚未清理，未执行工作流或修改业务来源行。所有临时ID与原owner见join-runtime-native-lifecycle-checkpoint.json，不能称清理完成。
+- 最终只读对照已结束：显式子IsBusinessMain=0与请求显式LEFT均未改变无匹配0行；真实匹配1/2行，根键1:N重复、无行签名、冲突别名400均已取得完整脱敏请求/响应。高阶与本会话只读核到参考CrudServiceImpl递归子默认条件、ConditionUtils把子condition合入根WHERE；可解释LEFT的NULL子行被排除，但部署原因未证实，不能声称已定位到某个授权/租户/逻辑删除条件。未改后端或前端补造父行。
+- 新运行夹具10条已原生顺序删除并独立四表确认全0，原未派发ID也仍0。新原owner创建2+删除3批，别名owner1批，共6次元数据数据库批次，业务来源修改0/文件写0/流程执行0/重放0；原owner108读5写，别名28读1写。所有相关原进程exit0；原not-applied认证拦截意图保留独立缺席证明。证据evidence/data-chain-smoke/2026-11-03-join-runtime-protocol-live.json，旧换源夹具保持cleaned，当前运行夹具亦cleaned。
+- 本工位仅证明真实SQL协议和暴露差距，不代表运行组件闭环。下一步在原spark-data/DataView查询合同承接显式子查询与严格只读结果投影，保留重复根行、正式字段来源、原查询权限与释放；不能用伪主键、聚合标志或改全局缺失权限缺省掩盖问题。LEFT部署完整性继续登记服务缺口；INNER/Foreign/字段拒绝掩码/真实整页矩阵与全仓门禁仍未通过。目标active。
+- 进程证据范围纠正：可持续跟踪的创建/别名/最终协议探针所有者均exit0；首次正式别名冲突探针30724完成结果文件后已查OS进程不存在，因诊断变量作用域未保留退出码，不把其终结冒称捕获到exit0。后续统一用持久actor启动器保留句柄。此限制不影响已有完整响应或独立清理证明。

@@ -5,7 +5,7 @@
  * AI用途：从实际查询行消费权限并构造可验证的保存请求。
  */
 import { DataSpaceDesignApi } from '../../design/data-space-design-api'
-import type { DataViewNewRowIdentity } from '@spark-appworks/spark-data'
+import type { DataColumn, DataViewNewRowIdentity } from '@spark-appworks/spark-data'
 import type { DataSpaceQueryIdentity } from '../data-space-runtime-contract'
 import { DataSpaceRowPermission } from '../protocol/data-space-permission'
 import type { DataSpaceFieldAccess, DataSpaceMissingAuthPolicy } from '../protocol/data-space-permission'
@@ -52,6 +52,10 @@ type DataSpaceQueryContextOptions = Readonly<{
   scope: string
   readScope: () => string
   missingAuthPolicy?: DataSpaceMissingAuthPolicy
+  /** 显式连接结果是只读投影，不把重复根键当成实体身份。 */
+  resultKind?: 'entity' | 'join'
+  /** 本次正式输出列；不修改共享模型字段。 */
+  columns?: readonly DataColumn[]
 }>
 
 function canonicalKey(value: unknown): string {
@@ -61,13 +65,15 @@ function canonicalKey(value: unknown): string {
 const denied = Object.freeze({ read: 'invisible', write: 'denied', component: 'hidden',
   required: false, writeMode: 'readonly' } as const)
 
-/** 本次查询拥有唯一行身份和双通道权限；消费者不得取得底层权限字段或替换基线。 */
+/** 持有本次查询的实体键或只读投影及逐行读取语义；消费者不得取得签名或替换基线。 */
 export class DataSpaceQueryContext {
   readonly #identity: DataSpaceQueryIdentity
   readonly #snapshot: DataSpaceQueryContextOptions['snapshot']
   readonly #scope: string
   readonly #readScope: () => string
   readonly #missingAuthPolicy: DataSpaceQueryContextOptions['missingAuthPolicy']
+  readonly #joinResult: boolean
+  readonly #columns: readonly DataColumn[] | undefined
   readonly #rows: readonly DataSpaceRow[]
   readonly #permissions = new Map<string, DataSpaceRowPermission | null>()
   readonly #rowPermissions = new WeakMap<DataSpaceRow, DataSpaceRowPermission>()
@@ -84,10 +90,13 @@ export class DataSpaceQueryContext {
     this.#snapshot = options.snapshot
     this.#scope = options.scope
     this.#readScope = options.readScope
-    this.#missingAuthPolicy = options.missingAuthPolicy
+    this.#joinResult = options.resultKind === 'join'
+    this.#missingAuthPolicy = options.missingAuthPolicy ?? (this.#joinResult ? 'visible-readonly' : undefined)
+    this.#columns = options.columns === undefined ? undefined
+      : Object.freeze(options.columns.map(column => Object.freeze(structuredClone(column))))
     this.#rows = Object.freeze(options.snapshot.rows.map(row => {
       const permission = new DataSpaceRowPermission({ row,
-        ...(options.missingAuthPolicy === undefined ? {} : { missingAuthPolicy: options.missingAuthPolicy }) })
+        ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
       const key = canonicalKey(this.rowKeyValue(row))
       if (key) this.#permissions.set(key, this.#permissions.has(key) ? null : permission)
       const consumer: Record<string, unknown> = {}
@@ -169,6 +178,7 @@ export class DataSpaceQueryContext {
     }})
     const next = new DataSpaceQueryContext({identity: this.#identity,
       snapshot: Object.freeze({...snapshot, countReported: this.#snapshot.countReported}), scope: this.#scope, readScope: this.#readScope,
+      resultKind: this.#joinResult ? 'join' : 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
       ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
     if (this.#model) next.bindFormalModel(this.#model)
     next.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !expected.has(key)))
@@ -176,9 +186,15 @@ export class DataSpaceQueryContext {
     return next
   }
 
-  private get keyField(): string { return this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
+  private get keyField(): string { return this.#joinResult || this.#aggregateResult ? '' : this.#model?.primaryKey ?? this.#snapshot.primaryKey }
 
-  /** 本次结果行的稳定身份；汇总结果为空，不改变来源模型的正式主键，不将汇总行作为CRUD原行基线。 */
+  /** 查询结果语义；连接投影与聚合分别标明，均不改变来源模型。 */
+  public get resultKind(): 'entity' | 'join' | 'aggregate' { return this.#joinResult ? 'join' : this.#aggregateResult ? 'aggregate' : 'entity' }
+  /** 来源实际报告的键；连接结果保留根键作为来源信息，不用于实体操作。 */
+  public get reportedPrimaryKey(): string { return this.#snapshot.primaryKey }
+  /** 本次正式投影列；只存在于本结果生命周期。 */
+  public get columns(): readonly DataColumn[] | undefined { return this.#columns }
+  /** 本结果可用于实体操作的键；连接及汇总为空，来源报告键另由reportedPrimaryKey保留。 */
   public get resultPrimaryKey(): string { return this.keyField }
 
   public get rows(): readonly DataSpaceRow[] { this.assertCurrent(); return this.#rows }
@@ -407,6 +423,7 @@ export class DataSpaceQueryContext {
     const context = new DataSpaceQueryContext({ identity: this.#identity,
       snapshot: Object.freeze({ ...snapshot, countReported: this.#snapshot.countReported }),
       scope: this.#scope, readScope: this.#readScope,
+      resultKind: this.#joinResult ? 'join' : 'entity', ...(this.#columns === undefined ? {} : {columns: this.#columns}),
       ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
     if (this.#model) context.bindFormalModel(this.#model)
     context.markSavedRowsPending([...this.#pendingSavedRowKeys].filter(key => !deleted.has(key)))
@@ -453,6 +470,9 @@ export class DataSpaceQueryContext {
   }
 
   private assertModelSaveAllowed(changes: DataSpaceSaveChanges): void {
+    if (this.#joinResult && ((changes.added?.length ?? 0) > 0 || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
+      throw new Error('SPARK_JOIN_RESULT_READONLY: 连接投影不能作为实体保存基线')
+    }
     if (this.keyField === '' && ((changes.added?.length ?? 0) > 0
       || (changes.changed?.length ?? 0) > 0 || (changes.deleted?.length ?? 0) > 0)) {
       throw new Error('SPARK_MODEL_KEYLESS_READONLY: 无可写记录身份的查询结果不可保存行变更')

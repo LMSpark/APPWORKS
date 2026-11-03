@@ -38,6 +38,23 @@
           "type": "array",
           "items": true
         },
+        "resultKind": {
+          "enum": [
+            "join",
+            "entity",
+            "aggregate"
+          ]
+        },
+        "reportedPrimaryKey": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
         "resultPrimaryKey": {
           "type": "string"
         },

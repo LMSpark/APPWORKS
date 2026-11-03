@@ -5704,3 +5704,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 新运行夹具10条已原生顺序删除并独立四表确认全0，原未派发ID也仍0。新原owner创建2+删除3批，别名owner1批，共6次元数据数据库批次，业务来源修改0/文件写0/流程执行0/重放0；原owner108读5写，别名28读1写。所有相关原进程exit0；原not-applied认证拦截意图保留独立缺席证明。证据evidence/data-chain-smoke/2026-11-03-join-runtime-protocol-live.json，旧换源夹具保持cleaned，当前运行夹具亦cleaned。
 - 本工位仅证明真实SQL协议和暴露差距，不代表运行组件闭环。下一步在原spark-data/DataView查询合同承接显式子查询与严格只读结果投影，保留重复根行、正式字段来源、原查询权限与释放；不能用伪主键、聚合标志或改全局缺失权限缺省掩盖问题。LEFT部署完整性继续登记服务缺口；INNER/Foreign/字段拒绝掩码/真实整页矩阵与全仓门禁仍未通过。目标active。
 - 进程证据范围纠正：可持续跟踪的创建/别名/最终协议探针所有者均exit0；首次正式别名冲突探针30724完成结果文件后已查OS进程不存在，因诊断变量作用域未保留退出码，不把其终结冒称捕获到exit0。后续统一用持久actor启动器保留句柄。此限制不影响已有完整响应或独立清理证明。
+
+### 2026-11-03 Join公共查询承接（implementing）
+- 6b05e6ed1为当前已推基线，原运行夹具cleaned。本轮编译基线typecheck通过，正式ClassModel七根目录/概要/指南已查（DataView/DataTable/DataViewQuery/QueryParams/QueryContext/Resource/Table），生产源码尚未改。沿已批准整体卡继续，不另开总计划。
+- 高阶只读设计确认三项必须成组完成：显式子计划、非实体结果身份、正式结果列。第一阶段先使DataSet/DataView及API Context承接真实一对多只读投影；resultKind显式join，reportedPrimaryKey保留来源rowid，resultPrimaryKey表示可写实体键并为空，显示/选择沿现有行引用；不是伪造后端无主键或借aggregateResult。来源DataTable主键/字段/兄弟视图保持原定义。
+- 随结果原子接纳本视图columns及列索引，不能把子字段并入共享DataTable，也不能用queryColumns查询候选目录充当返回列。失败保留旧行与旧列，切回实体恢复原合同。之后同卡补DataView查询配置中显式children（正式modelName/fields/filter/children，场景继承根，不从关系自动展开）、递归过滤捕获/缓存与wire、正式模型/类型/同库/循环/别名检查，再经公开DataView与标准Table做实服。当前LEFT部署语义缺口继续保留，不补造父行。
+- 第一阶段已实现：DataSpaceQueryContext显式区分join并保留reportedPrimaryKey，禁止其实体新增/保存；仅join默认缺签名可见只读，普通实体权限缺省不变。DataView原子承接结果columns和索引，拒绝未声明字段，复用现有无实体键的行引用选择；重置、失败回滚、切回实体及保存上下文替换均恢复正确列合同。未修改共享DataTable字段/主键、兄弟视图或持久配置。
+- 准确RED覆盖Join身份/列缺失、reset残留列索引、未声明返回字段可见；新增14项数据层测试及2项标准RendererTable真实绑定消费测试。后两项首次即通过，未据此修改标准组件源码，不将其冒称RED修复。最终数据层60文件1553项、组件消费者14文件103项，共74文件1656项通过；该范围不是整仓全通过。
+- 正式ClassModel重新编译，九根目录/概要/指南回查完成；verify:class-model四文件49项、根typecheck、受改四文件lint、build:fe、page-thin通过。生成归一比较只保留12份真实变更，恢复96份等价噪声。受改packages/tests规则与HEAD均无新违例。包级类型检查仍有spark-data51项、API9项既有错误；同编译器HEAD overlay对照新增0，不宣称包级检查通过。
+- 本阶段实服读取0/写入0，无新夹具、无新浏览器验收；前序夹具保持cleaned。公开DataView查询配置children、递归请求/缓存捕获、正式模型解析与结果列组装尚未接通，直接runtime.query亦尚未按Join指定新上下文；当前只证明承接基础，不能宣称Join整体通过。下一步继续同卡完成公开输入至请求和标准消费链，再做真实回读；LEFT服务差距、Foreign及整页矩阵继续开放，完整目标active。

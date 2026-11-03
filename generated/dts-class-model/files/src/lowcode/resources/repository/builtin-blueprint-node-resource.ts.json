@@ -45,7 +45,7 @@
         },
         "executeQuery": {
           "type": "object",
-          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 14 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 17 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
         },
         "save": {
           "type": "object",
@@ -53,15 +53,15 @@
         },
         "hasUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 12 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewAc..."
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultKind?: \"entity\" | \"join\" | \"aggregate\"; ... 16 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
         },
         "refreshSavedRowPermissions": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 12 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewAc..."
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultKind?: \"entity\" | \"join\" | \"aggregate\"; ... 16 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonl..."
         },
         "abandonUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultPrimaryKey?: string; rows: readonly Readonly<Record<string, unknown>>[]; ... 12 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewAc..."
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultKind?: \"entity\" | \"join\" | \"aggregate\"; ... 16 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
         },
         "source": {
           "$ref": "../../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
@@ -95,6 +95,23 @@
         "pendingSavedRowIds": {
           "type": "array",
           "items": true
+        },
+        "resultKind": {
+          "enum": [
+            "join",
+            "entity",
+            "aggregate"
+          ]
+        },
+        "reportedPrimaryKey": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
         },
         "resultPrimaryKey": {
           "type": "string"

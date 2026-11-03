@@ -171,7 +171,7 @@ type DataViewFieldAccess = Readonly<{
   required: boolean
   writeMode: 'required' | 'editable' | 'readonly'
 }>
-/** 单次查询的私有结果能力；持有原行身份、权限呈现与新增身份准备，不公开签名快照。 */
+/** 单次查询的私有结果能力；区分实体与只读投影，保留逐行读取语义，不公开签名快照。 */
 type DataViewQueryResult = Readonly<{
   /** 显式undefined修改的资源语义；缺省沿用忽略，clear表示删除原可选值，由原资源适配负责持久化。 */
   undefinedChanges?: 'clear'
@@ -180,7 +180,13 @@ type DataViewQueryResult = Readonly<{
   /** 保存已确认，但新增行尚待原查询返回正式行权限。 */
   hasPendingSavedRowPermissions?: boolean
   pendingSavedRowIds?: readonly unknown[]
-  /** 本次返回行的主键；空字符串表示无主键只读结果，省略沿用视图配置。不修改模型或持久化定义。 */
+  /** 结果语义由查询owner声明；连接及聚合不能作为实体编辑基线。 */
+  resultKind?: 'entity' | 'join' | 'aggregate'
+  /** 来源实际报告的键；与本结果可写实体键分开，不修改模型或持久配置。 */
+  reportedPrimaryKey?: string | undefined
+  /** 本次正式结果列，只覆盖本视图显示目录；不替代查询候选目录或共享模型字段。 */
+  columns?: readonly DataColumn[] | undefined
+  /** 本结果可用于实体操作的主键；空表示只读行集合，不表示后端未报告键。省略沿用视图配置。 */
   resultPrimaryKey?: string
   rows: readonly DataViewQueryRow[]
   total: number
@@ -716,6 +722,7 @@ rows: DataRow[] = []
         component: editable ? 'editable' : 'readonly', writeMode: editable ? required ? 'required' : 'editable' : 'readonly'}
     }
     if (!context || !row) return DENIED_FIELD_ACCESS
+    if (context.columns !== undefined && !this.getColumn(field)) return DENIED_FIELD_ACCESS
     const draftKey = this.getPkKey(row)
     if (draftKey !== undefined && this.dirtyTrackingDelegate.pendingCreateIds.has(draftKey)
       && this.getRowById(draftKey) && !context.rows.some(original => context.rowKey(original) === draftKey)) {
@@ -815,6 +822,11 @@ rows: DataRow[] = []
     this.#queryResult?.assertIdentity(this.queryIdentity())
     return this.#queryResult
   }
+
+  /** 当前查询结果的语义；未查询的视图不声明结果种类。 */
+  get resultKind(): DataViewQueryResult['resultKind'] { return this.currentQueryResult()?.resultKind }
+  /** 来源报告的实际键，仅作结果信息，不授予实体操作身份。 */
+  get reportedPrimaryKey(): string | undefined { return this.currentQueryResult()?.reportedPrimaryKey }
 
   /**
    * 读取当前结果的独立展示快照。仅输出已声明字段，隐藏值省略、脱敏值替换为掩码，排除内部主键与查询凭据。
@@ -1281,14 +1293,15 @@ sortExpression?: SortExpression
   // ─────────────────────────────────────────────
 
   /**
-   * 列定义数组（只读，来自 DataTable.columns）。
+   * 当前视图可渲染的列定义；优先本次查询的正式结果列，否则由模型与字段投影派生。
    *
    * UI 组件通过此属性获取列名、标题、类型、可见性、可编辑性等元数据，
    * 无需直接访问 DataTable。
    *
-   * @returns DataTable 的列定义数组；DataTable 未关联时返回空数组
+   * @returns 本结果或模型的列定义；没有结果列且未关联模型时返回空数组。
    */
   get columns(): readonly DataColumn[] {
+    if (this.#queryResult?.columns !== undefined) return this.#queryResult.columns
     const table = this._dataTable
     if (table === null || this.fieldProjection.length === 0) return table?.columns ?? []
     const projected = this.fieldProjection
@@ -1862,6 +1875,8 @@ protected logger = Logger('DataView')
       if (DataView.hasEmptyInClause(mergedFilter)) {
         this.loadingError = null
         this.#queryResult = undefined
+        this._rebuildColumnMap()
+        this._primaryKeyDelegate.ensurePkColumn()
         this.updateFromServer([])
         this.selectionDelegate.applyAutoFirst()
         this.setRequestState(RequestState.Loaded)
@@ -1985,6 +2000,14 @@ protected logger = Logger('DataView')
   private ingestQueryResult(context: DataViewQueryResult, refreshIdentity: string): void {
     context.assertIdentity(this.queryIdentity())
     this.assertResultReplacementAllowed()
+    if (context.resultKind === 'join' && context.resultPrimaryKey !== '') throw new Error('DATA_VIEW_JOIN_IDENTITY: 连接投影不能声明可写实体键')
+    if (context.columns !== undefined) {
+      const names = new Set<string>()
+      for (const column of context.columns) {
+        if (typeof column.name !== 'string' || !column.name.trim() || column.name === '_pk' || names.has(column.name)) throw new Error('DATA_VIEW_RESULT_COLUMNS: 结果列名无效或重复')
+        names.add(column.name)
+      }
+    }
     const originalRows = new WeakMap<DataRow, DataViewQueryRow>()
     const rows = context.rows.map(row => {
       const clone = structuredClone(row)
@@ -2001,6 +2024,7 @@ protected logger = Logger('DataView')
     try {
       this.#queryResult = context
       this.#queryResultRefreshIdentity = refreshIdentity
+      this._rebuildColumnMap()
       this._primaryKeyDelegate.ensurePkColumn()
       this.#computedQueryToken = {}
       this.#queryOriginalRows = originalRows
@@ -2009,6 +2033,7 @@ protected logger = Logger('DataView')
     } catch (error) {
       this.#queryResult = previousContext
       this.#queryResultRefreshIdentity = previousRefreshIdentity
+      this._rebuildColumnMap()
       this._primaryKeyDelegate.ensurePkColumn()
       this.#computedQueryToken = previousComputedToken
       this.#queryOriginalRows = previousOriginalRows
@@ -3016,6 +3041,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         this.rebaseQuerySaveDirty(id, accepted)
       }
       this.#queryResult = refreshed
+      this._rebuildColumnMap()
       this.emitRowsChanged()
     } finally {
       this.#refreshingSavedRowPermissions = false
@@ -3404,6 +3430,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   private acceptQuerySaveReceipt(command: DataViewQuerySaveAcceptance): CrudResult<SaveChangesData> {
     const { context, added, changed, deleted, receipt } = command
     this.#queryResult = receipt.context
+    this._rebuildColumnMap()
     receipt.changed.forEach((accepted, index) => {
       const submitted = changed.find(item => this.querySaveKey(context, item.row) === this.querySaveKey(context, accepted))
       if (submitted === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 更新身份不属于提交行')
@@ -3524,6 +3551,8 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.currentLoadRequestId++
     this.#queryResult = undefined
     this.#queryResultRefreshIdentity = undefined
+    this._rebuildColumnMap()
+    this._primaryKeyDelegate.ensurePkColumn()
     this.#computedQueryToken = undefined
     this.#queryOriginalRows = new WeakMap<DataRow, DataViewQueryRow>()
     this.#explicitNewRowIds.clear()

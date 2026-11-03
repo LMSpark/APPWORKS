@@ -237,6 +237,19 @@
         },
         "missingAuthPolicy": {
           "$ref": "../protocol/data-space-permission.ts.json#/$defs/DataSpaceMissingAuthPolicy"
+        },
+        "resultKind": {
+          "enum": [
+            "entity",
+            "join"
+          ]
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
         }
       },
       "additionalProperties": false,
@@ -262,6 +275,23 @@
         "pendingSavedRowIds": {
           "type": "array",
           "items": true
+        },
+        "resultKind": {
+          "enum": [
+            "entity",
+            "join",
+            "aggregate"
+          ]
+        },
+        "reportedPrimaryKey": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
         },
         "resultPrimaryKey": {
           "type": "string"
@@ -540,7 +570,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T20:04:41.837Z",
+  "generatedAt": "2026-11-03T15:03:51.045Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -758,11 +788,11 @@
       "jsdoc": "原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n}>",
+        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join';\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n}>",
+            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join';\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -787,6 +817,18 @@
               "name": "missingAuthPolicy",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "resultKind",
+              "jsdoc": "显式连接结果是只读投影，不把重复根键当成实体身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "本次正式输出列；不修改共享模型字段。",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
@@ -804,7 +846,7 @@
     },
     "DataSpaceQueryContext": {
       "name": "DataSpaceQueryContext",
-      "jsdoc": "本次查询拥有唯一行身份和双通道权限；消费者不得取得底层权限字段或替换基线。",
+      "jsdoc": "持有本次查询的实体键或只读投影及逐行读取语义；消费者不得取得签名或替换基线。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -836,8 +878,26 @@
               "writable": false
             },
             {
+              "name": "resultKind",
+              "jsdoc": "查询结果语义；连接投影与聚合分别标明，均不改变来源模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "reportedPrimaryKey",
+              "jsdoc": "来源实际报告的键；连接结果保留根键作为来源信息，不用于实体操作。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "本次正式投影列；只存在于本结果生命周期。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "resultPrimaryKey",
-              "jsdoc": "本次结果行的稳定身份；汇总结果为空，不改变来源模型的正式主键，不将汇总行作为CRUD原行基线。",
+              "jsdoc": "本结果可用于实体操作的键；连接及汇总为空，来源报告键另由reportedPrimaryKey保留。",
               "readable": true,
               "writable": false
             },

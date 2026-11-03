@@ -1,0 +1,49 @@
+{
+  "date": "2026-11-03",
+  "scope": "readonly join projection foundation",
+  "status": "foundation-verified-public-query-integration-pending",
+  "sourceFiles": [
+    "packages/spark-data/src/data-view.ts",
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+  ],
+  "verification": {
+    "packages": {
+      "tests": 1553,
+      "files": 60
+    },
+    "standardConsumers": {
+      "tests": 103,
+      "files": 14
+    },
+    "classModel": {
+      "tests": 49,
+      "files": 4
+    },
+    "rootTypecheck": "passed",
+    "changedFileLint": "passed",
+    "build": "passed",
+    "pageThin": "passed",
+    "packageTypeErrors": {
+      "apiBaseline": 9,
+      "sparkDataCurrent": 51,
+      "apiCurrent": 9,
+      "introduced": 0,
+      "sparkDataBaseline": 51
+    }
+  },
+  "liveService": {
+    "browserValidation": false,
+    "writes": 0,
+    "fixtures": 0,
+    "reads": 0
+  },
+  "remaining": [
+    "Explicit public children query configuration and recursive capture/cache/wire",
+    "Formal model/field resolution and per-query result columns",
+    "Public runtime.query join classification",
+    "Real-service public DataView and standard component smoke",
+    "Deployed LEFT no-match semantics gap",
+    "Foreign hierarchy and full-page/full-repository gates"
+  ],
+  "guides": "2026-11-03-join-projection-guides.json"
+}

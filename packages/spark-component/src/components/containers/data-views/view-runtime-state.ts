@@ -81,6 +81,10 @@ export type DataViewRequestAndAggregateState = {
   pageSize: ComputedRef<number>
   /** 当前查询是否按页消费；完整集合不显示分页入口。 */
   paginated: ComputedRef<boolean>
+  /** 绑定视图允许独立查询排序；配置或绑定切换时更新。 */
+  supportsQuerySorting: ComputedRef<boolean>
+  /** 绑定视图允许独立查询过滤；不从写权限推导。 */
+  supportsQueryFiltering: ComputedRef<boolean>
   /** 当前是否存在本地或远端变更中的写操作。 */
   mutating: ComputedRef<boolean>
   /** 最近一次写操作错误。 */
@@ -311,6 +315,15 @@ export function useDataViewState(
     return DataViewQuery.isPaginated(resolvedView.value?.queryConfig ?? {})
   })
 
+  const supportsQuerySorting = computed(() => {
+    revisions.configRevision.value
+    return resolvedView.value?.supportsQuerySorting ?? false
+  })
+  const supportsQueryFiltering = computed(() => {
+    revisions.configRevision.value
+    return resolvedView.value?.supportsQueryFiltering ?? false
+  })
+
   const mutating = computed<boolean>(() => {
     revisions.mutationRevision.value
     return resolvedView.value?.mutating ?? false
@@ -337,7 +350,7 @@ export function useDataViewState(
     rows, columns, currentRow, selectedRows, editingRows, isMultiSelect,
     value, label, labels,
     requestState, aggregateError, aggregateResult, selectionAggregateResult,
-    total, page, pageSize, paginated,
+    total, page, pageSize, paginated, supportsQuerySorting, supportsQueryFiltering,
     mutating, mutatingError, loadingError, resultReplacementBlocked,
   }
 }

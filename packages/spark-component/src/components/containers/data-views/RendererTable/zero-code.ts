@@ -23,6 +23,8 @@ export type NativeTableLike = {
   toggleRowSelection?: (row: DataRow, selected?: boolean) => void
   /** 设置 UI 层当前行；传 null 清空当前行。 */
   setCurrentRow?: (row: DataRow | null) => void
+  /** 清除已失效的 UI 排序呈现；不写入 DataView 查询。 */
+  clearSort?: () => void
   /** 重新计算表格列宽和布局。 */
   doLayout?: () => void
 }

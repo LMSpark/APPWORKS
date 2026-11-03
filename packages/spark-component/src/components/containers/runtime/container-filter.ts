@@ -36,6 +36,8 @@ type ErrorLoggerLike = {
 
 /** Filter Panel Data View 的语义模型。 */
 type FilterPanelDataView = {
+  /** 正式DataView禁止独立查询过滤时，自动与手动过滤均不执行。 */
+  readonly supportsQueryFiltering?: boolean
     /** 行数据集合。 */
 readonly rows: ReadonlyArray<Record<string, unknown>>
     /** 列定义集合。 */
@@ -392,6 +394,7 @@ async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<stri
   const { view, expr, hasFilters, logger, message, mode = 'set' } = params
   if (!hasFilters) return null
   if (!view) return 'RendererFilter: 未绑定 DataView'
+  if (view.supportsQueryFiltering === false) return '当前视图沿父查询计划读取，不支持独立过滤'
 
   try {
     if (mode === 'execute') {
@@ -534,6 +537,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
   )
 
   function resetFilters(): Promise<void> {
+    if (resolvedFilterDataView.value?.supportsQueryFiltering === false) return Promise.resolve()
     clearFilterModel(filterModel)
     return Promise.resolve()
   }

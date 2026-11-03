@@ -52,8 +52,8 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
         <SparkComponentRenderer :config="fieldScopeConfig" />
       </div>
       <div class="renderer-table-filters__actions" :style="resolvedActionsStyle">
-        <el-button type="primary" size="small" @click="handleSearch">查询</el-button>
-        <el-button size="small" @click="handleReset">重置</el-button>
+        <el-button type="primary" size="small" :disabled="!dataState.supportsQueryFiltering.value" @click="handleSearch">查询</el-button>
+        <el-button size="small" :disabled="!dataState.supportsQueryFiltering.value" @click="handleReset">重置</el-button>
         <el-tag
           v-if="activeFilterCount > 0 && !props.collapsible"
           size="small"
@@ -78,10 +78,11 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
       :display="props.expressionDisplay ?? 'dialog'"
       :columns="dataState.columns.value"
       :function-context="props.filterFunctionContext ?? {}"
-      :disabled="applyingExpression"
+      :disabled="applyingExpression || !dataState.supportsQueryFiltering.value"
       :apply-error="expressionError"
       @update:model-value="applyExpression"
     />
+    <p v-if="!dataState.supportsQueryFiltering.value" role="status">当前视图沿父查询计划读取，请在父查询中配置过滤。</p>
     <p v-if="expressionError || filterError" data-filter-error role="alert">{{ expressionError || filterError }}</p>
   </div>
 </template>
@@ -138,12 +139,12 @@ const dataState = useContainerDataSource({
   inheritedDataSource,
   skipEffects: true,
 })
-watch([dataState.resolvedView, () => props.autoQuery], ([view, autoQuery], _previous, onCleanup) => {
-  if (!view || autoQuery === undefined) return
+watch([dataState.resolvedView, dataState.supportsQueryFiltering, () => props.autoQuery], ([view, filtering, autoQuery], _previous, onCleanup) => {
+  if (!view || !filtering || autoQuery === undefined) return
   const original = view.queryConfig.autoQuery
   view.queryConfig = {...view.queryConfig, autoQuery}
   onCleanup(() => {
-    if (view.destroyed || view.queryConfig.autoQuery !== autoQuery) return
+    if (view.destroyed || !view.supportsQueryFiltering || view.queryConfig.autoQuery !== autoQuery) return
     const next = {...view.queryConfig}
     if (original === undefined) delete next.autoQuery
     else next.autoQuery = original
@@ -199,6 +200,7 @@ const appliedFilter = computed(() => {
 async function applyExpression(tree: DataViewFilterTree | undefined): Promise<void> {
   const view = dataState.resolvedView.value
   if (!view) { expressionError.value = 'RendererFilter: 未绑定 DataView'; return }
+  if (!view.supportsQueryFiltering) return
   applyingExpression.value = true
   expressionError.value = null
   try {

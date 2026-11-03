@@ -1159,6 +1159,12 @@
           ],
           "title": "Error"
         },
+        "supportsQuerySorting": {
+          "type": "boolean"
+        },
+        "supportsQueryFiltering": {
+          "type": "boolean"
+        },
         "filterExpression": {
           "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
         },
@@ -2920,7 +2926,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T20:20:43.489Z",
+  "generatedAt": "2026-11-03T20:32:51.799Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4454,6 +4460,18 @@
               "jsdoc": "最近一次增删改批操作的错误；成功或未发起时为 null",
               "readable": true,
               "writable": true
+            },
+            {
+              "name": "supportsQuerySorting",
+              "jsdoc": "当前视图是否可独立设置查询排序；父结果子视图须修改父查询计划。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "supportsQueryFiltering",
+              "jsdoc": "当前视图是否可独立设置查询过滤；与行写权限及只读结果类型无关。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "filterExpression",

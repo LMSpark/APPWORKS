@@ -7,3 +7,6 @@
 import type { ComputedRef, InjectionKey } from 'vue'
 
 export const TABLE_COLUMN_RESIZABLE_KEY: InjectionKey<ComputedRef<boolean>> = Symbol('spark-table-column-resizable')
+
+/** 表格查询排序能力；标准字段在最终列渲染时收窄显式 sortable。 */
+export const TABLE_COLUMN_SORTING_KEY: InjectionKey<ComputedRef<boolean>> = Symbol('spark-table-column-sorting')

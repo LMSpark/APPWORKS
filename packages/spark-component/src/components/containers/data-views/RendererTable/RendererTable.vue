@@ -152,7 +152,7 @@ import { useContainerToolbar } from '../../runtime/container-ui'
 import { sparkColumnToAutoFieldNode } from '../../runtime/column-auto-field.js'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
-import { TABLE_COLUMN_RESIZABLE_KEY } from '../../../fields/context/tableColumnContext'
+import { TABLE_COLUMN_RESIZABLE_KEY, TABLE_COLUMN_SORTING_KEY } from '../../../fields/context/tableColumnContext'
 import { toDataRecord } from '../data-row-utils'
 
 const { DataMember, RequestState, getSparkNodeChildren, nodeInputProps, nodeId } = SparkData
@@ -301,6 +301,7 @@ const tableColumnResizable = computed(() => {
 })
 
 provide(TABLE_COLUMN_RESIZABLE_KEY, tableColumnResizable)
+provide(TABLE_COLUMN_SORTING_KEY, dataState.supportsQuerySorting)
 
 function rowFragmentResizable(node: SparkNode): boolean {
   return rowFragmentBooleanProp(node, 'resizable') ?? tableColumnResizable.value
@@ -398,6 +399,12 @@ const {
 
 registerApi(tableApi)
 
+watch([dataState.resolvedView, dataState.supportsQuerySorting], async ([view, sorting]) => {
+  if (sorting) return
+  await nextTick()
+  if (view === dataState.resolvedView.value && !view?.supportsQuerySorting) nativeTableRef.value?.clearSort?.()
+}, {immediate: true})
+
 watch(
   currentRow,
   async (row) => {
@@ -478,7 +485,7 @@ async function handleSelectionChange(selection: DataRow[]) {
 
 /** 处理排序变化（服务端排序）；Element Plus order → SortDirection */
 async function handleSortChange({ prop, order }: { prop: string | null, order: ElementPlusTableSortOrder | null }) {
-  if (!dataState.resolvedView.value) return
+  if (!dataState.resolvedView.value?.supportsQuerySorting) return
   if (!prop || !order) {
     await dataState.resolvedView.value.setSort(undefined)
   } else {

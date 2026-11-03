@@ -5,6 +5,7 @@ import { useFilterPanel, type FilterPanelState } from '../../../packages/spark-c
 import type { SparkNode } from '@spark-appworks/spark-data'
 
 type FilterViewLike = {
+  supportsQueryFiltering?: boolean
   rows: DataRow[]
   columns?: Array<{ name: string }>
   getColumn?: (name: string) => unknown
@@ -428,4 +429,22 @@ describe('useFilterPanel', () => {
 
     await expect(mountTableFilters(view, filterChildren)).rejects.toThrow('不存在的字段')
   })
+})
+
+
+it('does not apply automatic, search or reset filters to a parent-result view', async () => {
+  const {view, setFilter, refresh} = createView({columns: [{name: 'Name'}]})
+  view.supportsQueryFiltering = false
+  const execute = vi.spyOn(view, 'executeFilter')
+  const {scope, api} = await mountTableFilters(view, [{type: 'r-text', props: {field: 'Name'}}])
+  try {
+    api.filterModel['Name'] = 'keep'; await nextTick()
+    expect(await api.searchFilters()).toBe(false)
+    await api.resetFilters(); await nextTick()
+    expect(api.filterModel['Name']).toBe('keep')
+    expect(setFilter).not.toHaveBeenCalled()
+    expect(execute).not.toHaveBeenCalled()
+    expect(refresh).not.toHaveBeenCalled()
+    expect(api.filterError.value).toContain('父查询')
+  } finally {scope.stop()}
 })

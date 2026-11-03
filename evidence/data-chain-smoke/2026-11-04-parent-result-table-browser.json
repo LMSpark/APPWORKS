@@ -1,0 +1,45 @@
+{
+  "scope": "local controlled standard component UI only; no service request or write",
+  "observations": [
+    {
+      "disabled": true,
+      "sortable": 0,
+      "state": "{\n  \"binding\": \"S@Child@default\",\n  \"filterBinding\": \"S@Child@default\",\n  \"sorting\": false,\n  \"filtering\": false\n}"
+    },
+    {
+      "sortable": 2,
+      "state": "{\n  \"binding\": \"S@Child@ordinary\",\n  \"filterBinding\": \"S@Child@default\",\n  \"sorting\": true,\n  \"filtering\": false\n}"
+    },
+    {
+      "headers": [
+        {
+          "class": "el-table_1_column_1 el-table-column--selection is-leaf el-table__cell",
+          "text": ""
+        },
+        {
+          "class": "el-table_1_column_2 is-center spark-col-cell--left spark-col-header--center is-leaf el-table__cell",
+          "text": "名称"
+        },
+        {
+          "class": "el-table_2_column_3 el-table-column--selection is-leaf el-table__cell",
+          "text": ""
+        },
+        {
+          "class": "el-table_2_column_4 is-center spark-col-cell--left spark-col-header--center is-leaf el-table__cell",
+          "text": "name"
+        }
+      ]
+    },
+    {
+      "disabled": false,
+      "sortable": 0,
+      "state": "{\n  \"binding\": \"S@Child@default\",\n  \"filterBinding\": \"S@Parent@default\",\n  \"sorting\": false,\n  \"filtering\": true\n}"
+    },
+    {
+      "disabled": true,
+      "sortable": 0,
+      "state": "{\n  \"binding\": \"S@Child@default\",\n  \"filterBinding\": \"S@Child@default\",\n  \"sorting\": false,\n  \"filtering\": false\n}"
+    }
+  ],
+  "limitation": "source HMR reloaded the document during inspection; final disabled and parent filter binding inspected after HMR"
+}

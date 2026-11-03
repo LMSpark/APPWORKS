@@ -939,7 +939,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue.json",
-      "sourceModifiedAt": "2026-11-01T18:36:15.098Z"
+      "sourceModifiedAt": "2026-11-03T20:33:39.483Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/types.ts",
@@ -949,7 +949,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererTable/zero-code.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTable/zero-code.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererTable/zero-code.ts.json",
-      "sourceModifiedAt": "2026-10-10T10:32:20.525Z"
+      "sourceModifiedAt": "2026-11-03T20:33:39.483Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererTree/index.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererTree/index.ts",
@@ -1019,7 +1019,7 @@
     "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/view-runtime-state.ts.json",
-      "sourceModifiedAt": "2026-11-01T18:36:15.096Z"
+      "sourceModifiedAt": "2026-11-03T20:32:51.799Z"
     },
     "packages/spark-component/src/components/containers/data-views/view-tree-state.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/view-tree-state.ts",
@@ -1409,7 +1409,7 @@
     "packages/spark-component/src/components/containers/runtime/container-filter.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-filter.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/runtime/container-filter.ts.json",
-      "sourceModifiedAt": "2026-10-13T02:28:56.174Z"
+      "sourceModifiedAt": "2026-11-03T20:33:39.482Z"
     },
     "packages/spark-component/src/components/containers/runtime/container-form-detail.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-form-detail.ts",
@@ -1519,7 +1519,7 @@
     "packages/spark-component/src/components/containers/zones/RendererFilter.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFilter.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/zones/RendererFilter.vue.json",
-      "sourceModifiedAt": "2026-11-02T17:31:24.644Z"
+      "sourceModifiedAt": "2026-11-03T20:36:04.949Z"
     },
     "packages/spark-component/src/components/containers/zones/RendererFooter.types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFooter.types.ts",
@@ -1849,7 +1849,7 @@
     "packages/spark-component/src/components/fields/context/tableColumnContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/tableColumnContext.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/tableColumnContext.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:38:13.526Z"
+      "sourceModifiedAt": "2026-11-03T20:32:51.800Z"
     },
     "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
@@ -2304,7 +2304,7 @@
     "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/non-data-components/FieldContextRenderer.vue.json",
-      "sourceModifiedAt": "2026-11-02T02:44:28.580Z"
+      "sourceModifiedAt": "2026-11-03T20:32:51.801Z"
     },
     "packages/spark-component/src/components/fields/non-data-components/FieldTableCellScope.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/non-data-components/FieldTableCellScope.vue",
@@ -2634,7 +2634,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-03T20:20:43.489Z"
+      "sourceModifiedAt": "2026-11-03T20:32:51.799Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",

@@ -1,0 +1,46 @@
+{
+  "date": "2026-11-04",
+  "scope": "parentResult independent sort/filter interaction consistency",
+  "baselineCommit": "fc491f082",
+  "changes": [
+    "DataView read-only query sorting/filtering capabilities; command early rejection before state changes",
+    "standard Table final column capability intersection for auto, explicit, nested group and slot fields",
+    "current-binding sort event guard and obsolete native sort presentation cleanup",
+    "Filter own binding capability; preserve explicitly bound ordinary parent filtering",
+    "prevent automatic/search/reset panel writes and autoQuery cleanup pollution on same-view parentResult transition"
+  ],
+  "verification": {
+    "regression": {
+      "files": 17,
+      "tests": 171
+    },
+    "classModel": {
+      "files": 4,
+      "tests": 49
+    },
+    "rootTypecheck": "passed",
+    "changedLint": "passed",
+    "buildFrontend": "passed",
+    "pageThin": "passed",
+    "generatedNormalization": {
+      "equivalentFilesRestored": 110
+    },
+    "redGreen": [
+      "setSort changed expression before rejection",
+      "same-view Filter cleanup deleted explicit autoQuery false"
+    ],
+    "browser": "2026-11-04-parent-result-table-browser.json",
+    "screenshot": "2026-11-04-parent-result-table-browser.png"
+  },
+  "review": {
+    "kind": "high-model static only",
+    "important": "Filter cleanup on same-view query source transition",
+    "resolution": "RED reproduced; capability-aware cleanup preserves explicit manual query mode"
+  },
+  "limitations": [
+    "browser used local controlled component data, no new real-service records or writes",
+    "full architecture goal remains active",
+    "parentResult model dependency projection/removal references require next verification",
+    "persisted pagedata save/reopen and outstanding backend query gaps remain open"
+  ]
+}

@@ -128,7 +128,7 @@ import { type DataRow, getSparkNodeChildren, nodeId } from '@spark-appworks/spar
 import type { SparkNodeProps } from '../../shared-types.js'
 import type { FormItemRule } from '../columnFormRules'
 import { useResolvedFieldContext } from '../context/useResolvedFieldContext'
-import { TABLE_COLUMN_RESIZABLE_KEY } from '../context/tableColumnContext'
+import { TABLE_COLUMN_RESIZABLE_KEY, TABLE_COLUMN_SORTING_KEY } from '../context/tableColumnContext'
 import type { SparkNode } from '@spark-appworks/spark-data'
 
 /** 字段上下文渲染器属性，统一描述字段在表格、表单、详情中的展示状态。 */
@@ -234,6 +234,7 @@ async function finishCellEdit(): Promise<void> {
 
 const resolvedContext = useResolvedFieldContext()
 const tableColumnResizable = inject(TABLE_COLUMN_RESIZABLE_KEY, undefined)
+const tableColumnSorting = inject(TABLE_COLUMN_SORTING_KEY, undefined)
 
 // 1. 解析字段基础语义：不同宿主最终都依赖同一组 label/field/children 快照。
 const resolvedDisplayLabel = computed(() => props.displayLabel ?? '')
@@ -249,7 +250,7 @@ const resolvedValidationRules = computed<FormItemRule[]>(() => props.validationR
 // 2. 表格宿主专用投影：排序、列宽、表头/单元格对齐和 class 在这里集中决定。
 const resolvedHeaderAlign = computed(() => props.headerAlign ?? 'center')
 const resolvedValueAlign = computed(() => props.valueAlign ?? 'left')
-const resolvedSortable = computed<boolean | 'custom'>(() => props.sortable ?? true)
+const resolvedSortable = computed<boolean | 'custom'>(() => tableColumnSorting?.value === false ? false : (props.sortable ?? true))
 const resolvedResizable = computed(() => props.resizable ?? tableColumnResizable?.value ?? true)
 
 const tableHeaderClassName = computed(() => props.headerCellClassName ?? `spark-col-header--${resolvedHeaderAlign.value}`)

@@ -506,7 +506,26 @@ it('rejects child projection changes during asynchronous acceptance and after pu
   expect(child.rows).toEqual([])
   child.fieldProjection = original; child.validateQueryResult = undefined
   await child.refresh()
-  child.filterExpression = {field: 'detailId', operator: 'eq', value: 'ignored'}
-  expect(() => child.readSnapshot()).toThrow(/PARENT/)
+  expect(() => {child.filterExpression = {field: 'detailId', operator: 'eq', value: 'ignored'}}).toThrow('PARENT_QUERY')
+  expect(child.readSnapshot().rows[0]?.['detailId']).toBe('FIRST')
   expect(http.calls).toHaveLength(1)
+})
+
+
+it('rejects independent child sort and filter commands before changing accepted state', async () => {
+  const {child, http} = parentResultViews(false)
+  await child.requestData()
+  const result = child.currentQueryResult, before = JSON.stringify(child.toJson())
+  for (const run of [
+    () => child.setSort([{field: 'detailName', direction: 'asc'}]),
+    () => child.setSort(undefined),
+    () => child.setFilter({field: 'detailName', operator: 'eq', value: 'One'}),
+    () => child.executeFilter(undefined),
+  ]) {
+    await expect(run()).rejects.toThrow('DATA_VIEW_PARENT_QUERY')
+    expect(JSON.stringify(child.toJson())).toBe(before)
+    expect(child.currentQueryResult).toBe(result)
+    expect(child.rows[0]?.['detailId']).toBe('FIRST')
+    expect(http.calls).toHaveLength(1)
+  }
 })

@@ -5808,3 +5808,11 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 开放项须继续：parentResult独立子过滤/排序本段明确不支持（应改父计划），但RendererTable仍给子表显示排序入口；源码确认会调用setSort，当前未点击该未适配入口，不将组件完整行为计为通过。下一步沿标准组件能力消除此误导入口并验收；另需原pagedata设计保存/重开、真实失败/应用切换/多级及更多权限矩阵。PId字段对合法长注册名的容量/校验合同仍待核，不凭短夹具成功关闭。全目标active，Foreign/LEFT/聚合与全页矩阵旧项保留。
 
 - 本段检查点：正式ClassModel刷新及指南查询完成，ClassModel 4文件49测试通过，build:fe与verify:page-thin通过；相关回归78文件1759测试、目标47测试及runtime独立139测试如上。生成器输出按语义等价比较恢复无关时间戳/编译符号漂移，保留真实公共合同变更。主架构说明已纠正parentResult未实现的过期文字，正式证据汇总evidence/data-chain-smoke/2026-11-04-parent-result.json，浏览器证据及截图同目录。准备提交推送本段；全目标仍active，下一段先消除标准子Table排序入口与实际支持能力不一致。
+
+### 2026-11-04 parentResult标准查询交互收敛（实施中）
+- 高阶模型只读复核给出最小一致边界：spark-data公开独立排序/过滤能力，组件消费同一能力，不按只读身份猜权限；最终FieldContextRenderer收窄排序覆盖auto/explicit/group/slot；Filter按自身有效绑定，不能随Table一律关闭；沿既有configRevision响应。查询ClassModel目录/概要/指南（RTableProps、FieldContextProps、DataViewRequestAndAggregateState、DataViewQuery），结果在ignored artifacts/data-chain-smoke/parent-result-table-guides.json。
+- RED复现公共setSort先改sortExpression再后续查询拒绝导致污染；随后增加公共supportsQuerySorting/Filtering及提前拒绝。filterExpression非空直接赋值同样早拒，undefined允许清理非法旧值；原owner最终校验保留。标准Table提供computed能力至最终字段投影，陈旧sort事件按当前绑定能力拦截；禁用时清原生排序呈现。Filter独立绑定父视图仍可用，自身parentResult则完整编辑器/查询/重置禁用、autoQuery不改、公共panel自动/search/reset不写表达式。4文件69tests通过，待扩回归/门禁/浏览器证明；本段未新增实服写夹具，全目标active。
+
+- 高阶静态审查发现Important：Filter原autoQuery cleanup在同一视图从普通切parentResult时会删除显式autoQuery=false。新增测试RED复现（5pass/1fail），cleanup加当前查询过滤能力核验后GREEN。最终17文件171测试通过（含原48查询图、auto/explicit/两层group/slot、同view配置切换、显式sortable=false、过滤自动/search/reset）；root typecheck、改动eslint、ClassModel 4文件49、build:fe、verify:page-thin通过。ClassModel完整重生成后110个语义等价漂移恢复，semantic-gaps仍3636无新增。
+- IAB tab2本地受控标准组件诊断页实际点击普通/子绑定与父Filter绑定：子auto/slot均无排序按钮，普通恢复2入口，显式父Filter可用，子Filter disabled并说明沿父查询配置。期间源码HMR重开过文档，最终状态在HMR后独立核对；截图及DOM摘要为evidence/data-chain-smoke/2026-11-04-parent-result-table-browser.png/json，汇总parent-result-table.json。仅本地受控交互，无新实服查询或写入，不把此段当成正式配置重开验收；tab已关闭。
+- 下一断点已定位待证：ScenarioViewConfig的getTableRemovalReferences与projectScopedConfig循环目前只处理filterLookups，尚未看到parentResult父键依赖；需以正式配置测试验证按模型装配投影、删除引用及保存重开，再进入新临时夹具实服回读。不能以RAM配置全量装配通过代替依赖投影通过。全架构目标active，旧Foreign/LEFT/聚合/长名PId及全参考页面矩阵仍保留。

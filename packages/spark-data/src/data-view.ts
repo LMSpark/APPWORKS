@@ -1087,11 +1087,18 @@ loadingError: Error | null = null
   // 视图配置
   // ─────────────────────────────────────────────
 
+  /** 当前视图是否可独立设置查询排序；父结果子视图须修改父查询计划。 */
+  get supportsQuerySorting(): boolean { return this.queryConfig.parentResult === undefined }
+
+  /** 当前视图是否可独立设置查询过滤；与行写权限及只读结果类型无关。 */
+  get supportsQueryFiltering(): boolean { return this.queryConfig.parentResult === undefined }
+
   private appliedFilter: DataViewFilter | undefined
 
   /** SPARK 公开过滤树；所有入口解析为私有不可变快照，修改前保护未保存数据。 */
   get filterExpression(): DataViewFilterTree | undefined { return this.appliedFilter?.toJSON() }
   set filterExpression(input: DataViewFilterTree | undefined) {
+    if (input !== undefined && !this.supportsQueryFiltering) throw new Error('DATA_VIEW_PARENT_QUERY: 子结果过滤须修改父查询计划')
     const next = input === undefined ? undefined : this._parseFilter(input)
     if (this.appliedFilter?.serialize() === next?.serialize()) return
     this.assertResultReplacementAllowed()
@@ -3874,6 +3881,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
    * @param sort 新排序表达式；undefined 表示清除排序。
    */
   async setSort(sort: SortExpression | undefined): Promise<void> {
+    if (!this.supportsQuerySorting) throw new Error('DATA_VIEW_PARENT_QUERY: 子结果排序须修改父查询计划')
     this.assertResultReplacementAllowed()
     if (sort === undefined) {
       delete this.sortExpression
@@ -3890,6 +3898,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
    * @param filter 新过滤表达式；undefined 表示清除过滤。
    */
   async setFilter(filter: DataViewFilterTree | undefined): Promise<void> {
+    if (!this.supportsQueryFiltering) throw new Error('DATA_VIEW_PARENT_QUERY: 子结果过滤须修改父查询计划')
     if (this._isSameFilterExpression(this.filterExpression, filter)) return
     this.filterExpression = filter
     if (!this._shouldApplySynchronousLocalFilter()) await this.reloadQuery()
@@ -3901,6 +3910,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
    * @param filter 要执行的过滤表达式；undefined 表示清除过滤。
    */
   async executeFilter(filter: DataViewFilterTree | undefined): Promise<void> {
+    if (!this.supportsQueryFiltering) throw new Error('DATA_VIEW_PARENT_QUERY: 子结果过滤须修改父查询计划')
     const unchanged = this._isSameFilterExpression(this.filterExpression, filter)
     if (!unchanged) {
       await this.setFilter(filter)

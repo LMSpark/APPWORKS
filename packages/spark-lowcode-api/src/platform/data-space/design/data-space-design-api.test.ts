@@ -7,6 +7,14 @@ import { LowcodeApi } from '../../../lowcode-api.js'
 import { DataSpaceDesignApi } from './data-space-design-api.js'
 import { encodeDataSpaceResourceType, parseDataSpaceResourceType } from '../data-space-resource-type-wire.js'
 
+it('resolves the one remote business source key while preserving the tenant primary flag', () => {
+  const fields = [{name: 'lingma_sys_ent', primaryKey: true}, {name: 'rowid', primaryKey: true}]
+  expect(DataSpaceDesignApi.resolveSourcePrimaryKey(fields)).toBe('rowid')
+  expect(fields[0]?.primaryKey).toBe(true)
+  expect(() => DataSpaceDesignApi.resolveSourcePrimaryKey([fields[0]!])).toThrow('非租户主键')
+  expect(() => DataSpaceDesignApi.resolveSourcePrimaryKey([...fields, {name: 'other', primaryKey: true}])).toThrow('非租户主键')
+})
+
 it('decodes metadata query relations with the same formal contract, without mutating wire rows', () => {
   const row = {rowid: 'R', dataSetId: 'S', parentModId: 'P', childModId: 'C', parentTable: 'Parents', childTable: 'Children',
     filter: JSON.stringify({Type: 'and', Filters: [

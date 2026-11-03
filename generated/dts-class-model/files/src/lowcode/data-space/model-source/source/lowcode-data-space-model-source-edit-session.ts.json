@@ -677,6 +677,13 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "ModelSourceEditLifecycle",
+      "properties": {
+        "inputParameters": {
+          "type": "object",
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
       "$defs": {
         "method.validateConfiguration.params": {
           "type": "object",
@@ -952,6 +959,9 @@
         "lifecycle": {
           "$ref": "#/$defs/ModelSourceEditLifecycle"
         },
+        "fieldTemplate": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
         "views": {
           "type": "array",
           "items": {
@@ -992,6 +1002,7 @@
         "modelId",
         "sources",
         "lifecycle",
+        "fieldTemplate",
         "views",
         "models",
         "fields",
@@ -1024,6 +1035,30 @@
         },
         "lifecycle": {
           "$ref": "#/$defs/ModelSourceEditLifecycle"
+        },
+        "views": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "string"
+            },
+            "fields": {
+              "type": "string"
+            },
+            "relations": {
+              "type": "string"
+            },
+            "fieldTemplate": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "models",
+            "fields",
+            "relations",
+            "fieldTemplate"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -1230,7 +1265,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.442Z",
+  "generatedAt": "2026-11-03T03:51:14.072Z",
   "models": {
     "Reader": {
       "name": "Reader",
@@ -1644,15 +1679,23 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+            "typeText": "Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
+          "attributes": [
+            {
+              "name": "inputParameters",
+              "jsdoc": "宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。",
+              "readable": true,
+              "writable": false
+            }
+          ],
           "methods": [
             {
               "name": "validateConfiguration",
@@ -1932,7 +1975,7 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly sources: Reader;\n    readonly lifecycle: ModelSourceEditLifecycle;\n    views: DataView[];\n    models: DataView;\n    fields: DataView;\n    syncFields: DataView | undefined;\n    replacementFields: DataView | undefined;\n    relations: DataView;\n    replacementRelations: DataView | undefined;\n    contexts: string[];\n    flow: ModelSourceEditFlow;\n}",
+        "declarationTypeText": "{\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly sources: Reader;\n    readonly lifecycle: ModelSourceEditLifecycle;\n    readonly fieldTemplate: DataView;\n    views: DataView[];\n    models: DataView;\n    fields: DataView;\n    syncFields: DataView | undefined;\n    replacementFields: DataView | undefined;\n    relations: DataView;\n    replacementRelations: DataView | undefined;\n    contexts: string[];\n    flow: ModelSourceEditFlow;\n}",
         "members": {
           "attributes": [
             {
@@ -1957,6 +2000,11 @@
             },
             {
               "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldTemplate",
               "readable": true,
               "writable": false
             },
@@ -2014,11 +2062,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n    /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n        relations: string;\n        fieldTemplate: string;\n    }>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n    /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n        relations: string;\n        fieldTemplate: string;\n    }>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -2046,6 +2094,12 @@
             },
             {
               "name": "lifecycle",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。",
               "readable": true,
               "writable": false
             }

@@ -360,6 +360,14 @@ export class DataSpaceDesignApi {
     return model
   }
 
+  /** 精确来源目录的远端业务主键；企业隔离键保留原标志但不作为业务行身份，不修改输入。 */
+  public static resolveSourcePrimaryKey(fields: ReadonlyArray<Readonly<{name: string; primaryKey: boolean}>>): string {
+    const candidates = fields.filter(field => field.primaryKey && field.name.trim().length > 0 && field.name.toLowerCase() !== 'lingma_sys_ent')
+    const key = candidates[0]?.name
+    if (!key || candidates.length !== 1) throw new LowcodeApiError(0, '正式来源必须有且仅有一个非租户主键')
+    return key
+  }
+
   /** 正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。 */
   public static resolveTableResource(model: Pick<DataSpaceFormalModel, 'sourceType' | 'sourceName'>): DataSpaceFormalTableResource {
     if (typeof model.sourceName !== 'string' || !model.sourceName.trim()) {
@@ -728,19 +736,16 @@ export class DataSpaceDesignApi {
     if (!firstId) throw new LowcodeApiError(0, '数据库表来源缺少正式记录 ID')
     const fields = await this.readFormalRows({...command, metaName: 'Base_TblField',
       filter: DataViewFilter.condition({field: 'tblid', operator: ids.length === 1 ? 'eq' : 'in', value: ids.length === 1 ? firstId : ids})})
-    const bySource = new Map<string, string[]>()
+    const bySource = new Map<string, Array<{name: string; primaryKey: boolean}>>()
     for (const field of fields) {
       const id = formalText(field, ['tblid', 'TblId', 'tblId'])
       if (!sourceIds.has(id)) throw new LowcodeApiError(0, '数据库表来源字段归属不一致')
       const name = formalText(field, ['enname', 'EnName', 'ENNAME'])
-      if (name && name.toLowerCase() !== 'lingma_sys_ent' && binary(field['IsPKey'])) {
-        const candidates = bySource.get(id) ?? []
-        candidates.push(name); bySource.set(id, candidates)
-      }
+      const candidates = bySource.get(id) ?? []
+      candidates.push({name, primaryKey: binary(field['IsPKey'])}); bySource.set(id, candidates)
     }
     for (const [id, identity] of sourceIds) {
-      const candidates = bySource.get(id), key = candidates?.[0]
-      if (!key || candidates.length !== 1) throw new LowcodeApiError(0, '正式来源必须有且仅有一个非租户主键')
+      const key = DataSpaceDesignApi.resolveSourcePrimaryKey(bySource.get(id) ?? [])
       for (const modelId of sources.get(identity)?.modelIds ?? []) keys.set(modelId, key)
     }
     return keys

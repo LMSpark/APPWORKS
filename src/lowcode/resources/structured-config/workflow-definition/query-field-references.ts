@@ -1,6 +1,6 @@
 /**
  * @module app:lowcode/resources/structured-config/workflow-definition/query-field-references
- * 职责：显式计算字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。
+ * 职责：显式字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。
  * 边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。
  */
 import {DataViewFilterCodec,RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
@@ -77,8 +77,8 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   const fieldView=views.find(view=>view.tableName==='Base_DataModel_Field')
   for(const change of changes){
    const matches=fieldView?.rows.filter(row=>row['rowid']===change.before['rowid'])??[],row=matches[0]
-   if(!fieldView||matches.length!==1||!row||['dataSetId','dataModelId','Name','AsName','FieldType','IsPKey','IsOutput'].some(key=>read(fieldView,row,key)!==change.before[key]))throw Error('正式计算字段已变化，请重新读取后处理结构修改')
-   if(!change.after?fieldView.deleteActionState(row)!=='enabled':['Name','AsName','IsOutput'].some(key=>change.before[key]!==change.after?.[key]&&fieldView.fieldAccess(row,key).write!=='allowed'))throw Error('当前正式查询不再允许该计算字段结构操作：权限已变化')
+   if(!fieldView||matches.length!==1||!row||['dataSetId','dataModelId','Name','AsName','FieldType','IsPKey','IsOutput'].some(key=>read(fieldView,row,key)!==change.before[key]))throw Error('正式字段已变化，请重新读取后处理结构修改')
+   if(!change.after?fieldView.deleteActionState(row)!=='enabled':['Name','AsName','IsOutput'].some(key=>change.before[key]!==change.after?.[key]&&fieldView.fieldAccess(row,key).write!=='allowed'))throw Error('当前正式查询不再允许该字段结构操作：权限已变化')
   }
   for(const view of views)for(const row of view.rows){
    const id=String(view.getPkKey(row)),location=`${view.tableName}[${id}]`
@@ -92,6 +92,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
     if(parsed)visit(parsed.toJSON(),`${location}.filter`,new Set(consumers.includes(String(source))?affected.filter(change=>change.checkOutput).map(change=>change.outputName):source===modelId?affected.filter(change=>change.checkName).map(change=>change.name):[]))
    }
   }
+  for(const row of edges.rows)visit(document(read(edges,row,'params')),`连线[${String(edges.getPkKey(row))}].params`)
   const descendants=new Set(consumers)
   let changed=true
   while(changed){changed=false;for(const edge of edges.rows){const source=String(read(edges,edge,'sourceID')),target=String(read(edges,edge,'targetID'));if(descendants.has(source)&&!descendants.has(target)){descendants.add(target);changed=true}}}
@@ -103,6 +104,6 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
    }
   }
   guard()
-  if(references.size)throw Error(`计算字段仍被引用，请先明确清除并保存引用：${[...references].join('；')}`)
+  if(references.size)throw Error(`字段仍被引用，请先明确清除并保存引用：${[...references].join('；')}`)
  }finally{for(const view of views)if(!view.destroyed)view.dataTable?.destroyView(view.viewId)}
 }

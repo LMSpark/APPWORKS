@@ -535,6 +535,34 @@
         "method.projectModel.return": {
           "$ref": "#/$defs/DataSpaceFormalModel"
         },
+        "method.resolveSourcePrimaryKey.params": {
+          "type": "object",
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "name": {
+                    "type": "string"
+                  },
+                  "primaryKey": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "name",
+                  "primaryKey"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveSourcePrimaryKey.return": {
+          "type": "string"
+        },
         "method.resolveTableResource.params": {
           "type": "object",
           "properties": {
@@ -659,7 +687,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T00:20:44.059Z",
+  "generatedAt": "2026-11-03T03:51:14.070Z",
   "models": {
     "DataSpaceFormalRow": {
       "name": "DataSpaceFormalRow",
@@ -1318,6 +1346,32 @@
                 "type": "reference",
                 "name": "DataSpaceFormalModel",
                 "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts"
+              }
+            },
+            {
+              "name": "resolveSourcePrimaryKey",
+              "jsdoc": "精确来源目录的远端业务主键；企业隔离键保留原标志但不作为业务行身份，不修改输入。",
+              "parameters": [
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "{\n        name: string;\n        primaryKey: boolean;\n    }"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
               }
             },
             {

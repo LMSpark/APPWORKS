@@ -1,0 +1,321 @@
+[
+  {
+    "kind": "DataSpaceDesignApi",
+    "catalog": {
+      "rootKind": "DataSpaceDesignApi",
+      "models": [
+        {
+          "kind": "DataSpaceDesignApi",
+          "name": "DataSpaceDesignApi",
+          "jsdoc": "正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。",
+          "summary": "正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataSpaceDesignApi",
+      "models": [
+        {
+          "kind": "DataSpaceDesignApi",
+          "name": "DataSpaceDesignApi",
+          "jsdoc": "正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。",
+          "summary": "正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。",
+          "constructorSignature": {
+            "summary": "绑定宿主请求与共享运行 owner；正式读取校验 scope，不建立第二套设计写入口。",
+            "jsdoc": "绑定宿主请求与共享运行 owner；正式读取校验 scope，不建立第二套设计写入口。",
+            "signature": "constructor(options: DataSpaceDesignApiOptions)"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "readInputParameters",
+              "jsdoc": "读取空间声明原文的副本；editable 校验编辑结构，不解析调用值或系统值。",
+              "summary": "读取空间声明原文的副本；editable 校验编辑结构，不解析调用值或系统值。",
+              "signature": "readInputParameters(input: Readonly<{\n        value: unknown;\n        editable?: boolean;\n    }>): Record<string, unknown>[]"
+            },
+            {
+              "name": "prepareInputParameters",
+              "jsdoc": "对原声明校验拟保存内容；changed=false 时保留原文，不自动迁移引用或派发保存。",
+              "summary": "对原声明校验拟保存内容；changed=false 时保留原文，不自动迁移引用或派发保存。",
+              "signature": "prepareInputParameters(input: Readonly<{\n        value: unknown;\n        original: unknown;\n    }>): {\n        items: Array<Record<string, unknown>>;\n        changed: boolean;\n    }"
+            },
+            {
+              "name": "inputParameterRowAdapter",
+              "jsdoc": "参数对象数组的纯行编辑兼容；标准组件绑定原inputParams，适配不执行查询或保存。",
+              "summary": "参数对象数组的纯行编辑兼容；标准组件绑定原inputParams，适配不执行查询或保存。",
+              "signature": "inputParameterRowAdapter(): InputParameterRowAdapter"
+            },
+            {
+              "name": "parseFilter",
+              "jsdoc": "Decodes the stored SPARK wire filter for structured model metadata editing.",
+              "summary": "Decodes the stored SPARK wire filter for structured model metadata editing.",
+              "signature": "parseFilter(serialized: string | null | undefined): DataViewFilter | undefined"
+            },
+            {
+              "name": "serializeFilter",
+              "jsdoc": "Encodes a structured model filter using the established SPARK wire contract.",
+              "summary": "Encodes a structured model filter using the established SPARK wire contract.",
+              "signature": "serializeFilter(filter: DataViewFilter | undefined): string"
+            },
+            {
+              "name": "parseValueFunction",
+              "jsdoc": "Parses one serialized model-field ValueFun object without a filter wire envelope.",
+              "summary": "Parses one serialized model-field ValueFun object without a filter wire envelope.",
+              "signature": "parseValueFunction(serialized: string | null | undefined): DataViewFilterValueFunction | undefined"
+            },
+            {
+              "name": "resolveOutputFields",
+              "jsdoc": "Resolves consumable output columns while preserving the complete formal field list.",
+              "summary": "Resolves consumable output columns while preserving the complete formal field list.",
+              "signature": "resolveOutputFields(model: DataSpaceFormalModel): readonly DataSpaceFormalField[]"
+            },
+            {
+              "name": "resolveFields",
+              "jsdoc": "完整模型字段归属DataTable.columns；输出开关不删除模型结构，等价重复只合并投影、不改正式记录。",
+              "summary": "完整模型字段归属DataTable.columns；输出开关不删除模型结构，等价重复只合并投影、不改正式记录。",
+              "signature": "resolveFields(model: DataSpaceFormalModel): readonly DataSpaceFormalField[]"
+            },
+            {
+              "name": "createFieldProjection",
+              "jsdoc": "从正式模型派生原生字段投影；不持久化、不复制字段真源，也不授予读取或写入权限。\n@param model 已读取的正式定义；包括非输出字段，防止全不输出时空投影退回全列。\n@returns 可用于缺省DataView的独立投影；显式视图配置保持优先，查询覆盖值不改模型定义。",
+              "summary": "从正式模型派生原生字段投影；不持久化、不复制字段真源，也不授予读取或写入权限。",
+              "signature": "createFieldProjection(model: DataSpaceFormalModel): DataViewFieldProjection[]"
+            },
+            {
+              "name": "projectModel",
+              "jsdoc": "将已读取的正式元记录投影为模型；与readModel使用同一主键及输出验证。\n@param row 正式模型记录或显式拟保存的定义，不代表已获得查询权限。\n@param fields 所属模型的完整dataModel字段记录，不包含来源入参。\n@param sourcePrimaryKey 数据库表须使用正式来源目录确认的字段名，其他来源为空。\n@returns 校验后的定义投影；不读取、不保存，也不授予数据权限。",
+              "summary": "将已读取的正式元记录投影为模型；与readModel使用同一主键及输出验证。",
+              "signature": "projectModel(row: DataSpaceFormalRow, fields: readonly DataSpaceFormalRow[], sourcePrimaryKey: string): DataSpaceFormalModel"
+            },
+            {
+              "name": "resolveSourcePrimaryKey",
+              "jsdoc": "精确来源目录的远端业务主键；企业隔离键保留原标志但不作为业务行身份，不修改输入。",
+              "summary": "精确来源目录的远端业务主键；企业隔离键保留原标志但不作为业务行身份，不修改输入。",
+              "signature": "resolveSourcePrimaryKey(fields: Readonly<{\n        name: string;\n        primaryKey: boolean;\n    }>[]): string"
+            },
+            {
+              "name": "resolveTableResource",
+              "jsdoc": "正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。",
+              "summary": "正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。",
+              "signature": "resolveTableResource(model: Pick<DataSpaceFormalModel, \"sourceType\" | \"sourceName\">): DataSpaceFormalTableResource"
+            },
+            {
+              "name": "readSpaceDefinition",
+              "jsdoc": "仅读取正式空间名称，不扩展模型、目录或输入参数。",
+              "summary": "仅读取正式空间名称，不扩展模型、目录或输入参数。",
+              "signature": "readSpaceDefinition(input: DataSpaceFormalScenarioReadInput, metadata?: DataSet): Promise<DataSpaceFormalSpaceDefinition>"
+            },
+            {
+              "name": "readModels",
+              "jsdoc": "以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。",
+              "summary": "以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。",
+              "signature": "readModels(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalModel[]>"
+            },
+            {
+              "name": "readModel",
+              "jsdoc": "仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。\n@param input 元空间身份、目标空间及正式模型名；调用方守卫拒绝过期结果。\n@param metadata 活动设计必须提供当前元数据DataSet；复用其查询视图并在读取后释放，不覆盖工作区草稿。仅装配前引导可省略。",
+              "summary": "仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。",
+              "signature": "readModel(input: DataSpaceFormalReadInput, metadata?: DataSet): Promise<DataSpaceFormalModel>"
+            },
+            {
+              "name": "readModelBatch",
+              "jsdoc": "批量读取一个空间的指定模型及完整字段；来源按数据库/表名精确集合读取，共用主键校验，不缓存完成结果。",
+              "summary": "批量读取一个空间的指定模型及完整字段；来源按数据库/表名精确集合读取，共用主键校验，不缓存完成结果。",
+              "signature": "readModelBatch(input: DataSpaceFormalBatchReadInput, metadata?: DataSet): Promise<readonly DataSpaceFormalModel[]>"
+            },
+            {
+              "name": "decodeRelations",
+              "jsdoc": "将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。\n@param rows 已由调用方核定归属、完整性和数据权限的正式行；不执行查询或推导前端级联。\n@returns 保留来源身份、资源端点、完整过滤及删除配置的只读关系。\n@throws 正式行损坏、过滤未配置或损坏时，报告空间与关系身份并拒绝整批，不跳过或修写原记录。",
+              "summary": "将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。",
+              "signature": "decodeRelations(rows: readonly DataSpaceFormalRow[]): readonly DataSpaceFormalRelation[]"
+            },
+            {
+              "name": "readRelations",
+              "jsdoc": "完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。",
+              "summary": "完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。",
+              "signature": "readRelations(input: DataSpaceFormalScenarioReadInput, metadata?: DataSet): Promise<readonly DataSpaceFormalRelation[]>"
+            },
+            {
+              "name": "readRelationDependencyOptions",
+              "jsdoc": "读取应用级关系依赖字典；该资源不是场景注册模型，不携带 scenarioId。",
+              "summary": "读取应用级关系依赖字典；该资源不是场景注册模型，不携带 scenarioId。",
+              "signature": "readRelationDependencyOptions(): Promise<Readonly<{\n        label: string;\n        value: string;\n    }>[]>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "正式元数据读取与纯解析门面；设计编辑、取消及提交由绑定的DataView/DataSet承接。\nclass DataSpaceDesignApi {\n  绑定宿主请求与共享运行 owner；正式读取校验 scope，不建立第二套设计写入口。\n  constructor(options: DataSpaceDesignApiOptions)\n  读取空间声明原文的副本；editable 校验编辑结构，不解析调用值或系统值。\n  readInputParameters(input: Readonly<{\n          value: unknown;\n          editable?: boolean;\n      }>): Record<string, unknown>[]\n  对原声明校验拟保存内容；changed=false 时保留原文，不自动迁移引用或派发保存。\n  prepareInputParameters(input: Readonly<{\n          value: unknown;\n          original: unknown;\n      }>): {\n          items: Array<Record<string, unknown>>;\n          changed: boolean;\n      }\n  参数对象数组的纯行编辑兼容；标准组件绑定原inputParams，适配不执行查询或保存。\n  inputParameterRowAdapter(): InputParameterRowAdapter\n  Decodes the stored SPARK wire filter for structured model metadata editing.\n  parseFilter(serialized: string | null | undefined): DataViewFilter | undefined\n  Encodes a structured model filter using the established SPARK wire contract.\n  serializeFilter(filter: DataViewFilter | undefined): string\n  Parses one serialized model-field ValueFun object without a filter wire envelope.\n  parseValueFunction(serialized: string | null | undefined): DataViewFilterValueFunction | undefined\n  Resolves consumable output columns while preserving the complete formal field list.\n  resolveOutputFields(model: DataSpaceFormalModel): readonly DataSpaceFormalField[]\n  完整模型字段归属DataTable.columns；输出开关不删除模型结构，等价重复只合并投影、不改正式记录。\n  resolveFields(model: DataSpaceFormalModel): readonly DataSpaceFormalField[]\n  从正式模型派生原生字段投影；不持久化、不复制字段真源，也不授予读取或写入权限。\n  @param model 已读取的正式定义；包括非输出字段，防止全不输出时空投影退回全列。\n  @returns 可用于缺省DataView的独立投影；显式视图配置保持优先，查询覆盖值不改模型定义。\n  createFieldProjection(model: DataSpaceFormalModel): DataViewFieldProjection[]\n  将已读取的正式元记录投影为模型；与readModel使用同一主键及输出验证。\n  @param row 正式模型记录或显式拟保存的定义，不代表已获得查询权限。\n  @param fields 所属模型的完整dataModel字段记录，不包含来源入参。\n  @param sourcePrimaryKey 数据库表须使用正式来源目录确认的字段名，其他来源为空。\n  @returns 校验后的定义投影；不读取、不保存，也不授予数据权限。\n  projectModel(row: DataSpaceFormalRow, fields: readonly DataSpaceFormalRow[], sourcePrimaryKey: string): DataSpaceFormalModel\n  精确来源目录的远端业务主键；企业隔离键保留原标志但不作为业务行身份，不修改输入。\n  resolveSourcePrimaryKey(fields: Readonly<{\n          name: string;\n          primaryKey: boolean;\n      }>[]): string\n  正式来源名与原标签构成原生表资源语义，不替代查询模型绑定或来源调度身份。\n  resolveTableResource(model: Pick<DataSpaceFormalModel, \"sourceType\" | \"sourceName\">): DataSpaceFormalTableResource\n  仅读取正式空间名称，不扩展模型、目录或输入参数。\n  readSpaceDefinition(input: DataSpaceFormalScenarioReadInput, metadata?: DataSet): Promise<DataSpaceFormalSpaceDefinition>\n  以真实场景模型目录发现 Name，再复用正式单模型读取；不借物理 catalog 猜测字段。\n  readModels(input: DataSpaceFormalScenarioReadInput): Promise<readonly DataSpaceFormalModel[]>\n  仅读取明确选择的正式模型；完整字段与来源主键验证通过后交付，不查询全物理目录。\n  @param input 元空间身份、目标空间及正式模型名；调用方守卫拒绝过期结果。\n  @param metadata 活动设计必须提供当前元数据DataSet；复用其查询视图并在读取后释放，不覆盖工作区草稿。仅装配前引导可省略。\n  readModel(input: DataSpaceFormalReadInput, metadata?: DataSet): Promise<DataSpaceFormalModel>\n  批量读取一个空间的指定模型及完整字段；来源按数据库/表名精确集合读取，共用主键校验，不缓存完成结果。\n  readModelBatch(input: DataSpaceFormalBatchReadInput, metadata?: DataSet): Promise<readonly DataSpaceFormalModel[]>\n  将正式关系行解码为来源合同；HTTP读取和元空间DataView消费共用此映射。\n  @param rows 已由调用方核定归属、完整性和数据权限的正式行；不执行查询或推导前端级联。\n  @returns 保留来源身份、资源端点、完整过滤及删除配置的只读关系。\n  @throws 正式行损坏、过滤未配置或损坏时，报告空间与关系身份并拒绝整批，不跳过或修写原记录。\n  decodeRelations(rows: readonly DataSpaceFormalRow[]): readonly DataSpaceFormalRelation[]\n  完整读取单场景关系；过滤经唯一 codec 保留完整树，模型与视图引用由场景装配核对。\n  readRelations(input: DataSpaceFormalScenarioReadInput, metadata?: DataSet): Promise<readonly DataSpaceFormalRelation[]>\n  读取应用级关系依赖字典；该资源不是场景注册模型，不携带 scenarioId。\n  readRelationDependencyOptions(): Promise<Readonly<{\n          label: string;\n          value: string;\n      }>[]>\n}"
+  },
+  {
+    "kind": "ModelSourceEditHostInput",
+    "catalog": {
+      "rootKind": "ModelSourceEditHostInput",
+      "models": [
+        {
+          "kind": "ModelSourceEditHostInput",
+          "name": "ModelSourceEditHostInput",
+          "jsdoc": "",
+          "summary": "",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n    /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n        relations: string;\n        fieldTemplate: string;\n    }>;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ModelSourceEditHostInput",
+      "models": [
+        {
+          "kind": "ModelSourceEditHostInput",
+          "name": "ModelSourceEditHostInput",
+          "jsdoc": "",
+          "summary": "",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n    /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n        relations: string;\n        fieldTemplate: string;\n    }>;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataSet"
+            },
+            {
+              "name": "targetId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "sources",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "PageDataSpaceModelSourceReader"
+            },
+            {
+              "name": "lifecycle",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "ModelSourceEditLifecycle"
+            },
+            {
+              "name": "views",
+              "jsdoc": "同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。",
+              "summary": "同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。",
+              "typeText": "{ models: string; fields: string; relations: string; fieldTemplate: string }"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: ModelSourceEditHostInput = Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n    /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n        relations: string;\n        fieldTemplate: string;\n    }>;\n}>\n * DTS relation: alias Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    modelId: string;\n    sources: Reader;\n    lifecycle: ModelSourceEditLifecycle;\n    /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */\n    views?: Readonly<{\n        models: string;\n        fields: string;\n        relations: string;\n        fieldTemplate: string;\n    }>;\n}>\n */\ntype ModelSourceEditHostInput {\n  readonly dataSet: DataSet\n  readonly targetId: string\n  readonly modelId: string\n  readonly sources: PageDataSpaceModelSourceReader\n  readonly lifecycle: ModelSourceEditLifecycle\n  同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。\n  readonly views: { models: string; fields: string; relations: string; fieldTemplate: string }\n}"
+  },
+  {
+    "kind": "ModelSourceEditLifecycle",
+    "catalog": {
+      "rootKind": "ModelSourceEditLifecycle",
+      "models": [
+        {
+          "kind": "ModelSourceEditLifecycle",
+          "name": "ModelSourceEditLifecycle",
+          "jsdoc": "",
+          "summary": "",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ModelSourceEditLifecycle",
+      "models": [
+        {
+          "kind": "ModelSourceEditLifecycle",
+          "name": "ModelSourceEditLifecycle",
+          "jsdoc": "",
+          "summary": "",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "inputParameters",
+              "jsdoc": "宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。",
+              "summary": "宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。",
+              "typeText": "Record<string, unknown>"
+            }
+          ],
+          "methods": [
+            {
+              "name": "validateConfiguration",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "validateConfiguration(): Promise<() => void>"
+            },
+            {
+              "name": "validateTransition",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "validateTransition(model: Prepared['model']): Promise<() => void>"
+            },
+            {
+              "name": "prepareContract",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "prepareContract(change: SourceContractChange): Promise<SourceContractPlan>"
+            },
+            {
+              "name": "validateRemovals",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "validateRemovals(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>"
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "assertCurrent(): void"
+            },
+            {
+              "name": "onDispatch",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "onDispatch(): void"
+            },
+            {
+              "name": "completed",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "completed(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: ModelSourceEditLifecycle = Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>\n * DTS relation: alias Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>\n */\ntype ModelSourceEditLifecycle {\n  宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。\n  readonly inputParameters: Record<string, unknown>\n  validateConfiguration(): Promise<() => void>\n  validateTransition(model: Prepared['model']): Promise<() => void>\n  prepareContract(change: SourceContractChange): Promise<SourceContractPlan>\n  validateRemovals(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>\n  assertCurrent(): void\n  onDispatch(): void\n  completed(): void\n}"
+  }
+]

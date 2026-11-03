@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-03",
+  "status": "core-verified-card-incomplete",
+  "scope": "Shared source primary-key semantics and original metadata view/input policy adaptation",
+  "baseCommit": "4cfb2e3dc2010d80da5224e84d0006fee5151692",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "backendModified": false,
+  "verifiedFixes": [
+    "Remote source key resolution shares the existing non-tenant primary-key rule; physical tenant field and original IsPKey remain unchanged",
+    "Candidate model uses precise new source key; previous model projection remains lazy and field order independent",
+    "Source owner selects explicit registered metadata views and field template in its original DataSet",
+    "Host input policy is consumed for candidate reading, preview assessment, input configuration and fresh save validation",
+    "Ordinary output changes use real references and synchronize shared consumers; old blanket rejection removed"
+  ],
+  "redGreenEvidence": [
+    "artifacts/data-chain-smoke/workflow-source-tenant-key-red.log",
+    "artifacts/data-chain-smoke/workflow-source-tenant-key-green.log",
+    "artifacts/data-chain-smoke/workflow-source-key-api-red.log",
+    "artifacts/data-chain-smoke/workflow-source-key-api-green.log",
+    "artifacts/data-chain-smoke/workflow-source-owner-policy-red.log",
+    "artifacts/data-chain-smoke/workflow-source-owner-policy-green-fixed.log"
+  ],
+  "liveSameSource": {
+    "phase": "confirmed",
+    "error": "",
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "modelId": "2F264852340D4641727ECA886061E316",
+    "reads": 26,
+    "writes": 0,
+    "blockedWrites": 0,
+    "executions": 0,
+    "selectedKey": "rowid",
+    "previousKey": "rowid",
+    "fieldCount": 30,
+    "ownerStatus": "idle",
+    "noReplay": true
+  },
+  "liveScopeNotes": [
+    "Original source reader and original owner loaded through existing Vite SSR compilation; frontend UI is not claimed for this no-op probe",
+    "Original signed session identity and verified repository app/root restored only into isolated in-memory storage; no credential files",
+    "HTTP probe forbids every non-read request; preview, cancel, preview, same-source save retain original records",
+    "Additional UI ordinary-field cases and unique successful single-node consumption are recorded in workflow-structure-progress.json"
+  ],
+  "verification": {
+    "related": {
+      "files": 15,
+      "tests": 402,
+      "exitCode": 0
+    },
+    "dataSpaceApi": {
+      "files": 12,
+      "tests": 838,
+      "exitCode": 0
+    },
+    "typecheck": 0,
+    "lint": 0,
+    "frontendBuild": 0,
+    "classModelGenerate": 0,
+    "pagesConfig": 0,
+    "workflowDesigns": 0,
+    "pageThin": 0,
+    "docs": 0,
+    "highModelReview": "no new confirmed blocker; static only"
+  },
+  "fixture": {
+    "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+    "createdDefinitions": 41,
+    "deletedConditions": 1,
+    "remainingDefinitions": 40,
+    "workflowExecutions": 0,
+    "instances": 0,
+    "disabled": true,
+    "layoutCreated": false
+  },
+  "open": [
+    "UI source replacement with explicit differences and true persistence/reopen/execution",
+    "Shared model fork and current-node isolation",
+    "Node deletion including references, exclusive/shared models and layout boundary",
+    "Final exact fixture cleanup",
+    "Other source types, node types and whole architecture cards remain active"
+  ]
+}

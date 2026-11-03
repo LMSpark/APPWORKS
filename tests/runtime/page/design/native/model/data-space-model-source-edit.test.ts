@@ -2,6 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 import {RequestState} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
+import {createModelSourceEditHost, createModelSourceEditHandle} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})
@@ -1745,8 +1746,8 @@ describe('same-contract source replacement', () => {
     await session.metadataDataSet.getView('Base_DataModel', 'default')!.loadFromServer({allPages: true})
     reader.prepare.mockResolvedValue({...prepared, fields: [{...field, Name: 'nextKey'}, {...field, Name: 'rowid'}]})
     await owner.preview(source); await owner.mapField({fieldId: 'F1', sourceName: 'nextKey'}); await owner.mapField({fieldId: 'F2', sourceName: 'rowid'})
-    expect(owner.getState().preview?.problems.join()).toContain('多个主键')
-    await expect(owner.save()).rejects.toThrow('多个主键')
+    expect(owner.getState().preview?.problems.join()).toContain('非租户主键')
+    await expect(owner.save()).rejects.toThrow('非租户主键')
     expect(writes()).toHaveLength(0); expect(f.fileWrites).toHaveLength(0)
     owner.discard()
     const fresh = await f.open('A')
@@ -1988,6 +1989,68 @@ describe('same-contract source replacement', () => {
     await expect(owner.save()).rejects.toThrow('apply result unavailable')
     expect(await owner.verify()).toEqual({confirmed: false, modelId: null})
     expect(models.dirtyTracking.hasPendingChanges()).toBe(false); expect(writes()).toHaveLength(0)
+  })
+
+  it('uses explicit original metadata views and the selected field query template', async () => {
+    const reader = {query: vi.fn(async () => ({rows: [source], total: 1})), prepare: vi.fn(async () => structuredClone(prepared))}
+    const f = dataSpacePageFixture({allowSourceEdit: true, modelSources: reader})
+    fixtures.push(f)
+    const session = await f.open('A'), ds = session.metadataDataSet
+    const names = {models: 'chosenModels', fields: 'chosenFields', relations: 'chosenRelations', fieldTemplate: 'chosenTemplate'}
+    const models = ds.getView('Base_DataModel')!.createQueryView(names.models)
+    const fields = ds.getView('Base_DataModel_Field')!.createQueryView(names.fields)
+    const relations = ds.getView('Base_DataModel_Relation')!.createQueryView(names.relations)
+    const template = ds.getView('Base_DataModel_Field', 'modelInputFields')!.createQueryView(names.fieldTemplate)
+    for (const view of [models, fields, relations]) await view.refresh()
+    const host = createModelSourceEditHost({dataSet: ds, targetId: 'A', modelId: 'M1', sources: reader, views: names,
+      lifecycle: {assertCurrent() {}, onDispatch() {}, completed() {}, validateConfiguration: async () => () => {}}})
+    expect(host.models).toBe(models); expect(host.fields).toBe(fields); expect(host.relations).toBe(relations)
+    const inherited = vi.spyOn(template, 'createQueryView')
+    await createModelSourceEditHandle(host).preview(source)
+    expect(inherited).toHaveBeenCalledWith('sourceReplace:M1')
+    expect(host.fields.dataTable).toBe(fields.dataTable)
+    models.queryContext = {dataSpaceId: 'B'}
+    await expect(createModelSourceEditHandle(host).preview(source)).rejects.toThrow('目标已变化')
+  })
+
+  it('uses the host input policy in preview, configuration and fresh save validation', async () => {
+    const apiSource = {...source, type: 'interface' as const, providerId: 'PROVIDER'}
+    const reader = {query: vi.fn(async () => ({rows: [apiSource], total: 1})), prepare: vi.fn(async () => ({...prepared,
+      source: apiSource, model: {...prepared.model, Type: '接口'}, fields: [field, {...field, type: 'inputParams' as const, Name: 'request', IsPKey: 0, IsOutput: 0}]}))}
+    const f = dataSpacePageFixture({allowSourceEdit: true, allowFieldAdd: true, modelSources: reader,
+      sourceFields: [{...field, rowid: 'F1', dataModelId: 'M1'}]})
+    fixtures.push(f); f.setModelValues({Type: '接口'})
+    const session = await f.open('A'), ds = session.metadataDataSet
+    let allowed = true
+    const read = vi.fn(() => [{value: 'NODE.result', label: 'ancestor result'}])
+    const validate = vi.fn(({value}: {name: string; value: string}) => {if (!allowed || JSON.parse(value).ParamName !== 'NODE.result') throw Error('ancestor input changed')})
+    const host = createModelSourceEditHost({dataSet: ds, targetId: 'A', modelId: 'M1', sources: reader,
+      lifecycle: {assertCurrent() {}, onDispatch() {}, completed() {}, validateConfiguration: async () => () => {}, inputParameters: {read, validate},
+        prepareContract: async () => ({viewChanges: [], check() {}, async assertCurrent() {}, async complete() {}})}})
+    const owner = createModelSourceEditHandle(host), value = JSON.stringify({Type: 'GetInputParam', ParamName: 'NODE.result'})
+    await owner.preview(apiSource)
+    expect(read).toHaveBeenCalled(); expect(owner.getState().preview?.inputParams).toEqual(read())
+    owner.configureInput({sourceName: 'request', value})
+    expect(owner.getState().preview?.problems).toEqual([])
+    expect(validate).toHaveBeenCalledWith({name: 'request', value})
+    allowed = false
+    await expect(owner.save()).rejects.toThrow('ancestor input changed')
+    expect(f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toHaveLength(0)
+  })
+
+  it('preserves tenant primary flags when replacing a table source with one business key', async () => {
+    const tenant = {...field, Name: 'lingma_sys_ent', IsPKey: 1}
+    const {owner, reader, session, writes} = await setup({sourceFields: [
+      {...tenant, rowid: 'TENANT', dataModelId: 'M1'}, {...field, rowid: 'F1', dataModelId: 'M1'},
+    ]})
+    reader.prepare.mockResolvedValue({...prepared, fields: [tenant, field]})
+    await owner.preview(source)
+    expect(owner.getState().preview?.problems).toEqual([])
+    await owner.save()
+    expect(writes()).toHaveLength(1)
+    const fields = session.metadataDataSet.getView('Base_DataModel_Field')!.rows
+    expect(fields.find(row => row['rowid'] === 'TENANT')).toMatchObject({Name: 'lingma_sys_ent', IsPKey: 1})
+    expect(fields.find(row => row['rowid'] === 'F1')).toMatchObject({Name: 'rowid', IsPKey: 1})
   })
 
   it('rejects a different URL target before saving', async () => {

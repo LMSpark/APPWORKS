@@ -65,21 +65,13 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  if(!selected.length&&!pendingOutputs&&!modelChanged)return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:[]}]})
  const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.effective['ValueFun'])
  if(action==='save'&&(values.length||Object.hasOwn(modelPatch,'Filter')))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(modelPatch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}: {}})
- const structural=(item:typeof projected[number])=>item.deleting||['Name','AsName','IsOutput'].some(key=>Object.hasOwn(item.patch,key))
  const draft=workflowQueryDraftSignature([fields,nodes,models,edges])
- if(action==='save')await assertWorkflowFieldStructureChanges(dataSet,workflowId,nodeId,selected.filter(item=>!item.creating&&item.computed&&(item.deleting
+ if(action==='save')await assertWorkflowFieldStructureChanges(dataSet,workflowId,nodeId,selected.filter(item=>!item.creating&&(item.deleting
   ||['Name','AsName'].some(key=>Object.hasOwn(item.patch,key))||Number(item.row['IsOutput'])===1&&Number(item.effective['IsOutput'])!==1)).map(item=>({before:item.row,...item.deleting?{}:{after:item.effective}})))
  if(action==='save'&&workflowQueryDraftSignature([fields,nodes,models,edges])!==draft)throw Error('查询配置草稿已变化；保留当前修改，未提交旧派生结果')
- const uncheckedStructural=selected.some(item=>structural(item)&&!item.computed)
  const outputs=affected.flatMap(row=>{
   const id=String(nodes.getPkKey(row)),original=read(nodes,row,'output_mapping')
   const next=buildWorkflowQueryOutput({workflowId,modelId,fields:projected.map(item=>item.effective),original})
-  if(action==='save'&&uncheckedStructural&&edges.rows.some(edge=>read(edges,edge,'sourceID')===id)){
-   const previous=typeof original==='string'?parseJsonDocument(original):original
-   const retained=Array.isArray(previous)&&previous.every(entry=>entry!==null&&typeof entry==='object'&&next.some(candidate=>
-    ['rowid','pid','Name','FieldType','isParent'].every(key=>candidate[key]===(entry as Record<string,unknown>)[key])))
-   if(!retained)throw Error('当前查询输出存在下游连接；下游引用迁移尚未核定，原草稿保留')
-  }
   const output=JSON.stringify(next)
   const patch=changes(nodes,row,id)
   const equal=(left:unknown)=>JSON.stringify(typeof left==='string'?parseJsonDocument(left):left)===output

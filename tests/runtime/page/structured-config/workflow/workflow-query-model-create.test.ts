@@ -156,21 +156,47 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(http.records['Base_DataModel_Field']![0]?.['rowid']).toBe(id)
   expect(fields.hasUnconfirmedSave).toBe(false)
  })
- it('allows additive query outputs with downstream edges but preserves the guard for removing or renaming existing outputs',async()=>{
+ it('allows unreferenced ordinary output changes with downstream edges and synchronizes shared query nodes',async()=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',node_type:'query',node_config:'M1',output_mapping:JSON.stringify([
    {rowid:'ROOT',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},
-   {rowid:'F1',pid:'ROOT',Name:'code',FieldType:'varchar',isParent:false}])}]
+   {rowid:'F1',pid:'ROOT',Name:'code',FieldType:'varchar',isParent:false}])},
+   {rowid:'SHARED',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'}]
   http.records['Base_WorkflowConnectors']=[{rowid:'EDGE',workflow_id:'W1',sourceID:'N1',targetID:'NEXT'}]
   http.records['Base_DataModel_Field']=['F1','F2'].map((rowid,index)=>({rowid,dataSetId:'W1',dataModelId:'M1',Name:index?'rowid':'code',AsName:'',type:'dataModel',FieldType:'varchar',IsOutput:index?0:1,IsPKey:0,description:''}))
   models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
   fields.updateEditingValue('F2','IsOutput',1);await saveWorkflowQueryFields(ds,'W1','N1')
   expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toEqual(expect.arrayContaining([expect.objectContaining({rowid:'F1',Name:'code'}),expect.objectContaining({rowid:'F2',Name:'rowid'})]))
-  const writes=http.saves.length
-  fields.updateEditingValue('F1','AsName','renamed');await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('下游')
-  await cancelWorkflowQueryFields(ds,'W1','N1')
-  fields.updateEditingValue('F1','IsOutput',0);await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('下游')
-  expect(http.saves).toHaveLength(writes)
+  fields.updateEditingValue('F1','AsName','renamed');await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(http.records['Base_DataModel_Field']![0]?.['AsName']).toBe('renamed')
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']))).toEqual(expect.arrayContaining([expect.objectContaining({rowid:'F1',Name:'renamed'})]))
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![1]?.['output_mapping']))).toEqual(expect.arrayContaining([expect.objectContaining({rowid:'F1',Name:'renamed'})]))
+  fields.updateEditingValue('F1','IsOutput',0);await saveWorkflowQueryFields(ds,'W1','N1')
+  expect(JSON.parse(String(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping'])).some((row:{rowid:string})=>row.rowid==='F1')).toBe(false)
+ })
+ it('protects ordinary outputs referenced by connector parameter mappings',async()=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'EDGE',workflow_id:'W1',sourceID:'N1',targetID:'NEXT',params:JSON.stringify([{ValueFun:{Type:'GetInputParam',ParamName:'N1.code'}}])}]
+  http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'dataModel',FieldType:'varchar',Name:'code',AsName:'',description:'',IsPKey:0,IsOutput:1,ValueFun:''}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('F1','AsName','renamed')
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('EDGE')
+  expect(http.saves).toHaveLength(0)
+ })
+ it.each(['AsName','IsOutput'] as const)('checks actual downstream references to ordinary output before changing %s',async key=>{
+  const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'},
+   {rowid:'SHARED',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'EDGE',workflow_id:'W1',sourceID:'SHARED',targetID:'NEXT'}]
+  http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'dataModel',FieldType:'int',Name:'physical',AsName:'resultAlias',description:'',IsPKey:0,IsOutput:1,ValueFun:''}]
+  const filter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'resultAlias',operator:'eq',value:0}))
+  http.records['Base_DataModel_Relation']=[{rowid:'CONDITION',dataSetId:'W1',parentModId:'SHARED',childModId:'NEXT',filter}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('F1',key,key==='AsName'?'nextAlias':0)
+  await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('CONDITION')
+  expect(http.saves).toHaveLength(0);expect(fields.getEditingRow('F1')?.[key]).toBe(key==='AsName'?'nextAlias':0)
+  expect(http.records['Base_DataModel_Relation']![0]?.['filter']).toBe(filter)
  })
  it.each(['is-null','is-not-null'] as const)('refuses an existing %s connector condition before dispatch while preserving its original definition',async operator=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!

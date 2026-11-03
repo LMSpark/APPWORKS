@@ -84,6 +84,11 @@ export type ModelSourceEditRecoveryOptions = Readonly<{abandonNotApplied?: boole
 const SOURCE_KEYS = ['Type', 'MetaName', 'DbId', 'DbName'] as const
 
 export type ModelSourceEditLifecycle = Readonly<{
+  /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */
+  inputParameters?: Readonly<{
+    read(): Array<{value: string; label: string}>
+    validate(input: Readonly<{name: string; value: string}>): void
+  }>
   validateConfiguration(): Promise<() => void>
   validateTransition?(model: Prepared['model']): Promise<() => void>
   prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>
@@ -124,6 +129,7 @@ export type ModelSourceEditHost = {
   readonly modelId: string
   readonly sources: Reader
   readonly lifecycle: ModelSourceEditLifecycle
+  readonly fieldTemplate: DataView
   views: DataView[]
   models: DataView
   fields: DataView
@@ -150,19 +156,24 @@ export type ModelSourceEditHostInput = Readonly<{
   modelId: string
   sources: Reader
   lifecycle: ModelSourceEditLifecycle
+  /** 同一DataSet中的正式元数据视图；字段模板负责派生所属字段查询，原默认入口保持。 */
+  views?: Readonly<{models: string; fields: string; relations: string; fieldTemplate: string}>
 }>
 
 export function createModelSourceEditHost(input: ModelSourceEditHostInput): ModelSourceEditHost {
   const {dataSet, targetId, modelId, sources, lifecycle} = input
-  const views = ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation'].map(name => {
-    const view = dataSet.getView(name, 'default')
+  const selectors = [['Base_DataModel', input.views?.models], ['Base_DataModel_Field', input.views?.fields], ['Base_DataModel_Relation', input.views?.relations]] as const
+  const views = selectors.map(([name, viewId]) => {
+    const view = dataSet.getView(name, viewId ?? 'default')
     if (!view) throw new Error(`缺少正式元数据视图：${name}`)
     return view
   })
   const [models, fields, relations] = views
-  if (!models || !fields || !relations) throw new Error('正式元数据视图不完整')
+  const fieldTemplate = dataSet.getView('Base_DataModel_Field', input.views?.fieldTemplate ?? 'modelInputFields')
+  if (!models || !fields || !relations || !fieldTemplate) throw new Error('正式元数据视图或所属字段模板不完整')
+  if (fieldTemplate.dataTable !== fields.dataTable) throw new Error('所属字段模板必须属于同一正式字段表')
   const host: ModelSourceEditHost = {
-    dataSet, targetId, modelId, sources, lifecycle, views, models, fields, relations,
+    dataSet, targetId, modelId, sources, lifecycle, views, models, fields, relations, fieldTemplate,
     syncFields: undefined, replacementFields: undefined, replacementRelations: undefined,
     contexts: views.map(view => JSON.stringify(view.queryContext)), flow: createModelSourceEditFlow(),
   }
@@ -172,15 +183,16 @@ export function createModelSourceEditHost(input: ModelSourceEditHostInput): Mode
 
 function modelSourceEditAssertOwner(host: ModelSourceEditHost): void {
   host.lifecycle.assertCurrent()
-  if (host.dataSet.destroyed || host.views.some((view, i) => view.destroyed || host.dataSet.getView(view.tableName, view.viewId) !== view
+  if (host.dataSet.destroyed || host.fieldTemplate.destroyed || host.dataSet.getView('Base_DataModel_Field', host.fieldTemplate.viewId) !== host.fieldTemplate
+    || host.views.some((view, i) => view.destroyed || host.dataSet.getView(view.tableName, view.viewId) !== view
     || view.dataTable?.modelBinding?.modelName !== view.tableName || view.queryContext['dataSpaceId'] !== host.targetId
     || JSON.stringify(view.queryContext) !== host.contexts[i])) throw new Error('来源替换查询或目标已变化')
 }
 
 function modelSourceEditSelectViews(host: ModelSourceEditHost, synchronizing: boolean) {
   modelSourceEditAssertClean(host, false, true)
-  const template = host.dataSet.getView('Base_DataModel_Field', 'modelInputFields')
-  if (!template || template.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field') throw new Error('缺少正式所属字段查询配置modelInputFields')
+  const template = host.fieldTemplate
+  if (template.dataTable?.modelBinding?.modelName !== 'Base_DataModel_Field') throw new Error('缺少正式所属字段查询配置modelInputFields')
   if (synchronizing) host.syncFields ??= template.createQueryView(`sourceSync:${host.modelId}`)
   else {
     host.replacementFields ??= template.createQueryView(`sourceReplace:${host.modelId}`)
@@ -419,7 +431,7 @@ function modelSourceEditAssessInput(host: ModelSourceEditHost, sourceName: strin
   preview.inputChoices.push({sourceName, value})
   try {
     if (!value) throw new Error('新增来源入参须明确配置空间参数引用或JSON常量')
-    sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: sourceName, value})
+    modelSourceEditValidateInput(host, sourceName, value)
     preview.differences.push({name: sourceName, result: '新增来源入参；使用明确配置的取值'})
   } catch (error) {
     const result = error instanceof Error ? error.message : String(error)
@@ -428,8 +440,13 @@ function modelSourceEditAssessInput(host: ModelSourceEditHost, sourceName: strin
 }
 
 function modelSourceEditReadInputParameters(host: ModelSourceEditHost, preview: Preview) {
-  if (preview.inputChoices.length) try {preview.inputParams = sourceInputReadParameters(host.dataSet, host.targetId)}
+  if (preview.inputChoices.length) try {preview.inputParams = host.lifecycle.inputParameters?.read() ?? sourceInputReadParameters(host.dataSet, host.targetId)}
   catch (error) {preview.parameterWarning = error instanceof Error ? error.message : String(error)}
+}
+
+function modelSourceEditValidateInput(host: ModelSourceEditHost, name: string, value: string): void {
+  if (host.lifecycle.inputParameters) host.lifecycle.inputParameters.validate({name, value})
+  else sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name, value})
 }
 
 function modelSourceEditAssessSynchronization(host: ModelSourceEditHost, prepared: Prepared) {
@@ -489,10 +506,14 @@ function modelSourceEditProjectSourceModel(host: ModelSourceEditHost, preview: P
       ...preview.contractChanges.find(change => change.id === row['rowid'])?.patch, ...expression ? {ValueFun: expression.after} : {}}
   }), ...modelSourceEditSourceAdditions(host, preview).filter(row => row.type === 'dataModel').map((row, index) => ({...row, rowid: `new:${index}`, dataModelId: host.modelId,
     IsOutput: row.IsPKey === 1 || preview.operation === 'replace' ? 1 : row.IsOutput}))]
-  const keys = finalFields.filter(row => Number(row['IsPKey']) === 1)
+  const sourceKey = preview.prepared.source.type === 'table' ? DataSpaceDesignApi.resolveSourcePrimaryKey(
+    preview.prepared.fields.filter(row => row.type === 'dataModel').map(row => ({name: row.Name, primaryKey: Number(row.IsPKey) === 1}))) : ''
+  const keys = finalFields.filter(row => Number(row['IsPKey']) === 1 && (!sourceKey || row['Name'] === sourceKey))
   if (keys.length > 1) throw new Error('来源存在多个主键，须先明确唯一主键合同')
   const key = String(keys[0]?.['Name'] ?? ''), declared = model['PrimaryKeyFields']
-  const oldKeys = fields.filter(row => Number(row['IsPKey']) === 1)
+  // 旧声明仅用于迁移差异；无效旧来源仍可修复，完整旧投影继续按previous()需要才核验。
+  const oldKeys = fields.filter(row => Number(row['IsPKey']) === 1 && (!['数据库表', '表', 'table'].includes(String(model['Type']))
+    || String(row['Name']).toLowerCase() !== 'lingma_sys_ent'))
   const changingKey = oldKeys.length !== keys.length || oldKeys.some(row => row['rowid'] !== keys[0]?.['rowid'])
   if (changingKey && fields.length > 0 && declared !== undefined && declared !== null && declared !== '') {
     if (typeof declared !== 'string' || fields.filter(row => Number(row['IsPKey']) === 1 && (row['Name'] === declared || row['AsName'] === declared)).length !== 1) throw new Error('原主键声明不能唯一对应旧来源键，请先核查')
@@ -502,7 +523,7 @@ function modelSourceEditProjectSourceModel(host: ModelSourceEditHost, preview: P
   const raw = {...model, ...preview.operation === 'replace' ? Object.fromEntries(SOURCE_KEYS.map(property => [property, preview.prepared.model[property]])) : {},
     ...Object.fromEntries([...preview.modelChanges, ...preview.expressionChanges.filter(change => change.id === host.modelId)].map(change => [change.property, change.after]))}
   const candidate = DataSpaceDesignApi.projectModel(raw, finalFields,
-    preview.prepared.source.type === 'table' ? key : '')
+    sourceKey)
   DataSpaceDesignApi.resolveFields(candidate)
   return candidate
 }
@@ -511,7 +532,7 @@ function modelSourceEditProjectSourceContract(host: ModelSourceEditHost, preview
   const model = {...modelSourceEditCurrent(host)}, fields = host.fields.rows
     .filter(row => row['dataModelId'] === host.modelId && row['type'] === 'dataModel').map(row => ({...row}))
   return {previous: () => fields.length ? DataSpaceDesignApi.projectModel(model, fields, ['数据库表', '表', 'table'].includes(String(model['Type']))
-    ? String(fields.find(row => Number(row['IsPKey']) === 1)?.['Name'] ?? '') : '') : null, after: modelSourceEditProjectSourceModel(host, preview)}
+    ? DataSpaceDesignApi.resolveSourcePrimaryKey(fields.map(row => ({name: String(row['Name'] ?? ''), primaryKey: Number(row['IsPKey']) === 1}))) : '') : null, after: modelSourceEditProjectSourceModel(host, preview)}
 }
 
 /** 确认已有字段的来源合同差异；取消或重新预览会清除确认，不改正式行。 */
@@ -643,7 +664,7 @@ export async function modelSourceEditRemoveField(host: ModelSourceEditHost, inpu
 export function modelSourceEditConfigureInput(host: ModelSourceEditHost, input: Readonly<{sourceName: string; value: string}>) {
   const preview = modelSourceEditSelected(host)
   if (!preview.inputChoices.some(item => item.sourceName === input.sourceName)) throw new Error('参数不是当前新增来源入参')
-  sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: input.sourceName, value: input.value})
+  modelSourceEditValidateInput(host, input.sourceName, input.value)
   host.flow.inputs.set(input.sourceName, input.value)
   host.flow.preview = modelSourceEditReassess(host, preview)
 }
@@ -785,7 +806,7 @@ export async function modelSourceEditSave(host: ModelSourceEditHost) {
     if (modelSourceEditSnapshot(host) !== host.flow.baseline) throw new Error('元数据已变化，请重新预览')
     const assertWritable = () => {
       modelSourceEditAssertOwner(host); assertConfiguration(); assertTransition(); assertContract(); assertRemovals()
-      for (const input of candidate.inputChoices) sourceInputValidateValue({dataSet: host.dataSet, targetId: host.targetId, name: input.sourceName, value: input.value})
+      for (const input of candidate.inputChoices) modelSourceEditValidateInput(host, input.sourceName, input.value)
       if (Object.keys(patch).length && (host.models.editActionState(modelSourceEditCurrent(host)) !== 'enabled' || Object.keys(patch).some(key => host.models.fieldAccess(modelSourceEditCurrent(host), key).write !== 'allowed'))) throw new Error('当前查询不允许修改来源字段')
       for (const item of host.flow.modelEdits) if (host.models.editActionState(modelSourceEditCurrent(host, item.id)) !== 'enabled'
         || Object.keys(item.patch).some(key => host.models.fieldAccess(modelSourceEditCurrent(host, item.id), key).write !== 'allowed')) throw new Error(`当前查询不允许修改依赖模型${item.id}的表达式`)

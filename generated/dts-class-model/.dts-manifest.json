@@ -3124,7 +3124,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-11-03T15:37:51.384Z"
+      "sourceModifiedAt": "2026-11-03T16:43:47.017Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",

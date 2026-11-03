@@ -570,7 +570,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T15:03:51.045Z",
+  "generatedAt": "2026-11-03T16:43:47.017Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -850,7 +850,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "保留原快照并登记唯一行权限；公开冻结行移除系统凭据，重复身份不授予权限。",
+          "jsdoc": "保留原快照并登记行权限；剔除根凭据，拒收尚无路径owner的后代授权行，重复身份不授予权限。",
           "signatureText": "constructor(options: DataSpaceQueryContextOptions)",
           "parameters": [
             {

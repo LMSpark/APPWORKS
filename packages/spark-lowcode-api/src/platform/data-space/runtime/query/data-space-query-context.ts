@@ -62,6 +62,25 @@ function canonicalKey(value: unknown): string {
   return value === undefined || value === null ? '' : String(value).trim()
 }
 
+/** 后代授权行必须由正式模型路径owner承接；此处不删凭据后冒充已消费子行权限。 */
+function assertPublicQueryValue(value: unknown, path: string): void {
+  const pending = [{value, path}], visited = new WeakSet<object>()
+  while (pending.length > 0) {
+    const current = pending.pop()
+    if (current === undefined) break
+    if (current.value === null || typeof current.value !== 'object' || visited.has(current.value)) continue
+    visited.add(current.value)
+    for (const [key, child] of Object.entries(current.value)) {
+      const childPath = Array.isArray(current.value) && /^\d+$/.test(key)
+        ? `${current.path}[${key}]` : `${current.path}[${JSON.stringify(key)}]`
+      if (key === 'lingma_sys_key' || key === 'lingma_sys_params') {
+        throw new Error(`SPARK_NESTED_RESULT_UNSUPPORTED: 后代授权行缺少正式模型路径owner: ${childPath}`)
+      }
+      pending.push({value: child, path: childPath})
+    }
+  }
+}
+
 const denied = Object.freeze({ read: 'invisible', write: 'denied', component: 'hidden',
   required: false, writeMode: 'readonly' } as const)
 
@@ -83,7 +102,7 @@ export class DataSpaceQueryContext {
   #aggregateResult = false
   #model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>> | undefined
 
-  /** 保留原快照并登记唯一行权限；公开冻结行移除系统凭据，重复身份不授予权限。 */
+  /** 保留原快照并登记行权限；剔除根凭据，拒收尚无路径owner的后代授权行，重复身份不授予权限。 */
   public constructor(options: DataSpaceQueryContextOptions) {
     if (!options.scope.trim()) throw new Error('SPARK_QUERY_CONTEXT_STALE: scope 不能为空')
     this.#identity = Object.freeze({ ...options.identity })
@@ -94,7 +113,7 @@ export class DataSpaceQueryContext {
     this.#missingAuthPolicy = options.missingAuthPolicy ?? (this.#joinResult ? 'visible-readonly' : undefined)
     this.#columns = options.columns === undefined ? undefined
       : Object.freeze(options.columns.map(column => Object.freeze(structuredClone(column))))
-    this.#rows = Object.freeze(options.snapshot.rows.map(row => {
+    this.#rows = Object.freeze(options.snapshot.rows.map((row, index) => {
       const permission = new DataSpaceRowPermission({ row,
         ...(this.#missingAuthPolicy === undefined ? {} : { missingAuthPolicy: this.#missingAuthPolicy }) })
       const key = canonicalKey(this.rowKeyValue(row))
@@ -102,7 +121,9 @@ export class DataSpaceQueryContext {
       const consumer: Record<string, unknown> = {}
       for (const [field, value] of Object.entries(row)) {
         if (this.#columns !== undefined && !this.#columns.some(column => column.name === field)) continue
-        if (field !== 'lingma_sys_key' && field !== 'lingma_sys_params') consumer[field] = value
+        if (field === 'lingma_sys_key' || field === 'lingma_sys_params') continue
+        assertPublicQueryValue(value, `$[${index}][${JSON.stringify(field)}]`)
+        consumer[field] = value
       }
       const publicRow = Object.freeze(consumer)
       this.#rowPermissions.set(publicRow, permission)

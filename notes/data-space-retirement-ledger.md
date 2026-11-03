@@ -5747,3 +5747,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 主合同已区分Foreign-only部署缺口和JoinFilter正向嵌套。证据evidence/data-chain-smoke/2026-11-04-foreign-runtime-protocol-live.json保存原封包及递归脱敏响应，私有成员仅保留[present]，已核无原始凭据。每组17读0写；原始Count缺失不能被snapshot.total的返回行数掩盖。本轮无生产代码变更、无Browser或新源码测试通过声明。
 - 高阶提交前复核与下一连续工位：当前applyResult深克隆嵌套值，Context构造只剔顶层系统凭据；逻辑视图/接口返回带Count的嵌套授权行，或低层无分页查询，可走到公开rows。此为源码可达性，尚未观测某个既有正式逻辑视图实际泄露。先在公共Context发布前明确拒收尚无路径owner的后代系统权限成员，错误仅带路径、不带凭据/业务值，覆盖直接runtime、逻辑视图装配、DataView失败保留旧结果、失败不缓存；普通JSON保持，不递归删凭据后冒充已消费子h/m。随后同卡由原查询owner按正式模型路径提供只读子结果并绑定同DataSet命名视图，父子分别消费读取状态，切父/刷新/关闭/换应用同步失效，标准父子Table验收。Navigation多子模型路径与字段冲突、Hierarchy单子及混合子模型判别缺口、Count与有界无分页分别保留；守卫通过不等于完整嵌套卡完成。
 - 全目标active。Foreign空条件、LEFT纯ON、显式子Join聚合、设计器子计划与pagedata重开、剩余Browser/全页矩阵和全仓门禁均未关闭。当前进展是部署断链和可用对照已获证据，继续前端发布边界修复，不修改后端、不用前端重连伪造Foreign输出。
+
+### 2026-11-04 公共查询发布边界检查点
+
+- 已实施Context公共发布守卫：正式投影裁剪后检查后代系统授权成员，包含null/空值也拒收；错误仅含JSON路径。普通JSON、普通token/params业务键和字符串保持原样，不递归删凭据后冒充独立子权限。无后端修改、无新临时记录。
+- TDD初始12例中11失败；实现后修正测试本身的DataView行与快照表示差异（框架_pk），同时明确失败后的readSnapshot应拒绝过期读取；未修改DataView生产代码。最终13例覆盖直接runtime四输出、正式逻辑视图绑定、失败保留旧行/选择、失败不缓存、成功重查和正式投影排除。
+- 相关范围77文件1704测试通过；根类型检查、受改源文件及测试lint通过。包级历史诊断spark-data 51/51、API 9/9，无新增，不宣称全仓类型通过。规则基线HEAD/current均空。正式ClassModel生成完成，49项校验通过；build:fe、verify:page-thin通过。仅恢复已规范比较证明等价的generatedAt、内部编译编号和无序集合噪声，保留本次真实派生差异。
+- 实服进程15044实际exit0，原runtime普通正式元数据查询1读0写，Count已报告、根私有成员未公开、字段读取可见；无新增夹具。嵌套拒收由受控响应测试验证，本轮未新增实服嵌套或浏览器验收。证据2026-11-04-nested-result-boundary.json及同名前缀guides.json。高阶提交前复核未发现新的确定重要问题。
+- 下一连续工位已高阶核对：现有allPages仍要求Count、isPaginated不是无分页合同；须显式设计有界无分页并保留countReported未知语义。随后原查询owner沿声明路径拆出每层独立只读Context，以DataView内部原行引用定位命名子视图，处理父切换/刷新/失效/销毁，不能页面缓存或按主键猜归属；Hierarchy混合模型缺判别仍开放。此为待实现建议，不是已实现事实。
+- 全目标继续active；Foreign空条件服务缺口、LEFT纯ON、完整嵌套消费、子Join聚合、设计器子计划/pagedata重开、剩余整页烟测和全仓门禁均未关闭。

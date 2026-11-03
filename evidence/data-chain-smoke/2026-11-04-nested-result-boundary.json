@@ -1,0 +1,48 @@
+{
+  "scope": "Public nested authorization publication boundary; full architecture goal remains active",
+  "tests": {
+    "files": 77,
+    "passed": 1704,
+    "focusedCases": 13,
+    "classModelPassed": 49,
+    "rootTypecheck": "passed",
+    "changedLint": "passed",
+    "build": "passed",
+    "pageThin": "passed",
+    "packageBaseline": {
+      "spark-data": [
+        51,
+        51
+      ],
+      "spark-lowcode-api": [
+        9,
+        9
+      ]
+    }
+  },
+  "live": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-03T16:48:15.957Z",
+    "reads": 1,
+    "writes": 0,
+    "blockedWrites": 0,
+    "newFixtures": 0,
+    "checks": [
+      {
+        "name": "existing-formal-metadata-read",
+        "total": 1,
+        "returned": 1,
+        "countReported": true,
+        "privateRootMembersExposed": false,
+        "fieldAccess": "visible"
+      }
+    ],
+    "limitation": "Actual ordinary query regression only; nested rejection is covered by controlled response fixtures, not a new live nested fixture"
+  },
+  "limitations": [
+    "No new live nested fixture or browser acceptance",
+    "Nested model owner and named child views remain pending",
+    "Backend unchanged"
+  ]
+}

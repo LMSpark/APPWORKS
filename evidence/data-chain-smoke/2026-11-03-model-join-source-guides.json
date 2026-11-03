@@ -1,0 +1,285 @@
+[
+  {
+    "kind": "LowcodeDataSpaceFieldRemoveReferences",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceFieldRemoveReferences",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceFieldRemoveReferences",
+          "name": "LowcodeDataSpaceFieldRemoveReferences",
+          "jsdoc": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+          "summary": "只检查当前空间可读定义；不透明或歧义引用必须先处理。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceFieldRemoveReferences",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceFieldRemoveReferences",
+          "name": "LowcodeDataSpaceFieldRemoveReferences",
+          "jsdoc": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+          "summary": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+          "constructorSignature": {
+            "summary": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+            "jsdoc": "只检查当前空间可读定义；不透明或歧义引用必须先处理。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "validate",
+              "jsdoc": "核对模型过滤、树字段、值函数及关系；rename同时检查自身取值。dataModel输出GetRefData引用物理表列，元字段删除/改名保留其原文；种类不可读拒绝推断。",
+              "summary": "核对模型过滤、树字段、值函数及关系；rename同时检查自身取值。dataModel输出GetRefData引用物理表列，元字段删除/改名保留其原文；种类不可读拒绝推断。",
+              "signature": "validate(views: (DataView | undefined)[], field: DataRow, change?: FieldReferenceChange): void"
+            },
+            {
+              "name": "prepareRenames",
+              "jsdoc": "同时解析所有字段改名；名称交换不会串行替换，未变属性及常量原样保留。",
+              "summary": "同时解析所有字段改名；名称交换不会串行替换，未变属性及常量原样保留。",
+              "signature": "prepareRenames(input: FieldRemoveReferencesPrepareRenamesInput): FieldReferenceUpdate[]"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "只检查当前空间可读定义；不透明或歧义引用必须先处理。\nclass LowcodeDataSpaceFieldRemoveReferences {\n  只检查当前空间可读定义；不透明或歧义引用必须先处理。\n  constructor()\n  核对模型过滤、树字段、值函数及关系；rename同时检查自身取值。dataModel输出GetRefData引用物理表列，元字段删除/改名保留其原文；种类不可读拒绝推断。\n  validate(views: (DataView | undefined)[], field: DataRow, change?: FieldReferenceChange): void\n  同时解析所有字段改名；名称交换不会串行替换，未变属性及常量原样保留。\n  prepareRenames(input: FieldRemoveReferencesPrepareRenamesInput): FieldReferenceUpdate[]\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelMigration",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelMigration",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelMigration",
+          "name": "LowcodeDataSpaceModelMigration",
+          "jsdoc": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。",
+          "summary": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelMigration",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelMigration",
+          "name": "LowcodeDataSpaceModelMigration",
+          "jsdoc": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。",
+          "summary": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。",
+          "constructorSignature": {
+            "summary": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。",
+            "jsdoc": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "返回实际变化的属性；未变化表达式保留原文且不要求写权限。",
+              "summary": "返回实际变化的属性；未变化表达式保留原文且不要求写权限。",
+              "signature": "prepare(input: Readonly<{\n        modelId: string;\n        models: readonly Row[];\n        fields: readonly Row[];\n        mappings: Mappings;\n    }>): {\n        id: string;\n        name: string;\n        property: string;\n        before: string;\n        after: string;\n    }[]"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "根据原模型身份同时变换引用，不在结果上执行第二次名称替换。\nclass LowcodeDataSpaceModelMigration {\n  根据原模型身份同时变换引用，不在结果上执行第二次名称替换。\n  constructor()\n  返回实际变化的属性；未变化表达式保留原文且不要求写权限。\n  prepare(input: Readonly<{\n          modelId: string;\n          models: readonly Row[];\n          fields: readonly Row[];\n          mappings: Mappings;\n      }>): {\n          id: string;\n          name: string;\n          property: string;\n          before: string;\n          after: string;\n      }[]\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceRelationMigration",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceRelationMigration",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceRelationMigration",
+          "name": "LowcodeDataSpaceRelationMigration",
+          "jsdoc": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+          "summary": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceRelationMigration",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceRelationMigration",
+          "name": "LowcodeDataSpaceRelationMigration",
+          "jsdoc": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+          "summary": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+          "constructorSignature": {
+            "summary": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+            "jsdoc": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "同时应用全部映射；没有引用变化时保留原文本，包括空白。",
+              "summary": "同时应用全部映射；没有引用变化时保留原文本，包括空白。",
+              "signature": "prepare(input: Readonly<{\n        relations: readonly Row[];\n        models: readonly Row[];\n        fields: readonly Row[];\n        mappings: readonly Migration[];\n    }>): {\n        id: string;\n        before: string;\n        after: string;\n    }[]"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。\nclass LowcodeDataSpaceRelationMigration {\n  纯定义变换；权限、草稿、写入和回读仍由元数据DataView负责。\n  constructor()\n  同时应用全部映射；没有引用变化时保留原文本，包括空白。\n  prepare(input: Readonly<{\n          relations: readonly Row[];\n          models: readonly Row[];\n          fields: readonly Row[];\n          mappings: readonly Migration[];\n      }>): {\n          id: string;\n          before: string;\n          after: string;\n      }[]\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelDependencies",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelDependencies",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelDependencies",
+          "name": "LowcodeDataSpaceModelDependencies",
+          "jsdoc": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。",
+          "summary": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelDependencies",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelDependencies",
+          "name": "LowcodeDataSpaceModelDependencies",
+          "jsdoc": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。",
+          "summary": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。",
+          "constructorSignature": {
+            "summary": "从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。",
+            "jsdoc": "从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。",
+            "signature": "constructor(input: ModelDependenciesInput)"
+          },
+          "attributes": [
+            {
+              "name": "views",
+              "jsdoc": "模型目录、所属字段及旧关系；均为正式数据视图。",
+              "summary": "模型目录、所属字段及旧关系；均为正式数据视图。",
+              "typeText": "void[]"
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertOwner",
+              "jsdoc": "检查原实例与输入身份，不从其他同名表或空间兜底。",
+              "summary": "检查原实例与输入身份，不从其他同名表或空间兜底。",
+              "signature": "assertOwner(): void"
+            },
+            {
+              "name": "assertSiblingsClean",
+              "jsdoc": "兄弟视图不能持有未决编辑或请求；命令不覆盖其他消费者的工作。",
+              "summary": "兄弟视图不能持有未决编辑或请求；命令不覆盖其他消费者的工作。",
+              "signature": "assertSiblingsClean(): void"
+            },
+            {
+              "name": "load",
+              "jsdoc": "首次读命令范围；重核与回读刷新模型目录，并保留原范围以核验已删除/改写的引用。",
+              "summary": "首次读命令范围；重核与回读刷新模型目录，并保留原范围以核验已删除/改写的引用。",
+              "signature": "load(refresh?: boolean): Promise<void>"
+            },
+            {
+              "name": "assertFieldScope",
+              "jsdoc": "字段只来自这次显式读取的所属模型。",
+              "summary": "字段只来自这次显式读取的所属模型。",
+              "signature": "assertFieldScope(): void"
+            },
+            {
+              "name": "invalidate",
+              "jsdoc": "变更使受影响的已加载消费者失效；retained仅包含调用方已经正式回读的视图，不回填数组。",
+              "summary": "变更使受影响的已加载消费者失效；retained仅包含调用方已经正式回读的视图，不回填数组。",
+              "signature": "invalidate(changes: {\n        table: string;\n        id: string;\n    }[], retained?: readonly DataView[]): void"
+            },
+            {
+              "name": "release",
+              "jsdoc": "释放已无草稿的命令查询；不影响C原有命名视图。",
+              "summary": "释放已无草稿的命令查询；不影响C原有命名视图。",
+              "signature": "release(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "当前空间模型结构命令的按需依赖；生命周期归元数据DataSet。\nclass LowcodeDataSpaceModelDependencies {\n  从C派生命令视图；editing指定须保留的本模型编辑行，依赖使用独立模型查询。\n  constructor(input: ModelDependenciesInput)\n  模型目录、所属字段及旧关系；均为正式数据视图。\n  readonly views: void[]\n  检查原实例与输入身份，不从其他同名表或空间兜底。\n  assertOwner(): void\n  兄弟视图不能持有未决编辑或请求；命令不覆盖其他消费者的工作。\n  assertSiblingsClean(): void\n  首次读命令范围；重核与回读刷新模型目录，并保留原范围以核验已删除/改写的引用。\n  load(refresh?: boolean): Promise<void>\n  字段只来自这次显式读取的所属模型。\n  assertFieldScope(): void\n  变更使受影响的已加载消费者失效；retained仅包含调用方已经正式回读的视图，不回填数组。\n  invalidate(changes: {\n          table: string;\n          id: string;\n      }[], retained?: readonly DataView[]): void\n  释放已无草稿的命令查询；不影响C原有命名视图。\n  release(): void\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelRenameReferences",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelRenameReferences",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelRenameReferences",
+          "name": "LowcodeDataSpaceModelRenameReferences",
+          "jsdoc": "结构化引用解析只在当前正式元数据范围内运行。",
+          "summary": "结构化引用解析只在当前正式元数据范围内运行。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelRenameReferences",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelRenameReferences",
+          "name": "LowcodeDataSpaceModelRenameReferences",
+          "jsdoc": "结构化引用解析只在当前正式元数据范围内运行。",
+          "summary": "结构化引用解析只在当前正式元数据范围内运行。",
+          "constructorSignature": {
+            "summary": "结构化引用解析只在当前正式元数据范围内运行。",
+            "jsdoc": "结构化引用解析只在当前正式元数据范围内运行。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "返回Name及实际引用变更；previousName仅供回读，projected为同批已明确的字段改名候选，不持有运行草稿。",
+              "summary": "返回Name及实际引用变更；previousName仅供回读，projected为同批已明确的字段改名候选，不持有运行草稿。",
+              "signature": "prepare(input: ModelRenameReferencesPrepareInput): ModelNameChange[]"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "结构化引用解析只在当前正式元数据范围内运行。\nclass LowcodeDataSpaceModelRenameReferences {\n  结构化引用解析只在当前正式元数据范围内运行。\n  constructor()\n  返回Name及实际引用变更；previousName仅供回读，projected为同批已明确的字段改名候选，不持有运行草稿。\n  prepare(input: ModelRenameReferencesPrepareInput): ModelNameChange[]\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelRemoveReferences",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelRemoveReferences",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelRemoveReferences",
+          "name": "LowcodeDataSpaceModelRemoveReferences",
+          "jsdoc": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+          "summary": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelRemoveReferences",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelRemoveReferences",
+          "name": "LowcodeDataSpaceModelRemoveReferences",
+          "jsdoc": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+          "summary": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+          "constructorSignature": {
+            "summary": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+            "jsdoc": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "validate",
+              "jsdoc": "检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。",
+              "summary": "检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。",
+              "signature": "validate(views: readonly DataView[], modelId: string, modelName: string, removedRelationIds?: ReadonlySet<string>): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "只消费当前元数据视图的可读定义，不建立引用或权限缓存。\nclass LowcodeDataSpaceModelRemoveReferences {\n  只消费当前元数据视图的可读定义，不建立引用或权限缓存。\n  constructor()\n  检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。\n  validate(views: readonly DataView[], modelId: string, modelName: string, removedRelationIds?: ReadonlySet<string>): void\n}"
+  }
+]

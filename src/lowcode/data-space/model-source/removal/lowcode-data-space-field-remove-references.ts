@@ -163,9 +163,24 @@ export class LowcodeDataSpaceFieldRemoveReferences {
           && (operation === 'rename' ? [field['Name']] : [field['Name'], field['AsName']]).includes(name))) used(`${path}.${key}`)
       }
       filter({view: models, row, property: 'Filter', context: {child: row['rowid'], parent: row['rowid'], path: `${path}.Filter`}})
-      filter({view: models, row, property: 'JoinFilter', context: {child: row['rowid'], parent: read(models, row, 'PId'), path: `${path}.JoinFilter`}})
+      const parentName = read(models, row, 'PId')
+      let parentId: unknown
+      if (parentName !== undefined && parentName !== null && parentName !== '') {
+        const parents = models.rows.filter(candidate => read(models, candidate, 'Name') === parentName)
+        if (typeof parentName !== 'string' || parents.length !== 1 || !parents[0]) throw new Error(`${path}.PId父模型注册名依赖未唯一解析`)
+        parentId = parents[0]['rowid']
+      }
+      filter({view: models, row, property: 'JoinFilter', context: {child: row['rowid'], parent: parentId, path: `${path}.JoinFilter`}})
       const foreignKeys = read(models, row, 'ForeignKeyFields')
-      if (foreignKeys !== undefined && foreignKeys !== null && foreignKeys !== '') throw new Error(`${path}.ForeignKeyFields的引用语义无法核验，请先处理`)
+      if (foreignKeys !== undefined && foreignKeys !== null && foreignKeys !== '') {
+        const foreignFields = fieldRows.filter(candidate => read(fields, candidate, 'type') === 'dataModel'
+          && read(fields, candidate, 'dataModelId') === row['rowid'] && read(fields, candidate, 'Name') === foreignKeys)
+        const foreign = foreignFields[0]
+        if (typeof foreignKeys !== 'string' || foreignFields.length !== 1 || !foreign) throw new Error(`${path}.ForeignKeyFields必须唯一对应子模型单字段`)
+        const next = renames.get(String(foreign['rowid']))
+        if (next !== undefined) add({view: models, row, property: 'ForeignKeyFields', before: foreignKeys, after: next})
+        else if (!renames.size && foreign['rowid'] === field['rowid']) used(`${path}.ForeignKeyFields`)
+      }
       const complete = read(models, row, 'RequestComplete')
       if (complete !== undefined && complete !== null && complete !== '') throw new Error(`${path}.RequestComplete包含不透明配置，请先核查`)
     }

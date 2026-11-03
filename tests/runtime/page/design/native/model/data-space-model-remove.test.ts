@@ -17,6 +17,13 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
 const writes = (fixture: ReturnType<typeof dataSpacePageFixture>) => fixture.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
 
 describe('formal model removal', () => {
+  it('protects a parent referenced by its registered name before deleting anything', async () => {
+    const f = fixture({relationRows: []}); f.setModelValues({PId: 'Orders'}, 'A', 'M2')
+    const operation = (await f.open('A')).getModelRemove('M1')
+    await expect(operation.preview()).rejects.toThrow(/依赖.*PId/)
+    expect(writes(f)).toHaveLength(0)
+  })
+
   it.each([false, true])('submits layout cleanup through the queried DataView and DataSet (lost=%s)', async lost => {
     const f = fixture({overviewOnly: true})
     f.stored.set('A', JSON.stringify({schemaVersion: 2, scenarioId: 'A', tables: {}, resourceRelations: [],

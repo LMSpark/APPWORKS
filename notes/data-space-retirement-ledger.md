@@ -5656,3 +5656,25 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终清理已真实完成：原DataSet当次权限预检19读0写；重新核两类实例均0及精确134身份后，1次原Batch提交、累计45读独立确认134删除，结果confirmed/pending=false。原交互owner finish后exit0，不留未知捕获。外部独立五表查询总数全0，同ID参数0；可见目录从5变4，另外4条的7字段投影逐行不变，真实浏览器刷新Total4且临时标记消失。初次误将可见5条当成同sysid，额外只读仅返回本夹具1条；此时0写，已沿原目录无sysid附加过滤读取正式5条后再执行，不放宽权限。
 - 两审计模型与31字段/2节点均随批清理，当前本结构夹具正式临时定义0；正式cascadeDel等已证实类型修复保留。原fixture checkpoint已标cleaned，禁止重新创建；历史各片段保留当时范围，不代表当前仍有99/119/134条。证据 evidence/data-chain-smoke/2026-11-03-workflow-structure-final-cleanup.json。
 - 完整目标继续active：关系图保存/改绑/差异模型查询/有关联最后消费者删除及清理已有实服证据；模型关系本身的后端运行消费仍缺独立实证，Join/PId/Foreign来源迁移未全部验收，全仓测试及全局代码/目录门禁尚未证明通过。不能以本轮夹具清空或91+136测试通过宣布全架构完成。下一步沿同一台账继续这些明确缺口，复用已有高阶分析，不重建已清理夹具。
+
+### 2026-11-03 Join/PId/Foreign迁移工作卡（implementing）
+- 上轮8fbba903a已推送、工作树干净，原夹具清空；本轮typecheck与ClassModel源核验通过，已查询FieldRemoveReferences/ModelMigration/RelationMigration/ModelDependencies目录、概要、指南，证据2026-11-03-model-join-source-guides.json。沿原高阶工位核定PId为父注册Name、ForeignKeyFields为子单字段、JoinType保留。
+- 完整实施次序：先修结构命令依赖读取及删除/改名检查对PId身份的误用、Foreign无条件拒绝；再按明确字段和有效SQL限定名补源替换迁移与完整预览/保存/取消/重开；最后核运行子模型请求及实服。不能把前置修复当成全卡完成。前置影响面为 model/lowcode-data-space-model-dependencies.ts、removal/lowcode-data-space-field-remove-references.ts 及原字段/数组引用测试；复用原DataView权限、捕获和保存，不修改后端、门禁或权限规则。
+- 三个准确RED已复现：合法PId=Orders使无关计算字段删除被错误拒绝（有/无Foreign各一），错误PId=M1却被按rowid放行。实际父字段引用的拒绝负例仍通过。继续补子工作区依赖范围及Foreign精确引用/未知语法反例。
+- 高阶确认另一关键执行边界：SQL有效限定名=ShortName，否则MetaName（空再Name）；已限定JoinFilter引用不会自动由注册名转换。换源无ShortName时须迁移物理前缀，固定ShortName则保持。原前缀不符或同物理表缺独立别名不能猜修。DataSpaceQueryTable在Join模式发送ChildTables空数组，普通DataView成功不能证明Join/PId真正消费；后续公共查询工位须核既有ChildTables合同，不从所有原生关系自动推导SQL连接。
+
+- 前置修复已成组通过：PId依赖读取只传解析后的rowid；Foreign声明触发其所属字段读取；删除检查精确保护父字段和子外键，无关字段可删；外键随稳定字段ID改名。HEAD只读对照明确显示旧queryContext.modelIds含虚假模型ID Orders，新查询仅M1/M2。原字段删除、数组改名、模型删除、源替换、注册名改名5文件420测试通过；typecheck/受改lint/page-thin/build:fe通过，ClassModel正式编译及四目录概要指南刷新通过，生成归一仅保留真实source hash。未放宽权限/门禁。
+- 新增测试夹具纠偏：数组改名夹具最初未授ForeignKeyFields写权限，原保存守卫正确0写；仅为该测试启用既有来源属性权限后验收。子工作区初版调用模型M2的完整删除入口，原fixture只投影M1正式字段，因真实定义不符正确拒绝；已改为直接测原ModelDependencies读取层并保留完整删除入口其他用例，不伪造正式定义。测试释放调用按正式release合同修正。上述试错不当作生产断链。高阶只读复核未发现新的确定Important。
+- 本轮实服0新增/0执行/0写入，没有重建已清理夹具，最新结构夹具保留0。此补丁尚无新的实服Join/来源替换证明；完整卡保持implementing。证据 evidence/data-chain-smoke/2026-11-03-parent-foreign-reference-repair.json。
+
+- 同一PId合同的下游复查又发现两个真实遗漏，属于本结构前置闭环必须同步处理：ModelRenameReferences未迁移子PId，改父Name会留下旧注册名；ModelRemoveReferences把PId与modelId比较，合法父Name引用未阻止删父模型。已先增加原改名/删除管线准确RED，再把前置影响面补入 rename/lowcode-data-space-model-rename-references.ts、removal/lowcode-data-space-model-remove-references.ts 与原模型生命周期测试。原fixture的allowModelRename增加PId属性的正式响应权限，仅用于验证同批改名及拒绝分支，不改生产权限。没有因此关闭来源替换和运行消费范围。
+
+- 同一PId生命周期3项新增RED→GREEN：改父注册名与子PId进入同一原DataSet批次，重开父来源不变且子PId正确；子PId不可写在派发前0写；合法PId注册名阻止删父模型。高阶限定复核确认previousName残留核验与现有依赖回读组合成立；部分落库仍保留错误，不能冒充全部确认。正在跑全部原生设计及工作流回归。
+- 实服只读元数据盘点：PId非空8条、Foreign非空2条，7空间目录均完整返回；7个父注册名唯一解析，1个正式缺口为场景397857021CCB4CE53D07FEA9CF470003中DepTable（397857021CCB4CE53D07FEA9CF470003p001）PId=UserInfo，而目录仅Base_DataAccountRole、DepTable。该资源涉及暂缓授权配置，未猜重挂、未自动清洗、未改正式数据；只证明声明引用不完整，尚未执行其业务Join。证据 evidence/data-chain-smoke/2026-11-03-existing-join-registry-read.json。
+
+- 扩展验收状态：默认并行的59文件原生设计/工作流批次，在与声明编译并行时出现 data-space-view-parameter-input 的15秒异步测试超时；该文件独立5项全通过且未改超时/断言。已只停止该已失败批次，编译产物固定后用同范围 --maxWorkers=2 重跑，原exec session=25449，当前真实进程仍在运行；不得因观察超时重建测试批次。最终结果待核，不能称59文件已通过。
+- 下一运行工位补充审计要求：高阶本地源码核查发现SQL Join返回扁平行，父1:N会重复根rowid，primaryKeyField仍为根业务键；JOIN_QUERY分支不返回QUERY分支的逐行签名权限。不能只补ChildTables后伪造可编辑DataView、合并权限或制造后端主键。无JoinFilter的层级Foreign支路还须实服核“子取回但未挂接”的反例。本地源码仅证合同风险，不证明部署服务已坏；原始实际接口与结果需分别核验。源码换源与注册名改名的SQL限定名（含ShortName独立于Name）仍须在后续完整工位处理。
+
+- 最终扩大回归已结束：同范围59文件2017测试全部通过，--maxWorkers=2、原断言/15秒超时不变，409.36秒，原exec25449 exit0；没有未结束测试批次。长等待诊断时仅在最后一个自有测试worker激活临时loopback inspector，未连接调试器/暂停/改写脚本，随后批次正常完成且进程/端口均已消失；该过程不作为产品性能通过证据。首次并行超时及独立5项通过仍保留。
+- 四个生产helper最终typecheck/lint通过，最终build:fe通过；ClassModel再正式生成、六对象目录概要指南及verify:class-model（4文件49测试）通过，page-thin通过。归一比较恢复44份等价编译噪声，仅保留真实.dts-manifest源hash；受改文件AI规则对比HEAD仅同一既有ModelRemoveReferences.validate四位置参数违例，没有新增违例；未放宽门禁。整仓430文件与全局门禁仍未证明通过。
+- 完整卡下一步仍为：源替换按SQL实际限定名保留/迁移JoinFilter、子单字段Foreign与父注册名，补显式父子依赖读取；然后对ChildTables请求、扁平/嵌套结果身份及原权限回包建立正式公共承接并实服匹配/不匹配、LEFT/INNER、无JoinFilter层级对照。先核合同，不能凭前端拼主键/合并权限/拉全行伪造Join闭环；当前叶Join不冒充这些能力。实服存量UserInfo父注册名缺口继续保留不自动修正。当前提交是该完整卡的结构前置检查点，目标保持active。

@@ -51,6 +51,28 @@ function toolFixture() {
 }
 
 describe('formal model registration rename', () => {
+  it('renames the parent registration and its child PId in one native batch and reopens the hierarchy', async () => {
+    const f = fixture(); f.setModelValues({PId: 'Orders'}, 'A', 'M2')
+    const operation = (await f.open('A')).getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview(); await operation.save()
+    expect(writes(f)).toHaveLength(1)
+    expect(JSON.stringify(writes(f)[0]?.data)).toContain('"PId":"SalesOrders"')
+    const fresh = await f.open('A'), models = fresh.metadataDataSet.getView('Base_DataModel')!
+    expect(models.rows.find(row => row['rowid'] === 'M1')).toMatchObject({Name: 'SalesOrders', MetaName: 'OrderSource'})
+    expect(models.rows.find(row => row['rowid'] === 'M2')).toMatchObject({PId: 'SalesOrders'})
+    expect(operation.getState().pending).toBe(false)
+  })
+
+  it('rejects a parent rename before writing when the child PId is not writable', async () => {
+    const f = fixture(); f.setModelValues({PId: 'Orders'}, 'A', 'M2'); f.denyModelField('PId')
+    const operation = (await f.open('A')).getModelRename('M1')
+    operation.input.updateEditingValue('rename', 'name', 'SalesOrders')
+    await expect(async () => {await operation.preview(); await operation.save()}).rejects.toThrow(/不可写|PId/)
+    expect(writes(f)).toHaveLength(0)
+    expect(f.modelRow()).toMatchObject({Name: 'Orders'})
+    expect(f.modelRow('M2')).toMatchObject({PId: 'Orders'})
+  })
+
   it('does not adopt editing started in a tool command DataView during submission as part of the rename', async () => {
     const t = toolFixture(), session = await t.f.open('A'), operation = session.getModelRename('M1')
     operation.input.updateEditingValue('rename', 'name', 'SalesOrders'); await operation.preview()

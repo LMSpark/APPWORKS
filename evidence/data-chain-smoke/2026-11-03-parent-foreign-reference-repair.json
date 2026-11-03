@@ -1,0 +1,112 @@
+{
+  "baseCommit": "8fbba903a5ee84256bed4c5d07a4ff52719ef280",
+  "scope": "Structural PId and foreign-field lifecycle prerequisite: dependency reads, deletion, simultaneous field rename, parent registration rename and parent deletion protection",
+  "status": "prerequisite-verified-not-full-card",
+  "reference": {
+    "repository": "E:/r/sparkproject",
+    "commit": "1147b00ee53a1476d4ee715c61368b453a215192",
+    "edgePanel": "apps/appworks/src/ui/features/data-platform/data-set-management/design/ui/edge-panel/use-data-set-design-edge-panel.ts",
+    "javaReferenceOnly": [
+      "PermissionUtil.java:755-759",
+      "ParamUtils.java:35-46",
+      "ConditionUtils.java:679-692"
+    ]
+  },
+  "fixed": [
+    "Resolve PId via one registered model Name and pass its rowid to field queries and reference validation",
+    "Do not put a registered model Name in modelIds",
+    "Read fields of models declaring a foreign field, without loading the default field view",
+    "Resolve ForeignKeyFields as one exact child dataModel field Name; reject unresolved compound strings",
+    "Migrate a single foreign field by stable field ID during simultaneous rename",
+    "Retain actual parent-field and child-foreign-field deletion protection",
+    "Rename parent Name and child PId in the same original DataSet batch; require child PId write permission before dispatch",
+    "Block deleting a model referenced by another model PId registered Name"
+  ],
+  "redEvidence": {
+    "originalImplementation": {
+      "log": "join-parent-reference-red.log",
+      "functionalFailures": 3
+    },
+    "additionalCases": {
+      "log": "join-foreign-reference-red.log",
+      "failures": 7,
+      "note": "Includes precise diagnostic expectations, not seven independent functional bugs"
+    },
+    "isolatedHeadDependency": {
+      "log": "join-parent-dependency-head-red.log",
+      "failure": "modelIds contains the registered name Orders alongside M1/M2"
+    },
+    "parentLifecycle": {
+      "log": "parent-model-lifecycle-red.log",
+      "failures": 3,
+      "confirmedRisk": "Old rename wrote the parent Name once then failed readback because child PId still referenced the old registered Name; denying child PId did not prevent that first write."
+    }
+  },
+  "verification": {
+    "relatedFiles": 5,
+    "passed": 420,
+    "typecheck": "passed",
+    "changedFilesLint": "passed",
+    "pageThin": "passed",
+    "frontendBuild": "passed",
+    "classModelGenerationAndGuideQueries": "passed",
+    "classModelVerification": {
+      "files": 4,
+      "passed": 49
+    },
+    "broadNativeAndWorkflow": {
+      "files": 59,
+      "passed": 2017,
+      "failed": 0,
+      "command": "pnpm exec vitest run --maxWorkers=2 tests/runtime/page/design/native tests/runtime/page/structured-config/workflow",
+      "durationSeconds": 409.36,
+      "exitCode": 0,
+      "unchangedAssertionsAndTimeouts": true,
+      "diagnostics": "A loopback inspector was activated on the final owned test worker while diagnosing the long wait; no debugger attached or script state changed. Worker and endpoint exited with the completed batch."
+    },
+    "firstParallelAttempt": {
+      "result": "stopped after observed asynchronous page timeout, no full-suite completion claimed",
+      "isolatedPage": {
+        "files": 1,
+        "passed": 5,
+        "codeOrTimeoutChanges": false
+      }
+    },
+    "parentLifecycleFocused": {
+      "files": 2,
+      "passed": 3
+    },
+    "finalFrontendBuild": "passed",
+    "finalClassModelVerification": {
+      "files": 4,
+      "passed": 49
+    },
+    "finalTypecheck": "passed",
+    "finalChangedFilesLint": "passed",
+    "finalPageThin": "passed",
+    "globalRules": "not passing globally; modified files retain one identical preexisting positional-parameter violation in ModelRemoveReferences.validate"
+  },
+  "realService": {
+    "writesThisTurn": 0,
+    "executionsThisTurn": 0,
+    "newFixturesThisTurn": 0,
+    "lastConfirmedRetainedTestDefinitions": 0,
+    "notClaimed": "No live Join execution or source replacement for this new prerequisite patch"
+  },
+  "remaining": [
+    "Source replacement assess still rejects Join/PId/Foreign configuration",
+    "Migrate JoinFilter using confirmed original/new effective SQL qualifiers; MetaName and ShortName are different contracts from registered Name",
+    "Read source transition parent/child field dependencies explicitly",
+    "Current Join request emits ChildTables=[] and lacks explicit child query contract",
+    "Verify deployed Join matching/nonmatching and LEFT/INNER differences, separate hierarchy Foreign fallback",
+    "Complete whole architecture inventory, smoke matrix and global gates"
+  ],
+  "actualMetadataInventory": {
+    "evidence": "2026-11-03-existing-join-registry-read.json",
+    "spaces": 7,
+    "configuredChildren": 8,
+    "uniqueResolvedParents": 7,
+    "unresolvedParents": 1,
+    "formalMutations": 0
+  }
+}

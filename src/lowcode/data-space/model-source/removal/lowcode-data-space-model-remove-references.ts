@@ -46,7 +46,7 @@ export class LowcodeDataSpaceModelRemoveReferences {
       const path = `Base_DataModel(${String(row['rowid'])})`
       if (read(models, row, 'Name') === modelName) throw new Error('模型注册名不唯一，不能删除')
       for (const key of ['addApi', 'updateApi', 'deleteApi']) if (read(models, row, key) === modelName) used(`${path}.${key}`)
-      if (read(models, row, 'PId') === modelId) used(`${path}.PId`)
+      if (read(models, row, 'PId') === modelName) used(`${path}.PId`)
       filter(read(models, row, 'Filter'), row['rowid'], `${path}.Filter`)
       filter(read(models, row, 'JoinFilter'), row['rowid'], `${path}.JoinFilter`)
       const complete = read(models, row, 'RequestComplete')

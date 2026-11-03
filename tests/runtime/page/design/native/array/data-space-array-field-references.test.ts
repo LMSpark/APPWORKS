@@ -21,6 +21,15 @@ async function setup(options:Parameters<typeof dataSpacePageFixture>[0]={}) {
   return{f,session,owner,rename,writes:()=>f.requests.filter(r=>r.url?.includes('BatchTableOperate'))}
 }
 describe('array field references follow formal field identity',()=>{
+  it('renames the single child foreign field by stable ID while leaving the other model untouched',async()=>{
+    const {f,writes}=await setup({allowSourceEdit:true});f.setModelValues({ForeignKeyFields:'code'});const otherBefore=structuredClone(f.modelRow('M2'))
+    const fresh=await f.open('A'),current=fresh.getArrayEdit('M1'),draft=current.beginHeaders();draft.beginHeaders()
+    draft.view.updateEditingValue('array','headerDraft',JSON.stringify(draft.headers().map(header=>({...header,name:header.id==='F1'?'id':header.name}))));draft.applyHeaders();await current.applyHeaders(draft.definition());draft.dispose()
+    await current.save();expect(writes()).toHaveLength(1)
+    expect(f.modelRow()).toMatchObject({ForeignKeyFields:'id'})
+    expect(f.modelRow('M2')).toEqual(otherBefore)
+    expect((await f.open('A')).metadataDataSet.getView('Base_DataModel')!.rows.find(row=>row['rowid']==='M1')?.['ForeignKeyFields']).toBe('id')
+  })
   it.each(['saved', 'unknown', 'query-retry'])('submits view, relation and cascade field references together through native resources: %s', async outcome => {
     const {f, writes} = await setup()
     f.stored.set('A', JSON.stringify({scenarioId: 'A', schemaVersion: 2, tables: {

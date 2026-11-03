@@ -77,7 +77,7 @@ export class LowcodeDataSpaceModelRenameReferences {
       add({view, row, property, before, after})
     }
     for (const row of models.rows) {
-      for (const property of ['addApi', 'updateApi', 'deleteApi']) {
+      for (const property of ['addApi', 'updateApi', 'deleteApi', 'PId']) {
         const before = read(models, row, property)
         if (before === oldName) add({view: models, row, property, before, after: nextName})
       }

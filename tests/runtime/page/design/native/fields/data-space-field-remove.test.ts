@@ -7,6 +7,8 @@ import {resolveDataViewKey} from '@spark-appworks/spark-data'
 import {dataSpacePageFixture, designPageHost} from '../data-space-page.fixture'
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {fieldEditReloadBatch, fieldEditSaveBatch} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-edit-session'
+import {LowcodeDataSpaceFieldRemoveReferences} from '@/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references'
+import {LowcodeDataSpaceModelDependencies} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies'
 import {LowcodeDataSpaceSourceInputEdit} from '@/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session'
 import {verifyAndDiscardDataSpaceDefinitionCapture} from '@/lowcode/data-space/model-source/data-space-definition-save'
 import DataSpaceDesignPage from '@/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'
@@ -79,6 +81,74 @@ async function page(selectField = false) {
   return wrapper
 }
 const writes = (f: ReturnType<typeof fixture>) => f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+
+describe('registered parent and single child foreign-field dependencies', () => {
+  async function related(PId = 'Orders', foreign = '', join = true) {
+    const f = fixture({sourceFields: [...fields,
+      {...fields[0]!, rowid: 'CHILD_PK', dataModelId: 'M2'},
+      {...fields[1]!, rowid: 'CHILD_FK', dataModelId: 'M2'},
+      {...fields[2]!, rowid: 'CHILD_CALC', dataModelId: 'M2', Name: 'childSpare'},
+    ]})
+    f.setModelValues({PId, ForeignKeyFields: foreign, JoinFilter: join ? JSON.stringify({Type: 'cond', Field: 'parentId',
+      Operator: 'equal', ValueFun: {Type: 'GetTableField', Field: 'rowid'}}) : ''}, 'A', 'M2')
+    const session = await f.open('A')
+    return {f, session, removal: session.getFieldRemove('CALC')}
+  }
+
+  it.each(['', 'parentId'])('deletes an unrelated field and preserves the registered parent and foreign field %s', async foreign => {
+    const {f, removal} = await related('Orders', foreign)
+    await removal.preview(); expect(writes(f)).toHaveLength(0)
+    await removal.save(); expect(writes(f)).toHaveLength(1)
+    expect(f.modelRow('M2')).toMatchObject({PId: 'Orders', ForeignKeyFields: foreign})
+    expect((await f.open('A')).metadataDataSet.getView('Base_DataModel_Field')!.rows.some(row => row['rowid'] === 'CALC')).toBe(false)
+  })
+
+  it('rejects a row ID masquerading as the parent registration before any write', async () => {
+    const {f, removal} = await related('M1')
+    await expect(removal.preview()).rejects.toThrow(/PId.*注册/)
+    expect(writes(f)).toHaveLength(0)
+  })
+
+  it('loads the parent row ID when the command starts in the child workspace', async () => {
+    const {f, session} = await related('Orders', 'parentId')
+    const dependencies = new LowcodeDataSpaceModelDependencies({dataSet: session.metadataDataSet, targetId: 'A',
+      modelId: 'M2', operation: 'fieldRemove:CHILD_CALC', assertCurrent() {}})
+    await dependencies.load()
+    expect(dependencies.views[1].queryContext['modelIds']).toEqual(['M1', 'M2'])
+    expect(dependencies.views[1].rows.some(row => row['rowid'] === 'PK')).toBe(true)
+    expect(writes(f)).toHaveLength(0)
+    dependencies.release()
+  })
+
+  it('retains dependency protection for the actual parent field and exact child foreign field', async () => {
+    const {f, session} = await related('Orders', 'parentId')
+    const views = ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation'].map(name => session.metadataDataSet.getView(name)!)
+    const fieldView = views[1]!
+    expect(() => LowcodeDataSpaceFieldRemoveReferences.validate(views, fieldView.rows.find(row => row['rowid'] === 'PK')!)).toThrow(/JoinFilter.*ValueFun/)
+    expect(() => LowcodeDataSpaceFieldRemoveReferences.validate(views, fieldView.rows.find(row => row['rowid'] === 'CHILD_FK')!)).toThrow(/JoinFilter|ForeignKeyFields/)
+    expect(writes(f)).toHaveLength(0)
+  })
+
+  it('reads an otherwise untouched foreign-field owner and deletes only the unrelated field', async () => {
+    const {f, removal} = await related('Orders', 'parentId', false)
+    await removal.preview(); await removal.save()
+    expect(writes(f)).toHaveLength(1)
+    expect(JSON.stringify(writes(f)[0]?.data)).not.toContain('CHILD_FK')
+    expect(f.modelRow('M2')).toMatchObject({PId: 'Orders', ForeignKeyFields: 'parentId'})
+  })
+
+  it('protects an exact child foreign-field reference without a JoinFilter', async () => {
+    const {session} = await related('Orders', 'parentId', false)
+    const views = ['Base_DataModel', 'Base_DataModel_Field', 'Base_DataModel_Relation'].map(name => session.metadataDataSet.getView(name)!)
+    expect(() => LowcodeDataSpaceFieldRemoveReferences.validate(views, views[1]!.rows.find(row => row['rowid'] === 'CHILD_FK')!)).toThrow(/仍有配置依赖.*ForeignKeyFields/)
+  })
+
+  it('does not guess a composite foreign-field string', async () => {
+    const {f, removal} = await related('Orders', 'parentId,rowid', false)
+    await expect(removal.preview()).rejects.toThrow(/ForeignKeyFields.*单字段/)
+    expect(writes(f)).toHaveLength(0)
+  })
+})
 
 describe('computed field removal', () => {
   it('uses the shared field save batch for a standalone staged deletion with no remaining edit owners', async () => {

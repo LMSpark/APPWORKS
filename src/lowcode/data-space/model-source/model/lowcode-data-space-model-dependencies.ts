@@ -188,10 +188,14 @@ export class LowcodeDataSpaceModelDependencies {
     for (const row of models.rows) {
       const name = this.read(models, row, 'Name')
       const filters = ['Filter', 'JoinFilter'].map(key => includeFilter(this.read(models, row, key)))
-      if (filters.some(Boolean)
+      if (filters.some(Boolean) || configured(this.read(models, row, 'ForeignKeyFields'))
         || typeof name === 'string' && [...this.#names].some(targetName => targetName.startsWith(`${name}.`) || name.startsWith(`${targetName}.`))) include(this.read(models, row, 'rowid'))
       const parent = this.read(models, row, 'PId')
-      if (filters[1] && configured(parent)) include(parent)
+      if (configured(parent)) {
+        const matches = models.rows.filter(candidate => this.read(models, candidate, 'Name') === parent)
+        if (typeof parent !== 'string' || matches.length !== 1 || !matches[0]) throw new Error('PId父模型注册名依赖未唯一解析')
+        if (filters[1]) include(this.read(models, matches[0], 'rowid'))
+      }
     }
     for (const row of this.#expressions.rows) {
       const raw = this.read(this.#expressions, row, 'ValueFun')

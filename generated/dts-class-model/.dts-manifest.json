@@ -3799,7 +3799,7 @@
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.426Z"
+      "sourceModifiedAt": "2026-11-03T12:14:41.057Z"
     },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
@@ -3824,7 +3824,7 @@
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.431Z"
+      "sourceModifiedAt": "2026-11-03T12:14:41.058Z"
     },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-session.ts",
@@ -3834,7 +3834,7 @@
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts.json",
-      "sourceModifiedAt": "2026-11-03T05:13:22.107Z"
+      "sourceModifiedAt": "2026-11-03T12:31:29.850Z"
     },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
@@ -3849,7 +3849,7 @@
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts.json",
-      "sourceModifiedAt": "2026-11-03T06:09:32.221Z"
+      "sourceModifiedAt": "2026-11-03T12:31:29.849Z"
     },
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-session.ts",

@@ -1,0 +1,183 @@
+{
+  "kind": "actual-service-read-only-metadata-inventory",
+  "writes": 0,
+  "initialQueries": [
+    {
+      "filterField": "PId",
+      "total": 8,
+      "returned": 8
+    },
+    {
+      "filterField": "ForeignKeyFields",
+      "total": 2,
+      "returned": 2
+    }
+  ],
+  "configuredChildren": [
+    {
+      "rowid": "0168365B59AA47FB97831D9A6935030Dp002",
+      "dataSetId": "0168365B59AA47FB97831D9A6935030D",
+      "Name": "_base_dbInfo",
+      "MetaName": "_base_dbInfo",
+      "ShortName": null,
+      "PId": "Base_AppAndSource_Relation",
+      "JoinType": "INNER",
+      "ForeignKeyFields": null,
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "397857021CCB4CE53D07FEA9CF470003p001",
+      "dataSetId": "397857021CCB4CE53D07FEA9CF470003",
+      "Name": "DepTable",
+      "MetaName": "DepTable",
+      "ShortName": null,
+      "PId": "UserInfo",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": null,
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "76BAB4AE2AE8CC516F7BB064E1CCEC6F",
+      "dataSetId": "2F6D3F5E65114C9586C0E9BF47BA7207",
+      "Name": "Base_DataView_Params",
+      "MetaName": "Base_DataView_Params",
+      "ShortName": null,
+      "PId": "Base_DataViewList",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": null,
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "932B1D7E7FB16CB98259F8E59BC3FB50",
+      "dataSetId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "Name": "Base_MainBody_RoleUser",
+      "MetaName": "Base_MainBody_RoleUser",
+      "ShortName": null,
+      "PId": "view_filter_app",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": null,
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "b75d81f4-227a-42f1-b5be-f5f4417244e7",
+      "dataSetId": "45E014BEFA5CFA61F43CD884FADB5ED9",
+      "Name": "lxt_contact",
+      "MetaName": "lxt_contact",
+      "ShortName": null,
+      "PId": "lxt_customer",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": "customer_id",
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "DCD7A3915DFA5184B8407F72C58F9CC8p001",
+      "dataSetId": "41C6C2FA86A3BC7B0378560A5B1C8F79",
+      "Name": "_Base_FunctionNode",
+      "MetaName": "_Base_FunctionNode",
+      "ShortName": null,
+      "PId": "Base_NavigationInfo",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": null,
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "DCD7A3915DFA5184B8407F72C58F9CC8p002",
+      "dataSetId": "41C6C2FA86A3BC7B0378560A5B1C8F79",
+      "Name": "FunctionNodeAuth",
+      "MetaName": "FunctionNodeAuth",
+      "ShortName": null,
+      "PId": "Base_NavigationInfo",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": null,
+      "hasJoinFilter": true
+    },
+    {
+      "rowid": "f7e4c397-84ea-43d9-8240-812f654c7ee4",
+      "dataSetId": "29C87221F467682891C7D67D2E5FB62A",
+      "Name": "px_customer_cs_contact",
+      "MetaName": "px_customer_cs_contact",
+      "ShortName": null,
+      "PId": "px_customer_cs",
+      "JoinType": "LEFT",
+      "ForeignKeyFields": "parent_customer_id",
+      "hasJoinFilter": true
+    }
+  ],
+  "registryAssessment": [
+    {
+      "childId": "0168365B59AA47FB97831D9A6935030Dp002",
+      "dataSetId": "0168365B59AA47FB97831D9A6935030D",
+      "parentRegistration": "Base_AppAndSource_Relation",
+      "parentCount": 1,
+      "parentId": "0168365B59AA47FB97831D9A6935030Dp000",
+      "effectiveChildQualifier": "_base_dbInfo",
+      "effectiveParentQualifier": "Base_AppAndSource_Relation"
+    },
+    {
+      "childId": "397857021CCB4CE53D07FEA9CF470003p001",
+      "dataSetId": "397857021CCB4CE53D07FEA9CF470003",
+      "parentRegistration": "UserInfo",
+      "parentCount": 0,
+      "effectiveChildQualifier": "DepTable"
+    },
+    {
+      "childId": "76BAB4AE2AE8CC516F7BB064E1CCEC6F",
+      "dataSetId": "2F6D3F5E65114C9586C0E9BF47BA7207",
+      "parentRegistration": "Base_DataViewList",
+      "parentCount": 1,
+      "parentId": "B8DCA28C112AC2C6E3A3A22C09AD5E35",
+      "effectiveChildQualifier": "Base_DataView_Params",
+      "effectiveParentQualifier": "Base_DataViewList"
+    },
+    {
+      "childId": "932B1D7E7FB16CB98259F8E59BC3FB50",
+      "dataSetId": "0C29366252F30395A83BDC4B9FD5A0E9",
+      "parentRegistration": "view_filter_app",
+      "parentCount": 1,
+      "parentId": "0C29366252F30395A83BDC4B9FD5A0E9p001",
+      "effectiveChildQualifier": "Base_MainBody_RoleUser",
+      "effectiveParentQualifier": "view_filter_app"
+    },
+    {
+      "childId": "b75d81f4-227a-42f1-b5be-f5f4417244e7",
+      "dataSetId": "45E014BEFA5CFA61F43CD884FADB5ED9",
+      "parentRegistration": "lxt_customer",
+      "parentCount": 1,
+      "parentId": "a2a64764-5473-4cb6-830a-92579335cf99",
+      "effectiveChildQualifier": "lxt_contact",
+      "effectiveParentQualifier": "lxt_customer"
+    },
+    {
+      "childId": "DCD7A3915DFA5184B8407F72C58F9CC8p001",
+      "dataSetId": "41C6C2FA86A3BC7B0378560A5B1C8F79",
+      "parentRegistration": "Base_NavigationInfo",
+      "parentCount": 1,
+      "parentId": "DCD7A3915DFA5184B8407F72C58F9CC8p000",
+      "effectiveChildQualifier": "_Base_FunctionNode",
+      "effectiveParentQualifier": "Base_NavigationInfo"
+    },
+    {
+      "childId": "DCD7A3915DFA5184B8407F72C58F9CC8p002",
+      "dataSetId": "41C6C2FA86A3BC7B0378560A5B1C8F79",
+      "parentRegistration": "Base_NavigationInfo",
+      "parentCount": 1,
+      "parentId": "DCD7A3915DFA5184B8407F72C58F9CC8p000",
+      "effectiveChildQualifier": "FunctionNodeAuth",
+      "effectiveParentQualifier": "Base_NavigationInfo"
+    },
+    {
+      "childId": "f7e4c397-84ea-43d9-8240-812f654c7ee4",
+      "dataSetId": "29C87221F467682891C7D67D2E5FB62A",
+      "parentRegistration": "px_customer_cs",
+      "parentCount": 1,
+      "parentId": "fb3b7596-b46a-4c0d-859d-0d6c5169b220",
+      "effectiveChildQualifier": "px_customer_cs_contact",
+      "effectiveParentQualifier": "px_customer_cs"
+    }
+  ],
+  "limitations": [
+    "Only metadata identity and declared qualifiers were read",
+    "No business rows were queried or changed",
+    "Neither successful SQL Join nor source replacement is proven"
+  ]
+}

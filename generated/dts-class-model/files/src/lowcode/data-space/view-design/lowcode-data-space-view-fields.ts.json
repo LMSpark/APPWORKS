@@ -83,7 +83,8 @@
       "title": "ViewFieldProjectInput",
       "properties": {
         "model": {
-          "$ref": "#/$defs/FormalModel"
+          "type": "object",
+          "title": "Model"
         },
         "tableName": {
           "type": "string"

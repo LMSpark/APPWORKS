@@ -12015,7 +12015,7 @@
       "chainBreak": "DataSpaceRequestScope.token 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 16,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12027,7 +12027,7 @@
       "chainBreak": "DataSpaceRequestScope.headers 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 17,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12039,7 +12039,7 @@
       "chainBreak": "DataSpaceQueryPage.index 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 21,
+      "declarationLine": 32,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12051,7 +12051,7 @@
       "chainBreak": "DataSpaceQueryPage.size 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 22,
+      "declarationLine": 33,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12063,7 +12063,7 @@
       "chainBreak": "DataSpaceQueryValueFunction.Type 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 28,
+      "declarationLine": 39,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12075,7 +12075,7 @@
       "chainBreak": "DataSpaceQueryField.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 33,
+      "declarationLine": 44,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12087,7 +12087,7 @@
       "chainBreak": "DataSpaceQueryField.alias 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 34,
+      "declarationLine": 45,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12099,7 +12099,7 @@
       "chainBreak": "DataSpaceQueryField.group 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 35,
+      "declarationLine": 46,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12111,7 +12111,7 @@
       "chainBreak": "DataSpaceQueryField.isOutput 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 36,
+      "declarationLine": 47,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12123,7 +12123,7 @@
       "chainBreak": "DataSpaceQueryField.expression 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 37,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12135,7 +12135,7 @@
       "chainBreak": "DataSpaceQueryField.order 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 38,
+      "declarationLine": 49,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12147,7 +12147,7 @@
       "chainBreak": "DataSpaceQueryField.orderType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 39,
+      "declarationLine": 50,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12159,7 +12159,7 @@
       "chainBreak": "DataSpaceQueryField.valueFun 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 40,
+      "declarationLine": 51,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12171,7 +12171,7 @@
       "chainBreak": "DataSpaceQuerySort.field 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 44,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12183,7 +12183,7 @@
       "chainBreak": "DataSpaceQuerySort.direction 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 45,
+      "declarationLine": 56,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12195,7 +12195,7 @@
       "chainBreak": "DataSpaceQueryInput.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 49,
+      "declarationLine": 60,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12207,7 +12207,7 @@
       "chainBreak": "DataSpaceQueryInput.value 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 50,
+      "declarationLine": 61,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12219,7 +12219,7 @@
       "chainBreak": "DataSpaceQueryOptions.filter 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 54,
+      "declarationLine": 65,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12231,7 +12231,7 @@
       "chainBreak": "DataSpaceQueryOptions.sort 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 55,
+      "declarationLine": 66,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12243,7 +12243,7 @@
       "chainBreak": "DataSpaceQueryOptions.page 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 56,
+      "declarationLine": 67,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12255,7 +12255,7 @@
       "chainBreak": "DataSpaceQueryOptions.allPages 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 57,
+      "declarationLine": 68,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12267,7 +12267,7 @@
       "chainBreak": "DataSpaceQueryOptions.distinct 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 58,
+      "declarationLine": 69,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12279,7 +12279,7 @@
       "chainBreak": "DataSpaceQueryOptions.maxRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 59,
+      "declarationLine": 70,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12291,7 +12291,7 @@
       "chainBreak": "DataSpaceQueryOptions.tree 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 60,
+      "declarationLine": 71,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12303,7 +12303,7 @@
       "chainBreak": "DataSpaceQueryOptions.inputParams 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 61,
+      "declarationLine": 72,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12315,7 +12315,7 @@
       "chainBreak": "DataSpaceQueryOptions.singleFlight 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 62,
+      "declarationLine": 73,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12327,7 +12327,7 @@
       "chainBreak": "DataSpaceQueryOptions.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 63,
+      "declarationLine": 74,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -12339,7 +12339,7 @@
       "chainBreak": "DataSpaceQueryOptions.outputType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
-      "declarationLine": 66,
+      "declarationLine": 77,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "declarationKind": "interface"
     },
@@ -13284,7 +13284,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.filter 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 47,
+      "declarationLine": 52,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13296,7 +13296,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.sortFields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 48,
+      "declarationLine": 53,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13308,7 +13308,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.pageIndex 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 49,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13320,7 +13320,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.pageSize 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 50,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13332,7 +13332,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.allPages 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 51,
+      "declarationLine": 56,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13344,7 +13344,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.distinct 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 52,
+      "declarationLine": 57,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13356,7 +13356,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.maxRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 53,
+      "declarationLine": 58,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13368,7 +13368,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.outputType 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 54,
+      "declarationLine": 59,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13380,7 +13380,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.outputFieldMode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 55,
+      "declarationLine": 60,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13392,7 +13392,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.tree 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 56,
+      "declarationLine": 61,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13404,7 +13404,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 57,
+      "declarationLine": 62,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13416,7 +13416,7 @@
       "chainBreak": "DataSpaceWireQueryOptions.inputParams 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 58,
+      "declarationLine": 63,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13428,7 +13428,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.Table 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 64,
+      "declarationLine": 69,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13440,7 +13440,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.OutputFieldMode 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 65,
+      "declarationLine": 70,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13452,7 +13452,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.PageParam 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 66,
+      "declarationLine": 71,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13464,7 +13464,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.keyField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 70,
+      "declarationLine": 75,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13476,7 +13476,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.parentField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 71,
+      "declarationLine": 76,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13488,7 +13488,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.nodeid 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 72,
+      "declarationLine": 77,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13500,7 +13500,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.hasChildField 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 73,
+      "declarationLine": 78,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13512,7 +13512,7 @@
       "chainBreak": "DataSpaceWireQueryRequest.type 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
-      "declarationLine": 74,
+      "declarationLine": 79,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "declarationKind": "interface"
     },
@@ -13546,7 +13546,7 @@
       "chainBreak": "DataSpaceQueryCacheQueryInput.identity 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 25,
+      "declarationLine": 27,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "interface"
     },
@@ -13558,7 +13558,7 @@
       "chainBreak": "DataSpaceQueryCacheQueryInput.options 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 26,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "interface"
     },
@@ -13570,7 +13570,7 @@
       "chainBreak": "DataSpaceQueryCacheQueryInput.config 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 27,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "interface"
     },
@@ -13582,7 +13582,7 @@
       "chainBreak": "DataSpaceQueryCacheQueryInput.cache 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 28,
+      "declarationLine": 30,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "interface"
     },
@@ -13594,7 +13594,7 @@
       "chainBreak": "DataSpaceQueryCache.invalidate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 35,
+      "declarationLine": 37,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "class"
     },
@@ -13606,7 +13606,7 @@
       "chainBreak": "DataSpaceQueryCache.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 40,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "class"
     },
@@ -13618,7 +13618,7 @@
       "chainBreak": "DataSpaceQueryCache.query 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
-      "declarationLine": 41,
+      "declarationLine": 43,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "declarationKind": "class"
     },
@@ -13995,6 +13995,17 @@
       "declarationKind": "class"
     },
     {
+      "kind": "model",
+      "className": "Model",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Model 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+      "declarationLine": 10,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
       "kind": "attribute",
       "className": "DataSpaceViewQueryCommand",
       "memberName": "identity",
@@ -14050,7 +14061,7 @@
       "chainBreak": "DataSpaceQueryResource.invalidate 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
-      "declarationLine": 21,
+      "declarationLine": 28,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
       "declarationKind": "class"
     },
@@ -14062,19 +14073,7 @@
       "chainBreak": "DataSpaceQueryResource.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
-      "declarationLine": 22,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "DataSpaceQueryResource",
-      "memberName": "query",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataSpaceQueryResource.query 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
-      "declarationLine": 23,
+      "declarationLine": 29,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
       "declarationKind": "class"
     },

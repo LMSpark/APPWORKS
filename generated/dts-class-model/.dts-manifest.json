@@ -3069,12 +3069,12 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-02T20:20:57.819Z"
+      "sourceModifiedAt": "2026-11-03T15:48:16.144Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.594Z"
+      "sourceModifiedAt": "2026-11-03T15:48:16.141Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-pagination.ts",
@@ -3089,7 +3089,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.595Z"
+      "sourceModifiedAt": "2026-11-03T15:36:13.147Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-request-config.ts",
@@ -3109,7 +3109,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.597Z"
+      "sourceModifiedAt": "2026-11-03T15:36:13.146Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-aggregation.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-aggregation.ts",
@@ -3119,22 +3119,27 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts.json",
-      "sourceModifiedAt": "2026-10-25T07:25:48.220Z"
+      "sourceModifiedAt": "2026-11-03T15:48:16.141Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts.json",
-      "sourceModifiedAt": "2026-11-03T15:03:51.045Z"
+      "sourceModifiedAt": "2026-11-03T15:37:51.384Z"
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts.json",
+      "sourceModifiedAt": "2026-11-03T15:48:16.143Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.600Z"
+      "sourceModifiedAt": "2026-11-03T15:36:13.146Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts.json",
-      "sourceModifiedAt": "2026-11-03T15:21:20.014Z"
+      "sourceModifiedAt": "2026-11-03T15:48:16.143Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts",

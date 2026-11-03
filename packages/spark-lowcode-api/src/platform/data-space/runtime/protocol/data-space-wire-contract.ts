@@ -36,6 +36,8 @@ type DataSpaceWireTree = Readonly<{
 
 /** 已转换的内部查询选项，供查询表组装 SPARK 封包。 */
 export type DataSpaceWireQueryOptions = Readonly<{
+  /** 显式Join子查询，叶节点同样保留空children。 */
+  children?: ReadonlyArray<Readonly<{modelName: string; options: DataSpaceWireQueryOptions}>>
   filter?: DataViewFilterWire
   sortFields?: readonly DataSpaceWireSort[]
   pageIndex?: number

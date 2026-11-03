@@ -172,7 +172,7 @@ export class DataSpaceQueryTable {
       inputParams: options.inputParams ?? [],
       DISTINCT: options.distinct ?? false,
       IsBusinessMain: 1,
-      ...(options.outputType === 'Join' ? { ChildTables: [] } : {}),
+      ...(options.outputType === 'Join' ? { ChildTables: this.childTables(options) } : {}),
       ...(fields === undefined ? {} : { Fields: fields }),
     }
     const tree = options.tree
@@ -184,5 +184,11 @@ export class DataSpaceQueryTable {
       ...(tree === undefined ? {} : { keyField: tree.keyField, parentField: tree.parentField,
         nodeid: tree.nodeid, hasChildField: tree.hasChildField, type: tree.type }),
     }
+  }
+
+  private childTables(options: DataSpaceWireQueryOptions): ReadonlyArray<Record<string, unknown>> {
+    return (options.children ?? []).map(child => ({Name: child.modelName, OutputType: 'Join',
+      Filter: child.options.filter ?? null, inputParams: child.options.inputParams ?? [], DISTINCT: false,
+      IsBusinessMain: 0, Fields: child.options.fields ?? [], ChildTables: this.childTables(child.options)}))
   }
 }

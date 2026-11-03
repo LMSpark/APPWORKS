@@ -81,7 +81,7 @@ function viewQuerySort(value: string | undefined, fields: readonly DataSpaceView
 /** DataView 是 GetData 的查询输入；本地组织配置不推导服务器节点或业务身份。 */
 export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): DataSpaceViewQueryCommand {
   const allowed = ['page', 'pageSize', 'sort', 'filter', 'fields', 'viewId', 'viewConfig', 'projection', 'context',
-    'treeMode', 'tree', 'outputType', 'allPages', 'distinct', 'maxRows', 'singleFlight', 'sourceInputMode']
+    'treeMode', 'tree', 'outputType', 'allPages', 'distinct', 'maxRows', 'singleFlight', 'sourceInputMode', 'children']
   for (const key of Object.keys(params)) {
     if (params[key] !== undefined && !allowed.includes(key)) throw new TypeError(`SPARK DataView 不支持查询参数: ${key}`)
   }
@@ -95,13 +95,19 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
     metaName: requireViewText(binding?.modelName, '模型 Name') }
   const fields = viewQueryFields(view, params)
   const context = params.context ?? view.queryContext
+  const bindChildren = (children: NonNullable<QueryParams['children']>): NonNullable<QueryParams['children']> => children.map(child => {
+    const parsed = child.filter === undefined ? undefined : DataViewFilter.parse(child.filter)
+    if (parsed && !parsed.ok) throw new TypeError('SPARK_JOIN_FILTER: 子查询过滤树无效')
+    return {...child, ...(parsed?.ok ? {filter: parsed.value.bindInputParams(context).toJSON()} : {}),
+      ...(child.children === undefined ? {} : {children: bindChildren(child.children)})}
+  })
   const filterSource = params.filter ?? view.filterExpression
   const filter = filterSource === undefined ? undefined : DataViewFilter.parse(filterSource)
   if (filter !== undefined && !filter.ok) throw new TypeError(filter.issues.map(issue => `${issue.path}: ${issue.message}`).join('\n'))
   const page = { index: params.page ?? view.page, size: params.pageSize ?? view.pageSize }
   requireDataSpaceQueryPage(page)
   const options: DataSpaceQueryOptions = {
-    ...queryConfig, page, fields, sort: viewQuerySort(params.sort, fields),
+    ...queryConfig, ...(queryConfig.children === undefined ? {} : {children: bindChildren(queryConfig.children)}), page, fields, sort: viewQuerySort(params.sort, fields),
     ...(filter?.ok ? { filter: filter.value.bindInputParams(context) } : {}),
     inputParams: Object.entries(context).map(([name, value]) => ({
       name: requireViewText(name, '输入参数名'), value,
@@ -113,6 +119,8 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
 
 /** 原 SPARK 查询输入映射；权限、请求身份与缓存策略不进入 wire 表。 */
 export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): DataSpaceWireQueryOptions {
+  const children = options.children === undefined ? undefined : DataViewQuery.capture({
+    ...(options.outputType === undefined ? {} : {outputType: options.outputType}), children: options.children}).children
   if (options.distinct !== undefined && typeof options.distinct !== 'boolean') throw new TypeError('distinct 必须是布尔值')
   const outputFieldMode: unknown = options.outputFieldMode
   if (outputFieldMode !== undefined && outputFieldMode !== 'MODEL' && outputFieldMode !== 'REQUEST') {
@@ -120,6 +128,13 @@ export function encodeDataSpaceQueryOptions(options: DataSpaceQueryOptions): Dat
   }
   const sort = options.sort
   return {
+    ...(children === undefined ? {} : {children: children.map(child => {
+      const parsed = child.filter === undefined ? undefined : DataViewFilter.parse(child.filter)
+      if (parsed && !parsed.ok) throw new TypeError('SPARK_JOIN_FILTER: 子查询过滤树无效')
+      return {modelName: child.modelName, options: encodeDataSpaceQueryOptions({outputType: 'Join', fields: child.fields,
+        children: child.children ?? [], ...(parsed?.ok ? {filter: parsed.value} : {}),
+        ...(options.inputParams === undefined ? {} : {inputParams: options.inputParams})})}
+    })}),
     ...(outputFieldMode === undefined ? {} : {outputFieldMode}),
     ...(options.distinct === undefined ? {} : {distinct: options.distinct}),
     ...(options.filter ? { filter: DataViewFilterCodec.encode(options.filter) } : {}),

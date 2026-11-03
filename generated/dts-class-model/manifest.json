@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1032,
+  "scannedFileCount": 1033,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10621,6 +10621,7 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DataSpaceQueryIdentity",
+          "DataSpaceQueryProjection",
           "DataSpaceRequestScope",
           "DataSpaceQueryPage",
           "DataSpaceQueryTree",
@@ -10776,6 +10777,21 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "DataSpaceQueryContext"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/runtime/query/data-space-query-join",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join\n职责：解析当前DataSet的显式SQL子查询及正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataSpaceQueryJoin"
         ]
       }
     },
@@ -18998,6 +19014,10 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json"
     },
+    "DataSpaceQueryJoin": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts.json"
+    },
     "DataSpaceQueryOptions": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json"
@@ -19009,6 +19029,10 @@
     "DataSpaceQueryPreviewProps": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts",
       "file": "files/src/views/features/data-platform/data-set-management/design/views/preview/DataSpaceQueryPreview.props.ts.json"
+    },
+    "DataSpaceQueryProjection": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json"
     },
     "DataSpaceQueryResource": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",

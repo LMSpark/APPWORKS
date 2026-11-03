@@ -1,0 +1,82 @@
+{
+  "date": "2026-11-03",
+  "baseline": "af5b69b51223aadbc89d3b17f83a25016f5fa434",
+  "status": "public-explicit-flat-join-chain-verified-with-fixtures-live-pending",
+  "implemented": [
+    "DataView child query capture with inherited input params",
+    "Recursive ChildTables and empty leaf lists",
+    "Formal same-DataSet model resolution and same-SQL-database validation",
+    "Parent, cycle, SQL qualifier and output uniqueness guards",
+    "Per-result canonical columns and undeclared-field exclusion",
+    "Full formal graph guards on dispatch, pagination, cache and context access",
+    "View-instance ownership for simultaneous named views",
+    "Join root primary key not injected"
+  ],
+  "verification": {
+    "broad": {
+      "files": 76,
+      "tests": 1689,
+      "timing": "before named-view ownership correction"
+    },
+    "reviewedRegression": {
+      "files": 25,
+      "tests": 637,
+      "timing": "after ownership correction"
+    },
+    "finalPublicChainTests": 16,
+    "classModelTests": 49,
+    "rootTypecheck": "passed",
+    "runtimeLint": "passed",
+    "build": "passed",
+    "pageThin": "passed",
+    "docs": "passed",
+    "packageTypes": {
+      "sparkData": {
+        "baseline": 51,
+        "current": 51
+      },
+      "api": {
+        "baseline": 9,
+        "current": 9
+      },
+      "introduced": 0
+    },
+    "newClassModelSemanticGaps": 0
+  },
+  "review": {
+    "importantFound": 1,
+    "redObserved": true,
+    "fixed": true,
+    "case": "simultaneous named views incorrectly shared first view lifecycle"
+  },
+  "generated": {
+    "equivalentRestored": 103,
+    "modified": [
+      "generated/dts-class-model/.dts-manifest.json",
+      "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json",
+      "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-wire-contract.ts.json",
+      "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts.json",
+      "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts.json",
+      "generated/dts-class-model/files/src/lowcode/data-space/lowcode-data-space-assembler.ts.json",
+      "generated/dts-class-model/files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json",
+      "generated/dts-class-model/files/src/lowcode/data-space/model-source/field/lowcode-data-space-field-output.ts.json",
+      "generated/dts-class-model/files/src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts.json",
+      "generated/dts-class-model/manifest.json",
+      "generated/dts-class-model/semantic-gaps.json"
+    ],
+    "newFile": "generated/dts-class-model/files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts.json"
+  },
+  "live": {
+    "reads": 0,
+    "writes": 0,
+    "fixtures": 0,
+    "browser": false
+  },
+  "remaining": [
+    "Real-service public DataView and standard Table validation/cleanup",
+    "Explicit child Join whole-graph aggregation and grouping",
+    "Deployed LEFT no-match semantics",
+    "Foreign hierarchy consumption",
+    "Full-page and full-repository gates"
+  ]
+}

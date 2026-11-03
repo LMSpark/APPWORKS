@@ -110,7 +110,8 @@
         "models": {
           "type": "array",
           "items": {
-            "$ref": "#/$defs/FormalModel"
+            "type": "object",
+            "title": "Model"
           }
         },
         "relations": {

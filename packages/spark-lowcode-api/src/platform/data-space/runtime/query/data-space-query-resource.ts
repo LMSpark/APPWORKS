@@ -5,7 +5,7 @@
  * AI用途：执行模型查询并保留原查询强引用基线。
  */
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
-import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from '../data-space-runtime-contract'
+import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope, DataSpaceQueryProjection } from '../data-space-runtime-contract'
 import { collectDataSpaceQueryPages } from '../protocol/data-space-pagination'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { DataSpaceRequest } from '../protocol/data-space-request'
@@ -16,6 +16,13 @@ import { DataSpaceRequestConfig } from '../protocol/data-space-request-config'
 type DataSpaceQueryResourceOptions = Readonly<{
   http: HttpClientBase
   readScope: () => DataSpaceRequestScope
+}>
+/** 结果投影仅由正式绑定提供，与请求配置同属本次执行捕获。 */
+type DataSpaceQueryExecution = Readonly<{
+  /** 原查询端点和超时策略，不携带结果授权。 */
+  config: DataSpaceRequestConfig
+  /** 正式模型图提供的只读输出及本次生命周期守卫。 */
+  projection: DataSpaceQueryProjection
 }>
 
 /** 拥有模型查询的分页收集与结果上下文生命周期；全部页通过后才发布上下文。 */
@@ -42,10 +49,13 @@ export class DataSpaceQueryResource {
     this.#request.dispose()
   }
 
+  /** 按正式场景模型查询；执行参数可携带模型图投影，所有分页和最终上下文沿用其守卫。 */
   public async query(identity: DataSpaceQueryIdentity, options: DataSpaceQueryOptions = {},
-    config: DataSpaceRequestConfig = DataSpaceRequestConfig.resolveQuery()): Promise<DataSpaceQueryContext> {
+    execution: DataSpaceRequestConfig | DataSpaceQueryExecution = DataSpaceRequestConfig.resolveQuery()): Promise<DataSpaceQueryContext> {
+    const {config, projection} = execution instanceof DataSpaceRequestConfig ? {config: execution, projection: undefined} : execution
     const scope = this.contextScope()
     const assertCurrent = () => {
+      projection?.assertCurrent()
       if (this.#disposed || this.contextScope() !== scope) {
         throw new Error('SPARK_EXECUTION_SCOPE_STALE: 模型查询所属执行域已失效')
       }
@@ -95,7 +105,8 @@ export class DataSpaceQueryResource {
     assertCurrent()
     return new DataSpaceQueryContext({ identity: table.identity, snapshot, scope,
       ...(captured.outputType === 'Join' ? {resultKind: 'join' as const} : {}),
-      readScope: () => this.contextScope() })
+      ...(projection === undefined ? {} : {columns: projection.columns}),
+      readScope: () => {projection?.assertCurrent(); return this.contextScope()} })
   }
 
   private contextScope(): string {

@@ -52,11 +52,11 @@
       "properties": {
         "original": {
           "type": "object",
-          "title": "FormalModel"
+          "title": "Model"
         },
         "candidate": {
           "type": "object",
-          "title": "FormalModel"
+          "title": "Model"
         },
         "changes": {
           "type": "array",

@@ -11,6 +11,7 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataSpaceQueryIdentity",
+      "DataSpaceQueryProjection",
       "DataSpaceRequestScope",
       "DataSpaceQueryPage",
       "DataSpaceQueryTree",
@@ -36,6 +37,36 @@
         "metaName"
       ],
       "additionalProperties": false
+    },
+    "DataSpaceQueryProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryProjection",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "owner": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
     },
     "DataSpaceRequestScope": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -285,12 +316,18 @@
         },
         "outputType": {
           "type": "string"
+        },
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataViewQueryChild"
+          }
         }
       },
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.594Z",
+  "generatedAt": "2026-11-03T15:48:16.141Z",
   "models": {
     "DataSpaceQueryIdentity": {
       "name": "DataSpaceQueryIdentity",
@@ -316,6 +353,54 @@
               "name": "metaName",
               "readable": true,
               "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryProjection": {
+      "name": "DataSpaceQueryProjection",
+      "jsdoc": "正式绑定内部生成的结果投影与模型图守卫，不作为GetData请求或业务页面输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */\n    columns: readonly DataColumn[];\n    /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */\n    owner: object;\n    /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */\n    signature: string;\n    /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "columns",
+              "jsdoc": "最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "jsdoc": "根DataView实例；隔离不同命名视图的在途查询和结果生命周期。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signature",
+              "jsdoc": "本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -541,11 +626,11 @@
       "jsdoc": "查询输入独立于结果权限；singleFlight 由请求生命周期所有者处理。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    /** 显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */\n    children?: QueryParams['children'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n}>",
+            "typeText": "Readonly<{\n    filter?: DataViewFilter | null;\n    sort?: readonly DataSpaceQuerySort[];\n    page?: DataSpaceQueryPage;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    tree?: DataSpaceQueryTree;\n    inputParams?: readonly DataSpaceQueryInput[];\n    singleFlight?: boolean;\n    fields?: ReadonlyArray<string | DataSpaceQueryField>;\n    /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */\n    outputFieldMode?: 'MODEL' | 'REQUEST';\n    outputType?: string;\n    /** 显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */\n    children?: QueryParams['children'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -609,6 +694,12 @@
             },
             {
               "name": "outputType",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "children",
+              "jsdoc": "显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。",
               "readable": true,
               "writable": false
             }

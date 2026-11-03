@@ -4,7 +4,7 @@
  * 边界：默认不缓存完成结果；身份变化销毁旧资源，缓存不落Web Storage。
  * AI用途：页面和浏览器会话复用同一正式查询上下文，保存和刷新清除缓存。
  */
-import type { DataSpaceQueryIdentity, DataSpaceQueryOptions } from '../data-space-runtime-contract'
+import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceQueryProjection } from '../data-space-runtime-contract'
 import type { DataSpaceQueryContext } from './data-space-query-context'
 import { DataSpaceQueryResource } from './data-space-query-resource'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
@@ -27,6 +27,8 @@ type ResultCacheRequest = Readonly<{
 type DataSpaceQueryCacheOptions = ConstructorParameters<typeof DataSpaceQueryResource>[0]
 
 type DataSpaceQueryCacheQueryInput = Readonly<{
+  /** 正式模型图生成的本次结果列及守卫；独立于页面结果缓存策略。 */
+  projection?: DataSpaceQueryProjection
   identity: DataSpaceQueryIdentity
   options?: DataSpaceQueryOptions
   config?: DataSpaceRequestConfig
@@ -34,6 +36,8 @@ type DataSpaceQueryCacheQueryInput = Readonly<{
 }>
 
 type DataSpaceQueryCacheLoadInput = Readonly<{
+  /** 派发与分页沿用同一次模型图快照。 */
+  projection?: DataSpaceQueryProjection
   key: string
   normalized: DataSpaceQueryIdentity
   executionOptions: DataSpaceQueryOptions
@@ -74,19 +78,23 @@ export class DataSpaceQueryCache {
   }
 
   public async query(input: DataSpaceQueryCacheQueryInput): Promise<DataSpaceQueryContext> {
+    input.projection?.assertCurrent()
     const options = input.options ?? {}
     const config = input.config ?? DataSpaceRequestConfig.resolveQuery()
     const cache = input.cache
     const scope = this.currentScope()
     const normalized = new DataSpaceQueryTable(input.identity).identity
     const { singleFlight: _singleFlight, ...executionOptions } = options
-    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition, { ...executionOptions,
+    const key = this.cacheKey([scope, normalized, config.endpoint, config.timeout, cache?.definition,
+      input.projection?.owner, input.projection?.signature, input.projection?.columns, { ...executionOptions,
       ...(executionOptions.filter === undefined ? {} : { filter: executionOptions.filter?.toJSON() ?? null }) }])
-    const load = () => this.load({key, normalized, executionOptions, config, ...(cache?.accept ? {accept: cache.accept} : {})})
+    const load = () => this.load({key, normalized, executionOptions, config, ...(cache?.accept ? {accept: cache.accept} : {}),
+      ...(input.projection === undefined ? {} : {projection: input.projection})})
     const context = cache === undefined ? await load() : await this.#results.query({
       key, page: cache.page, load, isCurrent: () => this.currentScope() === scope && cache.isCurrent(),
     })
     context.assertIdentity(normalized)
+    input.projection?.assertCurrent()
     return context
   }
 
@@ -99,7 +107,7 @@ export class DataSpaceQueryCache {
       resource = new DataSpaceQueryResource(this.#options)
       this.#resources.set(normalized.scenarioId, resource)
     }
-    const flight = resource.query(normalized, executionOptions, config).then(context => {
+    const flight = resource.query(normalized, executionOptions, input.projection ? {config, projection: input.projection} : config).then(context => {
       accept?.(context)
       return context
     }).finally(() => {

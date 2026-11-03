@@ -160,6 +160,25 @@
       "type": "object",
       "title": "DataSpaceWireQueryOptions",
       "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "modelName": {
+                "type": "string"
+              },
+              "options": {
+                "$ref": "#/$defs/DataSpaceWireQueryOptions"
+              }
+            },
+            "required": [
+              "modelName",
+              "options"
+            ],
+            "additionalProperties": false
+          }
+        },
         "filter": {
           "anyOf": [
             {
@@ -352,7 +371,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.597Z",
+  "generatedAt": "2026-11-03T15:36:13.146Z",
   "models": {
     "DataSpaceValueFunction": {
       "name": "DataSpaceValueFunction",
@@ -549,16 +568,22 @@
       "jsdoc": "已转换的内部查询选项，供查询表组装 SPARK 封包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 显式Join子查询，叶节点同样保留空children。 */\n    children?: ReadonlyArray<Readonly<{\n        modelName: string;\n        options: DataSpaceWireQueryOptions;\n    }>>;\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
+            "typeText": "Readonly<{\n    /** 显式Join子查询，叶节点同样保留空children。 */\n    children?: ReadonlyArray<Readonly<{\n        modelName: string;\n        options: DataSpaceWireQueryOptions;\n    }>>;\n    filter?: DataViewFilterWire;\n    sortFields?: readonly DataSpaceWireSort[];\n    pageIndex?: number;\n    pageSize?: number;\n    allPages?: boolean;\n    distinct?: boolean;\n    maxRows?: number;\n    outputType?: string;\n    outputFieldMode?: DataSpaceQueryOptions['outputFieldMode'];\n    tree?: DataSpaceWireTree;\n    fields?: readonly DataSpaceWireQueryField[];\n    inputParams?: readonly DataSpaceWireInput[];\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "children",
+              "jsdoc": "显式Join子查询，叶节点同样保留空children。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "filter",
               "readable": true,

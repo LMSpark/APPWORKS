@@ -7,7 +7,7 @@
 /** 数据空间运行态 API；按场景与模型 Name 拥有原查询、权限基线和统一保存。 */
 import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
-import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope } from './data-space-runtime-contract.js'
+import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope, DataSpaceQueryProjection } from './data-space-runtime-contract.js'
 import { DataSpaceQueryCache } from './query/data-space-query-cache.js'
 import { DataSpaceRequest, DataSpaceSaveUnconfirmedError } from './protocol/data-space-request.js'
 import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
@@ -17,6 +17,7 @@ import type { DataSpaceQueryContext } from './query/data-space-query-context.js'
 import { DataSpaceRequestConfig } from './protocol/data-space-request-config.js'
 import { DataSpaceSourceInput } from './query/data-space-source-input.js'
 import { DataSpaceQueryAggregation } from './query/data-space-query-aggregation.js'
+import {DataSpaceQueryJoin} from './query/data-space-query-join'
 
 /** 运行 owner 的 HTTP 通道和请求身份读取器；scope 变更使旧基线失效。 */
 type DataSpaceRuntimeApiOptions = Readonly<{
@@ -34,6 +35,8 @@ type DataSpaceRuntimeSaveCommand = Readonly<{
 type DataSpaceRuntimeSaveResult = Awaited<ReturnType<DataSpaceRequest['save']>>
 type DataSpaceRuntimeUnconfirmed = Readonly<{signature: string; contexts: ReadonlySet<DataSpaceQueryContext>}>
 type DataSpaceQueryWithConfigInput = Readonly<{
+  /** 正式子查询解析产生的本次只读投影与模型图守卫。 */
+  projection?: DataSpaceQueryProjection
   identity: DataSpaceQueryIdentity
   options: DataSpaceQueryOptions
   config: DataSpaceRequestConfig
@@ -130,6 +133,7 @@ export class DataSpaceRuntimeApi {
       ...(accept === undefined ? {} : {accept}),
     } : undefined
     const flight = this.queryCache.query({
+      ...(input.projection === undefined ? {} : {projection: input.projection}),
       identity: normalized,
       options,
       config,
@@ -245,6 +249,7 @@ export class DataSpaceRuntimeApi {
     if (binding) this.assertScope(binding.scope)
     const model = binding?.model
     if (model === undefined) {
+      if (command.options.children?.length) throw new Error('SPARK_JOIN_MODEL: 子查询需要正式模型绑定')
       if (command.sourceInputMode === 'direct') throw new Error('SPARK_SOURCE_INPUT: 直接来源入参需要正式模型绑定')
       return this.queryWithConfig({identity: command.identity, options: command.options, config, view})
     }
@@ -318,7 +323,7 @@ export class DataSpaceRuntimeApi {
         }
       }
     }
-    for (const dependency of [...(aggregateResult ? [] : [model.primaryKey]), ...treeFields]) {
+    for (const dependency of [...(aggregateResult || options.outputType === 'Join' ? [] : [model.primaryKey]), ...treeFields]) {
       if (!fields || !dependency) continue
       const name = requestField(dependency)
       if (!fields.some(field => field.name === name)) fields.push({name})
@@ -330,9 +335,14 @@ export class DataSpaceRuntimeApi {
     for (const [name, group] of groups) {
       if (queryFields && !queryFields.some(field => field.name === name)) queryFields.push({name, group})
     }
+    if (options.children?.length && aggregateResult) throw new Error('SPARK_JOIN_AGGREGATE: 显式子Join的全图聚合尚未承接')
+    const join = DataSpaceQueryJoin.resolve({view, model, options: {...options, ...(queryFields === undefined ? {} : {fields: queryFields})},
+      readModel: table => {const entry = this.#models.get(table); if (entry) this.assertScope(entry.scope); return entry?.model}})
     const context = await this.queryWithConfig({
+      ...(join === undefined ? {} : {projection: join.projection}),
       identity: command.identity,
       options: {...options, outputFieldMode: 'REQUEST',
+        ...(join?.options.children === undefined ? {} : {children: join.options.children}),
         ...(model.sourceInputBindings?.length ? {inputParams: DataSpaceSourceInput.resolve(model.sourceInputBindings, options.inputParams, command.sourceInputMode)} : {}),
         ...(queryFields === undefined ? {} : {fields: queryFields}),
         ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),

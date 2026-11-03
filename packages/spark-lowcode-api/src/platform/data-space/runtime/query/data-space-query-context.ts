@@ -101,6 +101,7 @@ export class DataSpaceQueryContext {
       if (key) this.#permissions.set(key, this.#permissions.has(key) ? null : permission)
       const consumer: Record<string, unknown> = {}
       for (const [field, value] of Object.entries(row)) {
+        if (this.#columns !== undefined && !this.#columns.some(column => column.name === field)) continue
         if (field !== 'lingma_sys_key' && field !== 'lingma_sys_params') consumer[field] = value
       }
       const publicRow = Object.freeze(consumer)
@@ -296,6 +297,7 @@ export class DataSpaceQueryContext {
   /** Read only the captured read state for the exact public row returned by this query context. */
   public readFieldAccess(row: DataSpaceRow, fieldName: string): DataSpaceFieldAccess['read'] {
     this.assertCurrent()
+    if (this.#columns !== undefined && !this.#columns.some(column => column.name === fieldName)) return 'invisible'
     return this.#rowPermissions.get(row)?.fieldAccess(fieldName).read ?? 'invisible'
   }
 

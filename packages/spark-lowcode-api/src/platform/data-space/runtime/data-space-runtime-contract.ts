@@ -4,11 +4,22 @@
  * 边界：查询输入不携带结果权限，模型 Name 不等于物理资源名。
  * AI用途：构造过滤、排序、分页和显式树查询。
  */
-import type { DataViewFilter, DataViewFilterJsonValue, QueryParams } from '@spark-appworks/spark-data'
+import type { DataColumn, DataViewFilter, DataViewFilterJsonValue, QueryParams } from '@spark-appworks/spark-data'
 import type { OrderType } from '../../../contracts/lowcode-wire-query'
 
 /** 后端场景注册身份；metaName 是模型 Name，不是物理资源名。 */
 export type DataSpaceQueryIdentity = Readonly<{ scenarioId: string; metaName: string }>
+/** 正式绑定内部生成的结果投影与模型图守卫，不作为GetData请求或业务页面输入。 */
+export type DataSpaceQueryProjection = Readonly<{
+  /** 最终请求的规范输出列，仅供本次只读结果消费，不写入模型定义。 */
+  columns: readonly DataColumn[]
+  /** 根DataView实例；隔离不同命名视图的在途查询和结果生命周期。 */
+  owner: object
+  /** 本次完整正式模型图的定义快照，参与查询复用键，不包含业务行。 */
+  signature: string
+  /** 核对当前模型图、绑定实例及scope；失效时抛错，禁止接纳迟到结果。 */
+  assertCurrent: () => void
+}>
 
 /** 请求层负责生成包含全部身份通道的 token；数据实体不解释应用、租户或会话。 */
 export type DataSpaceRequestScope = Readonly<{
@@ -53,4 +64,6 @@ export type DataSpaceQueryOptions = Readonly<{
   /** 缺省沿后端模型输出；正式绑定视图使用 REQUEST 并保留行身份字段。 */
   outputFieldMode?: 'MODEL' | 'REQUEST'
   outputType?: string
+  /** 显式同场景Join子计划；低层字段为模型Name，DataView由正式绑定映射规范输出名。 */
+  children?: QueryParams['children']
 }>

@@ -84,7 +84,8 @@
       "title": "FieldOutputValidateInput",
       "properties": {
         "model": {
-          "$ref": "#/$defs/FormalModel"
+          "type": "object",
+          "title": "Model"
         },
         "original": {
           "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
@@ -164,7 +165,8 @@
       "title": "FieldOutputValidateReferencesInput",
       "properties": {
         "model": {
-          "$ref": "#/$defs/FormalModel"
+          "type": "object",
+          "title": "Model"
         },
         "original": {
           "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"

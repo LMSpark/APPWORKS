@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/query/data-space-query-join",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/query/data-space-query-join\n职责：解析当前DataSet的显式SQL子查询及正式结果列。\n边界：不读取业务行、不推导连接关系或权限，不修改来源模型及视图。\nAI用途：沿正式模型绑定生成只读Join投影并拒绝失效模型图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceQueryJoin"
+    ]
+  },
+  "$defs": {
+    "Model": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Model",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "metaName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "sourceName": {
+          "type": "string"
+        },
+        "sourceId": {
+          "type": "string"
+        },
+        "sourceType": {
+          "type": "string"
+        },
+        "primaryKey": {
+          "type": "string"
+        },
+        "businessMain": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "../../design/data-space-design-api.ts.json#/$defs/DataSpaceFormalField"
+          }
+        },
+        "raw": {
+          "$ref": "../../design/data-space-design-api.ts.json#/$defs/DataSpaceFormalRow"
+        },
+        "sourceInputBindings": {
+          "type": "array",
+          "items": {
+            "$ref": "data-space-source-input.ts.json#/$defs/DataSpaceSourceInputBinding"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "metaName",
+        "name",
+        "sourceName",
+        "sourceId",
+        "sourceType",
+        "primaryKey",
+        "businessMain",
+        "fields",
+        "raw"
+      ],
+      "additionalProperties": false
+    },
+    "JoinInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JoinInput",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "model": {
+          "$ref": "#/$defs/Model"
+        },
+        "options": {
+          "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readModel.params": {
+          "type": "object",
+          "properties": {
+            "table": {
+              "$ref": "../../../../../../spark-data/src/data-table.ts.json#/$defs/DataTable"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readModel.return": {
+          "$ref": "#/$defs/Model"
+        }
+      }
+    },
+    "DataSpaceQueryJoin": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceQueryJoin",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resolve.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/JoinInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolve.return": {
+          "type": "object",
+          "properties": {
+            "options": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryOptions"
+            },
+            "projection": {
+              "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryProjection"
+            }
+          },
+          "required": [
+            "options",
+            "projection"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T15:48:16.143Z",
+  "models": {
+    "Model": {
+      "name": "Model",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>",
+            "targetName": "Awaited"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "JoinInput": {
+      "name": "JoinInput",
+      "jsdoc": "当前视图的正式子计划解析输入；正式定义继续归原运行owner所有。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次根视图，决定DataSet和结果释放范围。 */\n    view: DataView;\n    /** 当前运行owner已绑定的根正式模型。 */\n    model: Model;\n    /** 已捕获且根字段已映射的查询参数，子字段尚使用规范输出名。 */\n    options: DataSpaceQueryOptions;\n    /** 从同一运行owner取得表的正式绑定，同时核对绑定scope。 */\n    readModel: (table: DataTable) => Model | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次根视图，决定DataSet和结果释放范围。 */\n    view: DataView;\n    /** 当前运行owner已绑定的根正式模型。 */\n    model: Model;\n    /** 已捕获且根字段已映射的查询参数，子字段尚使用规范输出名。 */\n    options: DataSpaceQueryOptions;\n    /** 从同一运行owner取得表的正式绑定，同时核对绑定scope。 */\n    readModel: (table: DataTable) => Model | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "本次根视图，决定DataSet和结果释放范围。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "jsdoc": "当前运行owner已绑定的根正式模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "options",
+              "jsdoc": "已捕获且根字段已映射的查询参数，子字段尚使用规范输出名。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readModel",
+              "jsdoc": "从同一运行owner取得表的正式绑定，同时核对绑定scope。",
+              "parameters": [
+                {
+                  "name": "table",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataTable"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Model",
+                  "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSpaceQueryJoin": {
+      "name": "DataSpaceQueryJoin",
+      "jsdoc": "仅解析显式非空子Join；原单表、叶Join和聚合查询保持各自原责任方。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "仅解析显式非空子Join；原单表、叶Join和聚合查询保持各自原责任方。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "捕获完整正式模型图，派发、分页、缓存接纳与结果读取复用同一失效检查。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "JoinInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-join.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Readonly",
+                  "typeArguments": [
+                    {
+                      "type": "unknown",
+                      "name": "{\n        options: DataSpaceQueryOptions;\n        projection: DataSpaceQueryProjection;\n    }"
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

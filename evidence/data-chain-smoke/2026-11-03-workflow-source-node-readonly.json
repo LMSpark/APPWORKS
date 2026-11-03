@@ -1,0 +1,43 @@
+{
+  "generatedAt": "2026-11-03T07:14:47.561Z",
+  "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+  "phase": "readonly-confirmed",
+  "initialQueries": 5,
+  "initialFailures": "401",
+  "sessionRecovery": "original-refresh",
+  "results": [
+    {
+      "name": "Base_DataModel",
+      "success": true,
+      "total": 1,
+      "returned": 1
+    },
+    {
+      "name": "Base_WorkflowNodeDefinition",
+      "success": true,
+      "total": 4,
+      "returned": 4
+    },
+    {
+      "name": "Base_DataModel_Field",
+      "success": true,
+      "total": 30,
+      "returned": 30
+    },
+    {
+      "name": "Base_WorkflowConnectors",
+      "success": true,
+      "total": 3,
+      "returned": 3
+    },
+    {
+      "name": "Base_DataModel_Relation",
+      "success": true,
+      "total": 0,
+      "returned": 0
+    }
+  ],
+  "writes": 0,
+  "executions": 0,
+  "scope": "Five retained structure definitions only; source UI, source replacement and isolated model write remain unverified."
+}

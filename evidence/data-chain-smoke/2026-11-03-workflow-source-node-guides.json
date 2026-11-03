@@ -1,0 +1,139 @@
+[
+  {
+    "kind": "WorkflowQuerySourceNodeCommit",
+    "catalog": {
+      "rootKind": "WorkflowQuerySourceNodeCommit",
+      "models": [
+        {
+          "kind": "WorkflowQuerySourceNodeCommit",
+          "name": "WorkflowQuerySourceNodeCommit",
+          "jsdoc": "一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。",
+          "summary": "一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowQuerySourceNodeCommit",
+      "models": [
+        {
+          "kind": "WorkflowQuerySourceNodeCommit",
+          "name": "WorkflowQuerySourceNodeCommit",
+          "jsdoc": "一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。",
+          "summary": "一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "private constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "complete",
+              "jsdoc": "来源owner与无delta外层共用同一个幂等收口动作。",
+              "summary": "来源owner与无delta外层共用同一个幂等收口动作。",
+              "signature": "complete(): Promise<void>"
+            },
+            {
+              "name": "verify",
+              "jsdoc": "只核验原节点捕获；无效回执必须显式选择原范围读回。",
+              "summary": "只核验原节点捕获；无效回执必须显式选择原范围读回。",
+              "signature": "verify(acceptCurrent?: boolean): Promise<void>"
+            },
+            {
+              "name": "resubmitNotApplied",
+              "jsdoc": "显式重提已独立确认未生效的同一节点；不保存来源或重新fork。",
+              "summary": "显式重提已独立确认未生效的同一节点；不保存来源或重新fork。",
+              "signature": "resubmitNotApplied(): Promise<void>"
+            },
+            {
+              "name": "discardLocalChangesAndVerify",
+              "jsdoc": "用户明确放弃原节点后续本地修改后，只核验原捕获，不重放提交。",
+              "summary": "用户明确放弃原节点后续本地修改后，只核验原捕获，不重放提交。",
+              "signature": "discardLocalChangesAndVerify(): Promise<void>"
+            },
+            {
+              "name": "getState",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getState(): {\n        complete: boolean;\n        notApplied: boolean;\n        dispatched: boolean;\n        canAcceptCurrent: boolean;\n        canDiscardLocalChanges: boolean;\n        nodeId: string;\n        modelId: string;\n    }"
+            },
+            {
+              "name": "open",
+              "jsdoc": "捕获正式原节点身份，尚不暂存或提交。",
+              "summary": "捕获正式原节点身份，尚不暂存或提交。",
+              "signature": "open(input: Input): WorkflowQuerySourceNodeCommit"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。\nclass WorkflowQuerySourceNodeCommit {\n  private constructor()\n  来源owner与无delta外层共用同一个幂等收口动作。\n  complete(): Promise<void>\n  只核验原节点捕获；无效回执必须显式选择原范围读回。\n  verify(acceptCurrent?: boolean): Promise<void>\n  显式重提已独立确认未生效的同一节点；不保存来源或重新fork。\n  resubmitNotApplied(): Promise<void>\n  用户明确放弃原节点后续本地修改后，只核验原捕获，不重放提交。\n  discardLocalChangesAndVerify(): Promise<void>\n  getState(): {\n          complete: boolean;\n          notApplied: boolean;\n          dispatched: boolean;\n          canAcceptCurrent: boolean;\n          canDiscardLocalChanges: boolean;\n          nodeId: string;\n          modelId: string;\n      }\n  捕获正式原节点身份，尚不暂存或提交。\n  open(input: Input): WorkflowQuerySourceNodeCommit\n}"
+  },
+  {
+    "kind": "WorkflowQueryModelProjection",
+    "catalog": {
+      "rootKind": "WorkflowQueryModelProjection",
+      "models": [
+        {
+          "kind": "WorkflowQueryModelProjection",
+          "name": "WorkflowQueryModelProjection",
+          "jsdoc": "尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。",
+          "summary": "尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    fromModelId: string;\n    modelId: string;\n    models: DataView;\n    fields: DataView;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowQueryModelProjection",
+      "models": [
+        {
+          "kind": "WorkflowQueryModelProjection",
+          "name": "WorkflowQueryModelProjection",
+          "jsdoc": "尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。",
+          "summary": "尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    fromModelId: string;\n    modelId: string;\n    models: DataView;\n    fields: DataView;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "fromModelId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "models",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "fields",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: WorkflowQueryModelProjection = Readonly<{\n    fromModelId: string;\n    modelId: string;\n    models: DataView;\n    fields: DataView;\n}>\n * DTS relation: alias Readonly<{\n    fromModelId: string;\n    modelId: string;\n    models: DataView;\n    fields: DataView;\n}>\n */\n尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。\ntype WorkflowQueryModelProjection {\n  readonly fromModelId: string\n  readonly modelId: string\n  readonly models: DataView\n  readonly fields: DataView\n}"
+  }
+]

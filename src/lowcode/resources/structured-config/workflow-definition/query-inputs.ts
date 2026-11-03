@@ -5,6 +5,7 @@
  */
 import {RequestState,DataViewOptionCatalog,DataViewFilter,DataViewFilterCodec,type DataSet,type DataView,type DataRow,type DataColumn} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowOutputFields} from './output-fields'
 
 function read(view:DataView,row:DataRow,field:string):unknown{
@@ -21,6 +22,22 @@ function identity(view:DataView,row:DataRow):string{
  const id=read(view,row,'rowid')
  if(typeof id!=='string'||!id.trim()||view.getPkKey(row)!==id)throw Error('查询输入记录身份无效')
  return id
+}
+/** 尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。 */
+export type WorkflowQueryModelProjection=Readonly<{fromModelId:string;modelId:string;models:DataView;fields:DataView}>
+function projectedViews(dataSet:DataSet,workflowId:string,projection:WorkflowQueryModelProjection):void{
+ if(!projection.fromModelId.trim()||!projection.modelId.trim())throw Error('查询输入拟切换身份缺失')
+ const fieldView=projection.fields,ids=fieldView.queryContext['modelIds'],filter=fieldView.filterExpression
+ const fullFilter=filter&&'logic'in filter&&filter.logic==='and'&&filter.filters.length===2&&[
+  ['dataSetId','eq','dataSpaceId'],['dataModelId','in','modelIds'],
+ ].every(([field,operator,param])=>filter.filters.some(item=>'field'in item&&item.field===field&&item.operator===operator&&isRecord(item.value)&&item.value['Type']==='GetInputParam'&&item.value['ParamName']===param))
+ if(!Array.isArray(ids)||ids.length!==1||ids[0]!==projection.modelId||!fullFilter||fieldView.queryConfig.allPages!==true||fieldView.queryConfig.distinct===true||fieldView.queryConfig.tree!==undefined)throw Error('查询输入拟切换字段归属或查询范围不完整')
+ for(const [view,table] of [[projection.models,'Base_DataModel'],[projection.fields,'Base_DataModel_Field']] as const){
+  const pending=view===projection.fields?view.dirtyTracking.pendingDeleteIds.size-view.dirtyTracking.pendingCreateIds.size:0
+  if(view.dataSet!==dataSet||view.destroyed||dataSet.getView(table,view.viewId)!==view||view.tableName!==table||view.dataTable?.modelBinding?.modelName!==table||view.hasUnconfirmedSave
+   ||view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length+pending!==view.total||view.queryContext['dataSpaceId']!==workflowId
+   ||view.queryContext['workflowId']!==undefined&&view.queryContext['workflowId']!==workflowId)throw Error('查询输入拟切换正式视图未完整读取或归属已变化')
+ }
 }
 /** 原查询输入与显式删除共用祖先合同；只投影捕获的删除ID，不改图、不自动补边。 */
 export function workflowQueryAncestors(nodes:DataView,edges:DataView,workflowId:string,nodeId:string,
@@ -45,17 +62,19 @@ export function workflowQueryAncestors(nodes:DataView,edges:DataView,workflowId:
  visit(nodeId);return{byId,ancestors}
 }
 /** 候选值遵循顶层GetInputParam两段合同；查询目录的items叶字段按实际平面行投影，合成根不作为运行参数。 */
-export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string):{
+export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string,projection?:WorkflowQueryModelProjection):{
  inputs:Array<{value:string;label:string}>;columns:DataColumn[];diagnostics:string[]
 }{
  if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询输入目标已失效')
- const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),
-  edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId),models=loaded(dataSet,'Base_DataModel',workflowId),fields=loaded(dataSet,'Base_DataModel_Field',workflowId)
+ const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId)
+ if(projection)projectedViews(dataSet,workflowId,projection)
+ const models=projection?.models??loaded(dataSet,'Base_DataModel',workflowId),fields=projection?.fields??loaded(dataSet,'Base_DataModel_Field',workflowId)
  if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId)throw Error('查询输入工作流身份不唯一')
  const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId)
- const target=byId.get(nodeId),model=models.rows[0]
- if(!target||!['query','copy'].includes(String(read(nodes,target,'node_type')))||models.rows.length!==1||!model
-  ||read(models,model,'dataSetId')!==workflowId||identity(models,model)!==read(nodes,target,'node_config'))throw Error('查询输入模型归属不符')
+ const target=byId.get(nodeId),selected=projection?models.rows.filter(row=>models.getPkKey(row)===projection.modelId):models.rows,model=selected[0]
+ if(!target||!['query','copy'].includes(String(read(nodes,target,'node_type')))||selected.length!==1||!model
+  ||read(models,model,'dataSetId')!==workflowId||read(nodes,target,'node_config')!==(projection?.fromModelId??identity(models,model)))throw Error('查询输入模型归属不符')
+ if(projection&&(nodes.hasEditingChanges(nodeId)||nodes.dirtyTracking.hasPendingChanges(nodeId)||models.dirtyTracking.isPendingCreate(projection.modelId)||models.dirtyTracking.isPendingDelete(projection.modelId)))throw Error('拟切换节点存在独立改绑草稿或模型尚未正式确认')
  const columns:DataColumn[]=[],columnNames=new Set<string>()
  for(const row of fields.rows){
   identity(fields,row)
@@ -90,15 +109,19 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
 }
 
 /** 来源入参和模型Filter由模型共享；新引用只可选择所有实际查询消费者共同拥有的已核定输入。 */
-export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string){
- const state=workflowQueryInputPresentation(dataSet,workflowId,nodeId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),model=dataSet.getView('Base_DataModel')?.rows[0]
+export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string,projection?:WorkflowQueryModelProjection){
+ const state=workflowQueryInputPresentation(dataSet,workflowId,nodeId,projection),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),model=projection?projection.models.rows.find(row=>projection.models.getPkKey(row)===projection.modelId):dataSet.getView('Base_DataModel')?.rows[0]
  if(!model)throw Error('查询输入模型缺失')
+ if(projection&&projection.modelId!==projection.fromModelId){
+  if(nodes.rows.some(row=>identity(nodes,row)!==nodeId&&(read(nodes,row,'node_config')===projection.modelId||read(nodes,row,'dataOperateModId')===projection.modelId)))throw Error('隔离模型已有其他消费者，不能采用单节点祖先输入')
+  return state
+ }
  const modelId=model['rowid'],consumers=nodes.rows.filter(row=>['query','copy'].includes(String(read(nodes,row,'node_type')))&&read(nodes,row,'node_config')===modelId)
  let inputs=state.inputs
  const diagnostics=[...state.diagnostics]
  for(const row of consumers){
   const id=identity(nodes,row);if(id===nodeId)continue
-  const other=workflowQueryInputPresentation(dataSet,workflowId,id),values=new Set(other.inputs.map(item=>item.value))
+  const other=workflowQueryInputPresentation(dataSet,workflowId,id,projection),values=new Set(other.inputs.map(item=>item.value))
   inputs=inputs.filter(item=>values.has(item.value));diagnostics.push(...other.diagnostics)
  }
  if(consumers.length>1)diagnostics.push('当前模型由多个节点共享，仅显示全部消费者共同可用的输入')
@@ -106,8 +129,8 @@ export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:
 }
 
 /** 只校验实际修改的ValueFun及Filter，原未修改函数原文不参与重写；解析和候选校验复用正式数据层。 */
-export function validateWorkflowQueryInputChanges(dataSet:DataSet,workflowId:string,nodeId:string,input:Readonly<{values?:readonly unknown[];filter?:unknown}>):void{
- const state=workflowQuerySharedInputPresentation(dataSet,workflowId,nodeId),context=DataViewFilter.editorContext({inputParams:state.inputs})
+export function validateWorkflowQueryInputChanges(dataSet:DataSet,workflowId:string,nodeId:string,input:Readonly<{values?:readonly unknown[];filter?:unknown}>,projection?:WorkflowQueryModelProjection):void{
+ const state=workflowQuerySharedInputPresentation(dataSet,workflowId,nodeId,projection),context=DataViewFilter.editorContext({inputParams:state.inputs})
  for(const value of input.values??[]){
   if(typeof value!=='string')throw Error('ValueFun必须保存为值函数字符串')
   if(value==='')continue

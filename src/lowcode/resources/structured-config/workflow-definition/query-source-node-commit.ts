@@ -1,0 +1,129 @@
+/**
+ * @module app:lowcode/resources/structured-config/workflow-definition/query-source-node-commit
+ * 职责：来源正式确认后，沿原节点DataView收口改绑与输出身份，保留原批次核验。
+ * 边界：不保存模型或字段、不重做fork；新输出只取独立正式字段，未知结果不自动重放。
+ */
+import {RequestState,type DataSet,type DataView,type DataRow,type DataViewEditingFieldChangeEvent} from '@spark-appworks/spark-data'
+import {DataSpaceDefinitionSave,definitionTargetDraftSignature,verifyDataSpaceDefinitionCapture,verifyAndDiscardDataSpaceDefinitionCapture,type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
+import {buildWorkflowQueryOutput} from './query-output'
+type Input=Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;fromModelId:string;modelId:string;nodeBefore:Readonly<DataRow>;fieldsBefore:ReadonlyArray<Readonly<DataRow>>;fieldIds:ReadonlyArray<Readonly<{from:string;to:string}>>;removedIds:readonly string[];assertCurrent():void}>
+function read(view:DataView,row:DataRow,key:string):unknown{if(view.fieldAccess(row,key).read!=='visible')throw Error(`来源节点收口定义不可读: ${view.tableName}.${key}`);return row[key]}
+function proof(row:Readonly<DataRow>,keys:readonly string[]):string{return JSON.stringify(keys.map(key=>[key,row[key]===undefined?['absent']:['value',row[key]]]))}
+/** 一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。 */
+export class WorkflowQuerySourceNodeCommit{
+ readonly #nodes:DataView
+ readonly #models:DataView
+ readonly #fields:DataView
+ readonly #context:string
+ readonly #columns:readonly string[]
+ readonly #before:Readonly<DataRow>
+ readonly #beforeFields:ReadonlyArray<Readonly<DataRow>>
+ readonly #fieldIds:Input['fieldIds']
+ readonly #removedIds:readonly string[]
+ #capture:DataSpaceDefinitionCaptureBatch|undefined
+ #expected:Readonly<DataRow>|undefined
+ #sourceProof:string|undefined
+ #draft:string|undefined
+ #staged=false
+ #notApplied=false
+ #notAppliedDraft:string|undefined
+ #done=false
+ #busy=false
+ #lateEdit=false
+ #stopWatching:(()=>void)|undefined
+ private constructor(private readonly input:Input){
+  const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition'),models=input.dataSet.getView('Base_DataModel','modelCatalog'),fields=input.dataSet.getView('Base_DataModel_Field','modelInputFields')
+  if(!nodes||!models||!fields)throw Error('来源节点收口缺少正式视图')
+  this.#nodes=nodes;this.#context=JSON.stringify([nodes.queryContext,nodes.filterExpression,nodes.queryConfig]);this.#columns=(nodes.queryConfig.fields??nodes.columns.map(column=>column.name)).filter(key=>key!=='_pk'&&!key.startsWith('lingma_sys_'))
+  this.#before=structuredClone(input.nodeBefore);this.#beforeFields=structuredClone(input.fieldsBefore);this.#fieldIds=structuredClone(input.fieldIds);this.#removedIds=[...input.removedIds]
+  if(this.#before['rowid']!==input.nodeId||this.#before['workflow_id']!==input.workflowId||this.#before['node_config']!==input.fromModelId||this.#before['node_type']!=='query'||String(this.#before['position_type'])!=='1'||this.#columns.some(key=>!Object.hasOwn(this.#before,key)))throw Error('来源节点原意图身份或投影不完整')
+  const suffix=`workflowSourceCommit_${crypto.randomUUID().replaceAll('-','')}`
+  this.#models=models.createQueryView(suffix);this.#models.queryContext={dataSpaceId:input.workflowId};this.#models.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:input.workflowId},{field:'rowid',operator:'eq',value:input.modelId}]}
+  this.#fields=fields.createQueryView(suffix);this.#fields.queryContext={dataSpaceId:input.workflowId,modelIds:[input.modelId]}
+ }
+ private guard():void{
+  const {dataSet,workflowId,nodeId}=this.input;this.input.assertCurrent()
+  const root=dataSet.getView('Base_WorkflowDefinition'),definition=root?.rows[0]
+  if(dataSet.destroyed||this.#nodes.destroyed||dataSet.getView(this.#nodes.tableName,this.#nodes.viewId)!==this.#nodes||this.#nodes.queryContext['workflowId']!==workflowId||JSON.stringify([this.#nodes.queryContext,this.#nodes.filterExpression,this.#nodes.queryConfig])!==this.#context
+   ||this.#nodes.requestState!==RequestState.Loaded||this.#nodes.loadingError||root?.queryContext['workflowId']!==workflowId||root.rows.length!==1||!definition||read(root,definition,'rowid')!==workflowId||!nodeId.trim())throw Error('来源节点收口实例或目标已变化')
+ }
+ private row():DataRow{this.guard();const rows=this.#nodes.rows.filter(row=>this.#nodes.getPkKey(row)===this.input.nodeId),row=rows[0];if(rows.length!==1||!row||read(this.#nodes,row,'workflow_id')!==this.input.workflowId)throw Error('来源节点不再唯一属于原流程');return row}
+ private nodeProof(row:DataRow):string{for(const key of this.#columns)read(this.#nodes,row,key);return proof(row,this.#columns)}
+ private original():void{const row=this.row();if(this.#nodes.hasEditingChanges(this.input.nodeId)||this.#nodes.dirtyTracking.hasPendingChanges(this.input.nodeId)||this.nodeProof(row)!==proof(this.#before,this.#columns))throw Error('来源节点出现独立修改，保留修改且不派发旧意图')}
+ private async source():Promise<ReadonlyArray<Readonly<DataRow>>>{
+  for(const view of [this.#models,this.#fields]){if(view.destroyed||this.input.dataSet.getView(view.tableName,view.viewId)!==view)throw Error('来源收口正式视图已失效');await view.refresh();this.guard();if(view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total)throw Error('来源正式定义尚未完整回读')}
+  const model=this.#models.rows[0];if(this.#models.rows.length!==1||!model||read(this.#models,model,'rowid')!==this.input.modelId||read(this.#models,model,'dataSetId')!==this.input.workflowId||read(this.#models,model,'requestType')!=='query')throw Error('来源模型尚未正式确认或归属不符')
+  for(const row of this.#fields.rows){if(read(this.#fields,row,'dataSetId')!==this.input.workflowId||read(this.#fields,row,'dataModelId')!==this.input.modelId)throw Error('来源字段不属于已确认模型');for(const key of ['rowid','type','Name','AsName','FieldType','description','IsOutput','IsPKey'])read(this.#fields,row,key)}
+  const current=JSON.stringify([this.#models.readSnapshot(),this.#fields.readSnapshot()]);if(this.#sourceProof!==undefined&&current!==this.#sourceProof)throw Error('已确认来源合同已变化，保留原节点意图');this.#sourceProof=current
+  return this.#fields.readSnapshot().rows
+ }
+ private staged():void{
+  this.guard();const row=this.row(),expected=this.#expected;if(!expected||this.#nodes.hasUnconfirmedSave||definitionTargetDraftSignature(this.#nodes,[this.input.nodeId])!==this.#draft||this.nodeProof(this.#nodes.getEditingRow(this.input.nodeId)??row)!==proof(expected,this.#columns))throw Error('原节点暂存后出现新修改，未重放旧意图')
+  const patch=this.#nodes.getEditingPatch(this.input.nodeId)??{},diff=this.#nodes.dirtyTracking.getDiff(this.input.nodeId,row),keys=new Set([...Object.keys(patch),...Object.keys(diff)])
+  if([...keys].some(key=>!['node_config','output_mapping'].includes(key))||this.#nodes.editActionState(row)!=='enabled'||[...keys].some(key=>this.#nodes.fieldAccess(row,key).write!=='allowed'))throw Error('当前查询不允许原节点切换字段或出现范围外修改')
+ }
+ private async readback():Promise<void>{
+  this.guard();this.assertNoLaterEdit();if(!this.#expected)throw Error('缺少原节点切换意图');await this.source();this.assertNoLaterEdit()
+  const view=this.#nodes.createQueryView(`sourceNodeRead_${crypto.randomUUID().replaceAll('-','')}`);view.filterExpression={logic:'and',filters:[{field:'workflow_id',operator:'eq',value:this.input.workflowId},{field:'rowid',operator:'eq',value:this.input.nodeId}]}
+  try{await view.refresh();this.guard();const row=view.rows[0];if(view.loadingError||view.rows.length!==1||view.total!==1||!row)throw Error('原节点独立回读未完成');for(const key of this.#columns)read(view,row,key)
+   this.assertNoLaterEdit();const current=proof(row,this.#columns)
+   if(current===proof(this.#expected,this.#columns)){this.#done=true;this.release();return}
+   if(this.#capture?.resolution==='accepted-current'&&current===proof(this.#before,this.#columns)){this.#notApplied=true;this.#notAppliedDraft=definitionTargetDraftSignature(this.#nodes,[this.input.nodeId]);throw Error('原节点切换已确认未生效，不会自动重放')}
+   throw Error('原节点独立回读与精确意图不同，保留原目标')
+  }finally{view.dataTable?.destroyView(view.viewId)}
+ }
+ private assertNoLaterEdit():void{
+  if(this.#capture?.resolution==='confirmed'&&(this.#nodes.hasEditingChanges(this.input.nodeId)||this.#nodes.dirtyTracking.hasPendingChanges(this.input.nodeId)))this.#lateEdit=true
+  if(!this.#lateEdit)return
+  if(this.#nodes.hasEditingChanges(this.input.nodeId)||this.#nodes.dirtyTracking.hasPendingChanges(this.input.nodeId))throw Error('原节点提交后出现后续修改；保留修改，请明确选择放弃后再核验')
+  this.#lateEdit=false
+ }
+ private watchLaterEdits():void{
+  if(this.#stopWatching)return
+  const listener=(event:DataViewEditingFieldChangeEvent)=>{if(String(event.rowId)===this.input.nodeId)this.#lateEdit=true}
+  this.#nodes.events.on('editingFieldChanged',listener);this.#stopWatching=()=>this.#nodes.events.off('editingFieldChanged',listener)
+ }
+ private async submit():Promise<void>{
+  await DataSpaceDefinitionSave.run([{dataSet:this.input.dataSet,targetId:this.input.workflowId,modelId:this.input.modelId,
+   prepare:async()=>{await this.source();this.staged()},apply:async()=>{const result=await this.#nodes.applyEditingRows([this.input.nodeId]);if(!result.success)throw Error('原节点切换编辑未应用');this.#draft=definitionTargetDraftSignature(this.#nodes,[this.input.nodeId])},check:()=>this.staged(),targets:()=>[{tableName:this.#nodes.tableName,viewId:this.#nodes.viewId,ids:[this.input.nodeId]}],
+   dispatched:capture=>{this.#capture=capture;this.watchLaterEdits()},confirm:()=>this.readback(),failed:()=>{}}])
+ }
+ /** 来源owner与无delta外层共用同一个幂等收口动作。 */
+ async complete():Promise<void>{
+  this.guard();if(this.#done)return;if(this.#capture)return this.verify();if(this.#busy)throw Error('原节点收口正在操作')
+  this.#busy=true
+  try{if(!this.#staged){this.original();const fields=await this.source();this.original();const output=JSON.stringify(buildWorkflowQueryOutput({workflowId:this.input.workflowId,modelId:this.input.modelId,fields,original:this.#before['output_mapping'],transition:{fromModelId:this.input.fromModelId,fields:this.#beforeFields,fieldIds:this.#fieldIds,removedIds:this.#removedIds}}))
+    this.#expected={...this.#before,node_config:this.input.modelId,output_mapping:output}
+    const changed=['node_config','output_mapping'].filter(key=>this.#expected?.[key]!==this.#before[key]);if(!changed.length){await this.readback();return}
+    const row=this.row();if(this.#nodes.editActionState(row)!=='enabled'||changed.some(key=>this.#nodes.fieldAccess(row,key).write!=='allowed'))throw Error('当前查询不允许节点来源切换')
+    for(const key of changed)this.#nodes.updateEditingValue(this.input.nodeId,key,this.#expected[key]);this.#staged=true;this.#draft=definitionTargetDraftSignature(this.#nodes,[this.input.nodeId])
+   }
+   await this.submit()
+  }finally{this.#busy=false}
+ }
+ /** 只核验原节点捕获；无效回执必须显式选择原范围读回。 */
+ async verify(acceptCurrent=false):Promise<void>{
+  this.guard();if(this.#done)return;if(this.#busy)throw Error('原节点收口正在核验');if(!this.#capture)throw Error('原节点尚未取得提交捕获')
+  if(acceptCurrent&&this.#capture.receiptInvalid&&!this.#nodes.hasUnconfirmedSave){this.assertNoLaterEdit();if(definitionTargetDraftSignature(this.#nodes,[this.input.nodeId])!==this.#draft)throw Error('原节点存在后续修改，保留修改且不采用当前结果')}
+  this.#busy=true
+  try{const outcome=await verifyDataSpaceDefinitionCapture(this.input.dataSet,this.#capture,acceptCurrent);this.guard();if(outcome==='not-applied'){this.#notApplied=true;this.#notAppliedDraft=definitionTargetDraftSignature(this.#nodes,[this.input.nodeId]);throw Error('原节点切换已确认未生效，不会自动重放')}await this.readback()}finally{this.#busy=false}
+ }
+ /** 显式重提已独立确认未生效的同一节点；不保存来源或重新fork。 */
+ async resubmitNotApplied():Promise<void>{
+  this.guard();if(!this.#notApplied||this.#busy)throw Error('原节点未取得可重提证明');this.#busy=true
+  try{if(definitionTargetDraftSignature(this.#nodes,[this.input.nodeId])!==this.#notAppliedDraft)throw Error('原节点核验后出现新修改，保留修改且不重提');this.#nodes.discardPendingChanges([this.input.nodeId]);await this.#nodes.refresh();this.original();await this.source();this.#capture=undefined;this.#staged=false;this.#notApplied=false;this.#notAppliedDraft=undefined}finally{this.#busy=false}
+  await this.complete()
+ }
+ /** 用户明确放弃原节点后续本地修改后，只核验原捕获，不重放提交。 */
+ async discardLocalChangesAndVerify():Promise<void>{
+  this.guard();if(!this.#capture||!this.#lateEdit||this.#busy)throw Error('原节点没有待明确放弃的后续修改');this.#busy=true
+  try{const outcome=await verifyAndDiscardDataSpaceDefinitionCapture(this.input.dataSet,this.#capture,{acceptCurrentOnInvalidReceipt:true,discardLocalChanges:true});this.guard();this.#lateEdit=false
+   if(outcome==='not-applied'){this.#notApplied=true;this.#notAppliedDraft=definitionTargetDraftSignature(this.#nodes,[this.input.nodeId]);throw Error('原节点切换已确认未生效，不会自动重放')}await this.readback()
+  }finally{this.#busy=false}
+ }
+ getState(){return{complete:this.#done,notApplied:this.#notApplied,dispatched:!!this.#capture,canAcceptCurrent:this.#capture?.receiptInvalid===true,canDiscardLocalChanges:this.#lateEdit,nodeId:this.input.nodeId,modelId:this.input.modelId}}
+ private release():void{this.#stopWatching?.();this.#stopWatching=undefined;for(const view of [this.#models,this.#fields])if(!view.hasUnconfirmedSave&&!view.hasEditingChanges()&&!view.dirtyTracking.hasPendingChanges())view.dataTable?.destroyView(view.viewId)}
+ /** 捕获正式原节点身份，尚不暂存或提交。 */
+ static open(input:Input):WorkflowQuerySourceNodeCommit{const owner=new WorkflowQuerySourceNodeCommit(input);try{owner.original();return owner}catch(cause){owner.release();throw cause}}
+}
+export function openWorkflowQuerySourceNodeCommit(input:Input):WorkflowQuerySourceNodeCommit{return WorkflowQuerySourceNodeCommit.open(input)}

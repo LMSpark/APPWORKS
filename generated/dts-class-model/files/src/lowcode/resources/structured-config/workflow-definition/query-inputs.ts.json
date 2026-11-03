@@ -10,10 +10,37 @@
     "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-inputs\n职责：按当前工作流正式连线定位祖先，提供已核定开始参数、查询叶字段及模型过滤字段。\n边界：只读原DataView及其权限；不猜测items路径，不执行值函数，不修改定义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "WorkflowQueryModelProjection",
       "WorkflowQueryInputs"
     ]
   },
   "$defs": {
+    "WorkflowQueryModelProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowQueryModelProjection",
+      "properties": {
+        "fromModelId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "required": [
+        "fromModelId",
+        "modelId",
+        "models",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
     "WorkflowQueryInputs": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -74,25 +101,25 @@
                 "additionalProperties": false
               }
             },
-            "diagnostics": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              }
-            },
             "columns": {
               "type": "array",
               "items": {
                 "type": "object",
                 "title": "DataColumn"
               }
+            },
+            "diagnostics": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
             }
           },
           "required": [
             "error",
             "inputs",
-            "diagnostics",
-            "columns"
+            "columns",
+            "diagnostics"
           ],
           "additionalProperties": false
         },
@@ -105,8 +132,47 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T23:19:51.836Z",
+  "generatedAt": "2026-11-03T07:23:42.847Z",
   "models": {
+    "WorkflowQueryModelProjection": {
+      "name": "WorkflowQueryModelProjection",
+      "jsdoc": "尚未改绑节点时使用的正式模型范围；不覆盖节点记录或制造临时模型身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fromModelId: string;\n    modelId: string;\n    models: DataView;\n    fields: DataView;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fromModelId: string;\n    modelId: string;\n    models: DataView;\n    fields: DataView;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fromModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "WorkflowQueryInputs": {
       "name": "WorkflowQueryInputs",
       "jsdoc": "本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。",
@@ -158,7 +224,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        error: string;\n        inputs: {\n            value: string;\n            label: string;\n        }[];\n        diagnostics: string[];\n        columns: DataColumn[];\n    }"
+                "name": "{\n        error: string;\n        inputs: Array<{\n            value: string;\n            label: string;\n        }>;\n        columns: DataColumn[];\n        diagnostics: string[];\n    }"
               }
             },
             {

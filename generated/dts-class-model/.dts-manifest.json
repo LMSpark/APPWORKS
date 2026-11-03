@@ -4249,7 +4249,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-03T04:02:17.423Z"
+      "sourceModifiedAt": "2026-11-03T07:23:42.847Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
@@ -4265,6 +4265,11 @@
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-output.ts.json",
       "sourceModifiedAt": "2026-11-03T06:03:16.950Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json",
+      "sourceModifiedAt": "2026-11-03T07:23:42.857Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",

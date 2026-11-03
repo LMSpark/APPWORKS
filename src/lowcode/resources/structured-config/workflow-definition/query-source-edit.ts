@@ -6,6 +6,8 @@
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import type {PageDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import {createModelCreateHandle,createModelCreateHost,type ModelCreateHandle} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session'
+import {LowcodeDataSpaceModelForkGraph} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph'
+import {LowcodeDataSpaceModelComponentFork} from '@/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork'
 import {createModelSourceEditHost,createModelSourceEditHandle,modelSourceEditCurrentContract,type ModelSourceEditHandle,type ModelSourceEditHost,type SourceContractChange,type SourceContractPlan} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
 import {LowcodeDataSpaceFieldRemoveReferences} from '@/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references'
 import {workflowQueryFieldScope,workflowQueryDraftSignature} from './query-field-context'
@@ -34,7 +36,7 @@ export class WorkflowQuerySourceEdit{
  readonly #graph:string
  readonly #contexts:string
  readonly shared:boolean
- #fork:ModelCreateHandle|undefined
+ #fork:ModelCreateHandle|LowcodeDataSpaceModelComponentFork|undefined
  #host:ModelSourceEditHost|undefined
  #source:ModelSourceEditHandle|undefined
  #public:ModelSourceEditHandle|undefined
@@ -114,11 +116,13 @@ export class WorkflowQuerySourceEdit{
   this.#public={...source,getState:()=>{const state=source.getState(),pending=!!this.#node&&!this.#node.getState().complete;return{...state,...pending&&state.status==='idle'?{status:'configuration' as const,pending:true}:{},canAcceptCurrent:false}},
    save:()=>this.save(),verify:options=>this.verify(options),discard:()=>{if(this.#sourceConfirmed)throw Error('来源已确认，不能取消原节点收口');source.discard()},acceptCurrent:()=>{throw Error('来源差异须独立核验节点输出后处理，不能直接结束工作流操作')}}
  }
- /** 明确创建隔离模型；不会改绑原节点，失回执保留原fork owner。 */
+ /** 创建前展示关联分量及全部新注册名；不创建记录或改变原关系。 */
+ isolationPlan(name:string){this.guard();return LowcodeDataSpaceModelForkGraph.registrations({dataSpaceId:this.input.workflowId,modelId:this.#fromModelId,models:this.#models.readSnapshot().rows,relations:this.#relations.readSnapshot().rows,nodeIds:this.#nodes.rows.map(row=>text(this.#nodes,row,'rowid')),name})}
+ /** 明确创建隔离模型分量；不会改绑原节点，失回执保留原fork owner。 */
  async isolate(name:string):Promise<string>{
   this.beforeNode();if(!this.shared||this.#fork||this.#busy)throw Error('隔离创建已开始或当前模型无需隔离');this.#busy=true
-  try{if(this.#relations.rows.some(row=>row['parentModId']===this.#fromModelId||row['childModId']===this.#fromModelId))throw Error('共享来源含模型关系，隔离关系迁移尚未承接；原定义未修改')
-   this.#fork=createModelCreateHandle(createModelCreateHost({dataSet:this.input.dataSet,targetId:this.input.workflowId,sources:this.input.sources,views:{models:this.#models.viewId,fields:this.#template.viewId},lifecycle:{assertCurrent:()=>this.guard(),onDispatch(){}}}));const id=await this.#fork.fork({modelId:this.#fromModelId,name,fields:this.#fields});await this.prepareIsolation();return id}catch(cause){if(this.#fork&&!this.#fork.getState().pending&&!this.#fork.getState().fork)this.#fork=undefined;throw cause}finally{this.#busy=false}
+  try{const plan=this.isolationPlan(name)
+   this.#fork=plan.models.length>1||plan.relationCount>0?new LowcodeDataSpaceModelComponentFork({dataSet:this.input.dataSet,targetId:this.input.workflowId,models:this.#models,fields:this.#template,relations:this.#relations,nodeIds:this.#nodes.rows.map(row=>text(this.#nodes,row,'rowid')),assertCurrent:()=>this.guard()}):createModelCreateHandle(createModelCreateHost({dataSet:this.input.dataSet,targetId:this.input.workflowId,sources:this.input.sources,views:{models:this.#models.viewId,fields:this.#template.viewId},lifecycle:{assertCurrent:()=>this.guard(),onDispatch(){}}}));const id=await this.#fork.fork({modelId:this.#fromModelId,name,fields:this.#fields});await this.prepareIsolation();return id}catch(cause){if(this.#fork&&!this.#fork.getState().pending&&!this.#fork.getState().fork)this.#fork=undefined;throw cause}finally{this.#busy=false}
  }
  /** 只接续同一隔离创建捕获，不再创建一份模型。 */
  async verifyIsolation():Promise<void>{
@@ -136,7 +140,7 @@ export class WorkflowQuerySourceEdit{
   try{await this.#fork.discardLocalChanges();await this.prepareIsolation()}finally{this.#busy=false}
  }
  private async prepareIsolation():Promise<void>{
-  await this.readTargetFields();const ids=this.#models.rows.map(row=>text(this.#models,row,'rowid'))
+  await this.#models.refresh();this.beforeNode();full(this.#models);await this.readTargetFields();const ids=this.#models.rows.map(row=>text(this.#models,row,'rowid'))
   this.#relations.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:this.input.workflowId},{field:'parentModId',operator:'in',value:ids},{field:'childModId',operator:'in',value:ids}]};await this.#relations.refresh();this.beforeNode();full(this.#relations);this.bindSource()
  }
  private async completeNode():Promise<void>{
@@ -170,7 +174,7 @@ export class WorkflowQuerySourceEdit{
  cancel():void{this.guard();if(this.#busy||this.#fork||this.#sourceConfirmed)throw Error('已创建隔离定义或来源阶段已确认，须继续核验');this.#source?.discard();this.release();this.#closed=true}
  /** 已完成后释放本工位视图；未确认阶段必须保留原捕获。 */
  close():void{this.guard();if(!this.getState().complete||this.#busy)throw Error('来源及节点尚未完整确认');this.release();this.#closed=true}
- private release():void{for(const view of new Set([...this.#owned,...this.#host?[this.#host.fields,this.#host.relations,this.#host.syncFields,this.#host.replacementFields,this.#host.replacementRelations]:[]]))if(view&&!view.destroyed&&!view.hasUnconfirmedSave&&!view.hasEditingChanges()&&!view.dirtyTracking.hasPendingChanges())view.dataTable?.destroyView(view.viewId)}
+ private release():void{if(this.#fork instanceof LowcodeDataSpaceModelComponentFork)this.#fork.release();for(const view of new Set([...this.#owned,...this.#host?[this.#host.fields,this.#host.relations,this.#host.syncFields,this.#host.replacementFields,this.#host.replacementRelations]:[]]))if(view&&!view.destroyed&&!view.hasUnconfirmedSave&&!view.hasEditingChanges()&&!view.dirtyTracking.hasPendingChanges())view.dataTable?.destroyView(view.viewId)}
  /** 只读取当前工作流元数据，并分离模型关系与节点条件；不创建任何正式记录。 */
  static async open(input:Input):Promise<WorkflowQuerySourceEdit>{
   input.assertCurrent();const scope=workflowQueryFieldScope(input.dataSet,input.workflowId,input.nodeId);for(const view of [scope.nodes,scope.edges,scope.models,scope.fields])clean(view)

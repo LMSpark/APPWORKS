@@ -1,0 +1,476 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork",
+    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork",
+    "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork\n职责：关系分量沿原DataView暂存并通过原定义保存器创建，保留完整身份清单及原捕获恢复。\n边界：不保存节点、不自建提交器；只读基线用于原图保留证明，正式草稿仍归原数据视图。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelComponentFork"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "models": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "fields": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "relations": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "LowcodeDataSpaceModelComponentFork": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelComponentFork",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fork.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "modelId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "fields": {
+                  "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                }
+              },
+              "required": [
+                "modelId",
+                "name",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fork.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>"
+        },
+        "method.abandonNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "lowcode-data-space-model-create-session.ts.json#/$defs/ModelCreateStatus"
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "modelId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "canAbandonNotApplied": {
+              "type": "boolean"
+            },
+            "canDiscardLocalChanges": {
+              "type": "boolean"
+            },
+            "verification": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "table": {
+                    "type": "string"
+                  },
+                  "id": {
+                    "type": "string"
+                  },
+                  "result": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "table",
+                  "id",
+                  "result"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "fork": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "sourceModelId": {
+                  "type": "string"
+                },
+                "modelId": {
+                  "type": "string"
+                },
+                "fieldIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "confirmed": {
+                  "type": "boolean"
+                },
+                "models": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      },
+                      "name": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to",
+                      "name"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "relationIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to"
+                    ],
+                    "additionalProperties": false
+                  }
+                }
+              },
+              "required": [
+                "sourceModelId",
+                "modelId",
+                "fieldIds",
+                "confirmed",
+                "models",
+                "relationIds"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "modelId",
+            "canAbandonNotApplied",
+            "canDiscardLocalChanges",
+            "verification",
+            "fork"
+          ],
+          "additionalProperties": false
+        },
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T11:30:52.630Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    models: DataView;\n    fields: DataView;\n    relations: DataView;\n    nodeIds: readonly string[];\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    targetId: string;\n    models: DataView;\n    fields: DataView;\n    relations: DataView;\n    nodeIds: readonly string[];\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeIds",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelComponentFork": {
+      "name": "LowcodeDataSpaceModelComponentFork",
+      "jsdoc": "同一次分量创建的生命周期；核验不会另建一组副本。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Input)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Input",
+                "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "fork",
+              "jsdoc": "全部分量模型、字段和关系在一个原DataSet批次提交；没有跨来源事务假设。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        modelId: string;\n        name: string;\n        fields: DataView;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "只核同一原捕获，未生效不自动重新创建，部分结果不当作全部确认。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        confirmed: boolean;\n        modelId: string | null;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "abandonNotApplied",
+              "jsdoc": "明确放弃原生证明未生效的批次；不发新请求重放创建。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardLocalChanges",
+              "jsdoc": "原批次已确认后，显式只丢弃捕获目标的新编辑，再独立核对同一组记录。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getState",
+              "jsdoc": "与原单模型fork一致暴露目标字段映射，同时保留整个分量清单。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        status: ModelCreateStatus;\n        pending: boolean;\n        modelId: string | null;\n        canAbandonNotApplied: boolean;\n        canDiscardLocalChanges: boolean;\n        verification: {\n            table: string;\n            id: string;\n            result: string;\n        }[];\n        fork: {\n            sourceModelId: string;\n            modelId: string;\n            fieldIds: {\n                from: string;\n                to: string;\n            }[];\n            confirmed: boolean;\n            models: {\n                from: string;\n                to: string;\n                name: string;\n            }[];\n            relationIds: {\n                from: string;\n                to: string;\n            }[];\n        } | null;\n    }"
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "未派发可取消；已创建的正式分量由后续命令精确清理，不伪造回滚。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "jsdoc": "完整确认或本地取消后释放专用查询；原捕获和草稿尚在时拒绝释放。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

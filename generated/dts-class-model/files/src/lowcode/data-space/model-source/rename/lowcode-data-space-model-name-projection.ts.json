@@ -43,6 +43,12 @@
         },
         "nextName": {
           "type": "string"
+        },
+        "nextModels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
         }
       },
       "required": [
@@ -115,7 +121,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T06:12:36.837Z",
+  "generatedAt": "2026-11-03T10:07:47.839Z",
   "models": {
     "Row": {
       "name": "Row",
@@ -138,11 +144,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    models: readonly Row[];\n    fields: readonly Row[];\n    previousName: string;\n    nextName: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    models: readonly Row[];\n    fields: readonly Row[];\n    previousName: string;\n    nextName: string;\n    nextModels?: readonly Row[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    models: readonly Row[];\n    fields: readonly Row[];\n    previousName: string;\n    nextName: string;\n}>",
+            "typeText": "Readonly<{\n    models: readonly Row[];\n    fields: readonly Row[];\n    previousName: string;\n    nextName: string;\n    nextModels?: readonly Row[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -165,6 +171,11 @@
             },
             {
               "name": "nextName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextModels",
               "readable": true,
               "writable": false
             }

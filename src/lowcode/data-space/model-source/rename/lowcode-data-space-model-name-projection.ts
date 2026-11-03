@@ -4,7 +4,7 @@
  * 边界：不读写DataView、不推导权限；物理资源限定名、完整本地字段名、常量及节点参数不改。
  */
 type Row=Readonly<Record<string,unknown>>
-type Input=Readonly<{models:readonly Row[];fields:readonly Row[];previousName:string;nextName:string}>
+type Input=Readonly<{models:readonly Row[];fields:readonly Row[];previousName:string;nextName:string;nextModels?:readonly Row[]}>
 export class LowcodeDataSpaceModelNameProjection{
  constructor(private readonly input:Input){}
  /** 不透明代码包含原名时不得猜测替换。 */
@@ -23,7 +23,7 @@ export class LowcodeDataSpaceModelNameProjection{
   if(resolved!==previousName)return value
   const next=`${nextName}.${value.slice(prefix.length)}`
   if(fields.some(row=>row['dataModelId']===owner&&row['Name']===next))throw Error(`注册名迁移目标与完整本地字段冲突：${next}`)
-  const renamed=models.map(model=>model['Name']===previousName?{...model,Name:nextName}:model)
+  const renamed=this.input.nextModels??models.map(model=>model['Name']===previousName?{...model,Name:nextName}:model)
   const matching=renamed.filter(model=>typeof model['Name']==='string'&&next.startsWith(`${model['Name']}.`)&&fields.some(row=>row['dataModelId']===model['rowid']&&[row['Name'],row['AsName']].includes(next.slice(String(model['Name']).length+1))))
   if(matching.length>1)throw Error(`模型字段迁移目标不唯一：${next}`)
   return next

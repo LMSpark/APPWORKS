@@ -15,12 +15,18 @@
     <RendererForm :data-view-key="nameKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
      <FieldText field="name" label="隔离模型名称" :readonly="busy || !!state.isolation" />
     </RendererForm>
+    <template v-if="isolationPreview.plan">
+     <p>将创建 {{ isolationPreview.plan.models.length }} 个关联模型的副本及 {{ isolationPreview.plan.relationCount }} 条模型关系；原模型和原关系保留，只切换当前节点。</p>
+     <p v-for="item in isolationPreview.plan.models" :key="item.from">{{ item.previousName }} → {{ item.name }}</p>
+    </template>
+    <p v-if="isolationPreview.error" role="alert">{{ isolationPreview.error }}</p>
     <RendererButton v-if="!state.isolation" label="创建当前节点的隔离模型" :disabled="busy" @click="isolate" />
-    <RendererButton v-else label="核验原隔离模型及字段" :disabled="busy" @click="verifyIsolation" />
+    <RendererButton v-else label="核验原隔离模型、字段及关系" :disabled="busy" @click="verifyIsolation" />
     <RendererButton v-if="state.isolation?.canAbandonNotApplied" label="放弃已确认未生效的隔离创建" :disabled="busy" @click="recoverIsolation('abandonIsolationNotApplied')" />
     <RendererButton v-if="state.isolation?.canDiscardLocalChanges" label="放弃隔离模型后续修改并核验" :disabled="busy" @click="recoverIsolation('discardIsolationLocalChanges')" />
     <p v-if="state.isolation" role="status">隔离创建已开始，须核验同一批次；原节点尚未改绑。</p>
     <details v-if="state.isolation?.fork"><summary>本次隔离记录标识</summary><p>模型：{{ state.isolation.fork.modelId ?? '尚未分配' }}</p><ul><li v-for="item in state.isolation.fork.fieldIds" :key="item.from">{{ item.from }} → {{ item.to }}</li></ul></details>
+    <details v-if="state.isolation?.fork && 'models' in state.isolation.fork"><summary>关联模型与关系标识</summary><p v-for="item in state.isolation.fork.models" :key="item.from">{{ item.name }}：{{ item.from }} → {{ item.to }}</p><p v-for="item in state.isolation.fork.relationIds" :key="item.from">关系：{{ item.from }} → {{ item.to }}</p></details>
     <ul><li v-for="item in state.isolation?.verification ?? []" :key="`${item.table}:${item.id}`">{{ item.table }} · {{ item.id }}：{{ item.result }}</li></ul>
    </template>
    <DataSpaceModelSource v-if="state?.source && sourceHost" :session="sourceHost" :model-id="state.modelId"
@@ -53,6 +59,7 @@ let registration:DataSpaceSourceControls|undefined
 const revision=computed(()=>props.revision+tick.value)
 const state=computed(()=>{revision.value;return owner.value?.getState()})
 const nameKey=computed(()=>names.value&&registration?registration.key(names.value):'')
+const isolationPreview=computed(()=>{revision.value;const name=names.value?.getEditingRow('registration')?.['name'];if(!owner.value||state.value?.isolation||typeof name!=='string'||!name)return{plan:undefined,error:''};try{return{plan:owner.value.isolationPlan(name),error:''}}catch(cause){return{plan:undefined,error:cause instanceof Error?cause.message:String(cause)}}})
 const sourceHost=computed(()=>{
  const command=owner.value;if(!command)return undefined
  return{metadataDataSet:props.dataSet,getModelCreate(){throw Error('当前入口只修改既有节点来源')},getModelSourceEdit(id:string){if(id!==command.getState().modelId)throw Error('节点来源模型身份已变化');return command.source}}

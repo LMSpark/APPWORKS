@@ -105,10 +105,11 @@ function releaseFields(host: ModelCreateHost): void {
   host.fields = undefined; host.fieldContext = ''
 }
 
-async function loadFields(host: ModelCreateHost, modelId: string): Promise<DataView> {
+async function loadFields(host: ModelCreateHost, modelId: string, members: readonly string[]): Promise<DataView> {
   const fields = host.fieldSource.createQueryView(`createModel:${modelId}`)
   host.fields = fields
   fields.queryContext = {...host.fieldSource.queryContext, dataSpaceId: host.targetId, modelId, modelIds: [modelId]}
+  if (fields.queryConfig.fields) fields.queryConfig = {...fields.queryConfig, fields: [...new Set([...fields.queryConfig.fields, 'dataSetId', 'dataModelId', ...members])]}
   host.fieldContext = JSON.stringify(fields.queryContext)
   await fields.refresh()
   assertOwner(host)
@@ -298,7 +299,7 @@ async function modelCreateSaveDefinition(host: ModelCreateHost, name: string,
     if (host.models.addActionState() !== 'enabled') throw new Error('当前查询不允许新增模型或字段')
     const modelId = await stageRow(host, host.models, {dataSetId: host.targetId, Name: name, ...prepared.model})
     if(host.flow.fork)host.flow.fork.modelId=modelId
-    const fields = await loadFields(host, modelId)
+    const fields = await loadFields(host, modelId, prepared.fields.flatMap(field => Object.keys(field)))
     if (prepared.fields.length && fields.addActionState() !== 'enabled') throw new Error('当前查询不允许新增模型或字段')
     let fieldIndex=0
     for (const field of prepared.fields) {

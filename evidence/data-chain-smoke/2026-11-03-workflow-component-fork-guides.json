@@ -1,0 +1,341 @@
+[
+  {
+    "kind": "LowcodeDataSpaceModelForkGraph",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelForkGraph",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelForkGraph",
+          "name": "LowcodeDataSpaceModelForkGraph",
+          "jsdoc": "原图与副本图完全分离；节点条件不属于模型关系图。",
+          "summary": "原图与副本图完全分离；节点条件不属于模型关系图。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelForkGraph",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelForkGraph",
+          "name": "LowcodeDataSpaceModelForkGraph",
+          "jsdoc": "原图与副本图完全分离；节点条件不属于模型关系图。",
+          "summary": "原图与副本图完全分离；节点条件不属于模型关系图。",
+          "constructorSignature": {
+            "summary": "原图与副本图完全分离；节点条件不属于模型关系图。",
+            "jsdoc": "原图与副本图完全分离；节点条件不属于模型关系图。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "registrations",
+              "jsdoc": "创建前展示全部关联模型的新注册名；不预分配正式身份、不产生草稿。",
+              "summary": "创建前展示全部关联模型的新注册名；不预分配正式身份、不产生草稿。",
+              "signature": "registrations(input: ScopeInput & Readonly<{\n        name: string;\n    }>): {\n        models: Array<{\n            from: string;\n            name: string;\n            previousName: string;\n        }>;\n        relationCount: number;\n    }"
+            },
+            {
+              "name": "scope",
+              "jsdoc": "双向闭包同时涵盖入边与出边，按正式目录顺序输出，环及自关系不重复。",
+              "summary": "双向闭包同时涵盖入边与出边，按正式目录顺序输出，环及自关系不重复。",
+              "signature": "scope(input: ScopeInput): {\n        modelIds: string[];\n        relationIds: string[];\n    }"
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "映射必须精确覆盖分量；调用方分配的新ID只用于准备值，提交仍由原数据层完成。",
+              "summary": "映射必须精确覆盖分量；调用方分配的新ID只用于准备值，提交仍由原数据层完成。",
+              "signature": "prepare(input: Input): {\n        models: Projection[];\n        fields: Projection[];\n        relations: Projection[];\n    }"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "原图与副本图完全分离；节点条件不属于模型关系图。\nclass LowcodeDataSpaceModelForkGraph {\n  原图与副本图完全分离；节点条件不属于模型关系图。\n  constructor()\n  创建前展示全部关联模型的新注册名；不预分配正式身份、不产生草稿。\n  registrations(input: ScopeInput & Readonly<{\n          name: string;\n      }>): {\n          models: Array<{\n              from: string;\n              name: string;\n              previousName: string;\n          }>;\n          relationCount: number;\n      }\n  双向闭包同时涵盖入边与出边，按正式目录顺序输出，环及自关系不重复。\n  scope(input: ScopeInput): {\n          modelIds: string[];\n          relationIds: string[];\n      }\n  映射必须精确覆盖分量；调用方分配的新ID只用于准备值，提交仍由原数据层完成。\n  prepare(input: Input): {\n          models: Projection[];\n          fields: Projection[];\n          relations: Projection[];\n      }\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelComponentFork",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelComponentFork",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelComponentFork",
+          "name": "LowcodeDataSpaceModelComponentFork",
+          "jsdoc": "同一次分量创建的生命周期；核验不会另建一组副本。",
+          "summary": "同一次分量创建的生命周期；核验不会另建一组副本。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelComponentFork",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelComponentFork",
+          "name": "LowcodeDataSpaceModelComponentFork",
+          "jsdoc": "同一次分量创建的生命周期；核验不会另建一组副本。",
+          "summary": "同一次分量创建的生命周期；核验不会另建一组副本。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: Input)"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "fork",
+              "jsdoc": "全部分量模型、字段和关系在一个原DataSet批次提交；没有跨来源事务假设。",
+              "summary": "全部分量模型、字段和关系在一个原DataSet批次提交；没有跨来源事务假设。",
+              "signature": "fork(input: Readonly<{\n        modelId: string;\n        name: string;\n        fields: DataView;\n    }>): Promise<string>"
+            },
+            {
+              "name": "verify",
+              "jsdoc": "只核同一原捕获，未生效不自动重新创建，部分结果不当作全部确认。",
+              "summary": "只核同一原捕获，未生效不自动重新创建，部分结果不当作全部确认。",
+              "signature": "verify(): Promise<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>"
+            },
+            {
+              "name": "abandonNotApplied",
+              "jsdoc": "明确放弃原生证明未生效的批次；不发新请求重放创建。",
+              "summary": "明确放弃原生证明未生效的批次；不发新请求重放创建。",
+              "signature": "abandonNotApplied(): Promise<void>"
+            },
+            {
+              "name": "discardLocalChanges",
+              "jsdoc": "原批次已确认后，显式只丢弃捕获目标的新编辑，再独立核对同一组记录。",
+              "summary": "原批次已确认后，显式只丢弃捕获目标的新编辑，再独立核对同一组记录。",
+              "signature": "discardLocalChanges(): Promise<void>"
+            },
+            {
+              "name": "getState",
+              "jsdoc": "与原单模型fork一致暴露目标字段映射，同时保留整个分量清单。",
+              "summary": "与原单模型fork一致暴露目标字段映射，同时保留整个分量清单。",
+              "signature": "getState(): {\n        status: ModelCreateStatus;\n        pending: boolean;\n        modelId: string | null;\n        canAbandonNotApplied: boolean;\n        canDiscardLocalChanges: boolean;\n        verification: {\n            table: string;\n            id: string;\n            result: string;\n        }[];\n        fork: {\n            sourceModelId: string;\n            modelId: string;\n            fieldIds: {\n                from: string;\n                to: string;\n            }[];\n            confirmed: boolean;\n            models: {\n                from: string;\n                to: string;\n                name: string;\n            }[];\n            relationIds: {\n                from: string;\n                to: string;\n            }[];\n        } | null;\n    }"
+            },
+            {
+              "name": "discard",
+              "jsdoc": "未派发可取消；已创建的正式分量由后续命令精确清理，不伪造回滚。",
+              "summary": "未派发可取消；已创建的正式分量由后续命令精确清理，不伪造回滚。",
+              "signature": "discard(): void"
+            },
+            {
+              "name": "release",
+              "jsdoc": "完整确认或本地取消后释放专用查询；原捕获和草稿尚在时拒绝释放。",
+              "summary": "完整确认或本地取消后释放专用查询；原捕获和草稿尚在时拒绝释放。",
+              "signature": "release(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "同一次分量创建的生命周期；核验不会另建一组副本。\nclass LowcodeDataSpaceModelComponentFork {\n  constructor(input: Input)\n  全部分量模型、字段和关系在一个原DataSet批次提交；没有跨来源事务假设。\n  fork(input: Readonly<{\n          modelId: string;\n          name: string;\n          fields: DataView;\n      }>): Promise<string>\n  只核同一原捕获，未生效不自动重新创建，部分结果不当作全部确认。\n  verify(): Promise<{\n          confirmed: boolean;\n          modelId: string | null;\n      }>\n  明确放弃原生证明未生效的批次；不发新请求重放创建。\n  abandonNotApplied(): Promise<void>\n  原批次已确认后，显式只丢弃捕获目标的新编辑，再独立核对同一组记录。\n  discardLocalChanges(): Promise<void>\n  与原单模型fork一致暴露目标字段映射，同时保留整个分量清单。\n  getState(): {\n          status: ModelCreateStatus;\n          pending: boolean;\n          modelId: string | null;\n          canAbandonNotApplied: boolean;\n          canDiscardLocalChanges: boolean;\n          verification: {\n              table: string;\n              id: string;\n              result: string;\n          }[];\n          fork: {\n              sourceModelId: string;\n              modelId: string;\n              fieldIds: {\n                  from: string;\n                  to: string;\n              }[];\n              confirmed: boolean;\n              models: {\n                  from: string;\n                  to: string;\n                  name: string;\n              }[];\n              relationIds: {\n                  from: string;\n                  to: string;\n              }[];\n          } | null;\n      }\n  未派发可取消；已创建的正式分量由后续命令精确清理，不伪造回滚。\n  discard(): void\n  完整确认或本地取消后释放专用查询；原捕获和草稿尚在时拒绝释放。\n  release(): void\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelNameProjection",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelNameProjection",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelNameProjection",
+          "name": "LowcodeDataSpaceModelNameProjection",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelNameProjection",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelNameProjection",
+          "name": "LowcodeDataSpaceModelNameProjection",
+          "jsdoc": "",
+          "summary": "",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: Input)"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "assertOpaque",
+              "jsdoc": "不透明代码包含原名时不得猜测替换。",
+              "summary": "不透明代码包含原名时不得猜测替换。",
+              "signature": "assertOpaque(value: unknown, path: string): void"
+            },
+            {
+              "name": "field",
+              "jsdoc": "先解析完整本地字段，再按已核定注册模型身份解析限定引用。",
+              "summary": "先解析完整本地字段，再按已核定注册模型身份解析限定引用。",
+              "signature": "field(value: unknown, owner: unknown, preserved?: readonly unknown[]): string"
+            },
+            {
+              "name": "value",
+              "jsdoc": "只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。",
+              "summary": "只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。",
+              "signature": "value(value: Record<string, unknown>, owner: unknown, preserved?: readonly unknown[]): Record<string, unknown>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "class LowcodeDataSpaceModelNameProjection {\n  constructor(input: Input)\n  不透明代码包含原名时不得猜测替换。\n  assertOpaque(value: unknown, path: string): void\n  先解析完整本地字段，再按已核定注册模型身份解析限定引用。\n  field(value: unknown, owner: unknown, preserved?: readonly unknown[]): string\n  只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。\n  value(value: Record<string, unknown>, owner: unknown, preserved?: readonly unknown[]): Record<string, unknown>\n}"
+  },
+  {
+    "kind": "WorkflowQuerySourceEdit",
+    "catalog": {
+      "rootKind": "WorkflowQuerySourceEdit",
+      "models": [
+        {
+          "kind": "WorkflowQuerySourceEdit",
+          "name": "WorkflowQuerySourceEdit",
+          "jsdoc": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。",
+          "summary": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowQuerySourceEdit",
+      "models": [
+        {
+          "kind": "WorkflowQuerySourceEdit",
+          "name": "WorkflowQuerySourceEdit",
+          "jsdoc": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。",
+          "summary": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "private constructor()"
+          },
+          "attributes": [
+            {
+              "name": "shared",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            },
+            {
+              "name": "source",
+              "jsdoc": "只有独立模型可进入原来源owner；共享模型须先明确创建隔离定义。",
+              "summary": "只有独立模型可进入原来源owner；共享模型须先明确创建隔离定义。",
+              "typeText": "ModelSourceEditHandle"
+            }
+          ],
+          "methods": [
+            {
+              "name": "isolationPlan",
+              "jsdoc": "创建前展示关联分量及全部新注册名；不创建记录或改变原关系。",
+              "summary": "创建前展示关联分量及全部新注册名；不创建记录或改变原关系。",
+              "signature": "isolationPlan(name: string): {\n        models: Array<{\n            from: string;\n            name: string;\n            previousName: string;\n        }>;\n        relationCount: number;\n    }"
+            },
+            {
+              "name": "isolate",
+              "jsdoc": "明确创建隔离模型分量；不会改绑原节点，失回执保留原fork owner。",
+              "summary": "明确创建隔离模型分量；不会改绑原节点，失回执保留原fork owner。",
+              "signature": "isolate(name: string): Promise<string>"
+            },
+            {
+              "name": "verifyIsolation",
+              "jsdoc": "只接续同一隔离创建捕获，不再创建一份模型。",
+              "summary": "只接续同一隔离创建捕获，不再创建一份模型。",
+              "signature": "verifyIsolation(): Promise<void>"
+            },
+            {
+              "name": "abandonIsolationNotApplied",
+              "jsdoc": "明确放弃原fork已独立证明未生效的创建，保留原共享定义。",
+              "summary": "明确放弃原fork已独立证明未生效的创建，保留原共享定义。",
+              "signature": "abandonIsolationNotApplied(): Promise<void>"
+            },
+            {
+              "name": "discardIsolationLocalChanges",
+              "jsdoc": "原fork已确认后只放弃其目标后续草稿，再核原模型与字段；不会重建。",
+              "summary": "原fork已确认后只放弃其目标后续草稿，再核原模型与字段；不会重建。",
+              "signature": "discardIsolationLocalChanges(): Promise<void>"
+            },
+            {
+              "name": "verifyNodeCurrent",
+              "jsdoc": "节点回执无效时显式采用原范围；未生效结果不自动重提。",
+              "summary": "节点回执无效时显式采用原范围；未生效结果不自动重提。",
+              "signature": "verifyNodeCurrent(): Promise<void>"
+            },
+            {
+              "name": "resubmitNode",
+              "jsdoc": "原节点独立确认未生效后显式重提，不再保存模型或来源。",
+              "summary": "原节点独立确认未生效后显式重提，不再保存模型或来源。",
+              "signature": "resubmitNode(): Promise<void>"
+            },
+            {
+              "name": "discardNodeLocalChanges",
+              "jsdoc": "明确放弃仅原节点目标的后续草稿，再核验原批次。",
+              "summary": "明确放弃仅原节点目标的后续草稿，再核验原批次。",
+              "signature": "discardNodeLocalChanges(): Promise<void>"
+            },
+            {
+              "name": "getState",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getState(): {\n        shared: boolean;\n        modelId: string;\n        isolation: {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            preview: {\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n            } | null;\n            fork: {\n                sourceModelId: string;\n                modelId: string | null;\n                fieldIds: Array<{\n                    from: string;\n                    to: string;\n                }>;\n                confirmed: boolean;\n            } | null;\n            nameError: string;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n        } | {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            fork: {\n                sourceModelId: string;\n                modelId: string;\n                fieldIds: {\n                    from: string;\n                    to: string;\n                }[];\n                confirmed: boolean;\n                models: {\n                    from: string;\n                    to: string;\n                    name: string;\n                }[];\n                relationIds: {\n                    from: string;\n                    to: string;\n                }[];\n            } | null;\n        } | undefined;\n        source: {\n            status: string;\n            pending: boolean;\n            preview: {\n                operation: \"replace\" | \"synchronize\";\n                removals: Array<{\n                    id: string;\n                    name: string;\n                    type: string;\n                }>;\n                removalChoices: Array<{\n                    id: string;\n                    name: string;\n                    removed: boolean;\n                }>;\n                inputChoices: Array<{\n                    sourceName: string;\n                    value: string;\n                }>;\n                inputParams: Array<{\n                    value: string;\n                    label: string;\n                }>;\n                parameterWarning: string;\n                contractChanges: Array<{\n                    id: string;\n                    name: string;\n                    before: string;\n                    after: string;\n                    accepted: boolean;\n                    patch: Record<string, unknown>;\n                }>;\n                viewChanges: SourceContractPlan[\"viewChanges\"];\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n                differences: Array<{\n                    name: string;\n                    result: string;\n                }>;\n                problems: string[];\n                fieldChoices: Array<{\n                    id: string;\n                    name: string;\n                    outputName: string;\n                    sourceName: string;\n                    candidates: string[];\n                }>;\n                additions: Array<{\n                    sourceName: string;\n                    included: boolean;\n                }>;\n                relationChanges: Array<{\n                    id: string;\n                    before: string;\n                    after: string;\n                }>;\n                modelChanges: Array<{\n                    property: string;\n                    before: string;\n                    after: string;\n                }>;\n                expressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/model/lowcode-data-space-model-migration\").LowcodeDataSpaceModelMigration.prepare>;\n                fieldExpressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/migration/lowcode-data-space-field-migration\").LowcodeDataSpaceFieldMigration.prepare>;\n            } | null;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            discardRecovered: boolean;\n            abandonNotApplied: boolean;\n            canAcceptCurrent: boolean;\n        } | undefined;\n        node: {\n            complete: boolean;\n            notApplied: boolean;\n            dispatched: boolean;\n            canAcceptCurrent: boolean;\n            canDiscardLocalChanges: boolean;\n            nodeId: string;\n            modelId: string;\n        } | undefined;\n        complete: boolean;\n        pending: boolean;\n    }"
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "未派发预览可以取消；已创建隔离模型或已确认来源须保留后续收口入口。",
+              "summary": "未派发预览可以取消；已创建隔离模型或已确认来源须保留后续收口入口。",
+              "signature": "cancel(): void"
+            },
+            {
+              "name": "close",
+              "jsdoc": "已完成后释放本工位视图；未确认阶段必须保留原捕获。",
+              "summary": "已完成后释放本工位视图；未确认阶段必须保留原捕获。",
+              "signature": "close(): void"
+            },
+            {
+              "name": "open",
+              "jsdoc": "只读取当前工作流元数据，并分离模型关系与节点条件；不创建任何正式记录。",
+              "summary": "只读取当前工作流元数据，并分离模型关系与节点条件；不创建任何正式记录。",
+              "signature": "open(input: Input): Promise<WorkflowQuerySourceEdit>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。\nclass WorkflowQuerySourceEdit {\n  private constructor()\n  readonly shared: boolean\n  只有独立模型可进入原来源owner；共享模型须先明确创建隔离定义。\n  readonly source: ModelSourceEditHandle\n  创建前展示关联分量及全部新注册名；不创建记录或改变原关系。\n  isolationPlan(name: string): {\n          models: Array<{\n              from: string;\n              name: string;\n              previousName: string;\n          }>;\n          relationCount: number;\n      }\n  明确创建隔离模型分量；不会改绑原节点，失回执保留原fork owner。\n  isolate(name: string): Promise<string>\n  只接续同一隔离创建捕获，不再创建一份模型。\n  verifyIsolation(): Promise<void>\n  明确放弃原fork已独立证明未生效的创建，保留原共享定义。\n  abandonIsolationNotApplied(): Promise<void>\n  原fork已确认后只放弃其目标后续草稿，再核原模型与字段；不会重建。\n  discardIsolationLocalChanges(): Promise<void>\n  节点回执无效时显式采用原范围；未生效结果不自动重提。\n  verifyNodeCurrent(): Promise<void>\n  原节点独立确认未生效后显式重提，不再保存模型或来源。\n  resubmitNode(): Promise<void>\n  明确放弃仅原节点目标的后续草稿，再核验原批次。\n  discardNodeLocalChanges(): Promise<void>\n  getState(): {\n          shared: boolean;\n          modelId: string;\n          isolation: {\n              status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n              pending: boolean;\n              modelId: string | null;\n              canAbandonNotApplied: boolean;\n              canDiscardLocalChanges: boolean;\n              preview: {\n                  name: string;\n                  prepared: Readonly<{\n                      source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                      model: Readonly<{\n                          Type: string;\n                          MetaName: string;\n                          description: string;\n                          DbId: string;\n                          DbName: string;\n                          JoinType: string;\n                          ForeignKeyFields: string;\n                          JoinFilter: string;\n                          PId: string;\n                      }>;\n                      fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                  }>;\n              } | null;\n              fork: {\n                  sourceModelId: string;\n                  modelId: string | null;\n                  fieldIds: Array<{\n                      from: string;\n                      to: string;\n                  }>;\n                  confirmed: boolean;\n              } | null;\n              nameError: string;\n              verification: {\n                  table: string;\n                  id: string;\n                  result: string;\n              }[];\n          } | {\n              status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n              pending: boolean;\n              modelId: string | null;\n              canAbandonNotApplied: boolean;\n              canDiscardLocalChanges: boolean;\n              verification: {\n                  table: string;\n                  id: string;\n                  result: string;\n              }[];\n              fork: {\n                  sourceModelId: string;\n                  modelId: string;\n                  fieldIds: {\n                      from: string;\n                      to: string;\n                  }[];\n                  confirmed: boolean;\n                  models: {\n                      from: string;\n                      to: string;\n                      name: string;\n                  }[];\n                  relationIds: {\n                      from: string;\n                      to: string;\n                  }[];\n              } | null;\n          } | undefined;\n          source: {\n              status: string;\n              pending: boolean;\n              preview: {\n                  operation: \"replace\" | \"synchronize\";\n                  removals: Array<{\n                      id: string;\n                      name: string;\n                      type: string;\n                  }>;\n                  removalChoices: Array<{\n                      id: string;\n                      name: string;\n                      removed: boolean;\n                  }>;\n                  inputChoices: Array<{\n                      sourceName: string;\n                      value: string;\n                  }>;\n                  inputParams: Array<{\n                      value: string;\n                      label: string;\n                  }>;\n                  parameterWarning: string;\n                  contractChanges: Array<{\n                      id: string;\n                      name: string;\n                      before: string;\n                      after: string;\n                      accepted: boolean;\n                      patch: Record<string, unknown>;\n                  }>;\n                  viewChanges: SourceContractPlan[\"viewChanges\"];\n                  name: string;\n                  prepared: Readonly<{\n                      source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                      model: Readonly<{\n                          Type: string;\n                          MetaName: string;\n                          description: string;\n                          DbId: string;\n                          DbName: string;\n                          JoinType: string;\n                          ForeignKeyFields: string;\n                          JoinFilter: string;\n                          PId: string;\n                      }>;\n                      fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                  }>;\n                  differences: Array<{\n                      name: string;\n                      result: string;\n                  }>;\n                  problems: string[];\n                  fieldChoices: Array<{\n                      id: string;\n                      name: string;\n                      outputName: string;\n                      sourceName: string;\n                      candidates: string[];\n                  }>;\n                  additions: Array<{\n                      sourceName: string;\n                      included: boolean;\n                  }>;\n                  relationChanges: Array<{\n                      id: string;\n                      before: string;\n                      after: string;\n                  }>;\n                  modelChanges: Array<{\n                      property: string;\n                      before: string;\n                      after: string;\n                  }>;\n                  expressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/model/lowcode-data-space-model-migration\").LowcodeDataSpaceModelMigration.prepare>;\n                  fieldExpressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/migration/lowcode-data-space-field-migration\").LowcodeDataSpaceFieldMigration.prepare>;\n              } | null;\n              verification: {\n                  table: string;\n                  id: string;\n                  result: string;\n              }[];\n              discardRecovered: boolean;\n              abandonNotApplied: boolean;\n              canAcceptCurrent: boolean;\n          } | undefined;\n          node: {\n              complete: boolean;\n              notApplied: boolean;\n              dispatched: boolean;\n              canAcceptCurrent: boolean;\n              canDiscardLocalChanges: boolean;\n              nodeId: string;\n              modelId: string;\n          } | undefined;\n          complete: boolean;\n          pending: boolean;\n      }\n  未派发预览可以取消；已创建隔离模型或已确认来源须保留后续收口入口。\n  cancel(): void\n  已完成后释放本工位视图；未确认阶段必须保留原捕获。\n  close(): void\n  只读取当前工作流元数据，并分离模型关系与节点条件；不创建任何正式记录。\n  open(input: Input): Promise<WorkflowQuerySourceEdit>\n}"
+  },
+  {
+    "kind": "DataSpaceDefinitionSave",
+    "catalog": {
+      "rootKind": "DataSpaceDefinitionSave",
+      "models": [
+        {
+          "kind": "DataSpaceDefinitionSave",
+          "name": "DataSpaceDefinitionSave",
+          "jsdoc": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。",
+          "summary": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataSpaceDefinitionSave",
+      "models": [
+        {
+          "kind": "DataSpaceDefinitionSave",
+          "name": "DataSpaceDefinitionSave",
+          "jsdoc": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。",
+          "summary": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。",
+          "constructorSignature": {
+            "summary": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。",
+            "jsdoc": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "run",
+              "jsdoc": "核对同一实例/空间/模型，依次预检、应用并消费原DataSet提交结果。",
+              "summary": "核对同一实例/空间/模型，依次预检、应用并消费原DataSet提交结果。",
+              "signature": "run(parts: readonly DataSpaceDefinitionSavePart[]): Promise<void>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "一次原DataSet保存；失败不回滚已派发写入，也不自动重放。\nclass DataSpaceDefinitionSave {\n  一次原DataSet保存；失败不回滚已派发写入，也不自动重放。\n  constructor()\n  核对同一实例/空间/模型，依次预检、应用并消费原DataSet提交结果。\n  run(parts: readonly DataSpaceDefinitionSavePart[]): Promise<void>\n}"
+  }
+]

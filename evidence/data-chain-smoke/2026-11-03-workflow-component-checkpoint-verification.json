@@ -1,0 +1,114 @@
+{
+  "baseCommit": "1a9dfd069ef47a5657cdbdf4d62a768c893699ad",
+  "allRepositoryChecksPassed": false,
+  "affectedWorkflowSuite": {
+    "files": 19,
+    "passed": 230
+  },
+  "finalAffectedTests": {
+    "files": 4,
+    "passed": 59
+  },
+  "relocatedGraphTest": {
+    "path": "tests/runtime/page/design/native/relation/data-space-model-fork-graph.test.ts",
+    "passed": 9
+  },
+  "typecheck": "passed",
+  "lint": "passed",
+  "build": "passed",
+  "pageThin": "passed",
+  "classModelVerification": {
+    "files": 4,
+    "passed": 49
+  },
+  "sourceRuleComparison": {
+    "head": [
+      {
+        "file": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+        "line": 287,
+        "message": "signature has too many positional parameters: modelCreateSaveDefinition has 4, limit is 3; use a named options object or domain command object"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "line": 6,
+        "message": "too many named imports from @spark-appworks/spark-data: 11; use a module facade or main object instead of a flat import list"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "line": 61,
+        "message": "type assertion is forbidden: value['Name'] as string"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "line": 79,
+        "message": "type assertion is forbidden: result as DataRow"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
+        "line": 45,
+        "message": "signature has too many positional parameters: constructor has 6, limit is 4; use a named options object or domain command object"
+      }
+    ],
+    "current": [
+      {
+        "file": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
+        "line": 288,
+        "message": "signature has too many positional parameters: modelCreateSaveDefinition has 4, limit is 3; use a named options object or domain command object"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "line": 6,
+        "message": "too many named imports from @spark-appworks/spark-data: 11; use a module facade or main object instead of a flat import list"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "line": 61,
+        "message": "type assertion is forbidden: value['Name'] as string"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
+        "line": 79,
+        "message": "type assertion is forbidden: result as DataRow"
+      },
+      {
+        "file": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
+        "line": 47,
+        "message": "signature has too many positional parameters: constructor has 6, limit is 4; use a named options object or domain command object"
+      }
+    ]
+  },
+  "failedTestReproduction": {
+    "current": {
+      "passed": 85,
+      "failed": 6
+    },
+    "headSources": {
+      "passed": 85,
+      "failed": 6
+    },
+    "matchingFailures": [
+      "× rejects incompatible active routes before any write and retains all pending changes",
+      "× saves a new field, model settings and source input while retaining another model applied",
+      "× saves a new field, model settings and source input while retaining another model created",
+      "× saves a new field, model settings and source input while retaining another model deleted",
+      "× saves a new field, model settings and source input while retaining another model editing",
+      "× uses the create endpoint and its actual action receipt"
+    ],
+    "method": "Ignored diagnostic Vitest load hook reads HEAD versions of four modified source files; original two test files are unchanged."
+  },
+  "fullSuite": {
+    "result": "stopped after observed failures, no final full-suite result",
+    "elapsedMinutesApprox": 8
+  },
+  "directoryCheck": {
+    "result": "failed on four existing directories",
+    "newGraphTest": "placed in existing relation directory; existing overloaded directories not enlarged"
+  },
+  "lowcodeContracts": "formal generator refreshed stale current-source consumer ledger; check passed",
+  "remainingServiceWork": [
+    "backend relationship consumer",
+    "Join/PId/Foreign source contract migration",
+    "runtime instances audit",
+    "133 retained test definitions cleanup"
+  ]
+}

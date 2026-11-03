@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1030,
+  "scannedFileCount": 1032,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -12857,6 +12857,21 @@
         ]
       }
     },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork",
+        "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork\n职责：关系分量沿原DataView暂存并通过原定义保存器创建，保留完整身份清单及原捕获恢复。\n边界：不保存节点、不自建提交器；只读基线用于原图保留证明，正式草稿仍归原数据视图。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceModelComponentFork"
+        ]
+      }
+    },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts": {
       "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json",
       "module": {
@@ -12923,6 +12938,21 @@
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "LowcodeDataSpaceModelForkDefinition"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+        "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph\n职责：核定关系连通分量及完整隔离身份映射，复用原fork和改名投影生成创建值。\n边界：只读正式定义投影；新ID须由原DataView分配，不创建记录或持有可编辑草稿。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceModelForkGraph"
         ]
       }
     },
@@ -20483,6 +20513,10 @@
       "sourcePath": "src/lowcode/data-space/lowcode-data-space-metadata.ts",
       "file": "files/src/lowcode/data-space/lowcode-data-space-metadata.ts.json"
     },
+    "LowcodeDataSpaceModelComponentFork": {
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts.json"
+    },
     "LowcodeDataSpaceModelDependencies": {
       "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
       "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json"
@@ -20490,6 +20524,10 @@
     "LowcodeDataSpaceModelForkDefinition": {
       "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts.json"
+    },
+    "LowcodeDataSpaceModelForkGraph": {
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts.json"
     },
     "LowcodeDataSpaceModelMigration": {
       "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",

@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 202,
+  "consumerCount": 205,
   "directUnmatchedCount": 127,
   "consumers": [
     {
@@ -577,25 +577,25 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 378,
+      "sourceLine": 386,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 511,
+      "sourceLine": 519,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.test.ts",
-      "sourceLine": 982,
+      "sourceLine": 990,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
-      "sourceLine": 652,
+      "sourceLine": 660,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -631,7 +631,7 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.test.ts",
-      "sourceLine": 144,
+      "sourceLine": 173,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -938,6 +938,24 @@
       "expression": "/api/ViewData/SaveView",
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/logic-view/design-client.ts",
       "sourceLine": 71,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Workflow/runSingleNodeTest",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.test.ts",
+      "sourceLine": 63,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Workflow/runSingleNodeTest",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "sourceLine": 64,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/Workflow/runWorkflowTest",
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "sourceLine": 64,
       "scope": "publishable-lowcode-api"
     },
     {

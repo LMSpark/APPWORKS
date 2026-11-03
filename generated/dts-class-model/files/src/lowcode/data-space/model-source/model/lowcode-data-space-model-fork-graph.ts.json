@@ -1,0 +1,544 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph",
+    "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph\n职责：核定关系连通分量及完整隔离身份映射，复用原fork和改名投影生成创建值。\n边界：只读正式定义投影；新ID须由原DataView分配，不创建记录或持有可编辑草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelForkGraph"
+    ]
+  },
+  "$defs": {
+    "Row": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Row",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "ScopeInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ScopeInput",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "dataSpaceId",
+        "modelId",
+        "models",
+        "relations",
+        "nodeIds"
+      ],
+      "additionalProperties": false
+    },
+    "Binding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Binding",
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "to": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "from",
+        "to",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "relations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "bindings": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Binding"
+          }
+        }
+      },
+      "required": [
+        "dataSpaceId",
+        "modelId",
+        "models",
+        "relations",
+        "nodeIds",
+        "fields",
+        "bindings"
+      ],
+      "additionalProperties": false
+    },
+    "Projection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Projection",
+      "properties": {
+        "from": {
+          "type": "string"
+        },
+        "value": {
+          "$ref": "#/$defs/Row"
+        }
+      },
+      "required": [
+        "from",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelForkGraph": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelForkGraph",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.registrations.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/ScopeInput"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "name"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.registrations.return": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "previousName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "from",
+                  "name",
+                  "previousName"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "relationCount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "models",
+            "relationCount"
+          ],
+          "additionalProperties": false
+        },
+        "method.scope.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ScopeInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.scope.return": {
+          "type": "object",
+          "properties": {
+            "modelIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "relationIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "modelIds",
+            "relationIds"
+          ],
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Projection"
+              }
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Projection"
+              }
+            },
+            "relations": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Projection"
+              }
+            }
+          },
+          "required": [
+            "models",
+            "fields",
+            "relations"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T11:30:52.631Z",
+  "models": {
+    "Row": {
+      "name": "Row",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ScopeInput": {
+      "name": "ScopeInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    models: readonly Row[];\n    relations: readonly Row[];\n    nodeIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    models: readonly Row[];\n    relations: readonly Row[];\n    nodeIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "relations",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Binding": {
+      "name": "Binding",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    from: string;\n    to: string;\n    name: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    from: string;\n    to: string;\n    name: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "from",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "to",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ScopeInput & Readonly<{\n    fields: readonly Row[];\n    bindings: readonly Binding[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ScopeInput",
+            "targetName": "ScopeInput"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    fields: readonly Row[];\n    bindings: readonly Binding[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "bindings",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Projection": {
+      "name": "Projection",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    from: string;\n    value: Row;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    from: string;\n    value: Row;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "from",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelForkGraph": {
+      "name": "LowcodeDataSpaceModelForkGraph",
+      "jsdoc": "原图与副本图完全分离；节点条件不属于模型关系图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "原图与副本图完全分离；节点条件不属于模型关系图。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "registrations",
+              "jsdoc": "创建前展示全部关联模型的新注册名；不预分配正式身份、不产生草稿。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "ScopeInput",
+                        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        name: string;\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        models: Array<{\n            from: string;\n            name: string;\n            previousName: string;\n        }>;\n        relationCount: number;\n    }"
+              }
+            },
+            {
+              "name": "scope",
+              "jsdoc": "双向闭包同时涵盖入边与出边，按正式目录顺序输出，环及自关系不重复。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "ScopeInput",
+                    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        modelIds: string[];\n        relationIds: string[];\n    }"
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "映射必须精确覆盖分量；调用方分配的新ID只用于准备值，提交仍由原数据层完成。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        models: Projection[];\n        fields: Projection[];\n        relations: Projection[];\n    }"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

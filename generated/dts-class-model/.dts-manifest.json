@@ -3786,10 +3786,15 @@
       "shardFile": "files/src/lowcode/data-space/model-source/migration/lowcode-data-space-relation-migration.ts.json",
       "sourceModifiedAt": "2026-10-30T20:12:39.423Z"
     },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts": {
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts",
+      "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-component-fork.ts.json",
+      "sourceModifiedAt": "2026-11-03T11:30:52.630Z"
+    },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json",
-      "sourceModifiedAt": "2026-11-03T06:14:44.521Z"
+      "sourceModifiedAt": "2026-11-03T10:51:02.477Z"
     },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
@@ -3805,6 +3810,11 @@
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts.json",
       "sourceModifiedAt": "2026-11-03T06:18:00.087Z"
+    },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts": {
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts",
+      "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-graph.ts.json",
+      "sourceModifiedAt": "2026-11-03T11:30:52.631Z"
     },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
@@ -3834,7 +3844,7 @@
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts.json",
-      "sourceModifiedAt": "2026-11-03T06:12:36.837Z"
+      "sourceModifiedAt": "2026-11-03T10:07:47.839Z"
     },
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-references.ts",
@@ -4194,7 +4204,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
-      "sourceModifiedAt": "2026-11-03T02:37:10.545Z"
+      "sourceModifiedAt": "2026-11-03T11:15:47.458Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/connectors.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
@@ -4269,7 +4279,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json",
-      "sourceModifiedAt": "2026-11-03T08:09:15.730Z"
+      "sourceModifiedAt": "2026-11-03T10:25:18.932Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
@@ -5079,7 +5089,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue.json",
-      "sourceModifiedAt": "2026-11-03T08:19:28.436Z"
+      "sourceModifiedAt": "2026-11-03T10:33:47.362Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",

@@ -24,6 +24,13 @@ async function fixture(){
  return{http,ds,models,fields,owner}
 }
 describe('formal query model fork through original creation owner',()=>{
+ it('queries every copied field member on the new model view even when the template omitted that save column',async()=>{
+  const f=await fixture(),template=f.ds.getView('Base_DataModel_Field','forkTemplate')!
+  template.queryConfig={...template.queryConfig,fields:template.queryConfig.fields!.filter(name=>name!=='ValueFun')}
+  const modelId=await f.owner.fork({modelId:'M1',name:'Fork',fields:f.fields})
+  expect(f.http.records['Base_DataModel_Field']!.find(row=>row['dataModelId']===modelId&&row['Name']==='computed')?.['ValueFun']).toContain('Fork.id')
+  expect(f.http.saves.map(save=>save.table)).toEqual(['Base_DataModel','Base_DataModel_Field'])
+ })
  it('cancels a preparing fork by generation and refuses a concurrent fork before creating records',async()=>{
   const f=await fixture(),refresh=DataView.prototype.refresh
   let release=()=>{},entered=()=>{}

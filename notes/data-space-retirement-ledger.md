@@ -5620,3 +5620,22 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 浏览器原“删除查询节点”预览精确A/独占4E22…模型+15字段/2条incident边/1条条件/模型关系0。暂存后独立正式五查询原文不变；取消关闭无alert，再独立五查询原文全不变。重新预览/暂存，唯一wx workflow-structure-remove-a-intent在保存前捕获20个目标ID，保存仅点击一次。原owner完成且对话框关闭；独立五表精确仅移除这20条，原模型/30字段/其余3节点/剩余SHARED→END边全部原文保留；另按已发布完整非lingma模型37列/字段27列/节点12列回读精确等于基线扣目标，其余值未变，无新记录。当前累计74创建/37清理=37定义待最终清理。
 另唯一wx remove-a-shared-execute意图仅UI单SHARED执行一次，真实SUCCESS/complete/count1/execTime0.389，返回Name=IsOutput、rowid227914F5E281705046D7F99F55B75522、tenantNewApp，证实独占副本和incident清理后原模型仍实际可消费；执行后五表完整查询投影原文全不变。未自动重连、不整流执行、不建布局、不领码；实例表尚未独立核查，不声称无实例。截图workflow-last-consumer-removal-shared-success.jpg；机器证据2026-11-03-workflow-last-consumer-removal-lifecycle.json。无生产源码改动，不为本轮纯实服证据重复跑既有代码门禁；随后仅台账/证据提交推送。全目标active；关系分量隔离/Join等合同、真实关系消费者、实例核查及剩余37定义精确清理仍须继续。
 补充最终独立回读：首轮五项均401，组合诊断错误文本不能当定义变化证据；已刷新原RAM授权会话，仅重读，五项success且精确等于删除后基线，再将执行意图及机器证据标confirmed。没有重放删除/执行。
+**2026-11-03 关系分量隔离实施断点（接已推送1a9dfd069，全目标active）**：上一轮真实整组删除与剩余消费为实质progress。本轮起始工作区干净，至此无实服写入/执行；只读正式模型目录22条确认现有工作流模型未包含可复用实例查询模型，因此实例专题仍未验收，不能以节点执行假定实例0。当前37正式测试定义保留。
+新增LowcodeDataSpaceModelForkGraph纯定义层及独立测试，先准确RED模块缺失，再GREEN：模型关系双向连接闭包、入/出边、自关系/环去重、节点条件分离、孤立/混合/身份重叠诊断、完整新ID/注册名映射、跨模型Filter及计算字段引用、物理GetRefData/关系限定名/常量/节点参数保留、原定义不变与字段归属。此层尚未接保存owner/UI，绝不称关系隔离完成，不为微小helper先单独提交推送。
+高阶工位限定静态复核发现3项确定问题：PId并非rowid，本地PermissionUtil.java751-759按nodeByName解析父注册名；原测试ID与Name相同掩盖差别，已改分离Registered_P/ID P夹具准确RED→GREEN，闭包按唯一Name解析且副本回写新注册名，部署合同仍待实服核定。最终注册名目录一起可能让Fork.Detail.id歧义，准确RED→GREEN后扩展原ModelNameProjection可选nextModels，仍复用原解析、以全部新名目录校验，原单改名默认不变。关系右侧GetTableField须parent上下文而非child，子恰有完整P.id反例准确RED→GREEN，过滤左child/右parent分别解析。最新3文件83测试通过，lint/type检查首次发现测试索引属性写法和非空断言，正在同范围修正与复验，不放宽规则。下一步必须将分量准备值接原DataSpaceDefinitionSave/原DataView创建、完整未知/回读恢复及workflow选择来源入口，再真关系消费/清理，不能留成永久未使用规划器。
+
+
+### 2026-11-03 关联模型隔离实服续验（进行中）
+- 已实现整关系分量隔离，原 DataView 跟踪模型、字段与关系变更，由原 DataSpaceDefinitionSave 提交；预览列出全部新注册名，取消/未知结果/未生效放弃复用原捕获。当前未提交。
+- 真实夹具新增父模型及30字段、独立消费者与1关系共33条，独立回读保留原37条，当前保留70条测试定义。失败的前次 aiSort 预检为0写；补齐新字段查询投影后新意图创建成功。
+- 首次浏览器整分量隔离被 cascadeDel 字符串声明校验拦截，未落库；经原界面“放弃已确认未生效的隔离创建”清除63条本地新增，刷新登录态后五范围回读与原70条一致。未重放该写入。
+- 实服物理列 cascadeDel 为 int，正式元字段 DBC5CACD05AF3C58C94C41E45C59BC5B 却为 varchar；已由原 SPARK data 保存链修正为 int，1写及独立回读确认，另外17字段已查询投影不变。证据见 evidence/data-chain-smoke/2026-11-03-workflow-relation-cascade-type-repair.json。生产者改用数值0，针对旧错误声明保留拒绝及放弃回归；两文件44测试通过。
+- 关系后端运行消费尚未实证。已核源码 report/export 需要正式报告/版本/模板且根模型不可显式指定，不能把查询节点成功当成关系消费成功。下一步新独立意图验证整分量创建与节点绑定。
+
+- 续验完成：新独立 V2 浏览器创建2模型/60字段/1关系共63条，完整分模型回读避开100条分页上限；原70条已发布查询投影不变。新关系 B14B07B173BFC161FBE33B401E961815 的两端及父模型注册名引用均指向新图。当前保留133条测试定义，尚待清理。
+- 当前 SHARED 节点绑定新模型 53046CED5B6F883B3C4C9D89B4E1A3E2，原消费者 CD448F41F631562B33DBC15E49FDD802 仍指向2F264852340D4641727ECA886061E316；输出字段ID匹配新字段，另外3节点完整已查询投影不变。
+- 三次单独节点实服执行均 SUCCESS/complete：新模型初始 IsOutput（0.386秒）；界面保存新模型 Name 条件后返回 Name（0.427秒）；原消费者仍返回 IsOutput（0.388秒）。这是差异查询消费证据，不是模型关系后端消费证明。证据 evidence/data-chain-smoke/2026-11-03-workflow-relation-component-smoke.json。无整流执行，未创建布局。19文件230测试、typecheck及正式ClassModel生成均通过；最终lint/门禁仍在运行。
+
+- 最终仓库门禁差距：总verify停在AI规则。新代码4处规则违例已修正（身份运行校验、声明式数组类型、命名参数），受改文件与HEAD比较剩余相同5项既有违例；不改规则/基线。原目录门禁4处既有超限保留；新图测试改放已有 native/relation 目录，未扩大原超限目录。
+- 全量test:run观察到失败后约8分钟仍未出最终统计，已只停止本次测试进程树，不称全量通过。失败两文件单独重现6失败85通过；以只读HEAD源码load-hook对照相同两份未修改测试，仍同名6失败85通过。具体为创建/不兼容路由断言及4种其他模型草稿共存时读取次数断言，尚须逐项核语义修复，不能仅改断言放行。详见 evidence/data-chain-smoke/2026-11-03-workflow-component-checkpoint-verification.json。
+- 最后机械规则修复后：4文件59测试、迁位图9测试、typecheck/lint/build:fe/page-thin通过，ClassModel再生成/目录概要指南/正式verify:class-model（4文件49测试）通过。其余门禁AI模型/蓝图SSOT/Ajax/领码/wire-query通过；lowcode-contracts发现既有消费索引过期，经正式生成器刷新为205消费者后检查通过，未修改后端。完整结构卡及全目标继续 implementing。

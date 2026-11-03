@@ -74,7 +74,7 @@ export class WorkflowConnectorCondition{
   if(view.hasUnconfirmedSave||view.dirtyTracking.pendingDeleteIds.size)throw Error('请先确认或取消原条件删除')
   this.columns(dataSet,workflowId,edgeId)
   if(view.commitMode!=='staged')throw Error('连线条件必须使用原视图暂存')
-  const result=await view.addRow({dataSetId:workflowId,parentModId:context.sourceId,childModId:context.targetId,filter:'',depType:'',cascadeDel:'0',
+  const result=await view.addRow({dataSetId:workflowId,parentModId:context.sourceId,childModId:context.targetId,filter:'',depType:'',cascadeDel:0,
    parentTable:nodes.fieldAccess(source,'name').read==='visible'?source['name']??'':'',childTable:nodes.fieldAccess(target,'name').read==='visible'?target['name']??'':''})
   const row=view.rows.find(candidate=>view.getPkKey(candidate)===view.getPkKey(result as DataRow))
   if(!row)throw Error('条件草稿未进入原视图');view.setCurrentRow(row);return row

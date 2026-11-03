@@ -1,0 +1,245 @@
+{
+  "kind": "actual-service-native-SPARK-data-metadata-type-repair",
+  "formalBefore": {
+    "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+    "metaName": "Base_DataModel_Relation",
+    "success": true,
+    "modelId": "7b1969e4-20a7-4710-8aa3-8e9dccca0a9c",
+    "sourceName": "Base_DataModel_Relation",
+    "sourceType": "数据库表",
+    "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+    "primaryKey": "rowid",
+    "fields": [
+      {
+        "id": "02CD4491248512BDA65BA134DF75B19E",
+        "name": "createuser",
+        "sourceField": "createuser",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "创建人",
+        "order": 0
+      },
+      {
+        "id": "13C3E9C3D400ED006C5A3389CC37B357",
+        "name": "ReportID",
+        "sourceField": "ReportID",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "报表 ID",
+        "order": 0
+      },
+      {
+        "id": "2A443E1F73953F859C1EA80F8AB0BA58",
+        "name": "childTable",
+        "sourceField": "childTable",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "子模型名称",
+        "order": 0
+      },
+      {
+        "id": "2DC0D894A658226CC09E4C40A2721799",
+        "name": "rowid",
+        "sourceField": "rowid",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": true,
+        "computed": false,
+        "description": "唯一标识 ID",
+        "order": 0
+      },
+      {
+        "id": "59D25B62D70264432787F635417EE29D",
+        "name": "createtime",
+        "sourceField": "createtime",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "创建时间",
+        "order": 0
+      },
+      {
+        "id": "622383CED41F203BF552447B89E7CF63",
+        "name": "depType",
+        "sourceField": "depType",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "依赖类型",
+        "order": 0
+      },
+      {
+        "id": "6BC00EC765D125A7E8B6BE2F9101A91A",
+        "name": "filter",
+        "sourceField": "filter",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "关联条件",
+        "order": 0
+      },
+      {
+        "id": "72BFDFC0F3C2C316BCC3B1FB8AC8F481",
+        "name": "flowstate",
+        "sourceField": "flowstate",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "流程状态",
+        "order": 0
+      },
+      {
+        "id": "7521E423ABFC5BFE009F585E7A6457A1",
+        "name": "lingma_sys_is_delete",
+        "sourceField": "lingma_sys_is_delete",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "逻辑删除标记",
+        "order": 0
+      },
+      {
+        "id": "79085F566D5C2FFB8968277D8B734917",
+        "name": "updatetime",
+        "sourceField": "updatetime",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "修改时间",
+        "order": 0
+      },
+      {
+        "id": "7F80869F5529683EEACDCD1266FC0060",
+        "name": "wfid",
+        "sourceField": "wfid",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "流程实例 ID",
+        "order": 0
+      },
+      {
+        "id": "8439B4E55E82A2D6CC73819D547E7C1E",
+        "name": "parentTable",
+        "sourceField": "parentTable",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "父模型名称",
+        "order": 0
+      },
+      {
+        "id": "B597A9FB564F75A6CD63B05803AC5033",
+        "name": "childModId",
+        "sourceField": "childModId",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "子模型ID",
+        "order": 0
+      },
+      {
+        "id": "D57D37B6701594BA90E769514459A5E4",
+        "name": "updateuser",
+        "sourceField": "updateuser",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "修改人",
+        "order": 0
+      },
+      {
+        "id": "D8CC331F9D971F4A161E9EAA974CE2BC",
+        "name": "dataSetId",
+        "sourceField": "dataSetId",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "数据集ID",
+        "order": 0
+      },
+      {
+        "id": "DBC5CACD05AF3C58C94C41E45C59BC5B",
+        "name": "cascadeDel",
+        "sourceField": "cascadeDel",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "级联删除",
+        "order": 0
+      },
+      {
+        "id": "DED9BA045F245DAB676380B2BE6BBB30",
+        "name": "description",
+        "sourceField": "description",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "摘要",
+        "order": 0
+      },
+      {
+        "id": "E4E58F826115C0BE5B46EE7229C83D16",
+        "name": "parentModId",
+        "sourceField": "parentModId",
+        "type": "varchar",
+        "output": true,
+        "primaryKey": false,
+        "computed": false,
+        "description": "父模型ID",
+        "order": 0
+      }
+    ]
+  },
+  "physicalProof": [
+    {
+      "rowid": "02E99F980F7D8952725463EB92BB565E",
+      "tblid": "30045651CCCE46B0A2783C40481D55F3",
+      "enname": "cascadeDel",
+      "DataType": "int"
+    }
+  ],
+  "repair": {
+    "phase": "confirmed",
+    "reads": 14,
+    "writes": 1,
+    "targets": [
+      {
+        "id": "DBC5CACD05AF3C58C94C41E45C59BC5B",
+        "name": "cascadeDel",
+        "from": "varchar",
+        "to": "int"
+      }
+    ],
+    "allOtherMetadataRowsPreserved": true,
+    "formalReadback": true
+  },
+  "preservedProjection": [
+    "rowid",
+    "dataSetId",
+    "dataModelId",
+    "Name",
+    "FieldType"
+  ],
+  "otherMetadataRowsPreserved": 17,
+  "nativeOwnerFinished": true
+}

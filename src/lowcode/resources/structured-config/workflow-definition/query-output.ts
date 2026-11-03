@@ -7,7 +7,9 @@ import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 
 type Row=Record<string,unknown>
-type Input=Readonly<{workflowId:string;modelId:string;fields:ReadonlyArray<Readonly<Row>>;original?:unknown}>
+/** 调用方完成正式引用检查与独立回读后提供的身份迁移；候选身份不能进入持久输出。 */
+type Transition=Readonly<{fromModelId:string;fields:ReadonlyArray<Readonly<Row>>;removedIds:readonly string[];fieldIds:ReadonlyArray<Readonly<{from:string;to:string}>>}>
+type Input=Readonly<{workflowId:string;modelId:string;fields:ReadonlyArray<Readonly<Row>>;original?:unknown;transition?:Transition}>
 function text(value:unknown):string{return typeof value==='string'?value.trim():''}
 function id():string{return crypto.randomUUID().replaceAll('-','').toUpperCase()}
 function mapping(value:unknown):Row[]{
@@ -23,7 +25,7 @@ export function buildWorkflowQueryOutput(input:Input):Row[]{
  for(const field of input.fields){
   if(field['dataSetId']!==input.workflowId||field['dataModelId']!==input.modelId)throw Error('查询字段不属于当前模型')
   const key=text(field['rowid']),kind=field['type'],flag=field['IsOutput'],name=text(field['Name'])
-  if(!key||ids.has(key)||!['dataModel','inputParams'].includes(String(kind))||![0,1,'0','1'].includes(flag as string|number))throw Error('查询字段身份、用途或输出标志无效')
+  if(!key||key.startsWith('new:')||ids.has(key)||!['dataModel','inputParams'].includes(String(kind))||![0,1,'0','1'].includes(flag as string|number))throw Error('查询字段身份、用途或输出标志无效')
   ids.add(key)
   if((field['IsPKey']===1||field['IsPKey']==='1')&&Number(flag)!==1)throw Error('查询模型主键必须参与输出')
   const names=kind==='inputParams'?parameterNames:fieldNames
@@ -35,6 +37,19 @@ export function buildWorkflowQueryOutput(input:Input):Row[]{
   outputNames.add(outputName);output.push(field)
  }
  const previous=mapping(input.original),roots=previous.filter(row=>row['pid']===null),previousIds=new Set<string>()
+ const oldFields=new Map<string,Readonly<Row>>(),removals=new Set<string>(),mapped=new Map<string,string>(),targets=new Set<string>()
+ if(input.transition){
+  const transition=input.transition
+  if(!transition.fromModelId.trim())throw Error('原查询模型身份缺失')
+  for(const field of transition.fields){const key=text(field['rowid']);if(!key||key.startsWith('new:')||oldFields.has(key)||field['dataSetId']!==input.workflowId||field['dataModelId']!==transition.fromModelId||!['dataModel','inputParams'].includes(String(field['type'])))throw Error('原查询字段身份或归属无效');oldFields.set(key,field)}
+  for(const key of transition.removedIds){if(!oldFields.has(key)||removals.has(key)||ids.has(key))throw Error('明确移除的原字段不存在、重复或仍在正式结果中');removals.add(key)}
+  for(const {from,to} of transition.fieldIds){const before=oldFields.get(from),after=input.fields.find(field=>field['rowid']===to);if(!before||!after||to.startsWith('new:')||mapped.has(from)||targets.has(to)||removals.has(from)||before['type']!==after['type'])throw Error('查询字段身份迁移不唯一或尚未取得正式身份');mapped.set(from,to);targets.add(to)}
+  for(const [key,field] of oldFields)if(!removals.has(key)&&!mapped.has(key)){
+   const after=input.fields.find(candidate=>candidate['rowid']===key)
+   if(!after||after['type']!==field['type']||targets.has(key))throw Error('原查询字段缺少明确身份迁移或移除决定')
+   targets.add(key)
+  }
+ }
  for(const row of previous){
   const key=text(row['rowid'])
   if(!key||previousIds.has(key))throw Error('原查询输出身份缺失或重复')
@@ -45,12 +60,18 @@ export function buildWorkflowQueryOutput(input:Input):Row[]{
   ||count['FieldType']!=='int'||count['isParent']!==false))throw Error('原查询输出根结构无法确认，原文保留')
  const root:Row=items?{...items}:{rowid:id(),pid:null,Name:'items',Description:'数据项',FieldType:'Array',isParent:true}
  const total:Row=count?{...count}:{rowid:id(),pid:null,Name:'Count',Description:'数据总数',FieldType:'int',isParent:false}
+ const leaves=new Map<string,Row>()
  for(const row of previous){
   if(row===items||row===count)continue
+  const before=input.transition?oldFields.get(String(row['rowid'])):input.fields.find(field=>field['rowid']===row['rowid'])
   if(row['pid']!==root['rowid']||row['isParent']!==false
-   ||!input.fields.some(field=>field['type']==='dataModel'&&field['rowid']===row['rowid']))throw Error('原查询输出条目不能归属当前字段，不能自动丢弃')
+   ||before?.['type']!=='dataModel')throw Error('原查询输出条目不能归属当前字段，不能自动丢弃')
+  const oldId=String(row['rowid']);if(removals.has(oldId))continue
+  const target=mapped.get(oldId)??oldId
+  if(leaves.has(target))throw Error('原查询输出迁移目标重复')
+  leaves.set(target,row)
  }
- if(ids.has(String(root['rowid']))||ids.has(String(total['rowid'])))throw Error('查询输出根身份与字段冲突')
- return[root,total,...output.map(field=>({...previous.find(row=>row['rowid']===field['rowid']),rowid:field['rowid'],pid:root['rowid'],
+ if([root,total].some(row=>ids.has(String(row['rowid']))||oldFields.has(String(row['rowid']))))throw Error('查询输出根身份与字段冲突')
+ return[root,total,...output.map(field=>({...leaves.get(String(field['rowid'])),rowid:field['rowid'],pid:root['rowid'],
   Name:text(field['AsName'])||text(field['Name']),Description:text(field['description']),FieldType:text(field['FieldType']),isParent:false}))]
 }

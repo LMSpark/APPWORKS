@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection",
+    "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection",
+    "jsdoc": "@module lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection\n职责：改名与正式模型fork共用注册名引用的纯投影。\n边界：不读写DataView、不推导权限；物理资源限定名、完整本地字段名、常量及节点参数不改。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelNameProjection"
+    ]
+  },
+  "$defs": {
+    "Row": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Row",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "previousName": {
+          "type": "string"
+        },
+        "nextName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "models",
+        "fields",
+        "previousName",
+        "nextName"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelNameProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelNameProjection",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertOpaque.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertOpaque.return": true,
+        "method.field.params": {
+          "type": "object",
+          "properties": {
+            "value": true,
+            "owner": true,
+            "preserved": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.field.return": {
+          "type": "string"
+        },
+        "method.value.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "owner": true,
+            "preserved": {
+              "type": "array",
+              "items": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.value.return": {
+          "type": "object",
+          "title": "Record<string, unknown>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T06:12:36.837Z",
+  "models": {
+    "Row": {
+      "name": "Row",
+      "jsdoc": "@module lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection\n职责：改名与正式模型fork共用注册名引用的纯投影。\n边界：不读写DataView、不推导权限；物理资源限定名、完整本地字段名、常量及节点参数不改。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    models: readonly Row[];\n    fields: readonly Row[];\n    previousName: string;\n    nextName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    models: readonly Row[];\n    fields: readonly Row[];\n    previousName: string;\n    nextName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "previousName",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelNameProjection": {
+      "name": "LowcodeDataSpaceModelNameProjection",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Input)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Input",
+                "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "assertOpaque",
+              "jsdoc": "不透明代码包含原名时不得猜测替换。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "field",
+              "jsdoc": "先解析完整本地字段，再按已核定注册模型身份解析限定引用。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "owner",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "preserved",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "value",
+              "jsdoc": "只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "reference",
+                    "name": "Record",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      },
+                      {
+                        "type": "intrinsic",
+                        "name": "unknown"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "owner",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "preserved",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly unknown[]"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Record",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

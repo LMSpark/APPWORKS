@@ -5,6 +5,7 @@
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import type {PageDataSpaceModelSourceReader as SourceReader} from '../lowcode-data-space-source-catalog'
 import {LowcodeDataSpaceArrayDraft, type ArrayDefinition} from '../array/lowcode-data-space-array-draft'
+import {LowcodeDataSpaceModelForkDefinition,isModelForkBusinessMember} from './lowcode-data-space-model-fork-definition'
 import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyAndDiscardDataSpaceDefinitionCapture,
   verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '../data-space-definition-save'
 
@@ -16,6 +17,8 @@ type Staged = {view: DataView; id: string; values: Readonly<Record<string, unkno
 export type ModelCreateStatus = 'idle' | 'previewing' | 'ready' | 'saving' | 'unsubmitted' | 'unknown' | 'readback' | 'different'
 
 export type ModelCreateFlow = {
+  /** 已捕获的正式fork身份对应，确认与未知恢复共用，不承载第二份编辑定义。 */
+  fork: {sourceModelId:string;modelId:string|null;fieldIds:Array<{from:string;to:string}>;confirmed:boolean}|null
   status: ModelCreateStatus
   generation: number
   preview: Candidate | null
@@ -59,7 +62,7 @@ export function createModelCreateHost(input: ModelCreateHostInput): ModelCreateH
   const host: ModelCreateHost = {
     models, fieldSource: fields, fields: undefined, fieldContext: '', modelContext: JSON.stringify(models.queryContext),
     dataSet, targetId, sources,
-    flow: {status: 'idle', generation: 0, preview: null, staged: [], capture: null, captureSignatures: null,
+    flow: {fork:null,status: 'idle', generation: 0, preview: null, staged: [], capture: null, captureSignatures: null,
       readbackSignatures: null, unresolved: false, verification: []},
     lifecycle,
   }
@@ -168,7 +171,7 @@ export function modelCreateGetState(host: ModelCreateHost) {
     canAbandonNotApplied: status === 'different' && host.flow.capture?.resolution === 'not-applied',
     canDiscardLocalChanges: status === 'readback' && batch?.resolution === 'confirmed'
       && batch.targets.some(target => target.ids.some(id => target.view.hasEditingChanges(id) || target.view.dirtyTracking.hasPendingChanges(id))),
-    preview: structuredClone(host.flow.preview), nameError, verification: structuredClone(host.flow.verification)}
+    preview: structuredClone(host.flow.preview), fork:structuredClone(host.flow.fork),nameError, verification: structuredClone(host.flow.verification)}
 }
 
 export function modelCreateSetName(host: ModelCreateHost, name: string): void {
@@ -182,7 +185,7 @@ export async function modelCreatePreview(host: ModelCreateHost, source: Source):
   assertAvailable(host); assertClean(host)
   if (!host.sources) throw new Error('模型来源读取能力不可用')
   const generation = ++host.flow.generation
-  host.flow.status = 'previewing'; host.flow.preview = null
+  host.flow.status = 'previewing'; host.flow.preview = null;host.flow.fork=null
   try {
     const prepared = await host.sources.prepare(source, host.dataSet)
     assertOwner(host)
@@ -232,6 +235,7 @@ export async function modelCreateSave(host: ModelCreateHost): Promise<string> {
   assertAvailable(host); assertClean(host)
   const candidate = host.flow.preview
   if (!candidate || host.flow.status !== 'ready') throw new Error('请先预览来源')
+  host.flow.fork=null
   return modelCreateSaveDefinition(host, candidate.name, async () => {
     if (!host.sources) throw new Error('模型来源读取能力不可用')
     const prepared = await host.sources.prepare(candidate.prepared.source, host.dataSet)
@@ -244,25 +248,63 @@ export async function modelCreateCreateArray(host: ModelCreateHost, input: Array
   assertAvailable(host); assertClean(host)
   if (host.flow.preview || host.flow.status === 'previewing') throw new Error('请先取消当前来源预览')
   const prepared = LowcodeDataSpaceArrayDraft.prepare(input)
+  host.flow.fork=null
   return modelCreateSaveDefinition(host, input.name, () => Promise.resolve(prepared))
 }
 
+/** 从同实例正式定义隔离模型，不伪造来源reader；自引用迁移与原改名共用纯投影。 */
+export async function modelCreateFork(host:ModelCreateHost,input:Readonly<{modelId:string;name:string;fields:DataView}>):Promise<string>{
+  assertAvailable(host);assertClean(host)
+  if(host.flow.preview||host.flow.status==='previewing')throw Error('请先取消当前来源预览')
+  const generation=++host.flow.generation;host.flow.status='previewing';host.flow.fork=null
+  try{
+  const fields=input.fields,context=JSON.stringify([fields.queryContext,fields.filterExpression,fields.queryConfig]),modelContext=JSON.stringify([host.models.queryContext,host.models.filterExpression,host.models.queryConfig])
+  const guard=()=>{
+    assertOwner(host)
+    if(host.flow.generation!==generation||fields.dataSet!==host.dataSet||fields.dataTable!==host.fieldSource.dataTable||host.dataSet.getView(fields.tableName,fields.viewId)!==fields||fields.destroyed||fields.hasUnconfirmedSave||fields.hasEditingChanges()||fields.dirtyTracking.hasPendingChanges()||fields.mutating
+      ||JSON.stringify([fields.queryContext,fields.filterExpression,fields.queryConfig])!==context||JSON.stringify([host.models.queryContext,host.models.filterExpression,host.models.queryConfig])!==modelContext
+      ||fields.queryContext['dataSpaceId']!==host.targetId||JSON.stringify(fields.queryContext['modelIds'])!==JSON.stringify([input.modelId])||JSON.stringify(fields.filterExpression)!==JSON.stringify(host.fieldSource.filterExpression))throw Error('原模型fork字段视图、归属或查询已变化')
+  }
+  guard();await host.models.refresh();guard();await fields.refresh();guard();assertClean(host)
+  const readable=(view:DataView)=>{
+    const owned=new Set(host.flow.staged.filter(item=>item.view===view&&view.dirtyTracking.isPendingCreate(item.id)).map(item=>item.id)),rows=view.rows.filter(row=>!owned.has(String(view.getPkKey(row))))
+    if(view.requestState!==RequestState.Loaded||view.loadingError||rows.length!==view.total)throw Error('正式fork定义未完整读取')
+    const members=view.columns.map(column=>column.name).filter(key=>isModelForkBusinessMember(key)||['rowid','dataSetId','dataModelId'].includes(key))
+    if(view.queryConfig.fields&&members.some(key=>!view.queryConfig.fields?.includes(key)))throw Error('正式fork投影缺少声明业务成员，不能用默认值复制')
+    for(const row of rows)for(const key of members)if(view.fieldAccess(row,key).read!=='visible')throw Error(`正式fork定义不可读: ${view.tableName}.${key}`)
+    return view.readSnapshot().rows.filter(row=>!owned.has(String(row[view.primaryKey])))
+  }
+  const catalogue=readable(host.models),sourceFields=readable(fields),model=catalogue.find(row=>row['rowid']===input.modelId)
+  if(!model)throw Error('原正式模型不存在')
+  const prepared=LowcodeDataSpaceModelForkDefinition.prepare({dataSpaceId:host.targetId,modelId:input.modelId,name:input.name,models:catalogue,model,fields:sourceFields})
+  const proof=JSON.stringify([catalogue,sourceFields])
+  const assertPrepared=()=>{guard();const current=readable(host.models).filter(row=>row['rowid']!==host.flow.fork?.modelId);if(JSON.stringify([current,readable(fields)])!==proof)throw Error('原模型fork依赖已变化，未派发旧定义')}
+  host.flow.fork={sourceModelId:input.modelId,modelId:null,fieldIds:[],confirmed:false}
+  return await modelCreateSaveDefinition(host,input.name,()=>Promise.resolve(prepared),{sourceFieldIds:prepared.sourceFieldIds,assertPrepared})
+  }catch(cause){if(host.flow.generation===generation&&flowStatus(host)==='previewing'){host.flow.status='idle';host.flow.fork=null}throw cause}
+}
+
 async function modelCreateSaveDefinition(host: ModelCreateHost, name: string,
-  prepare: () => Promise<{model: Readonly<Record<string, unknown>>; fields: ReadonlyArray<Readonly<Record<string, unknown>>>}>): Promise<string> {
+  prepare: () => Promise<{model: Readonly<Record<string, unknown>>; fields: ReadonlyArray<Readonly<Record<string, unknown>>>}>,
+  options:Readonly<{sourceFieldIds?:readonly string[];assertPrepared?():void}>={}): Promise<string> {
   validateName(host, name)
   host.flow.status = 'saving'; host.flow.staged = []; host.flow.captureSignatures = null
   host.flow.readbackSignatures = null; host.flow.unresolved = false
   try {
     const prepared = await prepare()
+    options.assertPrepared?.()
     assertClean(host)
     validateName(host, name)
     if (host.models.addActionState() !== 'enabled') throw new Error('当前查询不允许新增模型或字段')
     const modelId = await stageRow(host, host.models, {dataSetId: host.targetId, Name: name, ...prepared.model})
+    if(host.flow.fork)host.flow.fork.modelId=modelId
     const fields = await loadFields(host, modelId)
     if (prepared.fields.length && fields.addActionState() !== 'enabled') throw new Error('当前查询不允许新增模型或字段')
+    let fieldIndex=0
     for (const field of prepared.fields) {
       assertClean(host, true)
-      await stageRow(host, fields, {dataSetId: host.targetId, dataModelId: modelId, ...field})
+      const id=await stageRow(host, fields, {dataSetId: host.targetId, dataModelId: modelId, ...field}),from=options.sourceFieldIds?.[fieldIndex++]
+      if(host.flow.fork&&from)host.flow.fork.fieldIds.push({from,to:id})
     }
     assertClean(host, true)
     validateName(host, name, modelId)
@@ -273,9 +315,9 @@ async function modelCreateSaveDefinition(host: ModelCreateHost, name: string,
       ids: host.flow.staged.filter(item => item.view === view).map(item => item.id)})).filter(view => view.ids.length)
     const part = {
       dataSet: host.dataSet, targetId: host.targetId, modelId,
-      prepare: () => Promise.resolve().then(() => {assertOwner(host); assertClean(host, true); assertStaged(host)}),
+      prepare: () => Promise.resolve().then(() => {assertOwner(host); assertClean(host, true); assertStaged(host);options.assertPrepared?.()}),
       apply: async () => {},
-      check: () => {assertOwner(host); assertClean(host, true); assertStaged(host)},
+      check: () => {assertOwner(host); assertClean(host, true); assertStaged(host);options.assertPrepared?.()},
       targets,
       dispatched: (capture: DataSpaceDefinitionCaptureBatch) => {
         host.flow.capture = capture
@@ -373,7 +415,9 @@ async function modelCreateReadback(host: ModelCreateHost): Promise<boolean> {
         : rowMatches(row, item.values) ? '已一致' : '字段值与预览不同'
     return {table: item.view.tableName, id: item.id, result}
   })
-  return host.flow.verification.every(item => item.result === '已一致')
+  const confirmed=host.flow.verification.every(item => item.result === '已一致')
+  if(confirmed&&host.flow.fork)host.flow.fork.confirmed=true
+  return confirmed
   } finally {listeners.forEach((listener, view) => view.events.off('editingFieldChanged', listener))}
 }
 
@@ -491,6 +535,8 @@ export async function modelCreateDiscardLocalChanges(host: ModelCreateHost): Pro
 }
 
 export type ModelCreateHandle = {
+  /** fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。 */
+  fork(input:Readonly<{modelId:string;name:string;fields:DataView}>):Promise<string>
   getState(): ReturnType<typeof modelCreateGetState>
   setName(name: string): void
   preview(source: Source): Promise<void>
@@ -504,6 +550,7 @@ export type ModelCreateHandle = {
 
 export function createModelCreateHandle(host: ModelCreateHost): ModelCreateHandle {
   return {
+    fork:input=>modelCreateFork(host,input),
     getState: () => modelCreateGetState(host),
     setName: name => modelCreateSetName(host, name),
     preview: source => modelCreatePreview(host, source),

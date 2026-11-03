@@ -8,6 +8,25 @@ const original=[
  {rowid:'F1',pid:'ITEMS',Name:'name',Description:'名称',FieldType:'varchar',isParent:false,custom:'keep'},
 ]
 describe('workflow query output identity and field projection',()=>{
+ it('migrates a verified fork field identity while preserving existing roots and unknown leaf members',()=>{
+  const next={...field,rowid:'NEW1',dataModelId:'M2',AsName:'title'}
+  const transition={fromModelId:'M1',fields:[field],removedIds:[],fieldIds:[{from:'F1',to:'NEW1'}]}
+  expect(buildWorkflowQueryOutput({workflowId:'W1',modelId:'M2',fields:[next],original,transition})).toEqual([original[0],original[1],{...original[2],rowid:'NEW1',Name:'title'}])
+  expect(original[2]?.rowid).toBe('F1')
+ })
+ it('drops only explicitly removed verified old fields and keeps the original roots',()=>{
+  expect(buildWorkflowQueryOutput({workflowId:'W1',modelId:'M1',fields:[],original,transition:{fromModelId:'M1',fields:[field],removedIds:['F1'],fieldIds:[]}})).toEqual(original.slice(0,2))
+ })
+ it.each([
+  {fromModelId:'OTHER',fields:[field],removedIds:[],fieldIds:[{from:'F1',to:'NEW1'}]},
+  {fromModelId:'M1',fields:[field],removedIds:[],fieldIds:[]},
+  {fromModelId:'M1',fields:[field],removedIds:[],fieldIds:[{from:'UNKNOWN',to:'NEW1'}]},
+  {fromModelId:'M1',fields:[field],removedIds:['F1'],fieldIds:[{from:'F1',to:'NEW1'}]},
+  {fromModelId:'M1',fields:[field],removedIds:[],fieldIds:[{from:'F1',to:'new:0'}]},
+  {fromModelId:'M1',fields:[field],removedIds:[],fieldIds:[{from:'F1',to:'NEW1'},{from:'F1',to:'NEW1'}]},
+ ])('rejects incomplete or ambiguous transition identities instead of guessing',transition=>{
+  expect(()=>buildWorkflowQueryOutput({workflowId:'W1',modelId:'M2',fields:[{...field,rowid:'NEW1',dataModelId:'M2'}],original,transition})).toThrow()
+ })
  it('preserves root and field identities and unknown members while projecting aliases and output choices',()=>{
   const fields=[{...field,AsName:'title',description:'新说明'}, {...field,rowid:'F2',Name:'notOutput',IsOutput:0},
    {...field,rowid:'P1',type:'inputParams',Name:'request',IsOutput:1}]
@@ -22,6 +41,7 @@ describe('workflow query output identity and field projection',()=>{
   [{...field,dataSetId:'OTHER'}], [{...field,dataModelId:'OTHER'}], [field,{...field}],
   [field,{...field,rowid:'F2',Name:'other',AsName:'name'}], [{...field,FieldType:''}], [{...field,IsOutput:'yes'}],
   [{...field,IsPKey:1,IsOutput:0}],
+  [{...field,rowid:'new:0'}],
  ].map(fields=>({fields})))('rejects invalid ownership, identity, names or output flags',({fields})=>{
   expect(()=>buildWorkflowQueryOutput({workflowId:'W1',modelId:'M1',fields})).toThrow()
  })

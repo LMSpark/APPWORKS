@@ -9,6 +9,11 @@ function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {
   const f = dataSpacePageFixture({allowModelRename: true, ...options}); fixtures.push(f); return f
 }
 const writes = (f: ReturnType<typeof fixture>) => f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')
+it('does not require unreadable aliases when no field-qualified reference needs resolving',async()=>{
+ const f=fixture({overviewOnly:true,deferDefinition:true,hiddenFieldProperties:['AsName']}),session=await f.open('A'),operation=session.getModelRename('M1')
+ operation.input.updateEditingValue('rename','name','Renamed')
+ await expect(operation.preview()).resolves.toBeUndefined();expect(writes(f)).toHaveLength(0)
+})
 async function readToolFile(dataSet:DataSet,pageId:string,fileName:'rule.json'|'script.js'|'style.css'):Promise<string>{
   const source=dataSet.getView('ProjectToolFile','default')
   if(!source)throw new Error('formal ProjectToolFile DataView missing')

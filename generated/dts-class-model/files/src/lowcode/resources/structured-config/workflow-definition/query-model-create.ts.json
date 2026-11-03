@@ -89,7 +89,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T19:10:22.756Z",
+  "generatedAt": "2026-11-03T05:56:14.848Z",
   "models": {
     "WorkflowQueryModelCreateInput": {
       "name": "WorkflowQueryModelCreateInput",
@@ -140,11 +140,11 @@
       "jsdoc": "查询模型入口不暴露绕过来源准备的数组创建命令。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Omit<ModelCreateHandle, 'createArray'>",
+        "declarationTypeText": "Omit<ModelCreateHandle, 'createArray' | 'fork'>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Omit<ModelCreateHandle, 'createArray'>",
+            "typeText": "Omit<ModelCreateHandle, 'createArray' | 'fork'>",
             "targetName": "Omit"
           }
         ],

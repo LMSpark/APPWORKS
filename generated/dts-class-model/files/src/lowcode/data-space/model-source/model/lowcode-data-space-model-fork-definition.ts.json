@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+    "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+    "jsdoc": "@module lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition\n职责：正式模型fork的只读定义投影，复用注册名改名的结构化引用规则。\n边界：调用方负责原查询完整性和可读权限；不创建记录，不复制身份、归属、凭据或系统维护值。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeDataSpaceModelForkDefinition"
+    ]
+  },
+  "$defs": {
+    "Row": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Row",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSpaceId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "models": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "model": {
+          "$ref": "#/$defs/Row"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        }
+      },
+      "required": [
+        "dataSpaceId",
+        "modelId",
+        "name",
+        "models",
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeDataSpaceModelForkDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeDataSpaceModelForkDefinition",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "title": "Record<string, unknown>"
+              }
+            },
+            "sourceFieldIds": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "model",
+            "fields",
+            "sourceFieldIds"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T06:18:00.087Z",
+  "models": {
+    "Row": {
+      "name": "Row",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    name: string;\n    models: readonly Row[];\n    model: Row;\n    fields: readonly Row[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSpaceId: string;\n    modelId: string;\n    name: string;\n    models: readonly Row[];\n    model: Row;\n    fields: readonly Row[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSpaceId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "models",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeDataSpaceModelForkDefinition": {
+      "name": "LowcodeDataSpaceModelForkDefinition",
+      "jsdoc": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "prepare",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        model: Readonly<Record<string, unknown>>;\n        fields: ReadonlyArray<Readonly<Record<string, unknown>>>;\n        sourceFieldIds: readonly string[];\n    }"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

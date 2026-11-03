@@ -190,6 +190,55 @@
       "type": "object",
       "title": "ModelCreateFlow",
       "properties": {
+        "fork": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "properties": {
+            "sourceModelId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": [
+                "null",
+                "string"
+              ]
+            },
+            "fieldIds": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "to": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "from",
+                  "to"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "confirmed": {
+              "enum": [
+                false,
+                true
+              ]
+            }
+          },
+          "required": [
+            "sourceModelId",
+            "modelId",
+            "fieldIds",
+            "confirmed"
+          ],
+          "additionalProperties": false
+        },
         "status": {
           "$ref": "#/$defs/ModelCreateStatus"
         },
@@ -299,6 +348,7 @@
         }
       },
       "required": [
+        "fork",
         "status",
         "generation",
         "preview",
@@ -431,6 +481,36 @@
       "type": "object",
       "title": "ModelCreateHandle",
       "$defs": {
+        "method.fork.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "modelId": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "fields": {
+                  "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                }
+              },
+              "required": [
+                "modelId",
+                "name",
+                "fields"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.fork.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
         "method.getState.params": {
           "type": "object",
           "properties": {},
@@ -521,7 +601,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T18:59:43.750Z",
+  "generatedAt": "2026-11-03T06:14:44.521Z",
   "models": {
     "ModelCreateSources": {
       "name": "ModelCreateSources",
@@ -670,9 +750,15 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ModelCreateStatus;\n    generation: number;\n    preview: Candidate | null;\n    staged: Staged[];\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    readbackSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    unresolved: boolean;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
+        "declarationTypeText": "{\n    /** 已捕获的正式fork身份对应，确认与未知恢复共用，不承载第二份编辑定义。 */\n    fork: {\n        sourceModelId: string;\n        modelId: string | null;\n        fieldIds: Array<{\n            from: string;\n            to: string;\n        }>;\n        confirmed: boolean;\n    } | null;\n    status: ModelCreateStatus;\n    generation: number;\n    preview: Candidate | null;\n    staged: Staged[];\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    readbackSignatures: Array<{\n        view: DataView;\n        ids: string[];\n        signature: string;\n    }> | null;\n    unresolved: boolean;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "fork",
+              "jsdoc": "已捕获的正式fork身份对应，确认与未知恢复共用，不承载第二份编辑定义。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "status",
               "readable": true,
@@ -869,9 +955,38 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelCreateGetState>;\n    setName(name: string): void;\n    preview(source: Source): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    createArray(input: ArrayDefinition): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    abandonNotApplied(): Promise<void>;\n    discardLocalChanges(): Promise<string>;\n}",
+        "declarationTypeText": "{\n    /** fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。 */\n    fork(input: Readonly<{\n        modelId: string;\n        name: string;\n        fields: DataView;\n    }>): Promise<string>;\n    getState(): ReturnType<typeof modelCreateGetState>;\n    setName(name: string): void;\n    preview(source: Source): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    createArray(input: ArrayDefinition): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    abandonNotApplied(): Promise<void>;\n    discardLocalChanges(): Promise<string>;\n}",
         "members": {
           "methods": [
+            {
+              "name": "fork",
+              "jsdoc": "fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        modelId: string;\n        name: string;\n        fields: DataView;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
             {
               "name": "getState",
               "parameters": [],

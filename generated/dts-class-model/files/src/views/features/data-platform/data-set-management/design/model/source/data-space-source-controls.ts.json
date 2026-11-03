@@ -55,6 +55,55 @@
               ],
               "title": "Candidate"
             },
+            "fork": {
+              "type": [
+                "null",
+                "object"
+              ],
+              "properties": {
+                "sourceModelId": {
+                  "type": "string"
+                },
+                "modelId": {
+                  "type": [
+                    "null",
+                    "string"
+                  ]
+                },
+                "fieldIds": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "from": {
+                        "type": "string"
+                      },
+                      "to": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "from",
+                      "to"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "confirmed": {
+                  "enum": [
+                    false,
+                    true
+                  ]
+                }
+              },
+              "required": [
+                "sourceModelId",
+                "modelId",
+                "fieldIds",
+                "confirmed"
+              ],
+              "additionalProperties": false
+            },
             "nameError": {
               "type": "string"
             },
@@ -89,6 +138,7 @@
             "canAbandonNotApplied",
             "canDiscardLocalChanges",
             "preview",
+            "fork",
             "nameError",
             "verification"
           ],

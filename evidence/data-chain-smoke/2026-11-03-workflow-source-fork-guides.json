@@ -1,0 +1,183 @@
+[
+  {
+    "kind": "ModelCreateHandle",
+    "catalog": {
+      "rootKind": "ModelCreateHandle",
+      "models": [
+        {
+          "kind": "ModelCreateHandle",
+          "name": "ModelCreateHandle",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ModelCreateHandle",
+      "models": [
+        {
+          "kind": "ModelCreateHandle",
+          "name": "ModelCreateHandle",
+          "jsdoc": "",
+          "summary": "",
+          "attributes": [],
+          "methods": [
+            {
+              "name": "fork",
+              "jsdoc": "fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。",
+              "summary": "fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。",
+              "signature": "fork(input: Readonly<{\n        modelId: string;\n        name: string;\n        fields: DataView;\n    }>): Promise<string>"
+            },
+            {
+              "name": "getState",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getState(): ReturnType<typeof modelCreateGetState>"
+            },
+            {
+              "name": "setName",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "setName(name: string): void"
+            },
+            {
+              "name": "preview",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "preview(source: Source): Promise<void>"
+            },
+            {
+              "name": "discard",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "discard(): void"
+            },
+            {
+              "name": "save",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "save(): Promise<string>"
+            },
+            {
+              "name": "createArray",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "createArray(input: ArrayDefinition): Promise<string>"
+            },
+            {
+              "name": "verify",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>"
+            },
+            {
+              "name": "abandonNotApplied",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "abandonNotApplied(): Promise<void>"
+            },
+            {
+              "name": "discardLocalChanges",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "discardLocalChanges(): Promise<string>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: ModelCreateHandle = {\n    /** fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。 */\n    fork(input: Readonly<{\n        modelId: string;\n        name: string;\n        fields: DataView;\n    }>): Promise<string>;\n    getState(): ReturnType<typeof modelCreateGetState>;\n    setName(name: string): void;\n    preview(source: Source): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    createArray(input: ArrayDefinition): Promise<string>;\n    verify(): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    abandonNotApplied(): Promise<void>;\n    discardLocalChanges(): Promise<string>;\n}\n */\ntype ModelCreateHandle {\n  fork身份与字段对应可从getState读取；失败后沿同一verify恢复，不重复创建。\n  fork(input: Readonly<{\n          modelId: string;\n          name: string;\n          fields: DataView;\n      }>): Promise<string>\n  getState(): ReturnType<typeof modelCreateGetState>\n  setName(name: string): void\n  preview(source: Source): Promise<void>\n  discard(): void\n  save(): Promise<string>\n  createArray(input: ArrayDefinition): Promise<string>\n  verify(): Promise<Readonly<{\n          confirmed: boolean;\n          modelId: string | null;\n      }>>\n  abandonNotApplied(): Promise<void>\n  discardLocalChanges(): Promise<string>\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelForkDefinition",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelForkDefinition",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelForkDefinition",
+          "name": "LowcodeDataSpaceModelForkDefinition",
+          "jsdoc": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+          "summary": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelForkDefinition",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelForkDefinition",
+          "name": "LowcodeDataSpaceModelForkDefinition",
+          "jsdoc": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+          "summary": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+          "constructorSignature": {
+            "summary": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+            "jsdoc": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "prepare",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "prepare(input: Input): {\n        model: Readonly<Record<string, unknown>>;\n        fields: ReadonlyArray<Readonly<Record<string, unknown>>>;\n        sourceFieldIds: readonly string[];\n    }"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。\nclass LowcodeDataSpaceModelForkDefinition {\n  返回不可编辑的创建值与原字段顺序，真正新身份仍由原DataView.addRow生成。\n  constructor()\n  prepare(input: Input): {\n          model: Readonly<Record<string, unknown>>;\n          fields: ReadonlyArray<Readonly<Record<string, unknown>>>;\n          sourceFieldIds: readonly string[];\n      }\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceModelNameProjection",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceModelNameProjection",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelNameProjection",
+          "name": "LowcodeDataSpaceModelNameProjection",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceModelNameProjection",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceModelNameProjection",
+          "name": "LowcodeDataSpaceModelNameProjection",
+          "jsdoc": "",
+          "summary": "",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: Input)"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "assertOpaque",
+              "jsdoc": "不透明代码包含原名时不得猜测替换。",
+              "summary": "不透明代码包含原名时不得猜测替换。",
+              "signature": "assertOpaque(value: unknown, path: string): void"
+            },
+            {
+              "name": "field",
+              "jsdoc": "先解析完整本地字段，再按已核定注册模型身份解析限定引用。",
+              "summary": "先解析完整本地字段，再按已核定注册模型身份解析限定引用。",
+              "signature": "field(value: unknown, owner: unknown, preserved?: readonly unknown[]): string"
+            },
+            {
+              "name": "value",
+              "jsdoc": "只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。",
+              "summary": "只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。",
+              "signature": "value(value: Record<string, unknown>, owner: unknown, preserved?: readonly unknown[]): Record<string, unknown>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "class LowcodeDataSpaceModelNameProjection {\n  constructor(input: Input)\n  不透明代码包含原名时不得猜测替换。\n  assertOpaque(value: unknown, path: string): void\n  先解析完整本地字段，再按已核定注册模型身份解析限定引用。\n  field(value: unknown, owner: unknown, preserved?: readonly unknown[]): string\n  只变换正式值函数的注册名成员；调用方继续区分dataModel物理GetRefData。\n  value(value: Record<string, unknown>, owner: unknown, preserved?: readonly unknown[]): Record<string, unknown>\n}"
+  }
+]

@@ -19,6 +19,56 @@
       "properties": {},
       "additionalProperties": true
     },
+    "Transition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Transition",
+      "properties": {
+        "fromModelId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": true
+          }
+        },
+        "removedIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        }
+      },
+      "required": [
+        "fromModelId",
+        "fields",
+        "removedIds",
+        "fieldIds"
+      ],
+      "additionalProperties": false
+    },
     "Input": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -38,7 +88,10 @@
             "additionalProperties": true
           }
         },
-        "original": true
+        "original": true,
+        "transition": {
+          "$ref": "#/$defs/Transition"
+        }
       },
       "required": [
         "workflowId",
@@ -48,7 +101,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-02T20:40:19.180Z",
+  "generatedAt": "2026-11-03T06:03:16.950Z",
   "models": {
     "Row": {
       "name": "Row",
@@ -66,16 +119,55 @@
         "members": {}
       }
     },
+    "Transition": {
+      "name": "Transition",
+      "jsdoc": "调用方完成正式引用检查与独立回读后提供的身份迁移；候选身份不能进入持久输出。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fromModelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    removedIds: readonly string[];\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fromModelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    removedIds: readonly string[];\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fromModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "removedIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "Input": {
       "name": "Input",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    original?: unknown;\n}>",
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    original?: unknown;\n    transition?: Transition;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    original?: unknown;\n}>",
+            "typeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    fields: ReadonlyArray<Readonly<Row>>;\n    original?: unknown;\n    transition?: Transition;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -98,6 +190,11 @@
             },
             {
               "name": "original",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "transition",
               "readable": true,
               "writable": false
             }

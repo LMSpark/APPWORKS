@@ -8,6 +8,7 @@ import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-filter-migration'
+import {LowcodeDataSpaceModelNameProjection} from './lowcode-data-space-model-name-projection'
 
 /** 一项原记录字段的准确变更，不携带权限凭据。 */
 export type ModelNameChange = Readonly<{
@@ -61,42 +62,12 @@ export class LowcodeDataSpaceModelRenameReferences {
       changes.push({table: entry.view.tableName, id: String(entry.row['rowid']), property: entry.property, before: entry.before, after: entry.after})
     }
     add({view: models, row: target, property: 'Name', before: currentName, after: nextName})
-    const opaque = (value: unknown, path: string): void => {
-      if (value !== undefined && value !== null && value !== '' && (typeof value !== 'string' || value.includes(oldName))) {
-        throw new Error(`${path}包含尚不能可靠改写的引用，请先核查；原文保留`)
-      }
-    }
-    const reference = (value: unknown, owner: unknown, preserved: readonly unknown[]): string => {
-      if (typeof value !== 'string' || !value) throw new Error('字段引用无法核验')
-      // 含点的正式字段先按完整Name解析；数据库关系的来源限定名独立于注册名。
-      const direct = fields.rows.some(row => read(fields, row, 'dataModelId') === owner && read(fields, row, 'Name') === value)
-      const prefix = `${oldName}.`
-      if (direct || preserved.includes(oldName) || !value.startsWith(prefix)) return value
-      const candidates = referenceModels.filter(model => typeof model['Name'] === 'string' && value.startsWith(`${model['Name']}.`))
-      const exact = candidates.filter(model => fields.rows.some(row => read(fields, row, 'dataModelId') === model['rowid']
-        && [read(fields, row, 'Name'), read(fields, row, 'AsName')].includes(value.slice(String(model['Name']).length + 1))))
-      if (exact.length > 1) throw new Error(`模型字段引用不唯一：${value}`)
-      const qualifier = value.slice(0, value.lastIndexOf('.'))
-      const resolved = exact[0]?.['Name'] ?? candidates.find(model => model['Name'] === qualifier)?.['Name']
-      if (resolved === undefined) throw new Error(`模型字段引用无法核验：${value}`)
-      return resolved === oldName ? `${nextName}.${value.slice(prefix.length)}` : value
-    }
-    const fn = (value: Record<string, unknown>, owner: unknown, preserved: readonly unknown[]): Record<string, unknown> => {
-      const type = value['Type']
-      if (['GetConstValue', 'GetInputParam', 'SystemData', 'GetUserMasterId'].includes(String(type))) return value
-      if (type === 'GetTableField') return {...value, Field: reference(value['Field'], owner, preserved)}
-      const key = type === 'GetRefData' ? 'RefTableName' : type === 'GetGroupData' ? 'GroupTableName' : undefined
-      if (key) {
-        const result = {...value}, referenced = referenceModels.find(model => model['Name'] === value[key])?.['rowid']
-        if (value[key] === oldName && !preserved.includes(oldName)) result[key] = nextName
-        for (const property of type === 'GetRefData' ? ['RefFieldName', 'FkFieldName'] : ['GroupField', 'Field']) {
-          if (value[property] !== undefined && value[property] !== '') result[property] = reference(value[property], property === 'FkFieldName' ? owner : referenced, preserved)
-        }
-        return result
-      }
-      opaque(JSON.stringify(value), `值函数${String(type)}`)
-      return value
-    }
+    const projection = new LowcodeDataSpaceModelNameProjection({previousName: oldName, nextName,
+      models: referenceModels.map(model => ({rowid: model['rowid'], Name: model['Name']})),
+      fields: fields.rows.map(row => ({get dataModelId(){return read(fields,row,'dataModelId')}, get Name(){return read(fields,row,'Name')}, get AsName(){return read(fields,row,'AsName')}}))})
+    const opaque = (value: unknown, path: string): void => projection.assertOpaque(value, path)
+    const reference = (value: unknown, owner: unknown, preserved: readonly unknown[]): string => projection.field(value, owner, preserved)
+    const fn = (value: Record<string, unknown>, owner: unknown, preserved: readonly unknown[]): Record<string, unknown> => projection.value(value, owner, preserved)
     const filter = (entry: Readonly<{view: DataView; row: DataRow; property: string; owner: unknown; preserved?: readonly unknown[]}>): void => {
       const {view, row, property, owner, preserved = []} = entry
       const before = read(view, row, property)

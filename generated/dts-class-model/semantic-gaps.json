@@ -1,5 +1,5 @@
 {
-  "gapCount": 3555,
+  "gapCount": 3578,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -26069,7 +26069,7 @@
       "chainBreak": "ModelCreateFlow.status 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 24,
+      "declarationLine": 34,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26081,7 +26081,7 @@
       "chainBreak": "ModelCreateFlow.generation 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 25,
+      "declarationLine": 35,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26093,7 +26093,7 @@
       "chainBreak": "ModelCreateFlow.preview 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 26,
+      "declarationLine": 36,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26105,7 +26105,7 @@
       "chainBreak": "ModelCreateFlow.staged 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 27,
+      "declarationLine": 37,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26117,7 +26117,7 @@
       "chainBreak": "ModelCreateFlow.capture 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 28,
+      "declarationLine": 38,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26129,7 +26129,7 @@
       "chainBreak": "ModelCreateFlow.captureSignatures 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 29,
+      "declarationLine": 39,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26141,7 +26141,7 @@
       "chainBreak": "ModelCreateFlow.readbackSignatures 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 34,
+      "declarationLine": 44,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26153,7 +26153,7 @@
       "chainBreak": "ModelCreateFlow.unresolved 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 39,
+      "declarationLine": 49,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26165,7 +26165,7 @@
       "chainBreak": "ModelCreateFlow.verification 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 40,
+      "declarationLine": 50,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26176,7 +26176,7 @@
       "chainBreak": "ModelCreateLifecycle 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 46,
+      "declarationLine": 56,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -26188,7 +26188,7 @@
       "chainBreak": "ModelCreateLifecycle.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 47,
+      "declarationLine": 57,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26200,7 +26200,7 @@
       "chainBreak": "ModelCreateLifecycle.onDispatch 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 48,
+      "declarationLine": 58,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26211,7 +26211,7 @@
       "chainBreak": "ModelCreateHost 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 50,
+      "declarationLine": 60,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -26223,7 +26223,7 @@
       "chainBreak": "ModelCreateHost.models 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 51,
+      "declarationLine": 61,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26235,7 +26235,7 @@
       "chainBreak": "ModelCreateHost.fieldSource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 52,
+      "declarationLine": 62,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26247,7 +26247,7 @@
       "chainBreak": "ModelCreateHost.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 53,
+      "declarationLine": 63,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26259,7 +26259,7 @@
       "chainBreak": "ModelCreateHost.fieldContext 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 54,
+      "declarationLine": 64,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26271,7 +26271,7 @@
       "chainBreak": "ModelCreateHost.modelContext 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 55,
+      "declarationLine": 65,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26283,7 +26283,7 @@
       "chainBreak": "ModelCreateHost.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 56,
+      "declarationLine": 66,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26295,7 +26295,7 @@
       "chainBreak": "ModelCreateHost.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 57,
+      "declarationLine": 67,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26307,7 +26307,7 @@
       "chainBreak": "ModelCreateHost.sources 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 58,
+      "declarationLine": 68,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26319,7 +26319,7 @@
       "chainBreak": "ModelCreateHost.flow 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 59,
+      "declarationLine": 69,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26331,7 +26331,7 @@
       "chainBreak": "ModelCreateHost.lifecycle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 60,
+      "declarationLine": 70,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26342,7 +26342,7 @@
       "chainBreak": "ModelCreateHostInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 62,
+      "declarationLine": 72,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -26354,7 +26354,7 @@
       "chainBreak": "ModelCreateHostInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 63,
+      "declarationLine": 73,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26366,7 +26366,7 @@
       "chainBreak": "ModelCreateHostInput.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 64,
+      "declarationLine": 74,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26378,7 +26378,7 @@
       "chainBreak": "ModelCreateHostInput.sources 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 65,
+      "declarationLine": 75,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26390,7 +26390,7 @@
       "chainBreak": "ModelCreateHostInput.lifecycle 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 66,
+      "declarationLine": 76,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26401,7 +26401,7 @@
       "chainBreak": "ModelCreateHandle 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 99,
+      "declarationLine": 124,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "typeAlias"
     },
@@ -26413,7 +26413,7 @@
       "chainBreak": "ModelCreateHandle.getState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 100,
+      "declarationLine": 131,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26425,7 +26425,7 @@
       "chainBreak": "ModelCreateHandle.setName 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 101,
+      "declarationLine": 132,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26437,7 +26437,7 @@
       "chainBreak": "ModelCreateHandle.preview 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 102,
+      "declarationLine": 133,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26449,7 +26449,7 @@
       "chainBreak": "ModelCreateHandle.discard 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 103,
+      "declarationLine": 134,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26461,7 +26461,7 @@
       "chainBreak": "ModelCreateHandle.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 104,
+      "declarationLine": 135,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26473,7 +26473,7 @@
       "chainBreak": "ModelCreateHandle.createArray 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 105,
+      "declarationLine": 136,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26485,7 +26485,7 @@
       "chainBreak": "ModelCreateHandle.verify 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 106,
+      "declarationLine": 137,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26497,7 +26497,7 @@
       "chainBreak": "ModelCreateHandle.abandonNotApplied 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 110,
+      "declarationLine": 141,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26509,7 +26509,7 @@
       "chainBreak": "ModelCreateHandle.discardLocalChanges 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
-      "declarationLine": 111,
+      "declarationLine": 142,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "declarationKind": "interface"
     },
@@ -26806,6 +26806,123 @@
       "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
       "declarationLine": 145,
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-edit-session.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+      "moduleName": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Row",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Row 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "Input",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 2,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "dataSpaceId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.dataSpaceId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "modelId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "name",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.name 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "models",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.models 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "model",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.model 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "fields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "LowcodeDataSpaceModelForkDefinition",
+      "memberName": "prepare",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeDataSpaceModelForkDefinition.prepare 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
       "declarationKind": "class"
     },
     {
@@ -28001,6 +28118,99 @@
       "declarationLine": 96,
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection",
+      "moduleName": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Input",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "models",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.models 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "fields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "previousName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.previousName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "nextName",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.nextName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "LowcodeDataSpaceModelNameProjection",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeDataSpaceModelNameProjection 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "LowcodeDataSpaceModelNameProjection",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "LowcodeDataSpaceModelNameProjection.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "declarationKind": "class"
     },
     {
       "kind": "model",
@@ -36541,13 +36751,61 @@
       "declarationKind": "typeAlias"
     },
     {
+      "kind": "attribute",
+      "className": "Transition",
+      "memberName": "fromModelId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Transition.fromModelId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Transition",
+      "memberName": "fields",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Transition.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Transition",
+      "memberName": "removedIds",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Transition.removedIds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Transition",
+      "memberName": "fieldIds",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Transition.fieldIds 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "model",
       "className": "Input",
       "reason": "missing-jsdoc",
       "chainBreak": "Input 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-      "declarationLine": 2,
+      "declarationLine": 12,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "declarationKind": "typeAlias"
     },
@@ -36559,7 +36817,7 @@
       "chainBreak": "Input.workflowId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-      "declarationLine": 3,
+      "declarationLine": 13,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "declarationKind": "interface"
     },
@@ -36571,7 +36829,7 @@
       "chainBreak": "Input.modelId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-      "declarationLine": 4,
+      "declarationLine": 14,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "declarationKind": "interface"
     },
@@ -36583,7 +36841,7 @@
       "chainBreak": "Input.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-      "declarationLine": 5,
+      "declarationLine": 15,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "declarationKind": "interface"
     },
@@ -36595,7 +36853,19 @@
       "chainBreak": "Input.original 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-      "declarationLine": 6,
+      "declarationLine": 16,
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "transition",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.transition 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/query-output.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
+      "declarationLine": 17,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "declarationKind": "interface"
     },

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1025,
+  "scannedFileCount": 1027,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -12910,6 +12910,21 @@
         ]
       }
     },
+    "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts": {
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+        "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition",
+        "jsdoc": "@module lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition\n职责：正式模型fork的只读定义投影，复用注册名改名的结构化引用规则。\n边界：调用方负责原查询完整性和可读权限；不创建记录，不复制身份、归属、凭据或系统维护值。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceModelForkDefinition"
+        ]
+      }
+    },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts": {
       "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts.json",
       "module": {
@@ -12996,6 +13011,21 @@
           "ModelRemoveHost",
           "ModelRemoveHostInput",
           "ModelRemoveHandle"
+        ]
+      }
+    },
+    "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts": {
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts.json",
+      "module": {
+        "name": "app:lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection",
+        "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+        "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection",
+        "jsdoc": "@module lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection\n职责：改名与正式模型fork共用注册名引用的纯投影。\n边界：不读写DataView、不推导权限；物理资源限定名、完整本地字段名、常量及节点参数不改。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LowcodeDataSpaceModelNameProjection"
         ]
       }
     },
@@ -20408,9 +20438,17 @@
       "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
       "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts.json"
     },
+    "LowcodeDataSpaceModelForkDefinition": {
+      "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts",
+      "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-fork-definition.ts.json"
+    },
     "LowcodeDataSpaceModelMigration": {
       "sourcePath": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
       "file": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts.json"
+    },
+    "LowcodeDataSpaceModelNameProjection": {
+      "sourcePath": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
+      "file": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts.json"
     },
     "LowcodeDataSpaceModelRemovalFilePlan": {
       "sourcePath": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",

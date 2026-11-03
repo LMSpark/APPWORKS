@@ -271,9 +271,18 @@ describe('native model creation with formal metadata ownership', () => {
     const {owner, f, writes} = await setup()
     const release = f.holdModelResponse()
     if (mode === 'unknown') f.loseNextResponse()
+    if(mode==='readback'){
+      const refresh=DataView.prototype.refresh
+      let injected=false
+      vi.spyOn(DataView.prototype,'refresh').mockImplementation(async function(this:DataView,...args){
+        // Saved-row permission recovery can query fields before the domain readback.
+        // Fail the explicit created-field refresh, so this case proves domain recovery.
+        if(!injected&&writes().length===1&&this.tableName==='Base_DataModel_Field'&&this.viewId.startsWith('createModel:')){injected=true;f.failNextFieldRead()}
+        return refresh.apply(this,args)
+      })
+    }
     const saving = expect(owner.save()).rejects.toThrow()
     await vi.waitFor(() => expect(writes()).toHaveLength(1))
-    if (mode === 'readback') f.failNextFieldRead()
     release(); await saving
     expect(owner.getState().status).toBe(mode)
     await expect(owner.save()).rejects.toThrow('先核验')

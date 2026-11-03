@@ -15,7 +15,7 @@ type WorkflowQueryModelCreateInput=Readonly<{
  assertCurrent():void
 }>
 /** 查询模型入口不暴露绕过来源准备的数组创建命令。 */
-type WorkflowQueryModelCreateHandle=Omit<ModelCreateHandle,'createArray'>
+type WorkflowQueryModelCreateHandle=Omit<ModelCreateHandle,'createArray'|'fork'>
 function clean(view:DataView):void{
  if(view.destroyed||view.mutating||view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges()
   ||view.requestState===RequestState.Loading||view.requestState===RequestState.Preparing)throw Error('请先处理当前查询模型目录或字段的修改')

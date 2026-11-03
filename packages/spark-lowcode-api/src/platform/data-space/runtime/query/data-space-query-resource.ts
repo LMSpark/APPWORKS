@@ -94,6 +94,7 @@ export class DataSpaceQueryResource {
     }
     assertCurrent()
     return new DataSpaceQueryContext({ identity: table.identity, snapshot, scope,
+      ...(captured.outputType === 'Join' ? {resultKind: 'join' as const} : {}),
       readScope: () => this.contextScope() })
   }
 

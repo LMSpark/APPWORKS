@@ -183,7 +183,8 @@ describe('formal model alias query ownership', () => {
       expect(ds.getView('Orders')!.primaryKey).toBe('orderId')
       expect(JSON.stringify(ds.toJson())).toBe(definition)
       const context = await runtime.executeQuery(view, {fields: grouped ? ['department', 'total'] : ['total'], outputType})
-      expect(() => context.prepareSaveChanges({deleted: context.rows})).toThrow('SPARK_MODEL_KEYLESS_READONLY')
+      expect(() => context.prepareSaveChanges({deleted: context.rows})).toThrow(
+        outputType === 'Join' ? 'SPARK_JOIN_RESULT_READONLY' : 'SPARK_MODEL_KEYLESS_READONLY')
     } finally {ds.destroy()}
   })
 

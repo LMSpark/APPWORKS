@@ -112,6 +112,22 @@ describe('SPARK model query execution owner', () => {
     expect(() => Reflect.apply(encodeDataSpaceQueryOptions, undefined, [invalid])).toThrow('distinct')
   })
 
+  it.each([0, 1, 2])('classifies direct Join query with %i rows before exposing entity operations', async count => {
+    const http = new DataSpaceRequestFixtureHttp()
+    http.response = {Code: 0, Result: {primaryKeyField: 'rowid', allowAdd: true,
+      data: {Items: Array.from({length: count}, (_, index) => ({rowid: 'same-parent', detail: index,
+        lingma_sys_key: 'signed', lingma_sys_params: {e: ['detail'], d: true}})), Count: count}}}
+    const resource = new DataSpaceQueryResource({http, readScope: () => ({token: 'S1', headers: {}})})
+    const context = await resource.query({scenarioId: 'SCENE', metaName: 'Orders'}, {outputType: 'Join'})
+    expect(context.resultKind).toBe('join')
+    expect(context.reportedPrimaryKey).toBe('rowid')
+    expect(context.resultPrimaryKey).toBe('')
+    expect(context.rows).toHaveLength(count)
+    expect(context.allowAdd).toBe(false)
+    expect(() => context.prepareSaveChanges({added: [{rowid: 'new'}]})).toThrow('SPARK_JOIN_RESULT_READONLY')
+    resource.dispose()
+  })
+
   it('executes model GetData and publishes data together with its private permission context', async () => {
     const http = new DataSpaceRequestFixtureHttp()
     http.response = { Code: 0, Result: { primaryKeyField: 'OrderKey', allowAdd: true,
@@ -483,8 +499,9 @@ describe('SPARK scenario model request parity', () => {
       else expect(body.Table[0]).not.toHaveProperty('ChildTables')
       expect(body.PageParam).toEqual(outputType === 'SelfRefData' ? undefined : {index: 2, size: 5})
       expect(context.rows[0]).toMatchObject({OrderId: 'A', amount: 20})
-      expect(context.rowKey(context.rows[0]!)).toBe('A')
-      expect(context.editActionState('A')).toBe('enabled')
+      expect(context.reportedPrimaryKey).toBe('OrderId')
+      expect(context.rowKey(context.rows[0]!)).toBe(outputType === 'Join' ? undefined : 'A')
+      expect(context.editActionState('A')).toBe(outputType === 'Join' ? 'hidden' : 'enabled')
       resource.dispose()
     })
 
@@ -589,7 +606,8 @@ describe('SPARK scenario model request parity', () => {
           ...(page === 2 ? {filter: DataViewFilter.condition({field: 'title', operator: 'eq', value: 'Title'})} : {}),
         })
         expect(context.rows).toEqual([{orderId: `A${page}`, caption: 'Title'}])
-        expect(context.rowKey(context.rows[0]!)).toBe(`A${page}`)
+        expect(context.reportedPrimaryKey).toBe('orderId')
+        expect(context.rowKey(context.rows[0]!)).toBe(outputType === 'Join' ? undefined : `A${page}`)
       }
       expect(http.requests).toHaveLength(2)
       for (const [index, request] of http.requests.entries()) {

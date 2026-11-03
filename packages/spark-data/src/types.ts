@@ -684,7 +684,7 @@ export type ViewMetadata = {
   /** 由 DataView 随查询提交、由 DataTable.crudService 适配的后端无关上下文。 */
   queryContext?: DataViewQueryContext
   /** 查询模式、输出字段、服务器节点参数及读取范围；每次刷新沿用，空对象恢复默认。不含结果或权限。 */
-  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'distinct' | 'maxRows' | 'fields' | 'sourceInputMode'> & {
+  queryConfig?: Readonly<Pick<QueryParams, 'outputType' | 'tree' | 'allPages' | 'distinct' | 'maxRows' | 'fields' | 'children' | 'sourceInputMode'> & {
     /** 结果缓存：省略/none禁用，page随本次DataSet释放，browser仅当前浏览器会话内复用。需查询适配器支持；刷新、保存及身份变化清除。 */
     cacheType?: 'none' | 'page' | 'browser'
     /** 父输入及过滤输入变化是否自动查询；缺省true，false等待显式查询，不限制翻页和排序。 */
@@ -1582,6 +1582,18 @@ export type CrudResult<T = unknown> = {
   /** 时间戳 */
   timestamp?: number}
 
+/** 显式Join子查询计划；模型使用同场景正式注册名，过滤和字段由所属模型查询责任方校验。 */
+export type DataViewQueryChild = Readonly<{
+  /** 同场景正式模型名称，不是内部表键或物理资源名称。 */
+  modelName: string
+  /** 本模型非空、不重复的正式输出字段名，不允许覆盖输出别名。 */
+  fields: readonly string[]
+  /** 本子模型的过滤树；不在浏览器对已返回行模拟SQL连接过滤。 */
+  filter?: DataViewFilterTree
+  /** 显式后继子查询；不从模型关系自动展开，不配置独立分页。 */
+  children?: readonly DataViewQueryChild[]
+}>
+
 /**
  * 分页查询参数 - 支持权限快照传递
  */
@@ -1602,6 +1614,8 @@ export type QueryParams = {
    * DataView通过queryConfig持有此配置，过滤、排序、分页及刷新均沿用。
    */
   outputType?: string
+  /** 仅Join使用的显式子计划，场景继承根查询；嵌套最多64层，不允许祖先同名模型或同层重复。 */
+  children?: readonly DataViewQueryChild[]
   /**
    * 正式资源来源入参的解释方式。省略或mapped按保存的取值映射解析context；direct按来源参数名直接读取context中的JSON值。
    * direct用于接口/逻辑视图来源测试，须提供全部正式来源参数，不执行其取值函数；不改变查询身份、数据权限或持久定义。

@@ -31,6 +31,12 @@
             "tree": {
               "$ref": "../../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryTree"
             },
+            "children": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataViewQueryChild"
+              }
+            },
             "fields": {
               "type": "array",
               "items": {

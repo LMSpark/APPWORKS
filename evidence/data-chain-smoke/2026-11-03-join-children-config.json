@@ -1,0 +1,51 @@
+{
+  "date": "2026-11-03",
+  "status": "explicit-config-and-public-readonly-classification-verified",
+  "configuration": {
+    "immutable": true,
+    "finalConfigTests": 53,
+    "roundtrip": true,
+    "newTests": 16,
+    "recursiveWire": false,
+    "maxDepth": 64
+  },
+  "publicJoin": {
+    "entityMutations": "rejected",
+    "duplicateRootRows": "preserved",
+    "classification": "resource-construction",
+    "newTests": 3,
+    "sourceKey": "preserved"
+  },
+  "verification": {
+    "classModelTests": 49,
+    "pageThin": "passed",
+    "existingPackageTypeErrors": {
+      "sparkData": 51,
+      "api": 9
+    },
+    "introducedPackageTypeErrors": 0,
+    "rootTypecheck": "passed",
+    "build": "passed",
+    "finalConfigTests": 53,
+    "expandedRegression": {
+      "files": 61,
+      "tests": 1570,
+      "timing": "before two additional boundary tests"
+    },
+    "lint": "passed"
+  },
+  "live": {
+    "fixtures": 0,
+    "reads": 0,
+    "writes": 0,
+    "browser": false
+  },
+  "remaining": [
+    "API children capture and formal model validation",
+    "Recursive filter capture/cache/wire",
+    "Formal result columns",
+    "Public DataView/standard Table live smoke",
+    "Deployed LEFT semantics and Foreign",
+    "Full architecture and full repository verification"
+  ]
+}

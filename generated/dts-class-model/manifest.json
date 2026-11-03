@@ -9935,6 +9935,7 @@
           "DataSetSaveChangesViewResult",
           "DataSetSaveChangesResult",
           "CrudResult",
+          "DataViewQueryChild",
           "QueryParams",
           "BatchResult",
           "CrudOperationConfig",
@@ -19396,6 +19397,10 @@
     "DataViewQueryCascadeInputs": {
       "sourcePath": "packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts",
       "file": "files/packages/spark-data/src/strategies/cascade/query-cascade-inputs.ts.json"
+    },
+    "DataViewQueryChild": {
+      "sourcePath": "packages/spark-data/src/types.ts",
+      "file": "files/packages/spark-data/src/types.ts.json"
     },
     "DataViewQueryContext": {
       "sourcePath": "packages/spark-data/src/types.ts",

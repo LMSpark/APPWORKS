@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-03T08:27:34.193Z"
+      "sourceModifiedAt": "2026-11-03T15:21:08.624Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2709,7 +2709,7 @@
     "packages/spark-data/src/query/data-view-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-query.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.565Z"
+      "sourceModifiedAt": "2026-11-03T15:24:23.863Z"
     },
     "packages/spark-data/src/query/data-view-source.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
@@ -2854,7 +2854,7 @@
     "packages/spark-data/src/types.ts": {
       "sourceFile": "packages/spark-data/src/types.ts",
       "shardFile": "files/packages/spark-data/src/types.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.585Z"
+      "sourceModifiedAt": "2026-11-03T15:20:26.876Z"
     },
     "packages/spark-data/src/validation/column-validation.ts": {
       "sourceFile": "packages/spark-data/src/validation/column-validation.ts",
@@ -3134,7 +3134,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts.json",
-      "sourceModifiedAt": "2026-10-10T14:19:50.386Z"
+      "sourceModifiedAt": "2026-11-03T15:21:20.014Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-tree.ts",

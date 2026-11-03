@@ -217,6 +217,7 @@ export type {
   CrudResult,
   HttpEndpoint,
   QueryParams,
+  DataViewQueryChild,
 
   // 视图配置
   ViewMetadata,

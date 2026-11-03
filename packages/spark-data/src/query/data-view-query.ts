@@ -5,8 +5,9 @@
  * AI用途：配置DataView.queryConfig后调用refresh，过滤、排序及翻页沿用同一配置。
  */
 import {isRecord} from '@spark-appworks/spark-utils'
-import type {QueryParams, ViewMetadata} from '../types'
+import type {DataViewQueryChild, QueryParams, ViewMetadata} from '../types'
 import {DataViewFilterLookup} from './data-view-filter-lookup'
+import {DataViewFilter} from './filter/data-view-filter'
 
 /** 查询模式与读取范围的唯一配置解析器；省略属性保持责任方既定默认值。 */
 export class DataViewQuery {
@@ -40,7 +41,7 @@ export class DataViewQuery {
 
   /** 校验配置并复制冻结；拒绝未知属性，空对象恢复默认查询。 */
   static parse(input: unknown, path = 'queryConfig'): NonNullable<ViewMetadata['queryConfig']> {
-    const value = this.object(input, ['outputType', 'tree', 'allPages', 'distinct', 'maxRows', 'fields', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
+    const value = this.object(input, ['outputType', 'tree', 'allPages', 'distinct', 'maxRows', 'fields', 'children', 'autoQuery', 'filterLookups', 'sourceInputMode', 'cacheType'], path)
     const result: { -readonly [K in keyof NonNullable<ViewMetadata['queryConfig']>]: NonNullable<ViewMetadata['queryConfig']>[K] } = {}
     if (value['cacheType'] !== undefined) {
       const type = value['cacheType']
@@ -62,6 +63,10 @@ export class DataViewQuery {
       result.fields = Object.freeze(fields.map(field => this.text(field, `${path}.fields`)))
     }
     if (value['outputType'] !== undefined) result.outputType = this.text(value['outputType'], `${path}.outputType`)
+    if (value['children'] !== undefined) {
+      if (result.outputType !== 'Join') throw new TypeError(`${path}.children 仅用于显式Join查询`)
+      result.children = this.parseChildren(value['children'], `${path}.children`, [])
+    }
     if (value['allPages'] !== undefined) {
       if (typeof value['allPages'] !== 'boolean') throw new TypeError(`${path}.allPages 必须是布尔值`)
       result.allPages = value['allPages']
@@ -94,7 +99,7 @@ export class DataViewQuery {
   /** 从完整请求中只捕获查询配置；分页、过滤、身份等继续使用原请求合同。 */
   static capture(params: QueryParams): NonNullable<ViewMetadata['queryConfig']> {
     return this.parse({outputType: params.outputType, tree: params.tree, allPages: params.allPages, distinct: params.distinct,
-      maxRows: params.maxRows, fields: params.fields, sourceInputMode: params.sourceInputMode})
+      maxRows: params.maxRows, fields: params.fields, children: params.children, sourceInputMode: params.sourceInputMode})
   }
 
   /** 仅 autoQuery 不同不算查询语义变更，不应使已加载结果 stale。 */
@@ -124,6 +129,28 @@ export class DataViewQuery {
       const field = tree[key]
       if (field !== undefined && !fields.has(field)) throw new Error(`queryConfig.tree.${key} 不是当前正式输出字段: ${field}`)
     }
+  }
+
+  private static parseChildren(input: unknown, path: string, ancestors: readonly string[]): readonly DataViewQueryChild[] {
+    if (!Array.isArray(input) || ancestors.length >= 64 && input.length > 0) throw new TypeError(`${path} 必须是数组且嵌套不得超过64层`)
+    const names = new Set<string>()
+    return Object.freeze(Array.from(input, (item: unknown, index: number) => {
+      const childPath = `${path}[${index}]`
+      const value = this.object(item, ['modelName', 'fields', 'filter', 'children'], childPath)
+      const modelName = this.text(value['modelName'], `${childPath}.modelName`)
+      if (names.has(modelName) || ancestors.includes(modelName)) throw new TypeError(`${childPath} 存在重复或循环模型名称`)
+      names.add(modelName)
+      const fields = value['fields']
+      if (!Array.isArray(fields) || !fields.length || new Set(fields).size !== fields.length) {
+        throw new TypeError(`${childPath}.fields 必须是非空且不重复的字段列表`)
+      }
+      const filter = value['filter'] === undefined ? undefined : DataViewFilter.parse(value['filter'])
+      if (filter && !filter.ok) throw new TypeError(`${childPath}.filter: ${filter.issues.map(issue => issue.message).join('; ')}`)
+      return Object.freeze({modelName, fields: Object.freeze(Array.from(fields, field => this.text(field, `${childPath}.fields`))),
+        ...(filter?.ok ? {filter: filter.value.toJSON()} : {}),
+        ...(value['children'] === undefined ? {} : {children: this.parseChildren(value['children'], `${childPath}.children`, [...ancestors, modelName])}),
+      })
+    }))
   }
 
   private static object(value: unknown, allowed: readonly string[], path: string): Record<string, unknown> {

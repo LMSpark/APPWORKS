@@ -36,6 +36,22 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('previews, cancels and saves shared query node deletion without unmounting the original command when selection disappears',async()=>{
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'查询',output_mapping:'[]'},{rowid:'N3',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'共享查询',output_mapping:'[]'}]
+  state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]
+  state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  await f.click('删除查询节点');await vi.waitFor(()=>expect(document.body.textContent).toContain('保留模型及字段'))
+  await f.click('暂存删除');expect(state.http.saves).toHaveLength(0);expect(state.dirty[0]?.isDirty).toBe(true)
+  await f.click('取消删除');expect(state.dirty[0]?.isDirty).toBe(false)
+  await f.click('删除查询节点');await f.click('暂存删除');await f.click('保存删除')
+  await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='删除查询节点')).toBe(false))
+  expect(state.http.records['Base_WorkflowNodeDefinition']!.map(row=>row['rowid'])).toEqual(['N3'])
+  expect(state.http.records['Base_DataModel']!.some(row=>row['rowid']==='M1')).toBe(true)
+  expect(state.http.records['Base_DataModel_Field']!.some(row=>row['rowid']==='F1')).toBe(true)
+  expect(state.dirty[0]?.isDirty).toBe(false)
+ })
  it('binds the computed field dialog to the original row, cancels an unfinished addition without writes, and saves only after confirming the dialog',async()=>{
   config.global.stubs={...config.global.stubs,JsonTreeEditor:true}
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',name:'查询',output_mapping:'[]'}]

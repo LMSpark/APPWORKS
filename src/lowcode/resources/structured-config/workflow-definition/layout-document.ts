@@ -40,4 +40,12 @@ export class WorkflowLayoutDocument{
   for(const patch of event.edges){const edge=edges.find(candidate=>candidate['id']===patch.id);if(edge)edge['pointsList']=patch.pointsList;else edges.push({id:patch.id,pointsList:patch.pointsList})}
   const next=JSON.stringify({...root,nodes,edges});this.read(next);return next
  }
+ /** 仅移除正式命令捕获的对象ID；历史布局端点不扩张删除集合，无变化时保留原文。 */
+ static remove(text:string,ids:Readonly<{nodes:ReadonlyArray<string|number>;edges:ReadonlyArray<string|number>}>):string{
+  this.read(text)
+  const {root,nodes,edges}=this.parse(text),nodeIds=new Set(ids.nodes.map(String)),edgeIds=new Set(ids.edges.map(String))
+  const retainedNodes=nodes.filter(node=>!nodeIds.has(String(node['id']))),retainedEdges=edges.filter(edge=>!edgeIds.has(String(edge['id'])))
+  if(nodes.length===retainedNodes.length&&edges.length===retainedEdges.length)return text
+  return JSON.stringify({...root,nodes:retainedNodes,edges:retainedEdges})
+ }
 }

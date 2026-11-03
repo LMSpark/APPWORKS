@@ -22,6 +22,28 @@ function identity(view:DataView,row:DataRow):string{
  if(typeof id!=='string'||!id.trim()||view.getPkKey(row)!==id)throw Error('查询输入记录身份无效')
  return id
 }
+/** 原查询输入与显式删除共用祖先合同；只投影捕获的删除ID，不改图、不自动补边。 */
+export function workflowQueryAncestors(nodes:DataView,edges:DataView,workflowId:string,nodeId:string,
+ projection:Readonly<{nodes:readonly string[];edges:readonly string[]}>={nodes:[],edges:[]}):Readonly<{byId:ReadonlyMap<string,DataRow>;ancestors:ReadonlySet<string>}>{
+ if(!workflowId.trim()||!nodes.dataSet||nodes.dataSet!==edges.dataSet||nodes.dataSet.destroyed)throw Error('查询输入图实例或目标已失效')
+ for(const view of [nodes,edges])if(view.destroyed||view.loadingError||view.requestState!==RequestState.Loaded||view.queryContext['workflowId']!==workflowId
+  ||view.rows.length+view.dirtyTracking.pendingDeleteIds.size-view.dirtyTracking.pendingCreateIds.size!==view.total)throw Error('查询输入图未完整读取或目标已变化')
+ const all=new Map<string,DataRow>(),byId=new Map<string,DataRow>(),omittedNodes=new Set(projection.nodes),omittedEdges=new Set(projection.edges)
+ for(const row of nodes.rows){const id=identity(nodes,row);if(all.has(id)||read(nodes,row,'workflow_id')!==workflowId)throw Error('查询输入节点归属或身份不唯一');all.set(id,row);if(!omittedNodes.has(id))byId.set(id,row)}
+ if(projection.nodes.some(id=>!all.has(id))||!byId.has(nodeId))throw Error('查询输入目标或删除节点不存在')
+ const parents=new Map<string,Set<string>>(),edgeIds=new Set<string>()
+ for(const row of edges.rows){
+  const id=identity(edges,row),source=read(edges,row,'sourceID'),target=read(edges,row,'targetID')
+  if(edgeIds.has(id)||read(edges,row,'workflow_id')!==workflowId||typeof source!=='string'||typeof target!=='string'||!all.has(source)||!all.has(target))throw Error('查询输入连接端点缺失或归属不符')
+  edgeIds.add(id);if(omittedEdges.has(id))continue
+  if(!byId.has(source)||!byId.has(target))throw Error('删除投影仍保留已删除节点的连线端点')
+  const set=parents.get(target)??new Set<string>();set.add(source);parents.set(target,set)
+ }
+ if(projection.edges.some(id=>!edgeIds.has(id)))throw Error('删除连线身份不存在')
+ const ancestors=new Set<string>(),visiting=new Set<string>()
+ function visit(id:string):void{if(visiting.has(id))throw Error('查询输入祖先路径存在环');if(ancestors.has(id))return;visiting.add(id);for(const parent of parents.get(id)??[])visit(parent);visiting.delete(id);if(id!==nodeId)ancestors.add(id)}
+ visit(nodeId);return{byId,ancestors}
+}
 /** 候选值遵循顶层GetInputParam两段合同；查询目录的items叶字段按实际平面行投影，合成根不作为运行参数。 */
 export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string):{
  inputs:Array<{value:string;label:string}>;columns:DataColumn[];diagnostics:string[]
@@ -30,12 +52,7 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
  const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),
   edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId),models=loaded(dataSet,'Base_DataModel',workflowId),fields=loaded(dataSet,'Base_DataModel_Field',workflowId)
  if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId)throw Error('查询输入工作流身份不唯一')
- const byId=new Map<string,DataRow>()
- for(const row of nodes.rows){
-  const id=identity(nodes,row)
-  if(byId.has(id)||read(nodes,row,'workflow_id')!==workflowId)throw Error('查询输入节点归属或身份不唯一')
-  byId.set(id,row)
- }
+ const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId)
  const target=byId.get(nodeId),model=models.rows[0]
  if(!target||!['query','copy'].includes(String(read(nodes,target,'node_type')))||models.rows.length!==1||!model
   ||read(models,model,'dataSetId')!==workflowId||identity(models,model)!==read(nodes,target,'node_config'))throw Error('查询输入模型归属不符')
@@ -53,20 +70,6 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
   if(typeof name!=='string'||!name.trim()||columnNames.has(name)||typeof type!=='string'||!type.trim())throw Error('过滤字段名称或类型缺失或重复')
   columnNames.add(name);columns.push({name,type:type.toLowerCase(),label:typeof description==='string'&&description?description:name})
  }
- const parents=new Map<string,Set<string>>(),edgeIds=new Set<string>()
- for(const row of edges.rows){
-  const id=identity(edges,row),source=read(edges,row,'sourceID'),targetId=read(edges,row,'targetID')
-  if(edgeIds.has(id)||read(edges,row,'workflow_id')!==workflowId||typeof source!=='string'||typeof targetId!=='string'||!byId.has(source)||!byId.has(targetId))throw Error('查询输入连接端点缺失或归属不符')
-  edgeIds.add(id);const set=parents.get(targetId)??new Set<string>();set.add(source);parents.set(targetId,set)
- }
- const ancestors=new Set<string>(),visiting=new Set<string>()
- function visit(id:string):void{
-  if(visiting.has(id))throw Error('查询输入祖先路径存在环')
-  if(ancestors.has(id))return
-  visiting.add(id);for(const parent of parents.get(id)??[])visit(parent)
-  visiting.delete(id);if(id!==nodeId)ancestors.add(id)
- }
- visit(nodeId)
  const inputs:Array<{value:string;label:string}>=[],diagnostics:string[]=[],values=new Set<string>()
  for(const id of ancestors){
   const node=byId.get(id);if(!node)throw Error('祖先节点身份缺失')

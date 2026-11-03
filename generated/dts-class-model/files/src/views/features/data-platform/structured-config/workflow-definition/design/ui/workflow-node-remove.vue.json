@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-03T05:26:19.247Z",
+  "models": {}
+}

@@ -1,0 +1,421 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/node-removal",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/node-removal",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/node-removal\n职责：预览普通查询节点删除，检查共享模型和删除后祖先，沿原数据链分别确认数据库与布局。\n边界：不自动重连、不执行流程；未知结果保留原捕获，布局失败不重放数据库删除。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowNodeRemoval"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "Status": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Status",
+      "enum": [
+        "complete",
+        "staged",
+        "ready",
+        "database",
+        "layout",
+        "cancelled",
+        "not-applied"
+      ]
+    },
+    "WorkflowNodeRemoval": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowNodeRemoval",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<WorkflowNodeRemoval>"
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "status": {
+              "$ref": "#/$defs/Status"
+            },
+            "pending": {
+              "type": "boolean"
+            },
+            "busy": {
+              "type": "boolean"
+            },
+            "summary": {
+              "type": "object",
+              "properties": {
+                "nodeId": {
+                  "type": "string"
+                },
+                "modelId": {
+                  "type": "string"
+                },
+                "deleteModel": {
+                  "type": "boolean"
+                },
+                "edgeCount": {
+                  "type": "number"
+                },
+                "conditionCount": {
+                  "type": "number"
+                },
+                "modelRelationCount": {
+                  "type": "number"
+                },
+                "fieldCount": {
+                  "type": "number"
+                },
+                "layoutChanges": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "nodeId",
+                "modelId",
+                "deleteModel",
+                "edgeCount",
+                "conditionCount",
+                "modelRelationCount",
+                "fieldCount",
+                "layoutChanges"
+              ],
+              "additionalProperties": false
+            },
+            "databaseConfirmed": {
+              "type": "boolean"
+            },
+            "canReadCurrent": {
+              "type": "boolean"
+            },
+            "canRetryLayout": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "status",
+            "pending",
+            "busy",
+            "summary",
+            "databaseConfirmed",
+            "canReadCurrent",
+            "canRetryLayout"
+          ],
+          "additionalProperties": false
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {
+            "acceptCurrent": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.retryLayout.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.retryLayout.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-03T05:31:35.228Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Status": {
+      "name": "Status",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'ready' | 'staged' | 'database' | 'layout' | 'complete' | 'cancelled' | 'not-applied'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'ready'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'staged'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'database'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'layout'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'complete'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cancelled'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'not-applied'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowNodeRemoval": {
+      "name": "WorkflowNodeRemoval",
+      "jsdoc": "原命令持有视图及提交捕获，不持有第二份可编辑数据。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "从原正式视图按需读取删除命令范围，尚不暂存或提交。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "WorkflowNodeRemoval",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getState",
+              "jsdoc": "只展示原捕获身份和计数，不提供独立可编辑副本。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        status: Status;\n        pending: boolean;\n        busy: boolean;\n        summary: Readonly<{\n            nodeId: string;\n            modelId: string;\n            deleteModel: boolean;\n            edgeCount: number;\n            conditionCount: number;\n            modelRelationCount: number;\n            fieldCount: number;\n            layoutChanges: boolean;\n        }> | undefined;\n        databaseConfirmed: boolean;\n        canReadCurrent: boolean;\n        canRetryLayout: boolean;\n    }"
+              }
+            },
+            {
+              "name": "stage",
+              "jsdoc": "删除暂存归原DataView；正式服务记录仍保留，保存前可取消。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "已派发数据库批次只核验原捕获；文件阶段失败不会再次删除数据库记录。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。",
+              "parameters": [
+                {
+                  "name": "acceptCurrent",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retryLayout",
+              "jsdoc": "仅在原文件批次已确认未生效后显式重提布局，数据库删除不会重放。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "仅撤销本命令未派发或已确认未生效的删除，不丢弃其他视图编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

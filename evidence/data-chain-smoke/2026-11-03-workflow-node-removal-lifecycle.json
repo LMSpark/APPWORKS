@@ -1,0 +1,52 @@
+{
+  "workflowId": "10335E6A43E44DA09F27C560EF1D343B",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "status": "shared-consumer-removal-confirmed",
+  "fullStructureCard": "implementing",
+  "siblingCreated": {
+    "nodeId": "0002B5989B20679C5FDA2071E19E9D71",
+    "reads": 10,
+    "writes": 1,
+    "confirmed": true
+  },
+  "browser": {
+    "previewModelPreserved": true,
+    "stagingFormalUnchanged": true,
+    "cancelFormalUnchanged": true,
+    "saveClickedOnce": true,
+    "deleteDialogClosed": true,
+    "alerts": []
+  },
+  "independentReadback": {
+    "deletedNodeAbsent": true,
+    "otherRecordsExact": true,
+    "counts": {
+      "models": 1,
+      "nodes": 4,
+      "fields": 30,
+      "edges": 3,
+      "relations": 0
+    }
+  },
+  "remainingConsumer": {
+    "status": "SUCCESS",
+    "completeness": "complete",
+    "count": 1,
+    "rowid": "227914F5E281705046D7F99F55B75522",
+    "nodeId": "152CDA1387F2AB99FB68E41F65FA0A06",
+    "command": "unique after-removal single-node execution",
+    "definitionScopeUnchanged": true
+  },
+  "cleanup": {
+    "newSiblingRemoved": true,
+    "originalDefinitionsRetained": 40
+  },
+  "newUnknown": 0,
+  "replay": 0,
+  "backendChanges": false,
+  "limits": [
+    "exclusive last consumer browser removal remains unverified",
+    "source replacement and shared fork remain unimplemented",
+    "complete structure fixture cleanup remains pending"
+  ]
+}

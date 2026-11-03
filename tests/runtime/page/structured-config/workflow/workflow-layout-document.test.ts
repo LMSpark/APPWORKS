@@ -1,5 +1,12 @@
 import {describe,expect,it} from 'vitest'
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
+
+it('removes only captured layout identities and retains unrelated objects and unknown members',()=>{
+ const source=JSON.stringify({custom:{keep:true},nodes:[{id:'A',x:1,y:2,custom:'deleted'},{id:'B',x:3,y:4,custom:'kept'}],edges:[{id:'AB',sourceNodeId:'A',targetNodeId:'B'},{id:'HISTORIC',sourceNodeId:'A',targetNodeId:'B',custom:'keep'}]})
+ expect(JSON.parse(WorkflowLayoutDocument.remove(source,{nodes:['A'],edges:['AB']}))).toEqual({custom:{keep:true},nodes:[{id:'B',x:3,y:4,custom:'kept'}],edges:[{id:'HISTORIC',sourceNodeId:'A',targetNodeId:'B',custom:'keep'}]})
+ expect(WorkflowLayoutDocument.remove(source,{nodes:['absent'],edges:[]})).toBe(source)
+ expect(JSON.parse(WorkflowLayoutDocument.remove(source,{nodes:['A','B'],edges:['AB','HISTORIC']}))).toEqual({custom:{keep:true},nodes:[],edges:[]})
+})
 describe('workflow layout projection and updates',()=>{
  it('projects coordinates without using saved business properties as node truth',()=>{
   const raw='{"nodes":[{"id":"N1","x":12,"y":34,"properties":{"name":"stale"}}],"edges":[{"id":"E1","sourceNodeId":"stale","pointsList":[{"x":1,"y":2},{"x":3,"y":4}]}],"keep":false}'

@@ -271,7 +271,22 @@
               "ForeignKeyFields",
               "JoinFilter",
               "PId",
-              "requestType"
+              "requestType",
+              "Filter",
+              "RequestComplete",
+              "OutputType",
+              "parentField",
+              "PrimaryKeyFields",
+              "hasChildField",
+              "selfType",
+              "topValue",
+              "cacheType",
+              "IsBusiness",
+              "IsBusinessMain",
+              "addApi",
+              "updateApi",
+              "deleteApi",
+              "items"
             ],
             "allPages": true
           },

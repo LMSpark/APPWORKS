@@ -11,7 +11,7 @@ import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-f
 /** 只消费当前元数据视图的可读定义，不建立引用或权限缓存。 */
 export class LowcodeDataSpaceModelRemoveReferences {
   /** 检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。 */
-  static validate(views: readonly DataView[], modelId: string, modelName: string): void {
+  static validate(views: readonly DataView[], modelId: string, modelName: string, removedRelationIds: ReadonlySet<string> = new Set()): void {
     const [models, fields, relations] = views
     if (!models || !fields || !relations) throw new Error('缺少删除引用检查视图')
     const read = (view: DataView, row: DataRow, key: string): unknown => {
@@ -66,7 +66,7 @@ export class LowcodeDataSpaceModelRemoveReferences {
       // Expression 是脱敏规则 ID，不参与模型/字段引用检查。
     }
     for (const row of relations.rows) {
-      if (row['parentModId'] === modelId || row['childModId'] === modelId) continue
+      if (removedRelationIds.has(String(row['rowid'])) || row['parentModId'] === modelId || row['childModId'] === modelId) continue
       filter(read(relations, row, 'filter'), row['childModId'], `Base_DataModel_Relation(${String(row['rowid'])}).filter`)
     }
   }

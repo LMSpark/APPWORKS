@@ -1,0 +1,585 @@
+[
+  {
+    "kind": "WorkflowNodeRemoval",
+    "catalog": {
+      "rootKind": "WorkflowNodeRemoval",
+      "models": [
+        {
+          "kind": "WorkflowNodeRemoval",
+          "name": "WorkflowNodeRemoval",
+          "jsdoc": "原命令持有视图及提交捕获，不持有第二份可编辑数据。",
+          "summary": "原命令持有视图及提交捕获，不持有第二份可编辑数据。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowNodeRemoval",
+      "models": [
+        {
+          "kind": "WorkflowNodeRemoval",
+          "name": "WorkflowNodeRemoval",
+          "jsdoc": "原命令持有视图及提交捕获，不持有第二份可编辑数据。",
+          "summary": "原命令持有视图及提交捕获，不持有第二份可编辑数据。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "private constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "从原正式视图按需读取删除命令范围，尚不暂存或提交。",
+              "summary": "从原正式视图按需读取删除命令范围，尚不暂存或提交。",
+              "signature": "open(input: Input): Promise<WorkflowNodeRemoval>"
+            },
+            {
+              "name": "getState",
+              "jsdoc": "只展示原捕获身份和计数，不提供独立可编辑副本。",
+              "summary": "只展示原捕获身份和计数，不提供独立可编辑副本。",
+              "signature": "getState(): {\n        status: Status;\n        pending: boolean;\n        busy: boolean;\n        summary: Readonly<{\n            nodeId: string;\n            modelId: string;\n            deleteModel: boolean;\n            edgeCount: number;\n            conditionCount: number;\n            modelRelationCount: number;\n            fieldCount: number;\n            layoutChanges: boolean;\n        }> | undefined;\n        databaseConfirmed: boolean;\n        canReadCurrent: boolean;\n        canRetryLayout: boolean;\n    }"
+            },
+            {
+              "name": "stage",
+              "jsdoc": "删除暂存归原DataView；正式服务记录仍保留，保存前可取消。",
+              "summary": "删除暂存归原DataView；正式服务记录仍保留，保存前可取消。",
+              "signature": "stage(): Promise<void>"
+            },
+            {
+              "name": "save",
+              "jsdoc": "已派发数据库批次只核验原捕获；文件阶段失败不会再次删除数据库记录。",
+              "summary": "已派发数据库批次只核验原捕获；文件阶段失败不会再次删除数据库记录。",
+              "signature": "save(): Promise<void>"
+            },
+            {
+              "name": "verify",
+              "jsdoc": "核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。",
+              "summary": "核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。",
+              "signature": "verify(acceptCurrent?: boolean): Promise<void>"
+            },
+            {
+              "name": "retryLayout",
+              "jsdoc": "仅在原文件批次已确认未生效后显式重提布局，数据库删除不会重放。",
+              "summary": "仅在原文件批次已确认未生效后显式重提布局，数据库删除不会重放。",
+              "signature": "retryLayout(): Promise<void>"
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "仅撤销本命令未派发或已确认未生效的删除，不丢弃其他视图编辑。",
+              "summary": "仅撤销本命令未派发或已确认未生效的删除，不丢弃其他视图编辑。",
+              "signature": "cancel(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "原命令持有视图及提交捕获，不持有第二份可编辑数据。\nclass WorkflowNodeRemoval {\n  private constructor()\n  从原正式视图按需读取删除命令范围，尚不暂存或提交。\n  open(input: Input): Promise<WorkflowNodeRemoval>\n  只展示原捕获身份和计数，不提供独立可编辑副本。\n  getState(): {\n          status: Status;\n          pending: boolean;\n          busy: boolean;\n          summary: Readonly<{\n              nodeId: string;\n              modelId: string;\n              deleteModel: boolean;\n              edgeCount: number;\n              conditionCount: number;\n              modelRelationCount: number;\n              fieldCount: number;\n              layoutChanges: boolean;\n          }> | undefined;\n          databaseConfirmed: boolean;\n          canReadCurrent: boolean;\n          canRetryLayout: boolean;\n      }\n  删除暂存归原DataView；正式服务记录仍保留，保存前可取消。\n  stage(): Promise<void>\n  已派发数据库批次只核验原捕获；文件阶段失败不会再次删除数据库记录。\n  save(): Promise<void>\n  核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。\n  verify(acceptCurrent?: boolean): Promise<void>\n  仅在原文件批次已确认未生效后显式重提布局，数据库删除不会重放。\n  retryLayout(): Promise<void>\n  仅撤销本命令未派发或已确认未生效的删除，不丢弃其他视图编辑。\n  cancel(): void\n}"
+  },
+  {
+    "kind": "WorkflowLayoutDocument",
+    "catalog": {
+      "rootKind": "WorkflowLayoutDocument",
+      "models": [
+        {
+          "kind": "WorkflowLayoutDocument",
+          "name": "WorkflowLayoutDocument",
+          "jsdoc": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+          "summary": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "WorkflowLayoutDocument",
+      "models": [
+        {
+          "kind": "WorkflowLayoutDocument",
+          "name": "WorkflowLayoutDocument",
+          "jsdoc": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+          "summary": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+          "constructorSignature": {
+            "summary": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+            "jsdoc": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "read",
+              "jsdoc": "仅投影布局坐标与显式折线；历史业务属性、端点和未知成员均不用于图业务身份。",
+              "summary": "仅投影布局坐标与显式折线；历史业务属性、端点和未知成员均不用于图业务身份。",
+              "signature": "read(text: string): Readonly<{\n        nodePositions: Readonly<Record<string, Point>>;\n        edgePaths: Readonly<Record<string, readonly Point[]>>;\n    }>"
+            },
+            {
+              "name": "move",
+              "jsdoc": "只改变本次节点坐标和明确关联边折线，其他对象及未知成员原样保留；调用方核对正式视图身份。",
+              "summary": "只改变本次节点坐标和明确关联边折线，其他对象及未知成员原样保留；调用方核对正式视图身份。",
+              "signature": "move(text: string, event: Move): string"
+            },
+            {
+              "name": "remove",
+              "jsdoc": "仅移除正式命令捕获的对象ID；历史布局端点不扩张删除集合，无变化时保留原文。",
+              "summary": "仅移除正式命令捕获的对象ID；历史布局端点不扩张删除集合，无变化时保留原文。",
+              "signature": "remove(text: string, ids: Readonly<{\n        nodes: ReadonlyArray<string | number>;\n        edges: ReadonlyArray<string | number>;\n    }>): string"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。\nclass WorkflowLayoutDocument {\n  工作流独立布局文本的纯投影；每次从传入文本解析，不持有第二份草稿。\n  constructor()\n  仅投影布局坐标与显式折线；历史业务属性、端点和未知成员均不用于图业务身份。\n  read(text: string): Readonly<{\n          nodePositions: Readonly<Record<string, Point>>;\n          edgePaths: Readonly<Record<string, readonly Point[]>>;\n      }>\n  只改变本次节点坐标和明确关联边折线，其他对象及未知成员原样保留；调用方核对正式视图身份。\n  move(text: string, event: Move): string\n  仅移除正式命令捕获的对象ID；历史布局端点不扩张删除集合，无变化时保留原文。\n  remove(text: string, ids: Readonly<{\n          nodes: ReadonlyArray<string | number>;\n          edges: ReadonlyArray<string | number>;\n      }>): string\n}"
+  },
+  {
+    "kind": "RDialogProps",
+    "catalog": {
+      "rootKind": "RDialogProps",
+      "models": [
+        {
+          "kind": "RDialogProps",
+          "name": "RDialogProps",
+          "jsdoc": "RDialog Props 的属性契约。",
+          "summary": "RDialog Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkVisibilityContainerProps",
+              "targetName": "SparkVisibilityContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "DialogFullscreenOptions",
+              "targetName": "DialogFullscreenOptions"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererDialog",
+            "type": "r-dialog",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RDialogProps",
+      "models": [
+        {
+          "kind": "RDialogProps",
+          "name": "RDialogProps",
+          "jsdoc": "RDialog Props 的属性契约。",
+          "summary": "RDialog Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkVisibilityContainerProps",
+              "targetName": "SparkVisibilityContainerProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkGridLayoutProps",
+              "targetName": "SparkGridLayoutProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "DialogFullscreenOptions",
+              "targetName": "DialogFullscreenOptions"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererDialog",
+            "type": "r-dialog",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          },
+          "attributes": [
+            {
+              "name": "header",
+              "jsdoc": "结构化头部",
+              "summary": "结构化头部",
+              "typeText": "RHeaderProps"
+            },
+            {
+              "name": "footer",
+              "jsdoc": "结构化底部",
+              "summary": "结构化底部",
+              "typeText": "RFooterProps"
+            },
+            {
+              "name": "title",
+              "jsdoc": "对话框标题",
+              "summary": "对话框标题",
+              "typeText": "string"
+            },
+            {
+              "name": "width",
+              "jsdoc": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。",
+              "summary": "弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。",
+              "typeText": "string | number"
+            },
+            {
+              "name": "top",
+              "jsdoc": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "summary": "距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。",
+              "typeText": "string"
+            },
+            {
+              "name": "appendToBody",
+              "jsdoc": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "summary": "挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "destroyOnClose",
+              "jsdoc": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "summary": "关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "modelValue",
+              "jsdoc": "控制显隐",
+              "summary": "控制显隐",
+              "typeText": "false | true"
+            },
+            {
+              "name": "closeDisabled",
+              "jsdoc": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "summary": "禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。",
+              "typeText": "false | true"
+            },
+            {
+              "name": "bodyClass",
+              "jsdoc": "内容区 CSS 类名",
+              "summary": "内容区 CSS 类名",
+              "typeText": "string"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-dialog; name=RendererDialog; level=container; layer=layout-container; directory=containers/layout */\n/**\n * DTS declaration: RDialogProps = LayoutDataContextProps & SparkVisibilityContainerProps & SparkGridLayoutProps & DialogFullscreenOptions & {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}\n * DTS relation: intersection LayoutDataContextProps\n * DTS relation: intersection SparkVisibilityContainerProps\n * DTS relation: intersection SparkGridLayoutProps\n * DTS relation: intersection DialogFullscreenOptions\n * DTS relation: intersection {\n    /** 结构化头部 */\n    header?: RHeaderProps;\n    /** 结构化底部 */\n    footer?: RFooterProps;\n    /** 对话框标题 */\n    title?: string;\n    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */\n    width?: string | number;\n    /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */\n    top?: string;\n    /** 挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。 */\n    appendToBody?: boolean;\n    /** 关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。 */\n    destroyOnClose?: boolean;\n    /** 控制显隐 */\n    modelValue?: boolean;\n    /** 禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。 */\n    closeDisabled?: boolean;\n    /** 内容区 CSS 类名 */\n    bodyClass?: string;\n}\n */\nRDialog Props 的属性契约。\ntype RDialogProps {\n  结构化头部\n  readonly header: RHeaderProps\n  结构化底部\n  readonly footer: RFooterProps\n  对话框标题\n  readonly title: string\n  弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。\n  readonly width: string | number\n  距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。\n  readonly top: string\n  挂载到文档body，默认false；嵌套弹窗启用后避免被父窗口滚动区裁切，数据上下文仍沿原组件树继承。\n  readonly appendToBody: false | true\n  关闭动画结束后释放弹窗内容，默认false；不自动保存或取消绑定视图的草稿。\n  readonly destroyOnClose: false | true\n  控制显隐\n  readonly modelValue: false | true\n  禁止用户和组件API关闭弹窗，默认false。阻止关闭按钮、遮罩、Esc、插槽close及close/toggle动作；外部modelValue=false仍可显式释放弹窗。用于草稿/在途操作保护，不代表数据权限。\n  readonly closeDisabled: false | true\n  内容区 CSS 类名\n  readonly bodyClass: string\n}"
+  },
+  {
+    "kind": "RButtonProps",
+    "catalog": {
+      "rootKind": "RButtonProps",
+      "models": [
+        {
+          "kind": "RButtonProps",
+          "name": "RButtonProps",
+          "jsdoc": "RButton Props 的属性契约。",
+          "summary": "RButton Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererButton",
+            "type": "r-button",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RButtonProps",
+      "models": [
+        {
+          "kind": "RButtonProps",
+          "name": "RButtonProps",
+          "jsdoc": "RButton Props 的属性契约。",
+          "summary": "RButton Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererButton",
+            "type": "r-button",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          },
+          "attributes": [
+            {
+              "name": "permAction",
+              "jsdoc": "自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。",
+              "summary": "自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。",
+              "typeText": "\"create\" | \"edit\" | \"delete\" | \"create-child\""
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。",
+              "summary": "业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "action",
+              "jsdoc": "CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\nappend-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。",
+              "summary": "CRUD 或页面动作名，由宿主内置 action runner 接管执行。",
+              "typeText": "BuiltinActionName"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\nappend-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。",
+              "summary": "目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。",
+              "typeText": "string"
+            },
+            {
+              "name": "idField",
+              "jsdoc": "目标行主键字段名。\n@default \"id\"",
+              "summary": "目标行主键字段名。",
+              "typeText": "string"
+            },
+            {
+              "name": "appendPayload",
+              "jsdoc": "append-row/prompt-append 新行初始字段值。\n适合写入固定状态，例如 {\"status\":\"pending\"}。\n@default {}",
+              "summary": "append-row/prompt-append 新行初始字段值。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "inheritFields",
+              "jsdoc": "append-row/prompt-append 从当前作用域行复制到新行的字段名。\n表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n@default []",
+              "summary": "append-row/prompt-append 从当前作用域行复制到新行的字段名。",
+              "typeText": "string[]"
+            },
+            {
+              "name": "inheritFieldMap",
+              "jsdoc": "append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\nkey 是源字段，value 是新行目标字段。\n@default {}",
+              "summary": "append-row/prompt-append 从当前作用域行复制并重命名的字段映射。",
+              "typeText": "Record<string, string>"
+            },
+            {
+              "name": "setCurrentRowOnSuccess",
+              "jsdoc": "新增成功后是否将新行设为目标视图 currentRow。\n@default false",
+              "summary": "新增成功后是否将新行设为目标视图 currentRow。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "patch",
+              "jsdoc": "patch-row/patch-current/patch-selected 的静态更新字段。\n用于批量写入固定值，例如 {\"status\":\"approved\"}。\n@default {}",
+              "summary": "patch-row/patch-current/patch-selected 的静态更新字段。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "field",
+              "jsdoc": "prompt/patch/set-field 使用的单字段名。\nfield/value 成对出现时，只更新一个字段。",
+              "summary": "prompt/patch/set-field 使用的单字段名。",
+              "typeText": "string"
+            },
+            {
+              "name": "value",
+              "jsdoc": "patch/set-field 使用的单字段值。\n与 field 配合使用。",
+              "summary": "patch/set-field 使用的单字段值。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "then",
+              "jsdoc": "当前内置动作成功后的链式动作。\n例如 append-row 成功后再 patch-current 清空草稿表单。",
+              "summary": "当前内置动作成功后的链式动作。",
+              "typeText": "ActionDescriptor"
+            },
+            {
+              "name": "successMessage",
+              "jsdoc": "操作成功后的提示文案。\n@default \"\"",
+              "summary": "操作成功后的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "failureMessage",
+              "jsdoc": "操作失败后的提示文案。\n@default \"\"",
+              "summary": "操作失败后的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "emptyMessage",
+              "jsdoc": "数据源为空或目标行不存在时的提示文案。\n@default \"\"",
+              "summary": "数据源为空或目标行不存在时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "errorMessage",
+              "jsdoc": "运行时异常时的提示文案。\n@default \"\"",
+              "summary": "运行时异常时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "validateMessage",
+              "jsdoc": "表单校验失败时的提示文案。\n@default \"\"",
+              "summary": "表单校验失败时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmMessage",
+              "jsdoc": "操作前确认文案；空字符串表示跳过确认。\n@default \"\"",
+              "summary": "操作前确认文案；空字符串表示跳过确认。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmTitle",
+              "jsdoc": "操作前确认标题。\n@default \"\"",
+              "summary": "操作前确认标题。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmType",
+              "jsdoc": "操作前确认类型。\n由 UI 消息组件解释，常见值为 warning、info、success、error。\n@default \"warning\"",
+              "summary": "操作前确认类型。",
+              "typeText": "string"
+            },
+            {
+              "name": "silent",
+              "jsdoc": "静默模式；成功/失败提示不展示。\n@default false",
+              "summary": "静默模式；成功/失败提示不展示。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "disabledWhenRow",
+              "jsdoc": "当前行字段值匹配此对象时禁用按钮。\n常用于 status 等字段控制操作可用性。\n@default {}",
+              "summary": "当前行字段值匹配此对象时禁用按钮。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "template",
+              "jsdoc": "样式模板名。\n常见值如 primary、toolbar-danger、icon-add。",
+              "summary": "样式模板名。",
+              "typeText": "string"
+            },
+            {
+              "name": "label",
+              "jsdoc": "按钮文本。\n@default \"\"",
+              "summary": "按钮文本。",
+              "typeText": "string"
+            },
+            {
+              "name": "buttonType",
+              "jsdoc": "按钮类型。\n传给底层按钮组件的视觉类型。",
+              "summary": "按钮类型。",
+              "typeText": "string"
+            },
+            {
+              "name": "buttonSize",
+              "jsdoc": "按钮尺寸。\nElement Plus 按钮尺寸只允许 default、small、large。\n@default \"default\"",
+              "summary": "按钮尺寸。",
+              "typeText": "string"
+            },
+            {
+              "name": "plain",
+              "jsdoc": "是否朴素按钮。\n@default false",
+              "summary": "是否朴素按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "text",
+              "jsdoc": "是否文本按钮。\n@default false",
+              "summary": "是否文本按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "bg",
+              "jsdoc": "文本按钮是否显示背景。\n@default false",
+              "summary": "文本按钮是否显示背景。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "link",
+              "jsdoc": "是否链接风格。\n@default false",
+              "summary": "是否链接风格。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "round",
+              "jsdoc": "是否圆角。\n@default false",
+              "summary": "是否圆角。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "circle",
+              "jsdoc": "是否圆形按钮。\n@default false",
+              "summary": "是否圆形按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "loading",
+              "jsdoc": "是否加载中。\n@default false",
+              "summary": "是否加载中。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "icon",
+              "jsdoc": "图标名称。\n使用当前图标注册表中的图标名。",
+              "summary": "图标名称。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoInsertSpace",
+              "jsdoc": "中文按钮文案是否自动插空格。\n@default false",
+              "summary": "中文按钮文案是否自动插空格。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "color",
+              "jsdoc": "自定义颜色。\n传给底层按钮组件的颜色值。",
+              "summary": "自定义颜色。",
+              "typeText": "string"
+            },
+            {
+              "name": "dark",
+              "jsdoc": "是否使用深色主题。\n@default false",
+              "summary": "是否使用深色主题。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onClick",
+              "jsdoc": "自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。",
+              "summary": "自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。",
+              "signature": "onClick(args: ...unknown[]): unknown"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-button; name=RendererButton; level=container; layer=layout-container; directory=containers/layout */\n/**\n * DTS declaration: RButtonProps = SparkNodeProps & {\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection {\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}\n */\nRButton Props 的属性契约。\ntype RButtonProps {\n  自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n  省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n  批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n  readonly permAction: \"create\" | \"edit\" | \"delete\" | \"create-child\"\n  业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。\n  readonly disabled: boolean\n  CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n  新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n  append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n  readonly action: BuiltinActionName\n  目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n  append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n  完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n  readonly dataViewKey: string\n  目标行主键字段名。\n  @default \"id\"\n  readonly idField: string\n  append-row/prompt-append 新行初始字段值。\n  适合写入固定状态，例如 {\"status\":\"pending\"}。\n  @default {}\n  readonly appendPayload: Record<string, unknown>\n  append-row/prompt-append 从当前作用域行复制到新行的字段名。\n  表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n  @default []\n  readonly inheritFields: string[]\n  append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n  key 是源字段，value 是新行目标字段。\n  @default {}\n  readonly inheritFieldMap: Record<string, string>\n  新增成功后是否将新行设为目标视图 currentRow。\n  @default false\n  readonly setCurrentRowOnSuccess: boolean\n  patch-row/patch-current/patch-selected 的静态更新字段。\n  用于批量写入固定值，例如 {\"status\":\"approved\"}。\n  @default {}\n  readonly patch: Record<string, unknown>\n  prompt/patch/set-field 使用的单字段名。\n  field/value 成对出现时，只更新一个字段。\n  readonly field: string\n  patch/set-field 使用的单字段值。\n  与 field 配合使用。\n  readonly value: unknown\n  当前内置动作成功后的链式动作。\n  例如 append-row 成功后再 patch-current 清空草稿表单。\n  readonly then: ActionDescriptor\n  操作成功后的提示文案。\n  @default \"\"\n  readonly successMessage: string\n  操作失败后的提示文案。\n  @default \"\"\n  readonly failureMessage: string\n  数据源为空或目标行不存在时的提示文案。\n  @default \"\"\n  readonly emptyMessage: string\n  运行时异常时的提示文案。\n  @default \"\"\n  readonly errorMessage: string\n  表单校验失败时的提示文案。\n  @default \"\"\n  readonly validateMessage: string\n  操作前确认文案；空字符串表示跳过确认。\n  @default \"\"\n  readonly confirmMessage: string\n  操作前确认标题。\n  @default \"\"\n  readonly confirmTitle: string\n  操作前确认类型。\n  由 UI 消息组件解释，常见值为 warning、info、success、error。\n  @default \"warning\"\n  readonly confirmType: string\n  静默模式；成功/失败提示不展示。\n  @default false\n  readonly silent: boolean\n  当前行字段值匹配此对象时禁用按钮。\n  常用于 status 等字段控制操作可用性。\n  @default {}\n  readonly disabledWhenRow: Record<string, unknown>\n  样式模板名。\n  常见值如 primary、toolbar-danger、icon-add。\n  readonly template: string\n  按钮文本。\n  @default \"\"\n  readonly label: string\n  按钮类型。\n  传给底层按钮组件的视觉类型。\n  readonly buttonType: string\n  按钮尺寸。\n  Element Plus 按钮尺寸只允许 default、small、large。\n  @default \"default\"\n  readonly buttonSize: string\n  是否朴素按钮。\n  @default false\n  readonly plain: boolean\n  是否文本按钮。\n  @default false\n  readonly text: boolean\n  文本按钮是否显示背景。\n  @default false\n  readonly bg: boolean\n  是否链接风格。\n  @default false\n  readonly link: boolean\n  是否圆角。\n  @default false\n  readonly round: boolean\n  是否圆形按钮。\n  @default false\n  readonly circle: boolean\n  是否加载中。\n  @default false\n  readonly loading: boolean\n  图标名称。\n  使用当前图标注册表中的图标名。\n  readonly icon: string\n  中文按钮文案是否自动插空格。\n  @default false\n  readonly autoInsertSpace: boolean\n  自定义颜色。\n  传给底层按钮组件的颜色值。\n  readonly color: string\n  是否使用深色主题。\n  @default false\n  readonly dark: boolean\n  自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。\n  onClick(args: ...unknown[]): unknown\n}"
+  }
+]

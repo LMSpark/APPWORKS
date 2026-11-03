@@ -10,6 +10,7 @@ import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resou
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
 import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
 import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/query-computed-fields'
+import {workflowQueryAncestors} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 
@@ -32,6 +33,18 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it('projects ancestry after exact node and edge removal without mutating the saved graph',async()=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=['START','A','B'].map(rowid=>({rowid,workflow_id:'W1',position_type:rowid==='START'?0:1,node_type:'query'}))
+  http.records['Base_WorkflowConnectors']=[{rowid:'SA',workflow_id:'W1',sourceID:'START',targetID:'A'},{rowid:'AB',workflow_id:'W1',sourceID:'A',targetID:'B'}]
+  await Promise.all([nodes.refresh(),edges.refresh()])
+  expect([...workflowQueryAncestors(nodes,edges,'W1','B').ancestors].sort()).toEqual(['A','START'])
+  expect([...workflowQueryAncestors(nodes,edges,'W1','B',{nodes:['A'],edges:['SA','AB']}).ancestors]).toEqual([])
+  expect(()=>workflowQueryAncestors(nodes,edges,'W1','B',{nodes:['A'],edges:['SA']})).toThrow('端点')
+  http.records['Base_WorkflowConnectors']!.push({rowid:'SB',workflow_id:'W1',sourceID:'START',targetID:'B'});await edges.refresh()
+  expect([...workflowQueryAncestors(nodes,edges,'W1','B',{nodes:['A'],edges:['SA','AB']}).ancestors]).toEqual(['START'])
+  expect(nodes.rows).toHaveLength(3);expect(edges.rows).toHaveLength(3);expect(http.saves).toHaveLength(0)
+ })
  it.each(['remove','save'])('preserves late field edits while async structure checks run: %s',async action=>{
   const {ds,http}=await fixture(),models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',output_mapping:'[]'}]

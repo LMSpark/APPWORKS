@@ -38,6 +38,10 @@
             },
             "modelName": {
               "type": "string"
+            },
+            "removedRelationIds": {
+              "type": "object",
+              "title": "ReadonlySet<string>"
             }
           },
           "additionalProperties": false
@@ -46,7 +50,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.434Z",
+  "generatedAt": "2026-11-03T05:13:22.107Z",
   "models": {
     "LowcodeDataSpaceModelRemoveReferences": {
       "name": "LowcodeDataSpaceModelRemoveReferences",
@@ -83,6 +87,22 @@
                   "type": {
                     "type": "intrinsic",
                     "name": "string"
+                  }
+                },
+                {
+                  "name": "removedRelationIds",
+                  "type": {
+                    "type": "reference",
+                    "name": "ReadonlySet",
+                    "typeArguments": [
+                      {
+                        "type": "intrinsic",
+                        "name": "string"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

@@ -1265,7 +1265,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T03:51:14.072Z",
+  "generatedAt": "2026-11-03T12:56:49.788Z",
   "models": {
     "Reader": {
       "name": "Reader",
@@ -1429,7 +1429,7 @@
       "jsdoc": "来源替换的预览；正式记录仍归原DataView。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */\n    operation: 'replace' | 'synchronize';\n    /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */\n    removals: Array<{\n        id: string;\n        name: string;\n        type: string;\n    }>;\n    /** 来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。 */\n    removalChoices: Array<{\n        id: string;\n        name: string;\n        removed: boolean;\n    }>;\n    /** 新来源参数的明确取值；未配置时不得提交替换或同步。 */\n    inputChoices: Array<{\n        sourceName: string;\n        value: string;\n    }>;\n    /** 当前已保存的空间参数目录；不可读时常量仍可编辑。 */\n    inputParams: Array<{\n        value: string;\n        label: string;\n    }>;\n    /** 参数声明不可用的原因；不猜测引用。 */\n    parameterWarning: string;\n    /** 已有字段的类型/主键差异；只有明确确认才进入原视图变更。 */\n    contractChanges: Array<{\n        id: string;\n        name: string;\n        before: string;\n        after: string;\n        accepted: boolean;\n        patch: Record<string, unknown>;\n    }>;\n    /** 与本次来源合同一起确认、在数据库回读后提交的命名视图变化。 */\n    viewChanges: SourceContractPlan['viewChanges'];\n    /** 保持不变的模型注册名。 */\n    name: string;\n    /** 精确重读得到的来源。 */\n    prepared: Prepared;\n    /** 逐字段兼容性结果，不包含运行行或权限凭据。 */\n    differences: Array<{\n        name: string;\n        result: string;\n    }>;\n    /** 须先处理的迁移或诊断项。 */\n    problems: string[];\n    /** 原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。 */\n    fieldChoices: Array<{\n        id: string;\n        name: string;\n        outputName: string;\n        sourceName: string;\n        candidates: string[];\n    }>;\n    /** 尚未绑定的数据字段，可显式引入为输出列。 */\n    additions: Array<{\n        sourceName: string;\n        included: boolean;\n    }>;\n    /** 原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。 */\n    relationChanges: Array<{\n        id: string;\n        before: string;\n        after: string;\n    }>;\n    /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */\n    modelChanges: Array<{\n        property: string;\n        before: string;\n        after: string;\n    }>;\n    /** 自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。 */\n    expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>;\n    /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */\n    fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>;\n}",
+        "declarationTypeText": "{\n    /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */\n    operation: 'replace' | 'synchronize';\n    /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */\n    removals: Array<{\n        id: string;\n        name: string;\n        type: string;\n    }>;\n    /** 来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。 */\n    removalChoices: Array<{\n        id: string;\n        name: string;\n        removed: boolean;\n    }>;\n    /** 新来源参数的明确取值；未配置时不得提交替换或同步。 */\n    inputChoices: Array<{\n        sourceName: string;\n        value: string;\n    }>;\n    /** 当前已保存的空间参数目录；不可读时常量仍可编辑。 */\n    inputParams: Array<{\n        value: string;\n        label: string;\n    }>;\n    /** 参数声明不可用的原因；不猜测引用。 */\n    parameterWarning: string;\n    /** 已有字段的类型/主键差异；只有明确确认才进入原视图变更。 */\n    contractChanges: Array<{\n        id: string;\n        name: string;\n        before: string;\n        after: string;\n        accepted: boolean;\n        patch: Record<string, unknown>;\n    }>;\n    /** 与本次来源合同一起确认、在数据库回读后提交的命名视图变化。 */\n    viewChanges: SourceContractPlan['viewChanges'];\n    /** 保持不变的模型注册名。 */\n    name: string;\n    /** 精确重读得到的来源。 */\n    prepared: Prepared;\n    /** 逐字段兼容性结果，不包含运行行或权限凭据。 */\n    differences: Array<{\n        name: string;\n        result: string;\n    }>;\n    /** 须先处理的迁移或诊断项。 */\n    problems: string[];\n    /** 原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。 */\n    fieldChoices: Array<{\n        id: string;\n        name: string;\n        outputName: string;\n        sourceName: string;\n        candidates: string[];\n    }>;\n    /** 尚未绑定的数据字段，可显式引入为输出列。 */\n    additions: Array<{\n        sourceName: string;\n        included: boolean;\n    }>;\n    /** 原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。 */\n    relationChanges: Array<{\n        id: string;\n        before: string;\n        after: string;\n    }>;\n    /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */\n    modelChanges: Array<{\n        property: string;\n        before: string;\n        after: string;\n    }>;\n    /** 自身和依赖模型Filter、JoinFilter及外键的明确引用变更。 */\n    expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>;\n    /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */\n    fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>;\n}",
         "members": {
           "attributes": [
             {
@@ -1530,7 +1530,7 @@
             },
             {
               "name": "expressionChanges",
-              "jsdoc": "自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。",
+              "jsdoc": "自身和依赖模型Filter、JoinFilter及外键的明确引用变更。",
               "readable": true,
               "writable": true
             },

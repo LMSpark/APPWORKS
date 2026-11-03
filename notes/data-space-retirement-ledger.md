@@ -5678,3 +5678,9 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终扩大回归已结束：同范围59文件2017测试全部通过，--maxWorkers=2、原断言/15秒超时不变，409.36秒，原exec25449 exit0；没有未结束测试批次。长等待诊断时仅在最后一个自有测试worker激活临时loopback inspector，未连接调试器/暂停/改写脚本，随后批次正常完成且进程/端口均已消失；该过程不作为产品性能通过证据。首次并行超时及独立5项通过仍保留。
 - 四个生产helper最终typecheck/lint通过，最终build:fe通过；ClassModel再正式生成、六对象目录概要指南及verify:class-model（4文件49测试）通过，page-thin通过。归一比较恢复44份等价编译噪声，仅保留真实.dts-manifest源hash；受改文件AI规则对比HEAD仅同一既有ModelRemoveReferences.validate四位置参数违例，没有新增违例；未放宽门禁。整仓430文件与全局门禁仍未证明通过。
 - 完整卡下一步仍为：源替换按SQL实际限定名保留/迁移JoinFilter、子单字段Foreign与父注册名，补显式父子依赖读取；然后对ChildTables请求、扁平/嵌套结果身份及原权限回包建立正式公共承接并实服匹配/不匹配、LEFT/INNER、无JoinFilter层级对照。先核合同，不能凭前端拼主键/合并权限/拉全行伪造Join闭环；当前叶Join不冒充这些能力。实服存量UserInfo父注册名缺口继续保留不自动修正。当前提交是该完整卡的结构前置检查点，目标保持active。
+
+- 53c5263ba推送后继续同卡换源迁移：原owner三条RED证明子Foreign/Join与父换源（空/固定ShortName）被统一拒绝；现补显式父子字段ID查询、独立JoinFilter SQL限定名变换及子单字段Foreign映射。Filter继续原注册Name合同；PId/JoinType保留，未变化不要求额外写权限。仍沿原expressionChanges→DataSet批次与回读/未知捕获，不增第二保存通道。
+- 高阶工位发现目标SQL限定名碰撞与非SQL/跨库来源转换两处漏检；均补准确RED再修复。首次碰撞测试重预览清空映射，已重新显式映射后复现空诊断；非SQL首稿label不符会被旧守卫拒绝，已改成来源类型一致的JSON候选，准确证明缺Join转换诊断。受影响Join现检查原/新端点数据库表/视图、同非空DbId及独立有效限定名；无JoinFilter的Foreign层级仍不套SQL同库限制。
+- 原换源/表达式两文件246测试通过，扩大原改名/删除/字段/关系/数组共7文件496测试通过；typecheck/受改lint通过，AI规则本次受改文件HEAD与当前均0违例。ClassModel正式再编译并查询六对象目录概要指南，43份已证明等价噪声恢复，保留实际nextModel输入合同及源hash。最终ClassModel验证/构建正在同一exec3867等待终态，不能提前称通过。证据2026-11-03-join-source-migration.json。
+- 本轮实服写入0/执行0/新夹具0，原清理记录不重建。配置维护真实换源预览/取消/保存/独立回读/重开/精确清理仍待本卡后续；ChildTables与SQL返回身份/权限、Foreign层级实服消费仍未通过，整体active。
+- 最终exec3867已真实exit0：ClassModel验证4文件49项通过、build:fe通过、page-thin通过；未放宽规则或断言。当前为换源元数据迁移本地验证检查点，后续先跑实服临时模型CRUD与清理，再核运行消费；不将496项本地测试冒充全架构或实服Join完成。

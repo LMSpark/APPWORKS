@@ -3819,7 +3819,7 @@
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.429Z"
+      "sourceModifiedAt": "2026-11-03T13:01:45.387Z"
     },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references.ts",
@@ -3864,7 +3864,7 @@
     "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json",
-      "sourceModifiedAt": "2026-11-03T07:39:01.047Z"
+      "sourceModifiedAt": "2026-11-03T12:56:49.788Z"
     },
     "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",

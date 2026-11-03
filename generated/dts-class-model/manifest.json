@@ -12964,7 +12964,7 @@
         "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-migration.ts",
         "packageName": "app",
         "modulePath": "lowcode/data-space/model-source/model/lowcode-data-space-model-migration",
-        "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-migration\n职责：迁移数据库模型Filter中已确认的正式字段引用。\n边界：仅按注册Name解析模型；不推断物理表或SQL别名，不迁移后端Join配置。\nAI用途：生成逐模型预览delta，原元数据DataView负责授权和保存。",
+        "jsdoc": "@module app:lowcode/data-space/model-source/model/lowcode-data-space-model-migration\n职责：迁移模型Filter及明确父子Join配置中的正式字段引用。\n边界：Filter按注册Name；Join按原端点SQL限定名，不推断未知表达式。\nAI用途：生成逐模型预览delta，原元数据DataView负责授权和保存。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDataSpaceModelMigration"

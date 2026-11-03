@@ -70,7 +70,7 @@ type Preview = {
   relationChanges: Array<{id: string; before: string; after: string}>
   /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */
   modelChanges: Array<{property: string; before: string; after: string}>
-  /** 自身和依赖模型Filter字段引用变更；后端Join配置不参与本轮迁移。 */
+  /** 自身和依赖模型Filter、JoinFilter及外键的明确引用变更。 */
   expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>
   /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */
   fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>
@@ -201,13 +201,20 @@ function modelSourceEditSelectViews(host: ModelSourceEditHost, synchronizing: bo
   }
   const fields = synchronizing ? host.syncFields : host.replacementFields
   if (!fields) throw new Error('来源操作字段视图不存在')
-  // Filter可能使用限定名，也可能存在含点的本地字段；仅补读持有Filter的模型，不扫描其他模型字段。
+  // 仅查询有明确过滤/Join/外键引用的端点，不把所有模型字段装入当前工作区。
   const modelIds = new Set([host.modelId])
   if (!synchronizing) for (const model of host.models.rows) {
-    if (host.models.fieldAccess(model, 'Filter').read !== 'visible') throw new Error('模型过滤配置不可读，不能核验来源引用')
-    if (model['Filter'] !== undefined && model['Filter'] !== null && model['Filter'] !== '') {
+    const configured = (value: unknown) => value !== undefined && value !== null && value !== ''
+    if (['Filter', 'JoinFilter', 'ForeignKeyFields', 'PId'].some(key => host.models.fieldAccess(model, key).read !== 'visible')) throw new Error('模型过滤配置不可读，不能核验来源引用')
+    if (['Filter', 'JoinFilter', 'ForeignKeyFields'].some(key => configured(model[key]))) {
       if (typeof model['rowid'] !== 'string' || !model['rowid']) throw new Error('依赖模型身份不可确认')
       modelIds.add(model['rowid'])
+    }
+    if (configured(model['JoinFilter']) && configured(model['PId'])) {
+      const parents = host.models.rows.filter(row => row['Name'] === model['PId'])
+      const parent = parents[0]
+      if (parents.length !== 1 || !parent || typeof parent['rowid'] !== 'string' || !parent['rowid']) throw new Error('PId父模型注册名依赖未唯一解析')
+      modelIds.add(parent['rowid'])
     }
   }
   fields.queryContext = {...template.queryContext, dataSpaceId: host.targetId, modelId: host.modelId, modelIds: [...modelIds].sort()}
@@ -285,7 +292,7 @@ function modelSourceEditAssess(host: ModelSourceEditHost, prepared: Prepared) {
   const removals: Preview['removals'] = [], removalChoices: Preview['removalChoices'] = [], inputChoices: Preview['inputChoices'] = [], contractChanges: Preview['contractChanges'] = []
   if (typeof row['Name'] !== 'string' || !row['Name'].trim()) throw new Error('模型注册名无效')
   if (LowcodeDataSpaceSourceCatalog.config(prepared.source.type).label !== prepared.model.Type) problems.push('来源类型与正式读取结果不一致')
-  for (const key of ['JoinFilter', 'ForeignKeyFields', 'PId', 'JoinType', 'RequestComplete', 'items', 'addApi', 'updateApi', 'deleteApi']) {
+  for (const key of ['RequestComplete', 'items', 'addApi', 'updateApi', 'deleteApi']) {
     if (row[key] !== undefined && row[key] !== null && row[key] !== '') problems.push(`${key}含已有配置，须先确认来源引用迁移`)
   }
   const fields = host.fields.rows.filter(item => item['dataModelId'] === host.modelId)
@@ -330,7 +337,7 @@ function modelSourceEditAssess(host: ModelSourceEditHost, prepared: Prepared) {
     if (sourceName !== name && type === 'dataModel') {
       const configured = (value: unknown) => value !== undefined && value !== null && value !== ''
       if (host.models.rows.some(model => model['rowid'] !== host.modelId
-          && ['RequestComplete', 'JoinFilter', 'ForeignKeyFields', 'PId', 'JoinType'].some(property => configured(model[property])))) problems.push(`${name}：存在未解析的跨模型表达式，须先确认来源字段引用`)
+          && ['RequestComplete'].some(property => configured(model[property])))) problems.push(`${name}：存在未解析的跨模型表达式，须先确认来源字段引用`)
     }
     if (!computed) {
       if (used.has(sourceKey)) result = '同一来源字段不能映射到多个记录'
@@ -389,7 +396,8 @@ function modelSourceEditAssess(host: ModelSourceEditHost, prepared: Prepared) {
   } catch (error) {problems.push(error instanceof Error ? error.message : String(error))}
   try {
     expressionChanges = LowcodeDataSpaceModelMigration.prepare({modelId: host.modelId,
-      models: host.models.rows, fields: host.fields.rows, mappings})
+      models: host.models.rows, fields: host.fields.rows, mappings,
+      nextModel: Object.fromEntries(SOURCE_KEYS.map(key => [key, prepared.model[key]]))})
   } catch (error) {problems.push(error instanceof Error ? error.message : String(error))}
   try {
     relationChanges = LowcodeDataSpaceRelationMigration.prepare({relations: host.relations.rows, models: host.models.rows, fields: host.fields.rows,

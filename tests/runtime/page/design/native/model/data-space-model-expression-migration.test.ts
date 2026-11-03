@@ -1,10 +1,11 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
 import {LowcodeDataSpaceFieldMigration} from '@/lowcode/data-space/model-source/migration/lowcode-data-space-field-migration'
+import type {PageDataSpaceModelSource} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})
-const source = {type: 'table' as const, id: 'NEXT', name: 'NextOrders', description: '', dbid: 'DB2', databaseName: 'new', providerId: ''}
+const source: PageDataSpaceModelSource = {type: 'table', id: 'NEXT', name: 'NextOrders', description: '', dbid: 'DB2', databaseName: 'new', providerId: ''}
 const field = {type: 'dataModel' as const, Name: 'rowid', description: '', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
   AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
 const condition = (Field: string, ValueFun: Record<string, unknown>) => ({Type: 'cond', Field, Operator: 'equal', ValueFun})
@@ -15,7 +16,7 @@ async function setup(modelValues: Record<string, unknown> = {}, otherValues: Rec
     fields: [field, {...field, Name: 'parentCode', IsPKey: 0}]}))}
   const f = dataSpacePageFixture({allowSourceEdit: true, allowFieldEdit: true, modelSources: reader,
     sourceFields: ['M1', 'M2'].flatMap((dataModelId, i) => [{...field, rowid: `F${i * 2 + 1}`, dataModelId}, {...field, rowid: `F${i * 2 + 2}`, dataModelId, Name: 'parentId', IsPKey: 0}]), ...options})
-  fixtures.push(f); f.setModelValues(modelValues); f.setModelValues(otherValues, 'A', 'M2')
+  fixtures.push(f); f.setModelValues({DbId: 'DB2', DbName: 'new', ...modelValues}); f.setModelValues({DbId: 'DB2', DbName: 'new', ...otherValues}, 'A', 'M2')
   const session = await f.open('A'), owner = session.getModelSourceEdit('M1')
   await owner.preview(source); await owner.mapField({fieldId: 'F2', sourceName: 'parentCode'})
   return {f, owner, session, reader, writes: () => f.requests.filter(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')}
@@ -39,6 +40,36 @@ async function fieldReferenceSetup(options: Parameters<typeof dataSpacePageFixtu
 }
 
 describe('model filter references without SQL identity inference', () => {
+  it('migrates a child foreign key and its physical JoinFilter qualifier through the original source owner', async () => {
+    const before = wire('OrderSource.parentId', 'CustomerSource.rowid')
+    const {owner, f, writes} = await setup({PId: 'Customers', JoinType: 'LEFT', ForeignKeyFields: 'parentId', JoinFilter: before})
+    expect(owner.getState().preview?.problems).toEqual([])
+    await owner.save()
+    expect(writes()).toHaveLength(1)
+    const reopened = await f.open('A')
+    expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.find(row => row['rowid'] === 'M1')).toMatchObject({
+      Name: 'Orders', MetaName: 'NextOrders', PId: 'Customers', JoinType: 'LEFT', ForeignKeyFields: 'parentCode',
+      JoinFilter: wire('NextOrders.parentCode', 'CustomerSource.rowid'),
+    })
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
+  it.each(['', 'stableAlias'])('migrates a dependent child JoinFilter using the parent effective SQL qualifier (alias=%s)', async alias => {
+    const qualifier = alias || 'OrderSource'
+    const before = wire('CustomerSource.parentId', `${qualifier}.parentId`)
+    const {owner, session, f, writes} = await setup({ShortName: alias}, {PId: 'Orders', JoinType: 'INNER', JoinFilter: before},
+      {overviewOnly: true, deferDefinition: true})
+    expect(owner.getState().preview?.problems).toEqual([])
+    expect(session.metadataDataSet.getView('Base_DataModel_Field', 'sourceReplace:M1')?.queryContext['modelIds']).toEqual(['M1', 'M2'])
+    await owner.save()
+    expect(writes()).toHaveLength(1)
+    const reopened = await f.open('A')
+    expect(reopened.metadataDataSet.getView('Base_DataModel')?.rows.find(row => row['rowid'] === 'M2')).toMatchObject({
+      PId: 'Orders', JoinType: 'INNER', JoinFilter: wire('CustomerSource.parentId', `${alias || 'NextOrders'}.parentCode`),
+    })
+    expect(f.fileWrites).toHaveLength(0)
+  })
+
   it.each([false, true])('reads a dependent filter owner by model without migrating its local value definitions (dotted=%s)', async dotted => {
     const otherFilter = wire(dotted ? 'Orders.parentId' : 'parentId', 'Orders.parentId')
     const {owner, session, f, writes} = await setup({}, {Filter: otherFilter}, {overviewOnly: true, deferDefinition: true,
@@ -231,12 +262,80 @@ describe('model filter references without SQL identity inference', () => {
     expect(f.fileWrites).toHaveLength(0)
   })
 
-  it.each(['JoinFilter', 'ForeignKeyFields', 'PId', 'JoinType'] as const)('preserves backend %s instead of treating it as a frontend relation', async property => {
-    const original = property === 'JoinFilter' ? wire('parentId', 'parentId') : property === 'ForeignKeyFields' ? ' parentId , rowid ' : property === 'PId' ? 'Customers' : 'LEFT'
+  it.each(['JoinFilter', 'ForeignKeyFields'] as const)('diagnoses unresolved backend %s without guessing its references', async property => {
+    const original = property === 'JoinFilter' ? wire('parentId', 'parentId') : ' parentId , rowid '
     const {owner, f, writes} = await setup({[property]: original})
     expect(owner.getState().preview?.problems.join()).toContain(property)
     await expect(owner.save()).rejects.toThrow(property)
     expect(f.modelRow()[property]).toBe(original); expect(writes()).toHaveLength(0)
+  })
+
+  it('preserves unchanged parent and Join type without requiring their write permissions', async () => {
+    const {owner, f, writes} = await setup({PId: 'Customers', JoinType: 'LEFT'})
+    f.denyModelField('PId'); f.denyModelField('JoinType')
+    expect(owner.getState().preview?.problems).toEqual([])
+    await owner.save()
+    expect(writes()).toHaveLength(1)
+    expect(f.modelRow()).toMatchObject({PId: 'Customers', JoinType: 'LEFT'})
+  })
+
+  it('rejects denied dependent JoinFilter before staging any source change', async () => {
+    const before = wire('CustomerSource.parentId', 'OrderSource.parentId')
+    const {owner, f, writes} = await setup({}, {PId: 'Orders', JoinType: 'LEFT', JoinFilter: before})
+    f.denyModelField('JoinFilter')
+    await expect(owner.save()).rejects.toThrow('不允许修改依赖模型M2')
+    expect(writes()).toHaveLength(0)
+    expect(f.modelRow()).toMatchObject({MetaName: 'OrderSource'})
+    expect(f.modelRow('M2')['JoinFilter']).toBe(before)
+  })
+
+  it.each(['Orders', 'missing'])('rejects a non-SQL parent qualifier %s without guessing registered names', async prefix => {
+    const before = wire('CustomerSource.parentId', `${prefix}.parentId`)
+    const {owner, f, writes} = await setup({}, {PId: 'Orders', JoinFilter: before})
+    expect(owner.getState().preview?.problems.join()).toContain('SQL限定名')
+    await expect(owner.save()).rejects.toThrow('SQL限定名')
+    expect(writes()).toHaveLength(0)
+    expect(f.modelRow('M2')['JoinFilter']).toBe(before)
+  })
+
+  it('verifies a lost Join migration response without replaying the native batch', async () => {
+    const {owner, f, writes} = await setup({}, {PId: 'Orders', JoinFilter: wire('CustomerSource.parentId', 'OrderSource.parentId')})
+    f.loseNextResponse()
+    await expect(owner.save()).rejects.toThrow()
+    await expect(owner.save()).rejects.toThrow('先核验')
+    expect((await owner.verify()).confirmed).toBe(true)
+    expect(writes()).toHaveLength(1)
+    expect(f.modelRow('M2')['JoinFilter']).toBe(wire('CustomerSource.parentId', 'NextOrders.parentCode'))
+  })
+
+  it('rejects a source change that makes the parent and child SQL qualifiers collide', async () => {
+    const {owner, reader, writes} = await setup({}, {MetaName: 'NextOrders', PId: 'Orders', JoinFilter: wire('NextOrders.parentId', 'OrderSource.parentId')})
+    const prepared = await reader.prepare()
+    reader.prepare.mockResolvedValue(prepared)
+    await owner.preview(source)
+    await owner.mapField({fieldId: 'F2', sourceName: 'parentCode'})
+    expect(owner.getState().preview?.problems.join()).toContain('SQL限定名冲突')
+    await expect(owner.save()).rejects.toThrow('SQL限定名冲突')
+    expect(writes()).toHaveLength(0)
+  })
+
+  it('diagnoses an incompatible Join database before source changes are staged', async () => {
+    const {owner, writes} = await setup({}, {DbId: 'OTHER', PId: 'Orders', JoinFilter: wire('CustomerSource.parentId', 'OrderSource.parentId')})
+    expect(owner.getState().preview?.problems.join()).toContain('Join数据库')
+    await expect(owner.save()).rejects.toThrow('Join数据库')
+    expect(writes()).toHaveLength(0)
+  })
+
+  it('rejects changing a SQL Join endpoint to an unconfirmed non-SQL source contract', async () => {
+    const {owner, reader, writes} = await setup({}, {PId: 'Orders', JoinFilter: wire('CustomerSource.parentId', 'OrderSource.parentId')})
+    const prepared = await reader.prepare()
+    const candidate: PageDataSpaceModelSource = {...source, type: 'json'}
+    reader.prepare.mockResolvedValue({...prepared, source: candidate, model: {...prepared.model, Type: 'JSON'}})
+    await owner.preview(candidate)
+    await owner.mapField({fieldId: 'F2', sourceName: 'parentCode'})
+    expect(owner.getState().preview?.problems.join()).toContain('Join仅支持')
+    await expect(owner.save()).rejects.toThrow('Join仅支持')
+    expect(writes()).toHaveLength(0)
   })
 
   it('preserves constants, system and input values while migrating only registered model field references', async () => {

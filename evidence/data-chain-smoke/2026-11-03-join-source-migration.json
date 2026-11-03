@@ -1,0 +1,69 @@
+{
+  "date": "2026-11-03",
+  "status": "metadata implementation verified locally; live source replacement smoke pending",
+  "base": "53c5263ba629592cc4e4638f01439463213be626",
+  "scope": [
+    "Original source owner reads explicit Join child/parent and Foreign field dependencies by formal model IDs",
+    "Filter retains registered Name contract; JoinFilter uses confirmed original and projected SQL qualifiers",
+    "ForeignKeyFields follows exact single child physical field mapping",
+    "PId and JoinType remain untouched and require no additional write access",
+    "Affected SQL Join endpoints require confirmed SQL source types, same nonempty DbId and distinct effective qualifiers",
+    "Original DataSet permissions, batch save, readback, unknown capture and no replay retained"
+  ],
+  "red": [
+    {
+      "log": "artifacts/data-chain-smoke/join-source-owner-red.log",
+      "failed": 3,
+      "reason": "blanket source configuration and cross-model guards"
+    },
+    {
+      "log": "artifacts/data-chain-smoke/join-source-qualifier-collision-red.log",
+      "failed": 1,
+      "reason": "target SQL qualifiers collide after source change"
+    },
+    {
+      "log": "artifacts/data-chain-smoke/join-source-type-red.log",
+      "failed": 1,
+      "reason": "consistent JSON source contract lacks SQL Join transition diagnostic"
+    },
+    {
+      "log": "artifacts/data-chain-smoke/join-source-database-red.log",
+      "reason": "incompatible database scope lacks diagnostic; first non-SQL draft also hit preexisting source-label mismatch, replaced with consistent JSON candidate"
+    }
+  ],
+  "verification": {
+    "sevenFileRegression": {
+      "files": 7,
+      "passed": 496,
+      "log": "artifacts/data-chain-smoke/join-source-seven-file-regression.log"
+    },
+    "typecheck": "passed",
+    "changedFilesLint": "passed",
+    "changedFilesAiRules": {
+      "head": [],
+      "current": []
+    },
+    "classModelGeneration": "passed; 43 proven equivalent compiler noise files restored, genuine source and public input contract changes retained",
+    "classModelVerify": {
+      "files": 4,
+      "passed": 49,
+      "exitCode": 0
+    },
+    "build": "passed",
+    "guides": "queried six roots after compilation",
+    "highModelReview": "Two concrete findings reproduced and fixed; final limited static review found no further definite Important issue; no independent runtime verification",
+    "pageThin": "passed"
+  },
+  "realService": {
+    "writes": 0,
+    "newFixtures": 0,
+    "executions": 0
+  },
+  "remaining": [
+    "Live temporary formal model source replacement: preview/cancel/save/independent read/reopen/exact cleanup",
+    "ChildTables query contract and joined result identity/permissions",
+    "Deployed SQL matching/nonmatching, LEFT/INNER and Foreign hierarchy consumer matrix",
+    "Existing DepTable PId=UserInfo unresolved parent remains unchanged",
+    "Whole architecture smoke matrix and global gates remain incomplete"
+  ]
+}

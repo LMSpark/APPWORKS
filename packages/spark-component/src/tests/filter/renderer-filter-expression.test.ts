@@ -263,3 +263,43 @@ describe('standard filter definition binding', () => {
     expect(f.view.hasEditingChanges()).toBe(false)
   })
 })
+
+
+it('binds a nested optional filter and merges it into the latest JSON field without replacing siblings', async () => {
+  const original = {children: [{modelName: 'Child', fields: ['Name']}], maxRows: 10, unknown: false}
+  const f = fixture('tree', original, 'inline')
+  f.presentation.value = {valuePath: ['children', 0, 'filter']}
+  await flushPromises()
+  const editor = f.wrapper.getComponent(FilterExpressionEditor)
+  expect(editor.props('modelValue')).toBeUndefined()
+  const apply = editor.vm.$.vnode.props?.['onUpdate:modelValue']
+  f.view.updateEditingValue('a', 'predicate', {...original, maxRows: 20, unknown: true})
+  await flushPromises()
+  expect(f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid).toBe(editor.vm.$.uid)
+  if (typeof apply !== 'function') throw new Error('apply callback missing')
+  apply({field: 'Name', operator: 'eq', value: 0})
+  await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, maxRows: 20, unknown: true,
+    children: [{...original.children[0], filter: {field: 'Name', operator: 'eq', value: 0}}]})
+  f.wrapper.getComponent(FilterExpressionEditor).vm.$emit('update:modelValue', undefined)
+  await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, maxRows: 20, unknown: true})
+  expect(f.view.rows[0]?.['predicate']).toEqual(original)
+})
+
+it('invalidates nested filter callbacks when the selected path or its owning node changes', async () => {
+  const tree = {field: 'Name', operator: 'eq' as const, value: 'original'}
+  const original = {children: [{modelName: 'First', filter: tree}, {modelName: 'Second', filter: tree}]}
+  const f = fixture('tree', original, 'inline')
+  f.presentation.value = {valuePath: ['children', 0, 'filter']}; await flushPromises()
+  const stale = f.wrapper.getComponent(FilterExpressionEditor).vm.$.vnode.props?.['onUpdate:modelValue']
+  f.view.updateEditingValue('a', 'predicate', {children: original.children.slice().reverse()})
+  await flushPromises()
+  if (typeof stale !== 'function') throw new Error('apply callback missing')
+  stale({...tree, value: 'wrong node'})
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({children: original.children.slice().reverse()})
+  f.presentation.value = {valuePath: ['children', 1, 'filter']}; await flushPromises()
+  f.wrapper.getComponent(FilterExpressionEditor).vm.$emit('update:modelValue', {...tree, value: 'right node'})
+  await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({children: [original.children[1], {...original.children[0], filter: {...tree, value: 'right node'}}]})
+})

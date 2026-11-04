@@ -31355,7 +31355,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.stageInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 198,
+      "declarationLine": 208,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31367,7 +31367,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.reloadInputParameters 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 214,
+      "declarationLine": 224,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31379,7 +31379,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.definitionDataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 306,
+      "declarationLine": 316,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31391,7 +31391,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.previewRemoteViews 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 336,
+      "declarationLine": 346,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31403,7 +31403,7 @@
       "chainBreak": "LowcodeDataSpaceDesignSession.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 342,
+      "declarationLine": 352,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31414,7 +31414,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 344,
+      "declarationLine": 354,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31426,7 +31426,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 346,
+      "declarationLine": 356,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31438,7 +31438,7 @@
       "chainBreak": "LowcodeDataSpaceViewDesign.preview 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
-      "declarationLine": 365,
+      "declarationLine": 375,
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "declarationKind": "class"
     },
@@ -31661,7 +31661,7 @@
       "chainBreak": "LowcodeDataSpaceQueryPreview.disposed 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
-      "declarationLine": 33,
+      "declarationLine": 37,
       "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
       "declarationKind": "class"
     },

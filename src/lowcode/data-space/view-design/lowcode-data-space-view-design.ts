@@ -422,6 +422,34 @@ export class LowcodeDataSpaceDesignSession {
   }
 
   /**
+   * 子计划按正式模型读取字段目录，不依赖任意命名视图的投影，也不抢占视图编辑器目录。
+   * @param input 本空间已绑定的正式模型身份；不接受文件资源或另一模型的表键。
+   * @returns 正式输出字段、可过滤的全部正式字段和原值函数目录；不查询业务行、不保存。
+   */
+  async loadQueryPlanFields(input: Pick<SessionSelection, 'tableName' | 'modelId' | 'modelName'>): Promise<Readonly<{
+    outputColumns: readonly SparkData.DataColumn[]; filterColumns: readonly SparkData.DataColumn[]; context: SparkData.DataViewFilterFunctionContext
+  }>> {
+    this.assertOwner()
+    const snapshot = this.modelFieldSnapshot(input.tableName)
+    if (snapshot.input?.modelId !== input.modelId || snapshot.input.modelName !== input.modelName) throw Error('子计划字段目录正式模型身份不一致')
+    const assertCurrent = (): void => {
+      this.assertOwner()
+      const current = this.modelFieldSnapshot(input.tableName)
+      if (current.file !== snapshot.file || current.key !== snapshot.key) throw Error('子计划字段目录模型身份已变化')
+    }
+    const columns = await this.readModelColumns(input.tableName)
+    assertCurrent()
+    const model = this.#modelFieldReads.get(input.tableName)?.model
+    if (!model) throw Error('子计划字段目录正式模型读取未完成')
+    const fields = new Set(DataSpaceDesignApi.resolveFields(model).map(field => field.canonicalName))
+    const outputs = new Set(DataSpaceDesignApi.resolveOutputFields(model).map(field => field.canonicalName))
+    const filterColumns = columns.filter(column => fields.has(column.name))
+    const context = await this.readFilterContext(input, assertCurrent, filterColumns)
+    assertCurrent()
+    return {filterColumns, outputColumns: filterColumns.filter(column => outputs.has(column.name)), context}
+  }
+
+  /**
    * 为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。
    * @param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。
    * @returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。
@@ -522,13 +550,13 @@ export class LowcodeDataSpaceDesignSession {
    */
   async loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<SparkData.DataViewFilterFunctionContext> {
     this.assertOwner()
-    const view = preview.view, table = view.dataTable, binding = table?.modelBinding
+    const view = preview.queryView, table = view.dataTable, binding = table?.modelBinding
     if (!table || view.dataSet?.scenarioId !== this.targetId) throw new Error('预览函数目录正式模型身份不一致')
     const input = binding ?? (table.resourceType === 'file' && table.resourceId ? {tableName: table.tableName, fileResourceId: table.resourceId} : undefined)
     if (!input) throw new Error('预览函数目录正式模型身份不一致')
     const assertCurrent = (): void => {
       this.assertOwner()
-      if (preview.view !== view || view.dataTable !== table) throw new Error('预览函数目录身份已变化')
+      if (preview.queryView !== view || view.dataTable !== table) throw new Error('预览函数目录身份已变化')
     }
     return this.readFilterContext(input, assertCurrent, view.queryColumns)
   }

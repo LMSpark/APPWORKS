@@ -5870,3 +5870,15 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - C原生预览：解析目标的具体parentResult来源链，输入只进真正发查询的根来源，派生视图不挂独立查询级联；同一PageRuntime绑定实际父/子/孙标准Table，不手工截数组。无分页隐藏无效分页输入，Count未报告不冒充总数；子排序过滤关闭、根仍可用；配置/应用切换、失败/迟到/关闭沿原lifecycle及DataView。D原入口CRUD：原目录对话框进入设计器，无手写JSON完成Navigation双子/三级与Hierarchy单子、具体派生及无分页；新增/修改/重排/子树删除及确认前后取消，原DataSet保存独立重开和真实消费，先清视图绑定再清临时元数据，核原SHA/模型集合。
 - 阶段验收矩阵：完整编辑及CRUD取消；错父/跨级/循环/重复子/字段集合冲突写前拒绝保留草稿；公共子路径兄弟保持/候选迟到/路径切换/失权/旧回调失效；保存仅改定义、unknown核验不重放；根输入/父切换/空父/兄弟与孙层/子刷新0额外HTTP及失败不留旧行；各层原权限、重复业务键精确父行归属、跨应用失效；最后独立清理。Foreign空条件、LEFT无匹配、层级聚合及完整其他页面矩阵继续单列，UI通过不能关闭服务缺口。
 - 已先写3项定向RED：tests/runtime/page/design/native/query-preview/data-space-parent-result-preview.test.ts，对Root/Child/Grand三个预览目标均复现派生Child被加独立输入级联，实际3失败，日志artifacts/data-chain-smoke/parent-result-preview-red.log；测试尚未提交，生产预览尚未修改。此为新工位起点，不称回归全绿或预览已修。上一已推送895+139通过范围只属于13287a536快照。全目标active，继续按本整卡实施，不另起并行总计划。
+### 2026-11-04 层级查询编辑与原生预览进度核对
+- 重复到达的WORKFLOW_TRIGGER单条停用定义授权已与历史完成记录核对，不新建、不重放；本轮无实服写入或新待清理夹具。
+- 当前未提交实现：原预览沿parentResult定位真正根输入，按原DataView父子孙结果刷新和标准Table展示；补countReported快照。FieldJson与FilterExpression复用严格JSON子路径，原定义视图承载层级计划编辑、显式清理和来源切换，Main跨编辑区互锁避免丢失未确认行草稿。模型字段目录独立读取正式模型字段，不受default视图窄投影限制；default视图仍为正式必需结构，未放宽合同。
+- 已核日志：query-plan-preview-green4为3文件13通过；query-plan-native-save为1项原UI保存/独立重开通过（受控RAM文件，非实服）；preview-snapshot-count-green为1通过5跳过。以上各自快照，不代表当前全量回归。当前仍需完整编辑/取消/重排/失效矩阵、最终编译ClassModel及指南、实服原入口整卡CRUD与精确清理，未提交推送。全架构目标继续active，服务缺口与其他页面矩阵保持开放。
+- 当前四文件定向回归实际exit0：原生层级计划、字段目录、父子结果预览、过滤子路径共33测试通过，日志artifacts/data-chain-smoke/hierarchical-current-regression.log；未执行新增实服写入，整卡实服验收及全架构目标仍开放。
+- 本轮增补原控件边界：祖先/自身循环拒绝、失权结构写入拒绝、完整子树重排/删除/整页取消；Navigation与HierarchyData三级计划均由原标准行/字段控件创建、原DataSet保存并独立重开，两项通过（受控文件，非实服保存）。高阶只读复核未确认新正常操作Important/Critical，根过滤弹窗后台迟到更新互锁被原回归证实：初次扩大45文件1840通过1失败，修复filterPending反向锁后原失败用例单独通过；新测试保留原FilterExpressionEditor UID和未应用JSON草稿。不能称普通指针穿透弹窗故障。
+- 最终root typecheck、build:fe、受改源lint及测试lint修正后通过；正式ClassModel1037文件编译、6根目录/概要/指南查询和49校验通过，page-thin通过。等价比较恢复114份派生噪声，只保留真实合同及新增文件；仍待最终扩大回归完成，不将先前快照当最新。
+- 实服原入口浏览器：受保护凭据正常登录NewApp/admin，经应用列表→元数据管理→数据空间目录精确筛选944DEE5A0E5170F903E0E008172C4CD2→设计对话框→SourceScope_20261018/default。临时暂存Navigation/children[]、新增未确认子行、核外围互锁与本行取消、取消行后取消全部；原提示“视图与绑定的未提交修改已取消”，保存/取消均禁用，未点击保存、未新建正式记录。截图evidence/data-chain-smoke/2026-11-04-query-plan-native-cancel.png。此为真实取消切片，不代表实服完整CRUD或文件hash独立回读通过。
+- 发现待核公共交互缺口：空新增行取消后无记录，但编辑/删除按钮仍可用，疑JsonArrayRows.selected未清；已请高阶只读复核，尚未修。新模型夹具尚未创建；下轮继续整卡D原入口完整保存/重开/消费/精确清理。全目标active。
+- 公共空新增行取消缺口已闭环：两反例RED后，JsonArrayRows仅取消新增清selected，edit/delete模板和入口核selectedIndex，既有行取消保留选择；原控件联合QueryPlan两文件39测试通过，含旧按钮回调零commit。实服原入口重新暂存Navigation/children[]→新增→取消，空表edit/delete/move均禁用，截图2026-11-04-query-plan-row-cancel-fixed.png；再取消全部，提示和保存/取消禁用恢复，关闭模型及设计对话框回目录，仍原4模型。本轮未提交任何实服保存、未创建新夹具。
+- 收口证据按快照区分：扩大49文件1942通过属于最后rowfix前；最后rowfix后两文件39通过及真实浏览器取消通过。最后root typecheck/build:fe/受改lint、563文档检查和page-thin通过；再次正式编译ClassModel1037、6根指南查询，等价归一恢复115份噪声，无新增semantic gap（3636）；49项合同测试属于相同公开合同的前轮生成快照。高阶最终只读复核两修复无新确定问题，不冒充其运行测试或实服。
+- 证据evidence/data-chain-smoke/2026-11-04-hierarchical-query-editor.json、guides.json及两png。此为A-C代码与取消行为检查点，整卡D真实持久CRUD、独立重开/消费/精确清理尚待执行；其他页面/服务缺口继续开放。准备适时提交推送代码检查点，不将其称全架构完成。

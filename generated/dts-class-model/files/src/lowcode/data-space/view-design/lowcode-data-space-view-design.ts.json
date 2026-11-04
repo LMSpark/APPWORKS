@@ -583,6 +583,20 @@
           },
           "additionalProperties": false
         },
+        "method.loadQueryPlanFields.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "Pick<SessionSelection, 'tableName' | 'modelId' | 'modelName'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadQueryPlanFields.return": {
+          "type": "object",
+          "title": "Promise<Readonly<{\n        outputColumns: readonly SparkData.DataColumn[];\n        filterColumns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }>>"
+        },
         "method.loadRelationFields.params": {
           "type": "object",
           "properties": {
@@ -1390,12 +1404,12 @@
         },
         "method.preview.return": {
           "type": "object",
-          "title": "Promise<{\n        total: number;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }>"
+          "title": "Promise<{\n        total: number;\n        countReported: boolean | undefined;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }>"
         }
       }
     }
   },
-  "generatedAt": "2026-10-31T18:13:51.317Z",
+  "generatedAt": "2026-11-04T04:31:57.096Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -2039,6 +2053,59 @@
             }
           ],
           "methods": [
+            {
+              "name": "loadQueryPlanFields",
+              "jsdoc": "子计划按正式模型读取字段目录，不依赖任意命名视图的投影，也不抢占视图编辑器目录。\n@param input 本空间已绑定的正式模型身份；不接受文件资源或另一模型的表键。\n@returns 正式输出字段、可过滤的全部正式字段和原值函数目录；不查询业务行、不保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Pick",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "SessionSelection",
+                        "sourcePath": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts"
+                      },
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "literal",
+                            "value": "tableName"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "modelId"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "modelName"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        outputColumns: readonly SparkData.DataColumn[];\n        filterColumns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }"
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
             {
               "name": "loadRelationFields",
               "jsdoc": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n@param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n@returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n@throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。",
@@ -3491,7 +3558,7 @@
                 "typeArguments": [
                   {
                     "type": "unknown",
-                    "name": "{\n        total: number;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }"
+                    "name": "{\n        total: number;\n        countReported: boolean | undefined;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }"
                   }
                 ]
               }

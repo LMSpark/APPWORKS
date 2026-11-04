@@ -16,7 +16,7 @@ AI用途：正式模型及命名视图的原生查询预览，数据交互使用
           <FieldJson field="context" label="" mode="properties" :schema="contextSchema" value-label="测试值" :height="220" />
         </RendererForm>
         <p v-if="functionWarning" role="alert">{{ functionWarning }}</p>
-        <RendererFilter v-if="!directInputs || tableName !== undefined" :data-view-key="preview.dataViewKey" :auto-query="filter?.autoQuery"
+        <RendererFilter v-if="!directInputs || tableName !== undefined" :data-view-key="queryDataViewKey" :auto-query="filter?.autoQuery"
           :filter-function-context="functionContext" expression-display="inline" />
         <RendererForm v-slot="{row}" :data-view-key="controlKey" context-data-member="currentRow"
           :auto-columns="false" :show-data-view-meta="false" :grid-columns="1" label-width="96px">
@@ -27,7 +27,7 @@ AI用途：正式模型及命名视图的原生查询预览，数据交互使用
             <FieldRadio field="resultMode" label="结果过滤：" :button-style="false"
               :options="[{label: '完整结果', value: 'full'}, {label: '仅数据', value: 'data'}]" />
             <FieldText v-if="row['outputType'] === 'SelfRefData' && nodeQueryInputs" field="nodeId" label="查询节点：" placeholder="父节点或定位目标的 ID" />
-            <FieldCheckbox v-if="row['outputType'] === 'Table' || tableName !== undefined && row['outputType'] !== 'SelfRefData'" field="allPages" label="" checkbox-text="读取过滤条件下的完整集合" />
+            <FieldCheckbox v-if="!sourceUnpaged && (row['outputType'] === 'Table' || tableName !== undefined && row['outputType'] !== 'SelfRefData')" field="allPages" label="" checkbox-text="读取过滤条件下的完整集合" />
           </div>
           <RendererButton :data-view-key="controlKey" data-action="run-query-preview" :disabled="querying" button-type="primary" label="查询" @click="query" />
         </div>
@@ -39,8 +39,11 @@ AI用途：正式模型及命名视图的原生查询预览，数据交互使用
             <FieldJson v-if="contextSchema" field="context" label="调用参数覆盖值（未填沿用视图默认）" mode="properties" :schema="contextSchema" value-label="本次值" :height="220" />
             <FieldText field="context" label="完整调用参数（JSON对象）" />
           </template>
+          <p v-if="preview.queryView !== preview.view">调用参数与请求设置作用于来源视图 {{ preview.queryView.dataTable?.modelBinding?.modelName ?? preview.queryView.tableName }} @ {{ preview.queryView.viewId }}；当前结果沿父视图消费。</p>
+          <p v-if="sourceUnpaged">当前查询不分页；按已配置的结果上限读取，不将返回行数当作正式总数。</p>
           <div class="preview-settings">
-            <template v-if="row['outputType'] !== 'SelfRefData'">
+            <FieldNumber v-if="sourceUnpaged" field="maxRows" label="结果上限（行）" />
+            <template v-if="!sourceUnpaged && row['outputType'] !== 'SelfRefData'">
               <FieldNumber field="pageSize" label="每次请求条数（1—1000）" />
               <FieldNumber v-if="row['allPages'] === true" field="maxRows" label="完整集合上限（行）" />
             </template>
@@ -60,10 +63,14 @@ AI用途：正式模型及命名视图的原生查询预览，数据交互使用
           <FieldJson :data-view-key="preview.dataViewKey" data-member="rows" :include-query-info="row['resultMode'] === 'full'" :height="240" />
         </RendererSection>
       </RendererDetail>
-      <RendererSection class="preview-card" :data-view-key="preview.dataViewKey" data-member="rows" title="结果数据" bordered :grid-columns="1">
-        <p v-if="!resultFields.length">当前模型暂无可展示的顶层标量字段</p>
-        <RendererTable v-else-if="result" :data-view-key="preview.dataViewKey" :show-data-view-meta="true" :auto-columns="false" :max-height="280">
-          <FieldText v-for="field in resultFields" :key="field.name" :field="field.name" :label="field.label || field.name" :min-width="180" show-overflow-tooltip readonly />
+      <RendererSection v-for="item in resultViews" :key="item.key" class="preview-card" :data-view-key="item.key" data-member="rows"
+        :title="resultViews.length === 1 ? '结果数据' : `${item.name} @ ${item.view.viewId}`" bordered :grid-columns="1">
+        <p v-if="item.error" role="alert">{{ item.name }}：{{ item.error }}</p>
+        <p v-if="item.loaded">{{ item.countReported ? `总数：${item.total}` : '未报告总数' }}；当前返回 {{ item.returned }} 行。</p>
+        <RendererButton v-if="item.derived" :data-view-key="item.key" :disabled="querying" label="刷新子结果" @click="refreshResult(item.view)" />
+        <p v-if="!item.fields.length">当前模型暂无可展示的顶层标量字段</p>
+        <RendererTable v-else-if="item.loaded" :data-view-key="item.key" :show-data-view-meta="true" :auto-columns="false" :max-height="280" highlight-current-row>
+          <FieldText v-for="field in item.fields" :key="field.name" :field="field.name" :label="field.label || field.name" :min-width="180" show-overflow-tooltip readonly />
         </RendererTable>
         <p v-else>暂无数据</p>
       </RendererSection>
@@ -96,8 +103,18 @@ const nodeQueryInputs = ref(true)
 const contextSchema = shallowRef<JsonSchemaObject>()
 const directInputs = ref(false), contextWarning = ref('')
 const functionContext = shallowRef<DataViewFilterFunctionContext>({}), functionWarning = ref('')
-const resultFields = computed(() => preview.value && !preview.value.disposed ? preview.value.view.columns
-  .filter(column => column.name !== '_pk' && !/对象|数组|json|object|array/i.test(column.type)) : [])
+const resultRevision = ref(0)
+const viewKey = (view: DataView) => buildDataViewKey(view.dataTable?.modelBinding?.modelName ?? view.tableName, view.viewId, view.dataSet?.scenarioId)
+const queryDataViewKey = computed(() => preview.value && !preview.value.disposed ? viewKey(preview.value.queryView) : '')
+const sourceUnpaged = computed(() => {resultRevision.value; return preview.value && !preview.value.disposed && preview.value.queryView.queryConfig.pagination === 'none'})
+const resultViews = computed(() => {
+  resultRevision.value
+  return preview.value && !preview.value.disposed ? preview.value.resultViews.map(view => ({view, key: viewKey(view),
+    name: view.dataTable?.modelBinding?.modelName ?? view.tableName, derived: !!view.queryConfig.parentResult,
+    loaded: view.requestState === RequestState.Loaded, error: view.loadingError?.message ?? '',
+    countReported: view.countReported, total: view.total, returned: view.rows.length,
+    fields: view.columns.filter(column => column.name !== '_pk' && !/对象|数组|json|object|array/i.test(column.type))})) : []
+})
 const ready = ref(false), loading = ref(true), querying = ref(false), result = ref(false), error = ref('')
 let active = true
 let unsubscribe: (() => void) | undefined
@@ -129,15 +146,16 @@ async function open(): Promise<void> {
     if (candidate.disposed) return
     const modelOnlyPreview = props.modelId !== undefined && props.tableName === undefined && props.viewId === undefined
     let context = '{}'
+    const queryModelId = candidate.queryView.dataTable?.modelBinding?.modelId ?? props.modelId
     const sourceTest = props.tableName === undefined && props.viewId === undefined
-      && ['third-party-api', 'logical-view'].includes(candidate.view.dataTable!.resourceType ?? '')
-    directInputs.value = !!props.modelId && (sourceTest || candidate.view.queryConfig.sourceInputMode === 'direct')
-    if (directInputs.value && props.modelId) {
-      await props.session.loadSourceInputFields(props.modelId)
+      && ['third-party-api', 'logical-view'].includes(candidate.queryView.dataTable!.resourceType ?? '')
+    directInputs.value = !!props.modelId && (sourceTest || candidate.queryView.queryConfig.sourceInputMode === 'direct')
+    if (directInputs.value && queryModelId) {
+      await props.session.loadSourceInputFields(queryModelId)
       if (!active || candidate.disposed) {candidate.dispose(); return}
     }
-    const parameters: {schema: JsonSchemaObject; warning: string} = props.modelId
-      ? new LowcodeDataSpaceFieldValue({dataSet: props.session.metadataDataSet, targetId: props.session.targetId, modelId: props.modelId}).readQueryParameters(directInputs.value ? 'direct' : 'mapped')
+    const parameters: {schema: JsonSchemaObject; warning: string} = queryModelId
+      ? new LowcodeDataSpaceFieldValue({dataSet: props.session.metadataDataSet, targetId: props.session.targetId, modelId: queryModelId}).readQueryParameters(directInputs.value ? 'direct' : 'mapped')
       : {schema: {type: 'object', properties: {}}, warning: ''}
     if (props.fileResourceId) {
       const fields = fileResourceQueryParameters(props.fileResourceId, props.viewId ?? 'default')
@@ -160,7 +178,7 @@ async function open(): Promise<void> {
     }
     if (sourceTest) {
       context = JSON.stringify(Object.fromEntries(Object.keys(parameters.schema.properties ?? {}).map(name => [name, ''])))
-      candidate.view.queryConfig = {...candidate.view.queryConfig, sourceInputMode:'direct', autoQuery:props.filter?.autoQuery ?? true}
+      candidate.queryView.queryConfig = {...candidate.queryView.queryConfig, sourceInputMode:'direct', autoQuery:props.filter?.autoQuery ?? true}
     }
     const dataSet = candidate.runtime.getDataSet(props.session.targetId)!
     const table = dataSet.addTable(`PreviewInputs_${crypto.randomUUID().replaceAll('-', '')}`, [
@@ -170,12 +188,12 @@ async function open(): Promise<void> {
     ])
     table.resourceType = 'static-data'
     const view = table.getOrCreateView('default')
-    const queryConfig = candidate.view.queryConfig
+    const queryConfig = candidate.queryView.queryConfig
     const modelPreviewDefaults = modelOnlyPreview && props.modelId
-      ? props.session.getModelEdit(props.modelId).readPreview(candidate.view) : undefined
-    nodeQueryInputs.value = !localQuery.value && (candidate.view.dataTable!.resourceType !== 'json' || queryConfig.tree !== undefined)
-    if (props.tableName === undefined && props.viewId === undefined) candidate.view.pageSize = 10
-    view.commitMode = 'staged'; view.replaceRows([{id: 'inputs', context, resultMode: 'data', pageSize: candidate.view.pageSize,
+      ? props.session.getModelEdit(props.modelId).readPreview(candidate.queryView) : undefined
+    nodeQueryInputs.value = !localQuery.value && (candidate.queryView.dataTable!.resourceType !== 'json' || queryConfig.tree !== undefined)
+    if (props.tableName === undefined && props.viewId === undefined) candidate.queryView.pageSize = 10
+    view.commitMode = 'staged'; view.replaceRows([{id: 'inputs', context, resultMode: 'data', pageSize: candidate.queryView.pageSize,
       allPages: queryConfig.allPages ?? false, maxRows: queryConfig.maxRows ?? 50000,
       outputType: modelPreviewDefaults?.outputType ?? queryConfig.outputType ?? (queryConfig.tree ? 'SelfRefData' : ''),
       keyField: modelPreviewDefaults?.keyField ?? queryConfig.tree?.keyField ?? '',
@@ -186,27 +204,28 @@ async function open(): Promise<void> {
     }]); view.setCurrentRowById('inputs')
     const fields = dataSet.addTable(`${table.tableName}_Fields`, [{name: 'name', type: 'string', isPrimaryKey: true}, {name: 'label', type: 'string'}])
     fields.resourceType = 'static-data'
-    fields.rows = candidate.view.queryColumns
+    fields.rows = candidate.queryView.queryColumns
       .map(column => ({name: column.name, label: column.label || column.name}))
     const fieldView = fields.getOrCreateView('default')
     fieldView.replaceRows(fields.rows)
     fieldKey.value = buildDataViewKey(fields.tableName, fieldView.viewId, dataSet.scenarioId)
     controls.value = view; controlKey.value = buildDataViewKey(table.tableName, view.viewId, dataSet.scenarioId)
-    const resultView = candidate.view
+    const observedViews = candidate.resultViews
     const syncQueryState = () => {
       if (!active || candidate.disposed) return
-      querying.value = resultView.requestState === RequestState.Loading || resultView.requestState === RequestState.Preparing
-      result.value = resultView.requestState === RequestState.Loaded
-      error.value = resultView.loadingError?.message ?? ''
+      resultRevision.value++
+      querying.value = observedViews.some(view => view.requestState === RequestState.Loading || view.requestState === RequestState.Preparing)
+      result.value = candidate.view.requestState === RequestState.Loaded
+      error.value = observedViews.find(view => view.loadingError)?.loadingError?.message ?? ''
     }
-    resultView.events.on('requestStateChanged', syncQueryState)
-    unsubscribe = () => resultView.events.off('requestStateChanged', syncQueryState)
+    for (const view of observedViews) view.events.on('requestStateChanged', syncQueryState)
+    unsubscribe = () => {for (const view of observedViews) view.events.off('requestStateChanged', syncQueryState)}
     candidate.bindInputs(view, [
       {sourceField: 'context', target: 'queryContext', format: 'json'},
-      {sourceField: 'pageSize', target: 'pageSize'},
+      ...(queryConfig.pagination === 'none' ? [] : [{sourceField: 'pageSize', target: 'pageSize'}] as const),
       {sourceField: 'outputType', target: 'queryConfig.outputType', omitEmpty: true},
-      {sourceField: 'allPages', target: 'queryConfig.allPages', ...(modelOnlyPreview ? {when:{field:'outputType',equals:'Table'}} : {})},
-      {sourceField: 'maxRows', target: 'queryConfig.maxRows', when: {field: 'allPages', equals: true}},
+      ...(queryConfig.pagination === 'none' ? [] : [{sourceField: 'allPages', target: 'queryConfig.allPages', ...(modelOnlyPreview ? {when:{field:'outputType',equals:'Table'}} : {})}] as const),
+      {sourceField: 'maxRows', target: 'queryConfig.maxRows', ...(queryConfig.pagination === 'none' ? {} : {when: {field: 'allPages', equals: true}})},
       ...(nodeQueryInputs.value ? ['keyField', 'parentField', 'nodeId', 'hasChildrenField', 'mode'] as const : []).map(field => ({
         sourceField: field === 'mode' ? 'treeMode' : field, target: `queryConfig.tree.${field}` as const,
         when: {field: 'outputType', equals: 'SelfRefData'},
@@ -216,6 +235,12 @@ async function open(): Promise<void> {
     sparkProvide(PAGE_RUNTIME, candidate.runtime); ready.value = true
   } catch (cause) {if (active) error.value = describeError(cause); preview.value?.dispose()}
   finally {if (active) loading.value = false}
+}
+
+async function refreshResult(view: DataView): Promise<void> {
+  if (querying.value) return
+  try {await view.refresh()}
+  catch (cause) {if (active) error.value = describeError(cause)}
 }
 
 async function query(): Promise<void> {

@@ -1,0 +1,116 @@
+{
+  "station": "设计器层级查询编排及原生预览",
+  "status": "code-checkpoint-live-full-crud-pending",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": {
+    "backendModified": false,
+    "permissionsExpanded": false,
+    "newLiveFixtures": 0,
+    "liveSaveActions": 0
+  },
+  "verified": [
+    {
+      "kind": "controlled-regression",
+      "files": 4,
+      "testsPassed": 38,
+      "log": "artifacts/data-chain-smoke/hierarchical-current-boundaries.log"
+    },
+    {
+      "kind": "controlled-native-three-level-save-reopen",
+      "outputs": [
+        "Navigation",
+        "HierarchyData"
+      ],
+      "testsPassed": 2,
+      "log": "artifacts/data-chain-smoke/query-plan-three-level.log"
+    },
+    {
+      "kind": "original-regression-red-green",
+      "test": "protects request filter dialog drafts from save or switching and discards through the original view",
+      "red": "artifacts/data-chain-smoke/hierarchical-native-regression.log",
+      "green": "artifacts/data-chain-smoke/query-plan-existing-filter-lock.log"
+    },
+    {
+      "kind": "class-model",
+      "testsPassed": 49,
+      "compiledDtsFiles": 1037,
+      "semanticGaps": 3636,
+      "guides": [
+        "LowcodeDataSpaceDesignSession",
+        "LowcodeDataSpaceQueryPreview",
+        "RJsonProps",
+        "RFilterExpressionProps",
+        "DataViewParentResult",
+        "DataViewOptionCatalog"
+      ]
+    },
+    {
+      "kind": "live-native-browser-cancel",
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "originalModelCount": 4,
+      "model": "SourceScope_20261018",
+      "view": "default",
+      "steps": [
+        "normal login",
+        "application directory",
+        "metadata application",
+        "data space directory exact target search",
+        "design dialog",
+        "original model data views",
+        "stage Navigation",
+        "initialize children",
+        "add unconfirmed child row",
+        "observe outer fields/save locked and own cancel enabled",
+        "cancel child row",
+        "discard all original view edits",
+        "observe cancelled message and save/discard disabled"
+      ],
+      "screenshot": "2026-11-04-query-plan-native-cancel.png",
+      "limit": "No persisted live edit or independent file hash verification performed in this browser slice."
+    },
+    {
+      "kind": "expanded-regression-before-last-row-cancel-fix",
+      "files": 49,
+      "testsPassed": 1942,
+      "log": "artifacts/data-chain-smoke/hierarchical-final-regression.log"
+    },
+    {
+      "kind": "post-row-cancel-fix-targeted-regression",
+      "files": 2,
+      "testsPassed": 39,
+      "log": "artifacts/data-chain-smoke/json-row-cancel-selection-green.log",
+      "red": "artifacts/data-chain-smoke/json-row-cancel-selection-red.log"
+    },
+    {
+      "kind": "final-checks",
+      "rootTypecheck": "passed",
+      "changedSourceLint": "passed",
+      "changedTestLint": "passed",
+      "frontendBuild": "passed",
+      "docsFiles": 563,
+      "pageThin": "passed"
+    },
+    {
+      "kind": "live-native-row-cancel-fix",
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "model": "SourceScope_20261018",
+      "view": "default",
+      "assertions": [
+        "empty added row cancelled",
+        "edit/delete/move-up/move-down disabled",
+        "all view edits discarded",
+        "save/discard disabled and cancellation message shown",
+        "model workspace and design dialog closed",
+        "original directory again shows exactly one target"
+      ],
+      "screenshot": "2026-11-04-query-plan-row-cancel-fixed.png",
+      "liveSaveActions": 0
+    }
+  ],
+  "open": [
+    "Real native full CRUD with new isolated model fixtures and independent saved query consumption",
+    "Exact cleanup and file hash/model-set verification for that new fixture",
+    "Existing service Foreign/LEFT/aggregation gaps and remaining reference page matrix"
+  ],
+  "review": "Higher-model read-only review confirmed the two fixes; no independent test or service execution by reviewer."
+}

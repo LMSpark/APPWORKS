@@ -1,0 +1,957 @@
+[
+  {
+    "kind": "LowcodeDataSpaceDesignSession",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceDesignSession",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceDesignSession",
+          "name": "LowcodeDataSpaceDesignSession",
+          "jsdoc": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+          "summary": "The file owns editable definitions; assembled DataSets are disposable projections of its revision."
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceDesignSession",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceDesignSession",
+          "name": "LowcodeDataSpaceDesignSession",
+          "jsdoc": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+          "summary": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: DesignSessionConstruction)"
+          },
+          "attributes": [
+            {
+              "name": "targetId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "metadataDataSet",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "SparkData.DataSet"
+            },
+            {
+              "name": "viewState",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "PageDataSpaceViewState | null"
+            },
+            {
+              "name": "relationDefinitionsReady",
+              "jsdoc": "当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。\n原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n@returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。",
+              "summary": "当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "definitionStatus",
+              "jsdoc": "当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。",
+              "summary": "当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。",
+              "typeText": "\"absent\" | \"unloaded\" | \"loading\" | \"ready\" | \"failed\""
+            },
+            {
+              "name": "definitionDataSet",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "SparkData.DataSet"
+            },
+            {
+              "name": "definitionError",
+              "jsdoc": "Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.",
+              "summary": "Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.",
+              "typeText": "Error"
+            },
+            {
+              "name": "definitionDiagnostics",
+              "jsdoc": "当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。",
+              "summary": "当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。",
+              "typeText": "string[]"
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadQueryPlanFields",
+              "jsdoc": "子计划按正式模型读取字段目录，不依赖任意命名视图的投影，也不抢占视图编辑器目录。\n@param input 本空间已绑定的正式模型身份；不接受文件资源或另一模型的表键。\n@returns 正式输出字段、可过滤的全部正式字段和原值函数目录；不查询业务行、不保存。",
+              "summary": "子计划按正式模型读取字段目录，不依赖任意命名视图的投影，也不抢占视图编辑器目录。",
+              "signature": "loadQueryPlanFields(input: Pick<SessionSelection, \"tableName\" | \"modelId\" | \"modelName\">): Promise<Readonly<{\n        outputColumns: readonly SparkData.DataColumn[];\n        filterColumns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }>>"
+            },
+            {
+              "name": "loadRelationFields",
+              "jsdoc": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n@param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n@returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n@throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。",
+              "summary": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。",
+              "signature": "loadRelationFields(rowKey: string | number): Promise<Readonly<{\n        columns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }>>"
+            },
+            {
+              "name": "getViewFields",
+              "jsdoc": "Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.",
+              "summary": "Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.",
+              "signature": "getViewFields(input: NativeViewSelection): readonly SparkData.DataColumn[] | null"
+            },
+            {
+              "name": "getViewOutputProjection",
+              "jsdoc": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n@param input 精确模型与命名视图身份。\n@returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义SparkData.DataView记录变更。\n@throws 目标、模型、视图或会话身份失效时拒绝读取。",
+              "summary": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。",
+              "signature": "getViewOutputProjection(input: NativeViewSelection): readonly SparkData.DataViewFieldProjection[] | null"
+            },
+            {
+              "name": "loadViewFilterContext",
+              "jsdoc": "读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。\n@param input 当前空间中的精确模型绑定和视图；旧格式仅补读关系端点，原生格式直接使用文件关系。\n@returns 模型名称为正式modelName，字段为本仓正式输出；与视图字段目录共用按模型读取，不装配完整目标或执行函数。\n@throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。",
+              "summary": "读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。",
+              "signature": "loadViewFilterContext(input: NativeViewSelection): Promise<SparkData.DataViewFilterFunctionContext>"
+            },
+            {
+              "name": "loadPreviewFilterContext",
+              "jsdoc": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n@param preview 本空间仍有效的模型或命名视图预览；当前字段复用原SparkData.DataView查询来源合同。\n@returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n@throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。",
+              "summary": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。",
+              "signature": "loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<SparkData.DataViewFilterFunctionContext>"
+            },
+            {
+              "name": "loadCascadeFields",
+              "jsdoc": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n@param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n@param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n@returns 候选SparkData.DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n@throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。",
+              "summary": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。",
+              "signature": "loadCascadeFields(tableName: string, viewId: string): Promise<void>"
+            },
+            {
+              "name": "loadViewFields",
+              "jsdoc": "Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.\n@param input Exact table binding, model identity and view name in the current metadata definition view.\n@returns Populates the existing field-option SparkData.DataView; no business query, definition edit or persistence occurs.\n@throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.",
+              "summary": "Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.",
+              "signature": "loadViewFields(input: NativeViewSelection): Promise<void>"
+            },
+            {
+              "name": "loadMetadataViews",
+              "jsdoc": "工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。",
+              "summary": "工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。",
+              "signature": "loadMetadataViews(names: (\"Base_DataModel_Field\" | \"Base_DataModel_Relation\")[]): Promise<void>"
+            },
+            {
+              "name": "loadRelationDefinitions",
+              "jsdoc": "读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。\n不完整来源和转换诊断不能升级为原生定义；文件自身坏引用保留供显式修复。",
+              "summary": "读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。",
+              "signature": "loadRelationDefinitions(): Promise<void>"
+            },
+            {
+              "name": "loadGraphRelations",
+              "jsdoc": "读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。\n@returns 完成后graph只包含当前文件及可确认正式模型的端点；不会读取字段、查询业务行或保存。\n@throws 元关系/模型权限与范围不符、文件改变或本次会话失效时拒绝显示旧端点。",
+              "summary": "读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。",
+              "signature": "loadGraphRelations(): Promise<void>"
+            },
+            {
+              "name": "stageInputParameters",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "stageInputParameters(input: Readonly<{\n        expectedValue: unknown;\n        value: unknown;\n    }>): void"
+            },
+            {
+              "name": "getInputParameterState",
+              "jsdoc": "声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。",
+              "summary": "声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。",
+              "signature": "getInputParameterState(): {\n        status: ParameterEditStatus;\n        pending: boolean;\n    }"
+            },
+            {
+              "name": "saveInputParameters",
+              "jsdoc": "省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。",
+              "summary": "省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。",
+              "signature": "saveInputParameters(input: Readonly<{\n        expectedValue?: unknown;\n        onReceipt?: () => void;\n    }>): Promise<Record<string, unknown>[]>"
+            },
+            {
+              "name": "reloadInputParameters",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "reloadInputParameters(input: Readonly<{\n        discardPending: boolean;\n    }>): Promise<Record<string, unknown>[]>"
+            },
+            {
+              "name": "getSourceInput",
+              "jsdoc": "维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。",
+              "summary": "维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。",
+              "signature": "getSourceInput(fieldId: string, viewId?: \"default\" | \"sourceInputFields\"): SourceInputHandle"
+            },
+            {
+              "name": "loadSourceInputFields",
+              "jsdoc": "读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。",
+              "summary": "读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。",
+              "signature": "loadSourceInputFields(modelId: string): Promise<SparkData.DataView>"
+            },
+            {
+              "name": "getModelSourceInputs",
+              "jsdoc": "取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。",
+              "summary": "取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。",
+              "signature": "getModelSourceInputs(modelId: string): SourceInputHandle[]"
+            },
+            {
+              "name": "hasPendingSourceInputs",
+              "jsdoc": "供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。",
+              "summary": "供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。",
+              "signature": "hasPendingSourceInputs(): boolean"
+            },
+            {
+              "name": "loadModelInputFields",
+              "jsdoc": "查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。\n@param modelId 当前正式模型ID；端点经目标配置的modelBinding解析，不用物理来源名猜测。\n@returns 元字段表的modelInputFields视图，范围过滤保留在pagedata及queryContext中。\n原生v2直接读取文件关系；旧格式只读取关系目录并映射端点，不装配完整目标。\n@throws 关系定义、正式身份、查询范围或本次会话失效时明确报错，不把未知关系当作空结果。",
+              "summary": "查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。",
+              "signature": "loadModelInputFields(modelId: string): Promise<SparkData.DataView>"
+            },
+            {
+              "name": "loadModelFields",
+              "jsdoc": "加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。\n@param modelId 当前被设计空间内唯一、可读的模型ID。\n@returns 由metadataDataSet持有的命名视图，表格和编辑器共同消费。\n@throws 有字段草稿、未决请求或返回范围失配时拒绝切换，不复制旧权限或数据。",
+              "summary": "加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。",
+              "signature": "loadModelFields(modelId: string): Promise<SparkData.DataView>"
+            },
+            {
+              "name": "getFieldEdit",
+              "jsdoc": "取得正式字段配置流程；字段草稿及权限属于指定查询视图。\n@param fieldId 正式字段ID。\n@param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。",
+              "summary": "取得正式字段配置流程；字段草稿及权限属于指定查询视图。",
+              "signature": "getFieldEdit(fieldId: string, viewId?: \"default\" | \"modelFields\"): FieldEditSession"
+            },
+            {
+              "name": "getFieldCreate",
+              "jsdoc": "同一模型只保留一个创建流程；输入视图不保存为正式元模型。",
+              "summary": "同一模型只保留一个创建流程；输入视图不保存为正式元模型。",
+              "signature": "getFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): FieldCreateHandle"
+            },
+            {
+              "name": "releaseFieldCreate",
+              "jsdoc": "离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。",
+              "summary": "离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。",
+              "signature": "releaseFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): void"
+            },
+            {
+              "name": "getUnresolvedFieldIds",
+              "jsdoc": "含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。",
+              "summary": "含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。",
+              "signature": "getUnresolvedFieldIds(modelId: string, viewId: \"default\" | \"modelFields\"): string[]"
+            },
+            {
+              "name": "hasPendingFieldEdits",
+              "jsdoc": "原字段视图中的新增也算待提交，即使尚未打开单行编辑器。",
+              "summary": "原字段视图中的新增也算待提交，即使尚未打开单行编辑器。",
+              "signature": "hasPendingFieldEdits(): boolean"
+            },
+            {
+              "name": "getModelFieldRemovals",
+              "jsdoc": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。",
+              "summary": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。",
+              "signature": "getModelFieldRemovals(modelId: string, viewId?: string): FieldRemoveHandle[]"
+            },
+            {
+              "name": "getFieldRemove",
+              "jsdoc": "计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。",
+              "summary": "计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。",
+              "signature": "getFieldRemove(fieldId: string, fieldViewId?: \"default\" | \"modelFields\"): FieldRemoveHandle"
+            },
+            {
+              "name": "getModelEdit",
+              "jsdoc": "维护正式模型的查询配置；模型身份和来源替换不在此入口改动。",
+              "summary": "维护正式模型的查询配置；模型身份和来源替换不在此入口改动。",
+              "signature": "getModelEdit(modelId: string): ModelEditSession"
+            },
+            {
+              "name": "getArrayEdit",
+              "jsdoc": "已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。",
+              "summary": "已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。",
+              "signature": "getArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): ArrayEditHandle"
+            },
+            {
+              "name": "releaseArrayEdit",
+              "jsdoc": "关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。",
+              "summary": "关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。",
+              "signature": "releaseArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): void"
+            },
+            {
+              "name": "hasPendingModelEdits",
+              "jsdoc": "保留没有本地delta但仍待核验的模型提交，供页面关闭保护。",
+              "summary": "保留没有本地delta但仍待核验的模型提交，供页面关闭保护。",
+              "signature": "hasPendingModelEdits(): boolean"
+            },
+            {
+              "name": "getModelRename",
+              "jsdoc": "维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。",
+              "summary": "维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。",
+              "signature": "getModelRename(modelId: string): ModelRenameHandle"
+            },
+            {
+              "name": "releaseModelRename",
+              "jsdoc": "离开模型节点时释放空的改名输入；未决操作继续由会话保留。",
+              "summary": "离开模型节点时释放空的改名输入；未决操作继续由会话保留。",
+              "signature": "releaseModelRename(modelId: string): void"
+            },
+            {
+              "name": "getModelRemove",
+              "jsdoc": "删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。",
+              "summary": "删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。",
+              "signature": "getModelRemove(modelId: string): ModelRemoveHandle"
+            },
+            {
+              "name": "hasPendingModelRemovals",
+              "jsdoc": "含预览和未决删除，避免模型行消失后丢失核验入口。",
+              "summary": "含预览和未决删除，避免模型行消失后丢失核验入口。",
+              "signature": "hasPendingModelRemovals(): boolean"
+            },
+            {
+              "name": "getModelCreate",
+              "jsdoc": "同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。",
+              "summary": "同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。",
+              "signature": "getModelCreate(): ModelCreateHandle"
+            },
+            {
+              "name": "hasPendingModelCreate",
+              "jsdoc": "包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。",
+              "summary": "包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。",
+              "signature": "hasPendingModelCreate(): boolean"
+            },
+            {
+              "name": "getModelSourceEdit",
+              "jsdoc": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。",
+              "summary": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。",
+              "signature": "getModelSourceEdit(modelId: string): ModelSourceEditHandle"
+            },
+            {
+              "name": "hasPendingModelSourceEdits",
+              "jsdoc": "包含来源预览和未决提交，避免释放时丢失核验入口。",
+              "summary": "包含来源预览和未决提交，避免释放时丢失核验入口。",
+              "signature": "hasPendingModelSourceEdits(): boolean"
+            },
+            {
+              "name": "readApiInfo",
+              "jsdoc": "复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。",
+              "summary": "复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。",
+              "signature": "readApiInfo(): Promise<string>"
+            },
+            {
+              "name": "inspectInputParameters",
+              "jsdoc": "检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。",
+              "summary": "检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。",
+              "signature": "inspectInputParameters(): InputParameterInspection"
+            },
+            {
+              "name": "canOpenPreview",
+              "jsdoc": "Shared synchronous eligibility check for the preview action; the actual open repeats this guard.",
+              "summary": "Shared synchronous eligibility check for the preview action; the actual open repeats this guard.",
+              "signature": "canOpenPreview(input: NativeViewSelection): boolean"
+            },
+            {
+              "name": "preparePreviewEligibility",
+              "jsdoc": "Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.",
+              "summary": "Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.",
+              "signature": "preparePreviewEligibility(input: NativeViewSelection): Promise<boolean>"
+            },
+            {
+              "name": "openPreview",
+              "jsdoc": "按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。",
+              "summary": "按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。",
+              "signature": "openPreview(input: NativeViewSelection): Promise<LowcodeDataSpaceQueryPreview>"
+            },
+            {
+              "name": "openModelPreview",
+              "jsdoc": "按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。",
+              "summary": "按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。",
+              "signature": "openModelPreview(input: Pick<SessionSelection, \"modelId\" | \"modelName\">): Promise<LowcodeDataSpaceQueryPreview>"
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。",
+              "summary": "重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。",
+              "signature": "refresh(options?: SessionLoadOptions): Promise<void>"
+            },
+            {
+              "name": "loadDefinition",
+              "jsdoc": "装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。",
+              "summary": "装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。",
+              "signature": "loadDefinition(): Promise<void>"
+            },
+            {
+              "name": "readReferenceLayout",
+              "jsdoc": "通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。",
+              "summary": "通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。",
+              "signature": "readReferenceLayout(): Promise<string | null>"
+            },
+            {
+              "name": "removeModelBinding",
+              "jsdoc": "将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。",
+              "summary": "将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。",
+              "signature": "removeModelBinding(input: SessionBindingRemoval): Promise<PageDataSpaceViewState>"
+            },
+            {
+              "name": "previewRemoteViews",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "previewRemoteViews(): Promise<string | null>"
+            },
+            {
+              "name": "adoptViews",
+              "jsdoc": "接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。",
+              "summary": "接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。",
+              "signature": "adoptViews(input: SessionAdopt): Promise<PageDataSpaceViewState | null>"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.\nclass LowcodeDataSpaceDesignSession {\n  constructor(input: DesignSessionConstruction)\n  readonly targetId: string\n  readonly metadataDataSet: SparkData.DataSet\n  readonly viewState: PageDataSpaceViewState | null\n  当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。\n  原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n  @returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。\n  readonly relationDefinitionsReady: boolean\n  当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。\n  readonly definitionStatus: \"absent\" | \"unloaded\" | \"loading\" | \"ready\" | \"failed\"\n  readonly definitionDataSet: SparkData.DataSet\n  Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.\n  readonly definitionError: Error\n  当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。\n  readonly definitionDiagnostics: string[]\n  子计划按正式模型读取字段目录，不依赖任意命名视图的投影，也不抢占视图编辑器目录。\n  @param input 本空间已绑定的正式模型身份；不接受文件资源或另一模型的表键。\n  @returns 正式输出字段、可过滤的全部正式字段和原值函数目录；不查询业务行、不保存。\n  loadQueryPlanFields(input: Pick<SessionSelection, \"tableName\" | \"modelId\" | \"modelName\">): Promise<Readonly<{\n          outputColumns: readonly SparkData.DataColumn[];\n          filterColumns: readonly SparkData.DataColumn[];\n          context: SparkData.DataViewFilterFunctionContext;\n      }>>\n  为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n  @param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n  @returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n  @throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。\n  loadRelationFields(rowKey: string | number): Promise<Readonly<{\n          columns: readonly SparkData.DataColumn[];\n          context: SparkData.DataViewFilterFunctionContext;\n      }>>\n  Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.\n  getViewFields(input: NativeViewSelection): readonly SparkData.DataColumn[] | null\n  当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n  @param input 精确模型与命名视图身份。\n  @returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义SparkData.DataView记录变更。\n  @throws 目标、模型、视图或会话身份失效时拒绝读取。\n  getViewOutputProjection(input: NativeViewSelection): readonly SparkData.DataViewFieldProjection[] | null\n  读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。\n  @param input 当前空间中的精确模型绑定和视图；旧格式仅补读关系端点，原生格式直接使用文件关系。\n  @returns 模型名称为正式modelName，字段为本仓正式输出；与视图字段目录共用按模型读取，不装配完整目标或执行函数。\n  @throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。\n  loadViewFilterContext(input: NativeViewSelection): Promise<SparkData.DataViewFilterFunctionContext>\n  为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n  @param preview 本空间仍有效的模型或命名视图预览；当前字段复用原SparkData.DataView查询来源合同。\n  @returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n  @throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。\n  loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<SparkData.DataViewFilterFunctionContext>\n  为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n  @param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n  @param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n  @returns 候选SparkData.DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n  @throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。\n  loadCascadeFields(tableName: string, viewId: string): Promise<void>\n  Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.\n  @param input Exact table binding, model identity and view name in the current metadata definition view.\n  @returns Populates the existing field-option SparkData.DataView; no business query, definition edit or persistence occurs.\n  @throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.\n  loadViewFields(input: NativeViewSelection): Promise<void>\n  工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。\n  loadMetadataViews(names: (\"Base_DataModel_Field\" | \"Base_DataModel_Relation\")[]): Promise<void>\n  读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。\n  不完整来源和转换诊断不能升级为原生定义；文件自身坏引用保留供显式修复。\n  loadRelationDefinitions(): Promise<void>\n  读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。\n  @returns 完成后graph只包含当前文件及可确认正式模型的端点；不会读取字段、查询业务行或保存。\n  @throws 元关系/模型权限与范围不符、文件改变或本次会话失效时拒绝显示旧端点。\n  loadGraphRelations(): Promise<void>\n  stageInputParameters(input: Readonly<{\n          expectedValue: unknown;\n          value: unknown;\n      }>): void\n  声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。\n  getInputParameterState(): {\n          status: ParameterEditStatus;\n          pending: boolean;\n      }\n  省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。\n  saveInputParameters(input: Readonly<{\n          expectedValue?: unknown;\n          onReceipt?: () => void;\n      }>): Promise<Record<string, unknown>[]>\n  reloadInputParameters(input: Readonly<{\n          discardPending: boolean;\n      }>): Promise<Record<string, unknown>[]>\n  维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。\n  getSourceInput(fieldId: string, viewId?: \"default\" | \"sourceInputFields\"): SourceInputHandle\n  读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。\n  loadSourceInputFields(modelId: string): Promise<SparkData.DataView>\n  取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。\n  getModelSourceInputs(modelId: string): SourceInputHandle[]\n  供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。\n  hasPendingSourceInputs(): boolean\n  查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。\n  @param modelId 当前正式模型ID；端点经目标配置的modelBinding解析，不用物理来源名猜测。\n  @returns 元字段表的modelInputFields视图，范围过滤保留在pagedata及queryContext中。\n  原生v2直接读取文件关系；旧格式只读取关系目录并映射端点，不装配完整目标。\n  @throws 关系定义、正式身份、查询范围或本次会话失效时明确报错，不把未知关系当作空结果。\n  loadModelInputFields(modelId: string): Promise<SparkData.DataView>\n  加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。\n  @param modelId 当前被设计空间内唯一、可读的模型ID。\n  @returns 由metadataDataSet持有的命名视图，表格和编辑器共同消费。\n  @throws 有字段草稿、未决请求或返回范围失配时拒绝切换，不复制旧权限或数据。\n  loadModelFields(modelId: string): Promise<SparkData.DataView>\n  取得正式字段配置流程；字段草稿及权限属于指定查询视图。\n  @param fieldId 正式字段ID。\n  @param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。\n  getFieldEdit(fieldId: string, viewId?: \"default\" | \"modelFields\"): FieldEditSession\n  同一模型只保留一个创建流程；输入视图不保存为正式元模型。\n  getFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): FieldCreateHandle\n  离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。\n  releaseFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): void\n  含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。\n  getUnresolvedFieldIds(modelId: string, viewId: \"default\" | \"modelFields\"): string[]\n  原字段视图中的新增也算待提交，即使尚未打开单行编辑器。\n  hasPendingFieldEdits(): boolean\n  当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。\n  getModelFieldRemovals(modelId: string, viewId?: string): FieldRemoveHandle[]\n  计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。\n  getFieldRemove(fieldId: string, fieldViewId?: \"default\" | \"modelFields\"): FieldRemoveHandle\n  维护正式模型的查询配置；模型身份和来源替换不在此入口改动。\n  getModelEdit(modelId: string): ModelEditSession\n  已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。\n  getArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): ArrayEditHandle\n  关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。\n  releaseArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): void\n  保留没有本地delta但仍待核验的模型提交，供页面关闭保护。\n  hasPendingModelEdits(): boolean\n  维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。\n  getModelRename(modelId: string): ModelRenameHandle\n  离开模型节点时释放空的改名输入；未决操作继续由会话保留。\n  releaseModelRename(modelId: string): void\n  删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。\n  getModelRemove(modelId: string): ModelRemoveHandle\n  含预览和未决删除，避免模型行消失后丢失核验入口。\n  hasPendingModelRemovals(): boolean\n  同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。\n  getModelCreate(): ModelCreateHandle\n  包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。\n  hasPendingModelCreate(): boolean\n  保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。\n  getModelSourceEdit(modelId: string): ModelSourceEditHandle\n  包含来源预览和未决提交，避免释放时丢失核验入口。\n  hasPendingModelSourceEdits(): boolean\n  复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。\n  readApiInfo(): Promise<string>\n  检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。\n  inspectInputParameters(): InputParameterInspection\n  Shared synchronous eligibility check for the preview action; the actual open repeats this guard.\n  canOpenPreview(input: NativeViewSelection): boolean\n  Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.\n  preparePreviewEligibility(input: NativeViewSelection): Promise<boolean>\n  按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。\n  openPreview(input: NativeViewSelection): Promise<LowcodeDataSpaceQueryPreview>\n  按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。\n  openModelPreview(input: Pick<SessionSelection, \"modelId\" | \"modelName\">): Promise<LowcodeDataSpaceQueryPreview>\n  重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。\n  refresh(options?: SessionLoadOptions): Promise<void>\n  装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。\n  loadDefinition(): Promise<void>\n  通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。\n  readReferenceLayout(): Promise<string | null>\n  将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。\n  removeModelBinding(input: SessionBindingRemoval): Promise<PageDataSpaceViewState>\n  previewRemoteViews(): Promise<string | null>\n  接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。\n  adoptViews(input: SessionAdopt): Promise<PageDataSpaceViewState | null>\n  dispose(): void\n}"
+  },
+  {
+    "kind": "LowcodeDataSpaceQueryPreview",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceQueryPreview",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceQueryPreview",
+          "name": "LowcodeDataSpaceQueryPreview",
+          "jsdoc": "查询实例只供预览呈现；保留原查询的数据权限，释放后不得继续使用。",
+          "summary": "查询实例只供预览呈现；保留原查询的数据权限，释放后不得继续使用。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceQueryPreview",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceQueryPreview",
+          "name": "LowcodeDataSpaceQueryPreview",
+          "jsdoc": "查询实例只供预览呈现；保留原查询的数据权限，释放后不得继续使用。",
+          "summary": "查询实例只供预览呈现；保留原查询的数据权限，释放后不得继续使用。",
+          "constructorSignature": {
+            "summary": "接管已装配的独立DataSet；文件通知或调用方关闭时释放。",
+            "jsdoc": "接管已装配的独立DataSet；文件通知或调用方关闭时释放。",
+            "signature": "constructor(dataSet: DataSet, modelName: string, viewId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        subscribe(listener: () => void): () => void;\n    }>)"
+          },
+          "attributes": [
+            {
+              "name": "runtime",
+              "jsdoc": "仅本预览持有的运行实例，供标准子组件解析完整绑定。",
+              "summary": "仅本预览持有的运行实例，供标准子组件解析完整绑定。",
+              "typeText": "PageRuntime"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "目标空间ID@正式模型注册名@命名视图ID。",
+              "summary": "目标空间ID@正式模型注册名@命名视图ID。",
+              "typeText": "string"
+            },
+            {
+              "name": "view",
+              "jsdoc": "已装配的实际命名视图，不是结果快照或另一份本地行。",
+              "summary": "已装配的实际命名视图，不是结果快照或另一份本地行。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "queryView",
+              "jsdoc": "当前目标沿具体parentResult链最终依赖的查询视图；参数和请求设置归它所有。",
+              "summary": "当前目标沿具体parentResult链最终依赖的查询视图；参数和请求设置归它所有。",
+              "typeText": "DataView"
+            },
+            {
+              "name": "resultViews",
+              "jsdoc": "同一根查询的实际具名消费视图，按父先子后排列；返回原视图，不复制运行数据。",
+              "summary": "同一根查询的实际具名消费视图，按父先子后排列；返回原视图，不复制运行数据。",
+              "typeText": "DataView[]"
+            },
+            {
+              "name": "disposed",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onDispose",
+              "jsdoc": "订阅本次预览的释放，供宿主撤下旧结果与操作；不订阅业务数据。\n@param listener 运行实例释放后同步调用一次；已经释放时立即调用。\n@returns 取消订阅函数；宿主卸载时调用，不影响预览本身。",
+              "summary": "订阅本次预览的释放，供宿主撤下旧结果与操作；不订阅业务数据。",
+              "signature": "onDispose(listener: () => void): () => void"
+            },
+            {
+              "name": "bindInputs",
+              "jsdoc": "将参数表绑定为查询级联输入；依赖视图只失效待用，结果视图自动重查。",
+              "summary": "将参数表绑定为查询级联输入；依赖视图只失效待用，结果视图自动重查。",
+              "signature": "bindInputs(source: DataView, bindings: readonly DataViewCascadeInputBinding[]): void"
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "已绑定输入的重试入口；查询配置、依赖和数据权限均由DataView执行。",
+              "summary": "已绑定输入的重试入口；查询配置、依赖和数据权限均由DataView执行。",
+              "signature": "refresh(): Promise<void>"
+            },
+            {
+              "name": "query",
+              "jsdoc": "按本次JSON参数查询；保留类型、视图默认参数、依赖过滤和分页，不写回设计配置。",
+              "summary": "按本次JSON参数查询；保留类型、视图默认参数、依赖过滤和分页，不写回设计配置。",
+              "signature": "query(input: DataSpacePreviewQuery): Promise<void>"
+            },
+            {
+              "name": "snapshot",
+              "jsdoc": "为现有四文件预览提供可显示快照；不输出隐藏字段或原始脱敏值。",
+              "summary": "为现有四文件预览提供可显示快照；不输出隐藏字段或原始脱敏值。",
+              "signature": "snapshot(): {\n        total: number;\n        countReported: boolean | undefined;\n        fields: string[];\n        rows: import(\"@spark-appworks/spark-data\").DataRow[];\n    }"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放预览及其运行数据；取消不改动元数据和场景文件。",
+              "summary": "释放预览及其运行数据；取消不改动元数据和场景文件。",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "查询实例只供预览呈现；保留原查询的数据权限，释放后不得继续使用。\nclass LowcodeDataSpaceQueryPreview {\n  接管已装配的独立DataSet；文件通知或调用方关闭时释放。\n  constructor(dataSet: DataSet, modelName: string, viewId: string, lifecycle: Readonly<{\n          assertCurrent(): void;\n          subscribe(listener: () => void): () => void;\n      }>)\n  仅本预览持有的运行实例，供标准子组件解析完整绑定。\n  readonly runtime: PageRuntime\n  目标空间ID@正式模型注册名@命名视图ID。\n  readonly dataViewKey: string\n  已装配的实际命名视图，不是结果快照或另一份本地行。\n  readonly view: DataView\n  当前目标沿具体parentResult链最终依赖的查询视图；参数和请求设置归它所有。\n  readonly queryView: DataView\n  同一根查询的实际具名消费视图，按父先子后排列；返回原视图，不复制运行数据。\n  readonly resultViews: DataView[]\n  readonly disposed: boolean\n  订阅本次预览的释放，供宿主撤下旧结果与操作；不订阅业务数据。\n  @param listener 运行实例释放后同步调用一次；已经释放时立即调用。\n  @returns 取消订阅函数；宿主卸载时调用，不影响预览本身。\n  onDispose(listener: () => void): () => void\n  将参数表绑定为查询级联输入；依赖视图只失效待用，结果视图自动重查。\n  bindInputs(source: DataView, bindings: readonly DataViewCascadeInputBinding[]): void\n  已绑定输入的重试入口；查询配置、依赖和数据权限均由DataView执行。\n  refresh(): Promise<void>\n  按本次JSON参数查询；保留类型、视图默认参数、依赖过滤和分页，不写回设计配置。\n  query(input: DataSpacePreviewQuery): Promise<void>\n  为现有四文件预览提供可显示快照；不输出隐藏字段或原始脱敏值。\n  snapshot(): {\n          total: number;\n          countReported: boolean | undefined;\n          fields: string[];\n          rows: import(\"@spark-appworks/spark-data\").DataRow[];\n      }\n  释放预览及其运行数据；取消不改动元数据和场景文件。\n  dispose(): void\n}"
+  },
+  {
+    "kind": "RJsonProps",
+    "catalog": {
+      "rootKind": "RJsonProps",
+      "models": [
+        {
+          "kind": "RJsonProps",
+          "name": "RJsonProps",
+          "jsdoc": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "summary": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldJson",
+            "type": "r-json",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RJsonProps",
+      "models": [
+        {
+          "kind": "RJsonProps",
+          "name": "RJsonProps",
+          "jsdoc": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "summary": "modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldJson",
+            "type": "r-json",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "mode",
+              "jsdoc": "默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。",
+              "summary": "默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。",
+              "typeText": "\"text\" | \"tree\" | \"table\" | \"rows\" | \"properties\" | \"form\" | \"outline\""
+            },
+            {
+              "name": "outlineChildrenField",
+              "jsdoc": "outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。",
+              "summary": "outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。",
+              "typeText": "string"
+            },
+            {
+              "name": "selectedPath",
+              "jsdoc": "outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。",
+              "summary": "outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。",
+              "typeText": "JsonPath | null"
+            },
+            {
+              "name": "valueFormat",
+              "jsdoc": "绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。",
+              "summary": "绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。",
+              "typeText": "\"text\" | \"native\""
+            },
+            {
+              "name": "valuePath",
+              "jsdoc": "编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。",
+              "summary": "编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。",
+              "typeText": "JsonPath"
+            },
+            {
+              "name": "emptyValue",
+              "jsdoc": "native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。",
+              "summary": "native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。",
+              "typeText": "JsonValue"
+            },
+            {
+              "name": "schema",
+              "jsdoc": "properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\nform模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。",
+              "summary": "properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。",
+              "typeText": "JsonSchemaObject"
+            },
+            {
+              "name": "treePolicy",
+              "jsdoc": "tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。",
+              "summary": "tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。",
+              "typeText": "JsonTreePolicy"
+            },
+            {
+              "name": "valueLabel",
+              "jsdoc": "properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。",
+              "summary": "properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。",
+              "typeText": "string"
+            },
+            {
+              "name": "height",
+              "jsdoc": "编辑区域高度，省略时320像素。",
+              "summary": "编辑区域高度，省略时320像素。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "maxHeight",
+              "jsdoc": "rows模式的最大高度；设置后按内容收缩，不强制height。",
+              "summary": "rows模式的最大高度；设置后按内容收缩，不强制height。",
+              "typeText": "number | string"
+            },
+            {
+              "name": "includeQueryInfo",
+              "jsdoc": "dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。",
+              "summary": "dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "toolbar",
+              "jsdoc": "rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。",
+              "summary": "rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。",
+              "typeText": "RToolbarProps"
+            },
+            {
+              "name": "reorderable",
+              "jsdoc": "rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。",
+              "summary": "rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "rowAdapter",
+              "jsdoc": "rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。",
+              "summary": "rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。",
+              "typeText": "JsonArrayRowAdapter"
+            },
+            {
+              "name": "rowEditMode",
+              "jsdoc": "rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。",
+              "summary": "rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。",
+              "typeText": "\"row\" | \"inline\""
+            }
+          ],
+          "methods": [
+            {
+              "name": "onSelectedPathChange",
+              "jsdoc": "outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。",
+              "summary": "outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。",
+              "signature": "onSelectedPathChange(path: JsonPath | null): void"
+            },
+            {
+              "name": "onEditingChange",
+              "jsdoc": "rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。",
+              "summary": "rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。",
+              "signature": "onEditingChange(editing: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-json; name=FieldJson; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<string>\n * DTS relation: intersection {\n    /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */\n    mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline';\n    /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */\n    outlineChildrenField?: string;\n    /** outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。 */\n    selectedPath?: JsonPath | null;\n    /** outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。 */\n    onSelectedPathChange?: (path: JsonPath | null) => void;\n    /** 绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。 */\n    valueFormat?: 'text' | 'native';\n    /** 编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。 */\n    valuePath?: JsonPath;\n    /** native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。 */\n    emptyValue?: JsonValue;\n    /** properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n     * form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。 */\n    schema?: JsonSchemaObject;\n    /** tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。 */\n    treePolicy?: JsonTreePolicy;\n    /** properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。 */\n    valueLabel?: string;\n    /** 编辑区域高度，省略时320像素。 */\n    height?: number | string;\n    /** rows模式的最大高度；设置后按内容收缩，不强制height。 */\n    maxHeight?: number | string;\n    /** dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。 */\n    includeQueryInfo?: boolean;\n    /** rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。 */\n    toolbar?: RToolbarProps;\n    /** rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。 */\n    reorderable?: boolean;\n    /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */\n    rowAdapter?: JsonArrayRowAdapter;\n    /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */\n    rowEditMode?: 'row' | 'inline';\n    /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */\n    onEditingChange?: (editing: boolean) => void;\n}\n */\nmodelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。\ntype RJsonProps {\n  默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。\n  readonly mode: \"text\" | \"tree\" | \"table\" | \"rows\" | \"properties\" | \"form\" | \"outline\"\n  outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。\n  readonly outlineChildrenField: string\n  outline当前对象路径，相对valuePath定位的数组，包含下标和精确子数组键；null未选。只是呈现身份，结构重排后宿主须清除选择。\n  readonly selectedPath: JsonPath | null\n  绑定DataView字段的存储格式，默认text保留JSON原文；native读取/写回对象、数组或JSON标量。native的tree呈现固定value节点以支持标量，节点包装不写入字段；包裹根不可新增，value不可删除、改名或新增同级，value类型及其内部增删改仍可用并受原字段校验。其他模式直接编辑JSON文本。dataMember=rows不使用此属性。\n  readonly valueFormat: \"text\" | \"native\"\n  编辑原JSON字段内已有节点的路径段；字符串是精确对象键，数字是数组下标，省略或空数组编辑整个字段。支持text/native存储格式，路径必须存在且类型匹配，不补建结构。确认时合并到原字段的最新编辑值，保留路径外成员；权限、取消及保存仍属于原字段。路径改变使旧编辑事件失效。dataMember=rows不使用此属性。\n  readonly valuePath: JsonPath\n  native字段为undefined时仅供编辑器显示的初始值，默认null；打开编辑器不写入此值。显式null/false/0/空字符串不使用初始值。\n  readonly emptyValue: JsonValue\n  properties模式按properties列出的对象成员显示名称、description、类型及值；x-typeLabel仅显示外部类型注解。等价Schema换引用保留未确认输入，实际内容变化（含嵌套修改）清除未确认输入；绑定、原值或只读状态变化继续执行标准字段重置。form模式按title/description/type、enum或oneOf中的const/title及嵌套properties呈现控件；单选、多选候选浮层按需挂载，未展开时从同一Schema严格匹配已选标题，保留未知值原显示；array成员的items含标量枚举时显示多选，保留字符串/数字/布尔类型及未列出的已有值，不拼字符串。数组中的对象/null等非标量值保持JSON编辑。required成员不可移除，其他成员可显式移除；空数组与移除配置不同。未知成员和不匹配的原值保留，不填充default，不替代领域校验；复杂值可切换text/tree编辑。form模式的标量枚举成员可设置x-control='radio'改用单选组；省略时使用下拉框。只改变呈现，不补默认值、不转换字符串/数字/布尔类型；未匹配的已有值继续展示并保留。\n  form模式的标量成员可设置x-optionDataViewKey完整数据视图键，由公共选项链消费该视图的valueField/labelField及字段读取权限；显式视图优先于enum/oneOf，缺失或非法视图明确报错，不回退静态候选。选择写回原JSON成员，未匹配的已有值保留，不修改选项记录。form/properties模式保留change前的输入过程，change后写回原字段；被拒输入保留供纠正，可通过成员的取消输入恢复原字段显示。form的JSON输入必须合法，properties的非JSON输入按文本处理。未确认输入及等待写回通过onEditingChange通知宿主；兄弟成员接纳不清除其他未确认输入；实际Schema、目标成员原值或只读上下文变化清除对应未确认文本。原DataView明确取消当前行或全部行时，未写入字段的输入同样清除，取消其他行不影响当前输入。\n  readonly schema: JsonSchemaObject\n  tree模式可注入通用JSON树编辑策略；只约束编辑器结构，不替代DataView字段权限及领域校验。\n  readonly treePolicy: JsonTreePolicy\n  properties模式的值标题，缺省“值”。输入change时按JSON值解析，非法JSON保留去除首尾空白的文本；如需字符串0请输入带引号的\"0\"。\n  readonly valueLabel: string\n  编辑区域高度，省略时320像素。\n  readonly height: number | string\n  rows模式的最大高度；设置后按内容收缩，不强制height。\n  readonly maxHeight: number | string\n  dataMember=rows时只读展示绑定DataView的可读结果；true同时展示fields/total/page/pageSize，默认false仅展示rows。不输出权限凭据，不改变查询配置或写回字段。\n  readonly includeQueryInfo: boolean\n  rows模式追加到行工具栏的标准动作，复用RToolbarProps及children；跨编辑域动作须显式dataViewKey。\n  readonly toolbar: RToolbarProps\n  rows模式允许上移/下移选中对象，默认false。数组次序直接写回原字段编辑域；不添加顺序属性。行编辑或提交期间不可重排，仍受原字段权限及过期写入守卫约束。\n  readonly reorderable: boolean\n  rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。\n  readonly rowAdapter: JsonArrayRowAdapter\n  rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。\n  readonly rowEditMode: \"row\" | \"inline\"\n  outline点击返回路径副本；换原绑定行、释放或路径失效返回null。不写原字段；宿主保持旧selectedPath可拒绝切换。\n  onSelectedPathChange(path: JsonPath | null): void\n  rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。\n  onEditingChange(editing: boolean): void\n}"
+  },
+  {
+    "kind": "RFilterExpressionProps",
+    "catalog": {
+      "rootKind": "RFilterExpressionProps",
+      "models": [
+        {
+          "kind": "RFilterExpressionProps",
+          "name": "RFilterExpressionProps",
+          "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "summary": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilterExpression"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RFilterExpressionProps",
+      "models": [
+        {
+          "kind": "RFilterExpressionProps",
+          "name": "RFilterExpressionProps",
+          "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "summary": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilterExpression"
+          },
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "summary": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "typeText": "string"
+            },
+            {
+              "name": "valuePath",
+              "jsdoc": "原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。",
+              "summary": "原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。",
+              "typeText": "JsonPath"
+            },
+            {
+              "name": "format",
+              "jsdoc": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "summary": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "typeText": "\"tree\" | \"spark-json\""
+            },
+            {
+              "name": "display",
+              "jsdoc": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "summary": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "typeText": "\"dialog\" | \"inline\""
+            },
+            {
+              "name": "displayMode",
+              "jsdoc": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "summary": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "typeText": "\"box\" | \"inline\""
+            },
+            {
+              "name": "columns",
+              "jsdoc": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "summary": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "typeText": "DataColumn[]"
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "summary": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "inputParameterDataViewKey",
+              "jsdoc": "输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。",
+              "summary": "输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。",
+              "typeText": "string"
+            },
+            {
+              "name": "maxDepth",
+              "jsdoc": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "summary": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "typeText": "number"
+            },
+            {
+              "name": "maxRules",
+              "jsdoc": "最大条件数；省略沿用公共编辑器默认值。",
+              "summary": "最大条件数；省略沿用公共编辑器默认值。",
+              "typeText": "number"
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务锁定只收紧原字段的数据权限。",
+              "summary": "业务锁定只收紧原字段的数据权限。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "summary": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。",
+              "summary": "存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。",
+              "signature": "onEditingChange(editing: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component name=RendererFilterExpression */\n/**\n * DTS declaration: RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}\n * DTS relation: intersection LayoutDataContextProps\n * DTS relation: intersection Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>\n * DTS relation: intersection {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}\n */\nr-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。\ntype RFilterExpressionProps {\n  存放过滤定义的字段；与过滤树内部的条件字段不同。\n  field: string\n  原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。\n  readonly valuePath: JsonPath\n  tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。\n  readonly format: \"tree\" | \"spark-json\"\n  默认dialog；inline在绑定位置编辑，应用才写回原DataView。\n  readonly display: \"dialog\" | \"inline\"\n  弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。\n  readonly displayMode: \"box\" | \"inline\"\n  过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。\n  columns: DataColumn[]\n  可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。\n  readonly functionContext: DataViewFilterFunctionContext\n  输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。\n  readonly inputParameterDataViewKey: string\n  最大嵌套层数；省略沿用公共编辑器默认值。\n  readonly maxDepth: number\n  最大条件数；省略沿用公共编辑器默认值。\n  readonly maxRules: number\n  业务锁定只收紧原字段的数据权限。\n  readonly disabled: boolean\n  只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。\n  readonly readonly: boolean\n  存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。\n  onEditingChange(editing: boolean): void\n}"
+  },
+  {
+    "kind": "DataViewParentResult",
+    "catalog": {
+      "rootKind": "DataViewParentResult",
+      "models": [
+        {
+          "kind": "DataViewParentResult",
+          "name": "DataViewParentResult",
+          "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "summary": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataViewParentResult",
+      "models": [
+        {
+          "kind": "DataViewParentResult",
+          "name": "DataViewParentResult",
+          "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "summary": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "constructorSignature": {
+            "summary": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+            "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。",
+              "summary": "解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。",
+              "signature": "resolve(view: DataView, config?: NonNullable<ViewMetadata['queryConfig']>): DataView | undefined"
+            },
+            {
+              "name": "validateRequest",
+              "jsdoc": "子来源不能夹带未执行的独立远程过滤、排序、树或聚合。",
+              "summary": "子来源不能夹带未执行的独立远程过滤、排序、树或聚合。",
+              "signature": "validateRequest(view: DataView, params: QueryParams): void"
+            },
+            {
+              "name": "validateProjection",
+              "jsdoc": "只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。",
+              "summary": "只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。",
+              "signature": "validateProjection(view: DataView, expected: readonly DataViewFieldProjection[]): void"
+            },
+            {
+              "name": "request",
+              "jsdoc": "等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。",
+              "summary": "等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。",
+              "signature": "request(view: DataView): Promise<void>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。\nclass DataViewParentResult {\n  父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。\n  constructor()\n  解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。\n  resolve(view: DataView, config?: NonNullable<ViewMetadata['queryConfig']>): DataView | undefined\n  子来源不能夹带未执行的独立远程过滤、排序、树或聚合。\n  validateRequest(view: DataView, params: QueryParams): void\n  只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。\n  validateProjection(view: DataView, expected: readonly DataViewFieldProjection[]): void\n  等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。\n  request(view: DataView): Promise<void>\n}"
+  },
+  {
+    "kind": "DataViewOptionCatalog",
+    "catalog": {
+      "rootKind": "DataViewOptionCatalog",
+      "models": [
+        {
+          "kind": "DataViewOptionCatalog",
+          "name": "DataViewOptionCatalog",
+          "jsdoc": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。",
+          "summary": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataViewOptionCatalog",
+      "models": [
+        {
+          "kind": "DataViewOptionCatalog",
+          "name": "DataViewOptionCatalog",
+          "jsdoc": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。",
+          "summary": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(dataSet: DataSet)"
+          },
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            }
+          ],
+          "methods": [
+            {
+              "name": "replace",
+              "jsdoc": "候选未变时不替换视图，避免使标准编辑器会话无故失效；只接受字符串身份与标题。",
+              "summary": "候选未变时不替换视图，避免使标准编辑器会话无故失效；只接受字符串身份与标题。",
+              "signature": "replace(options: Readonly<{\n        value: string;\n        label: string;\n    }>[]): void"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放本次自有目录，保留原模型、视图和所有业务草稿。",
+              "summary": "释放本次自有目录，保留原模型、视图和所有业务草稿。",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "输入与函数候选的临时目录；不参与正式模型身份、权限生成或持久化。\nclass DataViewOptionCatalog {\n  constructor(dataSet: DataSet)\n  readonly view: DataView\n  readonly dataViewKey: string\n  候选未变时不替换视图，避免使标准编辑器会话无故失效；只接受字符串身份与标题。\n  replace(options: Readonly<{\n          value: string;\n          label: string;\n      }>[]): void\n  释放本次自有目录，保留原模型、视图和所有业务草稿。\n  dispose(): void\n}"
+  }
+]

@@ -6,11 +6,15 @@ import type {DataColumn, DataViewFilterFunctionContext} from '@spark-appworks/sp
 import type {LayoutDataContextProps} from '../../../runtime/layout-data-context'
 import type {FilterExpressionEditorProps} from '../FilterExpressionEditor/FilterExpressionEditor.props'
 
+import type {JsonPath} from '@spark-appworks/spark-json-document'
+
 /** r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。 */
 export type RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpressionEditorProps,
   'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {
   /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */
   field: string
+  /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */
+  valuePath?: JsonPath
   /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */
   format?: 'tree' | 'spark-json'
   /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */

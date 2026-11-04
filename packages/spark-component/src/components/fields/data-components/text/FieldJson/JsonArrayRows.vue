@@ -8,8 +8,8 @@ AI用途：通过r-json mode=rows使用，不在业务页面复制数组编辑�
   <div class="json-array-rows">
     <div class="json-array-toolbar">
       <el-button data-json-add type="primary" :disabled="locked || editing !== null || !canEdit(undefined)" @click="begin(true)">新增</el-button>
-      <el-button v-if="!inline" data-json-edit :disabled="locked || selected === null || editing !== null || !canEdit(selected)" @click="begin(false)">编辑</el-button>
-      <el-button data-json-delete type="danger" :disabled="locked || selected === null || editing !== null" @click="remove">删除</el-button>
+      <el-button v-if="!inline" data-json-edit :disabled="locked || selectedIndex < 0 || editing !== null || !canEdit(selected)" @click="begin(false)">编辑</el-button>
+      <el-button data-json-delete type="danger" :disabled="locked || selectedIndex < 0 || editing !== null" @click="remove">删除</el-button>
       <el-button v-if="!inline" data-json-save-row type="success" :disabled="locked || editing === null" @click="save">保存</el-button>
       <el-button v-if="!inline" data-json-cancel-row :disabled="editing === null || committing" @click="cancel">取消</el-button>
       <el-button v-if="reorderable" data-json-move-up :disabled="locked || editing !== null || selectedIndex <= 0" @click="move(-1)">上移</el-button>
@@ -157,7 +157,7 @@ function reset(): void {
 }
 function select(row: DataRow): void {if (editing.value === null) selected.value = String(row[rowKey])}
 function begin(create: boolean): void {
-  if (locked.value || editing.value !== null || !view.value || !canEdit(create ? undefined : selected.value)) return
+  if (locked.value || editing.value !== null || !view.value || !create && selectedIndex.value < 0 || !canEdit(create ? undefined : selected.value)) return
   if (inline.value && create) {
     try {
       const initial = props.rowAdapter ? object(props.rowAdapter.read({})) : {}
@@ -210,7 +210,7 @@ async function save(): Promise<void> {
   } catch (cause) {message.value = cause instanceof Error ? cause.message : String(cause)}
 }
 async function remove(): Promise<void> {
-  if (locked.value || editing.value !== null || selected.value === null || !view.value) return
+  if (locked.value || editing.value !== null || selectedIndex.value < 0 || !view.value) return
   await publish(serialize(view.value.rows.filter(row => row[rowKey] !== selected.value)))
 }
 async function move(offset: -1 | 1): Promise<void> {
@@ -224,7 +224,10 @@ async function move(offset: -1 | 1): Promise<void> {
 function cancel(): void {
   if (committing.value) return
   if (editing.value !== null) view.value?.discardEditingRows([editing.value])
-  if (added && view.value) view.value.replaceRows(view.value.rows.filter(row => row[rowKey] !== editing.value))
+  if (added) {
+    view.value?.replaceRows(view.value.rows.filter(row => row[rowKey] !== editing.value))
+    selected.value = null
+  }
   editing.value = null; added = false; message.value = ''
 }
 function display(value: unknown): string {return value === undefined ? '' : typeof value === 'string' ? value : JSON.stringify(value)}

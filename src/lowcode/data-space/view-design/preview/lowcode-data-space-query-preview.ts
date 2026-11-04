@@ -4,7 +4,7 @@
  * 边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。
  * AI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。
  */
-import {buildDataViewKey, DataViewQuery, RequestState, type DataSet, type DataView, type DataViewCascadeInputBinding, type DataViewQueryContext, type ViewMetadata} from '@spark-appworks/spark-data'
+import {buildDataViewKey, DataViewParentResult, DataViewQuery, RequestState, type DataSet, type DataView, type DataViewCascadeInputBinding, type DataViewQueryContext, type ViewMetadata} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 
 /** 一次预览调用的参数值；不修改参数声明或场景文件。 */
@@ -13,7 +13,7 @@ type DataSpacePreviewQuery = Readonly<{
   context: DataViewQueryContext
   /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */
   pageSize?: number
-  /** 替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */
+  /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */
   queryConfig?: ViewMetadata['queryConfig']
 }>
 
@@ -51,6 +51,26 @@ export class LowcodeDataSpaceQueryPreview {
     return view
   }
 
+  /** 当前目标沿具体parentResult链最终依赖的查询视图；参数和请求设置归它所有。 */
+  get queryView(): DataView {
+    let view = this.view
+    for (let parent = DataViewParentResult.resolve(view); parent; parent = DataViewParentResult.resolve(view)) view = parent
+    return view
+  }
+
+  /** 同一根查询的实际具名消费视图，按父先子后排列；返回原视图，不复制运行数据。 */
+  get resultViews(): readonly DataView[] {
+    const result = [this.queryView], seen = new Set(result)
+    for (const parent of result) {
+      for (const view of this.#contexts.keys()) {
+        if (!seen.has(view) && view.queryConfig.parentResult && DataViewParentResult.resolve(view) === parent) {
+          seen.add(view); result.push(view)
+        }
+      }
+    }
+    return result
+  }
+
   get disposed(): boolean {return this.#disposed}
 
   /**
@@ -67,9 +87,10 @@ export class LowcodeDataSpaceQueryPreview {
   /** 将参数表绑定为查询级联输入；依赖视图只失效待用，结果视图自动重查。 */
   bindInputs(source: DataView, bindings: readonly DataViewCascadeInputBinding[]): void {
     this.assertCurrent()
-    const target = this.view, ds = target.dataSet
+    const target = this.queryView, ds = target.dataSet
     if (!ds || source.dataSet !== ds) throw new Error('SCENARIO_VIEW_PREVIEW_INPUT: 输入必须属于本次预览实例')
     for (const view of this.#contexts.keys()) {
+      if (view === source || view.queryConfig.parentResult) continue
       const inputs = view === target ? bindings : bindings.filter(binding => binding.target === 'queryContext')
       if (!inputs.length) continue
       ds.addCascade({parentTable: source.tableName, parentViewId: source.viewId,
@@ -80,7 +101,12 @@ export class LowcodeDataSpaceQueryPreview {
   /** 已绑定输入的重试入口；查询配置、依赖和数据权限均由DataView执行。 */
   async refresh(): Promise<void> {
     this.assertCurrent()
-    await this.view.refresh()
+    await this.queryView.refresh()
+    for (const view of this.resultViews) {
+      if (view !== this.queryView) await view.refresh()
+      this.assertCurrent()
+      if (view.requestState !== RequestState.Loaded) throw view.loadingError ?? new Error('SCENARIO_VIEW_PREVIEW_QUERY: 来源链查询未完成')
+    }
     this.assertCurrent()
     if (this.view.requestState !== RequestState.Loaded) throw this.view.loadingError ?? new Error('SCENARIO_VIEW_PREVIEW_QUERY: 正式查询未完成')
   }
@@ -103,16 +129,19 @@ export class LowcodeDataSpaceQueryPreview {
       if (input.pageSize !== undefined && (!Number.isSafeInteger(input.pageSize) || input.pageSize < 1 || input.pageSize > 1000)) {
         throw new Error('预览每页条数必须为1至1000的整数')
       }
-      const queryConfig = input.queryConfig === undefined ? this.view.queryConfig : DataViewQuery.parse(input.queryConfig)
-      DataViewQuery.validateFields(queryConfig, new Set(this.view.queryColumns.map(column => column.name)))
-      this.view.queryConfig = queryConfig
-      for (const [view, original] of this.#contexts) view.queryContext = structuredClone({...original, ...context})
+      const target = this.view
+      const queryConfig = input.queryConfig === undefined ? target.queryConfig : DataViewQuery.parse(input.queryConfig)
+      DataViewQuery.validateFields(queryConfig, new Set(target.queryColumns.map(column => column.name)))
+      target.queryConfig = queryConfig
+      for (const [view, original] of this.#contexts) {
+        if (!view.queryConfig.parentResult) view.queryContext = structuredClone({...original, ...context})
+      }
       // 预览每次运行清空旧输入的结果与选择，再交回公共依赖请求链。
       for (const view of this.#contexts.keys()) view.resetState()
-      const view = this.view
+      const view = this.queryView
       view.page = 1
       if (input.pageSize !== undefined) view.pageSize = input.pageSize
-      await view.refresh()
+      await this.refresh()
       this.assertCurrent()
       if (view.requestState !== RequestState.Loaded) throw view.loadingError ?? new Error('SCENARIO_VIEW_PREVIEW_QUERY: 正式查询未完成')
     } catch (cause) {
@@ -126,8 +155,8 @@ export class LowcodeDataSpaceQueryPreview {
   snapshot() {
     const view = this.view
     if (view.requestState !== RequestState.Loaded) throw new Error('SCENARIO_VIEW_PREVIEW_QUERY: 尚未取得有效查询结果')
-    const {total, fields, rows} = view.readSnapshot()
-    return {total, fields, rows}
+    const {total, countReported, fields, rows} = view.readSnapshot()
+    return {total, countReported, fields, rows}
   }
 
   /** 释放预览及其运行数据；取消不改动元数据和场景文件。 */

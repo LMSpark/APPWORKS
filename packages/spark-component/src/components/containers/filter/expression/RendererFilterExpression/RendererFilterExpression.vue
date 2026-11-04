@@ -18,6 +18,7 @@ import {DataViewFilter, DataViewFilterCodec, type DataViewFilterTree} from '@spa
 import {useLayoutDataContext} from '../../../runtime/layout-data-context'
 import {useDataViewEventBridge} from '../../../runtime/useDataViewEventBridge'
 import {resolveDataViewEditingRow, writeDataViewEditingValue} from '../../../../fields/context/dataViewEditing'
+import {JsonFieldPath} from '../../../../fields/context/json/json-field-path'
 import FilterExpressionEditor from '../FilterExpressionEditor/FilterExpressionEditor.vue'
 import {FilterExpressionEditorDraft} from '../FilterExpressionEditor/FilterExpressionEditor.props'
 import type {RFilterExpressionProps} from './RendererFilterExpression.props'
@@ -69,9 +70,18 @@ const accessState = computed(() => {
 const access = computed(() => accessState.value.value)
 const readable = computed(() => access.value?.read === 'visible')
 const editable = computed(() => readable.value && access.value?.write === 'allowed' && !props.disabled && !props.readonly && !formDisabled.value)
-const rawValue = computed(() => readable.value ? currentRow.value?.[props.field] : undefined)
+const rawRoot = computed(() => readable.value ? currentRow.value?.[props.field] : undefined)
+const pathValue = computed(() => {
+  if (!readable.value || !props.valuePath?.length) return {value: rawRoot.value, identity: '', error: ''}
+  try {
+    const root = JsonFieldPath.root(rawRoot.value)
+    return {value: JsonFieldPath.read(root, props.valuePath, true), identity: JsonFieldPath.identity(root, props.valuePath), error: ''}
+  } catch (cause) {return {value: undefined, identity: '', error: cause instanceof Error ? cause.message : String(cause)}}
+})
+const rawValue = computed(() => pathValue.value.value)
 const parsed = computed(() => {
   try {
+    if (pathValue.value.error) throw new Error(pathValue.value.error)
     if (props.format === 'spark-json') {
       const value = rawValue.value
       if (value !== undefined && value !== null && typeof value !== 'string') throw new Error('SPARK过滤定义必须是字符串')
@@ -85,8 +95,8 @@ const parsed = computed(() => {
 })
 const problem = computed(() => aggregateError.value?.message || (!resolvedView.value || identity.value === undefined ? '过滤定义未绑定有效数据行'
   : !resolvedView.value.columns.some(column => column.name === props.field) ? `过滤定义字段不存在：${props.field}` : accessState.value.error || parsed.value.error))
-watch([resolvedView, identity, rawValue, editable, () => props.field, () => props.format,
-  () => props.display, () => props.inputParameterDataViewKey], invalidate, {deep: true, flush: 'sync'})
+watch([resolvedView, identity, () => JSON.stringify(rawValue.value), () => pathValue.value.identity, editable, () => props.field, () => props.format, () => JSON.stringify(props.valuePath ?? []),
+  () => props.display, () => props.inputParameterDataViewKey], invalidate, {flush: 'sync'})
 watch([() => props.columns, () => props.allowedOperators, inputContext, () => props.maxDepth, () => props.maxRules], () => {
   candidateRevision.value++; error.value = ''
 }, {deep: true, flush: 'sync'})
@@ -100,7 +110,7 @@ const applyForRevision = computed(() => {
       if(filter&&props.allowedOperators!==undefined){const issues=filter.value.validate({fields:FilterExpressionEditorDraft.fields(props.columns,props.allowedOperators)})
         if(issues.length)throw Error(issues.map(issue=>`${issue.path}: ${issue.message}`).join('\n'))}
       const value = props.format === 'spark-json' ? DataViewFilterCodec.serializeStored(filter?.value) : filter?.value.toJSON()
-      if (!writeDataViewEditingValue({source: resolvedView.value, row: row.value, field: props.field, value})) throw new Error('过滤定义编辑目标已失效')
+      if (!writeDataViewEditingValue({source: resolvedView.value, row: row.value, field: props.field, value: props.valuePath?.length ? JsonFieldPath.replace(rawRoot.value, props.valuePath, value, true) : value})) throw new Error('过滤定义编辑目标已失效')
     } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
   }
 })

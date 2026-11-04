@@ -50,7 +50,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
           v-bind="fileResource ? {fileResourceId: fileResource.resourceId} : modelId && modelName ? {modelId, modelName} : {}"
           :table-name="String(row['tableName'])" :view-id="String(row['viewId'])" @close="previewOpen = false" />
       </RendererDialog>
-      <RendererSection v-if="!fileResource && !activeProperty" title="查询输出与聚合" :data-view-key="definitionViewKey" data-member="currentRow"
+      <RendererSection v-if="!fileResource && !parentSource && !activeProperty" title="查询输出与聚合" :data-view-key="definitionViewKey" data-member="currentRow"
         :grid-columns="1" :bordered="false" data-query-output>
         <p>配置当前视图的输出字段、分组标记与聚合值函数。后端聚合支持数据库表、数据库视图的单表或关联查询，不支持树查询；同模型的明细和统计可以使用不同命名视图。</p>
         <p v-if="row['fieldProjection'] === undefined">未配置时沿用模型输出。初始化只创建当前视图草稿，不修改模型字段。</p>
@@ -59,7 +59,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
         <RendererForm v-else :data-view-key="definitionViewKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
           <FieldJson data-member="currentRow" field="fieldProjection" label="查询字段"
             value-format="native" mode="rows" row-edit-mode="inline" :children="projectionChildren" :row-adapter="projectionAdapter"
-            :readonly="blocked" :max-height="420" :on-editing-change="value => propertyEditingChanged(value, 'projection')" />
+            :readonly="blocked || filterPending || queryPlanPending" :max-height="420" :on-editing-change="value => propertyEditingChanged(value, 'projection')" />
         </RendererForm>
       </RendererSection>
       <RendererSection v-if="row['aggregates'] !== undefined" title="旧本地汇总" :data-view-key="definitionViewKey" data-member="currentRow"
@@ -77,9 +77,9 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
         <RendererSection v-for="part in requestSections" :key="part.title" :title="part.title" :data-view-key="definitionViewKey"
           data-member="currentRow" :grid-columns="1" :bordered="false" :data-request-parameters="part.parameters ? '' : undefined">
           <RendererForm v-if="Object.keys(part.schema.properties ?? {}).length" :data-view-key="definitionViewKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false"
-            :grid-columns="1" :form-props="{disabled: blocked, labelPosition: 'top'}">
+            :grid-columns="1" :form-props="{disabled: blocked || filterPending || queryPlanPending, labelPosition: 'top'}">
             <FieldJson field="queryConfig" label="" data-member="currentRow" value-format="native" mode="form" :schema="part.schema"
-              :empty-value="{}" :readonly="blocked" :on-editing-change="value => propertyEditingChanged(value, part.title)" />
+              :empty-value="{}" :readonly="blocked || filterPending || queryPlanPending" :on-editing-change="value => propertyEditingChanged(value, part.title)" />
           </RendererForm>
           <template v-if="part.parameters">
             <p>当前视图的默认调用值；实际调用可以覆盖。{{ fileResource ? '参数由文件资源声明，目标数据空间ID定位被查询的配置文件。' : '参数声明和来源值函数映射在模型与空间配置中维护。' }}</p>
@@ -95,9 +95,9 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
                 label="移除默认调用值" @click="change('queryContext', undefined)" />
             </div>
             <RendererForm v-if="!parameterCatalog.warning || contextEditorMode === 'tree'" :data-view-key="definitionViewKey" context-data-member="currentRow"
-              :auto-columns="false" :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: blocked, labelPosition: 'top'}">
+              :auto-columns="false" :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: blocked || filterPending || queryPlanPending, labelPosition: 'top'}">
               <FieldJson field="queryContext" label="默认调用值" data-member="currentRow" value-format="native" :mode="contextEditorMode"
-                :schema="parameterCatalog.schema" value-label="默认调用值" :empty-value="{}" :readonly="blocked"
+                :schema="parameterCatalog.schema" value-label="默认调用值" :empty-value="{}" :readonly="blocked || filterPending || queryPlanPending"
                 :on-editing-change="value => propertyEditingChanged(value, 'context')" />
             </RendererForm>
           </template>
@@ -107,18 +107,21 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
             <p v-if="parameterCatalog.warning" role="status">{{ parameterCatalog.warning }}</p>
             <p v-if="functionCatalogError" role="alert">{{ functionCatalogError }}</p>
             <RendererFilterExpression v-if="!columnState.error" :key="filterRevision" :data-view-key="definitionViewKey"
-              data-member="currentRow" field="filterExpression" :columns="columnState.columns" :disabled="blocked"
+              data-member="currentRow" field="filterExpression" :columns="columnState.columns" :disabled="blocked || propertyPending"
               display="dialog" display-mode="inline" :function-context="filterFunctionContext" :on-editing-change="filterEditingChanged" />
             <RendererButton v-else :disabled="blocked || propertyPending" label="重新加载字段" @click="run(loadFields)" />
             <p v-if="filterPending" role="status">请先应用或取消过滤编辑，再保存或切换配置。</p>
           </template>
         </RendererSection>
       </div>
+      <DataSpaceQueryPlan v-if="group.request && !fileResource && modelName && !activeProperty && rowKey !== undefined"
+        :key="`${session.targetId}:${rowKey}`" :session="session" :row-key="rowKey" :revision="revision" :data-view-key="definitionViewKey"
+        :model-name="modelName" :function-context="filterFunctionContext" :disabled="blocked || filterPending || otherPropertyPending" @changed="changed" @pending="value => propertyEditingChanged(value, 'query-plan')" />
       <RendererSection v-if="group.request" title="请求完成" :data-view-key="definitionViewKey" data-member="currentRow"
         :grid-columns="1" :bordered="false" data-completion-config>
         <p v-if="!view?.columns.some(column => column.name === 'onRequestComplete')" role="status">当前元数据空间尚未声明请求完成字段，请先更新设计器的数据空间配置。</p>
         <RendererForm v-else :data-view-key="definitionViewKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false"
-          :grid-columns="1" :form-props="{disabled: blocked}">
+          :grid-columns="1" :form-props="{disabled: blocked || filterPending || queryPlanPending}">
           <FieldText field="onRequestComplete" label="请求完成函数" placeholder="页面 script.js 中的函数名；留空禁用" />
         </RendererForm>
         <p>查询成功后调用，接收一个含 view、dataViewKey、signal 的对象。预览只查询数据；完成函数由使用此视图的页面执行。</p>
@@ -128,7 +131,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
       <RendererSection :title="group.request ? '其他请求配置与完整编辑' : '结果组织与编辑配置'" :data-view-key="definitionViewKey"
         data-member="currentRow" collapsible default-collapsed lazy :grid-columns="1" :bordered="false">
       <RendererForm :data-view-key="definitionViewKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false"
-        :grid-columns="1" :form-props="{disabled: blocked || !!activeProperty}">
+        :grid-columns="1" :form-props="{disabled: blocked || filterPending || queryPlanPending || !!activeProperty}">
       <div v-for="column in group.properties" :key="column.name" class="property" :data-property="column.name">
         <div class="property-name"><small>{{ column.name }}</small><span v-if="row[column.name] === undefined">未配置</span></div>
         <div>
@@ -163,11 +166,11 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
           <p v-if="parameterCatalog.warning" role="status">{{ parameterCatalog.warning }}</p>
           <p v-if="functionCatalogError" role="alert">{{ functionCatalogError }}</p>
           <RendererFilterExpression v-if="!columnState.error" :data-view-key="definitionViewKey" data-member="currentRow" field="filterExpression"
-            :columns="columnState.columns" :disabled="blocked" display="inline" :function-context="filterFunctionContext"
+            :columns="columnState.columns" :disabled="blocked || propertyPending" display="inline" :function-context="filterFunctionContext"
             :on-editing-change="filterEditingChanged" />
         </template>
         <RendererForm v-else :data-view-key="definitionViewKey" context-data-member="currentRow" :auto-columns="false"
-          :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: blocked, labelPosition: 'top'}">
+          :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: blocked || filterPending || queryPlanPending, labelPosition: 'top'}">
           <template v-if="activeProperty === 'queryConfig'">
             <RendererButton :disabled="blocked || propertyPending" data-action="toggle-query-json" :label="queryEditorMode === 'form' ? 'JSON编辑' : '返回配置表单'"
               @click="queryEditorMode = queryEditorMode === 'form' ? 'tree' : 'form'" />
@@ -210,7 +213,7 @@ AI用途：将模型和选定视图接入原生数据空间页面时使用；复
       </RendererForm>
     </RendererSection>
     <RendererForm v-if="!state.error && !controls.destroyed" :data-view-key="controlViewKey" context-data-member="currentRow" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1"
-      :form-props="{disabled: blocked || !!activeProperty || filterPending}" class="create-view">
+      :form-props="{disabled: blocked || filterPending || queryPlanPending || !!activeProperty || filterPending}" class="create-view">
       <h3>在当前模型下新增视图</h3>
       <p v-if="bindings.length > 1" role="alert">此模型存在多个历史绑定，完整视图键无法唯一定位。请核对引用后显式解除重复绑定；原配置保留。</p>
       <FieldSelect v-if="bindings.length" field="binding" label="已有模型绑定" :clearable="false" />
@@ -233,6 +236,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceQueryAggregation} from '@spark-appworks/spark-lowcode-api'
 import type {DataSpaceViewEditorProps} from './DataSpaceViewEditor.props'
 import DataSpaceQueryPreview from './preview/DataSpaceQueryPreview.vue'
+import DataSpaceQueryPlan from './query-plan/DataSpaceQueryPlan.vue'
 import {LowcodeDataSpaceFieldValue} from '@/lowcode/data-space/model-source/field/lowcode-data-space-field-value'
 import {fileResourceQueryParameters} from '@/lowcode/resources/repository/file-resource-query-parameters'
 
@@ -250,6 +254,8 @@ const contextEditorMode = ref<'properties' | 'tree'>('properties')
 const sortEditorMode = ref<'rows' | 'tree'>('rows')
 const propertyEdits = ref(new Map<string, boolean>())
 const propertyPending = computed(() => [...propertyEdits.value.values()].some(Boolean))
+const queryPlanPending = computed(() => propertyEdits.value.get('query-plan') === true)
+const otherPropertyPending = computed(() => [...propertyEdits.value].some(([name, pending]) => name !== 'query-plan' && pending))
 const projectionDialogOpen = ref(false)
 const projectionFunctionContext = DataSpaceQueryAggregation.editorContext()
 const projectionChildren: SparkNodeChildren = [
@@ -383,7 +389,13 @@ const row = computed(() => {
   const candidate = view.value?.getEditingRow(props.rowKey)
   return candidate && ownsRow(candidate) ? candidate : undefined
 })
-const properties = computed(() => (view.value?.columns ?? []).filter(column => !['onRequestComplete', 'aggregates'].includes(column.name) && ScenarioViewConfig.isViewProperty(column.name)))
+const parentSource = computed(() => {const query = row.value?.['queryConfig']; return isRecord(query) && isRecord(query['parentResult'])})
+const properties = computed(() => {props.revision; tick.value
+  return (view.value?.columns ?? []).filter(column => {
+    if (['onRequestComplete', 'aggregates'].includes(column.name) || !ScenarioViewConfig.isViewProperty(column.name)) return false
+    try {return view.value?.fieldAccess(view.value.currentRow, column.name).read === 'visible'} catch {return false}
+  })
+})
 const requestProperties = new Set(['fieldProjection', 'queryContext', 'queryConfig', 'filterExpression', 'sortExpression', 'page', 'pageSize', 'autoLoad'])
 const propertyGroups = computed(() => [
   {title: '请求设置', request: true, properties: properties.value.filter(column => requestProperties.has(column.name))},
@@ -518,6 +530,7 @@ const querySchema = computed<JsonSchemaObject>(() => {
   const fieldChoices = columnState.value.columns.filter(column => !column.isComputed && !column.computeExpression && column.name !== '_pk').map(column => ({const: column.name, title: column.label || column.name}))
   const field = (title: string): JsonSchemaObject => ({title, type: 'string', oneOf: fieldChoices})
   return {type: 'object', properties: {
+    pagination: {title: '分页方式', type: 'string', oneOf: [{const: 'paged', title: '分页'}, {const: 'none', title: '不分页'}], description: '不分页保留后端总数是否报告的语义，并按结果上限拒绝超限。'},
     outputType: {title: '输出类型', type: 'string', oneOf: (props.fileResource ? DataViewLocalQuery.outputTypes : DataViewQuery.outputTypes).map(item => ({const: item.value, title: item.label}))},
     allPages: {title: '读取完整集合', type: 'boolean', description: '省略时沿用默认查询；自引用结果不分页。'},
     maxRows: {title: '完整集合上限（行）', type: 'integer', minimum: 1},
@@ -534,6 +547,7 @@ const querySchema = computed<JsonSchemaObject>(() => {
   }}
 })
 const requestSections = computed(() => {
+  if (isRecord(row.value?.['queryConfig']) && row.value['queryConfig']['parentResult'] !== undefined) return []
   const properties = querySchema.value.properties ?? {}
   const subset = (names: string[], radio: string[] = []): JsonSchemaObject => ({type: 'object', properties: Object.fromEntries(names.map(name => {
     const definition = properties[name]
@@ -543,7 +557,7 @@ const requestSections = computed(() => {
     {title: '视图查询参数', filter: true, schema: subset(['outputType'], ['outputType'])},
     {title: '调用参数', parameters: true, filter: false, schema: subset(props.fileResource ? [] : ['sourceInputMode'], ['sourceInputMode'])},
     ...(!props.fileResource ? [{title: '自引用参数', filter: false, schema: subset(['tree'])}] : []),
-    {title: '结果读取', filter: false, schema: subset(['allPages', 'maxRows', 'autoQuery'], ['allPages', 'autoQuery'])},
+    {title: '结果读取', filter: false, schema: subset(['pagination', 'allPages', 'maxRows', 'autoQuery'], ['pagination', 'allPages', 'autoQuery'])},
     ...(!props.fileResource ? [{title: '结果缓存', filter: false, schema: subset(['cacheType'], ['cacheType'])}] : []),
   ]
 })

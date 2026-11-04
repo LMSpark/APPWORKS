@@ -1,0 +1,340 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/fields/context/json/json-field-path",
+    "sourcePath": "packages/spark-component/src/components/fields/context/json/json-field-path.ts",
+    "sourceFile": "packages/spark-component/src/components/fields/context/json/json-field-path.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/fields/context/json/json-field-path",
+    "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/json/json-field-path\n职责：标准字段共用的严格JSON子路径定位和不可变写回。\n边界：不读写DataView、不推导业务节点身份，不建立草稿或持久化入口。\nAI用途：JSON与过滤字段在同一原字段中合并最新兄弟成员。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "JsonFieldPath"
+    ]
+  },
+  "$defs": {
+    "JsonFieldPath": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "JsonFieldPath",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.root.params": {
+          "type": "object",
+          "properties": {
+            "raw": true,
+            "native": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.root.return": {
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "import(\"@spark-appworks/spark-json-document\").JsonObject"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+              }
+            }
+          ]
+        },
+        "method.parent.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+            },
+            "path": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            },
+            "optionalLeaf": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.parent.return": {
+          "anyOf": [
+            {
+              "type": "object",
+              "title": "import(\"@spark-appworks/spark-json-document\").JsonObject"
+            },
+            {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+              }
+            }
+          ]
+        },
+        "method.read.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+            },
+            "path": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            },
+            "optionalLeaf": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.read.return": {
+          "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+        },
+        "method.replace.params": {
+          "type": "object",
+          "properties": {
+            "raw": true,
+            "path": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            },
+            "value": true,
+            "optionalLeaf": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.replace.return": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-json-document\").JsonDocument"
+        },
+        "method.identity.params": {
+          "type": "object",
+          "properties": {
+            "root": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-types.ts.json#/$defs/JsonValue"
+            },
+            "path": {
+              "$ref": "../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.identity.return": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-04T04:37:58.612Z",
+  "models": {
+    "JsonFieldPath": {
+      "name": "JsonFieldPath",
+      "jsdoc": "标准JSON字段的原值路径算法；只允许已存在的父容器。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "标准JSON字段的原值路径算法；只允许已存在的父容器。",
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "root",
+              "jsdoc": "native读取原生JSON，非native解析JSON文本；根必须是对象或数组。",
+              "parameters": [
+                {
+                  "name": "raw",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "native",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "unknown",
+                    "name": "import(\"@spark-appworks/spark-json-document\").JsonObject"
+                  },
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "JsonValue"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "parent",
+              "jsdoc": "严格校验每个索引与自有属性；可选叶只允许对象成员缺失，不补父对象或数组项。",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath"
+                  }
+                },
+                {
+                  "name": "optionalLeaf",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "unknown",
+                    "name": "import(\"@spark-appworks/spark-json-document\").JsonObject"
+                  },
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "JsonValue"
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "read",
+              "jsdoc": "读取叶值；可选的缺失对象成员返回undefined。",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath"
+                  }
+                },
+                {
+                  "name": "optionalLeaf",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "JsonValue"
+                }
+              }
+            },
+            {
+              "name": "replace",
+              "jsdoc": "克隆最新原字段后修改一个叶值；undefined只移除对象成员。",
+              "parameters": [
+                {
+                  "name": "raw",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath"
+                  }
+                },
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  }
+                },
+                {
+                  "name": "optionalLeaf",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "import(\"@spark-appworks/spark-json-document\").JsonDocument"
+              }
+            },
+            {
+              "name": "identity",
+              "jsdoc": "原叶之外的所属对象结构，用于拒绝路径重排后指向另一节点的旧回调。",
+              "parameters": [
+                {
+                  "name": "root",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonValue"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "reference",
+                    "name": "JsonPath"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

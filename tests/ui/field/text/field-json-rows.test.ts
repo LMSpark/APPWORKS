@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
-import ElementPlus, {ElTable} from 'element-plus'
+import ElementPlus, {ElButton, ElTable} from 'element-plus'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark, PAGE_RUNTIME, RendererForm, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
@@ -294,3 +294,31 @@ describe('standard JSON array rows',()=>{
 })
 
 
+
+
+it.each(['[]', '[{"name":"existing","extra":false}]'])('clears the cancelled added-row selection and rejects stale row actions for %s', async original => {
+  const writes: string[] = [], f = await fixture(original, async value => {writes.push(value)}, true)
+  await f.wrapper.get('[data-json-add]').trigger('click'); await flushPromises()
+  const oldDelete = f.wrapper.findAllComponents(ElButton).find(button => 'data-json-delete' in button.attributes())!
+  const oldEdit = f.wrapper.findAllComponents(ElButton).find(button => 'data-json-edit' in button.attributes())!
+  await f.wrapper.get('[data-json-cancel-row]').trigger('click'); await flushPromises()
+  for (const action of ['edit', 'delete', 'move-up', 'move-down']) expect(f.wrapper.get(`[data-json-${action}]`).attributes('disabled'), action).toBeDefined()
+  oldDelete.vm.$emit('click'); oldEdit.vm.$emit('click'); await flushPromises()
+  expect(f.pending.value).toBe(false)
+  expect(f.view.getEditingRow('a')?.['items']).toBe(original)
+  expect(f.view.hasEditingChanges()).toBe(false)
+  expect(writes).toEqual([])
+})
+
+it('retains a valid existing-row selection after cancelling its edit', async () => {
+  const f = await fixture()
+  await f.wrapper.get('.el-table__body tr').trigger('click'); await flushPromises()
+  await f.wrapper.get('[data-json-edit]').trigger('click'); await flushPromises()
+  await f.wrapper.get('[data-json-cancel-row]').trigger('click'); await flushPromises()
+  expect(f.wrapper.get('[data-json-edit]').attributes('disabled')).toBeUndefined()
+  expect(f.wrapper.get('[data-json-delete]').attributes('disabled')).toBeUndefined()
+  await f.wrapper.get('[data-json-edit]').trigger('click'); await flushPromises()
+  expect(f.pending.value).toBe(true)
+  await f.wrapper.get('[data-json-cancel-row]').trigger('click'); await flushPromises()
+  expect(f.view.hasEditingChanges()).toBe(false)
+})

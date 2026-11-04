@@ -30,7 +30,7 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
 </template>
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
-import {asJsonValue, isJsonObject, parseJsonDocument, serializeJsonDocument, type JsonPath, type JsonValue} from '@spark-appworks/spark-json-document'
+import {asJsonValue, parseJsonDocument, serializeJsonDocument, type JsonPath} from '@spark-appworks/spark-json-document'
 import {useBasicFieldState} from '../../composables/state/useBasicFieldState'
 import FieldContextRenderer from '../../../non-data-components/FieldContextRenderer.vue'
 import SparkJsonEditor from '../../../../editors/SparkJsonEditor.vue'
@@ -41,6 +41,7 @@ import JsonViewRows from './JsonViewRows.vue'
 import JsonObjectProperties from './JsonObjectProperties.vue'
 import JsonObjectForm from './JsonObjectForm.vue'
 import type {RJsonProps} from './FieldJson.props'
+import {JsonFieldPath} from '../../../context/json/json-field-path'
 const props=withDefaults(defineProps<RJsonProps>(),{type:'r-json',mode:'tree',height:320})
 const emit=defineEmits<{'update:modelValue':[value:string]}>()
 const nativeTreePolicy={
@@ -49,31 +50,11 @@ const nativeTreePolicy={
   canAddChild:(path:JsonPath)=>path.length>0,
 }
 const treePolicy=computed(()=>props.treePolicy??(props.valueFormat === 'native'?nativeTreePolicy:undefined))
-function pathRoot(raw: unknown) {
-  const value = props.valueFormat === 'native' ? asJsonValue(raw) : parseJsonDocument(String(raw))
-  if (!Array.isArray(value) && !isJsonObject(value)) throw new Error('JSON路径的根必须是对象或数组')
-  return value
-}
-function pathParent(root: JsonValue, path: JsonPath) {
-  let current = root
-  for (let i = 0; i < path.length; i++) {
-    const key = path[i]!
-    if (typeof key === 'number') {
-      if (!Array.isArray(current) || !Number.isSafeInteger(key) || key < 0 || !Object.hasOwn(current, key)) throw new Error('JSON路径不存在或类型不匹配')
-      if (i === path.length - 1) return current
-      current = current[key]!
-    } else {
-      if (!isJsonObject(current) || !Object.hasOwn(current, key)) throw new Error('JSON路径不存在或类型不匹配')
-      if (i === path.length - 1) return current
-      current = current[key]!
-    }
-  }
-  throw new Error('JSON路径不能为空')
-}
+function pathRoot(raw: unknown) {return JsonFieldPath.root(raw, props.valueFormat === 'native')}
 function toText(raw: unknown): string {
   if (props.valuePath?.length) {
     try {
-      const path = props.valuePath, parent = pathParent(pathRoot(raw), path)
+      const path = props.valuePath, parent = JsonFieldPath.parent(pathRoot(raw), path)
       const value = Array.isArray(parent) ? parent[Number(path.at(-1))]! : parent[String(path.at(-1))]!
       return props.valueFormat === 'native' && props.mode === 'tree' ? serializeJsonDocument({value}) : JSON.stringify(value)
     } catch (cause) {return cause instanceof Error ? cause.message : String(cause)}
@@ -101,11 +82,9 @@ function toSource(text: string): unknown {
   if (activeWrite && editorText.value !== activeWrite.previous) throw new Error('JSON编辑值已变化，请重新编辑')
   if (!path?.length) return value
   const raw = props.modelValue ?? props.value ?? permission.currentRow.value?.[permission.fieldName.value]
-  // 复制最新原字段，不修改源对象；异步字段事件期间产生的兄弟成员修改也要保留。
-  const root = parseJsonDocument(JSON.stringify(pathRoot(raw))), parent = pathParent(root, path)
+  // 合并最新原字段，保留未由当前子路径编辑的成员。
   const next: unknown = props.valueFormat === 'native' ? value : JSON.parse(text)
-  if (asJsonValue(next) === null && next !== null) throw new Error('输入超出有效JSON值范围')
-  Object.defineProperty(parent, path.at(-1)!, {value: next, enumerable: true, writable: true, configurable: true})
+  const root = JsonFieldPath.replace(pathRoot(raw), path, next)
   return props.valueFormat === 'native' ? root : serializeJsonDocument(root)
 }
 const {permission,fieldCtx,handleControlledChange}=useBasicFieldState<string>({props,fieldType:'r-json',fallbackValue:'',coerce:toText,toSourceValue:toSource,emitUpdate:value=>emit('update:modelValue',value)})

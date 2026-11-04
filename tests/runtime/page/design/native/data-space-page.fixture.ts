@@ -61,7 +61,7 @@ const models = [{...baseDataSet, id: '8D1AB14DD8277F3E7017CD38F77B09FDp000',
 
 export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boolean; hidden?: boolean; broken?: boolean; hiddenFieldOwner?: boolean; unmatchedFieldOwner?: boolean; sourceInput?: boolean;
   deferDefinition?: boolean; assemblyGate?: Promise<void>; sharedWorkspace?: boolean; formalSourceInputs?: boolean;
-  readLegacyLayout?: (id: string) => Promise<string | null>; formalProjection?: boolean; sourceFieldPermissions?: {h?: string[]; m?: string[]}; overviewOnly?: boolean;
+  readLegacyLayout?: (id: string) => Promise<string | null>; formalProjection?: boolean; formalAllModels?: boolean; sourceFieldPermissions?: {h?: string[]; m?: string[]}; overviewOnly?: boolean;
   projectToolFileExecutor?: Parameters<DataView['bindQueryExecutor']>[0]; blueprint?: ProjectWorkspaceOptions['blueprint'];
   blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
   modelSources?: NonNullable<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['modelSources']>; allowModelAdd?: boolean; allowFieldAdd?: boolean; omitFieldReceipt?: boolean; omitFieldWrite?: boolean;
@@ -439,7 +439,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
     const row = modelRow(modelId, targetId)
     if (deleted.has(`${targetId}:Base_DataModel:${modelId}`)) throw new Error('model was deleted')
     const model = {...formal(String(row.Name), ['rowid', 'parentId']), id: modelId, sourceName: String(row.MetaName), businessMain: row.IsBusinessMain === 1}
-    if (!options.sourceFields || modelId !== 'M1') return model
+    if (!options.sourceFields || modelId !== 'M1' && !options.formalAllModels) return model
     const rows = wireRows('Base_DataModel_Field', targetId).filter(field => field['dataModelId'] === modelId && field['type'] === 'dataModel')
     if (options.formalProjection) return DataSpaceDesignApi.projectModel(row, rows, options.formalPrimaryKey ?? '')
     return {...model, raw: row, primaryKey: String(rows.find(field => field['Name'] === (options.formalPrimaryKey ?? 'rowid'))?.['AsName'] || (options.formalPrimaryKey ?? 'rowid')),

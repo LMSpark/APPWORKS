@@ -131,6 +131,15 @@
         "view": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
+        "queryView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "resultViews": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
         "disposed": {
           "type": "boolean"
         }
@@ -220,6 +229,9 @@
             "total": {
               "type": "number"
             },
+            "countReported": {
+              "type": "boolean"
+            },
             "fields": {
               "type": "array",
               "items": {
@@ -236,6 +248,7 @@
           },
           "required": [
             "total",
+            "countReported",
             "fields",
             "rows"
           ],
@@ -250,18 +263,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T13:20:42.315Z",
+  "generatedAt": "2026-11-04T05:09:16.153Z",
   "models": {
     "DataSpacePreviewQuery": {
       "name": "DataSpacePreviewQuery",
       "jsdoc": "一次预览调用的参数值；不修改参数声明或场景文件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
+            "typeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -281,7 +294,7 @@
             },
             {
               "name": "queryConfig",
-              "jsdoc": "替换本预览视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。",
+              "jsdoc": "替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。",
               "readable": true,
               "writable": false
             }
@@ -351,6 +364,18 @@
             {
               "name": "view",
               "jsdoc": "已装配的实际命名视图，不是结果快照或另一份本地行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryView",
+              "jsdoc": "当前目标沿具体parentResult链最终依赖的查询视图；参数和请求设置归它所有。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resultViews",
+              "jsdoc": "同一根查询的实际具名消费视图，按父先子后排列；返回原视图，不复制运行数据。",
               "readable": true,
               "writable": false
             },
@@ -467,7 +492,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        total: number;\n        fields: string[];\n        rows: import(\"@spark-appworks/spark-data\").DataRow[];\n    }"
+                "name": "{\n        total: number;\n        countReported: boolean | undefined;\n        fields: string[];\n        rows: import(\"@spark-appworks/spark-data\").DataRow[];\n    }"
               }
             },
             {

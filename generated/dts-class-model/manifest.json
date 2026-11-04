@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1035,
+  "scannedFileCount": 1037,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -6372,6 +6372,21 @@
         "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/field-row-scope\n职责：解析标准字段绑定与其父数据容器提供的行作用域。\n边界：只有 DataView 身份相同时才把容器行用于显式字段绑定，不查询、不授权、不写入。\nAI用途：需要理解显式 DataViewKey 与列表/表格行上下文如何相交时，从本模块核实身份判定。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
+      }
+    },
+    "packages/spark-component/src/components/fields/context/json/json-field-path.ts": {
+      "file": "files/packages/spark-component/src/components/fields/context/json/json-field-path.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/context/json/json-field-path",
+        "sourcePath": "packages/spark-component/src/components/fields/context/json/json-field-path.ts",
+        "sourceFile": "packages/spark-component/src/components/fields/context/json/json-field-path.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/context/json/json-field-path",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/json/json-field-path\n职责：标准字段共用的严格JSON子路径定位和不可变写回。\n边界：不读写DataView、不推导业务节点身份，不建立草稿或持久化入口。\nAI用途：JSON与过滤字段在同一原字段中合并最新兄弟成员。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "JsonFieldPath"
+        ]
       }
     },
     "packages/spark-component/src/components/fields/context/tableCellContext.ts": {
@@ -16171,6 +16186,19 @@
         "symbols": []
       }
     },
+    "src/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue": {
+      "file": "files/src/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan",
+        "sourcePath": "src/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue",
+        "sourceFile": "src/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan",
+        "jsdoc": "@module app:views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan\n职责：以标准JSON字段和过滤组件编排原queryConfig子计划及具体父结果来源。\n边界：不查询业务行、不保存、不建立节点草稿；所有修改属于原DataViewDefinition行。\nAI用途：查询计划目录、逐层行编辑与字段/过滤设置；外层负责原DataSet保存和取消。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/data-platform/data-set-management/design/workbench/data-space-workbench.ts": {
       "file": "files/src/views/features/data-platform/data-set-management/design/workbench/data-space-workbench.ts.json",
       "module": {
@@ -20240,6 +20268,10 @@
     "JsonDocument": {
       "sourcePath": "packages/spark-json-document/src/core/json-types.ts",
       "file": "files/packages/spark-json-document/src/core/json-types.ts.json"
+    },
+    "JsonFieldPath": {
+      "sourcePath": "packages/spark-component/src/components/fields/context/json/json-field-path.ts",
+      "file": "files/packages/spark-component/src/components/fields/context/json/json-field-path.ts.json"
     },
     "JsonLoadOptions": {
       "sourcePath": "packages/spark-utils/src/http/FileLoader.ts",

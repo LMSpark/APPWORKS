@@ -9,6 +9,7 @@ import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflo
 import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput,generateWorkflowMergeOutput} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 
 const sets:DataSet[]=[],pages:PageRuntime[]=[]
+const backends=new WeakMap<DataSet,ApiBackend>()
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());sets.splice(0).forEach(ds=>ds.destroy());vi.restoreAllMocks()})
 const field={rowid:'F',Name:'code',FieldType:'string',Description:'编码',IsOutput:1}
 const mapping=()=>[{rowid:'A',Name:'父输入',Fields:[field],unknown:0},{rowid:'B',pid:'A',Name:'子输入',Fields:[field],JoinType:'INNER',JoinFilter:null,unknown:{keep:true}}]
@@ -33,14 +34,28 @@ async function formalFixture(value:unknown=mapping(),sharedField=false){
  const runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const ds=new LowcodeDataSpaceAssembler(runtime,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
   fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
+ backends.set(ds,http)
  const page=new PageRuntime({pageId:'merge-source-test',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W'}},loadScenario:async()=>ds});pages.push(page);await page.load()
  await Promise.all([ds.getView('Base_WorkflowDefinition')!.refresh(),ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds
 }
 describe('merge configuration input identity and join metadata',()=>{
+ it.each([false,true])('checks fresh references before staging an existing output rename (referenced=%s)',async referenced=>{
+  const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'renamed',FieldType:'varchar',Description:'新标题',IsOutput:1}]}]
+  const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!
+  const original=[{rowid:'A:AF',pid:null,Name:'prior',FieldType:'varchar',isParent:false,unknown:0}]
+  http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='MERGE')!['output_mapping']=JSON.stringify(original)
+  if(referenced)http.records['Base_DataSet']![0]!['inputParams']=JSON.stringify([{Type:'GetInputParam',ParamName:'MERGE.prior'}])
+  await nodes.refresh()
+  const command=generateWorkflowMergeOutput({dataSet:ds,workflowId:'W',nodeId:'MERGE'})
+  if(referenced){await expect(command).rejects.toThrow('节点输出仍被引用');expect(nodes.hasEditingChanges()).toBe(false)}
+  else{await command;expect(JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))[0]).toMatchObject({Name:'renamed',unknown:0})}
+  expect(nodes.rows.find(row=>row['rowid']==='MERGE')?.['output_mapping']).toBe(JSON.stringify(original))
+  expect(http.saves).toHaveLength(0)
+ })
  it('keeps separate configuration identities when two source nodes publish the same field identity',async()=>{
   const ds=await formalFixture([],true),nodes=ds.getView('Base_WorkflowNodeDefinition')!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
   for(const id of ['A','B']){const choices=new WorkflowMergeSourceOptions(target);choices.refresh();choices.view.setCurrentRow(choices.view.rows.find(row=>row['value']===id)!);choices.add(null);choices.dispose()}
-  generateWorkflowMergeOutput(target)
+  await generateWorkflowMergeOutput(target)
   const rows=JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))
   expect(rows.map((row:Record<string,unknown>)=>row['rowid'])).toEqual(['A:AF','B:AF'])
   expect(rows.map((row:Record<string,unknown>)=>row['Name'])).toEqual(['publishedAlias','code'])
@@ -62,17 +77,17 @@ describe('merge configuration input identity and join metadata',()=>{
   }
   nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
   const before=nodes.getEditingRow('MERGE')?.['output_mapping']
-  expect(()=>generateWorkflowMergeOutput(target)).toThrow()
+  await expect(generateWorkflowMergeOutput(target)).rejects.toThrow()
   expect(nodes.getEditingRow('MERGE')?.['output_mapping']).toBe(before)
  })
  it('generates stable source-qualified output identities and preserves existing configuration members without saving',async()=>{
   const ds=await formalFixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
   for(const [id,path] of [['A',null],['B',[0]]] as const){const choices=new WorkflowMergeSourceOptions(target);choices.refresh();choices.view.setCurrentRow(choices.view.rows.find(row=>row['value']===id)!);choices.add(path===null?null:[...path]);choices.dispose()}
   const input=JSON.parse(String(nodes.getEditingRow('MERGE')?.['input_mapping']));input[0].Fields[0].AsName='alpha';input[1].Fields[0].AsName='beta';nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
-  generateWorkflowMergeOutput(target)
+  await generateWorkflowMergeOutput(target)
   const output=JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))
   expect(output.map((row:Record<string,unknown>)=>[row['rowid'],row['Name']])).toEqual([['A:AF','alpha'],['B:BF','beta']])
-  output[0].unknown={keep:false};nodes.updateEditingValue('MERGE','output_mapping',JSON.stringify(output));generateWorkflowMergeOutput(target)
+  output[0].unknown={keep:false};nodes.updateEditingValue('MERGE','output_mapping',JSON.stringify(output));await generateWorkflowMergeOutput(target)
   expect(JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))).toEqual(output)
   expect(nodes.rows.find(row=>row['rowid']==='MERGE')?.['output_mapping']).toBeUndefined()
   nodes.discardEditingRows(['MERGE']);expect(nodes.hasEditingChanges()).toBe(false)

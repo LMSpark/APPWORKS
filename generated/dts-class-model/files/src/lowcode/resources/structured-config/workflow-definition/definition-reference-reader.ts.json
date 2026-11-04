@@ -1,0 +1,211 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/definition-reference-reader",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/definition-reference-reader",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/definition-reference-reader\n职责：字段与节点输出结构命令共用正式定义依赖读取及释放。\n边界：只读元数据查询，不加载业务行、不保存、不重置调用方首轮合同。\nAI用途：在显式结构命令中读取完整正式依赖，复用原DataView查询权限与身份。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowDefinitionReferenceReader"
+    ]
+  },
+  "$defs": {
+    "ReaderInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ReaderInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "WorkflowDefinitionReferenceReader": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowDefinitionReferenceReader",
+      "properties": {
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ReaderInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.query.return": {
+          "type": "object",
+          "title": "Promise<DataView>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-04T19:46:30.926Z",
+  "models": {
+    "ReaderInput": {
+      "name": "ReaderInput",
+      "jsdoc": "本次正式依赖读取的工作流与首轮守卫。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主本次元数据实例。 */\n    dataSet: DataSet;\n    /** 正式工作流定义身份。 */\n    workflowId: string;\n    /** 原命令首轮身份、上下文及草稿守卫。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主本次元数据实例。 */\n    dataSet: DataSet;\n    /** 正式工作流定义身份。 */\n    workflowId: string;\n    /** 原命令首轮身份、上下文及草稿守卫。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "宿主本次元数据实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "jsdoc": "正式工作流定义身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "原命令首轮身份、上下文及草稿守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDefinitionReferenceReader": {
+      "name": "WorkflowDefinitionReferenceReader",
+      "jsdoc": "显式结构检查本次拥有的查询视图集合，不能作为业务数据或可编辑真源。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获同一工作流与调用方守卫，不持有权限副本。",
+          "signatureText": "constructor(input: ReaderInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "ReaderInput",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "views",
+              "jsdoc": "本次创建的只读查询视图，仅供检查与finally释放。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "query",
+              "jsdoc": "按正式归属读取全部定义行；调用方指定本命令实际检查的字段。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "columns",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "intrinsic",
+                      "name": "string"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "只释放本次查询，不能取消或销毁宿主编辑视图。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -4236,6 +4236,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/copy-target.ts.json",
       "sourceModifiedAt": "2026-11-04T14:52:00.055Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts.json",
+      "sourceModifiedAt": "2026-11-04T19:46:30.926Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json",
@@ -4254,7 +4259,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-04T19:37:15.745Z"
+      "sourceModifiedAt": "2026-11-04T19:43:01.976Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts.json",
+      "sourceModifiedAt": "2026-11-04T19:52:17.170Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
@@ -4284,7 +4294,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts.json",
-      "sourceModifiedAt": "2026-11-04T19:02:52.259Z"
+      "sourceModifiedAt": "2026-11-04T19:40:44.097Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",

@@ -1,0 +1,97 @@
+{
+  "scope": "formal workflow node-output reference checks",
+  "status": "partial migration checkpoint",
+  "workflowTests": {
+    "exitCode": 0,
+    "files": 20,
+    "tests": 381
+  },
+  "contracts": {
+    "exitCode": 0,
+    "files": 4,
+    "tests": 49
+  },
+  "typecheckExitCode": 0,
+  "lintExitCode": 0,
+  "buildExitCode": 0,
+  "formalClassModelGenerationExitCode": 0,
+  "semanticGaps": 3638,
+  "codegen": {
+    "newViolations": 0,
+    "exitCode": 1,
+    "existingViolations": 26
+  },
+  "review": {
+    "fix": "Codec plus strict function and field identity checks; constants opaque",
+    "finding": "unknown merge join function could pass",
+    "rereview": "no confirmed residual finding",
+    "reproduced": "red test resolved instead of rejecting"
+  },
+  "nativeServiceSmoke": "not run this checkpoint",
+  "open": [
+    "page generation action",
+    "save-time revalidation",
+    "removed output origin resolution",
+    "native save/cancel/reopen smoke",
+    "known merge execution service mismatch",
+    "20 business packages"
+  ],
+  "evidence": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts",
+      "sha256": "AA30FA809D50344DF3A8FEA3E01789262632980AD65DC5E3A61A113AA339C5C6"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts",
+      "sha256": "9BD15F4FC2FA0860B66F4E359CFC28DF3362BC2184911F8AAC1DACB84249AA00"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+      "sha256": "009824471834288BA6A431B2772D1E94E5978ED79057938E7B1141AF0B8B2F89"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "0B39008D5E710C3FF8661F686B0733E2C53A52E99AD6D732DEDA0C57FAE7481C"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-node-output-references.test.ts",
+      "sha256": "B743DA236F380A865FEF61176D7FBE6EF920DCFAA0A050675B6675D0DDF0B9A3"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "3605C43EAF402BA3E9AD00BFC103FAA6BFB0140A44FD48996B1DB8AFF0DCD0FD"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-unknown-join-red.log",
+      "sha256": "BF28E11DA2C682C88D5208EADC050745984380EC2FDEFE07FB9D21FF59530536"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-tests.log",
+      "sha256": "093C95C8AA17CE81B4C0F095E4E79D0C4E0C4481C125D929406CD0F0DFA563AC"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-typecheck.log",
+      "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-lint.log",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-codegen.log",
+      "sha256": "810686FA30E08806F376159251792D993D0A57714491925164AAEE0BFF5A33D9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-build.log",
+      "sha256": "D73D8A192ECAFAA44BEB606BAEDB807DC83C0371646CD390E54436BA941B2672"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-class-model.log",
+      "sha256": "28D7F91A2611D2C4851473FF17BE2B62F445CBBE25A2C6E9FB9C1F8C398815FB"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-output-reference-contracts.log",
+      "sha256": "67E37AE3F68E1D27A16690B562F9001EED342B7BDF82D7D1680B266AE15B42DF"
+    }
+  ]
+}

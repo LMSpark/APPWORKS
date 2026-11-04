@@ -4,11 +4,12 @@
  * 边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。
  * AI用途：源字段结构变化时复用正式依赖查询与首轮守卫，核对合并字段及连接引用。
  */
-import {DataViewFilterCodec,RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
+import {DataViewFilterCodec,type DataSet,type DataRow} from '@spark-appworks/spark-data'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowQueryFieldScope,workflowQueryDraftSignature,readWorkflowFieldValue as read} from './query-field-context'
 import {workflowMergeFormalInputs} from './merge-inputs'
+import {WorkflowDefinitionReferenceReader} from './definition-reference-reader'
 type Change=Readonly<{before:DataRow;after?:DataRow}>
 function output(row:DataRow):string{const alias=row['AsName'];return typeof alias==='string'&&alias.length>0?alias:String(row['Name'])}
 function document(value:unknown):unknown{return value===null||value===undefined||value===''?null:typeof value==='string'?parseJsonDocument(value):value}
@@ -30,7 +31,7 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   outputName:output(change.before),checkOutput:!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1||nodeOutputOnly&&change.before['FieldType']!==change.after['FieldType'],
   params:new Set(!change.after||output(change.before)!==output(change.after)||Number(change.before['IsOutput'])===1&&Number(change.after['IsOutput'])!==1||nodeOutputOnly&&change.before['FieldType']!==change.after['FieldType']
    ?consumers.map(id=>`${id}.${output(change.before)}`):[])}))
- const views:DataView[]=[]
+ const reader=new WorkflowDefinitionReferenceReader({dataSet,workflowId,assertCurrent:guard}),views=reader.views
  function guard():void{
   const current=workflowQueryFieldScope(dataSet,workflowId,nodeId)
   if(current.modelId!==modelId||[nodes,fields,models,edges].some(view=>view.hasUnconfirmedSave)
@@ -86,31 +87,13 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
    condition(join,`${location}[${sourceId}].JoinFilter`)
   }
  }
- async function query(name:string,columns:string[]):Promise<DataView>{
-  const source=dataSet.getView(name,name==='Base_DataModel_Relation'?'asParent':'default')
-  if(!source)throw Error(`字段引用缺少正式视图: ${name}`)
-  const view=source.createQueryView(`workflowFieldReferences_${crypto.randomUUID().replaceAll('-','')}`);views.push(view)
-  const owner=name==='Base_DataSet'?'rowid':'dataSetId'
-  view.filterExpression={field:owner,operator:'eq',value:workflowId};view.queryConfig={...view.queryConfig,fields:columns,allPages:true}
-  await view.refresh();guard()
-  if(view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total)throw Error(`字段依赖未完整读取: ${name}`)
-  const ids=new Set<string>()
-  for(const row of view.rows){
-   const id=read(view,row,'rowid')
-   if(read(view,row,owner)!==workflowId||typeof id!=='string'||ids.has(id)||view.getPkKey(row)!==id)throw Error('字段依赖身份或归属不符')
-   ids.add(id)
-  }
-  const first=view.rows[0]
-  if(name==='Base_DataSet'&&(view.rows.length!==1||!first||read(view,first,'Type')!=='workflow'))throw Error('字段依赖缺少唯一工作流参数定义')
-  return view
- }
  try{
   guard()
   const results=await Promise.allSettled([
-   query('Base_DataModel',['rowid','dataSetId','Filter','JoinFilter']),
-   query('Base_DataModel_Field',['rowid','dataSetId','dataModelId','Name','AsName','FieldType','IsPKey','IsOutput','ValueFun']),
-   query('Base_DataModel_Relation',['rowid','dataSetId','parentModId','childModId','filter']),
-   query('Base_DataSet',['rowid','Type','inputParams']),
+   reader.query('Base_DataModel',['rowid','dataSetId','Filter','JoinFilter']),
+   reader.query('Base_DataModel_Field',['rowid','dataSetId','dataModelId','Name','AsName','FieldType','IsPKey','IsOutput','ValueFun']),
+   reader.query('Base_DataModel_Relation',['rowid','dataSetId','parentModId','childModId','filter']),
+   reader.query('Base_DataSet',['rowid','Type','inputParams']),
   ])
   for(const result of results)if(result.status==='rejected')throw result.reason
   const fieldView=views.find(view=>view.tableName==='Base_DataModel_Field')
@@ -147,5 +130,5 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   }
   guard()
   if(references.size)throw Error(`字段仍被引用，请先明确清除并保存引用：${[...references].join('；')}`)
- }finally{for(const view of views)if(!view.destroyed)view.dataTable?.destroyView(view.viewId)}
+ }finally{reader.dispose()}
 }

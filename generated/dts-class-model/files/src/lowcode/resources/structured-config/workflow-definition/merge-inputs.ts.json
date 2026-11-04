@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/workflow-definition/merge-inputs",
-    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：原合并输入的范围核对、连接目录及来源增删命令。\n边界：只读正式图，来源命令仅写原DataView的input_mapping；不查询、保存、推导源身份或执行连接。\nAI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：原合并输入的范围核对、连接目录、来源增删及输出配置生成命令。\n边界：只读正式图，仅写原DataView的input_mapping/output_mapping；不查询、保存、推导源身份或执行连接。\nAI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "WorkflowMergeSourceOptions"
@@ -120,7 +120,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T18:01:04.833Z",
+  "generatedAt": "2026-11-04T19:43:01.976Z",
   "models": {
     "Target": {
       "name": "Target",

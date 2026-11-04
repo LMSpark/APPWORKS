@@ -9,6 +9,8 @@ import {parseJsonDocument,type JsonPath} from '@spark-appworks/spark-json-docume
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowQueryAncestors} from './query-inputs'
 import {workflowOutputFields} from './output-fields'
+import {assertWorkflowNodeOutputChanges} from './node-output-references'
+import {workflowQueryDraftSignature} from './query-field-context'
 
 /** 本次原生合并输入命令的唯一目标，不承载可编辑业务副本。 */
 type Target=Readonly<{
@@ -104,8 +106,12 @@ function write(context:ReturnType<typeof scope>,mapping:readonly unknown[]):void
 }
 
 /** 从本次输入生成配置目录；只暂存原字段，不发布未经服务验证的合并运行合同。 */
-export function generateWorkflowMergeOutput(input:Target):void{
+export async function generateWorkflowMergeOutput(input:Target):Promise<void>{
  const context=scope(input),{nodes,node,effective}=context
+ const watched=['Base_WorkflowNodeDefinition','Base_WorkflowConnectors','Base_DataModel','Base_DataModel_Field','Base_DataModel_Relation','Base_DataSet'].flatMap(name=>{const view=input.dataSet.getView(name);return view?[view]:[]})
+ const state=()=>{const current=scope(input);return JSON.stringify([signature(current),current.effective['output_mapping'],workflowQueryDraftSignature(watched)])}
+ const baseline=state()
+ const assertCurrent=()=>{if(state()!==baseline)throw Error('合并输出生成目标、草稿或查询已变化；保留当前修改')}
  const original=read(nodes,node,'output_mapping')
  const document=(value:unknown):Array<Record<string,unknown>>=>{
   const parsed:unknown=value===null||value===undefined||value===''?[]:typeof value==='string'?parseJsonDocument(value):value
@@ -148,7 +154,7 @@ export function generateWorkflowMergeOutput(input:Target):void{
   return {...existing,rowid:id,pid:null,Name:name,Description:typeof field['Description']==='string'?field['Description']:'',FieldType:field['FieldType'],isParent:false}
  })
  if(before.some(row=>!used.has(row)))throw Error('现有输出元素无法对应本次来源；保留原文，需先核对删除引用')
- if(formal.some(row=>!output.some(next=>next.rowid===row['rowid']&&next.Name===row['Name']&&next.FieldType===row['FieldType'])))throw Error('已发布合并输出结构变更尚需正式引用检查；保留当前修改')
+ await assertWorkflowNodeOutputChanges({...input,before:formal,after:output,assertCurrent});assertCurrent()
  if(nodes.commitMode!=='staged'||nodes.editActionState(node)!=='enabled'||nodes.fieldAccess(node,'output_mapping').write!=='allowed')throw Error('当前查询不允许修改合并输出')
  nodes.updateEditingValue(input.nodeId,'output_mapping',JSON.stringify(output))
 }

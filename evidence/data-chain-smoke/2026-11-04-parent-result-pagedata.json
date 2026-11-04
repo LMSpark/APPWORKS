@@ -1,0 +1,376 @@
+{
+  "date": "2026-11-04",
+  "baselineCommit": "d992f8784",
+  "scope": "real service persisted named parentResult views CRUD, independent scoped reopen, standard table consumption and exact restoration",
+  "fix": {
+    "file": "packages/spark-data/src/data-view.ts",
+    "cause": "named DataView.fromJson applied parentResult before attaching DataTable; setter eagerly read strict dataSet getter",
+    "change": "defer subscription replacement until _dataTable.dataSet exists; preserve original structure-ready identity/cycle validation"
+  },
+  "verification": {
+    "initialRed": {
+      "passed": 48,
+      "failed": 1
+    },
+    "targetedFinal": 53,
+    "relatedRegression": {
+      "files": 54,
+      "tests": 1151
+    },
+    "rootTypecheck": "passed",
+    "changedLint": "passed",
+    "classModel": {
+      "files": 4,
+      "tests": 49
+    },
+    "frontendBuild": "passed",
+    "pageThin": "passed",
+    "generatedEquivalentRestored": 111
+  },
+  "preflight": {
+    "repositoryCandidate": {
+      "reads": 8,
+      "writes": 0,
+      "reasonExcluded": "registered repository source, not service file persistence"
+    },
+    "catalogFirst": {
+      "reads": 9,
+      "writes": 0,
+      "status": "local classifier function error after successful read; not a product/service failure"
+    },
+    "catalogCorrected": {
+      "reads": 9,
+      "writes": 0,
+      "total": 72
+    },
+    "candidates": {
+      "phase": "observed",
+      "reads": 20,
+      "writes": 0,
+      "blockedWrites": 0,
+      "paths": [
+        "/api/DataOperation/GetData",
+        "/api/File/content/text"
+      ],
+      "results": [
+        {
+          "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+          "phase": "confirmed",
+          "source": "service",
+          "writes": 0,
+          "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+          "canonical": true,
+          "roundtripExact": true,
+          "roundtripHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+          "originalTableCount": 3,
+          "originalViewCount": 6,
+          "addAction": "enabled",
+          "saveStatus": "idle",
+          "dirty": false,
+          "reads": 10
+        },
+        {
+          "targetId": "97DCB03F75AADEAE6B102B062DB71CEA",
+          "phase": "confirmed",
+          "source": "service",
+          "writes": 0,
+          "baselineHash": "f86a7ff9cd155435d7a9c6a14f38e92a38b3e6f1eab04051fe8964fd2ba0c6b5",
+          "canonical": false,
+          "roundtripExact": false,
+          "roundtripHash": "846d51c7e1eb045217b0f82b478fe7f24092e77825fb1c12d28ff98697a4a22d",
+          "originalTableCount": 7,
+          "originalViewCount": 7,
+          "addAction": "enabled",
+          "saveStatus": "idle",
+          "dirty": false,
+          "reads": 10
+        }
+      ]
+    }
+  },
+  "initialActor": {
+    "marker": "SMOKE_DCPP_1793760832909",
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "reads": 40,
+    "dbWrites": 1,
+    "fileWrites": 0,
+    "phase": "save rejected during validation before file text change/upload/unknown capture",
+    "error": "DataView SMOKE_DCPP_1793760832909Child:smoke 尚未关联 DataTable，请通过 DataTable.getOrCreateView() 或 DataSet.fromJson() 创建视图。",
+    "originalCheckpointHistoricalPending": "save-views",
+    "resolution": "independent file read proved baseline unchanged; retained seed reused, never re-created; old passive actor stopped only after complete cleanup",
+    "exit": 1
+  },
+  "writeRejectionProof": {
+    "phase": "observed",
+    "reads": 10,
+    "writes": 0,
+    "blockedWrites": 0,
+    "paths": [
+      "/api/DataOperation/GetData",
+      "/api/File/content/text"
+    ],
+    "results": [
+      {
+        "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+        "phase": "confirmed",
+        "source": "service",
+        "writes": 0,
+        "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+        "canonical": true,
+        "roundtripExact": true,
+        "roundtripHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+        "originalTableCount": 3,
+        "originalViewCount": 6,
+        "addAction": "enabled",
+        "saveStatus": "idle",
+        "dirty": false,
+        "reads": 10
+      }
+    ]
+  },
+  "successfulActor": {
+    "phase": "cleaned",
+    "error": "",
+    "pending": "",
+    "reads": 224,
+    "dbWrites": 3,
+    "fileWrites": 4,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_DCPP_1793760832909",
+    "names": [
+      "SMOKE_DCPP_1793760832909_PARENT",
+      "SMOKE_DCPP_1793760832909_CHILD",
+      "SMOKE_DCPP_1793760832909_OTHER"
+    ],
+    "tableNames": [
+      "SMOKE_DCPP_1793760832909Parent",
+      "SMOKE_DCPP_1793760832909Child",
+      "SMOKE_DCPP_1793760832909Other"
+    ],
+    "parentId": "C1CCC5B01916634A2316F1BE70150333",
+    "childId": "9DB8B8ABE1E4D2B2429703B61A7C4BC0",
+    "otherChildId": "AB662396E47E6DB7B19D75C618B23910",
+    "fieldIds": [
+      {
+        "id": "D54666923FCFFD2E440DBBAD95B93EEC",
+        "modelId": "C1CCC5B01916634A2316F1BE70150333",
+        "name": "rowid"
+      },
+      {
+        "id": "B433108C1C72E32024BF663928CCC2B9",
+        "modelId": "C1CCC5B01916634A2316F1BE70150333",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "345563C48878999F3753DABD77C40680",
+        "modelId": "C1CCC5B01916634A2316F1BE70150333",
+        "name": "Name"
+      },
+      {
+        "id": "0991C778A562D37C05BFFAC52220FF22",
+        "modelId": "9DB8B8ABE1E4D2B2429703B61A7C4BC0",
+        "name": "rowid"
+      },
+      {
+        "id": "96F1E4C5C08FEABC8F433DC58C1E8D63",
+        "modelId": "9DB8B8ABE1E4D2B2429703B61A7C4BC0",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "2A77B0FC0467E8965A1A44B2D27194F0",
+        "modelId": "9DB8B8ABE1E4D2B2429703B61A7C4BC0",
+        "name": "Name"
+      },
+      {
+        "id": "F7D6BF0EB859B79B5A83CD13444D092E",
+        "modelId": "9DB8B8ABE1E4D2B2429703B61A7C4BC0",
+        "name": "dataModelId"
+      },
+      {
+        "id": "09BAA6F2237AACB6336EF8E1D9BEE003",
+        "modelId": "AB662396E47E6DB7B19D75C618B23910",
+        "name": "rowid"
+      },
+      {
+        "id": "D805926515F01C538780F531B47B04B2",
+        "modelId": "AB662396E47E6DB7B19D75C618B23910",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "2767EA6B7EC224E4B2B38CDCA0FF1754",
+        "modelId": "AB662396E47E6DB7B19D75C618B23910",
+        "name": "Name"
+      },
+      {
+        "id": "CBC01AF4D5217CCF61C29AF588838384",
+        "modelId": "AB662396E47E6DB7B19D75C618B23910",
+        "name": "dataModelId"
+      }
+    ],
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "lifecycle": "cleaned",
+    "noReplay": true,
+    "priorDbWrites": 1,
+    "resumeKind": "confirmed seed; zero file mutations; no seed replay",
+    "savedFileHash": "cc2ea1cb7bf7d570ce80148fbd3c9bc87d2a581ffeb668f3289cecf78ae35fb8",
+    "deletedother": true,
+    "deletedchild": true,
+    "deletedparent": true,
+    "checks": [
+      "existing exact file and fourteen prior acknowledged seed identities independently verified; no DB replay",
+      "native added-view cancellation performed zero writes",
+      "three named views and implicit bindings saved and independently reopened",
+      "existing named-view edit cancel performed zero writes",
+      "named-view label update independently persisted",
+      "exact original pagedata bytes independently restored before DB cleanup",
+      "fourteen exact owned records removed, original models and file preserved"
+    ],
+    "uploads": [
+      {
+        "phase": "save-views",
+        "hash": "61598a26facfef3c591c5dfa4cf50e527bb7fde15e286dda328dcfbe3baa7150",
+        "bytes": 2530
+      },
+      {
+        "phase": "update-views",
+        "hash": "cc2ea1cb7bf7d570ce80148fbd3c9bc87d2a581ffeb668f3289cecf78ae35fb8",
+        "bytes": 2550
+      },
+      {
+        "phase": "clear-views",
+        "hash": "a4a3bfc554c221db466565379989e7394385dee5c3d57abacbc9c8013ea7bc66",
+        "bytes": 1553
+      },
+      {
+        "phase": "clear-bindings",
+        "hash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+        "bytes": 1059
+      }
+    ],
+    "totalDbBatchesIncludingPriorSeed": 4,
+    "exit": 0
+  },
+  "sdkFirstProbe": {
+    "phase": "failed",
+    "error": "derived readonly boundary changed",
+    "testedAt": "2026-11-04T03:02:32.409Z",
+    "reads": 17,
+    "writes": 0,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_DCPP_1793760832909",
+    "savedFileHash": "cc2ea1cb7bf7d570ce80148fbd3c9bc87d2a581ffeb668f3289cecf78ae35fb8",
+    "paths": [
+      "/api/DataOperation/GetData",
+      "/api/File/content/text"
+    ],
+    "checks": [],
+    "resolution": "test expected disabled, but formal keyless rowAction contract is hidden; corrected probe only, no permission change"
+  },
+  "sdkFinal": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-04T03:05:25.601Z",
+    "reads": 17,
+    "writes": 0,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_DCPP_1793760832909",
+    "savedFileHash": "cc2ea1cb7bf7d570ce80148fbd3c9bc87d2a581ffeb668f3289cecf78ae35fb8",
+    "paths": [
+      "/api/DataOperation/GetData",
+      "/api/File/content/text"
+    ],
+    "checks": [
+      {
+        "name": "persisted-parent-child-selection",
+        "parentId": "C1CCC5B01916634A2316F1BE70150333",
+        "rootRows": 2,
+        "childRows": 3,
+        "otherRows": 1,
+        "label": "SMOKE_DCPP_1793760832909_PARENT"
+      },
+      {
+        "name": "persisted-parent-child-selection",
+        "parentId": "9DB8B8ABE1E4D2B2429703B61A7C4BC0",
+        "rootRows": 2,
+        "childRows": 4,
+        "otherRows": 1,
+        "label": "SMOKE_DCPP_1793760832909_CHILD"
+      },
+      {
+        "name": "persisted-empty-restore-refresh",
+        "childRows": 3,
+        "otherRows": 1,
+        "parentHttp": 1
+      }
+    ]
+  },
+  "browser": {
+    "evidence": "2026-11-04-parent-result-pagedata-browser.json",
+    "screenshot": "2026-11-04-parent-result-pagedata-browser.png",
+    "documentReads": [
+      18,
+      17
+    ],
+    "writes": 0,
+    "scope": "diagnostic host with original saved configuration and three standard tables; not full reference-page acceptance"
+  },
+  "independentCleanup": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-04T03:11:54.510Z",
+    "reads": 12,
+    "writes": 0,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_DCPP_1793760832909",
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "fileHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "results": [
+      {
+        "model": "Base_DataModel",
+        "requestedIds": 3,
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      },
+      {
+        "model": "Base_DataModel_Field",
+        "requestedIds": 11,
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      }
+    ]
+  },
+  "limits": [
+    "new missing-file creation and removal lifecycle not exercised; existing exact-restorable service file used",
+    "effective child-path/output-kind design validation and further real failure/application-switch/multilevel permission cases remain open",
+    "Foreign, LEFT no-match, aggregates, long PId, and full reference-page matrix remain tracked in the ledger"
+  ],
+  "backendChanges": 0,
+  "permissionChanges": 0,
+  "workflowExecutions": 0,
+  "remainingTemporaryRecords": 0,
+  "goal": "active",
+  "accountContext": {
+    "tenant": "NewApp",
+    "account": "admin",
+    "source": "existing authorized protected credential; normal browser form login observed",
+    "permissionSemantics": "original backend query results; no account-based frontend bypass"
+  }
+}

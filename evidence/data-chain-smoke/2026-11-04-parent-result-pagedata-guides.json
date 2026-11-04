@@ -1,0 +1,2028 @@
+[
+  {
+    "kind": "LowcodeDataSpaceDesignSession",
+    "catalog": {
+      "rootKind": "LowcodeDataSpaceDesignSession",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceDesignSession",
+          "name": "LowcodeDataSpaceDesignSession",
+          "jsdoc": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+          "summary": "The file owns editable definitions; assembled DataSets are disposable projections of its revision."
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "LowcodeDataSpaceDesignSession",
+      "models": [
+        {
+          "kind": "LowcodeDataSpaceDesignSession",
+          "name": "LowcodeDataSpaceDesignSession",
+          "jsdoc": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+          "summary": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.",
+          "constructorSignature": {
+            "summary": "",
+            "jsdoc": "",
+            "signature": "constructor(input: DesignSessionConstruction)"
+          },
+          "attributes": [
+            {
+              "name": "targetId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "metadataDataSet",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "SparkData.DataSet"
+            },
+            {
+              "name": "viewState",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "PageDataSpaceViewState | null"
+            },
+            {
+              "name": "relationDefinitionsReady",
+              "jsdoc": "当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。\n原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n@returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。",
+              "summary": "当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "definitionStatus",
+              "jsdoc": "当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。",
+              "summary": "当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。",
+              "typeText": "\"absent\" | \"unloaded\" | \"loading\" | \"ready\" | \"failed\""
+            },
+            {
+              "name": "definitionDataSet",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "SparkData.DataSet"
+            },
+            {
+              "name": "definitionError",
+              "jsdoc": "Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.",
+              "summary": "Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.",
+              "typeText": "Error"
+            },
+            {
+              "name": "definitionDiagnostics",
+              "jsdoc": "当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。",
+              "summary": "当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。",
+              "typeText": "string[]"
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadRelationFields",
+              "jsdoc": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n@param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n@returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n@throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。",
+              "summary": "为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。",
+              "signature": "loadRelationFields(rowKey: string | number): Promise<Readonly<{\n        columns: readonly SparkData.DataColumn[];\n        context: SparkData.DataViewFilterFunctionContext;\n    }>>"
+            },
+            {
+              "name": "getViewFields",
+              "jsdoc": "Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.",
+              "summary": "Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.",
+              "signature": "getViewFields(input: NativeViewSelection): readonly SparkData.DataColumn[] | null"
+            },
+            {
+              "name": "getViewOutputProjection",
+              "jsdoc": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n@param input 精确模型与命名视图身份。\n@returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义SparkData.DataView记录变更。\n@throws 目标、模型、视图或会话身份失效时拒绝读取。",
+              "summary": "当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。",
+              "signature": "getViewOutputProjection(input: NativeViewSelection): readonly SparkData.DataViewFieldProjection[] | null"
+            },
+            {
+              "name": "loadViewFilterContext",
+              "jsdoc": "读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。\n@param input 当前空间中的精确模型绑定和视图；旧格式仅补读关系端点，原生格式直接使用文件关系。\n@returns 模型名称为正式modelName，字段为本仓正式输出；与视图字段目录共用按模型读取，不装配完整目标或执行函数。\n@throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。",
+              "summary": "读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。",
+              "signature": "loadViewFilterContext(input: NativeViewSelection): Promise<SparkData.DataViewFilterFunctionContext>"
+            },
+            {
+              "name": "loadPreviewFilterContext",
+              "jsdoc": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n@param preview 本空间仍有效的模型或命名视图预览；当前字段复用原SparkData.DataView查询来源合同。\n@returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n@throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。",
+              "summary": "为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。",
+              "signature": "loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<SparkData.DataViewFilterFunctionContext>"
+            },
+            {
+              "name": "loadCascadeFields",
+              "jsdoc": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n@param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n@param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n@returns 候选SparkData.DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n@throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。",
+              "summary": "为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。",
+              "signature": "loadCascadeFields(tableName: string, viewId: string): Promise<void>"
+            },
+            {
+              "name": "loadViewFields",
+              "jsdoc": "Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.\n@param input Exact table binding, model identity and view name in the current metadata definition view.\n@returns Populates the existing field-option SparkData.DataView; no business query, definition edit or persistence occurs.\n@throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.",
+              "summary": "Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.",
+              "signature": "loadViewFields(input: NativeViewSelection): Promise<void>"
+            },
+            {
+              "name": "loadMetadataViews",
+              "jsdoc": "工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。",
+              "summary": "工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。",
+              "signature": "loadMetadataViews(names: (\"Base_DataModel_Field\" | \"Base_DataModel_Relation\")[]): Promise<void>"
+            },
+            {
+              "name": "loadRelationDefinitions",
+              "jsdoc": "读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。\n不完整来源和转换诊断不能升级为原生定义；文件自身坏引用保留供显式修复。",
+              "summary": "读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。",
+              "signature": "loadRelationDefinitions(): Promise<void>"
+            },
+            {
+              "name": "loadGraphRelations",
+              "jsdoc": "读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。\n@returns 完成后graph只包含当前文件及可确认正式模型的端点；不会读取字段、查询业务行或保存。\n@throws 元关系/模型权限与范围不符、文件改变或本次会话失效时拒绝显示旧端点。",
+              "summary": "读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。",
+              "signature": "loadGraphRelations(): Promise<void>"
+            },
+            {
+              "name": "stageInputParameters",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "stageInputParameters(input: Readonly<{\n        expectedValue: unknown;\n        value: unknown;\n    }>): void"
+            },
+            {
+              "name": "getInputParameterState",
+              "jsdoc": "声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。",
+              "summary": "声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。",
+              "signature": "getInputParameterState(): {\n        status: ParameterEditStatus;\n        pending: boolean;\n    }"
+            },
+            {
+              "name": "saveInputParameters",
+              "jsdoc": "省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。",
+              "summary": "省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。",
+              "signature": "saveInputParameters(input: Readonly<{\n        expectedValue?: unknown;\n        onReceipt?: () => void;\n    }>): Promise<Record<string, unknown>[]>"
+            },
+            {
+              "name": "reloadInputParameters",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "reloadInputParameters(input: Readonly<{\n        discardPending: boolean;\n    }>): Promise<Record<string, unknown>[]>"
+            },
+            {
+              "name": "getSourceInput",
+              "jsdoc": "维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。",
+              "summary": "维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。",
+              "signature": "getSourceInput(fieldId: string, viewId?: \"default\" | \"sourceInputFields\"): SourceInputHandle"
+            },
+            {
+              "name": "loadSourceInputFields",
+              "jsdoc": "读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。",
+              "summary": "读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。",
+              "signature": "loadSourceInputFields(modelId: string): Promise<SparkData.DataView>"
+            },
+            {
+              "name": "getModelSourceInputs",
+              "jsdoc": "取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。",
+              "summary": "取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。",
+              "signature": "getModelSourceInputs(modelId: string): SourceInputHandle[]"
+            },
+            {
+              "name": "hasPendingSourceInputs",
+              "jsdoc": "供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。",
+              "summary": "供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。",
+              "signature": "hasPendingSourceInputs(): boolean"
+            },
+            {
+              "name": "loadModelInputFields",
+              "jsdoc": "查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。\n@param modelId 当前正式模型ID；端点经目标配置的modelBinding解析，不用物理来源名猜测。\n@returns 元字段表的modelInputFields视图，范围过滤保留在pagedata及queryContext中。\n原生v2直接读取文件关系；旧格式只读取关系目录并映射端点，不装配完整目标。\n@throws 关系定义、正式身份、查询范围或本次会话失效时明确报错，不把未知关系当作空结果。",
+              "summary": "查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。",
+              "signature": "loadModelInputFields(modelId: string): Promise<SparkData.DataView>"
+            },
+            {
+              "name": "loadModelFields",
+              "jsdoc": "加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。\n@param modelId 当前被设计空间内唯一、可读的模型ID。\n@returns 由metadataDataSet持有的命名视图，表格和编辑器共同消费。\n@throws 有字段草稿、未决请求或返回范围失配时拒绝切换，不复制旧权限或数据。",
+              "summary": "加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。",
+              "signature": "loadModelFields(modelId: string): Promise<SparkData.DataView>"
+            },
+            {
+              "name": "getFieldEdit",
+              "jsdoc": "取得正式字段配置流程；字段草稿及权限属于指定查询视图。\n@param fieldId 正式字段ID。\n@param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。",
+              "summary": "取得正式字段配置流程；字段草稿及权限属于指定查询视图。",
+              "signature": "getFieldEdit(fieldId: string, viewId?: \"default\" | \"modelFields\"): FieldEditSession"
+            },
+            {
+              "name": "getFieldCreate",
+              "jsdoc": "同一模型只保留一个创建流程；输入视图不保存为正式元模型。",
+              "summary": "同一模型只保留一个创建流程；输入视图不保存为正式元模型。",
+              "signature": "getFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): FieldCreateHandle"
+            },
+            {
+              "name": "releaseFieldCreate",
+              "jsdoc": "离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。",
+              "summary": "离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。",
+              "signature": "releaseFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): void"
+            },
+            {
+              "name": "getUnresolvedFieldIds",
+              "jsdoc": "含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。",
+              "summary": "含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。",
+              "signature": "getUnresolvedFieldIds(modelId: string, viewId: \"default\" | \"modelFields\"): string[]"
+            },
+            {
+              "name": "hasPendingFieldEdits",
+              "jsdoc": "原字段视图中的新增也算待提交，即使尚未打开单行编辑器。",
+              "summary": "原字段视图中的新增也算待提交，即使尚未打开单行编辑器。",
+              "signature": "hasPendingFieldEdits(): boolean"
+            },
+            {
+              "name": "getModelFieldRemovals",
+              "jsdoc": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。",
+              "summary": "当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。",
+              "signature": "getModelFieldRemovals(modelId: string, viewId?: string): FieldRemoveHandle[]"
+            },
+            {
+              "name": "getFieldRemove",
+              "jsdoc": "计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。",
+              "summary": "计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。",
+              "signature": "getFieldRemove(fieldId: string, fieldViewId?: \"default\" | \"modelFields\"): FieldRemoveHandle"
+            },
+            {
+              "name": "getModelEdit",
+              "jsdoc": "维护正式模型的查询配置；模型身份和来源替换不在此入口改动。",
+              "summary": "维护正式模型的查询配置；模型身份和来源替换不在此入口改动。",
+              "signature": "getModelEdit(modelId: string): ModelEditSession"
+            },
+            {
+              "name": "getArrayEdit",
+              "jsdoc": "已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。",
+              "summary": "已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。",
+              "signature": "getArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): ArrayEditHandle"
+            },
+            {
+              "name": "releaseArrayEdit",
+              "jsdoc": "关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。",
+              "summary": "关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。",
+              "signature": "releaseArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): void"
+            },
+            {
+              "name": "hasPendingModelEdits",
+              "jsdoc": "保留没有本地delta但仍待核验的模型提交，供页面关闭保护。",
+              "summary": "保留没有本地delta但仍待核验的模型提交，供页面关闭保护。",
+              "signature": "hasPendingModelEdits(): boolean"
+            },
+            {
+              "name": "getModelRename",
+              "jsdoc": "维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。",
+              "summary": "维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。",
+              "signature": "getModelRename(modelId: string): ModelRenameHandle"
+            },
+            {
+              "name": "releaseModelRename",
+              "jsdoc": "离开模型节点时释放空的改名输入；未决操作继续由会话保留。",
+              "summary": "离开模型节点时释放空的改名输入；未决操作继续由会话保留。",
+              "signature": "releaseModelRename(modelId: string): void"
+            },
+            {
+              "name": "getModelRemove",
+              "jsdoc": "删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。",
+              "summary": "删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。",
+              "signature": "getModelRemove(modelId: string): ModelRemoveHandle"
+            },
+            {
+              "name": "hasPendingModelRemovals",
+              "jsdoc": "含预览和未决删除，避免模型行消失后丢失核验入口。",
+              "summary": "含预览和未决删除，避免模型行消失后丢失核验入口。",
+              "signature": "hasPendingModelRemovals(): boolean"
+            },
+            {
+              "name": "getModelCreate",
+              "jsdoc": "同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。",
+              "summary": "同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。",
+              "signature": "getModelCreate(): ModelCreateHandle"
+            },
+            {
+              "name": "hasPendingModelCreate",
+              "jsdoc": "包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。",
+              "summary": "包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。",
+              "signature": "hasPendingModelCreate(): boolean"
+            },
+            {
+              "name": "getModelSourceEdit",
+              "jsdoc": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。",
+              "summary": "保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。",
+              "signature": "getModelSourceEdit(modelId: string): ModelSourceEditHandle"
+            },
+            {
+              "name": "hasPendingModelSourceEdits",
+              "jsdoc": "包含来源预览和未决提交，避免释放时丢失核验入口。",
+              "summary": "包含来源预览和未决提交，避免释放时丢失核验入口。",
+              "signature": "hasPendingModelSourceEdits(): boolean"
+            },
+            {
+              "name": "readApiInfo",
+              "jsdoc": "复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。",
+              "summary": "复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。",
+              "signature": "readApiInfo(): Promise<string>"
+            },
+            {
+              "name": "inspectInputParameters",
+              "jsdoc": "检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。",
+              "summary": "检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。",
+              "signature": "inspectInputParameters(): InputParameterInspection"
+            },
+            {
+              "name": "canOpenPreview",
+              "jsdoc": "Shared synchronous eligibility check for the preview action; the actual open repeats this guard.",
+              "summary": "Shared synchronous eligibility check for the preview action; the actual open repeats this guard.",
+              "signature": "canOpenPreview(input: NativeViewSelection): boolean"
+            },
+            {
+              "name": "preparePreviewEligibility",
+              "jsdoc": "Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.",
+              "summary": "Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.",
+              "signature": "preparePreviewEligibility(input: NativeViewSelection): Promise<boolean>"
+            },
+            {
+              "name": "openPreview",
+              "jsdoc": "按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。",
+              "summary": "按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。",
+              "signature": "openPreview(input: NativeViewSelection): Promise<LowcodeDataSpaceQueryPreview>"
+            },
+            {
+              "name": "openModelPreview",
+              "jsdoc": "按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。",
+              "summary": "按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。",
+              "signature": "openModelPreview(input: Pick<SessionSelection, \"modelId\" | \"modelName\">): Promise<LowcodeDataSpaceQueryPreview>"
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。",
+              "summary": "重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。",
+              "signature": "refresh(options?: SessionLoadOptions): Promise<void>"
+            },
+            {
+              "name": "loadDefinition",
+              "jsdoc": "装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。",
+              "summary": "装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。",
+              "signature": "loadDefinition(): Promise<void>"
+            },
+            {
+              "name": "readReferenceLayout",
+              "jsdoc": "通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。",
+              "summary": "通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。",
+              "signature": "readReferenceLayout(): Promise<string | null>"
+            },
+            {
+              "name": "removeModelBinding",
+              "jsdoc": "将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。",
+              "summary": "将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。",
+              "signature": "removeModelBinding(input: SessionBindingRemoval): Promise<PageDataSpaceViewState>"
+            },
+            {
+              "name": "previewRemoteViews",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "previewRemoteViews(): Promise<string | null>"
+            },
+            {
+              "name": "adoptViews",
+              "jsdoc": "接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。",
+              "summary": "接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。",
+              "signature": "adoptViews(input: SessionAdopt): Promise<PageDataSpaceViewState | null>"
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "dispose(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "The file owns editable definitions; assembled DataSets are disposable projections of its revision.\nclass LowcodeDataSpaceDesignSession {\n  constructor(input: DesignSessionConstruction)\n  readonly targetId: string\n  readonly metadataDataSet: SparkData.DataSet\n  readonly viewState: PageDataSpaceViewState | null\n  当前文件的关系定义已可交给默认SparkData.DataView编辑；不代表整个目标SparkData.DataSet已经装配。\n  原生文件直接就绪，旧格式须有完整投影或同文件/代次/正式来源的成功转换记录。\n  @returns 关系工作区是否就绪；源查询或身份不再成立时拒绝复用。\n  readonly relationDefinitionsReady: boolean\n  当前文件投影的读取状态；保存后的unloaded不是装配失败，也不允许继续消费旧投影。\n  readonly definitionStatus: \"absent\" | \"unloaded\" | \"loading\" | \"ready\" | \"failed\"\n  readonly definitionDataSet: SparkData.DataSet\n  Assembly failure leaves metadata and the file editable; it never represents a valid empty definition.\n  readonly definitionError: Error\n  当次装配未能转换的来源诊断；原始元数据保留，不能把运行子集当完整定义。\n  readonly definitionDiagnostics: string[]\n  为选中原生关系读取父子及显式引用模型的字段，其他绑定通过标准独立编辑器按需读取。\n  @param rowKey 当前元数据SparkData.DataView中关系定义的主键；不接受另一空间或无读取许可的行。\n  @returns 条件字段与值函数目录；模型和字段来自正式readModel，缓存可丢弃，不装配完整目标或保存。\n  @throws 模型/关系身份、字段读取权限、文件或会话发生变化时拒绝旧目录。\n  loadRelationFields(rowKey: string | number): Promise<Readonly<{\n          columns: readonly SparkData.DataColumn[];\n          context: SparkData.DataViewFilterFunctionContext;\n      }>>\n  Read the selected view's disposable field catalog; null means it has not been loaded for this identity/configuration.\n  getViewFields(input: NativeViewSelection): readonly SparkData.DataColumn[] | null\n  当前正式模型的输出投影模板，与loadViewFields共用身份/字段读取；返回副本，不修改定义。\n  @param input 精确模型与命名视图身份。\n  @returns 目录尚未加载或文件资源返回null；用户显式初始化后才由原定义SparkData.DataView记录变更。\n  @throws 目标、模型、视图或会话身份失效时拒绝读取。\n  getViewOutputProjection(input: NativeViewSelection): readonly SparkData.DataViewFieldProjection[] | null\n  读取命名视图值函数的本模型、正式上游及关联字段目录，沿参考节点请求设置的语义提供候选。\n  @param input 当前空间中的精确模型绑定和视图；旧格式仅补读关系端点，原生格式直接使用文件关系。\n  @returns 模型名称为正式modelName，字段为本仓正式输出；与视图字段目录共用按模型读取，不装配完整目标或执行函数。\n  @throws 文件、正式模型、视图身份、可读权限或会话变化时拒绝过期目录；不改变原过滤定义。\n  loadViewFilterContext(input: NativeViewSelection): Promise<SparkData.DataViewFilterFunctionContext>\n  为当前预览提供正式本模型与上游值函数目录，供标准r-filter消费。\n  @param preview 本空间仍有效的模型或命名视图预览；当前字段复用原SparkData.DataView查询来源合同。\n  @returns 正式模型名称及字段目录；仅补读尚未缓存的上游模型，不装配目标或修改预览与持久定义。\n  @throws 预览关闭、模型/文件/会话身份变化或上游字段不可读取时拒绝过期目录。\n  loadPreviewFilterContext(preview: LowcodeDataSpaceQueryPreview): Promise<SparkData.DataViewFilterFunctionContext>\n  为配置级联读取一个绑定视图的字段，写入元空间已有DataViewFieldOption，多个端点共享模型读取。\n  @param tableName 当前文件内的模型表键；正式模型身份从已核定绑定读取，不接受模型名或首表回退。\n  @param viewId 所属模型的命名视图；输出投影和主键/计算字段只读约束沿原生视图合同。\n  @returns 候选SparkData.DataView已刷新；不装配整个目标、不查询业务行、不修改定义或持久化。\n  @throws 不可读身份、失效作用域或读取期间的绑定/投影变化拒绝发布候选。\n  loadCascadeFields(tableName: string, viewId: string): Promise<void>\n  Read only the selected formal model and project its named-view fields without assembling the target SparkData.DataSet.\n  @param input Exact table binding, model identity and view name in the current metadata definition view.\n  @returns Populates the existing field-option SparkData.DataView; no business query, definition edit or persistence occurs.\n  @throws Missing/read-restricted identity, changed file/scope or obsolete request prevents publication.\n  loadViewFields(input: NativeViewSelection): Promise<void>\n  工作区按需读取字段或来源关系，复用正式 SparkData.DataView；不是保存前的全量检查。\n  loadMetadataViews(names: (\"Base_DataModel_Field\" | \"Base_DataModel_Relation\")[]): Promise<void>\n  读取完整旧关系并按端点/值函数依赖转换；不装配目标业务视图、不查询业务行或写旧库。\n  不完整来源和转换诊断不能升级为原生定义；文件自身坏引用保留供显式修复。\n  loadRelationDefinitions(): Promise<void>\n  读取画布关系端点，保持完整运行定义未装配；标准画布绑定关系表的只读graph视图。\n  @returns 完成后graph只包含当前文件及可确认正式模型的端点；不会读取字段、查询业务行或保存。\n  @throws 元关系/模型权限与范围不符、文件改变或本次会话失效时拒绝显示旧端点。\n  loadGraphRelations(): Promise<void>\n  stageInputParameters(input: Readonly<{\n          expectedValue: unknown;\n          value: unknown;\n      }>): void\n  声明编辑流程状态；页面与复制 API 经会话读取，不暴露独立命令类。\n  getInputParameterState(): {\n          status: ParameterEditStatus;\n          pending: boolean;\n      }\n  省略 expectedValue 时以会话最近一次确认读取的 inputParams 为并发基线。\n  saveInputParameters(input: Readonly<{\n          expectedValue?: unknown;\n          onReceipt?: () => void;\n      }>): Promise<Record<string, unknown>[]>\n  reloadInputParameters(input: Readonly<{\n          discardPending: boolean;\n      }>): Promise<Record<string, unknown>[]>\n  维护正式来源入参的ValueFun；同一字段复用流程状态，提交即使旧目标投影失效。\n  getSourceInput(fieldId: string, viewId?: \"default\" | \"sourceInputFields\"): SourceInputHandle\n  读取当前模型的正式来源入参；过滤及查询选项来自pagedata，不替换目录视图。\n  loadSourceInputFields(modelId: string): Promise<SparkData.DataView>\n  取得模型工作区的原入参owner；保留未决行身份，回读缺行仍能从原批次核验。\n  getModelSourceInputs(modelId: string): SourceInputHandle[]\n  供宿主释放检查；包含没有本地delta但仍待核验的来源入参提交。\n  hasPendingSourceInputs(): boolean\n  查询请求设置右侧的上游模型字段；原生关系仅决定模型集合，不执行关系过滤或推导输入级联。\n  @param modelId 当前正式模型ID；端点经目标配置的modelBinding解析，不用物理来源名猜测。\n  @returns 元字段表的modelInputFields视图，范围过滤保留在pagedata及queryContext中。\n  原生v2直接读取文件关系；旧格式只读取关系目录并映射端点，不装配完整目标。\n  @throws 关系定义、正式身份、查询范围或本次会话失效时明确报错，不把未知关系当作空结果。\n  loadModelInputFields(modelId: string): Promise<SparkData.DataView>\n  加载统一模型工作区的正式字段视图和已配置的脱敏规则候选；全空间目录仍保留在default。\n  @param modelId 当前被设计空间内唯一、可读的模型ID。\n  @returns 由metadataDataSet持有的命名视图，表格和编辑器共同消费。\n  @throws 有字段草稿、未决请求或返回范围失配时拒绝切换，不复制旧权限或数据。\n  loadModelFields(modelId: string): Promise<SparkData.DataView>\n  取得正式字段配置流程；字段草稿及权限属于指定查询视图。\n  @param fieldId 正式字段ID。\n  @param viewId 独立字段入口用default；统一模型列工作区用modelFields，不回退查询身份。\n  getFieldEdit(fieldId: string, viewId?: \"default\" | \"modelFields\"): FieldEditSession\n  同一模型只保留一个创建流程；输入视图不保存为正式元模型。\n  getFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): FieldCreateHandle\n  离开字段新增工作区时释放空的输入视图；草稿及未决提交保留给原会话核验。\n  releaseFieldCreate(modelId: string, viewId?: \"default\" | \"modelFields\"): void\n  含没有本地delta但仍待核验的字段提交，供页面关闭及切换保护。\n  getUnresolvedFieldIds(modelId: string, viewId: \"default\" | \"modelFields\"): string[]\n  原字段视图中的新增也算待提交，即使尚未打开单行编辑器。\n  hasPendingFieldEdits(): boolean\n  当前模型原绑定视图的待删除或未决流程；记录数据仍仅在SparkData.DataView。\n  getModelFieldRemovals(modelId: string, viewId?: string): FieldRemoveHandle[]\n  计算字段删除复用原SparkData.DataView；恢复入口不依赖待删行仍存在。\n  getFieldRemove(fieldId: string, fieldViewId?: \"default\" | \"modelFields\"): FieldRemoveHandle\n  维护正式模型的查询配置；模型身份和来源替换不在此入口改动。\n  getModelEdit(modelId: string): ModelEditSession\n  已有数组共用原定义批次；工作区显式绑定modelFields，独立完整目录调用使用default。\n  getArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): ArrayEditHandle\n  关闭无草稿数组窗口时释放流程身份；未决提交保留供核验。\n  releaseArrayEdit(modelId: string, fieldViewId?: \"default\" | \"modelFields\"): void\n  保留没有本地delta但仍待核验的模型提交，供页面关闭保护。\n  hasPendingModelEdits(): boolean\n  维护注册名及本空间明确引用，原正式模型ID、来源和内部表键保持不变。\n  getModelRename(modelId: string): ModelRenameHandle\n  离开模型节点时释放空的改名输入；未决操作继续由会话保留。\n  releaseModelRename(modelId: string): void\n  删除当前模型及其正式从属定义，复用原元数据视图和文件依赖检查。\n  getModelRemove(modelId: string): ModelRemoveHandle\n  含预览和未决删除，避免模型行消失后丢失核验入口。\n  hasPendingModelRemovals(): boolean\n  同一会话复用新模型创建状态；新增记录仍归原模型和字段视图。\n  getModelCreate(): ModelCreateHandle\n  包括预览和没有本地delta的未决新增，避免关闭时丢失核验入口。\n  hasPendingModelCreate(): boolean\n  保留字段合同的来源替换或当前来源同步；共用正式来源读取与原SparkData.DataView保存。\n  getModelSourceEdit(modelId: string): ModelSourceEditHandle\n  包含来源预览和未决提交，避免释放时丢失核验入口。\n  hasPendingModelSourceEdits(): boolean\n  复制当前空间的模型调用资料和命名视图键；正式主键由原读取owner确认，不输出业务行或授权凭据。\n  readApiInfo(): Promise<string>\n  检查当前声明编辑对参数引用的影响；不推断未来调用值，不保存或改写定义。\n  inspectInputParameters(): InputParameterInspection\n  Shared synchronous eligibility check for the preview action; the actual open repeats this guard.\n  canOpenPreview(input: NativeViewSelection): boolean\n  Load only the owner records required to prove a new view's model/space identity, then rerun the strict preview guard.\n  preparePreviewEligibility(input: NativeViewSelection): Promise<boolean>\n  按已保存配置及所选模型范围重新装配命名预览；无需旧设计投影，仍拒绝未决元数据/文件草稿及过期身份。不查询或修改元数据视图中的业务行。\n  openPreview(input: NativeViewSelection): Promise<LowcodeDataSpaceQueryPreview>\n  按正式模型及已保存初值创建预览SparkData.DataView；请求调整留在预览实例，不保存模型请求草稿。\n  openModelPreview(input: Pick<SessionSelection, \"modelId\" | \"modelName\">): Promise<LowcodeDataSpaceQueryPreview>\n  重读文件定义；延迟模式先交付元数据，画布读取端点，完整编辑工作区再调用loadDefinition。\n  refresh(options?: SessionLoadOptions): Promise<void>\n  装配当前文件的目标结构；同代次在途调用合并，成功复用，失败可重试，不查询业务行或保存。\n  loadDefinition(): Promise<void>\n  通过元空间正式只读视图查询参考布局；未加载与缺文件不同，读取期间定义变化则拒绝使用结果。\n  readReferenceLayout(): Promise<string | null>\n  将精确模型绑定及所属配置的删除记入原生SparkData.DataView；提交和取消仍由SparkData.DataSet/SparkData.DataView执行。\n  removeModelBinding(input: SessionBindingRemoval): Promise<PageDataSpaceViewState>\n  previewRemoteViews(): Promise<string | null>\n  接纳已展示且再次核对的远端文件，刷新定义编辑视图与画布端点；完整运行定义仍按工作区需要装配。\n  adoptViews(input: SessionAdopt): Promise<PageDataSpaceViewState | null>\n  dispose(): void\n}"
+  },
+  {
+    "kind": "DataView",
+    "catalog": {
+      "rootKind": "DataView",
+      "models": [
+        {
+          "kind": "DataView",
+          "name": "DataView",
+          "jsdoc": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。",
+          "summary": "DataView - 单个表视图的数据操作子模块。",
+          "declarationRelations": [
+            {
+              "kind": "implements",
+              "typeText": "DataSource",
+              "targetName": "DataSource"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataView",
+      "models": [
+        {
+          "kind": "DataView",
+          "name": "DataView",
+          "jsdoc": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。",
+          "summary": "DataView - 单个表视图的数据操作子模块。",
+          "declarationRelations": [
+            {
+              "kind": "implements",
+              "typeText": "DataSource",
+              "targetName": "DataSource"
+            }
+          ],
+          "constructorSignature": {
+            "summary": "创建数据视图实例。",
+            "jsdoc": "创建数据视图实例。\n@param tableName 视图所属表名。\n@param viewId 视图 ID，默认 `default` 表示主数据视图。",
+            "signature": "constructor(tableName: string, viewId?: string)"
+          },
+          "attributes": [
+            {
+              "name": "onRequestComplete",
+              "jsdoc": "查询完成后的页面函数名；空字符串禁用。宿主消费requestCompleted，数据层不执行页面脚本。",
+              "summary": "查询完成后的页面函数名；空字符串禁用。宿主消费requestCompleted，数据层不执行页面脚本。",
+              "typeText": "string"
+            },
+            {
+              "name": "dataTable",
+              "jsdoc": "所属 DataTable（赋值时自动重编译计算列）。未 attach 时返回 null，便于任意响应式代理安全读取。",
+              "summary": "所属 DataTable（赋值时自动重编译计算列）。未 attach 时返回 null，便于任意响应式代理安全读取。",
+              "typeText": "DataTable | null"
+            },
+            {
+              "name": "tableName",
+              "jsdoc": "数据表名。",
+              "summary": "数据表名。",
+              "typeText": "string"
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "视图标识。",
+              "summary": "视图标识。",
+              "typeText": "string"
+            },
+            {
+              "name": "fieldProjection",
+              "jsdoc": "当前模型视图对 DataTable 资源字段的稳定投影。",
+              "summary": "当前模型视图对 DataTable 资源字段的稳定投影。",
+              "typeText": "DataViewFieldProjection[]"
+            },
+            {
+              "name": "queryContext",
+              "jsdoc": "每次查询的输入参数；与私有的结果权限上下文分离。",
+              "summary": "每次查询的输入参数；与私有的结果权限上下文分离。",
+              "typeText": "DataViewQueryContext"
+            },
+            {
+              "name": "queryConfig",
+              "jsdoc": "持久查询配置，所有刷新入口复用；整体赋值，空对象恢复默认。变更使旧结果及在途请求失效，不自动查询。",
+              "summary": "持久查询配置，所有刷新入口复用；整体赋值，空对象恢复默认。变更使旧结果及在途请求失效，不自动查询。",
+              "typeText": "NonNullable<ViewMetadata['queryConfig']>"
+            },
+            {
+              "name": "rows",
+              "jsdoc": "行数据集合。",
+              "summary": "行数据集合。",
+              "typeText": "DataRow[]"
+            },
+            {
+              "name": "validateQueryResult",
+              "jsdoc": "本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。\n抛错使本次请求失败并保留旧结果；校验期间若被新查询替代，旧结果及错误均不接纳。\n仅属于运行实例，不写入视图配置；不适用于保存回执或本地行替换。",
+              "summary": "本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。",
+              "typeText": "(result: DataViewQueryResult) => void | Promise<void>"
+            },
+            {
+              "name": "supportsExplicitIdentityCreate",
+              "jsdoc": "当前有效查询owner是否明确支持独立正式身份新增；本地配置/数组视图返回 false。",
+              "summary": "当前有效查询owner是否明确支持独立正式身份新增；本地配置/数组视图返回 false。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "requiresExplicitIdentitySubmission",
+              "jsdoc": "当前正式查询是否声明了结果主键；显式主键不得绕过 DataView identity API 或由外层批量 CRUD 直写。",
+              "summary": "当前正式查询是否声明了结果主键；显式主键不得绕过 DataView identity API 或由外层批量 CRUD 直写。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "resultKind",
+              "jsdoc": "当前查询结果的语义；未查询的视图不声明结果种类。",
+              "summary": "当前查询结果的语义；未查询的视图不声明结果种类。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "countReported",
+              "jsdoc": "来源是否明确报告总数；false表示未知，undefined表示结果未声明此能力。",
+              "summary": "来源是否明确报告总数；false表示未知，undefined表示结果未声明此能力。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "reportedPrimaryKey",
+              "jsdoc": "来源报告的实际键，仅作结果信息，不授予实体操作身份。",
+              "summary": "来源报告的实际键，仅作结果信息，不授予实体操作身份。",
+              "typeText": "string"
+            },
+            {
+              "name": "primaryKey",
+              "jsdoc": "主键字段名 getter/setter（委托给 _primaryKeyDelegate）",
+              "summary": "主键字段名 getter/setter（委托给 _primaryKeyDelegate）",
+              "typeText": "string"
+            },
+            {
+              "name": "_currentRowId",
+              "jsdoc": "当前行主键值（null 表示未选中）。通过 currentRow getter 取对应行对象",
+              "summary": "当前行主键值（null 表示未选中）。通过 currentRow getter 取对应行对象",
+              "typeText": "string | number | null"
+            },
+            {
+              "name": "_keylessCurrentRow",
+              "jsdoc": "@internal 无主键查询的只读当前行指针；不产生主键选择集合或写入身份。",
+              "summary": "",
+              "typeText": "DataRow | null"
+            },
+            {
+              "name": "_keylessSelectedRows",
+              "jsdoc": "@internal 无主键结果的原始选择行，只在本次查询有效；选择值由显式valueField定义。",
+              "summary": "",
+              "typeText": "DataRow[]"
+            },
+            {
+              "name": "_selectedRowIds",
+              "jsdoc": "多选行主键值列表。通过 selectedRows getter 取对应行对象数组",
+              "summary": "多选行主键值列表。通过 selectedRows getter 取对应行对象数组",
+              "typeText": "string | number[]"
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "值字段名（用于 value getter/setter 序列化），未指定时回退到主键字段",
+              "summary": "值字段名（用于 value getter/setter 序列化），未指定时回退到主键字段",
+              "typeText": "string | string[]"
+            },
+            {
+              "name": "labelField",
+              "jsdoc": "标签显示字段名（用于 labels/label getter），未指定时回退到主键值字符串",
+              "summary": "标签显示字段名（用于 labels/label getter），未指定时回退到主键值字符串",
+              "typeText": "string"
+            },
+            {
+              "name": "selectionDelimiter",
+              "jsdoc": "值序列化分隔符（默认 ','）。非空=多选，空字符串=单选",
+              "summary": "值序列化分隔符（默认 ','）。非空=多选，空字符串=单选",
+              "typeText": "string"
+            },
+            {
+              "name": "isMultiSelect",
+              "jsdoc": "是否为多选模式（selectionDelimiter 非空时为多选）",
+              "summary": "是否为多选模式（selectionDelimiter 非空时为多选）",
+              "typeText": "boolean"
+            },
+            {
+              "name": "currentRow",
+              "jsdoc": "当前行：有主键时按键定位；无主键时只引用本次查询中的原始行，查询替换即失效。",
+              "summary": "当前行：有主键时按键定位；无主键时只引用本次查询中的原始行，查询替换即失效。",
+              "typeText": "DataRow | null"
+            },
+            {
+              "name": "selectedRows",
+              "jsdoc": "选择行数组：有主键按键定位，无主键只返回本次结果中的原始选择行；不会以当前行替代选择。",
+              "summary": "选择行数组：有主键按键定位，无主键只返回本次结果中的原始选择行；不会以当前行替代选择。",
+              "typeText": "DataRow[]"
+            },
+            {
+              "name": "value",
+              "jsdoc": "选中行的序列化字符串（供 v-model / API 传值）",
+              "summary": "选中行的序列化字符串（供 v-model / API 传值）",
+              "typeText": "string"
+            },
+            {
+              "name": "labels",
+              "jsdoc": "选中行的显示标签数组（供渲染 tag 使用）",
+              "summary": "选中行的显示标签数组（供渲染 tag 使用）",
+              "typeText": "string[]"
+            },
+            {
+              "name": "label",
+              "jsdoc": "当前行的显示标签，无当前行时返回 null",
+              "summary": "当前行的显示标签，无当前行时返回 null",
+              "typeText": "null | string"
+            },
+            {
+              "name": "total",
+              "jsdoc": "总记录数。",
+              "summary": "总记录数。",
+              "typeText": "number"
+            },
+            {
+              "name": "page",
+              "jsdoc": "当前页码。",
+              "summary": "当前页码。",
+              "typeText": "number"
+            },
+            {
+              "name": "pageSize",
+              "jsdoc": "分页大小。",
+              "summary": "分页大小。",
+              "typeText": "number"
+            },
+            {
+              "name": "loadingError",
+              "jsdoc": "loading Error 错误信息。",
+              "summary": "loading Error 错误信息。",
+              "typeText": "Error"
+            },
+            {
+              "name": "requestState",
+              "jsdoc": "请求状态机，见 {@link RequestState}。唯一状态源，勿另设布尔标志。",
+              "summary": "请求状态机，见 {@link RequestState}。唯一状态源，勿另设布尔标志。",
+              "typeText": "RequestState"
+            },
+            {
+              "name": "mutating",
+              "jsdoc": "增删改批网络请求进行中（与 requestState 独立，可同时为 true）",
+              "summary": "增删改批网络请求进行中（与 requestState 独立，可同时为 true）",
+              "typeText": "boolean"
+            },
+            {
+              "name": "mutatingError",
+              "jsdoc": "最近一次增删改批操作的错误；成功或未发起时为 null",
+              "summary": "最近一次增删改批操作的错误；成功或未发起时为 null",
+              "typeText": "Error"
+            },
+            {
+              "name": "supportsQuerySorting",
+              "jsdoc": "当前视图是否可独立设置查询排序；父结果子视图须修改父查询计划。",
+              "summary": "当前视图是否可独立设置查询排序；父结果子视图须修改父查询计划。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "supportsQueryFiltering",
+              "jsdoc": "当前视图是否可独立设置查询过滤；与行写权限及只读结果类型无关。",
+              "summary": "当前视图是否可独立设置查询过滤；与行写权限及只读结果类型无关。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "filterExpression",
+              "jsdoc": "SPARK 公开过滤树；所有入口解析为私有不可变快照，修改前保护未保存数据。",
+              "summary": "SPARK 公开过滤树；所有入口解析为私有不可变快照，修改前保护未保存数据。",
+              "typeText": "DataViewFilterTree"
+            },
+            {
+              "name": "sortExpression",
+              "jsdoc": "sort Expression 字段。",
+              "summary": "sort Expression 字段。",
+              "typeText": "SortExpression"
+            },
+            {
+              "name": "autoCurrentFirst",
+              "jsdoc": "请求成功后是否自动 currentRow = rows[0]（默认 true）",
+              "summary": "请求成功后是否自动 currentRow = rows[0]（默认 true）",
+              "typeText": "boolean"
+            },
+            {
+              "name": "autoSelectFirst",
+              "jsdoc": "请求成功后是否自动 selectedRows = [rows[0]]（默认 true）",
+              "summary": "请求成功后是否自动 selectedRows = [rows[0]]（默认 true）",
+              "typeText": "boolean"
+            },
+            {
+              "name": "treeConfig",
+              "jsdoc": "树结构字段配置",
+              "summary": "树结构字段配置",
+              "typeText": "TreeConfig"
+            },
+            {
+              "name": "autoLoad",
+              "jsdoc": "DataSet 初始化后是否自动加载数据（默认 false）",
+              "summary": "DataSet 初始化后是否自动加载数据（默认 false）",
+              "typeText": "boolean"
+            },
+            {
+              "name": "autoLoadConfigured",
+              "jsdoc": "autoLoad 是否来自显式视图配置，而不是类默认值。",
+              "summary": "autoLoad 是否来自显式视图配置，而不是类默认值。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "commitMode",
+              "jsdoc": "增删改提交模式（默认 `'immediate'`）。\n- `'immediate'`：每次 addRow/editRowById/removeRow 立即调用网络 CRUD（如已配置 API）\n- `'staged'`：仅修改内存并标脏，调用 saveChanges() 批量提交",
+              "summary": "增删改提交模式（默认 `'immediate'`）。",
+              "typeText": "CommitMode"
+            },
+            {
+              "name": "allowDelete",
+              "jsdoc": "false 时禁止删除既有记录；通过 applyViewConfig 配置。",
+              "summary": "false 时禁止删除既有记录；通过 applyViewConfig 配置。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "lockCurrentWhilePending",
+              "jsdoc": "本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。",
+              "summary": "本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "aggregates",
+              "jsdoc": "视图级本地汇总配置；按来源能力执行，远程禁止时保留原文并由aggregateError诊断。通过applyViewConfig配置。",
+              "summary": "视图级本地汇总配置；按来源能力执行，远程禁止时保留原文并由aggregateError诊断。通过applyViewConfig配置。",
+              "typeText": "Record<string, AggregateColumnConfig>"
+            },
+            {
+              "name": "treeMode",
+              "jsdoc": "树视图模式，代理到 treeConfig.treeMode（默认 'flat'）",
+              "summary": "树视图模式，代理到 treeConfig.treeMode（默认 'flat'）",
+              "typeText": "\"flat\" | \"nested\""
+            },
+            {
+              "name": "computedColumnNames",
+              "jsdoc": "@internal 已注册的计算列名集合（CrudDelegate 用于提交前剥离）",
+              "summary": "",
+              "typeText": "ReadonlySet<string>"
+            },
+            {
+              "name": "supportsLocalAggregates",
+              "jsdoc": "当前来源是否允许按本地行计算跨行汇总；正式远程查询为false，不由行数或加载完成推断。",
+              "summary": "当前来源是否允许按本地行计算跨行汇总；正式远程查询为false，不由行数或加载完成推断。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "computedAggregateError",
+              "jsdoc": "子表公式因远程聚合边界停算时的配置诊断；普通明细查询和本行计算继续，不写入配置或业务字段。",
+              "summary": "子表公式因远程聚合边界停算时的配置诊断；普通明细查询和本行计算继续，不写入配置或业务字段。",
+              "typeText": "Error"
+            },
+            {
+              "name": "columns",
+              "jsdoc": "当前视图可渲染的列定义；优先本次查询的正式结果列，否则由模型与字段投影派生。\nUI 组件通过此属性获取列名、标题、类型、可见性、可编辑性等元数据，\n无需直接访问 DataTable。\n@returns 本结果或模型的列定义；没有结果列且未关联模型时返回空数组。",
+              "summary": "当前视图可渲染的列定义；优先本次查询的正式结果列，否则由模型与字段投影派生。",
+              "typeText": "DataColumn[]"
+            },
+            {
+              "name": "queryColumns",
+              "jsdoc": "当前查询来源接受的字段目录，用于查询配置、参数及函数候选。\n绑定适配器可按正式来源收窄；未提供时沿用DataTable普通字段，排除本地计算与框架主键。\n与columns的显示投影、fieldAccess的当次数据权限分开；不查询、不缓存、不序列化。\n@returns 当前来源可查询字段；可包含本视图未选择输出的正式字段。\n@throws 视图销毁、绑定身份或来源作用域失效时拒绝旧目录。",
+              "summary": "当前查询来源接受的字段目录，用于查询配置、参数及函数候选。",
+              "typeText": "DataColumn[]"
+            },
+            {
+              "name": "aggregateError",
+              "jsdoc": "旧汇总不可执行或其目标计算字段已停算时的只读诊断；不影响明细查询/编辑，不修改配置，也不代表后端迁移完成。",
+              "summary": "旧汇总不可执行或其目标计算字段已停算时的只读诊断；不影响明细查询/编辑，不修改配置，也不代表后端迁移完成。",
+              "typeText": "Error"
+            },
+            {
+              "name": "aggregateResult",
+              "jsdoc": "本地视图汇总输出行；远程owner禁止旧算法时抛出aggregateError，不返回当前页数值或伪造空结果。",
+              "summary": "本地视图汇总输出行；远程owner禁止旧算法时抛出aggregateError，不返回当前页数值或伪造空结果。",
+              "typeText": "AggregateResultRow"
+            },
+            {
+              "name": "selectionAggregateResult",
+              "jsdoc": "本地选中行汇总；与aggregateResult遵循同一来源边界，远程旧配置抛出aggregateError。",
+              "summary": "本地选中行汇总；与aggregateResult遵循同一来源边界，远程旧配置抛出aggregateError。",
+              "typeText": "AggregateResultRow"
+            },
+            {
+              "name": "treeManager",
+              "jsdoc": "tree Manager 字段。",
+              "summary": "tree Manager 字段。",
+              "typeText": "TreeManager"
+            },
+            {
+              "name": "rowIndexMap",
+              "jsdoc": "行索引缓存（用于加速 updateRowById 行对象替换）——由 LocalMutationDelegate 管理，内部状态勿直接操作",
+              "summary": "行索引缓存（用于加速 updateRowById 行对象替换）——由 LocalMutationDelegate 管理，内部状态勿直接操作",
+              "typeText": "Map<DataRow, number>"
+            },
+            {
+              "name": "selection",
+              "jsdoc": "选中状态委托",
+              "summary": "选中状态委托",
+              "typeText": "SelectionDelegate"
+            },
+            {
+              "name": "mutation",
+              "jsdoc": "本地内存变更委托",
+              "summary": "本地内存变更委托",
+              "typeText": "LocalMutationDelegate"
+            },
+            {
+              "name": "crud",
+              "jsdoc": "网络 CRUD 委托",
+              "summary": "网络 CRUD 委托",
+              "typeText": "CrudDelegate"
+            },
+            {
+              "name": "dirtyTracking",
+              "jsdoc": "手工编辑追踪委托",
+              "summary": "手工编辑追踪委托",
+              "typeText": "DirtyTrackingDelegate"
+            },
+            {
+              "name": "editingRows",
+              "jsdoc": "当前编辑态行集合（按 rows 顺序返回 overlay 后的浅拷贝，含重新求值的计算列）。",
+              "summary": "当前编辑态行集合（按 rows 顺序返回 overlay 后的浅拷贝，含重新求值的计算列）。",
+              "typeText": "DataRow[]"
+            },
+            {
+              "name": "events",
+              "jsdoc": "事件总线——独立事件模型（currentRowChanged / selectedRowsChanged / rowsChanged / cleared / configChanged / requestStateChanged / mutatingChanged）",
+              "summary": "事件总线——独立事件模型（currentRowChanged / selectedRowsChanged / rowsChanged / cleared / configChanged / requestStateChanged / mutatingChanged）",
+              "typeText": "SparkEventEmitter"
+            },
+            {
+              "name": "logger",
+              "jsdoc": "诊断日志接口。",
+              "summary": "诊断日志接口。",
+              "typeText": "import(\"@spark-appworks/spark-utils\").LoggerApi"
+            },
+            {
+              "name": "destroyed",
+              "jsdoc": "视图是否已销毁",
+              "summary": "视图是否已销毁",
+              "typeText": "boolean"
+            },
+            {
+              "name": "dataSet",
+              "jsdoc": "向上访问 DataSet（独立 DataTable 未关联 DataSet 时返回 undefined）",
+              "summary": "向上访问 DataSet（独立 DataTable 未关联 DataSet 时返回 undefined）",
+              "typeText": "DataSet"
+            },
+            {
+              "name": "crudService",
+              "jsdoc": "CrudService 实例",
+              "summary": "CrudService 实例",
+              "typeText": "CrudService"
+            },
+            {
+              "name": "crudConfig",
+              "jsdoc": "CRUD 操作配置",
+              "summary": "CRUD 操作配置",
+              "typeText": "CrudOperationConfig"
+            },
+            {
+              "name": "validator",
+              "jsdoc": "数据校验器",
+              "summary": "数据校验器",
+              "typeText": "DataValidator"
+            },
+            {
+              "name": "pk",
+              "jsdoc": "主键委托访问器（setPrimaryKeyGenerator / generatePrimaryKey 等通过 view.pk.xxx 访问）",
+              "summary": "主键委托访问器（setPrimaryKeyGenerator / generatePrimaryKey 等通过 view.pk.xxx 访问）",
+              "typeText": "PrimaryKeyDelegate"
+            },
+            {
+              "name": "effectivePkFields",
+              "jsdoc": "实际生效的主键字段名列表（不含合成列 `_pk`）",
+              "summary": "实际生效的主键字段名列表（不含合成列 `_pk`）",
+              "typeText": "string[]"
+            },
+            {
+              "name": "refreshPending",
+              "jsdoc": "是否存在等待本视图编辑、提交或查询结束的刷新请求；仅为运行状态，不序列化。",
+              "summary": "是否存在等待本视图编辑、提交或查询结束的刷新请求；仅为运行状态，不序列化。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "dirtyRows",
+              "jsdoc": "当前所有脏行的行对象数组（按 rows 顺序）",
+              "summary": "当前所有脏行的行对象数组（按 rows 顺序）",
+              "typeText": "DataRow[]"
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "boolean"
+            },
+            {
+              "name": "hasPendingSavedRowPermissions",
+              "jsdoc": "已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。",
+              "summary": "已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "cascade",
+              "jsdoc": "级联委托（setupCascade / teardownCascade）",
+              "summary": "级联委托（setupCascade / teardownCascade）",
+              "typeText": "CascadeDelegate"
+            }
+          ],
+          "methods": [
+            {
+              "name": "bindQueryExecutor",
+              "jsdoc": "一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。",
+              "summary": "一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。",
+              "signature": "bindQueryExecutor(executor: DataViewQueryExecutor, options?: DataViewQueryBindingOptions): void"
+            },
+            {
+              "name": "createQueryView",
+              "jsdoc": "在同一DataTable创建独立命名查询视图，复用查询owner和查询配置，不复制行、选择、草稿或权限。\n辅助查询不继承页面完成函数；确需完成动作的消费者须显式配置onRequestComplete。\n@param viewId 新视图身份，须在所属模型内唯一。\n@returns 由DataTable持有的视图；使用方释放时调用dataTable.destroyView。\n@throws 源已释放、无所属表或视图身份重复时拒绝创建。",
+              "summary": "在同一DataTable创建独立命名查询视图，复用查询owner和查询配置，不复制行、选择、草稿或权限。",
+              "signature": "createQueryView(viewId: string): DataView"
+            },
+            {
+              "name": "previewSource",
+              "jsdoc": "预览绑定资源的远端来源，不替换查询结果或未提交修改。\n@returns 原文及本地基线版本；不存在的远端以content:null表达。\n@throws 无显式来源适配、身份失效或远端读取失败时拒绝。",
+              "summary": "预览绑定资源的远端来源，不替换查询结果或未提交修改。",
+              "signature": "previewSource(): Promise<DataViewSourceSnapshot>"
+            },
+            {
+              "name": "listSourceVersions",
+              "jsdoc": "列出原查询来源的真实历史版本，不读取业务行或改变当前草稿；来源须显式提供历史能力。",
+              "summary": "列出原查询来源的真实历史版本，不读取业务行或改变当前草稿；来源须显式提供历史能力。",
+              "signature": "listSourceVersions(): Promise<readonly DataViewSourceVersion[]>"
+            },
+            {
+              "name": "previewSourceVersion",
+              "jsdoc": "按存储版本身份预览历史原文；内容不替代当前查询结果，恢复须转为定义视图的变更再保存。",
+              "summary": "按存储版本身份预览历史原文；内容不替代当前查询结果，恢复须转为定义视图的变更再保存。",
+              "signature": "previewSourceVersion(version: string | number): Promise<string>"
+            },
+            {
+              "name": "getSourceHistoryStatus",
+              "jsdoc": "读取原来源适配器持有的快照提交状态；scope、文本和文件适配器状态不暴露给页面。",
+              "summary": "读取原来源适配器持有的快照提交状态；scope、文本和文件适配器状态不暴露给页面。",
+              "signature": "getSourceHistoryStatus(): DataViewSourceHistoryStatus"
+            },
+            {
+              "name": "verifySourceHistoryAttempt",
+              "jsdoc": "只读核验来源适配器捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。",
+              "summary": "只读核验来源适配器捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。",
+              "signature": "verifySourceHistoryAttempt(): Promise<DataViewSourceHistoryStatus>"
+            },
+            {
+              "name": "acknowledgeSourceHistoryAttempt",
+              "jsdoc": "历史回执已被页面业务接收后清除适配器待交付标记；不影响来源版本本身。",
+              "summary": "历史回执已被页面业务接收后清除适配器待交付标记；不影响来源版本本身。",
+              "signature": "acknowledgeSourceHistoryAttempt(): void"
+            },
+            {
+              "name": "verifySourceWriteAttempt",
+              "jsdoc": "核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。",
+              "summary": "核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。",
+              "signature": "verifySourceWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus>"
+            },
+            {
+              "name": "acknowledgeSourceWriteAttempt",
+              "jsdoc": "领域结果交付完成后消费已核验的正文保存适配器attempt。",
+              "summary": "领域结果交付完成后消费已核验的正文保存适配器attempt。",
+              "signature": "acknowledgeSourceWriteAttempt(): void"
+            },
+            {
+              "name": "createSourceVersion",
+              "jsdoc": "为已保存且同源视图均干净的资源创建快照并返回适配器回执；异步编辑、来源切换或释放均拒绝旧操作。",
+              "summary": "为已保存且同源视图均干净的资源创建快照并返回适配器回执；异步编辑、来源切换或释放均拒绝旧操作。",
+              "signature": "createSourceVersion(onAttempt?: (attempt: DataViewSourceHistoryStatus) => void): Promise<DataViewSourceHistoryStatus>"
+            },
+            {
+              "name": "adoptSource",
+              "jsdoc": "再核对已预览的来源并接纳；只在存储核验成功后取消明确指定视图的修改。\n@param snapshot 已展示的原文及版本，资源适配核对当前存储后才能应用。\n@param options 允许放弃的同源视图；其余草稿及在途新修改会阻止采用。\n@returns 来源已应用；查询结果由调用流程按需refresh，不隐式加载其他工作区。\n@throws 远端变化、读取失败、其他草稿、身份或异步状态改变时保留本地修改并拒绝。",
+              "summary": "再核对已预览的来源并接纳；只在存储核验成功后取消明确指定视图的修改。",
+              "signature": "adoptSource(snapshot: DataViewSourceSnapshot, options?: DataViewSourceAdoptOptions): Promise<void>"
+            },
+            {
+              "name": "queryOptionRows",
+              "jsdoc": "Query one complete option set without replacing this view's rows or query permission.",
+              "summary": "Query one complete option set without replacing this view's rows or query permission.",
+              "signature": "queryOptionRows(options: DataViewOptionQueryOptions): Promise<DataRow[]>"
+            },
+            {
+              "name": "newRowFieldAccess",
+              "jsdoc": "读取尚未加入视图的新行字段访问合同，不读业务值、不创建行、不查询或保存。\n仅沿当前正式查询上下文呈现已有新增字段权限；不会授予额外权限。\n查询输入变化、结果失效或视图销毁后拒绝旧权限；addRow/save 仍独立执行原守卫。\n@param field 正式 DataTable 中待输入的字段名。\n@returns 该字段对当前查询新行的只读呈现/写入合同；未知或不可写字段返回拒绝结果。",
+              "summary": "读取尚未加入视图的新行字段访问合同，不读业务值、不创建行、不查询或保存。",
+              "signature": "newRowFieldAccess(field: string): DataViewFieldAccess"
+            },
+            {
+              "name": "fieldAccess",
+              "jsdoc": "返回字段双通道呈现；本视图新增草稿按当次新增可用性编辑声明字段，既有行仍消费原字段权限。查询失效暂停写入。",
+              "summary": "返回字段双通道呈现；本视图新增草稿按当次新增可用性编辑声明字段，既有行仍消费原字段权限。查询失效暂停写入。",
+              "signature": "fieldAccess(row: DataRow | null, field: string): DataViewFieldAccess"
+            },
+            {
+              "name": "computedInputIsVisible",
+              "jsdoc": "@internal Configured calculations consume only fields visible in this view's current query.",
+              "summary": "",
+              "signature": "computedInputIsVisible(row: DataRow, field: string): boolean"
+            },
+            {
+              "name": "computedQueryToken",
+              "jsdoc": "@internal Independent generation token for computed reads; never exposes the query owner context.",
+              "summary": "",
+              "signature": "computedQueryToken(): object | undefined"
+            },
+            {
+              "name": "addActionState",
+              "jsdoc": "新增呈现来自原查询模型权限，旧结果期间只保留展示。",
+              "summary": "新增呈现来自原查询模型权限，旧结果期间只保留展示。",
+              "signature": "addActionState(available?: boolean): DataViewActionState"
+            },
+            {
+              "name": "editActionState",
+              "jsdoc": "行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。",
+              "summary": "行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。",
+              "signature": "editActionState(row: DataRow | null, available?: boolean): DataViewActionState"
+            },
+            {
+              "name": "deleteActionState",
+              "jsdoc": "删除呈现消费后端行权限。",
+              "summary": "删除呈现消费后端行权限。",
+              "signature": "deleteActionState(row: DataRow | null, available?: boolean): DataViewActionState"
+            },
+            {
+              "name": "createChildActionState",
+              "jsdoc": "树行新增子行呈现消费后端 c，不由模型新增权限推测。",
+              "summary": "树行新增子行呈现消费后端 c，不由模型新增权限推测。",
+              "signature": "createChildActionState(row: DataRow | null, available?: boolean): DataViewActionState"
+            },
+            {
+              "name": "viewActionState",
+              "jsdoc": "查看只消费已登记返回行的身份。",
+              "summary": "查看只消费已登记返回行的身份。",
+              "signature": "viewActionState(row: DataRow | null, available?: boolean): DataViewActionState"
+            },
+            {
+              "name": "readChildResult",
+              "jsdoc": "从本次已加载结果读取当前父行的正式子结果；不按业务主键回找，不发起第二次查询。",
+              "summary": "从本次已加载结果读取当前父行的正式子结果；不按业务主键回找，不发起第二次查询。",
+              "signature": "readChildResult(modelName: string): DataViewQueryResult"
+            },
+            {
+              "name": "captureChildResult",
+              "jsdoc": "捕获当前父行与原结果代次；仅保存引用和校验器，不复制业务行或权限。",
+              "summary": "捕获当前父行与原结果代次；仅保存引用和校验器，不复制业务行或权限。",
+              "signature": "captureChildResult(modelName: string): Readonly<{\n        /** 原owner提供的直接子结果。 */\n        result: DataViewQueryResult;\n        /** 本次公开父行引用，null表示未选父行。 */\n        parentRow: DataRow | null;\n        /** 原父查询请求代次，同键刷新也必须重新捕获。 */\n        version: number;\n        /** 复核当前父行、查询代次、结果与执行域仍然一致。 */\n        assertCurrent: () => void;\n    }>"
+            },
+            {
+              "name": "readSnapshot",
+              "jsdoc": "读取当前结果的独立展示快照。仅输出已声明字段，隐藏值省略、脱敏值替换为掩码，排除内部主键与查询凭据。\n不包含未提交编辑；分页信息来自同一视图。正式查询未完成、失败或已被查询链标记失效时拒绝读取旧结果。\n本地配置视图可以直接读取；此方法不授予保存权限，也不执行查询或序列化设计配置。",
+              "summary": "读取当前结果的独立展示快照。仅输出已声明字段，隐藏值省略、脱敏值替换为掩码，排除内部主键与查询凭据。",
+              "signature": "readSnapshot(): {\n        fields: string[];\n        rows: DataRow[];\n        total: number;\n        page: number;\n        pageSize: number;\n        countReported?: boolean;\n    }"
+            },
+            {
+              "name": "resetPrimaryKey",
+              "jsdoc": "清除显式覆盖，恢复从 DataTable 列定义自动推导主键",
+              "summary": "清除显式覆盖，恢复从 DataTable 列定义自动推导主键",
+              "signature": "resetPrimaryKey(): void"
+            },
+            {
+              "name": "getSelectedValues",
+              "jsdoc": "列表组件及级联共用的原生选择值数组；有主键取主键，无主键须显式valueField，逐字段核当次读取权限。单选也返回数组，空选择为[]；不产生写入身份。",
+              "summary": "列表组件及级联共用的原生选择值数组；有主键取主键，无主键须显式valueField，逐字段核当次读取权限。单选也返回数组，空选择为[]；不产生写入身份。",
+              "signature": "getSelectedValues(): (string | number | boolean)[]"
+            },
+            {
+              "name": "setCurrentRow",
+              "jsdoc": "设置当前行；有主键时按键定位，无主键时只接受本次 rows 的原始行作为只读指针，null 清除。\n单选同步选择值；无主键以显式valueField提供值，不产生写入身份，重查后失效。\n@param row 要设为当前行的行对象；null 表示清除当前行。\n@param originatorId 可选变更来源标识，用于级联订阅方避免回环。",
+              "summary": "设置当前行；有主键时按键定位，无主键时只接受本次 rows 的原始行作为只读指针，null 清除。",
+              "signature": "setCurrentRow(row: DataRow | null, originatorId?: string): void"
+            },
+            {
+              "name": "setCurrentRowById",
+              "jsdoc": "通过主键设置当前行（行不存在时返回 false）。\n@param id 目标行主键值；null 表示清除当前行。\n@param originatorId 可选变更来源标识，用于级联订阅方避免回环。",
+              "summary": "通过主键设置当前行（行不存在时返回 false）。",
+              "signature": "setCurrentRowById(id: string | number | null, originatorId?: string): boolean"
+            },
+            {
+              "name": "setSelectedRows",
+              "jsdoc": "设置多选行（覆盖式）。\n@param rows 新的选中行列表。\n@param originatorId 可选变更来源标识，用于级联订阅方避免回环。",
+              "summary": "设置多选行（覆盖式）。",
+              "signature": "setSelectedRows(rows: DataRow[], originatorId?: string): void"
+            },
+            {
+              "name": "addSelectedRows",
+              "jsdoc": "追加多选行（返回实际新增数量）。\n@param rows 要追加到选中集的行列表。",
+              "summary": "追加多选行（返回实际新增数量）。",
+              "signature": "addSelectedRows(rows: DataRow[]): number"
+            },
+            {
+              "name": "removeSelectedRows",
+              "jsdoc": "移除多选行（返回实际移除数量）。\n@param rows 要从选中集中移除的行列表。",
+              "summary": "移除多选行（返回实际移除数量）。",
+              "signature": "removeSelectedRows(rows: DataRow[]): number"
+            },
+            {
+              "name": "removeSelectedRowsById",
+              "jsdoc": "通过主键批量移除多选行（返回实际移除数量）。\n@param ids 要从选中集中移除的行主键值列表。",
+              "summary": "通过主键批量移除多选行（返回实际移除数量）。",
+              "signature": "removeSelectedRowsById(ids: (string | number)[]): number"
+            },
+            {
+              "name": "clearSelectedRows",
+              "jsdoc": "清空多选行",
+              "summary": "清空多选行",
+              "signature": "clearSelectedRows(): void"
+            },
+            {
+              "name": "setComputedContext",
+              "jsdoc": "设置计算列共享上下文（表达式中通过 ctx 引用），重新编译并对现有 rows 求值。\n@param ctx 计算列表达式可通过 ctx 读取的共享上下文。",
+              "summary": "设置计算列共享上下文（表达式中通过 ctx 引用），重新编译并对现有 rows 求值。",
+              "signature": "setComputedContext(ctx: Record<string, unknown>): void"
+            },
+            {
+              "name": "recomputeColumns",
+              "jsdoc": "手动触发全量计算列重新求值 + 聚合重算。常规行操作已自动触发，仅用于特殊场景。\n@param options 重算通知选项。",
+              "summary": "手动触发全量计算列重新求值 + 聚合重算。常规行操作已自动触发，仅用于特殊场景。",
+              "signature": "recomputeColumns(options?: DataViewRecomputeColumnsOptions): void"
+            },
+            {
+              "name": "computedColumnError",
+              "jsdoc": "指定计算字段的远程聚合诊断；只说明配置不可执行，不授予字段读取或写入权限。",
+              "summary": "指定计算字段的远程聚合诊断；只说明配置不可执行，不授予字段读取或写入权限。",
+              "signature": "computedColumnError(field: string): Error | null"
+            },
+            {
+              "name": "stripComputedColumns",
+              "jsdoc": "@internal 从数据对象中移除计算列字段，返回浅拷贝；无计算列时返回原对象。",
+              "summary": "",
+              "signature": "stripComputedColumns(data: Partial<DataRow>): Partial<DataRow>"
+            },
+            {
+              "name": "onDataSetStructureReady",
+              "jsdoc": "@internal DataSet 资源关系与视图级联索引完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver）",
+              "summary": "",
+              "signature": "onDataSetStructureReady(): void"
+            },
+            {
+              "name": "getColumn",
+              "jsdoc": "按名称获取单个列定义\n@param name 列名（精确匹配）\n@returns 对应的列定义，不存在时返回 undefined\n@example ```ts\nconst col = view.getColumn('price')\nif (col) {\nconsole.log(col.label)   // '单价'\nconsole.log(col.type)    // 'number'\n}\n```",
+              "summary": "按名称获取单个列定义",
+              "signature": "getColumn(name: string): DataColumn | undefined"
+            },
+            {
+              "name": "getDataSet",
+              "jsdoc": "@internal 返回 DataSet 实例",
+              "summary": "",
+              "signature": "getDataSet(): DataSet | undefined"
+            },
+            {
+              "name": "getPkKey",
+              "jsdoc": "获取行的主键值（标量）。\n@param row 目标行。",
+              "summary": "获取行的主键值（标量）。",
+              "signature": "getPkKey(row: DataRow): string | number | undefined"
+            },
+            {
+              "name": "buildServerPk",
+              "jsdoc": "从行数据构建服务端 PK payload。\n@param row 目标行。",
+              "summary": "从行数据构建服务端 PK payload。",
+              "signature": "buildServerPk(row: DataRow): Record<string, unknown>"
+            },
+            {
+              "name": "requestData",
+              "jsdoc": "视图级加载编排器（幂等：requestState≠Idle 时直接返回）。外部应使用 refresh() 或 loadFromServer()。\n查询模式和读取范围来自queryConfig，父依赖使用各自视图的配置。",
+              "summary": "视图级加载编排器（幂等：requestState≠Idle 时直接返回）。外部应使用 refresh() 或 loadFromServer()。",
+              "signature": "requestData(): Promise<void>"
+            },
+            {
+              "name": "loadFromServer",
+              "jsdoc": "从服务器拉取列表（带防重入 + 请求 ID 竞态保护）。\n@param params 查询参数；未提供的分页、排序、过滤及查询配置由当前视图生成，显式值只覆盖本次请求。",
+              "summary": "从服务器拉取列表（带防重入 + 请求 ID 竞态保护）。",
+              "signature": "loadFromServer(params?: QueryParams): Promise<CrudResult>"
+            },
+            {
+              "name": "retrieveRecord",
+              "jsdoc": "按服务端 PK 拉取单条记录。\n默认会将结果同步回本地 rows；可选设为当前行。\n@param pk 服务端主键 payload。\n@param options 单条记录拉取后的同步选项。",
+              "summary": "按服务端 PK 拉取单条记录。",
+              "signature": "retrieveRecord(pk: Record<string, unknown>, options?: RetrieveRecordOptions): Promise<CrudResult<DataRow>>"
+            },
+            {
+              "name": "retrieveRecordById",
+              "jsdoc": "按本地主键值拉取单条记录。\n若本地已存在该行，会优先构造真实服务端 PK；否则回退到 `{ [primaryKey]: id }`。\n@param id 本地主键值。\n@param options 单条记录拉取后的同步选项。",
+              "summary": "按本地主键值拉取单条记录。",
+              "signature": "retrieveRecordById(id: string | number, options?: RetrieveRecordOptions): Promise<CrudResult<DataRow>>"
+            },
+            {
+              "name": "loadTreeNested",
+              "jsdoc": "无未保存修改时加载嵌套树；拒绝发生在请求前，不改变原查询状态。",
+              "summary": "无未保存修改时加载嵌套树；拒绝发生在请求前，不改变原查询状态。",
+              "signature": "loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]>>"
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "拒绝覆盖未保存变更或未确认提交的原查询；通过检查后置 Idle 并按当前视图输入重新查询。\n使用当前queryConfig，不在调用点维护另一份查询模式。",
+              "summary": "拒绝覆盖未保存变更或未确认提交的原查询；通过检查后置 Idle 并按当前视图输入重新查询。",
+              "signature": "refresh(): Promise<void>"
+            },
+            {
+              "name": "requestRefresh",
+              "jsdoc": "请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。\n延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。\n@returns 实际刷新结果；延期登记成功返回success=true，可用refreshPending区分。后续异步失败由requestState和loadingError报告。",
+              "summary": "请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。",
+              "signature": "requestRefresh(): Promise<CrudResult>"
+            },
+            {
+              "name": "assertResultReplacementAllowed",
+              "jsdoc": "核对本视图是否可替换查询结果；组合操作应在释放当前展示或读取其他来源前调用。\n编辑覆盖、待提交变更和未确认提交均以本DataView为准；本方法不查询、不取消、不保存。",
+              "summary": "核对本视图是否可替换查询结果；组合操作应在释放当前展示或读取其他来源前调用。",
+              "signature": "assertResultReplacementAllowed(): void"
+            },
+            {
+              "name": "rejectCascade",
+              "jsdoc": "级联输入失败使在途结果失效；未保存编辑或未确认提交仍保留原查询上下文供显式处理。",
+              "summary": "级联输入失败使在途结果失效；未保存编辑或未确认提交仍保留原查询上下文供显式处理。",
+              "signature": "rejectCascade(error: unknown): void"
+            },
+            {
+              "name": "applyInMemoryCascade",
+              "jsdoc": "无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。\n@param filter 已合并所有输入值与视图自身条件的过滤表达式。",
+              "summary": "无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。",
+              "signature": "applyInMemoryCascade(filter: DataViewFilterTree | undefined): void"
+            },
+            {
+              "name": "updateFromServer",
+              "jsdoc": "将服务端响应同步到本地字段（rows / total / page / pageSize）——splice 保持数组引用稳定。\n@param data 服务端返回的行数组或行数据响应载荷。",
+              "summary": "将服务端响应同步到本地字段（rows / total / page / pageSize）——splice 保持数组引用稳定。",
+              "signature": "updateFromServer(data: DataViewServerRowsPayload | DataRow[]): void"
+            },
+            {
+              "name": "appendRow",
+              "jsdoc": "本地追加一行，触发计算列求值 + 聚合重算 + rowsChanged。\n@param row 要追加的行。",
+              "summary": "本地追加一行，触发计算列求值 + 聚合重算 + rowsChanged。",
+              "signature": "appendRow(row: DataRow): void"
+            },
+            {
+              "name": "updateRowById",
+              "jsdoc": "本地按主键部分更新一行；返回是否成功（行不存在时 false）。\n@param id 目标行主键值。\n@param data 要合并到目标行上的字段更新。",
+              "summary": "本地按主键部分更新一行；返回是否成功（行不存在时 false）。",
+              "signature": "updateRowById(id: string | number, data: Partial<DataRow>): boolean"
+            },
+            {
+              "name": "deleteRowById",
+              "jsdoc": "本地按主键删除一行，清理选中引用；返回是否成功（行不存在时 false）。\n@param id 目标行主键值。",
+              "summary": "本地按主键删除一行，清理选中引用；返回是否成功（行不存在时 false）。",
+              "signature": "deleteRowById(id: string | number): boolean"
+            },
+            {
+              "name": "replaceRows",
+              "jsdoc": "无未保存变更时整批替换行，并清理无效选中引用。\n@param rows 新的完整行列表。",
+              "summary": "无未保存变更时整批替换行，并清理无效选中引用。",
+              "signature": "replaceRows(rows: DataRow[]): void"
+            },
+            {
+              "name": "hasEditingChanges",
+              "jsdoc": "是否存在编辑态变更。\n@param id 可选行主键值；省略时检查是否存在任意编辑态变更。",
+              "summary": "是否存在编辑态变更。",
+              "signature": "hasEditingChanges(id?: string | number): boolean"
+            },
+            {
+              "name": "getEditingPatch",
+              "jsdoc": "获取指定行当前编辑态 patch。\n@param id 目标行主键值。",
+              "summary": "获取指定行当前编辑态 patch。",
+              "signature": "getEditingPatch(id: string | number): Partial<DataRow> | undefined"
+            },
+            {
+              "name": "getEditingRow",
+              "jsdoc": "获取指定行的编辑态 overlay；未编辑时返回当前 DataView 行。\n@param id 目标行主键值。",
+              "summary": "获取指定行的编辑态 overlay；未编辑时返回当前 DataView 行。",
+              "signature": "getEditingRow(id: string | number): DataRow | null"
+            },
+            {
+              "name": "createEditingCheckpoint",
+              "jsdoc": "捕获一行指定字段的编辑检查点，供局部弹窗确认/取消；值仍由本DataView持有。\n@param id 当前视图内的行主键，不移动当前行或选择。\n@param fields 本次交互负责的已声明字段；不能为空，也不能包含主键字段。\n@returns restore一次性恢复打开前的编辑覆盖，保留范围外修改，并在整体恢复后通知值变化；release仅释放检查点，保留编辑，不保存数据。\n@remarks 支持稳定的待新增行，取消仅恢复编辑覆盖，保留新增。不能回滚已应用或已提交数据，也不授予权限；查询身份、原行、待提交状态变化或视图销毁后不能恢复；不参与序列化。",
+              "summary": "捕获一行指定字段的编辑检查点，供局部弹窗确认/取消；值仍由本DataView持有。",
+              "signature": "createEditingCheckpoint(id: string | number, fields: readonly string[]): {\n        restore(): void;\n        release(): void;\n    }"
+            },
+            {
+              "name": "updateEditingValue",
+              "jsdoc": "将 UI 字段值写入编辑态，不直接污染 rows。\n@param id 目标行主键值。\n@param field 要编辑的字段名。\n@param value 新字段值。",
+              "summary": "将 UI 字段值写入编辑态，不直接污染 rows。",
+              "signature": "updateEditingValue(id: string | number, field: string, value: unknown): DataRow"
+            },
+            {
+              "name": "discardEditingRows",
+              "jsdoc": "丢弃指定行或全部编辑态变更。\n@param ids 可选行主键值列表；省略时丢弃全部编辑态变更。",
+              "summary": "丢弃指定行或全部编辑态变更。",
+              "signature": "discardEditingRows(ids?: (string | number)[]): number"
+            },
+            {
+              "name": "discardPendingChanges",
+              "jsdoc": "丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。",
+              "summary": "丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。",
+              "signature": "discardPendingChanges(ids?: (string | number)[]): number"
+            },
+            {
+              "name": "applyEditingRows",
+              "jsdoc": "将编辑态 patch 应用到现有 editRowById 管线。\n@param ids 可选行主键值列表；省略时应用全部编辑态变更。",
+              "summary": "将编辑态 patch 应用到现有 editRowById 管线。",
+              "signature": "applyEditingRows(ids?: (string | number)[]): Promise<CrudResult<DataViewApplyEditingRowsResult>>"
+            },
+            {
+              "name": "addRow",
+              "jsdoc": "本地新增行。commitMode='staged' 时标记为 pending-create（saveChanges 统一提交）；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.createRecord。\n@param data 新行数据。",
+              "summary": "本地新增行。commitMode='staged' 时标记为 pending-create（saveChanges 统一提交）；",
+              "signature": "addRow(data: Partial<DataRow>): Promise<DataRow | CrudResult<DataRow>>"
+            },
+            {
+              "name": "addRowWithIdentity",
+              "jsdoc": "通过原查询owner独立提交正式主键身份与普通新增字段。\n仅当当前结果报告相同 resultPrimaryKey、owner声明prepareNewRowWithIdentity，且表级新增获准时使用。\n普通字段在任何行进入DataView前逐项预检正式列、计算规则与新行写权限；owner返回身份须与请求完全一致。\n@param identity 与当前结果主键完全一致的正式身份字段和值。\n@param data 待写入的新行普通字段，不包含身份字段。\n@returns 被同一DataView接受并进入新增脏追踪的完整行。",
+              "summary": "通过原查询owner独立提交正式主键身份与普通新增字段。",
+              "signature": "addRowWithIdentity(identity: DataViewNewRowIdentity, data: Partial<DataRow>): Promise<DataRow | CrudResult<DataRow>>"
+            },
+            {
+              "name": "addChildRow",
+              "jsdoc": "Adds a child through the current DataView query owner, using its generated identity unless one is explicitly supplied.\n@param input Explicit parent identity mapping, optional child identity, and ordinary child values.\n@returns The staged child row accepted by this DataView.",
+              "summary": "Adds a child through the current DataView query owner, using its generated identity unless one is explicitly supplied.",
+              "signature": "addChildRow(input: DataViewChildRowInput): Promise<DataRow | CrudResult<DataRow>>"
+            },
+            {
+              "name": "removeRow",
+              "jsdoc": "本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交），成功后清除此行编辑覆盖；取消恢复原查询基线。\ncommitMode='immediate' 且已配置 API 时立即调用 crud.deleteRecord。\n@param id 目标行主键值。",
+              "summary": "本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交），成功后清除此行编辑覆盖；取消恢复原查询基线。",
+              "signature": "removeRow(id: string | number): Promise<boolean | CrudResult<boolean>>"
+            },
+            {
+              "name": "editRowById",
+              "jsdoc": "手工编辑指定行（标脏）。commitMode='staged' 时仅更新内存并标脏；\ncommitMode='immediate' 且已配置 API 时立即调用 crud.updateRecord。\n连续编辑同一行只保留首次编辑前的快照。\n@param id 目标行主键值。\n@param data 要合并到目标行上的字段更新。",
+              "summary": "手工编辑指定行（标脏）。commitMode='staged' 时仅更新内存并标脏；",
+              "signature": "editRowById(id: string | number, data: Partial<DataRow>): Promise<boolean | CrudResult<DataRow>>"
+            },
+            {
+              "name": "getDirtyChanges",
+              "jsdoc": "获取指定行的字段级变更明细（行不脏时返回 {}）。\n@param id 目标行主键值。",
+              "summary": "获取指定行的字段级变更明细（行不脏时返回 {}）。",
+              "signature": "getDirtyChanges(id: string | number): RowDiff"
+            },
+            {
+              "name": "saveChanges",
+              "jsdoc": "原查询视图由统一 owner 保存并按真实字段回执接纳；本地 CRUD 视图沿用逐行提交。\n@param ids 可选行主键值列表；省略时保存全部脏行。",
+              "summary": "原查询视图由统一 owner 保存并按真实字段回执接纳；本地 CRUD 视图沿用逐行提交。",
+              "signature": "saveChanges(ids?: (string | number)[]): Promise<CrudResult<SaveChangesData>>"
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "jsdoc": "明确放弃本视图未确认提交的核验，之后可重新读取实际结果；本地草稿保留，由调用方决定丢弃或重新提交。\n不撤销服务端可能已生效的写入。执行器未提供放弃能力时保持待核验并返回 false，仍须经原保存入口核验。",
+              "summary": "明确放弃本视图未确认提交的核验，之后可重新读取实际结果；本地草稿保留，由调用方决定丢弃或重新提交。",
+              "signature": "abandonUnconfirmedSave(): boolean"
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "jsdoc": "只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。",
+              "summary": "只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。",
+              "signature": "refreshSavedRowPermissions(): Promise<void>"
+            },
+            {
+              "name": "saveQueryViews",
+              "jsdoc": "同一运行实例先捕获请求配置并校验全部变更，再按原查询owner串行提交；有未知提交时本轮仅核验原捕获，各来源独立确认。",
+              "summary": "同一运行实例先捕获请求配置并校验全部变更，再按原查询owner串行提交；有未知提交时本轮仅核验原捕获，各来源独立确认。",
+              "signature": "saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<CrudResult<SaveChangesData>[]>"
+            },
+            {
+              "name": "prepareQuerySave",
+              "jsdoc": "@internal 保存前按列声明写回：normalize 去除首尾空白，optionsView.fill 同步匹配选项字段。\n写入沿编辑覆盖或脏追踪通道并核当次字段写权限；随后的预检与捕获照常校验全部规则。\n@param input 限定选中行及写回目标是否为编辑覆盖。",
+              "summary": "写入沿编辑覆盖或脏追踪通道并核当次字段写权限；随后的预检与捕获照常校验全部规则。",
+              "signature": "prepareQuerySave(input: DataViewQuerySaveValidationInput): Promise<() => void> | undefined"
+            },
+            {
+              "name": "discardAndReload",
+              "jsdoc": "明确丢弃本视图全部本地修改，放弃未确认提交的核验后按当前输入重新查询。\n不撤销服务端可能已生效的写入；执行器不支持放弃未确认提交时抛错，须经原保存入口核验。",
+              "summary": "明确丢弃本视图全部本地修改，放弃未确认提交的核验后按当前输入重新查询。",
+              "signature": "discardAndReload(): Promise<void>"
+            },
+            {
+              "name": "getQuerySaveRowKeys",
+              "jsdoc": "@internal DataSet批次预检使用原查询主键；本地行键只用于无查询上下文的视图。\n@param input 限定选中行及是否包含编辑覆盖，不应用任何修改。\n@returns 待提交记录的规范化身份，不包含查询权限或行数据；无正式主键的新增不参与跨视图重复判定。",
+              "summary": "",
+              "signature": "getQuerySaveRowKeys(input: DataViewQuerySaveValidationInput): readonly string[]"
+            },
+            {
+              "name": "assertQuerySaveColumns",
+              "jsdoc": "@internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。",
+              "summary": "",
+              "signature": "assertQuerySaveColumns(input: DataViewQuerySaveValidationInput): void"
+            },
+            {
+              "name": "clearAll",
+              "jsdoc": "无未保存变更时清空状态并发射 cleared 事件。",
+              "summary": "无未保存变更时清空状态并发射 cleared 事件。",
+              "signature": "clearAll(): void"
+            },
+            {
+              "name": "resetState",
+              "jsdoc": "重置行数据和选中状态，并将 requestState 重置为 Idle。\n有未保存变更时拒绝重置；显式保存或放弃由调用方先行处理。\n通过领域事件通知订阅者刷新 rows / selection / request / aggregate / editing。",
+              "summary": "重置行数据和选中状态，并将 requestState 重置为 Idle。",
+              "signature": "resetState(): void"
+            },
+            {
+              "name": "cleanupInvalidSelections",
+              "jsdoc": "清理已不在 rows 中的选中状态，返回是否发生了清理（委托给 SelectionDelegate）",
+              "summary": "清理已不在 rows 中的选中状态，返回是否发生了清理（委托给 SelectionDelegate）",
+              "signature": "cleanupInvalidSelections(): boolean"
+            },
+            {
+              "name": "loadTreeChildren",
+              "jsdoc": "拉取直接子节点并写入缓存（对应 /tree/children）。\n@param parentId 父节点 ID；null 表示根级节点。\n@param limit 最大返回子节点数。",
+              "summary": "拉取直接子节点并写入缓存（对应 /tree/children）。",
+              "signature": "loadTreeChildren(parentId: string | number | null, limit?: number): Promise<FlatTreeNode[]>"
+            },
+            {
+              "name": "loadTreePath",
+              "jsdoc": "获取节点祖先链 ID（对应 /tree/path）。\n@param id 目标节点 ID。",
+              "summary": "获取节点祖先链 ID（对应 /tree/path）。",
+              "signature": "loadTreePath(id: string | number): Promise<TreePath>"
+            },
+            {
+              "name": "expandTreeToNode",
+              "jsdoc": "展开到目标节点，差量补齐缓存（对应 /tree/path + /tree/subtree）。\n@param targetId 目标节点 ID。",
+              "summary": "展开到目标节点，差量补齐缓存（对应 /tree/path + /tree/subtree）。",
+              "signature": "expandTreeToNode(targetId: string | number): Promise<void>"
+            },
+            {
+              "name": "moveTreeNode",
+              "jsdoc": "执行 move Tree Node 操作。",
+              "summary": "执行 move Tree Node 操作。",
+              "signature": "moveTreeNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>"
+            },
+            {
+              "name": "searchTreeNested",
+              "jsdoc": "嵌套模式远端搜索（对应 /tree/nested/search）。\n@param keyword 搜索关键字。\n@param limit 最大返回匹配节点数。",
+              "summary": "嵌套模式远端搜索（对应 /tree/nested/search）。",
+              "signature": "searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>"
+            },
+            {
+              "name": "setPage",
+              "jsdoc": "设置当前页；远端视图自动重新查询。\n@param page 新页码。",
+              "summary": "设置当前页；远端视图自动重新查询。",
+              "signature": "setPage(page: number): Promise<void>"
+            },
+            {
+              "name": "setPageSize",
+              "jsdoc": "设置每页条数并重置页码为 1；远端视图自动重新查询。\n@param pageSize 新每页行数。",
+              "summary": "设置每页条数并重置页码为 1；远端视图自动重新查询。",
+              "signature": "setPageSize(pageSize: number): Promise<void>"
+            },
+            {
+              "name": "setSort",
+              "jsdoc": "设置排序表达式；远端视图自动重新查询。\n@param sort 新排序表达式；undefined 表示清除排序。",
+              "summary": "设置排序表达式；远端视图自动重新查询。",
+              "signature": "setSort(sort: SortExpression | undefined): Promise<void>"
+            },
+            {
+              "name": "setFilter",
+              "jsdoc": "设置过滤表达式并重置页码为 1；表达式变更后由数据层自动处理数据。\n@param filter 新过滤表达式；undefined 表示清除过滤。",
+              "summary": "设置过滤表达式并重置页码为 1；表达式变更后由数据层自动处理数据。",
+              "signature": "setFilter(filter: DataViewFilterTree | undefined): Promise<void>"
+            },
+            {
+              "name": "executeFilter",
+              "jsdoc": "显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。\n@param filter 要执行的过滤表达式；undefined 表示清除过滤。",
+              "summary": "显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。",
+              "signature": "executeFilter(filter: DataViewFilterTree | undefined): Promise<void>"
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁视图，释放所有订阅、委托和外部引用\n应在资源释放时调用，防止内存泄漏。\n销毁顺序：DataSet订阅 → 级联/CRUD委托 → 待处理事件 → 事件总线/行数据 → 计算与编辑委托 → TreeManager。\nDataTable引用保留以提供明确的销毁后诊断；DataSet不再通过订阅闭包持有本视图。",
+              "summary": "销毁视图，释放所有订阅、委托和外部引用",
+              "signature": "destroy(): void"
+            },
+            {
+              "name": "isDestroyed",
+              "jsdoc": "检查视图是否已销毁",
+              "summary": "检查视图是否已销毁",
+              "signature": "isDestroyed(): boolean"
+            },
+            {
+              "name": "applyViewConfig",
+              "jsdoc": "将 ViewMetadata 配置字段应用到当前视图实例（不创建新实例，不处理 rows）。\n未传入的分页成员保持当前值；新实例的初始分页由原生字段默认值提供。\n@param vc 要应用的视图配置片段。",
+              "summary": "将 ViewMetadata 配置字段应用到当前视图实例（不创建新实例，不处理 rows）。",
+              "signature": "applyViewConfig(vc: Partial<ViewMetadata>): void"
+            },
+            {
+              "name": "configure",
+              "jsdoc": "执行 configure 操作。",
+              "summary": "执行 configure 操作。",
+              "signature": "configure(config: Partial<ViewMetadata>): void"
+            },
+            {
+              "name": "setAggregates",
+              "jsdoc": "设置 Aggregates。",
+              "summary": "设置 Aggregates。",
+              "signature": "setAggregates(aggregates: Record<string, AggregateColumnConfig>): void"
+            },
+            {
+              "name": "setTreeConfig",
+              "jsdoc": "set Tree Config 配置。",
+              "summary": "set Tree Config 配置。",
+              "signature": "setTreeConfig(treeConfig: TreeConfig): void"
+            },
+            {
+              "name": "initAutoSelection",
+              "jsdoc": "对已有 rows 应用 autoCurrentFirst / autoSelectFirst 初始化选中状态（静态数据路径用）",
+              "summary": "对已有 rows 应用 autoCurrentFirst / autoSelectFirst 初始化选中状态（静态数据路径用）",
+              "signature": "initAutoSelection(): void"
+            },
+            {
+              "name": "toJson",
+              "jsdoc": "执行 to Json 操作。",
+              "summary": "执行 to Json 操作。",
+              "signature": "toJson(): ViewMetadata"
+            },
+            {
+              "name": "fromJson",
+              "jsdoc": "执行 from Json 操作。",
+              "summary": "执行 from Json 操作。",
+              "signature": "fromJson(data: ViewMetadata | Record<string, unknown> | string, tableName: string, viewId: string): DataView"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS relation: implements DataSource\n */\nDataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。\nclass DataView {\n  创建数据视图实例。\n  @param tableName 视图所属表名。\n  @param viewId 视图 ID，默认 `default` 表示主数据视图。\n  constructor(tableName: string, viewId?: string)\n  查询完成后的页面函数名；空字符串禁用。宿主消费requestCompleted，数据层不执行页面脚本。\n  onRequestComplete: string\n  所属 DataTable（赋值时自动重编译计算列）。未 attach 时返回 null，便于任意响应式代理安全读取。\n  dataTable: DataTable | null\n  数据表名。\n  tableName: string\n  视图标识。\n  viewId: string\n  当前模型视图对 DataTable 资源字段的稳定投影。\n  fieldProjection: DataViewFieldProjection[]\n  每次查询的输入参数；与私有的结果权限上下文分离。\n  queryContext: DataViewQueryContext\n  持久查询配置，所有刷新入口复用；整体赋值，空对象恢复默认。变更使旧结果及在途请求失效，不自动查询。\n  queryConfig: NonNullable<ViewMetadata['queryConfig']>\n  行数据集合。\n  rows: DataRow[]\n  本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。\n  抛错使本次请求失败并保留旧结果；校验期间若被新查询替代，旧结果及错误均不接纳。\n  仅属于运行实例，不写入视图配置；不适用于保存回执或本地行替换。\n  validateQueryResult: (result: DataViewQueryResult) => void | Promise<void>\n  当前有效查询owner是否明确支持独立正式身份新增；本地配置/数组视图返回 false。\n  readonly supportsExplicitIdentityCreate: boolean\n  当前正式查询是否声明了结果主键；显式主键不得绕过 DataView identity API 或由外层批量 CRUD 直写。\n  readonly requiresExplicitIdentitySubmission: boolean\n  当前查询结果的语义；未查询的视图不声明结果种类。\n  readonly resultKind: unknown\n  来源是否明确报告总数；false表示未知，undefined表示结果未声明此能力。\n  readonly countReported: boolean\n  来源报告的实际键，仅作结果信息，不授予实体操作身份。\n  readonly reportedPrimaryKey: string\n  主键字段名 getter/setter（委托给 _primaryKeyDelegate）\n  primaryKey: string\n  当前行主键值（null 表示未选中）。通过 currentRow getter 取对应行对象\n  _currentRowId: string | number | null\n  @internal 无主键查询的只读当前行指针；不产生主键选择集合或写入身份。\n  _keylessCurrentRow: DataRow | null\n  @internal 无主键结果的原始选择行，只在本次查询有效；选择值由显式valueField定义。\n  _keylessSelectedRows: DataRow[]\n  多选行主键值列表。通过 selectedRows getter 取对应行对象数组\n  _selectedRowIds: string | number[]\n  值字段名（用于 value getter/setter 序列化），未指定时回退到主键字段\n  readonly valueField: string | string[]\n  标签显示字段名（用于 labels/label getter），未指定时回退到主键值字符串\n  readonly labelField: string\n  值序列化分隔符（默认 ','）。非空=多选，空字符串=单选\n  selectionDelimiter: string\n  是否为多选模式（selectionDelimiter 非空时为多选）\n  readonly isMultiSelect: boolean\n  当前行：有主键时按键定位；无主键时只引用本次查询中的原始行，查询替换即失效。\n  readonly currentRow: DataRow | null\n  选择行数组：有主键按键定位，无主键只返回本次结果中的原始选择行；不会以当前行替代选择。\n  readonly selectedRows: DataRow[]\n  选中行的序列化字符串（供 v-model / API 传值）\n  value: string\n  选中行的显示标签数组（供渲染 tag 使用）\n  readonly labels: string[]\n  当前行的显示标签，无当前行时返回 null\n  readonly label: null | string\n  总记录数。\n  total: number\n  当前页码。\n  page: number\n  分页大小。\n  pageSize: number\n  loading Error 错误信息。\n  loadingError: Error\n  请求状态机，见 {@link RequestState}。唯一状态源，勿另设布尔标志。\n  requestState: RequestState\n  增删改批网络请求进行中（与 requestState 独立，可同时为 true）\n  mutating: boolean\n  最近一次增删改批操作的错误；成功或未发起时为 null\n  mutatingError: Error\n  当前视图是否可独立设置查询排序；父结果子视图须修改父查询计划。\n  readonly supportsQuerySorting: boolean\n  当前视图是否可独立设置查询过滤；与行写权限及只读结果类型无关。\n  readonly supportsQueryFiltering: boolean\n  SPARK 公开过滤树；所有入口解析为私有不可变快照，修改前保护未保存数据。\n  filterExpression: DataViewFilterTree\n  sort Expression 字段。\n  readonly sortExpression: SortExpression\n  请求成功后是否自动 currentRow = rows[0]（默认 true）\n  autoCurrentFirst: boolean\n  请求成功后是否自动 selectedRows = [rows[0]]（默认 true）\n  autoSelectFirst: boolean\n  树结构字段配置\n  readonly treeConfig: TreeConfig\n  DataSet 初始化后是否自动加载数据（默认 false）\n  autoLoad: boolean\n  autoLoad 是否来自显式视图配置，而不是类默认值。\n  autoLoadConfigured: boolean\n  增删改提交模式（默认 `'immediate'`）。\n  - `'immediate'`：每次 addRow/editRowById/removeRow 立即调用网络 CRUD（如已配置 API）\n  - `'staged'`：仅修改内存并标脏，调用 saveChanges() 批量提交\n  commitMode: CommitMode\n  false 时禁止删除既有记录；通过 applyViewConfig 配置。\n  allowDelete: boolean\n  本视图或查询级联子视图有未提交修改时锁定当前行与选中行；通过 applyViewConfig 配置。\n  lockCurrentWhilePending: boolean\n  视图级本地汇总配置；按来源能力执行，远程禁止时保留原文并由aggregateError诊断。通过applyViewConfig配置。\n  readonly aggregates: Record<string, AggregateColumnConfig>\n  树视图模式，代理到 treeConfig.treeMode（默认 'flat'）\n  treeMode: \"flat\" | \"nested\"\n  @internal 已注册的计算列名集合（CrudDelegate 用于提交前剥离）\n  readonly computedColumnNames: ReadonlySet<string>\n  当前来源是否允许按本地行计算跨行汇总；正式远程查询为false，不由行数或加载完成推断。\n  readonly supportsLocalAggregates: boolean\n  子表公式因远程聚合边界停算时的配置诊断；普通明细查询和本行计算继续，不写入配置或业务字段。\n  readonly computedAggregateError: Error\n  当前视图可渲染的列定义；优先本次查询的正式结果列，否则由模型与字段投影派生。\n  UI 组件通过此属性获取列名、标题、类型、可见性、可编辑性等元数据，\n  无需直接访问 DataTable。\n  @returns 本结果或模型的列定义；没有结果列且未关联模型时返回空数组。\n  readonly columns: DataColumn[]\n  当前查询来源接受的字段目录，用于查询配置、参数及函数候选。\n  绑定适配器可按正式来源收窄；未提供时沿用DataTable普通字段，排除本地计算与框架主键。\n  与columns的显示投影、fieldAccess的当次数据权限分开；不查询、不缓存、不序列化。\n  @returns 当前来源可查询字段；可包含本视图未选择输出的正式字段。\n  @throws 视图销毁、绑定身份或来源作用域失效时拒绝旧目录。\n  readonly queryColumns: DataColumn[]\n  旧汇总不可执行或其目标计算字段已停算时的只读诊断；不影响明细查询/编辑，不修改配置，也不代表后端迁移完成。\n  readonly aggregateError: Error\n  本地视图汇总输出行；远程owner禁止旧算法时抛出aggregateError，不返回当前页数值或伪造空结果。\n  readonly aggregateResult: AggregateResultRow\n  本地选中行汇总；与aggregateResult遵循同一来源边界，远程旧配置抛出aggregateError。\n  readonly selectionAggregateResult: AggregateResultRow\n  tree Manager 字段。\n  readonly treeManager: TreeManager\n  行索引缓存（用于加速 updateRowById 行对象替换）——由 LocalMutationDelegate 管理，内部状态勿直接操作\n  readonly rowIndexMap: Map<DataRow, number>\n  选中状态委托\n  readonly selection: SelectionDelegate\n  本地内存变更委托\n  readonly mutation: LocalMutationDelegate\n  网络 CRUD 委托\n  readonly crud: CrudDelegate\n  手工编辑追踪委托\n  readonly dirtyTracking: DirtyTrackingDelegate\n  当前编辑态行集合（按 rows 顺序返回 overlay 后的浅拷贝，含重新求值的计算列）。\n  readonly editingRows: DataRow[]\n  事件总线——独立事件模型（currentRowChanged / selectedRowsChanged / rowsChanged / cleared / configChanged / requestStateChanged / mutatingChanged）\n  readonly events: SparkEventEmitter\n  诊断日志接口。\n  logger: import(\"@spark-appworks/spark-utils\").LoggerApi\n  视图是否已销毁\n  readonly destroyed: boolean\n  向上访问 DataSet（独立 DataTable 未关联 DataSet 时返回 undefined）\n  readonly dataSet: DataSet\n  CrudService 实例\n  readonly crudService: CrudService\n  CRUD 操作配置\n  readonly crudConfig: CrudOperationConfig\n  数据校验器\n  readonly validator: DataValidator\n  主键委托访问器（setPrimaryKeyGenerator / generatePrimaryKey 等通过 view.pk.xxx 访问）\n  readonly pk: PrimaryKeyDelegate\n  实际生效的主键字段名列表（不含合成列 `_pk`）\n  readonly effectivePkFields: string[]\n  是否存在等待本视图编辑、提交或查询结束的刷新请求；仅为运行状态，不序列化。\n  readonly refreshPending: boolean\n  当前所有脏行的行对象数组（按 rows 顺序）\n  readonly dirtyRows: DataRow[]\n  readonly hasUnconfirmedSave: boolean\n  已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。\n  readonly hasPendingSavedRowPermissions: boolean\n  级联委托（setupCascade / teardownCascade）\n  readonly cascade: CascadeDelegate\n  一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。\n  bindQueryExecutor(executor: DataViewQueryExecutor, options?: DataViewQueryBindingOptions): void\n  在同一DataTable创建独立命名查询视图，复用查询owner和查询配置，不复制行、选择、草稿或权限。\n  辅助查询不继承页面完成函数；确需完成动作的消费者须显式配置onRequestComplete。\n  @param viewId 新视图身份，须在所属模型内唯一。\n  @returns 由DataTable持有的视图；使用方释放时调用dataTable.destroyView。\n  @throws 源已释放、无所属表或视图身份重复时拒绝创建。\n  createQueryView(viewId: string): DataView\n  预览绑定资源的远端来源，不替换查询结果或未提交修改。\n  @returns 原文及本地基线版本；不存在的远端以content:null表达。\n  @throws 无显式来源适配、身份失效或远端读取失败时拒绝。\n  previewSource(): Promise<DataViewSourceSnapshot>\n  列出原查询来源的真实历史版本，不读取业务行或改变当前草稿；来源须显式提供历史能力。\n  listSourceVersions(): Promise<readonly DataViewSourceVersion[]>\n  按存储版本身份预览历史原文；内容不替代当前查询结果，恢复须转为定义视图的变更再保存。\n  previewSourceVersion(version: string | number): Promise<string>\n  读取原来源适配器持有的快照提交状态；scope、文本和文件适配器状态不暴露给页面。\n  getSourceHistoryStatus(): DataViewSourceHistoryStatus\n  只读核验来源适配器捕获的原快照attempt；不提交、清理或覆盖当前DataView草稿。\n  verifySourceHistoryAttempt(): Promise<DataViewSourceHistoryStatus>\n  历史回执已被页面业务接收后清除适配器待交付标记；不影响来源版本本身。\n  acknowledgeSourceHistoryAttempt(): void\n  核验由同一DataSet文件来源适配器持有的正文保存attempt；不会重放原上传。\n  verifySourceWriteAttempt(): Promise<DataViewSourceWriteAttemptStatus>\n  领域结果交付完成后消费已核验的正文保存适配器attempt。\n  acknowledgeSourceWriteAttempt(): void\n  为已保存且同源视图均干净的资源创建快照并返回适配器回执；异步编辑、来源切换或释放均拒绝旧操作。\n  createSourceVersion(onAttempt?: (attempt: DataViewSourceHistoryStatus) => void): Promise<DataViewSourceHistoryStatus>\n  再核对已预览的来源并接纳；只在存储核验成功后取消明确指定视图的修改。\n  @param snapshot 已展示的原文及版本，资源适配核对当前存储后才能应用。\n  @param options 允许放弃的同源视图；其余草稿及在途新修改会阻止采用。\n  @returns 来源已应用；查询结果由调用流程按需refresh，不隐式加载其他工作区。\n  @throws 远端变化、读取失败、其他草稿、身份或异步状态改变时保留本地修改并拒绝。\n  adoptSource(snapshot: DataViewSourceSnapshot, options?: DataViewSourceAdoptOptions): Promise<void>\n  Query one complete option set without replacing this view's rows or query permission.\n  queryOptionRows(options: DataViewOptionQueryOptions): Promise<DataRow[]>\n  读取尚未加入视图的新行字段访问合同，不读业务值、不创建行、不查询或保存。\n  仅沿当前正式查询上下文呈现已有新增字段权限；不会授予额外权限。\n  查询输入变化、结果失效或视图销毁后拒绝旧权限；addRow/save 仍独立执行原守卫。\n  @param field 正式 DataTable 中待输入的字段名。\n  @returns 该字段对当前查询新行的只读呈现/写入合同；未知或不可写字段返回拒绝结果。\n  newRowFieldAccess(field: string): DataViewFieldAccess\n  返回字段双通道呈现；本视图新增草稿按当次新增可用性编辑声明字段，既有行仍消费原字段权限。查询失效暂停写入。\n  fieldAccess(row: DataRow | null, field: string): DataViewFieldAccess\n  @internal Configured calculations consume only fields visible in this view's current query.\n  computedInputIsVisible(row: DataRow, field: string): boolean\n  @internal Independent generation token for computed reads; never exposes the query owner context.\n  computedQueryToken(): object | undefined\n  新增呈现来自原查询模型权限，旧结果期间只保留展示。\n  addActionState(available?: boolean): DataViewActionState\n  行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。\n  editActionState(row: DataRow | null, available?: boolean): DataViewActionState\n  删除呈现消费后端行权限。\n  deleteActionState(row: DataRow | null, available?: boolean): DataViewActionState\n  树行新增子行呈现消费后端 c，不由模型新增权限推测。\n  createChildActionState(row: DataRow | null, available?: boolean): DataViewActionState\n  查看只消费已登记返回行的身份。\n  viewActionState(row: DataRow | null, available?: boolean): DataViewActionState\n  从本次已加载结果读取当前父行的正式子结果；不按业务主键回找，不发起第二次查询。\n  readChildResult(modelName: string): DataViewQueryResult\n  捕获当前父行与原结果代次；仅保存引用和校验器，不复制业务行或权限。\n  captureChildResult(modelName: string): Readonly<{\n          /** 原owner提供的直接子结果。 */\n          result: DataViewQueryResult;\n          /** 本次公开父行引用，null表示未选父行。 */\n          parentRow: DataRow | null;\n          /** 原父查询请求代次，同键刷新也必须重新捕获。 */\n          version: number;\n          /** 复核当前父行、查询代次、结果与执行域仍然一致。 */\n          assertCurrent: () => void;\n      }>\n  读取当前结果的独立展示快照。仅输出已声明字段，隐藏值省略、脱敏值替换为掩码，排除内部主键与查询凭据。\n  不包含未提交编辑；分页信息来自同一视图。正式查询未完成、失败或已被查询链标记失效时拒绝读取旧结果。\n  本地配置视图可以直接读取；此方法不授予保存权限，也不执行查询或序列化设计配置。\n  readSnapshot(): {\n          fields: string[];\n          rows: DataRow[];\n          total: number;\n          page: number;\n          pageSize: number;\n          countReported?: boolean;\n      }\n  清除显式覆盖，恢复从 DataTable 列定义自动推导主键\n  resetPrimaryKey(): void\n  列表组件及级联共用的原生选择值数组；有主键取主键，无主键须显式valueField，逐字段核当次读取权限。单选也返回数组，空选择为[]；不产生写入身份。\n  getSelectedValues(): (string | number | boolean)[]\n  设置当前行；有主键时按键定位，无主键时只接受本次 rows 的原始行作为只读指针，null 清除。\n  单选同步选择值；无主键以显式valueField提供值，不产生写入身份，重查后失效。\n  @param row 要设为当前行的行对象；null 表示清除当前行。\n  @param originatorId 可选变更来源标识，用于级联订阅方避免回环。\n  setCurrentRow(row: DataRow | null, originatorId?: string): void\n  通过主键设置当前行（行不存在时返回 false）。\n  @param id 目标行主键值；null 表示清除当前行。\n  @param originatorId 可选变更来源标识，用于级联订阅方避免回环。\n  setCurrentRowById(id: string | number | null, originatorId?: string): boolean\n  设置多选行（覆盖式）。\n  @param rows 新的选中行列表。\n  @param originatorId 可选变更来源标识，用于级联订阅方避免回环。\n  setSelectedRows(rows: DataRow[], originatorId?: string): void\n  追加多选行（返回实际新增数量）。\n  @param rows 要追加到选中集的行列表。\n  addSelectedRows(rows: DataRow[]): number\n  移除多选行（返回实际移除数量）。\n  @param rows 要从选中集中移除的行列表。\n  removeSelectedRows(rows: DataRow[]): number\n  通过主键批量移除多选行（返回实际移除数量）。\n  @param ids 要从选中集中移除的行主键值列表。\n  removeSelectedRowsById(ids: (string | number)[]): number\n  清空多选行\n  clearSelectedRows(): void\n  设置计算列共享上下文（表达式中通过 ctx 引用），重新编译并对现有 rows 求值。\n  @param ctx 计算列表达式可通过 ctx 读取的共享上下文。\n  setComputedContext(ctx: Record<string, unknown>): void\n  手动触发全量计算列重新求值 + 聚合重算。常规行操作已自动触发，仅用于特殊场景。\n  @param options 重算通知选项。\n  recomputeColumns(options?: DataViewRecomputeColumnsOptions): void\n  指定计算字段的远程聚合诊断；只说明配置不可执行，不授予字段读取或写入权限。\n  computedColumnError(field: string): Error | null\n  @internal 从数据对象中移除计算列字段，返回浅拷贝；无计算列时返回原对象。\n  stripComputedColumns(data: Partial<DataRow>): Partial<DataRow>\n  @internal DataSet 资源关系与视图级联索引完成后由 DataTable 调用——重挂级联订阅并重编译计算列（含聚合 resolver）\n  onDataSetStructureReady(): void\n  按名称获取单个列定义\n  @param name 列名（精确匹配）\n  @returns 对应的列定义，不存在时返回 undefined\n  @example ```ts\n  const col = view.getColumn('price')\n  if (col) {\n  console.log(col.label)   // '单价'\n  console.log(col.type)    // 'number'\n  }\n  ```\n  getColumn(name: string): DataColumn | undefined\n  @internal 返回 DataSet 实例\n  getDataSet(): DataSet | undefined\n  获取行的主键值（标量）。\n  @param row 目标行。\n  getPkKey(row: DataRow): string | number | undefined\n  从行数据构建服务端 PK payload。\n  @param row 目标行。\n  buildServerPk(row: DataRow): Record<string, unknown>\n  视图级加载编排器（幂等：requestState≠Idle 时直接返回）。外部应使用 refresh() 或 loadFromServer()。\n  查询模式和读取范围来自queryConfig，父依赖使用各自视图的配置。\n  requestData(): Promise<void>\n  从服务器拉取列表（带防重入 + 请求 ID 竞态保护）。\n  @param params 查询参数；未提供的分页、排序、过滤及查询配置由当前视图生成，显式值只覆盖本次请求。\n  loadFromServer(params?: QueryParams): Promise<CrudResult>\n  按服务端 PK 拉取单条记录。\n  默认会将结果同步回本地 rows；可选设为当前行。\n  @param pk 服务端主键 payload。\n  @param options 单条记录拉取后的同步选项。\n  retrieveRecord(pk: Record<string, unknown>, options?: RetrieveRecordOptions): Promise<CrudResult<DataRow>>\n  按本地主键值拉取单条记录。\n  若本地已存在该行，会优先构造真实服务端 PK；否则回退到 `{ [primaryKey]: id }`。\n  @param id 本地主键值。\n  @param options 单条记录拉取后的同步选项。\n  retrieveRecordById(id: string | number, options?: RetrieveRecordOptions): Promise<CrudResult<DataRow>>\n  无未保存修改时加载嵌套树；拒绝发生在请求前，不改变原查询状态。\n  loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit?: number): Promise<CrudResult<NestedTreeNode[]>>\n  拒绝覆盖未保存变更或未确认提交的原查询；通过检查后置 Idle 并按当前视图输入重新查询。\n  使用当前queryConfig，不在调用点维护另一份查询模式。\n  refresh(): Promise<void>\n  请求沿当前视图的原查询链刷新；有未保存修改、未确认提交或在途操作时合并延期，处理结束后自动执行一次。\n  延期请求在配置、输入、模型身份变化或销毁后取消；不取消用户编辑、不重放写入，查询失败不自动重试。\n  @returns 实际刷新结果；延期登记成功返回success=true，可用refreshPending区分。后续异步失败由requestState和loadingError报告。\n  requestRefresh(): Promise<CrudResult>\n  核对本视图是否可替换查询结果；组合操作应在释放当前展示或读取其他来源前调用。\n  编辑覆盖、待提交变更和未确认提交均以本DataView为准；本方法不查询、不取消、不保存。\n  assertResultReplacementAllowed(): void\n  级联输入失败使在途结果失效；未保存编辑或未确认提交仍保留原查询上下文供显式处理。\n  rejectCascade(error: unknown): void\n  无 API 时的内存级联过滤（从 DataTable.rows 按依赖过滤条件写入视图）。\n  @param filter 已合并所有输入值与视图自身条件的过滤表达式。\n  applyInMemoryCascade(filter: DataViewFilterTree | undefined): void\n  将服务端响应同步到本地字段（rows / total / page / pageSize）——splice 保持数组引用稳定。\n  @param data 服务端返回的行数组或行数据响应载荷。\n  updateFromServer(data: DataViewServerRowsPayload | DataRow[]): void\n  本地追加一行，触发计算列求值 + 聚合重算 + rowsChanged。\n  @param row 要追加的行。\n  appendRow(row: DataRow): void\n  本地按主键部分更新一行；返回是否成功（行不存在时 false）。\n  @param id 目标行主键值。\n  @param data 要合并到目标行上的字段更新。\n  updateRowById(id: string | number, data: Partial<DataRow>): boolean\n  本地按主键删除一行，清理选中引用；返回是否成功（行不存在时 false）。\n  @param id 目标行主键值。\n  deleteRowById(id: string | number): boolean\n  无未保存变更时整批替换行，并清理无效选中引用。\n  @param rows 新的完整行列表。\n  replaceRows(rows: DataRow[]): void\n  是否存在编辑态变更。\n  @param id 可选行主键值；省略时检查是否存在任意编辑态变更。\n  hasEditingChanges(id?: string | number): boolean\n  获取指定行当前编辑态 patch。\n  @param id 目标行主键值。\n  getEditingPatch(id: string | number): Partial<DataRow> | undefined\n  获取指定行的编辑态 overlay；未编辑时返回当前 DataView 行。\n  @param id 目标行主键值。\n  getEditingRow(id: string | number): DataRow | null\n  捕获一行指定字段的编辑检查点，供局部弹窗确认/取消；值仍由本DataView持有。\n  @param id 当前视图内的行主键，不移动当前行或选择。\n  @param fields 本次交互负责的已声明字段；不能为空，也不能包含主键字段。\n  @returns restore一次性恢复打开前的编辑覆盖，保留范围外修改，并在整体恢复后通知值变化；release仅释放检查点，保留编辑，不保存数据。\n  @remarks 支持稳定的待新增行，取消仅恢复编辑覆盖，保留新增。不能回滚已应用或已提交数据，也不授予权限；查询身份、原行、待提交状态变化或视图销毁后不能恢复；不参与序列化。\n  createEditingCheckpoint(id: string | number, fields: readonly string[]): {\n          restore(): void;\n          release(): void;\n      }\n  将 UI 字段值写入编辑态，不直接污染 rows。\n  @param id 目标行主键值。\n  @param field 要编辑的字段名。\n  @param value 新字段值。\n  updateEditingValue(id: string | number, field: string, value: unknown): DataRow\n  丢弃指定行或全部编辑态变更。\n  @param ids 可选行主键值列表；省略时丢弃全部编辑态变更。\n  discardEditingRows(ids?: (string | number)[]): number\n  丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。\n  discardPendingChanges(ids?: (string | number)[]): number\n  将编辑态 patch 应用到现有 editRowById 管线。\n  @param ids 可选行主键值列表；省略时应用全部编辑态变更。\n  applyEditingRows(ids?: (string | number)[]): Promise<CrudResult<DataViewApplyEditingRowsResult>>\n  本地新增行。commitMode='staged' 时标记为 pending-create（saveChanges 统一提交）；\n  commitMode='immediate' 且已配置 API 时立即调用 crud.createRecord。\n  @param data 新行数据。\n  addRow(data: Partial<DataRow>): Promise<DataRow | CrudResult<DataRow>>\n  通过原查询owner独立提交正式主键身份与普通新增字段。\n  仅当当前结果报告相同 resultPrimaryKey、owner声明prepareNewRowWithIdentity，且表级新增获准时使用。\n  普通字段在任何行进入DataView前逐项预检正式列、计算规则与新行写权限；owner返回身份须与请求完全一致。\n  @param identity 与当前结果主键完全一致的正式身份字段和值。\n  @param data 待写入的新行普通字段，不包含身份字段。\n  @returns 被同一DataView接受并进入新增脏追踪的完整行。\n  addRowWithIdentity(identity: DataViewNewRowIdentity, data: Partial<DataRow>): Promise<DataRow | CrudResult<DataRow>>\n  Adds a child through the current DataView query owner, using its generated identity unless one is explicitly supplied.\n  @param input Explicit parent identity mapping, optional child identity, and ordinary child values.\n  @returns The staged child row accepted by this DataView.\n  addChildRow(input: DataViewChildRowInput): Promise<DataRow | CrudResult<DataRow>>\n  本地删除行。commitMode='staged' 时标记为 pending-delete（saveChanges 统一提交），成功后清除此行编辑覆盖；取消恢复原查询基线。\n  commitMode='immediate' 且已配置 API 时立即调用 crud.deleteRecord。\n  @param id 目标行主键值。\n  removeRow(id: string | number): Promise<boolean | CrudResult<boolean>>\n  手工编辑指定行（标脏）。commitMode='staged' 时仅更新内存并标脏；\n  commitMode='immediate' 且已配置 API 时立即调用 crud.updateRecord。\n  连续编辑同一行只保留首次编辑前的快照。\n  @param id 目标行主键值。\n  @param data 要合并到目标行上的字段更新。\n  editRowById(id: string | number, data: Partial<DataRow>): Promise<boolean | CrudResult<DataRow>>\n  获取指定行的字段级变更明细（行不脏时返回 {}）。\n  @param id 目标行主键值。\n  getDirtyChanges(id: string | number): RowDiff\n  原查询视图由统一 owner 保存并按真实字段回执接纳；本地 CRUD 视图沿用逐行提交。\n  @param ids 可选行主键值列表；省略时保存全部脏行。\n  saveChanges(ids?: (string | number)[]): Promise<CrudResult<SaveChangesData>>\n  明确放弃本视图未确认提交的核验，之后可重新读取实际结果；本地草稿保留，由调用方决定丢弃或重新提交。\n  不撤销服务端可能已生效的写入。执行器未提供放弃能力时保持待核验并返回 false，仍须经原保存入口核验。\n  abandonUnconfirmedSave(): boolean\n  只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。\n  refreshSavedRowPermissions(): Promise<void>\n  同一运行实例先捕获请求配置并校验全部变更，再按原查询owner串行提交；有未知提交时本轮仅核验原捕获，各来源独立确认。\n  saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<CrudResult<SaveChangesData>[]>\n  @internal 保存前按列声明写回：normalize 去除首尾空白，optionsView.fill 同步匹配选项字段。\n  写入沿编辑覆盖或脏追踪通道并核当次字段写权限；随后的预检与捕获照常校验全部规则。\n  @param input 限定选中行及写回目标是否为编辑覆盖。\n  prepareQuerySave(input: DataViewQuerySaveValidationInput): Promise<() => void> | undefined\n  明确丢弃本视图全部本地修改，放弃未确认提交的核验后按当前输入重新查询。\n  不撤销服务端可能已生效的写入；执行器不支持放弃未确认提交时抛错，须经原保存入口核验。\n  discardAndReload(): Promise<void>\n  @internal DataSet批次预检使用原查询主键；本地行键只用于无查询上下文的视图。\n  @param input 限定选中行及是否包含编辑覆盖，不应用任何修改。\n  @returns 待提交记录的规范化身份，不包含查询权限或行数据；无正式主键的新增不参与跨视图重复判定。\n  getQuerySaveRowKeys(input: DataViewQuerySaveValidationInput): readonly string[]\n  @internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。\n  assertQuerySaveColumns(input: DataViewQuerySaveValidationInput): void\n  无未保存变更时清空状态并发射 cleared 事件。\n  clearAll(): void\n  重置行数据和选中状态，并将 requestState 重置为 Idle。\n  有未保存变更时拒绝重置；显式保存或放弃由调用方先行处理。\n  通过领域事件通知订阅者刷新 rows / selection / request / aggregate / editing。\n  resetState(): void\n  清理已不在 rows 中的选中状态，返回是否发生了清理（委托给 SelectionDelegate）\n  cleanupInvalidSelections(): boolean\n  拉取直接子节点并写入缓存（对应 /tree/children）。\n  @param parentId 父节点 ID；null 表示根级节点。\n  @param limit 最大返回子节点数。\n  loadTreeChildren(parentId: string | number | null, limit?: number): Promise<FlatTreeNode[]>\n  获取节点祖先链 ID（对应 /tree/path）。\n  @param id 目标节点 ID。\n  loadTreePath(id: string | number): Promise<TreePath>\n  展开到目标节点，差量补齐缓存（对应 /tree/path + /tree/subtree）。\n  @param targetId 目标节点 ID。\n  expandTreeToNode(targetId: string | number): Promise<void>\n  执行 move Tree Node 操作。\n  moveTreeNode(nodeId: string | number, newParentId: string | number | null, index?: number): Promise<DataRow | null>\n  嵌套模式远端搜索（对应 /tree/nested/search）。\n  @param keyword 搜索关键字。\n  @param limit 最大返回匹配节点数。\n  searchTreeNested(keyword: string, limit?: number): Promise<NestedTreeSearchResult[]>\n  设置当前页；远端视图自动重新查询。\n  @param page 新页码。\n  setPage(page: number): Promise<void>\n  设置每页条数并重置页码为 1；远端视图自动重新查询。\n  @param pageSize 新每页行数。\n  setPageSize(pageSize: number): Promise<void>\n  设置排序表达式；远端视图自动重新查询。\n  @param sort 新排序表达式；undefined 表示清除排序。\n  setSort(sort: SortExpression | undefined): Promise<void>\n  设置过滤表达式并重置页码为 1；表达式变更后由数据层自动处理数据。\n  @param filter 新过滤表达式；undefined 表示清除过滤。\n  setFilter(filter: DataViewFilterTree | undefined): Promise<void>\n  显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。\n  @param filter 要执行的过滤表达式；undefined 表示清除过滤。\n  executeFilter(filter: DataViewFilterTree | undefined): Promise<void>\n  销毁视图，释放所有订阅、委托和外部引用\n  应在资源释放时调用，防止内存泄漏。\n  销毁顺序：DataSet订阅 → 级联/CRUD委托 → 待处理事件 → 事件总线/行数据 → 计算与编辑委托 → TreeManager。\n  DataTable引用保留以提供明确的销毁后诊断；DataSet不再通过订阅闭包持有本视图。\n  destroy(): void\n  检查视图是否已销毁\n  isDestroyed(): boolean\n  将 ViewMetadata 配置字段应用到当前视图实例（不创建新实例，不处理 rows）。\n  未传入的分页成员保持当前值；新实例的初始分页由原生字段默认值提供。\n  @param vc 要应用的视图配置片段。\n  applyViewConfig(vc: Partial<ViewMetadata>): void\n  执行 configure 操作。\n  configure(config: Partial<ViewMetadata>): void\n  设置 Aggregates。\n  setAggregates(aggregates: Record<string, AggregateColumnConfig>): void\n  set Tree Config 配置。\n  setTreeConfig(treeConfig: TreeConfig): void\n  对已有 rows 应用 autoCurrentFirst / autoSelectFirst 初始化选中状态（静态数据路径用）\n  initAutoSelection(): void\n  执行 to Json 操作。\n  toJson(): ViewMetadata\n  执行 from Json 操作。\n  fromJson(data: ViewMetadata | Record<string, unknown> | string, tableName: string, viewId: string): DataView\n}"
+  },
+  {
+    "kind": "DataSet",
+    "catalog": {
+      "rootKind": "DataSet",
+      "models": [
+        {
+          "kind": "DataSet",
+          "name": "DataSet",
+          "jsdoc": "Data Set 的语义模型。",
+          "summary": "Data Set 的语义模型。",
+          "declarationRelations": [
+            {
+              "kind": "extends",
+              "typeText": "SparkAIModel",
+              "targetName": "SparkAIModel"
+            },
+            {
+              "kind": "implements",
+              "typeText": "DataSetContract",
+              "targetName": "DataSetContract"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataSet",
+      "models": [
+        {
+          "kind": "DataSet",
+          "name": "DataSet",
+          "jsdoc": "Data Set 的语义模型。",
+          "summary": "Data Set 的语义模型。",
+          "declarationRelations": [
+            {
+              "kind": "extends",
+              "typeText": "SparkAIModel",
+              "targetName": "SparkAIModel"
+            },
+            {
+              "kind": "implements",
+              "typeText": "DataSetContract",
+              "targetName": "DataSetContract"
+            }
+          ],
+          "constructorSignature": {
+            "summary": "创建数据集实例",
+            "jsdoc": "创建数据集实例\n@param config 数据集配置",
+            "signature": "constructor(config: DataSetConfig)"
+          },
+          "attributes": [
+            {
+              "name": "dataSetName",
+              "jsdoc": "数据集名称",
+              "summary": "数据集名称",
+              "typeText": "string"
+            },
+            {
+              "name": "tables",
+              "jsdoc": "数据表集合",
+              "summary": "数据表集合",
+              "typeText": "Record<string, DataTable>"
+            },
+            {
+              "name": "resourceRelations",
+              "jsdoc": "数据资源关系定义",
+              "summary": "数据资源关系定义",
+              "typeText": "DataResourceRelation[]"
+            },
+            {
+              "name": "viewCascades",
+              "jsdoc": "DataView 输入级联定义",
+              "summary": "DataView 输入级联定义",
+              "typeText": "DataViewCascade[]"
+            },
+            {
+              "name": "schemaVersion",
+              "jsdoc": "Schema 格式版本（默认 2），与数据集快照版本分别维护。",
+              "summary": "Schema 格式版本（默认 2），与数据集快照版本分别维护。",
+              "typeText": "number"
+            },
+            {
+              "name": "scenarioId",
+              "jsdoc": "SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。",
+              "summary": "SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。",
+              "typeText": "string"
+            },
+            {
+              "name": "version",
+              "jsdoc": "数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。",
+              "summary": "数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。",
+              "typeText": "number"
+            },
+            {
+              "name": "pageId",
+              "jsdoc": "页面ID",
+              "summary": "页面ID",
+              "typeText": "string"
+            },
+            {
+              "name": "saveChangesConfig",
+              "jsdoc": "DataSet.saveChanges 的默认提交策略。",
+              "summary": "DataSet.saveChanges 的默认提交策略。",
+              "typeText": "DataSetSaveChangesConfig"
+            },
+            {
+              "name": "layout",
+              "jsdoc": "设计器布局信息（不参与运行时数据逻辑）。",
+              "summary": "设计器布局信息（不参与运行时数据逻辑）。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "_sharedHttpClient",
+              "jsdoc": "M5: 共享 HTTP 客户端——所有 DataTable 的 CrudService 复用同一 HttpClientBase 实例。\n由外部通过 `setSharedHttpClient(client)` 注入。未设置时各 CrudService 各自 createRequest()。\n@internal",
+              "summary": "M5: 共享 HTTP 客户端——所有 DataTable 的 CrudService 复用同一 HttpClientBase 实例。",
+              "typeText": "HttpClientBase"
+            },
+            {
+              "name": "_appServices",
+              "jsdoc": "@internal 页面运行时服务上下文（用于 URL 模板 tenant/project 占位参数解析）",
+              "summary": "",
+              "typeText": "DataSetAppServices"
+            },
+            {
+              "name": "_pageRoute",
+              "jsdoc": "@internal 页面路由快照（页面运行时服务缺失时的作用域兜底）",
+              "summary": "",
+              "typeText": "unknown"
+            },
+            {
+              "name": "_activeViewSubs",
+              "jsdoc": "活跃的 onAnyViewChange 订阅（handler + 每个视图的清理函数）。\n当 DataTable.getOrCreateView() 创建新视图时，\nDataSet._subscribeNewView() 自动为所有活跃订阅追加监听。\n@internal",
+              "summary": "活跃的 onAnyViewChange 订阅（handler + 每个视图的清理函数）。",
+              "typeText": "{ handlers: ViewChangeHandlers; unsubs: Map<DataView, Array<() => void>> }[]"
+            },
+            {
+              "name": "_activeOnSubs",
+              "jsdoc": "活跃的 on('loadSuccess'|'loadError') 订阅追踪。\n@internal",
+              "summary": "活跃的 on('loadSuccess'|'loadError') 订阅追踪。",
+              "typeText": "{ event: \"loadSuccess\" | \"loadError\"; handler: (payload: {\n            tableName: string;\n            viewId: string;\n            error?: Error;\n        }) => void; unsubs: Map<DataView, Array<() => void>> }[]"
+            },
+            {
+              "name": "destroyed",
+              "jsdoc": "数据集是否已被销毁",
+              "summary": "数据集是否已被销毁",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "initAutoSelection",
+              "jsdoc": "对所有表的 default 视图触发 autoCurrentFirst / autoSelectFirst 初始选中逻辑。\n必须在页面脚本（__init__）完成事件订阅**之后**调用，确保订阅者能收到\n`currentRowChanged` 事件。渲染层在组件 mounted 钩子中、\n`__init__` 执行完毕后调用此方法。",
+              "summary": "对所有表的 default 视图触发 autoCurrentFirst / autoSelectFirst 初始选中逻辑。",
+              "signature": "initAutoSelection(): void"
+            },
+            {
+              "name": "setSharedHttpClient",
+              "jsdoc": "注入共享 HTTP 客户端（M5）——所有 DataTable 的 CrudService 将复用该实例。\n调用时机：DataSet 构建完成后、首次数据请求之前。\n已创建的 CrudService 实例不受影响（它们保留初始化时的 HttpClientBase）。\n@param client HttpClientBase 实例（通常由应用层 auth 模块创建，带统一拦截器）",
+              "summary": "注入共享 HTTP 客户端（M5）——所有 DataTable 的 CrudService 将复用该实例。",
+              "signature": "setSharedHttpClient(client: HttpClientBase): void"
+            },
+            {
+              "name": "setAppServices",
+              "jsdoc": "设置 App Services。",
+              "summary": "设置 App Services。",
+              "signature": "setAppServices(appServices: DataSetAppServices): void"
+            },
+            {
+              "name": "setPageRoute",
+              "jsdoc": "设置 Page Route。",
+              "summary": "设置 Page Route。",
+              "signature": "setPageRoute(route: unknown): void"
+            },
+            {
+              "name": "getRequestTemplateParams",
+              "jsdoc": "读取 Request Template Params。",
+              "summary": "读取 Request Template Params。",
+              "signature": "getRequestTemplateParams(): Record<string, unknown>"
+            },
+            {
+              "name": "on",
+              "jsdoc": "订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n- `'loadSuccess'`：任一视图从服务器成功加载数据后触发\n- `'loadError'`：任一视图加载失败后触发（payload.error 含错误对象）\n@returns 取消订阅函数（页面卸载时调用以防内存泄漏）\n@example ```js\nconst off = dataSet.on('loadSuccess', ({ tableName }) => {\nElMessage.success(`${tableName} 加载完成`)\n})\n// 资源释放时: off()\n```",
+              "summary": "订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）",
+              "signature": "on(event: \"loadSuccess\" | \"loadError\", handler: (payload: {\n        tableName: string;\n        viewId: string;\n        error?: Error;\n    }) => void): () => void"
+            },
+            {
+              "name": "onAnyViewChange",
+              "jsdoc": "订阅此 DataSet 内任意视图的状态变化（替代全局 event-bus）。\n接收 ViewChangeHandlers 映射，按需注册感兴趣的事件类型。\n自动追踪：后续通过 getOrCreateView() 动态创建的视图也会被订阅。\n作用域严格限定于本实例，不同页面的 DataSet 相互隔离。\n@example ```ts\nconst off = dataSet.onAnyViewChange({\ncurrentRowChanged(tableName, viewId, currentRow) { ... },\nselectedRowsChanged(tableName, viewId, selectedRows) { ... },\ncleared(tableName, viewId) { ... },\n})\n```",
+              "summary": "订阅此 DataSet 内任意视图的状态变化（替代全局 event-bus）。",
+              "signature": "onAnyViewChange(handlers: ViewChangeHandlers): () => void"
+            },
+            {
+              "name": "_subscribeNewView",
+              "jsdoc": "将动态创建的视图注册到所有活跃订阅中。\n由 DataTable.getOrCreateView() 在创建新视图时调用。\n@internal",
+              "summary": "将动态创建的视图注册到所有活跃订阅中。",
+              "signature": "_subscribeNewView(view: DataView): void"
+            },
+            {
+              "name": "_unsubscribeView",
+              "jsdoc": "@internal 视图销毁时立即释放其订阅闭包，保留其他视图的原订阅。",
+              "summary": "",
+              "signature": "_unsubscribeView(view: DataView): void"
+            },
+            {
+              "name": "triggerAutoLoad",
+              "jsdoc": "触发所有标记了 `autoLoad: true` 的视图自动加载。\n页面调用渲染层在构建 DataSet 后调用此方法；\n业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。\n父视图依赖与在途请求复用由各视图的 requestData 编排。",
+              "summary": "触发所有标记了 `autoLoad: true` 的视图自动加载。",
+              "signature": "triggerAutoLoad(): void"
+            },
+            {
+              "name": "getChildCascades",
+              "jsdoc": "查询以指定 DataView 为源的目标级联（视图级索引）\n@param parentTable 父表名\n@param parentViewId 父视图ID",
+              "summary": "查询以指定 DataView 为源的目标级联（视图级索引）",
+              "signature": "getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[]"
+            },
+            {
+              "name": "getParentCascades",
+              "jsdoc": "查询以指定 DataView 为目标的源级联（视图级索引）\n@param childTable 子表名\n@param childViewId 子视图ID",
+              "summary": "查询以指定 DataView 为目标的源级联（视图级索引）",
+              "signature": "getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[]"
+            },
+            {
+              "name": "resolveCascadeFilter",
+              "jsdoc": "将 DataView 输入级联解析为目标视图过滤表达式。",
+              "summary": "将 DataView 输入级联解析为目标视图过滤表达式。",
+              "signature": "resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null"
+            },
+            {
+              "name": "getResourceChildRelations",
+              "jsdoc": "查询以指定资源为父的所有资源关系（聚合函数消费）",
+              "summary": "查询以指定资源为父的所有资源关系（聚合函数消费）",
+              "signature": "getResourceChildRelations(parentTable: string): DataResourceRelation[]"
+            },
+            {
+              "name": "getResourceParentRelations",
+              "jsdoc": "查询以指定资源为子的所有资源关系",
+              "summary": "查询以指定资源为子的所有资源关系",
+              "signature": "getResourceParentRelations(childTable: string): DataResourceRelation[]"
+            },
+            {
+              "name": "replaceFromJson",
+              "jsdoc": "执行 replace From Json 操作。",
+              "summary": "执行 replace From Json 操作。",
+              "signature": "replaceFromJson(json: DataSetMetadata | Record<string, unknown> | string): void"
+            },
+            {
+              "name": "listSnapshots",
+              "jsdoc": "执行 list Snapshots 操作。",
+              "summary": "执行 list Snapshots 操作。",
+              "signature": "listSnapshots(options?: DataSetHistoryListOptions): DataSetHistorySnapshot[]"
+            },
+            {
+              "name": "getSnapshot",
+              "jsdoc": "读取 Snapshot。",
+              "summary": "读取 Snapshot。",
+              "signature": "getSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListOptions): DataSetHistorySnapshot | null"
+            },
+            {
+              "name": "commitSnapshot",
+              "jsdoc": "执行 commit Snapshot 操作。",
+              "summary": "执行 commit Snapshot 操作。",
+              "signature": "commitSnapshot(options?: DataSetCommitSnapshotOptions): DataSetHistorySnapshot"
+            },
+            {
+              "name": "restoreSnapshot",
+              "jsdoc": "执行 restore Snapshot 操作。",
+              "summary": "执行 restore Snapshot 操作。",
+              "signature": "restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListOptions): DataSetHistorySnapshot | null"
+            },
+            {
+              "name": "addTable",
+              "jsdoc": "动态添加一张表（含 default 视图）。\n@returns 新建的 DataTable 实例\n@throws 表名已存在时抛 Error",
+              "summary": "动态添加一张表（含 default 视图）。",
+              "signature": "addTable(tableName: string, columns: DataColumn[]): DataTable"
+            },
+            {
+              "name": "addTableFromJson",
+              "jsdoc": "按需将原生表定义加入当前空间，保留模型绑定、资源、字段及命名视图配置。\n不替换已有表/视图/草稿，不查询数据、不授予权限、不绑定查询或保存owner；调用方继续绑定该资源的正式owner。\n新视图进入当前DataSet的订阅和释放链；重复表名、无效定义或已释放空间明确报错。",
+              "summary": "按需将原生表定义加入当前空间，保留模型绑定、资源、字段及命名视图配置。",
+              "signature": "addTableFromJson(metadata: TableMetadata | Record<string, unknown>): DataTable"
+            },
+            {
+              "name": "assertCanRemoveTable",
+              "jsdoc": "检查指定表能否删除，不改变 DataSet。\n与 removeTable 共用完整 resourceRelations（含 filterExpression）及 viewCascades 引用校验。\n@throws 表不存在或仍被关系/级联引用时抛 Error。",
+              "summary": "检查指定表能否删除，不改变 DataSet。",
+              "signature": "assertCanRemoveTable(tableName: string): void"
+            },
+            {
+              "name": "removeTable",
+              "jsdoc": "删除未被数据资源关系或 DataView 输入级联引用的数据表。\nfail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。",
+              "summary": "删除未被数据资源关系或 DataView 输入级联引用的数据表。",
+              "signature": "removeTable(tableName: string): void"
+            },
+            {
+              "name": "getCascade",
+              "jsdoc": "按唯一身份读取级联；旧 query 也可使用完整端点，歧义会报错。",
+              "summary": "按唯一身份读取级联；旧 query 也可使用完整端点，歧义会报错。",
+              "signature": "getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined"
+            },
+            {
+              "name": "addResourceRelation",
+              "jsdoc": "添加 DataResourceRelation（数据资源字段关系）。\n@throws 引用的表/字段不存在或关系已重复时抛 Error",
+              "summary": "添加 DataResourceRelation（数据资源字段关系）。",
+              "signature": "addResourceRelation(params: DataResourceRelationInput): DataResourceRelation"
+            },
+            {
+              "name": "updateResourceRelation",
+              "jsdoc": "更新 DataResourceRelation。\n若存在多个同 parentTable→childTable 的关系，必须显式指定 parentField/childField 消歧。",
+              "summary": "更新 DataResourceRelation。",
+              "signature": "updateResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }, updates: Partial<DataResourceRelation>): DataResourceRelation"
+            },
+            {
+              "name": "removeResourceRelation",
+              "jsdoc": "删除 DataResourceRelation。\n@throws 关系不存在时抛 Error",
+              "summary": "删除 DataResourceRelation。",
+              "signature": "removeResourceRelation(selector: {\n        parentTable: string;\n        childTable: string;\n        relationId?: string;\n        parentField?: string;\n        childField?: string;\n    }): void"
+            },
+            {
+              "name": "addCascade",
+              "jsdoc": "添加 DataViewCascade（DataView 输入级联）。\n@throws 级联引用非法或重复时抛 Error",
+              "summary": "添加 DataViewCascade（DataView 输入级联）。",
+              "signature": "addCascade(cascade: DataViewCascade): DataViewCascade"
+            },
+            {
+              "name": "updateCascade",
+              "jsdoc": "更新 DataViewCascade。\n资源关系与输入级联独立；这里只校验 DataView 端点和字段绑定。",
+              "summary": "更新 DataViewCascade。",
+              "signature": "updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade"
+            },
+            {
+              "name": "removeCascade",
+              "jsdoc": "删除 DataViewCascade。\n@throws 级联不存在时抛 Error",
+              "summary": "删除 DataViewCascade。",
+              "signature": "removeCascade(selector: DataViewCascadeSelector): void"
+            },
+            {
+              "name": "getFieldCascadeState",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState"
+            },
+            {
+              "name": "refreshFieldCascade",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState>"
+            },
+            {
+              "name": "onFieldCascadeChange",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void"
+            },
+            {
+              "name": "destroy",
+              "jsdoc": "销毁 DataSet 及其所有 DataTable/DataView 的资源。\n调用后：\n- 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n- 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n- 共享 HTTP 客户端引用被释放\n- 标记为已销毁，后续操作静默忽略\n使用场景：页面调用 dispose 时释放其拥有的 DataSet。",
+              "summary": "销毁 DataSet 及其所有 DataTable/DataView 的资源。",
+              "signature": "destroy(): void"
+            },
+            {
+              "name": "getTable",
+              "jsdoc": "获取数据表\n@param name 表名\n@returns 数据表实例",
+              "summary": "获取数据表",
+              "signature": "getTable(name: string): DataTable | undefined"
+            },
+            {
+              "name": "getView",
+              "jsdoc": "获取已存在的数据视图（不会创建新视图）",
+              "summary": "获取已存在的数据视图（不会创建新视图）",
+              "signature": "getView(tableName: string, viewId?: string): DataView | undefined"
+            },
+            {
+              "name": "saveChanges",
+              "jsdoc": "保存 DataSet 范围内的编辑态和 staged 变更。\n默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n场景视图先捕获请求配置与变更，再按原查询 owner 串行分组保存；各来源独立确认，不提供跨来源事务。\n中途抛错时已确认视图保留接纳结果，未确认视图保留变更，不返回汇总成功结果；本地 CRUD 视图按资源关系顺序提交。\n来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。",
+              "summary": "保存 DataSet 范围内的编辑态和 staged 变更。",
+              "signature": "saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>"
+            },
+            {
+              "name": "saveChangesInPhases",
+              "jsdoc": "按阶段顺序提交跨来源变更（如先数据库正式记录、再文件引用）；不提供事务。\n每阶段必须显式列出视图；前一阶段的视图全部确认且无待提交变更后才进入下一阶段。\n失败或结果未确认时停止并返回已执行阶段的回执；再次调用从首个仍有未确认或待提交变更的阶段继续，\n未确认提交交原执行器核验，不重放已完成阶段。",
+              "summary": "按阶段顺序提交跨来源变更（如先数据库正式记录、再文件引用）；不提供事务。",
+              "signature": "saveChangesInPhases(phases: readonly DataSetSaveChangesOptions[]): Promise<DataSetPhasedSaveResult>"
+            },
+            {
+              "name": "resolveUnconfirmedSaves",
+              "jsdoc": "经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。\n返回 none（没有待核验）、confirmed（原提交已生效）或 not-applied（原提交未生效，草稿保留）；仍无法确认时抛出原错误。",
+              "summary": "经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。",
+              "signature": "resolveUnconfirmedSaves(): Promise<\"none\" | \"confirmed\" | \"not-applied\">"
+            },
+            {
+              "name": "abandonUnconfirmedSaves",
+              "jsdoc": "调用方已自行回读比对时，明确放弃本实例未确认提交的核验；不撤销服务端写入，不丢弃草稿。\n执行器不支持放弃的视图（如文件资源）保持待核验，仍经原保存入口核验。",
+              "summary": "调用方已自行回读比对时，明确放弃本实例未确认提交的核验；不撤销服务端写入，不丢弃草稿。",
+              "signature": "abandonUnconfirmedSaves(): void"
+            },
+            {
+              "name": "discardAndReload",
+              "jsdoc": "明确丢弃指定视图的本地修改并放弃其未确认提交核验，再按给定顺序重新查询；不撤销服务端可能已生效的写入。\n查询级联子视图应一并列出，父视图在前。",
+              "summary": "明确丢弃指定视图的本地修改并放弃其未确认提交核验，再按给定顺序重新查询；不撤销服务端可能已生效的写入。",
+              "signature": "discardAndReload(options: DataSetDiscardAndReloadOptions): Promise<void>"
+            },
+            {
+              "name": "toJson",
+              "jsdoc": "序列化为 JSON 友好的元数据对象\n@returns 数据集元数据",
+              "summary": "序列化为 JSON 友好的元数据对象",
+              "signature": "toJson(): DataSetMetadata"
+            },
+            {
+              "name": "fromJson",
+              "jsdoc": "从 JSON 对象或 JSON 字符串创建数据集实例。\n支持：\n1. canonical DataSet 元数据对象\n2. pagedata.json 原始对象（任意 key-value）\n3. 上述两种结构的 JSON 字符串\n明确拒绝历史 `{ dataset: ... }` 包裹结构，避免模型层同时维护两套顶层事实源。\n@param json 数据集元数据对象、pagedata 原始对象或 JSON 字符串\n@returns 数据集实例",
+              "summary": "从 JSON 对象或 JSON 字符串创建数据集实例。",
+              "signature": "fromJson(json: DataSetMetadata | Record<string, unknown> | string): DataSet"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS relation: extends SparkAIModel\n * DTS relation: implements DataSetContract\n */\nData Set 的语义模型。\nclass DataSet {\n  创建数据集实例\n  @param config 数据集配置\n  constructor(config: DataSetConfig)\n  数据集名称\n  dataSetName: string\n  数据表集合\n  tables: Record<string, DataTable>\n  数据资源关系定义\n  resourceRelations: DataResourceRelation[]\n  DataView 输入级联定义\n  viewCascades: DataViewCascade[]\n  Schema 格式版本（默认 2），与数据集快照版本分别维护。\n  schemaVersion: number\n  SPARK 场景身份只读；变更时重新装配运行 DataSet。本地数据集为 undefined。\n  readonly scenarioId: string\n  数据集快照版本；commitSnapshot/restoreSnapshot 维护，不是后端数据写入的乐观锁。\n  version: number\n  页面ID\n  pageId: string\n  DataSet.saveChanges 的默认提交策略。\n  saveChangesConfig: DataSetSaveChangesConfig\n  设计器布局信息（不参与运行时数据逻辑）。\n  layout: unknown\n  M5: 共享 HTTP 客户端——所有 DataTable 的 CrudService 复用同一 HttpClientBase 实例。\n  由外部通过 `setSharedHttpClient(client)` 注入。未设置时各 CrudService 各自 createRequest()。\n  @internal\n  readonly _sharedHttpClient: HttpClientBase\n  @internal 页面运行时服务上下文（用于 URL 模板 tenant/project 占位参数解析）\n  readonly _appServices: DataSetAppServices\n  @internal 页面路由快照（页面运行时服务缺失时的作用域兜底）\n  readonly _pageRoute: unknown\n  活跃的 onAnyViewChange 订阅（handler + 每个视图的清理函数）。\n  当 DataTable.getOrCreateView() 创建新视图时，\n  DataSet._subscribeNewView() 自动为所有活跃订阅追加监听。\n  @internal\n  _activeViewSubs: { handlers: ViewChangeHandlers; unsubs: Map<DataView, Array<() => void>> }[]\n  活跃的 on('loadSuccess'|'loadError') 订阅追踪。\n  @internal\n  _activeOnSubs: { event: \"loadSuccess\" | \"loadError\"; handler: (payload: {\n              tableName: string;\n              viewId: string;\n              error?: Error;\n          }) => void; unsubs: Map<DataView, Array<() => void>> }[]\n  数据集是否已被销毁\n  readonly destroyed: boolean\n  对所有表的 default 视图触发 autoCurrentFirst / autoSelectFirst 初始选中逻辑。\n  必须在页面脚本（__init__）完成事件订阅**之后**调用，确保订阅者能收到\n  `currentRowChanged` 事件。渲染层在组件 mounted 钩子中、\n  `__init__` 执行完毕后调用此方法。\n  initAutoSelection(): void\n  注入共享 HTTP 客户端（M5）——所有 DataTable 的 CrudService 将复用该实例。\n  调用时机：DataSet 构建完成后、首次数据请求之前。\n  已创建的 CrudService 实例不受影响（它们保留初始化时的 HttpClientBase）。\n  @param client HttpClientBase 实例（通常由应用层 auth 模块创建，带统一拦截器）\n  setSharedHttpClient(client: HttpClientBase): void\n  设置 App Services。\n  setAppServices(appServices: DataSetAppServices): void\n  设置 Page Route。\n  setPageRoute(route: unknown): void\n  读取 Request Template Params。\n  getRequestTemplateParams(): Record<string, unknown>\n  订阅数据集级别的加载事件（覆盖所有已注册表的所有视图）\n  - `'loadSuccess'`：任一视图从服务器成功加载数据后触发\n  - `'loadError'`：任一视图加载失败后触发（payload.error 含错误对象）\n  @returns 取消订阅函数（页面卸载时调用以防内存泄漏）\n  @example ```js\n  const off = dataSet.on('loadSuccess', ({ tableName }) => {\n  ElMessage.success(`${tableName} 加载完成`)\n  })\n  // 资源释放时: off()\n  ```\n  on(event: \"loadSuccess\" | \"loadError\", handler: (payload: {\n          tableName: string;\n          viewId: string;\n          error?: Error;\n      }) => void): () => void\n  订阅此 DataSet 内任意视图的状态变化（替代全局 event-bus）。\n  接收 ViewChangeHandlers 映射，按需注册感兴趣的事件类型。\n  自动追踪：后续通过 getOrCreateView() 动态创建的视图也会被订阅。\n  作用域严格限定于本实例，不同页面的 DataSet 相互隔离。\n  @example ```ts\n  const off = dataSet.onAnyViewChange({\n  currentRowChanged(tableName, viewId, currentRow) { ... },\n  selectedRowsChanged(tableName, viewId, selectedRows) { ... },\n  cleared(tableName, viewId) { ... },\n  })\n  ```\n  onAnyViewChange(handlers: ViewChangeHandlers): () => void\n  将动态创建的视图注册到所有活跃订阅中。\n  由 DataTable.getOrCreateView() 在创建新视图时调用。\n  @internal\n  _subscribeNewView(view: DataView): void\n  @internal 视图销毁时立即释放其订阅闭包，保留其他视图的原订阅。\n  _unsubscribeView(view: DataView): void\n  触发所有标记了 `autoLoad: true` 的视图自动加载。\n  页面调用渲染层在构建 DataSet 后调用此方法；\n  业务脚本不再需要在 `__init__` 中手动写 `view.loadFromServer()`。\n  父视图依赖与在途请求复用由各视图的 requestData 编排。\n  triggerAutoLoad(): void\n  查询以指定 DataView 为源的目标级联（视图级索引）\n  @param parentTable 父表名\n  @param parentViewId 父视图ID\n  getChildCascades(parentTable: string, parentViewId: string): DataViewQueryCascade[]\n  查询以指定 DataView 为目标的源级联（视图级索引）\n  @param childTable 子表名\n  @param childViewId 子视图ID\n  getParentCascades(childTable: string, childViewId: string): DataViewQueryCascade[]\n  将 DataView 输入级联解析为目标视图过滤表达式。\n  resolveCascadeFilter(rel: DataViewQueryCascade): DataViewFilterTree | undefined | null\n  查询以指定资源为父的所有资源关系（聚合函数消费）\n  getResourceChildRelations(parentTable: string): DataResourceRelation[]\n  查询以指定资源为子的所有资源关系\n  getResourceParentRelations(childTable: string): DataResourceRelation[]\n  执行 replace From Json 操作。\n  replaceFromJson(json: DataSetMetadata | Record<string, unknown> | string): void\n  执行 list Snapshots 操作。\n  listSnapshots(options?: DataSetHistoryListOptions): DataSetHistorySnapshot[]\n  读取 Snapshot。\n  getSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListOptions): DataSetHistorySnapshot | null\n  执行 commit Snapshot 操作。\n  commitSnapshot(options?: DataSetCommitSnapshotOptions): DataSetHistorySnapshot\n  执行 restore Snapshot 操作。\n  restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListOptions): DataSetHistorySnapshot | null\n  动态添加一张表（含 default 视图）。\n  @returns 新建的 DataTable 实例\n  @throws 表名已存在时抛 Error\n  addTable(tableName: string, columns: DataColumn[]): DataTable\n  按需将原生表定义加入当前空间，保留模型绑定、资源、字段及命名视图配置。\n  不替换已有表/视图/草稿，不查询数据、不授予权限、不绑定查询或保存owner；调用方继续绑定该资源的正式owner。\n  新视图进入当前DataSet的订阅和释放链；重复表名、无效定义或已释放空间明确报错。\n  addTableFromJson(metadata: TableMetadata | Record<string, unknown>): DataTable\n  检查指定表能否删除，不改变 DataSet。\n  与 removeTable 共用完整 resourceRelations（含 filterExpression）及 viewCascades 引用校验。\n  @throws 表不存在或仍被关系/级联引用时抛 Error。\n  assertCanRemoveTable(tableName: string): void\n  删除未被数据资源关系或 DataView 输入级联引用的数据表。\n  fail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。\n  removeTable(tableName: string): void\n  按唯一身份读取级联；旧 query 也可使用完整端点，歧义会报错。\n  getCascade(selector: DataViewCascadeSelector): DataViewCascade | undefined\n  添加 DataResourceRelation（数据资源字段关系）。\n  @throws 引用的表/字段不存在或关系已重复时抛 Error\n  addResourceRelation(params: DataResourceRelationInput): DataResourceRelation\n  更新 DataResourceRelation。\n  若存在多个同 parentTable→childTable 的关系，必须显式指定 parentField/childField 消歧。\n  updateResourceRelation(selector: {\n          parentTable: string;\n          childTable: string;\n          relationId?: string;\n          parentField?: string;\n          childField?: string;\n      }, updates: Partial<DataResourceRelation>): DataResourceRelation\n  删除 DataResourceRelation。\n  @throws 关系不存在时抛 Error\n  removeResourceRelation(selector: {\n          parentTable: string;\n          childTable: string;\n          relationId?: string;\n          parentField?: string;\n          childField?: string;\n      }): void\n  添加 DataViewCascade（DataView 输入级联）。\n  @throws 级联引用非法或重复时抛 Error\n  addCascade(cascade: DataViewCascade): DataViewCascade\n  更新 DataViewCascade。\n  资源关系与输入级联独立；这里只校验 DataView 端点和字段绑定。\n  updateCascade(selector: DataViewCascadeSelector, updates: Partial<DataViewCascade>): DataViewCascade\n  删除 DataViewCascade。\n  @throws 级联不存在时抛 Error\n  removeCascade(selector: DataViewCascadeSelector): void\n  getFieldCascadeState(address: DataViewFieldCascadeAddress): DataViewFieldCascadeState\n  refreshFieldCascade(address: DataViewFieldCascadeAddress): Promise<DataViewFieldCascadeState>\n  onFieldCascadeChange(listener: (address: DataViewFieldCascadeAddress, state: DataViewFieldCascadeState) => void): () => void\n  销毁 DataSet 及其所有 DataTable/DataView 的资源。\n  调用后：\n  - 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n  - 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n  - 共享 HTTP 客户端引用被释放\n  - 标记为已销毁，后续操作静默忽略\n  使用场景：页面调用 dispose 时释放其拥有的 DataSet。\n  destroy(): void\n  获取数据表\n  @param name 表名\n  @returns 数据表实例\n  getTable(name: string): DataTable | undefined\n  获取已存在的数据视图（不会创建新视图）\n  getView(tableName: string, viewId?: string): DataView | undefined\n  保存 DataSet 范围内的编辑态和 staged 变更。\n  默认保存所有有变更视图；如果传入 views，则只保存指定视图/行。\n  场景视图先捕获请求配置与变更，再按原查询 owner 串行分组保存；各来源独立确认，不提供跨来源事务。\n  中途抛错时已确认视图保留接纳结果，未确认视图保留变更，不返回汇总成功结果；本地 CRUD 视图按资源关系顺序提交。\n  来源明确持有未知提交时，本轮仅核验所选视图的原捕获，不应用新编辑或派发其他视图；剩余修改须随后显式保存。\n  saveChanges(options?: DataSetSaveChangesOptions): Promise<CrudResult<DataSetSaveChangesResult>>\n  按阶段顺序提交跨来源变更（如先数据库正式记录、再文件引用）；不提供事务。\n  每阶段必须显式列出视图；前一阶段的视图全部确认且无待提交变更后才进入下一阶段。\n  失败或结果未确认时停止并返回已执行阶段的回执；再次调用从首个仍有未确认或待提交变更的阶段继续，\n  未确认提交交原执行器核验，不重放已完成阶段。\n  saveChangesInPhases(phases: readonly DataSetSaveChangesOptions[]): Promise<DataSetPhasedSaveResult>\n  经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。\n  返回 none（没有待核验）、confirmed（原提交已生效）或 not-applied（原提交未生效，草稿保留）；仍无法确认时抛出原错误。\n  resolveUnconfirmedSaves(): Promise<\"none\" | \"confirmed\" | \"not-applied\">\n  调用方已自行回读比对时，明确放弃本实例未确认提交的核验；不撤销服务端写入，不丢弃草稿。\n  执行器不支持放弃的视图（如文件资源）保持待核验，仍经原保存入口核验。\n  abandonUnconfirmedSaves(): void\n  明确丢弃指定视图的本地修改并放弃其未确认提交核验，再按给定顺序重新查询；不撤销服务端可能已生效的写入。\n  查询级联子视图应一并列出，父视图在前。\n  discardAndReload(options: DataSetDiscardAndReloadOptions): Promise<void>\n  序列化为 JSON 友好的元数据对象\n  @returns 数据集元数据\n  toJson(): DataSetMetadata\n  从 JSON 对象或 JSON 字符串创建数据集实例。\n  支持：\n  1. canonical DataSet 元数据对象\n  2. pagedata.json 原始对象（任意 key-value）\n  3. 上述两种结构的 JSON 字符串\n  明确拒绝历史 `{ dataset: ... }` 包裹结构，避免模型层同时维护两套顶层事实源。\n  @param json 数据集元数据对象、pagedata 原始对象或 JSON 字符串\n  @returns 数据集实例\n  fromJson(json: DataSetMetadata | Record<string, unknown> | string): DataSet\n}"
+  },
+  {
+    "kind": "ScenarioDefinitionRecords",
+    "catalog": {
+      "rootKind": "ScenarioDefinitionRecords",
+      "models": [
+        {
+          "kind": "ScenarioDefinitionRecords",
+          "name": "ScenarioDefinitionRecords",
+          "jsdoc": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。",
+          "summary": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ScenarioDefinitionRecords",
+      "models": [
+        {
+          "kind": "ScenarioDefinitionRecords",
+          "name": "ScenarioDefinitionRecords",
+          "jsdoc": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。",
+          "summary": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。",
+          "constructorSignature": {
+            "summary": "为一次保存捕获建立临时候选；不持有DataView草稿或文件owner。",
+            "jsdoc": "为一次保存捕获建立临时候选；不持有DataView草稿或文件owner。\n@param config 已校验的同空间提交基线，原配置保持不变。",
+            "signature": "constructor(config: ScenarioViewConfig)"
+          },
+          "attributes": [
+            {
+              "name": "resources",
+              "jsdoc": "正式C使用的资源标识；装配器按此表注入同一文件适配，不从URL推导文件路径。",
+              "summary": "正式C使用的资源标识；装配器按此表注入同一文件适配，不从URL推导文件路径。",
+              "typeText": "{ DataSpaceLayoutDefinition: unknown; DataTableBindingDefinition: unknown; DataViewDefinition: unknown; DataResourceRelationDefinition: unknown; DataViewCascadeDefinition: unknown }"
+            }
+          ],
+          "methods": [
+            {
+              "name": "validationScope",
+              "jsdoc": "按已修改的定义域选取正式模型校验范围；不同存储接线复用同一规则。",
+              "summary": "按已修改的定义域选取正式模型校验范围；不同存储接线复用同一规则。",
+              "signature": "validationScope(next: ScenarioViewConfig, previous: ScenarioViewConfig, resources: readonly string[]): ScenarioViewConfig | null"
+            },
+            {
+              "name": "read",
+              "jsdoc": "由已校验配置投影定义记录；记录不包含目标空间的运行数据。",
+              "summary": "由已校验配置投影定义记录；记录不包含目标空间的运行数据。",
+              "signature": "read(config: ScenarioViewConfig, resource: string, resolved?: readonly DataResourceRelation[]): DataRow[]"
+            },
+            {
+              "name": "readRows",
+              "jsdoc": "投影本次捕获已经合并的定义，供资源适配继续核对查询基线与冲突；尚未完成最终配置校验。\n@param resource 正式定义资源标识。\n@param resolved 已经完整读取并显式转换的旧关系。\n@returns 与候选隔离的定义记录，不包含运行数据或编辑状态。",
+              "summary": "投影本次捕获已经合并的定义，供资源适配继续核对查询基线与冲突；尚未完成最终配置校验。",
+              "signature": "readRows(resource: string, resolved?: readonly DataResourceRelation[]): DataRow[]"
+            },
+            {
+              "name": "write",
+              "jsdoc": "映射完整的已合并定义集合；合并、变更捕获和回执由DataView及资源适配负责。",
+              "summary": "映射完整的已合并定义集合；合并、变更捕获和回执由DataView及资源适配负责。",
+              "signature": "write(input: ScenarioDefinitionWriteInput): ScenarioViewConfig"
+            },
+            {
+              "name": "applyRows",
+              "jsdoc": "合并一个定义域的完整记录；仅供保存适配处理已捕获变更，最终必须调用toConfig校验。\n@param resource 正式定义资源标识；绑定先于其视图合并。\n@param rows 已按原查询基线完成冲突与字段写入检查的集合。\n@param legacyResolved 旧关系来源是否已经完整读取并显式转换，默认false。",
+              "summary": "合并一个定义域的完整记录；仅供保存适配处理已捕获变更，最终必须调用toConfig校验。",
+              "signature": "applyRows(resource: string, rows: readonly DataRow[], legacyResolved?: boolean): void"
+            },
+            {
+              "name": "toConfig",
+              "jsdoc": "全部捕获合并后校验最终配置，并消耗与正式关系端点一致的待配置连线。\n@returns 同空间不可变配置；失败不修改原配置或持久存储。",
+              "summary": "全部捕获合并后校验最终配置，并消耗与正式关系端点一致的待配置连线。",
+              "signature": "toConfig(): ScenarioViewConfig"
+            },
+            {
+              "name": "json",
+              "jsdoc": "拒绝不可持久化值，不能由JSON.stringify静默丢失函数或改写非有限数字。",
+              "summary": "拒绝不可持久化值，不能由JSON.stringify静默丢失函数或改写非有限数字。",
+              "signature": "json(value: unknown): string"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "文件定义资源的稳定身份；不是后端注册模型，也不是运行DataView的身份。\nclass ScenarioDefinitionRecords {\n  为一次保存捕获建立临时候选；不持有DataView草稿或文件owner。\n  @param config 已校验的同空间提交基线，原配置保持不变。\n  constructor(config: ScenarioViewConfig)\n  正式C使用的资源标识；装配器按此表注入同一文件适配，不从URL推导文件路径。\n  readonly resources: { DataSpaceLayoutDefinition: unknown; DataTableBindingDefinition: unknown; DataViewDefinition: unknown; DataResourceRelationDefinition: unknown; DataViewCascadeDefinition: unknown }\n  按已修改的定义域选取正式模型校验范围；不同存储接线复用同一规则。\n  validationScope(next: ScenarioViewConfig, previous: ScenarioViewConfig, resources: readonly string[]): ScenarioViewConfig | null\n  由已校验配置投影定义记录；记录不包含目标空间的运行数据。\n  read(config: ScenarioViewConfig, resource: string, resolved?: readonly DataResourceRelation[]): DataRow[]\n  投影本次捕获已经合并的定义，供资源适配继续核对查询基线与冲突；尚未完成最终配置校验。\n  @param resource 正式定义资源标识。\n  @param resolved 已经完整读取并显式转换的旧关系。\n  @returns 与候选隔离的定义记录，不包含运行数据或编辑状态。\n  readRows(resource: string, resolved?: readonly DataResourceRelation[]): DataRow[]\n  映射完整的已合并定义集合；合并、变更捕获和回执由DataView及资源适配负责。\n  write(input: ScenarioDefinitionWriteInput): ScenarioViewConfig\n  合并一个定义域的完整记录；仅供保存适配处理已捕获变更，最终必须调用toConfig校验。\n  @param resource 正式定义资源标识；绑定先于其视图合并。\n  @param rows 已按原查询基线完成冲突与字段写入检查的集合。\n  @param legacyResolved 旧关系来源是否已经完整读取并显式转换，默认false。\n  applyRows(resource: string, rows: readonly DataRow[], legacyResolved?: boolean): void\n  全部捕获合并后校验最终配置，并消耗与正式关系端点一致的待配置连线。\n  @returns 同空间不可变配置；失败不修改原配置或持久存储。\n  toConfig(): ScenarioViewConfig\n  拒绝不可持久化值，不能由JSON.stringify静默丢失函数或改写非有限数字。\n  json(value: unknown): string\n}"
+  }
+]

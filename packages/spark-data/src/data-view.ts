@@ -432,7 +432,7 @@ viewId: string
     this._resultStale = true
     this.setRequestState(RequestState.Idle)
     this.emitConfigChanged()
-    if (parentChanged && this.dataSet) {
+    if (parentChanged && this._dataTable?.dataSet) {
       if (this.currentLoadRequestId > 0 || this.#queryResult || this.rows.length > 0) this.resetState()
       this.cascade.setupCascade()
     }

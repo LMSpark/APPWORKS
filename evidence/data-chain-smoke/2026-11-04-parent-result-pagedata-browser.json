@@ -1,0 +1,237 @@
+{
+  "status": "observed",
+  "marker": "SMOKE_DCPP_1793760832909",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "savedFileHash": "cc2ea1cb7bf7d570ce80148fbd3c9bc87d2a581ffeb668f3289cecf78ae35fb8",
+  "source": "actual service pagedata through definition DataView, then scoped original loader and standard tables",
+  "documentReadCounts": [
+    18,
+    17
+  ],
+  "writes": 0,
+  "observations": [
+    {
+      "name": "independent-reopen",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_DCPP_1793760832909Parent",
+          "SMOKE_DCPP_1793760832909Child",
+          "SMOKE_DCPP_1793760832909Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_DCPP_1793760832909_CHILD",
+          "label": "SMOKE_DCPP_1793760832909_CHILD",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 4,
+          "state": 3,
+          "current": "rowid",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "other": {
+          "rows": 1,
+          "state": 3,
+          "current": "Name",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "name": "switched-parent-no-http",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_DCPP_1793760832909Parent",
+          "SMOKE_DCPP_1793760832909Child",
+          "SMOKE_DCPP_1793760832909Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_DCPP_1793760832909_PARENT",
+          "label": "SMOKE_DCPP_1793760832909_PARENT",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 3,
+          "state": 3,
+          "current": "Name",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "other": {
+          "rows": 1,
+          "state": 3,
+          "current": "Name",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "name": "independent-child-pointer",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_DCPP_1793760832909Parent",
+          "SMOKE_DCPP_1793760832909Child",
+          "SMOKE_DCPP_1793760832909Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_DCPP_1793760832909_PARENT",
+          "label": "SMOKE_DCPP_1793760832909_PARENT",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 3,
+          "state": 3,
+          "current": "lingma_sys_ent",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "other": {
+          "rows": 1,
+          "state": 3,
+          "current": "Name",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "name": "empty-parent-no-http",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_DCPP_1793760832909Parent",
+          "SMOKE_DCPP_1793760832909Child",
+          "SMOKE_DCPP_1793760832909Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": null,
+          "label": null,
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 0,
+          "state": 3,
+          "current": null,
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "other": {
+          "rows": 0,
+          "state": 3,
+          "current": null,
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "name": "parent-refresh-one-http",
+      "summary": {
+        "reads": 18,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_DCPP_1793760832909Parent",
+          "SMOKE_DCPP_1793760832909Child",
+          "SMOKE_DCPP_1793760832909Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_DCPP_1793760832909_CHILD",
+          "label": "SMOKE_DCPP_1793760832909_CHILD",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 4,
+          "state": 3,
+          "current": "rowid",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "other": {
+          "rows": 1,
+          "state": 3,
+          "current": "Name",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "name": "new-document-service-reopen",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_DCPP_1793760832909Parent",
+          "SMOKE_DCPP_1793760832909Child",
+          "SMOKE_DCPP_1793760832909Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_DCPP_1793760832909_CHILD",
+          "label": "SMOKE_DCPP_1793760832909_CHILD",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 4,
+          "state": 3,
+          "current": "rowid",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "other": {
+          "rows": 1,
+          "state": 3,
+          "current": "Name",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    }
+  ],
+  "limitation": "diagnostic standard-table harness, not full reference-page acceptance; initial browser login lacked session and was restored through normal form; fullPage screenshot unavailable, viewport screenshot saved"
+}

@@ -529,3 +529,41 @@ it('rejects independent child sort and filter commands before changing accepted 
     expect(http.calls).toHaveLength(1)
   }
 })
+
+
+it('restores named parentResult views before their DataTable and DataSet are attached', () => {
+  const {ds} = parentResultViews(false)
+  const json = ds.toJson()
+  for (const table of Object.values(json.tables)) {
+    const saved = table.views.default!
+    table.views = {default: {}, smoke: {...saved, viewId: 'smoke', ...(saved.queryConfig?.parentResult ? {
+      queryConfig: {...saved.queryConfig, parentResult: {...saved.queryConfig.parentResult, dataViewKey: 'SPACE@Orders@smoke'}},
+    } : {})}}
+  }
+  json.tables = Object.fromEntries(Object.entries(json.tables).reverse())
+  const restored = DataSet.fromJson(json)
+  try {
+    const child = restored.getView('DetailConfig', 'smoke')!
+    expect(child.dataTable).toBe(restored.getTable('DetailConfig'))
+    expect(child.dataSet).toBe(restored)
+    expect(child.queryConfig.parentResult?.dataViewKey).toBe('SPACE@Orders@smoke')
+  } finally {restored.destroy()}
+})
+
+
+it.each(['scope', 'missing', 'identity', 'cycle'] as const)('still rejects invalid named parentResult %s after native attachment', kind => {
+  const {ds} = parentResultViews(false), json = ds.toJson()
+  for (const table of Object.values(json.tables)) {
+    const saved = table.views.default!
+    table.views = {default: {}, smoke: {...saved, viewId: 'smoke', ...(saved.queryConfig?.parentResult ? {
+      queryConfig: {...saved.queryConfig, parentResult: {...saved.queryConfig.parentResult, dataViewKey: 'SPACE@Orders@smoke'}},
+    } : {})}}
+  }
+  const child = json.tables.DetailConfig!.views.smoke!, parent = json.tables.RootConfig!.views.smoke!
+  const source = child.queryConfig!.parentResult!
+  if (kind === 'scope') child.queryConfig = {...child.queryConfig, parentResult: {...source, dataViewKey: 'OTHER@Orders@smoke'}}
+  if (kind === 'missing') child.queryConfig = {...child.queryConfig, parentResult: {...source, dataViewKey: 'SPACE@Orders@missing'}}
+  if (kind === 'identity') child.queryConfig = {...child.queryConfig, parentResult: {...source, childModelName: 'Other'}}
+  if (kind === 'cycle') parent.queryConfig = {pagination: 'none', autoQuery: false, parentResult: {dataViewKey: 'SPACE@Details@smoke', childModelName: 'Orders'}}
+  expect(() => DataSet.fromJson(json)).toThrow(kind === 'scope' ? 'PARENT_SCOPE' : kind === 'identity' ? 'PARENT_MODEL' : kind === 'cycle' ? 'PARENT_CYCLE' : 'PARENT_SOURCE')
+})

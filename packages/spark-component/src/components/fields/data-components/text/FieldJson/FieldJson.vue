@@ -21,7 +21,7 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
         :schema="props.schema" :value-label="props.valueLabel" :height="height" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonArrayRows v-else-if="mode === 'rows'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
         :children="props.children" :height="height" :max-height="props.maxHeight" :row-edit-mode="props.rowEditMode"
-        :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
+        :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :row-operations="props.rowOperations" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonTreeEditor v-else-if="mode === 'tree'" :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
         :height="height" v-bind="treePolicy ? {policy:treePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
       <SparkJsonEditor v-else :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
@@ -115,6 +115,7 @@ watch([permission.dataSource,()=>{const row=permission.currentRow.value;return r
 watch(() => JSON.stringify(props.valuePath ?? []), resetEditor, {flush:'sync'})
 watch(() => props.rowAdapter, resetEditor, {flush:'sync'})
 watch(() => props.rowEditMode, resetEditor, {flush:'sync'})
+watch(() => JSON.stringify(props.rowOperations), resetEditor, {flush:'sync'})
 onBeforeUnmount(()=>{revision.value++;if(completeMode.value)props.onEditingChange?.(false)})
 const writeForRevision=computed(()=>{
   const own=revision.value, valid=permission.captureWriteGuard()

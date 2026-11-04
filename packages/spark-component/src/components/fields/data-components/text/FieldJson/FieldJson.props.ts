@@ -55,6 +55,8 @@ export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   reorderable?: boolean
   /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */
   rowAdapter?: JsonArrayRowAdapter
+  /** rows模式允许的行操作；省略允许新增、编辑、删除，空数组全部禁止。只进一步限制原字段权限，不产生授权。变化时撤销未确认的行输入，旧事件失效；已派发的原字段提交不承诺回滚。重排仍由reorderable独立控制。 */
+  rowOperations?: Array<'create' | 'edit' | 'delete'>
   /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */
   rowEditMode?: 'row' | 'inline'
   /** rows模式有未确认行编辑或等待原字段写入时通知宿主；inline只在排队写入期间为true。form/properties模式有未确认文本（含被拒输入及嵌套成员）或等待写回时为true。tree/text/table模式将内容输入、等待原字段接纳和被拒内容合并报告；底层编辑器的搜索/筛选不算数据编辑。等待期间锁定后续输入；接纳后恢复false，被拒内容可继续纠正或明确取消，取消恢复原字段的当前值且旧事件失效。宿主可阻止切换及保存，但须允许当前输入继续纠正。多个编辑器的宿主按各自身份汇总状态。取消当前行、换绑定、失权和释放后通知false；旧异步回调不清除新上下文的输入状态。不表示已提交后端。 */

@@ -63,8 +63,13 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
               <FieldText field="node_type" label="节点类型" :readonly="true" />
               <FieldText field="dataOperateModId" label="数据模型" :readonly="true" />
               <FieldJson v-if="isMergeNode" field="input_mapping" label="合并输入层级" mode="outline" outline-id-field="rowid" outline-parent-field="pid"
-                :children="mergeInputFields" :readonly="true" />
-              <FieldJson field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
+                :children="mergeInputFields" :readonly="true" :selected-path="mergePath" :on-selected-path-change="selectMergePath" />
+              <template v-if="isMergeNode && mergePath">
+                <FieldJson field="input_mapping" label="合并来源字段" mode="rows" :value-path="[...mergePath,'Fields']" :children="mergeFields"
+                  :row-operations="mergeFieldOperations" :readonly="locked" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
+                <RendererButton label="返回输入映射原文" :disabled="pendingPart('nodes')" @click="selectMergePath(null)" />
+              </template>
+              <FieldJson v-else field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
               <FieldJson field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
               <FieldText field="node_config" label="查询模型ID" :readonly="true" />
               <FieldJson field="config" :label="isCopyNode ? '迁移目标配置' : '操作配置'" mode="text" :readonly="locked" :on-change="validateNodeConfig" :on-editing-change="value => pending('nodes.operation',value)" />
@@ -130,7 +135,7 @@ import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {parseJsonDocument,type JsonPath} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
@@ -195,6 +200,14 @@ const startUnconfirmed=computed(()=>{revision.value;return view('Base_DataSet')?
 const parameterAdapter=computed(()=>workflowStartParameterAdapter(String(selectedNode.value?.['name']??'开始')))
 const parameterFields:SparkNode[]=Object.entries({Name:'参数名称',FieldType:'数据类型',Value:'默认值',Description:'参数说明'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
 const mergeInputFields:SparkNode[]=Object.entries({Name:'输入节点',JoinType:'连接类型'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
+const mergePath=ref<JsonPath|null>(null),mergeFieldOperations:Array<'edit'>=['edit']
+const mergeFields:SparkNode[]=[
+ ...Object.entries({Name:'字段名称',FieldType:'字段类型'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}})),
+ {type:'r-text',props:{field:'AsName',label:'输出名称'}},
+ {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0}},
+ {type:'r-text',props:{field:'Description',label:'字段说明'}},
+]
+function selectMergePath(path:JsonPath|null):void{if(path===null||!pendingPart('nodes'))mergePath.value=path===null?null:[...path]}
 function nodeModelId(row:DataRow):string{
  const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
  if(nodes.fieldAccess(row,'position_type').read!=='visible')throw new Error('节点位置类型不可读')
@@ -214,6 +227,7 @@ const isCopyNode=computed(()=>{revision.value;const target=view(nodesTable),row=
 const isMergeNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='merge'})
 const isOperationNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['add','edit','delete'].includes(String(row['node_type']))})
 const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
+watch([selectedQueryId,loadedTarget],()=>{mergePath.value=null},{flush:'sync'})
 const modelFields=computed<SparkNode[]>(()=>[
  {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
  {type:'r-text',props:{field:'AsName',label:'输出名称',readonly:true}},

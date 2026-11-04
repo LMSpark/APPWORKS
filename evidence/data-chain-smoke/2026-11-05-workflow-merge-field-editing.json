@@ -1,0 +1,105 @@
+{
+  "date": "2026-11-05",
+  "baseCommit": "c83849a74c2ab75f010ab562af753b4500c8c1df",
+  "scope": "Standard JSON row operation subset and editing existing merge input fields through the original DataView JSON path",
+  "sourceHashes": [
+    {
+      "path": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
+      "sha256": "0427e271821ad47fa6930f8df0aa25416d0fdbb4b9ff9bc34cfb6ca4298d058b"
+    },
+    {
+      "path": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
+      "sha256": "cd7cff2b736a75bc0545814df4abb1e9b8b945b871e84ed68db2bfa0ebeb511e"
+    },
+    {
+      "path": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue",
+      "sha256": "00815a40e22e7a06c6568111114d28824b0c09f2872f658950977d4bc222f882"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "23404cd02136590d2ab917497b80366085be11b14ee71e677c148cea8e38671c"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "8fb8cb03ab76726d85463b454887f8ff0890602ef54ea777c68537bdb4c2778b"
+    },
+    {
+      "path": "tests/ui/field/text/field-json-rows.test.ts",
+      "sha256": "8e687e3641fa59905a6fd2b58ab0b13b6261635ee460a3923fb5c8843aef7321"
+    }
+  ],
+  "validation": {
+    "regression": {
+      "files": 24,
+      "tests": 459,
+      "passed": true
+    },
+    "classModelContract": {
+      "files": 4,
+      "tests": 49,
+      "passed": true
+    },
+    "typecheck": true,
+    "lint": true,
+    "frontendBuild": true,
+    "classModelGenerationSeconds": 47.085,
+    "semanticGapCount": 3639,
+    "semanticGate": 679,
+    "newSemanticGaps": [],
+    "existingCodegenViolations": 26,
+    "logs": [
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-regression.log",
+        "sha256": "a931599d07eb5cd7888334707468a5aac887ce22572281cca33862ea23299bf8"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-typecheck.log",
+        "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-class-model.log",
+        "sha256": "5f33c938bdd1508d708d5dc4b0f7e46212fcd69489840d550fa9ef31a62c680e"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-lint.log",
+        "sha256": "93000dc4e1c979aeb0688524c3e9cfb6cf64f48d623cf662973b87012c61525e"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-build.log",
+        "sha256": "e067dd34511548074e2b9e4ee4fb9a0b6f13e37f6b38a3696ad0fb95e84423ca"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-guides.log",
+        "sha256": "43f3cd4e8732c40d426cd5ac941770682f326e092541f4cb39f741db18c84088"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-schema.log",
+        "sha256": "abb8c9527445ad89022065828e9e05cd5cf605aaa338d3abd096103e54a41763"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-contract.log",
+        "sha256": "e7901a15fa0a67bcc732e855559dbe9f2a52c786bb39c75a2b568c2d41879669"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-fields-final-codegen.log",
+        "sha256": "2ea822c172ad21293a19e59bc93828ce62452334a588f5d8c7af6fc25731d5f2"
+      }
+    ]
+  },
+  "behavior": [
+    "Default row operations unchanged; edit-only disables create/delete including direct component events",
+    "Operation changes cancel pending inputs and invalidate old context",
+    "Selected merge Fields edit aliases, output 1/0, and descriptions; identities and unknown data preserved",
+    "Cancel writes nothing; save and independent mounted reopen retain edits",
+    "Pending row input rejects source switching; target/node switch clears selection"
+  ],
+  "review": "Independent read-only standard and consumer reviews: no confirmed Important/Critical findings",
+  "newServiceWrites": 0,
+  "newFixtures": 0,
+  "limitations": [
+    "Mounted fixture CRUD is not live service CRUD or real browser 1:1",
+    "Source add/delete, join editing and output generation remain unfinished",
+    "Previously evidenced merge service projection and join mismatches remain open",
+    "Whole 20-package goal remains active; whole repository verify not claimed"
+  ]
+}

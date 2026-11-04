@@ -6102,3 +6102,13 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 
 - 2026-11-05最终收尾：标准平面JSON层级及工作流只读consumer共4生产/2测试文件；同一nodesKey/input_mapping，无新查询、草稿或保存owner。新增页用例先RED后GREEN；最终24文件455项通过（90.22秒）、根typecheck、6文件lint及前端构建5.20秒exit0。ClassModel正式再生成58.778秒、4文件49合同测试、属性指南及schema通过；继承dataViewKey沿SparkFieldSemanticProps声明查询。恢复124份完整JSON语义等价噪声，保留6份真实生成变更；语义缺口3641→3639、门禁681→679、无新增。编码规则仍26既有违规，未重跑8082全量，不称全仓verify通过。
 - 独立只读复核标准能力与consumer均无确认Important/Critical。证据evidence/data-chain-smoke/2026-11-05-json-flat-outline-binding.json含6源码及最终日志哈希；挂载测试不冒称浏览器1:1，无新实服夹具。完整merge来源/字段/连接编辑、实服投影及连接差距和20业务包继续开放。用户确认三条均沉淀，核对knowledge/page-design.md既有三条完整并追加确认说明，避免重复。
+
+### 2026-11-05 merge选中项编辑的后续实施
+
+- 固定参考node-panel源码已核：Fields[].IsOutput以1/0保存，AsName/Description属于选中输入的字段配置；参考mergeSelectedDraft/mergeItems双份状态不迁入。按原DataView字段的selectedPath/valuePath接入，先证明取消、保存重开和未知成员保留。
+- 已确认标准缺口：JsonArrayRows当前总是提供新增/删除，rowAdapter.canEdit仅限制新增/编辑而不限制删除，不能用它假称固定来源字段不可增删。下一步先为标准rows补明确操作集合，覆盖界面及实际命令/inline守卫、动态收窄和旧事件；刷新ClassModel后供merge固定来源字段复用。沿同一台账推进，不另起计划，不新增业务owner。
+
+- 实施结果：标准FieldJson新增rowOperations（默认原三操作、空集合全禁、重排独立），JsonArrayRows同时约束界面、实际命令及inline字段；操作集合变化重置未确认上下文，不能扩大原DataView权限或承诺回滚已派发提交。3新增标准用例覆盖固定来源编辑、绕过disabled按钮直接发事件及inline禁改/允许删除；初RED验证新增按钮仍可用，后29项通过。测试曾错误要求只读字段无input，实际组件可呈现disabled input，已按真实合同修正，不改产品只读规则。
+- merge选中项字段已沿原input_mapping与valuePath=[选中下标,Fields]接线，UI只保存选择路径；无新增业务草稿、查询或保存owner。Name/FieldType只读，AsName/IsOutput(1/0)/Description可改，来源字段禁止新增删除。未确认行输入期间拒绝切换，节点/空间切换清路径；高级原文编辑与选中编辑互斥。页用例先RED后GREEN，确认取消无写、保存/挂载重开、未知成员/兄弟输入/原字段身份保留；实际服务配置生命周期尚未补验，不冒称浏览器或实服成功。
+- 标准能力及consumer分别独立只读复核，无确认Important/Critical；正式ClassModel生成47.085秒，新增属性按RJsonProps查询，继承children沿SparkNodeProps、dataViewKey沿SparkFieldSemanticProps查询。125份完整JSON语义等价噪声恢复，仅2份真实生成变更；未手改合同。最终整组回归、typecheck等收尾结果以workflow-merge-fields-*日志和后续证据为准。完整来源增删、连接编辑、输出生成、merge实服差距及20业务包继续开放，无新实服夹具。
+- 最终检查点：24文件459项通过（67.14秒），根typecheck、6文件lint、前端构建5.62秒exit0；4文件49项ClassModel合同测试及指南schema通过。语义缺口3639、门禁679均未新增；编码规则仍26既有违规，不称全仓verify通过。证据evidence/data-chain-smoke/2026-11-05-workflow-merge-field-editing.json保存最终6源码及9日志哈希。未重复此前8082全量，未创建或重放实服夹具；下一轮继续来源/连接/输出及新配置实服生命周期，不缩减完整目标。

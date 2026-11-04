@@ -37,6 +37,42 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('edits selected merge source fields through the original JSON path, cancels, saves and reopens without changing source identities',async()=>{
+  const mapping=JSON.stringify([{rowid:'PARENT',Name:'根输入',Fields:[],unknown:0},{rowid:'CHILD',pid:'PARENT',Name:'子输入',JoinType:'INNER',Fields:[{rowid:'F1',Name:'name',AsName:'before',FieldType:'string',IsOutput:1,Description:'保留',unknown:{keep:true}}],unknown:{keep:true}}])
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',position_type:1,node_type:'merge',input_mapping:mapping,output_mapping:'[]'}]
+  state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  const select=async()=>{
+   const tree=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('mode')==='outline')!
+   await vi.waitFor(()=>expect(tree.findAll('tbody tr')).toHaveLength(2));await tree.findAll('tbody tr')[1]!.trigger('click');await flushPromises()
+   const fields=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='合并来源字段')!
+   expect(fields).toBeDefined();expect(fields.props('valuePath')).toEqual([1,'Fields']);expect(fields.props('rowOperations')).toEqual(['edit'])
+   return fields
+  }
+  const change=async(value:string)=>{
+   const fields=await select();await fields.get('tbody tr').trigger('click');await fields.get('[data-json-edit]').trigger('click');await flushPromises()
+   expect(fields.get('[data-json-add]').attributes('disabled')).toBeDefined();expect(fields.get('[data-json-delete]').attributes('disabled')).toBeDefined()
+   expect(fields.get('tbody td:first-child input').attributes('disabled')).toBeDefined()
+   const tree=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('mode')==='outline')!
+   await tree.findAll('tbody tr')[0]!.trigger('click');await flushPromises()
+   expect(fields.props('valuePath')).toEqual([1,'Fields'])
+   expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='返回输入映射原文')?.props('disabled')).toBe(true)
+   await fields.get('tbody td:nth-child(3) input').setValue(value)
+   await fields.get('tbody input[type="checkbox"]').setValue(false)
+   await fields.get('tbody td:nth-child(5) input').setValue(value+'说明')
+   await flushPromises();await fields.get('[data-json-save-row]').trigger('click');await flushPromises()
+  }
+  await change('cancelled');expect(state.dirty[0]?.isDirty).toBe(true);expect(state.http.saves).toEqual([])
+  await f.click('取消节点修改');expect(state.dirty[0]?.isDirty).toBe(false);expect(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']).toBe(mapping)
+  await change('after');await f.click('保存节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(1))
+  const saved=JSON.parse(String(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']))
+  expect(saved[0]).toEqual(JSON.parse(mapping)[0]);expect(saved[1]).toEqual({...JSON.parse(mapping)[1],Fields:[{...JSON.parse(mapping)[1].Fields[0],AsName:'after',IsOutput:0,Description:'after说明'}]})
+  const reopened=await open();await vi.waitFor(()=>expect(reopened.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  reopened.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  const tree=reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('mode')==='outline')!;await tree.findAll('tbody tr')[1]!.trigger('click');await flushPromises()
+  expect(reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='合并来源字段')!.text()).toContain('after')
+ })
  it('renders merge input hierarchy from the original bound node JSON without creating edits',async()=>{
   const mapping=JSON.stringify([{rowid:'CHILD',pid:'PARENT',Name:'子输入',JoinType:'INNER',Fields:[],unknown:{keep:true}},{rowid:'PARENT',Name:'根输入',Fields:[]}])
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',position_type:1,node_type:'merge',node_config:'',input_mapping:mapping,output_mapping:'[]'},

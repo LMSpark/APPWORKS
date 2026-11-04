@@ -18,10 +18,10 @@ async function fixture(value = '[{"name":"first","count":2,"active":false,"extra
     views:{default:{commitMode:'staged',rows:[{id:'a',items:value},{id:'b',items:'[]'}]}}}}})
   const runtime = new PageRuntime({pageId:'array-test',scenarioIds:['S'],loadScenario:async()=>ds}); await runtime.load(); runtimes.push(runtime)
   const view=ds.getView('Models')!; view.setCurrentRowById('a')
-  const readonly=ref(false), pending=ref(false)
+  const readonly=ref(false), pending=ref(false), operations=ref<Array<'create'|'edit'|'delete'>|undefined>()
   const host=defineComponent({setup(){useSparkComponent({type:'array-test'}).sparkProvide(PAGE_RUNTIME,runtime)
     return()=>h(RendererForm,{autoColumns:false,showDataViewMeta:false,dataViewKey:'S@Models@default',children:[
-      {type:'r-json',props:{field:'items',label:'数组',mode:'rows',reorderable,rowAdapter,rowEditMode,readonly:readonly.value,...onChange?{onChange}:{},onEditingChange:(v:boolean)=>{pending.value=v}},children:[
+      {type:'r-json',props:{field:'items',label:'数组',mode:'rows',reorderable,rowAdapter,rowEditMode,rowOperations:operations.value,readonly:readonly.value,...onChange?{onChange}:{},onEditingChange:(v:boolean)=>{pending.value=v}},children:[
         {type:'r-text',props:{field:'name',label:'名称',onChange:onTextChange}},{type:'r-number',props:{field:'count',label:'数量'}},
         {type:'r-checkbox',props:{field:'active',label:'启用'}},
       ]},
@@ -29,9 +29,40 @@ async function fixture(value = '[{"name":"first","count":2,"active":false,"extra
   const stubs={...config.global.stubs}; for(const key of ['SparkComponentRenderer','spark-component-renderer','el-button','el-table','el-table-column'])delete stubs[key]
   config.global.stubs=stubs
   const wrapper=mount(host,{attachTo:document.body,global:{plugins:[ElementPlus,Spark.createPlugin()],stubs}})
-  wrappers.push(wrapper);await flushPromises();return{wrapper,view,readonly,pending}
+  wrappers.push(wrapper);await flushPromises();return{wrapper,view,readonly,pending,operations}
 }
 describe('standard JSON array rows',()=>{
+  it('rejects disabled create and delete commands even when component events bypass disabled buttons',async()=>{
+    const f=await fixture();f.operations.value=['edit'];await flushPromises()
+    await f.wrapper.get('tbody tr').trigger('click')
+    for(const name of ['data-json-add','data-json-delete']){
+      const button=f.wrapper.findAllComponents(ElButton).find(b=>Object.hasOwn(b.attributes(),name))!
+      button.vm.$emit('click',new MouseEvent('click'));await flushPromises()
+    }
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.pending.value).toBe(false)
+    expect(f.wrapper.findAll('tbody tr')).toHaveLength(1)
+    expect(f.view.rows[0]?.['items']).toContain('first')
+  })
+  it('keeps inline fields read-only when editing is excluded without blocking permitted row deletion',async()=>{
+    const f=await fixture(undefined,undefined,false,undefined,'inline');f.operations.value=['delete'];await flushPromises()
+    expect(f.wrapper.findAll('tbody td:first-child input').every(input=>input.attributes('disabled')!==undefined)).toBe(true)
+    await f.wrapper.get('tbody tr').trigger('click');await f.wrapper.get('[data-json-delete]').trigger('click');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['items']).toBe('[]')
+  })
+  it('limits fixed source rows to editing and cancels pending edits when operations narrow',async()=>{
+    const f=await fixture();f.operations.value=['edit'];await flushPromises()
+    expect(f.wrapper.get('[data-json-add]').attributes('disabled')).toBeDefined()
+    await f.wrapper.get('tbody tr').trigger('click')
+    expect(f.wrapper.get('[data-json-delete]').attributes('disabled')).toBeDefined()
+    await f.wrapper.get('[data-json-edit]').trigger('click');await flushPromises()
+    await f.wrapper.get('tbody td:first-child input').setValue('discarded');await flushPromises()
+    expect(f.pending.value).toBe(true)
+    f.operations.value=[];await flushPromises()
+    expect(f.pending.value).toBe(false);expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.wrapper.get('[data-json-edit]').attributes('disabled')).toBeDefined()
+    expect(f.wrapper.findAll('tbody td:first-child input').every(input=>input.attributes('disabled')!==undefined)).toBe(true)
+    expect(f.view.rows[0]?.['items']).toContain('first')
+  })
   it('serializes rapid inline inputs across rows and fields without replacing the focused input',async()=>{
     let release=()=>{}
     const wait=new Promise<void>(resolve=>{release=resolve}), writes:string[]=[]

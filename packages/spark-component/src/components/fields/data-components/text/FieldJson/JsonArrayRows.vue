@@ -9,7 +9,7 @@ AI用途：通过r-json mode=rows使用，不在业务页面复制数组编辑�
     <div class="json-array-toolbar">
       <el-button data-json-add type="primary" :disabled="locked || editing !== null || !canEdit(undefined)" @click="begin(true)">新增</el-button>
       <el-button v-if="!inline" data-json-edit :disabled="locked || selectedIndex < 0 || editing !== null || !canEdit(selected)" @click="begin(false)">编辑</el-button>
-      <el-button data-json-delete type="danger" :disabled="locked || selectedIndex < 0 || editing !== null" @click="remove">删除</el-button>
+      <el-button data-json-delete type="danger" :disabled="locked || selectedIndex < 0 || editing !== null || !allowed('delete')" @click="remove">删除</el-button>
       <el-button v-if="!inline" data-json-save-row type="success" :disabled="locked || editing === null" @click="save">保存</el-button>
       <el-button v-if="!inline" data-json-cancel-row :disabled="editing === null || committing" @click="cancel">取消</el-button>
       <el-button v-if="reorderable" data-json-move-up :disabled="locked || editing !== null || selectedIndex <= 0" @click="move(-1)">上移</el-button>
@@ -50,6 +50,8 @@ const props = defineProps<{
   modelValue: string
   /** 原字段权限及业务限制，局部视图不能扩大许可。 */
   readOnly: boolean
+  /** 原字段允许的行操作子集；省略保持全部，不能扩大原字段权限。 */
+  rowOperations?: Array<'create'|'edit'|'delete'> | undefined
   /** 数组字段按标准子组件描述；未声明的属性保留。 */
   children?: SparkNodeChildren | undefined
   /** 表格高度。 */
@@ -128,10 +130,11 @@ function object(value: unknown): DataRow {
   return json
 }
 function canEdit(id: string | null | undefined): boolean {
-  if (id === null) return false
+  if (id === null || !allowed(id === undefined ? 'create' : 'edit')) return false
   try {return props.rowAdapter?.canEdit?.(id === undefined ? undefined : object(originals.get(id))) ?? true}
   catch {return false}
 }
+function allowed(operation:'create'|'edit'|'delete'):boolean{return props.rowOperations === undefined || props.rowOperations.includes(operation)}
 function reset(): void {
   editing.value = null; selected.value = null; added = false; error.value = ''
   dataSet.value?.destroy(); dataSet.value = undefined
@@ -210,7 +213,7 @@ async function save(): Promise<void> {
   } catch (cause) {message.value = cause instanceof Error ? cause.message : String(cause)}
 }
 async function remove(): Promise<void> {
-  if (locked.value || editing.value !== null || selectedIndex.value < 0 || !view.value) return
+  if (locked.value || editing.value !== null || selectedIndex.value < 0 || !view.value || !allowed('delete')) return
   await publish(serialize(view.value.rows.filter(row => row[rowKey] !== selected.value)))
 }
 async function move(offset: -1 | 1): Promise<void> {
@@ -234,6 +237,7 @@ function display(value: unknown): string {return value === undefined ? '' : type
 watch(() => props.modelValue, value => {if (!inline.value || echo === undefined || value !== echo) reset()}, {immediate:true,flush:'sync'})
 watch(() => JSON.stringify(fields.value), reset, {flush:'sync'})
 watch(() => props.readOnly, value => {if(value) cancel()}, {flush:'sync'})
+watch(() => JSON.stringify(props.rowOperations), reset, {flush:'sync'})
 watch(() => editing.value !== null || committing.value || queued.value > 0, value => {if(active)emit('editing-change',value)}, {flush:'sync'})
 onBeforeUnmount(() => {active=false;if(editing.value !== null || committing.value || queued.value > 0) emit('editing-change',false);dataSet.value?.destroy()})
 </script>

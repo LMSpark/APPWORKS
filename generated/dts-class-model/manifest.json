@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1040,
+  "scannedFileCount": 1041,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -3545,7 +3545,7 @@
         "sourceFile": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue",
         "packageName": "@spark-appworks/spark-component",
         "modulePath": "components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression",
-        "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression\n职责：标准绑定过滤定义编辑器。边界：读写原DataView字段，持久化由调用页原owner负责。AI用途：以r-filter-expression配置定义维护。",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression\n职责：标准绑定过滤定义编辑器。边界：读写原DataView字段，持久化沿原DataSet/DataView保存链。AI用途：以r-filter-expression配置定义维护。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -14290,6 +14290,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/workflow-definition/layout-resource",
         "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/layout-resource\n职责：将独立工作流布局文件接入公共SPARK data文件资源链。\n边界：固定SysForm及本次workflowId，不保存数据库节点、连线或模型；不吞权限/协议错误。\nAI用途：配置WorkflowLayout命名视图，输入workflowId，经DataSet提交布局文本。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/merge-inputs",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/merge-inputs",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：从原节点JSON及正式流程图提供选中合并输入的连接配置目录。\n边界：只读元数据与权限，不创建草稿、查询、保存、推导源身份或执行连接。\nAI用途：标准过滤组件绑定原input_mapping子路径，复用当前输入与父链字段目录。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }

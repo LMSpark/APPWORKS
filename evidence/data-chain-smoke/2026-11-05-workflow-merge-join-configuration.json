@@ -1,0 +1,415 @@
+{
+  "date": "2026-11-05",
+  "baseCommit": "7dd8afdaab5640888e2c154b20ad0832c49be8ce",
+  "scope": "Same-DataView merge join configuration and standard nested text/object filter binding",
+  "sourceHashes": [
+    {
+      "path": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.props.ts",
+      "sha256": "54fc0c9906546c50fe4317910614dcaa92e49e4b37491e1cd3c3255bc8312902"
+    },
+    {
+      "path": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue",
+      "sha256": "bacdd5eb4f8eb453e085159372bd1362716cf958d9915056a939721a2bea8c27"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "495537fa136afe5f693245c8c647cc24345587c03ea86809ac3178376ec0e33e"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "39737818275e16ff5b349012b4eb585f8e119f46bcd07de2734f0e1615215d09"
+    },
+    {
+      "path": "tests/runtime/page/design/data-space-filter-editor.test.ts",
+      "sha256": "f1079ec9be20502d4eaecdc4ee7f81e22b0a870a2b769d4cfcf5c5119e65a1c2"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "d42041d4cefb9b7fd67976de80925e420b955ba596c56d9806a36ca4a3b780c5"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "57af08ed6168287e3e7e32f2f32ea840e520ab04692932ff1a7aab2d0b256187"
+    }
+  ],
+  "validation": {
+    "regression": {
+      "files": 28,
+      "tests": 494,
+      "passed": true
+    },
+    "classModelContract": {
+      "files": 4,
+      "tests": 49,
+      "passed": true
+    },
+    "typecheck": true,
+    "lint": true,
+    "frontendBuild": true,
+    "semanticGapCount": 3639,
+    "semanticGate": 679,
+    "newSemanticGaps": [],
+    "existingCodegenViolations": 26,
+    "logs": [
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-regression.log",
+        "sha256": "0051accc7cf813d1a5241f593dedab46032068543956423fc2eeff7c92e92601"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-typecheck.log",
+        "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-class-model.log",
+        "sha256": "5ff1ce1dc680781702159d6c1cf5486e571432a6622302053d641aba104c7b2a"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-guides.log",
+        "sha256": "39dde0ef35fc6a5a6e1837b20874002fbb67a9f1a0916f8b055fc155e61a9d2c"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-schema.log",
+        "sha256": "abb8c9527445ad89022065828e9e05cd5cf605aaa338d3abd096103e54a41763"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-contract.log",
+        "sha256": "bac1a987d9ffe9707a9d552dc42d340003b6eb24fcb0a5d84558e0843213f098"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-build.log",
+        "sha256": "b25b663bb82745debb4504fb4be0aae61c31e89b7e8fb48738945f42f3e7bd9b"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-final-codegen.log",
+        "sha256": "2ea822c172ad21293a19e59bc93828ce62452334a588f5d8c7af6fc25731d5f2"
+      }
+    ]
+  },
+  "classModelLookup": "RFilterExpressionProps catalog/overview and valueFormat/valuePath/format/columns/functionContext guides; inherited binding through LayoutDataContextProps",
+  "live": {
+    "testAccount": "领码科技/wangtao",
+    "workflowId": "C52CDD4CC16049FD88AC7AD35C8D6BDA",
+    "marker": "SMOKE_MERGE_JOIN_LIVE_1793813152848",
+    "lifecycle": "cleaned",
+    "phases": [
+      {
+        "name": "fixture-create",
+        "phase": "created-confirmed",
+        "reads": 39,
+        "writes": 3,
+        "unknown": false
+      },
+      {
+        "name": "prepare",
+        "phase": "confirmed",
+        "reads": 77,
+        "writes": 10,
+        "unknown": false
+      },
+      {
+        "name": "configure",
+        "phase": "confirmed",
+        "reads": 45,
+        "writes": 3,
+        "unknown": false
+      },
+      {
+        "name": "cleanup",
+        "phase": "confirmed",
+        "reads": 48,
+        "writes": 3,
+        "unknown": false
+      }
+    ],
+    "executions": 0,
+    "businessDataWrites": 0,
+    "original": [
+      {
+        "rowid": "33A9FD73A4F6074DCBD09DA2347A802A",
+        "Name": "父输入",
+        "JoinType": null,
+        "JoinFilter": null,
+        "Fields": [
+          {
+            "rowid": "8CB742AAB7A8BB6F520A6D4002293965",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "rowid",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "279683615CD8B8B3AB8729740110BAE8",
+            "Name": "name",
+            "AsName": "name",
+            "Description": "name",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "27957AAD27FEBBF032817BF816A9929F",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "description",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          }
+        ],
+        "unknown": 0
+      },
+      {
+        "rowid": "5438D602C36DCC951C43A5F9EABD765C",
+        "pid": "33A9FD73A4F6074DCBD09DA2347A802A",
+        "Name": "子输入",
+        "JoinType": "INNER",
+        "JoinFilter": null,
+        "Fields": [
+          {
+            "rowid": "0F7D931F258E2ABAD34E18799A8F233B",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "rowid",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "A1BFC6EFF9CA47D625740A2DF506C049",
+            "Name": "name",
+            "AsName": "name",
+            "Description": "name",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "05BA396A4C2B8532284126A3F65E8745",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "description",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          }
+        ],
+        "unknown": {
+          "keep": true
+        }
+      }
+    ],
+    "expectedEdited": [
+      {
+        "rowid": "33A9FD73A4F6074DCBD09DA2347A802A",
+        "Name": "父输入",
+        "JoinType": null,
+        "JoinFilter": null,
+        "Fields": [
+          {
+            "rowid": "8CB742AAB7A8BB6F520A6D4002293965",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "rowid",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "279683615CD8B8B3AB8729740110BAE8",
+            "Name": "name",
+            "AsName": "name",
+            "Description": "name",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "27957AAD27FEBBF032817BF816A9929F",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "description",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          }
+        ],
+        "unknown": 0
+      },
+      {
+        "rowid": "5438D602C36DCC951C43A5F9EABD765C",
+        "pid": "33A9FD73A4F6074DCBD09DA2347A802A",
+        "Name": "子输入",
+        "JoinType": "LEFT",
+        "JoinFilter": {
+          "Type": "cond",
+          "Field": "5438D602C36DCC951C43A5F9EABD765C.rowid",
+          "Operator": "equal",
+          "Value": null,
+          "ValueFun": {
+            "Type": "GetTableField",
+            "Field": "33A9FD73A4F6074DCBD09DA2347A802A.rowid"
+          }
+        },
+        "Fields": [
+          {
+            "rowid": "0F7D931F258E2ABAD34E18799A8F233B",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "rowid",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "A1BFC6EFF9CA47D625740A2DF506C049",
+            "Name": "name",
+            "AsName": "mergedName",
+            "Description": "修改说明",
+            "FieldType": "varchar",
+            "IsOutput": 0,
+            "unknown": {
+              "keep": true
+            }
+          },
+          {
+            "rowid": "05BA396A4C2B8532284126A3F65E8745",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "description",
+            "FieldType": "varchar",
+            "IsOutput": 1,
+            "unknown": {
+              "keep": true
+            }
+          }
+        ],
+        "unknown": {
+          "keep": true
+        }
+      }
+    ],
+    "configurationAcknowledgements": [
+      "initial-config",
+      "edited-config",
+      "clear-config"
+    ],
+    "cancelNoSubmission": true,
+    "independentReopen": true,
+    "clearPreservesSources": true,
+    "cleanup": {
+      "nodeIds": [
+        "1DD78EC2480D90AA0151CDF096778DCA",
+        "33A9FD73A4F6074DCBD09DA2347A802A",
+        "5438D602C36DCC951C43A5F9EABD765C",
+        "B1CAC60517BAC0E36DAE30619FFBE22B"
+      ],
+      "edgeIds": [
+        "04956CD97C85871F182A8FD4AD4CC0F3",
+        "0CF08833D0C577C0C6DF3865BD3C2813",
+        "173994720E5571B1C44D9432DE4EF98F"
+      ],
+      "modelIds": [
+        "9F146CAE00CF76EDACFE995849077E56",
+        "C934BAD07E1BDD855451528F39B05C46"
+      ],
+      "fieldIds": [
+        "17A91843F4E3A0E34D88C40968213F55",
+        "27957AAD27FEBBF032817BF816A9929F",
+        "279683615CD8B8B3AB8729740110BAE8",
+        "39CB826C9F90ED450884B2543F82E83A",
+        "3D67A55C0C12CA6DAA72A365FB239F78",
+        "5CE39A490D76A62DB18978D46C6202B8",
+        "8CB742AAB7A8BB6F520A6D4002293965",
+        "A0A8EFC0AD6476F28851E83CAA285CE5",
+        "B4E13234F3C31A1F92F11EB977737731",
+        "BF972F31F302DDB5F68B9E47B9DDD924",
+        "C68DCADE3B3C0452F9009119741D1803",
+        "E58B855700A8CB22EE5AFF1AD3E34FFB",
+        "ECFAFA458574679FBB7CD197C523C66D",
+        "FC9DA9812260997EBE060830529363B7",
+        "05BA396A4C2B8532284126A3F65E8745",
+        "0DF923C8563A1CD61A69649AEC6D846C",
+        "0F7D931F258E2ABAD34E18799A8F233B",
+        "33DB79F18E944832EF13F165AA8399F5",
+        "9423BAD6FF2DCDCA00F4946CFD8F08CA",
+        "9AEB2F9570F898DE64D6FDAB0FBAE05F",
+        "A1BFC6EFF9CA47D625740A2DF506C049",
+        "C1081D5F51408C022C46E9ED0F2703A6",
+        "C6EFE8694C2913F2F80AF85EE271AA93",
+        "CB812A3DB62A5C6160FF0E9AEF068A45",
+        "D1799416978D71F8FCC0145505A765D5",
+        "D96F54074ECF0CC4B9DA3478A945A19C",
+        "DF7211539E4B53EAEF7856B92D155528",
+        "F2EA855F1A794D9FF371765C66206090"
+      ],
+      "independentAbsence": true
+    },
+    "audits": [
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-fixture-checkpoint.json",
+        "sha256": "7e0499b6c4bd3999bc9db436e6a03c1aa4ad936cc8f907d3a8be44bc7292ba32"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-fixture-create-audit.json",
+        "sha256": "4fe9771223778c2647bc84d043336babcdfb02774300fa10761e3cbf7dfa0c77"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-prepare-intent.json",
+        "sha256": "36e257e5a69f846b539fb7047403018b4186e88e442dea447c15abbbf701b8bd"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-prepare-audit.json",
+        "sha256": "1629b853f82db8c6f4c955b6bf532e59975f0ffd8b4904ad0f1581a2f87bfee1"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-configure-intent.json",
+        "sha256": "b048f754b6bdada378de1f79d437e9bddac0ef22e6a2fbc6da342d0d10d1047a"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-configure-audit.json",
+        "sha256": "7963f890b91a8a2da38685f5a08e7bc32fc78ec8f5944d9f7689f1a96527b6aa"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-cleanup-intent.json",
+        "sha256": "bf3bbbf113ea3622a4add5da04a85c58d5ecb01e5281d4fa073aef5f7caa42de"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-join-live-cleanup-audit.json",
+        "sha256": "e56ce2ae7a4407df6d4337e977a99010db79f55288a63ec97838c08e87eb927e"
+      }
+    ]
+  },
+  "review": "Independent read-only standard and consumer reviews found no confirmed Important/Critical issue",
+  "limitations": [
+    "Mounted UI and native real-service storage validation are distinct; no real-browser 1:1 claim",
+    "Live configuration verification issued no workflow execution and does not resolve prior service join/projection mismatches",
+    "Source add/remove and output generation remain unfinished; whole 20-package migration goal remains active",
+    "Existing codegen and semantic gates are not fully passing"
+  ]
+}

@@ -3,7 +3,7 @@ import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,SparkJsonEditor,RendererButton,RendererDialog,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
+import {FieldText,FieldJson,FieldValueFunction,FilterValueFunctionDialog,FilterExpressionEditor,SparkJsonEditor,RendererButton,RendererDialog,RendererTable,RendererGraph,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
@@ -37,6 +37,31 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('edits merge join settings on the original JSON text, keeps roots free of join controls, and cancels or saves through the node',async()=>{
+  const field={rowid:'F1',Name:'code',AsName:'code',FieldType:'string',IsOutput:1},mapping=JSON.stringify([{rowid:'P',Name:'父输入',Fields:[field],unknown:0},{rowid:'C',pid:'P',Name:'子输入',JoinType:'INNER',JoinFilter:null,Fields:[field],unknown:{keep:true}}])
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',node_type:'merge',position_type:1,input_mapping:mapping,output_mapping:'[]'},
+   {rowid:'P',workflow_id:'W1',name:'父来源',node_type:'query',position_type:1,node_config:'M1'},
+   {rowid:'C',workflow_id:'W1',name:'子来源',node_type:'query',position_type:1,node_config:'M2'}]
+  state.http.records['Base_WorkflowConnectors']=[{rowid:'PC',workflow_id:'W1',sourceID:'P',targetID:'C'},{rowid:'CN',workflow_id:'W1',sourceID:'C',targetID:'N1'}];state.http.records['Base_DataModel_Relation']=[]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  const tree=()=>f.wrapper.findAllComponents(FieldJson).find(field=>field.props('mode')==='outline')!
+  await tree().findAll('tbody tr')[0]!.trigger('click');await flushPromises()
+  expect(f.wrapper.findAllComponents(FieldJson).some(field=>field.props('label')==='合并连接类型')).toBe(false)
+  const change=async()=>{
+   await tree().findAll('tbody tr')[1]!.trigger('click');await flushPromises()
+   const join=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='合并连接类型')!
+   expect(join).toBeDefined();await join.get('input[value="LEFT"]').setValue(true);await flushPromises()
+   const filter=f.wrapper.findAllComponents(RendererFilterExpression).find(field=>field.props('field')==='input_mapping')!
+   expect(filter.props('valuePath')).toEqual([1,'JoinFilter']);expect(filter.props('format')).toBe('spark-object');expect(filter.props('valueFormat')).toBe('text')
+   expect(filter.props('columns')).toEqual([{name:'C.code',label:'code',type:'string'}])
+   filter.getComponent(FilterExpressionEditor).vm.$emit('update:modelValue',{field:'C.code',operator:'eq',value:{Type:'GetTableField',Field:'P.code'}});await flushPromises()
+  }
+  await change();expect(state.http.saves).toEqual([]);await f.click('取消节点修改');expect(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']).toBe(mapping)
+  await change();await f.click('保存节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(1))
+  const saved=JSON.parse(String(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']))
+  expect(saved[0]).toEqual(JSON.parse(mapping)[0]);expect(saved[1]).toEqual({...JSON.parse(mapping)[1],JoinType:'LEFT',JoinFilter:{Type:'cond',Field:'C.code',Operator:'equal',Value:null,ValueFun:{Type:'GetTableField',Field:'P.code'}}})
+ })
  it('edits selected merge source fields through the original JSON path, cancels, saves and reopens without changing source identities',async()=>{
   const mapping=JSON.stringify([{rowid:'PARENT',Name:'根输入',Fields:[],unknown:0},{rowid:'CHILD',pid:'PARENT',Name:'子输入',JoinType:'INNER',Fields:[{rowid:'F1',Name:'name',AsName:'before',FieldType:'string',IsOutput:1,Description:'保留',unknown:{keep:true}}],unknown:{keep:true}}])
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',position_type:1,node_type:'merge',input_mapping:mapping,output_mapping:'[]'}]
@@ -60,7 +85,7 @@ describe('workflow formal design page',()=>{
    expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='返回输入映射原文')?.props('disabled')).toBe(true)
    await fields.get('tbody td:nth-child(3) input').setValue(value)
    await fields.get('tbody input[type="checkbox"]').setValue(false)
-   await fields.get('tbody td:nth-child(5) input').setValue(value+'说明')
+   await fields.get('tbody td:nth-child(5) input').setValue(`${value}说明`)
    await flushPromises();await fields.get('[data-json-save-row]').trigger('click');await flushPromises()
   }
   await change('cancelled');expect(state.dirty[0]?.isDirty).toBe(true);expect(state.http.saves).toEqual([])

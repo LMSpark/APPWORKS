@@ -7,11 +7,11 @@
     "sourceFile": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression",
-    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression\n职责：标准绑定过滤定义编辑器。边界：读写原DataView字段，持久化由调用页原owner负责。AI用途：以r-filter-expression配置定义维护。",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression\n职责：标准绑定过滤定义编辑器。边界：读写原DataView字段，持久化沿原DataSet/DataView保存链。AI用途：以r-filter-expression配置定义维护。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-02T16:04:11.744Z",
+  "generatedAt": "2026-11-04T17:28:39.055Z",
   "models": {}
 }

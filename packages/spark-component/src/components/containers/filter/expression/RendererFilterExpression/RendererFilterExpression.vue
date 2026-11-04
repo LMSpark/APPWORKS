@@ -1,6 +1,6 @@
 <!--
 @module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression
-职责：标准绑定过滤定义编辑器。边界：读写原DataView字段，持久化由调用页原owner负责。AI用途：以r-filter-expression配置定义维护。
+职责：标准绑定过滤定义编辑器。边界：读写原DataView字段，持久化沿原DataSet/DataView保存链。AI用途：以r-filter-expression配置定义维护。
 -->
 <template>
   <div>
@@ -74,7 +74,7 @@ const rawRoot = computed(() => readable.value ? currentRow.value?.[props.field] 
 const pathValue = computed(() => {
   if (!readable.value || !props.valuePath?.length) return {value: rawRoot.value, identity: '', error: ''}
   try {
-    const root = JsonFieldPath.root(rawRoot.value)
+    const root = JsonFieldPath.root(rawRoot.value,props.valueFormat !== 'text')
     return {value: JsonFieldPath.read(root, props.valuePath, true), identity: JsonFieldPath.identity(root, props.valuePath), error: ''}
   } catch (cause) {return {value: undefined, identity: '', error: cause instanceof Error ? cause.message : String(cause)}}
 })
@@ -82,6 +82,12 @@ const rawValue = computed(() => pathValue.value.value)
 const parsed = computed(() => {
   try {
     if (pathValue.value.error) throw new Error(pathValue.value.error)
+    if (props.format === 'spark-object') {
+      const value=rawValue.value
+      if(value===null||value===undefined)return {tree:undefined,error:''}
+      if(typeof value!=='object'||Array.isArray(value))throw new Error('SPARK过滤定义必须是对象')
+      return {tree:DataViewFilterCodec.decode(value).toJSON(),error:''}
+    }
     if (props.format === 'spark-json') {
       const value = rawValue.value
       if (value !== undefined && value !== null && typeof value !== 'string') throw new Error('SPARK过滤定义必须是字符串')
@@ -95,7 +101,7 @@ const parsed = computed(() => {
 })
 const problem = computed(() => aggregateError.value?.message || (!resolvedView.value || identity.value === undefined ? '过滤定义未绑定有效数据行'
   : !resolvedView.value.columns.some(column => column.name === props.field) ? `过滤定义字段不存在：${props.field}` : accessState.value.error || parsed.value.error))
-watch([resolvedView, identity, () => JSON.stringify(rawValue.value), () => pathValue.value.identity, editable, () => props.field, () => props.format, () => JSON.stringify(props.valuePath ?? []),
+watch([resolvedView, identity, () => JSON.stringify(rawValue.value), () => pathValue.value.identity, editable, () => props.field, () => props.format, () => props.valueFormat, () => JSON.stringify(props.valuePath ?? []),
   () => props.display, () => props.inputParameterDataViewKey], invalidate, {flush: 'sync'})
 watch([() => props.columns, () => props.allowedOperators, inputContext, () => props.maxDepth, () => props.maxRules], () => {
   candidateRevision.value++; error.value = ''
@@ -109,8 +115,14 @@ const applyForRevision = computed(() => {
       if (filter && !filter.ok) throw new Error(filter.issues.map(issue => issue.message).join('\n'))
       if(filter&&props.allowedOperators!==undefined){const issues=filter.value.validate({fields:FilterExpressionEditorDraft.fields(props.columns,props.allowedOperators)})
         if(issues.length)throw Error(issues.map(issue=>`${issue.path}: ${issue.message}`).join('\n'))}
-      const value = props.format === 'spark-json' ? DataViewFilterCodec.serializeStored(filter?.value) : filter?.value.toJSON()
-      if (!writeDataViewEditingValue({source: resolvedView.value, row: row.value, field: props.field, value: props.valuePath?.length ? JsonFieldPath.replace(rawRoot.value, props.valuePath, value, true) : value})) throw new Error('过滤定义编辑目标已失效')
+      const value = props.format === 'spark-json' ? DataViewFilterCodec.serializeStored(filter?.value)
+        : props.format === 'spark-object' ? filter ? DataViewFilterCodec.encode(filter.value) : null : filter?.value.toJSON()
+      let stored:unknown=value
+      if(props.valuePath?.length){
+        const next=JsonFieldPath.replace(JsonFieldPath.root(rawRoot.value,props.valueFormat!=='text'),props.valuePath,value,true)
+        stored=props.valueFormat==='text'?JSON.stringify(next):next
+      }
+      if (!writeDataViewEditingValue({source: resolvedView.value, row: row.value, field: props.field, value: stored})) throw new Error('过滤定义编辑目标已失效')
     } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
   }
 })

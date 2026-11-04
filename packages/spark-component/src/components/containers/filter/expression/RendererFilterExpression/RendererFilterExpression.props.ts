@@ -13,10 +13,12 @@ export type RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpress
   'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {
   /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */
   field: string
-  /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */
+  /** 所属JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，父路径须存在；清空依format选择移除叶、空字符串或null。 */
   valuePath?: JsonPath
-  /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */
-  format?: 'tree' | 'spark-json'
+  /** valuePath存在时所属原字段的存储格式；默认native原生对象，text解析JSON文本并将合并结果存回文本。不改变过滤叶format，不补建父路径。格式改变使旧应用失效，畸形原文保留。 */
+  valueFormat?: 'native' | 'text'
+  /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）；spark-object通过同一数据层Codec保存SPARK对象（清空为null）。 */
+  format?: 'tree' | 'spark-json' | 'spark-object'
   /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */
   display?: 'dialog' | 'inline'
   /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */

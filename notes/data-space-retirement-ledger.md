@@ -6112,3 +6112,14 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - merge选中项字段已沿原input_mapping与valuePath=[选中下标,Fields]接线，UI只保存选择路径；无新增业务草稿、查询或保存owner。Name/FieldType只读，AsName/IsOutput(1/0)/Description可改，来源字段禁止新增删除。未确认行输入期间拒绝切换，节点/空间切换清路径；高级原文编辑与选中编辑互斥。页用例先RED后GREEN，确认取消无写、保存/挂载重开、未知成员/兄弟输入/原字段身份保留；实际服务配置生命周期尚未补验，不冒称浏览器或实服成功。
 - 标准能力及consumer分别独立只读复核，无确认Important/Critical；正式ClassModel生成47.085秒，新增属性按RJsonProps查询，继承children沿SparkNodeProps、dataViewKey沿SparkFieldSemanticProps查询。125份完整JSON语义等价噪声恢复，仅2份真实生成变更；未手改合同。最终整组回归、typecheck等收尾结果以workflow-merge-fields-*日志和后续证据为准。完整来源增删、连接编辑、输出生成、merge实服差距及20业务包继续开放，无新实服夹具。
 - 最终检查点：24文件459项通过（67.14秒），根typecheck、6文件lint、前端构建5.62秒exit0；4文件49项ClassModel合同测试及指南schema通过。语义缺口3639、门禁679均未新增；编码规则仍26既有违规，不称全仓verify通过。证据evidence/data-chain-smoke/2026-11-05-workflow-merge-field-editing.json保存最终6源码及9日志哈希。未重复此前8082全量，未创建或重放实服夹具；下一轮继续来源/连接/输出及新配置实服生命周期，不缩减完整目标。
+
+### 2026-11-05 merge连接配置接入
+
+- 7dd8afdaa已实际推送且工作区干净，上一轮为有效进展。参考JoinFilter使用SPARK对象(Type/Field/Operator/ValueFun)，所在input_mapping为JSON文本；当前RendererFilterExpression.valuePath仅接原生对象，format仅tree/spark-json文本，不能靠页面转换草稿绕过。
+- 先按TDD补标准valueFormat文本根及spark-object叶格式：默认保持原生根/旧格式；沿JsonFieldPath定位、合并最新原值，条件转换复用DataViewFilterCodec，清空对象叶显式null；格式切换旧应用失效，畸形原文保留。刷新ClassModel并查指南，再接选中merge非根连接类型及条件；以真实字段目录和原节点保存/取消验收。来源增删、输出生成和实服生命周期仍在完整目标内，不以本次边界补齐替代。
+
+- 标准实现：RendererFilterExpression增加valueFormat=text（默认native不变）及format=spark-object，通过现有JsonFieldPath合并最新原字段、DataViewFilterCodec编解码条件；清空SPARK对象叶写null，换格式旧回调失效。4项新RED后修复通过；undefined空叶测试改成真正缺失成员，未放宽原生JSON合法性。新的helper只读元数据，精确核正式祖先节点、rowid/pid、字段身份、重复/孤立/循环，不生成来源身份或执行join。连接类型、条件、字段行按原字段互锁，根不显示连接控件；页面新增RED→GREEN，9项身份/范围/只读反例通过。
+- 正式ClassModel最终生成29.359秒；RFilterExpressionProps目录/概要及valueFormat/valuePath/format/columns/functionContext指南、继承LayoutDataContextProps.dataViewKey均已查。最终28文件494项通过（68.93秒）、4文件49合同测试、根typecheck、7文件lint、前端构建6.44秒均exit0。124份完整JSON语义等价噪声恢复，保留4份已有生成变化和1份新模块产物；语义缺口3639、门禁679均无新增，编码规则仍26，不称全仓verify通过。标准能力及consumer独立只读复核均无确认Important/Critical。
+- 新停用夹具C52CDD4CC16049FD88AC7AD35C8D6BDA / SMOKE_MERGE_JOIN_LIVE_1793813152848，全新身份未复用旧cleaned记录。首次认证引导及第二次企业名称编码比较失败时均未创建记录；显式UTF8进程流与非ASCII转义后，授权账号正式登录成功，会话仅RAM，未输出或写入凭据。夹具39读3提交；原query创建/发布及4节点3边准备77读10提交；真实配置45读3提交，执行0、unknown=false：初始化保存独立重开，取消无提交，别名/1或0输出/说明/LEFT/父字段条件保存再次独立重开，未知成员、兄弟输入及原字段身份保留；清空input_mapping后4节点仍保留。挂载UI与实服原生数据链分开记录，不冒称同一次浏览器1:1或上游SQL/整流运行。
+- 清理48读3提交、unknown=false：4节点/3边/2模型/28字段及参数、定义独立缺失，布局0。fixture.lifecycle=cleaned，cleanup.independentAbsence=true，所有runner正常exit0，会话RAM随driver终止。禁止重放workflow-merge-join-live-*意图或复用C52夹具。实服配置生命周期证据evidence/data-chain-smoke/2026-11-05-workflow-merge-join-configuration.json含最终7源码/9日志及8份审计/意图哈希、完整原/改配置及精确清理身份。
+- 当前仅既有merge输入的字段与连接配置经真实存储验证；来源增删、输出目录生成、完整浏览器工作区、先前已证实的实服字段投影/INNER/RIGHT/FULL差距以及20业务包均继续开放。没有前端join补算、第二草稿真源或新保存owner，没有修改或部署Java参考仓。下一轮继续原输入的来源命令/输出编排，不将局部通过当完成。

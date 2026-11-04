@@ -65,8 +65,16 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
               <FieldJson v-if="isMergeNode" field="input_mapping" label="合并输入层级" mode="outline" outline-id-field="rowid" outline-parent-field="pid"
                 :children="mergeInputFields" :readonly="true" :selected-path="mergePath" :on-selected-path-change="selectMergePath" />
               <template v-if="isMergeNode && mergePath">
+                <p v-if="mergeJoin.error" role="alert">{{ mergeJoin.error }}</p>
+                <template v-if="mergeJoin.state && !mergeJoin.state.root">
+                  <FieldJson field="input_mapping" label="合并连接类型" mode="form" :value-path="mergePath" :schema="mergeJoinSchema"
+                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinFilter')" :on-editing-change="value=>pending('nodes.mergeJoinType',value)" />
+                  <RendererFilterExpression field="input_mapping" :value-path="[...mergePath,'JoinFilter']" value-format="text" format="spark-object" display="inline"
+                    :columns="mergeJoin.state.columns" :function-context="mergeJoin.state.functionContext"
+                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinType')" :on-editing-change="value=>pending('nodes.mergeJoinFilter',value)" />
+                </template>
                 <FieldJson field="input_mapping" label="合并来源字段" mode="rows" :value-path="[...mergePath,'Fields']" :children="mergeFields"
-                  :row-operations="mergeFieldOperations" :readonly="locked" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
+                  :row-operations="mergeFieldOperations" :readonly="locked || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeJoinType')" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
                 <RendererButton label="返回输入映射原文" :disabled="pendingPart('nodes')" @click="selectMergePath(null)" />
               </template>
               <FieldJson v-else field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
@@ -135,7 +143,7 @@ import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {parseJsonDocument,type JsonPath} from '@spark-appworks/spark-json-document'
+import {parseJsonDocument,type JsonPath,type JsonSchemaObject} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
@@ -148,6 +156,7 @@ import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resou
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 import WorkflowCopyTarget from './workflow-copy-target.vue'
 import {workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
+import {workflowMergeInputPresentation} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
 import WorkflowNodeRemove from './workflow-node-remove.vue'
 import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
@@ -201,6 +210,15 @@ const parameterAdapter=computed(()=>workflowStartParameterAdapter(String(selecte
 const parameterFields:SparkNode[]=Object.entries({Name:'参数名称',FieldType:'数据类型',Value:'默认值',Description:'参数说明'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
 const mergeInputFields:SparkNode[]=Object.entries({Name:'输入节点',JoinType:'连接类型'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
 const mergePath=ref<JsonPath|null>(null),mergeFieldOperations:Array<'edit'>=['edit']
+const mergeJoinSchema:JsonSchemaObject={type:'object',required:['JoinType'],properties:{JoinType:{type:'string',title:'连接类型','x-control':'radio',oneOf:[
+ {const:'LEFT',title:'左连接'},{const:'RIGHT',title:'右连接'},{const:'INNER',title:'内连接'},{const:'FULL',title:'全连接'},
+]}}}
+const mergeJoin=computed(()=>{
+ revision.value;const ds=dataSet.value,path=mergePath.value
+ if(!ds||!path)return {state:undefined,error:''}
+ try{return{state:workflowMergeInputPresentation({dataSet:ds,workflowId:workflowId.value,nodeId:selectedQueryId.value,path}),error:''}}
+ catch(cause){return{state:undefined,error:cause instanceof Error?cause.message:String(cause)}}
+})
 const mergeFields:SparkNode[]=[
  ...Object.entries({Name:'字段名称',FieldType:'字段类型'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}})),
  {type:'r-text',props:{field:'AsName',label:'输出名称'}},

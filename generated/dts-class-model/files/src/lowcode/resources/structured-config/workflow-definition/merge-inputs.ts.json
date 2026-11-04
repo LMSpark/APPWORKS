@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/merge-inputs",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/merge-inputs",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：从原节点JSON及正式流程图提供选中合并输入的连接配置目录。\n边界：只读元数据与权限，不创建草稿、查询、保存、推导源身份或执行连接。\nAI用途：标准过滤组件绑定原input_mapping子路径，复用当前输入与父链字段目录。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-04T17:23:39.076Z",
+  "models": {}
+}

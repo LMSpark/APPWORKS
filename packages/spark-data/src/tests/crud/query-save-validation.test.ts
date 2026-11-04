@@ -517,3 +517,70 @@ describe('formal query-save column validation', () => {
     duplicate.destroy()
   })
 })
+
+
+describe('known mutation error after cancelling local changes', () => {
+ it('clears a known mutation error after cancelling all staged changes and notifies bound consumers', async () => {
+  const f=await resourceOwners(),failure=new Error('known save refusal')
+  try {
+   f.file.updateEditingValue('1','title','Rejected')
+   f.fileOwner.save.mockRejectedValueOnce(failure)
+   await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+   expect(f.file.mutatingError).toBe(failure)
+   const changed=vi.fn();f.file.events.on('mutatingChanged',changed)
+   expect(f.file.discardPendingChanges()).toBe(1)
+   expect(f.file.hasEditingChanges()).toBe(false)
+   expect(f.file.dirtyTracking.hasPendingChanges()).toBe(false)
+   expect(f.file.mutatingError).toBeNull()
+   expect(f.file.mutating).toBe(false)
+   expect(changed).toHaveBeenCalledExactlyOnceWith(false)
+   expect(f.fileOwner.save).toHaveBeenCalledTimes(1)
+  } finally {f.dataSet.destroy()}
+ })
+ it('retains the error for partial cancellation and clears it when the final pending row is cancelled', async () => {
+  const f=await resourceOwners(),failure=new Error('known save refusal')
+  try {
+   f.stored.get('File')!.push({id:'2',title:'Second'});await f.file.refresh()
+   for(const id of ['1','2'])f.file.updateEditingValue(id,'title','Rejected')
+   f.fileOwner.save.mockRejectedValueOnce(failure)
+   await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+   f.file.discardPendingChanges(['1']);expect(f.file.mutatingError).toBe(failure)
+   expect(f.file.dirtyTracking.hasPendingChanges()).toBe(true)
+   expect(f.file.getEditingRow('2')?.['title']).toBe('Rejected')
+   f.file.discardPendingChanges(['2']);expect(f.file.mutatingError).toBeNull()
+  } finally {f.dataSet.destroy()}
+ })
+ it.each([undefined,[],['missing']])('keeps a prior command error when cancellation has no target (%j)', async ids => {
+  const f=await resourceOwners(),failure=new Error('prior command failed')
+  try {
+   f.file.mutatingError=failure
+   expect(f.file.discardPendingChanges(ids)).toBe(0)
+   expect(f.file.mutatingError).toBe(failure)
+  } finally {f.dataSet.destroy()}
+ })
+ it.each(['unknown','permissions'] as const)('retains a %s recovery responsibility after cancelling local edits', async recovery => {
+  const f=await resourceOwners(),failure=new Error('save recovery remains')
+  try {
+   f.file.updateEditingValue('1','title','Rejected')
+   f.fileOwner.save.mockImplementationOnce(async()=>{if(recovery==='unknown')f.fileOwner.hasUnconfirmedSave.mockReturnValue(true);throw failure})
+   await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+   if(recovery==='permissions')vi.spyOn(f.file,'hasPendingSavedRowPermissions','get').mockReturnValue(true)
+   f.file.discardPendingChanges()
+   expect(f.file.mutatingError).toBe(failure)
+   expect(recovery==='unknown'?f.file.hasUnconfirmedSave:f.file.hasPendingSavedRowPermissions).toBe(true)
+   expect(f.fileOwner.save).toHaveBeenCalledTimes(1)
+  } finally {f.dataSet.destroy()}
+ })
+ it('retains the error when a discard subscriber creates a new local draft', async () => {
+  const f=await resourceOwners(),failure=new Error('known save refusal')
+  try {
+   f.file.updateEditingValue('1','title','Rejected')
+   f.fileOwner.save.mockRejectedValueOnce(failure)
+   await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+   f.file.events.on('editingDiscarded',()=>f.file.updateEditingValue('1','title','New draft'))
+   f.file.discardPendingChanges()
+   expect(f.file.getEditingRow('1')?.['title']).toBe('New draft')
+   expect(f.file.mutatingError).toBe(failure)
+  } finally {f.dataSet.destroy()}
+ })
+})

@@ -2926,7 +2926,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T20:32:51.799Z",
+  "generatedAt": "2026-11-04T06:41:12.800Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -6380,7 +6380,7 @@
             },
             {
               "name": "discardPendingChanges",
-              "jsdoc": "丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。",
+              "jsdoc": "丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线。\n实际取消完全部本地变更且无未知保存或新增权限恢复责任时，清理已知变更错误；空操作不清理错误。\n后续重新查询由调用方显式发起。",
               "parameters": [
                 {
                   "name": "ids",

@@ -1,0 +1,1128 @@
+{
+  "station": "原生层级查询CRUD与公共显示/取消状态修复",
+  "status": "verified-code-checkpoint-full-goal-active",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "sourceBaseCommit": "bd6da609e4b25b102a193dae036a193f7dbbe36b",
+  "scope": {
+    "backendModified": false,
+    "authorizationExpanded": false,
+    "businessSourceRowsModified": false,
+    "remainingTemporaryRecords": 0,
+    "newUnknownResults": 0
+  },
+  "fixture": {
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QUI_1793770856942",
+    "names": [
+      "SMOKE_QUI_1793770856942_ROOT",
+      "SMOKE_QUI_1793770856942_CHILD",
+      "SMOKE_QUI_1793770856942_GRAND",
+      "SMOKE_QUI_1793770856942_SIB"
+    ],
+    "modelIds": [
+      "FFE042ED5A032B55B708FDB5E6059E5B",
+      "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+      "88BDB215FE8F9B51EA75635D3BD12CE9",
+      "C6BD288C2303393E1B9D3C24461F2CEE"
+    ],
+    "fieldIds": [
+      {
+        "id": "BB173AA793A9A751B92675BDEDD25DA2",
+        "modelId": "FFE042ED5A032B55B708FDB5E6059E5B",
+        "name": "rowid"
+      },
+      {
+        "id": "2995D6A63C5C9A356C930429A2503070",
+        "modelId": "FFE042ED5A032B55B708FDB5E6059E5B",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "0DE75367C34604FC7DC2E66F828C02E9",
+        "modelId": "FFE042ED5A032B55B708FDB5E6059E5B",
+        "name": "Name"
+      },
+      {
+        "id": "656670D211053203848596EC982C27AC",
+        "modelId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+        "name": "rowid"
+      },
+      {
+        "id": "AFD9723EE30876E127BB2448CB2B21F3",
+        "modelId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "64B6DBA84A6DADF1B22ADEDF7B58B114",
+        "modelId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+        "name": "Name"
+      },
+      {
+        "id": "5BFC126779EF56264CFD66313EAFE9C5",
+        "modelId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+        "name": "dataModelId"
+      },
+      {
+        "id": "2CBDEB6D28BA846B818769D38F8F1C27",
+        "modelId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+        "name": "rowid"
+      },
+      {
+        "id": "B45618B1C4D593E5D65B5BA6349BFA78",
+        "modelId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "D207D2D847A75A539E16B792670B4FC0",
+        "modelId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+        "name": "Name"
+      },
+      {
+        "id": "BEF096B3D4681B7C05A72D225431BDB5",
+        "modelId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+        "name": "dataModelId"
+      },
+      {
+        "id": "3FE5E53D733AD37548BE90B8B00DB574",
+        "modelId": "C6BD288C2303393E1B9D3C24461F2CEE",
+        "name": "rowid"
+      },
+      {
+        "id": "BE43298A30CDDB97B7A03F1153D5EFA4",
+        "modelId": "C6BD288C2303393E1B9D3C24461F2CEE",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "0E15BACD5231FE1332CFF5215F696E2A",
+        "modelId": "C6BD288C2303393E1B9D3C24461F2CEE",
+        "name": "Name"
+      },
+      {
+        "id": "756ACEF61D6A8D6262CBCE8B439CD3C4",
+        "modelId": "C6BD288C2303393E1B9D3C24461F2CEE",
+        "name": "dataModelId"
+      }
+    ],
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3"
+  },
+  "actorCleanup": {
+    "phase": "cleaned",
+    "lifecycle": "cleaned",
+    "pending": "",
+    "error": "",
+    "reads": 360,
+    "dbBatchesIncludingSeed": 5,
+    "cleanupFileWrites": 2,
+    "blockedWrites": 0,
+    "uploads": [
+      {
+        "phase": "clear-views",
+        "hash": "c825c430f5a254e2d16cc718004e72573d9c062cff9e5b15d1c19293f2418181"
+      },
+      {
+        "phase": "clear-bindings",
+        "hash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3"
+      }
+    ],
+    "creatorExit": 0
+  },
+  "nativeUi": {
+    "confirmedSaveActions": 14,
+    "knownRejectedSaveActions": 1,
+    "newNamedViewCancelMutationRequests": 0,
+    "initialBrowserProof": {
+      "marker": "SMOKE_QUI_1793770856942",
+      "rootRequests": [
+        {
+          "requestId": "29816.1033",
+          "name": "SMOKE_QUI_1793770856942_ROOT",
+          "output": "Navigation",
+          "paged": false
+        },
+        {
+          "requestId": "29816.1035",
+          "name": "SMOKE_QUI_1793770856942_ROOT",
+          "output": "Navigation",
+          "paged": false
+        },
+        {
+          "requestId": "29816.1036",
+          "name": "SMOKE_QUI_1793770856942_ROOT",
+          "output": "Navigation",
+          "paged": false
+        }
+      ],
+      "checks": [
+        {
+          "stage": "initial-native-preview",
+          "rootQueries": 1,
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "SMOKE_QUI_1793770856942_CHILDNewApp7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "SMOKE_QUI_1793770856942_GRANDNewApp88BDB215FE8F9B51EA75635D3BD12CE9",
+                "SMOKE_QUI_1793770856942_SIBNewAppC6BD288C2303393E1B9D3C24461F2CEE",
+                "SMOKE_QUI_1793770856942_ROOTNewAppFFE042ED5A032B55B708FDB5E6059E5B"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "root-selection-and-child-refresh",
+          "additionalHttp": 0,
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "empty-root-filter",
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "root-filter-restored",
+          "rootQueries": 3,
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        }
+      ]
+    },
+    "finalBrowserProof": {
+      "marker": "SMOKE_QUI_1793770856942",
+      "checks": [
+        {
+          "stage": "initial-native-preview",
+          "rootQueries": 1,
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "SMOKE_QUI_1793770856942_CHILDNewApp7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "SMOKE_QUI_1793770856942_GRANDNewApp88BDB215FE8F9B51EA75635D3BD12CE9",
+                "SMOKE_QUI_1793770856942_SIBNewAppC6BD288C2303393E1B9D3C24461F2CEE",
+                "SMOKE_QUI_1793770856942_ROOTNewAppFFE042ED5A032B55B708FDB5E6059E5B"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "root-selection-and-child-refresh",
+          "additionalHttp": 0,
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "empty-root-filter",
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 0 行。",
+              "meta": [
+                "行数 0总数 0状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "root-filter-restored",
+          "rootQueries": 3,
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "referenced-subtree-delete-rejected",
+          "state": [
+            "      - alert: 请先处理其他定义草稿，再编辑或保存布局",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - button \"保存视图配置\":",
+            "              - generic: 保存视图配置",
+            "            - button \"取消未提交修改\":",
+            "              - generic: 取消未提交修改",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "                - row \"sourceDatabaseProbe 来源参数引用测试 20261018；共享行回读核验，隔离定义，勿用于业务\":",
+            "                  - cell \"来源参数引用测试 20261018；共享行回读核验，隔离定义，勿用于业务\":",
+            "                    - generic: 来源参数引用测试 20261018；共享行回读核验，隔离定义，勿用于业务",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\"",
+            "            - alert: \"SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划\""
+          ],
+          "mutationRequests": []
+        },
+        {
+          "stage": "hierarchy-single-child-native-preview-after-count-fix",
+          "requests": [
+            {
+              "requestId": "29816.1959",
+              "name": "SMOKE_QUI_1793770856942_ROOT",
+              "output": "HierarchyData",
+              "paged": false
+            }
+          ],
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "meta": [
+                "行数 4未报告总数已选 1状态 Loaded"
+              ],
+              "rows": [
+                "SMOKE_QUI_1793770856942_CHILDNewApp7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "SMOKE_QUI_1793770856942_GRANDNewApp88BDB215FE8F9B51EA75635D3BD12CE9",
+                "SMOKE_QUI_1793770856942_SIBNewAppC6BD288C2303393E1B9D3C24461F2CEE",
+                "SMOKE_QUI_1793770856942_ROOTNewAppFFE042ED5A032B55B708FDB5E6059E5B"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "meta": [
+                "行数 4未报告总数已选 1状态 Loaded"
+              ],
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "meta": [
+                "行数 4未报告总数已选 1状态 Loaded"
+              ],
+              "rows": [
+                "5BFC126779EF56264CFD66313EAFE9C5dataModelId7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "64B6DBA84A6DADF1B22ADEDF7B58B114Name7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "656670D211053203848596EC982C27ACrowid7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+                "AFD9723EE30876E127BB2448CB2B21F3lingma_sys_ent7E99C23ED24FFD5C0B1D4E9E5A6CE461"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "native-new-named-view-cancel",
+          "state": [
+            "            - button \"保存视图配置\" [disabled]:",
+            "              - generic: 保存视图配置",
+            "            - button \"取消未提交修改\" [disabled]:",
+            "              - generic: 取消未提交修改"
+          ],
+          "mutationRequests": 0
+        },
+        {
+          "stage": "manual-sibling-waits-after-parent-change",
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "empty": false,
+              "meta": [
+                "行数 4未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "empty": false,
+              "meta": [
+                "行数 3未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "empty": true,
+              "meta": [],
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "empty": false,
+              "meta": [
+                "行数 3未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        },
+        {
+          "stage": "manual-sibling-explicit-refresh-zero-additional-root-http",
+          "requests": [
+            {
+              "requestId": "29816.2002",
+              "name": "SMOKE_QUI_1793770856942_ROOT",
+              "output": "Navigation",
+              "paged": false
+            }
+          ],
+          "cards": [
+            {
+              "countText": "未报告总数；当前返回 4 行。",
+              "meta": [
+                "行数 4未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_ROOT @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "meta": [
+                "行数 3未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_CHILD @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "meta": [
+                "行数 3未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_SIB @ smoke"
+            },
+            {
+              "countText": "未报告总数；当前返回 3 行。",
+              "meta": [
+                "行数 3未报告总数已选 1状态 Loaded"
+              ],
+              "title": "SMOKE_QUI_1793770856942_GRAND @ smoke"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "savedDeletionSnapshot": {
+    "SMOKE_QUI_1793770856942_ROOT": {
+      "smoke": {
+        "queryConfig": {
+          "outputType": "Navigation",
+          "pagination": "none",
+          "children": [
+            {
+              "modelName": "SMOKE_QUI_1793770856942_CHILD",
+              "fields": [
+                "rowid",
+                "Name",
+                "dataModelId"
+              ],
+              "children": [
+                {
+                  "modelName": "SMOKE_QUI_1793770856942_GRAND",
+                  "fields": [
+                    "rowid",
+                    "Name",
+                    "dataModelId"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "filterExpression": {
+          "field": "Name",
+          "operator": "starts-with",
+          "value": "SMOKE_QUI_1793770856942"
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_CHILD": {
+      "smoke": {
+        "queryConfig": {
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_ROOT@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_CHILD"
+          }
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_GRAND": {
+      "smoke": {
+        "queryConfig": {
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_CHILD@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_GRAND"
+          }
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_SIB": {
+      "default": {}
+    }
+  },
+  "savedHierarchySnapshot": {
+    "SMOKE_QUI_1793770856942_ROOT": {
+      "smoke": {
+        "queryConfig": {
+          "outputType": "HierarchyData",
+          "pagination": "none",
+          "children": [
+            {
+              "modelName": "SMOKE_QUI_1793770856942_CHILD",
+              "fields": [
+                "rowid",
+                "Name",
+                "dataModelId"
+              ],
+              "children": [
+                {
+                  "modelName": "SMOKE_QUI_1793770856942_GRAND",
+                  "fields": [
+                    "rowid",
+                    "Name",
+                    "dataModelId"
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        "filterExpression": {
+          "field": "Name",
+          "operator": "starts-with",
+          "value": "SMOKE_QUI_1793770856942"
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_CHILD": {
+      "smoke": {
+        "queryConfig": {
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_ROOT@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_CHILD"
+          }
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_GRAND": {
+      "smoke": {
+        "queryConfig": {
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_CHILD@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_GRAND"
+          }
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_SIB": {
+      "default": {}
+    }
+  },
+  "savedRestoredSnapshot": {
+    "SMOKE_QUI_1793770856942_ROOT": {
+      "smoke": {
+        "queryConfig": {
+          "outputType": "Navigation",
+          "pagination": "none",
+          "children": [
+            {
+              "modelName": "SMOKE_QUI_1793770856942_CHILD",
+              "fields": [
+                "rowid",
+                "Name",
+                "dataModelId"
+              ],
+              "children": [
+                {
+                  "modelName": "SMOKE_QUI_1793770856942_GRAND",
+                  "fields": [
+                    "rowid",
+                    "Name",
+                    "dataModelId"
+                  ]
+                }
+              ]
+            },
+            {
+              "modelName": "SMOKE_QUI_1793770856942_SIB",
+              "fields": [
+                "rowid",
+                "Name",
+                "dataModelId"
+              ]
+            }
+          ]
+        },
+        "filterExpression": {
+          "field": "Name",
+          "operator": "starts-with",
+          "value": "SMOKE_QUI_1793770856942"
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_CHILD": {
+      "smoke": {
+        "queryConfig": {
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_ROOT@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_CHILD"
+          }
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_GRAND": {
+      "smoke": {
+        "queryConfig": {
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_CHILD@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_GRAND"
+          }
+        }
+      },
+      "default": {}
+    },
+    "SMOKE_QUI_1793770856942_SIB": {
+      "default": {},
+      "smoke": {
+        "queryConfig": {
+          "autoQuery": false,
+          "pagination": "none",
+          "parentResult": {
+            "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QUI_1793770856942_ROOT@smoke",
+            "childModelName": "SMOKE_QUI_1793770856942_SIB"
+          }
+        }
+      }
+    }
+  },
+  "independentQueries": {
+    "initialNavigation": {
+      "phase": "confirmed",
+      "error": "",
+      "testedAt": "2026-11-04T05:58:08.938Z",
+      "reads": 18,
+      "rootQueries": 2,
+      "writes": 0,
+      "blockedWrites": 0,
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "marker": "SMOKE_QUI_1793770856942",
+      "savedFileHash": "88b3fde8784c13c30043589c2a0ee84a3c5de2c454b8372f2d147b90933b2d3d",
+      "paths": [
+        "/api/DataOperation/GetData",
+        "/api/File/content/text"
+      ],
+      "checks": [
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "FFE042ED5A032B55B708FDB5E6059E5B",
+          "rootRows": 4,
+          "childRows": 3,
+          "grandRows": 3,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "C6BD288C2303393E1B9D3C24461F2CEE",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-empty-restore-refresh",
+          "childRows": 3,
+          "otherRows": 3,
+          "parentHttp": 1
+        },
+        {
+          "name": "explicit-root-refresh",
+          "rootQueries": 2,
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "siblingRows": 4
+        }
+      ]
+    },
+    "singleChildHierarchy": {
+      "phase": "confirmed",
+      "error": "",
+      "testedAt": "2026-11-04T06:16:23.448Z",
+      "reads": 18,
+      "rootQueries": 2,
+      "writes": 0,
+      "blockedWrites": 0,
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "marker": "SMOKE_QUI_1793770856942",
+      "savedFileHash": "25892e787c769f4625bbd07ed00b6c3d08644f7dee6c4568561fc2e64747260c",
+      "paths": [
+        "/api/DataOperation/GetData",
+        "/api/File/content/text"
+      ],
+      "checks": [
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "FFE042ED5A032B55B708FDB5E6059E5B",
+          "rootRows": 4,
+          "childRows": 3,
+          "grandRows": 3,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "C6BD288C2303393E1B9D3C24461F2CEE",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-empty-restore-refresh",
+          "childRows": 3,
+          "otherRows": 3,
+          "parentHttp": 1
+        },
+        {
+          "name": "explicit-root-refresh",
+          "rootQueries": 2,
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4
+        }
+      ]
+    },
+    "restoredNavigationWithManualSibling": {
+      "phase": "confirmed",
+      "error": "",
+      "testedAt": "2026-11-04T06:21:40.676Z",
+      "reads": 18,
+      "rootQueries": 2,
+      "writes": 0,
+      "blockedWrites": 0,
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "marker": "SMOKE_QUI_1793770856942",
+      "savedFileHash": "c8b28ffecc289f7a69367d67504b921c08daf4017d045fb7c2ba3df7b274b60a",
+      "paths": [
+        "/api/DataOperation/GetData",
+        "/api/File/content/text"
+      ],
+      "checks": [
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "FFE042ED5A032B55B708FDB5E6059E5B",
+          "rootRows": 4,
+          "childRows": 3,
+          "grandRows": 3,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "7E99C23ED24FFD5C0B1D4E9E5A6CE461",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "88BDB215FE8F9B51EA75635D3BD12CE9",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-parent-child-selection",
+          "parentId": "C6BD288C2303393E1B9D3C24461F2CEE",
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "label": null
+        },
+        {
+          "name": "persisted-empty-restore-refresh",
+          "childRows": 3,
+          "otherRows": 3,
+          "parentHttp": 1
+        },
+        {
+          "name": "explicit-root-refresh",
+          "rootQueries": 2,
+          "rootRows": 4,
+          "childRows": 4,
+          "grandRows": 4,
+          "siblingRows": 4
+        }
+      ]
+    }
+  },
+  "independentCleanup": {
+    "initial": {
+      "phase": "confirmed",
+      "error": "",
+      "testedAt": "2026-11-04T06:27:02.482Z",
+      "reads": 12,
+      "writes": 0,
+      "blockedWrites": 0,
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "marker": "SMOKE_QUI_1793770856942",
+      "originalModelIds": [
+        "87639E48BFD673CFAA2E6601FABD1467",
+        "A7199374E11E24BB0FB6938407224304",
+        "E912160BC0FA9AE6448D209D4428DDBE",
+        "F9F01665D4A98E1FF996CD8A48D3C373"
+      ],
+      "fileHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+      "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+      "results": [
+        {
+          "model": "Base_DataModel",
+          "requestedIds": 4,
+          "rows": 0,
+          "total": 0,
+          "countReported": true
+        },
+        {
+          "model": "Base_DataModel_Field",
+          "requestedIds": 15,
+          "rows": 0,
+          "total": 0,
+          "countReported": true
+        }
+      ]
+    },
+    "afterKnownErrorCancellation": {
+      "phase": "confirmed",
+      "error": "",
+      "testedAt": "2026-11-04T07:01:13.633Z",
+      "reads": 12,
+      "writes": 0,
+      "blockedWrites": 0,
+      "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+      "marker": "SMOKE_QUI_1793770856942",
+      "originalModelIds": [
+        "87639E48BFD673CFAA2E6601FABD1467",
+        "A7199374E11E24BB0FB6938407224304",
+        "E912160BC0FA9AE6448D209D4428DDBE",
+        "F9F01665D4A98E1FF996CD8A48D3C373"
+      ],
+      "fileHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+      "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+      "results": [
+        {
+          "model": "Base_DataModel",
+          "requestedIds": 4,
+          "rows": 0,
+          "total": 0,
+          "countReported": true
+        },
+        {
+          "model": "Base_DataModel_Field",
+          "requestedIds": 15,
+          "rows": 0,
+          "total": 0,
+          "countReported": true
+        }
+      ]
+    }
+  },
+  "knownSaveErrorCancellation": {
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "model": "SourceScope_20261018",
+    "view": "default",
+    "rejectedAlerts": [
+      "请先处理其他定义草稿，再编辑或保存布局",
+      "SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划",
+      "SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划",
+      "SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划"
+    ],
+    "afterCancelAlerts": [],
+    "afterCancelState": [
+      "            - status: 视图与绑定的未提交修改已取消",
+      "            - button \"保存视图配置\" [disabled]:",
+      "              - generic: 保存视图配置",
+      "            - button \"取消未提交修改\" [disabled]:",
+      "              - generic: 取消未提交修改"
+    ],
+    "mutationRequests": [],
+    "truncated": false,
+    "hasMore": false
+  },
+  "controlledVerification": [
+    {
+      "kind": "count-signal-red-green",
+      "red": "count-reported-meta-red.log",
+      "green": "count-reported-meta-green.log",
+      "passed": 13
+    },
+    {
+      "kind": "cancelled-error-red-green",
+      "red": "discard-mutation-error-red3.log",
+      "green": "discard-mutation-error-green.log",
+      "files": 2,
+      "passed": 65
+    },
+    {
+      "kind": "core-and-related-ui-after-counter-check",
+      "log": "count-discard-final-regression.log",
+      "files": 53,
+      "passed": 1078
+    },
+    {
+      "kind": "renderer-before-final-pagination-attribute-cleanup",
+      "log": "count-reported-component-regression.log",
+      "files": 32,
+      "passed": 417
+    },
+    {
+      "kind": "final-renderer-regression",
+      "log": "count-discard-renderer-final.log",
+      "files": 32,
+      "passed": 417
+    }
+  ],
+  "screenshots": [
+    "2026-11-04-hierarchical-native-preview.png",
+    "2026-11-04-hierarchical-native-count-fixed.png",
+    "2026-11-04-hierarchical-native-manual.png",
+    "2026-11-04-known-save-error-cancel-fixed.png"
+  ],
+  "probeCorrections": [
+    "A probe initially compared a private prototype method rather than a result; corrected to public readChildResult and rerun read-only.",
+    "A hierarchy-only probe retained a sibling variable; removed and rerun read-only.",
+    "Unknown-recovery unit fixture corrected to declare unknown during the failed owner dispatch."
+  ],
+  "limits": [
+    "Higher-model review was read-only, not independent execution.",
+    "Full original-reference page matrix and existing service gaps remain active.",
+    "Cross-application late replies and network failure/recovery of the complete native parent chain still require the remaining lifecycle station."
+  ],
+  "finalChecks": {
+    "rootTypecheck": "passed",
+    "changedSourceAndTestLint": "passed",
+    "frontendBuild": "passed",
+    "pageThin": "passed",
+    "documentationFilesChecked": 563,
+    "classModelContractTestsPassed": 49,
+    "compiledDtsFiles": 1037,
+    "semanticGaps": 3636,
+    "equivalentGeneratedFilesRestored": 120
+  },
+  "review": "Higher-model read-only review found no Important/Critical blocker. Two unused pagination attributes were removed; only the seven metadata bars consume the count signal."
+}

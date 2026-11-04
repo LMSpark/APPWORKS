@@ -2609,7 +2609,11 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return discardedCount
   }
 
-  /** 丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线，后续重新查询由调用方显式发起。 */
+  /**
+   * 丢弃 query-backed 视图的待提交本地状态；无变更的懒加载视图无需查询基线。
+   * 实际取消完全部本地变更且无未知保存或新增权限恢复责任时，清理已知变更错误；空操作不清理错误。
+   * 后续重新查询由调用方显式发起。
+   */
   discardPendingChanges(ids?: ReadonlyArray<string | number>): number {
     this.checkDestroyed()
     if (ids?.length === 0) return 0
@@ -2767,6 +2771,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.syncTreeManagerFromRows()
     this.events.emit('editingDiscarded', ids === undefined ? undefined : [...new Set(ids)])
     if (editingChanged) this.emitEditingChanged()
+    // 同步取消事件可能启动新操作，因此重新核对实际并发计数。
+    if (!this.destroyed && this.mutatingError !== null && this._mutatingCount === 0
+      && !this.hasUnconfirmedSave && !this.hasPendingSavedRowPermissions
+      && !this.hasEditingChanges() && !tracking.hasPendingChanges()) {
+      this.mutatingError = null
+      this.events.emit('mutatingChanged', false)
+    }
     return targets.length
   }
 

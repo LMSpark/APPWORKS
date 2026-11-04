@@ -13,7 +13,7 @@ AI用途：需要理解 data view meta bar 的实际渲染结构、slot/toolbar/
   </div>
   <div v-if="visible" class="spark-data-view-meta" data-testid="data-view-meta">
     <span class="spark-data-view-meta__item">行数 {{ rowCount }}</span>
-    <span class="spark-data-view-meta__item">总数 {{ total }}</span>
+    <span class="spark-data-view-meta__item">{{ countReported === false ? '未报告总数' : `总数 ${total}` }}</span>
     <span v-if="total > 0 && paginated" class="spark-data-view-meta__item">第 {{ page }} 页 / {{ pageSize }} 条</span>
     <span v-if="selectedCount > 0" class="spark-data-view-meta__item">已选 {{ selectedCount }}</span>
     <span class="spark-data-view-meta__item">状态 {{ requestStateText }}</span>
@@ -45,6 +45,8 @@ const props = withDefaults(defineProps<{
   columns?: readonly DataColumn[]
   selectedRows?: readonly DataRow[]
   total?: number
+  /** 原DataView总数能力；false明确未知，省略或undefined保持未声明语义。 */
+  countReported?: boolean | undefined
   page?: number
   pageSize?: number
   paginated?: boolean
@@ -63,6 +65,7 @@ const props = withDefaults(defineProps<{
   columns: () => [],
   selectedRows: () => [],
   total: 0,
+  countReported: undefined,
   page: 1,
   pageSize: 20,
   paginated: true,

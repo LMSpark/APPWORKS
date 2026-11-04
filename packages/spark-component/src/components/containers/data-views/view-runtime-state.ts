@@ -73,8 +73,10 @@ export type DataViewRequestAndAggregateState = {
   aggregateResult: ComputedRef<AggregateResultState>
   /** 已选择行集合的聚合结果。 */
   selectionAggregateResult: ComputedRef<AggregateResultState>
-  /** 当前查询结果总条数。 */
+  /** 原DataView.total读值；来源是否明确报告须同时核对countReported。 */
   total: ComputedRef<number>
+  /** 原来源是否明确报告总数；false为未知，undefined为结果未声明此能力。 */
+  countReported: ComputedRef<boolean | undefined>
   /** 当前页码，从 1 开始。 */
   page: ComputedRef<number>
   /** 当前分页大小。 */
@@ -300,6 +302,12 @@ export function useDataViewState(
     revisions.configRevision.value
     return resolvedView.value?.total ?? 0
   })
+  const countReported = computed<boolean | undefined>(() => {
+    revisions.rowsRevision.value
+    revisions.requestRevision.value
+    revisions.configRevision.value
+    return resolvedView.value?.countReported
+  })
   const page = computed<number>(() => {
     revisions.rowsRevision.value
     revisions.configRevision.value
@@ -350,7 +358,7 @@ export function useDataViewState(
     rows, columns, currentRow, selectedRows, editingRows, isMultiSelect,
     value, label, labels,
     requestState, aggregateError, aggregateResult, selectionAggregateResult,
-    total, page, pageSize, paginated, supportsQuerySorting, supportsQueryFiltering,
+    total, countReported, page, pageSize, paginated, supportsQuerySorting, supportsQueryFiltering,
     mutating, mutatingError, loadingError, resultReplacementBlocked,
   }
 }

@@ -15,6 +15,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
       :columns="dataState.columns.value"
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
+      :count-reported="dataState.countReported.value"
       :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"

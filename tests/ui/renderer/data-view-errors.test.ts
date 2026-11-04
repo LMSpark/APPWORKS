@@ -1,10 +1,11 @@
-import {afterEach,describe,expect,it} from 'vitest'
+import {afterEach,describe,expect,it,vi} from 'vitest'
 import {flushPromises,mount,type VueWrapper} from '@vue/test-utils'
-import {defineComponent,h,onBeforeUnmount} from 'vue'
+import {defineComponent,effectScope,h,onBeforeUnmount,shallowRef} from 'vue'
 import ElementPlus from 'element-plus'
 import {DataSet,RequestState} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME,RendererTable,Spark,useSparkComponent} from '@spark-appworks/spark-component'
+import {useDataViewState} from '../../../packages/spark-component/src/components/containers/data-views/view-runtime-state'
 import DataViewMetaBar from '../../../packages/spark-component/src/components/containers/data-views/DataViewMetaBar.vue'
 
 const wrappers:VueWrapper[]=[]
@@ -33,4 +34,45 @@ describe('data errors without diagnostic metadata',()=>{
   await wrapper.setProps({showDataViewMeta:false,[field]:null})
   expect(wrapper.find('[role="alert"]').exists()).toBe(false)
  })
+})
+
+
+it.each([0, 3])('does not present fallback total %s as a reported count in the shared metadata bar', async total => {
+ const wrapper=mount(DataViewMetaBar,{props:{total,countReported:false,requestState:RequestState.Loaded}});wrappers.push(wrapper)
+ expect(wrapper.text()).toContain('未报告总数')
+ expect(wrapper.text()).not.toContain(`总数 ${total}`)
+ await wrapper.setProps({countReported:true})
+ expect(wrapper.text()).toContain(`总数 ${total}`)
+ expect(wrapper.text()).not.toContain('未报告总数')
+ await wrapper.setProps({countReported:false})
+ expect(wrapper.text()).toContain('未报告总数')
+})
+
+
+it('keeps undeclared count capability distinct from an explicitly unknown count', async () => {
+ const wrapper=mount(DataViewMetaBar,{props:{total:7}});wrappers.push(wrapper)
+ expect(wrapper.text()).toContain('总数 7')
+ expect(wrapper.text()).not.toContain('未报告总数')
+ await wrapper.setProps({countReported:false})
+ expect(wrapper.text()).toContain('未报告总数')
+ await wrapper.setProps({countReported:undefined})
+ expect(wrapper.text()).toContain('总数 7')
+})
+
+it('bridges the original count capability across request updates and view rebinding without coercion', () => {
+ const ds=DataSet.fromJson({scenarioId:'COUNTS',tables:{Records:{resourceType:'static-data',columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{rows:[{id:'a'}]},other:{rows:[]}}}}})
+ const view=ds.getView('Records')!,other=ds.getView('Records','other')!,binding=shallowRef(view),scope=effectScope()
+ const reported=vi.spyOn(view,'countReported','get').mockReturnValue(false)
+ const state=scope.run(()=>useDataViewState(binding))!
+ try {
+  expect(state.countReported.value).toBe(false)
+  reported.mockReturnValue(true);view.events.emit('requestStateChanged',RequestState.Loaded)
+  expect(state.countReported.value).toBe(true)
+  reported.mockReturnValue(false);view.events.emit('rowsChanged')
+  expect(state.countReported.value).toBe(false)
+  binding.value=other
+  expect(state.countReported.value).toBeUndefined()
+  binding.value=view
+  expect(state.countReported.value).toBe(false)
+ } finally {scope.stop();ds.destroy()}
 })

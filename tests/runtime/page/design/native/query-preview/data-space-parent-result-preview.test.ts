@@ -121,6 +121,11 @@ it('uses the root query controls and bound standard tables for an original deriv
     const tables = wrapper.findAllComponents(RendererTable)
     expect(tables.map(table => table.props('dataViewKey'))).toEqual(['SPACE@RootModel@default', 'SPACE@ChildModel@default', 'SPACE@GrandModel@default'])
     expect(wrapper.text()).toContain('未报告总数')
+    expect(tables[0]!.get('[data-testid="data-view-meta"]').text()).toContain('总数 2')
+    for (const table of tables.slice(1)) {
+      expect(table.get('[data-testid="data-view-meta"]').text()).toContain('未报告总数')
+      expect(table.get('[data-testid="data-view-meta"]').text()).not.toMatch(/总数 \d/)
+    }
     expect(wrapper.findAllComponents(FieldNumber).map(field => field.props('field'))).toEqual(['maxRows'])
     expect(f.preview.view.queryConfig.parentResult?.childModelName).toBe('GrandModel')
     expect(f.calls()).toBe(1)

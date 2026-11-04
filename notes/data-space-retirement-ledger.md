@@ -6091,3 +6091,5 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 观察与清理：原模型owner再注册2个实例观察模型，44读4提交0执行，正式模型绑定查询确认全部4节点及本流程的两类实例表均0、countReported=true。精确清理48读3提交、unknown=false：3边/4节点/4模型/59字段独立核缺失，再删除同ID参数与定义，最终全部正式查询为空、布局0。fixture.lifecycle=cleaned、cleanup.phase=confirmed，所有runner正常终态0；没有未知命令或RAM保留进程。禁止重放workflow-merge-contract-*意图和复用已清理身份。
 - 证据evidence/data-chain-smoke/2026-11-04-workflow-merge-service-contract.json含11例完整声明/输入/响应、10份原审计/意图SHA256、独立观察和清理身份，固定参考及Java仅参考的内容哈希分开记录。产品源码改动0，已复核上轮20份生产/测试源哈希全部未变；本轮不重复8082项、构建或ClassModel生成。JSON、哈希、fixture清理状态、diff及提交状态作为本轮文档/证据检查。
 - 后续仍可推进前端配置和其他业务包，整体目标active而非全局blocked。已查当前FieldJson/JsonArrayOutline：outlineChildrenField仅支持嵌套子数组，缺少平面rowid/pid合同；selectedPath/valuePath可定位原JSON编辑域，但不能据此声称平面层级已实现。沿0.4先补当前直接需要的可复用标准能力，再用原节点DataView恢复参考配置/取消/保存重开；merge实服投影与连接差距继续独立开放。没有另起总计划，没有把源码参考或HTTP成功当成完整交付。
+
+- merge实服合同证据已实际提交ccc6b120d（4份文档/证据，产品源码0改动），push origin HEAD:1031真实exit0并接受0066a21c6..ccc6b120d；随后HEAD...origin/1031为0/0、工作区干净。该检查点保留真实服务差距，不称merge已验收；下一工作继续标准平面层级配置能力和其他可推进范围，禁止重放已cleaned的E119夹具。

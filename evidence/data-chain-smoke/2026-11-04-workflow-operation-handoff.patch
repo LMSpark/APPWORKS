@@ -1,0 +1,527 @@
+diff --git a/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts b/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts
+index f4c537388..ad45c8711 100644
+--- a/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts
++++ b/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts
+@@ -19,7 +19,7 @@ export function readWorkflowFieldValue(view:DataView,row:DataRow,field:string):u
+ export function workflowFieldChanges(view:DataView,row:DataRow,id:string):Record<string,unknown>{
+  return {...Object.fromEntries(Object.entries(view.dirtyTracking.getDiff(id,row)).map(([key,diff])=>[key,diff.to])),...view.getEditingPatch(id)}
+ }
+-export function workflowQueryFieldScope(dataSet:DataSet,workflowId:string,nodeId:string){
++function workflowModelFieldScope(dataSet:DataSet,workflowId:string,nodeId:string,operation:boolean){
+  if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询配置目标已失效')
+  const views=['Base_WorkflowNodeDefinition','Base_DataModel_Field','Base_DataModel','Base_WorkflowConnectors'].map(name=>{
+   const view=dataSet.getView(name),fields=name==='Base_DataModel_Field'
+@@ -30,8 +30,14 @@ export function workflowQueryFieldScope(dataSet:DataSet,workflowId:string,nodeId
+  })
+  const [nodes,fields,models,edges]=views as [DataView,DataView,DataView,DataView]
+  const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId),model=models.rows[0]
+- if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||readWorkflowFieldValue(nodes,node,'node_type')!=='query')throw Error('当前不是所属工作流的唯一查询节点模型')
+- const modelId=readWorkflowFieldValue(nodes,node,'node_config')
++ if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||!(operation?['add','edit','delete']:['query']).includes(String(readWorkflowFieldValue(nodes,node,'node_type'))))throw Error('当前不是所属工作流的唯一查询节点模型')
++ const modelId=readWorkflowFieldValue(nodes,node,operation?'dataOperateModId':'node_config')
++ if(operation&&readWorkflowFieldValue(models,model,'requestType')!==readWorkflowFieldValue(nodes,node,'node_type'))throw Error('操作节点与模型requestType不符')
+  if(typeof modelId!=='string'||!modelId||models.getPkKey(model)!==modelId||readWorkflowFieldValue(models,model,'dataSetId')!==workflowId)throw Error('查询模型归属不符')
+  return {nodes,fields,models,edges,node,model,modelId}
+ }
++
++/** 查询字段沿原node_config定位，不接受操作目标。 */
++export function workflowQueryFieldScope(dataSet:DataSet,workflowId:string,nodeId:string){return workflowModelFieldScope(dataSet,workflowId,nodeId,false)}
++/** 操作字段沿dataOperateModId定位，模型requestType必须与节点一致。 */
++export function workflowOperationFieldScope(dataSet:DataSet,workflowId:string,nodeId:string){return workflowModelFieldScope(dataSet,workflowId,nodeId,true)}
+diff --git a/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts b/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts
+index fcaa89b6b..91fa1ab70 100644
+--- a/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts
++++ b/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts
+@@ -72,16 +72,17 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
+  if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId)throw Error('查询输入工作流身份不唯一')
+  const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId)
+  const target=byId.get(nodeId),selected=projection?models.rows.filter(row=>models.getPkKey(row)===projection.modelId):models.rows,model=selected[0]
+- if(!target||!['query','copy'].includes(String(read(nodes,target,'node_type')))||selected.length!==1||!model
+-  ||read(models,model,'dataSetId')!==workflowId||read(nodes,target,'node_config')!==(projection?.fromModelId??identity(models,model)))throw Error('查询输入模型归属不符')
++ const targetType=target?String(read(nodes,target,'node_type')):'',operation=['add','edit','delete'].includes(targetType)
++ if(!target||!['query','copy','add','edit','delete'].includes(targetType)||selected.length!==1||!model
++  ||read(models,model,'dataSetId')!==workflowId||read(nodes,target,operation?'dataOperateModId':'node_config')!==(projection?.fromModelId??identity(models,model)))throw Error('查询输入模型归属不符')
+  if(projection&&(nodes.hasEditingChanges(nodeId)||nodes.dirtyTracking.hasPendingChanges(nodeId)||models.dirtyTracking.isPendingCreate(projection.modelId)||models.dirtyTracking.isPendingDelete(projection.modelId)))throw Error('拟切换节点存在独立改绑草稿或模型尚未正式确认')
+  const columns:DataColumn[]=[],columnNames=new Set<string>()
+  for(const row of fields.rows){
+   identity(fields,row)
+   if(read(fields,row,'dataSetId')!==workflowId||read(fields,row,'dataModelId')!==identity(models,model))throw Error('查询输入字段归属不符')
+   const kind=read(fields,row,'type')
+-  if(kind==='inputParams')continue
+-  if(kind!=='dataModel')throw Error('查询字段用途尚未承接')
++  if(kind==='inputParams'&&!operation)continue
++  if(kind!==(operation?'inputParams':'dataModel'))throw Error('查询字段用途尚未承接')
+   const fieldId=fields.getPkKey(row),effective=fieldId===undefined?row:fields.getEditingRow(fieldId)??row
+   for(const field of ['Name','FieldType','description'])read(fields,row,field)
+   const name=effective['Name'],type=effective['FieldType'],description=effective['description']
+@@ -116,7 +117,7 @@ export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:
+   if(nodes.rows.some(row=>identity(nodes,row)!==nodeId&&(read(nodes,row,'node_config')===projection.modelId||read(nodes,row,'dataOperateModId')===projection.modelId)))throw Error('隔离模型已有其他消费者，不能采用单节点祖先输入')
+   return state
+  }
+- const modelId=model['rowid'],consumers=nodes.rows.filter(row=>['query','copy'].includes(String(read(nodes,row,'node_type')))&&read(nodes,row,'node_config')===modelId)
++ const modelId=model['rowid'],consumers=nodes.rows.filter(row=>{const type=String(read(nodes,row,'node_type'));return ['query','copy','add','edit','delete'].includes(type)&&read(nodes,row,['add','edit','delete'].includes(type)?'dataOperateModId':'node_config')===modelId})
+  let inputs=state.inputs
+  const diagnostics=[...state.diagnostics]
+  for(const row of consumers){
+diff --git a/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts b/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts
+index b04c704d5..6d376afa3 100644
+--- a/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts
++++ b/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts
+@@ -14,6 +14,8 @@ type WorkflowQueryModelCreateInput=Readonly<{
+  sources:PageDataSpaceModelSourceReader
+  assertCurrent():void
+ }>
++export type WorkflowDataOperation = 'add' | 'edit' | 'delete'
++
+ /** 查询模型入口不暴露绕过来源准备的数组创建命令。 */
+ type WorkflowQueryModelCreateHandle=Omit<ModelCreateHandle,'createArray'|'fork'>
+ function clean(view:DataView):void{
+@@ -21,7 +23,7 @@ function clean(view:DataView):void{
+   ||view.requestState===RequestState.Loading||view.requestState===RequestState.Preparing)throw Error('请先处理当前查询模型目录或字段的修改')
+ }
+ /** 按需读取完整核名目录和同ID参数定义，返回原模型新增owner；保存范围仍由原owner捕获。 */
+-export async function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreateInput):Promise<WorkflowQueryModelCreateHandle>{
++async function openWorkflowModelCreate(input:WorkflowQueryModelCreateInput,operation:'query'|WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{
+  const {dataSet,workflowId,sources}=input
+  const definition=dataSet.getView('Base_WorkflowDefinition'),parameters=dataSet.getView('Base_DataSet')
+  const models=dataSet.getView('Base_DataModel','modelCatalog'),fields=dataSet.getView('Base_DataModel_Field','modelInputFields')
+@@ -55,9 +57,11 @@ export async function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreat
+   query:(query,metadata)=>sources.query(query,metadata),
+   async prepare(source,metadata,options){
+    guard()
++   if(operation!=='query'&&source.type!=='table')throw Error('操作节点当前只承接正式数据库表目标；其他来源执行合同尚未核定')
+    const prepared=await sources.prepare(source,metadata,{...options,missingInputType:'preserve'})
+    guard()
+-   return{...prepared,model:{...prepared.model,requestType:'query'}}
++   return{...prepared,model:{...prepared.model,requestType:operation},
++    ...(operation==='query'?{}:{fields:prepared.fields.map(field=>({...field,type:'inputParams' as const,ValueFun:''}))})}
+   },
+  }
+  const handle=createModelCreateHandle(createModelCreateHost({dataSet,targetId:workflowId,sources:boundSources,
+@@ -65,3 +69,13 @@ export async function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreat
+  return{getState:handle.getState,setName:handle.setName,preview:handle.preview,discard:handle.discard,save:handle.save,
+   verify:handle.verify,abandonNotApplied:handle.abandonNotApplied,discardLocalChanges:handle.discardLocalChanges}
+ }
++
++/** 复用原模型owner创建查询来源；查询字段与来源语义保持原合同。 */
++export function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreateInput):Promise<WorkflowQueryModelCreateHandle>{
++ return openWorkflowModelCreate(input,'query')
++}
++/** 创建操作目标模型；字段作为待显式配置的输入，不继承来源值函数，也不执行业务操作。 */
++export function openWorkflowOperationModelCreate(input:WorkflowQueryModelCreateInput,operation:WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{
++ if(!['add','edit','delete'].includes(operation))throw Error('操作节点类型无效')
++ return openWorkflowModelCreate(input,operation)
++}
+diff --git a/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts b/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts
+index 4e8970d62..8eb3ea124 100644
+--- a/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts
++++ b/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts
+@@ -1,10 +1,10 @@
+ /**
+  * @module app:lowcode/resources/structured-config/workflow-definition/query-node-create
+- * 职责：先确认查询模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。
++ * 职责：先确认来源或操作目标模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。
+  * 边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。
+  */
+ import {RequestState,type DataRow,type DataView} from '@spark-appworks/spark-data'
+-import {openWorkflowQueryModelCreate} from './query-model-create'
++import {openWorkflowQueryModelCreate,openWorkflowOperationModelCreate,type WorkflowDataOperation} from './query-model-create'
+ import {buildWorkflowQueryOutput} from './query-output'
+ import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
+ 
+@@ -16,8 +16,8 @@ function read(view:DataView,row:DataRow,field:string):unknown{
+ }
+ function text(value:unknown):string{return typeof value==='string'?value:''}
+ 
+-/** 一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。 */
+-export class WorkflowQueryNodeCreate {
++/** 一次来源选择的模型节点创建命令；模型与节点分别确认，不假定跨表事务。 */
++export class WorkflowModelNodeCreate {
+  #modelId:string|undefined
+  #nodeId:string|undefined
+  #nodeValues:Readonly<Record<string,unknown>>|undefined
+@@ -29,7 +29,7 @@ export class WorkflowQueryNodeCreate {
+  readonly #nodeContext:string
+  /** 原查询模型创建owner，保留来源预览、取消及未知批次核验。 */
+  readonly model:Pick<Model,'getState'|'preview'|'setName'>
+- constructor(private readonly input:Input,private readonly modelOwner:Model,private readonly nodes:DataView){
++ constructor(private readonly input:Input,private readonly modelOwner:Model,private readonly nodes:DataView,private readonly operation:'query'|WorkflowDataOperation='query'){
+   this.model={getState:modelOwner.getState,preview:modelOwner.preview,setName:modelOwner.setName}
+   this.#nodeContext=JSON.stringify(nodes.queryContext)
+  }
+@@ -53,7 +53,7 @@ export class WorkflowQueryNodeCreate {
+   this.guard()
+   if(this.nodes.requestState!==RequestState.Loaded||this.nodes.loadingError||this.nodes.mutating||this.nodes.hasUnconfirmedSave
+    ||this.nodes.addActionState()!=='enabled')throw Error('当前查询不允许新增查询节点')
+-  for(const field of ['workflow_id','position_type','node_type','node_config','name','description','input_mapping','output_mapping','config']){
++  for(const field of ['workflow_id','position_type','node_type','node_config',...(this.operation==='query'?[]:['dataOperateModId']),'name','description','input_mapping','output_mapping','config']){
+    if(this.nodes.newRowFieldAccess(field).write!=='allowed')throw Error(`当前查询不允许新增节点字段: ${field}`)
+   }
+  }
+@@ -62,7 +62,7 @@ export class WorkflowQueryNodeCreate {
+   const {dataSet,workflowId}=this.input,modelId=this.#modelId
+   const models=dataSet.getView('Base_DataModel','modelCatalog'),model=models?.rows.find(row=>models.getPkKey(row)===modelId)
+   const template=dataSet.getView('Base_DataModel_Field','modelInputFields')
+-  if(!modelId||!models||!model||!template||read(models,model,'dataSetId')!==workflowId||read(models,model,'requestType')!=='query')throw Error('查询模型尚未独立确认或归属不符')
++  if(!modelId||!models||!model||!template||read(models,model,'dataSetId')!==workflowId||read(models,model,'requestType')!==this.operation)throw Error('查询模型尚未独立确认或归属不符')
+   const name=text(read(models,model,'Name')),description=text(read(models,model,'description'))
+   if(!name)throw Error('查询模型名称缺失')
+   const fields=template.createQueryView(`queryNodeFields:${modelId}`)
+@@ -71,11 +71,12 @@ export class WorkflowQueryNodeCreate {
+    fields.queryContext={...template.queryContext,dataSpaceId:workflowId,modelIds:[modelId]}
+    await fields.refresh();this.guard()
+    if(fields.loadingError||fields.requestState!==RequestState.Loaded||fields.rows.length!==fields.total)throw Error('查询模型字段未完整读取')
+-   output=buildWorkflowQueryOutput({workflowId,modelId,fields:fields.rows.map(row=>Object.fromEntries(
+-    ['rowid','dataSetId','dataModelId','type','IsOutput','IsPKey','AsName','Name','FieldType','description'].map(field=>[field,read(fields,row,field)])))})
++   output=this.operation==='query'?buildWorkflowQueryOutput({workflowId,modelId,fields:fields.rows.map(row=>Object.fromEntries(
++    ['rowid','dataSetId','dataModelId','type','IsOutput','IsPKey','AsName','Name','FieldType','description'].map(field=>[field,read(fields,row,field)])))}):[]
++   if(this.operation!=='query'&&fields.rows.some(row=>read(fields,row,'type')!=='inputParams'))throw Error('操作目标字段必须属于输入参数')
+   }finally{fields.dataTable?.destroyView(fields.viewId)}
+   this.preflightNode()
+-  const values={workflow_id:workflowId,position_type:1,node_type:'query',node_config:modelId,name,description,input_mapping:'[]',output_mapping:JSON.stringify(output),config:''}
++  const values={workflow_id:workflowId,position_type:1,node_type:this.operation,node_config:this.operation==='query'?modelId:'',...(this.operation==='query'?{}:{dataOperateModId:modelId}),name,description,input_mapping:'[]',output_mapping:JSON.stringify(output),config:''}
+   const row=await this.nodes.addRow(values),nodeId=this.nodes.getPkKey(row)
+   if(typeof nodeId!=='string'||!nodeId)throw Error('查询节点未取得原生新增身份')
+   this.#nodeId=nodeId;this.#nodeValues=values
+@@ -155,9 +156,17 @@ export class WorkflowQueryNodeCreate {
+  }
+ }
+ /** 在当前节点新增权限成立后，按需打开原查询模型新增owner。 */
+-export async function openWorkflowQueryNodeCreate(input:Input):Promise<WorkflowQueryNodeCreate>{
++export async function openWorkflowQueryNodeCreate(input:Input):Promise<WorkflowModelNodeCreate>{
+  const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition')
+  if(nodes?.queryContext['workflowId']!==input.workflowId||nodes.requestState!==RequestState.Loaded||nodes.hasUnconfirmedSave||nodes.addActionState()!=='enabled')throw Error('当前查询不允许新增查询节点')
+  const model=await openWorkflowQueryModelCreate(input)
+- return new WorkflowQueryNodeCreate(input,model,nodes)
++ return new WorkflowModelNodeCreate(input,model,nodes)
++}
++
++/** 按原查询授权及分阶段保存创建操作节点；目标通过dataOperateModId绑定，不复用查询node_config。 */
++export async function openWorkflowOperationNodeCreate(input:Input,operation:WorkflowDataOperation):Promise<WorkflowModelNodeCreate>{
++ const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition')
++ if(nodes?.queryContext['workflowId']!==input.workflowId||nodes.requestState!==RequestState.Loaded||nodes.hasUnconfirmedSave||nodes.addActionState()!=='enabled')throw Error('当前查询不允许新增操作节点')
++ const model=await openWorkflowOperationModelCreate(input,operation)
++ return new WorkflowModelNodeCreate(input,model,nodes,operation)
+ }
+diff --git a/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue b/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue
+index 5101c883a..909671258 100644
+--- a/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue
++++ b/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue
+@@ -67,8 +67,8 @@
+             <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
+             <section v-if="validModel">
+               <h2>模型配置</h2>
+-              <WorkflowQueryConfiguration v-if="isQueryNode && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
+-                :node-id="selectedQueryId" :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('query.'+key,value)" />
++              <WorkflowQueryConfiguration v-if="(isQueryNode || isOperationNode) && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
++                :node-id="selectedQueryId" :revision="revision" :disabled="locked" :operation="isOperationNode" @pending-change="(key,value)=>pending('query.'+key,value)" />
+               <template v-else>
+               <RendererForm :data-view-key="modelKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
+                 <FieldText field="Name" label="模型名称" :readonly="true" />
+@@ -81,8 +81,8 @@
+               <h3>字段与参数</h3>
+               <RendererTable :data-view-key="fieldsKey" :children="modelFields" :highlight-current-row="true" />
+               </template>
+-              <RendererButton :label="isQueryNode ? (isUnconfirmed(fieldsTable) || isUnconfirmed(nodesTable) || isUnconfirmed(modelTable) ? '核验查询配置保存结果' : '保存查询配置') : '保存字段配置'" :disabled="busy || pendingPart('nodes') || pendingPart('query')" @click="saveFields" />
+-              <RendererButton :label="isQueryNode ? '取消查询配置修改' : '取消字段配置修改'" :disabled="busy || unconfirmed" @click="cancelFields" />
++              <RendererButton :label="isQueryNode ? (isUnconfirmed(fieldsTable) || isUnconfirmed(nodesTable) || isUnconfirmed(modelTable) ? '核验查询配置保存结果' : '保存查询配置') : isOperationNode ? '保存操作配置' : '保存字段配置'" :disabled="busy || pendingPart('nodes') || pendingPart('query')" @click="saveFields" />
++              <RendererButton :label="isQueryNode ? '取消查询配置修改' : isOperationNode ? '取消操作配置修改' : '取消字段配置修改'" :disabled="busy || unconfirmed" @click="cancelFields" />
+               <h3>作为父模型的原服务关系</h3>
+               <RendererTable :data-view-key="parentRelationsKey" :children="relationFields" />
+               <h3>作为子模型的原服务关系</h3>
+@@ -131,6 +131,7 @@ import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/work
+ import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
+ import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
+ import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
++import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
+ import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
+ import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
+ import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
+@@ -198,6 +199,7 @@ const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;i
+ const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
+ const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
+ const isQueryNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='query'})
++const isOperationNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['add','edit','delete'].includes(String(row['node_type']))})
+ const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
+ const modelFields=computed<SparkNode[]>(()=>[
+  {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
+@@ -334,20 +336,20 @@ async function save(table:string):Promise<void>{
+  finally{if(active&&own===generation){acting.value=false;revision.value++}}
+ }
+ async function saveFields():Promise<void>{
+- if(!isQueryNode.value){await save(fieldsTable);return}
++ if(!isQueryNode.value&&!isOperationNode.value){await save(fieldsTable);return}
+  const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
+  if(busy.value||!ds||typeof id!=='string'||loadedTarget.value!==workflowId.value)return
+  acting.value=true;error.value=''
+- try{const result=await saveWorkflowQueryFields(ds,workflowId.value,id);if(!result?.success)throw Error(result?.message??'查询字段保存未完整确认')}
++ try{const result=await (isOperationNode.value?saveWorkflowOperationFields:saveWorkflowQueryFields)(ds,workflowId.value,id);if(!result?.success)throw Error(result?.message??'查询字段保存未完整确认')}
+  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+  finally{if(active&&own===generation){acting.value=false;revision.value++}}
+ }
+ async function cancelFields():Promise<void>{
+- if(!isQueryNode.value){cancel(fieldsTable);return}
++ if(!isQueryNode.value&&!isOperationNode.value){cancel(fieldsTable);return}
+  const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
+  if(busy.value||unconfirmed.value||!ds||typeof id!=='string')return
+  acting.value=true;error.value=''
+- try{await cancelWorkflowQueryFields(ds,workflowId.value,id)}
++ try{await (isOperationNode.value?cancelWorkflowOperationFields:cancelWorkflowQueryFields)(ds,workflowId.value,id)}
+  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+  finally{if(active&&own===generation){acting.value=false;revision.value++}}
+ }
+diff --git a/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue b/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue
+index c96cb61c7..6328016f4 100644
+--- a/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue
++++ b/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue
+@@ -12,13 +12,13 @@
+   <p v-if="presentation.error" role="alert">{{ presentation.error }}</p>
+   <p v-for="message in presentation.diagnostics" :key="message" role="status">{{ message }}</p>
+   <template v-if="sourceType && !['接口','视图'].includes(sourceType)">
+-    <h3>查询条件</h3>
++    <h3>{{ operation ? '数据条件' : '查询条件' }}</h3>
+     <RendererFilterExpression :data-view-key="modelKey" field="Filter" format="spark-json" display="inline"
+       :columns="presentation.columns" :input-parameter-data-view-key="inputs.dataViewKey"
+       :readonly="disabled || !!presentation.error" :on-editing-change="value=>emit('pendingChange','filter',value)" />
+   </template>
+-  <h3>字段与来源参数</h3>
+-  <WorkflowComputedFieldEditor :data-set="dataSet" :workflow-id="workflowId" :node-id="nodeId" :revision="revision" :disabled="disabled"
++  <h3>{{ operation ? '操作输入字段' : '字段与来源参数' }}</h3>
++  <WorkflowComputedFieldEditor v-if="!operation" :data-set="dataSet" :workflow-id="workflowId" :node-id="nodeId" :revision="revision" :disabled="disabled"
+     :input-parameter-data-view-key="inputs.dataViewKey" @pending-change="value=>emit('pendingChange','computed',value)" />
+   <RendererTable :data-view-key="fieldsKey" :children="children" :highlight-current-row="true" />
+ </template>
+@@ -28,7 +28,7 @@ import {buildDataViewKey,type DataSet,type DataRow,type SparkNode} from '@spark-
+ import {RendererForm,RendererTable,RendererFilterExpression,FieldText} from '@spark-appworks/spark-component'
+ import {WorkflowQueryInputs} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
+ import WorkflowComputedFieldEditor from './workflow-computed-field-editor.vue'
+-const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;revision:number;disabled:boolean}>()
++const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;revision:number;disabled:boolean;operation?:boolean}>()
+ const emit=defineEmits<{pendingChange:[key:string,value:boolean]}>()
+ const inputs=new WorkflowQueryInputs(props.dataSet,props.workflowId,props.nodeId)
+ const presentation=shallowRef(inputs.refresh())
+@@ -53,13 +53,13 @@ let dialogs=0
+ function dialogChanged(value:boolean):void{dialogs=Math.max(0,dialogs+(value?1:-1));emit('pendingChange','functions',dialogs>0)}
+ const children=computed<SparkNode[]>(()=>[
+   {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
+-  {type:'r-text',props:{field:'AsName',label:'输出名称',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>readonly(row)}},
+-  {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0,cellReadonly:(row:Readonly<DataRow>)=>readonly(row,true)}},
++  ...props.operation?[]:[{type:'r-text',props:{field:'AsName',label:'输出名称',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>readonly(row)}},
++  {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0,cellReadonly:(row:Readonly<DataRow>)=>readonly(row,true)}}],
+   ...Object.entries({type:'分类',FieldType:'字段类型',description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,showCellControl:field==='description',cellReadonly:()=>field!=='description'||props.disabled}})),
+   {type:'r-value-function',props:{field:'ValueFun',label:'值函数 / 来源入参',inputParameterDataViewKey:inputs.dataViewKey,onDialogVisibleChange:dialogChanged,
+     cellReadonly:valueReadonly}},
+-  {type:'r-select',props:{field:'OrderType',label:'排序方向',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>readonly(row),options:[{label:'不排序',value:''},{label:'升序',value:'ascending'},{label:'降序',value:'descending'}]}},
+-  ...Object.entries({Order:'排序顺序',Group:'分组标记'}).map(([field,label])=>({type:'r-number',props:{field,label,showCellControl:true,step:1,precision:0,cellReadonly:(row:Readonly<DataRow>)=>readonly(row)}})),
++  ...props.operation?[]:[{type:'r-select',props:{field:'OrderType',label:'排序方向',showCellControl:true,cellReadonly:(row:Readonly<DataRow>)=>readonly(row),options:[{label:'不排序',value:''},{label:'升序',value:'ascending'},{label:'降序',value:'descending'}]}},
++  ...Object.entries({Order:'排序顺序',Group:'分组标记'}).map(([field,label])=>({type:'r-number',props:{field,label,showCellControl:true,step:1,precision:0,cellReadonly:(row:Readonly<DataRow>)=>readonly(row)}}))],
+ ])
+ onBeforeUnmount(()=>{inputs.dispose();emit('pendingChange','filter',false);emit('pendingChange','functions',false)})
+ </script>
+diff --git a/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue b/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue
+index 673e097fc..32999ebf4 100644
+--- a/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue
++++ b/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue
+@@ -5,9 +5,10 @@
+ -->
+ <template>
+  <section>
+-  <RendererButton label="新增查询节点" :disabled="disabled || busy || visible" @click="open" />
++  <RendererButton label="新增查询节点" :disabled="disabled || busy || visible" @click="open('query')" />
++  <RendererButton v-for="item in operations" :key="item.value" :label="`新增${item.label}节点`" :disabled="disabled || busy || visible" @click="open(item.value)" />
+   <p v-if="error && !visible" role="alert">{{ error }}</p>
+-  <RendererDialog v-if="controls" v-model="visible" :data-view-key="controls.key(controls.search)" title="新增查询节点"
++  <RendererDialog v-if="controls" v-model="visible" :data-view-key="controls.key(controls.search)" :title="`新增${operationLabel}节点`"
+    width="min(1000px, calc(100vw - 32px))" :grid-columns="1" append-to-body :close-disabled="true">
+    <p v-if="error" role="alert">{{ error }}</p>
+    <template v-if="!state?.preview && !owner?.modelId">
+@@ -25,7 +26,7 @@
+     </RendererTable>
+    </template>
+    <section v-else>
+-    <h3>查询模型与字段预览</h3>
++    <h3>{{ operation === 'query' ? '查询模型与字段预览' : '操作目标与字段预览' }}</h3>
+     <p v-if="owner?.modelId" role="status">查询模型已确认，继续核验原节点创建。</p>
+     <RendererForm v-else :data-view-key="controls.key(controls.registration)" context-data-member="currentRow" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
+      <FieldText field="name" label="模型与节点名称" :readonly="busy || state?.status !== 'ready'" />
+@@ -55,17 +56,20 @@ import {lowcodeApi} from '@/lowcode/lowcode-runtime'
+ import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
+ import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
+ import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
+-import {openWorkflowQueryNodeCreate,type WorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
++import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate,type WorkflowModelNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+ const props=defineProps<{dataSet:DataSet;workflowId:string;disabled?:boolean;onCreated?:(id:string)=>void|Promise<void>}>()
+ const emit=defineEmits<{pendingChange:[value:boolean]}>()
+-const controls=shallowRef<DataSpaceSourceControls>(),owner=shallowRef<WorkflowQueryNodeCreate>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)
+-const sourceTypes=LowcodeDataSpaceSourceCatalog.types
++const controls=shallowRef<DataSpaceSourceControls>(),owner=shallowRef<WorkflowModelNodeCreate>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)
++const operations=[{value:'add',label:'新增'},{value:'edit',label:'编辑'},{value:'delete',label:'删除'}] as const
++const operation=ref<'query'|'add'|'edit'|'delete'>('query')
++const operationLabel=computed(()=>operation.value==='query'?'查询':operations.find(item=>item.value===operation.value)!.label)
++const sourceTypes=computed(()=>operation.value==='query'?LowcodeDataSpaceSourceCatalog.types:LowcodeDataSpaceSourceCatalog.types.filter(item=>item.value==='table'))
+ let active=true
+ const off=props.dataSet.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed})
+ function changed():void{revision.value++}
+ const state=computed(()=>{revision.value;return owner.value?.model.getState()})
+ const canSelect=computed(()=>{revision.value;return controls.value?.canSelect===true})
+-const saveLabel=computed(()=>owner.value?.modelId?'继续核验原节点创建':state.value?.status==='ready'?'创建查询节点':'核验并继续创建')
++const saveLabel=computed(()=>owner.value?.modelId?'继续核验原节点创建':state.value?.status==='ready'?`创建${operationLabel.value}节点`:'核验并继续创建')
+ watchEffect(()=>{revision.value;emit('pendingChange',busy.value||visible.value||owner.value?.pending===true)})
+ function close():void{visible.value=false;controls.value?.dispose();controls.value=undefined;owner.value=undefined;revision.value++}
+ async function act(action:()=>Promise<void>):Promise<void>{
+@@ -73,15 +77,17 @@ async function act(action:()=>Promise<void>):Promise<void>{
+  busy.value=true;error.value=''
+  try{await action()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false;revision.value++}
+ }
+-async function open():Promise<void>{
++async function open(kind:'query'|'add'|'edit'|'delete'):Promise<void>{
+  if(props.disabled||visible.value)return
+  await act(async()=>{
++  operation.value=kind
+   const ds=props.dataSet,workflowId=props.workflowId,scope=lowcodeApi.readRequestScope()
+   const assertCurrent=()=>{
+    const current=lowcodeApi.readRequestScope()
+    if(!active||props.dataSet!==ds||props.workflowId!==workflowId||current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId'])throw Error('查询节点创建身份已失效')
+   }
+-  owner.value=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent})
++  const input={dataSet:ds,workflowId,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent}
++  owner.value=kind==='query'?await openWorkflowQueryNodeCreate(input):await openWorkflowOperationNodeCreate(input,kind)
+   controls.value=new DataSpaceSourceControls(ds,event=>{
+    if(event.kind==='name'&&typeof event.value==='string'){
+     try{owner.value?.model.setName(event.value)}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
+diff --git a/tests/runtime/page/structured-config/workflow/workflow-design.test.ts b/tests/runtime/page/structured-config/workflow/workflow-design.test.ts
+index 6eeeaec93..0231f3ded 100644
+--- a/tests/runtime/page/structured-config/workflow/workflow-design.test.ts
++++ b/tests/runtime/page/structured-config/workflow/workflow-design.test.ts
+@@ -177,6 +177,25 @@ describe('workflow formal design page',()=>{
+   expect(filter.get('input[aria-label="数字常量"]').element).toHaveProperty('value','0')
+   expect(state.dirty[0]?.isDirty).toBe(false);expect(state.http.saves).toEqual([])
+  })
++ it.each([{operation:'add',label:'新增'},{operation:'edit',label:'编辑'},{operation:'delete',label:'删除'}])('creates and cancels a $operation operation from the original source dialog',async({operation,label})=>{
++  state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
++  state.http.records['View_TblList']=[{rowid:'T1',tblname:'Disposable',tbldesc:'烟测目标',dbid:'DB1',DbName:'main'}]
++  state.http.records['Base_TblField']=[{rowid:'SF1',tblid:'T1',enname:'code',cnname:'编码',DataType:'varchar',IsPKey:1}]
++  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
++  const choose=async()=>{
++   await f.click(`新增${label}节点`)
++   await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererTable).some(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))).toBe(true))
++   const table=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))!
++   await vi.waitFor(()=>expect(table.find('tbody tr').exists()).toBe(true));await table.get('tbody tr').trigger('click');await flushPromises()
++   await f.click('确认来源');await vi.waitFor(()=>expect(document.body.textContent).toContain('操作目标与字段预览'))
++  }
++  await choose();await f.click('取消新增节点');expect(state.http.saves).toEqual([])
++  await choose();await f.click(`创建${label}节点`);await vi.waitFor(()=>expect(state.http.saves).toHaveLength(3))
++  const node=state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['name']==='Disposable')!
++  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:operation,node_config:'',output_mapping:'[]'})
++  expect(state.http.records['Base_DataModel']!.find(row=>row['rowid']===node['dataOperateModId'])).toMatchObject({requestType:operation,MetaName:'Disposable'})
++  expect(state.http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']===node['dataOperateModId'])).toEqual([expect.objectContaining({type:'inputParams',Name:'code',ValueFun:''})])
++ })
+  it('selects a native source, cancels its preview and creates the query model, fields and node through the same runtime',async()=>{
+   state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
+   state.http.records['View_TblList']=[{rowid:'T1',tblname:'Orders',tbldesc:'订单',dbid:'DB1',DbName:'main'}]
+diff --git a/tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts b/tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts
+index 6b2154344..30284e080 100644
+--- a/tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts
++++ b/tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts
+@@ -5,7 +5,8 @@ import {DataView,DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark
+ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+ import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
+ import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
+-import {openWorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
++import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
++import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
+ import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
+ import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
+ import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
+@@ -484,3 +485,53 @@ describe('workflow query model creation in the original DataSet',()=>{
+   expect(http.saves).toEqual([])
+  })
+ })
++
++
++describe('workflow data operation node creation',()=>{
++ it.each(['add','edit','delete'] as const)('creates %s with its own input model and exact node target through the original staged owners',async operation=>{
++  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
++  await nodes.refresh()
++  const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
++  reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'},fields:[{...prepared.fields[0]!,ValueFun:'source value is not an operation input'}]})
++  const owner=await openWorkflowOperationNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}},operation)
++  await owner.model.preview(target)
++  expect(http.saves).toHaveLength(0)
++  const id=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===id)!
++  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:owner.modelId,node_config:'',input_mapping:'[]',output_mapping:'[]',config:''})
++  expect(http.records['Base_DataModel']!.find(row=>row['rowid']===owner.modelId)).toMatchObject({dataSetId:'W1',requestType:operation,MetaName:'Disposable',DbId:'DB',DbName:'TestDB'})
++  expect(http.records['Base_DataModel_Field']).toEqual([expect.objectContaining({dataSetId:'W1',dataModelId:owner.modelId,type:'inputParams',Name:'value',ValueFun:''})])
++  expect(http.saves.map(save=>save.table)).toEqual(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'])
++  expect(owner.pending).toBe(false)
++  await owner.save();expect(http.saves).toHaveLength(3)
++ })
++ it('cancels an operation source preview without creating a model, field or node',async()=>{
++  const {ds,http,reader}=await fixture();await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
++  const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
++  reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'}})
++  const owner=await openWorkflowOperationNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}},'add')
++  await owner.model.preview(target);owner.cancel()
++  expect(http.saves).toHaveLength(0);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toBeUndefined()
++ })
++})
++
++
++it.each(['add','edit','delete'] as const)('saves and cancels only %s operation input values and target conditions without rewriting output or unrelated nodes',async operation=>{
++ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,edges=ds.getView('Base_WorkflowConnectors')!
++ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',Type:'数据库表',requestType:operation,Filter:''}
++ http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:'M1',node_config:'',output_mapping:'[]',name:'Target'}]
++ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'value',FieldType:'varchar',description:'',ValueFun:''}]
++ models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
++ fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'GetConstValue',Value:0}))
++ await saveWorkflowOperationFields(ds,'W1','N1')
++ expect(http.records['Base_DataModel_Field']![0]?.['ValueFun']).toBe(JSON.stringify({Type:'GetConstValue',Value:0}))
++ expect(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']).toBe('[]')
++ expect(http.saves.map(item=>item.table)).toEqual(['Base_DataModel_Field'])
++ fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'GetConstValue',Value:false}))
++ models.updateEditingValue('M1','description','cancelled')
++ cancelWorkflowOperationFields(ds,'W1','N1')
++ expect(fields.getEditingRow('F1')?.['ValueFun']).toBe(JSON.stringify({Type:'GetConstValue',Value:0}))
++ expect(models.hasEditingChanges()).toBe(false)
++ fields.updateEditingValue('F1','Name','renamed')
++ await expect(saveWorkflowOperationFields(ds,'W1','N1')).rejects.toThrow('不支持')
++ expect(fields.getEditingRow('F1')?.['Name']).toBe('renamed');expect(http.saves).toHaveLength(1)
++})
+--- /dev/null
++++ b/src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts
+@@ -0,0 +1,35 @@
++/**
++ * @module app:lowcode/resources/structured-config/workflow-definition/operation-fields
++ * 职责：操作目标的输入值和条件沿原DataView编辑、取消并由DataSet按修改范围提交。
++ * 边界：不执行CRUD、不推导未核定输出，不改字段结构或共享模型归属。
++ */
++import type {DataSet} from '@spark-appworks/spark-data'
++import {workflowOperationFieldScope,readWorkflowFieldValue as read,workflowFieldChanges as changes} from './query-field-context'
++import {validateWorkflowQueryInputChanges} from './query-inputs'
++function scope(dataSet:DataSet,workflowId:string,nodeId:string){
++ const state=workflowOperationFieldScope(dataSet,workflowId,nodeId)
++ if(read(state.models,state.model,'Type')!=='数据库表')throw Error('操作目标来源执行合同尚未核定')
++ for(const row of state.fields.rows)if(read(state.fields,row,'dataSetId')!==workflowId||read(state.fields,row,'dataModelId')!==state.modelId||read(state.fields,row,'type')!=='inputParams')throw Error('操作输入字段归属或用途不符')
++ return state
++}
++/** 保存实际修改的输入函数、说明与模型条件；保留节点输出和其他视图草稿。 */
++export async function saveWorkflowOperationFields(dataSet:DataSet,workflowId:string,nodeId:string){
++ const {models,fields,model,modelId}=scope(dataSet,workflowId,nodeId)
++ if(fields.dirtyTracking.pendingCreateIds.size||fields.dirtyTracking.pendingDeleteIds.size)throw Error('操作字段不支持在此入口新增或删除')
++ const selected=fields.rows.flatMap(row=>{const id=fields.getPkKey(row);if(typeof id!=='string')throw Error('操作字段身份无效');const patch=changes(fields,row,id)
++  for(const key of Object.keys(patch))if(!['ValueFun','description'].includes(key))throw Error(`操作字段不支持修改: ${key}`)
++  return Object.keys(patch).length?[{id,patch,value:fields.getEditingRow(id)?.['ValueFun']}]:[]
++ })
++ const patch=changes(models,model,modelId)
++ for(const key of Object.keys(patch))if(!['Filter','description'].includes(key))throw Error(`操作模型不支持修改: ${key}`)
++ const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.value)
++ if(values.length||Object.hasOwn(patch,'Filter'))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(patch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}:{}})
++ return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:selected.map(item=>item.id)},
++  {tableName:models.tableName,viewId:models.viewId,ids:Object.keys(patch).length?[modelId]:[]}]})
++}
++/** 全部取消本目标的输入与条件；未知结果仍由原批次核验，不视为可取消草稿。 */
++export function cancelWorkflowOperationFields(dataSet:DataSet,workflowId:string,nodeId:string):void{
++ const {models,fields,modelId}=scope(dataSet,workflowId,nodeId)
++ if(models.hasUnconfirmedSave||fields.hasUnconfirmedSave)throw Error('操作定义保存结果未知，请核验原批次')
++ fields.discardPendingChanges(fields.rows.map(row=>fields.getPkKey(row)!));models.discardPendingChanges([modelId])
++}

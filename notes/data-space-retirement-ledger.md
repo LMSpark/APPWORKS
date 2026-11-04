@@ -6123,3 +6123,17 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 新停用夹具C52CDD4CC16049FD88AC7AD35C8D6BDA / SMOKE_MERGE_JOIN_LIVE_1793813152848，全新身份未复用旧cleaned记录。首次认证引导及第二次企业名称编码比较失败时均未创建记录；显式UTF8进程流与非ASCII转义后，授权账号正式登录成功，会话仅RAM，未输出或写入凭据。夹具39读3提交；原query创建/发布及4节点3边准备77读10提交；真实配置45读3提交，执行0、unknown=false：初始化保存独立重开，取消无提交，别名/1或0输出/说明/LEFT/父字段条件保存再次独立重开，未知成员、兄弟输入及原字段身份保留；清空input_mapping后4节点仍保留。挂载UI与实服原生数据链分开记录，不冒称同一次浏览器1:1或上游SQL/整流运行。
 - 清理48读3提交、unknown=false：4节点/3边/2模型/28字段及参数、定义独立缺失，布局0。fixture.lifecycle=cleaned，cleanup.independentAbsence=true，所有runner正常exit0，会话RAM随driver终止。禁止重放workflow-merge-join-live-*意图或复用C52夹具。实服配置生命周期证据evidence/data-chain-smoke/2026-11-05-workflow-merge-join-configuration.json含最终7源码/9日志及8份审计/意图哈希、完整原/改配置及精确清理身份。
 - 当前仅既有merge输入的字段与连接配置经真实存储验证；来源增删、输出目录生成、完整浏览器工作区、先前已证实的实服字段投影/INNER/RIGHT/FULL差距以及20业务包均继续开放。没有前端join补算、第二草稿真源或新保存owner，没有修改或部署Java参考仓。下一轮继续原输入的来源命令/输出编排，不将局部通过当完成。
+
+### 2026-11-05 merge来源增删
+
+- 从0235b15f0干净工作区继续，上一轮代码、实服配置生命周期及清理均为实际进展。来源命令仍写原节点input_mapping，不搬参考mergeItems/mergeSelectedDraft owner；候选复用DataViewOptionCatalog只读投影及标准表格，实际源身份始终正式祖先节点ID。
+- 先复用并抽取现有merge输入范围/父链核对；增加候选选择、新根/选中父项下新增、精确级联删除。字段来自原节点已发布output_mapping的实际Name，不回落物理模型原名；重复来源不能加_1。选择捕获原图/输入及查询合同，确认前保持同一基线；改配置、换目标、失权、未知保存或旧选择拒绝写回。删除只移除输入子树，保留业务节点/模型；保留条件仍引用被移除输入则拒绝，不自动改写引用。
+- 按TDD覆盖命令、取消/保存重开及旧会话；刷新ClassModel后查标准组件及新命令指南，再接页面。输出生成及其正式引用/重复输出身份合同另沿同一目标继续核，不以来源增删替代完整merge交付或实服执行差距。
+
+- 来源命令实现及页面：3生产/2既有测试文件。WorkflowMergeSourceOptions使用原DataViewOptionCatalog只读投影，捕获原图/查询/输入首轮基线；新增字段使用已发布Name及原字段ID，不退物理原名、不造后缀。移除有标准确认窗口，精确级联输入项，保留实际节点/模型；保留条件仍GetTableField引用被删输入或有不透明GetExpData时拒绝。来源/条件/字段输入互锁，换绑重新订阅并释放，取消来源窗口同步清pending；原节点保存/取消仍唯一责任方。
+- 验证纠偏：4项新命令RED后实现；静态DataView字段可编辑不代表正式行授权，写命令正例改为原DataSpaceRuntimeApi→Assembler→PageRuntime及权限响应夹具，不放宽生产守卫。测试初始化一度误用不存在的静态fromJson/assemble，已按真实构造合同纠正。后续静态未授权拒绝、隐藏发布目录排除、旧会话释放和数组重排旧移除反例均通过。ClassModel新增Target公开参数类型暴露4项JSDoc缺口，补真源文档后正式重编消除，未改生成字段。
+- 额外补验实际复现旧窗口确认借用新options的问题：保存旧按钮回调，取消再打开并选择新源，旧回调误确认新窗口（RED）。增加每次open/close的会话版本，确认与取消闭包捕获版本并校验active/visible；按真实onClick属性绑定，纠正初次kebab接线后GREEN，旧回调不写新会话且正常完整生命周期仍通过。独立只读复核核心、consumer及此修复，未留确认Important/Critical。
+- 最终28文件502项通过（63.82秒），ClassModel4文件49项、根typecheck、5文件lint、前端构建5.85秒exit0。正式生成38.825秒并查WorkflowMergeSourceOptions目录/概要、view/dataViewKey及refresh/add/remove/dispose指南、标准dialog/table/button目录概要；124份完整JSON语义等价噪声恢复，保留3份已有产物变化及1份新窄组件模块。语义缺口3639、门禁679均无新增，编码规则仍26，不称全仓verify通过；未重跑此前8082全量。
+- 新停用实服夹具8EBE14491C6B445ABFFEE2EBF3A2B14A / SMOKE_MERGE_SOURCES_LIVE_1793815223287：39读3提交创建；85读10提交准备2个正式查询模型、独立发布published_a_name/published_b_name及4节点3边。原生产来源命令54读3提交：新增根/子后取消无提交；再新增保存独立重开；确认级联移除后取消恢复，再独立核旧配置；移除保存核空输入；用相同原节点身份再添加并保存重开。配置中保留正式字段ID及已发布别名，4业务节点始终存在；没有执行来源SQL、merge或整流。总226读19提交0执行、unknown=false。
+- 清理48读3提交确认4节点/3边/2模型/28字段及参数、定义独立缺失、布局0；fixture.lifecycle=cleaned，cleanup.independentAbsence=true，全部runner正常exit0，凭据/会话只在RAM。禁止重放workflow-merge-sources-live-*意图或复用8EB夹具。证据evidence/data-chain-smoke/2026-11-05-workflow-merge-source-lifecycle.json含最终5源码/9日志、旧回调RED/GREEN、8份原审计/意图哈希、原/再添加输入与精确清理身份；挂载UI和实服原生存储分开记录，不称真实浏览器1:1。
+- 下一步仍是输出目录生成及其身份/引用合同、来源字段结构引用精化、剩余来源及重复来源服务合同、完整参考工作区，继而沿20业务包推进。当前已加载图的选择基线不是跨记录事务或服务并发原子保证；既有实服字段投影/INNER/RIGHT/FULL差距未核销，没有前端join补算或修改Java。知识核对沿既有首轮合同与过期上下文原则，本轮不新增未经确认的knowledge条目。

@@ -27,6 +27,8 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
         :operation="isOperationNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && validModel && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" :on-saved="queryNodeCreated" @pending-change="value=>pending('source.query',value)" />
       <WorkflowCopyTarget v-if="dataSet" :key="loadedTarget" ref="copyTargetApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId"
         :eligible="selectedKind === 'node' && isCopyNode && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" @pending-change="value=>pending('target.copy',value)" />
+      <WorkflowMergeSources v-if="dataSet" :key="loadedTarget" ref="mergeSourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :parent-path="mergePath"
+        :eligible="selectedKind === 'node' && isMergeNode" :disabled="locked || pendingPart('nodes')" @pending-change="value=>pending('nodes.mergeSources',value)" @changed="path=>mergePath=path" />
       <WorkflowNodeRemove v-if="dataSet" :key="loadedTarget" ref="nodeRemoveApi" :data-set="dataSet" :workflow-id="workflowId"
         :node-id="selectedQueryId" :operation="isOperationNode" :copy="isCopyNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
       <div>
@@ -68,13 +70,13 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
                 <p v-if="mergeJoin.error" role="alert">{{ mergeJoin.error }}</p>
                 <template v-if="mergeJoin.state && !mergeJoin.state.root">
                   <FieldJson field="input_mapping" label="合并连接类型" mode="form" :value-path="mergePath" :schema="mergeJoinSchema"
-                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinFilter')" :on-editing-change="value=>pending('nodes.mergeJoinType',value)" />
+                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeJoinType',value)" />
                   <RendererFilterExpression field="input_mapping" :value-path="[...mergePath,'JoinFilter']" value-format="text" format="spark-object" display="inline"
                     :columns="mergeJoin.state.columns" :function-context="mergeJoin.state.functionContext"
-                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinType')" :on-editing-change="value=>pending('nodes.mergeJoinFilter',value)" />
+                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinType') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeJoinFilter',value)" />
                 </template>
                 <FieldJson field="input_mapping" label="合并来源字段" mode="rows" :value-path="[...mergePath,'Fields']" :children="mergeFields"
-                  :row-operations="mergeFieldOperations" :readonly="locked || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeJoinType')" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
+                  :row-operations="mergeFieldOperations" :readonly="locked || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeJoinType') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
                 <RendererButton label="返回输入映射原文" :disabled="pendingPart('nodes')" @click="selectMergePath(null)" />
               </template>
               <FieldJson v-else field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
@@ -155,6 +157,7 @@ import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowco
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 import WorkflowCopyTarget from './workflow-copy-target.vue'
+import WorkflowMergeSources from './workflow-merge-sources.vue'
 import {workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
 import {workflowMergeInputPresentation} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
@@ -174,6 +177,7 @@ const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),child
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
 const queryCreateApi=ref<InstanceType<typeof WorkflowQueryNodeCreate>>()
 const copyTargetApi=ref<InstanceType<typeof WorkflowCopyTarget>>()
+const mergeSourceApi=ref<InstanceType<typeof WorkflowMergeSources>>()
 const querySourceApi=ref<InstanceType<typeof WorkflowQuerySourceEdit>>()
 const nodeRemoveApi=ref<InstanceType<typeof WorkflowNodeRemove>>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
@@ -425,7 +429,7 @@ function writeLayout(nodes:ReadonlyArray<Readonly<{id:string|number;x:number;y:n
 function moveLayout(event:SparkComponent.GraphNodeMove):void{try{writeLayout([event],event.edges);error.value=''}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function arrangeLayout(event:SparkComponent.GraphArrange):void{try{writeLayout(event.nodes,event.edges);error.value=''}catch(cause){event.control.cancel=true;error.value=cause instanceof Error?cause.message:String(cause)}}
 function cancel(table:string):void{if(busy.value||unconfirmed.value)return;try{view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{if(copyTargetApi.value&&!copyTargetApi.value.discardChanges())return false;if(querySourceApi.value&&!querySourceApi.value.discardChanges())return false;if(nodeRemoveApi.value&&!nodeRemoveApi.value.discardChanges())return false;if(queryCreateApi.value&&!queryCreateApi.value.discardChanges())return false;for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
+function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{if(mergeSourceApi.value&&!mergeSourceApi.value.discardChanges())return false;if(copyTargetApi.value&&!copyTargetApi.value.discardChanges())return false;if(querySourceApi.value&&!querySourceApi.value.discardChanges())return false;if(nodeRemoveApi.value&&!nodeRemoveApi.value.discardChanges())return false;if(queryCreateApi.value&&!queryCreateApi.value.discardChanges())return false;for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
 onBeforeUnmount(()=>{active=false;generation++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
 </script>
 <style scoped>

@@ -1,23 +1,87 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {SparkData,RequestState,type DataSet} from '@spark-appworks/spark-data'
-import {workflowMergeInputPresentation} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
+import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
+import {PageRuntime,ScenarioViewConfig} from '@spark-appworks/spark-project-model'
+import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
+import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
+import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
+import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 
-const sets:DataSet[]=[]
-afterEach(()=>{sets.splice(0).forEach(ds=>ds.destroy());vi.restoreAllMocks()})
+const sets:DataSet[]=[],pages:PageRuntime[]=[]
+afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());sets.splice(0).forEach(ds=>ds.destroy());vi.restoreAllMocks()})
 const field={rowid:'F',Name:'code',FieldType:'string',Description:'编码',IsOutput:1}
 const mapping=()=>[{rowid:'A',Name:'父输入',Fields:[field],unknown:0},{rowid:'B',pid:'A',Name:'子输入',Fields:[field],JoinType:'INNER',JoinFilter:null,unknown:{keep:true}}]
 function fixture(value:unknown=mapping()){
+ const output=(key:string)=>JSON.stringify([{rowid:`${key}ROOT`,pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:`${key}COUNT`,pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:`${key}F`,pid:`${key}ROOT`,Name:key==='A'?'publishedAlias':'code',FieldType:'varchar',Description:'已发布字段',isParent:false}])
  const records={Base_WorkflowNodeDefinition:[
-  {rowid:'A',workflow_id:'W',position_type:1,node_type:'query',output_mapping:'[]'},
-  {rowid:'B',workflow_id:'W',position_type:1,node_type:'copy',output_mapping:'[]'},
+  {rowid:'A',workflow_id:'W',position_type:1,name:'源A',node_type:'query',output_mapping:output('A')},
+  {rowid:'B',workflow_id:'W',position_type:1,name:'源B',node_type:'copy',output_mapping:output('B')},
+  {rowid:'C',workflow_id:'W',position_type:1,name:'源C',node_type:'query',output_mapping:output('C')},
   {rowid:'MERGE',workflow_id:'W',position_type:1,node_type:'merge',input_mapping:typeof value==='string'?value:JSON.stringify(value)},
- ],Base_WorkflowConnectors:[{rowid:'AB',workflow_id:'W',sourceID:'A',targetID:'B'},{rowid:'BM',workflow_id:'W',sourceID:'B',targetID:'MERGE'}]}
+ ],Base_WorkflowConnectors:[{rowid:'AB',workflow_id:'W',sourceID:'A',targetID:'B'},{rowid:'BC',workflow_id:'W',sourceID:'B',targetID:'C'},{rowid:'CM',workflow_id:'W',sourceID:'C',targetID:'MERGE'}]}
  const ds=SparkData.fromJson({scenarioId:'DESIGN',tables:Object.fromEntries(Object.entries(records).map(([name,rows])=>[name,{resourceType:'static-data',columns:[...new Set(rows.flatMap(row=>Object.keys(row)))].map(name=>({name,type:'string',isPrimaryKey:name==='rowid'})),views:{default:{commitMode:'staged',rows,queryContext:{workflowId:'W'}}}}]))})
  sets.push(ds);for(const table of Object.values(ds.tables)){const view=table.getOrCreateView('default');view.requestState=RequestState.Loaded;view.total=view.rows.length}
  return ds
 }
 const presentation=(dataSet:DataSet,path=[1])=>workflowMergeInputPresentation({dataSet,workflowId:'W',nodeId:'MERGE',path})
+async function formalFixture(value:unknown=mapping()){
+ const sample=fixture(value),http=new ApiBackend()
+ http.records={Base_WorkflowDefinition:[{rowid:'W',name:'Current'}],Base_DataSet:[{rowid:'W',Type:'workflow',inputParams:'[]'}],
+  Base_WorkflowNodeDefinition:sample.getView('Base_WorkflowNodeDefinition')!.rows.map(row=>({...row})),Base_WorkflowConnectors:sample.getView('Base_WorkflowConnectors')!.rows.map(row=>({...row}))}
+ const runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
+ const ds=new LowcodeDataSpaceAssembler(runtime,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
+  fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
+ const page=new PageRuntime({pageId:'merge-source-test',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W'}},loadScenario:async()=>ds});pages.push(page);await page.load()
+ await Promise.all([ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds
+}
 describe('merge configuration input identity and join metadata',()=>{
+ it('does not turn a locally editable static field into formal row authorization',()=>{
+  const ds=fixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,options=new WorkflowMergeSourceOptions({dataSet:ds,workflowId:'W',nodeId:'MERGE'})
+  options.refresh();options.view.setCurrentRow(options.view.rows.find(row=>row['value']==='A')!)
+  expect(()=>options.add(null)).toThrow('不允许修改合并输入');expect(nodes.hasEditingChanges()).toBe(false);options.dispose()
+ })
+ it('omits sources with unreadable published output and releases the candidate context',()=>{
+  const ds=fixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,original=nodes.fieldAccess.bind(nodes)
+  vi.spyOn(nodes,'fieldAccess').mockImplementation((row,name)=>row?.['rowid']==='A'&&name==='output_mapping'?{...original(row,name),read:'invisible'}:original(row,name))
+  const options=new WorkflowMergeSourceOptions({dataSet:ds,workflowId:'W',nodeId:'MERGE'});options.refresh()
+  expect(options.view.rows.map(row=>row['value'])).toEqual(['B','C']);options.dispose()
+  expect(()=>options.add(null)).toThrow('已释放');expect(nodes.hasEditingChanges()).toBe(false)
+ })
+ it('stages exact root and child sources from a bound catalog using published output names and original field identities',async()=>{
+  const ds=await formalFixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,context={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  const choose=(id:string)=>{const options=new WorkflowMergeSourceOptions(context);expect(options.refresh().error).toBe('');const row=options.view.rows.find(row=>row['value']===id)!;expect(row).toBeDefined();options.view.setCurrentRow(row);return options}
+  const root=choose('A');expect(root.add(null)).toEqual([0]);root.dispose()
+  const child=choose('B');expect(child.add([0])).toEqual([1]);child.dispose()
+  const value=JSON.parse(String(nodes.getEditingRow('MERGE')?.['input_mapping']))
+  expect(value[0]).toMatchObject({rowid:'A',Name:'源A',pid:null,Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'publishedAlias',FieldType:'varchar',IsOutput:1}]})
+  expect(value[1]).toMatchObject({rowid:'B',pid:'A',JoinFilter:null,JoinType:null})
+  expect(nodes.rows.find(row=>row['rowid']==='MERGE')?.['input_mapping']).toBe('[]');expect(nodes.rows).toHaveLength(4)
+  nodes.discardEditingRows(['MERGE']);expect(nodes.getEditingRow('MERGE')?.['input_mapping']).toBe('[]')
+ })
+ it('invalidates captured source selection after the original input changes and never creates a repeated-source suffix',async()=>{
+  const ds=await formalFixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,options=new WorkflowMergeSourceOptions({dataSet:ds,workflowId:'W',nodeId:'MERGE'})
+  options.refresh();options.view.setCurrentRow(options.view.rows.find(row=>row['value']==='A')!)
+  nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(mapping()))
+  expect(()=>options.add(null)).toThrow('已变化');expect(nodes.getEditingRow('MERGE')?.['input_mapping']).toBe(JSON.stringify(mapping()))
+  options.refresh();expect(options.view.rows.map(row=>row['value'])).toEqual(['C']);options.dispose()
+ })
+ it('does not remove a different input after the selected array position is reordered',async()=>{
+  const ds=await formalFixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,options=new WorkflowMergeSourceOptions({dataSet:ds,workflowId:'W',nodeId:'MERGE'})
+  options.refresh();const reordered=JSON.stringify([...mapping()].reverse());nodes.updateEditingValue('MERGE','input_mapping',reordered)
+  expect(()=>options.remove([0])).toThrow('已变化');expect(nodes.getEditingRow('MERGE')?.['input_mapping']).toBe(reordered);options.dispose()
+ })
+ it('removes an input subtree while preserving unrelated input JSON and all original business nodes',async()=>{
+  const original=[...mapping(),{rowid:'C',Name:'另一根',Fields:[field],unknown:{keep:false}}],ds=await formalFixture(original),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  expect(removeWorkflowMergeInput({dataSet:ds,workflowId:'W',nodeId:'MERGE',path:[0]})).toEqual(['A','B'])
+  expect(JSON.parse(String(nodes.getEditingRow('MERGE')?.['input_mapping']))).toEqual([original[2]])
+  expect(nodes.rows).toHaveLength(4);expect(nodes.dirtyTracking.pendingDeleteIds.size).toBe(0)
+ })
+ it('refuses source removal when a preserved join condition still references it',async()=>{
+  const original=[mapping()[0],{...mapping()[1],pid:null},{rowid:'C',pid:'B',Name:'保留子项',Fields:[field],JoinFilter:{Type:'cond',Field:'C.code',Operator:'equal',ValueFun:{Type:'GetTableField',Field:'A.code'}}}],ds=await formalFixture(original),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  expect(()=>removeWorkflowMergeInput({dataSet:ds,workflowId:'W',nodeId:'MERGE',path:[0]})).toThrow('仍被引用')
+  expect(nodes.hasEditingChanges()).toBe(false)
+ })
  it('projects exact source and parent-chain fields without editing or creating another owner',()=>{
   const ds=fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,before=JSON.stringify(nodes.rows)
   expect(presentation(ds)).toEqual({root:false,columns:[{name:'B.code',label:'编码',type:'string'}],functionContext:{tables:[

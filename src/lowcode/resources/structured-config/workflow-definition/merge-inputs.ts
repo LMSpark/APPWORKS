@@ -1,13 +1,24 @@
 /**
  * @module app:lowcode/resources/structured-config/workflow-definition/merge-inputs
- * 职责：从原节点JSON及正式流程图提供选中合并输入的连接配置目录。
- * 边界：只读元数据与权限，不创建草稿、查询、保存、推导源身份或执行连接。
- * AI用途：标准过滤组件绑定原input_mapping子路径，复用当前输入与父链字段目录。
+ * 职责：原合并输入的范围核对、连接目录及来源增删命令。
+ * 边界：只读正式图，来源命令仅写原DataView的input_mapping；不查询、保存、推导源身份或执行连接。
+ * AI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。
  */
-import type {DataSet,DataView,DataRow,DataColumn,DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
+import {DataViewOptionCatalog,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import {parseJsonDocument,type JsonPath} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowQueryAncestors} from './query-inputs'
+import {workflowOutputFields} from './output-fields'
+
+/** 本次原生合并输入命令的唯一目标，不承载可编辑业务副本。 */
+type Target=Readonly<{
+ /** 本次宿主提供的元数据DataSet。 */
+ dataSet:DataSet
+ /** 正式工作流身份；必须匹配原查询上下文。 */
+ workflowId:string
+ /** 该流程内的正式合并节点身份。 */
+ nodeId:string
+}>
 
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`合并配置字段不可读: ${field}`)
@@ -25,19 +36,17 @@ function fields(item:Record<string,unknown>):DataColumn[]{
  })
 }
 
-/** 精确身份只对应正式祖先节点；目录是配置元信息，不证明服务已支持该连接或输出。 */
-export function workflowMergeInputPresentation(input:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;path:JsonPath}>):{
- root:boolean;columns:DataColumn[];functionContext:DataViewFilterFunctionContext
-}{
- const {dataSet,workflowId,nodeId,path}=input,nodes=dataSet.getView('Base_WorkflowNodeDefinition'),edges=dataSet.getView('Base_WorkflowConnectors')
- if(!nodes||!edges||nodes.hasUnconfirmedSave||edges.hasUnconfirmedSave||edges.hasEditingChanges()||edges.dirtyTracking.hasPendingChanges())throw Error('请先确认或取消合并图的变更')
+function scope(input:Target){
+ const {dataSet,workflowId,nodeId}=input,nodes=dataSet.getView('Base_WorkflowNodeDefinition'),edges=dataSet.getView('Base_WorkflowConnectors')
+ if(!nodes||!edges||nodes.mutating||edges.mutating||nodes.hasUnconfirmedSave||edges.hasUnconfirmedSave||edges.hasEditingChanges()||edges.dirtyTracking.hasPendingChanges())throw Error('请先确认或取消合并图的变更')
  const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId),node=byId.get(nodeId)
  if(!node||read(nodes,node,'node_type')!=='merge'||String(read(nodes,node,'position_type'))!=='1')throw Error('合并节点身份不符')
  read(nodes,node,'input_mapping')
  const effective=nodes.getEditingRow(nodeId)??node
- if(effective['workflow_id']!==workflowId||effective['node_type']!=='merge'||String(effective['position_type'])!=='1')throw Error('合并节点编辑身份已变化')
- const raw=effective['input_mapping'],mapping=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
- if(!Array.isArray(mapping)||path.length!==1||typeof path[0]!=='number'||!Number.isSafeInteger(path[0])||path[0]<0||!Object.hasOwn(mapping,path[0]))throw Error('合并输入选择路径已失效')
+ if(effective['rowid']!==nodeId||effective['workflow_id']!==workflowId||effective['node_type']!=='merge'||String(effective['position_type'])!=='1')throw Error('合并节点编辑身份已变化')
+ const raw=effective['input_mapping'],parsed:unknown=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
+ if(!Array.isArray(parsed))throw Error('合并输入必须是对象数组')
+ const mapping:unknown[]=parsed
  const items=new Map<string,Record<string,unknown>>()
  for(const item of mapping){
   if(!isRecord(item)||typeof item['rowid']!=='string'||!item['rowid']||item['rowid'].includes('.')||items.has(item['rowid']))throw Error('合并输入节点身份缺失或重复')
@@ -55,10 +64,93 @@ export function workflowMergeInputPresentation(input:Readonly<{dataSet:DataSet;w
   const seen=new Set<unknown>();let current:Record<string,unknown>|undefined=item
   while(current){if(seen.has(current['rowid']))throw Error('合并输入父链存在循环');seen.add(current['rowid']);const id=parent(current);current=id===undefined?undefined:items.get(id)}
  }
- const selected:unknown=mapping[path[0]]
- if(!isRecord(selected))throw Error('合并输入不存在')
- const chain:Array<Record<string,unknown>>=[];let current:Record<string,unknown>|undefined=selected
+ return {nodes,edges,node,effective,mapping,items,parent,byId,ancestors}
+}
+function selected(context:ReturnType<typeof scope>,path:JsonPath):Record<string,unknown>{
+ if(path.length!==1||typeof path[0]!=='number'||!Number.isSafeInteger(path[0])||path[0]<0||!Object.hasOwn(context.mapping,path[0]))throw Error('合并输入选择路径已失效')
+ const item=context.mapping[path[0]];if(!isRecord(item))throw Error('合并输入不存在');return item
+}
+/** 精确身份只对应正式祖先节点；目录是配置元信息，不证明服务已支持该连接或输出。 */
+export function workflowMergeInputPresentation(input:Target&Readonly<{path:JsonPath}>):{
+ root:boolean;columns:DataColumn[];functionContext:DataViewFilterFunctionContext
+}{
+ const context=scope(input),{parent,items}=context,item=selected(context,input.path)
+ const chain:Array<Record<string,unknown>>=[];let current:Record<string,unknown>|undefined=item
  while(current){chain.push(current);const id=parent(current);current=id===undefined?undefined:items.get(id)}
- return {root:parent(selected)===undefined,columns:fields(selected).map(field=>({...field,name:`${String(selected['rowid'])}.${field.name}`})),
-  functionContext:{tables:chain.map(item=>({name:String(item['rowid']),label:typeof item['Name']==='string'?item['Name']:String(item['rowid']),fields:fields(item).map(field=>({name:field.name,label:field.label??field.name}))}))}}
+ return {root:parent(item)===undefined,columns:fields(item).map(field=>({...field,name:`${String(item['rowid'])}.${field.name}`})),
+  functionContext:{tables:chain.map(entry=>({name:String(entry['rowid']),label:typeof entry['Name']==='string'?entry['Name']:String(entry['rowid']),fields:fields(entry).map(field=>({name:field.name,label:field.label??field.name}))}))}}
+}
+
+function signature(context:ReturnType<typeof scope>):string{
+ return JSON.stringify([context.nodes.queryContext,context.nodes.queryConfig,context.nodes.filterExpression,context.edges.queryContext,context.edges.queryConfig,context.edges.filterExpression,context.nodes.readSnapshot(),context.edges.readSnapshot(),context.effective['input_mapping']])
+}
+function candidates(context:ReturnType<typeof scope>){
+ const choices:Array<{value:string;label:string}>=[]
+ for(const id of context.ancestors){
+  const row=context.byId.get(id);if(!row||context.items.has(id)||context.nodes.hasEditingChanges(id)||context.nodes.dirtyTracking.hasPendingChanges(id))continue
+  if(['node_type','position_type','name','output_mapping'].some(field=>context.nodes.fieldAccess(row,field).read!=='visible'))continue
+  if(String(row['position_type'])!=='1'||!['query','copy'].includes(String(row['node_type'])))continue
+  if(typeof row['name']!=='string'||!row['name'])continue
+  choices.push({value:id,label:row['name']})
+ }
+ return choices
+}
+function write(context:ReturnType<typeof scope>,mapping:readonly unknown[]):void{
+ if(context.nodes.commitMode!=='staged'||context.nodes.editActionState(context.node)!=='enabled'||context.nodes.fieldAccess(context.node,'input_mapping').write!=='allowed')throw Error('当前查询不允许修改合并输入')
+ context.nodes.updateEditingValue(String(context.nodes.getPkKey(context.node)),'input_mapping',JSON.stringify(mapping))
+}
+
+/** 本次来源选择的标准只读目录；业务草稿仍唯一属于原节点DataView。 */
+export class WorkflowMergeSourceOptions{
+ /** 标准表格绑定的候选视图，value为原节点身份、label为可读标题。 */
+ readonly view:DataView
+ /** 本次目录完整视图键；不作正式来源模型身份。 */
+ readonly dataViewKey:string
+ readonly #catalog:DataViewOptionCatalog
+ #baseline:string|undefined
+ #active=true
+ /** 创建本次选项目录，不查询或保存正式记录。@param input 元数据DataSet、流程ID及合并节点ID。 */
+ constructor(private readonly input:Target){this.#catalog=new DataViewOptionCatalog(input.dataSet);this.view=this.#catalog.view;this.dataViewKey=this.#catalog.dataViewKey}
+ /** 捕获同一图/查询/输入基线并替换只读候选；失败清空，不能继续借用旧选择。 */
+ refresh():{error:string}{
+  if(!this.#active)return{error:'来源选择已释放'}
+  try{const current=scope(this.input);this.#baseline=signature(current);this.#catalog.replace(candidates(current));return{error:''}}
+  catch(cause){this.#baseline=undefined;this.#catalog.replace([]);return{error:cause instanceof Error?cause.message:String(cause)}}
+ }
+ /** 选中源加入根或指定父项下，仅写原输入编辑域；字段采用正式已发布输出，返回原数组新路径。 */
+ add(parentPath:JsonPath|null):JsonPath{
+  if(!this.#active||!this.#baseline)throw Error('来源选择已释放或尚未读取')
+  const current=scope(this.input)
+  if(signature(current)!==this.#baseline)throw Error('来源选择的原图或输入已变化，请重新选择')
+  const row=this.view.currentRow,id=row&&this.view.fieldAccess(row,'value').read==='visible'?row['value']:undefined
+  if(typeof id!=='string'||!candidates(current).some(option=>option.value===id))throw Error('请从当前正式祖先候选选择来源；不能复用来源或生成后缀身份')
+  const source=current.byId.get(id);if(!source)throw Error('来源节点不存在')
+  const output=workflowOutputFields({nodeId:id,position:read(current.nodes,source,'position_type'),nodeType:read(current.nodes,source,'node_type'),mapping:read(current.nodes,source,'output_mapping')})
+  const parent=parentPath===null?undefined:selected(current,parentPath),next={rowid:id,pid:parent?.['rowid']??null,Name:read(current.nodes,source,'name'),JoinType:null,JoinFilter:null,
+   Fields:output.map(field=>({rowid:field['rowid'],Name:field['Name'],AsName:field['Name'],Description:typeof field['Description']==='string'?field['Description']:'',FieldType:field['FieldType'],IsOutput:1}))}
+  const index=parentPath===null?current.mapping.length:Number(parentPath[0])+1,mapping=[...current.mapping];mapping.splice(index,0,next);write(current,mapping);return[index]
+ }
+ /** 沿本次同一捕获基线移除指定输入子树；不会删除任何来源业务记录。 */
+ remove(path:JsonPath):string[]{
+  if(!this.#active||!this.#baseline)throw Error('来源选择已释放或尚未读取')
+  if(signature(scope(this.input))!==this.#baseline)throw Error('来源移除的原图或输入已变化，请重新确认')
+  return removeWorkflowMergeInput({...this.input,path})
+ }
+ /** 释放自有目录及捕获基线，不取消、保存或删除正式工作流记录。 */
+ dispose():void{if(!this.#active)return;this.#active=false;this.#baseline=undefined;this.#catalog.dispose()}
+}
+
+/** 精确删除输入子树；保留条件仍引用被移除输入时拒绝，不删除业务节点、模型或输出目录。 */
+export function removeWorkflowMergeInput(input:Target&Readonly<{path:JsonPath}>):string[]{
+ const current=scope(input),item=selected(current,input.path),removed=new Set([String(item['rowid'])])
+ let changed=true;while(changed){changed=false;for(const row of current.items.values())if(typeof row['pid']==='string'&&removed.has(row['pid'])&&!removed.has(String(row['rowid']))){removed.add(String(row['rowid']));changed=true}}
+ function visit(value:unknown):void{
+  if(Array.isArray(value)){value.forEach(visit);return}
+  if(!isRecord(value)||value['Type']==='GetConstValue')return
+  if(value['Type']==='GetExpData')throw Error('保留的合并条件含不透明表达式，不能核定删除引用')
+  if(value['Type']==='GetTableField'&&typeof value['Field']==='string'&&removed.has(value['Field'].split('.')[0]??''))throw Error('被移除的合并输入仍被引用，请先修改并确认保留条件')
+  for(const child of Object.values(value))visit(child)
+ }
+ for(const row of current.items.values())if(!removed.has(String(row['rowid']))&&current.parent(row)!==undefined)visit(row['JoinFilter'])
+ write(current,current.mapping.filter(row=>isRecord(row)&&!removed.has(String(row['rowid']))));return[...removed]
 }

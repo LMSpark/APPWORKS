@@ -37,6 +37,44 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('adds root and child merge sources from a bound catalog, cancels, saves, reopens and removes only their input subtree',async()=>{
+  const output=(id:string)=>JSON.stringify([{rowid:`${id}ROOT`,pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:`${id}COUNT`,pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:`${id}F`,pid:`${id}ROOT`,Name:id==='A'?'publishedAlias':'code',FieldType:'varchar',Description:'已发布字段',isParent:false}])
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',node_type:'merge',position_type:1,input_mapping:'[]',output_mapping:'[]'},
+   {rowid:'A',workflow_id:'W1',name:'源A',node_type:'query',position_type:1,node_config:'M1',output_mapping:output('A')},
+   {rowid:'B',workflow_id:'W1',name:'源B',node_type:'copy',position_type:1,node_config:'M2',output_mapping:output('B')}]
+  state.http.records['Base_WorkflowConnectors']=[{rowid:'AB',workflow_id:'W1',sourceID:'A',targetID:'B'},{rowid:'BN',workflow_id:'W1',sourceID:'B',targetID:'N1'}];state.http.records['Base_DataModel_Relation']=[]
+  const selectNode=async(f:Awaited<ReturnType<typeof open>>)=>{await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()}
+  const f=await open();await selectNode(f)
+  const add=async(label:string,name:string)=>{
+   await f.click(label)
+   const table=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@optionCatalog_'))!
+   expect(table).toBeDefined();const row=table.findAll('tbody tr').find(row=>row.text().includes(name))!;await row.trigger('click');await f.click('确认合并来源')
+  }
+  await f.click('添加合并根输入');expect(state.dirty[0]?.isDirty).toBe(true)
+  const stale=f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='确认合并来源')!.vm.$.vnode.props?.['onClick']
+  if(typeof stale!=='function')throw Error('missing captured source confirmation')
+  await f.click('取消合并来源选择');expect(state.dirty[0]?.isDirty).toBe(false)
+  await f.click('添加合并根输入')
+  const candidates=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@optionCatalog_'))!
+  await candidates.findAll('tbody tr').find(row=>row.text().includes('源A'))!.trigger('click');await flushPromises()
+  stale();await flushPromises()
+  expect(f.wrapper.findAllComponents(RendererDialog).some(dialog=>dialog.props('title')==='选择合并来源'&&dialog.props('modelValue'))).toBe(true)
+  await f.click('取消合并来源选择');expect(state.dirty[0]?.isDirty).toBe(false);expect(state.http.saves).toEqual([])
+  await add('添加合并根输入','源A');expect(state.dirty[0]?.isDirty).toBe(true);expect(state.http.saves).toEqual([])
+  await f.click('取消节点修改');expect(state.dirty[0]?.isDirty).toBe(false)
+  await add('添加合并根输入','源A');await add('添加合并子输入','源B');await f.click('保存节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(1))
+  const saved=JSON.parse(String(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']))
+  expect(saved).toHaveLength(2);expect(saved[0]).toMatchObject({rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'publishedAlias'}]});expect(saved[1]).toMatchObject({rowid:'B',pid:'A'})
+  const reopened=await open();await selectNode(reopened)
+  const tree=()=>reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('mode')==='outline')!
+  await vi.waitFor(()=>expect(tree().findAll('tbody tr')).toHaveLength(2));await tree().findAll('tbody tr')[0]!.trigger('click');await flushPromises()
+  await reopened.click('移除合并输入及子项');await reopened.click('取消移除合并输入');expect(state.http.saves).toHaveLength(1)
+  await reopened.click('移除合并输入及子项');await reopened.click('确认移除合并输入');expect(state.http.saves).toHaveLength(1)
+  await reopened.click('取消节点修改');await vi.waitFor(()=>expect(tree().findAll('tbody tr')).toHaveLength(2));await tree().findAll('tbody tr')[0]!.trigger('click');await flushPromises()
+  await reopened.click('移除合并输入及子项');await reopened.click('确认移除合并输入');await reopened.click('保存节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(2))
+  expect(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']).toBe('[]');expect(state.http.records['Base_WorkflowNodeDefinition']).toHaveLength(3)
+  expect(state.http.saves.every(save=>save.table==='Base_WorkflowNodeDefinition'&&save.deleted.length===0&&save.added.length===0)).toBe(true)
+ })
  it('edits merge join settings on the original JSON text, keeps roots free of join controls, and cancels or saves through the node',async()=>{
   const field={rowid:'F1',Name:'code',AsName:'code',FieldType:'string',IsOutput:1},mapping=JSON.stringify([{rowid:'P',Name:'父输入',Fields:[field],unknown:0},{rowid:'C',pid:'P',Name:'子输入',JoinType:'INNER',JoinFilter:null,Fields:[field],unknown:{keep:true}}])
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',node_type:'merge',position_type:1,input_mapping:mapping,output_mapping:'[]'},

@@ -1,0 +1,358 @@
+{
+  "date": "2026-11-05",
+  "baseCommit": "0235b15f01a732b911d07a598ce90944080bcb38",
+  "scope": "Original-DataView merge source addition and precise input-subtree removal, native storage lifecycle",
+  "sourceHashes": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "f6b2093981aa41864967b8009ec82e9219d8dded2d7a1294bdd021f4e89efffd"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
+      "sha256": "a393c052c874bc1c65f36956381689645d9055c6071e692d6427afb3c1c87258"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "85fae7dce51ca18e2485e23684465d97e5a625c4cada7ad9985669d93140246f"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "21e28d747820536db6ace8d3d4d9f0ee28033f94e1cd215d05eec6af655157e0"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "6a3585c9063f90abe533ad8ff065181b4d94055bb7400b603f783ff5b8008965"
+    }
+  ],
+  "validation": {
+    "regression": {
+      "files": 28,
+      "tests": 502,
+      "passed": true
+    },
+    "classModelContract": {
+      "files": 4,
+      "tests": 49,
+      "passed": true
+    },
+    "typecheck": true,
+    "lint": true,
+    "frontendBuild": true,
+    "semanticGapCount": 3639,
+    "semanticGate": 679,
+    "newSemanticGaps": [],
+    "existingCodegenViolations": 26,
+    "logs": [
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-regression.log",
+        "sha256": "5fac521f1888055a8db16105379efd8f925ae6b92f47491a3a98514e5422f9cd"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-typecheck.log",
+        "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-class-model.log",
+        "sha256": "23d6ac0015481937d62a9618fd9bece90c330cbfa7647dcc37c861cb0901f20f"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-guides.log",
+        "sha256": "179dfe24b7b54d3cca8e3ebd1f7f283504d682e6450527bd0af78d695cb05ba8"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-schema.log",
+        "sha256": "abb8c9527445ad89022065828e9e05cd5cf605aaa338d3abd096103e54a41763"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-contract.log",
+        "sha256": "39960b7f20e5885dc6a5ebd93773234e114a3d77f86c2cfda86438324501bf47"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-build.log",
+        "sha256": "31a5c3f25caf4ca42e168346c05d7b452917a99bd2bae30b35519f1a8c6cb093"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-final-codegen.log",
+        "sha256": "2ea822c172ad21293a19e59bc93828ce62452334a588f5d8c7af6fc25731d5f2"
+      }
+    ]
+  },
+  "classModelLookup": "WorkflowMergeSourceOptions catalog/overview, view/dataViewKey and refresh/add/remove/dispose guides; standard dialog/table/button catalogs",
+  "eventRegression": {
+    "red": "artifacts/data-chain-smoke/workflow-merge-sources-old-confirmation-red.log",
+    "redSha256": "b1ab6509671ebf628a6a5f69b2a33ed3f701fd46cabe2d9ce06961ce953b8162",
+    "green": "artifacts/data-chain-smoke/workflow-merge-sources-old-confirmation-final.log",
+    "greenSha256": "b703b1ddafdb5dca5da79b513e3bc9d9b144963c6a1865453bde9e861afddbfd",
+    "behavior": "Captured confirmation from a cancelled window cannot act on the reopened window; confirmation and cancellation use captured session revision"
+  },
+  "live": {
+    "testAccount": "领码科技/wangtao",
+    "workflowId": "8EBE14491C6B445ABFFEE2EBF3A2B14A",
+    "marker": "SMOKE_MERGE_SOURCES_LIVE_1793815223287",
+    "lifecycle": "cleaned",
+    "phases": [
+      {
+        "name": "fixture-create",
+        "phase": "created-confirmed",
+        "reads": 39,
+        "writes": 3,
+        "unknown": false
+      },
+      {
+        "name": "prepare",
+        "phase": "confirmed",
+        "reads": 85,
+        "writes": 10,
+        "unknown": false
+      },
+      {
+        "name": "configure",
+        "phase": "confirmed",
+        "reads": 54,
+        "writes": 3,
+        "unknown": false
+      },
+      {
+        "name": "cleanup",
+        "phase": "confirmed",
+        "reads": 48,
+        "writes": 3,
+        "unknown": false
+      }
+    ],
+    "reads": 226,
+    "writes": 19,
+    "executions": 0,
+    "businessDataWrites": 0,
+    "publishedSourceIds": [
+      {
+        "nodeId": "9C18E4564BCA9B4810BCDABEC872EFE1",
+        "modelId": "D14192327EF6D882B12F84DFF31B0C42",
+        "fieldIds": {
+          "rowid": "4F8E95BA17C4C931E510B0327E5F8A2B",
+          "description": "9255F0F37CDDDB8FF17EA7FCF4313E3B",
+          "name": "940CD5DF08E6C2FC6AD4430877DCED8D"
+        }
+      },
+      {
+        "nodeId": "B5F8AD751B9178EA8E233795CD4422AB",
+        "modelId": "C665C607B7623290C149C5C93BA303A1",
+        "fieldIds": {
+          "rowid": "26857C9EB6B349E6D357A9E67537EA43",
+          "description": "8885163F88AB0B9D685C14A81705A74D",
+          "name": "F57FEA30BE2D0547CB44F478E0AFA7BE"
+        }
+      }
+    ],
+    "initialSources": [
+      {
+        "rowid": "9C18E4564BCA9B4810BCDABEC872EFE1",
+        "pid": null,
+        "Name": "SMOKE_MERGE_SOURCE_A",
+        "JoinType": null,
+        "JoinFilter": null,
+        "Fields": [
+          {
+            "rowid": "4F8E95BA17C4C931E510B0327E5F8A2B",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "唯一值（ID）",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "9255F0F37CDDDB8FF17EA7FCF4313E3B",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "摘要",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "940CD5DF08E6C2FC6AD4430877DCED8D",
+            "Name": "published_a_name",
+            "AsName": "published_a_name",
+            "Description": "文件名称",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          }
+        ]
+      },
+      {
+        "rowid": "B5F8AD751B9178EA8E233795CD4422AB",
+        "pid": "9C18E4564BCA9B4810BCDABEC872EFE1",
+        "Name": "SMOKE_MERGE_SOURCE_B",
+        "JoinType": null,
+        "JoinFilter": null,
+        "Fields": [
+          {
+            "rowid": "26857C9EB6B349E6D357A9E67537EA43",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "唯一值（ID）",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "8885163F88AB0B9D685C14A81705A74D",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "摘要",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "F57FEA30BE2D0547CB44F478E0AFA7BE",
+            "Name": "published_b_name",
+            "AsName": "published_b_name",
+            "Description": "文件名称",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          }
+        ]
+      }
+    ],
+    "removedInputIds": [
+      "9C18E4564BCA9B4810BCDABEC872EFE1",
+      "B5F8AD751B9178EA8E233795CD4422AB"
+    ],
+    "readded": [
+      {
+        "rowid": "9C18E4564BCA9B4810BCDABEC872EFE1",
+        "pid": null,
+        "Name": "SMOKE_MERGE_SOURCE_A",
+        "JoinType": null,
+        "JoinFilter": null,
+        "Fields": [
+          {
+            "rowid": "4F8E95BA17C4C931E510B0327E5F8A2B",
+            "Name": "rowid",
+            "AsName": "rowid",
+            "Description": "唯一值（ID）",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "9255F0F37CDDDB8FF17EA7FCF4313E3B",
+            "Name": "description",
+            "AsName": "description",
+            "Description": "摘要",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          },
+          {
+            "rowid": "940CD5DF08E6C2FC6AD4430877DCED8D",
+            "Name": "published_a_name",
+            "AsName": "published_a_name",
+            "Description": "文件名称",
+            "FieldType": "varchar",
+            "IsOutput": 1
+          }
+        ]
+      }
+    ],
+    "acknowledged": [
+      "save-root-and-child",
+      "save-cascade-removal",
+      "save-readded-source"
+    ],
+    "additionCancelNoSubmission": true,
+    "removalCancelRestores": true,
+    "independentReopen": true,
+    "businessNodesPreserved": true,
+    "cleanup": {
+      "nodeIds": [
+        "1F492D2D5A1D8DEEC9003215E2A75F3A",
+        "4EA698564F8C87247AC508B5BDB6B3BC",
+        "9C18E4564BCA9B4810BCDABEC872EFE1",
+        "B5F8AD751B9178EA8E233795CD4422AB"
+      ],
+      "edgeIds": [
+        "24BC374D8D2A97709203839CC7AFEB4E",
+        "06E4CE4C6A4D081BE665E7281A448737",
+        "C1487616B53126885E57F59196549345"
+      ],
+      "modelIds": [
+        "C665C607B7623290C149C5C93BA303A1",
+        "D14192327EF6D882B12F84DFF31B0C42"
+      ],
+      "fieldIds": [
+        "076DB924FBD64A6D98DF7D22A7ECF965",
+        "1BBCADCE54DF711F767CD65F64D46892",
+        "26857C9EB6B349E6D357A9E67537EA43",
+        "360A995C7E9BA2FC39D1994957D797BE",
+        "4B06D73FBB1448C03E6846B0CC368A8F",
+        "55B631C74A7B9E42D574067074A986FA",
+        "5EE9E31E7199BE9108229058CAB37563",
+        "5FB4F5D1A05F6803F0F588F06DEB113F",
+        "8885163F88AB0B9D685C14A81705A74D",
+        "90F43AE7F3348BD65E626CCDB2597794",
+        "CF1D010039041180D580517640877646",
+        "D9C67C3B0DF351F1B89C99BD3D1879F7",
+        "F3D8F3A412417AB2F7CB28CE12CCAEF5",
+        "F57FEA30BE2D0547CB44F478E0AFA7BE",
+        "12B0C9223F32F87EB9CD9A65D3FC1F4D",
+        "26060E54DC0891FB49EEFF5F1D92A07C",
+        "4F8E95BA17C4C931E510B0327E5F8A2B",
+        "5CC8B03BA009F6B7569E126399B88D77",
+        "5F947B3D5263B75B82507675324CD29A",
+        "62863991A4CFF01931C83A7EE830B376",
+        "9255F0F37CDDDB8FF17EA7FCF4313E3B",
+        "940CD5DF08E6C2FC6AD4430877DCED8D",
+        "A85D83BD240AB8EEDAE241D9FB3F1C26",
+        "A9681B2D0DD80B76359118FA7118BF91",
+        "B2C5F6166E8D6588626F7C885244CF4E",
+        "CFBC9C6BBF48DE0A289776F6FEBA94E4",
+        "E3AE6473607C1528E31C005F7703C6F7",
+        "F3FE82D311762DC8F19CD57378E29604"
+      ],
+      "independentAbsence": true
+    },
+    "audits": [
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-fixture-checkpoint.json",
+        "sha256": "f9ff42586fe0f8ccfc4734789dcc777e57ed0cb8a52af3b378096024d80c91a3"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-fixture-create-audit.json",
+        "sha256": "b16562c976cc52959a456aece75a7fa1a9f51674a8c793c2d1fa3a7ab3ee4654"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-prepare-intent.json",
+        "sha256": "9c90dee82b9805258cf1c72f6bd51ce79236f0916b59ab08908b225fa8ff9a94"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-prepare-audit.json",
+        "sha256": "89ffdcd83b7fc311dc8339240eb1c4e339a4405e29945828ff855f1bd6a34475"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-configure-intent.json",
+        "sha256": "9a6a2114d972b3845f34868e0d21f6c04f0d6ed6f7f0aba411ec7ffa01d19820"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-configure-audit.json",
+        "sha256": "4345946674635f308d1e3a926c9fa3be18b6fd658c5ffadcc948af278af1f907"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-cleanup-intent.json",
+        "sha256": "600d20ef76f0cecebe363d26807d190305c7792642acb5be78547d0442b6bab0"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-sources-live-cleanup-audit.json",
+        "sha256": "c142e3cfab2625693b38d8152cd2e7ece13c5007f2842ac5fee7949b3fbf2ddd"
+      }
+    ]
+  },
+  "review": "Independent read-only core and consumer reviews; additional session-event fix reviewed after RED reproduction",
+  "limitations": [
+    "Readonly candidate DataView is a projection of the already queried formal graph, not a second business cache or authorization source",
+    "Mounted UI and real native storage smoke are separate; no real-browser 1:1 claim",
+    "Source SQL and merge execution were not dispatched; prior service projection/join gaps remain open",
+    "Repeated-source suffix identities, remaining source contracts, output generation and complete migration remain unfinished",
+    "Existing codegen and semantic gates are not fully passing"
+  ]
+}

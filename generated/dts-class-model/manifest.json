@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1041,
+  "scannedFileCount": 1042,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14302,9 +14302,11 @@
         "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/workflow-definition/merge-inputs",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：从原节点JSON及正式流程图提供选中合并输入的连接配置目录。\n边界：只读元数据与权限，不创建草稿、查询、保存、推导源身份或执行连接。\nAI用途：标准过滤组件绑定原input_mapping子路径，复用当前输入与父链字段目录。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：原合并输入的范围核对、连接目录及来源增删命令。\n边界：只读正式图，来源命令仅写原DataView的input_mapping；不查询、保存、推导源身份或执行连接。\nAI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": []
+        "symbols": [
+          "WorkflowMergeSourceOptions"
+        ]
       }
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
@@ -16777,6 +16779,19 @@
         "packageName": "app",
         "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel",
         "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel\n职责：标准组件绑定原DataSet的测试命令输入与回执；不在页面发送HTTP或持有执行结果副本。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue": {
+      "file": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources",
+        "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
+        "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources",
+        "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources\n职责：以标准候选视图选择合并来源，确认来源加入或输入子树移除。\n边界：只触发原节点DataView命令；不查询、保存、维护输入副本或删除业务节点。\nAI用途：在原工作流编辑域复用标准对话框、表格、按钮及来源会话守卫。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -23708,6 +23723,10 @@
     "WorkflowLineRuntimeStatus": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
+    },
+    "WorkflowMergeSourceOptions": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json"
     },
     "WorkflowMetadataRow": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",

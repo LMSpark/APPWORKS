@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources\n职责：以标准候选视图选择合并来源，确认来源加入或输入子树移除。\n边界：只触发原节点DataView命令；不查询、保存、维护输入副本或删除业务节点。\nAI用途：在原工作流编辑域复用标准对话框、表格、按钮及来源会话守卫。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-04T18:06:27.323Z",
+  "models": {}
+}

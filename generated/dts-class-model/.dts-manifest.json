@@ -4254,7 +4254,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-04T17:23:39.076Z"
+      "sourceModifiedAt": "2026-11-04T18:01:04.833Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
@@ -5109,12 +5109,17 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-04T17:15:19.840Z"
+      "sourceModifiedAt": "2026-11-04T17:55:27.697Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue.json",
       "sourceModifiedAt": "2026-11-04T10:24:26.381Z"
+    },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue.json",
+      "sourceModifiedAt": "2026-11-04T18:06:27.323Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue",

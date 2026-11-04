@@ -5,7 +5,7 @@ import {DataView,DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
-import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate,openWorkflowCopyNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {openWorkflowNodeModelBinding} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
 import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
@@ -37,7 +37,86 @@ async function fixture(){
  const reader={query:vi.fn<PageDataSpaceModelSourceReader['query']>(async()=>({rows:[source],total:1})),prepare:vi.fn<PageDataSpaceModelSourceReader['prepare']>(async()=>structuredClone(prepared))}
  return{http,ds,reader}
 }
+async function newNodeBinding(kind:'query'|'copy'|'add'|'edit'|'delete',input:Omit<Parameters<typeof openWorkflowNodeModelBinding>[0],'nodeId'>){
+ const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition')!
+ const row=await nodes.addRow({workflow_id:input.workflowId,position_type:1,node_type:kind,node_config:'',dataOperateModId:'',name:'',description:'',input_mapping:'[]',output_mapping:'[]',config:''})
+ return openWorkflowNodeModelBinding({...input,nodeId:String(nodes.getPkKey(row))})
+}
 describe('workflow query model creation in the original DataSet',()=>{
+ it('rejects a remotely changed empty node type before opening model registration',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  const saved={rowid:'SAVED',workflow_id:'W1',position_type:1,node_type:'query',node_config:'',dataOperateModId:'',input_mapping:'[]',output_mapping:'[]',config:''}
+  http.records['Base_WorkflowNodeDefinition']=[saved];await nodes.refresh();saved.node_type='copy'
+  await expect(openWorkflowNodeModelBinding({dataSet:ds,workflowId:'W1',nodeId:'SAVED',sources:reader,assertCurrent(){}})).rejects.toThrow('正式节点类型已变化')
+  expect(http.saves).toHaveLength(0)
+ })
+ it('abandons a model batch proven not applied without discarding later node edits or replaying it',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}});await owner.model.preview(source)
+  let dispatches=0;http.beforeSave=async()=>{dispatches++;throw Error('before model transport')}
+  await expect(owner.save()).rejects.toThrow();nodes.updateEditingValue(owner.nodeId,'name','后续名称')
+  await expect(owner.save()).rejects.toThrow();expect(owner.model.getState().canAbandonNotApplied).toBe(true)
+  await owner.abandonNotApplied();owner.cancel()
+  expect(nodes.getEditingRow(owner.nodeId)?.['name']).toBe('后续名称');expect(dispatches).toBe(1);expect(http.saves).toHaveLength(0)
+ })
+ it('rejects an existing formal binding hidden by an empty editing overlay',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'SAVED',workflow_id:'W1',position_type:1,node_type:'query',node_config:'EXISTING',dataOperateModId:'',input_mapping:'[]',output_mapping:'[]',config:''}]
+  await nodes.refresh();nodes.updateEditingValue('SAVED','node_config','')
+  await expect(openWorkflowNodeModelBinding({dataSet:ds,workflowId:'W1',nodeId:'SAVED',sources:reader,assertCurrent(){}})).rejects.toThrow('已有模型绑定')
+  expect(http.saves).toHaveLength(0)
+ })
+ it('allows cancelling an undispatched preview after node edits while retaining those edits',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  await owner.model.preview(source);nodes.updateEditingValue(owner.nodeId,'name','后续名称')
+  expect(()=>owner.cancel()).not.toThrow();expect(nodes.getEditingRow(owner.nodeId)?.['name']).toBe('后续名称');expect(http.saves).toHaveLength(0)
+ })
+ it('rereads an existing empty node before registering a model and rejects a concurrent binding',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  const saved={rowid:'SAVED',workflow_id:'W1',position_type:1,node_type:'query',node_config:'',dataOperateModId:'',input_mapping:'[]',output_mapping:'[]',config:''}
+  http.records['Base_WorkflowNodeDefinition']=[saved];await nodes.refresh()
+  const owner=await openWorkflowNodeModelBinding({dataSet:ds,workflowId:'W1',nodeId:'SAVED',sources:reader,assertCurrent(){}})
+  await owner.model.preview(source);saved.node_config='CONCURRENT'
+  await expect(owner.save()).rejects.toThrow('正式节点已绑定');expect(http.saves).toHaveLength(0)
+ })
+ it('recovers an unknown original node batch after explicitly discarding later node edits without replay',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}});await owner.model.preview(source)
+  http.beforeSave=async()=>{if(http.saves.length===2)http.failAfterWrite=true}
+  await expect(owner.save()).rejects.toThrow();nodes.updateEditingValue(owner.nodeId,'name','后续名称')
+  await expect(owner.save()).rejects.toThrow('原创建意图');expect(owner.canDiscardNodeLocalChanges).toBe(true)
+  await expect(owner.discardNodeLocalChanges()).rejects.toThrow('重新选择')
+  expect(nodes.getEditingRow(owner.nodeId)?.['name']).toBe('后续名称')
+  expect(await owner.discardNodeLocalChanges()).toBe(owner.nodeId)
+  expect(http.saves).toHaveLength(3);expect(owner.pending).toBe(false);expect(nodes.hasEditingChanges()).toBe(false)
+ })
+ it('resolves an unknown model batch before explicitly restoring the initial node intent',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh()
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}});await owner.model.preview(source)
+  http.beforeSave=async()=>{if(http.saves.length===0)http.failAfterWrite=true}
+  await expect(owner.save()).rejects.toThrow();nodes.updateEditingValue(owner.nodeId,'name','后续名称')
+  await expect(owner.save()).rejects.toThrow('原草稿已变化');expect(owner.modelId).toEqual(expect.any(String));expect(owner.canDiscardNodeLocalChanges).toBe(true)
+  expect(await owner.discardNodeLocalChanges()).toBe(owner.nodeId);expect(http.saves).toHaveLength(3);expect(owner.pending).toBe(false)
+ })
+ it('reopens a saved empty node, cancels source preview without deleting it, and binds its original identity',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  await nodes.refresh();const row=await nodes.addRow({workflow_id:'W1',position_type:1,node_type:'query',node_config:'',dataOperateModId:'',name:'保存的空节点',description:'',input_mapping:'[]',output_mapping:'[]',config:''}),nodeId=String(nodes.getPkKey(row))
+  await ds.saveChanges({views:[{tableName:nodes.tableName,viewId:nodes.viewId,ids:[nodeId]}]});await nodes.refresh()
+  const input={dataSet:ds,workflowId:'W1',nodeId,sources:reader,assertCurrent(){}}
+  let owner=await openWorkflowNodeModelBinding(input);await owner.model.preview(source);owner.cancel()
+  expect(http.saves).toHaveLength(1);expect(nodes.hasEditingChanges()).toBe(false);expect(http.records['Base_WorkflowNodeDefinition']).toHaveLength(1)
+  owner=await openWorkflowNodeModelBinding(input);await owner.model.preview(source);expect(await owner.save()).toBe(nodeId)
+  expect(http.records['Base_WorkflowNodeDefinition']).toHaveLength(1);expect(http.saves).toHaveLength(4)
+ })
+ it('binds a confirmed model to the existing empty node identity without appending another node',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  await nodes.refresh();const node=await nodes.addRow({workflow_id:'W1',position_type:1,node_type:'query',node_config:'',dataOperateModId:'',name:'保留节点名',description:'保留说明',input_mapping:'[]',output_mapping:'[]',config:''}),nodeId=String(nodes.getPkKey(node))
+  const command=await openWorkflowNodeModelBinding({dataSet:ds,workflowId:'W1',nodeId,sources:reader,assertCurrent(){}})
+  await command.model.preview(source);expect(await command.save()).toBe(nodeId)
+  expect(http.records['Base_WorkflowNodeDefinition']).toHaveLength(1)
+  expect(http.records['Base_WorkflowNodeDefinition']![0]).toMatchObject({rowid:nodeId,name:'保留节点名',description:'保留说明',node_config:command.modelId})
+ })
  it.each(['unrelated','field','condition','constant','opaque','merge-draft','bad-input','bad-table'] as const)('checks precise merge source references for %s output changes',async kind=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
   const output=(prefix:string,names:string[])=>JSON.stringify([{rowid:`${prefix}ITEMS`,pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:`${prefix}COUNT`,pid:null,Name:'Count',FieldType:'int',isParent:false},...names.map((Name,index)=>({rowid:prefix==='S'?`F${index+1}`:'FQ',pid:`${prefix}ITEMS`,Name,FieldType:'varchar',isParent:false}))])
@@ -150,7 +229,7 @@ describe('workflow query model creation in the original DataSet',()=>{
  it('creates a copy source model without converting output fields into operation inputs',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
-  const owner=await openWorkflowCopyNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('copy',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source)
   const nodeId=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===nodeId)!
   expect(http.records['Base_DataModel']!.find(row=>row['rowid']===owner.modelId)).toMatchObject({requestType:'copy',Type:'JSON',dataSetId:'W1'})
@@ -163,9 +242,9 @@ describe('workflow query model creation in the original DataSet',()=>{
  })
  it('cancels copy source preview without registering a model or node',async()=>{
   const {ds,http,reader}=await fixture();await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
-  const owner=await openWorkflowCopyNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('copy',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source);owner.cancel()
-  expect(http.saves).toEqual([]);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toBeUndefined();expect(owner.pending).toBe(false)
+  expect(http.saves).toEqual([]);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toEqual(expect.any(String));expect(owner.nodeCaptured).toBe(false);expect(owner.pending).toBe(false)
  })
  it.each(['type','model','mapping','removed'] as const)('rejects a remotely changed single-node %s before using the displayed target',async change=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
@@ -518,10 +597,10 @@ describe('workflow query model creation in the original DataSet',()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N0',workflow_id:'W1',name:'Kept'},{rowid:'N2',workflow_id:'W2',name:'Other'}]
   await nodes.refresh();nodes.updateEditingValue('N0','name','unrelated node draft')
-  const owner=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source)
   const id=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===id)!
-  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:'query',name:'Orders（1）',node_config:owner.modelId,input_mapping:'[]',config:''})
+  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:'query',name:'',node_config:owner.modelId,input_mapping:'[]',config:''})
   const field=http.records['Base_DataModel_Field']![0]!
   expect(JSON.parse(String(node['output_mapping']))).toEqual([
    expect.objectContaining({Name:'items',pid:null,isParent:true}),expect.objectContaining({Name:'Count',FieldType:'int'}),
@@ -536,7 +615,7 @@ describe('workflow query model creation in the original DataSet',()=>{
  it('verifies an unknown node creation without creating another model, field or node',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
-  const owner=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source)
   http.beforeSave=async()=>{if(http.saves.length===2)http.failAfterWrite=true}
   await expect(owner.save()).rejects.toThrow()
@@ -549,7 +628,7 @@ describe('workflow query model creation in the original DataSet',()=>{
  it('keeps the original node locked after an unknown submission is independently proven not applied',async()=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
-  const owner=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source)
   let nodeDispatches=0
   http.beforeSave=async()=>{if(http.saves.length===2){nodeDispatches++;throw Error('transport failed before node write')}}
@@ -567,7 +646,7 @@ describe('workflow query model creation in the original DataSet',()=>{
  it.each(['name','dataOperateModId'])('does not verify or submit a node with a later edit to %s',async field=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
-  const owner=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source)
   http.beforeSave=async()=>{if(http.saves.length===2)http.failAfterWrite=true}
   await expect(owner.save()).rejects.toThrow()
@@ -578,7 +657,7 @@ describe('workflow query model creation in the original DataSet',()=>{
  it('only reads again when node acknowledgement succeeded but the independent readback failed',async()=>{
   const {ds,http,reader}=await fixture()
   await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
-  const owner=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  const owner=await newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(source)
   const refresh=DataView.prototype.refresh
   let fail=true
@@ -594,7 +673,7 @@ describe('workflow query model creation in the original DataSet',()=>{
  it('refuses node creation permission before committing any source model',async()=>{
   const {ds,http,reader}=await fixture()
   http.denyAdd.add('Base_WorkflowNodeDefinition');await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
-  await expect(openWorkflowQueryNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})).rejects.toThrow('新增')
+  await expect(newNodeBinding('query',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})).rejects.toThrow('新增')
   expect(http.saves).toEqual([]);expect(reader.prepare).not.toHaveBeenCalled()
  })
  it('previews, cancels, creates and independently reads the query model and owned fields without loading the selected-model workspace',async()=>{
@@ -666,7 +745,7 @@ describe('workflow data operation node creation',()=>{
   await nodes.refresh()
   const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
   reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'},fields:[{...prepared.fields[0]!,ValueFun:'source value is not an operation input'}]})
-  const owner=await openWorkflowOperationNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}},operation)
+  const owner=await newNodeBinding(operation,{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(target)
   expect(http.saves).toHaveLength(0)
   const id=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===id)!
@@ -682,9 +761,9 @@ describe('workflow data operation node creation',()=>{
   const {ds,http,reader}=await fixture();await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
   const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
   reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'}})
-  const owner=await openWorkflowOperationNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}},'add')
+  const owner=await newNodeBinding('add',{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(target);owner.cancel()
-  expect(http.saves).toHaveLength(0);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toBeUndefined()
+  expect(http.saves).toHaveLength(0);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toEqual(expect.any(String));expect(owner.nodeCaptured).toBe(false)
  })
 })
 

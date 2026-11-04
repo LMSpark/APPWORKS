@@ -39,6 +39,15 @@ async function formalFixture(value:unknown=mapping(),sharedField=false){
  await Promise.all([ds.getView('Base_WorkflowDefinition')!.refresh(),ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds
 }
 describe('merge configuration input identity and join metadata',()=>{
+ it('keeps an unnamed formal source selectable by its real identity without inventing a node name',async()=>{
+  const ds=await formalFixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!
+  http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='A')!['name']='';await nodes.refresh()
+  const options=new WorkflowMergeSourceOptions({dataSet:ds,workflowId:'W',nodeId:'MERGE'});expect(options.refresh().error).toBe('')
+  const row=options.view.rows.find(row=>row['value']==='A')!;expect(row['label']).toBe('A');options.view.setCurrentRow(row);options.add(null)
+  const input=JSON.parse(String(nodes.getEditingRow('MERGE')?.['input_mapping']));expect(input[0]).toMatchObject({rowid:'A',Name:''})
+  expect(workflowMergeInputPresentation({dataSet:ds,workflowId:'W',nodeId:'MERGE',path:[0]}).functionContext.tables?.[0]?.label).toBe('A')
+  expect(nodes.rows.find(row=>row['rowid']==='A')?.['name']).toBe('');options.dispose()
+ })
  it.each([false,true])('uses only canonical output identities and removes deselected published fields after reference checks (legacy=%s)',async legacy=>{
   const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'result',FieldType:'varchar',Description:'结果',IsOutput:1}]}]
   const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}

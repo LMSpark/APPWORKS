@@ -42,11 +42,13 @@ function scope(input:Target,formal=false){
  const {dataSet,workflowId,nodeId}=input,nodes=dataSet.getView('Base_WorkflowNodeDefinition'),edges=dataSet.getView('Base_WorkflowConnectors')
  if(!nodes||!edges||nodes.mutating||edges.mutating||nodes.hasUnconfirmedSave||edges.hasUnconfirmedSave||edges.hasEditingChanges()||edges.dirtyTracking.hasPendingChanges())throw Error('请先确认或取消合并图的变更')
  const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId),node=byId.get(nodeId)
- if(!node||read(nodes,node,'node_type')!=='merge'||String(read(nodes,node,'position_type'))!=='1')throw Error('合并节点身份不符')
+ if(!node)throw Error('合并节点身份不符')
+ read(nodes,node,'node_type');read(nodes,node,'position_type')
+ const effective=formal?node:nodes.getEditingRow(nodeId)??node
+ if(effective['node_type']!=='merge'||String(effective['position_type'])!=='1')throw Error('合并节点身份不符')
  read(nodes,node,'input_mapping')
  if(formal&&(nodes.hasEditingChanges(nodeId)||nodes.dirtyTracking.hasPendingChanges(nodeId)))throw Error('请先保存或取消合并节点的独立修改')
- const effective=formal?node:nodes.getEditingRow(nodeId)??node
- if(effective['rowid']!==nodeId||effective['workflow_id']!==workflowId||effective['node_type']!=='merge'||String(effective['position_type'])!=='1')throw Error('合并节点编辑身份已变化')
+ if(effective['rowid']!==nodeId||effective['workflow_id']!==workflowId)throw Error('合并节点编辑身份已变化')
  const raw=effective['input_mapping'],parsed:unknown=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
  if(!Array.isArray(parsed))throw Error('合并输入必须是对象数组')
  const mapping:unknown[]=parsed
@@ -83,7 +85,7 @@ export function workflowMergeInputPresentation(input:Target&Readonly<{path:JsonP
  const chain:Array<Record<string,unknown>>=[];let current:Record<string,unknown>|undefined=item
  while(current){chain.push(current);const id=parent(current);current=id===undefined?undefined:items.get(id)}
  return {root:parent(item)===undefined,columns:fields(item).map(field=>({...field,name:`${String(item['rowid'])}.${field.name}`})),
-  functionContext:{tables:chain.map(entry=>({name:String(entry['rowid']),label:typeof entry['Name']==='string'?entry['Name']:String(entry['rowid']),fields:fields(entry).map(field=>({name:field.name,label:field.label??field.name}))}))}}
+  functionContext:{tables:chain.map(entry=>({name:String(entry['rowid']),label:typeof entry['Name']==='string'&&entry['Name']?entry['Name']:String(entry['rowid']),fields:fields(entry).map(field=>({name:field.name,label:field.label??field.name}))}))}}
 }
 
 function signature(context:ReturnType<typeof scope>):string{
@@ -95,8 +97,8 @@ function candidates(context:ReturnType<typeof scope>){
   const row=context.byId.get(id);if(!row||context.items.has(id)||context.nodes.hasEditingChanges(id)||context.nodes.dirtyTracking.hasPendingChanges(id))continue
   if(['node_type','position_type','name','output_mapping'].some(field=>context.nodes.fieldAccess(row,field).read!=='visible'))continue
   if(String(row['position_type'])!=='1'||!['query','copy'].includes(String(row['node_type'])))continue
-  if(typeof row['name']!=='string'||!row['name'])continue
-  choices.push({value:id,label:row['name']})
+  if(row['name']!==undefined&&row['name']!==null&&typeof row['name']!=='string')continue
+  choices.push({value:id,label:typeof row['name']==='string'&&row['name']?row['name']:id})
  }
  return choices
 }
@@ -198,7 +200,8 @@ export async function validateWorkflowMergeNodeChanges(input:Pick<Target,'dataSe
   const key=nodes.getPkKey(row);if(typeof key!=='string')throw Error('节点保存身份缺失')
   const changes=workflowFieldChanges(nodes,row,key)
   if(!['input_mapping','output_mapping'].some(field=>Object.hasOwn(changes,field)))continue
-  if(read(nodes,row,'node_type')==='merge')await validateWorkflowMergeOutput({...input,nodeId:key})
+  read(nodes,row,'node_type')
+  if((nodes.getEditingRow(key)??row)['node_type']==='merge')await validateWorkflowMergeOutput({...input,nodeId:key})
   if(definitionState(input.dataSet)!==baseline)throw Error('合并节点保存检查期间原定义已变化；保留当前修改')
  }
 }

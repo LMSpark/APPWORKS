@@ -88,13 +88,17 @@ export class WorkflowNodeRemoval{
  private plan():void{
   const nodes=this.view('Base_WorkflowNodeDefinition'),edges=this.view('Base_WorkflowConnectors'),models=this.view('Base_DataModel'),fields=this.view('Base_DataModel_Field'),relations=this.view('Base_DataModel_Relation')
   const node=nodes.rows.find(row=>id(nodes,row)===this.input.nodeId)
-  if(!node||String(read(nodes,node,'position_type'))!=='1'||!['query','copy','add','edit','delete'].includes(String(read(nodes,node,'node_type'))))throw Error('仅普通查询、迁移或操作节点可沿本命令删除；开始和结束节点保留')
-  const operation=!['query','copy'].includes(String(read(nodes,node,'node_type')))
-  const modelId=read(nodes,node,operation?'dataOperateModId':'node_config'),model=models.rows.find(row=>id(models,row)===modelId)
-  if(typeof modelId!=='string'||!modelId||!model)throw Error('查询节点所属模型缺失')
-  const modelContractConfirmed=read(nodes,node,'node_type')==='query'||read(models,model,'requestType')===read(nodes,node,'node_type')
+  if(!node||String(read(nodes,node,'position_type'))!=='1'||!['query','copy','add','edit','delete','merge'].includes(String(read(nodes,node,'node_type'))))throw Error('仅普通节点可沿本命令删除；开始和结束节点保留')
+  const type=read(nodes,node,'node_type'),operation=['add','edit','delete'].includes(String(type))
+  const binding=read(nodes,node,operation?'dataOperateModId':'node_config'),target=read(nodes,node,'dataOperateModId')
+  const empty=(value:unknown)=>value===undefined||value===null||value===''
+  const unbound=empty(read(nodes,node,'node_config'))&&empty(target)
+  if(type==='merge'&&!unbound)throw Error('合并节点不能绑定模型；请先核查错误归属')
+  const modelId=unbound?'':binding,model=unbound?undefined:models.rows.find(row=>id(models,row)===modelId)
+  if(typeof modelId!=='string'||!unbound&&(!modelId||!model))throw Error('查询节点所属模型缺失')
+  const modelContractConfirmed=unbound||type==='query'||!!model&&read(models,model,'requestType')===type
   const consumers=nodes.rows.filter(row=>id(nodes,row)!==this.input.nodeId&&(read(nodes,row,'node_config')===modelId||read(nodes,row,'dataOperateModId')===modelId))
-  const deleteModel=consumers.length===0&&modelContractConfirmed,nodeIds=new Set(nodes.rows.map(row=>id(nodes,row))),modelIds=new Set(models.rows.map(row=>id(models,row)))
+  const deleteModel=!unbound&&consumers.length===0&&modelContractConfirmed,nodeIds=new Set(nodes.rows.map(row=>id(nodes,row))),modelIds=new Set(models.rows.map(row=>id(models,row)))
   if(nodeIds.has(modelId)||modelIds.has(this.input.nodeId))throw Error('节点与模型身份重叠，无法区分条件和模型关系')
   const edgeIds=edges.rows.filter(row=>read(edges,row,'sourceID')===this.input.nodeId||read(edges,row,'targetID')===this.input.nodeId).map(row=>id(edges,row))
   const conditionIds:string[]=[],modelRelationIds:string[]=[]
@@ -112,7 +116,7 @@ export class WorkflowNodeRemoval{
   const fieldIds=deleteModel?fields.rows.filter(row=>read(fields,row,'dataModelId')===modelId).map(row=>id(fields,row)):[]
   this.#selections=[{view:relations,ids:[...conditionIds,...modelRelationIds]},{view:edges,ids:edgeIds},{view:fields,ids:fieldIds},{view:models,ids:deleteModel?[modelId]:[]},{view:nodes,ids:[this.input.nodeId]}].filter(item=>item.ids.length>0)
   this.references(modelId,deleteModel,edgeIds,new Set(conditionIds),new Set(fieldIds))
-  if(deleteModel)LowcodeDataSpaceModelRemoveReferences.validate([models,fields,relations],modelId,String(read(models,model,'Name')),new Set([...conditionIds,...modelRelationIds]))
+  if(deleteModel&&model)LowcodeDataSpaceModelRemoveReferences.validate([models,fields,relations],modelId,String(read(models,model,'Name')),new Set([...conditionIds,...modelRelationIds]))
   this.#layoutText=undefined;this.#layoutId=undefined
   const layout=this.#layout.rows[0]
   if(layout){const before=read(this.#layout,layout,'content');if(typeof before!=='string')throw Error('布局内容不是文本');const after=WorkflowLayoutDocument.remove(before,{nodes:[this.input.nodeId],edges:edgeIds});if(after!==before){if(this.#layout.fieldAccess(layout,'content').write!=='allowed')throw Error('当前查询不允许清理布局');this.#layoutText=after;this.#layoutId=id(this.#layout,layout)}}
@@ -121,8 +125,8 @@ export class WorkflowNodeRemoval{
  }
  private references(modelId:string,deleteModel:boolean,edgeIds:readonly string[],conditionIds:ReadonlySet<string>,fieldIds:ReadonlySet<string>):void{
   const nodes=this.view('Base_WorkflowNodeDefinition'),edges=this.view('Base_WorkflowConnectors'),models=this.view('Base_DataModel'),fields=this.view('Base_DataModel_Field'),relations=this.view('Base_DataModel_Relation'),parameters=this.view('Base_DataSet')
-  const model=models.rows.find(row=>id(models,row)===modelId);if(!model)throw Error('删除模型原身份已变化')
-  const modelName=String(read(models,model,'Name')),projection={nodes:[this.input.nodeId],edges:edgeIds}
+  const model=models.rows.find(row=>id(models,row)===modelId);if(modelId&&!model)throw Error('删除模型原身份已变化')
+  const modelName=model?String(read(models,model,'Name')):'',projection={nodes:[this.input.nodeId],edges:edgeIds}
   const lostByNode=new Map<string,ReadonlySet<string>>()
   for(const row of nodes.rows){const key=id(nodes,row);if(key===this.input.nodeId)continue;const before=workflowQueryAncestors(nodes,edges,this.input.workflowId,key).ancestors,after=workflowQueryAncestors(nodes,edges,this.input.workflowId,key,projection).ancestors;lostByNode.set(key,new Set([...before].filter(ancestor=>!after.has(ancestor))))}
   function visit(value:unknown,path:string,consumers:readonly string[]):void{

@@ -21,8 +21,12 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
       <p v-if="layoutError" role="alert">布局内容无效：{{ layoutError }}</p>
       <WorkflowExecutionPanel v-if="dataSet" :key="loadedTarget" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedKind === 'node' ? selectedQueryId : ''"
         :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('execution.'+key,value)" />
-      <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId"
-        :disabled="locked || (hasPending && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
+      <RendererButton label="新增节点" :data-view-key="nodesKey" action="append-row" :set-current-row-on-success="true"
+        :append-payload="{workflow_id:workflowId,position_type:1,node_type:'query',node_config:'',dataOperateModId:'',name:'',description:'',input_mapping:'[]',output_mapping:'[]',config:''}"
+        :disabled="locked || hasPending" />
+      <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId"
+        :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && String(selectedNode?.['position_type']) === '1'"
+        :disabled="locked || pendingPart('nodes') || (hasPending && !nodeDraftOnly && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
       <WorkflowQuerySourceEdit v-if="dataSet" :key="loadedTarget" ref="querySourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :revision="revision"
         :operation="isOperationNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && validModel && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" :on-saved="queryNodeCreated" @pending-change="value=>pending('source.query',value)" />
       <WorkflowCopyTarget v-if="dataSet" :key="loadedTarget" ref="copyTargetApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId"
@@ -30,7 +34,7 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
       <WorkflowMergeSources v-if="dataSet" :key="loadedTarget" ref="mergeSourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :parent-path="mergePath"
         :eligible="selectedKind === 'node' && isMergeNode" :disabled="locked || pendingPart('nodes')" @pending-change="value=>pending('nodes.mergeSources',value)" @changed="path=>mergePath=path" />
       <WorkflowNodeRemove v-if="dataSet" :key="loadedTarget" ref="nodeRemoveApi" :data-set="dataSet" :workflow-id="workflowId"
-        :node-id="selectedQueryId" :operation="isOperationNode" :copy="isCopyNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
+        :node-id="selectedQueryId" :operation="isOperationNode" :copy="isCopyNode" :merge="isMergeNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode || isMergeNode) && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
       <div>
         <RendererButton v-if="layoutMissing" label="创建布局" :data-view-key="layoutKey" perm-action="create" :disabled="locked" @click="createLayout" />
         <RendererButton v-if="layoutRow" label="自动对齐" :disabled="locked || !!layoutError" @click="graphApi?.arrange()" />
@@ -62,7 +66,8 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
             <RendererForm :data-view-key="nodesKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
               <FieldText :data-view-key="nodesKey" field="name" label="节点名称" :readonly="locked" />
               <FieldText field="description" label="节点描述" :readonly="locked" />
-              <FieldText field="node_type" label="节点类型" :readonly="true" />
+              <FieldSelect v-if="nodeTypeEditable" field="node_type" label="操作类型" :options="nodeTypes" :clearable="false" :readonly="locked" />
+              <FieldText v-else field="node_type" label="节点类型" :readonly="true" />
               <FieldText field="dataOperateModId" label="数据模型" :readonly="true" />
               <FieldJson v-if="isMergeNode" field="input_mapping" label="合并输入层级" mode="outline" outline-id-field="rowid" outline-parent-field="pid"
                 :children="mergeInputFields" :readonly="true" :selected-path="mergePath" :on-selected-path-change="selectMergePath" />
@@ -91,6 +96,7 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
             <RendererButton :label="isUnconfirmed(nodesTable) ? '核验节点保存结果' : '保存节点'" :disabled="busy || pendingPart('nodes')" @click="save(nodesTable)" />
             <RendererButton label="取消节点修改" :disabled="busy || unconfirmed" @click="cancel(nodesTable)" />
             <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
+            <p v-if="modelBindingIssue" role="alert">{{ modelBindingIssue }}</p>
             <section v-if="validModel">
               <h2>模型配置</h2>
               <WorkflowQueryConfiguration v-if="(isQueryNode || isOperationNode) && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
@@ -164,11 +170,12 @@ import WorkflowCopyTarget from './workflow-copy-target.vue'
 import WorkflowMergeSources from './workflow-merge-sources.vue'
 import {workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
 import {workflowMergeInputPresentation,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
+import {workflowNodeTypeEditable,validateWorkflowNodeTypeChanges} from '@/lowcode/resources/structured-config/workflow-definition/node-definition'
 import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
 import WorkflowNodeRemove from './workflow-node-remove.vue'
 import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
 import WorkflowExecutionPanel from './workflow-execution-panel.vue'
-const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldJson,useSparkComponent}=SparkComponent
+const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldSelect,FieldJson,useSparkComponent}=SparkComponent
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
 const scene=LowcodeWorkflowDefinition.designScenarioId,nodesTable='Base_WorkflowNodeDefinition',edgesTable='Base_WorkflowConnectors'
@@ -238,21 +245,39 @@ function selectMergePath(path:JsonPath|null):void{if(path===null||!pendingPart('
 function nodeModelId(row:DataRow):string{
  const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
  if(nodes.fieldAccess(row,'position_type').read!=='visible')throw new Error('节点位置类型不可读')
- const position=String(row['position_type']??'').trim()
- if(position!==''&&position!=='1')return ''
- const type=typeof row['node_type']==='string'?row['node_type'].trim().toLowerCase():''
+ const key=nodes.getPkKey(row);if(key===undefined)throw Error('节点身份缺失')
+ const effective=nodes.getEditingRow(key)??row,position=String(effective['position_type']??'').trim()
+ if(position!=='1')return ''
+ const type=typeof effective['node_type']==='string'?effective['node_type']:''
  if(!['query','copy','add','edit','delete'].includes(type))return ''
  const field=type==='query'||type==='copy'?'node_config':'dataOperateModId'
- if(nodes.fieldAccess(row,field).read!=='visible')throw new Error('节点模型身份不可读')
- const id=row[field];return typeof id==='string'?id.trim():''
+ for(const key of ['node_config','dataOperateModId'])if(nodes.fieldAccess(row,key).read!=='visible')throw new Error('节点模型身份不可读')
+ const other=field==='node_config'?'dataOperateModId':'node_config'
+ if(effective[other]!==undefined&&effective[other]!==null&&effective[other]!=='')throw Error('节点存在混合模型绑定，请核查正式配置')
+ const id=effective[field];if(id===null||id===undefined||id==='')return ''
+ if(typeof id!=='string'||id!==id.trim())throw Error('节点模型身份无效')
+ return id
 }
+const modelBindingIssue=computed(()=>{revision.value;const row=selectedNode.value;if(!row)return '';try{nodeModelId(row);return ''}catch(cause){return cause instanceof Error?cause.message:String(cause)}})
 const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;if(!row)return '';try{return nodeModelId(row)}catch{return ''}})
 const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
 const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
-const isQueryNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['query','copy'].includes(String(row['node_type']))})
-const isCopyNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='copy'})
-const isMergeNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='merge'})
-const isOperationNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['add','edit','delete'].includes(String(row['node_type']))})
+const selectedType=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value,key=row&&target?.getPkKey(row);return row&&key!==undefined&&key!==null&&target?.fieldAccess(row,'node_type').read==='visible'?(target.getEditingRow(key)??row)['node_type']:undefined})
+const isQueryNode=computed(()=>['query','copy'].includes(String(selectedType.value)))
+const isCopyNode=computed(()=>selectedType.value==='copy')
+const isMergeNode=computed(()=>selectedType.value==='merge')
+const isOperationNode=computed(()=>['add','edit','delete'].includes(String(selectedType.value)))
+const nodeTypes=Object.entries({query:'查询',copy:'迁移',add:'新增',edit:'编辑',delete:'删除',merge:'合并'}).map(([value,label])=>({value,label}))
+const nodeTypeEditable=computed(()=>{
+ revision.value;const ds=dataSet.value,id=selectedQueryId.value
+ if(!ds||!id)return false
+ try{return workflowNodeTypeEditable({dataSet:ds,workflowId:workflowId.value,nodeId:id})}catch{return false}
+})
+const nodeDraftOnly=computed(()=>{
+ revision.value;const nodes=view(nodesTable),id=selectedNode.value&&nodes?.getPkKey(selectedNode.value)
+ if(!nodes||id===undefined)return false
+ return views.value.every(target=>target===nodes?!target.rows.some(row=>{const key=target.getPkKey(row);return key!==id&&(target.hasEditingChanges(key)||target.dirtyTracking.hasPendingChanges(key))}):!target.hasEditingChanges()&&!target.dirtyTracking.hasPendingChanges())
+})
 const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
 watch([selectedQueryId,loadedTarget],()=>{mergePath.value=null},{flush:'sync'})
 const modelFields=computed<SparkNode[]>(()=>[
@@ -367,7 +392,7 @@ watch(workflowId,async id=>{
   runtime=page;await page.load();if(!active||own!==generation){page.dispose();return}
   dataSet.value=page.getDataSet(scene);const ds=dataSet.value,definition=view('Base_WorkflowDefinition')
   if(!ds||!definition||!view(nodesTable)||!view(edgesTable)||!view(layoutTable))throw new Error('工作流正式设计视图缺失')
-  const changed=()=>revision.value++
+  const changed=()=>{revision.value++;const nodes=ds.getView(nodesTable),row=nodes?.currentRow,key=row&&nodes?.getPkKey(row);if(key!==undefined&&key!==null&&nodes?.dirtyTracking.isPendingCreate(key))selectedKind.value='node'}
   off=ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
   await definition.refresh();if(definition.loadingError)throw definition.loadingError
   if(!active||own!==generation)return
@@ -391,7 +416,7 @@ async function save(table:string):Promise<void>{
  const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
  acting.value=true;error.value=''
  try{const id=target.currentRow&&target.getPkKey(target.currentRow)
-  if(table===nodesTable)await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value})
+  if(table===nodesTable){await validateWorkflowNodeTypeChanges({dataSet:ds,workflowId:workflowId.value});await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value})}
   if(!active||own!==generation||dataSet.value!==ds||loadedTarget.value!==workflowId.value)throw Error('节点保存目标已变化')
   const result=table===edgesTable&&typeof id==='string'?await WorkflowConnectors.save(ds,workflowId.value,id):await ds.saveChanges({views:[{tableName:table,viewId:'default'}]})
   if(!result.success)throw new Error(result.message??'保存未完整确认')

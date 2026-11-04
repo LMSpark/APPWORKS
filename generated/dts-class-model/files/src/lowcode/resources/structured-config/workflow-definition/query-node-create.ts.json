@@ -7,10 +7,10 @@
     "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/workflow-definition/query-node-create",
-    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：先确认来源或操作目标模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。\n边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。",
-    "jsdocSource": "leading-jsdoc",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：为已存在的普通空节点首次绑定来源或操作目标，保留模型与节点分别确认的身份。\n边界：复用原模型owner和DataSet保存核验，不创建第二节点，不执行流程或自动删除已确认模型。",
+    "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "WorkflowModelNodeCreate"
+      "WorkflowNodeModelBinding"
     ]
   },
   "$defs": {
@@ -32,13 +32,17 @@
         "assertCurrent": {
           "type": "object",
           "title": "() => void"
+        },
+        "nodeId": {
+          "type": "string"
         }
       },
       "required": [
         "dataSet",
         "workflowId",
         "sources",
-        "assertCurrent"
+        "assertCurrent",
+        "nodeId"
       ],
       "additionalProperties": false
     },
@@ -92,10 +96,10 @@
       ],
       "additionalProperties": false
     },
-    "WorkflowModelNodeCreate": {
+    "WorkflowNodeModelBinding": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "WorkflowModelNodeCreate",
+      "title": "WorkflowNodeModelBinding",
       "properties": {
         "model": {
           "type": "object",
@@ -106,6 +110,12 @@
         },
         "nodeId": {
           "type": "string"
+        },
+        "nodeCaptured": {
+          "type": "boolean"
+        },
+        "canDiscardNodeLocalChanges": {
+          "type": "boolean"
         },
         "nodeNotApplied": {
           "type": "boolean"
@@ -118,31 +128,21 @@
       "$defs": {
         "constructor.params": {
           "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
           "properties": {
             "input": {
               "$ref": "#/$defs/Input"
-            },
-            "modelOwner": {
-              "$ref": "#/$defs/Model"
-            },
-            "nodes": {
-              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-            },
-            "operation": {
-              "anyOf": [
-                {
-                  "const": "query"
-                },
-                {
-                  "const": "copy"
-                },
-                {
-                  "$ref": "query-model-create.ts.json#/$defs/WorkflowDataOperation"
-                }
-              ]
             }
           },
           "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<WorkflowNodeModelBinding>"
         },
         "method.save.params": {
           "type": "object",
@@ -177,6 +177,15 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.discardNodeLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardNodeLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
         "method.resubmitNotApplied.params": {
           "type": "object",
           "properties": {},
@@ -189,15 +198,35 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T13:55:39.440Z",
+  "generatedAt": "2026-11-04T21:49:42.013Z",
   "models": {
     "Input": {
       "name": "Input",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Parameters<typeof openWorkflowQueryModelCreate>[0]",
-        "members": {}
+        "declarationTypeText": "Parameters<typeof openWorkflowQueryModelCreate>[0] & Readonly<{\n    /** 原节点DataView已经生成的身份，待新增与正式空节点使用同一合同。 */\n    nodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Parameters<typeof openWorkflowQueryModelCreate>[0]"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 原节点DataView已经生成的身份，待新增与正式空节点使用同一合同。 */\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "原节点DataView已经生成的身份，待新增与正式空节点使用同一合同。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
       }
     },
     "Model": {
@@ -216,63 +245,15 @@
         "members": {}
       }
     },
-    "WorkflowModelNodeCreate": {
-      "name": "WorkflowModelNodeCreate",
-      "jsdoc": "一次来源选择的模型节点创建命令；模型与节点分别确认，不假定跨表事务。",
+    "WorkflowNodeModelBinding": {
+      "name": "WorkflowNodeModelBinding",
+      "jsdoc": "一次原节点首次模型绑定；模型与节点分别确认，不假定跨表事务。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "组合已打开的原模型owner与当前节点视图；只捕获上下文，不创建或提交记录。",
-          "signatureText": "constructor(input: Input, modelOwner: Model, nodes: DataView, operation?: 'query' | 'copy' | WorkflowDataOperation)",
-          "parameters": [
-            {
-              "name": "input",
-              "type": {
-                "type": "reference",
-                "name": "Input",
-                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
-              }
-            },
-            {
-              "name": "modelOwner",
-              "type": {
-                "type": "reference",
-                "name": "Model",
-                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
-              }
-            },
-            {
-              "name": "nodes",
-              "type": {
-                "type": "reference",
-                "name": "DataView"
-              }
-            },
-            {
-              "name": "operation",
-              "type": {
-                "type": "union",
-                "types": [
-                  {
-                    "type": "literal",
-                    "value": "query"
-                  },
-                  {
-                    "type": "literal",
-                    "value": "copy"
-                  },
-                  {
-                    "type": "reference",
-                    "name": "WorkflowDataOperation",
-                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts"
-                  }
-                ]
-              },
-              "flags": {
-                "isOptional": true
-              }
-            }
-          ]
+          "signatureText": "private constructor()",
+          "parameters": []
         },
         "members": {
           "attributes": [
@@ -295,6 +276,18 @@
               "writable": false
             },
             {
+              "name": "nodeCaptured",
+              "jsdoc": "当前节点是否已经捕获绑定提交意图；行存在不等于绑定已派发。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canDiscardNodeLocalChanges",
+              "jsdoc": "原节点捕获后存在后续本地编辑，需显式选择恢复而非重发。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "nodeNotApplied",
               "jsdoc": "原节点批次已独立确认未生效；核验入口不得再次派发创建。",
               "readable": true,
@@ -308,6 +301,31 @@
             }
           ],
           "methods": [
+            {
+              "name": "open",
+              "jsdoc": "捕获宿主原类型后打开首次绑定；构造过程只允许本命令完成。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "WorkflowNodeModelBinding",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
+                  }
+                ]
+              }
+            },
             {
               "name": "save",
               "jsdoc": "保存或核验同一创建意图；已确认模型及节点不重复提交。",
@@ -358,6 +376,21 @@
                   {
                     "type": "intrinsic",
                     "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardNodeLocalChanges",
+              "jsdoc": "用户明确放弃原节点后续修改后，沿共享捕获核验原批次，不重新注册模型或派发节点。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
                   }
                 ]
               }

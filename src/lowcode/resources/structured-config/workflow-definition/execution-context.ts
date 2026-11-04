@@ -10,6 +10,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {validateWorkflowConditionFilter} from './connector-condition'
 import {validateWorkflowQueryInputChanges} from './query-inputs'
 import {readWorkflowCopyTarget} from './copy-target'
+import {workflowMergeFormalInputs} from './merge-inputs'
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`执行图字段不可读: ${field}`)
  return row[field]
@@ -145,6 +146,14 @@ export class WorkflowExecutionContext{
   if(!node||read(nodes,node,'workflow_id')!==this.workflowId)throw Error('执行节点身份或归属不符')
   await this.checkFormal(nodes,nodeId)
   const operation=read(nodes,node,'node_type')
+  if(operation==='merge'){
+   if(workflowMergeFormalInputs({dataSet:this.ds,workflowId:this.workflowId,nodeId}).length===0)throw Error('合并输入尚未配置，不能执行未完成节点')
+   return
+  }
+  if(operation==='query'&&String(read(nodes,node,'position_type'))==='1'){
+   const source=read(nodes,node,'node_config')
+   if(typeof source!=='string'||!source.trim())throw Error('查询来源模型尚未配置，不能执行未完成节点')
+  }
   if(operation==='copy'){await this.validateCopyNode(nodeId,input);return}
   if(!['add','edit','delete'].includes(String(operation)))return
   const contract=this.executionContract(),checkInputContract=()=>contract.refresh()

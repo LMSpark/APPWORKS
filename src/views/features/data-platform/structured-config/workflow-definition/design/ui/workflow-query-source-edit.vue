@@ -5,7 +5,7 @@
 -->
 <template>
  <section>
-  <RendererButton :label="operation ? '更换操作目标' : '选择模型'" :disabled="disabled || !eligible || busy || visible" @click="open" />
+  <RendererButton v-if="eligible" :label="operation ? '更换操作目标' : '选择模型'" :disabled="disabled || busy || visible" @click="open" />
   <p v-if="error && !visible" role="alert">{{ error }}</p>
   <RendererDialog v-if="owner && names" v-model="visible" :data-view-key="nameKey" :title="operation ? '选择操作目标来源' : '选择查询模型来源'"
    width="min(1100px, calc(100vw - 32px))" :grid-columns="1" :close-disabled="true" append-to-body>

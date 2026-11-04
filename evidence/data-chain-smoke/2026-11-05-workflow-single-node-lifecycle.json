@@ -1,0 +1,118 @@
+{
+  "sourceBaseCommit": "0aee7d982",
+  "scope": "workflow configuration metadata lifecycle; not browser or business execution",
+  "workflowId": "BE31BC77CB8C48628A598985FD695B68",
+  "marker": "SMOKE_NODE_BINDING_LIVE_1793828374765",
+  "lifecycle": "cleaned",
+  "unknown": false,
+  "nodes": 6,
+  "models": 5,
+  "fields": 70,
+  "edges": 6,
+  "reads": 644,
+  "writes": 30,
+  "executions": 0,
+  "phases": {
+    "cleanup": {
+      "reads": 48,
+      "writes": 3
+    },
+    "configure": {
+      "reads": 557,
+      "writes": 24
+    },
+    "fixture": {
+      "reads": 39,
+      "writes": 3
+    }
+  },
+  "assertions": [
+    "six kinds reuse a single created node identity",
+    "saved empty query reopens and binds same node",
+    "source preview cancellation preserves node",
+    "merge has no model",
+    "six deletion cancellations write nothing",
+    "confirmed deletions retain exact unrelated model and field sets",
+    "independent fixture absence after cleanup"
+  ],
+  "validation": {
+    "workflowFiles": 20,
+    "eslint": "passed",
+    "classModelSeconds": 49.921,
+    "fullSuiteRerun": false,
+    "contractFiles": 4,
+    "newSemanticGaps": 0,
+    "typecheck": "passed",
+    "contractTests": 49,
+    "buildSeconds": 4.16,
+    "existingCodegenViolations": 26,
+    "workflowTests": 416,
+    "semanticGaps": 3638
+  },
+  "removal": [
+    "three no-nodeId creation entry points",
+    "second node addRow during binding",
+    "per-kind creation buttons"
+  ],
+  "recovery": "existing DataSpaceDefinitionSave and captured-batch verification; unknown recovery tested with response fixtures",
+  "open": [
+    "normal browser entry and 1:1 acceptance",
+    "known merge execution service gaps",
+    "full twenty-package migration"
+  ],
+  "review": "gpt-6-astra read-only planning and review",
+  "hashes": [
+    {
+      "sha256": "1753742E1D6C428C42C705AED942EB681775EABAFA743273299EAB56526BBB95",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts"
+    },
+    {
+      "sha256": "C528ADD23A0A2BB3A9202403F7BE4510B444D404412A8730F65AD5857B19927C",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts"
+    },
+    {
+      "sha256": "8B28F280E6C9FE34FC2B67F003B5509275D540AEC58CF196EC6F0867255745A4",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts"
+    },
+    {
+      "sha256": "5135D42FBAF5736B40E3FC05B1E47F06959018424B823A8AA7C7AA2E00EB19CE",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
+    },
+    {
+      "sha256": "3E314289930B7A66CF12966E89EAB10985614CDA366E9A9BE5997AD63A92B8EB",
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue"
+    },
+    {
+      "sha256": "61C3DFE8DD6D85C1EF72418351FC92D6A62BA6B384D3B47FB238F24C60628F3A",
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue"
+    },
+    {
+      "sha256": "0B41676E4C575F9D47C52DA14E7AB9C1E6682760AC5BAFD046D88ECC3F9B49B5",
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue"
+    },
+    {
+      "sha256": "3A069B0845C434853D696DB6E778F9DB92F1FDCEA9FEA29D23F524E9D69D16BD",
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue"
+    },
+    {
+      "sha256": "0E2DC4F438849354FE6B40EF3003C012FABB19FF618534A05948CE1BFAFF1A6A",
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts"
+    },
+    {
+      "sha256": "C7A551B18DEE97CE7AD3EE5D4220ACF3858D979A758A6110CB4B7521329853D9",
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts"
+    },
+    {
+      "sha256": "5198DA3A2055D3E9DEC747EE6572C270B8A80DD3E5333BC1B0FA819351477A94",
+      "path": "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts"
+    },
+    {
+      "sha256": "8FF5416DDDA4B4C54EF04E29D76373284801611C094D87A87BC238F3B69334F8",
+      "path": "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts"
+    },
+    {
+      "sha256": "8112B3ED1CD74D5AD0F5369F6BFA834C71CA509D25EEB04BD200F7B336BA6157",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts"
+    }
+  ]
+}

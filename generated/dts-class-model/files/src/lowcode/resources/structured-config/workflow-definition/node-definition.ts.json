@@ -1,0 +1,292 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/node-definition",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/node-definition",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/node-definition\n职责：普通空节点的正式身份、首次绑定与类型切换合同。\n边界：只读原DataView和精确正式查询，不创建节点、模型或保存入口。\nAI用途：页面展示、首次绑定与实际保存共用同一空节点合同，异步检查保持首轮草稿。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowNodeOriginal"
+    ]
+  },
+  "$defs": {
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "workflowId",
+        "nodeId"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowNodeOriginal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowNodeOriginal",
+      "properties": {
+        "pending": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "kind": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "pending"
+      ],
+      "additionalProperties": false
+    },
+    "OriginalInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OriginalInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "original": {
+          "$ref": "#/$defs/WorkflowNodeOriginal"
+        },
+        "purpose": {
+          "enum": [
+            "binding",
+            "type-change"
+          ]
+        },
+        "desiredKind": {
+          "type": "string"
+        },
+        "typeChanged": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      },
+      "required": [
+        "dataSet",
+        "workflowId",
+        "nodeId"
+      ]
+    },
+    "TypeChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "TypeChanges",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "dataSet",
+        "workflowId"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-04T21:30:58.916Z",
+  "models": {
+    "Target": {
+      "name": "Target",
+      "jsdoc": "本次普通节点的原运行实例及正式身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主元数据实例。 */\n    dataSet: DataSet;\n    /** 正式工作流身份。 */\n    workflowId: string;\n    /** 已由原DataView生成的节点身份。 */\n    nodeId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主元数据实例。 */\n    dataSet: DataSet;\n    /** 正式工作流身份。 */\n    workflowId: string;\n    /** 已由原DataView生成的节点身份。 */\n    nodeId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "宿主元数据实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "jsdoc": "正式工作流身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "已由原DataView生成的节点身份。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowNodeOriginal": {
+      "name": "WorkflowNodeOriginal",
+      "jsdoc": "首轮正式节点是否存在及原类型；不是可编辑业务副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 尚未提交的原生新增行。 */\n    pending: boolean;\n    /** 既有正式节点的原类型。 */\n    kind?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 尚未提交的原生新增行。 */\n    pending: boolean;\n    /** 既有正式节点的原类型。 */\n    kind?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pending",
+              "jsdoc": "尚未提交的原生新增行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "kind",
+              "jsdoc": "既有正式节点的原类型。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "OriginalInput": {
+      "name": "OriginalInput",
+      "jsdoc": "精确正式读取的首轮合同及调用方守卫。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Target & Readonly<{\n    /** 首轮正式合同；后续读取不重置它。 */\n    original?: WorkflowNodeOriginal;\n    /** 调用方原意图及会话守卫。 */\n    assertCurrent: () => void;\n    /** 本次明确的结构命令目的。 */\n    purpose?: 'binding' | 'type-change';\n    /** 首次绑定期望的编辑类型。 */\n    desiredKind?: string;\n    /** 本地明确修改了类型；待新增行也不假装具有正式原类型。 */\n    typeChanged?: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Target",
+            "targetName": "Target"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 首轮正式合同；后续读取不重置它。 */\n    original?: WorkflowNodeOriginal;\n    /** 调用方原意图及会话守卫。 */\n    assertCurrent: () => void;\n    /** 本次明确的结构命令目的。 */\n    purpose?: 'binding' | 'type-change';\n    /** 首次绑定期望的编辑类型。 */\n    desiredKind?: string;\n    /** 本地明确修改了类型；待新增行也不假装具有正式原类型。 */\n    typeChanged?: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "original",
+              "jsdoc": "首轮正式合同；后续读取不重置它。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "purpose",
+              "jsdoc": "本次明确的结构命令目的。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "desiredKind",
+              "jsdoc": "首次绑定期望的编辑类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "typeChanged",
+              "jsdoc": "本地明确修改了类型；待新增行也不假装具有正式原类型。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "调用方原意图及会话守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "TypeChanges": {
+      "name": "TypeChanges",
+      "jsdoc": "本次实际类型变更提交范围，不承载行值或业务草稿。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<Target, 'dataSet' | 'workflowId'> & Readonly<{\n    /** 仅核本命令目标；省略时核本次所有类型变更。 */\n    nodeIds?: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "Pick<Target, 'dataSet' | 'workflowId'>",
+            "targetName": "Pick"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    /** 仅核本命令目标；省略时核本次所有类型变更。 */\n    nodeIds?: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeIds",
+              "jsdoc": "仅核本命令目标；省略时核本次所有类型变更。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

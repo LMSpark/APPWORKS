@@ -32,6 +32,20 @@ async function fixture(shared=true,layout:string|null=null){
  return{ds,http,file,uploads,open:()=>openWorkflowNodeRemoval({dataSet:ds,workflowId:'W1',nodeId:'A',assertCurrent(){}})}
 }
 describe('original workflow node removal',()=>{
+ it.each(['merge','query','copy','add','edit','delete'])('cancels and deletes an unbound %s node while preserving every model and field',async kind=>{
+  const f=await fixture(false,JSON.stringify({nodes:[{id:'A',x:1,y:2},{id:'B',x:3,y:4}],edges:[{id:'AB',points:[]}]}))
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='A')!,{node_type:kind,node_config:'',dataOperateModId:''})
+  await f.ds.getView('Base_WorkflowNodeDefinition')!.refresh()
+  const models=structuredClone(f.http.records['Base_DataModel']),fields=structuredClone(f.http.records['Base_DataModel_Field'])
+  let owner=await f.open();expect(owner.getState().summary).toMatchObject({modelId:'',deleteModel:false,fieldCount:0})
+  await owner.stage();owner.cancel();expect(f.http.saves).toHaveLength(0)
+  owner=await f.open();await owner.stage();await owner.save()
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.some(row=>row['rowid']==='A')).toBe(false)
+  expect(f.http.records['Base_WorkflowConnectors']!.map(row=>row['rowid'])).toEqual(['BE'])
+  expect(f.http.records['Base_DataModel_Relation']).toEqual([])
+  expect(f.http.records['Base_DataModel']).toEqual(models);expect(f.http.records['Base_DataModel_Field']).toEqual(fields)
+  expect(JSON.parse(f.file.text!).nodes.map((node:{id:string})=>node.id)).toEqual(['B'])
+ })
  it('cancels and deletes a copy node with its own source model without deleting its business target',async()=>{
   const f=await fixture(false)
   Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='A')!,{node_type:'copy',config:'{"targetDbName":"main","targetTableName":"BusinessTarget"}'})

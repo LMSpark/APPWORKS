@@ -5905,3 +5905,9 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 原生“保存拒绝→全部取消”最终回归已通过：tab7沿原登录/元数据应用/目录进入原4模型，SourceScope_20261018/default暂存SourceInputScope/default父来源，唯一保存SPARK_PARENT_PLAN拒绝；全部取消后afterCancelAlerts=[]，保存/取消禁用，CDP全段0数据库/文件mutation、无事件截断。截图2026-11-04-known-save-error-cancel-fixed.png，browser JSON保存，tab7已关闭，无新夹具。随后独立14956/exec96692再12读0写确认19 ID仍不存在、countReported true、原4模型及原hash b9144...保持。
 - 两公共修复最终验证：53文件1078底座及关联界面、32文件417组件、49正式ClassModel合同测试通过；最后root typecheck、受改源/测试lint、build:fe、page-thin及563文档检查通过。ClassModel正式编译1037文件、DataView及请求聚合态2根目录/概要/指南查询，3636语义gap无新增，归一恢复120份等价生成噪声。高阶只读复核未发现Important/Critical，两处误传给el-pagination的无效count属性已删除，仅7个MetaBar消费。
 - 证据evidence/data-chain-smoke/2026-11-04-hierarchical-native-crud.json、2026-11-04-count-discard-guides.json及4张PNG，分别保留初/末Navigation、单子Hierarchy、合法删除/恢复、manual、根过滤空结果、0写反例与独立清理。准备提交推送当前检查点；本轮19记录均已精确清理，无unknown/待清理。C剩余跨应用/迟到/网络失败恢复整条原生链及其他完整页面、Foreign空条件/LEFT无匹配/聚合等服务缺口继续开放；全架构目标active。
+
+### 2026-11-04 D工位提交及下一连续C生命周期验收
+- 公共修复与实服证据检查点8842380ceb668105a40fa2c97572bd7a45502ff1已提交，git push origin 1031实际exit0，远端推进bd6da609e→8842380ce。随后ls-remote首次复核遇schannel握手失败，属于远端复核网络失败，不撤销已取得的push回执；继续核远端。当前19夹具清理和原SHA恢复均已独立确认，无unknown。
+- 下一工位沿同一原生ROOT→CHILD→GRAND与SIB完整链：新唯一19条夹具及基线→首次/已有结果根只读失败和显式恢复→暂停真实根响应后关闭预览/设计器并重开→实际应用A→B→A→Hierarchy三级关键路径→恢复Navigation/manual兄弟→精确清理和独立回读。不得重放本轮已清理marker。
+- 仅按本轮正式GetData读操作、当前应用/空间/根模型精确注入单次失败或延迟，真实响应不伪造，提交/上传/登录/清理正常放行，超时及finally释放。忙时遵守按钮约束，不调用隐藏对象强造并发。旧响应不得填入新实例，子刷新不追加根HTTP，失败后旧派生结果不可继续当有效结果；关闭的DOM证据与公共生命周期单测分别验收。
+- 执行前核当前账号确实可进入第二应用、浏览器能精确暂停读请求；无第二应用则跨应用项继续开放，目录清空或重登不冒充A→B。新driver须在清理异常时保留原owner核验，未知不重提。以上为下一工位方案，尚未实施；Foreign空条件、LEFT无匹配、聚合、长PId、其余页面矩阵及包级15项类型基线继续开放，全目标active。

@@ -1,0 +1,168 @@
+{
+  "testedAt": "2026-11-04T13:51:02.808152+00:00",
+  "baseCommit": "f042914a1833aecaaa16714dae06e18fa9885808",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "workflowId": "8942DDDD4FA243D08D46D689DA0367CD",
+  "marker": "SMOKE_COPY_CONTRACT_1793799775958",
+  "nativeChain": "PageRuntime -> metadata DataSet/DataView -> WorkflowExecutionResource command DataView; observer models through original model-create handle",
+  "productSourceChanged": false,
+  "sourceHashes": {
+    "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": "6f8dd0073ac4fa470342064b99c17b87fcec0cadb1d5b1bf563db6462b4ea943",
+    "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": "246ffa85162f60ba5092493a7d492d88b42ff0ea937cf1251111f9bebfbe4e81",
+    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": "465194898b846c57cdddf909420577b36c851b5772427581ae04f72bdd9bd848",
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts": "76a21e873acb9621d3ea2f8c592506ad92d382f709a5a86a7ecb727d25081059"
+  },
+  "contract": {
+    "sourceTable": "Base_JsonData",
+    "sourceFilter": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"8942DDDD4FA243D08D46D689DA0367CD\"}},{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"notequal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"8942DDDD4FA243D08D46D689DA0367CD\"}}]}",
+    "controlQuery": {
+      "label": "query-empty-source-control",
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "8942DDDD4FA243D08D46D689DA0367CD",
+        "nodeId": "7DD9EFC28EC20C7996CCF12CE912314D",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.016,
+        "count": 0,
+        "output": []
+      }
+    },
+    "referenceConfiguration": {
+      "targetDatabaseName": "QYVirtualPlat",
+      "targetTableName": "Base_JsonData"
+    },
+    "referenceAttempt": {
+      "error": "工作流执行结果未知，禁止重跑：[1004] 节点目标配置错误",
+      "historicalUnknown": true,
+      "command": {
+        "label": "reference-targetDatabaseName",
+        "id": "d5d2d8fa-f736-45ae-bfd9-1a160fe283b8"
+      },
+      "replayed": false
+    },
+    "correctedNewIntent": {
+      "config": {
+        "targetDbName": "QYVirtualPlat",
+        "targetTableName": "Base_JsonData",
+        "size": 1
+      },
+      "requestType": "copy",
+      "nodeType": "copy",
+      "result": {
+        "label": "canonical-targetDbName-new-intent",
+        "outcome": "success",
+        "completeness": "complete",
+        "result": {
+          "workflowId": "8942DDDD4FA243D08D46D689DA0367CD",
+          "nodeId": "7DD9EFC28EC20C7996CCF12CE912314D",
+          "status": "SUCCESS",
+          "errorMsg": null,
+          "execTime": 0.017,
+          "count": 0,
+          "output": []
+        }
+      },
+      "independentBefore": {
+        "rows": [],
+        "total": 0,
+        "countReported": true
+      },
+      "independentAfter": {
+        "rows": [],
+        "total": 0,
+        "countReported": true
+      }
+    }
+  },
+  "stages": {
+    "workflow-copy-contract-fixture-create-audit.json": {
+      "phase": "created-confirmed",
+      "reads": 39,
+      "writes": 3,
+      "unknown": false
+    },
+    "workflow-copy-contract-probe-audit.json": {
+      "phase": "failed",
+      "reads": 48,
+      "writes": 5,
+      "executions": 2,
+      "unknown": true
+    },
+    "workflow-copy-canonical-probe-audit.json": {
+      "phase": "confirmed",
+      "reads": 30,
+      "writes": 1,
+      "executions": 1,
+      "unknown": false
+    },
+    "workflow-copy-contract-observers-audit.json": {
+      "phase": "confirmed",
+      "reads": 44,
+      "writes": 4,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-contract-cleanup-audit.json": {
+      "phase": "confirmed",
+      "reads": 47,
+      "writes": 3,
+      "unknown": false
+    }
+  },
+  "instances": {
+    "Base_Workflow_NodeInstance": {
+      "rows": [],
+      "total": 0,
+      "countReported": true
+    },
+    "Base_Workflow_Instance": {
+      "rows": [],
+      "total": 0,
+      "countReported": true
+    }
+  },
+  "cleanup": {
+    "lifecycle": "cleaned",
+    "independentAbsence": true,
+    "nodeIds": [
+      "3A26FD6ADA25AEA180CF771F9958538D",
+      "7DD9EFC28EC20C7996CCF12CE912314D"
+    ],
+    "modelIds": [
+      "22D111A44B0C33B0B88260A3C726474D",
+      "2743C228D00790AB1934194ED39CDACF",
+      "A4E62F97A6D5BF6C5ED12AAE0A29ABD9"
+    ],
+    "fieldCount": 45,
+    "cleanedAt": "2026-11-04T13:50:12.707Z",
+    "originalUnknownRamProcess": {
+      "pid": 26428,
+      "identityVerified": true,
+      "terminatedAfterCleanup": true,
+      "wrapperTerminalExit": 1,
+      "historicalResultChanged": false
+    }
+  },
+  "auditHashes": {
+    "artifacts/data-chain-smoke/workflow-copy-contract-fixture-checkpoint.json": "7239d7fa474a7bbc92bb624fcabf56fcf2518a05f5073c507ac438b1f95b8239",
+    "artifacts/data-chain-smoke/workflow-copy-contract-fixture-create-audit.json": "2d0a5bbddf371dac1e4c506f88fdfc59eefd682329792fa7d4d038d334acd5fc",
+    "artifacts/data-chain-smoke/workflow-copy-contract-probe-intent.json": "e89961d91497af541226cc117f70111c2b90410ec22fe884622d1dca9d5fe572",
+    "artifacts/data-chain-smoke/workflow-copy-contract-probe-audit.json": "06b27419bbf92a207e5e2f33f90fcfcca5e6ec19b7c3b40a75c8708918e6e377",
+    "artifacts/data-chain-smoke/workflow-copy-canonical-probe-intent.json": "8dc4b34f6ecad119d41909a051e8e6603539aa3e38597e1e3c707f2cafc3452e",
+    "artifacts/data-chain-smoke/workflow-copy-canonical-probe-audit.json": "00ec39e723b46916f3ffe55e24540feb643c599a3b65088f0b1313ada132036c",
+    "artifacts/data-chain-smoke/workflow-copy-contract-observers-intent.json": "b87b53ccec3225daf6755e5a67835bd190214786348f2d9b704384fab255faf0",
+    "artifacts/data-chain-smoke/workflow-copy-contract-observers-audit.json": "9c985180a6d1d18eaf4feeeb5811f55a76b3091ac544fc664d83fb467544d084",
+    "artifacts/data-chain-smoke/workflow-copy-contract-cleanup-intent.json": "599c5bdcc77a3028a38a2eb3d4f7ff6602c7d4adde8eac68396495c799582dda",
+    "artifacts/data-chain-smoke/workflow-copy-contract-cleanup-audit.json": "f65ac2595d145a21631f5405c1c800c948d70b3dd911db58cb6043fcfb7e7e12"
+  },
+  "limitations": [
+    "Empty-source contract only; no populated copy or pagination/write mapping acceptance.",
+    "No copy/merge UI or product-code completion claim.",
+    "Original HTTP 1004 request remains unknown; corrected definition was a separate new intent.",
+    "SSR native data chain; no browser 1:1 acceptance.",
+    "Temporary workflow key is an explicitly isolated smoke fixture, not formal catalog creation or code allocation.",
+    "Reference Java was read only; deployment support is limited to the exact actual probes."
+  ]
+}

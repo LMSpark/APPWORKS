@@ -2,6 +2,16 @@
 
 正式场景 `0DD8D28D462F51C5790AA6FBFAE39366`，调用输入 `workflowId`。
 
+## 当前范围（2026-11-04）
+
+查询及 add/edit/delete 节点已通过同一元数据 DataSet 的原生命令创建、配置、取消、保存重开、换目标和删除。三类操作已在 provider 及换后的 Base_JsonData SQL 表完成真实 CRUD、独立业务回读与整流消费，测试资源已清理；执行和删除还须保持首轮正式定义及依赖合同。证据见 `evidence/data-chain-smoke/2026-11-04-workflow-operation-swapped-runtime.json` 和 `2026-11-04-workflow-operation-concurrency-runtime.json`。这些 SSR 运行证据不代表完整浏览器 1:1 交互已验收，也不证明 JSON 文件内容持久化。
+
+copy/merge 的完整创建与配置界面仍未恢复。copy 是实际向目标表写入数据的迁移操作，不是节点复制或只读查询；不能直接套用普通 query 模型及输出合同。固定参考页写入 `config.targetDatabaseName`，实服拒绝“节点目标配置错误”；隔离的新修正意图使用 `targetDbName`、`targetTableName`、`size:1` 及 `requestType:copy`，已在矛盾过滤条件的空来源上返回 SUCCESS/count=0。此证据只确认该组合在空来源上的实际执行，不证明有数据迁移、分页写入、字段映射或返回首批结果的合同已经验收。原拒绝请求按执行资源规则保持未知，不重发；修正意图与历史请求分别记录。完整证据及清理状态见 `evidence/data-chain-smoke/2026-11-04-workflow-copy-execution-contract.json`。
+
+目录正式新建仍受完整创建与领码顺序的实服合同缺口限制，不能以随机编号或空占位定义替代。完整20包状态只沿 `notes/data-space-retirement-ledger.md` 推进；下列早期记录保留历史范围，不反向覆盖当前源码与新证据。
+
+## 2026-11-02—03 历史核查记录
+
 当前配置核查定义、节点、连线及开始参数正式数据库视图。按目标输入精确读取，编辑沿原生 DataView 和 DataSet 按视图提交；不存整份图形业务数据。已登记为页面运行来源，工作流页面以原生图与表单消费这些视图；旧整份JSON客户端已删除。完整设计场景仍在恢复，不能将当前子集当作整页交付。
 
 此前样本读取定义 1 条、节点 8 条、连线 8 条；当时节点 `workflow_id` 为非输出字段。2026-11-02 经用户明确授权，通过原元数据DataSet仅修正该正式字段IsOutput为1，并独立回读确认；页面现已显式投影该字段。新样本读取定义1条、节点3条、连线2条，节点归属实际值均匹配本次流程；原DataView内存新增自动填归属、取消恢复通过，未在线保存节点。前端不自行提升输出或权限；正式模型退回非输出时装配仍拒绝当前投影。节点新增业务入口仍待完整恢复。

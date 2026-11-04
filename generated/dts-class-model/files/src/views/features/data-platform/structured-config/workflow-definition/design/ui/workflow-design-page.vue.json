@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page",
-    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page\n职责：按本次工作流身份绑定正式定义、节点、连线和配置，编排同一DataView命令。\n边界：标准组件读取/编辑原视图，不在页面重建查询、草稿、保存或后端合并逻辑。\nAI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字段与同一元数据DataSet。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-02T16:29:53.194Z",
+  "generatedAt": "2026-11-04T16:21:49.124Z",
   "models": {}
 }

@@ -6093,3 +6093,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 后续仍可推进前端配置和其他业务包，整体目标active而非全局blocked。已查当前FieldJson/JsonArrayOutline：outlineChildrenField仅支持嵌套子数组，缺少平面rowid/pid合同；selectedPath/valuePath可定位原JSON编辑域，但不能据此声称平面层级已实现。沿0.4先补当前直接需要的可复用标准能力，再用原节点DataView恢复参考配置/取消/保存重开；merge实服投影与连接差距继续独立开放。没有另起总计划，没有把源码参考或HTTP成功当成完整交付。
 
 - merge实服合同证据已实际提交ccc6b120d（4份文档/证据，产品源码0改动），push origin HEAD:1031真实exit0并接受0066a21c6..ccc6b120d；随后HEAD...origin/1031为0/0、工作区干净。该检查点保留真实服务差距，不称merge已验收；下一工作继续标准平面层级配置能力和其他可推进范围，禁止重放已cleaned的E119夹具。
+
+### 2026-11-05 merge配置所需的标准平面JSON层级（进行中）
+
+- 从fc1aac284干净工作区继续同一工作包。merge实服差距仍开放，E119及此前所有夹具已cleaned，不重放。当前直接缺口是标准FieldJson outline只支持嵌套子数组，不能绑定merge的平面rowid/pid；先补标准层，不在业务Vue维护另一份树/字段草稿。
+- 已查当前RJsonProps目录/概要/指南及JsonArrayOutline实现，再扩展outlineIdField/outlineParentField，二者同时配置且与outlineChildrenField互斥。只读投影保留原JSON及原数组下标选择路径，数字/字符串身份严格区分、0可作父身份；重复ID、孤立父项和循环报错，不截断、重挂或回退根。临时DataView仍只作标准字段呈现，没有查询、保存或业务身份。3生产文件/1既有测试文件，尚未接入完整merge编辑页，不声称服务缺口已修复。
+- 7RED/2旧GREEN后实现；现JSON六文件123项通过、工作流18文件331项通过，根typecheck通过。正式ClassModel生成45.56秒0，初核语义门禁681→680、无新增缺口（补齐既有JsonArrayOutline模块AI用途）。编码规则仍26；独立只读复核未发现确认的Important/Critical。定向lint、生成噪声等价恢复、最终属性指南/构建及合同检查仍在收尾，最终以同前缀原始日志为准。当前未创建新实服夹具。
+
+- 2026-11-05最终收尾：标准平面JSON层级及工作流只读consumer共4生产/2测试文件；同一nodesKey/input_mapping，无新查询、草稿或保存owner。新增页用例先RED后GREEN；最终24文件455项通过（90.22秒）、根typecheck、6文件lint及前端构建5.20秒exit0。ClassModel正式再生成58.778秒、4文件49合同测试、属性指南及schema通过；继承dataViewKey沿SparkFieldSemanticProps声明查询。恢复124份完整JSON语义等价噪声，保留6份真实生成变更；语义缺口3641→3639、门禁681→679、无新增。编码规则仍26既有违规，未重跑8082全量，不称全仓verify通过。
+- 独立只读复核标准能力与consumer均无确认Important/Critical。证据evidence/data-chain-smoke/2026-11-05-json-flat-outline-binding.json含6源码及最终日志哈希；挂载测试不冒称浏览器1:1，无新实服夹具。完整merge来源/字段/连接编辑、实服投影及连接差距和20业务包继续开放。用户确认三条均沉淀，核对knowledge/page-design.md既有三条完整并追加确认说明，避免重复。

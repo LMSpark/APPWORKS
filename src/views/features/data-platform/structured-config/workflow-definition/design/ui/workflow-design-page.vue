@@ -1,5 +1,8 @@
 <!--
 @module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page
+职责：按本次工作流身份绑定正式定义、节点、连线和配置，编排同一DataView命令。
+边界：标准组件读取/编辑原视图，不在页面重建查询、草稿、保存或后端合并逻辑。
+AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字段与同一元数据DataSet。
 -->
 <template>
   <section class="workflow-design-page">
@@ -59,6 +62,8 @@
               <FieldText field="description" label="节点描述" :readonly="locked" />
               <FieldText field="node_type" label="节点类型" :readonly="true" />
               <FieldText field="dataOperateModId" label="数据模型" :readonly="true" />
+              <FieldJson v-if="isMergeNode" field="input_mapping" label="合并输入层级" mode="outline" outline-id-field="rowid" outline-parent-field="pid"
+                :children="mergeInputFields" :readonly="true" />
               <FieldJson field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
               <FieldJson field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
               <FieldText field="node_config" label="查询模型ID" :readonly="true" />
@@ -189,6 +194,7 @@ const startParametersMissing=computed(()=>{revision.value;const params=view('Bas
 const startUnconfirmed=computed(()=>{revision.value;return view('Base_DataSet')?.hasUnconfirmedSave===true||startView()?.hasUnconfirmedSave===true})
 const parameterAdapter=computed(()=>workflowStartParameterAdapter(String(selectedNode.value?.['name']??'开始')))
 const parameterFields:SparkNode[]=Object.entries({Name:'参数名称',FieldType:'数据类型',Value:'默认值',Description:'参数说明'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
+const mergeInputFields:SparkNode[]=Object.entries({Name:'输入节点',JoinType:'连接类型'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
 function nodeModelId(row:DataRow):string{
  const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
  if(nodes.fieldAccess(row,'position_type').read!=='visible')throw new Error('节点位置类型不可读')
@@ -205,6 +211,7 @@ const validModel=computed(()=>{revision.value;const model=view(modelTable),row=m
 const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
 const isQueryNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['query','copy'].includes(String(row['node_type']))})
 const isCopyNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='copy'})
+const isMergeNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='merge'})
 const isOperationNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['add','edit','delete'].includes(String(row['node_type']))})
 const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
 const modelFields=computed<SparkNode[]>(()=>[

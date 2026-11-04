@@ -37,6 +37,22 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('renders merge input hierarchy from the original bound node JSON without creating edits',async()=>{
+  const mapping=JSON.stringify([{rowid:'CHILD',pid:'PARENT',Name:'子输入',JoinType:'INNER',Fields:[],unknown:{keep:true}},{rowid:'PARENT',Name:'根输入',Fields:[]}])
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',position_type:1,node_type:'merge',node_config:'',input_mapping:mapping,output_mapping:'[]'},
+   {rowid:'PARENT',workflow_id:'W1',name:'源A',position_type:1,node_type:'query',node_config:'M1'},
+   {rowid:'CHILD',workflow_id:'W1',name:'源B',position_type:1,node_type:'query',node_config:'M2'}]
+  state.http.records['Base_WorkflowConnectors']=[{rowid:'PC',workflow_id:'W1',sourceID:'PARENT',targetID:'CHILD'},{rowid:'CM',workflow_id:'W1',sourceID:'CHILD',targetID:'N1'}]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  const outline=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='input_mapping'&&field.props('mode')==='outline')
+  expect(outline).toBeDefined();expect(outline!.props('outlineIdField')).toBe('rowid');expect(outline!.props('outlineParentField')).toBe('pid')
+  await vi.waitFor(()=>expect(outline!.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(2))
+  const rows=outline!.findAll('.el-table__body-wrapper tbody tr');expect(rows[0]!.text()).toContain('根输入');expect(rows[1]!.text()).toContain('子输入')
+  expect(outline!.find('input').exists()).toBe(false)
+  expect(state.http.records['Base_WorkflowNodeDefinition']![0]?.['input_mapping']).toBe(mapping)
+  expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false)
+ })
  it('selects a copy target through bound source views, cancels its original config, then saves and reopens it',async()=>{
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'迁移',node_type:'copy',position_type:1,node_config:'M1',config:'',output_mapping:'[]'}]
   state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]

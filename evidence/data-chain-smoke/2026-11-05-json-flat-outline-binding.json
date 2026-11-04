@@ -1,0 +1,100 @@
+{
+  "date": "2026-11-05",
+  "baseCommit": "fc1aac284fb19e2b388902723259f5df7afe90da",
+  "scope": "Optional standard flat JSON outline and read-only workflow merge input consumer",
+  "sourceHashes": [
+    {
+      "path": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props.ts",
+      "sha256": "b8508b0db5f9dbb6300b8a13805ca6e706beee9484b8a6c0b5d936336dee5a1a"
+    },
+    {
+      "path": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
+      "sha256": "dcdd3185a019237155bd97247c3ebb1bf9edb29d33100ac4ce66831d37946f48"
+    },
+    {
+      "path": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
+      "sha256": "3a2922baa1faeecf9c32b74308dfac2013ac65a04413853be7874cb9bed04dd5"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "2a5af35bcd87bc949f0ebc06f1629cf1c37d862cbcd0ac313dddaefbff0476ff"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "4a901ad70abf6922fc670c194358bac77cc23a2959c1861794610cd573f0b8d3"
+    },
+    {
+      "path": "tests/ui/field/text/field-json-outline.test.ts",
+      "sha256": "b99a503954d93c7466bdb9a331b4b166e18cbd6d1c5b778c3ef89fb7942f5d02"
+    }
+  ],
+  "validation": {
+    "regression": {
+      "files": 24,
+      "tests": 455,
+      "passed": true
+    },
+    "classModelContract": {
+      "files": 4,
+      "tests": 49,
+      "passed": true
+    },
+    "typecheck": true,
+    "lint": true,
+    "frontendBuild": true,
+    "classModelGenerationSeconds": 58.778,
+    "guideSchema": true,
+    "semanticGaps": {
+      "before": 3641,
+      "after": 3639,
+      "gateBefore": 681,
+      "gateAfter": 679,
+      "added": []
+    },
+    "logs": [
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-regression.log",
+        "sha256": "29de8633319197f0854b1f7ca443ac2478050e697517db2d8078be1d08d0a668"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-typecheck.log",
+        "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-class-model.log",
+        "sha256": "75053130949e3160fa8a66230be96b4a174c7789b227e93474b2b51b9b99d842"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-guides.log",
+        "sha256": "8920d39c9a866b26f48f1fca7deb3ffd5dded3fbe471c10c10f113a4ee5abe81"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-schema.log",
+        "sha256": "abb8c9527445ad89022065828e9e05cd5cf605aaa338d3abd096103e54a41763"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-contract.log",
+        "sha256": "cda37bcce1273082dc9851f59c3623d3bde84b69c3d0ecb94b7b9c322154cc74"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-build.log",
+        "sha256": "3436069ca6f99b02d1ae8c04357f8cba5b701098ef31e522c1bcae2963c246d0"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/workflow-merge-flat-final-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  "binding": "Same original node DataView input_mapping, read-only projection, original array index selection; no new query, editable truth or save owner",
+  "guideLookup": "RJsonProps own attributes; inherited dataViewKey resolved through SparkFieldSemanticProps declaration owner",
+  "review": "Independent read-only review found no confirmed Important/Critical findings",
+  "serviceWrites": 0,
+  "newFixtures": 0,
+  "limitations": [
+    "Mounted JSDOM regression is not real browser 1:1 acceptance",
+    "Full merge editing remains incomplete",
+    "Prior real-service merge projection and join mismatches remain open",
+    "Existing codegen 26 violations remain; full repository verify not claimed"
+  ]
+}

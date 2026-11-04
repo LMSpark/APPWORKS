@@ -13,7 +13,8 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
       <el-button v-if="completeMode && (completeInput || writing || rejectedInput)" link size="small" data-json-cancel-editor-input
         :disabled="writing || !permission.isCurrentFieldEditable.value" @mousedown.prevent @click="resetEditor">取消输入</el-button>
       <JsonArrayOutline v-if="mode === 'outline'" :key="revision" :model-value="editorText" :children="props.children"
-        :children-field="props.outlineChildrenField" :selected-path="props.selectedPath" :height="height" @select-path="props.onSelectedPathChange?.($event)" />
+        :children-field="props.outlineChildrenField" :id-field="props.outlineIdField" :parent-field="props.outlineParentField"
+        :selected-path="props.selectedPath" :height="height" @select-path="props.onSelectedPathChange?.($event)" />
       <JsonObjectForm v-else-if="mode === 'form'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
         :schema="props.schema" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonObjectProperties v-else-if="mode === 'properties'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"

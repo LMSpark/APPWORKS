@@ -5841,3 +5841,10 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终ClassModel49、build:fe、page-thin通过；全部执行handle已核终态（dev52241除外仍提供开发服务）。准备整理正式证据并提交推送。本卡真实文件CRUD/重开/恢复已闭环，整体目标active；有效子路径/输出模式设计校验、真实失败及应用切换/多级权限矩阵、原Foreign/LEFT/聚合/长PId及全参考页面矩阵仍开放。
 
 - 本段正式证据汇总evidence/data-chain-smoke/2026-11-04-parent-result-pagedata.json及guides.json；架构正文已改为本卡实服持久化/独立消费/恢复已验收。生成器完成后111个语义等价漂移恢复，仅派生.dts-manifest更新；没有手改生成合同。工作区仅本段单行DataView离线初始化守卫、命名视图正反例、文档与证据。复用受保护NewApp/admin身份，浏览器经正常表单及原AppWorks导航，未声称wangtao或多账号权限矩阵已验收，未按用户名放行。准备提交推送检查点；整体目标继续active。
+
+### 下一连续工位：保存前查询定义与实际消费一致性（高阶只读方案，待实施）
+- 当前实服修复检查点d01b0376a已推送。下一工位沿ScenarioDefinitionRecords.validationScope的变更及双向依赖范围，候选DataSet全部模型/命名视图/级联绑定完成后、原文件写入前，复用原runtime owner正式模型图作无业务查询的定义校验。共同assembler需覆盖设计会话和definitionExecutors两个保存入口，失败释放candidate且保留原草稿/文件，不新增后端协议。
+- 拟在runtime补窄同步只读校验入口（名称暂定，先查ClassModel与公开合同），抽取executeQuery已有纯准备步骤复用DataSpaceQueryGraph.resolve和Nested.validatePlan，保留同一根字段投影、别名、隐式依赖与Navigation字段/集合冲突、Hierarchy单子、深度/节点预算；不能用空fields冒充真实投影，也不复制正式PId/FK/权限判定。
+- parentResult先沿原DataViewParentResult.resolve与原请求/投影冲突守卫核同实例完整键、子身份、具体view等待循环，再由持有正式图的runtime解析有效直接子树。普通父须Navigation/Hierarchy并唯一直接命中childModelName；派生父沿上游继承子树，不要求派生父另写被禁止的children。不能借同模型另一视图的计划，也不能用模型闭包判运行环。
+- 设计校验与运行输入绑定分开：当前captureDataSpaceViewQuery会执行bindInputParams，不得因设计时缺值误拒合法运行参数占位；先结构准备/引用检查，执行仍沿原输入校验。测试覆盖非default/多级正例、兄弟Navigation/单子Hierarchy；错父view/只在孙层/Table或Join父/缺子、children重复祖先与直接重名、字段集合冲突、parentResult与原query级联成环、子独立输入冲突；改父反向消费校验、无关坏引用隔离、scope过期和失败候选释放。
+- 验收先受控响应证明负例业务查询0/文件上传0且不进unknown，原草稿可修正后保存；再沿已证明可精确恢复的受控实服空间，两个代表负例零上传、有效多级具名计划保存/独立回读/标准Table消费，按既有依赖顺序清配置与元数据并核原SHA和原模型集合。原Foreign/LEFT部署缺口、聚合、长PId及全参考页面矩阵仍独立保留。以上为方案，尚非已实现事实；全目标active。

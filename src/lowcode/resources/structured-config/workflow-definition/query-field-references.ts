@@ -2,11 +2,13 @@
  * @module app:lowcode/resources/structured-config/workflow-definition/query-field-references
  * 职责：显式字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。
  * 边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。
+ * AI用途：源字段结构变化时复用正式依赖查询与首轮守卫，核对合并字段及连接引用。
  */
 import {DataViewFilterCodec,RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowQueryFieldScope,workflowQueryDraftSignature,readWorkflowFieldValue as read} from './query-field-context'
+import {workflowMergeFormalInputs} from './merge-inputs'
 type Change=Readonly<{before:DataRow;after?:DataRow}>
 function output(row:DataRow):string{const alias=row['AsName'];return typeof alias==='string'&&alias.length>0?alias:String(row['Name'])}
 function document(value:unknown):unknown{return value===null||value===undefined||value===''?null:typeof value==='string'?parseJsonDocument(value):value}
@@ -47,6 +49,42 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   if(value['Type']==='GetExpData')throw Error(`字段引用尚不能从不透明表达式核定: ${location}`)
   if(typeof value['field']==='string'&&fieldNames.has(value['field']))references.add(`${location}.field`)
   for(const [key,child] of Object.entries(value))visit(child,`${location}.${key}`,fieldNames)
+ }
+ function mergeReferences(mergeNodeId:string,location:string):void{
+  const bindings=workflowMergeFormalInputs({dataSet,workflowId,nodeId:mergeNodeId}),params=new Set(affected.flatMap(change=>[...change.params]))
+  const sourceIds=new Set(bindings.map(binding=>String(binding['rowid'])))
+  const reference=(path:string):void=>{references.add(`合并输入仍被引用：${path}`)}
+  for(const binding of bindings){
+   const sourceId=String(binding['rowid']),declared:unknown[]=Array.isArray(binding['Fields'])?binding['Fields']:[]
+   if(consumers.includes(sourceId))for(const field of declared)if(isRecord(field)&&affected.some(change=>change.checkOutput&&(field['rowid']===change.id||field['Name']===change.outputName)))reference(`${location}[${sourceId}].Fields`)
+   if(binding['pid']===null||binding['pid']===undefined||binding['pid']==='')continue
+   const join=document(binding['JoinFilter']);if(join===null)continue
+   DataViewFilterCodec.decode(join)
+   function condition(value:unknown,path:string):void{
+    if(!isRecord(value))throw Error(`合并连接协议无法核定：${path}`)
+    const type=value['Type']
+    if(type==='and'||type==='or'){
+     if(!Array.isArray(value['Filters']))throw Error(`合并连接组损坏：${path}`)
+     value['Filters'].forEach((child:unknown,index:number)=>condition(child,`${path}.Filters[${index}]`));return
+    }
+    if(type!=='cond'||typeof value['Field']!=='string')throw Error(`合并连接条件损坏：${path}`)
+    const field=value['Field'].includes('.')?value['Field']:`${sourceId}.${value['Field']}`
+    if(params.has(field))reference(`${path}.Field`)
+    const fun=value['ValueFun'];if(!isRecord(fun))throw Error(`合并连接值函数损坏：${path}`)
+    if(fun['Type']==='GetConstValue'||fun['Type']==='SystemData')return
+    if(fun['Type']==='GetInputParam'){
+     const name=fun['ParamName'];if(typeof name!=='string'||!name.trim()||name!==name.trim())throw Error(`合并输入参数身份无法核定：${path}`)
+     if(params.has(name))reference(`${path}.ValueFun`);return
+    }
+    if(fun['Type']==='GetTableField'){
+     const key=fun['Field'],parts=typeof key==='string'?key.split('.'):[]
+     if(typeof key!=='string'||parts.length!==2||!sourceIds.has(parts[0]??'')||!parts[1]?.trim()||parts[1]!==parts[1].trim())throw Error(`合并连接字段身份无法核定：${path}`)
+     if(params.has(key))reference(`${path}.ValueFun`);return
+    }
+    throw Error(`合并连接值函数协议尚未核定：${path}`)
+   }
+   condition(join,`${location}[${sourceId}].JoinFilter`)
+  }
  }
  async function query(name:string,columns:string[]):Promise<DataView>{
   const source=dataSet.getView(name,name==='Base_DataModel_Relation'?'asParent':'default')
@@ -100,10 +138,11 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
   for(const row of nodes.rows){
    const id=String(nodes.getPkKey(row)),type=read(nodes,row,'node_type'),position=String(read(nodes,row,'position_type'))
    for(const key of ['input_mapping','config']){
-    const value=document(read(nodes,row,key));visit(value,`节点[${id}].${key}`)
+    const value=document(read(nodes,row,key)),knownMerge=descendants.has(id)&&type==='merge'&&key==='input_mapping'
+    if(knownMerge)mergeReferences(id,`节点[${id}].${key}`);else visit(value,`节点[${id}].${key}`)
     const staticCopyTarget=descendants.has(id)&&type==='copy'&&key==='config'&&isRecord(value)&&Object.entries(value).every(([name,item])=>
      ['targetDbName','targetTableName','size','text'].includes(name)&&(item===null||['string','number','boolean'].includes(typeof item)))
-    if(descendants.has(id)&&!['0','2'].includes(position)&&type!=='query'&&!staticCopyTarget&&value!==null&&JSON.stringify(value)!=='[]'&&JSON.stringify(value)!=='{}')throw Error(`下游节点输入协议尚未核定: ${id}.${key}`)
+    if(descendants.has(id)&&!['0','2'].includes(position)&&type!=='query'&&!staticCopyTarget&&!knownMerge&&value!==null&&JSON.stringify(value)!=='[]'&&JSON.stringify(value)!=='{}')throw Error(`下游节点输入协议尚未核定: ${id}.${key}`)
    }
   }
   guard()

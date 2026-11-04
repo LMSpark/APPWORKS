@@ -4254,7 +4254,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-04T18:01:04.833Z"
+      "sourceModifiedAt": "2026-11-04T18:38:16.221Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
@@ -4284,7 +4284,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts.json",
-      "sourceModifiedAt": "2026-11-04T14:41:33.667Z"
+      "sourceModifiedAt": "2026-11-04T19:02:52.259Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",

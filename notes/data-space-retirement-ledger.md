@@ -6137,3 +6137,14 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 新停用实服夹具8EBE14491C6B445ABFFEE2EBF3A2B14A / SMOKE_MERGE_SOURCES_LIVE_1793815223287：39读3提交创建；85读10提交准备2个正式查询模型、独立发布published_a_name/published_b_name及4节点3边。原生产来源命令54读3提交：新增根/子后取消无提交；再新增保存独立重开；确认级联移除后取消恢复，再独立核旧配置；移除保存核空输入；用相同原节点身份再添加并保存重开。配置中保留正式字段ID及已发布别名，4业务节点始终存在；没有执行来源SQL、merge或整流。总226读19提交0执行、unknown=false。
 - 清理48读3提交确认4节点/3边/2模型/28字段及参数、定义独立缺失、布局0；fixture.lifecycle=cleaned，cleanup.independentAbsence=true，全部runner正常exit0，凭据/会话只在RAM。禁止重放workflow-merge-sources-live-*意图或复用8EB夹具。证据evidence/data-chain-smoke/2026-11-05-workflow-merge-source-lifecycle.json含最终5源码/9日志、旧回调RED/GREEN、8份原审计/意图哈希、原/再添加输入与精确清理身份；挂载UI和实服原生存储分开记录，不称真实浏览器1:1。
 - 下一步仍是输出目录生成及其身份/引用合同、来源字段结构引用精化、剩余来源及重复来源服务合同、完整参考工作区，继而沿20业务包推进。当前已加载图的选择基线不是跨记录事务或服务并发原子保证；既有实服字段投影/INNER/RIGHT/FULL差距未核销，没有前端join补算或修改Java。知识核对沿既有首轮合同与过期上下文原则，本轮不新增未经确认的knowledge条目。
+
+### 2026-11-05 merge输出链的源字段结构引用
+
+- 85e4e86a1工作区干净、上一轮来源命令/实服/推送为实际进展。核参考输出生成后反查下游，发现query-field-references把非空merge输入一律按未知协议拒绝，连未被Fields或JoinFilter引用的源输出别名修改也被阻断。先按已确认输入合同精化此责任方，再推进输出生成，不另起总计划。
+- 同一merge输入范围/父链/身份校验供正式引用读取复用，不能为通过而跳过坏配置或只做字段名搜索。Fields按正式来源节点与字段ID/实际已发布Name识别引用；连接条件按当前输入字段及GetTableField/GetInputParam路径识别，常量内容不当引用，不透明表达式仍拒绝。保留原正式依赖查询、首轮草稿/上下文守卫、权限和释放；不增加页面保存/查询通道。
+
+- 实现2生产/1既有测试文件：merge-inputs的同一范围校验增加正式只读模式，引用检查拒绝独立merge草稿，不把producer本次字段编辑当成已发布引用；query-field-references仅为后代merge输入增加精确分支，保留其他未知协议守卫。Fields以消费者节点+字段ID或已发布名匹配，连接按原SPARK wire及Codec核验后检查Field/GetTableField/GetInputParam，常量不深入当引用，未知函数及损坏身份拒绝。4RED后GREEN，再补不透明表达式、独立草稿及坏参数/字段路径，共8新反例/正例；原依赖查询、权限、首轮上下文/草稿守卫和finally释放保持原责任方。独立只读复核未见确认安全/引用回归。
+- 最终28文件510项90.11秒通过、ClassModel4文件49项、根typecheck、3文件lint、前端构建7.32秒exit0；正式ClassModel生成60.963秒。补原query-field-references模块AI用途，语义缺口3639→3638、门禁679→678，无新增；124份完整JSON语义等价噪声恢复，4份真实生成变更保留。编码规则仍26，不称全仓verify通过，未重跑此前8082全量。
+- 新停用夹具4B5713A676314199BA62D79358BBBC23 / SMOKE_MERGE_REFERENCE_LIVE_1793818391097：创建39读3提交；准备85读10提交；引用烟测77读3提交0执行，unknown=false。真实merge引用存在时，未引用字段path的别名改为unreferenced_alias并独立重开确认；已引用name改名在提交前被拒，原published_a_name不变。第三次恢复path原空别名的提交已确认，但独立回读与原空字符串不一致，configure.phase=failed及3次ack原样保留，未重发。
+- 新进程仅只读13读0写确认path.AsName实际null、原值为空字符串；merge输入未变、已引用别名未变。未捕获原出站标量，不能归因前端或后端，也不把null与空字符串当作严格同值恢复。差异单独登记未核销，引用检查正反例成立不代表整轮烟测全通过。随后仅按已确认无pending/unknown、3次ack及独立读证据授权精确清理，48读3提交，4节点/3边/2模型/28字段及参数/定义独立缺失、布局0；fixture.lifecycle=cleaned，所有runner正常结束，凭据/会话仅RAM。共262读19提交0执行；不重放workflow-merge-reference-live-*或复用4B57夹具。
+- 证据evidence/data-chain-smoke/2026-11-05-workflow-merge-source-reference-checks.json含3源码/8日志及9份审计意图哈希、明确的通过/失败分项与清理身份。输出目录生成仍待继续；空别名往返差异、旧merge执行差距、完整参考工作区及20业务包保持开放。本次没有新增页面owner、模型身份、权限算法、前端join或修改Java。

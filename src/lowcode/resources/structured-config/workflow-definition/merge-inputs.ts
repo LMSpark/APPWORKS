@@ -36,13 +36,14 @@ function fields(item:Record<string,unknown>):DataColumn[]{
  })
 }
 
-function scope(input:Target){
+function scope(input:Target,formal=false){
  const {dataSet,workflowId,nodeId}=input,nodes=dataSet.getView('Base_WorkflowNodeDefinition'),edges=dataSet.getView('Base_WorkflowConnectors')
  if(!nodes||!edges||nodes.mutating||edges.mutating||nodes.hasUnconfirmedSave||edges.hasUnconfirmedSave||edges.hasEditingChanges()||edges.dirtyTracking.hasPendingChanges())throw Error('请先确认或取消合并图的变更')
  const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId),node=byId.get(nodeId)
  if(!node||read(nodes,node,'node_type')!=='merge'||String(read(nodes,node,'position_type'))!=='1')throw Error('合并节点身份不符')
  read(nodes,node,'input_mapping')
- const effective=nodes.getEditingRow(nodeId)??node
+ if(formal&&(nodes.hasEditingChanges(nodeId)||nodes.dirtyTracking.hasPendingChanges(nodeId)))throw Error('请先保存或取消合并节点的独立修改')
+ const effective=formal?node:nodes.getEditingRow(nodeId)??node
  if(effective['rowid']!==nodeId||effective['workflow_id']!==workflowId||effective['node_type']!=='merge'||String(effective['position_type'])!=='1')throw Error('合并节点编辑身份已变化')
  const raw=effective['input_mapping'],parsed:unknown=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
  if(!Array.isArray(parsed))throw Error('合并输入必须是对象数组')
@@ -52,7 +53,7 @@ function scope(input:Target){
   if(!isRecord(item)||typeof item['rowid']!=='string'||!item['rowid']||item['rowid'].includes('.')||items.has(item['rowid']))throw Error('合并输入节点身份缺失或重复')
   const source=byId.get(item['rowid'])
   if(!source||!ancestors.has(item['rowid'])||String(read(nodes,source,'position_type'))!=='1'||!['query','copy'].includes(String(read(nodes,source,'node_type'))))throw Error('合并输入不是已确认输出合同的正式查询祖先')
-  if(nodes.hasEditingChanges(item['rowid'])||nodes.dirtyTracking.hasPendingChanges(item['rowid']))throw Error('请先保存或取消合并来源节点修改')
+  if(!formal&&(nodes.hasEditingChanges(item['rowid'])||nodes.dirtyTracking.hasPendingChanges(item['rowid'])))throw Error('请先保存或取消合并来源节点修改')
   fields(item);items.set(item['rowid'],item)
  }
  const parent=(item:Record<string,unknown>):string|undefined=>{
@@ -66,6 +67,8 @@ function scope(input:Target){
  }
  return {nodes,edges,node,effective,mapping,items,parent,byId,ancestors}
 }
+/** 引用检查只读原查询中的正式合并绑定，共用同一身份/父链/字段校验，不接纳独立合并草稿。 */
+export function workflowMergeFormalInputs(input:Target):ReadonlyArray<Readonly<Record<string,unknown>>>{return[...scope(input,true).items.values()]}
 function selected(context:ReturnType<typeof scope>,path:JsonPath):Record<string,unknown>{
  if(path.length!==1||typeof path[0]!=='number'||!Number.isSafeInteger(path[0])||path[0]<0||!Object.hasOwn(context.mapping,path[0]))throw Error('合并输入选择路径已失效')
  const item=context.mapping[path[0]];if(!isRecord(item))throw Error('合并输入不存在');return item

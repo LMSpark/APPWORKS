@@ -38,6 +38,35 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it.each(['unrelated','field','condition','constant','opaque','merge-draft','bad-input','bad-table'] as const)('checks precise merge source references for %s output changes',async kind=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
+  const output=(prefix:string,names:string[])=>JSON.stringify([{rowid:`${prefix}ITEMS`,pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:`${prefix}COUNT`,pid:null,Name:'Count',FieldType:'int',isParent:false},...names.map((Name,index)=>({rowid:prefix==='S'?`F${index+1}`:'FQ',pid:`${prefix}ITEMS`,Name,FieldType:'varchar',isParent:false}))])
+  const field={rowid:'F1',Name:'code',AsName:'code',Description:'编码',FieldType:'varchar',IsOutput:1},other={rowid:'FQ',Name:'id',AsName:'id',FieldType:'varchar',IsOutput:1}
+  const fun=kind==='condition'?{Type:'GetTableField',Field:'N1.extra'}:kind==='opaque'?{Type:'GetExpData',Exp:'opaque'}:kind==='bad-input'?{Type:'GetInputParam',ParamName:1}:kind==='bad-table'?{Type:'GetTableField',Field:'N1.'}:{Type:'GetConstValue',Value:{Type:'GetTableField',Field:'N1.extra'}}
+  const join=['condition','constant','opaque','bad-input','bad-table'].includes(kind)?{Type:'cond',Field:'Q.id',Operator:'equal',ValueFun:fun}:null
+  const mapping=[{rowid:'N1',Name:'源',Fields:[field]},{rowid:'Q',pid:'N1',Name:'另一源',Fields:[other],JoinType:'INNER',JoinFilter:join}]
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',input_mapping:'[]',output_mapping:output('S',['code','extra'])},
+   {rowid:'Q',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M3',input_mapping:'[]',output_mapping:output('Q',['id'])},
+   {rowid:'MERGE',workflow_id:'W1',position_type:1,node_type:'merge',node_config:'',input_mapping:JSON.stringify(mapping),output_mapping:'[]'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'NQ',workflow_id:'W1',sourceID:'N1',targetID:'Q'},{rowid:'QM',workflow_id:'W1',sourceID:'Q',targetID:'MERGE'}]
+  http.records['Base_DataModel']!.push({rowid:'M3',dataSetId:'W1',Name:'OtherSource',Type:'数据库表'})
+  http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',Name:'code',FieldType:'varchar',type:'dataModel',IsPKey:0,IsOutput:1,AsName:'',description:'',ValueFun:''},
+   {rowid:'F2',dataSetId:'W1',dataModelId:'M1',Name:'extra',FieldType:'varchar',type:'dataModel',IsPKey:0,IsOutput:1,AsName:'',description:'',ValueFun:''},
+   {rowid:'FQ',dataSetId:'W1',dataModelId:'M3',Name:'id',FieldType:'varchar',type:'dataModel',IsPKey:0,IsOutput:1,AsName:'',description:'',ValueFun:''}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  if(kind==='merge-draft')nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify([...mapping].reverse()))
+  fields.updateEditingValue(kind==='field'?'F1':'F2','AsName','renamed')
+  if(kind==='field'||kind==='condition'){
+   await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('合并输入仍被引用');expect(http.saves).toEqual([])
+  }else if(kind==='opaque'||kind==='merge-draft'){
+   await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow(kind==='opaque'?'协议尚未核定':'合并节点的独立修改');expect(http.saves).toEqual([])
+  }else if(kind==='bad-input'||kind==='bad-table'){
+   await expect(saveWorkflowQueryFields(ds,'W1','N1')).rejects.toThrow('身份无法核定');expect(http.saves).toEqual([])
+  }else{
+   expect((await saveWorkflowQueryFields(ds,'W1','N1')).success).toBe(true)
+   expect(http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='MERGE')?.['input_mapping']).toBe(JSON.stringify(mapping))
+  }
+ })
  it.each(['empty-owner','unrelated-empty','unrelated-incomplete'])('does not require unrelated target execution completeness during copy field edits: %s',async change=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',node_config:'M1',output_mapping:'[]',config:change==='empty-owner'?'{}':'{"targetDbName":"DB","targetTableName":"T"}'}]

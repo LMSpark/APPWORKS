@@ -14386,7 +14386,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/workflow-definition/query-field-references",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-references\n职责：显式字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。\n边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-references\n职责：显式字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。\n边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。\nAI用途：源字段结构变化时复用正式依赖查询与首轮守卫，核对合并字段及连接引用。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }

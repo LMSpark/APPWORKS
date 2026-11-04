@@ -1,0 +1,71 @@
+{
+  "scope": "merge output generation command checkpoint",
+  "status": "partial",
+  "workflowTests": {
+    "files": 19,
+    "tests": 366,
+    "exitCode": 0
+  },
+  "classModelContracts": {
+    "files": 4,
+    "tests": 49,
+    "exitCode": 0
+  },
+  "typecheckExitCode": 0,
+  "lintExitCode": 0,
+  "buildExitCode": 0,
+  "classModelGenerationExitCode": 0,
+  "semanticGaps": 3638,
+  "codegen": {
+    "existingViolations": 26,
+    "exitCode": 1,
+    "newViolations": 0
+  },
+  "review": "read-only reviewer found no confirmed identity/permission/write-on-failure defect",
+  "nativeServiceSmoke": "not run for this checkpoint",
+  "unfinished": [
+    "formal destructive output reference check",
+    "page generator action binding",
+    "save/cancel/reopen native smoke",
+    "merge runtime service mismatches",
+    "20 business packages"
+  ],
+  "evidence": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "3C606247C44D431C686A85E1FDCB3D833266CD8ACA47F7FD680D55ECFADDB144"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "237B6C09244759E24C7B4203A24C8E5CC70529C27FED1DADA20FD73295D6147C"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-red.log",
+      "sha256": "5A97F1167973D67A8D8E3192ADB8F6F2DA3135A5354D3B9C8F06324398C2568E"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-tests.log",
+      "sha256": "10F7F843523101D7E81EE4EE08AA6FAAEB08CB8039D14A920399C47BF065C895"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-typecheck.log",
+      "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-contracts.log",
+      "sha256": "BB7F834FFA7F605229EFA6ED0536120CA34F6DD6A34439893B64204D982498AD"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-class-model.log",
+      "sha256": "965C54BD83E9878064FCDCDC01D0291150DAAE4CD2EF34378C0BEEA4C86CC6DC"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-build.log",
+      "sha256": "C8B117D31C19D0EB073307C7DBD76FD00AAECEF5B03766EFD10FE4981A3C4436"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-generation-codegen.log",
+      "sha256": "94C5F6712EA69E3AF1A4ECF748AEDEAC700D39E85FCD8EE09348C001795A2E56"
+    }
+  ]
+}

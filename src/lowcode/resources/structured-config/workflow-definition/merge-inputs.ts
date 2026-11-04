@@ -1,7 +1,7 @@
 /**
  * @module app:lowcode/resources/structured-config/workflow-definition/merge-inputs
- * 职责：原合并输入的范围核对、连接目录及来源增删命令。
- * 边界：只读正式图，来源命令仅写原DataView的input_mapping；不查询、保存、推导源身份或执行连接。
+ * 职责：原合并输入的范围核对、连接目录、来源增删及输出配置生成命令。
+ * 边界：只读正式图，仅写原DataView的input_mapping/output_mapping；不查询、保存、推导源身份或执行连接。
  * AI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。
  */
 import {DataViewOptionCatalog,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
@@ -101,6 +101,56 @@ function candidates(context:ReturnType<typeof scope>){
 function write(context:ReturnType<typeof scope>,mapping:readonly unknown[]):void{
  if(context.nodes.commitMode!=='staged'||context.nodes.editActionState(context.node)!=='enabled'||context.nodes.fieldAccess(context.node,'input_mapping').write!=='allowed')throw Error('当前查询不允许修改合并输入')
  context.nodes.updateEditingValue(String(context.nodes.getPkKey(context.node)),'input_mapping',JSON.stringify(mapping))
+}
+
+/** 从本次输入生成配置目录；只暂存原字段，不发布未经服务验证的合并运行合同。 */
+export function generateWorkflowMergeOutput(input:Target):void{
+ const context=scope(input),{nodes,node,effective}=context
+ const original=read(nodes,node,'output_mapping')
+ const document=(value:unknown):Array<Record<string,unknown>>=>{
+  const parsed:unknown=value===null||value===undefined||value===''?[]:typeof value==='string'?parseJsonDocument(value):value
+  if(!Array.isArray(parsed)||!parsed.every(isRecord))throw Error('合并输出必须是对象数组')
+  const ids=new Set<string>(),names=new Set<string>()
+  for(const row of parsed){
+   if(typeof row['rowid']!=='string'||!row['rowid']||ids.has(row['rowid'])||typeof row['Name']!=='string'||!row['Name'].trim()||names.has(row['Name'])
+    ||typeof row['FieldType']!=='string'||!row['FieldType'].trim()||row['isParent']!==false||row['pid']!==null)throw Error('合并输出身份、名称或平面结构无法确认')
+   ids.add(row['rowid']);names.add(row['Name'])
+  }
+  return parsed
+ }
+ const before=document(effective['output_mapping']),formal=document(original)
+ const selectedFields:Array<{sourceId:string;field:Record<string,unknown>}>=[]
+ for(const [sourceId,item] of context.items){
+  const source=context.byId.get(sourceId);if(!source)throw Error('合并来源节点不存在')
+  const published=workflowOutputFields({nodeId:sourceId,position:read(nodes,source,'position_type'),nodeType:read(nodes,source,'node_type'),mapping:read(nodes,source,'output_mapping')})
+  const declared=item['Fields'];if(!Array.isArray(declared)||!declared.every(isRecord))throw Error('合并输入字段必须是对象数组')
+  for(const field of declared){
+   const actual=published.find(row=>row['rowid']===field['rowid'])
+   if(!actual||actual['Name']!==field['Name']||actual['FieldType']!==field['FieldType'])throw Error('合并来源字段已变化，请重新核对输入')
+   if(field['IsOutput']!==0&&field['IsOutput']!==1)throw Error('合并字段输出标志必须是0或1')
+   if(field['AsName']!==undefined&&field['AsName']!==null&&typeof field['AsName']!=='string')throw Error('合并输出别名必须是文本')
+   if(field['IsOutput']===1)selectedFields.push({sourceId,field})
+  }
+ }
+ const names=new Set<string>(),ids=new Set<string>(),used=new Set<Record<string,unknown>>()
+ const output=selectedFields.map(({sourceId,field})=>{
+  const name=typeof field['AsName']==='string'&&field['AsName'].trim()?field['AsName']:String(field['Name'])
+  if(name!==name.trim()||name.includes('.')||names.has(name))throw Error('合并输出名称无效或重复，请调整别名')
+  names.add(name)
+  const qualified=`${sourceId}:${String(field['rowid'])}`
+  if(selectedFields.filter(entry=>`${entry.sourceId}:${String(entry.field['rowid'])}`===qualified).length!==1)throw Error('合并输出配置身份冲突')
+  const legacy=selectedFields.filter(entry=>entry.field['rowid']===field['rowid']).length===1?before.find(row=>row['rowid']===field['rowid']):undefined
+  const existing=before.find(row=>row['rowid']===qualified)??legacy
+  if(existing)used.add(existing)
+  const id=existing?.['rowid']??qualified
+  if(ids.has(String(id)))throw Error('合并输出配置身份重复')
+  ids.add(String(id))
+  return {...existing,rowid:id,pid:null,Name:name,Description:typeof field['Description']==='string'?field['Description']:'',FieldType:field['FieldType'],isParent:false}
+ })
+ if(before.some(row=>!used.has(row)))throw Error('现有输出元素无法对应本次来源；保留原文，需先核对删除引用')
+ if(formal.some(row=>!output.some(next=>next.rowid===row['rowid']&&next.Name===row['Name']&&next.FieldType===row['FieldType'])))throw Error('已发布合并输出结构变更尚需正式引用检查；保留当前修改')
+ if(nodes.commitMode!=='staged'||nodes.editActionState(node)!=='enabled'||nodes.fieldAccess(node,'output_mapping').write!=='allowed')throw Error('当前查询不允许修改合并输出')
+ nodes.updateEditingValue(input.nodeId,'output_mapping',JSON.stringify(output))
 }
 
 /** 本次来源选择的标准只读目录；业务草稿仍唯一属于原节点DataView。 */

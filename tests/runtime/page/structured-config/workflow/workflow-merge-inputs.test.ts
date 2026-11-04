@@ -6,7 +6,7 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
-import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
+import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput,generateWorkflowMergeOutput} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 
 const sets:DataSet[]=[],pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());sets.splice(0).forEach(ds=>ds.destroy());vi.restoreAllMocks()})
@@ -25,17 +25,58 @@ function fixture(value:unknown=mapping()){
  return ds
 }
 const presentation=(dataSet:DataSet,path=[1])=>workflowMergeInputPresentation({dataSet,workflowId:'W',nodeId:'MERGE',path})
-async function formalFixture(value:unknown=mapping()){
+async function formalFixture(value:unknown=mapping(),sharedField=false){
  const sample=fixture(value),http=new ApiBackend()
  http.records={Base_WorkflowDefinition:[{rowid:'W',name:'Current'}],Base_DataSet:[{rowid:'W',Type:'workflow',inputParams:'[]'}],
   Base_WorkflowNodeDefinition:sample.getView('Base_WorkflowNodeDefinition')!.rows.map(row=>({...row})),Base_WorkflowConnectors:sample.getView('Base_WorkflowConnectors')!.rows.map(row=>({...row}))}
+ if(sharedField){const source=http.records['Base_WorkflowNodeDefinition']?.find(row=>row['rowid']==='B');if(source)source['output_mapping']=JSON.stringify([{rowid:'BROOT',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'BCOUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:'AF',pid:'BROOT',Name:'code',FieldType:'varchar',isParent:false}])}
  const runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const ds=new LowcodeDataSpaceAssembler(runtime,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
   fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
  const page=new PageRuntime({pageId:'merge-source-test',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W'}},loadScenario:async()=>ds});pages.push(page);await page.load()
- await Promise.all([ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds
+ await Promise.all([ds.getView('Base_WorkflowDefinition')!.refresh(),ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds
 }
 describe('merge configuration input identity and join metadata',()=>{
+ it('keeps separate configuration identities when two source nodes publish the same field identity',async()=>{
+  const ds=await formalFixture([],true),nodes=ds.getView('Base_WorkflowNodeDefinition')!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  for(const id of ['A','B']){const choices=new WorkflowMergeSourceOptions(target);choices.refresh();choices.view.setCurrentRow(choices.view.rows.find(row=>row['value']===id)!);choices.add(null);choices.dispose()}
+  generateWorkflowMergeOutput(target)
+  const rows=JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))
+  expect(rows.map((row:Record<string,unknown>)=>row['rowid'])).toEqual(['A:AF','B:AF'])
+  expect(rows.map((row:Record<string,unknown>)=>row['Name'])).toEqual(['publishedAlias','code'])
+ })
+ it.each(['duplicate-name','stale-field','bad-flag','unmatched-output','published-removal'] as const)('retains the original output draft when generation rejects %s',async fault=>{
+  const ds=await formalFixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  for(const id of ['A','B']){const options=new WorkflowMergeSourceOptions(target);options.refresh();options.view.setCurrentRow(options.view.rows.find(row=>row['value']===id)!);options.add(null);options.dispose()}
+  const input=JSON.parse(String(nodes.getEditingRow('MERGE')?.['input_mapping']))
+  input[0].Fields[0].AsName='alpha';input[1].Fields[0].AsName='beta'
+  if(fault==='duplicate-name')input[1].Fields[0].AsName='alpha'
+  if(fault==='stale-field')input[0].Fields[0].Name='old'
+  if(fault==='bad-flag')input[0].Fields[0].IsOutput=true
+  const previous=JSON.stringify([{rowid:'unmatched',pid:null,Name:'prior',FieldType:'varchar',isParent:false,unknown:0}])
+  if(fault==='unmatched-output')nodes.updateEditingValue('MERGE','output_mapping',previous)
+  if(fault==='published-removal'){
+   const row=nodes.rows.find(row=>row['rowid']==='MERGE')!
+   row['output_mapping']=previous
+   nodes.updateEditingValue('MERGE','output_mapping','[]')
+  }
+  nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
+  const before=nodes.getEditingRow('MERGE')?.['output_mapping']
+  expect(()=>generateWorkflowMergeOutput(target)).toThrow()
+  expect(nodes.getEditingRow('MERGE')?.['output_mapping']).toBe(before)
+ })
+ it('generates stable source-qualified output identities and preserves existing configuration members without saving',async()=>{
+  const ds=await formalFixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  for(const [id,path] of [['A',null],['B',[0]]] as const){const choices=new WorkflowMergeSourceOptions(target);choices.refresh();choices.view.setCurrentRow(choices.view.rows.find(row=>row['value']===id)!);choices.add(path===null?null:[...path]);choices.dispose()}
+  const input=JSON.parse(String(nodes.getEditingRow('MERGE')?.['input_mapping']));input[0].Fields[0].AsName='alpha';input[1].Fields[0].AsName='beta';nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
+  generateWorkflowMergeOutput(target)
+  const output=JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))
+  expect(output.map((row:Record<string,unknown>)=>[row['rowid'],row['Name']])).toEqual([['A:AF','alpha'],['B:BF','beta']])
+  output[0].unknown={keep:false};nodes.updateEditingValue('MERGE','output_mapping',JSON.stringify(output));generateWorkflowMergeOutput(target)
+  expect(JSON.parse(String(nodes.getEditingRow('MERGE')?.['output_mapping']))).toEqual(output)
+  expect(nodes.rows.find(row=>row['rowid']==='MERGE')?.['output_mapping']).toBeUndefined()
+  nodes.discardEditingRows(['MERGE']);expect(nodes.hasEditingChanges()).toBe(false)
+ })
  it('does not turn a locally editable static field into formal row authorization',()=>{
   const ds=fixture([]),nodes=ds.getView('Base_WorkflowNodeDefinition')!,options=new WorkflowMergeSourceOptions({dataSet:ds,workflowId:'W',nodeId:'MERGE'})
   options.refresh();options.view.setCurrentRow(options.view.rows.find(row=>row['value']==='A')!)

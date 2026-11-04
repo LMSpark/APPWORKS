@@ -162,6 +162,44 @@
           },
           "additionalProperties": false
         },
+        "method.readTableTarget.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "target": {
+              "type": "object",
+              "properties": {
+                "dbid": {
+                  "type": "string"
+                },
+                "name": {
+                  "type": "string"
+                },
+                "databaseName": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dbid",
+                "name",
+                "databaseName"
+              ],
+              "additionalProperties": false
+            },
+            "assertCurrent": {
+              "type": "object",
+              "title": "() => void"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readTableTarget.return": {
+          "type": "object",
+          "title": "Promise<Pick<PageDataSpaceModelSourcePrepared, 'source' | 'fields'>>"
+        },
         "method.query.params": {
           "type": "object",
           "properties": {
@@ -191,15 +229,7 @@
             },
             "options": {
               "type": "object",
-              "properties": {
-                "missingInputType": {
-                  "enum": [
-                    "string-default",
-                    "preserve"
-                  ]
-                }
-              },
-              "additionalProperties": false
+              "title": "NonNullable<Parameters<PageDataSpaceModelSourceReader['prepare']>[2]>"
             }
           },
           "additionalProperties": false
@@ -211,7 +241,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T18:42:52.628Z",
+  "generatedAt": "2026-11-04T10:46:25.322Z",
   "models": {
     "PageDataSpaceModelSourceQuery": {
       "name": "PageDataSpaceModelSourceQuery",
@@ -278,6 +308,79 @@
         "members": {
           "methods": [
             {
+              "name": "readTableTarget",
+              "jsdoc": "显式命令按数据库ID和表名核真实目标；私有查询不改来源控件的筛选、选择或草稿。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "target",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dbid: string;\n        name: string;\n        databaseName: string;\n    }"
+                      }
+                    ]
+                  }
+                },
+                {
+                  "name": "assertCurrent",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "Pick",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "PageDataSpaceModelSourcePrepared",
+                        "sourcePath": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts"
+                      },
+                      {
+                        "type": "union",
+                        "types": [
+                          {
+                            "type": "literal",
+                            "value": "source"
+                          },
+                          {
+                            "type": "literal",
+                            "value": "fields"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
               "name": "query",
               "parameters": [
                 {
@@ -335,11 +438,11 @@
                   "name": "options",
                   "type": {
                     "type": "reference",
-                    "name": "Readonly",
+                    "name": "NonNullable",
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        missingInputType?: 'string-default' | 'preserve';\n    }"
+                        "name": "Parameters<PageDataSpaceModelSourceReader['prepare']>[2]"
                       }
                     ]
                   },

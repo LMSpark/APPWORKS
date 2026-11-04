@@ -21,9 +21,9 @@
       <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId"
         :disabled="locked || (hasPending && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
       <WorkflowQuerySourceEdit v-if="dataSet" :key="loadedTarget" ref="querySourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :revision="revision"
-        :eligible="selectedKind === 'node' && isQueryNode && validModel && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" :on-saved="queryNodeCreated" @pending-change="value=>pending('source.query',value)" />
+        :operation="isOperationNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && validModel && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" :on-saved="queryNodeCreated" @pending-change="value=>pending('source.query',value)" />
       <WorkflowNodeRemove v-if="dataSet" :key="loadedTarget" ref="nodeRemoveApi" :data-set="dataSet" :workflow-id="workflowId"
-        :node-id="selectedQueryId" :eligible="selectedKind === 'node' && isQueryNode && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
+        :node-id="selectedQueryId" :operation="isOperationNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
       <div>
         <RendererButton v-if="layoutMissing" label="创建布局" :data-view-key="layoutKey" perm-action="create" :disabled="locked" @click="createLayout" />
         <RendererButton v-if="layoutRow" label="自动对齐" :disabled="locked || !!layoutError" @click="graphApi?.arrange()" />
@@ -67,8 +67,8 @@
             <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
             <section v-if="validModel">
               <h2>模型配置</h2>
-              <WorkflowQueryConfiguration v-if="isQueryNode && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
-                :node-id="selectedQueryId" :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('query.'+key,value)" />
+              <WorkflowQueryConfiguration v-if="(isQueryNode || isOperationNode) && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
+                :node-id="selectedQueryId" :revision="revision" :disabled="locked" :operation="isOperationNode" @pending-change="(key,value)=>pending('query.'+key,value)" />
               <template v-else>
               <RendererForm :data-view-key="modelKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
                 <FieldText field="Name" label="模型名称" :readonly="true" />
@@ -81,8 +81,8 @@
               <h3>字段与参数</h3>
               <RendererTable :data-view-key="fieldsKey" :children="modelFields" :highlight-current-row="true" />
               </template>
-              <RendererButton :label="isQueryNode ? (isUnconfirmed(fieldsTable) || isUnconfirmed(nodesTable) || isUnconfirmed(modelTable) ? '核验查询配置保存结果' : '保存查询配置') : '保存字段配置'" :disabled="busy || pendingPart('nodes') || pendingPart('query')" @click="saveFields" />
-              <RendererButton :label="isQueryNode ? '取消查询配置修改' : '取消字段配置修改'" :disabled="busy || unconfirmed" @click="cancelFields" />
+              <RendererButton :label="isQueryNode ? (isUnconfirmed(fieldsTable) || isUnconfirmed(nodesTable) || isUnconfirmed(modelTable) ? '核验查询配置保存结果' : '保存查询配置') : isOperationNode ? '保存操作配置' : '保存字段配置'" :disabled="busy || pendingPart('nodes') || pendingPart('query')" @click="saveFields" />
+              <RendererButton :label="isQueryNode ? '取消查询配置修改' : isOperationNode ? '取消操作配置修改' : '取消字段配置修改'" :disabled="busy || unconfirmed" @click="cancelFields" />
               <h3>作为父模型的原服务关系</h3>
               <RendererTable :data-view-key="parentRelationsKey" :children="relationFields" />
               <h3>作为子模型的原服务关系</h3>
@@ -131,6 +131,7 @@ import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/work
 import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
+import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
@@ -198,6 +199,7 @@ const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;i
 const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
 const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
 const isQueryNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&row['node_type']==='query'})
+const isOperationNode=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value;return !!row&&target?.fieldAccess(row,'node_type').read==='visible'&&['add','edit','delete'].includes(String(row['node_type']))})
 const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
 const modelFields=computed<SparkNode[]>(()=>[
  {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
@@ -334,20 +336,20 @@ async function save(table:string):Promise<void>{
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
 async function saveFields():Promise<void>{
- if(!isQueryNode.value){await save(fieldsTable);return}
+ if(!isQueryNode.value&&!isOperationNode.value){await save(fieldsTable);return}
  const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
  if(busy.value||!ds||typeof id!=='string'||loadedTarget.value!==workflowId.value)return
  acting.value=true;error.value=''
- try{const result=await saveWorkflowQueryFields(ds,workflowId.value,id);if(!result?.success)throw Error(result?.message??'查询字段保存未完整确认')}
+ try{const result=await (isOperationNode.value?saveWorkflowOperationFields:saveWorkflowQueryFields)(ds,workflowId.value,id);if(!result?.success)throw Error(result?.message??'查询字段保存未完整确认')}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
 async function cancelFields():Promise<void>{
- if(!isQueryNode.value){cancel(fieldsTable);return}
+ if(!isQueryNode.value&&!isOperationNode.value){cancel(fieldsTable);return}
  const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
  if(busy.value||unconfirmed.value||!ds||typeof id!=='string')return
  acting.value=true;error.value=''
- try{await cancelWorkflowQueryFields(ds,workflowId.value,id)}
+ try{await (isOperationNode.value?cancelWorkflowOperationFields:cancelWorkflowQueryFields)(ds,workflowId.value,id)}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }

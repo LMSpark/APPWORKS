@@ -5,9 +5,9 @@
 -->
 <template>
  <section>
-  <RendererButton label="选择模型" :disabled="disabled || !eligible || busy || visible" @click="open" />
+  <RendererButton :label="operation ? '更换操作目标' : '选择模型'" :disabled="disabled || !eligible || busy || visible" @click="open" />
   <p v-if="error && !visible" role="alert">{{ error }}</p>
-  <RendererDialog v-if="owner && names" v-model="visible" :data-view-key="nameKey" title="选择查询模型来源"
+  <RendererDialog v-if="owner && names" v-model="visible" :data-view-key="nameKey" :title="operation ? '选择操作目标来源' : '选择查询模型来源'"
    width="min(1100px, calc(100vw - 32px))" :grid-columns="1" :close-disabled="true" append-to-body>
    <p v-if="error" role="alert">{{ error }}</p>
    <template v-if="state?.shared && !state.source">
@@ -30,8 +30,8 @@
     <ul><li v-for="item in state.isolation?.verification ?? []" :key="`${item.table}:${item.id}`">{{ item.table }} · {{ item.id }}：{{ item.result }}</li></ul>
    </template>
    <DataSpaceModelSource v-if="state?.source && sourceHost" :session="sourceHost" :model-id="state.modelId"
-    :revision="revision" :disabled="busy || state.complete" configuration-label="节点来源及输出映射" @changed="changed" />
-   <p v-if="state?.complete" role="status">来源和节点输出已确认，可重新载入原节点。</p>
+    :revision="revision" :disabled="busy || state.complete" :configuration-label="operation ? '操作目标确认' : '节点来源及输出映射'" @changed="changed" />
+   <p v-if="state?.complete" role="status">{{ operation ? '目标与节点绑定已确认，可重新载入原节点。' : '来源和节点输出已确认，可重新载入原节点。' }}</p>
    <template #footer>
     <RendererButton v-if="!state?.isolation && !state?.node && !state?.complete" label="取消来源选择" :disabled="busy" @click="cancel" />
     <RendererButton v-if="state?.node?.canAcceptCurrent" label="读取原节点当前正式结果" :disabled="busy" @click="recover('verifyNodeCurrent')" />
@@ -48,12 +48,12 @@ import type {DataSet,DataView} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,FieldText} from '@spark-appworks/spark-component'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
-import {openWorkflowQuerySourceEdit,type WorkflowQuerySourceEdit} from '@/lowcode/resources/structured-config/workflow-definition/query-source-edit'
+import {openWorkflowQuerySourceEdit,type WorkflowModelSourceEdit} from '@/lowcode/resources/structured-config/workflow-definition/query-source-edit'
 import DataSpaceModelSource from '@/views/features/data-platform/data-set-management/design/model/source/DataSpaceModelSource.vue'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
-const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;eligible:boolean;revision:number;disabled?:boolean;onSaved?:(id:string)=>void|Promise<void>}>()
+const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;eligible:boolean;revision:number;operation?:boolean;disabled?:boolean;onSaved?:(id:string)=>void|Promise<void>}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
-const owner=shallowRef<WorkflowQuerySourceEdit>(),names=shallowRef<DataView>(),visible=ref(false),busy=ref(false),error=ref(''),tick=ref(0)
+const owner=shallowRef<WorkflowModelSourceEdit>(),names=shallowRef<DataView>(),visible=ref(false),busy=ref(false),error=ref(''),tick=ref(0)
 let active=true
 let registration:DataSpaceSourceControls|undefined
 const revision=computed(()=>props.revision+tick.value)
@@ -71,7 +71,7 @@ async function open():Promise<void>{
  await act(async()=>{
   const ds=props.dataSet,workflowId=props.workflowId,nodeId=props.nodeId,scope=lowcodeApi.readRequestScope()
   const assertCurrent=()=>{const current=lowcodeApi.readRequestScope();if(!active||props.dataSet!==ds||props.workflowId!==workflowId||props.nodeId!==nodeId||current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId'])throw Error('工作流来源编辑身份已失效')}
-  owner.value=await openWorkflowQuerySourceEdit({dataSet:ds,workflowId,nodeId,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent})
+  owner.value=await openWorkflowQuerySourceEdit({dataSet:ds,workflowId,nodeId,operation:props.operation===true,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent})
   try{registration=new DataSpaceSourceControls(ds,()=>{tick.value++});names.value=registration.registration;names.value.replaceRows([{id:'registration',name:''}]);names.value.setCurrentRowById('registration');visible.value=true}
   catch(cause){owner.value.cancel();owner.value=undefined;registration?.dispose();registration=undefined;throw cause}
  })

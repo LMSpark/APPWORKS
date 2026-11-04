@@ -1,0 +1,306 @@
+{
+  "schemaVersion": 1,
+  "kind": "workflow-operation-native-data-checkpoint",
+  "recordedAt": "2026-11-04T11:04:56.645Z",
+  "scope": "Operation-node checkpoint; not acceptance of all 20 business packages or complete reference-page parity",
+  "account": {
+    "enterpriseDisplayName": "领码科技",
+    "username": "wangtao",
+    "credentialsPersisted": false
+  },
+  "fixture": {
+    "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+    "marker": "SMOKE_DATA_CHAIN_OPERATION_1793786434946",
+    "lifecycle": "cleaned",
+    "cleanupConfirmed": true
+  },
+  "lifecycle": {
+    "creation": {
+      "reads": 75,
+      "writes": 6,
+      "operations": [
+        {
+          "operation": "add",
+          "name": "SMOKE_OPERATION_ADD_673B1CC6",
+          "nodeId": "313AB51926C88666D3F145B6AF2E7D72",
+          "modelId": "8FF3F8B7B8ED42000F448E800869FACC",
+          "confirmed": true
+        },
+        {
+          "operation": "edit",
+          "name": "SMOKE_OPERATION_EDIT_673B1CC6",
+          "nodeId": "FFCFE6169C4A4E8D86B9526C1D388A7B",
+          "modelId": "D0739BF663F7C5E14F36DE668EBBF6F8",
+          "confirmed": true
+        },
+        {
+          "operation": "delete",
+          "name": "SMOKE_OPERATION_DELETE_673B1CC6",
+          "nodeId": "3AC6A2D38FF5396C713E56AF379D7750",
+          "modelId": "535935938364B1ABE31C5CC9C0A78566",
+          "confirmed": true
+        }
+      ],
+      "fieldCount": 78,
+      "nodeCount": 4
+    },
+    "configuration": {
+      "reads": 51,
+      "writes": 3,
+      "cancelled": [
+        "add",
+        "edit",
+        "delete"
+      ],
+      "reopenedValuesConfirmed": true
+    },
+    "singleCrud": {
+      "reads": 89,
+      "writes": 2,
+      "executions": 3,
+      "steps": [
+        {
+          "operation": "add",
+          "result": {
+            "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+            "nodeId": "313AB51926C88666D3F145B6AF2E7D72",
+            "status": "SUCCESS",
+            "count": 1
+          },
+          "outcome": "success",
+          "completeness": "complete",
+          "persistedBusinessRows": 1,
+          "description": "operation-created"
+        },
+        {
+          "operation": "edit",
+          "result": {
+            "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+            "nodeId": "FFCFE6169C4A4E8D86B9526C1D388A7B",
+            "status": "SUCCESS",
+            "count": 1
+          },
+          "outcome": "success",
+          "completeness": "complete",
+          "persistedBusinessRows": 1,
+          "description": "operation-edited"
+        },
+        {
+          "operation": "delete",
+          "result": {
+            "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+            "nodeId": "3AC6A2D38FF5396C713E56AF379D7750",
+            "status": "SUCCESS",
+            "count": 1
+          },
+          "outcome": "success",
+          "completeness": "complete",
+          "persistedBusinessRows": 0,
+          "description": null
+        }
+      ]
+    },
+    "sourceAndDeletion": {
+      "reads": 452,
+      "writes": 6,
+      "sourceCancellation": [
+        "add",
+        "edit",
+        "delete"
+      ],
+      "changedTargets": 3,
+      "deleteCancellation": [
+        "add",
+        "edit",
+        "delete"
+      ],
+      "deleted": 3,
+      "changedTarget": "Base_JsonData",
+      "changedTargetFields": 14,
+      "crudAfterChangedTarget": false
+    }
+  },
+  "executionHistory": {
+    "original": {
+      "executions": 1,
+      "outcome": "unknown",
+      "error": "工作流执行结果未知，禁止重跑：[1004] 数据库ID或名称不能为空",
+      "replayed": false,
+      "commandId": "0224e342-5eaa-4d5e-853d-0aae83936988",
+      "independentPostFailureBusinessRows": 0,
+      "independentPostFailureNodeInstances": 0,
+      "ramProcessRetiredOnlyAfterConfirmedFixtureCleanup": true
+    },
+    "corrected": {
+      "definitionChangedBeforeNewRequest": true,
+      "ownedStartupRecord": true,
+      "executions": 1,
+      "reads": 71,
+      "writes": 2,
+      "outcome": "success",
+      "completeness": "complete",
+      "nodes": [
+        {
+          "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+          "nodeId": "BF0887E90116335AEEC83A674B52226A",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+          "nodeId": "313AB51926C88666D3F145B6AF2E7D72",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+          "nodeId": "FFCFE6169C4A4E8D86B9526C1D388A7B",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+          "nodeId": "3AC6A2D38FF5396C713E56AF379D7750",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "workflowId": "673B1CC678BA4666B4BE451E4D138FDF",
+          "nodeId": "4827845E87EE87F1C6F7BDBA0F24C902",
+          "status": "SUCCESS",
+          "count": 0
+        }
+      ],
+      "nodeInstanceCount": 5,
+      "nodeInstanceIds": [
+        "564C2F7B8161477A88F729CC23C4AEA8",
+        "8F40A7CBC1D1470494EDD9EA86D70D2C",
+        "9BAD322172984F488752E767D59F35C5",
+        "B72A8A61D493417DB9463A44E8F13D01",
+        "DCE4DEE68E4D4B248F1B49F4F4A58B55"
+      ],
+      "workflowInstanceId": "FCF1C91EB04447DA81D50D9DFC8B7D48",
+      "workflowInstanceTableRows": 0,
+      "productionWorkflowInstancePersistenceProven": false
+    }
+  },
+  "cleanup": {
+    "reads": 111,
+    "writes": 5,
+    "executions": 0,
+    "unknown": false,
+    "steps": [
+      "delete-five-runtime-node-records",
+      "delete-owned-startup-row",
+      "delete-observer-metadata-and-boundaries",
+      "delete-workflow-parameters",
+      "delete-workflow-definition"
+    ],
+    "finalOwnedBusinessAndDefinitionsAbsent": true,
+    "layoutFileCreated": false
+  },
+  "verification": {
+    "targeted": {
+      "files": 6,
+      "tests": 219,
+      "status": "passed",
+      "log": "artifacts/data-chain-smoke/workflow-operation-checkpoint-regression.log"
+    },
+    "executionResource": {
+      "tests": 15,
+      "status": "passed",
+      "log": "artifacts/data-chain-smoke/workflow-operation-current-card-execution.log"
+    },
+    "typecheck": {
+      "status": "passed",
+      "log": "artifacts/data-chain-smoke/workflow-operation-checkpoint-typecheck2.log"
+    },
+    "lint": {
+      "status": "passed",
+      "log": "artifacts/data-chain-smoke/workflow-operation-checkpoint-lint.log"
+    },
+    "frontendBuild": {
+      "status": "passed",
+      "log": "artifacts/data-chain-smoke/workflow-operation-checkpoint-build.log"
+    },
+    "classModelContracts": {
+      "files": 4,
+      "tests": 49,
+      "status": "passed",
+      "log": "artifacts/data-chain-smoke/workflow-operation-checkpoint-class-contracts3.log"
+    },
+    "wholeRepositoryVerify": {
+      "status": "failed",
+      "rule": "verify:ai-codegen",
+      "existingViolations": 29,
+      "introducedViolations": 0,
+      "baselineCommit": "81b74dd913e692c3fc1c90bff25610549a2f1d33"
+    },
+    "wholeRepositoryTests": {
+      "status": "not-passed",
+      "firstRun": "interrupted after failures/timeouts",
+      "boundedRun": "interrupted after stalled design-page worker replacement; root cause not established",
+      "unmodifiedTimeouts": true,
+      "logs": [
+        "artifacts/data-chain-smoke/workflow-operation-final-full-tests.log",
+        "artifacts/data-chain-smoke/workflow-operation-final-full-tests-bounded.log"
+      ]
+    },
+    "classModelSemanticZero": {
+      "status": "failed",
+      "baselineGateCount": 684,
+      "currentGateCount": 681,
+      "introducedGateGaps": 0
+    }
+  },
+  "limitations": [
+    "Original unknown request remains unknown; corrected-definition success is a different request.",
+    "Changed targets were saved/reopened and then deleted; CRUD execution after switching to Base_JsonData was not tested.",
+    "Test endpoint returned no workflow-instance table row; production workflow persistence is not established.",
+    "Whole-repository tests and 29 existing codegen violations remain open.",
+    "Reference-page visual parity and the full 20-package objective remain open.",
+    "Strict ClassModel zero-gap gate retains 681 existing module/model/constructor documentation gaps; no newly introduced gate gaps remain."
+  ],
+  "evidence": [
+    {
+      "kind": "fixture",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-fixture-create-audit.json",
+      "sha256": "3d4b76f11a96e4ef75d1f939a540c9e9ddf14b3e1bf99109aa99977acffb116e"
+    },
+    {
+      "kind": "creation",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-nodes-audit.json",
+      "sha256": "33ab9cb43651215bbbceb50ce635fb855ebe23efcb3c8385705482bd07365ee5"
+    },
+    {
+      "kind": "configuration",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-config-audit.json",
+      "sha256": "f8f6e047b0e77004d083594f9ee77b418ffd3f6238e0220044cc586d890365eb"
+    },
+    {
+      "kind": "single",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-crud-audit.json",
+      "sha256": "c2e4595ef57b87f04abb125b8c319cad957952ac1758eda6e8af84983aa4f7a7"
+    },
+    {
+      "kind": "originalFlow",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-full-flow-audit.json",
+      "sha256": "1614efb0180015729aa10301e8faaa9e89827cd63c5e31f3fe49a549fa84f3b1"
+    },
+    {
+      "kind": "correctedFlow",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-full-flow-v2-audit.json",
+      "sha256": "2386f4b4152b1f413d935e6f78e80ac979f9b9b93e7eefec408892da5d858200"
+    },
+    {
+      "kind": "sourceDeletion",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-source-delete-audit.json",
+      "sha256": "8a18ba0b39d1e6f9716a8be392ec9e660c8a51e9c1e740017db35a7a55369b82"
+    },
+    {
+      "kind": "cleanup",
+      "path": "artifacts/data-chain-smoke/workflow-operation-live-cleanup-audit.json",
+      "sha256": "e00578711519ecb4608f73b9deb809c25ba36b33d87e35c5885ffd9d0d2dad8e"
+    }
+  ]
+}

@@ -10,6 +10,9 @@ type PageDataSpaceModelSourcePrepared = Awaited<ReturnType<PageDataSpaceModelSou
 type PageDataSpaceModelSourceField = PageDataSpaceModelSourcePrepared['fields'][number]
 type PageDataSpaceModelSourceType = PageDataSpaceModelSource['type']
 import {LowcodeDataSpaceSourceCatalog} from './lowcode-data-space-source-catalog'
+function sameSource(first:PageDataSpaceModelSource,second:PageDataSpaceModelSource):boolean{
+  return first.type===second.type&&first.id===second.id&&first.name===second.name&&first.description===second.description&&first.dbid===second.dbid&&first.databaseName===second.databaseName&&first.providerId===second.providerId
+}
 type VisibleField = Readonly<{context: DataView; row: DataRow; fieldName: string; optionalPresentation?: boolean}>
 type SourceRead = Readonly<{metaName: string; dataSet: DataSet; filter: ReturnType<typeof DataViewFilter.condition> | undefined; page?: Readonly<{index: number; size: number}>}>
 function scalar(value: unknown): string {
@@ -34,6 +37,20 @@ function field(values: Partial<PageDataSpaceModelSourceField> & Pick<PageDataSpa
     OrderType: '', Order: 0, Group: 0, ...values })
 }
 
+function sourceFields(context:DataView,id:string):PageDataSpaceModelSourceField[]{
+ const ids=new Set<string>(),names=new Set<string>()
+ return context.rows.map(row=>{
+  const get=(fieldName:string,optionalPresentation=false)=>visible({context,row,fieldName,optionalPresentation})
+  const fieldId=get('rowid'),name=get('enname'),fieldType=get('DataType'),pkey=get('IsPKey')
+  if(!fieldId||ids.has(fieldId)||context.getPkKey(row)!==fieldId||get('tblid')!==id)throw Error('来源字段身份或归属不唯一')
+  if(!name||!fieldType||names.has(name.toLowerCase()))throw Error('来源字段名称或类型缺失、重复')
+  if(!['0','1','true','false'].includes(pkey))throw Error('来源字段主键标记无效')
+  ids.add(fieldId);names.add(name.toLowerCase())
+  const primary=pkey==='1'||pkey==='true'?1:0
+  return field({Name:name,description:get('cnname',true)||get('description',true),FieldType:fieldType,IsPKey:primary,IsOutput:primary})
+ })
+}
+
 const staticFields: Readonly<Partial<Record<PageDataSpaceModelSourceType, readonly PageDataSpaceModelSourceField[]>>> = {
   json: Object.freeze([
     field({ Name: 'id', description: '主键（记录路径）', FieldType: 'varchar' }),
@@ -47,6 +64,29 @@ const staticFields: Readonly<Partial<Record<PageDataSpaceModelSourceType, readon
 
 /** 六类来源的字段策划；字典val类型消费已保存设计，其余字段保留正式标题与存储类型。 */
 export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSourceReader {
+  /** 显式命令按数据库ID和表名核真实目标；私有查询不改来源控件的筛选、选择或草稿。 */
+  public static async readTableTarget(dataSet:DataSet,target:Readonly<{dbid:string;name:string;databaseName:string}>,assertCurrent:()=>void):Promise<Pick<PageDataSpaceModelSourcePrepared,'source'|'fields'>>{
+    if(!target.dbid.trim()||!target.name.trim()||!target.databaseName.trim())throw Error('数据库目标身份缺失')
+    const owned:DataView[]=[]
+    async function query(metaName:string,filter:NonNullable<SourceRead['filter']>):Promise<DataView>{
+      assertCurrent()
+      const template=dataSet.getView(metaName,'sourceDetails')
+      if(!template||template.dataTable?.modelBinding?.modelName!==metaName)throw Error('数据库目标缺少正式来源视图')
+      const view=template.createQueryView(`tableTarget_${crypto.randomUUID().replaceAll('-','')}`);owned.push(view)
+      view.queryConfig={...view.queryConfig,allPages:true};view.filterExpression=filter.toJSON()
+      await view.refresh();assertCurrent()
+      if(dataSet.destroyed||view.destroyed||view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total||!view.countReported)throw Error('数据库目标来源未完整读取')
+      return view
+    }
+    try{
+      const tables=await query('View_TblList',DataViewFilter.group({logic:'and',filters:[{field:'dbid',operator:'eq',value:target.dbid},{field:'tblname',operator:'eq',value:target.name}]})),row=tables.rows[0]
+      if(tables.rows.length!==1||!row)throw Error('数据库目标来源不存在或不唯一')
+      const source=LowcodeDataSpaceSourceCatalog.source('table',tables,row)
+      if(source.dbid!==target.dbid||source.name!==target.name||source.databaseName!==target.databaseName)throw Error('数据库目标来源身份或执行数据库名不符')
+      const fields=await query('Base_TblField',DataViewFilter.condition({field:'tblid',operator:'eq',value:source.id}))
+      return {source,fields:sourceFields(fields,source.id)}
+    }finally{for(const view of owned)if(!dataSet.destroyed)view.dataTable?.destroyView(view.viewId)}
+  }
   readonly #scopeToken: string
   readonly #scopeAppId: string | undefined
   readonly #metadata: DataSet | undefined
@@ -141,7 +181,7 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
     return Object.freeze({rows: Object.freeze(rows), total: context.total})
   }
 
-  public async prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options:Readonly<{missingInputType?:'string-default'|'preserve'}>={}): Promise<PageDataSpaceModelSourcePrepared> {
+  public async prepare(source: PageDataSpaceModelSource, dataSet: DataSet, options:NonNullable<Parameters<PageDataSpaceModelSourceReader['prepare']>[2]>={}): Promise<PageDataSpaceModelSourcePrepared> {
     const spec = LowcodeDataSpaceSourceCatalog.config(source.type)
     const id = scalar(source.id)
     if (!id) throw new Error('模型来源身份缺失')
@@ -152,37 +192,25 @@ export class LowcodeDataSpaceModelSourceReader implements PageDataSpaceModelSour
     const selected = context.rows[0]
     if (!selected) throw new Error('模型来源身份不存在或不唯一')
     const current = LowcodeDataSpaceSourceCatalog.source(source.type, context, selected)
-    if (current.type !== source.type || current.id !== source.id || current.name !== source.name
-      || current.description !== source.description || current.dbid !== source.dbid
-      || current.databaseName !== source.databaseName || current.providerId !== source.providerId) {
+    if (!sameSource(current,source)) {
       throw new Error('模型来源已变化，请重新选择')
     }
     if (spec.dbid && (!current.dbid || !current.databaseName)) {
       throw new Error('数据库来源缺少数据库身份（dbid/DbName），无法创建模型')
     }
-    const fields: PageDataSpaceModelSourceField[] = [...(source.type === 'dict'
+    const target=options.purpose==='operation-target'?await (async()=>{
+      if(current.type!=='table')throw Error('操作目标只承接数据库表')
+      const verified=await LowcodeDataSpaceModelSourceReader.readTableTarget(dataSet,{dbid:current.dbid,name:current.name,databaseName:current.databaseName},()=>this.assertCurrent())
+      if(!sameSource(current,verified.source))throw Error('操作目标目录身份已变化，请重新选择')
+      return verified
+    })():undefined
+    const fields: PageDataSpaceModelSourceField[] = [...(target?target.fields:source.type === 'dict'
       ? await this.dictionaryFields(current) : staticFields[source.type] ?? [])]
-    if (source.type !== 'dict' && !staticFields[source.type]) {
+    if (!target && source.type !== 'dict' && !staticFields[source.type]) {
       const fieldContext = await this.read({metaName: 'Base_TblField',
         dataSet,
         filter: DataViewFilter.condition({field: 'tblid', operator: 'eq', value: id})})
-      const ids = new Set<string>()
-      const names = new Set<string>()
-      for (const row of fieldContext.rows) {
-        const fieldId = visible({context: fieldContext, row, fieldName: 'rowid'})
-        if (!fieldId || ids.has(fieldId) || visible({context: fieldContext, row, fieldName: 'tblid'}) !== id) throw new Error('来源字段身份或归属不唯一')
-        ids.add(fieldId)
-        const name = visible({context: fieldContext, row, fieldName: 'enname'})
-        const fieldType = visible({context: fieldContext, row, fieldName: 'DataType'})
-        if (!name || !fieldType || names.has(name)) throw new Error('来源字段名称或类型缺失、重复')
-        names.add(name)
-        const pkey = visible({context: fieldContext, row, fieldName: 'IsPKey'})
-        if (!['0', '1', 'true', 'false'].includes(pkey)) throw new Error('来源字段主键标记无效')
-        const primary = pkey === '1' || pkey === 'true' ? 1 : 0
-        fields.push(field({Name: name, description: visible({context: fieldContext, row, fieldName: 'cnname', optionalPresentation: true})
-          || visible({context: fieldContext, row, fieldName: 'description', optionalPresentation: true}), FieldType: fieldType,
-        IsPKey: primary, IsOutput: primary}))
-      }
+      fields.push(...sourceFields(fieldContext,id))
     }
     if (source.type === 'interface' || source.type === 'logicView') {
       const params = await this.read({metaName: '_Base_ParamList', dataSet,

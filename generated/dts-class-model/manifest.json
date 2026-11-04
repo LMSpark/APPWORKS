@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1037,
+  "scannedFileCount": 1038,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13189,6 +13189,7 @@
         "jsdoc": "@module lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置（无独立命令类 FSM）。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
+          "SourceInputTargetChange",
           "SourceContractChange",
           "SourceContractPlan",
           "ModelSourceEditStatus",
@@ -14295,6 +14296,19 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/operation-fields",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-fields",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-fields\n职责：操作目标的输入值和条件沿原DataView编辑、取消并由DataSet按修改范围提交。\n边界：不执行CRUD、不推导未核定输出，不改字段结构或共享模型归属。\nAI用途：操作字段工作区沿原绑定视图调用保存或取消，不另设运行数据入口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/output-fields.ts.json",
       "module": {
@@ -14388,7 +14402,9 @@
         "modulePath": "lowcode/resources/structured-config/workflow-definition/query-model-create",
         "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-model-create\n职责：在当前工作流元数据实例内复用原模型新增命令，明确查询模型的归属和requestType。\n边界：不复制来源、字段、权限或保存逻辑；不创建节点、不执行流程。",
         "jsdocSource": "leading-jsdoc",
-        "symbols": []
+        "symbols": [
+          "WorkflowDataOperation"
+        ]
       }
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
@@ -14399,10 +14415,10 @@
         "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/workflow-definition/query-node-create",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：先确认查询模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。\n边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：先确认来源或操作目标模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。\n边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "WorkflowQueryNodeCreate"
+          "WorkflowModelNodeCreate"
         ]
       }
     },
@@ -14430,7 +14446,7 @@
         "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-source-edit\n职责：组合原模型fork、来源替换与节点收口owner，逐阶段确认当前查询节点来源。\n边界：正式草稿与捕获仍归各原DataView；不伪造来源、权限、事务或失败回滚。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "WorkflowQuerySourceEdit"
+          "WorkflowModelSourceEdit"
         ]
       }
     },
@@ -14445,7 +14461,8 @@
         "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-source-node-commit\n职责：来源正式确认后，沿原节点DataView收口改绑与输出身份，保留原批次核验。\n边界：不保存模型或字段、不重做fork；新输出只取独立正式字段，未知结果不自动重放。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "WorkflowQuerySourceNodeCommit"
+          "WorkflowConfirmedSource",
+          "WorkflowModelSourceNodeCommit"
         ]
       }
     },
@@ -22737,6 +22754,10 @@
       "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
       "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
     },
+    "SourceInputTargetChange": {
+      "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
+      "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json"
+    },
     "SourceInputValidateValueInput": {
       "sourcePath": "src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts",
       "file": "files/src/lowcode/data-space/model-source/source/lowcode-data-space-source-input-session.ts.json"
@@ -23477,6 +23498,10 @@
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts.json"
     },
+    "WorkflowConfirmedSource": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json"
+    },
     "WorkflowConnectorCondition": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json"
@@ -23488,6 +23513,10 @@
     "WorkflowControlEdgeSlot": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
+    },
+    "WorkflowDataOperation": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json"
     },
     "WorkflowDefinitionReadResult": {
       "sourcePath": "src/services/workflow-designs.ts",
@@ -23645,6 +23674,18 @@
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
+    "WorkflowModelNodeCreate": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json"
+    },
+    "WorkflowModelSourceEdit": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json"
+    },
+    "WorkflowModelSourceNodeCommit": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json"
+    },
     "WorkflowNodeRemoval": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json"
@@ -23656,18 +23697,6 @@
     "WorkflowQueryModelProjection": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json"
-    },
-    "WorkflowQueryNodeCreate": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json"
-    },
-    "WorkflowQuerySourceEdit": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json"
-    },
-    "WorkflowQuerySourceNodeCommit": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json"
     },
     "WorkflowRuntimeBinding": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",

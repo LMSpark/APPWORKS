@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/operation-fields",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-fields",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-fields\n职责：操作目标的输入值和条件沿原DataView编辑、取消并由DataSet按修改范围提交。\n边界：不执行CRUD、不推导未核定输出，不改字段结构或共享模型归属。\nAI用途：操作字段工作区沿原绑定视图调用保存或取消，不另设运行数据入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-04T11:00:34.665Z",
+  "models": {}
+}

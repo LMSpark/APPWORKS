@@ -10,7 +10,7 @@
     "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-source-edit\n职责：组合原模型fork、来源替换与节点收口owner，逐阶段确认当前查询节点来源。\n边界：正式草稿与捕获仍归各原DataView；不伪造来源、权限、事务或失败回滚。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "WorkflowQuerySourceEdit"
+      "WorkflowModelSourceEdit"
     ]
   },
   "$defs": {
@@ -29,6 +29,9 @@
         "nodeId": {
           "type": "string"
         },
+        "operation": {
+          "type": "boolean"
+        },
         "sources": {
           "$ref": "../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
         }
@@ -43,10 +46,10 @@
         "method.assertCurrent.return": true
       }
     },
-    "WorkflowQuerySourceEdit": {
+    "WorkflowModelSourceEdit": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "WorkflowQuerySourceEdit",
+      "title": "WorkflowModelSourceEdit",
       "properties": {
         "shared": {
           "type": "boolean"
@@ -532,6 +535,9 @@
                 "status": {
                   "type": "string"
                 },
+                "inputTarget": {
+                  "type": "boolean"
+                },
                 "pending": {
                   "type": "boolean"
                 },
@@ -541,6 +547,12 @@
                     "object"
                   ],
                   "properties": {
+                    "inputTarget": {
+                      "type": "boolean"
+                    },
+                    "clearFilter": {
+                      "type": "boolean"
+                    },
                     "operation": {
                       "enum": [
                         "replace",
@@ -930,6 +942,7 @@
               },
               "required": [
                 "status",
+                "inputTarget",
                 "pending",
                 "preview",
                 "verification",
@@ -1016,23 +1029,23 @@
         },
         "method.open.return": {
           "type": "object",
-          "title": "Promise<WorkflowQuerySourceEdit>"
+          "title": "Promise<WorkflowModelSourceEdit>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-03T10:25:18.932Z",
+  "generatedAt": "2026-11-04T11:00:34.668Z",
   "models": {
     "Input": {
       "name": "Input",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    operation?: boolean;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    operation?: boolean;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1050,6 +1063,11 @@
             },
             {
               "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operation",
               "readable": true,
               "writable": false
             },
@@ -1072,12 +1090,13 @@
         }
       }
     },
-    "WorkflowQuerySourceEdit": {
-      "name": "WorkflowQuerySourceEdit",
+    "WorkflowModelSourceEdit": {
+      "name": "WorkflowModelSourceEdit",
       "jsdoc": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
+          "jsdoc": "捕获当前流程、目标及私有元数据视图的只读基线；持久化由后续显式命令负责。",
           "signatureText": "private constructor()",
           "parameters": []
         },
@@ -1231,7 +1250,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        shared: boolean;\n        modelId: string;\n        isolation: {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            preview: {\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n            } | null;\n            fork: {\n                sourceModelId: string;\n                modelId: string | null;\n                fieldIds: Array<{\n                    from: string;\n                    to: string;\n                }>;\n                confirmed: boolean;\n            } | null;\n            nameError: string;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n        } | {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            fork: {\n                sourceModelId: string;\n                modelId: string;\n                fieldIds: {\n                    from: string;\n                    to: string;\n                }[];\n                confirmed: boolean;\n                models: {\n                    from: string;\n                    to: string;\n                    name: string;\n                }[];\n                relationIds: {\n                    from: string;\n                    to: string;\n                }[];\n            } | null;\n        } | undefined;\n        source: {\n            status: string;\n            pending: boolean;\n            preview: {\n                operation: \"replace\" | \"synchronize\";\n                removals: Array<{\n                    id: string;\n                    name: string;\n                    type: string;\n                }>;\n                removalChoices: Array<{\n                    id: string;\n                    name: string;\n                    removed: boolean;\n                }>;\n                inputChoices: Array<{\n                    sourceName: string;\n                    value: string;\n                }>;\n                inputParams: Array<{\n                    value: string;\n                    label: string;\n                }>;\n                parameterWarning: string;\n                contractChanges: Array<{\n                    id: string;\n                    name: string;\n                    before: string;\n                    after: string;\n                    accepted: boolean;\n                    patch: Record<string, unknown>;\n                }>;\n                viewChanges: SourceContractPlan[\"viewChanges\"];\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n                differences: Array<{\n                    name: string;\n                    result: string;\n                }>;\n                problems: string[];\n                fieldChoices: Array<{\n                    id: string;\n                    name: string;\n                    outputName: string;\n                    sourceName: string;\n                    candidates: string[];\n                }>;\n                additions: Array<{\n                    sourceName: string;\n                    included: boolean;\n                }>;\n                relationChanges: Array<{\n                    id: string;\n                    before: string;\n                    after: string;\n                }>;\n                modelChanges: Array<{\n                    property: string;\n                    before: string;\n                    after: string;\n                }>;\n                expressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/model/lowcode-data-space-model-migration\").LowcodeDataSpaceModelMigration.prepare>;\n                fieldExpressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/migration/lowcode-data-space-field-migration\").LowcodeDataSpaceFieldMigration.prepare>;\n            } | null;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            discardRecovered: boolean;\n            abandonNotApplied: boolean;\n            canAcceptCurrent: boolean;\n        } | undefined;\n        node: {\n            complete: boolean;\n            notApplied: boolean;\n            dispatched: boolean;\n            canAcceptCurrent: boolean;\n            canDiscardLocalChanges: boolean;\n            nodeId: string;\n            modelId: string;\n        } | undefined;\n        complete: boolean;\n        pending: boolean;\n    }"
+                "name": "{\n        shared: boolean;\n        modelId: string;\n        isolation: {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            preview: {\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n            } | null;\n            fork: {\n                sourceModelId: string;\n                modelId: string | null;\n                fieldIds: Array<{\n                    from: string;\n                    to: string;\n                }>;\n                confirmed: boolean;\n            } | null;\n            nameError: string;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n        } | {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            fork: {\n                sourceModelId: string;\n                modelId: string;\n                fieldIds: {\n                    from: string;\n                    to: string;\n                }[];\n                confirmed: boolean;\n                models: {\n                    from: string;\n                    to: string;\n                    name: string;\n                }[];\n                relationIds: {\n                    from: string;\n                    to: string;\n                }[];\n            } | null;\n        } | undefined;\n        source: {\n            status: string;\n            inputTarget: boolean;\n            pending: boolean;\n            preview: {\n                inputTarget?: boolean;\n                clearFilter?: boolean;\n                operation: \"replace\" | \"synchronize\";\n                removals: Array<{\n                    id: string;\n                    name: string;\n                    type: string;\n                }>;\n                removalChoices: Array<{\n                    id: string;\n                    name: string;\n                    removed: boolean;\n                }>;\n                inputChoices: Array<{\n                    sourceName: string;\n                    value: string;\n                }>;\n                inputParams: Array<{\n                    value: string;\n                    label: string;\n                }>;\n                parameterWarning: string;\n                contractChanges: Array<{\n                    id: string;\n                    name: string;\n                    before: string;\n                    after: string;\n                    accepted: boolean;\n                    patch: Record<string, unknown>;\n                }>;\n                viewChanges: SourceContractPlan[\"viewChanges\"];\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n                differences: Array<{\n                    name: string;\n                    result: string;\n                }>;\n                problems: string[];\n                fieldChoices: Array<{\n                    id: string;\n                    name: string;\n                    outputName: string;\n                    sourceName: string;\n                    candidates: string[];\n                }>;\n                additions: Array<{\n                    sourceName: string;\n                    included: boolean;\n                }>;\n                relationChanges: Array<{\n                    id: string;\n                    before: string;\n                    after: string;\n                }>;\n                modelChanges: Array<{\n                    property: string;\n                    before: string;\n                    after: string;\n                }>;\n                expressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/model/lowcode-data-space-model-migration\").LowcodeDataSpaceModelMigration.prepare>;\n                fieldExpressionChanges: ReturnType<typeof import(\"../../../data-space/model-source/migration/lowcode-data-space-field-migration\").LowcodeDataSpaceFieldMigration.prepare>;\n            } | null;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            discardRecovered: boolean;\n            abandonNotApplied: boolean;\n            canAcceptCurrent: boolean;\n        } | undefined;\n        node: {\n            complete: boolean;\n            notApplied: boolean;\n            dispatched: boolean;\n            canAcceptCurrent: boolean;\n            canDiscardLocalChanges: boolean;\n            nodeId: string;\n            modelId: string;\n        } | undefined;\n        complete: boolean;\n        pending: boolean;\n    }"
               }
             },
             {
@@ -1271,7 +1290,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "WorkflowQuerySourceEdit",
+                    "name": "WorkflowModelSourceEdit",
                     "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts"
                   }
                 ]

@@ -13,6 +13,8 @@ export type WorkflowExecutionGraph=Readonly<{workflowId:string;nodeIds:readonly 
 type WorkflowExecutionResourceInput=Readonly<{
  dataSet:DataSet;http:HttpClientBase;workflowId:string
  graph?:()=>WorkflowExecutionGraph
+ /** 解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。 */
+ prepare(input:Readonly<{mode:'node'|'workflow';nodeId:string;input:unknown}>):Promise<void>
  readScope:()=>Readonly<{token:string;headers:Readonly<Record<string,string>>}>
  /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */
  guard():void
@@ -27,6 +29,7 @@ export class WorkflowExecutionResource{
  constructor(private readonly input:WorkflowExecutionResourceInput){
   this.#scope=input.readScope().token
   if(!input.workflowId.trim()||!this.#scope.trim())throw Error('工作流执行目标或scope缺失')
+  if(typeof input.prepare!=='function')throw Error('工作流执行缺少正式定义校验')
   this.#client=new LowcodeClient(input.http)
   this.guard()
   const tableName='WorkflowExecution'
@@ -55,6 +58,7 @@ export class WorkflowExecutionResource{
   if(mode==='node'){
    if(typeof nodeId!=='string'||!nodeId.trim()||!isRecord(parsed)||!Object.values(parsed).every(rows))throw Error('单节点输入须为节点ID到业务行数组的映射')
   }else if(!rows(parsed))throw Error('整流启动参数须为完整业务行数组，不能把各字段拆为单独行')
+  await this.input.prepare({mode,nodeId:mode==='node'?String(nodeId):'',input:parsed});this.guard()
   const graph=mode==='workflow'&&this.input.graph?structuredClone(this.input.graph()):undefined
   if(graph&&(graph.workflowId!==workflowId||!graph.nodeIds.length||new Set(graph.nodeIds).size!==graph.nodeIds.length
    ||graph.nodeIds.some(id=>typeof id!=='string'||!id)||graph.requiredNodeIds.some(id=>!graph.nodeIds.includes(id))))throw Error('执行图捕获的目标或节点身份不符')

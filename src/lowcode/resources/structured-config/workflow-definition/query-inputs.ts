@@ -3,10 +3,11 @@
  * 职责：按当前工作流正式连线定位祖先，提供已核定开始参数、查询叶字段及模型过滤字段。
  * 边界：只读原DataView及其权限；不猜测items路径，不执行值函数，不修改定义。
  */
-import {RequestState,DataViewOptionCatalog,DataViewFilter,DataViewFilterCodec,type DataSet,type DataView,type DataRow,type DataColumn} from '@spark-appworks/spark-data'
+import {RequestState,DataViewOptionCatalog,DataViewFilter,DataViewFilterCodec,type DataSet,type DataView,type DataRow,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowOutputFields} from './output-fields'
+import type {SourceInputTargetChange} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
 
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`查询输入定义不可读: ${field}`)
@@ -63,7 +64,7 @@ export function workflowQueryAncestors(nodes:DataView,edges:DataView,workflowId:
 }
 /** 候选值遵循顶层GetInputParam两段合同；查询目录的items叶字段按实际平面行投影，合成根不作为运行参数。 */
 export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string,projection?:WorkflowQueryModelProjection):{
- inputs:Array<{value:string;label:string}>;columns:DataColumn[];diagnostics:string[]
+ inputs:Array<{value:string;label:string}>;columns:Array<DataView['columns'][number]>;diagnostics:string[]
 }{
  if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询输入目标已失效')
  const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId)
@@ -72,16 +73,17 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
  if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId)throw Error('查询输入工作流身份不唯一')
  const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId)
  const target=byId.get(nodeId),selected=projection?models.rows.filter(row=>models.getPkKey(row)===projection.modelId):models.rows,model=selected[0]
- if(!target||!['query','copy'].includes(String(read(nodes,target,'node_type')))||selected.length!==1||!model
-  ||read(models,model,'dataSetId')!==workflowId||read(nodes,target,'node_config')!==(projection?.fromModelId??identity(models,model)))throw Error('查询输入模型归属不符')
+ const targetType=target?String(read(nodes,target,'node_type')):'',operation=['add','edit','delete'].includes(targetType)
+ if(!target||!['query','copy','add','edit','delete'].includes(targetType)||selected.length!==1||!model
+  ||read(models,model,'dataSetId')!==workflowId||read(nodes,target,operation?'dataOperateModId':'node_config')!==(projection?.fromModelId??identity(models,model)))throw Error('查询输入模型归属不符')
  if(projection&&(nodes.hasEditingChanges(nodeId)||nodes.dirtyTracking.hasPendingChanges(nodeId)||models.dirtyTracking.isPendingCreate(projection.modelId)||models.dirtyTracking.isPendingDelete(projection.modelId)))throw Error('拟切换节点存在独立改绑草稿或模型尚未正式确认')
- const columns:DataColumn[]=[],columnNames=new Set<string>()
+ const columns:Array<DataView['columns'][number]>=[],columnNames=new Set<string>()
  for(const row of fields.rows){
   identity(fields,row)
   if(read(fields,row,'dataSetId')!==workflowId||read(fields,row,'dataModelId')!==identity(models,model))throw Error('查询输入字段归属不符')
   const kind=read(fields,row,'type')
-  if(kind==='inputParams')continue
-  if(kind!=='dataModel')throw Error('查询字段用途尚未承接')
+  if(kind==='inputParams'&&!operation)continue
+  if(kind!==(operation?'inputParams':'dataModel'))throw Error('查询字段用途尚未承接')
   const fieldId=fields.getPkKey(row),effective=fieldId===undefined?row:fields.getEditingRow(fieldId)??row
   for(const field of ['Name','FieldType','description'])read(fields,row,field)
   const name=effective['Name'],type=effective['FieldType'],description=effective['description']
@@ -89,6 +91,9 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
   if(typeof name!=='string'||!name.trim()||columnNames.has(name)||typeof type!=='string'||!type.trim())throw Error('过滤字段名称或类型缺失或重复')
   columnNames.add(name);columns.push({name,type:type.toLowerCase(),label:typeof description==='string'&&description?description:name})
  }
+ return {...workflowAncestorInputRows(nodes,byId,ancestors),columns}
+}
+function workflowAncestorInputRows(nodes:DataView,byId:ReadonlyMap<string,DataRow>,ancestors:ReadonlySet<string>){
  const inputs:Array<{value:string;label:string}>=[],diagnostics:string[]=[],values=new Set<string>()
  for(const id of ancestors){
   const node=byId.get(id);if(!node)throw Error('祖先节点身份缺失')
@@ -105,7 +110,7 @@ export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string
    values.add(value);inputs.push({value,label:`${typeof name==='string'&&name?name:id} · ${typeof item['Description']==='string'&&item['Description']?item['Description']:field}`})
   }
  }
- return {inputs,columns,diagnostics}
+ return {inputs,diagnostics}
 }
 
 /** 来源入参和模型Filter由模型共享；新引用只可选择所有实际查询消费者共同拥有的已核定输入。 */
@@ -116,7 +121,7 @@ export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:
   if(nodes.rows.some(row=>identity(nodes,row)!==nodeId&&(read(nodes,row,'node_config')===projection.modelId||read(nodes,row,'dataOperateModId')===projection.modelId)))throw Error('隔离模型已有其他消费者，不能采用单节点祖先输入')
   return state
  }
- const modelId=model['rowid'],consumers=nodes.rows.filter(row=>['query','copy'].includes(String(read(nodes,row,'node_type')))&&read(nodes,row,'node_config')===modelId)
+ const modelId=model['rowid'],consumers=nodes.rows.filter(row=>{const type=String(read(nodes,row,'node_type'));return ['query','copy','add','edit','delete'].includes(type)&&read(nodes,row,['add','edit','delete'].includes(type)?'dataOperateModId':'node_config')===modelId})
  let inputs=state.inputs
  const diagnostics=[...state.diagnostics]
  for(const row of consumers){
@@ -128,14 +133,26 @@ export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:
  return {...state,inputs,diagnostics:[...new Set(diagnostics)]}
 }
 
+/** 操作目标仅开放已核常量和两段祖先输入；目录复用标准组件，不能把聚合目录当CRUD执行能力。 */
+export function workflowOperationFunctionContext(input:DataViewFilterFunctionContext):DataViewFilterFunctionContext{
+ const context=DataViewFilter.editorContext(input)
+ return {...context,definitions:(context.definitions??[]).map(definition=>['GetConstValue','GetInputParam'].includes(definition.type)?definition:{...definition,enabled:()=>false})}
+}
 /** 只校验实际修改的ValueFun及Filter，原未修改函数原文不参与重写；解析和候选校验复用正式数据层。 */
 export function validateWorkflowQueryInputChanges(dataSet:DataSet,workflowId:string,nodeId:string,input:Readonly<{values?:readonly unknown[];filter?:unknown}>,projection?:WorkflowQueryModelProjection):void{
- const state=workflowQuerySharedInputPresentation(dataSet,workflowId,nodeId,projection),context=DataViewFilter.editorContext({inputParams:state.inputs})
+ const state=workflowQuerySharedInputPresentation(dataSet,workflowId,nodeId,projection),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
+ const operation=node&&['add','edit','delete'].includes(String(read(nodes,node,'node_type')))
+ const context=operation?workflowOperationFunctionContext({inputParams:state.inputs}):DataViewFilter.editorContext({inputParams:state.inputs})
+ validateWorkflowInputDefinitions(input,{context,columns:state.columns,operation:Boolean(operation)})
+}
+function validateWorkflowInputDefinitions(input:Readonly<{values?:readonly unknown[];filter?:unknown}>,options:Readonly<{context:DataViewFilterFunctionContext;columns:ReadonlyArray<DataView['columns'][number]>;operation:boolean}>):void{
+ const {context,columns,operation}=options
  for(const value of input.values??[]){
   if(typeof value!=='string')throw Error('ValueFun必须保存为值函数字符串')
   if(value==='')continue
   const expression=DataSpaceDesignApi.parseValueFunction(value)
   if(!expression)throw Error('值函数不能为空白，请明确清空')
+  if(operation&&!['GetConstValue','GetInputParam'].includes(expression.Type))throw Error('操作输入当前只支持常量或祖先参数值函数')
   const parsed=DataViewFilter.parse({field:'ValueFun',operator:'eq',value:expression})
   if(!parsed.ok)throw Error(parsed.issues.map(issue=>issue.message).join('；'))
   const issues=parsed.value.validate({fields:[{name:'ValueFun',type:'text'}],valueFunctions:context})
@@ -144,9 +161,27 @@ export function validateWorkflowQueryInputChanges(dataSet:DataSet,workflowId:str
  if(Object.hasOwn(input,'filter')){
   if(input.filter!==null&&input.filter!==undefined&&typeof input.filter!=='string')throw Error('查询条件必须保存为SPARK JSON文本')
   const filter=DataViewFilterCodec.parseStored(input.filter)
-  const issues=filter?.validate({fields:DataViewFilter.fields(state.columns),valueFunctions:context})??[]
+  const issues=filter?.validate({fields:DataViewFilter.fields(columns),valueFunctions:context})??[]
   if(issues.length)throw Error(issues.map(issue=>issue.message).join('；'))
  }
+}
+
+/** 换目标校验拟输入合同；祖先取当前原视图，字段取正式来源派生的候选，不制造临时查询模型。 */
+export function validateWorkflowOperationInputTarget(input:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;target:SourceInputTargetChange}>):void{
+ const {dataSet,workflowId,nodeId,target}=input
+ const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId)
+ if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId||target.after.model['rowid']!==target.modelId||target.after.model['dataSetId']!==workflowId)throw Error('操作目标候选身份不符')
+ const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId),node=byId.get(nodeId)
+ const operation=node?read(nodes,node,'node_type'):undefined
+ if(!['add','edit','delete'].includes(String(operation))||target.after.model['requestType']!==operation)throw Error('操作目标候选requestType不符')
+ const inputs=workflowAncestorInputRows(nodes,byId,ancestors).inputs,columns:Array<DataView['columns'][number]>=[],values:unknown[]=[],names=new Set<string>()
+ for(const field of target.after.fields){
+  const row=field.values,name=row['Name'],type=row['FieldType']
+  if(row['type']!=='inputParams'||row['dataModelId']!==target.modelId||row['dataSetId']!==workflowId||typeof name!=='string'||!name.trim()||field.sourceName!==name||names.has(name.toLowerCase())||typeof type!=='string'||!type.trim())throw Error('操作目标候选字段身份、名称或类型不符')
+  names.add(name.toLowerCase());columns.push({name,type:type.toLowerCase()})
+  if(row['ValueFun']!==null&&row['ValueFun']!==undefined&&row['ValueFun']!=='')values.push(row['ValueFun'])
+ }
+ validateWorkflowInputDefinitions({values,...operation==='add'?{}:{filter:target.after.model['Filter']}},{context:workflowOperationFunctionContext({inputParams:inputs}),columns,operation:true})
 }
 
 /** 本次查询节点的候选投影；定义与草稿仍属于原视图，临时目录只供标准组件绑定读取。 */

@@ -45,7 +45,8 @@ function guard():void{
  }
 }
 const context=new WorkflowExecutionContext(ds,workflowId,guard)
-const resource=new WorkflowExecutionResource({dataSet:ds,http:lowcodeHttp,workflowId,readScope:()=>lowcodeApi.readRequestScope(),guard,graph:()=>context.capture()})
+const resource=new WorkflowExecutionResource({dataSet:ds,http:lowcodeHttp,workflowId,readScope:()=>lowcodeApi.readRequestScope(),guard,graph:()=>context.capture(),
+ prepare:input=>input.mode==='workflow'?context.load(input.input):context.validateNode(input.nodeId,input.input)})
 const view=resource.requests,key=buildDataViewKey(view.tableName,view.viewId,ds.scenarioId)
 const row=computed(()=>{props.revision;return view.currentRow})
 const draft=computed(()=>{props.revision;return view.dirtyTracking.pendingCreateIds.size>0})
@@ -72,7 +73,9 @@ async function start(mode:'node'|'workflow'):Promise<void>{
 }
 async function run():Promise<void>{
  if(props.disabled||editing.value||unknown.value)return
- await act(async()=>{if(view.currentRow?.['mode']==='workflow')await context.load();const result=await ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]});if(!result.success)throw Error(result.message??'测试执行未确认')})
+  await act(async()=>{
+   const result=await ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]});if(!result.success)throw Error(result.message??'测试执行未确认')
+  })
 }
 function cancel():void{if(working.value||unknown.value)return;view.discardPendingChanges();error.value=''}
 onBeforeUnmount(()=>{active=false;context.dispose();emit('pendingChange','input',false);emit('pendingChange','running',false)})

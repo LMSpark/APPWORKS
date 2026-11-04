@@ -9,7 +9,9 @@
     "modulePath": "lowcode/resources/structured-config/workflow-definition/query-model-create",
     "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-model-create\n职责：在当前工作流元数据实例内复用原模型新增命令，明确查询模型的归属和requestType。\n边界：不复制来源、字段、权限或保存逻辑；不创建节点、不执行流程。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": []
+    "symbols": [
+      "WorkflowDataOperation"
+    ]
   },
   "$defs": {
     "WorkflowQueryModelCreateInput": {
@@ -37,6 +39,15 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "WorkflowDataOperation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowDataOperation",
+      "enum": [
+        "delete",
+        "add",
+        "edit"
+      ]
     },
     "WorkflowQueryModelCreateHandle": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -89,7 +100,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-03T05:56:14.848Z",
+  "generatedAt": "2026-11-04T11:00:34.666Z",
   "models": {
     "WorkflowQueryModelCreateInput": {
       "name": "WorkflowQueryModelCreateInput",
@@ -133,6 +144,29 @@
             }
           ]
         }
+      }
+    },
+    "WorkflowDataOperation": {
+      "name": "WorkflowDataOperation",
+      "jsdoc": "已核定数据库表目标的行写操作类型；输入由所属模型的inputParams字段承接。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'add' | 'edit' | 'delete'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'add'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'edit'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'delete'"
+          }
+        ],
+        "members": {}
       }
     },
     "WorkflowQueryModelCreateHandle": {

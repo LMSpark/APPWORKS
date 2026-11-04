@@ -7,10 +7,10 @@
     "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/workflow-definition/query-node-create",
-    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：先确认查询模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。\n边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：先确认来源或操作目标模型及字段，再将对应节点提交到同一工作流DataSet，保留部分成功身份。\n边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "WorkflowQueryNodeCreate"
+      "WorkflowModelNodeCreate"
     ]
   },
   "$defs": {
@@ -92,10 +92,10 @@
       ],
       "additionalProperties": false
     },
-    "WorkflowQueryNodeCreate": {
+    "WorkflowModelNodeCreate": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "WorkflowQueryNodeCreate",
+      "title": "WorkflowModelNodeCreate",
       "properties": {
         "model": {
           "type": "object",
@@ -127,6 +127,16 @@
             },
             "nodes": {
               "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "operation": {
+              "anyOf": [
+                {
+                  "const": "query"
+                },
+                {
+                  "$ref": "query-model-create.ts.json#/$defs/WorkflowDataOperation"
+                }
+              ]
             }
           },
           "additionalProperties": false
@@ -176,7 +186,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T19:54:41.678Z",
+  "generatedAt": "2026-11-04T11:00:34.667Z",
   "models": {
     "Input": {
       "name": "Input",
@@ -203,13 +213,14 @@
         "members": {}
       }
     },
-    "WorkflowQueryNodeCreate": {
-      "name": "WorkflowQueryNodeCreate",
-      "jsdoc": "一次来源选择的节点创建命令；模型与节点分别确认，不假定跨表事务。",
+    "WorkflowModelNodeCreate": {
+      "name": "WorkflowModelNodeCreate",
+      "jsdoc": "一次来源选择的模型节点创建命令；模型与节点分别确认，不假定跨表事务。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(input: Input, modelOwner: Model, nodes: DataView)",
+          "jsdoc": "组合已打开的原模型owner与当前节点视图；只捕获上下文，不创建或提交记录。",
+          "signatureText": "constructor(input: Input, modelOwner: Model, nodes: DataView, operation?: 'query' | WorkflowDataOperation)",
           "parameters": [
             {
               "name": "input",
@@ -232,6 +243,26 @@
               "type": {
                 "type": "reference",
                 "name": "DataView"
+              }
+            },
+            {
+              "name": "operation",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "query"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "WorkflowDataOperation",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts"
+                  }
+                ]
+              },
+              "flags": {
+                "isOptional": true
               }
             }
           ]

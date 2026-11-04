@@ -103,10 +103,7 @@
             },
             "columns": {
               "type": "array",
-              "items": {
-                "type": "object",
-                "title": "DataColumn"
-              }
+              "items": true
             },
             "diagnostics": {
               "type": "array",
@@ -132,7 +129,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T07:23:42.847Z",
+  "generatedAt": "2026-11-04T10:53:49.964Z",
   "models": {
     "WorkflowQueryModelProjection": {
       "name": "WorkflowQueryModelProjection",
@@ -224,7 +221,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        error: string;\n        inputs: Array<{\n            value: string;\n            label: string;\n        }>;\n        columns: DataColumn[];\n        diagnostics: string[];\n    }"
+                "name": "{\n        error: string;\n        inputs: Array<{\n            value: string;\n            label: string;\n        }>;\n        columns: Array<DataView[\"columns\"][number]>;\n        diagnostics: string[];\n    }"
               }
             },
             {

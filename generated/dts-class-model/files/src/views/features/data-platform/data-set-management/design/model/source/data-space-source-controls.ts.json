@@ -150,6 +150,12 @@
             "status": {
               "type": "string"
             },
+            "inputTarget": {
+              "enum": [
+                false,
+                true
+              ]
+            },
             "pending": {
               "enum": [
                 false,
@@ -207,6 +213,7 @@
           },
           "required": [
             "status",
+            "inputTarget",
             "pending",
             "preview",
             "verification",
@@ -454,7 +461,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.542Z",
+  "generatedAt": "2026-11-03T09:39:17.404Z",
   "models": {
     "SourceState": {
       "name": "SourceState",

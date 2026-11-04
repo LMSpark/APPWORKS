@@ -22,6 +22,28 @@
       "type": "object",
       "title": "FieldReferenceChange",
       "properties": {
+        "fieldPurpose": {
+          "enum": [
+            "dataModel",
+            "inputParams"
+          ]
+        },
+        "modelFilterChange": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "string"
+            },
+            "after": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "before",
+            "after"
+          ],
+          "additionalProperties": false
+        },
         "operation": {
           "enum": [
             "remove",
@@ -90,6 +112,28 @@
       "type": "object",
       "title": "FieldRemoveReferencesPrepareRenamesInput",
       "properties": {
+        "fieldPurpose": {
+          "enum": [
+            "dataModel",
+            "inputParams"
+          ]
+        },
+        "modelFilterChange": {
+          "type": "object",
+          "properties": {
+            "before": {
+              "type": "string"
+            },
+            "after": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "before",
+            "after"
+          ],
+          "additionalProperties": false
+        },
         "views": {
           "type": "array",
           "items": {
@@ -164,16 +208,28 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.431Z",
+  "generatedAt": "2026-11-04T08:58:56.624Z",
   "models": {
     "FieldReferenceChange": {
       "name": "FieldReferenceChange",
       "jsdoc": "字段结构变更的明确上下文；不会自动修改任何引用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 删除或改名；省略时检查删除。 */\n    operation?: 'remove' | 'rename';\n    /** 结构命令已校验最终模型并在同一批次提交的主键声明；普通字段删除不得提供。 */\n    primaryKeyReplacement?: string;\n    /** 当前字段工作区；校验最终编辑值及待新增记录，不复制或提交。 */\n    fieldView?: DataView;\n}",
+        "declarationTypeText": "{\n    /** 仅目标模型的字段用途；不会把其他模型入参解释为查询输出。 */\n    fieldPurpose?: 'dataModel' | 'inputParams';\n    /** 同一次变更已按拟目标校验的自身Filter；必须精确匹配原文。 */\n    modelFilterChange?: Readonly<{\n        before: string;\n        after: string;\n    }>;\n    /** 删除或改名；省略时检查删除。 */\n    operation?: 'remove' | 'rename';\n    /** 结构命令已校验最终模型并在同一批次提交的主键声明；普通字段删除不得提供。 */\n    primaryKeyReplacement?: string;\n    /** 当前字段工作区；校验最终编辑值及待新增记录，不复制或提交。 */\n    fieldView?: DataView;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "fieldPurpose",
+              "jsdoc": "仅目标模型的字段用途；不会把其他模型入参解释为查询输出。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelFilterChange",
+              "jsdoc": "同一次变更已按拟目标校验的自身Filter；必须精确匹配原文。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "operation",
               "jsdoc": "删除或改名；省略时检查删除。",
@@ -267,16 +323,26 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    views: ReadonlyArray<DataView | undefined>;\n    modelId: string;\n    mappings: readonly FieldRename[];\n    primaryReplacement: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    fieldPurpose?: 'dataModel' | 'inputParams';\n    modelFilterChange?: Readonly<{\n        before: string;\n        after: string;\n    }>;\n    views: ReadonlyArray<DataView | undefined>;\n    modelId: string;\n    mappings: readonly FieldRename[];\n    primaryReplacement: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    views: ReadonlyArray<DataView | undefined>;\n    modelId: string;\n    mappings: readonly FieldRename[];\n    primaryReplacement: string;\n}>",
+            "typeText": "Readonly<{\n    fieldPurpose?: 'dataModel' | 'inputParams';\n    modelFilterChange?: Readonly<{\n        before: string;\n        after: string;\n    }>;\n    views: ReadonlyArray<DataView | undefined>;\n    modelId: string;\n    mappings: readonly FieldRename[];\n    primaryReplacement: string;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "fieldPurpose",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelFilterChange",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "views",
               "readable": true,

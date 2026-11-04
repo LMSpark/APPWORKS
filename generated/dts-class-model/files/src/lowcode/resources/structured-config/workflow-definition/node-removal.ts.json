@@ -105,6 +105,9 @@
                 "deleteModel": {
                   "type": "boolean"
                 },
+                "modelContractConfirmed": {
+                  "type": "boolean"
+                },
                 "edgeCount": {
                   "type": "number"
                 },
@@ -125,6 +128,7 @@
                 "nodeId",
                 "modelId",
                 "deleteModel",
+                "modelContractConfirmed",
                 "edgeCount",
                 "conditionCount",
                 "modelRelationCount",
@@ -203,7 +207,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T05:31:35.228Z",
+  "generatedAt": "2026-11-04T08:38:42.895Z",
   "models": {
     "Input": {
       "name": "Input",
@@ -330,7 +334,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        status: Status;\n        pending: boolean;\n        busy: boolean;\n        summary: Readonly<{\n            nodeId: string;\n            modelId: string;\n            deleteModel: boolean;\n            edgeCount: number;\n            conditionCount: number;\n            modelRelationCount: number;\n            fieldCount: number;\n            layoutChanges: boolean;\n        }> | undefined;\n        databaseConfirmed: boolean;\n        canReadCurrent: boolean;\n        canRetryLayout: boolean;\n    }"
+                "name": "{\n        status: Status;\n        pending: boolean;\n        busy: boolean;\n        summary: Readonly<{\n            nodeId: string;\n            modelId: string;\n            deleteModel: boolean;\n            modelContractConfirmed: boolean;\n            edgeCount: number;\n            conditionCount: number;\n            modelRelationCount: number;\n            fieldCount: number;\n            layoutChanges: boolean;\n        }> | undefined;\n        databaseConfirmed: boolean;\n        canReadCurrent: boolean;\n        canRetryLayout: boolean;\n    }"
               }
             },
             {

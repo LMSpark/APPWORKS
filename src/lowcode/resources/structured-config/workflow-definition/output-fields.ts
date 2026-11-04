@@ -6,6 +6,12 @@
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 
+/** 操作输出尚未核定时仅接受未发布的空目录；不得在换目标时静默清除既有输出。 */
+export function assertUnpublishedWorkflowOperationOutput(mapping:unknown):void{
+ const parsed=mapping===undefined||mapping===null||mapping===''?[]:typeof mapping==='string'?parseJsonDocument(mapping):mapping
+ if(!Array.isArray(parsed)||parsed.length)throw Error('操作节点已有输出目录的运行合同尚未核定，不能自动覆盖或继续换目标')
+}
+
 /** 读取者先核对目录与节点类型权限；copy等未验证类型不能借用query规则。 */
 export function workflowOutputFields(input:Readonly<{nodeId:string;position:unknown;nodeType:unknown;mapping:unknown}>):Array<Record<string,unknown>>{
  const start=String(input.position)==='0',query=String(input.position)==='1'&&input.nodeType==='query'

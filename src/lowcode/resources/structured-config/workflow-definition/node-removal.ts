@@ -14,7 +14,7 @@ import {WORKFLOW_LAYOUT_TABLE} from './layout-resource'
 
 type Input=Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;assertCurrent():void}>
 type Selection=Readonly<{view:DataView;ids:readonly string[]}>
-type Summary=Readonly<{nodeId:string;modelId:string;deleteModel:boolean;edgeCount:number;conditionCount:number;modelRelationCount:number;fieldCount:number;layoutChanges:boolean}>
+type Summary=Readonly<{nodeId:string;modelId:string;deleteModel:boolean;modelContractConfirmed:boolean;edgeCount:number;conditionCount:number;modelRelationCount:number;fieldCount:number;layoutChanges:boolean}>
 type Status='ready'|'staged'|'database'|'layout'|'complete'|'cancelled'|'not-applied'
 const tableNames=['Base_WorkflowNodeDefinition','Base_WorkflowConnectors','Base_DataModel','Base_DataModel_Field','Base_DataModel_Relation','Base_DataSet'] as const
 function read(view:DataView,row:DataRow,key:string):unknown{if(view.fieldAccess(row,key).read!=='visible')throw Error(`删除依赖不可读: ${view.tableName}.${key}`);return row[key]}
@@ -88,11 +88,13 @@ export class WorkflowNodeRemoval{
  private plan():void{
   const nodes=this.view('Base_WorkflowNodeDefinition'),edges=this.view('Base_WorkflowConnectors'),models=this.view('Base_DataModel'),fields=this.view('Base_DataModel_Field'),relations=this.view('Base_DataModel_Relation')
   const node=nodes.rows.find(row=>id(nodes,row)===this.input.nodeId)
-  if(!node||String(read(nodes,node,'position_type'))!=='1'||read(nodes,node,'node_type')!=='query')throw Error('仅普通查询节点可沿本命令删除；开始和结束节点保留')
-  const modelId=read(nodes,node,'node_config'),model=models.rows.find(row=>id(models,row)===modelId)
+  if(!node||String(read(nodes,node,'position_type'))!=='1'||!['query','add','edit','delete'].includes(String(read(nodes,node,'node_type'))))throw Error('仅普通查询或操作节点可沿本命令删除；开始和结束节点保留')
+  const operation=read(nodes,node,'node_type')!=='query'
+  const modelId=read(nodes,node,operation?'dataOperateModId':'node_config'),model=models.rows.find(row=>id(models,row)===modelId)
   if(typeof modelId!=='string'||!modelId||!model)throw Error('查询节点所属模型缺失')
+  const modelContractConfirmed=!operation||read(models,model,'requestType')===read(nodes,node,'node_type')
   const consumers=nodes.rows.filter(row=>id(nodes,row)!==this.input.nodeId&&(read(nodes,row,'node_config')===modelId||read(nodes,row,'dataOperateModId')===modelId))
-  const deleteModel=consumers.length===0,nodeIds=new Set(nodes.rows.map(row=>id(nodes,row))),modelIds=new Set(models.rows.map(row=>id(models,row)))
+  const deleteModel=consumers.length===0&&modelContractConfirmed,nodeIds=new Set(nodes.rows.map(row=>id(nodes,row))),modelIds=new Set(models.rows.map(row=>id(models,row)))
   if(nodeIds.has(modelId)||modelIds.has(this.input.nodeId))throw Error('节点与模型身份重叠，无法区分条件和模型关系')
   const edgeIds=edges.rows.filter(row=>read(edges,row,'sourceID')===this.input.nodeId||read(edges,row,'targetID')===this.input.nodeId).map(row=>id(edges,row))
   const conditionIds:string[]=[],modelRelationIds:string[]=[]
@@ -114,7 +116,7 @@ export class WorkflowNodeRemoval{
   this.#layoutText=undefined;this.#layoutId=undefined
   const layout=this.#layout.rows[0]
   if(layout){const before=read(this.#layout,layout,'content');if(typeof before!=='string')throw Error('布局内容不是文本');const after=WorkflowLayoutDocument.remove(before,{nodes:[this.input.nodeId],edges:edgeIds});if(after!==before){if(this.#layout.fieldAccess(layout,'content').write!=='allowed')throw Error('当前查询不允许清理布局');this.#layoutText=after;this.#layoutId=id(this.#layout,layout)}}
-  this.#summary={nodeId:this.input.nodeId,modelId,deleteModel,edgeCount:edgeIds.length,conditionCount:conditionIds.length,modelRelationCount:modelRelationIds.length,fieldCount:fieldIds.length,layoutChanges:this.#layoutText!==undefined}
+  this.#summary={nodeId:this.input.nodeId,modelId,deleteModel,modelContractConfirmed,edgeCount:edgeIds.length,conditionCount:conditionIds.length,modelRelationCount:modelRelationIds.length,fieldCount:fieldIds.length,layoutChanges:this.#layoutText!==undefined}
   this.permissions()
  }
  private references(modelId:string,deleteModel:boolean,edgeIds:readonly string[],conditionIds:ReadonlySet<string>,fieldIds:ReadonlySet<string>):void{

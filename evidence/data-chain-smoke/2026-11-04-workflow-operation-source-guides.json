@@ -1,0 +1,884 @@
+[
+  {
+    "kind": "ModelSourceEditHost",
+    "catalog": {
+      "rootKind": "ModelSourceEditHost",
+      "models": [
+        {
+          "kind": "ModelSourceEditHost",
+          "name": "ModelSourceEditHost",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ModelSourceEditHost",
+      "models": [
+        {
+          "kind": "ModelSourceEditHost",
+          "name": "ModelSourceEditHost",
+          "jsdoc": "",
+          "summary": "",
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataSet"
+            },
+            {
+              "name": "targetId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "modelId",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string"
+            },
+            {
+              "name": "sources",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "PageDataSpaceModelSourceReader"
+            },
+            {
+              "name": "lifecycle",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "ModelSourceEditLifecycle"
+            },
+            {
+              "name": "fieldTemplate",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "views",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView[]"
+            },
+            {
+              "name": "models",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "fields",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "syncFields",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "replacementFields",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "relations",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "replacementRelations",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "DataView"
+            },
+            {
+              "name": "contexts",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "string[]"
+            },
+            {
+              "name": "flow",
+              "jsdoc": "",
+              "summary": "",
+              "typeText": "ModelSourceEditFlow"
+            }
+          ],
+          "methods": []
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: ModelSourceEditHost = {\n    readonly dataSet: DataSet;\n    readonly targetId: string;\n    readonly modelId: string;\n    readonly sources: Reader;\n    readonly lifecycle: ModelSourceEditLifecycle;\n    readonly fieldTemplate: DataView;\n    views: DataView[];\n    models: DataView;\n    fields: DataView;\n    syncFields: DataView | undefined;\n    replacementFields: DataView | undefined;\n    relations: DataView;\n    replacementRelations: DataView | undefined;\n    contexts: string[];\n    flow: ModelSourceEditFlow;\n}\n */\ntype ModelSourceEditHost {\n  readonly dataSet: DataSet\n  readonly targetId: string\n  readonly modelId: string\n  readonly sources: PageDataSpaceModelSourceReader\n  readonly lifecycle: ModelSourceEditLifecycle\n  readonly fieldTemplate: DataView\n  views: DataView[]\n  models: DataView\n  fields: DataView\n  syncFields: DataView\n  replacementFields: DataView\n  relations: DataView\n  replacementRelations: DataView\n  contexts: string[]\n  flow: ModelSourceEditFlow\n}"
+  },
+  {
+    "kind": "ModelSourceEditLifecycle",
+    "catalog": {
+      "rootKind": "ModelSourceEditLifecycle",
+      "models": [
+        {
+          "kind": "ModelSourceEditLifecycle",
+          "name": "ModelSourceEditLifecycle",
+          "jsdoc": "",
+          "summary": "",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */\n    inputTarget?: Readonly<{\n        requestType: 'add' | 'edit' | 'delete';\n        prepareContract(change: SourceInputTargetChange): Promise<SourceContractPlan>;\n        validateRemovals(ids: readonly string[], change: SourceInputTargetChange): Promise<() => void>;\n    }>;\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+              "targetName": "Readonly"
+            }
+          ]
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ModelSourceEditLifecycle",
+      "models": [
+        {
+          "kind": "ModelSourceEditLifecycle",
+          "name": "ModelSourceEditLifecycle",
+          "jsdoc": "",
+          "summary": "",
+          "declarationRelations": [
+            {
+              "kind": "alias",
+              "typeText": "Readonly<{\n    /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */\n    inputTarget?: Readonly<{\n        requestType: 'add' | 'edit' | 'delete';\n        prepareContract(change: SourceInputTargetChange): Promise<SourceContractPlan>;\n        validateRemovals(ids: readonly string[], change: SourceInputTargetChange): Promise<() => void>;\n    }>;\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+              "targetName": "Readonly"
+            }
+          ],
+          "attributes": [
+            {
+              "name": "inputTarget",
+              "jsdoc": "SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。",
+              "summary": "SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。",
+              "typeText": "{ requestType: \"add\" | \"edit\" | \"delete\" }"
+            },
+            {
+              "name": "inputParameters",
+              "jsdoc": "宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。",
+              "summary": "宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。",
+              "typeText": "Record<string, unknown>"
+            }
+          ],
+          "methods": [
+            {
+              "name": "validateConfiguration",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "validateConfiguration(): Promise<() => void>"
+            },
+            {
+              "name": "validateTransition",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "validateTransition(model: Prepared['model']): Promise<() => void>"
+            },
+            {
+              "name": "prepareContract",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "prepareContract(change: SourceContractChange): Promise<SourceContractPlan>"
+            },
+            {
+              "name": "validateRemovals",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "validateRemovals(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>"
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "assertCurrent(): void"
+            },
+            {
+              "name": "onDispatch",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "onDispatch(): void"
+            },
+            {
+              "name": "completed",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "completed(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: ModelSourceEditLifecycle = Readonly<{\n    /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */\n    inputTarget?: Readonly<{\n        requestType: 'add' | 'edit' | 'delete';\n        prepareContract(change: SourceInputTargetChange): Promise<SourceContractPlan>;\n        validateRemovals(ids: readonly string[], change: SourceInputTargetChange): Promise<() => void>;\n    }>;\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>\n * DTS relation: alias Readonly<{\n    /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */\n    inputTarget?: Readonly<{\n        requestType: 'add' | 'edit' | 'delete';\n        prepareContract(change: SourceInputTargetChange): Promise<SourceContractPlan>;\n        validateRemovals(ids: readonly string[], change: SourceInputTargetChange): Promise<() => void>;\n    }>;\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>\n */\ntype ModelSourceEditLifecycle {\n  SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。\n  readonly inputTarget: { requestType: \"add\" | \"edit\" | \"delete\" }\n  宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。\n  readonly inputParameters: Record<string, unknown>\n  validateConfiguration(): Promise<() => void>\n  validateTransition(model: Prepared['model']): Promise<() => void>\n  prepareContract(change: SourceContractChange): Promise<SourceContractPlan>\n  validateRemovals(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>\n  assertCurrent(): void\n  onDispatch(): void\n  completed(): void\n}"
+  },
+  {
+    "kind": "ModelSourceEditHandle",
+    "catalog": {
+      "rootKind": "ModelSourceEditHandle",
+      "models": [
+        {
+          "kind": "ModelSourceEditHandle",
+          "name": "ModelSourceEditHandle",
+          "jsdoc": "",
+          "summary": ""
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "ModelSourceEditHandle",
+      "models": [
+        {
+          "kind": "ModelSourceEditHandle",
+          "name": "ModelSourceEditHandle",
+          "jsdoc": "",
+          "summary": "",
+          "attributes": [],
+          "methods": [
+            {
+              "name": "setInputTargetFilterReset",
+              "jsdoc": "操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。",
+              "summary": "操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。",
+              "signature": "setInputTargetFilterReset(clear: boolean): Promise<void>"
+            },
+            {
+              "name": "getState",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "getState(): ReturnType<typeof modelSourceEditGetState>"
+            },
+            {
+              "name": "confirmFieldContract",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void"
+            },
+            {
+              "name": "previewBoundSource",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "previewBoundSource(): Promise<void>"
+            },
+            {
+              "name": "mapField",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>"
+            },
+            {
+              "name": "includeField",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>"
+            },
+            {
+              "name": "removeField",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>"
+            },
+            {
+              "name": "configureInput",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void"
+            },
+            {
+              "name": "preview",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "preview(source: Parameters<Reader['prepare']>[0]): Promise<void>"
+            },
+            {
+              "name": "discard",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "discard(): void"
+            },
+            {
+              "name": "save",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "save(): Promise<string>"
+            },
+            {
+              "name": "verify",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>"
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "acceptCurrent(): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/**\n * DTS declaration: ModelSourceEditHandle = {\n    /** 操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。 */\n    setInputTargetFilterReset?(clear: boolean): Promise<void>;\n    getState(): ReturnType<typeof modelSourceEditGetState>;\n    confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void;\n    previewBoundSource(): Promise<void>;\n    mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>;\n    includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>;\n    removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>;\n    configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void;\n    preview(source: Parameters<Reader['prepare']>[0]): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}\n */\ntype ModelSourceEditHandle {\n  操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。\n  setInputTargetFilterReset(clear: boolean): Promise<void>\n  getState(): ReturnType<typeof modelSourceEditGetState>\n  confirmFieldContract(input: Readonly<{\n          fieldId: string;\n          accepted: boolean;\n      }>): void\n  previewBoundSource(): Promise<void>\n  mapField(input: Readonly<{\n          fieldId: string;\n          sourceName: string;\n      }>): Promise<void>\n  includeField(input: Readonly<{\n          sourceName: string;\n          included: boolean;\n      }>): Promise<void>\n  removeField(input: Readonly<{\n          fieldId: string;\n          removed: boolean;\n      }>): Promise<void>\n  configureInput(input: Readonly<{\n          sourceName: string;\n          value: string;\n      }>): void\n  preview(source: Parameters<Reader['prepare']>[0]): Promise<void>\n  discard(): void\n  save(): Promise<string>\n  verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{\n          confirmed: boolean;\n          modelId: string | null;\n      }>>\n  acceptCurrent(): void\n}"
+  },
+  {
+    "kind": "RValueFunctionProps",
+    "catalog": {
+      "rootKind": "RValueFunctionProps",
+      "models": [
+        {
+          "kind": "RValueFunctionProps",
+          "name": "RValueFunctionProps",
+          "jsdoc": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "summary": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldValueFunction",
+            "type": "r-value-function",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RValueFunctionProps",
+      "models": [
+        {
+          "kind": "RValueFunctionProps",
+          "name": "RValueFunctionProps",
+          "jsdoc": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "summary": "r-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "SparkFieldSemanticProps<string>",
+              "targetName": "SparkFieldSemanticProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}"
+            }
+          ],
+          "component": {
+            "name": "FieldValueFunction",
+            "type": "r-value-function",
+            "level": "field-level",
+            "layer": "data-field",
+            "directory": "fields/data-components"
+          },
+          "attributes": [
+            {
+              "name": "valueFormat",
+              "jsdoc": "字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。",
+              "summary": "字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。",
+              "typeText": "\"text\" | \"native\""
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。",
+              "summary": "函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "publicParameterDataViewKey",
+              "jsdoc": "GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "summary": "GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "typeText": "string"
+            },
+            {
+              "name": "inputParameterDataViewKey",
+              "jsdoc": "GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "summary": "GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。",
+              "typeText": "string"
+            }
+          ],
+          "methods": [
+            {
+              "name": "cellReadonly",
+              "jsdoc": "表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。",
+              "summary": "表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。",
+              "signature": "cellReadonly(row: Readonly<DataRow>): boolean"
+            },
+            {
+              "name": "onDialogVisibleChange",
+              "jsdoc": "弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。",
+              "summary": "弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。",
+              "signature": "onDialogVisibleChange(visible: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-value-function; name=FieldValueFunction; level=field-level; layer=data-field; directory=fields/data-components */\n/**\n * DTS declaration: RValueFunctionProps = SparkNodeProps & SparkFieldSemanticProps<string> & {\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection SparkFieldSemanticProps<string>\n * DTS relation: intersection {\n    /** 字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。 */\n    valueFormat?: 'text' | 'native';\n    /** 表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。 */\n    onDialogVisibleChange?: (visible: boolean) => void;\n    /** 函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    publicParameterDataViewKey?: string;\n    /** GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n}\n */\nr-value-function读写原DataView字段；默认JSON文本，native显式保存原生值，旧值在确认编辑前保持原样。\ntype RValueFunctionProps {\n  字段存储格式，默认text保持JSON文本；native读取原生对象并在确认时写回对象，清空写null。modelValue/update事件仍为编辑器JSON文本；打开、取消和未知原值不触发格式转换。\n  readonly valueFormat: \"text\" | \"native\"\n  函数编辑目录及上下文；候选更新保留未确认草稿，使旧回调失效，确认时按最新目录校验。不授予后端执行权限。\n  readonly functionContext: DataViewFilterFunctionContext\n  GetApiPublicParam候选所在完整视图键；值与标题使用该视图valueField/labelField并消费读取权限。查询回填更新候选；切换视图键关闭旧编辑会话。\n  readonly publicParameterDataViewKey: string\n  GetInputParam/GetObjectArray候选所在完整视图键；消费输入定义的valueField/labelField及读取权限，与functionContext.inputParams中的当前定义目录按原生值去重，视图项及其标题/禁用状态优先。声明目录不是视图权限或旧查询的回退；不授予函数执行权限。查询回填更新候选；切换视图键关闭旧编辑会话。\n  readonly inputParameterDataViewKey: string\n  表格行的附加只读限制；只能收紧原字段权限，不能授予写入权限。\n  cellReadonly(row: Readonly<DataRow>): boolean\n  弹窗打开或关闭时通知宿主；切换绑定、失权及卸载也会通知关闭，不表示已保存。\n  onDialogVisibleChange(visible: boolean): void\n}"
+  },
+  {
+    "kind": "RFilterExpressionProps",
+    "catalog": {
+      "rootKind": "RFilterExpressionProps",
+      "models": [
+        {
+          "kind": "RFilterExpressionProps",
+          "name": "RFilterExpressionProps",
+          "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "summary": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilterExpression"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RFilterExpressionProps",
+      "models": [
+        {
+          "kind": "RFilterExpressionProps",
+          "name": "RFilterExpressionProps",
+          "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "summary": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "LayoutDataContextProps",
+              "targetName": "LayoutDataContextProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>",
+              "targetName": "Pick"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererFilterExpression"
+          },
+          "attributes": [
+            {
+              "name": "field",
+              "jsdoc": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "summary": "存放过滤定义的字段；与过滤树内部的条件字段不同。",
+              "typeText": "string"
+            },
+            {
+              "name": "valuePath",
+              "jsdoc": "原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。",
+              "summary": "原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。",
+              "typeText": "JsonPath"
+            },
+            {
+              "name": "format",
+              "jsdoc": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "summary": "tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。",
+              "typeText": "\"tree\" | \"spark-json\""
+            },
+            {
+              "name": "display",
+              "jsdoc": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "summary": "默认dialog；inline在绑定位置编辑，应用才写回原DataView。",
+              "typeText": "\"dialog\" | \"inline\""
+            },
+            {
+              "name": "displayMode",
+              "jsdoc": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "summary": "弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。",
+              "typeText": "\"box\" | \"inline\""
+            },
+            {
+              "name": "columns",
+              "jsdoc": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "summary": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
+              "typeText": "DataColumn[]"
+            },
+            {
+              "name": "functionContext",
+              "jsdoc": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "summary": "可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。",
+              "typeText": "DataViewFilterFunctionContext"
+            },
+            {
+              "name": "inputParameterDataViewKey",
+              "jsdoc": "输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。",
+              "summary": "输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。",
+              "typeText": "string"
+            },
+            {
+              "name": "maxDepth",
+              "jsdoc": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "summary": "最大嵌套层数；省略沿用公共编辑器默认值。",
+              "typeText": "number"
+            },
+            {
+              "name": "maxRules",
+              "jsdoc": "最大条件数；省略沿用公共编辑器默认值。",
+              "summary": "最大条件数；省略沿用公共编辑器默认值。",
+              "typeText": "number"
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务锁定只收紧原字段的数据权限。",
+              "summary": "业务锁定只收紧原字段的数据权限。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "readonly",
+              "jsdoc": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "summary": "只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onEditingChange",
+              "jsdoc": "存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。",
+              "summary": "存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。",
+              "signature": "onEditingChange(editing: boolean): void"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component name=RendererFilterExpression */\n/**\n * DTS declaration: RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}\n * DTS relation: intersection LayoutDataContextProps\n * DTS relation: intersection Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'>\n * DTS relation: intersection {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。 */\n    valuePath?: JsonPath;\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。 */\n    format?: 'tree' | 'spark-json';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}\n */\nr-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。\ntype RFilterExpressionProps {\n  存放过滤定义的字段；与过滤树内部的条件字段不同。\n  field: string\n  原生JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，清空只移除此叶，父路径须存在。\n  readonly valuePath: JsonPath\n  tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）。\n  readonly format: \"tree\" | \"spark-json\"\n  默认dialog；inline在绑定位置编辑，应用才写回原DataView。\n  readonly display: \"dialog\" | \"inline\"\n  弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。\n  readonly displayMode: \"box\" | \"inline\"\n  过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。\n  columns: DataColumn[]\n  可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。\n  readonly functionContext: DataViewFilterFunctionContext\n  输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。\n  readonly inputParameterDataViewKey: string\n  最大嵌套层数；省略沿用公共编辑器默认值。\n  readonly maxDepth: number\n  最大条件数；省略沿用公共编辑器默认值。\n  readonly maxRules: number\n  业务锁定只收紧原字段的数据权限。\n  readonly disabled: boolean\n  只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。\n  readonly readonly: boolean\n  存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。\n  onEditingChange(editing: boolean): void\n}"
+  },
+  {
+    "kind": "RButtonProps",
+    "catalog": {
+      "rootKind": "RButtonProps",
+      "models": [
+        {
+          "kind": "RButtonProps",
+          "name": "RButtonProps",
+          "jsdoc": "RButton Props 的属性契约。",
+          "summary": "RButton Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererButton",
+            "type": "r-button",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          }
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "RButtonProps",
+      "models": [
+        {
+          "kind": "RButtonProps",
+          "name": "RButtonProps",
+          "jsdoc": "RButton Props 的属性契约。",
+          "summary": "RButton Props 的属性契约。",
+          "declarationRelations": [
+            {
+              "kind": "intersection",
+              "typeText": "SparkNodeProps",
+              "targetName": "SparkNodeProps"
+            },
+            {
+              "kind": "intersection",
+              "typeText": "{\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}"
+            }
+          ],
+          "component": {
+            "name": "RendererButton",
+            "type": "r-button",
+            "level": "container",
+            "layer": "layout-container",
+            "directory": "containers/layout"
+          },
+          "attributes": [
+            {
+              "name": "permAction",
+              "jsdoc": "自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。",
+              "summary": "自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。",
+              "typeText": "\"create\" | \"edit\" | \"delete\" | \"create-child\""
+            },
+            {
+              "name": "disabled",
+              "jsdoc": "业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。",
+              "summary": "业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "action",
+              "jsdoc": "CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\nappend-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。",
+              "summary": "CRUD 或页面动作名，由宿主内置 action runner 接管执行。",
+              "typeText": "BuiltinActionName"
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\nappend-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。",
+              "summary": "目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。",
+              "typeText": "string"
+            },
+            {
+              "name": "idField",
+              "jsdoc": "目标行主键字段名。\n@default \"id\"",
+              "summary": "目标行主键字段名。",
+              "typeText": "string"
+            },
+            {
+              "name": "appendPayload",
+              "jsdoc": "append-row/prompt-append 新行初始字段值。\n适合写入固定状态，例如 {\"status\":\"pending\"}。\n@default {}",
+              "summary": "append-row/prompt-append 新行初始字段值。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "inheritFields",
+              "jsdoc": "append-row/prompt-append 从当前作用域行复制到新行的字段名。\n表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n@default []",
+              "summary": "append-row/prompt-append 从当前作用域行复制到新行的字段名。",
+              "typeText": "string[]"
+            },
+            {
+              "name": "inheritFieldMap",
+              "jsdoc": "append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\nkey 是源字段，value 是新行目标字段。\n@default {}",
+              "summary": "append-row/prompt-append 从当前作用域行复制并重命名的字段映射。",
+              "typeText": "Record<string, string>"
+            },
+            {
+              "name": "setCurrentRowOnSuccess",
+              "jsdoc": "新增成功后是否将新行设为目标视图 currentRow。\n@default false",
+              "summary": "新增成功后是否将新行设为目标视图 currentRow。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "patch",
+              "jsdoc": "patch-row/patch-current/patch-selected 的静态更新字段。\n用于批量写入固定值，例如 {\"status\":\"approved\"}。\n@default {}",
+              "summary": "patch-row/patch-current/patch-selected 的静态更新字段。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "field",
+              "jsdoc": "prompt/patch/set-field 使用的单字段名。\nfield/value 成对出现时，只更新一个字段。",
+              "summary": "prompt/patch/set-field 使用的单字段名。",
+              "typeText": "string"
+            },
+            {
+              "name": "value",
+              "jsdoc": "patch/set-field 使用的单字段值。\n与 field 配合使用。",
+              "summary": "patch/set-field 使用的单字段值。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "then",
+              "jsdoc": "当前内置动作成功后的链式动作。\n例如 append-row 成功后再 patch-current 清空草稿表单。",
+              "summary": "当前内置动作成功后的链式动作。",
+              "typeText": "ActionDescriptor"
+            },
+            {
+              "name": "successMessage",
+              "jsdoc": "操作成功后的提示文案。\n@default \"\"",
+              "summary": "操作成功后的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "failureMessage",
+              "jsdoc": "操作失败后的提示文案。\n@default \"\"",
+              "summary": "操作失败后的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "emptyMessage",
+              "jsdoc": "数据源为空或目标行不存在时的提示文案。\n@default \"\"",
+              "summary": "数据源为空或目标行不存在时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "errorMessage",
+              "jsdoc": "运行时异常时的提示文案。\n@default \"\"",
+              "summary": "运行时异常时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "validateMessage",
+              "jsdoc": "表单校验失败时的提示文案。\n@default \"\"",
+              "summary": "表单校验失败时的提示文案。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmMessage",
+              "jsdoc": "操作前确认文案；空字符串表示跳过确认。\n@default \"\"",
+              "summary": "操作前确认文案；空字符串表示跳过确认。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmTitle",
+              "jsdoc": "操作前确认标题。\n@default \"\"",
+              "summary": "操作前确认标题。",
+              "typeText": "string"
+            },
+            {
+              "name": "confirmType",
+              "jsdoc": "操作前确认类型。\n由 UI 消息组件解释，常见值为 warning、info、success、error。\n@default \"warning\"",
+              "summary": "操作前确认类型。",
+              "typeText": "string"
+            },
+            {
+              "name": "silent",
+              "jsdoc": "静默模式；成功/失败提示不展示。\n@default false",
+              "summary": "静默模式；成功/失败提示不展示。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "disabledWhenRow",
+              "jsdoc": "当前行字段值匹配此对象时禁用按钮。\n常用于 status 等字段控制操作可用性。\n@default {}",
+              "summary": "当前行字段值匹配此对象时禁用按钮。",
+              "typeText": "Record<string, unknown>"
+            },
+            {
+              "name": "template",
+              "jsdoc": "样式模板名。\n常见值如 primary、toolbar-danger、icon-add。",
+              "summary": "样式模板名。",
+              "typeText": "string"
+            },
+            {
+              "name": "label",
+              "jsdoc": "按钮文本。\n@default \"\"",
+              "summary": "按钮文本。",
+              "typeText": "string"
+            },
+            {
+              "name": "buttonType",
+              "jsdoc": "按钮类型。\n传给底层按钮组件的视觉类型。",
+              "summary": "按钮类型。",
+              "typeText": "string"
+            },
+            {
+              "name": "buttonSize",
+              "jsdoc": "按钮尺寸。\nElement Plus 按钮尺寸只允许 default、small、large。\n@default \"default\"",
+              "summary": "按钮尺寸。",
+              "typeText": "string"
+            },
+            {
+              "name": "plain",
+              "jsdoc": "是否朴素按钮。\n@default false",
+              "summary": "是否朴素按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "text",
+              "jsdoc": "是否文本按钮。\n@default false",
+              "summary": "是否文本按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "bg",
+              "jsdoc": "文本按钮是否显示背景。\n@default false",
+              "summary": "文本按钮是否显示背景。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "link",
+              "jsdoc": "是否链接风格。\n@default false",
+              "summary": "是否链接风格。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "round",
+              "jsdoc": "是否圆角。\n@default false",
+              "summary": "是否圆角。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "circle",
+              "jsdoc": "是否圆形按钮。\n@default false",
+              "summary": "是否圆形按钮。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "loading",
+              "jsdoc": "是否加载中。\n@default false",
+              "summary": "是否加载中。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "icon",
+              "jsdoc": "图标名称。\n使用当前图标注册表中的图标名。",
+              "summary": "图标名称。",
+              "typeText": "string"
+            },
+            {
+              "name": "autoInsertSpace",
+              "jsdoc": "中文按钮文案是否自动插空格。\n@default false",
+              "summary": "中文按钮文案是否自动插空格。",
+              "typeText": "boolean"
+            },
+            {
+              "name": "color",
+              "jsdoc": "自定义颜色。\n传给底层按钮组件的颜色值。",
+              "summary": "自定义颜色。",
+              "typeText": "string"
+            },
+            {
+              "name": "dark",
+              "jsdoc": "是否使用深色主题。\n@default false",
+              "summary": "是否使用深色主题。",
+              "typeText": "boolean"
+            }
+          ],
+          "methods": [
+            {
+              "name": "onClick",
+              "jsdoc": "自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。",
+              "summary": "自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。",
+              "signature": "onClick(args: ...unknown[]): unknown"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "/** SPARK component type=r-button; name=RendererButton; level=container; layer=layout-container; directory=containers/layout */\n/**\n * DTS declaration: RButtonProps = SparkNodeProps & {\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}\n * DTS relation: intersection SparkNodeProps\n * DTS relation: intersection {\n    /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */\n    onClick?: (...args: unknown[]) => unknown;\n    /**\n     * 自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n     * 省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n     * 批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n     */\n    permAction?: 'create' | 'edit' | 'delete' | 'create-child';\n    /** 业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。 */\n    disabled?: boolean;\n    /**\n     * CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n     * 新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n     * append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n     */\n    action?: BuiltinActionName;\n    /**\n     * 目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n     * append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n     * 完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n     */\n    dataViewKey?: string;\n    /**\n     * 目标行主键字段名。\n     * @default \"id\"\n     */\n    idField?: string;\n    /**\n     * append-row/prompt-append 新行初始字段值。\n     * 适合写入固定状态，例如 {\"status\":\"pending\"}。\n     * @default {}\n     */\n    appendPayload?: Record<string, unknown>;\n    /**\n     * append-row/prompt-append 从当前作用域行复制到新行的字段名。\n     * 表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n     * @default []\n     */\n    inheritFields?: string[];\n    /**\n     * append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n     * key 是源字段，value 是新行目标字段。\n     * @default {}\n     */\n    inheritFieldMap?: Record<string, string>;\n    /**\n     * 新增成功后是否将新行设为目标视图 currentRow。\n     * @default false\n     */\n    setCurrentRowOnSuccess?: boolean;\n    /**\n     * patch-row/patch-current/patch-selected 的静态更新字段。\n     * 用于批量写入固定值，例如 {\"status\":\"approved\"}。\n     * @default {}\n     */\n    patch?: Record<string, unknown>;\n    /**\n     * prompt/patch/set-field 使用的单字段名。\n     * field/value 成对出现时，只更新一个字段。\n     */\n    field?: string;\n    /**\n     * patch/set-field 使用的单字段值。\n     * 与 field 配合使用。\n     */\n    value?: unknown;\n    /**\n     * 当前内置动作成功后的链式动作。\n     * 例如 append-row 成功后再 patch-current 清空草稿表单。\n     */\n    then?: ActionDescriptor;\n    /**\n     * 操作成功后的提示文案。\n     * @default \"\"\n     */\n    successMessage?: string;\n    /**\n     * 操作失败后的提示文案。\n     * @default \"\"\n     */\n    failureMessage?: string;\n    /**\n     * 数据源为空或目标行不存在时的提示文案。\n     * @default \"\"\n     */\n    emptyMessage?: string;\n    /**\n     * 运行时异常时的提示文案。\n     * @default \"\"\n     */\n    errorMessage?: string;\n    /**\n     * 表单校验失败时的提示文案。\n     * @default \"\"\n     */\n    validateMessage?: string;\n    /**\n     * 操作前确认文案；空字符串表示跳过确认。\n     * @default \"\"\n     */\n    confirmMessage?: string;\n    /**\n     * 操作前确认标题。\n     * @default \"\"\n     */\n    confirmTitle?: string;\n    /**\n     * 操作前确认类型。\n     * 由 UI 消息组件解释，常见值为 warning、info、success、error。\n     * @default \"warning\"\n     */\n    confirmType?: string;\n    /**\n     * 静默模式；成功/失败提示不展示。\n     * @default false\n     */\n    silent?: boolean;\n    /**\n     * 当前行字段值匹配此对象时禁用按钮。\n     * 常用于 status 等字段控制操作可用性。\n     * @default {}\n     */\n    disabledWhenRow?: Record<string, unknown>;\n    /**\n     * 样式模板名。\n     * 常见值如 primary、toolbar-danger、icon-add。\n     */\n    template?: string;\n    /**\n     * 按钮文本。\n     * @default \"\"\n     */\n    label?: string;\n    /**\n     * 按钮类型。\n     * 传给底层按钮组件的视觉类型。\n     */\n    buttonType?: string;\n    /**\n     * 按钮尺寸。\n     * Element Plus 按钮尺寸只允许 default、small、large。\n     * @default \"default\"\n     */\n    buttonSize?: string;\n    /**\n     * 是否朴素按钮。\n     * @default false\n     */\n    plain?: boolean;\n    /**\n     * 是否文本按钮。\n     * @default false\n     */\n    text?: boolean;\n    /**\n     * 文本按钮是否显示背景。\n     * @default false\n     */\n    bg?: boolean;\n    /**\n     * 是否链接风格。\n     * @default false\n     */\n    link?: boolean;\n    /**\n     * 是否圆角。\n     * @default false\n     */\n    round?: boolean;\n    /**\n     * 是否圆形按钮。\n     * @default false\n     */\n    circle?: boolean;\n    /**\n     * 是否加载中。\n     * @default false\n     */\n    loading?: boolean;\n    /**\n     * 图标名称。\n     * 使用当前图标注册表中的图标名。\n     */\n    icon?: string;\n    /**\n     * 中文按钮文案是否自动插空格。\n     * @default false\n     */\n    autoInsertSpace?: boolean;\n    /**\n     * 自定义颜色。\n     * 传给底层按钮组件的颜色值。\n     */\n    color?: string;\n    /**\n     * 是否使用深色主题。\n     * @default false\n     */\n    dark?: boolean;\n}\n */\nRButton Props 的属性契约。\ntype RButtonProps {\n  自定义业务动作所需的数据操作权限，读取绑定DataView的当次查询结果。\n  省略时由内置action推导；不执行动作、不扩大授权。edit/delete/create-child按当前组件行作用域核验。\n  批量保存或跨视图业务命令仍须由原责任方核对全部目标，不能用单行edit替代。\n  readonly permAction: \"create\" | \"edit\" | \"delete\" | \"create-child\"\n  业务禁用条件，与当次数据权限和内置动作状态共同生效；false不能覆盖权限拒绝。\n  readonly disabled: boolean\n  CRUD 或页面动作名，由宿主内置 action runner 接管执行。\n  新建申请、提交新单据等“创建一条新记录”的按钮优先使用 append-row，并用 dataViewKey 指向目标列表/待处理视图。\n  append-row/prompt-append 会读取按钮当前作用域行、appendPayload、inheritFields 和 inheritFieldMap。\n  readonly action: BuiltinActionName\n  目标 DataViewKey；不写时使用按钮所在容器提供的数据视图。\n  append-row/patch/delete/refresh 等动作会优先作用于这个 DataView。\n  完整格式：scenarioId@modelName@viewId（数据空间ID@模型名称@视图名称），由本次 PageRuntime 解析。\n  readonly dataViewKey: string\n  目标行主键字段名。\n  @default \"id\"\n  readonly idField: string\n  append-row/prompt-append 新行初始字段值。\n  适合写入固定状态，例如 {\"status\":\"pending\"}。\n  @default {}\n  readonly appendPayload: Record<string, unknown>\n  append-row/prompt-append 从当前作用域行复制到新行的字段名。\n  表单提交到待处理列表时，用它把 currentRow 中的申请人、日期、事由等字段复制到目标视图。\n  @default []\n  readonly inheritFields: string[]\n  append-row/prompt-append 从当前作用域行复制并重命名的字段映射。\n  key 是源字段，value 是新行目标字段。\n  @default {}\n  readonly inheritFieldMap: Record<string, string>\n  新增成功后是否将新行设为目标视图 currentRow。\n  @default false\n  readonly setCurrentRowOnSuccess: boolean\n  patch-row/patch-current/patch-selected 的静态更新字段。\n  用于批量写入固定值，例如 {\"status\":\"approved\"}。\n  @default {}\n  readonly patch: Record<string, unknown>\n  prompt/patch/set-field 使用的单字段名。\n  field/value 成对出现时，只更新一个字段。\n  readonly field: string\n  patch/set-field 使用的单字段值。\n  与 field 配合使用。\n  readonly value: unknown\n  当前内置动作成功后的链式动作。\n  例如 append-row 成功后再 patch-current 清空草稿表单。\n  readonly then: ActionDescriptor\n  操作成功后的提示文案。\n  @default \"\"\n  readonly successMessage: string\n  操作失败后的提示文案。\n  @default \"\"\n  readonly failureMessage: string\n  数据源为空或目标行不存在时的提示文案。\n  @default \"\"\n  readonly emptyMessage: string\n  运行时异常时的提示文案。\n  @default \"\"\n  readonly errorMessage: string\n  表单校验失败时的提示文案。\n  @default \"\"\n  readonly validateMessage: string\n  操作前确认文案；空字符串表示跳过确认。\n  @default \"\"\n  readonly confirmMessage: string\n  操作前确认标题。\n  @default \"\"\n  readonly confirmTitle: string\n  操作前确认类型。\n  由 UI 消息组件解释，常见值为 warning、info、success、error。\n  @default \"warning\"\n  readonly confirmType: string\n  静默模式；成功/失败提示不展示。\n  @default false\n  readonly silent: boolean\n  当前行字段值匹配此对象时禁用按钮。\n  常用于 status 等字段控制操作可用性。\n  @default {}\n  readonly disabledWhenRow: Record<string, unknown>\n  样式模板名。\n  常见值如 primary、toolbar-danger、icon-add。\n  readonly template: string\n  按钮文本。\n  @default \"\"\n  readonly label: string\n  按钮类型。\n  传给底层按钮组件的视觉类型。\n  readonly buttonType: string\n  按钮尺寸。\n  Element Plus 按钮尺寸只允许 default、small、large。\n  @default \"default\"\n  readonly buttonSize: string\n  是否朴素按钮。\n  @default false\n  readonly plain: boolean\n  是否文本按钮。\n  @default false\n  readonly text: boolean\n  文本按钮是否显示背景。\n  @default false\n  readonly bg: boolean\n  是否链接风格。\n  @default false\n  readonly link: boolean\n  是否圆角。\n  @default false\n  readonly round: boolean\n  是否圆形按钮。\n  @default false\n  readonly circle: boolean\n  是否加载中。\n  @default false\n  readonly loading: boolean\n  图标名称。\n  使用当前图标注册表中的图标名。\n  readonly icon: string\n  中文按钮文案是否自动插空格。\n  @default false\n  readonly autoInsertSpace: boolean\n  自定义颜色。\n  传给底层按钮组件的颜色值。\n  readonly color: string\n  是否使用深色主题。\n  @default false\n  readonly dark: boolean\n  自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。\n  onClick(args: ...unknown[]): unknown\n}"
+  }
+]

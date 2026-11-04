@@ -14,6 +14,9 @@ type WorkflowQueryModelCreateInput=Readonly<{
  sources:PageDataSpaceModelSourceReader
  assertCurrent():void
 }>
+/** 已核定数据库表目标的行写操作类型；输入由所属模型的inputParams字段承接。 */
+export type WorkflowDataOperation = 'add' | 'edit' | 'delete'
+
 /** 查询模型入口不暴露绕过来源准备的数组创建命令。 */
 type WorkflowQueryModelCreateHandle=Omit<ModelCreateHandle,'createArray'|'fork'>
 function clean(view:DataView):void{
@@ -21,7 +24,7 @@ function clean(view:DataView):void{
   ||view.requestState===RequestState.Loading||view.requestState===RequestState.Preparing)throw Error('请先处理当前查询模型目录或字段的修改')
 }
 /** 按需读取完整核名目录和同ID参数定义，返回原模型新增owner；保存范围仍由原owner捕获。 */
-export async function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreateInput):Promise<WorkflowQueryModelCreateHandle>{
+async function openWorkflowModelCreate(input:WorkflowQueryModelCreateInput,operation:'query'|WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{
  const {dataSet,workflowId,sources}=input
  const definition=dataSet.getView('Base_WorkflowDefinition'),parameters=dataSet.getView('Base_DataSet')
  const models=dataSet.getView('Base_DataModel','modelCatalog'),fields=dataSet.getView('Base_DataModel_Field','modelInputFields')
@@ -55,13 +58,25 @@ export async function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreat
   query:(query,metadata)=>sources.query(query,metadata),
   async prepare(source,metadata,options){
    guard()
-   const prepared=await sources.prepare(source,metadata,{...options,missingInputType:'preserve'})
+   if(operation!=='query'&&source.type!=='table')throw Error('操作节点当前只承接正式数据库表目标；其他来源执行合同尚未核定')
+   const prepared=await sources.prepare(source,metadata,{...options,missingInputType:'preserve',...operation==='query'?{}:{purpose:'operation-target' as const}})
    guard()
-   return{...prepared,model:{...prepared.model,requestType:'query'}}
+   return{...prepared,model:{...prepared.model,requestType:operation},
+    ...(operation==='query'?{}:{fields:prepared.fields.map(field=>({...field,type:'inputParams' as const,IsOutput:0,ValueFun:''}))})}
   },
  }
  const handle=createModelCreateHandle(createModelCreateHost({dataSet,targetId:workflowId,sources:boundSources,
   views:{models:'modelCatalog',fields:'modelInputFields'},lifecycle:{assertCurrent:guard,onDispatch(){}}}))
  return{getState:handle.getState,setName:handle.setName,preview:handle.preview,discard:handle.discard,save:handle.save,
   verify:handle.verify,abandonNotApplied:handle.abandonNotApplied,discardLocalChanges:handle.discardLocalChanges}
+}
+
+/** 复用原模型owner创建查询来源；查询字段与来源语义保持原合同。 */
+export function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreateInput):Promise<WorkflowQueryModelCreateHandle>{
+ return openWorkflowModelCreate(input,'query')
+}
+/** 创建操作目标模型；字段作为待显式配置的输入，不继承来源值函数，也不执行业务操作。 */
+export function openWorkflowOperationModelCreate(input:WorkflowQueryModelCreateInput,operation:WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{
+ if(!['add','edit','delete'].includes(operation))throw Error('操作节点类型无效')
+ return openWorkflowModelCreate(input,operation)
 }

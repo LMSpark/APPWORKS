@@ -36,9 +36,25 @@
           },
           "additionalProperties": false
         },
+        "method.validateNode.params": {
+          "type": "object",
+          "properties": {
+            "nodeId": {
+              "type": "string"
+            },
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.validateNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.load.params": {
           "type": "object",
-          "properties": {},
+          "properties": {
+            "input": true
+          },
           "additionalProperties": false
         },
         "method.load.return": {
@@ -62,7 +78,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T22:21:02.242Z",
+  "generatedAt": "2026-11-04T10:37:49.341Z",
   "models": {
     "WorkflowExecutionContext": {
       "name": "WorkflowExecutionContext",
@@ -108,9 +124,53 @@
         "members": {
           "methods": [
             {
+              "name": "validateNode",
+              "jsdoc": "显式执行前按需核对节点的正式操作定义。",
+              "parameters": [
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
               "name": "load",
               "jsdoc": "只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。",
-              "parameters": [],
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "unknown"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
               "type": {
                 "type": "reference",
                 "name": "Promise",

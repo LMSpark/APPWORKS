@@ -11,7 +11,7 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
     <p v-if="message" role="status">{{ message }}</p>
     <div class="actions">
       <RendererButton data-action="open-sources" :disabled="blocked" @click="openPicker" :label="workspaceActions ? '选择模型' : '选择模型来源'" />
-      <RendererButton v-if="modelId" data-action="sync-source" :disabled="blocked" @click="previewBoundSource" label="从来源更新字段" />
+      <RendererButton v-if="modelId && !inputTarget" data-action="sync-source" :disabled="blocked" @click="previewBoundSource" label="从来源更新字段" />
       <RendererButton v-if="!workspaceActions" data-action="cancel-create" :disabled="blocked" @click="discard" label="取消选择" />
     </div>
     <RendererDialog v-model="pickerVisible" :data-view-key="controls.key(controls.search)" data-member="currentRow"
@@ -85,7 +85,9 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
               <p v-if="!item.candidates.includes(item.sourceName)" role="alert">{{ item.sourceName }}（来源缺失或合同不符，原值保留）</p>
           </div>
         </section>
-        <fieldset v-if="!synchronizing && replacement.additions.length"><legend>引入为输出字段</legend>
+        <p v-if="inputTarget">新目标字段作为输入字段保存；新字段取值留空，换目标后配置。</p>
+        <RendererButton v-if="inputTarget" :data-view-key="controls.key(controls.fields)" :label="replacement.clearFilter ? '保留并迁移原条件' : '随目标切换清空原条件'" :disabled="blocked || state.data.status !== 'ready'" @click="resetTargetFilter" />
+        <fieldset v-if="!inputTarget && !synchronizing && replacement.additions.length"><legend>引入为输出字段</legend>
           <RendererForm v-for="item in replacement.additions" :key="item.sourceName" :data-view-key="controls.key(controls.choice('addition', item.sourceName))" context-data-member="currentRow"
             :auto-columns="false" :show-data-view-meta="false" :grid-columns="1" :form-props="{disabled: blocked || state.data.status !== 'ready', labelPosition: 'top'}">
             <FieldCheckbox field="included" :label="`引入字段 ${item.sourceName}`" :checkbox-text="item.sourceName" />
@@ -141,11 +143,12 @@ AI用途：模型新增/来源替换入口，共用查询、取消、脏状态�
         </section>
         <ul role="alert"><li v-for="problem in replacement.problems" :key="problem">{{ problem }}</li></ul>
         <p v-if="synchronizing">同用途同名字段保留原记录及配置，计算字段保留。将新增 {{ replacement.additions.length }} 个字段、删除 {{ replacement.removals.length }} 个已消失的字段定义；确认时核对权限与引用。</p>
+        <p v-else-if="inputTarget">已有输入字段保留记录ID与兼容的取值；确认会提交目标来源、输入字段和已列明的条件变更。</p>
         <p v-else>已有字段映射保留记录ID和输出名；勾选字段才会新增并输出。确认会提交来源、字段及以上模型配置和关系引用变更。</p>
       </template>
       <p v-else>创建模型及以上字段后，可在模型下配置数据视图。</p>
       <RendererButton button-type="primary" :data-action="synchronizing ? 'confirm-sync-source' : modelId ? 'replace-source' : 'create-model'"
-        :disabled="blocked || inputDialogOpen || state.data.status !== 'ready' || !!nameError || !!replacement?.problems.length" @click="save" :label="synchronizing ? '确认同步字段' : modelId ? '确认替换来源' : '确认创建模型'" />
+        :disabled="blocked || inputDialogOpen || state.data.status !== 'ready' || !!nameError || !!replacement?.problems.length" @click="save" :label="inputTarget ? '确认更换目标' : synchronizing ? '确认同步字段' : modelId ? '确认替换来源' : '确认创建模型'" />
       <RendererButton v-if="workspaceActions" data-action="cancel-create" :disabled="blocked" @click="discard" label="取消选择" />
       </template>
     <template v-if="unresolved">
@@ -177,7 +180,7 @@ import {DataSpaceSourceControls} from './data-space-source-controls'
 
 const props = defineProps<DataSpaceModelSourceProps>()
 const emit = defineEmits<{changed: []; pending: [value: boolean]; created: [id: string]}>()
-const types = LowcodeDataSpaceSourceCatalog.types
+const types = computed(()=>inputTarget.value?LowcodeDataSpaceSourceCatalog.types.filter(item=>item.value==='table'):LowcodeDataSpaceSourceCatalog.types)
 const pickerOpen = ref(false)
 const inputDialogOpen = ref(false)
 function inputDialogChanged(visible: boolean): void {inputDialogOpen.value = visible}
@@ -190,6 +193,7 @@ const state = computed(() => {
   props.revision; tick.value
   try {return {data: owner.value.getState(), error: ''}} catch (cause) {return {data: null, error: describe(cause)}}
 })
+const inputTarget=computed(()=>state.value.data&&'inputTarget'in state.value.data&&state.value.data.inputTarget===true)
 const unresolved = computed(() => !!state.value.data && ['unknown', 'readback', 'unsubmitted', 'different', 'configuration'].includes(state.value.data.status))
 const replacement = computed(() => state.value.data?.preview && 'differences' in state.value.data.preview ? state.value.data.preview : null)
 const synchronizing = computed(() => replacement.value?.operation === 'synchronize')
@@ -274,6 +278,11 @@ function previewBoundSource(): Promise<void> {
     if ('previewBoundSource' in current) await current.previewBoundSource()
   })
 }
+function resetTargetFilter():Promise<void>{return run(async()=>{
+  const current=owner.value
+  if(!('setInputTargetFilterReset'in current)||typeof current.setInputTargetFilterReset!=='function')throw Error('当前不是操作目标来源')
+  await current.setInputTargetFilterReset(replacement.value?.clearFilter!==true)
+})}
 function verify(): Promise<void> {
   return run(async () => {
     const result = props.modelId ? await props.session.getModelSourceEdit(props.modelId).verify()

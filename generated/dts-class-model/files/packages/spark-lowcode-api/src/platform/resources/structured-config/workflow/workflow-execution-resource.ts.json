@@ -76,6 +76,37 @@
         "method.graph.return": {
           "$ref": "#/$defs/WorkflowExecutionGraph"
         },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "mode": {
+                  "enum": [
+                    "node",
+                    "workflow"
+                  ]
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "input": true
+              },
+              "required": [
+                "mode",
+                "nodeId",
+                "input"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.readScope.params": {
           "type": "object",
           "properties": {},
@@ -129,7 +160,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T22:16:21.044Z",
+  "generatedAt": "2026-11-04T08:34:32.454Z",
   "models": {
     "WorkflowExecutionGraph": {
       "name": "WorkflowExecutionGraph",
@@ -175,11 +206,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    /** 解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。 */\n    prepare(input: Readonly<{\n        mode: 'node' | 'workflow';\n        nodeId: string;\n        input: unknown;\n    }>): Promise<void>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    /** 解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。 */\n    prepare(input: Readonly<{\n        mode: 'node' | 'workflow';\n        nodeId: string;\n        input: unknown;\n    }>): Promise<void>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -209,6 +240,35 @@
                 "type": "reference",
                 "name": "WorkflowExecutionGraph",
                 "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        mode: 'node' | 'workflow';\n        nodeId: string;\n        input: unknown;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
               }
             },
             {

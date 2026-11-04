@@ -10,6 +10,10 @@ import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-f
 
 /** 字段结构变更的明确上下文；不会自动修改任何引用。 */
 type FieldReferenceChange = {
+  /** 仅目标模型的字段用途；不会把其他模型入参解释为查询输出。 */
+  fieldPurpose?:'dataModel'|'inputParams'
+  /** 同一次变更已按拟目标校验的自身Filter；必须精确匹配原文。 */
+  modelFilterChange?:Readonly<{before:string;after:string}>
   /** 删除或改名；省略时检查删除。 */
   operation?:'remove'|'rename'
   /** 结构命令已校验最终模型并在同一批次提交的主键声明；普通字段删除不得提供。 */
@@ -41,6 +45,8 @@ export type FieldRename = {
 }
 
 export type FieldRemoveReferencesPrepareRenamesInput = Readonly<{
+  fieldPurpose?:'dataModel'|'inputParams'
+  modelFilterChange?:Readonly<{before:string;after:string}>
   views: ReadonlyArray<DataView | undefined>
   modelId: string
   mappings: readonly FieldRename[]
@@ -65,12 +71,12 @@ export class LowcodeDataSpaceFieldRemoveReferences {
   static prepareRenames(input: FieldRemoveReferencesPrepareRenamesInput): FieldReferenceUpdate[] {
     const {views, modelId, mappings, primaryReplacement} = input
     if (!mappings.length) return []
-    const view = views[1], fields = view?.rows.filter(row => row['dataModelId'] === modelId && row['type'] === 'dataModel') ?? []
+    const view = views[1], fields = view?.rows.filter(row => row['dataModelId'] === modelId && row['type'] === (input.fieldPurpose??'dataModel')) ?? []
     const first = fields.find(row => row['rowid'] === mappings[0]?.id)
     if (!first || new Set(mappings.map(item => item.id)).size !== mappings.length || mappings.some(item => !item.name || fields.filter(row => row['rowid'] === item.id).length !== 1)) throw new Error('字段改名身份或名称无效')
     const names = fields.map(row => mappings.find(item => item.id === row['rowid'])?.name ?? row['Name'])
     if (new Set(names).size !== names.length) throw new Error('改名后的正式字段名称不唯一')
-    return this.inspect({views, field: first, change: {operation: 'rename', primaryKeyReplacement: primaryReplacement}, renames: new Map(mappings.map(item => [item.id, item.name]))})
+    return this.inspect({views, field: first, change: {operation: 'rename', primaryKeyReplacement: primaryReplacement,...input.fieldPurpose?{fieldPurpose:input.fieldPurpose}:{},...input.modelFilterChange?{modelFilterChange:input.modelFilterChange}:{}}, renames: new Map(mappings.map(item => [item.id, item.name]))})
   }
 
   private static inspect(input: FieldRemoveReferencesInspectInput): FieldReferenceUpdate[] {
@@ -95,6 +101,7 @@ export class LowcodeDataSpaceFieldRemoveReferences {
     if (typeof modelId !== 'string' || typeof modelName !== 'string' || !modelName
       || models.rows.filter(row => read(models, row, 'Name') === modelName).length !== 1) throw new Error('字段所属模型注册名不唯一')
     const updates: FieldReferenceUpdate[] = []
+    const eligible=(row:DataRow)=>read(fields,row,'type')===(read(fields,row,'dataModelId')===modelId?change.fieldPurpose??'dataModel':'dataModel')
     const add = (entry: Readonly<{view: DataView; row: DataRow; property: string; before: string; after: string}>): void => {
       if (entry.before !== entry.after) updates.push({table: entry.view.tableName, id: String(entry.row['rowid']), property: entry.property, before: entry.before, after: entry.after})
     }
@@ -103,13 +110,13 @@ export class LowcodeDataSpaceFieldRemoveReferences {
     const reference = (entry: Readonly<{value: unknown; owner: unknown; path: string; qualifiers?: readonly Qualifier[]}>): string => {
       const {value, owner, path, qualifiers = []} = entry
       if (typeof value !== 'string' || !value) throw new Error(`${path}字段引用无法核验`)
-      const candidates = fieldRows.filter(row => read(fields, row, 'type') === 'dataModel'
+      const candidates = fieldRows.filter(row => eligible(row)
         && read(fields, row, 'dataModelId') === owner && read(fields, row, 'Name') === value)
       const direct=candidates.length>0
       if (!direct) for (const source of [...models.rows.map(row=>({name:read(models,row,'Name'),id:row['rowid']})),...qualifiers]) {
         const name = source.name
         if (typeof name !== 'string' || !value.startsWith(`${name}.`)) continue
-        candidates.push(...fieldRows.filter(row => read(fields, row, 'type') === 'dataModel' && read(fields, row, 'dataModelId') === source.id
+        candidates.push(...fieldRows.filter(row => eligible(row) && read(fields, row, 'dataModelId') === source.id
           && read(fields, row, 'Name') === value.slice(name.length + 1)))
       }
       const unique=[...new Map(candidates.map(row=>[row['rowid'],row])).values()],resolved=unique[0]
@@ -142,6 +149,11 @@ export class LowcodeDataSpaceFieldRemoveReferences {
       const {view, row, property, context} = entry
       const {child, parent, path} = context
       const value = read(view, row, property)
+      if(view===models&&row['rowid']===modelId&&property==='Filter'&&change.modelFilterChange){
+        if((value??'')!==change.modelFilterChange.before)throw Error('已核自身过滤条件的原文基线已变化')
+        if(change.modelFilterChange.after)DataSpaceDesignApi.parseFilter(change.modelFilterChange.after)
+        return
+      }
       if (value === undefined || value === null || value === '') return
       if (typeof value !== 'string') throw new Error(`${path}过滤原文无法核验`)
       add({view, row, property, before: value, after: LowcodeDataSpaceFilterMigration.rewrite(value,
@@ -155,7 +167,7 @@ export class LowcodeDataSpaceFieldRemoveReferences {
         if (key === 'PrimaryKeyFields' && row['rowid'] === modelId && primaryKeyReplacement !== undefined) continue
         const names = typeof value === 'string' ? key === 'PrimaryKeyFields' ? value.split(',').map(name => name.trim()) : [value] : []
         if(renames.size&&row['rowid']===modelId&&typeof value==='string') {
-          const mapped=names.map(name=>{const matches=fields.rows.filter(item=>item['dataModelId']===modelId&&item['type']==='dataModel'&&read(fields,item,'Name')===name)
+          const mapped=names.map(name=>{const matches=fields.rows.filter(item=>item['dataModelId']===modelId&&eligible(item)&&read(fields,item,'Name')===name)
             return matches.length===1?renames.get(String(matches[0]?.['rowid']))??name:name})
           add({view: models, row, property: key, before: value, after: mapped.join(key === 'PrimaryKeyFields' ? ',' : '')}); continue
         }
@@ -173,7 +185,7 @@ export class LowcodeDataSpaceFieldRemoveReferences {
       filter({view: models, row, property: 'JoinFilter', context: {child: row['rowid'], parent: parentId, path: `${path}.JoinFilter`}})
       const foreignKeys = read(models, row, 'ForeignKeyFields')
       if (foreignKeys !== undefined && foreignKeys !== null && foreignKeys !== '') {
-        const foreignFields = fieldRows.filter(candidate => read(fields, candidate, 'type') === 'dataModel'
+        const foreignFields = fieldRows.filter(candidate => eligible(candidate)
           && read(fields, candidate, 'dataModelId') === row['rowid'] && read(fields, candidate, 'Name') === foreignKeys)
         const foreign = foreignFields[0]
         if (typeof foreignKeys !== 'string' || foreignFields.length !== 1 || !foreign) throw new Error(`${path}.ForeignKeyFields必须唯一对应子模型单字段`)

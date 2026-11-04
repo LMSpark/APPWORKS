@@ -120,6 +120,17 @@ describe('LowcodeDataSpaceModelSourceReader', () => {
   })
   afterEach(() => {metadata.destroy(); for (const dataSet of dictionaryDataSets.splice(0)) dataSet.destroy()})
 
+  it('rejects an operation target whose selected catalog id is unique but persisted database and table identity is ambiguous',async()=>{
+    runtimeQuery.mockImplementation(async(identity:QueryIdentity,options:QueryOptions)=>{
+      if(identity.metaName==='Base_TblField')return context(identity.metaName,[{rowid:'F1',tblid:'T1',enname:'code',cnname:'编码',DataType:'varchar',IsPKey:'1'}])
+      const filter=options.filter?.toJSON() as {field?:string}
+      const rows=filter.field==='rowid'?[sourceRows.table.row]:[sourceRows.table.row,{...sourceRows.table.row,rowid:'T2'}]
+      return context(identity.metaName,rows)
+    })
+    const reader=new LowcodeDataSpaceModelSourceReader(metadata)
+    await expect(reader.prepare({type:'table',id:'T1',name:'Orders',description:'订单',dbid:'DB1',databaseName:'main',providerId:''},metadata,{purpose:'operation-target'})).rejects.toThrow('不唯一')
+  })
+
   it('uses a keyless formal query pointer without inventing a write identity', async () => {
     metadata.getView('View_TblList', 'sourceCandidates')!.primaryKey = ''
     runtimeQuery.mockResolvedValue(context('View_TblList', [sourceRows.table.row], 1, true))

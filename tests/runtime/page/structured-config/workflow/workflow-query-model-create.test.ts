@@ -5,10 +5,12 @@ import {DataView,DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
-import {openWorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
 import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
+import type {PageDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/query-computed-fields'
 import {workflowQueryAncestors} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
@@ -23,13 +25,14 @@ async function fixture(){
  const http=new ApiBackend()
  http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'Current'},{rowid:'W2',name:'Other'}],
   Base_DataSet:[{rowid:'W1',Type:'workflow',inputParams:'[]'}],
+  View_TblList:[{rowid:'TABLE',dbid:'DB',DbName:'TestDB',tblname:'Disposable',tbldesc:''}],Base_TblField:[{rowid:'PK',tblid:'TABLE',enname:'rowid',DataType:'varchar',cnname:'ID',IsPKey:1},{rowid:'NAME',tblid:'TABLE',enname:'name',DataType:'varchar',cnname:'名称',IsPKey:0}],
   Base_DataModel:[{rowid:'M1',dataSetId:'W1',Name:'Orders'},{rowid:'M2',dataSetId:'W2',Name:'Other'}],Base_DataModel_Field:[]}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
   fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
  const page=new PageRuntime({pageId:'query-create',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W1'}},loadScenario:async()=>ds})
  pages.push(page);await page.load();await ds.getView('Base_WorkflowDefinition')!.refresh()
- const reader={query:vi.fn(async()=>({rows:[source],total:1})),prepare:vi.fn(async()=>structuredClone(prepared))}
+ const reader={query:vi.fn<PageDataSpaceModelSourceReader['query']>(async()=>({rows:[source],total:1})),prepare:vi.fn<PageDataSpaceModelSourceReader['prepare']>(async()=>structuredClone(prepared))}
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
@@ -233,6 +236,22 @@ describe('workflow query model creation in the original DataSet',()=>{
   http.records['Base_DataModel_Relation']!.push({...http.records['Base_DataModel_Relation']![0],rowid:'DUPLICATE'})
   await expect(context.load()).rejects.toThrow('多条条件')
   context.dispose();expect(ds.getView('Base_DataModel_Relation','asParent')).toBeDefined()
+ })
+ it.each([
+  {label:'unconfigured table',input:[{}],activeType:'table',tableOperate:'update',dbName:'',tblName:'',allowed:false},
+  {label:'native empty input',input:[],activeType:'table',tableOperate:'update',dbName:'',tblName:'',allowed:true},
+  {label:'time trigger',input:[{}],activeType:'time',tableOperate:'',dbName:'',tblName:'',allowed:true},
+  {label:'delete trigger',input:[{}],activeType:'table',tableOperate:'delete',dbName:'',tblName:'',allowed:true},
+  {label:'configured table',input:[{}],activeType:'table',tableOperate:'update',dbName:'DB',tblName:'Table',allowed:true},
+ ])('validates $label before preparing whole-flow execution',async item=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  Object.assign(http.records['Base_WorkflowDefinition']![0]!,{activeType:item.activeType,tableOperate:item.tableOperate,dbName:item.dbName,tblName:item.tblName})
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query'},{rowid:'END',workflow_id:'W1',position_type:2,node_type:'query'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'END'}]
+  await Promise.all([ds.getView('Base_WorkflowDefinition')!.refresh(),nodes.refresh(),edges.refresh()])
+  const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  if(item.allowed)await context.load(item.input);else await expect(context.load(item.input)).rejects.toThrow('启动数据回读缺少数据库或触发表')
+  expect(http.saves).toHaveLength(0);context.dispose()
  })
  it('creates and cancels formal connectors in the original view, rejects duplicate/cyclic endpoints, and preserves an unknown save',async()=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
@@ -483,4 +502,148 @@ describe('workflow query model creation in the original DataSet',()=>{
   expect(models.getEditingRow('M1')?.['description']).toBe('concurrent draft')
   expect(http.saves).toEqual([])
  })
+})
+
+
+describe('workflow data operation node creation',()=>{
+ it.each(['add','edit','delete'] as const)('creates %s with its own input model and exact node target through the original staged owners',async operation=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  await nodes.refresh()
+  const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
+  reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'},fields:[{...prepared.fields[0]!,ValueFun:'source value is not an operation input'}]})
+  const owner=await openWorkflowOperationNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}},operation)
+  await owner.model.preview(target)
+  expect(http.saves).toHaveLength(0)
+  const id=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===id)!
+  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:owner.modelId,node_config:'',input_mapping:'[]',output_mapping:'[]',config:''})
+  expect(http.records['Base_DataModel']!.find(row=>row['rowid']===owner.modelId)).toMatchObject({dataSetId:'W1',requestType:operation,MetaName:'Disposable',DbId:'DB',DbName:'TestDB'})
+  expect(http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']===owner.modelId).every(row=>row['IsOutput']===0)).toBe(true)
+  expect(http.records['Base_DataModel_Field']).toEqual([expect.objectContaining({dataSetId:'W1',dataModelId:owner.modelId,type:'inputParams',Name:'value',ValueFun:''})])
+  expect(http.saves.map(save=>save.table)).toEqual(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'])
+  expect(owner.pending).toBe(false)
+  await owner.save();expect(http.saves).toHaveLength(3)
+ })
+ it('cancels an operation source preview without creating a model, field or node',async()=>{
+  const {ds,http,reader}=await fixture();await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
+  const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
+  reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'}})
+  const owner=await openWorkflowOperationNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}},'add')
+  await owner.model.preview(target);owner.cancel()
+  expect(http.saves).toHaveLength(0);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toBeUndefined()
+ })
+})
+
+
+it.each(['add','edit','delete'] as const)('saves and cancels only %s operation input values and target conditions without rewriting output or unrelated nodes',async operation=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!,edges=ds.getView('Base_WorkflowConnectors')!
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:operation,Filter:''}
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:'M1',node_config:'',output_mapping:'[]',name:'Target'}]
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'value',FieldType:'varchar',description:'',ValueFun:''}]
+ models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+ fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'GetConstValue',Value:0}))
+ await saveWorkflowOperationFields(ds,'W1','N1')
+ expect(http.records['Base_DataModel_Field']![0]?.['ValueFun']).toBe(JSON.stringify({Type:'GetConstValue',Value:0}))
+ expect(http.records['Base_WorkflowNodeDefinition']![0]?.['output_mapping']).toBe('[]')
+ expect(http.saves.map(item=>item.table)).toEqual(['Base_DataModel_Field'])
+ fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'GetConstValue',Value:false}))
+ models.updateEditingValue('M1','description','cancelled')
+ cancelWorkflowOperationFields(ds,'W1','N1')
+ expect(fields.getEditingRow('F1')?.['ValueFun']).toBe(JSON.stringify({Type:'GetConstValue',Value:0}))
+ expect(models.hasEditingChanges()).toBe(false)
+ fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'Sum',Field:'amount'}))
+ await expect(saveWorkflowOperationFields(ds,'W1','N1')).rejects.toThrow('常量或祖先')
+ cancelWorkflowOperationFields(ds,'W1','N1')
+ fields.updateEditingValue('F1','Name','renamed')
+ await expect(saveWorkflowOperationFields(ds,'W1','N1')).rejects.toThrow('不支持')
+ expect(fields.getEditingRow('F1')?.['Name']).toBe('renamed');expect(http.saves).toHaveLength(1)
+ expect(()=>cancelWorkflowOperationFields(ds,'W1','N1')).toThrow('范围外')
+ expect(fields.getEditingRow('F1')?.['Name']).toBe('renamed')
+})
+it.each(['add','edit','delete'] as const)('validates saved %s targets and explicit input mappings before execution without a business write',async operation=>{
+ const {ds,http}=await fixture(),context=new WorkflowExecutionContext(ds,'W1',()=>{}),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:'M1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:operation,Filter:''}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',description:'ID',IsPKey:1,ValueFun:''}]
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ await expect(context.validateNode('N1')).rejects.toThrow('值函数')
+ http.records['Base_DataModel_Field']![0]!['ValueFun']=JSON.stringify({Type:'GetConstValue',Value:0})
+ await expect(context.validateNode('N1')).resolves.toBeUndefined()
+ http.records['Base_DataModel']![0]!['requestType']='query'
+ await expect(context.validateNode('N1')).rejects.toThrow('requestType')
+ expect(http.saves).toHaveLength(0)
+ expect(ds.getTable('Base_DataModel')!.viewList.filter(view=>view.viewId.startsWith('operationExecute'))).toHaveLength(0)
+})
+
+it.each(['edit','delete'] as const)('refuses %s without a complete primary key mapping and validates saved filters',async operation=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,context=new WorkflowExecutionContext(ds,'W1',()=>{})
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:'M1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:operation,Filter:''}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',description:'ID',IsPKey:1,ValueFun:''},
+  {rowid:'F2',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'name',FieldType:'varchar',description:'名称',IsPKey:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:false})}]
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ await expect(context.validateNode('N1')).rejects.toThrow('主键')
+ http.records['Base_DataModel']![0]!['Filter']=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'rowid',operator:'eq',value:'owned'}))
+ await expect(context.validateNode('N1')).resolves.toBeUndefined()
+ http.records['Base_DataModel_Field']![1]!['ValueFun']='broken json'
+ await expect(context.validateNode('N1')).rejects.toThrow()
+ expect(http.saves).toHaveLength(0)
+ expect(ds.getTable('Base_DataModel_Field')!.viewList.filter(view=>view.viewId.startsWith('operationExecute'))).toHaveLength(0)
+})
+
+it('rejects an invalid operation before loading whole-workflow conditions and preserves unrelated drafts',async()=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,context=new WorkflowExecutionContext(ds,'W1',()=>{})
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query'},
+  {rowid:'N1',workflow_id:'W1',position_type:1,node_type:'add',dataOperateModId:'M1'},{rowid:'END',workflow_id:'W1',position_type:2,node_type:'query'}]
+ http.records['Base_WorkflowConnectors']=[{rowid:'A',workflow_id:'W1',sourceID:'START',targetID:'N1'},{rowid:'B',workflow_id:'W1',sourceID:'N1',targetID:'END'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:'add',Filter:''}
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ await expect(context.load()).rejects.toThrow('值函数')
+ expect(http.saves).toHaveLength(0)
+ const models=ds.getView('Base_DataModel','modelCatalog')!;models.queryContext={dataSpaceId:'W1'};await models.refresh();models.updateEditingValue('M1','description','keep draft')
+ await expect(context.validateNode('N1')).rejects.toThrow('未处理修改')
+ expect(models.getEditingRow('M1')?.['description']).toBe('keep draft')
+})
+
+it.each(['edit','delete'] as const)('blocks filtered %s from overriding the physical primary key even when the definition key flag is wrong',async operation=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,context=new WorkflowExecutionContext(ds,'W1',()=>{})
+ http.records['View_TblList']=[{rowid:'TABLE',dbid:'DB',DbName:'TestDB',tblname:'Disposable',tbldesc:''}]
+ http.records['Base_TblField']=[{rowid:'PK',tblid:'TABLE',enname:'rowid',DataType:'varchar',cnname:'ID',IsPKey:1}]
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:'M1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:operation,Filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'rowid',operator:'eq',value:'owned-A'}))}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',description:'ID',IsPKey:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:'other-B'})}]
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ await expect(context.validateNode('N1')).rejects.toThrow('覆盖')
+ for(const filter of [{Type:'and',Filters:[]},{Type:'and',Filters:[{Type:'or',Filters:[]}]}]){
+  http.records['Base_DataModel']![0]!['Filter']=JSON.stringify(filter)
+  await expect(context.validateNode('N1')).rejects.toThrow('空条件组')
+ }
+ http.records['Base_DataModel']![0]!['Filter']=''
+ http.records['Base_TblField']!.push({rowid:'ALIAS',tblid:'TABLE',enname:'row_id',DataType:'varchar',cnname:'alias',IsPKey:0})
+ await expect(context.validateNode('N1')).rejects.toThrow('歧义')
+ expect(http.saves).toHaveLength(0)
+})
+
+it('verifies an unknown operation save before revalidating changed ancestors',async()=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'edit',dataOperateModId:'M1'}]
+ http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'N1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',Type:'数据库表',requestType:'edit',Filter:''}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',description:'ID',IsPKey:1,ValueFun:''}]
+ models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+ fields.updateEditingValue('F1','ValueFun',JSON.stringify({Type:'GetInputParam',ParamName:'START.code'}))
+ http.failAfterWrite=true;await expect(saveWorkflowOperationFields(ds,'W1','N1')).rejects.toThrow()
+ const writes=http.saves.length;http.failAfterWrite=false;edges.replaceRows([]);edges.total=0
+ await saveWorkflowOperationFields(ds,'W1','N1');expect(http.saves).toHaveLength(writes);expect(fields.hasUnconfirmedSave).toBe(false)
+})
+
+it('checks actual single-node ancestor rows and primary keys before accepting an operation command',async()=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,context=new WorkflowExecutionContext(ds,'W1',()=>{})
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'edit',dataOperateModId:'M1'}]
+ http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'N1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:'edit',Filter:''}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',description:'ID',IsPKey:0,ValueFun:JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})}]
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ for(const payload of [{},{START:[]},{START:[{}]},{START:[{code:null}]},{START:[{code:false}]}])await expect(context.validateNode('N1',payload)).rejects.toThrow('输入')
+ await expect(context.validateNode('N1',{START:[{code:0}]})).resolves.toBeUndefined()
+ expect(http.saves).toHaveLength(0)
 })

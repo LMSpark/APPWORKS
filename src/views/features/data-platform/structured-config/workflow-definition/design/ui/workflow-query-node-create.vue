@@ -5,9 +5,10 @@
 -->
 <template>
  <section>
-  <RendererButton label="新增查询节点" :disabled="disabled || busy || visible" @click="open" />
+  <RendererButton label="新增查询节点" :disabled="disabled || busy || visible" @click="open('query')" />
+  <RendererButton v-for="item in operations" :key="item.value" :label="`新增${item.label}节点`" :disabled="disabled || busy || visible" @click="open(item.value)" />
   <p v-if="error && !visible" role="alert">{{ error }}</p>
-  <RendererDialog v-if="controls" v-model="visible" :data-view-key="controls.key(controls.search)" title="新增查询节点"
+  <RendererDialog v-if="controls" v-model="visible" :data-view-key="controls.key(controls.search)" :title="`新增${operationLabel}节点`"
    width="min(1000px, calc(100vw - 32px))" :grid-columns="1" append-to-body :close-disabled="true">
    <p v-if="error" role="alert">{{ error }}</p>
    <template v-if="!state?.preview && !owner?.modelId">
@@ -25,7 +26,7 @@
     </RendererTable>
    </template>
    <section v-else>
-    <h3>查询模型与字段预览</h3>
+    <h3>{{ operation === 'query' ? '查询模型与字段预览' : '操作目标与字段预览' }}</h3>
     <p v-if="owner?.modelId" role="status">查询模型已确认，继续核验原节点创建。</p>
     <RendererForm v-else :data-view-key="controls.key(controls.registration)" context-data-member="currentRow" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
      <FieldText field="name" label="模型与节点名称" :readonly="busy || state?.status !== 'ready'" />
@@ -55,17 +56,20 @@ import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
 import {LowcodeDataSpaceSourceCatalog} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
-import {openWorkflowQueryNodeCreate,type WorkflowQueryNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate,type WorkflowModelNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
 const props=defineProps<{dataSet:DataSet;workflowId:string;disabled?:boolean;onCreated?:(id:string)=>void|Promise<void>}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
-const controls=shallowRef<DataSpaceSourceControls>(),owner=shallowRef<WorkflowQueryNodeCreate>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)
-const sourceTypes=LowcodeDataSpaceSourceCatalog.types
+const controls=shallowRef<DataSpaceSourceControls>(),owner=shallowRef<WorkflowModelNodeCreate>(),visible=ref(false),busy=ref(false),error=ref(''),revision=ref(0)
+const operations=[{value:'add',label:'新增'},{value:'edit',label:'编辑'},{value:'delete',label:'删除'}] as const
+const operation=ref<'query'|'add'|'edit'|'delete'>('query')
+const operationLabel=computed(()=>operation.value==='query'?'查询':operations.find(item=>item.value===operation.value)!.label)
+const sourceTypes=computed(()=>operation.value==='query'?LowcodeDataSpaceSourceCatalog.types:LowcodeDataSpaceSourceCatalog.types.filter(item=>item.value==='table'))
 let active=true
 const off=props.dataSet.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed})
 function changed():void{revision.value++}
 const state=computed(()=>{revision.value;return owner.value?.model.getState()})
 const canSelect=computed(()=>{revision.value;return controls.value?.canSelect===true})
-const saveLabel=computed(()=>owner.value?.modelId?'继续核验原节点创建':state.value?.status==='ready'?'创建查询节点':'核验并继续创建')
+const saveLabel=computed(()=>owner.value?.modelId?'继续核验原节点创建':state.value?.status==='ready'?`创建${operationLabel.value}节点`:'核验并继续创建')
 watchEffect(()=>{revision.value;emit('pendingChange',busy.value||visible.value||owner.value?.pending===true)})
 function close():void{visible.value=false;controls.value?.dispose();controls.value=undefined;owner.value=undefined;revision.value++}
 async function act(action:()=>Promise<void>):Promise<void>{
@@ -73,15 +77,17 @@ async function act(action:()=>Promise<void>):Promise<void>{
  busy.value=true;error.value=''
  try{await action()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false;revision.value++}
 }
-async function open():Promise<void>{
+async function open(kind:'query'|'add'|'edit'|'delete'):Promise<void>{
  if(props.disabled||visible.value)return
  await act(async()=>{
+  operation.value=kind
   const ds=props.dataSet,workflowId=props.workflowId,scope=lowcodeApi.readRequestScope()
   const assertCurrent=()=>{
    const current=lowcodeApi.readRequestScope()
    if(!active||props.dataSet!==ds||props.workflowId!==workflowId||current.token!==scope.token||current.headers['X-AppId']!==scope.headers['X-AppId'])throw Error('查询节点创建身份已失效')
   }
-  owner.value=await openWorkflowQueryNodeCreate({dataSet:ds,workflowId,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent})
+  const input={dataSet:ds,workflowId,sources:new LowcodeDataSpaceModelSourceReader(ds),assertCurrent}
+  owner.value=kind==='query'?await openWorkflowQueryNodeCreate(input):await openWorkflowOperationNodeCreate(input,kind)
   controls.value=new DataSpaceSourceControls(ds,event=>{
    if(event.kind==='name'&&typeof event.value==='string'){
     try{owner.value?.model.setName(event.value)}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}

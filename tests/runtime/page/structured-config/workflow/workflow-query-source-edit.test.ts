@@ -3,6 +3,8 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataView} from '@spark-appworks/spark-data'
 import {openWorkflowQuerySourceEdit} from '@/lowcode/resources/structured-config/workflow-definition/query-source-edit'
 import {workflowSourceEditFixture} from './workflow-source-edit.fixture'
+import {createModelSourceEditHost,createModelSourceEditHandle} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
+import {LowcodeDataSpaceFieldRemoveReferences} from '@/lowcode/data-space/model-source/removal/lowcode-data-space-field-remove-references'
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 const source={type:'table' as const,id:'NEXT',name:'NextSource',description:'新来源',dbid:'DB2',databaseName:'next-db',providerId:''}
@@ -23,6 +25,192 @@ async function componentFixture(legacyRelationFlagTypes=false){
  return{...f,owner:await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',sources:f.reader,assertCurrent(){}})}
 }
 describe('workflow query source edit composition',()=>{
+ it('does not persist an isolation copy when the selected formal node was rebound after opening',async()=>{
+  const f=await fixture(true)
+  f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!['node_config']='FORK'
+  await expect(f.owner.isolate('Stale Copy')).rejects.toThrow('正式节点已变化')
+  expect(f.http.saves).toHaveLength(0);f.owner.cancel()
+ })
+ it.each(['parent','relation','unrelated'] as const)('checks configured %s model endpoints when replacing an operation source',async dependency=>{
+  const f=await fixture(false);f.owner.cancel()
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  f.http.records['Base_DataModel']![0]!['requestType']='edit'
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0})
+  Object.assign(f.http.records['Base_DataModel']![1]!,{RequestComplete:'existing-contract',...dependency==='parent'?{PId:'Orders'}:{}})
+  if(dependency==='relation')f.http.records['Base_DataModel_Relation']=[{rowid:'R',dataSetId:'W',parentModId:'MODEL',childModId:'FORK',filter:''}]
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  await owner.source.preview(source)
+  if(dependency==='unrelated'){
+   expect(owner.source.getState().preview?.problems).toEqual([]);await owner.source.save();expect(owner.getState().complete).toBe(true);owner.close()
+  }else{
+   expect(owner.source.getState().preview?.problems.join(' ')).toContain('Isolated.RequestComplete')
+   await expect(owner.source.save()).rejects.toThrow();expect(f.http.saves).toHaveLength(0);owner.cancel()
+  }
+ })
+ it.each(['JoinFilter','PId','ForeignKeyFields','RequestComplete','items','addApi','updateApi','deleteApi'])('does not silently carry %s into a different operation source',async key=>{
+  const f=await fixture(false);f.owner.cancel()
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  Object.assign(f.http.records['Base_DataModel']![0]!,{requestType:'edit',[key]:'existing-contract'})
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  await owner.source.preview(source)
+  expect(owner.source.getState().preview?.problems.join(' ')).toContain(key)
+  await expect(owner.source.save()).rejects.toThrow();expect(f.http.saves).toHaveLength(0);owner.cancel()
+ })
+ it('reads field references from another model without a model filter before renaming operation inputs',async()=>{
+  const f=await fixture(false);f.owner.cancel()
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  f.http.records['Base_DataModel']![0]!['requestType']='edit'
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:''})
+  f.http.records['Base_DataModel_Field']![1]!['ValueFun']=JSON.stringify({Type:'GetTableField',Field:'Orders.code'})
+  const prepared=await f.reader.prepare();f.reader.prepare.mockResolvedValue({...prepared,fields:prepared.fields.map(field=>({...field,Name:'nextCode'}))})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  await owner.source.preview(source);await owner.source.mapField({fieldId:'F',sourceName:'nextCode'})
+  expect(owner.source.getState().preview?.problems.join(' ')).toContain('其他模型')
+  await expect(owner.source.save()).rejects.toThrow();expect(f.http.saves).toHaveLength(0);owner.cancel()
+ })
+ it('pins node binding to the source contract already confirmed by the database phase',async()=>{
+  const f=await fixture(true),target=await f.owner.isolate('Pinned Source')
+  await f.owner.source.preview(source)
+  const refresh=DataView.prototype.refresh;let changed=false
+  vi.spyOn(DataView.prototype,'refresh').mockImplementation(async function(this:DataView,...args:Parameters<DataView['refresh']>){
+   if(!changed&&this.tableName==='Base_DataModel'&&this.viewId.startsWith('workflowSourceCommit_')){
+    changed=true;f.http.records['Base_DataModel']!.find(row=>row['rowid']===target)!['MetaName']='ThirdTarget'
+   }
+   return refresh.apply(this,args)
+  })
+  await expect(f.owner.source.save()).rejects.toThrow('已确认目标')
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')?.['node_config']).toBe('MODEL')
+  const writes=f.http.saves.length
+  f.http.records['Base_DataModel']!.find(row=>row['rowid']===target)!['MetaName']='NextSource'
+  await f.owner.source.verify();expect(f.owner.getState().complete).toBe(true)
+  expect(f.http.saves.slice(writes).map(item=>item.table)).toEqual(['Base_WorkflowNodeDefinition']);f.owner.close()
+ })
+ it('rejects a new formal consumer added after source preview without refreshing the page',async()=>{
+  const f=await fixture(false)
+  await f.owner.source.preview(source)
+  f.http.records['Base_WorkflowNodeDefinition']!.push({rowid:'LATE',workflow_id:'W',position_type:1,node_type:'query',node_config:'MODEL',dataOperateModId:'',output_mapping:'[]'})
+  await expect(f.owner.source.save()).rejects.toThrow('消费者')
+  expect(f.http.saves).toHaveLength(0)
+  expect(f.http.records['Base_DataModel']![0]?.['MetaName']).toBe('OldSource');f.owner.cancel()
+ })
+ it('does not create an isolated operation model when the current query denies rebinding',async()=>{
+  const f=await fixture(true);f.owner.cancel()
+  for(const node of f.http.records['Base_WorkflowNodeDefinition']!)if(['QUERY','SECOND'].includes(String(node['rowid'])))Object.assign(node,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  f.http.records['Base_DataModel']![0]!['requestType']='edit'
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0})
+  f.http.interceptors.response.use({onResponse:response=>{
+   const body=response.data as {Result?:{data?:{Items?:Array<Record<string,unknown>>}}}
+   for(const row of body.Result?.data?.Items??[])if(row['rowid']==='QUERY'&&row['workflow_id']==='W'){
+    const permissions=row['lingma_sys_params'] as {e:string[]};permissions.e=permissions.e.filter(key=>key!=='dataOperateModId')
+   }
+   return response
+  }})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  await expect(owner.isolate('Forbidden Copy')).rejects.toThrow('不允许')
+  expect(f.http.saves).toHaveLength(0);owner.cancel()
+ })
+ it.each(['source','node'] as const)('recovers the same operation %s capture without repeating target or node writes',async phase=>{
+  const f=await fixture(phase==='node');f.owner.cancel()
+  for(const node of f.http.records['Base_WorkflowNodeDefinition']!)if(['QUERY','SECOND'].includes(String(node['rowid'])))Object.assign(node,{node_type:'delete',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  f.http.records['Base_DataModel']![0]!['requestType']='delete';Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  const target=phase==='node'?await owner.isolate('Captured Operation'):'MODEL'
+  await owner.source.preview(source);const baseline=f.http.saves.length
+  if(phase==='source')f.http.failAfterWrite=true
+  else f.http.beforeSave=async()=>{if(f.http.saves.length>baseline)f.http.failAfterWrite=true}
+  await expect(owner.source.save()).rejects.toThrow();delete f.http.beforeSave;f.http.failAfterWrite=false
+  const writes=f.http.saves.length;await owner.source.verify()
+  expect(owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(writes)
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({dataOperateModId:target,node_config:'',output_mapping:'[]'})
+  owner.close()
+ })
+ it('isolates a shared operation target through the existing fork and changes only the selected node target',async()=>{
+  const f=await fixture(true);f.owner.cancel()
+  for(const node of f.http.records['Base_WorkflowNodeDefinition']!)if(['QUERY','SECOND'].includes(String(node['rowid'])))Object.assign(node,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  f.http.records['Base_DataModel']![0]!['requestType']='edit';Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const originalModel=structuredClone(f.http.records['Base_DataModel']![0]),originalField=structuredClone(f.http.records['Base_DataModel_Field']![0])
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  expect(()=>owner.source).toThrow('共享模型');const id=await owner.isolate('Operation Copy')
+  await owner.source.preview(source);expect(owner.source.getState().preview?.problems).toEqual([]);await owner.source.save()
+  expect(owner.getState().complete).toBe(true)
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({dataOperateModId:id,node_config:'',output_mapping:'[]'})
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='SECOND')?.['dataOperateModId']).toBe('MODEL')
+  expect(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')).toEqual(originalModel)
+  expect(f.http.records['Base_DataModel_Field']!.find(row=>row['rowid']==='F')).toEqual(originalField)
+  expect(f.http.records['Base_DataModel']!.find(row=>row['rowid']===id)).toMatchObject({requestType:'edit',MetaName:'NextSource',DbName:'next-db'})
+  owner.close()
+ })
+ it.each(['add','edit','delete'] as const)('repairs and changes an independent %s target through common metadata submission and exact node readback',async operation=>{
+  const f=await fixture(false);f.owner.cancel()
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!,{node_type:operation,node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const input={dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}}
+  const cancelled=await openWorkflowQuerySourceEdit(input);await cancelled.source.preview(source);cancelled.cancel();expect(f.http.saves).toHaveLength(0)
+  const owner=await openWorkflowQuerySourceEdit(input);await owner.source.preview(source)
+  expect(owner.source.getState().preview?.problems).toEqual([])
+  await owner.source.save();expect(owner.getState().complete).toBe(true)
+  expect(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')).toMatchObject({requestType:operation,DbId:'DB2',DbName:'next-db',MetaName:'NextSource'})
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({node_type:operation,node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  expect(f.http.records['Base_DataModel_Field']![0]).toMatchObject({rowid:'F',type:'inputParams',ValueFun:JSON.stringify({Type:'GetConstValue',Value:0}),IsOutput:0})
+  expect(f.http.saves.every(save=>save.table==='Base_DataModel')).toBe(true);owner.close()
+ })
+ it('checks operation input references in the same stable-ID migration without replaying a separately validated own Filter',async()=>{
+  const f=await fixture(false);f.owner.cancel()
+  const filter=JSON.stringify({Type:'cond',Field:'code',Operator:'equal',ValueFun:{Type:'GetConstValue',Value:'code'}})
+  f.http.records['Base_DataModel']![0]!['Filter']=filter;f.http.records['Base_DataModel_Field']![0]!['type']='inputParams'
+  f.http.records['Base_DataModel_Relation']=[{rowid:'R',dataSetId:'W',parentModId:'MODEL',childModId:'MODEL',parentTable:'ParentAlias',childTable:'ChildAlias',filter:JSON.stringify({Type:'cond',Field:'ChildAlias.code',Operator:'equal',ValueFun:{Type:'GetTableField',Field:'ParentAlias.code'}})}]
+  const models=f.ds.getView('Base_DataModel','modelCatalog')!,fields=f.ds.getView('Base_DataModel_Field')!,relations=f.ds.getView('Base_DataModel_Relation','asParent')!
+  models.queryContext={dataSpaceId:'W'};await Promise.all([models.refresh(),fields.refresh(),relations.refresh()])
+  const input={views:[models,fields,relations],modelId:'MODEL',mappings:[{id:'F',name:'nextCode'}],primaryReplacement:'nextCode',fieldPurpose:'inputParams' as const,modelFilterChange:{before:filter,after:JSON.stringify({Type:'cond',Field:'nextCode',Operator:'equal',ValueFun:{Type:'GetConstValue',Value:'code'}})}}
+  const updates=LowcodeDataSpaceFieldRemoveReferences.prepareRenames(input)
+  expect(updates).toHaveLength(1);expect(JSON.parse(updates[0]!.after)).toMatchObject({Field:'ChildAlias.nextCode',ValueFun:{Field:'ParentAlias.nextCode'}})
+  expect(()=>LowcodeDataSpaceFieldRemoveReferences.prepareRenames({...input,modelFilterChange:{before:'changed baseline',after:''}})).toThrow('基线')
+  expect(f.http.saves).toHaveLength(0)
+ })
+ it('uses the common source submit chain for optional operation inputs without projecting them as query outputs',async()=>{
+  const f=await fixture(false);f.owner.cancel()
+  f.http.records['Base_DataModel']![0]!['requestType']='add'
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
+  const next=await f.reader.prepare();f.reader.prepare.mockResolvedValue({...next,fields:[...next.fields,{...next.fields[0]!,Name:'description',IsPKey:0,IsOutput:0}]})
+  const models=f.ds.getView('Base_DataModel','modelCatalog')!,fields=f.ds.getView('Base_DataModel_Field','modelInputFields')!,relations=f.ds.getView('Base_DataModel_Relation','asParent')!
+  for(const view of [models,fields,relations])view.queryContext={dataSpaceId:'W',workflowId:'W',modelId:'MODEL',...view===fields?{modelIds:['MODEL']}: {}}
+  await Promise.all([models.refresh(),fields.refresh(),relations.refresh()])
+  let contract:unknown
+  const owner=createModelSourceEditHandle(createModelSourceEditHost({dataSet:f.ds,targetId:'W',modelId:'MODEL',sources:f.reader,views:{models:models.viewId,fields:fields.viewId,relations:relations.viewId,fieldTemplate:fields.viewId},
+   lifecycle:{assertCurrent(){},onDispatch(){},completed(){},validateConfiguration:async()=>()=>{},inputTarget:{requestType:'add',prepareContract:async change=>{contract=change;return{viewChanges:[],check(){},assertCurrent:async()=>{},complete:async()=>{}}},validateRemovals:async()=>()=>{}}}}))
+  await owner.preview(source)
+  expect(owner.getState().preview?.problems).toEqual([])
+  expect(contract).toMatchObject({modelId:'MODEL',sourcePrimaryKey:'code',after:{model:{requestType:'add'},fields:expect.arrayContaining([expect.objectContaining({sourceName:'description',values:expect.objectContaining({type:'inputParams',ValueFun:''})})])}})
+  owner.discard();expect(f.http.saves).toHaveLength(0)
+  await owner.preview(source);await owner.save()
+  expect(f.http.records['Base_DataModel']![0]).toMatchObject({rowid:'MODEL',requestType:'add',DbId:'DB2',DbName:'next-db',MetaName:'NextSource'})
+  expect(f.http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']==='MODEL')).toEqual(expect.arrayContaining([
+   expect.objectContaining({rowid:'F',type:'inputParams',ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})}),expect.objectContaining({type:'inputParams',Name:'description',ValueFun:'',IsOutput:0})]))
+  expect(f.http.saves.some(save=>save.table==='Base_WorkflowNodeDefinition')).toBe(false)
+  const writes=f.http.saves.length,stored=f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')!
+  const filter=JSON.stringify({Type:'cond',Field:'code',Operator:'equal',ValueFun:{Type:'GetConstValue',Value:0}})
+  stored['Filter']=filter;await models.refresh()
+  const last={...source,id:'LAST',name:'FinalTarget',dbid:'DB3',databaseName:'last-db'}
+  f.reader.prepare.mockResolvedValue({source:last,model:{...next.model,MetaName:last.name,DbId:last.dbid,DbName:last.databaseName},fields:[{...next.fields[0]!,Name:'targetCode'},{...next.fields[0]!,Name:'description',IsPKey:0,IsOutput:0}]})
+  await owner.preview(last);await owner.removeField({fieldId:'F',removed:true})
+  expect(owner.getState().preview?.problems.join(' ')).toContain('清空旧条件')
+  if(!owner.setInputTargetFilterReset)throw Error('missing explicit filter reset')
+  await owner.setInputTargetFilterReset(true);expect(owner.getState().preview?.problems).toEqual([])
+  owner.discard();expect(f.http.saves).toHaveLength(writes);expect(stored['Filter']).toBe(filter)
+  await owner.preview(last);expect(owner.getState().preview?.clearFilter).toBe(false)
+  await owner.removeField({fieldId:'F',removed:true});await owner.setInputTargetFilterReset(true);await owner.save()
+  expect(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')).toMatchObject({MetaName:'FinalTarget',DbName:'last-db',Filter:'',requestType:'add'})
+  expect(f.http.records['Base_DataModel_Field']!.some(row=>row['rowid']==='F')).toBe(false)
+  expect(f.http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']==='MODEL').map(row=>row['Name']).sort()).toEqual(['description','targetCode'])
+ })
  it('retains the persisted numeric relation flag and can abandon a legacy string declaration rejected before dispatch',async()=>{
   const f=await componentFixture(true),before=structuredClone(f.http.records)
   await expect(f.owner.isolate('Copy')).rejects.toThrow('DATA_VIEW_SAVE_VALIDATION')

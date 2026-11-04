@@ -4,8 +4,11 @@
  * 边界：原DataView持有定义，不执行条件、不假设条件分支都命中，不参与普通保存。
  */
 import {DataViewFilterCodec,RequestState,type DataSet,type DataView,type DataRow,type DataViewFilterTree} from '@spark-appworks/spark-data'
-import type {WorkflowExecutionGraph} from '@spark-appworks/spark-lowcode-api'
+import {DataSpaceDesignApi,type WorkflowExecutionGraph} from '@spark-appworks/spark-lowcode-api'
+import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {validateWorkflowConditionFilter} from './connector-condition'
+import {validateWorkflowQueryInputChanges} from './query-inputs'
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`执行图字段不可读: ${field}`)
  return row[field]
@@ -55,14 +58,107 @@ export class WorkflowExecutionContext{
   if(seen.size!==ids.size)throw Error('执行图存在不可达节点，请先完成正式连接')
   return {start,nodeIds,links,pairs}
  }
+ /** 显式执行前按需核对节点的正式操作定义。 */
+ async validateNode(nodeId:string,input?:unknown):Promise<void>{
+  this.guard()
+  const nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
+  if(!node||read(nodes,node,'workflow_id')!==this.workflowId)throw Error('执行节点身份或归属不符')
+  const operation=read(nodes,node,'node_type')
+  if(!['add','edit','delete'].includes(String(operation)))return
+  const modelId=read(nodes,node,'dataOperateModId')
+  if(typeof modelId!=='string'||!modelId.trim())throw Error('操作目标模型缺失')
+  const modelSource=this.ds.getView('Base_DataModel','modelCatalog'),fieldSource=this.ds.getView('Base_DataModel_Field','modelInputFields')
+  if(!modelSource||!fieldSource)throw Error('操作执行缺少正式模型或字段视图')
+  const owned:DataView[]=[]
+  const check=()=>{
+   this.guard()
+   if(complete(nodes,this.workflowId).rows.find(row=>nodes.getPkKey(row)===nodeId)!==node
+    ||read(nodes,node,'dataOperateModId')!==modelId||read(nodes,node,'node_type')!==operation)throw Error('操作执行目标已变化')
+   for(const source of [modelSource,fieldSource])for(const view of source.dataTable?.viewList??[])
+    if(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('操作定义仍有未处理修改')
+  }
+  try{
+   check()
+   const suffix=crypto.randomUUID().replaceAll('-',''),models=modelSource.createQueryView(`operationExecuteModels_${suffix}`);owned.push(models)
+   const fields=fieldSource.createQueryView(`operationExecuteFields_${suffix}`);owned.push(fields)
+   models.queryContext={dataSpaceId:this.workflowId,workflowId:this.workflowId,modelId}
+   models.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:this.workflowId},{field:'rowid',operator:'eq',value:modelId}]}
+   fields.queryContext={dataSpaceId:this.workflowId,workflowId:this.workflowId,modelIds:[modelId]}
+   const results=await Promise.allSettled([models.refresh(),fields.refresh()]);check()
+   for(const result of results)if(result.status==='rejected')throw result.reason
+   complete(models,this.workflowId);complete(fields,this.workflowId)
+   const model=models.rows[0]
+   if(models.rows.length!==1||!model||models.getPkKey(model)!==modelId||read(models,model,'dataSetId')!==this.workflowId)throw Error('操作目标模型身份或归属不符')
+   if(read(models,model,'requestType')!==operation)throw Error('操作节点与模型requestType不符')
+   if(read(models,model,'Type')!=='数据库表')throw Error('操作目标来源执行合同尚未核定')
+   for(const key of ['DbName','MetaName'])if(typeof read(models,model,key)!=='string'||!String(read(models,model,key)).trim())throw Error(`操作目标缺少${key}`)
+   const names=new Set<string>(),ids=new Set<string>(),values:unknown[]=[],mapped=new Map<string,unknown>()
+   for(const row of fields.rows){
+    const id=read(fields,row,'rowid'),name=read(fields,row,'Name'),value=read(fields,row,'ValueFun')
+    if(typeof id!=='string'||!id||ids.has(id)||fields.getPkKey(row)!==id||read(fields,row,'dataSetId')!==this.workflowId||read(fields,row,'dataModelId')!==modelId||read(fields,row,'type')!=='inputParams')throw Error('操作输入字段身份或归属不符')
+    if(typeof name!=='string'||!name.trim()||names.has(name.toLowerCase()))throw Error('操作输入字段名称缺失或重复')
+    ids.add(id);names.add(name.toLowerCase())
+    if(value!==''&&value!==null&&value!==undefined)values.push(value)
+    mapped.set(name.toLowerCase(),value)
+   }
+   if(!values.length)throw Error('操作至少需要一个显式值函数')
+   const filter=read(models,model,'Filter')
+   if(filter!==null&&filter!==undefined&&typeof filter!=='string')throw Error('操作过滤条件必须是SPARK JSON文本')
+   validateWorkflowQueryInputChanges(this.ds,this.workflowId,nodeId,{values,...operation==='add'?{}:{filter}},{fromModelId:modelId,modelId,models,fields})
+   const dbid=read(models,model,'DbId')
+   if(typeof dbid!=='string')throw Error('操作目标缺少数据库ID')
+   const source=await LowcodeDataSpaceModelSourceReader.readTableTarget(this.ds,{dbid,name:String(read(models,model,'MetaName')),databaseName:String(read(models,model,'DbName'))},check)
+   const sourceNames=source.fields.map(field=>field.Name.toLowerCase().replace(/^row_id$/u,'rowid'))
+   if(new Set(sourceNames).size!==sourceNames.length)throw Error('操作来源存在服务字段别名歧义')
+   const actual=new Map(source.fields.map(field=>[field.Name.toLowerCase(),field]))
+   for(const row of fields.rows){const field=actual.get(String(read(fields,row,'Name')).toLowerCase());if(field?.FieldType.toLowerCase()!==String(read(fields,row,'FieldType')).toLowerCase())throw Error('操作输入字段与真实来源名称或类型不符')}
+   const primary=DataSpaceDesignApi.resolveSourcePrimaryKey(source.fields.map(field=>({name:field.Name,primaryKey:field.IsPKey===1}))),keyValue=mapped.get(primary.toLowerCase())
+   const validKey=(value:unknown)=>typeof value==='number'&&Number.isFinite(value)||typeof value==='string'&&Boolean(value.trim())
+   const checkInput=(expression:unknown,key=false):void=>{
+    if(input===undefined||!isRecord(expression)||expression['Type']!=='GetInputParam')return
+    const parts=typeof expression['ParamName']==='string'?expression['ParamName'].split('.'):[],ancestor=parts[0],field=parts[1]
+    const rows=isRecord(input)&&ancestor?input[ancestor]:undefined
+    if(parts.length!==2||!field||!Array.isArray(rows)||!rows.length||rows.some(row=>!isRecord(row)||!Object.hasOwn(row,field)||row[field]===undefined||key&&!validKey(row[field])))throw Error('操作实际输入缺少祖先行、字段或有效主键输入')
+   }
+   for(const [name,value] of mapped)if(typeof value==='string'&&value.trim())checkInput(DataSpaceDesignApi.parseValueFunction(value),name===primary.toLowerCase())
+   const parsedFilter=DataViewFilterCodec.parseStored(filter)
+   if(operation!=='add'){
+    if(parsedFilter){
+     const visit=(tree:DataViewFilterTree):void=>{if('logic'in tree){if(!tree.filters.length)throw Error('操作过滤条件不允许空条件组');tree.filters.forEach(visit)}else checkInput(tree.value)}
+     visit(parsedFilter.toJSON())
+     if(keyValue!==''&&keyValue!==null&&keyValue!==undefined)throw Error('过滤操作不允许输入值函数覆盖真实主键')
+    }else{
+     if(typeof keyValue!=='string'||!keyValue.trim())throw Error('无过滤条件的编辑或删除需要明确主键输入值函数')
+     const expression=DataSpaceDesignApi.parseValueFunction(keyValue)
+     if(expression?.Type==='GetConstValue'&&!validKey(expression['Value']))throw Error('操作主键常量必须是非空标量')
+    }
+   }
+   check()
+  }finally{for(const view of owned)if(!this.ds.destroyed)view.dataTable?.destroyView(view.viewId)}
+ }
  /** 只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。 */
- async load():Promise<void>{
+ async load(input?:unknown):Promise<void>{
   const graph=this.structure(),view=this.#conditions
+  if(input!==undefined){
+   if(!Array.isArray(input)||input.some(row=>!isRecord(row)))throw Error('整流启动参数须为完整业务行数组')
+   if(input.length){
+    const definition=complete(this.ds.getView('Base_WorkflowDefinition'),this.workflowId),root=definition.rows[0]
+    if(!root)throw Error('执行图工作流身份不唯一')
+    if(read(definition,root,'activeType')!=='time'&&read(definition,root,'tableOperate')!=='delete'){
+     if(['dbName','tblName'].some(key=>typeof read(definition,root,key)!=='string'||!String(read(definition,root,key)).trim()))throw Error('启动数据回读缺少数据库或触发表，请先配置触发表或使用无启动行的测试输入')
+    }
+   }
+  }
+  const nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId),original=[...nodes.rows]
+  for(const id of graph.nodeIds)await this.validateNode(id)
+  if(nodes.rows.length!==original.length||nodes.rows.some((row,index)=>row!==original[index]))throw Error('执行图节点在操作校验期间已变化')
   if(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('执行条件查询仍有修改')
   view.queryContext={...view.queryContext,workflowId:this.workflowId}
   const pairs:DataViewFilterTree[]=graph.links.map(({source,target})=>({logic:'and',filters:[{field:'parentModId',operator:'eq',value:source},{field:'childModId',operator:'eq',value:target}]}))
   view.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:this.workflowId},{logic:'or',filters:pairs}]}
-  await view.refresh();this.capture()
+  await view.refresh()
+  if(nodes.rows.length!==original.length||nodes.rows.some((row,index)=>row!==original[index]))throw Error('执行图节点在条件读取期间已变化')
+  this.capture()
  }
  /** 图完整性与分支可证性分别表达；不在前端求值服务端条件。 */
  capture():WorkflowExecutionGraph{

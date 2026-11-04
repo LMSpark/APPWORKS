@@ -19,7 +19,8 @@ export function readWorkflowFieldValue(view:DataView,row:DataRow,field:string):u
 export function workflowFieldChanges(view:DataView,row:DataRow,id:string):Record<string,unknown>{
  return {...Object.fromEntries(Object.entries(view.dirtyTracking.getDiff(id,row)).map(([key,diff])=>[key,diff.to])),...view.getEditingPatch(id)}
 }
-export function workflowQueryFieldScope(dataSet:DataSet,workflowId:string,nodeId:string){
+function workflowModelFieldScope(input:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;operation:boolean;repairRequestType?:boolean}>){
+ const {dataSet,workflowId,nodeId,operation,repairRequestType=false}=input
  if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询配置目标已失效')
  const views=['Base_WorkflowNodeDefinition','Base_DataModel_Field','Base_DataModel','Base_WorkflowConnectors'].map(name=>{
   const view=dataSet.getView(name),fields=name==='Base_DataModel_Field'
@@ -30,8 +31,16 @@ export function workflowQueryFieldScope(dataSet:DataSet,workflowId:string,nodeId
  })
  const [nodes,fields,models,edges]=views as [DataView,DataView,DataView,DataView]
  const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId),model=models.rows[0]
- if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||readWorkflowFieldValue(nodes,node,'node_type')!=='query')throw Error('当前不是所属工作流的唯一查询节点模型')
- const modelId=readWorkflowFieldValue(nodes,node,'node_config')
+ if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||!(operation?['add','edit','delete']:['query']).includes(String(readWorkflowFieldValue(nodes,node,'node_type'))))throw Error('当前不是所属工作流的唯一查询节点模型')
+ const modelId=readWorkflowFieldValue(nodes,node,operation?'dataOperateModId':'node_config')
+ if(operation&&!repairRequestType&&readWorkflowFieldValue(models,model,'requestType')!==readWorkflowFieldValue(nodes,node,'node_type'))throw Error('操作节点与模型requestType不符')
  if(typeof modelId!=='string'||!modelId||models.getPkKey(model)!==modelId||readWorkflowFieldValue(models,model,'dataSetId')!==workflowId)throw Error('查询模型归属不符')
  return {nodes,fields,models,edges,node,model,modelId}
 }
+
+/** 查询字段沿原node_config定位，不接受操作目标。 */
+export function workflowQueryFieldScope(dataSet:DataSet,workflowId:string,nodeId:string){return workflowModelFieldScope({dataSet,workflowId,nodeId,operation:false})}
+/** 操作字段沿dataOperateModId定位，模型requestType必须与节点一致。 */
+export function workflowOperationFieldScope(dataSet:DataSet,workflowId:string,nodeId:string){return workflowModelFieldScope({dataSet,workflowId,nodeId,operation:true})}
+/** 显式换目标可修复旧requestType；仍核对同一节点及模型真实身份，不放宽执行或普通保存。 */
+export function workflowOperationSourceScope(dataSet:DataSet,workflowId:string,nodeId:string){return workflowModelFieldScope({dataSet,workflowId,nodeId,operation:true,repairRequestType:true})}

@@ -9,6 +9,8 @@ import type {ModelCreateSources} from '../model/lowcode-data-space-model-create-
 import {LowcodeDataSpaceRelationMigration} from '../migration/lowcode-data-space-relation-migration'
 import {LowcodeDataSpaceModelMigration} from '../model/lowcode-data-space-model-migration'
 import {LowcodeDataSpaceFieldMigration} from '../migration/lowcode-data-space-field-migration'
+import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-filter-migration'
+import {LowcodeDataSpaceFieldRemoveReferences} from '../removal/lowcode-data-space-field-remove-references'
 import {LowcodeDataSpaceSourceCatalog} from '../lowcode-data-space-source-catalog'
 import {sourceInputReadParameters, sourceInputValidateValue} from './lowcode-data-space-source-input-session'
 import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpaceDefinitionCapture,
@@ -18,7 +20,18 @@ import {DataSpaceDefinitionSave, definitionTargetDraftSignature, verifyDataSpace
 type Reader = NonNullable<ModelCreateSources>
 /** 精确读取后的来源配置。 */
 type Prepared = Awaited<ReturnType<Reader['prepare']>>
-/** 同一正式模型在来源变更前后的投影；只描述定义，不携带运行行。 */
+/** SQL操作目标的只读设计差异；输入不伪装为查询输出，不分配拟新增行正式ID。 */
+export type SourceInputTargetChange=Readonly<{
+  /** 本次被修改的正式模型ID，隔离后是已确认的新模型。 */
+  modelId:string
+  /** 精确来源中排除企业隔离键后的唯一业务主键。 */
+  sourcePrimaryKey:string
+  /** 本次预览的已保存模型与所属字段，只作不变基线。 */
+  before:Readonly<{model:Readonly<DataRow>;fields:ReadonlyArray<Readonly<DataRow>>}>
+  /** 拟保存模型和字段；id仅用于已有字段，新字段没有正式身份。 */
+  after:Readonly<{model:Readonly<DataRow>;fields:ReadonlyArray<Readonly<{id?:string;sourceName:string;values:Readonly<DataRow>}>>}>
+}>
+/** 同一查询模型在来源变更前后的投影；只描述定义，不携带运行行。 */
 export type SourceContractChange = Readonly<{
   /** 仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。 */
   previous(): ReturnType<typeof DataSpaceDesignApi.projectModel> | null
@@ -38,6 +51,8 @@ export type SourceContractPlan = Readonly<{
 }>
 /** 来源替换的预览；正式记录仍归原DataView。 */
 type Preview = {
+  inputTarget?:boolean
+  clearFilter?:boolean
   /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */
   operation: 'replace' | 'synchronize'
   /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */
@@ -84,6 +99,12 @@ export type ModelSourceEditRecoveryOptions = Readonly<{abandonNotApplied?: boole
 const SOURCE_KEYS = ['Type', 'MetaName', 'DbId', 'DbName'] as const
 
 export type ModelSourceEditLifecycle = Readonly<{
+  /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */
+  inputTarget?:Readonly<{
+    requestType:'add'|'edit'|'delete'
+    prepareContract(change:SourceInputTargetChange):Promise<SourceContractPlan>
+    validateRemovals(ids:readonly string[],change:SourceInputTargetChange):Promise<()=>void>
+  }>
   /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */
   inputParameters?: Readonly<{
     read(): Array<{value: string; label: string}>
@@ -99,6 +120,7 @@ export type ModelSourceEditLifecycle = Readonly<{
 }>
 
 export type ModelSourceEditFlow = {
+  clearFilter:boolean
   status: ModelSourceEditStatus
   generation: number
   preview: Preview | null
@@ -143,6 +165,7 @@ export type ModelSourceEditHost = {
 
 function createModelSourceEditFlow(): ModelSourceEditFlow {
   return {
+    clearFilter:false,
     status: 'idle', generation: 0, preview: null, baseline: '', expected: '', pendingSnapshot: '', patch: {},
     verifiedSnapshot: '', verification: [], mappings: new Map(), included: new Set(), removals: new Set(),
     inputs: new Map(), acceptedContracts: new Set(), contractPlan: null, capture: null, captureBaseline: null, fieldEdits: [], relationEdits: [],
@@ -201,11 +224,15 @@ function modelSourceEditSelectViews(host: ModelSourceEditHost, synchronizing: bo
   }
   const fields = synchronizing ? host.syncFields : host.replacementFields
   if (!fields) throw new Error('来源操作字段视图不存在')
-  // 仅查询有明确过滤/Join/外键引用的端点，不把所有模型字段装入当前工作区。
+  // 显式操作目标换源须检查无模型过滤的字段值函数引用；普通保存不扩展读取范围。
   const modelIds = new Set([host.modelId])
   if (!synchronizing) for (const model of host.models.rows) {
     const configured = (value: unknown) => value !== undefined && value !== null && value !== ''
     if (['Filter', 'JoinFilter', 'ForeignKeyFields', 'PId'].some(key => host.models.fieldAccess(model, key).read !== 'visible')) throw new Error('模型过滤配置不可读，不能核验来源引用')
+    if(host.lifecycle.inputTarget){
+      if(typeof model['rowid']!=='string'||!model['rowid'])throw Error('依赖模型身份不可确认')
+      modelIds.add(model['rowid'])
+    }
     if (['Filter', 'JoinFilter', 'ForeignKeyFields'].some(key => configured(model[key]))) {
       if (typeof model['rowid'] !== 'string' || !model['rowid']) throw new Error('依赖模型身份不可确认')
       modelIds.add(model['rowid'])
@@ -287,7 +314,101 @@ function modelSourceEditAvailable(host: ModelSourceEditHost) {
   if (!['idle', 'previewing', 'ready'].includes(modelSourceEditFlowStatus(host))) throw new Error('请先核验上次来源替换，不能重复提交')
 }
 
+async function modelSourceEditPrepareSource(host:ModelSourceEditHost,source:Parameters<Reader['prepare']>[0]):Promise<Prepared>{
+  if(host.lifecycle.inputTarget&&source.type!=='table')throw Error('操作目标只承接已核定的数据库表')
+  const prepared=host.lifecycle.inputTarget?await host.sources.prepare(source,host.dataSet,{purpose:'operation-target'}):await host.sources.prepare(source,host.dataSet)
+  if(!host.lifecycle.inputTarget)return prepared
+  if(prepared.model.Type!=='数据库表'||prepared.fields.some(field=>field.type!=='dataModel'))throw Error('操作目标来源字段合同不符')
+  return {...prepared,fields:prepared.fields.map(field=>({...field,type:'inputParams' as const,IsOutput:0,ValueFun:''}))}
+}
+
+function modelSourceEditInputTargetContract(host:ModelSourceEditHost,preview:Preview):SourceInputTargetChange{
+  const policy=host.lifecycle.inputTarget
+  if(!policy)throw Error('当前不是操作目标来源')
+  const model=modelSourceEditCurrent(host),before=host.fields.rows.filter(row=>row['dataModelId']===host.modelId)
+  const fields:SourceInputTargetChange['after']['fields']=[...before.filter(row=>!preview.removals.some(item=>item.id===row['rowid'])).map(row=>{
+    const id=String(row['rowid']),choice=preview.fieldChoices.find(item=>item.id===id)
+    const values:DataRow={...row,...choice?{Name:choice.sourceName}:{},...preview.contractChanges.find(item=>item.id===id)?.patch}
+    if(values['type']!=='inputParams')throw Error('操作目标必须明确移除旧输出字段，再承接真实输入字段')
+    return {id,sourceName:String(values['Name']),values}
+  }),...modelSourceEditSourceAdditions(host,preview).map(field=>({sourceName:field.Name,values:{...field,dataSetId:host.targetId,dataModelId:host.modelId}}))]
+  const names=fields.map(field=>field.sourceName.toLowerCase().replace(/^row_id$/u,'rowid'))
+  if(new Set(names).size!==names.length)throw Error('操作目标字段存在名称或服务别名歧义')
+  const primary=DataSpaceDesignApi.resolveSourcePrimaryKey(preview.prepared.fields.map(field=>({name:field.Name,primaryKey:field.IsPKey===1})))
+  const filter=model['Filter']
+  if(filter!==null&&filter!==undefined&&typeof filter!=='string')throw Error('操作目标过滤定义不是正式文本')
+  const oldFilter=filter??''
+  const nextFilter=preview.clearFilter?'':oldFilter?LowcodeDataSpaceFilterMigration.rewrite(oldFilter,value=>{
+    const matches=before.filter(row=>row['Name']===value),old=matches[0]
+    if(matches.length!==1||!old)throw Error(`操作目标过滤字段不能唯一定位: ${String(value)}`)
+    const next=fields.find(field=>field.id===old['rowid'])
+    if(!next)throw Error(`操作目标条件仍引用待删除字段: ${String(value)}；请重映射或明确清空旧条件`)
+    return next.sourceName
+  },value=>value):oldFilter
+  preview.modelChanges=preview.modelChanges.filter(change=>!['Filter','requestType','PrimaryKeyFields'].includes(change.property))
+  if(nextFilter!==oldFilter)preview.modelChanges.push({property:'Filter',before:oldFilter,after:nextFilter})
+  if(model['requestType']!==policy.requestType)preview.modelChanges.push({property:'requestType',before:String(model['requestType']),after:policy.requestType})
+  if(typeof model['PrimaryKeyFields']==='string'&&model['PrimaryKeyFields']&&model['PrimaryKeyFields']!==primary)preview.modelChanges.push({property:'PrimaryKeyFields',before:model['PrimaryKeyFields'],after:primary})
+  const mappings=preview.fieldChoices.filter(choice=>choice.name!==choice.sourceName).map(choice=>({id:choice.id,name:choice.sourceName}))
+  const updates=LowcodeDataSpaceFieldRemoveReferences.prepareRenames({views:[host.models,host.fields,host.relations],modelId:host.modelId,mappings,primaryReplacement:primary,fieldPurpose:'inputParams',modelFilterChange:{before:oldFilter,after:nextFilter}})
+  preview.expressionChanges=updates.filter(change=>change.table==='Base_DataModel').map(change=>({...change,name:String(host.models.rows.find(row=>row['rowid']===change.id)?.['Name'])}))
+  preview.relationChanges=updates.filter(change=>change.table==='Base_DataModel_Relation').map(change=>({id:change.id,before:change.before,after:change.after}))
+  preview.fieldExpressionChanges=updates.filter(change=>change.table==='Base_DataModel_Field').map(change=>{
+    const field=host.fields.rows.find(row=>row['rowid']===change.id)
+    if(field?.['dataModelId']!==host.modelId)throw Error('其他模型的输入取值引用需先明确迁移，不能夹带进本目标来源修改')
+    return {id:change.id,name:String(field['Name']),before:change.before,after:change.after}
+  })
+  const nextModel={...model,...Object.fromEntries(SOURCE_KEYS.map(key=>[key,preview.prepared.model[key]])),...Object.fromEntries(preview.modelChanges.map(change=>[change.property,change.after]))}
+  return {modelId:host.modelId,sourcePrimaryKey:primary,before:{model:{...model},fields:before.map(row=>({...row}))},after:{model:nextModel,fields}}
+}
+
+function modelSourceEditAssessInputTarget(host:ModelSourceEditHost,prepared:Prepared):Preview{
+  const row=modelSourceEditCurrent(host)
+  const preview:Preview={operation:'replace',inputTarget:true,clearFilter:host.flow.clearFilter,name:String(row['Name']),prepared:structuredClone(prepared),
+    differences:[],problems:[],fieldChoices:[],additions:[],removals:[],removalChoices:[],inputChoices:[],inputParams:[],parameterWarning:'',contractChanges:[],viewChanges:[],relationChanges:[],modelChanges:[],expressionChanges:[],fieldExpressionChanges:[]}
+  if(SOURCE_KEYS.some(key=>row[key]!==prepared.model[key])){
+    const endpoints=new Set([host.modelId])
+    for(const relation of host.relations.rows){
+      const parent=relation['parentModId'],child=relation['childModId']
+      if(parent===host.modelId||child===host.modelId){endpoints.add(String(parent));endpoints.add(String(child))}
+    }
+    const configured=(value:unknown)=>value!==undefined&&value!==null&&value!==''
+    for(const model of host.models.rows){
+      if(host.models.fieldAccess(model,'PId').read!=='visible')throw Error('模型PId不可读，不能核验来源结构引用')
+      if(!endpoints.has(String(model['rowid']))&&model['PId']!==row['Name'])continue
+      for(const key of ['JoinType','JoinFilter','PId','ForeignKeyFields','RequestComplete','items','addApi','updateApi','deleteApi']){
+        if(host.models.fieldAccess(model,key).read!=='visible')throw Error(`模型${String(model['Name'])}.${key}不可读，不能核验来源结构引用`)
+        if(configured(model[key]))preview.problems.push(`${String(model['Name'])}.${key}含已有结构或执行配置，须先明确迁移后再更换操作目标`)
+      }
+    }
+  }
+  const used=new Set<string>()
+  for(const item of host.fields.rows.filter(field=>field['dataModelId']===host.modelId)){
+    const id=String(item['rowid']),name=String(item['Name']),type=item['type'],sourceName=host.flow.mappings.get(id)??name
+    const source=type==='inputParams'?prepared.fields.find(field=>field.Name===sourceName):undefined
+    if(!source){
+      preview.removalChoices.push({id,name,removed:host.flow.removals.has(id)})
+      if(host.flow.removals.has(id)){preview.removals.push({id,name,type:String(type)});preview.differences.push({name,result:'明确删除旧目标字段；保留其他引用检查'});continue}
+      preview.problems.push(`${name}：新目标没有同用途字段，请明确映射或移除`)
+    }else{
+      if(used.has(sourceName))preview.problems.push(`${name}：同一目标字段不能映射多次`)
+      used.add(sourceName)
+      if(String(item['FieldType']).toLowerCase()!==source.FieldType.toLowerCase()&&item['ValueFun']!==null&&item['ValueFun']!==undefined&&item['ValueFun']!=='')preview.problems.push(`${name}：类型变化前请先明确清空旧值函数`)
+      modelSourceEditAssessFieldContract({host,row:item,source,preview})
+    }
+    preview.fieldChoices.push({id,name,outputName:name,sourceName,candidates:prepared.fields.map(field=>field.Name)})
+    preview.differences.push({name,result:'保留原输入记录及明确配置的值函数'})
+  }
+  for(const field of prepared.fields)if(!used.has(field.Name)){
+    preview.additions.push({sourceName:field.Name,included:true})
+    preview.differences.push({name:field.Name,result:'新增操作输入字段，值函数留空，另行显式配置'})
+  }
+  try{modelSourceEditInputTargetContract(host,preview)}catch(error){preview.problems.push(error instanceof Error?error.message:String(error))}
+  return preview
+}
+
 function modelSourceEditAssess(host: ModelSourceEditHost, prepared: Prepared) {
+  if(host.lifecycle.inputTarget)return modelSourceEditAssessInputTarget(host,prepared)
   const row = modelSourceEditCurrent(host), problems: string[] = [], differences: Preview['differences'] = [], fieldChoices: Preview['fieldChoices'] = [], additions: Preview['additions'] = []
   const removals: Preview['removals'] = [], removalChoices: Preview['removalChoices'] = [], inputChoices: Preview['inputChoices'] = [], contractChanges: Preview['contractChanges'] = []
   if (typeof row['Name'] !== 'string' || !row['Name'].trim()) throw new Error('模型注册名无效')
@@ -424,7 +545,7 @@ function modelSourceEditAssessFieldContract(input: ModelSourceEditAssessFieldCon
   if (typeof row['FieldType'] !== 'string' || row['FieldType'].toLowerCase() !== source.FieldType.toLowerCase()) patch['FieldType'] = source.FieldType
   if (Number(row['IsPKey']) !== source.IsPKey) patch['IsPKey'] = source.IsPKey
   if (!Object.keys(patch).length) return undefined
-  if (source.IsPKey === 1 && Number(row['IsOutput']) !== 1) patch['IsOutput'] = 1
+  if (!host.lifecycle.inputTarget && source.IsPKey === 1 && Number(row['IsOutput']) !== 1) patch['IsOutput'] = 1
   const accepted = host.flow.acceptedContracts.has(String(row['rowid'])), name = String(row['Name'])
   preview.contractChanges.push({id: String(row['rowid']), name,
     before: `类型 ${String(row['FieldType'])}；主键 ${String(row['IsPKey'])}`,
@@ -498,6 +619,7 @@ function modelSourceEditNeedsSourceContract(host: ModelSourceEditHost, preview: 
 }
 
 function modelSourceEditSourceAdditions(host: ModelSourceEditHost, preview: Preview) {
+  if(host.lifecycle.inputTarget)return preview.prepared.fields.filter(field=>!preview.fieldChoices.some(choice=>choice.sourceName===field.Name))
   return preview.prepared.fields.filter(field => preview.operation === 'synchronize'
     ? !host.fields.rows.some(item => item['dataModelId'] === host.modelId && item['type'] === field.type && item['Name'] === field.Name)
     : field.type === 'dataModel' ? preview.additions.some(item => item.sourceName === field.Name && item.included)
@@ -546,8 +668,15 @@ function modelSourceEditProjectSourceContract(host: ModelSourceEditHost, preview
 /** 按原owner当前选择重新投影合同；确认类型或参数后的预检不得沿用首次预览快照。 */
 export function modelSourceEditCurrentContract(host: ModelSourceEditHost): SourceContractChange {
   modelSourceEditAssertOwner(host)
+  if(host.lifecycle.inputTarget)throw Error('操作输入目标不能投影为查询输出合同')
   if (!host.flow.preview) throw new Error('来源尚无当前预览合同')
   return modelSourceEditProjectSourceContract(host, host.flow.preview)
+}
+/** 仅在暂存前重新核对同一操作候选；暂存后的写入与回读继续由原捕获核验。 */
+export function modelSourceEditCurrentInputTargetContract(host:ModelSourceEditHost):SourceInputTargetChange{
+  modelSourceEditAssertOwner(host)
+  if(!host.flow.preview)throw Error('操作目标尚无当前预览合同')
+  return modelSourceEditInputTargetContract(host,host.flow.preview)
 }
 
 /** 确认已有字段的来源合同差异；取消或重新预览会清除确认，不改正式行。 */
@@ -572,8 +701,10 @@ async function modelSourceEditPrepareContract(input: ModelSourceEditPrepareContr
   host.flow.contractPlan = null; preview.viewChanges = []
   if (modelSourceEditNeedsSourceContract(host, preview)) {
     try {
-      if (!host.lifecycle.prepareContract) throw new Error('缺少来源字段合同的命名视图迁移检查')
-      const plan = await host.lifecycle.prepareContract(modelSourceEditProjectSourceContract(host, preview))
+      if (!host.lifecycle.inputTarget && !host.lifecycle.prepareContract) throw new Error('缺少来源字段合同的命名视图迁移检查')
+      const plan = host.lifecycle.inputTarget?await host.lifecycle.inputTarget.prepareContract(modelSourceEditInputTargetContract(host,preview))
+        :await host.lifecycle.prepareContract?.(modelSourceEditProjectSourceContract(host, preview))
+      if(!plan)throw Error('缺少来源变更合同')
       if (generation !== host.flow.generation) return false
       modelSourceEditAssertClean(host)
       if (modelSourceEditSnapshot(host) !== baseline) throw new Error('读取视图合同期间定义已变化，请重新预览')
@@ -600,6 +731,7 @@ async function modelSourceEditRefreshMapping(host: ModelSourceEditHost, preview:
  * @throws 来源身份缺失、重名、权限不足或读取期间定义变化时拒绝，不按名称回退其他数据库/提供方。
  */
 export async function modelSourceEditPreviewBoundSource(host: ModelSourceEditHost) {
+  if(host.lifecycle.inputTarget)throw Error('操作目标请显式选择来源，不使用查询字段同步')
   modelSourceEditAvailable(host); modelSourceEditSelectViews(host, true)
   const generation = ++host.flow.generation
   host.flow.status = 'previewing'; host.flow.preview = null; host.flow.mappings.clear(); host.flow.included.clear(); host.flow.removals.clear(); host.flow.inputs.clear(); host.flow.acceptedContracts.clear(); host.flow.contractPlan = null
@@ -658,6 +790,7 @@ export async function modelSourceEditMapField(host: ModelSourceEditHost, input: 
 
 /** 显式引入尚未绑定的来源字段，等待候选模型/视图合同预览；不自动新增入参。 */
 export async function modelSourceEditIncludeField(host: ModelSourceEditHost, input: Readonly<{sourceName: string; included: boolean}>) {
+  if(host.lifecycle.inputTarget)throw Error('操作目标承接完整来源输入字段，不设置查询输出列')
   const preview = modelSourceEditSelected(host)
   if (preview.operation !== 'replace') throw new Error('同步按完整来源字段生成差异')
   if (!preview.additions.some(item => item.sourceName === input.sourceName)) throw new Error('字段不是当前可引入来源')
@@ -693,7 +826,7 @@ export function modelSourceEditGetState(host: ModelSourceEditHost) {
   const abandonNotApplied = !!capture && capture.resolution === 'not-applied'
   const canAcceptCurrent = !!capture && capture.resolution === 'confirmed' && !host.flow.contractPlan
     && !capture.targets.some(target => target.view.hasUnconfirmedSave)
-  return {status, pending: status !== 'idle', preview: structuredClone(host.flow.preview), verification: structuredClone(host.flow.verification),
+  return {status, inputTarget:Boolean(host.lifecycle.inputTarget),pending: status !== 'idle', preview: structuredClone(host.flow.preview), verification: structuredClone(host.flow.verification),
     discardRecovered, abandonNotApplied, canAcceptCurrent}
 }
 
@@ -701,6 +834,7 @@ export function modelSourceEditGetState(host: ModelSourceEditHost) {
 export async function modelSourceEditPreview(host: ModelSourceEditHost, source: Parameters<Reader['prepare']>[0]) {
   modelSourceEditAvailable(host); modelSourceEditSelectViews(host, false)
   const generation = ++host.flow.generation
+  host.flow.clearFilter=false
   host.flow.status = 'previewing'; host.flow.preview = null; host.flow.mappings.clear(); host.flow.included.clear(); host.flow.removals.clear(); host.flow.inputs.clear(); host.flow.acceptedContracts.clear(); host.flow.contractPlan = null
   try {
     for (const view of [host.fields, host.relations]) {
@@ -711,7 +845,7 @@ export async function modelSourceEditPreview(host: ModelSourceEditHost, source: 
     }
     modelSourceEditAssertClean(host)
     const baseline = modelSourceEditSnapshot(host)
-    const prepared = await host.sources.prepare(source, host.dataSet)
+    const prepared = await modelSourceEditPrepareSource(host,source)
     modelSourceEditAssertClean(host)
     if (generation !== host.flow.generation) return
     if (modelSourceEditSnapshot(host) !== baseline) throw new Error('读取来源期间定义已变化，请重新预览')
@@ -767,7 +901,7 @@ export async function modelSourceEditSave(host: ModelSourceEditHost) {
   if (modelSourceEditSnapshot(host) !== host.flow.baseline) throw new Error('元数据已变化，请重新预览')
   host.flow.status = 'saving'; host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []; host.flow.pendingSnapshot = ''; host.flow.patch = {}
   try {
-    const prepared = await host.sources.prepare(candidate.prepared.source, host.dataSet)
+    const prepared = await modelSourceEditPrepareSource(host,candidate.prepared.source)
     await modelSourceEditReload(host)
     if (JSON.stringify(prepared) !== JSON.stringify(candidate.prepared) || modelSourceEditSnapshot(host) !== host.flow.baseline) throw new Error('来源或元数据已变化，请重新预览')
     const row = modelSourceEditCurrent(host)
@@ -813,9 +947,13 @@ export async function modelSourceEditSave(host: ModelSourceEditHost) {
     }
     let assertRemovals = () => {}
     if (host.flow.removed.length) {
-      if (!host.lifecycle.validateRemovals) throw new Error('缺少字段删除引用检查，不能同步')
-      assertRemovals = await host.lifecycle.validateRemovals(host.flow.removed.map(item => item.id),
-        modelSourceEditNeedsSourceContract(host, candidate) ? modelSourceEditProjectSourceContract(host, candidate) : undefined)
+      const ids=host.flow.removed.map(item=>item.id)
+      if(host.lifecycle.inputTarget)assertRemovals=await host.lifecycle.inputTarget.validateRemovals(ids,modelSourceEditInputTargetContract(host,candidate))
+      else{
+        if (!host.lifecycle.validateRemovals) throw new Error('缺少字段删除引用检查，不能同步')
+        assertRemovals = await host.lifecycle.validateRemovals(ids,
+          modelSourceEditNeedsSourceContract(host, candidate) ? modelSourceEditProjectSourceContract(host, candidate) : undefined)
+      }
     }
     modelSourceEditAssertClean(host)
     if (modelSourceEditSnapshot(host) !== host.flow.baseline) throw new Error('元数据已变化，请重新预览')
@@ -978,6 +1116,7 @@ function modelSourceEditInvalidateChangedSiblings(host: ModelSourceEditHost, ado
 function modelSourceEditVerificationSnapshot(host: ModelSourceEditHost) {return JSON.stringify([modelSourceEditSnapshot(host), host.flow.added.map(item => host.fields.rows.find(row => host.fields.getPkKey(row) === item.id))])}
 
 function modelSourceEditFinish(host: ModelSourceEditHost, updateConsumers = false) {
+  host.flow.clearFilter=false
   host.flow.status = 'idle'; host.flow.preview = null; host.flow.expected = ''; host.flow.pendingSnapshot = ''; host.flow.patch = {}; host.flow.verifiedSnapshot = ''; host.flow.verification = []; host.flow.fieldEdits = []; host.flow.relationEdits = []; host.flow.modelEdits = []; host.flow.added = []; host.flow.removed = []; host.flow.mappings.clear(); host.flow.included.clear(); host.flow.removals.clear(); host.flow.inputs.clear(); host.flow.acceptedContracts.clear(); host.flow.contractPlan = null; host.flow.capture = null; host.flow.captureBaseline = null
   if (updateConsumers) host.lifecycle.completed()
 }
@@ -1140,6 +1279,8 @@ export function modelSourceEditAcceptCurrent(host: ModelSourceEditHost) {
   modelSourceEditFinish(host, true)
 }
 export type ModelSourceEditHandle = {
+  /** 操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。 */
+  setInputTargetFilterReset?(clear:boolean):Promise<void>
   getState(): ReturnType<typeof modelSourceEditGetState>
   confirmFieldContract(input: Readonly<{fieldId: string; accepted: boolean}>): void
   previewBoundSource(): Promise<void>
@@ -1156,6 +1297,7 @@ export type ModelSourceEditHandle = {
 
 export function createModelSourceEditHandle(host: ModelSourceEditHost): ModelSourceEditHandle {
   return {
+    ...host.lifecycle.inputTarget?{setInputTargetFilterReset:async(clear:boolean)=>{const preview=modelSourceEditSelected(host);host.flow.clearFilter=clear;await modelSourceEditRefreshMapping(host,preview)}}:{},
     getState: () => modelSourceEditGetState(host),
     confirmFieldContract: input => modelSourceEditConfirmFieldContract(host, input),
     previewBoundSource: () => modelSourceEditPreviewBoundSource(host),

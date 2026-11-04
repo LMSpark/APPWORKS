@@ -10,6 +10,7 @@
     "jsdoc": "@module lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session\n职责：预览来源替换或当前来源字段同步，保留同名定义及派生字段配置（无独立命令类 FSM）。\n边界：正式记录归原DataView；删除须检查引用，来源合同变化须明确确认并校验最终模型。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "SourceInputTargetChange",
       "SourceContractChange",
       "SourceContractPlan",
       "ModelSourceEditStatus",
@@ -33,7 +34,7 @@
         },
         "prepare": {
           "type": "object",
-          "title": "(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{ missingInputType?: \"string-default\" | \"preserve\"; }>) => Promise<PageDataSpaceModelSourcePrepared>"
+          "title": "(source: PageDataSpaceModelSource, dataSet: DataSet, options?: Readonly<{ missingInputType?: \"string-default\" | \"preserve\"; purpose?: \"operation-target\"; }>) => Promise<PageDataSpaceModelSourcePrepared>"
         }
       },
       "required": [
@@ -106,6 +107,116 @@
         "source",
         "model",
         "fields"
+      ],
+      "additionalProperties": false
+    },
+    "SourceInputTargetChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "SourceInputTargetChange",
+      "properties": {
+        "modelId": {
+          "type": "string"
+        },
+        "sourcePrimaryKey": {
+          "type": "string"
+        },
+        "before": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "properties": {
+                "lingma_sys_params": {
+                  "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+                },
+                "lingma_sys_key": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "lingma_sys_params": {
+                    "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+                  },
+                  "lingma_sys_key": {
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": true
+              }
+            }
+          },
+          "required": [
+            "model",
+            "fields"
+          ],
+          "additionalProperties": false
+        },
+        "after": {
+          "type": "object",
+          "properties": {
+            "model": {
+              "type": "object",
+              "properties": {
+                "lingma_sys_params": {
+                  "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+                },
+                "lingma_sys_key": {
+                  "type": "string"
+                }
+              },
+              "additionalProperties": true
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "sourceName": {
+                    "type": "string"
+                  },
+                  "values": {
+                    "type": "object",
+                    "properties": {
+                      "lingma_sys_params": {
+                        "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+                      },
+                      "lingma_sys_key": {
+                        "type": "string"
+                      }
+                    },
+                    "additionalProperties": true
+                  }
+                },
+                "required": [
+                  "sourceName",
+                  "values"
+                ],
+                "additionalProperties": false
+              }
+            }
+          },
+          "required": [
+            "model",
+            "fields"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "modelId",
+        "sourcePrimaryKey",
+        "before",
+        "after"
       ],
       "additionalProperties": false
     },
@@ -209,6 +320,18 @@
       "type": "object",
       "title": "Preview",
       "properties": {
+        "inputTarget": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "clearFilter": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "operation": {
           "enum": [
             "replace",
@@ -678,6 +801,22 @@
       "type": "object",
       "title": "ModelSourceEditLifecycle",
       "properties": {
+        "inputTarget": {
+          "type": "object",
+          "properties": {
+            "requestType": {
+              "enum": [
+                "add",
+                "edit",
+                "delete"
+              ]
+            }
+          },
+          "required": [
+            "requestType"
+          ],
+          "additionalProperties": false
+        },
         "inputParameters": {
           "type": "object",
           "additionalProperties": false
@@ -762,6 +901,12 @@
       "type": "object",
       "title": "ModelSourceEditFlow",
       "properties": {
+        "clearFilter": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "status": {
           "$ref": "#/$defs/ModelSourceEditStatus"
         },
@@ -913,6 +1058,7 @@
         }
       },
       "required": [
+        "clearFilter",
         "status",
         "generation",
         "preview",
@@ -1075,6 +1221,19 @@
       "type": "object",
       "title": "ModelSourceEditHandle",
       "$defs": {
+        "method.setInputTargetFilterReset.params": {
+          "type": "object",
+          "properties": {
+            "clear": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setInputTargetFilterReset.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
         "method.getState.params": {
           "type": "object",
           "properties": {},
@@ -1265,7 +1424,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T12:56:49.788Z",
+  "generatedAt": "2026-11-04T09:49:26.827Z",
   "models": {
     "Reader": {
       "name": "Reader",
@@ -1299,9 +1458,52 @@
         "members": {}
       }
     },
+    "SourceInputTargetChange": {
+      "name": "SourceInputTargetChange",
+      "jsdoc": "SQL操作目标的只读设计差异；输入不伪装为查询输出，不分配拟新增行正式ID。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次被修改的正式模型ID，隔离后是已确认的新模型。 */\n    modelId: string;\n    /** 精确来源中排除企业隔离键后的唯一业务主键。 */\n    sourcePrimaryKey: string;\n    /** 本次预览的已保存模型与所属字段，只作不变基线。 */\n    before: Readonly<{\n        model: Readonly<DataRow>;\n        fields: ReadonlyArray<Readonly<DataRow>>;\n    }>;\n    /** 拟保存模型和字段；id仅用于已有字段，新字段没有正式身份。 */\n    after: Readonly<{\n        model: Readonly<DataRow>;\n        fields: ReadonlyArray<Readonly<{\n            id?: string;\n            sourceName: string;\n            values: Readonly<DataRow>;\n        }>>;\n    }>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次被修改的正式模型ID，隔离后是已确认的新模型。 */\n    modelId: string;\n    /** 精确来源中排除企业隔离键后的唯一业务主键。 */\n    sourcePrimaryKey: string;\n    /** 本次预览的已保存模型与所属字段，只作不变基线。 */\n    before: Readonly<{\n        model: Readonly<DataRow>;\n        fields: ReadonlyArray<Readonly<DataRow>>;\n    }>;\n    /** 拟保存模型和字段；id仅用于已有字段，新字段没有正式身份。 */\n    after: Readonly<{\n        model: Readonly<DataRow>;\n        fields: ReadonlyArray<Readonly<{\n            id?: string;\n            sourceName: string;\n            values: Readonly<DataRow>;\n        }>>;\n    }>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "modelId",
+              "jsdoc": "本次被修改的正式模型ID，隔离后是已确认的新模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sourcePrimaryKey",
+              "jsdoc": "精确来源中排除企业隔离键后的唯一业务主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "jsdoc": "本次预览的已保存模型与所属字段，只作不变基线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "jsdoc": "拟保存模型和字段；id仅用于已有字段，新字段没有正式身份。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "SourceContractChange": {
       "name": "SourceContractChange",
-      "jsdoc": "同一正式模型在来源变更前后的投影；只描述定义，不携带运行行。",
+      "jsdoc": "同一查询模型在来源变更前后的投影；只描述定义，不携带运行行。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    /** 仅固定投影迁移及删除检查需要原合同；纯来源修复不要求旧来源先可装配。无数据字段时返回null。 */\n    previous(): ReturnType<typeof DataSpaceDesignApi.projectModel> | null;\n    /** 来源变更候选模型，字段沿用正式ID，只包含预览中的合同变化。 */\n    after: ReturnType<typeof DataSpaceDesignApi.projectModel>;\n}>",
@@ -1429,9 +1631,19 @@
       "jsdoc": "来源替换的预览；正式记录仍归原DataView。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */\n    operation: 'replace' | 'synchronize';\n    /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */\n    removals: Array<{\n        id: string;\n        name: string;\n        type: string;\n    }>;\n    /** 来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。 */\n    removalChoices: Array<{\n        id: string;\n        name: string;\n        removed: boolean;\n    }>;\n    /** 新来源参数的明确取值；未配置时不得提交替换或同步。 */\n    inputChoices: Array<{\n        sourceName: string;\n        value: string;\n    }>;\n    /** 当前已保存的空间参数目录；不可读时常量仍可编辑。 */\n    inputParams: Array<{\n        value: string;\n        label: string;\n    }>;\n    /** 参数声明不可用的原因；不猜测引用。 */\n    parameterWarning: string;\n    /** 已有字段的类型/主键差异；只有明确确认才进入原视图变更。 */\n    contractChanges: Array<{\n        id: string;\n        name: string;\n        before: string;\n        after: string;\n        accepted: boolean;\n        patch: Record<string, unknown>;\n    }>;\n    /** 与本次来源合同一起确认、在数据库回读后提交的命名视图变化。 */\n    viewChanges: SourceContractPlan['viewChanges'];\n    /** 保持不变的模型注册名。 */\n    name: string;\n    /** 精确重读得到的来源。 */\n    prepared: Prepared;\n    /** 逐字段兼容性结果，不包含运行行或权限凭据。 */\n    differences: Array<{\n        name: string;\n        result: string;\n    }>;\n    /** 须先处理的迁移或诊断项。 */\n    problems: string[];\n    /** 原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。 */\n    fieldChoices: Array<{\n        id: string;\n        name: string;\n        outputName: string;\n        sourceName: string;\n        candidates: string[];\n    }>;\n    /** 尚未绑定的数据字段，可显式引入为输出列。 */\n    additions: Array<{\n        sourceName: string;\n        included: boolean;\n    }>;\n    /** 原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。 */\n    relationChanges: Array<{\n        id: string;\n        before: string;\n        after: string;\n    }>;\n    /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */\n    modelChanges: Array<{\n        property: string;\n        before: string;\n        after: string;\n    }>;\n    /** 自身和依赖模型Filter、JoinFilter及外键的明确引用变更。 */\n    expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>;\n    /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */\n    fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>;\n}",
+        "declarationTypeText": "{\n    inputTarget?: boolean;\n    clearFilter?: boolean;\n    /** 同步保持已绑定来源；替换允许显式选择另一个来源。 */\n    operation: 'replace' | 'synchronize';\n    /** 同步已消失的字段或替换时明确选中的字段；保存前核验命令依赖。 */\n    removals: Array<{\n        id: string;\n        name: string;\n        type: string;\n    }>;\n    /** 来源已消失的普通字段可以显式选择移除，主键须同时校验候选合同。 */\n    removalChoices: Array<{\n        id: string;\n        name: string;\n        removed: boolean;\n    }>;\n    /** 新来源参数的明确取值；未配置时不得提交替换或同步。 */\n    inputChoices: Array<{\n        sourceName: string;\n        value: string;\n    }>;\n    /** 当前已保存的空间参数目录；不可读时常量仍可编辑。 */\n    inputParams: Array<{\n        value: string;\n        label: string;\n    }>;\n    /** 参数声明不可用的原因；不猜测引用。 */\n    parameterWarning: string;\n    /** 已有字段的类型/主键差异；只有明确确认才进入原视图变更。 */\n    contractChanges: Array<{\n        id: string;\n        name: string;\n        before: string;\n        after: string;\n        accepted: boolean;\n        patch: Record<string, unknown>;\n    }>;\n    /** 与本次来源合同一起确认、在数据库回读后提交的命名视图变化。 */\n    viewChanges: SourceContractPlan['viewChanges'];\n    /** 保持不变的模型注册名。 */\n    name: string;\n    /** 精确重读得到的来源。 */\n    prepared: Prepared;\n    /** 逐字段兼容性结果，不包含运行行或权限凭据。 */\n    differences: Array<{\n        name: string;\n        result: string;\n    }>;\n    /** 须先处理的迁移或诊断项。 */\n    problems: string[];\n    /** 原字段到同用途来源字段的显式选择；数据字段的合同差异另行确认。 */\n    fieldChoices: Array<{\n        id: string;\n        name: string;\n        outputName: string;\n        sourceName: string;\n        candidates: string[];\n    }>;\n    /** 尚未绑定的数据字段，可显式引入为输出列。 */\n    additions: Array<{\n        sourceName: string;\n        included: boolean;\n    }>;\n    /** 原始关系表达式与按本次字段映射生成的提交值；只在确认时写入。 */\n    relationChanges: Array<{\n        id: string;\n        before: string;\n        after: string;\n    }>;\n    /** 模型自身来源字段引用的原值和显式映射结果；输出名称不参与迁移。 */\n    modelChanges: Array<{\n        property: string;\n        before: string;\n        after: string;\n    }>;\n    /** 自身和依赖模型Filter、JoinFilter及外键的明确引用变更。 */\n    expressionChanges: ReturnType<typeof LowcodeDataSpaceModelMigration.prepare>;\n    /** 本模型字段ValueFun中的明确来源引用变更；不修改输出名称。 */\n    fieldExpressionChanges: ReturnType<typeof LowcodeDataSpaceFieldMigration.prepare>;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "inputTarget",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "clearFilter",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "operation",
               "jsdoc": "同步保持已绑定来源；替换允许显式选择另一个来源。",
@@ -1679,16 +1891,22 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */\n    inputTarget?: Readonly<{\n        requestType: 'add' | 'edit' | 'delete';\n        prepareContract(change: SourceInputTargetChange): Promise<SourceContractPlan>;\n        validateRemovals(ids: readonly string[], change: SourceInputTargetChange): Promise<() => void>;\n    }>;\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
+            "typeText": "Readonly<{\n    /** SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。 */\n    inputTarget?: Readonly<{\n        requestType: 'add' | 'edit' | 'delete';\n        prepareContract(change: SourceInputTargetChange): Promise<SourceContractPlan>;\n        validateRemovals(ids: readonly string[], change: SourceInputTargetChange): Promise<() => void>;\n    }>;\n    /** 宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。 */\n    inputParameters?: Readonly<{\n        read(): Array<{\n            value: string;\n            label: string;\n        }>;\n        validate(input: Readonly<{\n            name: string;\n            value: string;\n        }>): void;\n    }>;\n    validateConfiguration(): Promise<() => void>;\n    validateTransition?(model: Prepared['model']): Promise<() => void>;\n    prepareContract?(change: SourceContractChange): Promise<SourceContractPlan>;\n    validateRemovals?(ids: readonly string[], contract?: SourceContractChange): Promise<() => void>;\n    assertCurrent(): void;\n    onDispatch(): void;\n    completed(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "inputTarget",
+              "jsdoc": "SQL操作目标与必填API参数分别策划，复用本owner的提交、回读和未知批次。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "inputParameters",
               "jsdoc": "宿主提供自身正式参数目录及校验；省略时继续使用数据空间参数合同。",
@@ -1853,9 +2071,14 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    status: ModelSourceEditStatus;\n    generation: number;\n    preview: Preview | null;\n    baseline: string;\n    expected: string;\n    pendingSnapshot: string;\n    patch: Record<string, unknown>;\n    verifiedSnapshot: string;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n    mappings: Map<string, string>;\n    included: Set<string>;\n    removals: Set<string>;\n    inputs: Map<string, string>;\n    acceptedContracts: Set<string>;\n    contractPlan: SourceContractPlan | null;\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureBaseline: Array<{\n        target: DataSpaceDefinitionCaptureBatch['targets'][number];\n        signature: string;\n    }> | null;\n    fieldEdits: FieldEdit[];\n    relationEdits: FieldEdit[];\n    modelEdits: FieldEdit[];\n    added: FieldAddition[];\n    removed: Array<{\n        id: string;\n        row: DataRow;\n    }>;\n}",
+        "declarationTypeText": "{\n    clearFilter: boolean;\n    status: ModelSourceEditStatus;\n    generation: number;\n    preview: Preview | null;\n    baseline: string;\n    expected: string;\n    pendingSnapshot: string;\n    patch: Record<string, unknown>;\n    verifiedSnapshot: string;\n    verification: Array<{\n        table: string;\n        id: string;\n        result: string;\n    }>;\n    mappings: Map<string, string>;\n    included: Set<string>;\n    removals: Set<string>;\n    inputs: Map<string, string>;\n    acceptedContracts: Set<string>;\n    contractPlan: SourceContractPlan | null;\n    capture: DataSpaceDefinitionCaptureBatch | null;\n    captureBaseline: Array<{\n        target: DataSpaceDefinitionCaptureBatch['targets'][number];\n        signature: string;\n    }> | null;\n    fieldEdits: FieldEdit[];\n    relationEdits: FieldEdit[];\n    modelEdits: FieldEdit[];\n    added: FieldAddition[];\n    removed: Array<{\n        id: string;\n        row: DataRow;\n    }>;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "clearFilter",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "status",
               "readable": true,
@@ -2112,9 +2335,32 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    getState(): ReturnType<typeof modelSourceEditGetState>;\n    confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void;\n    previewBoundSource(): Promise<void>;\n    mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>;\n    includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>;\n    removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>;\n    configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void;\n    preview(source: Parameters<Reader['prepare']>[0]): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}",
+        "declarationTypeText": "{\n    /** 操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。 */\n    setInputTargetFilterReset?(clear: boolean): Promise<void>;\n    getState(): ReturnType<typeof modelSourceEditGetState>;\n    confirmFieldContract(input: Readonly<{\n        fieldId: string;\n        accepted: boolean;\n    }>): void;\n    previewBoundSource(): Promise<void>;\n    mapField(input: Readonly<{\n        fieldId: string;\n        sourceName: string;\n    }>): Promise<void>;\n    includeField(input: Readonly<{\n        sourceName: string;\n        included: boolean;\n    }>): Promise<void>;\n    removeField(input: Readonly<{\n        fieldId: string;\n        removed: boolean;\n    }>): Promise<void>;\n    configureInput(input: Readonly<{\n        sourceName: string;\n        value: string;\n    }>): void;\n    preview(source: Parameters<Reader['prepare']>[0]): Promise<void>;\n    discard(): void;\n    save(): Promise<string>;\n    verify(options?: ModelSourceEditRecoveryOptions): Promise<Readonly<{\n        confirmed: boolean;\n        modelId: string | null;\n    }>>;\n    acceptCurrent(): void;\n}",
         "members": {
           "methods": [
+            {
+              "name": "setInputTargetFilterReset",
+              "jsdoc": "操作目标专用：明确随目标变更清空旧Filter，重新选择来源或取消会撤销此选择。",
+              "parameters": [
+                {
+                  "name": "clear",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
             {
               "name": "getState",
               "parameters": [],

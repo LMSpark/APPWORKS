@@ -10,12 +10,40 @@ async function fixture(){
  const f=await workflowSourceEditFixture(pages),record=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!
  Object.assign(record,{name:'keep-name',description:'keep-description',input_mapping:'[]',config:'{"PageParam":{"index":1,"size":1}}',output_mapping:JSON.stringify(output)});await f.nodes.refresh()
  const before=f.nodes.readSnapshot().rows.find(row=>row['rowid']==='QUERY')!,fields=f.ds.getView('Base_DataModel_Field')!.readSnapshot().rows
- const input={dataSet:f.ds,workflowId:'W',nodeId:'QUERY',fromModelId:'MODEL',modelId:'FORK',nodeBefore:before,fieldsBefore:fields,fieldIds:[{from:'F',to:'FF'}],removedIds:[] as string[],assertCurrent(){}}
+ const expectedSource={model:f.projection.models.readSnapshot().rows.find(row=>row['rowid']==='FORK')!,fields:f.projection.fields.readSnapshot().rows}
+ const input={dataSet:f.ds,workflowId:'W',nodeId:'QUERY',fromModelId:'MODEL',modelId:'FORK',expectedSource,nodeBefore:before,fieldsBefore:fields,fieldIds:[{from:'F',to:'FF'}],removedIds:[] as string[],assertCurrent(){}}
  return{...f,before,input,open:()=>openWorkflowQuerySourceNodeCommit(input)}
 }
 describe('workflow source confirmed node commit',()=>{
+ it('accepts the same confirmed field set returned in a different server order during dispatch and readback',async()=>{
+  const f=await fixture()
+  f.http.records['Base_DataModel_Field']!.push({...f.http.records['Base_DataModel_Field']![1]!,rowid:'FFX',Name:'spare',IsOutput:0})
+  await f.projection.fields.refresh()
+  const expectedSource={...f.input.expectedSource,fields:f.projection.fields.readSnapshot().rows}
+  let reads=0
+  f.http.interceptors.response.use({onResponse:response=>{
+   const body=response.data as {Result?:{data?:{Items?:Array<Record<string,unknown>>}}},rows=body.Result?.data?.Items
+   if(rows?.length===2&&rows.every(row=>row['dataModelId']==='FORK')&&++reads%2===0)rows.reverse()
+   return response
+  }})
+  const owner=openWorkflowQuerySourceNodeCommit({...f.input,expectedSource})
+  await owner.complete();expect(owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(1)
+ })
+ it.each(['add','edit','delete'] as const)('commits only the %s operation target and preserves unrelated node fields without manufacturing query outputs',async operation=>{
+  const f=await fixture(),node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!
+  Object.assign(node,{node_type:operation,dataOperateModId:'MODEL',node_config:'keep-unrelated-config',output_mapping:'[]'})
+  f.http.records['Base_DataModel']!.find(row=>row['rowid']==='FORK')!['requestType']=operation
+  f.http.records['Base_DataModel_Field']!.find(row=>row['rowid']==='FF')!['type']='inputParams'
+  await Promise.all([f.nodes.refresh(),f.projection.models.refresh(),f.projection.fields.refresh()]);const before=f.nodes.readSnapshot().rows.find(row=>row['rowid']==='QUERY')!
+  const expectedSource={model:f.projection.models.readSnapshot().rows.find(row=>row['rowid']==='FORK')!,fields:f.projection.fields.readSnapshot().rows}
+  const owner=openWorkflowQuerySourceNodeCommit({...f.input,operation,nodeBefore:before,expectedSource})
+  await owner.complete();await owner.complete()
+  expect(owner.getState().complete).toBe(true)
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({node_type:operation,dataOperateModId:'FORK',node_config:'keep-unrelated-config',output_mapping:'[]',name:'keep-name',config:'{"PageParam":{"index":1,"size":1}}'})
+  expect(f.http.saves.map(save=>save.table)).toEqual(['Base_WorkflowNodeDefinition'])
+ })
  it('performs no write when the confirmed source and existing output need no node delta',async()=>{
-  const f=await fixture(),owner=openWorkflowQuerySourceNodeCommit({...f.input,modelId:'MODEL',fieldIds:[]})
+  const f=await fixture(),owner=openWorkflowQuerySourceNodeCommit({...f.input,modelId:'MODEL',fieldIds:[],expectedSource:{model:f.ds.getView('Base_DataModel')!.readSnapshot().rows.find(row=>row['rowid']==='MODEL')!,fields:f.input.fieldsBefore}})
   await owner.complete();expect(owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(0)
  })
  it('preserves edits made after dispatch and discards them only through the explicit original-batch recovery action',async()=>{

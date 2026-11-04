@@ -32,6 +32,29 @@ async function fixture(shared=true,layout:string|null=null){
  return{ds,http,file,uploads,open:()=>openWorkflowNodeRemoval({dataSet:ds,workflowId:'W1',nodeId:'A',assertCurrent(){}})}
 }
 describe('original workflow node removal',()=>{
+ it('allows explicit removal of an operation with an incompatible legacy model while retaining that unverified model',async()=>{
+  const f=await fixture(false),node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='A')!
+  Object.assign(node,{node_type:'delete',node_config:'',dataOperateModId:'M1'})
+  f.http.records['Base_DataModel']![0]!['requestType']='query'
+  const owner=await f.open();expect(owner.getState().summary).toMatchObject({modelId:'M1',deleteModel:false,modelContractConfirmed:false})
+  await owner.stage();await owner.save()
+  expect(owner.getState().status).toBe('complete');expect(f.http.records['Base_WorkflowNodeDefinition']!.some(row=>row['rowid']==='A')).toBe(false)
+  expect(f.http.records['Base_DataModel']!.some(row=>row['rowid']==='M1')).toBe(true)
+  expect(f.http.records['Base_DataModel_Field']!.some(row=>row['rowid']==='F1')).toBe(true)
+ })
+ it.each(['add','edit','delete'] as const)('cancels and deletes %s through the original owner while retaining a shared operation model',async operation=>{
+  const f=await fixture()
+  for(const row of f.http.records['Base_WorkflowNodeDefinition']!)if(['A','B'].includes(String(row['rowid']))){row['node_type']=operation;row['dataOperateModId']='M1';row['node_config']=''}
+  f.http.records['Base_DataModel']![0]!['requestType']=operation
+  f.http.records['Base_DataModel_Field']![0]!['type']='inputParams'
+  const cancelled=await f.open();expect(cancelled.getState().summary).toMatchObject({modelId:'M1',deleteModel:false})
+  await cancelled.stage();cancelled.cancel();expect(f.http.saves).toHaveLength(0)
+  const owner=await f.open();await owner.stage();await owner.save()
+  expect(owner.getState().status).toBe('complete')
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.some(row=>row['rowid']==='A')).toBe(false)
+  expect(f.http.records['Base_DataModel']!.some(row=>row['rowid']==='M1')).toBe(true)
+  expect(f.http.records['Base_DataModel_Field']!.some(row=>row['rowid']==='F1')).toBe(true)
+ })
  it('retains a partially applied scope for diagnosis without upgrading it to complete or replaying deletes',async()=>{
   const f=await fixture(),owner=await f.open();await owner.stage()
   vi.spyOn(f.ds,'saveChanges').mockImplementationOnce(()=>{

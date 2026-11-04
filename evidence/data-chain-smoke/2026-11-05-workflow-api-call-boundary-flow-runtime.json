@@ -1,0 +1,360 @@
+{
+  "sourceCommit": "ac40b7eb09a11f5393abbe5da08ad671f6bb4f9f",
+  "scope": "API_CALL boundary test-interface execution, start parameter definition/output synchronization, actual trigger-row read and downstream computed-field consumption; not browser or production workflow activation",
+  "workflowId": "7CBB4E212B7A4CD1B5F4DA1F71AB62DF",
+  "marker": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128",
+  "lifecycle": "cleaned",
+  "unknown": false,
+  "independentAbsence": true,
+  "phases": {
+    "fixture": {
+      "reads": 38,
+      "writes": 2,
+      "executions": 0
+    },
+    "configure": {
+      "reads": 124,
+      "writes": 14,
+      "executions": 0
+    },
+    "execute": {
+      "reads": 50,
+      "writes": 0,
+      "executions": 1
+    },
+    "cleanup": {
+      "reads": 87,
+      "writes": 5,
+      "executions": 0
+    }
+  },
+  "totals": {
+    "confirmedPhases": {
+      "reads": 299,
+      "writes": 21,
+      "executions": 1
+    },
+    "allAttempts": {
+      "reads": 328,
+      "writes": 21,
+      "executions": 1
+    },
+    "separateLoginCallsIncluded": false
+  },
+  "cleanupPreflight": {
+    "reads": 29,
+    "writes": 0,
+    "executions": 0,
+    "error": "incomplete WorkflowLayout",
+    "fix": "file view uses Loaded/no error/rows=total; database views still require countReported; original execution was not repeated"
+  },
+  "parameterSynchronization": {
+    "parameters": [
+      {
+        "Description": "真实触发行名称",
+        "ValueFun": null,
+        "NodeName": "开始",
+        "FieldType": "string",
+        "Value": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_DEFAULT",
+        "Name": "name",
+        "rowid": "CD3D036EB4FA4E689B16AB354957116B"
+      }
+    ],
+    "output": [
+      {
+        "rowid": "CD3D036EB4FA4E689B16AB354957116B",
+        "pid": null,
+        "Name": "name",
+        "Description": "真实触发行名称",
+        "FieldType": "string",
+        "isParent": false
+      }
+    ]
+  },
+  "computedExpression": "{\"Type\":\"GetInputParam\",\"ParamName\":\"89038D4BB062FBD06361B14864ACBE60.name\"}",
+  "startParams": [
+    {
+      "rowid": "CCD16607B6D14895A601BBB18152C1DD"
+    }
+  ],
+  "actualName": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_ACTUAL",
+  "designDefault": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_DEFAULT",
+  "nodes": [
+    {
+      "nodeId": "89038D4BB062FBD06361B14864ACBE60",
+      "nodeType": "API_CALL",
+      "position": 0,
+      "status": "SUCCESS",
+      "count": 1,
+      "output": [
+        {
+          "rowid": "CCD16607B6D14895A601BBB18152C1DD",
+          "name": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_ACTUAL"
+        }
+      ]
+    },
+    {
+      "nodeId": "14E2349C1E3B34577676854B24112149",
+      "nodeType": "query",
+      "position": 1,
+      "status": "SUCCESS",
+      "count": 1,
+      "output": [
+        {
+          "fromStartName": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_ACTUAL",
+          "description": "owned boundary flow startup",
+          "name": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_ACTUAL",
+          "rowid": "CCD16607B6D14895A601BBB18152C1DD"
+        }
+      ]
+    },
+    {
+      "nodeId": "A95384A102D57A1D054E27244A54072B",
+      "nodeType": "API_CALL",
+      "position": 2,
+      "status": "SUCCESS",
+      "count": 0,
+      "output": []
+    }
+  ],
+  "runtime": {
+    "workflowInstanceId": "528A8AF364924BB5A426421376168ACC",
+    "nodeInstances": [
+      {
+        "status": "SUCCESS",
+        "rowid": "29DA828C0CF34678AA96C4F37DA3E293",
+        "workflow_instance_id": "528A8AF364924BB5A426421376168ACC",
+        "node_id": "A95384A102D57A1D054E27244A54072B"
+      },
+      {
+        "status": "SUCCESS",
+        "rowid": "9020E124176546AAA711356333228224",
+        "workflow_instance_id": "528A8AF364924BB5A426421376168ACC",
+        "node_id": "89038D4BB062FBD06361B14864ACBE60"
+      },
+      {
+        "status": "SUCCESS",
+        "rowid": "BD67D18BA938480D81E54A09EF74D07C",
+        "workflow_instance_id": "528A8AF364924BB5A426421376168ACC",
+        "node_id": "14E2349C1E3B34577676854B24112149"
+      }
+    ],
+    "persistedWorkflowInstances": [],
+    "scope": "three debug node logs, same nonempty instance; no production workflow instance persistence claim"
+  },
+  "businessReadback": {
+    "fields": [
+      "rowid",
+      "name",
+      "description",
+      "path",
+      "createtime"
+    ],
+    "before": [
+      {
+        "rowid": "CCD16607B6D14895A601BBB18152C1DD",
+        "description": "owned boundary flow startup",
+        "name": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_ACTUAL",
+        "createtime": "2026-11-05T06:45:00",
+        "path": ""
+      }
+    ],
+    "after": [
+      {
+        "rowid": "CCD16607B6D14895A601BBB18152C1DD",
+        "description": "owned boundary flow startup",
+        "name": "SMOKE_BOUNDARY_FLOW_LIVE_1793832249128_ACTUAL",
+        "createtime": "2026-11-05T06:45:00",
+        "path": ""
+      }
+    ],
+    "equal": true
+  },
+  "cleanup": {
+    "nodeIds": [
+      "89038D4BB062FBD06361B14864ACBE60",
+      "14E2349C1E3B34577676854B24112149",
+      "A95384A102D57A1D054E27244A54072B"
+    ],
+    "edgeIds": [
+      "967E651DE3F2BFA762B11E7F00E4D860",
+      "E044BE108F2E421856F94FE6B6FA0A02"
+    ],
+    "modelIds": [
+      "20E9C7580C65782444F1BFFC0624170E",
+      "4F926D43C8E211B98E2C24A9E38D7438",
+      "B14AAEF5AA32CF99A041C0E144AED642"
+    ],
+    "fieldCount": 46,
+    "ownedLogIds": [
+      "29DA828C0CF34678AA96C4F37DA3E293",
+      "9020E124176546AAA711356333228224",
+      "BD67D18BA938480D81E54A09EF74D07C"
+    ],
+    "independentAbsence": true,
+    "cleanedAt": "2026-11-04T22:49:19.142Z"
+  },
+  "validation": {
+    "productionChanges": 0,
+    "testChanges": 0,
+    "newFullTestRun": false,
+    "reusedBaseline": "evidence/data-chain-smoke/2026-11-05-workflow-boundary-configuration-lifecycle.json",
+    "baselineWorkflowTests": 441,
+    "baselineClassModelContractTests": 49,
+    "baselineSourceHashesRechecked": 5,
+    "nativeScriptSyntaxErrors": 0
+  },
+  "review": "gpt-6-astra read-only plan, pre-run scope/identity/cleanup review, and actual configure/execute audit cross-check",
+  "open": [
+    "normal browser and reference full-page acceptance",
+    "known merge execution service gaps",
+    "production activation, scheduling and workflow instance persistence",
+    "remaining scope of twenty-package migration"
+  ],
+  "hashes": [
+    {
+      "path": "evidence/data-chain-smoke/2026-11-05-workflow-boundary-configuration-lifecycle.json",
+      "sha256": "173a3878900fd39eeb5902b6c902784ad52dbcd98b3321ae79486a1a6ebb1430"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+      "sha256": "431d1bd79a7fed651eb1789ce25a8805a8c79ae016de99bff604b2fbfdd820ba"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+      "sha256": "7a04ff9dba4a617d5e02235043270733840fc7e7f96e86bf47c60ce3aea2666b"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+      "sha256": "5135d42fbaf5736b40e3fc05b1e47f06959018424b823a8aa7c7aa2e00eb19ce"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+      "sha256": "6237711f7267d5e9e66b6d8491bd95f8cb5900c7a753f342e1b54824c4e7ae51"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "sha256": "23b77f46644c64df7377543372cac2175b83e36a672507a2746c419fd75bda4e"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "sha256": "acafc875f22e6e31d97d712202996da826c4e5cecad5abfb255b3a9513fbeaf2"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
+      "sha256": "ffafddc8aedc3b27d63bce08316b47b78d9eed5262c007fc4f276f9f2be31490"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "sha256": "1753742e1d6c428c42c705aed942eb681775eabafa743273299eab56526bbb95"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
+      "sha256": "8f1f2452cea9cb5c559de4fe21cc001f4ae917c02518b87a2b9a4e254fd33031"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "sha256": "76a21e873acb9621d3ea2f8c592506ad92d382f709a5a86a7ecb727d25081059"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-account-auth.mts",
+      "sha256": "5f99294748ec085fd5c8a1803a1ed3e4057925abe2a5d9a632b78d68f2eeadec"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-auth-run.mts",
+      "sha256": "1d89d097c0761dfdcfba70052573a22012c124dc346b454f69349d7626ce6c9a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-check-syntax.mjs",
+      "sha256": "9f92abc9bde71ed769b6e036f0aeda530ee9d1154760c599c058a138a108f08c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-cleanup-audit.json",
+      "sha256": "c8049415780b70a4e634886c4ecbe545df83cc5588b4a274836b9a6b575f78da"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-cleanup-intent.json",
+      "sha256": "a0f9b7e6151dd2a56331ac5a3a4357a0fd8053ef14d42fa4fd0b51928bd31fbe"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-cleanup-only-driver.ps1",
+      "sha256": "f2e8cc385932b93e7ebac2afef1037c03b51f27b665b17ebde755941d8a467f4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-cleanup-preflight-audit.json",
+      "sha256": "a6b01cced874bef7cb85978f6cb93ca53dbb5088e5688b189bbd8a7e121c1da6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-cleanup-run.mts",
+      "sha256": "53d0be1137d49d18bb3f4bf322b8c276628e781519542bca185e544090fbf8d9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-cleanup.mts",
+      "sha256": "532ce01a69ff63e862ef0eb6cf97884d8a7957d7c9889bc15fd0e2312ff85c13"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-common.mts",
+      "sha256": "21114db54d6f15aac72d402d3b436a00c93ce8541dcb28835a27833146067874"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-configure-audit.json",
+      "sha256": "df037010b085819805c0b6063d6c4e5095847aa4ca3c21c97e1d5c2cdcb880dd"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-configure-intent.json",
+      "sha256": "afd82bcbd456bf8eb07f31143d3498ed30ad0167f38a34183f59ed26614a4468"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-configure-run.mts",
+      "sha256": "242a0c813f0e73d705685e62c46b274f24f49282a48253b60e1bc0a1a1eb9b2c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-configure.mts",
+      "sha256": "74371fe6b2ac9a24eb0d5f758b6386b2af2f601f895e2f853a8290240fdff776"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-driver.ps1",
+      "sha256": "80a0eb3fc287668969757605a5091d67aa9048a9c9bb73a9ddd2e8d2ea8aecce"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-execute-audit.json",
+      "sha256": "aa2c6baa295792b70220c05b893417894ecba2f5a76068f2b360f3cf4b7943fd"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-execute-intent.json",
+      "sha256": "b6132ae9e0a260ff8ef34ba99a75d8f5d3fc928d194d2171ed3919bdaccfdf7d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-execute-run.mts",
+      "sha256": "aa75365caecc2a2bc4ce2d8e8add84a16d29c84fcb22cbc99df8f9d8379f124d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-execute.mts",
+      "sha256": "46bd6ca7651f0925d9a6f7795b22043e3bac76379c92764099498a70278a58ab"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-fixture-checkpoint.json",
+      "sha256": "464344ca6e0b4f6e93c2851d9c3a89dbc5c4bed70325b54a9ce186c6bbb9f509"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-fixture-create-audit.json",
+      "sha256": "9d2518645ac2ab092465bebc3091ffe4cf942de64dba0b1c7fd5a53d73aa6c39"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-fixture-run.mts",
+      "sha256": "96e1723d3a4397a035d09cc1f4da3738ab0410a5d17d5ec9953d6b1bbc376991"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-fixture.mts",
+      "sha256": "a6ed3d5fc3e28a147ad0e9cd083aad1f9166d3cea427d46e7099ac73e0c329d8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-script-syntax.json",
+      "sha256": "0bea6d9d79d990e56b50f227e4b6e4111edc4f3fdc6f29dddd17dc79aa9e7201"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-flow-live-write-evidence.mjs",
+      "sha256": "c32734fd741a556378582af01bbc4099949408d9796c44d9d1028a255fd89662"
+    }
+  ]
+}

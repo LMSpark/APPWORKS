@@ -1,0 +1,242 @@
+{
+  "schemaVersion": 1,
+  "kind": "workflow-merge-output-page-and-canonical-contract",
+  "scope": "configuration lifecycle; not merge execution or full 20-package acceptance",
+  "sourceBaseCommit": "9dbef39d1",
+  "contract": {
+    "legacyFallbackRemoved": true,
+    "editableMergeMappingRawEntriesRemoved": true,
+    "outputIdentity": "encodeURIComponent(sourceNodeId):encodeURIComponent(publishedFieldId)",
+    "unknownSave": "original owner verifies; no replay",
+    "singleOwner": "original SPARK DataView input_mapping/output_mapping"
+  },
+  "checks": {
+    "codegenNewViolations": 0,
+    "typecheckExit": 0,
+    "classModelContractFiles": 4,
+    "classModelContractTests": 49,
+    "formalClassModelGenerationExit": 0,
+    "semanticGaps": 3638,
+    "codegenExistingViolations": 26,
+    "buildExit": 0,
+    "workflowTests": 386,
+    "workflowExit": 0,
+    "lintExit": 0,
+    "workflowFiles": 20
+  },
+  "review": {
+    "planLocation": "notes/data-space-retirement-ledger.md",
+    "higherModel": "gpt-6-astra",
+    "canonicalBypass": "formal old ID could be hidden by clearing editing JSON; RED then formal identity check fixed; read-only rereview confirmed"
+  },
+  "finalFixture": {
+    "marker": "SMOKE_MERGE_OUTPUT_FINAL_LIVE_1793823279062",
+    "lifecycle": "cleaned",
+    "workflowId": "A646B173F643428DBAA49F08AFEB6A97"
+  },
+  "native": {
+    "unknown": false,
+    "outputFieldsInitially": 6,
+    "deletedFields": [
+      "000F9CE9E19177C6F0BEE45859216AED",
+      "1985C6FDD89DE0BB5742A7AFD7369D10",
+      "3AA349C37D88E9EF8027B7BCE3B245B6",
+      "44F3FF4449974A238EAEC64111789247",
+      "50FA87DBE59CB657CFE15239D5167FF3",
+      "64F5EBA282A3C60BC55236651A0666CD",
+      "69BE039043CAFD45E1904DE6583E5FD1",
+      "84D17947B08702815C12D1E940C1545E",
+      "962E4D81F988B42ABA6CEA10DAD80421",
+      "A9ED0A776AEFD74B01B65C6C8D3C23E9",
+      "E23147EC95E6CB575A129CA1002DAF73",
+      "E732CCF253ADAE26C1D243892D1BC929",
+      "F0F2F7FBE71F8C7705CACFC2BBA42DB1",
+      "F869515DC35837269254CFF0447FC962",
+      "0306930648C0D95B6D854F44704B42FB",
+      "1FC15EF102E89B2AF5FDC109AAFF5033",
+      "20C418B63696795CDCF6488EA7608C9A",
+      "3F5DC59F7D72AD409B7204385B6A7C01",
+      "534B15D1F708D5D4B5E4E3F6F9BED73B",
+      "64EBAA183CB35B32CC7F429ABA9240E3",
+      "6CA779D857F297E292736249BD77A43C",
+      "6F5A924B922CD96B1AF36771047CEE54",
+      "81F31FECF3BB0A9D555A464CCE42FFC4",
+      "B2F5E114FA301A7C32DA63CE3610C6E1",
+      "BB09516FA44B8172D8CFC82A6FBA6556",
+      "E8C40278FC087AB6A64BBA09AA8934FD",
+      "F6BC30017F05A6C7414E34E1CE402FCF",
+      "F85973388A2405588DE802FB8340F1AC"
+    ],
+    "phases": [
+      {
+        "action": "fixture-create",
+        "phase": "created-confirmed",
+        "reads": 39,
+        "writes": 3,
+        "unknown": false
+      },
+      {
+        "action": "prepare",
+        "phase": "confirmed",
+        "reads": 85,
+        "writes": 10,
+        "unknown": false
+      },
+      {
+        "action": "configure",
+        "phase": "confirmed",
+        "reads": 108,
+        "writes": 5,
+        "unknown": false
+      },
+      {
+        "action": "cleanup",
+        "phase": "confirmed",
+        "reads": 48,
+        "writes": 3,
+        "unknown": false
+      }
+    ],
+    "lateReferenceBlocked": true,
+    "deletedNodes": [
+      "4707B693EDBD88F5882D0ECCEDC0E661",
+      "5E9DC00D33CA389A4543A3F7EB3814A9",
+      "AF0133203ED93830A7448088499779D3",
+      "B36428B4FAC1B4280EB110FFD9563A5B"
+    ],
+    "cleanupIndependentAbsence": true,
+    "executions": 0,
+    "independentReopen": true,
+    "writes": 21,
+    "outputFieldsAfterDeselection": 5,
+    "reads": 280,
+    "deletedModels": [
+      "C5AA4441FF48848DAE9165AA63F73CC8",
+      "D16D1BD35CCE1A90417A9A41DF81628D"
+    ]
+  },
+  "interimFixture": {
+    "lifecycle": "cleaned",
+    "scope": "interim canonical normal-path run, before removal of fallback; not final-contract proof",
+    "executions": 0,
+    "reads": 259,
+    "writes": 20,
+    "workflowId": "DF072C20F4734E68A7B64D1F7310012B"
+  },
+  "open": [
+    "merge creation and deletion via normal page entry",
+    "browser 1:1 flow",
+    "known service merge projection and joins",
+    "full 20 business package migration"
+  ],
+  "evidence": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "DE2642926F9717AEC6BFD0F11954631A5A914368E966BE046F137BB276A9F292"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "52CCEFA276D9DAC7066DB306A6C4B6C9CF55B224E4BDE91F9A7186DA8AA8B151"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "E58A1BBFCBEA0B929CC287C133CD16C6BD774F337B93715079683B1C7887FDC0"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "4FC95E6DCB747803AB9F0F4B4F78C6E68106D9E07C1423777CFA96440B560B1C"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-red.log",
+      "sha256": "D9FFFB58BB9AE57B5FD53300999D048D51C5E81078F9FBE7173F08E1B3F62989"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-legacy-bypass-red.log",
+      "sha256": "AD354E6F3C6D7C1CE29F419BFE2EE0DEC1DDE3C18818D749E43220D56527820C"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-raw-entry-red.log",
+      "sha256": "34CF6115711132DAA2C780E53EE90E32BE87E8A7D786A98565AAB8E1CEBF520C"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-canonical-tests.log",
+      "sha256": "70119D724CB1C775B08BD66C0542452EF82580C299E65E7B5C9FA744B64F8BF3"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-workflow-tests.log",
+      "sha256": "84790F66C023701FD5767B2FDD26D29BACBAE8A68DB99A1CA07CE46A8EF2938A"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-typecheck.log",
+      "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-lint.log",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-codegen.log",
+      "sha256": "810686FA30E08806F376159251792D993D0A57714491925164AAEE0BFF5A33D9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-class-model.log",
+      "sha256": "B142252F2FE5AD97AD524AD781DB9A1CF12EB129E006027E6F5C5DFCD259DF1E"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-contracts.log",
+      "sha256": "CF4E330A17633AAF9049A2700ED1005748FEF3558F6C73CF8AD21BFBD64F1D27"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-page-build.log",
+      "sha256": "0FDE89FCE293098DEC42BB1B7170ADAA526F6E6B65DDFDA3E508B230B743A543"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-fixture.mts",
+      "sha256": "F8BEE6225C7326A4D283DA193EB9BD82813DF0EB8DE222FB1A0932757B5C738E"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-prepare.mts",
+      "sha256": "0F33A55F15238DE81ACAA4B6643E85AAADB947FAB33C093F25579D91298880B7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-configure.mts",
+      "sha256": "08B9644404F34BE7E3C61BAFDF892490AC2AE01DB08AE1EE32752371E053F847"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-cleanup.mts",
+      "sha256": "5646845540F34AAA88CF0EB0068EB3EEB064390EC092B145B681A6C64AE72654"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-fixture-create-audit.json",
+      "sha256": "292A3ADE8F71F50072AB4C372FD067AA7E307B05BA5D4B995634AEA7229A7E32"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-prepare-audit.json",
+      "sha256": "1CE7ABE626F6CDA0E4D6CA05253E62CF75A83CEB2E208348408B1C83A72445D3"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-configure-audit.json",
+      "sha256": "4199C582ABE0D763223976D25E0678C77FAF1E92AAD3107E3DF54DC238E3735E"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-cleanup-audit.json",
+      "sha256": "B4BAFE8E12099B31B097C30839D2CB1D2F25F874044BE145304BC1CB0B5F01EE"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-fixture-checkpoint.json",
+      "sha256": "6AD4B5541C817F6B3D747E901D5E9F1496802E51A03D263601342756DCF64B80"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-prepare-intent.json",
+      "sha256": "C626E66A87A6CF4A42C85924A6BDA8B7276BD1C8CDAD676421306F8AB6BD2B0C"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-configure-intent.json",
+      "sha256": "D7B7AB288118C9646D4053FCC26544030226171B487D6E6CDFA24F024F052829"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-merge-output-final-live-cleanup-intent.json",
+      "sha256": "1E942F75F16DACB5CD024F2744279B873B3E4D23A7553A78D93F4FC8AA54C7E5"
+    }
+  ]
+}

@@ -6,7 +6,7 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
-import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput,generateWorkflowMergeOutput} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
+import {workflowMergeInputPresentation,WorkflowMergeSourceOptions,removeWorkflowMergeInput,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 
 const sets:DataSet[]=[],pages:PageRuntime[]=[]
 const backends=new WeakMap<DataSet,ApiBackend>()
@@ -39,6 +39,43 @@ async function formalFixture(value:unknown=mapping(),sharedField=false){
  await Promise.all([ds.getView('Base_WorkflowDefinition')!.refresh(),ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds
 }
 describe('merge configuration input identity and join metadata',()=>{
+ it.each([false,true])('uses only canonical output identities and removes deselected published fields after reference checks (legacy=%s)',async legacy=>{
+  const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'result',FieldType:'varchar',Description:'结果',IsOutput:1}]}]
+  const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  const output=[{rowid:legacy?'AF':'A:AF',pid:null,Name:'result',FieldType:'varchar',Description:'结果',isParent:false,unknown:0}]
+  http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='MERGE')!['output_mapping']=JSON.stringify(output)
+  await nodes.refresh();input[0]!.Fields[0]!.IsOutput=0;nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
+  if(legacy){
+   await expect(generateWorkflowMergeOutput(target)).rejects.toThrow('不兼容旧字段ID');expect(nodes.getEditingRow('MERGE')?.['output_mapping']).toBe(JSON.stringify(output))
+   nodes.updateEditingValue('MERGE','output_mapping','[]')
+   await expect(generateWorkflowMergeOutput(target)).rejects.toThrow('不兼容旧字段ID')
+   expect(nodes.getEditingRow('MERGE')?.['output_mapping']).toBe('[]')
+  }
+  else{await generateWorkflowMergeOutput(target);expect(nodes.getEditingRow('MERGE')?.['output_mapping']).toBe('[]');await validateWorkflowMergeNodeChanges(target)}
+  expect(http.saves).toHaveLength(0)
+ })
+ it('rechecks references added after generation before the actual node save',async()=>{
+  const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'renamed',FieldType:'varchar',Description:'结果',IsOutput:1}]}]
+  const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='MERGE')!['output_mapping']=JSON.stringify([{rowid:'A:AF',pid:null,Name:'prior',Description:'结果',FieldType:'varchar',isParent:false}])
+  await nodes.refresh();await generateWorkflowMergeOutput(target)
+  http.records['Base_DataSet']![0]!['inputParams']=JSON.stringify([{Type:'GetInputParam',ParamName:'MERGE.prior'}])
+  await expect(validateWorkflowMergeNodeChanges(target)).rejects.toThrow('节点输出仍被引用')
+  expect(http.saves).toHaveLength(0);expect(nodes.getEditingRow('MERGE')?.['output_mapping']).toContain('renamed')
+  http.records['Base_DataSet']![0]!['inputParams']='[]'
+  await expect(validateWorkflowMergeNodeChanges(target)).resolves.toBeUndefined()
+ })
+ it('requires regeneration after input changes and lets the original owner resolve an unknown save without replay',async()=>{
+  const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'result',FieldType:'varchar',Description:'结果',IsOutput:1}]}]
+  const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!,target={dataSet:ds,workflowId:'W',nodeId:'MERGE'}
+  await generateWorkflowMergeOutput(target);input[0]!.Fields[0]!.AsName='later';nodes.updateEditingValue('MERGE','input_mapping',JSON.stringify(input))
+  await expect(validateWorkflowMergeNodeChanges(target)).rejects.toThrow('重新生成输出模型')
+  await generateWorkflowMergeOutput(target);await validateWorkflowMergeNodeChanges(target)
+  http.failAfterWrite=true;const scope={views:[{tableName:nodes.tableName,viewId:nodes.viewId,ids:['MERGE']}]}
+  await expect(ds.saveChanges(scope)).rejects.toThrow();expect(nodes.hasUnconfirmedSave).toBe(true)
+  const reads=http.reads.length;await validateWorkflowMergeNodeChanges(target);expect(http.reads).toHaveLength(reads)
+  expect((await ds.saveChanges(scope)).success).toBe(true);expect(http.saves).toHaveLength(1)
+ })
  it.each([false,true])('checks fresh references before staging an existing output rename (referenced=%s)',async referenced=>{
   const input=[{rowid:'A',Fields:[{rowid:'AF',Name:'publishedAlias',AsName:'renamed',FieldType:'varchar',Description:'新标题',IsOutput:1}]}]
   const ds=await formalFixture(input),nodes=ds.getView('Base_WorkflowNodeDefinition')!,http=backends.get(ds)!

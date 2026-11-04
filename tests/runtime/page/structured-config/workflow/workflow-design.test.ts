@@ -37,6 +37,24 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('generates merge outputs on the bound node, cancels, saves, and independently reopens the directory',async()=>{
+  const output=JSON.stringify([{rowid:'AR',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'AC',pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:'AF',pid:'AR',Name:'code',FieldType:'varchar',isParent:false}])
+  const input=JSON.stringify([{rowid:'A',Name:'源',Fields:[{rowid:'AF',Name:'code',AsName:'result',FieldType:'varchar',Description:'结果',IsOutput:1}]}])
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',node_type:'merge',position_type:1,input_mapping:input,output_mapping:'[]'},
+   {rowid:'A',workflow_id:'W1',name:'源',node_type:'query',position_type:1,node_config:'M1',output_mapping:output}]
+  state.http.records['Base_WorkflowConnectors']=[{rowid:'AN',workflow_id:'W1',sourceID:'A',targetID:'N1'}];state.http.records['Base_DataModel_Relation']=[]
+  const select=async(f:Awaited<ReturnType<typeof open>>)=>{await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()}
+  const f=await open();await select(f)
+  expect(f.wrapper.findAllComponents(FieldJson).filter(field=>field.props('mode')==='text'&&['input_mapping','output_mapping'].includes(String(field.props('field'))))).toHaveLength(0)
+  await f.click('生成输出模型');expect(state.http.saves).toHaveLength(0);expect(state.dirty[0]?.isDirty).toBe(true)
+  expect(f.wrapper.findAllComponents(FieldJson).some(field=>field.props('label')==='合并输出模型'&&field.props('readonly')===true)).toBe(true)
+  await f.click('取消节点修改');expect(state.dirty[0]?.isDirty).toBe(false)
+  await f.click('生成输出模型');await f.click('保存节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(1))
+  const expected=[{rowid:'A:AF',pid:null,Name:'result',Description:'结果',FieldType:'varchar',isParent:false}]
+  expect(JSON.parse(String(state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']))).toEqual(expected)
+  const reopened=await open();await select(reopened)
+  expect(reopened.wrapper.text()).toContain('result');expect(state.http.saves.every(save=>save.table==='Base_WorkflowNodeDefinition')).toBe(true)
+ })
  it('adds root and child merge sources from a bound catalog, cancels, saves, reopens and removes only their input subtree',async()=>{
   const output=(id:string)=>JSON.stringify([{rowid:`${id}ROOT`,pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:`${id}COUNT`,pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:`${id}F`,pid:`${id}ROOT`,Name:id==='A'?'publishedAlias':'code',FieldType:'varchar',Description:'已发布字段',isParent:false}])
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',node_type:'merge',position_type:1,input_mapping:'[]',output_mapping:'[]'},
@@ -102,8 +120,10 @@ describe('workflow formal design page',()=>{
  })
  it('edits selected merge source fields through the original JSON path, cancels, saves and reopens without changing source identities',async()=>{
   const mapping=JSON.stringify([{rowid:'PARENT',Name:'根输入',Fields:[],unknown:0},{rowid:'CHILD',pid:'PARENT',Name:'子输入',JoinType:'INNER',Fields:[{rowid:'F1',Name:'name',AsName:'before',FieldType:'string',IsOutput:1,Description:'保留',unknown:{keep:true}}],unknown:{keep:true}}])
-  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',position_type:1,node_type:'merge',input_mapping:mapping,output_mapping:'[]'}]
-  state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'合并',position_type:1,node_type:'merge',input_mapping:mapping,output_mapping:'[]'},
+   {rowid:'PARENT',workflow_id:'W1',name:'根来源',node_type:'query',position_type:1,node_config:'M1'},
+   {rowid:'CHILD',workflow_id:'W1',name:'子来源',node_type:'query',position_type:1,node_config:'M2'}]
+  state.http.records['Base_WorkflowConnectors']=[{rowid:'PC',workflow_id:'W1',sourceID:'PARENT',targetID:'CHILD'},{rowid:'CN',workflow_id:'W1',sourceID:'CHILD',targetID:'N1'}];state.http.records['Base_DataModel_Relation']=[]
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
   const select=async()=>{
@@ -120,7 +140,7 @@ describe('workflow formal design page',()=>{
    const tree=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('mode')==='outline')!
    await tree.findAll('tbody tr')[0]!.trigger('click');await flushPromises()
    expect(fields.props('valuePath')).toEqual([1,'Fields'])
-   expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='返回输入映射原文')?.props('disabled')).toBe(true)
+   expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='返回输入列表')?.props('disabled')).toBe(true)
    await fields.get('tbody td:nth-child(3) input').setValue(value)
    await fields.get('tbody input[type="checkbox"]').setValue(false)
    await fields.get('tbody td:nth-child(5) input').setValue(`${value}说明`)

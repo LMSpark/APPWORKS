@@ -77,10 +77,14 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
                 </template>
                 <FieldJson field="input_mapping" label="合并来源字段" mode="rows" :value-path="[...mergePath,'Fields']" :children="mergeFields"
                   :row-operations="mergeFieldOperations" :readonly="locked || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeJoinType') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
-                <RendererButton label="返回输入映射原文" :disabled="pendingPart('nodes')" @click="selectMergePath(null)" />
+                <RendererButton label="返回输入列表" :disabled="pendingPart('nodes')" @click="selectMergePath(null)" />
               </template>
-              <FieldJson v-else field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
-              <FieldJson field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
+              <FieldJson v-if="!isMergeNode" field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
+              <template v-if="isMergeNode">
+                <RendererButton label="生成输出模型" :data-view-key="nodesKey" perm-action="edit" :disabled="locked || pendingPart('nodes')" @click="generateMergeOutput" />
+                <FieldJson field="output_mapping" label="合并输出模型" mode="rows" :children="mergeOutputFields" :readonly="true" />
+              </template>
+              <FieldJson v-if="!isMergeNode" field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
               <FieldText field="node_config" label="查询模型ID" :readonly="true" />
               <FieldJson field="config" :label="isCopyNode ? '迁移目标配置' : '操作配置'" mode="text" :readonly="locked" :on-change="validateNodeConfig" :on-editing-change="value => pending('nodes.operation',value)" />
             </RendererForm>
@@ -159,7 +163,7 @@ import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
 import WorkflowCopyTarget from './workflow-copy-target.vue'
 import WorkflowMergeSources from './workflow-merge-sources.vue'
 import {workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
-import {workflowMergeInputPresentation} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
+import {workflowMergeInputPresentation,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
 import WorkflowNodeRemove from './workflow-node-remove.vue'
 import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
@@ -213,6 +217,7 @@ const startUnconfirmed=computed(()=>{revision.value;return view('Base_DataSet')?
 const parameterAdapter=computed(()=>workflowStartParameterAdapter(String(selectedNode.value?.['name']??'开始')))
 const parameterFields:SparkNode[]=Object.entries({Name:'参数名称',FieldType:'数据类型',Value:'默认值',Description:'参数说明'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
 const mergeInputFields:SparkNode[]=Object.entries({Name:'输入节点',JoinType:'连接类型'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
+const mergeOutputFields:SparkNode[]=Object.entries({Name:'字段名称',FieldType:'字段类型',Description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
 const mergePath=ref<JsonPath|null>(null),mergeFieldOperations:Array<'edit'>=['edit']
 const mergeJoinSchema:JsonSchemaObject={type:'object',required:['JoinType'],properties:{JoinType:{type:'string',title:'连接类型','x-control':'radio',oneOf:[
  {const:'LEFT',title:'左连接'},{const:'RIGHT',title:'右连接'},{const:'INNER',title:'内连接'},{const:'FULL',title:'全连接'},
@@ -373,11 +378,21 @@ watch(workflowId,async id=>{
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation)opening.value=false}
 },{immediate:true})
+async function generateMergeOutput():Promise<void>{
+ const ds=dataSet.value,id=selectedQueryId.value,own=generation
+ if(locked.value||pendingPart('nodes')||!ds||!isMergeNode.value||!id||loadedTarget.value!==workflowId.value)return
+ acting.value=true;error.value=''
+ try{await generateWorkflowMergeOutput({dataSet:ds,workflowId:workflowId.value,nodeId:id})}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
 async function save(table:string):Promise<void>{
  if(busy.value||loadedTarget.value!==workflowId.value)return
  const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
  acting.value=true;error.value=''
  try{const id=target.currentRow&&target.getPkKey(target.currentRow)
+  if(table===nodesTable)await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value})
+  if(!active||own!==generation||dataSet.value!==ds||loadedTarget.value!==workflowId.value)throw Error('节点保存目标已变化')
   const result=table===edgesTable&&typeof id==='string'?await WorkflowConnectors.save(ds,workflowId.value,id):await ds.saveChanges({views:[{tableName:table,viewId:'default'}]})
   if(!result.success)throw new Error(result.message??'保存未完整确认')
   if(table===edgesTable&&active&&own===generation)await loadCondition()

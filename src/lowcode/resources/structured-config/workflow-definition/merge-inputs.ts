@@ -4,13 +4,13 @@
  * 边界：只读正式图，仅写原DataView的input_mapping/output_mapping；不查询、保存、推导源身份或执行连接。
  * AI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。
  */
-import {DataViewOptionCatalog,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
+import {DataViewOptionCatalog,RequestState,type DataSet,type DataView,type DataRow,type DataColumn,type DataViewFilterFunctionContext} from '@spark-appworks/spark-data'
 import {parseJsonDocument,type JsonPath} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowQueryAncestors} from './query-inputs'
 import {workflowOutputFields} from './output-fields'
 import {assertWorkflowNodeOutputChanges} from './node-output-references'
-import {workflowQueryDraftSignature} from './query-field-context'
+import {workflowQueryDraftSignature,workflowFieldChanges} from './query-field-context'
 
 /** 本次原生合并输入命令的唯一目标，不承载可编辑业务副本。 */
 type Target=Readonly<{
@@ -104,12 +104,27 @@ function write(context:ReturnType<typeof scope>,mapping:readonly unknown[]):void
  if(context.nodes.commitMode!=='staged'||context.nodes.editActionState(context.node)!=='enabled'||context.nodes.fieldAccess(context.node,'input_mapping').write!=='allowed')throw Error('当前查询不允许修改合并输入')
  context.nodes.updateEditingValue(String(context.nodes.getPkKey(context.node)),'input_mapping',JSON.stringify(mapping))
 }
+function definitionState(dataSet:DataSet):string{
+ const watched=['Base_WorkflowNodeDefinition','Base_WorkflowConnectors','Base_DataModel','Base_DataModel_Field','Base_DataModel_Relation','Base_DataSet'].flatMap(name=>{const view=dataSet.getView(name);return view?[view]:[]})
+ return JSON.stringify([dataSet.destroyed,workflowQueryDraftSignature(watched),watched.map(view=>[view.destroyed,view.requestState,view.queryConfig,view.filterExpression,view.requestState===RequestState.Loaded&&!view.loadingError?view.readSnapshot():null])])
+}
+function outputIdentity(sourceId:string,fieldId:string):string{return `${encodeURIComponent(sourceId)}:${encodeURIComponent(fieldId)}`}
+function assertOutputOrigin(context:ReturnType<typeof scope>,row:Record<string,unknown>):void{
+ const key=row['rowid'],parts=typeof key==='string'?key.split(':'):[]
+ if(parts.length!==2)throw Error('输出配置身份不是正式来源限定键；不兼容旧字段ID')
+ let sourceId:string,fieldId:string
+ try{sourceId=decodeURIComponent(parts[0]??'');fieldId=decodeURIComponent(parts[1]??'')}catch{throw Error('输出配置身份编码无效')}
+ if(!sourceId||!fieldId||outputIdentity(sourceId,fieldId)!==key)throw Error('输出配置身份编码无效')
+ const source=context.byId.get(sourceId),nodes=context.nodes
+ if(!source||!context.ancestors.has(sourceId)||String(read(nodes,source,'position_type'))!=='1'||!['query','copy'].includes(String(read(nodes,source,'node_type')))
+  ||nodes.hasEditingChanges(sourceId)||nodes.dirtyTracking.hasPendingChanges(sourceId))throw Error('输出配置来源不是已确认的正式祖先')
+ const published=workflowOutputFields({nodeId:sourceId,position:read(nodes,source,'position_type'),nodeType:read(nodes,source,'node_type'),mapping:read(nodes,source,'output_mapping')})
+ if(!published.some(field=>field['rowid']===fieldId))throw Error('输出配置字段已不属于来源正式发布目录')
+}
 
-/** 从本次输入生成配置目录；只暂存原字段，不发布未经服务验证的合并运行合同。 */
-export async function generateWorkflowMergeOutput(input:Target):Promise<void>{
+function outputPlan(input:Target){
  const context=scope(input),{nodes,node,effective}=context
- const watched=['Base_WorkflowNodeDefinition','Base_WorkflowConnectors','Base_DataModel','Base_DataModel_Field','Base_DataModel_Relation','Base_DataSet'].flatMap(name=>{const view=input.dataSet.getView(name);return view?[view]:[]})
- const state=()=>{const current=scope(input);return JSON.stringify([signature(current),current.effective['output_mapping'],workflowQueryDraftSignature(watched)])}
+ const state=()=>{const current=scope(input);return JSON.stringify([signature(current),current.effective['output_mapping'],definitionState(input.dataSet)])}
  const baseline=state()
  const assertCurrent=()=>{if(state()!==baseline)throw Error('合并输出生成目标、草稿或查询已变化；保留当前修改')}
  const original=read(nodes,node,'output_mapping')
@@ -125,6 +140,7 @@ export async function generateWorkflowMergeOutput(input:Target):Promise<void>{
   return parsed
  }
  const before=document(effective['output_mapping']),formal=document(original)
+ for(const row of formal)assertOutputOrigin(context,row)
  const selectedFields:Array<{sourceId:string;field:Record<string,unknown>}>=[]
  for(const [sourceId,item] of context.items){
   const source=context.byId.get(sourceId);if(!source)throw Error('合并来源节点不存在')
@@ -143,20 +159,48 @@ export async function generateWorkflowMergeOutput(input:Target):Promise<void>{
   const name=typeof field['AsName']==='string'&&field['AsName'].trim()?field['AsName']:String(field['Name'])
   if(name!==name.trim()||name.includes('.')||names.has(name))throw Error('合并输出名称无效或重复，请调整别名')
   names.add(name)
-  const qualified=`${sourceId}:${String(field['rowid'])}`
-  if(selectedFields.filter(entry=>`${entry.sourceId}:${String(entry.field['rowid'])}`===qualified).length!==1)throw Error('合并输出配置身份冲突')
-  const legacy=selectedFields.filter(entry=>entry.field['rowid']===field['rowid']).length===1?before.find(row=>row['rowid']===field['rowid']):undefined
-  const existing=before.find(row=>row['rowid']===qualified)??legacy
+  const qualified=outputIdentity(sourceId,String(field['rowid']))
+  const existing=before.find(row=>row['rowid']===qualified)
   if(existing)used.add(existing)
   const id=existing?.['rowid']??qualified
   if(ids.has(String(id)))throw Error('合并输出配置身份重复')
   ids.add(String(id))
   return {...existing,rowid:id,pid:null,Name:name,Description:typeof field['Description']==='string'?field['Description']:'',FieldType:field['FieldType'],isParent:false}
  })
- if(before.some(row=>!used.has(row)))throw Error('现有输出元素无法对应本次来源；保留原文，需先核对删除引用')
+ for(const row of before)if(!used.has(row))assertOutputOrigin(context,row)
+ return {context,formal,before,output,assertCurrent}
+}
+/** 从本次输入生成配置目录；只暂存原字段，不发布未经服务验证的合并运行合同。 */
+export async function generateWorkflowMergeOutput(input:Target):Promise<void>{
+ const {context,formal,output,assertCurrent}=outputPlan(input),{nodes,node}=context
  await assertWorkflowNodeOutputChanges({...input,before:formal,after:output,assertCurrent});assertCurrent()
  if(nodes.commitMode!=='staged'||nodes.editActionState(node)!=='enabled'||nodes.fieldAccess(node,'output_mapping').write!=='allowed')throw Error('当前查询不允许修改合并输出')
  nodes.updateEditingValue(input.nodeId,'output_mapping',JSON.stringify(output))
+}
+
+/** 保存前重核原输出与本次输入；不补写目录、不保存，不干预原未知结果恢复。 */
+export async function validateWorkflowMergeOutput(input:Target):Promise<void>{
+ const current=scope(input)
+ const empty=(value:unknown):boolean=>{const parsed:unknown=value===undefined||value===null||value===''?[]:typeof value==='string'?parseJsonDocument(value):value;return Array.isArray(parsed)&&parsed.length===0}
+ if(empty(read(current.nodes,current.node,'output_mapping'))&&empty(current.effective['output_mapping']))return
+ const {formal,before,output,assertCurrent}=outputPlan(input)
+ if(JSON.stringify(before)!==JSON.stringify(output))throw Error('合并输出与当前输入不一致，请重新生成输出模型')
+ await assertWorkflowNodeOutputChanges({...input,before:formal,after:before,assertCurrent});assertCurrent()
+}
+
+/** 原节点保存前检查所有被修改的合并定义，共用首轮合同；未知结果交回原保存责任方。 */
+export async function validateWorkflowMergeNodeChanges(input:Pick<Target,'dataSet'|'workflowId'>):Promise<void>{
+ const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition')
+ if(!nodes)throw Error('合并保存缺少原节点视图')
+ if(nodes.hasUnconfirmedSave)return
+ const baseline=definitionState(input.dataSet)
+ for(const row of nodes.rows){
+  const key=nodes.getPkKey(row);if(typeof key!=='string')throw Error('节点保存身份缺失')
+  const changes=workflowFieldChanges(nodes,row,key)
+  if(!['input_mapping','output_mapping'].some(field=>Object.hasOwn(changes,field)))continue
+  if(read(nodes,row,'node_type')==='merge')await validateWorkflowMergeOutput({...input,nodeId:key})
+  if(definitionState(input.dataSet)!==baseline)throw Error('合并节点保存检查期间原定义已变化；保留当前修改')
+ }
 }
 
 /** 本次来源选择的标准只读目录；业务草稿仍唯一属于原节点DataView。 */

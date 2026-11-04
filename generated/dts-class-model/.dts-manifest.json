@@ -4259,7 +4259,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-04T19:43:01.976Z"
+      "sourceModifiedAt": "2026-11-04T20:14:46.884Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts",
@@ -5119,7 +5119,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-04T17:55:27.697Z"
+      "sourceModifiedAt": "2026-11-04T20:19:40.495Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",

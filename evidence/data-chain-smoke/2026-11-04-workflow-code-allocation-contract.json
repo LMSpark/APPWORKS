@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 1,
+  "kind": "workflow-code-allocation-existing-row-contract",
+  "recordedAt": "2026-11-04T13:32:44.847Z",
+  "baseCommit": "be6f4f339",
+  "account": {
+    "enterpriseDisplayName": "领码科技",
+    "username": "wangtao",
+    "credentialsPersisted": false
+  },
+  "scope": {
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "ruleId": "E06753D019382D5E479264B70258ADE0",
+    "workflowId": "7B69834627B74534AEE3DCC45E092EDB"
+  },
+  "deploymentProbe": {
+    "endpoint": "/api/Codeing/GetCodeString/{subTableNameKey}/{codeDesignId}",
+    "method": "GET",
+    "retry": 0,
+    "attempts": 1,
+    "successfulAllocations": 0,
+    "outcome": "existing-business-row-required",
+    "message": "业务表数据为空!",
+    "businessDefinitionWrites": 0,
+    "placeholderRowsCreated": 0
+  },
+  "independentObservation": {
+    "beforeAllocationRows": 0,
+    "afterAllocationRows": 0,
+    "beforeSequenceRows": 1,
+    "afterSequenceRows": 1,
+    "sequenceUnchanged": true,
+    "sequenceReset": false,
+    "beforeSequenceSha256": "88d72353c9c74ae1dc6d254608bc810d267f57e171bbb738ba6d1ae98f834954",
+    "afterSequenceSha256": "88d72353c9c74ae1dc6d254608bc810d267f57e171bbb738ba6d1ae98f834954"
+  },
+  "fixture": {
+    "spaceId": "236B4D5F5ED78CF51E328782A8D6805A",
+    "marker": "SMOKE_CODE_OBSERVATION_1793798564812",
+    "modelIds": [
+      "EBDF889C5ECF91417EB806E1B7048801",
+      "27B87D5D563D86CD152766BF66F8A62E"
+    ],
+    "fieldCount": 32,
+    "lifecycle": "cleaned"
+  },
+  "stages": {
+    "sourcePreflight": {
+      "reads": 12,
+      "writes": 0,
+      "allocationAttempts": 0
+    },
+    "observerPreparation": {
+      "reads": 60,
+      "writes": 5
+    },
+    "allocationProbe": {
+      "reads": 23,
+      "writes": 0,
+      "allocationAttempts": 1
+    },
+    "cleanup": {
+      "reads": 48,
+      "writes": 2,
+      "unknown": false,
+      "steps": [
+        "delete-owned-observer-models-and-fields",
+        "delete-owned-observer-data-space"
+      ]
+    }
+  },
+  "limitations": [
+    "Native DataSet/DataView SSR observations do not prove browser 1:1 layout.",
+    "Existing-row prerequisite contradicts the fixed reference frontend allocation-before-create sequence.",
+    "No empty or invented workflow key was inserted; no Java service was changed.",
+    "A supported complete create-and-code contract is still required; this probe does not implement catalog creation."
+  ],
+  "auditSha256": {
+    "workflow-code-allocation-source-preflight.json": "1425530d3cfb88a1321cc77f38e0e377c805a0cfd061d0ce0733da081909082f",
+    "workflow-code-observer-fixture-intent.json": "c3d50ff1b23a60e49c2fbac8d46507494afd5273abf9b37d43a27813a00c2411",
+    "workflow-code-observer-fixture-audit.json": "db4bffb5c3495691696a9ef184909b10ddde55dacaa1328f3c77badfff462153",
+    "workflow-code-allocation-probe-intent.json": "d7b42885b69853408a14c4c92df4ea48b8b23b2936edbfcd0497d36f8e0090da",
+    "workflow-code-allocation-probe-audit.json": "fdcda25e94a34dc9e9b4f0c0001f2d19b2eae479069007f873948bea5068144b",
+    "workflow-code-observer-cleanup-intent.json": "506d6ee3eea8d3c487597c3cbb424af97ab2eec1e033a0e44cb8009e18cc2a87",
+    "workflow-code-observer-cleanup-audit.json": "a112fe1c6b01706d314ac70037e150abc6af82b0200701f5abd426b2cc5f820e"
+  }
+}

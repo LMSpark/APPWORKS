@@ -6033,3 +6033,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 用户已明确确认三条均沉淀；按knowledge/README.md格式写入knowledge/page-design.md：结构删除派发前正式引用重核、执行首轮不可变合同、merge顶层与字段rowid语义区分。追加notes/ai-code-metrics.md过程度量；两者为赋能层记录，不替代产品源码或本唯一实施台账。未写入个人memory目录。
 - 最终冻结全量workflow-stale-frozen-full-suite终态exit0：440文件/8055项全部通过，1004.75秒；两生产与两测试SHA256仍与实服证据捕获一致。已将全量结果与原日志SHA256写入concurrency-runtime证据并更新度量。当前完成本卡执行/删除并发纠错及知识沉淀，不核销全20包；26项编码规则、目录正式领码、新增完整产品闭环及视觉验收继续开放。下一步仅提交本卡10文件并推送1031，不重放已清理夹具。
 - 本卡10文件已实际提交14825165f并推送origin/1031；推送后核对HEAD...origin/1031=0/0、工作区干净。三条用户确认知识与度量、实服清理证据均随同提交。完整目标保持进行，续做时从本节开放项及20包主表读取，不因本卡全量通过而宣称全产品已交付。
+
+### 2026-11-04 正式领码顺序的实服核验与隔离观察清理
+
+- 上轮为实际进展（并发纠错、8055项冻结全量通过、实服清理、三条知识及14825165f/be6f4f339推送），完整目标仍active。本轮起始HEAD=be6f4f339、工作区干净；先验证真实服务的目录新增前置，不把本地Java推断或OpenAPI登记当运行结果。
+- 只读正式来源预检12读0写0领码，确认Base_CodeAndBusInfo及Base_CodeSerialPerform各唯一来源、均16真实字段。随后通过原LowcodeDataSpaceCatalog和原模型创建/DataView提交链创建隔离datasource空间236B4D5F5ED78CF51E328782A8D6805A及Allocation/Sequence两模型、32字段，60读5提交、unknown=false；模型与空间独立回读，运行观察用原生DataSet装配，无pagedata文件或第二查询owner。
+- 一次关闭重试的实际GET /api/Codeing/GetCodeString/{业务行ID}/{方案ID}：规则E06753D019382D5E479264B70258ADE0，新目标7B69834627B74534AEE3DCC45E092EDB在正式工作流查询中不存在；服务明确返回“业务表数据为空!”。23读0 CRUD写、领码请求尝试1次/成功分配0次；独立正式分配查询前后均0条，流水前后均1条且完整投影相同，unknown=false。没有新建空编码/随机业务编码的占位定义，没有调用示例代替正式编号，也没有重置或回滚流水。
+- 精确清理48读2提交：2观察模型、32字段及datasource空间已独立核空，fixture.lifecycle=cleaned、cleanup.confirmed、unknown=false，所有进程已正常终态。禁止重放本轮意图或复用该空间/目标ID。证据evidence/data-chain-smoke/2026-11-04-workflow-code-allocation-contract.json包含前后流水SHA256及7份原审计SHA256；SSR不冒称浏览器1:1。
+- 当前服务确实要求业务行先存在，与固定参考1147b00前端先assign后create冲突。部署OpenAPI仅有Workflow测试/运行入口，尚未确认能完整创建并领码的公共命令；发现internal/ai/platform-tools/invoke明确要求委托令牌和三项内部HMAC签名，未调用或绕过。GetCodeValue仅见本地参考，不作为已部署完整创建方案。目录createFlow继续明确报缺口，未用前端临时流程绕过；config/pages/structured-config/workflow-catalog/README.md已纠正仍称运行前置待确认及旧触发只读/待授权的说明，历史证据保留范围。
+- 下一连续工作仍在同一数据工作流包：核copy/merge完整创建、配置、取消、保存重开、删除及实际消费。初读固定参考merge包含顶层节点rowid/pid/Name/JoinFilter/JoinType及Fields字段身份、别名、输出选择；后端参考merge执行归服务端，不在浏览器实现join。API_CALL在所读参考函数中是开始/结束节点占位类型，不能据此发明一个新接口节点协议；接口来源查询与独立动作按实际消费者再核。按原语义→DataTable/DataView→ClassModel目录/概要/指南→原路径标准组件→完整真实结果推进，不另起总计划，不因领码一项服务缺口停止其他可实施业务。

@@ -6077,3 +6077,5 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - ClassModel流程：变更前查询DataView、RJsonProps、RDialogProps、RFormProps、RSelectProps、RTextProps、RTableProps目录/概要/指南后生成绑定与代码；变更后正式生成并重查DataSet/DataView、WorkflowModelNodeCreate、WorkflowModelSourceEdit、WorkflowNodeRemoval、WorkflowExecutionContext及标准组件，原始查询workflow-copy-final-guides.json与实现/测试对应于同一证据。所有来源与目标查询仍消费当次正式数据权限，未增加角色映射或借菜单/缓存放行。
 - 用户再次强调“通过烟测验证结果”，本节以真实数据写入、独立查询、精确清理和原始审计落实，不以8082项测试替代实服。完整20包目标保持active；当前只验明数据库表copy的本轮闭环，非数据库来源copy、merge完整业务、参考布局浏览器1:1及生产启用/定时仍开放。接续merge先核固定参考的重复rowid后缀、pid层级、输出别名/选择和服务端合并结果：新读TableParamVo按精确rowid构树、WorkflowExec按精确rowid取输入且缺pid父项回退根，仅属Java参考，不能猜截断后缀或当作实际服务已支持，更不在浏览器实现join。
 - 最终分项门禁已取终态：build:fe、定向eslint、根typecheck均0；正式ClassModel重编28.13秒0，后续4文件49合同测试0、10类目录/概要/指南查询0、指南JSON schema门禁0。严格ClassModel门禁仍以681失败，编码规则仍26失败，与本轮前逐项/语义一致且无新增，均未改门禁。证据实际核对20份生产/测试源哈希、28份本轮原意图/审计及验证日志哈希，JSON可解析且无认证字段。正式重读不与后端执行构成原子提交，不承诺条件执行或跨来源事务；本次保存可复核检查点继续推进，不宣称完整20包验收。
+
+- copy实现与实服证据已实际提交2f953fae2（31文件，15生产/5测试/7生成合同及文档证据），push origin HEAD:1031真实exit0并接受f267ad767..2f953fae2；推送后HEAD...origin/1031为0/0、工作区干净。该提交是可复核迁移检查点，未核销上述既有门禁、浏览器1:1、merge及完整20包范围；下一轮禁止重放已cleaned的FB756夹具。

@@ -1,0 +1,1127 @@
+{
+  "testedAt": "2026-11-04T15:37:10.027833+00:00",
+  "baseCommit": "0066a21c6c41948055f599f3cadfeeeb4a61dd25",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+  "marker": "SMOKE_MERGE_CONTRACT_1793805558797",
+  "testAccount": "领码科技/wangtao",
+  "productSourceChanged": false,
+  "priorVerifiedSourceHashes": {
+    "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts": "f9225294594356dfa3d942b0481dcb01f6cd2038705d38f0785b88b87f036e3c",
+    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": "2c02a69c077c810d6b57d811d02adbd5b8a53ddbd7f302a5ed19c7d15ead9398",
+    "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": "d51e22fe78e0695fab174ff10bc5cb0c1f9d2e40a9cfe8e05cd06b0fda4c3e55",
+    "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts": "96f75bc2f4e8326ed4d0440cdc2e1b2336eeb033adc3d355a84869b8e205d622",
+    "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts": "d720d9975d20d32d685dc098cfb7b2b39bf314ee04e26e5c810dfa50bd63b9f9",
+    "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": "7321117509ad547055d7361b1f48ac9ceb2fcf231cc9aad94c8c248117aff373",
+    "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": "4b25ebd700d04a0f0343646f2ba4000846eabf7ffb017a77b4697947d0288c63",
+    "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": "8f1f2452cea9cb5c559de4fe21cc001f4ae917c02518b87a2b9a4e254fd33031",
+    "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": "f14e1a9fa2acf3ba17191ad86b7dbcae6befcaecdf40b741db3495d4046ac0aa",
+    "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts": "05f867690438d4e87557997dd805738876e7adb1f3a1aadfee759851f909992e",
+    "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": "2a7ebe58f16cd0539f2caf4a67f5f1e6af3a26c79cc43a894b44dd4935bd48f5",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue": "4dec3d6b20cd9ca24700f5ef940f53ff273339b3637e919e8fa27b4d656caad3",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": "bc9e1672cd8af6b328eacadbec79dac6ce711f4a35c50abfff940388ea30251e",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue": "4408bcccaae80f0cb507fc5eb9c135eb163c9cb2818fa06286ad713f6b985fe4",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue": "08cbda57906674a25867b32c75098b2ceb1b5c38c6accbdfa83d0d7de20a1b58",
+    "tests/runtime/page/structured-config/workflow/workflow-design.test.ts": "e29d40f552f9560a9117c3f52785b2e319ae50f47b00af584eddd2196cde0812",
+    "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts": "0792fdc143514df97bde36e993820841af3f59400a0938fb5025329e2d017b50",
+    "tests/runtime/page/structured-config/workflow/workflow-query-inputs.test.ts": "82d6100bc81ace68e98ed20c22821471efb29d68911a2127dd2a0361ad5a35d0",
+    "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts": "5949af9de7903af56b8ddc6136807bba3335a2947996cb953c6dc0e1d9f40576",
+    "tests/runtime/page/structured-config/workflow/workflow-query-source-edit.test.ts": "2b1893560a3e5753c20eea24bfa6673f2bfea17d1577c981d0acd874af4151de"
+  },
+  "referenceHashes": {
+    "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/use-workflow-design-node-panel.ts": "5f85dd80f284b7977e56d9154ae5263cb61235b9adad1b402623779bc4f03ee0"
+  },
+  "javaReferenceOnlyHashes": {
+    "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/util/WorkflowExec.java": "8d0b63137728238d42883808d29b85daf811fa97f720ed35d7fdecda76f1070e",
+    "E:/lowcode-jdk17/lowcode-framework/lowcode-data-operation/src/main/java/com/htong/vo/TableParamVo.java": "0f2aa48e6a04d25f20649edc2efbfcba48871c5eaf0d797a4f1598de6ce38eb9"
+  },
+  "nativeChain": "PageRuntime -> original metadata DataSet/DataView -> WorkflowExecutionResource command DataView (retry=0). Formal definitions independently reopened before each execution.",
+  "graph": {
+    "startNodeId": "4A4292A831A378FEBDF8B35766E7AE7A",
+    "sources": [
+      {
+        "key": "A",
+        "nodeId": "11C365412FC0911E441A3422CD31F06D",
+        "modelId": "D02FB0D6CCAC73A8856E78994D3D60D8",
+        "fieldIds": {
+          "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+          "name": "ED1072A94EDE92FA3605CAB5B0C87028",
+          "description": "FD3DD407A4E5ED6DD281679985789F3E"
+        }
+      },
+      {
+        "key": "B",
+        "nodeId": "1F4479D6B62CE53D5584D2D8E6857AEE",
+        "modelId": "470F12DA1AF257B05B8C321A5360A4C4",
+        "fieldIds": {
+          "description": "35B654D989DD73117C046E83917C56DA",
+          "name": "7A0A7140E64C484238DE61D6D883D2D1",
+          "rowid": "ABF17BC2085650406C81FA184185382C"
+        }
+      }
+    ],
+    "mergeNodeId": "2C6DF9416D80C691785F8D55B97630BF",
+    "edgeIds": [
+      "A92F7E6D2DF73B0D91BC43006A586CA7",
+      "B601DE8B5CF467B51AE5614ADD1BCCF6",
+      "30F91D663FEB263592B1D5294A5C60F7"
+    ]
+  },
+  "stages": {
+    "workflow-merge-contract-fixture-create-audit.json": {
+      "phase": "created-confirmed",
+      "reads": 39,
+      "writes": 3,
+      "unknown": false
+    },
+    "workflow-merge-contract-prepare-audit.json": {
+      "phase": "confirmed",
+      "reads": 77,
+      "writes": 10,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-merge-contract-probe-audit.json": {
+      "phase": "confirmed",
+      "reads": 231,
+      "writes": 10,
+      "executions": 11,
+      "unknown": false
+    },
+    "workflow-merge-contract-observers-audit.json": {
+      "phase": "confirmed",
+      "reads": 44,
+      "writes": 4,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-merge-contract-cleanup-audit.json": {
+      "phase": "confirmed",
+      "reads": 48,
+      "writes": 3,
+      "unknown": false
+    }
+  },
+  "cases": [
+    {
+      "name": "root-projection-alias",
+      "commandId": "05fccefd-b660-4972-8669-096a5dfc12ac",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          },
+          {
+            "rowid": "K2",
+            "name": "second",
+            "description": "second-not-output"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.012,
+        "count": 2,
+        "output": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          },
+          {
+            "rowid": "K2",
+            "name": "second",
+            "description": "second-not-output"
+          }
+        ]
+      }
+    },
+    {
+      "name": "root-union-deduplicate",
+      "commandId": "28dd4454-c50b-4e08-96ac-410f2a50906d",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "id",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "label",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            }
+          ]
+        },
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "id",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": "label",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            }
+          ]
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ],
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      }
+    },
+    {
+      "name": "root-empty-fields",
+      "commandId": "4df90708-bc7a-45a6-b6af-ff5d3016b8a1",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": []
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      }
+    },
+    {
+      "name": "root-all-fields-off",
+      "commandId": "d70e9bb1-d631-4e26-bfaa-1acfcce5843e",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": null,
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      }
+    },
+    {
+      "name": "suffixed-source-identity",
+      "commandId": "3f0fbc3d-6f57-4496-8959-ca2a59827381",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D_1",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 0,
+        "output": []
+      }
+    },
+    {
+      "name": "orphan-parent-identity",
+      "commandId": "6311baab-de0a-4a5e-b3c1-379da46aa522",
+      "mapping": [
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "bId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "35B654D989DD73117C046E83917C56DA",
+              "Name": "description",
+              "AsName": "bDescription",
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ],
+          "pid": "MISSING_PARENT"
+        }
+      ],
+      "input": {
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K1",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.005,
+        "count": 1,
+        "output": [
+          {
+            "rowid": "K1",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      }
+    },
+    {
+      "name": "inner-matched",
+      "commandId": "9cf8120f-7f31-4ef6-9f03-bb5418ca3cb3",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        },
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": {
+            "Type": "cond",
+            "Field": "1F4479D6B62CE53D5584D2D8E6857AEE.rowid",
+            "Operator": "equal",
+            "ValueFun": {
+              "Type": "GetTableField",
+              "Field": "11C365412FC0911E441A3422CD31F06D.rowid"
+            }
+          },
+          "JoinType": "INNER",
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "bId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "35B654D989DD73117C046E83917C56DA",
+              "Name": "description",
+              "AsName": "bDescription",
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ],
+          "pid": "11C365412FC0911E441A3422CD31F06D"
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ],
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K1",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "name": "parent",
+            "description": "parent-not-output",
+            "bDescription": "child",
+            "bId": "K1",
+            "rowid": "K1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "inner-unmatched",
+      "commandId": "fed44342-a663-4ffb-89fb-90ca491315c4",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        },
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": {
+            "Type": "cond",
+            "Field": "1F4479D6B62CE53D5584D2D8E6857AEE.rowid",
+            "Operator": "equal",
+            "ValueFun": {
+              "Type": "GetTableField",
+              "Field": "11C365412FC0911E441A3422CD31F06D.rowid"
+            }
+          },
+          "JoinType": "INNER",
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "bId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "35B654D989DD73117C046E83917C56DA",
+              "Name": "description",
+              "AsName": "bDescription",
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ],
+          "pid": "11C365412FC0911E441A3422CD31F06D"
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ],
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K2",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "aName": "parent",
+            "aId": "K1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "left-unmatched",
+      "commandId": "f48b3e17-c7ff-42e3-8347-3c6b8bbad130",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        },
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": {
+            "Type": "cond",
+            "Field": "1F4479D6B62CE53D5584D2D8E6857AEE.rowid",
+            "Operator": "equal",
+            "ValueFun": {
+              "Type": "GetTableField",
+              "Field": "11C365412FC0911E441A3422CD31F06D.rowid"
+            }
+          },
+          "JoinType": "LEFT",
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "bId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "35B654D989DD73117C046E83917C56DA",
+              "Name": "description",
+              "AsName": "bDescription",
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ],
+          "pid": "11C365412FC0911E441A3422CD31F06D"
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ],
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K2",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "name": "parent",
+            "description": "parent-not-output",
+            "rowid": "K1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "right-unmatched",
+      "commandId": "3953763f-2df2-4535-8838-da1b600e0df8",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        },
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": {
+            "Type": "cond",
+            "Field": "1F4479D6B62CE53D5584D2D8E6857AEE.rowid",
+            "Operator": "equal",
+            "ValueFun": {
+              "Type": "GetTableField",
+              "Field": "11C365412FC0911E441A3422CD31F06D.rowid"
+            }
+          },
+          "JoinType": "RIGHT",
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "bId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "35B654D989DD73117C046E83917C56DA",
+              "Name": "description",
+              "AsName": "bDescription",
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ],
+          "pid": "11C365412FC0911E441A3422CD31F06D"
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ],
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K2",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.004,
+        "count": 1,
+        "output": [
+          {
+            "aName": "parent",
+            "aId": "K1"
+          }
+        ]
+      }
+    },
+    {
+      "name": "full-unmatched",
+      "commandId": "803fb2bc-c520-43fe-95cc-15fddf4ba86b",
+      "mapping": [
+        {
+          "rowid": "11C365412FC0911E441A3422CD31F06D",
+          "Name": "A",
+          "JoinFilter": null,
+          "JoinType": null,
+          "Fields": [
+            {
+              "rowid": "E40B68F73832D7301F9EC0B63670D5C3",
+              "Name": "rowid",
+              "AsName": "aId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "ED1072A94EDE92FA3605CAB5B0C87028",
+              "Name": "name",
+              "AsName": "aName",
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "FD3DD407A4E5ED6DD281679985789F3E",
+              "Name": "description",
+              "AsName": null,
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ]
+        },
+        {
+          "rowid": "1F4479D6B62CE53D5584D2D8E6857AEE",
+          "Name": "B",
+          "JoinFilter": {
+            "Type": "cond",
+            "Field": "1F4479D6B62CE53D5584D2D8E6857AEE.rowid",
+            "Operator": "equal",
+            "ValueFun": {
+              "Type": "GetTableField",
+              "Field": "11C365412FC0911E441A3422CD31F06D.rowid"
+            }
+          },
+          "JoinType": "FULL",
+          "Fields": [
+            {
+              "rowid": "ABF17BC2085650406C81FA184185382C",
+              "Name": "rowid",
+              "AsName": "bId",
+              "Description": "rowid",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "35B654D989DD73117C046E83917C56DA",
+              "Name": "description",
+              "AsName": "bDescription",
+              "Description": "description",
+              "FieldType": "varchar",
+              "IsOutput": 1
+            },
+            {
+              "rowid": "7A0A7140E64C484238DE61D6D883D2D1",
+              "Name": "name",
+              "AsName": null,
+              "Description": "name",
+              "FieldType": "varchar",
+              "IsOutput": 0
+            }
+          ],
+          "pid": "11C365412FC0911E441A3422CD31F06D"
+        }
+      ],
+      "input": {
+        "11C365412FC0911E441A3422CD31F06D": [
+          {
+            "rowid": "K1",
+            "name": "parent",
+            "description": "parent-not-output"
+          }
+        ],
+        "1F4479D6B62CE53D5584D2D8E6857AEE": [
+          {
+            "rowid": "K2",
+            "name": "child-not-output",
+            "description": "child"
+          }
+        ]
+      },
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "E1191EB8D7A44632B494F2A0FF7EB04C",
+        "nodeId": "2C6DF9416D80C691785F8D55B97630BF",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.005,
+        "count": 1,
+        "output": [
+          {
+            "aName": "parent",
+            "aId": "K1"
+          }
+        ]
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "MERGE_ROOT_OUTPUT",
+      "observed": "Root-only mappings ignore Fields projection/AsName/IsOutput, including all output flags disabled. Joined rows also preserve the unprojected parent.",
+      "blocking": "Declared root aliases and disabled fields do not match runtime output."
+    },
+    {
+      "id": "MERGE_INNER_UNMATCHED",
+      "observed": "INNER with parent K1 and child K2 still returns the projected parent row.",
+      "blocking": "No-match INNER does not yield an empty result."
+    },
+    {
+      "id": "MERGE_RIGHT_FULL_UNMATCHED",
+      "observed": "RIGHT and FULL with unmatched K1/K2 return parent K1 only; unmatched child K2 is absent.",
+      "blocking": "Reference UI offers RIGHT/FULL semantics that this deployed service does not fulfill."
+    },
+    {
+      "id": "MERGE_SOURCE_SUFFIX",
+      "observed": "Top-level rowid set to source node ID plus _1 returns zero rows when input contains the actual source node ID only.",
+      "blocking": "Reference duplicate-source suffix is not a confirmed source binding; never truncate or silently remap it."
+    },
+    {
+      "id": "MERGE_ORPHAN_PARENT",
+      "observed": "A table with pid=MISSING_PARENT is executed as a root rather than rejected.",
+      "blocking": "Frontend must retain and report invalid hierarchy instead of treating fallback as valid design."
+    }
+  ],
+  "instanceObservation": {
+    "Base_Workflow_NodeInstance": {
+      "rows": [],
+      "total": 0,
+      "countReported": true
+    },
+    "Base_Workflow_Instance": {
+      "rows": [],
+      "total": 0,
+      "countReported": true
+    }
+  },
+  "cleanup": {
+    "lifecycle": "cleaned",
+    "nodeIds": [
+      "11C365412FC0911E441A3422CD31F06D",
+      "1F4479D6B62CE53D5584D2D8E6857AEE",
+      "2C6DF9416D80C691785F8D55B97630BF",
+      "4A4292A831A378FEBDF8B35766E7AE7A"
+    ],
+    "modelIds": [
+      "470F12DA1AF257B05B8C321A5360A4C4",
+      "95CBC76274532E40594BB3473011C528",
+      "C0556A5D75D372C9964778EC6055561C",
+      "D02FB0D6CCAC73A8856E78994D3D60D8"
+    ],
+    "fieldCount": 59,
+    "edgeIds": [
+      "A92F7E6D2DF73B0D91BC43006A586CA7",
+      "B601DE8B5CF467B51AE5614ADD1BCCF6",
+      "30F91D663FEB263592B1D5294A5C60F7"
+    ],
+    "independentAbsence": true,
+    "cleanedAt": "2026-11-04T15:31:58.905Z"
+  },
+  "auditHashes": {
+    "artifacts/data-chain-smoke/workflow-merge-contract-cleanup-audit.json": "d9570a0f5bf816da4bb4737592dfa4a9bcfa3512229a31bf2d28169d2e2abf70",
+    "artifacts/data-chain-smoke/workflow-merge-contract-cleanup-intent.json": "5936fe6fad640cced997f64cbea2a965d6b5c06edecf0c9210ed4282c68dbf4e",
+    "artifacts/data-chain-smoke/workflow-merge-contract-fixture-checkpoint.json": "a672beaee5d422a237f4e12aea12b7d97cfd4a04e22adf99352357140114ecd3",
+    "artifacts/data-chain-smoke/workflow-merge-contract-fixture-create-audit.json": "850a328820c0b13b8902853f035d78073e59a70c0af5ace63d2262ba75d86351",
+    "artifacts/data-chain-smoke/workflow-merge-contract-observers-audit.json": "78170c2a883ff014e70802d404debd5f8ee4549835a3ce26502f18be835b6706",
+    "artifacts/data-chain-smoke/workflow-merge-contract-observers-intent.json": "5b46551358d67f37463a03e8ca01034d6f077d5fa44621f45182030e6891b677",
+    "artifacts/data-chain-smoke/workflow-merge-contract-prepare-audit.json": "8cd1ffaee407db93c2fbf94fcea651123eb9e4f4ba951ee821854052f9e95fe2",
+    "artifacts/data-chain-smoke/workflow-merge-contract-prepare-intent.json": "28248738cc3541dd3499ff71584d8654e2985bd6344f310431f81a22b745704b",
+    "artifacts/data-chain-smoke/workflow-merge-contract-probe-audit.json": "c344b2cd13a562a5cd4db036b3b6293a1d5e3dfa5773ce6d3b06fa6831ba553d",
+    "artifacts/data-chain-smoke/workflow-merge-contract-probe-intent.json": "3c34064f4a7618b531086beef500e40347afc17a28fa006dd77292c0c2e93e88"
+  },
+  "limitations": [
+    "This is a deployed merge contract probe, not complete merge-page acceptance.",
+    "Upstream query nodes/models were formally registered and published, but source SQL queries and a whole workflow were not executed; each single-node test supplied owned synthetic input maps.",
+    "HTTP SUCCESS is retained as transport/node status and is not a claim that declared output/join semantics passed.",
+    "No Java source changes, service startup or deployment; no speculative new backend protocol or frontend join/projection workaround.",
+    "Current FieldJson outline supports nested child arrays only; flat rowid/pid editing still requires a verified standard-component contract.",
+    "Existing codegen/ClassModel gates, browser 1:1 and the complete 20-package goal remain open."
+  ]
+}

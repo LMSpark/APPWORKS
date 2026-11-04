@@ -14,6 +14,10 @@
 
 此前固定参考页写入 `config.targetDatabaseName` 被实服拒绝，新 `targetDbName` 配置先在空来源上通过的历史证据仍保留在 `evidence/data-chain-smoke/2026-11-04-workflow-copy-execution-contract.json`。历史错误请求与各修正意图分别记录，清理不表示回滚或核销未知执行结果。
 
+merge 已完成11个隔离实服合同用例，尚不能按参考页完整交付。服务虽返回 SUCCESS，根输入的 Fields/AsName/IsOutput 在根-only及有匹配子项的结果中未按声明投影；全部关闭输出仍返回原字段。INNER 无匹配返回父行，RIGHT/FULL 未保留未匹配子行。参考重复来源生成的 `_1` 身份不自动定位原节点，孤立 pid 则被当作根执行。证据见 `evidence/data-chain-smoke/2026-11-04-workflow-merge-service-contract.json`；请求、定义和结果逐项保留，所有临时记录已独立清理。
+
+这些结果不授权在前端补算 join、重命名或筛掉服务结果来伪造一致性，也不能把某个可运行子集称为完整 merge。后续配置页仍须沿原节点 DataView 编辑、保存及取消，明确呈现实际服务缺口。当前标准 FieldJson outline 只支持嵌套子数组，不能假设已支持 merge 的平面 rowid/pid；应先核定并补齐通用标准能力，再沿参考工作区恢复配置界面。单节点的调用输入夹具不等于正式来源查询及整流消费已通过。
+
 目录正式新建仍受完整创建与领码顺序的实服合同缺口限制，不能以随机编号或空占位定义替代。完整20包状态只沿 `notes/data-space-retirement-ledger.md` 推进；下列早期记录保留历史范围，不反向覆盖当前源码与新证据。
 
 ## 2026-11-02—03 历史核查记录

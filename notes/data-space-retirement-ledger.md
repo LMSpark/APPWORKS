@@ -6079,3 +6079,15 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终分项门禁已取终态：build:fe、定向eslint、根typecheck均0；正式ClassModel重编28.13秒0，后续4文件49合同测试0、10类目录/概要/指南查询0、指南JSON schema门禁0。严格ClassModel门禁仍以681失败，编码规则仍26失败，与本轮前逐项/语义一致且无新增，均未改门禁。证据实际核对20份生产/测试源哈希、28份本轮原意图/审计及验证日志哈希，JSON可解析且无认证字段。正式重读不与后端执行构成原子提交，不承诺条件执行或跨来源事务；本次保存可复核检查点继续推进，不宣称完整20包验收。
 
 - copy实现与实服证据已实际提交2f953fae2（31文件，15生产/5测试/7生成合同及文档证据），push origin HEAD:1031真实exit0并接受f267ad767..2f953fae2；推送后HEAD...origin/1031为0/0、工作区干净。该提交是可复核迁移检查点，未核销上述既有门禁、浏览器1:1、merge及完整20包范围；下一轮禁止重放已cleaned的FB756夹具。
+
+### 2026-11-04 merge 参考语义与实服差距核验
+
+- 上轮为实际进展：copy代码/实服/清理和8082项全量已提交推送；本轮起始HEAD=0066a21c6、工作区干净。继续同一数据工作流包，先核固定1147b00参考的根/子输入、Fields输出选择、AsName、JoinFilter及LEFT/RIGHT/INNER/FULL，而不是把参考Vue或旧owner直接复制到本仓。Java仅阅读WorkflowExec、TableParamVo、ConvertCondUtils与GetTableField，没有修改、启动、构建或部署后端。
+- 新停用夹具E1191EB8D7A44632B494F2A0FF7EB04C，marker=SMOKE_MERGE_CONTRACT_1793805558797，39读3提交并独立重开。沿原openWorkflowQueryNodeCreate注册2个真实模型及query节点，原查询字段命令发布rowid/name/description三字段；新merge定义和3条原生连线形成开始→A→B→merge，77读10提交0执行，独立核4节点/3边、2模型及正式字段。A节点11C365412FC0911E441A3422CD31F06D/模型D02FB0D6CCAC73A8856E78994D3D60D8；B节点1F4479D6B62CE53D5584D2D8E6857AEE/模型470F12DA1AF257B05B8C321A5360A4C4；merge节点2C6DF9416D80C691785F8D55B97630BF。SM编号只作烟测身份，不充作目录新建/领码。
+- 每例只经原DataView改当前merge的input_mapping/output_mapping，DataSet保存并新PageRuntime独立重开后，由原WorkflowExecutionResource命令DataView派发一次retry=0请求。11例231读10定义提交11执行、unknown=false；INNER有/无匹配复用同一正式定义、只改输入，因此实际定义提交10而非11。所有响应status=SUCCESS只是实服执行状态，不等于以下业务合同通过。调用输入是本夹具的合成行映射，A/B正式注册但没有执行实际SQL来源查询，不冒称整流或真实业务数据合并已验收。
+- 根投影：声明rowid→aId、name→aName、description关闭，根-only两行仍返回rowid/name/description原字段；全部Fields.IsOutput=0仍返回原字段，Fields=[]也原样通过。两个根相同原输入去重为一行，但别名仍未生效。有匹配INNER时子项bId/bDescription生效，父项仍携带未投影的rowid/name/description。已排除“属性没有送到服务”的猜测：原定义逐例独立核回、同一字段协议在子项生效。不能以客户端后处理冒充服务已遵循Fields与输出目录。
+- 连接语义：父K1、子K2无匹配时，INNER返回父项aId=K1而非空；LEFT返回未投影父行；RIGHT/FULL均仅父K1，未保留选中的未匹配子K2，FULL也只有1行。与参考界面四种连接及字段选择/别名存在实际能力差距。当前服务阻断完整merge消费，不向前端加入猜测的新协议或另造join/投影执行器，不将根-only/LEFT子集替代完整目标。
+- 身份/层级负例：将顶层rowid改为真实A节点ID加_1、输入仍以真实A为键，服务SUCCESS/count=0；参考重复来源的后缀不是已确认的源绑定，禁止截断、猜重挂或复制输入伪造正式身份。B配置pid=MISSING_PARENT时被服务作为根返回，不代表层级有效；前端须保留并报告错误引用，不能用服务回退根遮蔽孤立项。Fields[].rowid仍是正式字段身份，与顶层节点身份分开。
+- 观察与清理：原模型owner再注册2个实例观察模型，44读4提交0执行，正式模型绑定查询确认全部4节点及本流程的两类实例表均0、countReported=true。精确清理48读3提交、unknown=false：3边/4节点/4模型/59字段独立核缺失，再删除同ID参数与定义，最终全部正式查询为空、布局0。fixture.lifecycle=cleaned、cleanup.phase=confirmed，所有runner正常终态0；没有未知命令或RAM保留进程。禁止重放workflow-merge-contract-*意图和复用已清理身份。
+- 证据evidence/data-chain-smoke/2026-11-04-workflow-merge-service-contract.json含11例完整声明/输入/响应、10份原审计/意图SHA256、独立观察和清理身份，固定参考及Java仅参考的内容哈希分开记录。产品源码改动0，已复核上轮20份生产/测试源哈希全部未变；本轮不重复8082项、构建或ClassModel生成。JSON、哈希、fixture清理状态、diff及提交状态作为本轮文档/证据检查。
+- 后续仍可推进前端配置和其他业务包，整体目标active而非全局blocked。已查当前FieldJson/JsonArrayOutline：outlineChildrenField仅支持嵌套子数组，缺少平面rowid/pid合同；selectedPath/valuePath可定位原JSON编辑域，但不能据此声称平面层级已实现。沿0.4先补当前直接需要的可复用标准能力，再用原节点DataView恢复参考配置/取消/保存重开；merge实服投影与连接差距继续独立开放。没有另起总计划，没有把源码参考或HTTP成功当成完整交付。

@@ -10,6 +10,7 @@ import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowco
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
 import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
+import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
 import type {PageDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/query-computed-fields'
 import {workflowQueryAncestors} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
@@ -36,6 +37,30 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it.each(['type','model','mapping','removed'] as const)('rejects a remotely changed single-node %s before using the displayed target',async change=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',input_mapping:'[]'}]
+  await Promise.all([nodes.refresh(),edges.refresh()])
+  if(change==='type')Object.assign(http.records['Base_WorkflowNodeDefinition']![0]!,{node_type:'delete',dataOperateModId:'M2'})
+  if(change==='model')http.records['Base_WorkflowNodeDefinition']![0]!['node_config']='M2'
+  if(change==='mapping')http.records['Base_WorkflowNodeDefinition']![0]!['input_mapping']='[{"changed":true}]'
+  if(change==='removed')http.records['Base_WorkflowNodeDefinition']=[]
+  const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  await expect(context.validateNode('N1')).rejects.toThrow('正式执行定义已变化')
+  expect(nodes.rows[0]?.['node_type']).toBe('query');expect(http.saves).toHaveLength(0);context.dispose()
+ })
+ it.each(['nodes','edges','definition'] as const)('rejects a remotely changed whole-flow %s without replacing the page snapshot',async change=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query'},{rowid:'END',workflow_id:'W1',position_type:2,node_type:'query'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'END'}]
+  await Promise.all([nodes.refresh(),edges.refresh()])
+  if(change==='nodes')http.records['Base_WorkflowNodeDefinition']!.push({rowid:'NEW',workflow_id:'W1',position_type:1,node_type:'delete',dataOperateModId:'M1'})
+  if(change==='edges')http.records['Base_WorkflowConnectors']![0]!['targetID']='START'
+  if(change==='definition')http.records['Base_WorkflowDefinition']![0]!['tblName']='different_target'
+  const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  await expect(context.load()).rejects.toThrow('正式执行定义已变化')
+  expect(nodes.rows).toHaveLength(2);expect(edges.rows[0]?.['targetID']).toBe('END');expect(http.saves).toHaveLength(0);context.dispose()
+ })
  it('projects ancestry after exact node and edge removal without mutating the saved graph',async()=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=['START','A','B'].map(rowid=>({rowid,workflow_id:'W1',position_type:rowid==='START'?0:1,node_type:'query'}))
@@ -646,4 +671,25 @@ it('checks actual single-node ancestor rows and primary keys before accepting an
  for(const payload of [{},{START:[]},{START:[{}]},{START:[{code:null}]},{START:[{code:false}]}])await expect(context.validateNode('N1',payload)).rejects.toThrow('输入')
  await expect(context.validateNode('N1',{START:[{code:0}]})).resolves.toBeUndefined()
  expect(http.saves).toHaveLength(0)
+})
+
+it.each(['edge','output','consumer','definition','late-target','late-refresh'] as const)('blocks an operation when its formal input contract changes: %s',async change=>{
+ const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,context=new WorkflowExecutionContext(ds,'W1',()=>{})
+ http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'query',name:'开始',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'delete',dataOperateModId:'M1'}]
+ http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'N1'}]
+ http.records['Base_DataModel']![0]={rowid:'M1',dataSetId:'W1',Name:'Target',MetaName:'Disposable',DbId:'DB',DbName:'TestDB',Type:'数据库表',requestType:'delete',Filter:''}
+ http.records['Base_DataModel_Field']=[{rowid:'F1',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',description:'ID',IsPKey:1,ValueFun:JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})}]
+ await Promise.all([nodes.refresh(),edges.refresh()])
+ await expect(context.validateNode('N1',{START:[{code:'owned'}]})).resolves.toBeUndefined()
+ if(change==='edge')http.records['Base_WorkflowConnectors']=[]
+ if(change==='output')http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']='[]'
+ if(change==='consumer')http.records['Base_WorkflowNodeDefinition']!.push({rowid:'N2',workflow_id:'W1',position_type:1,node_type:'delete',dataOperateModId:'M1'})
+ if(change==='definition')http.records['Base_WorkflowDefinition']![0]!['tblid']='changed'
+ if(change==='late-target'||change==='late-refresh'){
+  const readTarget=LowcodeDataSpaceModelSourceReader.readTableTarget
+  vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockImplementation(async(...args)=>{const result=await readTarget(...args);if(change==='late-target')http.records['Base_WorkflowNodeDefinition']![1]!['dataOperateModId']='M2';else{http.records['Base_WorkflowConnectors']=[];await edges.refresh()}return result})
+ }
+ await expect(context.validateNode('N1',{START:[{code:'owned'}]})).rejects.toThrow('正式执行定义已变化')
+ expect(http.saves).toHaveLength(0);expect(nodes.rows[1]?.['dataOperateModId']).toBe('M1');expect(edges.rows).toHaveLength(change==='late-refresh'?0:1)
+ context.dispose()
 })

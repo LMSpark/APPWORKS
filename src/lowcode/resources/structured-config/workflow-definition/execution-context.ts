@@ -18,6 +18,10 @@ function complete(view:DataView|undefined,workflowId:string):DataView{
   ||view.rows.length!==view.total||view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('执行图尚未完整读取或仍有定义修改')
  return view
 }
+function formalSignature(view:DataView,nodeId?:string):string{
+ const columns=view.queryConfig.fields??view.columns.map(column=>column.name)
+ return JSON.stringify(view.rows.filter(row=>nodeId===undefined||view.getPkKey(row)===nodeId).map(row=>columns.map(field=>[field,read(view,row,field)])).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))))
+}
 /** 执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。 */
 export class WorkflowExecutionContext{
  readonly #conditions:DataView
@@ -58,13 +62,29 @@ export class WorkflowExecutionContext{
   if(seen.size!==ids.size)throw Error('执行图存在不可达节点，请先完成正式连接')
   return {start,nodeIds,links,pairs}
  }
+ /** 本次显示的正式投影须仍与服务端一致；私有查询不替换页面结果或草稿。 */
+ private async checkFormal(source:DataView,nodeId?:string):Promise<void>{
+  const signature=(view:DataView)=>formalSignature(view,nodeId)
+  const before=signature(source),context=JSON.stringify(source.queryContext),current=source.createQueryView(`executionFormal_${crypto.randomUUID().replaceAll('-','')}`)
+  try{
+   current.queryConfig={...current.queryConfig,allPages:true}
+   if(nodeId!==undefined)current.filterExpression={logic:'and',filters:[{field:'workflow_id',operator:'eq',value:this.workflowId},{field:'rowid',operator:'eq',value:nodeId}]}
+   await current.refresh();this.guard();complete(source,this.workflowId)
+   if(current.loadingError||current.requestState!==RequestState.Loaded||current.rows.length!==current.total||JSON.stringify(source.queryContext)!==context||signature(source)!==before||signature(current)!==before)throw Error(`正式执行定义已变化，请刷新后重新测试: ${source.tableName}`)
+  }finally{current.dataTable?.destroyView(current.viewId)}
+ }
  /** 显式执行前按需核对节点的正式操作定义。 */
  async validateNode(nodeId:string,input?:unknown):Promise<void>{
   this.guard()
   const nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
   if(!node||read(nodes,node,'workflow_id')!==this.workflowId)throw Error('执行节点身份或归属不符')
+  await this.checkFormal(nodes,nodeId)
   const operation=read(nodes,node,'node_type')
   if(!['add','edit','delete'].includes(String(operation)))return
+  const contract=['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'].map(name=>{const view=complete(this.ds.getView(name),this.workflowId);return{view,signature:formalSignature(view),context:JSON.stringify([view.queryContext,view.queryConfig,view.filterExpression])}})
+  const checkContract=()=>{for(const item of contract)if(formalSignature(complete(item.view,this.workflowId))!==item.signature||JSON.stringify([item.view.queryContext,item.view.queryConfig,item.view.filterExpression])!==item.context)throw Error(`正式执行定义已变化，请刷新后重新测试: ${item.view.tableName}`)}
+  const checkInputContract=async()=>{checkContract();for(const item of contract){await this.checkFormal(item.view);checkContract()}}
+  await checkInputContract()
   const modelId=read(nodes,node,'dataOperateModId')
   if(typeof modelId!=='string'||!modelId.trim())throw Error('操作目标模型缺失')
   const modelSource=this.ds.getView('Base_DataModel','modelCatalog'),fieldSource=this.ds.getView('Base_DataModel_Field','modelInputFields')
@@ -133,11 +153,12 @@ export class WorkflowExecutionContext{
      if(expression?.Type==='GetConstValue'&&!validKey(expression['Value']))throw Error('操作主键常量必须是非空标量')
     }
    }
-   check()
+   check();await checkInputContract();check()
   }finally{for(const view of owned)if(!this.ds.destroyed)view.dataTable?.destroyView(view.viewId)}
  }
  /** 只在显式整流测试前读取本图端点条件，不扩大普通保存的装载范围。 */
  async load(input?:unknown):Promise<void>{
+  for(const name of ['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'])await this.checkFormal(complete(this.ds.getView(name),this.workflowId))
   const graph=this.structure(),view=this.#conditions
   if(input!==undefined){
    if(!Array.isArray(input)||input.some(row=>!isRecord(row)))throw Error('整流启动参数须为完整业务行数组')
@@ -158,6 +179,7 @@ export class WorkflowExecutionContext{
   view.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:this.workflowId},{logic:'or',filters:pairs}]}
   await view.refresh()
   if(nodes.rows.length!==original.length||nodes.rows.some((row,index)=>row!==original[index]))throw Error('执行图节点在条件读取期间已变化')
+  for(const name of ['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'])await this.checkFormal(complete(this.ds.getView(name),this.workflowId))
   this.capture()
  }
  /** 图完整性与分支可证性分别表达；不在前端求值服务端条件。 */

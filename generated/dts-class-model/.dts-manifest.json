@@ -4234,7 +4234,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json",
-      "sourceModifiedAt": "2026-11-04T10:37:49.341Z"
+      "sourceModifiedAt": "2026-11-04T12:49:04.554Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
@@ -4249,7 +4249,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json",
-      "sourceModifiedAt": "2026-11-04T08:38:42.895Z"
+      "sourceModifiedAt": "2026-11-04T12:29:03.937Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",

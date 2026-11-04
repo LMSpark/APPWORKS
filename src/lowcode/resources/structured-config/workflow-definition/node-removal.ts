@@ -144,7 +144,14 @@ export class WorkflowNodeRemoval{
    for(const [key,child] of Object.entries(value))visit(child,`${path}.${key}`,consumers)
   }
   const consumers=(owner:unknown)=>nodes.rows.filter(row=>id(nodes,row)!==this.input.nodeId&&(read(nodes,row,'node_config')===owner||read(nodes,row,'dataOperateModId')===owner)).map(row=>id(nodes,row))
-  for(const row of nodes.rows)if(id(nodes,row)!==this.input.nodeId)for(const key of ['input_mapping','config'])visit(document(read(nodes,row,key)),`节点[${id(nodes,row)}].${key}`,[id(nodes,row)])
+  for(const row of nodes.rows)if(id(nodes,row)!==this.input.nodeId){
+   const key=id(nodes,row),mapping=document(read(nodes,row,'input_mapping'))
+   if(read(nodes,row,'node_type')==='merge'&&mapping!==null){
+    if(!Array.isArray(mapping)||mapping.some(item=>!isRecord(item)||typeof item['rowid']!=='string'||!item['rowid']))throw Error(`合并输入无法核定: ${key}`)
+    for(const item of mapping)if(isRecord(item)&&(item['rowid']===this.input.nodeId||typeof item['rowid']==='string'&&lostByNode.get(key)?.has(item['rowid'])))throw Error(`删除后合并输入失去祖先: ${key} (${String(item['rowid'])})`)
+   }
+   visit(mapping,`节点[${key}].input_mapping`,[key]);visit(document(read(nodes,row,'config')),`节点[${key}].config`,[key])
+  }
   for(const row of edges.rows)if(!edgeIds.includes(id(edges,row)))visit(document(read(edges,row,'params')),`连线[${id(edges,row)}].params`,[String(read(edges,row,'targetID'))])
   for(const row of models.rows)if(!deleteModel||id(models,row)!==modelId)for(const key of ['Filter','JoinFilter'])visit(filter(read(models,row,key)),`模型[${id(models,row)}].${key}`,consumers(id(models,row)))
   for(const row of fields.rows)if(!fieldIds.has(id(fields,row))){const value=document(read(fields,row,'ValueFun'));if(deleteModel&&read(fields,row,'type')==='dataModel'&&isRecord(value)&&value['Type']==='GetRefData')continue;visit(value,`字段[${id(fields,row)}].ValueFun`,consumers(read(fields,row,'dataModelId')))}
@@ -160,7 +167,7 @@ export class WorkflowNodeRemoval{
  async stage():Promise<void>{
   if(this.#busy||this.#status!=='ready')throw Error('删除预览已变化或正在操作')
   this.#busy=true
-  try{await this.load();if(this.allSnapshot()!==this.#baseline)throw Error('正式删除范围已变化，请取消后重新预览');this.plan();for(const view of this.#views.values())this.#initial.set(view,snapshot(view));this.#layoutBefore=this.#layout.rows[0]?read(this.#layout,this.#layout.rows[0],'content') as string:undefined;this.#status='staged'
+  try{await this.load();if(this.allSnapshot()!==this.#baseline)throw Error('正式删除范围已变化，请取消后重新预览');this.plan();for(const view of [...this.#views.values(),this.#layout])this.#initial.set(view,snapshot(view));const content=this.#layout.rows[0]?read(this.#layout,this.#layout.rows[0],'content'):undefined;if(content!==undefined&&typeof content!=='string')throw Error('布局内容不是文本');this.#layoutBefore=content;this.#status='staged'
    for(const view of this.#views.values()){const listener=()=>{this.#foreignEdit=true};view.events.on('editingFieldChanged',listener);this.#listeners.push(()=>view.events.off('editingFieldChanged',listener))}
    for(const {view,ids} of this.#selections)for(const key of ids){this.assertCurrent(true);await view.removeRow(key);if(!view.dirtyTracking.isPendingDelete(key))throw Error('删除未进入原视图暂存')}
    for(const {view,ids} of this.#selections)this.#stageSignatures.set(view,definitionTargetDraftSignature(view,ids))
@@ -168,6 +175,19 @@ export class WorkflowNodeRemoval{
   }finally{this.#busy=false}
  }
  private checkStaged():void{this.assertCurrent(true);if(this.#foreignEdit||this.#selections.some(({view,ids})=>definitionTargetDraftSignature(view,ids)!==this.#stageSignatures.get(view)))throw Error('删除等待期间出现新修改；保留修改，不派发旧删除');this.permissions()}
+ /** 结构删除在派发前重读原命令已捕获的依赖；新消费者或权限变化不能套用旧删除范围。 */
+ private async checkFormalBaseline():Promise<void>{
+  for(const source of [...this.#views.values(),this.#layout]){
+   this.checkStaged()
+   const current=source.createQueryView(`${this.#prefix}_preflight`)
+   try{
+    await current.refresh();this.checkStaged()
+    if(current.loadingError||current.requestState!==RequestState.Loaded||current.rows.length!==current.total||snapshot(current)!==this.#initial.get(source))throw Error(`正式删除范围已变化，请取消后重新预览: ${source.tableName}`)
+    for(const key of this.#selections.find(selection=>selection.view===source)?.ids??[]){const row=current.rows.find(candidate=>id(current,candidate)===key);if(!row||current.deleteActionState(row)!=='enabled')throw Error(`当前查询不允许删除: ${source.tableName}[${key}]`)}
+    if(source===this.#layout&&this.#layoutText!==undefined&&(!current.rows[0]||current.fieldAccess(current.rows[0],'content').write!=='allowed'))throw Error('当前查询不允许清理布局')
+   }finally{current.dataTable?.destroyView(current.viewId)}
+  }
+ }
  private async readbackDatabase():Promise<void>{
   this.assertCurrent()
   for(const view of this.#views.values()){const ids=this.#selections.find(selection=>selection.view===view)?.ids??[];await view.refresh();this.assertCurrent();if(view.loadingError||view.rows.length!==view.total||view.rows.some(row=>ids.includes(id(view,row)))||snapshot(view)!==this.#expected.get(view))throw Error(`删除回读与精确保留范围不同: ${view.tableName}`)}
@@ -193,7 +213,7 @@ export class WorkflowNodeRemoval{
   if(this.#status!=='staged')throw Error('请先暂存原删除预览')
   this.#busy=true
   try{this.checkStaged();await DataSpaceDefinitionSave.run([{dataSet:this.input.dataSet,targetId:this.input.workflowId,modelId:this.summary().modelId,
-   prepare:()=>{this.checkStaged();return Promise.resolve()},apply:async()=>{},check:()=>this.checkStaged(),targets:()=>this.#selections.map(({view,ids})=>({tableName:view.tableName,viewId:view.viewId,ids:[...ids]})),dispatched:capture=>{this.#databaseCapture=capture;this.#status='database'},confirm:()=>this.readbackDatabase(),failed:()=>{}}]);await this.finishLayout()}
+   prepare:()=>this.checkFormalBaseline(),apply:async()=>{},check:()=>this.checkStaged(),targets:()=>this.#selections.map(({view,ids})=>({tableName:view.tableName,viewId:view.viewId,ids:[...ids]})),dispatched:capture=>{this.#databaseCapture=capture;this.#status='database'},confirm:()=>this.readbackDatabase(),failed:()=>{}}]);await this.finishLayout()}
   finally{this.#busy=false}
  }
  /** 核验只沿原DataSet捕获及原文件owner，未确认未生效时不自动重提。 */

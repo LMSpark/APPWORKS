@@ -1,0 +1,122 @@
+{
+  "schemaVersion": 1,
+  "kind": "workflow-operation-concurrency-preflight",
+  "recordedAt": "2026-11-04T13:14:12.292Z",
+  "sourceHashes": {
+    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": "465194898b846c57cdddf909420577b36c851b5772427581ae04f72bdd9bd848",
+    "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": "c8f4caf79acfd166eeccee86993df219a57a9a1c3f996e079fa792aff18d50f3",
+    "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts": "3d353baa67327eed0424260910871ac59d30033032a65d2debc3cd16fe83f5fc",
+    "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts": "99d0847bf1b17887fdcec0083a504675bab4c90e5bc715700e939bcc88b8db75"
+  },
+  "account": {
+    "enterpriseDisplayName": "领码科技",
+    "username": "wangtao",
+    "credentialsPersisted": false
+  },
+  "fixture": {
+    "workflowId": "8C39AD73C4A24A74B60D737880ECB19C",
+    "marker": "SMOKE_DATA_CHAIN_CONCURRENCY_1793795535116",
+    "lifecycle": "cleaned"
+  },
+  "guards": {
+    "reads": 92,
+    "writes": 4,
+    "executions": 0,
+    "executionBlock": "正式执行定义已变化，请刷新后重新测试: Base_WorkflowNodeDefinition",
+    "removalBlock": "正式删除范围已变化，请取消后重新预览: Base_WorkflowNodeDefinition",
+    "cancelled": true,
+    "ownSharedConsumerCleaned": true
+  },
+  "singleCrud": {
+    "reads": 134,
+    "writes": 4,
+    "executions": 3,
+    "phase": "confirmed"
+  },
+  "wholeWorkflow": {
+    "reads": 120,
+    "writes": 7,
+    "executions": 1,
+    "phase": "confirmed"
+  },
+  "deletion": {
+    "reads": 141,
+    "writes": 3,
+    "phase": "confirmed"
+  },
+  "cleanup": {
+    "reads": 111,
+    "writes": 5,
+    "phase": "confirmed",
+    "unknown": false
+  },
+  "validation": {
+    "workflowRegression": {
+      "files": 18,
+      "tests": 304,
+      "exitCode": 0
+    },
+    "platformExecution": {
+      "tests": 15,
+      "exitCode": 0
+    },
+    "typecheck": 0,
+    "eslint": 0,
+    "buildFrontend": 0,
+    "classModelGeneration": 0,
+    "classModelGuideSchema": 0,
+    "codegenRules": {
+      "exitCode": 1,
+      "violations": 26
+    },
+    "finalFrozenFullSuite": {
+      "files": 440,
+      "tests": 8055,
+      "exitCode": 0,
+      "durationSeconds": 1004.75,
+      "logSha256": "9d49aa1097fc3f002f1eba3671a7f05d70288d0e1bd1d9abefe7cddecad5ee9c"
+    },
+    "intermediateFullSuite": {
+      "files": 440,
+      "passedFiles": 439,
+      "failedFiles": 1,
+      "tests": 8055,
+      "passedTests": 8049,
+      "failedTests": 6,
+      "exitCode": 1,
+      "durationSeconds": 1036.96,
+      "note": "Intermediate run retained the pre-fix module in its worker; the six newly added timing regressions failed. It is not final frozen validation."
+    }
+  },
+  "limitations": [
+    "SSR native PageRuntime/DataSet commands do not prove browser layout or 1:1 interactions.",
+    "Fresh read preflight does not make separate service requests atomic.",
+    "SQL row CRUD of Base_JsonData is not JSON file content persistence.",
+    "20-package migration, business code allocation and repository-wide gates remain open."
+  ],
+  "auditHashes": {
+    "workflow-operation-concurrency-fixture-create-audit.json": "059d38e8d8eca8dee70df43ba2fe9d1ec3c08a6d8deb3b821580fc8ecac43c75",
+    "workflow-operation-concurrency-nodes-audit.json": "04767392658f3e6c22a009c07d7387ce4c8fa47eb1456353bc06be71e11d7274",
+    "workflow-operation-concurrency-guards-preflight-failure.json": "09cbc183ead576421382350d4718afcea7d07a9d20b15fa983682004ccc3f93b",
+    "workflow-operation-concurrency-guards-audit.json": "adf89c120687e5de856c1e8ffbb385362bc448b84f318687a25bd29fe692d6c8",
+    "workflow-operation-concurrency-source-preflight.json": "a99ba809fd879338546eb7f2cb8f2ae94a674b95ba9c138d37d21aa8ed6ee05c",
+    "workflow-operation-concurrency-config-audit.json": "5875c7d5102dd7abd81c1518eed1250d736a70e80a38b349c71ce09843c91e01",
+    "workflow-operation-concurrency-crud-audit.json": "21c9a4872f4091e7e5c30cb35aad382364f23e114249c7489b958ed3047298f9",
+    "workflow-operation-concurrency-flow-audit.json": "a33066f6616aa1f8964ab2aae9c78670c21eb402d4e01af5fda6d17e9c907e96",
+    "workflow-operation-concurrency-delete-audit.json": "4fbb7e8ee949ad91f7c3e6f15681db2e42d106dd2fbdf14a0b5010cd90a22e12",
+    "workflow-operation-concurrency-cleanup-audit.json": "816e5a4da99a8e098cf961faeae34f8139305d5a41a234057c39cafc0ce46016"
+  },
+  "businessCodeReadOnlyPreflight": {
+    "deployedOpenApiRoute": "/api/Codeing/GetCodeString/{subTableNameKey}/{codeDesignId}",
+    "parameters": [
+      "subTableNameKey",
+      "codeDesignId"
+    ],
+    "allocationCalls": 0,
+    "writes": 0,
+    "contractConflict": "Reference frontend allocates before creating the business row; local Java reference requires an existing business row. Deployment OpenAPI does not establish that prerequisite.",
+    "auditSha256": "4c13756b4b369a3474938864af3b0853ea71c78741c6953a50ae73db6c76cf3b"
+  },
+  "baseCommit": "f0497324e25049ba8f5acd27301d26ee9dccf1ee",
+  "sourceState": "Validated working-tree patch on baseCommit; sourceHashes identify the exact source and test files."
+}

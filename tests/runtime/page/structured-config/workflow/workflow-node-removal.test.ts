@@ -32,6 +32,29 @@ async function fixture(shared=true,layout:string|null=null){
  return{ds,http,file,uploads,open:()=>openWorkflowNodeRemoval({dataSet:ds,workflowId:'W1',nodeId:'A',assertCurrent(){}})}
 }
 describe('original workflow node removal',()=>{
+ it.each(['consumer','edge','field','permission','layout'] as const)('refuses a remote %s change after staging without dispatching the stale deletion',async change=>{
+  const f=await fixture(false,JSON.stringify({nodes:[{id:'A',x:1,y:2}],edges:[]})),owner=await f.open();await owner.stage()
+  if(change==='consumer')f.http.records['Base_WorkflowNodeDefinition']!.push({rowid:'SECOND',workflow_id:'W1',position_type:1,node_type:'add',dataOperateModId:'M1'})
+  if(change==='edge')f.http.records['Base_WorkflowConnectors']!.push({rowid:'NEW',workflow_id:'W1',sourceID:'START',targetID:'A'})
+  if(change==='field')f.http.records['Base_DataModel_Field']![1]!['ValueFun']=JSON.stringify({Type:'GetInputParam',ParamName:'A.value'})
+  if(change==='permission')f.http.denyDelete.add('Base_DataModel')
+  if(change==='layout')f.file.text=JSON.stringify({nodes:[{id:'A',x:9,y:2}],edges:[]})
+  await expect(owner.save()).rejects.toThrow(/变化|不允许删除/)
+  expect(owner.getState().status).toBe('staged');expect(f.http.saves).toHaveLength(0);expect(f.uploads).toHaveLength(0)
+  expect(f.http.records['Base_DataModel']!.some(row=>row['rowid']==='M1')).toBe(true)
+  owner.cancel();expect(owner.getState().status).toBe('cancelled')
+ })
+ it.each(['A','START'])('retains a merge input when removing its referenced or lost ancestor %s',async ancestor=>{
+  const f=await fixture(false),node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='B')!
+  Object.assign(node,{node_type:'merge',node_config:'',input_mapping:JSON.stringify([{rowid:ancestor,Name:'parent',Fields:[{rowid:'F1',Name:'value'}]},{rowid:ancestor==='A'?'START':'A',pid:ancestor,Name:'child',Fields:[]}])})
+  await expect(f.open()).rejects.toThrow('合并输入');expect(f.http.saves).toHaveLength(0)
+ })
+ it('does not interpret a merge field identity as a node reference when its table remains an ancestor',async()=>{
+  const f=await fixture(false),node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='B')!
+  Object.assign(node,{node_type:'merge',node_config:'',input_mapping:JSON.stringify([{rowid:'START',Name:'parent',Fields:[{rowid:'A',Name:'value'}]}])})
+  f.http.records['Base_WorkflowConnectors']!.push({rowid:'SB',workflow_id:'W1',sourceID:'START',targetID:'B'})
+  const owner=await f.open();await owner.stage();await owner.save();expect(owner.getState().status).toBe('complete')
+ })
  it('allows explicit removal of an operation with an incompatible legacy model while retaining that unverified model',async()=>{
   const f=await fixture(false),node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='A')!
   Object.assign(node,{node_type:'delete',node_config:'',dataOperateModId:'M1'})

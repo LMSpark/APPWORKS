@@ -79,7 +79,8 @@ function viewQuerySort(value: string | undefined, fields: readonly DataSpaceView
 }
 
 /** DataView 是 GetData 的查询输入；本地组织配置不推导服务器节点或业务身份。 */
-export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): DataSpaceViewQueryCommand {
+export function captureDataSpaceViewQuery(view: DataView, params: QueryParams,
+  capture: Readonly<{bindInputParams?: boolean}> = {}): DataSpaceViewQueryCommand {
   const allowed = ['page', 'pageSize', 'sort', 'filter', 'fields', 'viewId', 'viewConfig', 'projection', 'context',
     'pagination', 'treeMode', 'tree', 'outputType', 'allPages', 'distinct', 'maxRows', 'singleFlight', 'sourceInputMode', 'children']
   for (const key of Object.keys(params)) {
@@ -98,7 +99,7 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
   const bindChildren = (children: NonNullable<QueryParams['children']>): NonNullable<QueryParams['children']> => children.map(child => {
     const parsed = child.filter === undefined ? undefined : DataViewFilter.parse(child.filter)
     if (parsed && !parsed.ok) throw new TypeError('SPARK_JOIN_FILTER: 子查询过滤树无效')
-    return {...child, ...(parsed?.ok ? {filter: parsed.value.bindInputParams(context).toJSON()} : {}),
+    return {...child, ...(parsed?.ok ? {filter: (capture.bindInputParams === false ? parsed.value : parsed.value.bindInputParams(context)).toJSON()} : {}),
       ...(child.children === undefined ? {} : {children: bindChildren(child.children)})}
   })
   const filterSource = params.filter ?? view.filterExpression
@@ -109,7 +110,7 @@ export function captureDataSpaceViewQuery(view: DataView, params: QueryParams): 
   if (queryConfig.pagination !== 'none') requireDataSpaceQueryPage(page)
   const options: DataSpaceQueryOptions = {
     ...queryConfig, ...(queryConfig.children === undefined ? {} : {children: bindChildren(queryConfig.children)}), ...(queryConfig.pagination === 'none' ? {} : {page}), fields, sort: viewQuerySort(params.sort, fields),
-    ...(filter?.ok ? { filter: filter.value.bindInputParams(context) } : {}),
+    ...(filter?.ok ? { filter: (capture.bindInputParams === false ? filter.value : filter.value.bindInputParams(context)) } : {}),
     inputParams: Object.entries(context).map(([name, value]) => ({
       name: requireViewText(name, '输入参数名'), value,
     })),

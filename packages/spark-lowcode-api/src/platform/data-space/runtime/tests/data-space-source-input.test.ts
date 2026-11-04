@@ -3,6 +3,7 @@ import {DataSet, DataViewFilter} from '@spark-appworks/spark-data'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {DataSpaceDesignApi} from '../../design/data-space-design-api'
 import {DataSpaceRuntimeApi} from '../data-space-runtime-api'
+import {DataSpaceSourceInput} from '../query/data-space-source-input'
 
 const datasets: DataSet[] = []
 afterEach(() => {for (const dataset of datasets.splice(0)) dataset.destroy()})
@@ -302,4 +303,18 @@ describe('formal model source input mappings', () => {
     await first.loadFromServer({context: {customer: 'VIEW'}})
     expect(http.businessInputs()[0]).toContainEqual({Name: 'customer_id', Value: 'VIEW'})
   })
+})
+
+
+it('validates saved source mappings without requiring runtime input values', () => {
+  const bindings = [{id: 'INPUT', name: 'source', valueFunction: {Type: 'GetInputParam' as const, ParamName: 'call'}}]
+  const before = JSON.stringify(bindings)
+  expect(() => DataSpaceSourceInput.validateBindings(bindings)).not.toThrow()
+  expect(() => DataSpaceSourceInput.resolve(bindings, [])).toThrow('SPARK_SOURCE_INPUT')
+  expect(() => DataSpaceSourceInput.validateBindings([{id: 'INPUT', name: 'source'}])).toThrow('SPARK_SOURCE_INPUT')
+  expect(() => DataSpaceSourceInput.validateBindings([{id: 'INPUT', name: 'source'}], 'direct')).not.toThrow()
+  expect(() => DataSpaceSourceInput.validateBindings([...bindings, ...bindings])).toThrow('SPARK_SOURCE_INPUT')
+  expect(() => DataSpaceSourceInput.validateBindings([{...bindings[0]!, valueFunction: {Type: 'GetInputParam', ParamName: ''}}])).toThrow('SPARK_SOURCE_INPUT')
+  expect(() => DataSpaceSourceInput.validateBindings([{...bindings[0]!, valueFunction: {Type: 'GetConstValue'}}])).toThrow('SPARK_SOURCE_INPUT')
+  expect(JSON.stringify(bindings)).toBe(before)
 })

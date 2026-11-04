@@ -3,6 +3,7 @@ import {DataSet, DataViewQuery} from '@spark-appworks/spark-data'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import {DataSpaceDesignApi} from '../../design/data-space-design-api'
 import {DataSpaceRuntimeApi} from '../data-space-runtime-api'
+import {captureDataSpaceViewQuery} from '../query/data-space-query-options'
 
 class JoinHttp extends HttpClientBase {
   readonly calls: RequestConfig[] = []
@@ -22,10 +23,10 @@ class JoinHttp extends HttpClientBase {
 }
 const sets: DataSet[] = []
 afterEach(() => sets.splice(0).forEach(set => set.destroy()))
-function setup(override: Record<string, unknown> = {}, fieldOverride: Record<string, unknown> = {}, keyAlias = 'detailId') {
+function setup(override: Record<string, unknown> = {}, fieldOverride: Record<string, unknown> = {}, keyAlias = 'detailId', rootKeyAlias = 'orderId') {
   const root = DataSpaceDesignApi.projectModel({rowid: 'ROOT', Name: 'Orders', Type: '数据库表', MetaName: 'PhysicalOrders',
     DbId: 'DB', ShortName: 'p', PrimaryKeyFields: 'rowid'}, [
-    {rowid: 'RK', dataModelId: 'ROOT', Name: 'rowid', AsName: 'orderId', FieldType: 'string', IsOutput: 1},
+    {rowid: 'RK', dataModelId: 'ROOT', Name: 'rowid', AsName: rootKeyAlias, FieldType: 'string', IsOutput: 1},
     {rowid: 'RN', dataModelId: 'ROOT', Name: 'Name', AsName: 'caption', FieldType: 'string', IsOutput: 1},
   ], 'rowid')
   const child = DataSpaceDesignApi.projectModel({rowid: 'CHILD', Name: 'Details', Type: '数据库表', MetaName: 'PhysicalDetails',
@@ -34,18 +35,19 @@ function setup(override: Record<string, unknown> = {}, fieldOverride: Record<str
     {rowid: 'CN', dataModelId: 'CHILD', Name: 'title', AsName: 'detailName', FieldType: 'string', IsOutput: 1, ...fieldOverride},
   ], 'rowid')
   const ds = DataSet.fromJson({scenarioId: 'SPACE', tables: {RootConfig: {tableName: 'RootConfig', resourceType: 'database-table',
-    modelBinding: {modelId: 'ROOT', modelName: 'Orders'}, columns: [{name: 'orderId', type: 'string', isPrimaryKey: true},
+    modelBinding: {modelId: 'ROOT', modelName: 'Orders'}, columns: [{name: rootKeyAlias, type: 'string', isPrimaryKey: true},
       {name: 'caption', type: 'string', label: 'Parent caption'}], views: {default: {}, sibling: {}}},
   DetailConfig: {tableName: 'DetailConfig', resourceType: 'database-table', modelBinding: {modelId: 'CHILD', modelName: 'Details'},
     columns: [{name: keyAlias, type: 'string', isPrimaryKey: true}, {name: String(fieldOverride['AsName'] ?? 'detailName'), type: 'string', label: 'Detail caption'}], views: {default: {}}}}})
   sets.push(ds)
-  const http = new JoinHttp(), runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
+  let scope = 'SCOPE'
+  const http = new JoinHttp(), runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: scope, headers: {}})})
   const view = ds.getView('RootConfig')!, childView = ds.getView('DetailConfig')!
   runtime.bindModelView(view, root); runtime.bindModelView(childView, child)
   view.queryConfig = {outputType: 'Join', children: [{modelName: 'Details', fields: ['detailId', 'detailName'],
     filter: {field: 'detailName', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'search'}}}]}
   view.queryContext = {search: 'One'}
-  return {ds, view, runtime, http, root}
+  return {ds, view, runtime, http, root, formalChild: child, setScope: (next: string) => {scope = next}}
 }
 
 describe('public DataView explicit Join query', () => {
@@ -566,4 +568,115 @@ it.each(['scope', 'missing', 'identity', 'cycle'] as const)('still rejects inval
   if (kind === 'identity') child.queryConfig = {...child.queryConfig, parentResult: {...source, childModelName: 'Other'}}
   if (kind === 'cycle') parent.queryConfig = {pagination: 'none', autoQuery: false, parentResult: {dataViewKey: 'SPACE@Details@smoke', childModelName: 'Orders'}}
   expect(() => DataSet.fromJson(json)).toThrow(kind === 'scope' ? 'PARENT_SCOPE' : kind === 'identity' ? 'PARENT_MODEL' : kind === 'cycle' ? 'PARENT_CYCLE' : 'PARENT_SOURCE')
+})
+
+
+it('captures parameterized definition filters without binding missing runtime inputs', () => {
+  const {view, http} = setup()
+  view.queryContext = {}
+  const filter = {field: 'caption', operator: 'eq' as const, value: {Type: 'GetInputParam' as const, ParamName: 'rootSearch'}}
+  view.filterExpression = filter
+  const params = {...DataViewQuery.capture(view.queryConfig), filter}
+  const before = JSON.stringify(view.toJson())
+  const captured = captureDataSpaceViewQuery(view, params, {bindInputParams: false})
+  expect(captured.options.filter?.toJSON()).toEqual(filter)
+  expect(captured.options.children?.[0]?.filter).toMatchObject({value: {Type: 'GetInputParam', ParamName: 'search'}})
+  expect(() => captureDataSpaceViewQuery(view, params)).toThrow()
+  expect(JSON.stringify(view.toJson())).toBe(before)
+  expect(http.calls).toHaveLength(0)
+})
+
+it('validates a named child definition against its own parent nested plan without querying rows', () => {
+  const {ds, view, child, runtime, http} = parentResultViews(false)
+  view.queryContext = {}
+  const before = JSON.stringify(ds.toJson())
+  expect(() => runtime.validateQueryDefinitions(ds)).not.toThrow()
+  expect(JSON.stringify(ds.toJson())).toBe(before)
+  expect(http.calls).toHaveLength(0)
+  view.queryConfig = {outputType: 'Table', pagination: 'none'}
+  expect(() => runtime.validateQueryDefinitions(ds)).toThrow('SPARK_PARENT_PLAN')
+  expect(child.requestState).toBe(0)
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it.each(['Table', 'Join'] as const)('does not borrow a sibling nested plan when the named parent is %s', outputType => {
+  const {ds, view, child, runtime, http, root} = parentResultViews(false)
+  const sibling = ds.getView('RootConfig', 'sibling')!
+  runtime.bindModelView(sibling, root)
+  sibling.queryConfig = view.queryConfig
+  view.queryConfig = {outputType, pagination: 'none'}
+  expect(() => runtime.validateQueryDefinitions(ds)).toThrow('SPARK_PARENT_PLAN')
+  child.queryConfig = {...child.queryConfig, parentResult: {dataViewKey: 'SPACE@Orders@sibling', childModelName: 'Details'}}
+  expect(() => runtime.validateQueryDefinitions(ds)).not.toThrow()
+  expect(http.calls).toHaveLength(0)
+})
+
+it.each(['Navigation', 'HierarchyData'] as const)('inherits an effective grandchild plan through a derived parent in %s', outputType => {
+  const {ds, view, child, runtime, http} = parentResultViews(false)
+  const formal = DataSpaceDesignApi.projectModel({rowid: 'GRAND', Name: 'Products', Type: '数据库表', DbId: 'DB',
+    MetaName: 'PhysicalProducts', ShortName: 'g', PId: 'Details', JoinType: 'INNER', JoinFilter: 'g.parentId=c.rowid', PrimaryKeyFields: 'rowid'}, [
+    {rowid: 'GK', dataModelId: 'GRAND', Name: 'rowid', AsName: 'productId', FieldType: 'string', IsOutput: 1},
+  ], 'rowid')
+  const table = ds.addTableFromJson({tableName: 'ProductConfig', resourceType: 'database-table',
+    modelBinding: {modelId: 'GRAND', modelName: 'Products'}, columns: [{name: 'productId', type: 'string', isPrimaryKey: true}],
+    views: {default: {}}})
+  const leaf = table.getView('default')!
+  runtime.bindModelView(leaf, formal)
+  view.queryConfig = {outputType, pagination: 'none', children: [{modelName: 'Details', fields: ['detailId'],
+    children: [{modelName: 'Products', fields: ['productId'], filter: {field: 'productId', operator: 'eq',
+      value: {Type: 'GetInputParam', ParamName: 'missingDesignInput'}}}]}]}
+  view.queryContext = {}
+  leaf.queryConfig = {pagination: 'none', parentResult: {dataViewKey: 'SPACE@Details@default', childModelName: 'Products'}}
+  const before = JSON.stringify(ds.toJson())
+  expect(() => runtime.validateQueryDefinitions(ds)).not.toThrow()
+  expect(JSON.stringify(ds.toJson())).toBe(before)
+  leaf.queryConfig = {pagination: 'none', parentResult: {dataViewKey: 'SPACE@Orders@default', childModelName: 'Products'}}
+  expect(() => runtime.validateQueryDefinitions(ds)).toThrow('SPARK_PARENT_PLAN')
+  expect(child.requestState).toBe(0)
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('rejects stale application scope during definition validation without requests or config changes', () => {
+  const {ds, runtime, http, setScope} = parentResultViews(false)
+  const before = JSON.stringify(ds.toJson())
+  setScope('OTHER_APPLICATION')
+  expect(() => runtime.validateQueryDefinitions(ds)).toThrow('SPARK_EXECUTION_SCOPE_STALE')
+  expect(JSON.stringify(ds.toJson())).toBe(before)
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('checks nested path collisions against implicitly restored root keys in both preparation paths', async () => {
+  const {ds, view, runtime, http} = setup({}, {}, 'detailId', 'Details')
+  view.queryConfig = {outputType: 'Navigation', pagination: 'none', fields: ['caption'],
+    children: [{modelName: 'Details', fields: ['detailId']}]}
+  const before = JSON.stringify(ds.toJson())
+  expect(() => runtime.validateQueryDefinitions(ds)).toThrow('SPARK_NESTED_PATH')
+  await expect(view.loadFromServer()).rejects.toThrow('SPARK_NESTED_PATH')
+  expect(JSON.stringify(ds.toJson())).toBe(before)
+  expect(http.calls).toHaveLength(0)
+})
+
+
+it('keeps mapped runtime values out of definition validation and ignores unrelated ordinary mappings', async () => {
+  const fixture = setup(), {http, root, formalChild} = fixture
+  const ds = DataSet.fromJson(fixture.ds.toJson()); sets.push(ds)
+  const view = ds.getView('RootConfig')!
+  const runtime = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'SCOPE', headers: {}})})
+  runtime.bindModelView(ds.getView('DetailConfig')!, formalChild)
+  runtime.bindModelView(view, {...root, sourceInputBindings: [{id: 'INPUT', name: 'source',
+    valueFunction: {Type: 'GetInputParam', ParamName: 'requiredRuntimeValue'}}]})
+  const table = ds.addTableFromJson({tableName: 'Unrelated', resourceType: 'api',
+    modelBinding: {modelId: 'UNRELATED', modelName: 'OtherApi'}, columns: [{name: 'id', type: 'string'}], views: {default: {}}})
+  const unrelated = DataSpaceDesignApi.projectModel({rowid: 'UNRELATED', Name: 'OtherApi', Type: '接口', MetaName: 'GetOther', PrimaryKeyFields: 'id'}, [
+    {rowid: 'UF', dataModelId: 'UNRELATED', Name: 'id', FieldType: 'string', IsOutput: 1},
+  ], 'id')
+  runtime.bindModelView(table.getView('default')!, {...unrelated, sourceInputBindings: [{id: 'UNSET', name: 'unconfigured'}]})
+  const before = JSON.stringify(ds.toJson())
+  expect(() => runtime.validateQueryDefinitions(ds)).not.toThrow()
+  await expect(view.loadFromServer()).rejects.toThrow('SPARK_SOURCE_INPUT')
+  expect(JSON.stringify(ds.toJson())).toBe(before)
+  expect(http.calls).toHaveLength(0)
 })

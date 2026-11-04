@@ -11979,7 +11979,7 @@
       "chainBreak": "DataSpaceRuntimeApi.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
-      "declarationLine": 91,
+      "declarationLine": 95,
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "declarationKind": "class"
     },

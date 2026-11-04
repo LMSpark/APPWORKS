@@ -6,7 +6,7 @@
  */
 import {parseDataViewKey} from '../core/data-view-key'
 import {isRecord} from '@spark-appworks/spark-utils'
-import type {DataViewQueryChild, QueryParams, ViewMetadata} from '../types'
+import type {SortExpression, DataViewQueryChild, QueryParams, ViewMetadata} from '../types'
 import {DataViewFilterLookup} from './data-view-filter-lookup'
 import {DataViewFilter} from './filter/data-view-filter'
 
@@ -26,6 +26,11 @@ export class DataViewQuery {
    */
   static isPaginated(config: NonNullable<ViewMetadata['queryConfig']>): boolean {
     return config.pagination !== 'none' && config.tree === undefined && config.outputType !== 'SelfRefData' && config.allPages !== true
+  }
+
+  /** 将正式排序声明转为查询输入；定义校验与运行请求复用同一格式。 */
+  static serializeSort(sort: SortExpression): string {
+    return sort.map(field => `${field.field}:${field.direction ?? 'asc'}`).join(',')
   }
 
   /** 查询配置编辑的常用输出类型候选；不是协议白名单，parse仍保留未列出的扩展类型。 */

@@ -3802,11 +3802,6 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     })
   }
 
-  /** 将 SortExpression 序列化为查询字符串格式（如 `name:asc` 或 `name:asc,age:desc`） */
-  private _serializeSort(sort: SortExpression): string {
-    return sort.map(f => `${f.field}:${f.direction ?? 'asc'}`).join(',')
-  }
-
   private withViewQueryDefaults(params: QueryParams): QueryParams {
     params.viewId ??= this.viewId
     params.viewConfig ??= this._buildRemoteViewConfig()
@@ -3817,7 +3812,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
       params.pageSize ??= this.pageSize
     }
     if (params.filter === undefined && this.filterExpression !== undefined) params.filter = this.filterExpression
-    if (params.sort === undefined && this.sortExpression !== undefined) params.sort = this._serializeSort(this.sortExpression)
+    if (params.sort === undefined && this.sortExpression !== undefined) params.sort = DataViewQuery.serializeSort(this.sortExpression)
     if (this.#queryExecutor !== undefined || this.fieldProjection.length > 0 || Object.keys(this.queryContext).length > 0) {
       params.projection ??= this.fieldProjection
       params.context ??= this.queryContext

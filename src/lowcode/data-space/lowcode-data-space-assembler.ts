@@ -175,6 +175,7 @@ export class LowcodeDataSpaceAssembler {
      this.runtime.bindModelView(view, model, arrayRows)
     })
    }
+   this.runtime.validateQueryDefinitions(dataSet)
    return {dataSet, diagnostics: relations.diagnostics}
   } catch (error) { dataSet.destroy(); throw error }
  }

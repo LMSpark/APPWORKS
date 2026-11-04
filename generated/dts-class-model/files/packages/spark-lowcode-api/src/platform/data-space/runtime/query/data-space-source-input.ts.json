@@ -46,6 +46,25 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.validateBindings.params": {
+          "type": "object",
+          "properties": {
+            "bindings": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataSpaceSourceInputBinding"
+              }
+            },
+            "mode": {
+              "enum": [
+                "mapped",
+                "direct"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateBindings.return": true,
         "method.resolve.params": {
           "type": "object",
           "properties": {
@@ -79,7 +98,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-11T07:06:59.546Z",
+  "generatedAt": "2026-11-04T03:31:27.794Z",
   "models": {
     "DataSpaceSourceInputBinding": {
       "name": "DataSpaceSourceInputBinding",
@@ -130,6 +149,42 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "validateBindings",
+              "jsdoc": "校验来源映射结构；输入引用只检查名称，实际值仍由运行时resolve核验。direct不执行保存的映射。",
+              "parameters": [
+                {
+                  "name": "bindings",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataSpaceSourceInputBinding[]"
+                  }
+                },
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "mapped"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "direct"
+                      }
+                    ]
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "resolve",
               "jsdoc": "mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。",

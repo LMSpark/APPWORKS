@@ -91,6 +91,18 @@
         "method.isPaginated.return": {
           "type": "boolean"
         },
+        "method.serializeSort.params": {
+          "type": "object",
+          "properties": {
+            "sort": {
+              "$ref": "../types.ts.json#/$defs/SortExpression"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.serializeSort.return": {
+          "type": "string"
+        },
         "method.parse.params": {
           "type": "object",
           "properties": {
@@ -153,7 +165,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.565Z",
+  "generatedAt": "2026-11-04T03:25:41.843Z",
   "models": {
     "DataViewQuery": {
       "name": "DataViewQuery",
@@ -229,6 +241,24 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            },
+            {
+              "name": "serializeSort",
+              "jsdoc": "将正式排序声明转为查询输入；定义校验与运行请求复用同一格式。",
+              "parameters": [
+                {
+                  "name": "sort",
+                  "type": {
+                    "type": "reference",
+                    "name": "SortExpression",
+                    "sourcePath": "packages/spark-data/src/types.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
               }
             },
             {

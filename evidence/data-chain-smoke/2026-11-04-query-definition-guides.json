@@ -1,0 +1,271 @@
+[
+  {
+    "kind": "DataSpaceRuntimeApi",
+    "catalog": {
+      "rootKind": "DataSpaceRuntimeApi",
+      "models": [
+        {
+          "kind": "DataSpaceRuntimeApi",
+          "name": "DataSpaceRuntimeApi",
+          "jsdoc": "拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。",
+          "summary": "拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataSpaceRuntimeApi",
+      "models": [
+        {
+          "kind": "DataSpaceRuntimeApi",
+          "name": "DataSpaceRuntimeApi",
+          "jsdoc": "拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。",
+          "summary": "拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。",
+          "constructorSignature": {
+            "summary": "建立共享查询缓存与保存请求 owner，使用同一个请求 scope 读取器。",
+            "jsdoc": "建立共享查询缓存与保存请求 owner，使用同一个请求 scope 读取器。",
+            "signature": "constructor(options: DataSpaceRuntimeApiOptions)"
+          },
+          "attributes": [
+            {
+              "name": "parentResults",
+              "jsdoc": "父结果来源由同一运行owner校验正式模型并消费，不另发HTTP。",
+              "summary": "父结果来源由同一运行owner校验正式模型并消费，不另发HTTP。",
+              "typeText": "unknown"
+            },
+            {
+              "name": "localAggregates",
+              "jsdoc": "正式服务汇总必须消费后端结果；旧view.aggregates不能按分页行或选择缓存计算。静态数组绑定其本地owner。",
+              "summary": "正式服务汇总必须消费后端结果；旧view.aggregates不能按分页行或选择缓存计算。静态数组绑定其本地owner。",
+              "typeText": "unknown"
+            }
+          ],
+          "methods": [
+            {
+              "name": "validateResourceQuery",
+              "jsdoc": "校验已有资源查询能力，设计时来源替换与实际执行复用同一判定。\n@param model 正式来源类型和资源名，不替代模型查询身份。\n@param query 待保留的视图查询特征；不推导数据权限或资源可写性。\n@throws SPARK_SOURCE_INPUT或SPARK_QUERY_AGGREGATE表示当前适配链不支持该组合。",
+              "summary": "校验已有资源查询能力，设计时来源替换与实际执行复用同一判定。",
+              "signature": "validateResourceQuery(model: DataSpaceRuntimeQuerySource, query: DataSpaceResourceQuery): void"
+            },
+            {
+              "name": "query",
+              "jsdoc": "查询后端注册模型；原结果上下文只供 SparkData.DataView 的执行边界持有。",
+              "summary": "查询后端注册模型；原结果上下文只供 SparkData.DataView 的执行边界持有。",
+              "signature": "query(identity: DataSpaceQueryIdentity, options?: DataSpaceQueryOptions): Promise<DataSpaceQueryContext>"
+            },
+            {
+              "name": "invalidateQueryCache",
+              "jsdoc": "清除当前请求owner的查询结果；登录/应用切换、刷新及写入共用，不撤销已接纳的查询基线。",
+              "summary": "清除当前请求owner的查询结果；登录/应用切换、刷新及写入共用，不撤销已接纳的查询基线。",
+              "signature": "invalidateQueryCache(): void"
+            },
+            {
+              "name": "releaseQueryCache",
+              "jsdoc": "页面释放沿SparkData.DataView生命周期清理页面级结果。",
+              "summary": "页面释放沿SparkData.DataView生命周期清理页面级结果。",
+              "signature": "releaseQueryCache(page: object): void"
+            },
+            {
+              "name": "bindModelView",
+              "jsdoc": "将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。\n正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。",
+              "summary": "将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。",
+              "signature": "bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, arrayRows?: readonly SparkData.DataRow[]): void"
+            },
+            {
+              "name": "resolveTreeFields",
+              "jsdoc": "正式查询自动补齐的树结构字段；合并渲染配置与显式查询依赖，不表示已获得读取权限。\n@param view 所属视图；设计候选缺省读取其当前查询配置。\n@param formalFields 正式输出字段，用于判断省略的父键和文本字段是否存在。\n@param queryTree 本次查询捕获的树参数；省略时使用视图queryConfig.tree。\n@returns 需要查询并核验可读性的模型输出字段名集合。",
+              "summary": "正式查询自动补齐的树结构字段；合并渲染配置与显式查询依赖，不表示已获得读取权限。",
+              "signature": "resolveTreeFields(view: SparkData.DataView, formalFields: ReadonlySet<string>, queryTree?: SparkData.QueryParams['tree']): ReadonlySet<string>"
+            },
+            {
+              "name": "queryColumns",
+              "jsdoc": "从本运行owner绑定的正式模型解析查询字段，供SparkData.DataView.queryColumns统一消费。\n字段名为规范输出名；不受命名视图显示投影限制，不包含非输出或本地计算列，也不授予数据权限。\n未绑定正式模型的既有原生查询仍使用其SparkData.DataTable字段，生命周期由SparkData.DataView保护。",
+              "summary": "从本运行owner绑定的正式模型解析查询字段，供SparkData.DataView.queryColumns统一消费。",
+              "signature": "queryColumns(view: SparkData.DataView): readonly SparkData.DataColumn[]"
+            },
+            {
+              "name": "executeQuery",
+              "jsdoc": "命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。",
+              "summary": "命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。",
+              "signature": "executeQuery(view: SparkData.DataView, params: SparkData.QueryParams): Promise<DataSpaceQueryContext>"
+            },
+            {
+              "name": "validateQueryDefinitions",
+              "jsdoc": "校验显式查询图及父结果的实际直接子路径；不查询业务行、不创建查询上下文。",
+              "summary": "校验显式查询图及父结果的实际直接子路径；不查询业务行、不创建查询上下文。",
+              "signature": "validateQueryDefinitions(dataSet: SparkData.DataSet): void"
+            },
+            {
+              "name": "hasUnconfirmedSave",
+              "jsdoc": "原保存请求已发出但结果未确认；SparkData.DataView 据此只允许经原保存入口核验。",
+              "summary": "原保存请求已发出但结果未确认；SparkData.DataView 据此只允许经原保存入口核验。",
+              "signature": "hasUnconfirmedSave(context: DataSpaceQueryContext): boolean"
+            },
+            {
+              "name": "abandonUnconfirmedSave",
+              "jsdoc": "调用方明确放弃核验：解除整批待核验记录，不撤销服务端可能已生效的写入。",
+              "summary": "调用方明确放弃核验：解除整批待核验记录，不撤销服务端可能已生效的写入。",
+              "signature": "abandonUnconfirmedSave(context: DataSpaceQueryContext): void"
+            },
+            {
+              "name": "save",
+              "jsdoc": "",
+              "summary": "",
+              "signature": "save(command: DataSpaceRuntimeSaveCommand): Promise<DataSpaceRuntimeSaveResult>"
+            },
+            {
+              "name": "refreshSavedRowPermissions",
+              "jsdoc": "已确认新增行的权限精确回读；不提交数据、不重放保存，也不重查整页。",
+              "summary": "已确认新增行的权限精确回读；不提交数据、不重放保存，也不重查整页。",
+              "signature": "refreshSavedRowPermissions(context: DataSpaceQueryContext): Promise<DataSpaceQueryContext>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "拥有原查询缓存、保存基线归属和同模型读写串行化；SparkData.DataView 与 DataSet 消费同一实际保存 owner。\nclass DataSpaceRuntimeApi {\n  建立共享查询缓存与保存请求 owner，使用同一个请求 scope 读取器。\n  constructor(options: DataSpaceRuntimeApiOptions)\n  父结果来源由同一运行owner校验正式模型并消费，不另发HTTP。\n  readonly parentResults: unknown\n  正式服务汇总必须消费后端结果；旧view.aggregates不能按分页行或选择缓存计算。静态数组绑定其本地owner。\n  readonly localAggregates: unknown\n  校验已有资源查询能力，设计时来源替换与实际执行复用同一判定。\n  @param model 正式来源类型和资源名，不替代模型查询身份。\n  @param query 待保留的视图查询特征；不推导数据权限或资源可写性。\n  @throws SPARK_SOURCE_INPUT或SPARK_QUERY_AGGREGATE表示当前适配链不支持该组合。\n  validateResourceQuery(model: DataSpaceRuntimeQuerySource, query: DataSpaceResourceQuery): void\n  查询后端注册模型；原结果上下文只供 SparkData.DataView 的执行边界持有。\n  query(identity: DataSpaceQueryIdentity, options?: DataSpaceQueryOptions): Promise<DataSpaceQueryContext>\n  清除当前请求owner的查询结果；登录/应用切换、刷新及写入共用，不撤销已接纳的查询基线。\n  invalidateQueryCache(): void\n  页面释放沿SparkData.DataView生命周期清理页面级结果。\n  releaseQueryCache(page: object): void\n  将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。\n  正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。\n  bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, arrayRows?: readonly SparkData.DataRow[]): void\n  正式查询自动补齐的树结构字段；合并渲染配置与显式查询依赖，不表示已获得读取权限。\n  @param view 所属视图；设计候选缺省读取其当前查询配置。\n  @param formalFields 正式输出字段，用于判断省略的父键和文本字段是否存在。\n  @param queryTree 本次查询捕获的树参数；省略时使用视图queryConfig.tree。\n  @returns 需要查询并核验可读性的模型输出字段名集合。\n  resolveTreeFields(view: SparkData.DataView, formalFields: ReadonlySet<string>, queryTree?: SparkData.QueryParams['tree']): ReadonlySet<string>\n  从本运行owner绑定的正式模型解析查询字段，供SparkData.DataView.queryColumns统一消费。\n  字段名为规范输出名；不受命名视图显示投影限制，不包含非输出或本地计算列，也不授予数据权限。\n  未绑定正式模型的既有原生查询仍使用其SparkData.DataTable字段，生命周期由SparkData.DataView保护。\n  queryColumns(view: SparkData.DataView): readonly SparkData.DataColumn[]\n  命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。\n  executeQuery(view: SparkData.DataView, params: SparkData.QueryParams): Promise<DataSpaceQueryContext>\n  校验显式查询图及父结果的实际直接子路径；不查询业务行、不创建查询上下文。\n  validateQueryDefinitions(dataSet: SparkData.DataSet): void\n  原保存请求已发出但结果未确认；SparkData.DataView 据此只允许经原保存入口核验。\n  hasUnconfirmedSave(context: DataSpaceQueryContext): boolean\n  调用方明确放弃核验：解除整批待核验记录，不撤销服务端可能已生效的写入。\n  abandonUnconfirmedSave(context: DataSpaceQueryContext): void\n  save(command: DataSpaceRuntimeSaveCommand): Promise<DataSpaceRuntimeSaveResult>\n  已确认新增行的权限精确回读；不提交数据、不重放保存，也不重查整页。\n  refreshSavedRowPermissions(context: DataSpaceQueryContext): Promise<DataSpaceQueryContext>\n}"
+  },
+  {
+    "kind": "DataSpaceQueryGraph",
+    "catalog": {
+      "rootKind": "DataSpaceQueryGraph",
+      "models": [
+        {
+          "kind": "DataSpaceQueryGraph",
+          "name": "DataSpaceQueryGraph",
+          "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+          "summary": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataSpaceQueryGraph",
+      "models": [
+        {
+          "kind": "DataSpaceQueryGraph",
+          "name": "DataSpaceQueryGraph",
+          "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+          "summary": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+          "constructorSignature": {
+            "summary": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+            "jsdoc": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "捕获完整正式模型图，派发、分页、缓存接纳与结果读取复用同一失效检查。",
+              "summary": "捕获完整正式模型图，派发、分页、缓存接纳与结果读取复用同一失效检查。",
+              "signature": "resolve(input: QueryGraphInput): Readonly<{\n        options: DataSpaceQueryOptions;\n        projection: DataSpaceQueryProjection;\n    }> | undefined"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。\nclass DataSpaceQueryGraph {\n  解析显式非空SQL子计划；扁平Join和分层结果分别维护输出列，原叶查询保持原责任方。\n  constructor()\n  捕获完整正式模型图，派发、分页、缓存接纳与结果读取复用同一失效检查。\n  resolve(input: QueryGraphInput): Readonly<{\n          options: DataSpaceQueryOptions;\n          projection: DataSpaceQueryProjection;\n      }> | undefined\n}"
+  },
+  {
+    "kind": "DataSpaceSourceInput",
+    "catalog": {
+      "rootKind": "DataSpaceSourceInput",
+      "models": [
+        {
+          "kind": "DataSpaceSourceInput",
+          "name": "DataSpaceSourceInput",
+          "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+          "summary": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataSpaceSourceInput",
+      "models": [
+        {
+          "kind": "DataSpaceSourceInput",
+          "name": "DataSpaceSourceInput",
+          "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+          "summary": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+          "constructorSignature": {
+            "summary": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+            "jsdoc": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "validateBindings",
+              "jsdoc": "校验来源映射结构；输入引用只检查名称，实际值仍由运行时resolve核验。direct不执行保存的映射。",
+              "summary": "校验来源映射结构；输入引用只检查名称，实际值仍由运行时resolve核验。direct不执行保存的映射。",
+              "signature": "validateBindings(bindings: readonly DataSpaceSourceInputBinding[], mode?: \"mapped\" | \"direct\"): void"
+            },
+            {
+              "name": "resolve",
+              "jsdoc": "mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。",
+              "summary": "mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。",
+              "signature": "resolve(bindings: readonly DataSpaceSourceInputBinding[], inputs: readonly DataSpaceQueryInput[] | undefined, mode?: \"mapped\" | \"direct\"): readonly DataSpaceQueryInput[]"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。\nclass DataSpaceSourceInput {\n  正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。\n  constructor()\n  校验来源映射结构；输入引用只检查名称，实际值仍由运行时resolve核验。direct不执行保存的映射。\n  validateBindings(bindings: readonly DataSpaceSourceInputBinding[], mode?: \"mapped\" | \"direct\"): void\n  mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。\n  resolve(bindings: readonly DataSpaceSourceInputBinding[], inputs: readonly DataSpaceQueryInput[] | undefined, mode?: \"mapped\" | \"direct\"): readonly DataSpaceQueryInput[]\n}"
+  },
+  {
+    "kind": "DataViewParentResult",
+    "catalog": {
+      "rootKind": "DataViewParentResult",
+      "models": [
+        {
+          "kind": "DataViewParentResult",
+          "name": "DataViewParentResult",
+          "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "summary": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。"
+        }
+      ]
+    },
+    "overview": {
+      "rootKind": "DataViewParentResult",
+      "models": [
+        {
+          "kind": "DataViewParentResult",
+          "name": "DataViewParentResult",
+          "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "summary": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+          "constructorSignature": {
+            "summary": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+            "jsdoc": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。",
+            "signature": "constructor()"
+          },
+          "attributes": [],
+          "methods": [
+            {
+              "name": "resolve",
+              "jsdoc": "解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。",
+              "summary": "解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。",
+              "signature": "resolve(view: DataView, config?: NonNullable<ViewMetadata['queryConfig']>): DataView | undefined"
+            },
+            {
+              "name": "validateRequest",
+              "jsdoc": "子来源不能夹带未执行的独立远程过滤、排序、树或聚合。",
+              "summary": "子来源不能夹带未执行的独立远程过滤、排序、树或聚合。",
+              "signature": "validateRequest(view: DataView, params: QueryParams): void"
+            },
+            {
+              "name": "validateProjection",
+              "jsdoc": "只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。",
+              "summary": "只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。",
+              "signature": "validateProjection(view: DataView, expected: readonly DataViewFieldProjection[]): void"
+            },
+            {
+              "name": "request",
+              "jsdoc": "等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。",
+              "summary": "等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。",
+              "signature": "request(view: DataView): Promise<void>"
+            }
+          ]
+        }
+      ]
+    },
+    "guide": "父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。\nclass DataViewParentResult {\n  父结果来源的公共定位与等待合同，订阅仍归CascadeDelegate生命周期。\n  constructor()\n  解析同DataSet完整父键，并同时检查现有查询级联形成的依赖环。\n  resolve(view: DataView, config?: NonNullable<ViewMetadata['queryConfig']>): DataView | undefined\n  子来源不能夹带未执行的独立远程过滤、排序、树或聚合。\n  validateRequest(view: DataView, params: QueryParams): void\n  只允许正式模型默认绑定投影；结果列与子过滤由父计划确定，比较配置不依赖对象属性顺序。\n  validateProjection(view: DataView, expected: readonly DataViewFieldProjection[]): void\n  等待已存在的父查询；Idle按原依赖请求一次，Failed不自动重试。\n  request(view: DataView): Promise<void>\n}"
+  }
+]

@@ -19,17 +19,35 @@ export type DataSpaceSourceInputBinding = Readonly<{
 
 /** 正式来源参数求值；保留其他业务输入供后端模型过滤消费，不修改原定义或视图。 */
 export class DataSpaceSourceInput {
-  /** mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。 */
-  public static resolve(bindings: readonly DataSpaceSourceInputBinding[],
-    inputs: readonly DataSpaceQueryInput[] | undefined, mode: 'mapped' | 'direct' = 'mapped'): readonly DataSpaceQueryInput[] {
+  /** 校验来源映射结构；输入引用只检查名称，实际值仍由运行时resolve核验。direct不执行保存的映射。 */
+  public static validateBindings(bindings: readonly DataSpaceSourceInputBinding[], mode: 'mapped' | 'direct' = 'mapped'): void {
     if (!['mapped', 'direct'].includes(mode)) throw new Error('SPARK_SOURCE_INPUT: 未支持的来源入参模式')
-    const original = new Map((inputs ?? []).map(input => [input.name, input.value]))
-    const result = new Map(original)
     const names = new Set<string>()
     for (const binding of bindings) {
       const fail: (detail: string) => never = detail => {throw new Error(`SPARK_SOURCE_INPUT: ${binding.name} (${binding.id}) ${detail}`)}
       if (!binding.name.trim() || names.has(binding.name)) fail('来源参数名为空或重复')
       names.add(binding.name)
+      if (mode === 'direct') continue
+      const expression = binding.valueFunction
+      if (expression === undefined) fail('缺少取值配置')
+      if (expression.Type === 'GetInputParam') {
+        const name = expression['ParamName']
+        if (typeof name !== 'string' || !name.trim()) fail('所需调用输入名称缺失')
+      } else if (expression.Type === 'GetConstValue') {
+        const value = expression['Value']
+        if (value === undefined || !DataViewFilter.parse({field: binding.name, operator: 'eq', value: expression}).ok) fail('取值不是有效JSON')
+      } else fail(`没有已确认的来源入参执行合同: ${expression.Type}`)
+    }
+  }
+
+  /** mapped从原输入快照求值并覆盖同名出站参数；direct须按正式来源名完整提供值，不执行保存的取值函数。返回独立JSON值。 */
+  public static resolve(bindings: readonly DataSpaceSourceInputBinding[],
+    inputs: readonly DataSpaceQueryInput[] | undefined, mode: 'mapped' | 'direct' = 'mapped'): readonly DataSpaceQueryInput[] {
+    this.validateBindings(bindings, mode)
+    const original = new Map((inputs ?? []).map(input => [input.name, input.value]))
+    const result = new Map(original)
+    for (const binding of bindings) {
+      const fail: (detail: string) => never = detail => {throw new Error(`SPARK_SOURCE_INPUT: ${binding.name} (${binding.id}) ${detail}`)}
       const expression = binding.valueFunction
       let value: unknown
       if (mode === 'direct') {

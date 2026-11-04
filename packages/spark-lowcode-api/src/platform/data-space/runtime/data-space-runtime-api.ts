@@ -246,13 +246,7 @@ export class DataSpaceRuntimeApi {
   /** 命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。 */
   public async executeQuery(view: SparkData.DataView, params: SparkData.QueryParams): Promise<DataSpaceQueryContext> {
     if (params.parentResult) {
-      SparkData.DataViewParentResult.validateRequest(view, params)
-      const binding = view.dataTable ? this.#models.get(view.dataTable) : undefined
-      if (!binding) throw new Error('SPARK_PARENT_MODEL: 父来源需要正式目标模型绑定')
-      this.assertScope(binding.scope)
-      const expected = DataSpaceDesignApi.createFieldProjection(binding.model)
-        .filter(field => view.dataTable?.columns.some(column => column.name === field.resourceField))
-      SparkData.DataViewParentResult.validateProjection(view, expected)
+      const binding = this.prepareParentQuery(view, params)
       await SparkData.DataViewParentResult.request(view)
       this.assertScope(binding.scope)
       const source = SparkData.DataViewParentResult.resolve(view)
@@ -263,7 +257,23 @@ export class DataSpaceRuntimeApi {
       result.bindFormalModel(binding.model)
       return result
     }
-    const command = captureDataSpaceViewQuery(view, params)
+    return this.queryWithConfig(this.prepareQuery(view, params))
+  }
+
+  private prepareParentQuery(view: SparkData.DataView, params: SparkData.QueryParams) {
+      SparkData.DataViewParentResult.validateRequest(view, params)
+      const binding = view.dataTable ? this.#models.get(view.dataTable) : undefined
+      if (!binding) throw new Error('SPARK_PARENT_MODEL: 父来源需要正式目标模型绑定')
+      this.assertScope(binding.scope)
+      const expected = DataSpaceDesignApi.createFieldProjection(binding.model)
+        .filter(field => view.dataTable?.columns.some(column => column.name === field.resourceField))
+      SparkData.DataViewParentResult.validateProjection(view, expected)
+      return binding
+  }
+
+  private prepareQuery(view: SparkData.DataView, params: SparkData.QueryParams,
+    capture: Readonly<{bindInputParams?: boolean}> = {}): DataSpaceQueryWithConfigInput {
+    const command = captureDataSpaceViewQuery(view, params, capture)
     const config = DataSpaceRequestConfig.resolveQuery(view.dataTable ?? undefined)
     const binding = view.dataTable ? this.#models.get(view.dataTable) : undefined
     if (binding) this.assertScope(binding.scope)
@@ -271,9 +281,10 @@ export class DataSpaceRuntimeApi {
     if (model === undefined) {
       if (command.options.children?.length) throw new Error('SPARK_JOIN_MODEL: 子查询需要正式模型绑定')
       if (command.sourceInputMode === 'direct') throw new Error('SPARK_SOURCE_INPUT: 直接来源入参需要正式模型绑定')
-      return this.queryWithConfig({identity: command.identity, options: command.options, config, view})
+      return {identity: command.identity, options: command.options, config, view}
     }
     DataSpaceRuntimeApi.validateResourceQuery(model, {sourceInputMode: command.sourceInputMode})
+    if (capture.bindInputParams === false && model.sourceInputBindings?.length) DataSpaceSourceInput.validateBindings(model.sourceInputBindings, command.sourceInputMode)
     const outputFields = DataSpaceDesignApi.resolveOutputFields(model)
     const requestField = (output: string): string => {
       const field = outputFields.find(candidate => candidate.canonicalName === output)
@@ -358,12 +369,12 @@ export class DataSpaceRuntimeApi {
     if (options.children?.length && aggregateResult) throw new Error('SPARK_JOIN_AGGREGATE: 显式子Join的全图聚合尚未承接')
     const join = DataSpaceQueryGraph.resolve({view, model, options: {...options, ...(queryFields === undefined ? {} : {fields: queryFields})},
       readModel: table => {const entry = this.#models.get(table); if (entry) this.assertScope(entry.scope); return entry?.model}})
-    const context = await this.queryWithConfig({
+    return {
       ...(join === undefined ? {} : {projection: join.projection}),
       identity: command.identity,
       options: {...options, outputFieldMode: 'REQUEST',
         ...(join?.options.children === undefined ? {} : {children: join.options.children}),
-        ...(model.sourceInputBindings?.length ? {inputParams: DataSpaceSourceInput.resolve(model.sourceInputBindings, options.inputParams, command.sourceInputMode)} : {}),
+        ...(model.sourceInputBindings?.length && capture.bindInputParams !== false ? {inputParams: DataSpaceSourceInput.resolve(model.sourceInputBindings, options.inputParams, command.sourceInputMode)} : {}),
         ...(queryFields === undefined ? {} : {fields: queryFields}),
         ...(options.sort === undefined ? {} : {sort: options.sort.map(sort => ({...sort, field: requestField(sort.field)}))}),
         ...(options.filter ? {filter: toFilter(filterTree(options.filter.toJSON()))} : {}),
@@ -382,8 +393,39 @@ export class DataSpaceRuntimeApi {
         }
       },
       definition: model,
+    }
+  }
+
+  /** 校验显式查询图及父结果的实际直接子路径；不查询业务行、不创建查询上下文。 */
+  public validateQueryDefinitions(dataSet: SparkData.DataSet): void {
+    const plans = new Map<SparkData.DataView, DataSpaceQueryProjection['nested']>()
+    const resolve = (view: SparkData.DataView): DataSpaceQueryProjection['nested'] => {
+      if (plans.has(view)) return plans.get(view)
+      const params = SparkData.DataViewQuery.capture(view.queryConfig)
+      let plan: DataSpaceQueryProjection['nested']
+      if (params.parentResult) {
+        const binding = this.prepareParentQuery(view, params)
+        const parent = SparkData.DataViewParentResult.resolve(view)
+        const upstream = parent && resolve(parent)
+        const children = upstream?.root.children.filter(node => node.model.metaName === params.parentResult?.childModelName) ?? []
+        if (!upstream || children.length !== 1 || children[0]?.model.id !== binding.model.id) {
+          throw new Error('SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划')
+        }
+        plan = {mode: upstream.mode, root: children[0]}
+      } else {
+        const prepared = this.prepareQuery(view, {...params,
+          ...(view.filterExpression === undefined ? {} : {filter: view.filterExpression}),
+          ...(view.sortExpression === undefined ? {} : {sort: SparkData.DataViewQuery.serializeSort(view.sortExpression)})},
+          {bindInputParams: false})
+        prepared.projection?.assertCurrent()
+        plan = prepared.projection?.nested
+      }
+      plans.set(view, plan)
+      return plan
+    }
+    for (const table of Object.values(dataSet.tables)) table.forEachView(view => {
+      if (view.queryConfig.parentResult || view.queryConfig.children?.length) resolve(view)
     })
-    return context
   }
 
   /** 原保存请求已发出但结果未确认；SparkData.DataView 据此只允许经原保存入口核验。 */

@@ -589,3 +589,18 @@ describe('shared data-space view design owner', () => {
     expect(destroy).toHaveBeenCalledOnce()
   })
 })
+
+it('rejects a derived definition whose named parent has no nested result before writing the file', async () => {
+  const f = fixture(), {session, view, key} = await openNative(f)
+  if (key === undefined) throw new Error('definition row key missing')
+  const original = f.getRemote(), config = {pagination: 'none', autoQuery: false,
+    parentResult: {dataViewKey: 'SPACE@OrdersModel@default', childModelName: 'OrdersModel'}}
+  try {
+    view.updateEditingValue(key, 'queryConfig', config)
+    await expect(session.metadataDataSet.saveChanges(definitionSave)).rejects.toThrow('SPARK_PARENT_PLAN')
+    expect(f.writeText).not.toHaveBeenCalled()
+    expect(f.getRemote()).toBe(original)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(view.getEditingRow(key)?.['queryConfig']).toEqual(config)
+  } finally {session.dispose()}
+})

@@ -5848,3 +5848,16 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - parentResult先沿原DataViewParentResult.resolve与原请求/投影冲突守卫核同实例完整键、子身份、具体view等待循环，再由持有正式图的runtime解析有效直接子树。普通父须Navigation/Hierarchy并唯一直接命中childModelName；派生父沿上游继承子树，不要求派生父另写被禁止的children。不能借同模型另一视图的计划，也不能用模型闭包判运行环。
 - 设计校验与运行输入绑定分开：当前captureDataSpaceViewQuery会执行bindInputParams，不得因设计时缺值误拒合法运行参数占位；先结构准备/引用检查，执行仍沿原输入校验。测试覆盖非default/多级正例、兄弟Navigation/单子Hierarchy；错父view/只在孙层/Table或Join父/缺子、children重复祖先与直接重名、字段集合冲突、parentResult与原query级联成环、子独立输入冲突；改父反向消费校验、无关坏引用隔离、scope过期和失败候选释放。
 - 验收先受控响应证明负例业务查询0/文件上传0且不进unknown，原草稿可修正后保存；再沿已证明可精确恢复的受控实服空间，两个代表负例零上传、有效多级具名计划保存/独立回读/标准Table消费，按既有依赖顺序清配置与元数据并核原SHA和原模型集合。原Foreign/LEFT部署缺口、聚合、长PId及全参考页面矩阵仍独立保留。以上为方案，尚非已实现事实；全目标active。
+
+### 2026-11-04 重复到达的触发烟测授权核对
+- 用户再次确认的单条停用WORKFLOW_TRIGGER授权对应上文806B196D9DA046DC8043DF41830B647D已完成的历史生命周期；本次仅核对台账与既存证据，不重建、不重放保存或删除。配置保存/独立回读/重开/清理已记载，实际事件或调度执行仍未验收。当前工作区另有保存前查询定义校验的5文件未完成修改，保持原状，未冒称通过或提交；全架构目标继续active。
+
+### 2026-11-04 保存前查询定义校验与三级消费工位（实施中）
+- 复用executeQuery纯准备步骤，新增同步定义校验，所有绑定完成后沿共同assembler接入两保存入口；根/深层参数占位只验结构，运行继续求值。具体父视图按原nested投影逐层取直接子树，Table/Join、跨层跳取拒绝；源映射结构与值求值分离。原RED真实复现无nested父定义被保存；首102及扩21文件893通过，后补scope和隐式主键冲突61通过；根typecheck/lint、ClassModel49、build/page-thin通过。包typecheck仍15诊断，未宣称全仓全绿。
+- 实服唯一负例探针86678/31000已真实exit0：Table和Join两次原DataSet保存SPARK_PARENT_PLAN，46读0写、blockedWrites0、无unknown、草稿保留、owner不变；独立回读SHA仍b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3。无新正式记录。
+- 下一步用新SMOKE_QDM标记的3模型11字段验证Root→Child→Grand：仍既有受控944DEE...文件，原DataViewDefinition保存/回读/标准Table消费，先清具名视图再绑定再逆序清模型；仅owned IDs及固定file允许写入，未知不重放，原基线须精确恢复。旧已清理fixture不复用不重建。全目标active，合法实服三级消费尚未验收。
+
+- 本卡实服合法三级闭环：marker SMOKE_QDM_1793763533555，3模型CC2603BB3145861E265DEEF6615D1717/5D5E5788D01712A25A68666A532D69A2/B3A96EA85E7948FBBDE5AE7869D68A7E及11字段；actor17424/creator34056，16读预检、34读1DB批创建、35读取消、53读1文件保存、64读编辑取消、82读2文件修改保存。正式图Root→Child→Grand，最下层modelScope独立loader恢复恰好3模型；SDK先17读0写通过父2、子孙3/3和4/4、逐子切换不新HTTP；补充显式child.refresh后grand恢复断言再次17读0写通过，未重放写入。
+- IAB tab4正常受保护登录及原AppWorks导航，诊断PageRuntime三个标准Table从实服hash e3dce78bec8615c4acce19542e5755276858c00fbcc5852ed0474b56a51a57d8重开。父切换及子lingma_sys_ent切换17读不变、空父两层0、父刷新增1读至18，新document重开17读两层4；独立子/孙排序过滤均false，父true。JSON及截图query-definition-multilevel-browser已归档；不是完整参考页验收，tab已关闭、凭据RAM变量清空。
+- 原链清理109累计读第3文件替换清具名视图、157读第4替换清绑定并精确恢复原文、233读共4DB批清3模型11字段，pending空/lifecycle cleaned，CREATOR_EXIT0且17424真实exit0。43271/28436独立12读0写exit0：3模型及11字段rows/total均0且Count报告，原4模型ID全保留，SHA b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3精确恢复；Get-Process两PID缺失。无未知结果、无未清夹具。
+- 最后21文件895测试、包独立runtime139、根typecheck、受改lint、ClassModel49、build:fe/page-thin/docs563通过；API包typecheck仍15诊断（本轮新测试undefined常量诊断已修），不宣称全仓类型通过。高阶最终静态复核无新确定重要问题；正式生成后111份等价时间戳/符号漂移按归一证明恢复，保留5份真实合同/位置/manifest产物。证据2026-11-04-query-definition-validation.json及guides.json。当前保存前校验与三级持久消费已验证，整体目标active，下一工位正在核真正设计器UI入口和参考完整语义，原服务及全页矩阵缺口保留。

@@ -2634,7 +2634,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-04T02:57:26.242Z"
+      "sourceModifiedAt": "2026-11-04T03:25:41.845Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2714,7 +2714,7 @@
     "packages/spark-data/src/query/data-view-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-query.ts.json",
-      "sourceModifiedAt": "2026-11-03T19:32:37.104Z"
+      "sourceModifiedAt": "2026-11-04T03:25:41.843Z"
     },
     "packages/spark-data/src/query/data-view-source.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
@@ -3074,7 +3074,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-03T20:16:31.288Z"
+      "sourceModifiedAt": "2026-11-04T03:33:21.711Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3144,7 +3144,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-options.ts.json",
-      "sourceModifiedAt": "2026-11-03T19:02:41.016Z"
+      "sourceModifiedAt": "2026-11-04T03:25:41.842Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-resource.ts",
@@ -3159,7 +3159,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-source-input.ts.json",
-      "sourceModifiedAt": "2026-10-11T07:06:59.546Z"
+      "sourceModifiedAt": "2026-11-04T03:31:27.794Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-guard.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/save/data-space-save-guard.ts",
@@ -3694,7 +3694,7 @@
     "src/lowcode/data-space/lowcode-data-space-assembler.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-assembler.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-assembler.ts.json",
-      "sourceModifiedAt": "2026-10-18T12:18:49.492Z"
+      "sourceModifiedAt": "2026-11-04T03:29:52.736Z"
     },
     "src/lowcode/data-space/lowcode-data-space-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",

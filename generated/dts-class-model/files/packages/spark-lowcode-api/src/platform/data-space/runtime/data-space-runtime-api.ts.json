@@ -317,6 +317,17 @@
           "type": "object",
           "title": "Promise<DataSpaceQueryContext>"
         },
+        "method.validateQueryDefinitions.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "SparkData.DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validateQueryDefinitions.return": true,
         "method.hasUnconfirmedSave.params": {
           "type": "object",
           "properties": {
@@ -368,7 +379,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T20:16:31.288Z",
+  "generatedAt": "2026-11-04T03:33:21.711Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -798,6 +809,23 @@
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "validateQueryDefinitions",
+              "jsdoc": "校验显式查询图及父结果的实际直接子路径；不查询业务行、不创建查询上下文。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkData.DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

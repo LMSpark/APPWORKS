@@ -1,0 +1,231 @@
+{
+  "phase": "confirmed",
+  "testedAt": "2026-11-04T03:44:44.332Z",
+  "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+  "marker": "SMOKE_QDM_1793763533555",
+  "scope": "diagnostic PageRuntime with three standard RendererTable; original login and application navigation",
+  "checks": [
+    {
+      "step": "initial",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_QDM_1793763533555Parent",
+          "SMOKE_QDM_1793763533555Child",
+          "SMOKE_QDM_1793763533555Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_QDM_1793763533555_CHILD",
+          "label": "SMOKE_QDM_1793763533555_CHILD",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 4,
+          "state": 3,
+          "current": "dataModelId",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "grand": {
+          "rows": 4,
+          "state": 3,
+          "current": "dataModelId",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "step": "parent-switch",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_QDM_1793763533555Parent",
+          "SMOKE_QDM_1793763533555Child",
+          "SMOKE_QDM_1793763533555Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_QDM_1793763533555_PARENT",
+          "label": "SMOKE_QDM_1793763533555_PARENT",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 3,
+          "state": 3,
+          "current": "rowid",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "grand": {
+          "rows": 3,
+          "state": 3,
+          "current": "rowid",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "step": "child-switch",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_QDM_1793763533555Parent",
+          "SMOKE_QDM_1793763533555Child",
+          "SMOKE_QDM_1793763533555Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_QDM_1793763533555_PARENT",
+          "label": "SMOKE_QDM_1793763533555_PARENT",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 3,
+          "state": 3,
+          "current": "lingma_sys_ent",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "grand": {
+          "rows": 3,
+          "state": 3,
+          "current": "rowid",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "step": "empty-parent",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_QDM_1793763533555Parent",
+          "SMOKE_QDM_1793763533555Child",
+          "SMOKE_QDM_1793763533555Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": null,
+          "label": null,
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 0,
+          "state": 3,
+          "current": null,
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "grand": {
+          "rows": 0,
+          "state": 3,
+          "current": null,
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "step": "parent-refresh",
+      "summary": {
+        "reads": 18,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_QDM_1793763533555Parent",
+          "SMOKE_QDM_1793763533555Child",
+          "SMOKE_QDM_1793763533555Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_QDM_1793763533555_CHILD",
+          "label": "SMOKE_QDM_1793763533555_CHILD",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 4,
+          "state": 3,
+          "current": "dataModelId",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "grand": {
+          "rows": 4,
+          "state": 3,
+          "current": "dataModelId",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    },
+    {
+      "step": "document-reopen",
+      "summary": {
+        "reads": 17,
+        "writes": 0,
+        "blockedWrites": 0,
+        "tables": [
+          "SMOKE_QDM_1793763533555Parent",
+          "SMOKE_QDM_1793763533555Child",
+          "SMOKE_QDM_1793763533555Other"
+        ],
+        "parent": {
+          "rows": 2,
+          "state": 3,
+          "current": "SMOKE_QDM_1793763533555_CHILD",
+          "label": "SMOKE_QDM_1793763533555_CHILD",
+          "sorting": true,
+          "filtering": true
+        },
+        "child": {
+          "rows": 4,
+          "state": 3,
+          "current": "dataModelId",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        },
+        "grand": {
+          "rows": 4,
+          "state": 3,
+          "current": "dataModelId",
+          "label": null,
+          "sorting": false,
+          "filtering": false
+        }
+      }
+    }
+  ]
+}

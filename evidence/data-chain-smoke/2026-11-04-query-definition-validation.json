@@ -1,0 +1,292 @@
+{
+  "status": "station verified; full architecture goal active",
+  "reference": "E:/r/sparkproject @1147b00ee53a1476d4ee715c61368b453a215192",
+  "baselineCommit": "79110113a4092c131ed81117a585dbbad3456aab",
+  "problem": "DataViewDefinition could persist parentResult with a parent view that had no nested child result plan.",
+  "change": "Candidate assembler validates explicit query graphs and effective direct parentResult subtrees through the original runtime preparation before file mutation. Design preserves runtime input placeholders; execution still requires values.",
+  "controlledValidation": {
+    "regression": {
+      "files": 21,
+      "passed": 895,
+      "log": "artifacts/data-chain-smoke/query-definition-final-regression.log"
+    },
+    "standaloneRuntimeProtocol": 139,
+    "classModelTests": 49,
+    "rootTypecheck": "passed",
+    "changedFileLint": "passed",
+    "frontendBuild": "passed",
+    "pageThin": "passed",
+    "docs": {
+      "passed": true,
+      "files": 563
+    },
+    "packageTypecheck": {
+      "passed": false,
+      "diagnostics": 15,
+      "log": "artifacts/data-chain-smoke/query-definition-api-typecheck2.log"
+    },
+    "highModelReview": "read-only final review found no new definite Important/Critical issue"
+  },
+  "liveNegative": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-04T03:36:55.855Z",
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QDEF_1793763408311",
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "reads": 46,
+    "writes": 0,
+    "blockedWrites": 0,
+    "newPersistentRecords": 0,
+    "results": [
+      {
+        "kind": "Table",
+        "rejection": "SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划",
+        "independentHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+        "hasUnconfirmedSave": false,
+        "draftRetained": true,
+        "fileOwnerUnchanged": true,
+        "reads": 23,
+        "writes": 0,
+        "blockedWrites": 0
+      },
+      {
+        "kind": "Join",
+        "rejection": "SPARK_PARENT_PLAN: 指定父视图没有对应的直接子结果计划",
+        "independentHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+        "hasUnconfirmedSave": false,
+        "draftRetained": true,
+        "fileOwnerUnchanged": true,
+        "reads": 46,
+        "writes": 0,
+        "blockedWrites": 0
+      }
+    ]
+  },
+  "liveLifecycle": {
+    "phase": "cleaned",
+    "error": "",
+    "pending": "",
+    "reads": 233,
+    "dbWrites": 4,
+    "fileWrites": 4,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QDM_1793763533555",
+    "names": [
+      "SMOKE_QDM_1793763533555_PARENT",
+      "SMOKE_QDM_1793763533555_CHILD",
+      "SMOKE_QDM_1793763533555_GRAND"
+    ],
+    "tableNames": [
+      "SMOKE_QDM_1793763533555Parent",
+      "SMOKE_QDM_1793763533555Child",
+      "SMOKE_QDM_1793763533555Other"
+    ],
+    "parentId": "CC2603BB3145861E265DEEF6615D1717",
+    "childId": "5D5E5788D01712A25A68666A532D69A2",
+    "otherChildId": "B3A96EA85E7948FBBDE5AE7869D68A7E",
+    "fieldIds": [
+      {
+        "id": "0F804C9818010A091B7CE4E69B80D73A",
+        "modelId": "CC2603BB3145861E265DEEF6615D1717",
+        "name": "rowid"
+      },
+      {
+        "id": "9756BE60CFFA9B73E330A58BE792481B",
+        "modelId": "CC2603BB3145861E265DEEF6615D1717",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "63BA353E69D634138A430734EA1DFDE2",
+        "modelId": "CC2603BB3145861E265DEEF6615D1717",
+        "name": "Name"
+      },
+      {
+        "id": "F7BA2D722C8942F9CF2BA2E867F54EE4",
+        "modelId": "5D5E5788D01712A25A68666A532D69A2",
+        "name": "rowid"
+      },
+      {
+        "id": "D40ABD5B6215160F258681A38EA2210A",
+        "modelId": "5D5E5788D01712A25A68666A532D69A2",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "AA8A3EFEB5FD352A4B92BB3EAC77841A",
+        "modelId": "5D5E5788D01712A25A68666A532D69A2",
+        "name": "Name"
+      },
+      {
+        "id": "8BE212ED4C8B03440757010409FD39E1",
+        "modelId": "5D5E5788D01712A25A68666A532D69A2",
+        "name": "dataModelId"
+      },
+      {
+        "id": "FA48771BB34EFF0CDD0983F3EA67B0FF",
+        "modelId": "B3A96EA85E7948FBBDE5AE7869D68A7E",
+        "name": "rowid"
+      },
+      {
+        "id": "3F631244C066E8BB66D910AC0E2FFAD4",
+        "modelId": "B3A96EA85E7948FBBDE5AE7869D68A7E",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "76915042D47B46070D441CA0668394BC",
+        "modelId": "B3A96EA85E7948FBBDE5AE7869D68A7E",
+        "name": "Name"
+      },
+      {
+        "id": "52AF630C4D77BC64259B93F72961D8F6",
+        "modelId": "B3A96EA85E7948FBBDE5AE7869D68A7E",
+        "name": "dataModelId"
+      }
+    ],
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "lifecycle": "cleaned",
+    "noReplay": true,
+    "savedFileHash": "e3dce78bec8615c4acce19542e5755276858c00fbcc5852ed0474b56a51a57d8",
+    "deletedother": true,
+    "deletedchild": true,
+    "deletedparent": true,
+    "checks": [
+      "existing exact file and fresh metadata sources confirmed",
+      "native added-view cancellation performed zero writes",
+      "three named views and implicit bindings saved and independently reopened",
+      "existing named-view edit cancel performed zero writes",
+      "named-view label update independently persisted",
+      "exact original pagedata bytes independently restored before DB cleanup",
+      "fourteen exact owned records removed, original models and file preserved"
+    ],
+    "uploads": [
+      {
+        "phase": "save-views",
+        "hash": "d80497e81ba4eabcf92055e98b590129f4b5a637173f341063fb2a7fc446a244",
+        "bytes": 2569
+      },
+      {
+        "phase": "update-views",
+        "hash": "e3dce78bec8615c4acce19542e5755276858c00fbcc5852ed0474b56a51a57d8",
+        "bytes": 2589
+      },
+      {
+        "phase": "clear-views",
+        "hash": "6bbcd5e54fa643447b161a7bdbaa9fa73539ea63321110939c3c151bcff6de9e",
+        "bytes": 1547
+      },
+      {
+        "phase": "clear-bindings",
+        "hash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+        "bytes": 1059
+      }
+    ]
+  },
+  "independentQuery": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-04T03:42:54.045Z",
+    "reads": 17,
+    "writes": 0,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QDM_1793763533555",
+    "savedFileHash": "e3dce78bec8615c4acce19542e5755276858c00fbcc5852ed0474b56a51a57d8",
+    "paths": [
+      "/api/DataOperation/GetData",
+      "/api/File/content/text"
+    ],
+    "checks": [
+      {
+        "name": "persisted-parent-child-selection",
+        "parentId": "CC2603BB3145861E265DEEF6615D1717",
+        "rootRows": 2,
+        "childRows": 3,
+        "grandRows": 3,
+        "label": "SMOKE_QDM_1793763533555_PARENT"
+      },
+      {
+        "name": "persisted-parent-child-selection",
+        "parentId": "5D5E5788D01712A25A68666A532D69A2",
+        "rootRows": 2,
+        "childRows": 4,
+        "grandRows": 4,
+        "label": "SMOKE_QDM_1793763533555_CHILD"
+      },
+      {
+        "name": "persisted-empty-restore-refresh",
+        "childRows": 3,
+        "otherRows": 3,
+        "parentHttp": 1
+      }
+    ]
+  },
+  "independentCleanup": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-04T03:46:16.862Z",
+    "reads": 12,
+    "writes": 0,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QDM_1793763533555",
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "fileHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "results": [
+      {
+        "model": "Base_DataModel",
+        "requestedIds": 3,
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      },
+      {
+        "model": "Base_DataModel_Field",
+        "requestedIds": 11,
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      }
+    ]
+  },
+  "processes": {
+    "negative": {
+      "exec": 86678,
+      "creatorPid": 31000,
+      "exit": 0
+    },
+    "lifecycle": {
+      "exec": 17424,
+      "creatorPid": 34056,
+      "exit": 0
+    },
+    "independentCleanup": {
+      "exec": 43271,
+      "creatorPid": 28436,
+      "exit": 0
+    }
+  },
+  "browserEvidence": [
+    "2026-11-04-query-definition-multilevel-browser.json",
+    "2026-11-04-query-definition-multilevel-browser.png"
+  ],
+  "boundaries": [
+    "Browser was a diagnostic PageRuntime with standard RendererTable, not complete reference-page acceptance.",
+    "Reused protected NewApp/admin test identity via original login; no multi-account permission matrix claimed.",
+    "No backend or authorization changes; no workflow execution.",
+    "Foreign empty JoinFilter, LEFT ON behavior, nested aggregation, long registered PId, complete reference-page and broader failure/application-switch matrices remain open.",
+    "All owned temporary records and configuration removed; original file and model identities independently confirmed."
+  ]
+}

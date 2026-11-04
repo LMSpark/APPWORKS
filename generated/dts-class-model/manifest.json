@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1045,
+  "scannedFileCount": 1046,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14208,6 +14208,21 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/boundaries.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/boundaries",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/boundaries",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/boundaries\n职责：识别和显式补齐工作流开始/结束边界，暂存及提交同一节点DataView。\n边界：读取不写入，不删除已有边界，不初始化参数、不创建模型、不执行流程。\nAI用途：正常设计页与烟测共用缺失边界命令，取消和未知保存由原SPARK data承接。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowBoundaryCompletion"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
       "module": {
@@ -23590,6 +23605,10 @@
     "WorkerClassModelKnowledgeProvider": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/worker-knowledge-client.ts",
       "file": "files/packages/spark-ai/src/class-model/knowledge/worker-knowledge-client.ts.json"
+    },
+    "WorkflowBoundaryCompletion": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/boundaries.ts.json"
     },
     "WorkflowComputedFields": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",

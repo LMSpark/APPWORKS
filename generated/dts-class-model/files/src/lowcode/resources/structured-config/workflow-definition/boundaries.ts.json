@@ -1,0 +1,345 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/boundaries",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/boundaries",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/boundaries\n职责：识别和显式补齐工作流开始/结束边界，暂存及提交同一节点DataView。\n边界：读取不写入，不删除已有边界，不初始化参数、不创建模型、不执行流程。\nAI用途：正常设计页与烟测共用缺失边界命令，取消和未知保存由原SPARK data承接。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowBoundaryCompletion"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "workflowId"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowBoundaryCompletion": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowBoundaryCompletion",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdStart": {
+          "type": "boolean"
+        },
+        "complete": {
+          "type": "boolean"
+        },
+        "submitted": {
+          "type": "boolean"
+        },
+        "confirmed": {
+          "type": "boolean"
+        },
+        "canAcceptCurrent": {
+          "type": "boolean"
+        },
+        "canFinishCurrent": {
+          "type": "boolean"
+        },
+        "canDiscardNotApplied": {
+          "type": "boolean"
+        },
+        "canCancel": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "$ref": "#/$defs/WorkflowBoundaryCompletion"
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.finishCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.finishCurrent.return": true,
+        "method.discardNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-04T22:29:06.575Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "本次设计器的唯一目标及原运行实例。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主提供的元数据实例。 */\n    dataSet: DataSet;\n    /** 被设计工作流。 */\n    workflowId: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主提供的元数据实例。 */\n    dataSet: DataSet;\n    /** 被设计工作流。 */\n    workflowId: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "宿主提供的元数据实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "jsdoc": "被设计工作流。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowBoundaryCompletion": {
+      "name": "WorkflowBoundaryCompletion",
+      "jsdoc": "补齐命令只持有原查询合同、本次ID与共享提交捕获，不保存第二份节点草稿。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获本次完整查询与缺失计划；只有open可构造，不创建或提交记录。\n@param input 当前工作流及宿主元数据实例。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "ids",
+              "jsdoc": "本次已分配ID，仅用于定位原DataView记录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "createdStart",
+              "jsdoc": "本次是否已补建开始节点，提醒沿原开始参数命令确认输出。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "complete",
+              "jsdoc": "独立回读确认后才结束。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "submitted",
+              "jsdoc": "是否已派发原提交，用于保留核验入口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmed",
+              "jsdoc": "正式回读确认，区别于取消。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canAcceptCurrent",
+              "jsdoc": "无效回执须由用户明确读取并采用当前正式结果。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canFinishCurrent",
+              "jsdoc": "已完整读到当前结果但不匹配原意图，可明确结束意图并保留正式记录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canDiscardNotApplied",
+              "jsdoc": "已证实未生效的批次可显式放弃；不重发。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "canCancel",
+              "jsdoc": "未派发时允许取消本次新增；未知结果不通过取消重置。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "在原实例打开一个显式补齐命令，不读取或写入正式存储。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "WorkflowBoundaryCompletion",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts"
+              }
+            },
+            {
+              "name": "stage",
+              "jsdoc": "暂存一次计划内缺失记录；部分失败保留本次ID，取消只撤回这些ID。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "共享捕获持有未知提交；已确认写入但回读失败时，仅继续独立读取。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "明确采用当前正式结果后核对原意图，全程只读，不重发。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "finishCurrent",
+              "jsdoc": "当前正式结果已经完整读取但不符原意图时，明确结束，不改写或删除正式记录。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discardNotApplied",
+              "jsdoc": "显式放弃共享捕获已证实未生效的批次，仅撤销本次ID。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "只取消本次尚未提交的新增，保留同视图其他记录与草稿。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -44,6 +44,25 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('keeps the acknowledged boundary readback handle dirty and blocks closing until read-only verification',async()=>{
+  state.http.records['Base_WorkflowNodeDefinition']=[];state.http.records['Base_WorkflowConnectors']=[]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));await f.click('补齐缺失边界')
+  const request=state.http.request.bind(state.http);let offline=true
+  vi.spyOn(state.http,'request').mockImplementation(async config=>{if(offline&&state.http.saves.length&&config.url==='/api/DataOperation/GetData')throw Error('readback offline');return request(config)})
+  await f.click('保存边界节点');await vi.waitFor(()=>expect(f.wrapper.text()).toContain('核验边界保存结果'))
+  expect(state.dirty.some(source=>source.isDirty)).toBe(true);expect(f.wrapper.findComponent(WorkflowDesign).vm.discardChanges()).toBe(false)
+  await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/design');const count=state.http.saves.length
+  offline=false;await f.click('核验边界保存结果');await vi.waitFor(()=>expect(state.dirty.some(source=>source.isDirty)).toBe(false));expect(state.http.saves).toHaveLength(count)
+ })
+ it('stages missing boundaries through the normal page without writes, cancels, saves and reopens without duplication',async()=>{
+  state.http.records['Base_WorkflowNodeDefinition']=[];state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));expect(state.http.saves).toHaveLength(0)
+  await f.click('补齐缺失边界');expect(state.http.saves).toHaveLength(0);await f.click('取消边界补齐');expect(state.http.records['Base_WorkflowNodeDefinition']).toEqual([])
+  await f.click('补齐缺失边界');await f.click('保存边界节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(1))
+  expect(state.http.records['Base_WorkflowNodeDefinition']!.map(row=>[row['name'],row['node_type'],row['position_type']])).toEqual([['开始','API_CALL',0],['结束','API_CALL',2]])
+  const reopened=await open();await vi.waitFor(()=>expect(reopened.wrapper.findComponent(RendererGraph).exists()).toBe(true));expect(state.http.saves).toHaveLength(1)
+  expect(reopened.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='补齐缺失边界')).toBe(false)
+ })
  it('rechecks formal connectors before saving a previously selected node type',async()=>{
   state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}];state.http.records['Base_WorkflowConnectors']=[]
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))

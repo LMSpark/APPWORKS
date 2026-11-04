@@ -1,0 +1,248 @@
+{
+  "sourceBaseCommit": "3ea96ce8b",
+  "scope": "explicit workflow boundary configuration lifecycle; not graph execution, browser acceptance, or full migration",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "referencePath": "apps/appworks/src/ui/features/data-platform/structured-config/workflow-definition/design/ui/use-workflow-design-page.ts",
+  "ruling": "read only detects missing boundaries; explicit action stages original DataView; no automatic write on opening",
+  "workflowId": "5DB37146E2E443918158118312BF3AEF",
+  "marker": "SMOKE_BOUNDARY_LIVE_1793831107386",
+  "lifecycle": "cleaned",
+  "unknown": false,
+  "independentAbsence": true,
+  "phases": {
+    "cleanup": {
+      "writes": 3,
+      "reads": 48
+    },
+    "fixture": {
+      "writes": 2,
+      "reads": 38
+    },
+    "configure": {
+      "writes": 1,
+      "reads": 23
+    }
+  },
+  "totals": {
+    "writes": 6,
+    "executions": 0,
+    "reads": 109
+  },
+  "boundaries": [
+    {
+      "description": null,
+      "rowid": "5E0B49EA42A18046B9747B8EB4BADEB4",
+      "input_mapping": "[]",
+      "dataOperateModId": "",
+      "node_key": null,
+      "node_config": "",
+      "name": "开始",
+      "position_type": 0,
+      "node_type": "API_CALL",
+      "config": "",
+      "output_mapping": "[]",
+      "workflow_id": "5DB37146E2E443918158118312BF3AEF"
+    },
+    {
+      "description": null,
+      "rowid": "6AA2DF9D231D9DB769A990954A71F046",
+      "input_mapping": "[]",
+      "dataOperateModId": "",
+      "node_key": null,
+      "node_config": "",
+      "name": "结束",
+      "position_type": 2,
+      "node_type": "API_CALL",
+      "config": "",
+      "output_mapping": "[]",
+      "workflow_id": "5DB37146E2E443918158118312BF3AEF"
+    }
+  ],
+  "assertions": [
+    "opening creates no nodes",
+    "cancel writes nothing",
+    "both boundaries use API_CALL and reference names",
+    "original DataView assigns and saves exact ids",
+    "independent runtime reopens exact payload",
+    "repeated completion writes nothing",
+    "cleanup independently confirms fixture absence"
+  ],
+  "recovery": "existing DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture and verifyAndDiscardDataSpaceDefinitionCapture; unknown and invalid receipts tested through response fixtures, not induced online",
+  "initialAttempt": {
+    "rootCause": "not established; fresh official login subsequently succeeded",
+    "writes": 0,
+    "phase": "local scope rejected",
+    "reads": 0,
+    "fixtureCreated": false
+  },
+  "validation": {
+    "workflowTests": 441,
+    "newSemanticGaps": 0,
+    "workflowFiles": 21,
+    "buildSeconds": 6.68,
+    "addedTests": 25,
+    "existingCodegenViolations": 26,
+    "classModelSeconds": 40.185,
+    "semanticGaps": 3638,
+    "contractTests": 49,
+    "eslint": "4 files passed",
+    "domainTests": 23,
+    "fullSuiteRerun": false,
+    "typecheck": "passed",
+    "contractFiles": 4
+  },
+  "review": "gpt-6-astra read-only plan and review; last review no new confirmed issues",
+  "open": [
+    "API_CALL actual whole-flow execution with isolated startup row and read-only query",
+    "nonempty existing start parameters synchronization",
+    "normal browser and reference layout acceptance",
+    "merge execution service gaps",
+    "complete twenty-package migration"
+  ],
+  "hashes": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+      "sha256": "431D1BD79A7FED651EB1789CE25A8805A8C79AE016DE99BFF604B2FBFDD820BA"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "2DD5BE22C68732E005BEC26EF1B45FAD3654845A633CA48FCD91876D9876183A"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-boundaries.test.ts",
+      "sha256": "456D6F66BD1C0DB7FEC64433E102AEC0955D571B3D22DE3C4B56B106DA01AFD1"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "C065DC58617A4B21FD418D57198126D580EDF98C65E542EBE050ADA7FDC59C8B"
+    },
+    {
+      "path": "config/pages/structured-config/workflow-editor/README.md",
+      "sha256": "C43BFA7B990C4B74970D1C41AD19198E92082E98C348119A9563EF209F0E7D8D"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-workflow-final.log",
+      "sha256": "DB3596E76F3E45833FE5B8E9621CA3E7441077EA9B6899245BB01B98C5B2C188"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-domain-final.log",
+      "sha256": "8807B1CC9DEC629A143F4F78ED78E5FDFDD7C0CE197BA71AE44069117CDE2865"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-page-red.log",
+      "sha256": "A71038A6A7A383972E2012E3062CE804629C661AFCDA5BFC0580D6C07E25B055"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-recovery-final.log",
+      "sha256": "BDD3CCD74DF4BEC4BB6E016D0062231FE93D01255A58E200498BC1FF5CCF9059"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-typecheck-frozen.log",
+      "sha256": "0957E79CEA7D86C0786F8634257DCE4E3D92024C31A4A40A82155FD1BE380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-eslint-frozen.log",
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-build.log",
+      "sha256": "577D5B1EC16F6FF00732619AA36A29ADB609B2C61EF4D66EC5FF60E859BC37ED"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-generation-checked.log",
+      "sha256": "3D01BB5C53BEF59285140BD50BE23072DB8AF8B0EF13B9FF5CD0420174D3E79D"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-generated-normalization.json",
+      "sha256": "1CF88A8DE13E54C7B943E732729CBCAC0875B3C9135AB943F5AC2DF74C4B9A64"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-schema.log",
+      "sha256": "5580FA45616B8C6551F120EB3C0DA514E9C5898B73ECD8F51C0A563B432D2AFC"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-contracts.log",
+      "sha256": "90EEFEF27AF11ADD1DB5B994A3DBB2BDBAE32C54337CB7E33040756A2A7BCD9E"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-ai-codegen-final.log",
+      "sha256": "1DB2FDBF1A5A7FD0186530808254F475DB2D6B4D303EC595606C3D7447AF8B20"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundaries-semantic-comparison.json",
+      "sha256": "5D43FFC71B2D3272A5582B119B7835C07E819F1FC74D67FA3DB3CE3ED39301E0"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-guides.json",
+      "sha256": "A0873CF6268CCB425078FD07ED66A807B2D9F9DAE16A12FCDCBF3672FBAF7E1A"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-owner-guides.json",
+      "sha256": "7F186E274E63D49FC3B1ECCED36C9592BEA684F5B22F71EF65A0498675D7AC45"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-account-auth.mts",
+      "sha256": "9D704D278AD9F1E29C81194855536AB697CAC57B6C86A2B83F2C7C5B0BC2077C"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-auth-run.mts",
+      "sha256": "EC00AFCE60C1F3FE118F2949C10748321AA25F1F58992F287BA8EB49558D484B"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-cleanup-audit.json",
+      "sha256": "7F81AF8EE9B4F066B9B21246FD4125775C6FD0E7E5977828CC94A6EC39F37CF6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-cleanup-intent.json",
+      "sha256": "60A6683504F88D5F89F475C118E6A802D1382015B24204BF4E3AD16A8DE61443"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-cleanup-run.mts",
+      "sha256": "AF742845D467137230D9CDC920EBAA15ED3837841611282FDC39A40836BB1E8B"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-cleanup.mts",
+      "sha256": "87E29DA6CF31AE3A93653D0E263DC7F431F2C044ED84342A931BB721930AE2E7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-configure-audit.json",
+      "sha256": "6DCF819207BFB0DF88D0E1BD9EAF889E43669B43526B19DD206B7B16E8E0E134"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-configure-intent.json",
+      "sha256": "CD0394EC6438A3EAB848B36F405FE1C74B09693DBC0AF49A649729992C3E836D"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-configure-run.mts",
+      "sha256": "723F69B429577FE43E286FCD8FD390C6EFBAFBC027315BC23A920074D34CDB77"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-configure.mts",
+      "sha256": "9F5067E38B1AD86C8318EB4A4DD0096531C3FBF476134B9E7C504866FC9C0CD3"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-driver.ps1",
+      "sha256": "21576DC1EEDF984921536C829A48D997C46DEFD270A24F9392FC6811E25ECAEC"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-first-session-gate-audit.json",
+      "sha256": "D58796C65081182AF0E1DBC258B62C7EA84E28DC158BDEF365716CD3EE352C82"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-fixture-checkpoint.json",
+      "sha256": "0B98453BF2E737AF5F72E4101DF503EA2F841B32006AA2136B431947286D7FCD"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-fixture-create-audit.json",
+      "sha256": "5DED9F67808AC7C5A3D678DF7C04AF49181A20AA1695783E97945A826F0F4768"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-fixture-run.mts",
+      "sha256": "1FDD07E9D8F7A905DE2407DDF7F81EEF7A23288486B118CD2AB4BEEE47847C19"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-boundary-live-fixture.mts",
+      "sha256": "A8055481AB9AEA534B23C91C43F9C95B547861F161DEDC313B97EE72D1A8B590"
+    }
+  ]
+}

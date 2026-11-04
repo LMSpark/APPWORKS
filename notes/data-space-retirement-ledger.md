@@ -6197,3 +6197,17 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 高阶只读复核最终确认首轮类型、模型未生效后放弃、精确边查询三项修复；构造器封闭为private，由同一open守卫构造实例，不允许调用者伪造原正式类型。默认空名称的有效query/copy源不再被候选隐藏，显示真实ID，但不猜写节点名称或input_mapping.Name。浏览器URL工具门禁仍开放，未将原生配置烟测冒充普通浏览器入口或实际业务执行。旧无nodeId入口及二次addRow已从活动源码/测试移除，历史smoke源码不重放。
 
 - 最终校验：工作流20文件416项61.38秒、ClassModel合同4文件49项、typecheck、13文件lint及build4.16秒通过；正式生成49.921秒，缺口3638与26项既有代码规则违规不变，语义比较无新增项。恢复125份无语义变化产物，保留实际新增/修改合同。未重跑8082全量。证据为evidence/data-chain-smoke/2026-11-05-workflow-single-node-lifecycle.json；本轮仅配置生命周期检查点，浏览器与合并执行服务差距、20包总体迁移继续开放。
+
+### 2026-11-05 正常设计入口补齐开始结束边界（实施中）
+
+- 上轮3ea96ce8b已推送、工作区干净，属于实际进展。高阶gpt-6-astra继续只读核固定参考use-workflow-design-page.ts:1148–1221及当前execution-context：参考缺0/2时补API_CALL边界；本仓只能新增position_type=1，既往整流runner手工创建query型开始/结束，不能证明正常产品入口或API_CALL边界执行合同。
+- 裁决：读取只识别缺失，显式“补齐缺失边界”暂存原节点DataView、取消或按本次ID保存；不照搬参考打开即写的副作用，依据本仓读取不初始化正式记录的现有合同。不是触发动作1:1已还原。唯一开始，允许多个已有结束并全部保留，禁止边界删除，普通节点入口不兼作边界类型切换；API_CALL实际执行须本轮实服核，不加query回退。开始输入已有声明时仍由原saveWorkflowStartParameters显式派生输出，不抄规则、不初始化第二份参数。
+- ClassModel已查询DataView/DataSet/RButtonProps目录、概要及指南，依据addRow staged、discardPendingChanges(ids)、DataSet.saveChanges(views/ids)和标准按钮完整绑定；起初误查RendererButtonProps/RendererButton非正式模型名，沿声明定位RButtonProps后成功，不猜缺口。指南保存在artifacts/data-chain-smoke/workflow-boundary-guides.json。
+- 新boundaries命令沿原正式节点查询，补齐前/保存前只精确查询workflow_id及0/2，首轮草稿/查询合同不重置，迟到边界拒派发，未知提交交原DataSet。5领域测试通过；挂载正常入口补齐/取消/保存/重开测试先RED（缺按钮）后GREEN。当前实现仍在验证和复核中，未运行本轮实服，未称边界执行/整页/20包通过。
+- 高阶复核指出初稿按所有pending边界反推命令ID、有效ACK后回读句柄消失、位置强制Number、通用取消及宿主关闭遗漏；已撤回初稿接口，改WorkflowBoundaryCompletion仅持有首轮查询/原边界身份、本次分配ID/位置及既有DataSpaceDefinitionCaptureBatch。原行值仍只在DataView；按自有ID保存/取消，部分暂存失败明确保留自有身份可取消，不借合法多end扩大范围。原DataSpaceDefinitionSave/verify/verifyAndDiscard承接提交和恢复，无第二持久化入口。
+- 有效ACK后网络或权限回读失败只读续验；无效回执提供显式读取并采用当前正式结果，只有完整读取自有字段后才允许明确结束不匹配原意图的命令，complete与confirmed分别记录，不重发或删除当前正式记录。边界命令进入页面dirty/关闭守卫，未派发可取消，已派发不得用放弃整页绕过。stage首await前互斥，严格位置0/1/2。新增开始后提示沿原开始参数命令确认同步，不假称已有参数自动投影。
+- 当前23项领域测试通过，覆盖同视图外部end草稿保存/取消隔离、部分暂存失败、未知无重放、已证实未生效显式放弃、有效/畸形ACK后的当前结果差异、不可读不得假装完整核查、首轮迟到编辑、字段权限、并发与取消后重入。最终工作流21文件441项68.96秒通过。类型检查已通过；代码规则捕获2处新增页面类型断言，已按真实类型声明删除，未放宽检查器，最终门禁待收尾。
+- 实服workflow-boundary-live首尝试在scope检查终态失败，0业务读/0提交/unknown=false，无fixture checkpoint、未创建正式记录。原审计保存在workflow-boundary-live-first-session-gate-audit.json；原进程已终态，当前只诊断正式登录会话有效期后重新开始尚未生成的夹具，不重放任何已派发写入。
+- 最终实服5DB37146E2E443918158118312BF3AEF / SMOKE_BOUNDARY_LIVE_1793831107386：38读2提交仅创建停用定义与同ID参数，没有预设开始/结束；23读1提交沿原产品命令暂存两边界、取消0写、重新暂存并按本次ID保存、独立新PageRuntime核完整API_CALL/名称/空映射/归属，重开再次补齐0写；48读3提交精确清理两节点、参数及定义，模型/字段/关系/边/布局均独立缺失。总109读6提交0执行，lifecycle=cleaned、unknown=false，driver及全部runner正常终态。首失败仅scope检查0读0写，保留原审计，第二次正式登录有效期诊断正常；不猜首失败服务根因、不绕守卫。
+- 本轮没有执行API_CALL图，也没有把节点存在当作整流完成。下一连续工作卡仍是同一高阶方案：全新无边界停用工作流→原补齐命令→已有非空参数沿原开始参数保存同步（若用非空参数）→绑定只读query与两边界连线→正式触发表及隔离启动行→原WorkflowExecutionResource一次整流，独立核同实例节点结果及业务行未变并清理。API_CALL若服务不支持明确记缺口，不加query回退；不重复已有add/edit/delete CRUD完成量。浏览器正常入口工具门禁与合并执行服务差距、参考整页和20包总体继续开放。
+- 冻结校验：工作流21文件441项、ClassModel4文件49项、typecheck、4文件lint、build6.68秒及指南schema通过。正式重编40.185秒，缺口回到3638且逐项无新增，代码规则仍26既有；125份完整JSON语义等价噪声恢复，只保留新增边界合同及manifest实际变化。未重跑8082全量。高阶最终只读复核未发现新明确缺陷。证据evidence/data-chain-smoke/2026-11-05-workflow-boundary-configuration-lifecycle.json含范围、真实身份、清理及源码/日志/脚本审计哈希；本轮为配置生命周期检查点，下一连续整流卡与全20包目标保持active。

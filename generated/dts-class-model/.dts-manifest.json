@@ -4221,6 +4221,11 @@
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/source-views.ts.json",
       "sourceModifiedAt": "2026-11-02T05:21:42.248Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/boundaries.ts.json",
+      "sourceModifiedAt": "2026-11-04T22:29:06.575Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
@@ -5124,7 +5129,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-04T21:06:11.399Z"
+      "sourceModifiedAt": "2026-11-04T22:29:06.569Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",

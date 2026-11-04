@@ -6,7 +6,13 @@
 
 查询及 add/edit/delete 节点已通过同一元数据 DataSet 的原生命令创建、配置、取消、保存重开、换目标和删除。三类操作已在 provider 及换后的 Base_JsonData SQL 表完成真实 CRUD、独立业务回读与整流消费，测试资源已清理；执行和删除还须保持首轮正式定义及依赖合同。证据见 `evidence/data-chain-smoke/2026-11-04-workflow-operation-swapped-runtime.json` 和 `2026-11-04-workflow-operation-concurrency-runtime.json`。这些 SSR 运行证据不代表完整浏览器 1:1 交互已验收，也不证明 JSON 文件内容持久化。
 
-copy/merge 的完整创建与配置界面仍未恢复。copy 是实际向目标表写入数据的迁移操作，不是节点复制或只读查询；不能直接套用普通 query 模型及输出合同。固定参考页写入 `config.targetDatabaseName`，实服拒绝“节点目标配置错误”；隔离的新修正意图使用 `targetDbName`、`targetTableName`、`size:1` 及 `requestType:copy`，已在矛盾过滤条件的空来源上返回 SUCCESS/count=0。此证据只确认该组合在空来源上的实际执行，不证明有数据迁移、分页写入、字段映射或返回首批结果的合同已经验收。原拒绝请求按执行资源规则保持未知，不重发；修正意图与历史请求分别记录。完整证据及清理状态见 `evidence/data-chain-smoke/2026-11-04-workflow-copy-execution-contract.json`。
+数据库表 copy 已沿同一元数据 DataSet 恢复来源模型/节点创建、目标表选择、取消、字段和别名配置、保存重开、换源换目标及删除。copy 模型使用 `requestType:copy`，来源字段保留查询用途；目标只写原节点 `config.targetDbName/targetTableName/size`，保存和取消不另建通道。单节点输入会核对所引用的实际祖先行，执行前重查同一首轮图合同、正式模型/字段及物理来源/目标。字段依赖扫描只处理已知静态目标属性，不以无关分支或空目标配置的执行完整性阻断当前结构编辑。
+
+真实服务已验证：JSON 表的两条隔离行迁移到供应商表，批大小1仍写入两条，返回首批1条；补充目标必需的 BaseURL 使用原计算字段命令。开始→copy→结束整流返回3个SUCCESS，正式节点实例独立匹配；随后更换为供应商来源、JSON目标并显式引入新来源字段，再次迁移两条并回读。copy 的后续节点仅消费服务实际返回的首批行；输出目录的 items/Count 是结构，不能据此将全部已写入行或总数当作运行输入。节点删除仅清理其定义和最后一个消费者的模型/字段，业务记录保留；烟测最后另行精确清理两侧记录和实例。证据见 `evidence/data-chain-smoke/2026-11-04-workflow-copy-lifecycle-runtime.json`。
+
+目标表的必填/默认值规则仍由实际服务校验，当前来源字段合同未提供完整必填与默认值信息，不能宣称前端已证明任意来源与目标兼容。首次漏配 BaseURL 的请求按执行资源合同保留未知记录；独立读取目标为空后，修正定义使用新意图，不重发旧请求。非数据库表 copy 的执行合同、merge 完整业务、完整浏览器1:1及生产定时/启用消费仍未验收。
+
+此前固定参考页写入 `config.targetDatabaseName` 被实服拒绝，新 `targetDbName` 配置先在空来源上通过的历史证据仍保留在 `evidence/data-chain-smoke/2026-11-04-workflow-copy-execution-contract.json`。历史错误请求与各修正意图分别记录，清理不表示回滚或核销未知执行结果。
 
 目录正式新建仍受完整创建与领码顺序的实服合同缺口限制，不能以随机编号或空占位定义替代。完整20包状态只沿 `notes/data-space-retirement-ledger.md` 推进；下列早期记录保留历史范围，不反向覆盖当前源码与新证据。
 

@@ -8,7 +8,7 @@ import {LowcodeDataSpaceFieldRemoveReferences} from '@/lowcode/data-space/model-
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 const source={type:'table' as const,id:'NEXT',name:'NextSource',description:'新来源',dbid:'DB2',databaseName:'next-db',providerId:''}
-async function fixture(shared=true,legacyModelFlagTypes=false,legacyRelationFlagTypes=false){
+async function fixture(shared=true,legacyModelFlagTypes=false,legacyRelationFlagTypes=false,copy=false){
  const f=await workflowSourceEditFixture(pages,{legacyModelFlagTypes,legacyRelationFlagTypes})
  Object.assign(f.http.records['Base_DataModel']![0]!,{MetaName:'OldSource',DbId:'DB',DbName:'old-db',PrimaryKeyFields:'code'})
  f.http.records['Base_DataModel_Field']![0]!['IsPKey']=1
@@ -16,6 +16,7 @@ async function fixture(shared=true,legacyModelFlagTypes=false,legacyRelationFlag
  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
  const reader={query:vi.fn(async()=>({rows:[source],total:1})),prepare:vi.fn(async()=>({source,model:{Type:'数据库表',MetaName:source.name,description:source.description,DbId:source.dbid,DbName:source.databaseName,JoinType:'',ForeignKeyFields:'',JoinFilter:'',PId:''},
   fields:[{type:'dataModel' as const,Name:'code',description:'编码',FieldType:'varchar',IsPKey:1,IsOutput:1,AsName:'',ValueFun:'',Expression:'',allowAIAdd:0,OrderType:'',Order:0,Group:0}]}))}
+ if(copy){f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!['node_type']='copy';f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')!['requestType']='copy';await Promise.all(['Base_DataModel','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))}
  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',sources:reader,assertCurrent(){}})
  return{...f,reader,owner}
 }
@@ -25,6 +26,15 @@ async function componentFixture(legacyRelationFlagTypes=false){
  return{...f,owner:await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',sources:f.reader,assertCurrent(){}})}
 }
 describe('workflow query source edit composition',()=>{
+ it('changes a copy source through the original source owner while retaining copy type and target configuration',async()=>{
+  const f=await fixture(false,false,false,true)
+  const state=f.owner.getState();expect(state.shared).toBe(false)
+  const owner=f.owner.source!;await owner.preview(source)
+  await owner.save()
+  const node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!
+  expect(node['node_type']).toBe('copy');expect(node['node_config']).toBe('MODEL')
+  expect(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')).toMatchObject({requestType:'copy',MetaName:'NextSource'})
+ })
  it('does not persist an isolation copy when the selected formal node was rebound after opening',async()=>{
   const f=await fixture(true)
   f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!['node_config']='FORK'

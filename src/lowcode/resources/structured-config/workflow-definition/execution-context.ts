@@ -9,6 +9,7 @@ import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-sour
 import {isRecord} from '@spark-appworks/spark-utils'
 import {validateWorkflowConditionFilter} from './connector-condition'
 import {validateWorkflowQueryInputChanges} from './query-inputs'
+import {readWorkflowCopyTarget} from './copy-target'
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`执行图字段不可读: ${field}`)
  return row[field]
@@ -21,6 +22,14 @@ function complete(view:DataView|undefined,workflowId:string):DataView{
 function formalSignature(view:DataView,nodeId?:string):string{
  const columns=view.queryConfig.fields??view.columns.map(column=>column.name)
  return JSON.stringify(view.rows.filter(row=>nodeId===undefined||view.getPkKey(row)===nodeId).map(row=>columns.map(field=>[field,read(view,row,field)])).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))))
+}
+function validWorkflowKey(value:unknown):boolean{return typeof value==='number'&&Number.isFinite(value)||typeof value==='string'&&Boolean(value.trim())}
+/** 单节点实际输入须含所引用祖先行；整流在服务端产生中间输入，未提供时只核正式定义。 */
+function checkActualWorkflowInput(input:unknown,expression:unknown,key=false):void{
+ if(input===undefined||!isRecord(expression)||expression['Type']!=='GetInputParam')return
+ const parts=typeof expression['ParamName']==='string'?expression['ParamName'].split('.'):[],ancestor=parts[0],field=parts[1]
+ const rows=isRecord(input)&&ancestor?input[ancestor]:undefined
+ if(parts.length!==2||!field||!Array.isArray(rows)||!rows.length||rows.some(row=>!isRecord(row)||!Object.hasOwn(row,field)||row[field]===undefined||key&&!validWorkflowKey(row[field])))throw Error('操作实际输入缺少祖先行、字段或有效主键输入')
 }
 /** 执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。 */
 export class WorkflowExecutionContext{
@@ -73,6 +82,62 @@ export class WorkflowExecutionContext{
    if(current.loadingError||current.requestState!==RequestState.Loaded||current.rows.length!==current.total||JSON.stringify(source.queryContext)!==context||signature(source)!==before||signature(current)!==before)throw Error(`正式执行定义已变化，请刷新后重新测试: ${source.tableName}`)
   }finally{current.dataTable?.destroyView(current.viewId)}
  }
+ /** 所有后续查询始终对照同一首轮合同；页面同步刷新不能重置本命令基线。 */
+ private executionContract(){
+  const contract=['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'].map(name=>{const view=complete(this.ds.getView(name),this.workflowId);return{view,signature:formalSignature(view),context:JSON.stringify([view.queryContext,view.queryConfig,view.filterExpression])}})
+  const check=()=>{for(const item of contract)if(formalSignature(complete(item.view,this.workflowId))!==item.signature||JSON.stringify([item.view.queryContext,item.view.queryConfig,item.view.filterExpression])!==item.context)throw Error(`正式执行定义已变化，请刷新后重新测试: ${item.view.tableName}`)}
+  return {check,refresh:async()=>{check();for(const item of contract){await this.checkFormal(item.view);check()}}}
+ }
+ /** copy沿正式来源模型及目标表查询预检；不在浏览器复制行，不猜测字段转换或执行结果。 */
+ private async validateCopyNode(nodeId:string,input?:unknown):Promise<void>{
+  const contract=this.executionContract(),nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId)
+  const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
+  if(!node)throw Error('迁移节点不存在')
+  const modelId=read(nodes,node,'node_config'),modelSource=this.ds.getView('Base_DataModel','modelCatalog'),fieldSource=this.ds.getView('Base_DataModel_Field','modelInputFields')
+  if(typeof modelId!=='string'||!modelId||!modelSource||!fieldSource)throw Error('迁移来源模型或字段视图缺失')
+  const owned:DataView[]=[],suffix=crypto.randomUUID().replaceAll('-','')
+  const check=()=>{
+   this.guard();contract.check()
+   if(nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)!==node||read(nodes,node,'node_type')!=='copy'||read(nodes,node,'node_config')!==modelId)throw Error('迁移执行目标已变化')
+   for(const source of [modelSource,fieldSource])for(const view of source.dataTable?.viewList??[])
+    if(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('迁移来源定义仍有未处理修改')
+  }
+  try{
+   check();await contract.refresh();check()
+   const models=modelSource.createQueryView(`copyExecuteModels_${suffix}`),fields=fieldSource.createQueryView(`copyExecuteFields_${suffix}`);owned.push(models,fields)
+   models.queryContext={dataSpaceId:this.workflowId,workflowId:this.workflowId,modelId}
+   models.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:this.workflowId},{field:'rowid',operator:'eq',value:modelId}]}
+   fields.queryContext={dataSpaceId:this.workflowId,workflowId:this.workflowId,modelIds:[modelId]}
+   const results=await Promise.allSettled([models.refresh(),fields.refresh()]);check()
+   for(const result of results)if(result.status==='rejected')throw result.reason
+   complete(models,this.workflowId);complete(fields,this.workflowId)
+   const model=models.rows[0]
+   if(models.rows.length!==1||!model||models.getPkKey(model)!==modelId||read(models,model,'dataSetId')!==this.workflowId||read(models,model,'requestType')!=='copy')throw Error('迁移来源模型身份、归属或requestType不符')
+   if(read(models,model,'Type')!=='数据库表')throw Error('当前迁移来源执行合同尚未核定')
+   const dbid=read(models,model,'DbId'),tableName=read(models,model,'MetaName'),databaseName=read(models,model,'DbName')
+   if(typeof dbid!=='string'||typeof tableName!=='string'||typeof databaseName!=='string')throw Error('迁移来源物理表身份缺失')
+   const source=await LowcodeDataSpaceModelSourceReader.readTableTarget(this.ds,{dbid,name:tableName,databaseName},check)
+   const actual=new Map(source.fields.map(field=>[field.Name,field])),ids=new Set<string>(),names=new Set<string>(),values:unknown[]=[]
+   for(const row of fields.rows){
+    const id=read(fields,row,'rowid'),kind=read(fields,row,'type'),name=read(fields,row,'Name'),fieldType=read(fields,row,'FieldType'),value=read(fields,row,'ValueFun')
+    if(typeof id!=='string'||!id||ids.has(id)||fields.getPkKey(row)!==id||read(fields,row,'dataSetId')!==this.workflowId||read(fields,row,'dataModelId')!==modelId||!['dataModel','inputParams'].includes(String(kind)))throw Error('迁移来源字段身份或用途不符')
+    if(typeof name!=='string'||!name.trim()||names.has(`${kind}:${name}`))throw Error('迁移来源字段名称缺失或重复')
+    ids.add(id);names.add(`${kind}:${name}`)
+    if(kind==='dataModel'&&fieldType!=='计算字段'&&actual.get(name)?.FieldType.toLowerCase()!==String(fieldType).toLowerCase())throw Error('迁移来源字段与正式物理表不符')
+    if(value!==''&&value!==null&&value!==undefined)values.push(value)
+   }
+   const filter=read(models,model,'Filter')
+   validateWorkflowQueryInputChanges(this.ds,this.workflowId,nodeId,{values,filter},{fromModelId:modelId,modelId,models,fields})
+   for(const value of values)if(typeof value==='string')checkActualWorkflowInput(input,DataSpaceDesignApi.parseValueFunction(value))
+   if(typeof filter==='string'){
+    const parsed=DataViewFilterCodec.parseStored(filter)
+    const visit=(tree:DataViewFilterTree):void=>{if('logic'in tree)tree.filters.forEach(visit);else checkActualWorkflowInput(input,tree.value)}
+    if(parsed)visit(parsed.toJSON())
+   }
+   await readWorkflowCopyTarget(this.ds,read(nodes,node,'config'),check);check()
+   await this.checkFormal(models);check();await this.checkFormal(fields);check();await contract.refresh();check()
+  }finally{for(const view of owned)if(!this.ds.destroyed)view.dataTable?.destroyView(view.viewId)}
+ }
  /** 显式执行前按需核对节点的正式操作定义。 */
  async validateNode(nodeId:string,input?:unknown):Promise<void>{
   this.guard()
@@ -80,10 +145,9 @@ export class WorkflowExecutionContext{
   if(!node||read(nodes,node,'workflow_id')!==this.workflowId)throw Error('执行节点身份或归属不符')
   await this.checkFormal(nodes,nodeId)
   const operation=read(nodes,node,'node_type')
+  if(operation==='copy'){await this.validateCopyNode(nodeId,input);return}
   if(!['add','edit','delete'].includes(String(operation)))return
-  const contract=['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'].map(name=>{const view=complete(this.ds.getView(name),this.workflowId);return{view,signature:formalSignature(view),context:JSON.stringify([view.queryContext,view.queryConfig,view.filterExpression])}})
-  const checkContract=()=>{for(const item of contract)if(formalSignature(complete(item.view,this.workflowId))!==item.signature||JSON.stringify([item.view.queryContext,item.view.queryConfig,item.view.filterExpression])!==item.context)throw Error(`正式执行定义已变化，请刷新后重新测试: ${item.view.tableName}`)}
-  const checkInputContract=async()=>{checkContract();for(const item of contract){await this.checkFormal(item.view);checkContract()}}
+  const contract=this.executionContract(),checkInputContract=()=>contract.refresh()
   await checkInputContract()
   const modelId=read(nodes,node,'dataOperateModId')
   if(typeof modelId!=='string'||!modelId.trim())throw Error('操作目标模型缺失')
@@ -133,13 +197,7 @@ export class WorkflowExecutionContext{
    const actual=new Map(source.fields.map(field=>[field.Name.toLowerCase(),field]))
    for(const row of fields.rows){const field=actual.get(String(read(fields,row,'Name')).toLowerCase());if(field?.FieldType.toLowerCase()!==String(read(fields,row,'FieldType')).toLowerCase())throw Error('操作输入字段与真实来源名称或类型不符')}
    const primary=DataSpaceDesignApi.resolveSourcePrimaryKey(source.fields.map(field=>({name:field.Name,primaryKey:field.IsPKey===1}))),keyValue=mapped.get(primary.toLowerCase())
-   const validKey=(value:unknown)=>typeof value==='number'&&Number.isFinite(value)||typeof value==='string'&&Boolean(value.trim())
-   const checkInput=(expression:unknown,key=false):void=>{
-    if(input===undefined||!isRecord(expression)||expression['Type']!=='GetInputParam')return
-    const parts=typeof expression['ParamName']==='string'?expression['ParamName'].split('.'):[],ancestor=parts[0],field=parts[1]
-    const rows=isRecord(input)&&ancestor?input[ancestor]:undefined
-    if(parts.length!==2||!field||!Array.isArray(rows)||!rows.length||rows.some(row=>!isRecord(row)||!Object.hasOwn(row,field)||row[field]===undefined||key&&!validKey(row[field])))throw Error('操作实际输入缺少祖先行、字段或有效主键输入')
-   }
+   const checkInput=(expression:unknown,key=false):void=>checkActualWorkflowInput(input,expression,key)
    for(const [name,value] of mapped)if(typeof value==='string'&&value.trim())checkInput(DataSpaceDesignApi.parseValueFunction(value),name===primary.toLowerCase())
    const parsedFilter=DataViewFilterCodec.parseStored(filter)
    if(operation!=='add'){
@@ -150,7 +208,7 @@ export class WorkflowExecutionContext{
     }else{
      if(typeof keyValue!=='string'||!keyValue.trim())throw Error('无过滤条件的编辑或删除需要明确主键输入值函数')
      const expression=DataSpaceDesignApi.parseValueFunction(keyValue)
-     if(expression?.Type==='GetConstValue'&&!validKey(expression['Value']))throw Error('操作主键常量必须是非空标量')
+     if(expression?.Type==='GetConstValue'&&!validWorkflowKey(expression['Value']))throw Error('操作主键常量必须是非空标量')
     }
    }
    check();await checkInputContract();check()

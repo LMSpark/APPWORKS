@@ -101,7 +101,9 @@ export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workfl
    const id=String(nodes.getPkKey(row)),type=read(nodes,row,'node_type'),position=String(read(nodes,row,'position_type'))
    for(const key of ['input_mapping','config']){
     const value=document(read(nodes,row,key));visit(value,`节点[${id}].${key}`)
-    if(descendants.has(id)&&!['0','2'].includes(position)&&type!=='query'&&value!==null&&JSON.stringify(value)!=='[]'&&JSON.stringify(value)!=='{}')throw Error(`下游节点输入协议尚未核定: ${id}.${key}`)
+    const staticCopyTarget=descendants.has(id)&&type==='copy'&&key==='config'&&isRecord(value)&&Object.entries(value).every(([name,item])=>
+     ['targetDbName','targetTableName','size','text'].includes(name)&&(item===null||['string','number','boolean'].includes(typeof item)))
+    if(descendants.has(id)&&!['0','2'].includes(position)&&type!=='query'&&!staticCopyTarget&&value!==null&&JSON.stringify(value)!=='[]'&&JSON.stringify(value)!=='{}')throw Error(`下游节点输入协议尚未核定: ${id}.${key}`)
    }
   }
   guard()

@@ -12,9 +12,9 @@ export function assertUnpublishedWorkflowOperationOutput(mapping:unknown):void{
  if(!Array.isArray(parsed)||parsed.length)throw Error('操作节点已有输出目录的运行合同尚未核定，不能自动覆盖或继续换目标')
 }
 
-/** 读取者先核对目录与节点类型权限；copy等未验证类型不能借用query规则。 */
+/** 查询及已核定的数据库迁移输出均为实际平面行；迁移只发布服务返回的首批，不把全部已写入行当输出。 */
 export function workflowOutputFields(input:Readonly<{nodeId:string;position:unknown;nodeType:unknown;mapping:unknown}>):Array<Record<string,unknown>>{
- const start=String(input.position)==='0',query=String(input.position)==='1'&&input.nodeType==='query'
+ const start=String(input.position)==='0',query=String(input.position)==='1'&&['query','copy'].includes(String(input.nodeType))
  if(!start&&!query)throw Error('当前节点输出运行合同尚未核定')
  const raw=input.mapping,output=raw===undefined||raw===null||raw===''?[]:typeof raw==='string'?parseJsonDocument(raw):raw
  if(!Array.isArray(output)||!output.every(isRecord))throw Error('节点输出必须是对象数组')

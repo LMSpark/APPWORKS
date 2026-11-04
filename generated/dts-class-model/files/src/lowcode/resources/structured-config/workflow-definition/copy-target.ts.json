@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/copy-target",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/copy-target",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/copy-target\n职责：核验迁移目标的正式物理表身份，将目标配置暂存到原节点DataView。\n边界：不保存、不执行业务迁移、不建立第二份可编辑配置；保留目标之外的原配置。\nAI用途：迁移节点选择物理目标或执行预检时复用同一配置解析与正式来源核验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-04T14:52:00.055Z",
+  "models": {}
+}

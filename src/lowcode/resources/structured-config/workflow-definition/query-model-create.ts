@@ -24,8 +24,9 @@ function clean(view:DataView):void{
   ||view.requestState===RequestState.Loading||view.requestState===RequestState.Preparing)throw Error('请先处理当前查询模型目录或字段的修改')
 }
 /** 按需读取完整核名目录和同ID参数定义，返回原模型新增owner；保存范围仍由原owner捕获。 */
-async function openWorkflowModelCreate(input:WorkflowQueryModelCreateInput,operation:'query'|WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{
+async function openWorkflowModelCreate(input:WorkflowQueryModelCreateInput,operation:'query'|'copy'|WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{
  const {dataSet,workflowId,sources}=input
+ const sourceModel=operation==='query'||operation==='copy'
  const definition=dataSet.getView('Base_WorkflowDefinition'),parameters=dataSet.getView('Base_DataSet')
  const models=dataSet.getView('Base_DataModel','modelCatalog'),fields=dataSet.getView('Base_DataModel_Field','modelInputFields')
  if(!workflowId.trim()||!definition||!parameters||!models||!fields)throw Error('工作流查询模型正式视图缺失')
@@ -58,11 +59,11 @@ async function openWorkflowModelCreate(input:WorkflowQueryModelCreateInput,opera
   query:(query,metadata)=>sources.query(query,metadata),
   async prepare(source,metadata,options){
    guard()
-   if(operation!=='query'&&source.type!=='table')throw Error('操作节点当前只承接正式数据库表目标；其他来源执行合同尚未核定')
-   const prepared=await sources.prepare(source,metadata,{...options,missingInputType:'preserve',...operation==='query'?{}:{purpose:'operation-target' as const}})
+   if(!sourceModel&&source.type!=='table')throw Error('操作节点当前只承接正式数据库表目标；其他来源执行合同尚未核定')
+   const prepared=await sources.prepare(source,metadata,{...options,missingInputType:'preserve',...sourceModel?{}:{purpose:'operation-target' as const}})
    guard()
    return{...prepared,model:{...prepared.model,requestType:operation},
-    ...(operation==='query'?{}:{fields:prepared.fields.map(field=>({...field,type:'inputParams' as const,IsOutput:0,ValueFun:''}))})}
+    ...(sourceModel?{}:{fields:prepared.fields.map(field=>({...field,type:'inputParams' as const,IsOutput:0,ValueFun:''}))})}
   },
  }
  const handle=createModelCreateHandle(createModelCreateHost({dataSet,targetId:workflowId,sources:boundSources,
@@ -74,6 +75,10 @@ async function openWorkflowModelCreate(input:WorkflowQueryModelCreateInput,opera
 /** 复用原模型owner创建查询来源；查询字段与来源语义保持原合同。 */
 export function openWorkflowQueryModelCreate(input:WorkflowQueryModelCreateInput):Promise<WorkflowQueryModelCreateHandle>{
  return openWorkflowModelCreate(input,'query')
+}
+/** 创建迁移来源模型，保留查询字段与输出，正式requestType为copy；不选择或写入迁移目标。 */
+export function openWorkflowCopyModelCreate(input:WorkflowQueryModelCreateInput):Promise<WorkflowQueryModelCreateHandle>{
+ return openWorkflowModelCreate(input,'copy')
 }
 /** 创建操作目标模型；字段作为待显式配置的输入，不继承来源值函数，也不执行业务操作。 */
 export function openWorkflowOperationModelCreate(input:WorkflowQueryModelCreateInput,operation:WorkflowDataOperation):Promise<WorkflowQueryModelCreateHandle>{

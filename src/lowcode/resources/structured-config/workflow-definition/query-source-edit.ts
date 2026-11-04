@@ -25,7 +25,7 @@ function clean(view:DataView):void{if(view.destroyed||view.mutating||view.hasUnc
 function full(view:DataView):void{if(view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total)throw Error('来源定义未完整读取')}
 /** 原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。 */
 export class WorkflowModelSourceEdit{
- readonly #operation:WorkflowDataOperation|'query'
+ readonly #operation:WorkflowDataOperation|'query'|'copy'
  readonly #owned:DataView[]=[]
  readonly #models:DataView
  readonly #fields:DataView
@@ -54,7 +54,7 @@ export class WorkflowModelSourceEdit{
   this.#models=models;this.#fields=fields;this.#template=template;this.#relations=relations;this.#owned.push(models,fields,template,relations)
   this.#nodes=scope.nodes;this.#edges=scope.edges;this.#fromModelId=scope.modelId
   const before=scope.nodes.readSnapshot().rows.find(row=>row['rowid']===input.nodeId);if(!before)throw Error('原节点正式投影缺失');this.#before=before
-  if(input.operation){const type=read(scope.nodes,scope.node,'node_type');if(type!=='add'&&type!=='edit'&&type!=='delete')throw Error('当前不是可换目标的操作节点');this.#operation=type;assertUnpublishedWorkflowOperationOutput(this.#before['output_mapping'])}else this.#operation='query'
+  if(input.operation){const type=read(scope.nodes,scope.node,'node_type');if(type!=='add'&&type!=='edit'&&type!=='delete')throw Error('当前不是可换目标的操作节点');this.#operation=type;assertUnpublishedWorkflowOperationOutput(this.#before['output_mapping'])}else this.#operation=read(scope.nodes,scope.node,'node_type')==='copy'?'copy':'query'
   this.#beforeFields=fields.readSnapshot().rows
   const columns=scope.nodes.queryConfig.fields??scope.nodes.columns.map(column=>column.name)
   for(const key of columns.filter(column=>column!=='_pk'&&!column.startsWith('lingma_sys_')))if(scope.nodes.fieldAccess(scope.node,key).read!=='visible'||!Object.hasOwn(this.#before,key))throw Error(`原节点定义投影不完整或不可读: ${key}`)
@@ -77,7 +77,7 @@ export class WorkflowModelSourceEdit{
  private assertBindingWritable():void{
   this.beforeNode()
   const node=this.#nodes.rows.find(row=>row['rowid']===this.input.nodeId)
-  const keys=this.#operation==='query'?['node_config','output_mapping']:['dataOperateModId']
+  const keys=(this.#operation==='query'||this.#operation==='copy')?['node_config','output_mapping']:['dataOperateModId']
   if(!node||this.#nodes.editActionState(node)!=='enabled'||keys.some(key=>this.#nodes.fieldAccess(node,key).write!=='allowed'))throw Error('当前查询不允许节点来源切换')
  }
  private async assertFormalConsumers():Promise<void>{
@@ -146,7 +146,7 @@ export class WorkflowModelSourceEdit{
   const host=createModelSourceEditHost({dataSet:this.input.dataSet,targetId:this.input.workflowId,modelId:this.modelId,sources:this.input.sources,
    views:{models:this.#models.viewId,fields:this.#fields.viewId,fieldTemplate:this.#template.viewId,relations:this.#relations.viewId},
    lifecycle:{assertCurrent:()=>this.guard(),onDispatch(){},completed(){},validateConfiguration:()=>{this.beforeNode();return Promise.resolve(()=>this.beforeNode())},validateTransition:()=>{this.beforeNode();return Promise.resolve(()=>this.beforeNode())},
-    ...this.#operation==='query'?{inputParameters:{read:()=>workflowQuerySharedInputPresentation(this.input.dataSet,this.input.workflowId,this.input.nodeId,{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields}).inputs,
+    ...(this.#operation==='query'||this.#operation==='copy')?{inputParameters:{read:()=>workflowQuerySharedInputPresentation(this.input.dataSet,this.input.workflowId,this.input.nodeId,{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields}).inputs,
      validate:input=>validateWorkflowQueryInputChanges(this.input.dataSet,this.input.workflowId,this.input.nodeId,{values:[input.value]},{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields})},
     prepareContract:change=>this.contract(change),validateRemovals:(ids,change)=>this.removals(ids,change)}:{inputTarget:{requestType:this.#operation,prepareContract:change=>this.inputContract(change),validateRemovals:(ids,change)=>this.removals(ids,change)}}}})
   this.#host=host;const source=createModelSourceEditHandle(host);this.#source=source

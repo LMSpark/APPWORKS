@@ -1,9 +1,9 @@
 <!-- @module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove -->
 <template>
  <section>
-  <RendererButton v-if="eligible" :data-view-key="dataViewKey" :label="operation ? '删除操作节点' : '删除查询节点'" :disabled="disabled || busy || !!owner" @click="open" />
+  <RendererButton v-if="eligible" :data-view-key="dataViewKey" :label="copy ? '删除迁移节点' : operation ? '删除操作节点' : '删除查询节点'" :disabled="disabled || busy || !!owner" @click="open" />
   <p v-if="error" role="alert">{{ error }}</p>
-  <RendererDialog v-if="owner" :model-value="true" :title="operation ? '删除操作节点' : '删除查询节点'" :data-view-key="dataViewKey" width="600px" :append-to-body="true" :close-disabled="true">
+  <RendererDialog v-if="owner" :model-value="true" :title="copy ? '删除迁移节点' : operation ? '删除操作节点' : '删除查询节点'" :data-view-key="dataViewKey" width="600px" :append-to-body="true" :close-disabled="true">
    <template v-if="state?.summary">
     <p>节点：{{ state.summary.nodeId }}</p>
     <p>删除连线 {{ state.summary.edgeCount }} 条、节点条件 {{ state.summary.conditionCount }} 条。</p>
@@ -30,7 +30,7 @@ import type {DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog} from '@spark-appworks/spark-component'
 import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {openWorkflowNodeRemoval,type WorkflowNodeRemoval} from '@/lowcode/resources/structured-config/workflow-definition/node-removal'
-const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;dataViewKey:string;eligible:boolean;operation?:boolean;disabled?:boolean;onRemoved:()=>Promise<void>}>()
+const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;dataViewKey:string;eligible:boolean;operation?:boolean;copy?:boolean;disabled?:boolean;onRemoved:()=>Promise<void>}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
 const owner=shallowRef<WorkflowNodeRemoval>(),busy=ref(false),error=ref(''),revision=ref(0)
 let active=true

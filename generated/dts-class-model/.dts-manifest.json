@@ -4231,10 +4231,15 @@
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connectors.ts.json",
       "sourceModifiedAt": "2026-11-02T22:08:52.391Z"
     },
+    "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/copy-target.ts.json",
+      "sourceModifiedAt": "2026-11-04T14:52:00.055Z"
+    },
     "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json",
-      "sourceModifiedAt": "2026-11-04T12:49:04.554Z"
+      "sourceModifiedAt": "2026-11-04T14:36:14.394Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
@@ -4249,7 +4254,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json",
-      "sourceModifiedAt": "2026-11-04T12:29:03.937Z"
+      "sourceModifiedAt": "2026-11-04T14:09:14.251Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
@@ -4259,7 +4264,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/output-fields.ts.json",
-      "sourceModifiedAt": "2026-11-04T09:09:29.165Z"
+      "sourceModifiedAt": "2026-11-04T14:36:14.390Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
@@ -4269,12 +4274,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts.json",
-      "sourceModifiedAt": "2026-11-04T11:40:48.524Z"
+      "sourceModifiedAt": "2026-11-04T14:09:14.248Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts.json",
-      "sourceModifiedAt": "2026-11-03T08:07:40.230Z"
+      "sourceModifiedAt": "2026-11-04T14:41:33.667Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
@@ -4284,17 +4289,17 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-04T10:53:49.964Z"
+      "sourceModifiedAt": "2026-11-04T14:36:14.391Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json",
-      "sourceModifiedAt": "2026-11-04T11:00:34.666Z"
+      "sourceModifiedAt": "2026-11-04T13:55:39.439Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json",
-      "sourceModifiedAt": "2026-11-04T11:00:34.667Z"
+      "sourceModifiedAt": "2026-11-04T13:55:39.440Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-output.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
@@ -4304,12 +4309,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json",
-      "sourceModifiedAt": "2026-11-04T11:38:39.618Z"
+      "sourceModifiedAt": "2026-11-04T14:09:14.714Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json",
-      "sourceModifiedAt": "2026-11-04T11:00:34.669Z"
+      "sourceModifiedAt": "2026-11-04T14:09:14.715Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
@@ -5091,10 +5096,15 @@
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue.json",
       "sourceModifiedAt": "2026-11-03T00:12:00.482Z"
     },
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue": {
+      "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue",
+      "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue.json",
+      "sourceModifiedAt": "2026-11-04T14:52:00.077Z"
+    },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-04T09:18:33.247Z"
+      "sourceModifiedAt": "2026-11-04T14:10:49.871Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
@@ -5104,7 +5114,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue.json",
-      "sourceModifiedAt": "2026-11-04T08:38:42.897Z"
+      "sourceModifiedAt": "2026-11-04T14:10:49.868Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",
@@ -5114,7 +5124,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue.json",
-      "sourceModifiedAt": "2026-11-04T07:52:15.541Z"
+      "sourceModifiedAt": "2026-11-04T14:02:02.888Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue",

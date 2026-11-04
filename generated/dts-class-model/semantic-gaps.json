@@ -36567,7 +36567,7 @@
       "chainBreak": "WorkflowExecutionContext.dispose 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/workflow-definition/execution-context.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
-      "declarationLine": 24,
+      "declarationLine": 28,
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
       "declarationKind": "class"
     },

@@ -32,6 +32,18 @@ async function fixture(shared=true,layout:string|null=null){
  return{ds,http,file,uploads,open:()=>openWorkflowNodeRemoval({dataSet:ds,workflowId:'W1',nodeId:'A',assertCurrent(){}})}
 }
 describe('original workflow node removal',()=>{
+ it('cancels and deletes a copy node with its own source model without deleting its business target',async()=>{
+  const f=await fixture(false)
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='A')!,{node_type:'copy',config:'{"targetDbName":"main","targetTableName":"BusinessTarget"}'})
+  Object.assign(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='M1')!,{requestType:'copy'})
+  await f.ds.getView('Base_WorkflowNodeDefinition')!.refresh()
+  let owner=await f.open();await owner.stage();owner.cancel()
+  expect(f.http.saves).toEqual([])
+  owner=await f.open();await owner.stage();await owner.save()
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.some(row=>row['rowid']==='A')).toBe(false)
+  expect(f.http.records['Base_DataModel']!.some(row=>row['rowid']==='M1')).toBe(false)
+  expect(f.http.saves.every(save=>save.table!=='BusinessTarget')).toBe(true)
+ })
  it.each(['consumer','edge','field','permission','layout'] as const)('refuses a remote %s change after staging without dispatching the stale deletion',async change=>{
   const f=await fixture(false,JSON.stringify({nodes:[{id:'A',x:1,y:2}],edges:[]})),owner=await f.open();await owner.stage()
   if(change==='consumer')f.http.records['Base_WorkflowNodeDefinition']!.push({rowid:'SECOND',workflow_id:'W1',position_type:1,node_type:'add',dataOperateModId:'M1'})

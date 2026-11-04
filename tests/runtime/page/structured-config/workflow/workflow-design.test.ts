@@ -37,6 +37,32 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('selects a copy target through bound source views, cancels its original config, then saves and reopens it',async()=>{
+  state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'迁移',node_type:'copy',position_type:1,node_config:'M1',config:'',output_mapping:'[]'}]
+  state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]
+  Object.assign(state.http.records['Base_DataModel']![0]!,{requestType:'copy'})
+  state.http.records['View_TblList']=[{rowid:'T1',tblname:'Target',tbldesc:'迁移目标',dbid:'DB1',DbName:'main'}]
+  state.http.records['Base_TblField']=[{rowid:'SF1',tblid:'T1',enname:'rowid',DataType:'varchar',IsPKey:1}]
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  const choose=async()=>{
+   await f.click('选择迁移目标')
+   const table=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))!
+   expect(table).toBeDefined();await vi.waitFor(()=>expect(table.find('tbody tr').exists()).toBe(true))
+   await table.get('tbody tr').trigger('click');await flushPromises();await f.click('确认迁移目标')
+  }
+  await choose();expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(true)
+  await f.click('取消节点修改');expect(state.http.saves).toEqual([]);expect(state.dirty[0]?.isDirty).toBe(false)
+  await choose();await f.click('保存节点');await vi.waitFor(()=>expect(state.http.saves).toHaveLength(1))
+  const saved=state.http.records['Base_WorkflowNodeDefinition']![0]!
+  expect(JSON.parse(String(saved['config']))).toMatchObject({targetDbName:'main',targetTableName:'Target',size:500})
+  expect(saved['node_config']).toBe('M1')
+  const reopened=await open();await vi.waitFor(()=>expect(reopened.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  reopened.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
+  const config=reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='config')!
+  expect(config).toBeDefined();await vi.waitFor(()=>expect(config.findComponent(SparkJsonEditor).props('modelValue')).toContain('Target'))
+  expect(state.http.saves).toHaveLength(1)
+ })
  it('selects an operation target through bound tables, explicitly clears its condition, cancels without writes, then saves and reopens the confirmed target',async()=>{
   const filter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:0}))
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'编辑',node_type:'edit',position_type:1,node_config:'',dataOperateModId:'M1',output_mapping:'[]'}]
@@ -244,13 +270,13 @@ describe('workflow formal design page',()=>{
   expect(state.http.records['Base_DataModel']!.find(row=>row['rowid']===node['dataOperateModId'])).toMatchObject({requestType:operation,MetaName:'Disposable'})
   expect(state.http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']===node['dataOperateModId'])).toEqual([expect.objectContaining({type:'inputParams',Name:'code',ValueFun:''})])
  })
- it('selects a native source, cancels its preview and creates the query model, fields and node through the same runtime',async()=>{
+ it.each([{kind:'query',label:'查询'},{kind:'copy',label:'迁移'}])('selects, cancels and creates a $kind source through the same runtime',async({kind,label})=>{
   state.http.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:'[]'}]
   state.http.records['View_TblList']=[{rowid:'T1',tblname:'Orders',tbldesc:'订单',dbid:'DB1',DbName:'main'}]
   state.http.records['Base_TblField']=[{rowid:'SF1',tblid:'T1',enname:'code',cnname:'编码',DataType:'varchar',IsPKey:1}]
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   const choose=async()=>{
-   await f.click('新增查询节点')
+   await f.click(`新增${label}节点`)
    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererTable).some(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))).toBe(true))
    const table=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))!
    await vi.waitFor(()=>expect(table.find('tbody tr').exists()).toBe(true))
@@ -261,13 +287,13 @@ describe('workflow formal design page',()=>{
   await choose();expect(state.dirty[0]?.isDirty).toBe(true)
   await f.click('取消新增节点');expect(state.http.saves).toEqual([])
   expect(state.dirty[0]?.isDirty).toBe(false)
-  await choose();await f.click('创建查询节点')
+  await choose();await f.click(`创建${label}节点`)
   await vi.waitFor(()=>expect(state.http.saves).toHaveLength(3))
   expect(state.http.saves.map(save=>save.table)).toEqual(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'])
   const node=state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['name']==='Orders')!
   const model=state.http.records['Base_DataModel']!.find(row=>row['rowid']===node['node_config'])!
-  expect(node).toMatchObject({workflow_id:'W1',node_type:'query',position_type:1})
-  expect(model).toMatchObject({dataSetId:'W1',requestType:'query',MetaName:'Orders',DbId:'DB1'})
+  expect(node).toMatchObject({workflow_id:'W1',node_type:kind,position_type:1})
+  expect(model).toMatchObject({dataSetId:'W1',requestType:kind,MetaName:'Orders',DbId:'DB1'})
   await vi.waitFor(()=>expect(state.dirty[0]?.isDirty).toBe(false))
   expect(state.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='N2')?.['name']).toBe('其他节点')
   await f.router.push('/other');expect(f.router.currentRoute.value.path).toBe('/other')

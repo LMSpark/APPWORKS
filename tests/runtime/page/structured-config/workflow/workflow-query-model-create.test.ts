@@ -5,7 +5,7 @@ import {DataView,DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
-import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {openWorkflowQueryNodeCreate,openWorkflowOperationNodeCreate,openWorkflowCopyNodeCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
 import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
@@ -14,6 +14,7 @@ import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-sour
 import type {PageDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/query-computed-fields'
 import {workflowQueryAncestors} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
+import {stageWorkflowCopyTarget,workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 
@@ -37,6 +38,106 @@ async function fixture(){
  return{http,ds,reader}
 }
 describe('workflow query model creation in the original DataSet',()=>{
+ it.each(['empty-owner','unrelated-empty','unrelated-incomplete'])('does not require unrelated target execution completeness during copy field edits: %s',async change=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',node_config:'M1',output_mapping:'[]',config:change==='empty-owner'?'{}':'{"targetDbName":"DB","targetTableName":"T"}'}]
+  Object.assign(http.records['Base_DataModel']![0]!,{requestType:'copy'})
+  if(change!=='empty-owner'){
+   http.records['Base_DataModel']!.push({rowid:'UNRELATED_MODEL',dataSetId:'W1',Name:'OtherCopy',requestType:'copy'})
+   http.records['Base_WorkflowNodeDefinition']!.push({rowid:'UNRELATED',workflow_id:'W1',position_type:1,node_type:'copy',node_config:'UNRELATED_MODEL',input_mapping:'[]',config:change==='unrelated-empty'?'{}':'{"targetDbName":"incomplete"}'})
+  }
+  http.records['Base_DataModel_Field']=[{rowid:'F',dataSetId:'W1',dataModelId:'M1',Name:'value',FieldType:'varchar',type:'dataModel',IsPKey:0,IsOutput:1,AsName:'',description:'',ValueFun:''}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('F','AsName','Renamed')
+  expect((await saveWorkflowQueryFields(ds,'W1','COPY')).success).toBe(true)
+  expect(http.records['Base_DataModel_Field']![0]?.['AsName']).toBe('Renamed')
+ })
+ it.each([{input:{},valid:false},{input:{START:[]},valid:false},{input:{START:[{}]},valid:false},{input:{START:[{code:0}]},valid:true}])('checks actual copy input rows before dispatch: $input',async({input,valid})=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',FieldType:'varchar',isParent:false}])},{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',node_config:'M1',config:'{"targetDbName":"TestDB","targetTableName":"Disposable","size":1}'}]
+  http.records['Base_WorkflowConnectors']=[{rowid:'E',workflow_id:'W1',sourceID:'START',targetID:'COPY'}]
+  Object.assign(http.records['Base_DataModel']![0]!,{requestType:'copy',Type:'数据库表',DbId:'DB',DbName:'TestDB',MetaName:'Disposable',Filter:''})
+  http.records['Base_DataModel_Field']=[{rowid:'F',dataSetId:'W1',dataModelId:'M1',Name:'derived',FieldType:'计算字段',type:'dataModel',IsOutput:1,ValueFun:JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})}]
+  await Promise.all([nodes.refresh(),edges.refresh()]);const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  if(valid)await expect(context.validateNode('COPY',input)).resolves.toBeUndefined()
+  else await expect(context.validateNode('COPY',input)).rejects.toThrow('实际输入')
+  expect(http.saves).toEqual([]);context.dispose()
+ })
+ it('saves and cancels copy source fields through the existing query field DataViews',async()=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!,models=ds.getView('Base_DataModel')!,fields=ds.getView('Base_DataModel_Field')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',node_config:'M1',output_mapping:'[]',config:'{"targetDbName":"DB","targetTableName":"T","size":1}'}]
+  Object.assign(http.records['Base_DataModel']![0]!,{requestType:'copy'})
+  http.records['Base_DataModel_Field']=[{rowid:'F',dataSetId:'W1',dataModelId:'M1',Name:'value',FieldType:'varchar',type:'dataModel',IsPKey:0,IsOutput:1,description:'before',AsName:'',ValueFun:''}]
+  models.queryContext={workflowId:'W1',modelId:'M1'};await models.refresh();await Promise.all([nodes.refresh(),edges.refresh(),fields.refresh()])
+  fields.updateEditingValue('F','description','cancel me');await cancelWorkflowQueryFields(ds,'W1','COPY')
+  expect(fields.getEditingRow('F')?.['description']).toBe('before');expect(http.saves).toEqual([])
+  fields.updateEditingValue('F','description','saved copy source');fields.updateEditingValue('F','AsName','ValueAlias');expect((await saveWorkflowQueryFields(ds,'W1','COPY')).success).toBe(true)
+  expect(http.records['Base_DataModel_Field']![0]?.['description']).toBe('saved copy source')
+  expect(http.records['Base_DataModel']![0]?.['requestType']).toBe('copy')
+ })
+ it.each(['valid','legacy','requestType','target','late-model'] as const)('checks the formal copy execution definition: %s',async change=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',node_config:'M1',config:JSON.stringify(change==='legacy'?{targetDatabaseName:'TestDB',targetTableName:'Disposable'}:{targetDbName:'TestDB',targetTableName:change==='target'?'Missing':'Disposable',size:1})}]
+  Object.assign(http.records['Base_DataModel']![0]!,{requestType:change==='requestType'?'query':'copy',Type:'数据库表',DbId:'DB',DbName:'TestDB',MetaName:'Disposable',Filter:''})
+  http.records['Base_DataModel_Field']=[{rowid:'F',dataSetId:'W1',dataModelId:'M1',Name:'name',FieldType:'varchar',type:'dataModel',IsOutput:1,ValueFun:''}]
+  await Promise.all([nodes.refresh(),edges.refresh()])
+  if(change==='late-model'){
+   const real=LowcodeDataSpaceModelSourceReader.readTableTarget
+   vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockImplementationOnce(async(...args)=>{const value=await real(...args);http.records['Base_DataModel']![0]!['Filter']='changed while reading physical metadata';return value})
+  }
+  const context=new WorkflowExecutionContext(ds,'W1',()=>{})
+  if(change==='valid')await expect(context.validateNode('COPY')).resolves.toBeUndefined()
+  else await expect(context.validateNode('COPY')).rejects.toThrow()
+  expect(http.saves).toEqual([]);context.dispose()
+ })
+ it('stages a verified copy target in its original node edit and cancels without a backend write',async()=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  const original=JSON.stringify({size:5,extension:true,targetDatabaseName:'Old'})
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',config:original},{rowid:'OTHER',workflow_id:'W1',position_type:1,node_type:'query',name:'other'}]
+  await nodes.refresh();nodes.updateEditingValue('OTHER','name','keep my draft')
+  await stageWorkflowCopyTarget({dataSet:ds,workflowId:'W1',nodeId:'COPY',selection:{type:'table',id:'TABLE',name:'Disposable',description:'',dbid:'DB',databaseName:'TestDB',providerId:''},assertCurrent(){}})
+  expect(JSON.parse(String(nodes.getEditingRow('COPY')?.['config']))).toEqual({size:5,extension:true,targetDbName:'TestDB',targetTableName:'Disposable',text:'表：Disposable [Disposable]'})
+  expect(http.saves).toEqual([])
+  nodes.discardPendingChanges(['COPY'])
+  expect(nodes.getEditingRow('COPY')?.['config']).toBe(original)
+  expect(nodes.getEditingRow('OTHER')?.['name']).toBe('keep my draft')
+ })
+ it('does not overwrite copy config edited while target metadata was being read',async()=>{
+  const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  http.records['Base_WorkflowNodeDefinition']=[{rowid:'COPY',workflow_id:'W1',position_type:1,node_type:'copy',config:''}];await nodes.refresh()
+  const real=LowcodeDataSpaceModelSourceReader.readTableTarget
+  vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockImplementationOnce(async(...args)=>{
+   const result=await real(...args);nodes.updateEditingValue('COPY','config','{"late":true}');return result
+  })
+  await expect(stageWorkflowCopyTarget({dataSet:ds,workflowId:'W1',nodeId:'COPY',selection:{type:'table',id:'TABLE',name:'Disposable',description:'',dbid:'DB',databaseName:'TestDB',providerId:''},assertCurrent(){}})).rejects.toThrow('已变化')
+  expect(nodes.getEditingRow('COPY')?.['config']).toBe('{"late":true}');expect(http.saves).toEqual([])
+ })
+ it.each([{targetDatabaseName:'DB',targetTableName:'T'},{targetDbName:'DB',targetTableName:'T',size:0},{targetDbName:'DB',targetTableName:'T',size:2001},{targetDbName:'DB',targetTableName:'T',size:1.5}])('rejects an unexecutable copy target contract %j',config=>{
+  expect(()=>workflowCopyTargetConfig(JSON.stringify(config))).toThrow()
+ })
+ it('retains the service default batch size and canonical target names',()=>{
+  expect(workflowCopyTargetConfig('{"targetDbName":"DB","targetTableName":"T","extension":true}')).toMatchObject({targetDbName:'DB',targetTableName:'T',size:500,extension:true})
+ })
+ it('creates a copy source model without converting output fields into operation inputs',async()=>{
+  const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
+  await nodes.refresh()
+  const owner=await openWorkflowCopyNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  await owner.model.preview(source)
+  const nodeId=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===nodeId)!
+  expect(http.records['Base_DataModel']!.find(row=>row['rowid']===owner.modelId)).toMatchObject({requestType:'copy',Type:'JSON',dataSetId:'W1'})
+  expect(http.records['Base_DataModel_Field']![0]).toMatchObject({type:'dataModel',Name:'value',IsOutput:1})
+  expect(node).toMatchObject({node_type:'copy',node_config:owner.modelId,config:'',input_mapping:'[]'})
+  expect(node['dataOperateModId']).toBeFalsy()
+  expect(JSON.parse(String(node['output_mapping']))).toEqual(expect.arrayContaining([expect.objectContaining({Name:'value'})]))
+  expect(owner.pending).toBe(false)
+  await owner.save();expect(http.saves).toHaveLength(3)
+ })
+ it('cancels copy source preview without registering a model or node',async()=>{
+  const {ds,http,reader}=await fixture();await ds.getView('Base_WorkflowNodeDefinition')!.refresh()
+  const owner=await openWorkflowCopyNodeCreate({dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
+  await owner.model.preview(source);owner.cancel()
+  expect(http.saves).toEqual([]);expect(owner.modelId).toBeUndefined();expect(owner.nodeId).toBeUndefined();expect(owner.pending).toBe(false)
+ })
  it.each(['type','model','mapping','removed'] as const)('rejects a remotely changed single-node %s before using the displayed target',async change=>{
   const {ds,http}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',input_mapping:'[]'}]

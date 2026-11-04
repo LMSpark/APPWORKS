@@ -1,0 +1,557 @@
+{
+  "testedAt": "2026-11-04T15:11:41.392565+00:00",
+  "baseCommit": "f267ad76762f809b906ff4c1fc906e5445d7c0ae",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "testAccount": "领码科技/wangtao",
+  "workflowId": "FB756EE0872549B6B1B051C6BD7D23C4",
+  "marker": "SMOKE_COPY_LIVE_1793801704178",
+  "nativeChain": "PageRuntime -> metadata DataSet/DataView; model/field/source/removal commands reuse original SPARK data handles; WorkflowExecutionResource uses its command DataView, retry=0",
+  "sourceHashes": {
+    "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts": "f9225294594356dfa3d942b0481dcb01f6cd2038705d38f0785b88b87f036e3c",
+    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": "2c02a69c077c810d6b57d811d02adbd5b8a53ddbd7f302a5ed19c7d15ead9398",
+    "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": "d51e22fe78e0695fab174ff10bc5cb0c1f9d2e40a9cfe8e05cd06b0fda4c3e55",
+    "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts": "96f75bc2f4e8326ed4d0440cdc2e1b2336eeb033adc3d355a84869b8e205d622",
+    "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts": "d720d9975d20d32d685dc098cfb7b2b39bf314ee04e26e5c810dfa50bd63b9f9",
+    "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": "7321117509ad547055d7361b1f48ac9ceb2fcf231cc9aad94c8c248117aff373",
+    "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": "4b25ebd700d04a0f0343646f2ba4000846eabf7ffb017a77b4697947d0288c63",
+    "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": "8f1f2452cea9cb5c559de4fe21cc001f4ae917c02518b87a2b9a4e254fd33031",
+    "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": "f14e1a9fa2acf3ba17191ad86b7dbcae6befcaecdf40b741db3495d4046ac0aa",
+    "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts": "05f867690438d4e87557997dd805738876e7adb1f3a1aadfee759851f909992e",
+    "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": "2a7ebe58f16cd0539f2caf4a67f5f1e6af3a26c79cc43a894b44dd4935bd48f5",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue": "4dec3d6b20cd9ca24700f5ef940f53ff273339b3637e919e8fa27b4d656caad3",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": "bc9e1672cd8af6b328eacadbec79dac6ce711f4a35c50abfff940388ea30251e",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-node-remove.vue": "4408bcccaae80f0cb507fc5eb9c135eb163c9cb2818fa06286ad713f6b985fe4",
+    "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-node-create.vue": "08cbda57906674a25867b32c75098b2ceb1b5c38c6accbdfa83d0d7de20a1b58",
+    "tests/runtime/page/structured-config/workflow/workflow-design.test.ts": "e29d40f552f9560a9117c3f52785b2e319ae50f47b00af584eddd2196cde0812",
+    "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts": "0792fdc143514df97bde36e993820841af3f59400a0938fb5025329e2d017b50",
+    "tests/runtime/page/structured-config/workflow/workflow-query-inputs.test.ts": "82d6100bc81ace68e98ed20c22821471efb29d68911a2127dd2a0361ad5a35d0",
+    "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts": "5949af9de7903af56b8ddc6136807bba3335a2947996cb953c6dc0e1d9f40576",
+    "tests/runtime/page/structured-config/workflow/workflow-query-source-edit.test.ts": "2b1893560a3e5753c20eea24bfa6673f2bfea17d1577c981d0acd874af4151de"
+  },
+  "stages": {
+    "workflow-copy-live-source-preflight.json": {
+      "phase": "confirmed",
+      "reads": 12,
+      "writes": 0
+    },
+    "workflow-copy-live-cleanup-audit.json": {
+      "phase": "confirmed",
+      "reads": 115,
+      "writes": 6,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-config-audit.json": {
+      "phase": "failed",
+      "reads": 91,
+      "writes": 3,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-config-resume-audit.json": {
+      "phase": "confirmed",
+      "reads": 102,
+      "writes": 2,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-corrected-audit.json": {
+      "phase": "confirmed",
+      "reads": 45,
+      "writes": 1,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-execute-audit.json": {
+      "phase": "failed",
+      "reads": 45,
+      "writes": 0,
+      "executions": 1,
+      "unknown": true
+    },
+    "workflow-copy-live-execute-v2-audit.json": {
+      "phase": "confirmed",
+      "reads": 59,
+      "writes": 0,
+      "executions": 1,
+      "unknown": false
+    },
+    "workflow-copy-live-execute-v3-audit.json": {
+      "phase": "confirmed",
+      "reads": 59,
+      "writes": 0,
+      "executions": 1,
+      "unknown": false
+    },
+    "workflow-copy-live-fixture-create-audit.json": {
+      "phase": "created-confirmed",
+      "reads": 39,
+      "writes": 3,
+      "unknown": false
+    },
+    "workflow-copy-live-flow-audit.json": {
+      "phase": "confirmed",
+      "reads": 111,
+      "writes": 5,
+      "executions": 1,
+      "unknown": false
+    },
+    "workflow-copy-live-observers-audit.json": {
+      "phase": "confirmed",
+      "reads": 44,
+      "writes": 4,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-remove-audit.json": {
+      "phase": "confirmed",
+      "reads": 111,
+      "writes": 1,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-swap-audit.json": {
+      "phase": "failed",
+      "reads": 124,
+      "writes": 3,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-swap-inspection-audit.json": {
+      "phase": "confirmed",
+      "reads": 29,
+      "writes": 0,
+      "executions": 0,
+      "unknown": false
+    },
+    "workflow-copy-live-swap-resume-audit.json": {
+      "phase": "confirmed",
+      "reads": 148,
+      "writes": 5,
+      "executions": 0,
+      "unknown": false
+    }
+  },
+  "forward": {
+    "result": {
+      "commandId": "82ba6af0-0901-4154-a401-8dc99a4eaddd",
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "FB756EE0872549B6B1B051C6BD7D23C4",
+        "nodeId": "F947DEA11E3C5FA9B0BA42F30BE305B6",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.026,
+        "count": 1,
+        "output": [
+          {
+            "Name": "SMOKE_COPY_LIVE_1793801704178_1",
+            "BaseURL": "https://example.invalid/spark-copy-smoke",
+            "description": "owned copy source",
+            "createuser": "U00031",
+            "createtime": "2026-11-04 22:27:14.310",
+            "flowstate": 0,
+            "lingma_sys_is_delete": 0,
+            "updateuser": "U00031",
+            "updatetime": "2026-11-04 22:27:14.310",
+            "lingma_sys_ent": "NewApp",
+            "lingma_sys_appid": "D99A1DCE9894698799101EFD70F8FC76",
+            "loginApiName": "login",
+            "authType": "jwt",
+            "row_id": "137306313A9C4646B10AC6665B0D021D"
+          }
+        ]
+      }
+    },
+    "sourceBefore": [
+      {
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "description": "owned copy source",
+        "name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "createtime": "2026-11-04T22:21:55",
+        "path": ""
+      },
+      {
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "description": "owned copy source",
+        "name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "createtime": "2026-11-04T22:21:55",
+        "path": ""
+      }
+    ],
+    "sourceAfter": [
+      {
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "description": "owned copy source",
+        "name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "createtime": "2026-11-04T22:21:55",
+        "path": ""
+      },
+      {
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "description": "owned copy source",
+        "name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "createtime": "2026-11-04T22:21:55",
+        "path": ""
+      }
+    ],
+    "independentTargets": [
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "description": "owned copy source",
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      },
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "description": "owned copy source",
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      }
+    ],
+    "batchSize": 1,
+    "targetRequiredField": "BaseURL supplied by the original WorkflowComputedFields API"
+  },
+  "wholeFlow": {
+    "startupId": "137306313A9C4646B10AC6665B0D021D",
+    "nodeIds": [
+      "039C59BD2E2E0F43C489405FEF85DC0C",
+      "F947DEA11E3C5FA9B0BA42F30BE305B6",
+      "D64D8B425C13882D30085A9220EFADF2"
+    ],
+    "execution": {
+      "commandId": "6cd8e6e0-877c-4c45-ae6a-8e21d000fab9",
+      "outcome": "success",
+      "completeness": "complete",
+      "nodes": [
+        {
+          "workflowId": "FB756EE0872549B6B1B051C6BD7D23C4",
+          "nodeId": "039C59BD2E2E0F43C489405FEF85DC0C",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "workflowId": "FB756EE0872549B6B1B051C6BD7D23C4",
+          "nodeId": "F947DEA11E3C5FA9B0BA42F30BE305B6",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "workflowId": "FB756EE0872549B6B1B051C6BD7D23C4",
+          "nodeId": "D64D8B425C13882D30085A9220EFADF2",
+          "status": "SUCCESS",
+          "count": 0
+        }
+      ]
+    },
+    "independentTargets": [
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "description": "owned copy source",
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      },
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "description": "owned copy source",
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      }
+    ],
+    "instances": {
+      "Base_Workflow_NodeInstance": [
+        {
+          "status": "SUCCESS",
+          "rowid": "65DDC587E1194E84BDD0F56F3A7EB635",
+          "node_id": "D64D8B425C13882D30085A9220EFADF2",
+          "workflow_instance_id": "C2A31AA3AA1243B4976EFA75C4160244"
+        },
+        {
+          "status": "SUCCESS",
+          "rowid": "DCECEBCD17E24D14B3538112C529D3E9",
+          "node_id": "039C59BD2E2E0F43C489405FEF85DC0C",
+          "workflow_instance_id": "C2A31AA3AA1243B4976EFA75C4160244"
+        },
+        {
+          "status": "SUCCESS",
+          "rowid": "F82F3498E0C4401DA75B16BE23A4C04E",
+          "node_id": "F947DEA11E3C5FA9B0BA42F30BE305B6",
+          "workflow_instance_id": "C2A31AA3AA1243B4976EFA75C4160244"
+        }
+      ],
+      "Base_Workflow_Instance": []
+    }
+  },
+  "reversedSourceAndTarget": {
+    "source": "Base_InterfaceProvider",
+    "target": "Base_JsonData",
+    "fieldsExplicitlyIncluded": [
+      "Name"
+    ],
+    "computedOutput": "path",
+    "fieldCount": 13,
+    "batchSize": 1,
+    "result": {
+      "commandId": "d1a90fd1-256c-4e3c-be13-21d42a23584a",
+      "outcome": "success",
+      "completeness": "complete",
+      "result": {
+        "workflowId": "FB756EE0872549B6B1B051C6BD7D23C4",
+        "nodeId": "F947DEA11E3C5FA9B0BA42F30BE305B6",
+        "status": "SUCCESS",
+        "errorMsg": null,
+        "execTime": 0.025,
+        "count": 1,
+        "output": [
+          {
+            "name": "SMOKE_COPY_LIVE_1793801704178_1",
+            "description": "owned copy source",
+            "path": "",
+            "createuser": "U00031",
+            "createtime": "2026-11-04 22:46:41.600",
+            "flowstate": 0,
+            "lingma_sys_is_delete": 0,
+            "updateuser": "U00031",
+            "updatetime": "2026-11-04 22:46:41.600",
+            "lingma_sys_ent": "NewApp",
+            "lingma_sys_appid": "D99A1DCE9894698799101EFD70F8FC76",
+            "row_id": "137306313A9C4646B10AC6665B0D021D"
+          }
+        ]
+      }
+    },
+    "sourceBefore": [
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "description": "owned copy source",
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      },
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "description": "owned copy source",
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      }
+    ],
+    "sourceAfter": [
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "description": "owned copy source",
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      },
+      {
+        "Name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "description": "owned copy source",
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "BaseURL": "https://example.invalid/spark-copy-smoke"
+      }
+    ],
+    "independentTargets": [
+      {
+        "rowid": "137306313A9C4646B10AC6665B0D021D",
+        "description": "owned copy source",
+        "name": "SMOKE_COPY_LIVE_1793801704178_1",
+        "createtime": "2026-11-04T22:46:42",
+        "path": ""
+      },
+      {
+        "rowid": "FA0E1A1B291C4A3B9EB3F5F1D7A38916",
+        "description": "owned copy source",
+        "name": "SMOKE_COPY_LIVE_1793801704178_2",
+        "createtime": "2026-11-04T22:46:42",
+        "path": ""
+      }
+    ]
+  },
+  "nodeRemoval": {
+    "cancelled": true,
+    "summary": {
+      "nodeId": "F947DEA11E3C5FA9B0BA42F30BE305B6",
+      "modelId": "E4312B6CF35FC70148FC5AD57D581961",
+      "deleteModel": true,
+      "modelContractConfirmed": true,
+      "edgeCount": 2,
+      "conditionCount": 0,
+      "modelRelationCount": 0,
+      "fieldCount": 13,
+      "layoutChanges": false
+    },
+    "sourceRowsRemain": 2,
+    "targetRowsRemain": 2
+  },
+  "historicalUnknown": {
+    "error": "工作流执行结果未知，禁止重跑：[1004] 节点执行失败；根因：Field 'BaseURL' doesn't have a default value",
+    "command": {
+      "commandId": "76ceff31-b14d-4007-8159-0aa740118776",
+      "nodeId": "F947DEA11E3C5FA9B0BA42F30BE305B6",
+      "expectedSourceIds": [
+        "137306313A9C4646B10AC6665B0D021D",
+        "FA0E1A1B291C4A3B9EB3F5F1D7A38916"
+      ]
+    },
+    "unknownPreserved": true,
+    "replayed": false,
+    "independentBeforeCorrection": {
+      "sourceCount": 2,
+      "targets": []
+    },
+    "ramProcess": {
+      "pid": 9448,
+      "identityVerified": true,
+      "terminatedAfterCleanup": true,
+      "wrapperExit": 1,
+      "terminationDoesNotResolveExecution": true
+    }
+  },
+  "cleanup": {
+    "lifecycle": "cleaned",
+    "independentAbsence": true,
+    "runtimeAbsence": {
+      "Base_Workflow_NodeInstance": [],
+      "Base_Workflow_Instance": []
+    },
+    "ownedLogIds": [
+      "65DDC587E1194E84BDD0F56F3A7EB635",
+      "DCECEBCD17E24D14B3538112C529D3E9",
+      "F82F3498E0C4401DA75B16BE23A4C04E"
+    ],
+    "observerModels": [
+      {
+        "source": "Base_Workflow_NodeInstance",
+        "name": "SMOKE_COPY_LIVE_NODE_OBSERVER",
+        "modelId": "53A258ED23E816EC75834EB546574A10"
+      },
+      {
+        "source": "Base_Workflow_Instance",
+        "name": "SMOKE_COPY_LIVE_FLOW_OBSERVER",
+        "modelId": "810C19F4357DC826A17CB1C4049E535B"
+      }
+    ],
+    "observerFieldCount": 31,
+    "cleanedAt": "2026-11-04T14:51:16.572Z"
+  },
+  "verification": {
+    "typecheckExit": 0,
+    "targetedLintExit": 0,
+    "buildExit": 0,
+    "workflow": {
+      "files": 18,
+      "tests": 331,
+      "exit": 0
+    },
+    "fullSuite": {
+      "files": 440,
+      "tests": 8082,
+      "durationSeconds": 974.55,
+      "exit": 0,
+      "note": "Runtime logic was frozen; only two module AI-usage JSDoc lines were added during this run, then formally regenerated and contract-tested."
+    },
+    "classModel": {
+      "generationExit": 0,
+      "durationSeconds": 28.133,
+      "contractFiles": 4,
+      "contractTests": 49,
+      "contractTestsExit": 0,
+      "guideSchemaExit": 0,
+      "guideKinds": [
+        "DataSet",
+        "DataView",
+        "WorkflowModelNodeCreate",
+        "WorkflowModelSourceEdit",
+        "WorkflowNodeRemoval",
+        "WorkflowExecutionContext",
+        "RJsonProps",
+        "RDialogProps",
+        "RFormProps",
+        "RTableProps"
+      ],
+      "semanticGaps": {
+        "baselineTotal": 3641,
+        "currentTotal": 3641,
+        "baselineGate": 681,
+        "currentGate": 681,
+        "added": []
+      },
+      "strictGateExit": 1,
+      "normalizedGenerated": {
+        "restored": 125,
+        "kept": [
+          "generated/dts-class-model/.dts-manifest.json",
+          "generated/dts-class-model/files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json",
+          "generated/dts-class-model/files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json",
+          "generated/dts-class-model/manifest.json",
+          "generated/dts-class-model/semantic-gaps.json"
+        ]
+      }
+    },
+    "codegen": {
+      "exit": 1,
+      "comparison": {
+        "baselineCount": 26,
+        "currentCount": 26,
+        "added": [],
+        "removed": []
+      }
+    }
+  },
+  "auditHashes": {
+    "artifacts/data-chain-smoke/workflow-copy-live-cleanup-audit.json": "2e657222c028cf846725fe904fffef615dbce87b13fff8c3fda757644eaf8d3d",
+    "artifacts/data-chain-smoke/workflow-copy-live-cleanup-intent.json": "a534f18e9f65ccf805e60f2ae252fa91855f72355cf317582aa041cb86efe9c4",
+    "artifacts/data-chain-smoke/workflow-copy-live-config-audit.json": "66078f120efd5ce694847f50d5883033d50318781438f3b756c2edcc841d120a",
+    "artifacts/data-chain-smoke/workflow-copy-live-config-intent.json": "e9c4f30fb13015031f3e7405d6ea6ea9ef428cb385e54712ca4d088fbf7e014c",
+    "artifacts/data-chain-smoke/workflow-copy-live-config-resume-audit.json": "82cfc4043c2dce9882ef8e7eba93653e7452913e6d8f74fdc545df3c14e12d26",
+    "artifacts/data-chain-smoke/workflow-copy-live-config-resume-intent.json": "d74032b5e23c323e727da2594e58fda383ccf2c787be1ca4d7fea61cd1d888fb",
+    "artifacts/data-chain-smoke/workflow-copy-live-corrected-audit.json": "380dbd5a3b2964e442956da1d2c1935e42499cca92c30b8880de9f705549b04d",
+    "artifacts/data-chain-smoke/workflow-copy-live-corrected-intent.json": "4fd46e72f3bda77c726bb9a8d075c1c26a42f893694ab524fc3e43b4c5b3e388",
+    "artifacts/data-chain-smoke/workflow-copy-live-execute-audit.json": "f664ec76f84a596aba27c910c813d25f9b512a506bd4de08c857d2428bb31314",
+    "artifacts/data-chain-smoke/workflow-copy-live-execute-intent.json": "d2423cf704dc70b9f936be83f46e3ceaf869c3bf33ca5e3745ac916aee9d3105",
+    "artifacts/data-chain-smoke/workflow-copy-live-execute-v2-audit.json": "63d6a586a2ab2502ddec58640e586cedfa9cfc5a86267dfd515ece7337ea6f9c",
+    "artifacts/data-chain-smoke/workflow-copy-live-execute-v2-intent.json": "ccf23b45f091dad57928a8a4d8d60ddffcf7bd375b0cd1b91e61f50e91f555be",
+    "artifacts/data-chain-smoke/workflow-copy-live-execute-v3-audit.json": "5b93e5f1bc65240ad7f64d3e15a32f6fdf672c1ebbe5b3fabe3f2f6e4fe5d219",
+    "artifacts/data-chain-smoke/workflow-copy-live-execute-v3-intent.json": "6c35fb3bea46ab684de243321ccbdedf5e31dee61cbdf140094608cbd7b00527",
+    "artifacts/data-chain-smoke/workflow-copy-live-fixture-checkpoint.json": "abb22205d2a92aa9c0576ac91b726ebad8292f352a239f5011dd49757a4e7212",
+    "artifacts/data-chain-smoke/workflow-copy-live-fixture-create-audit.json": "89c2853bf20f7c9d876fc1cf52bb94536b5437b125c72a3e0e2c80a1ffbbae81",
+    "artifacts/data-chain-smoke/workflow-copy-live-flow-audit.json": "e9bc3a248da5026f85c2fc586ea3691fce920154287050bcff76df9ca39d4057",
+    "artifacts/data-chain-smoke/workflow-copy-live-flow-intent.json": "9aaebedff3192d91f570f0ebff7f6e3b2be6d95c0e549ecbc3f52f54017b4d38",
+    "artifacts/data-chain-smoke/workflow-copy-live-observers-audit.json": "a3a81d526286a340a5efebf4995c8f45492695a333b2161f170cef3da545ebb9",
+    "artifacts/data-chain-smoke/workflow-copy-live-observers-intent.json": "aefb0c3a1ef72b519a6c03653677ee4e97b1511dd88da9c1cf23dd4ef5c90c97",
+    "artifacts/data-chain-smoke/workflow-copy-live-remove-audit.json": "e2ba1c06c3ea3e2a4ba7654fcf005d97a52ca0b350aad960107a1eec6c47e93f",
+    "artifacts/data-chain-smoke/workflow-copy-live-remove-intent.json": "5d90075f82158f585bdc23b2e3d369cb43f0554c8a00b07373d44f27d9bb1ab1",
+    "artifacts/data-chain-smoke/workflow-copy-live-source-preflight.json": "7f39d3f327356062127fe17f6c298ea29c6588d570495ce0da20e0ba75acbe76",
+    "artifacts/data-chain-smoke/workflow-copy-live-swap-audit.json": "5eb6534403b48e7392d541e9b6a280f8e69a375cb2d614d75ddf9b561696dc3b",
+    "artifacts/data-chain-smoke/workflow-copy-live-swap-inspection-audit.json": "aeab4852238d3459da350a2e627335a596ddb9fd1c9334c5fcfa96487a08bea0",
+    "artifacts/data-chain-smoke/workflow-copy-live-swap-intent.json": "007dbb93b58f82bc34f3cb6ae1c636588d708d5f545fd9a5cc655f8fe6b85d23",
+    "artifacts/data-chain-smoke/workflow-copy-live-swap-resume-audit.json": "674d5d79138b2831411d472c200d5497a2161f09070d33eb42f49d3281bfcfc5",
+    "artifacts/data-chain-smoke/workflow-copy-live-swap-resume-intent.json": "17305e9f6e32f3b5f16f973bfb0d7da5035506357139eb288d6e2d4b62f61993"
+  },
+  "verificationHashes": {
+    "artifacts/data-chain-smoke/workflow-copy-frozen-typecheck.log": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962",
+    "artifacts/data-chain-smoke/workflow-copy-frozen-lint.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "artifacts/data-chain-smoke/workflow-copy-contract-final-build.log": "9fa276b1203a098dccedb46f5102f796a93963ae54b985764975079f4de4ad71",
+    "artifacts/data-chain-smoke/workflow-copy-contract-final-class-model.log": "421dc1564a8ac256b6be771a1c8e8efd48add66b85eacc1f456703b66dd56699",
+    "artifacts/data-chain-smoke/workflow-copy-frozen-workflow.log": "8bf81f73ddad6e41d59e3615884fd54dfdb0c838a13ee3c6fdba9fb07a744302",
+    "artifacts/data-chain-smoke/workflow-copy-frozen-full-suite.log": "3d2f6846a58af85d1eb67a7c5ad27279948152ada4bd1adb2f238234d8a7f396",
+    "artifacts/data-chain-smoke/workflow-copy-final-class-model-tests.log": "51b359e3cce42fb8e7a825be53886630f4509348cd5394faadb91328fa4c0eb2",
+    "artifacts/data-chain-smoke/workflow-copy-final-guide-schema.log": "5580fa45616b8c6551f120eb3c0da514e9c5898b73ecd8f51c0a563b432d2afc",
+    "artifacts/data-chain-smoke/workflow-copy-final-strict-gaps.log": "be38075b68fa3329d55b0f4fc3edb446e21dc958950c1457f5f3acd0d93ccd85",
+    "artifacts/data-chain-smoke/workflow-copy-final-codegen.log": "2ea822c172ad21293a19e59bc93828ce62452334a588f5d8c7af6fc25731d5f2",
+    "artifacts/data-chain-smoke/workflow-copy-generated-equivalence.json": "74464e8611635d62a0928b89138504d0446774f348c31d84ade4bf2229cd5887",
+    "artifacts/data-chain-smoke/workflow-copy-semantic-gap-comparison.json": "934a96ec0a6a5399c3dce710ebfe823e6dd534215a675c6e85d9047da3cb6fe3",
+    "artifacts/data-chain-smoke/workflow-copy-codegen-comparison.json": "ca0b59578e42b16311e3add2cb82271fd51279b56de60dfcab5229d1e4bd4aa2",
+    "artifacts/data-chain-smoke/workflow-copy-final-guides.json": "e3cf1e631b88f525dc9c7cc830b6124e3128efb4d62c65082b2a98c4fa33a9a4"
+  },
+  "limitations": [
+    "Database-table copy only; other source execution contracts remain open.",
+    "SSR native service smoke and mounted standard-component tests are not complete browser 1:1 acceptance.",
+    "Target required/default field metadata is incomplete in current source-reader contract; no universal source/target compatibility proof.",
+    "Original HTTP1004 request remains unknown despite separate successful corrected intents and exact final cleanup.",
+    "Formal preflight rereads are not atomic with backend execution; no conditional-write or cross-source transaction guarantee.",
+    "Test workflow instance table was empty; production activation/scheduling and instance persistence are not proved.",
+    "JSON table SQL-row persistence does not prove JSON document content/file persistence.",
+    "Existing 26 codegen violations and 681 strict ClassModel gaps remain open; not a whole-repository verify success.",
+    "Merge and the complete 20-business-package migration remain active."
+  ]
+}

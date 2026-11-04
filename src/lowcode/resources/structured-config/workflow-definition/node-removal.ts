@@ -88,11 +88,11 @@ export class WorkflowNodeRemoval{
  private plan():void{
   const nodes=this.view('Base_WorkflowNodeDefinition'),edges=this.view('Base_WorkflowConnectors'),models=this.view('Base_DataModel'),fields=this.view('Base_DataModel_Field'),relations=this.view('Base_DataModel_Relation')
   const node=nodes.rows.find(row=>id(nodes,row)===this.input.nodeId)
-  if(!node||String(read(nodes,node,'position_type'))!=='1'||!['query','add','edit','delete'].includes(String(read(nodes,node,'node_type'))))throw Error('仅普通查询或操作节点可沿本命令删除；开始和结束节点保留')
-  const operation=read(nodes,node,'node_type')!=='query'
+  if(!node||String(read(nodes,node,'position_type'))!=='1'||!['query','copy','add','edit','delete'].includes(String(read(nodes,node,'node_type'))))throw Error('仅普通查询、迁移或操作节点可沿本命令删除；开始和结束节点保留')
+  const operation=!['query','copy'].includes(String(read(nodes,node,'node_type')))
   const modelId=read(nodes,node,operation?'dataOperateModId':'node_config'),model=models.rows.find(row=>id(models,row)===modelId)
   if(typeof modelId!=='string'||!modelId||!model)throw Error('查询节点所属模型缺失')
-  const modelContractConfirmed=!operation||read(models,model,'requestType')===read(nodes,node,'node_type')
+  const modelContractConfirmed=read(nodes,node,'node_type')==='query'||read(models,model,'requestType')===read(nodes,node,'node_type')
   const consumers=nodes.rows.filter(row=>id(nodes,row)!==this.input.nodeId&&(read(nodes,row,'node_config')===modelId||read(nodes,row,'dataOperateModId')===modelId))
   const deleteModel=consumers.length===0&&modelContractConfirmed,nodeIds=new Set(nodes.rows.map(row=>id(nodes,row))),modelIds=new Set(models.rows.map(row=>id(models,row)))
   if(nodeIds.has(modelId)||modelIds.has(this.input.nodeId))throw Error('节点与模型身份重叠，无法区分条件和模型关系')

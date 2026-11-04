@@ -134,6 +134,9 @@
                   "const": "query"
                 },
                 {
+                  "const": "copy"
+                },
+                {
                   "$ref": "query-model-create.ts.json#/$defs/WorkflowDataOperation"
                 }
               ]
@@ -186,7 +189,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T11:00:34.667Z",
+  "generatedAt": "2026-11-04T13:55:39.440Z",
   "models": {
     "Input": {
       "name": "Input",
@@ -220,7 +223,7 @@
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "组合已打开的原模型owner与当前节点视图；只捕获上下文，不创建或提交记录。",
-          "signatureText": "constructor(input: Input, modelOwner: Model, nodes: DataView, operation?: 'query' | WorkflowDataOperation)",
+          "signatureText": "constructor(input: Input, modelOwner: Model, nodes: DataView, operation?: 'query' | 'copy' | WorkflowDataOperation)",
           "parameters": [
             {
               "name": "input",
@@ -253,6 +256,10 @@
                   {
                     "type": "literal",
                     "value": "query"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "copy"
                   },
                   {
                     "type": "reference",

@@ -82,7 +82,8 @@
           "enum": [
             "add",
             "edit",
-            "delete"
+            "delete",
+            "copy"
           ]
         },
         "nodeBefore": {
@@ -236,7 +237,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T11:00:34.669Z",
+  "generatedAt": "2026-11-04T14:09:14.715Z",
   "models": {
     "WorkflowConfirmedSource": {
       "name": "WorkflowConfirmedSource",
@@ -274,11 +275,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    fromModelId: string;\n    modelId: string;\n    expectedSource: WorkflowConfirmedSource;\n    operation?: 'add' | 'edit' | 'delete';\n    nodeBefore: Readonly<DataRow>;\n    fieldsBefore: ReadonlyArray<Readonly<DataRow>>;\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n    assertCurrent(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    fromModelId: string;\n    modelId: string;\n    expectedSource: WorkflowConfirmedSource;\n    operation?: 'add' | 'edit' | 'delete' | 'copy';\n    nodeBefore: Readonly<DataRow>;\n    fieldsBefore: ReadonlyArray<Readonly<DataRow>>;\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n    assertCurrent(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    fromModelId: string;\n    modelId: string;\n    expectedSource: WorkflowConfirmedSource;\n    operation?: 'add' | 'edit' | 'delete';\n    nodeBefore: Readonly<DataRow>;\n    fieldsBefore: ReadonlyArray<Readonly<DataRow>>;\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n    assertCurrent(): void;\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    fromModelId: string;\n    modelId: string;\n    expectedSource: WorkflowConfirmedSource;\n    operation?: 'add' | 'edit' | 'delete' | 'copy';\n    nodeBefore: Readonly<DataRow>;\n    fieldsBefore: ReadonlyArray<Readonly<DataRow>>;\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n    assertCurrent(): void;\n}>",
             "targetName": "Readonly"
           }
         ],

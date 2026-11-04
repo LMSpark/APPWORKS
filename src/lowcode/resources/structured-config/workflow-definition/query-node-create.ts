@@ -4,7 +4,7 @@
  * 边界：复用原模型owner和DataSet保存核验，不执行流程，不重建权限，不自动删除已确认模型。
  */
 import {RequestState,type DataRow,type DataView} from '@spark-appworks/spark-data'
-import {openWorkflowQueryModelCreate,openWorkflowOperationModelCreate,type WorkflowDataOperation} from './query-model-create'
+import {openWorkflowQueryModelCreate,openWorkflowCopyModelCreate,openWorkflowOperationModelCreate,type WorkflowDataOperation} from './query-model-create'
 import {buildWorkflowQueryOutput} from './query-output'
 import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
 
@@ -30,10 +30,11 @@ export class WorkflowModelNodeCreate {
  /** 原查询模型创建owner，保留来源预览、取消及未知批次核验。 */
  readonly model:Pick<Model,'getState'|'preview'|'setName'>
  /** 组合已打开的原模型owner与当前节点视图；只捕获上下文，不创建或提交记录。 */
- constructor(private readonly input:Input,private readonly modelOwner:Model,private readonly nodes:DataView,private readonly operation:'query'|WorkflowDataOperation='query'){
+ constructor(private readonly input:Input,private readonly modelOwner:Model,private readonly nodes:DataView,private readonly operation:'query'|'copy'|WorkflowDataOperation='query'){
   this.model={getState:modelOwner.getState,preview:modelOwner.preview,setName:modelOwner.setName}
   this.#nodeContext=JSON.stringify(nodes.queryContext)
  }
+ private get sourceModel():boolean{return this.operation==='query'||this.operation==='copy'}
  /** 已独立确认的模型身份；失败后仍用于继续原节点创建。 */
  get modelId():string|undefined{return this.#modelId}
  /** 原生新增行的唯一节点身份，核验时不得生成新身份。 */
@@ -54,7 +55,7 @@ export class WorkflowModelNodeCreate {
   this.guard()
   if(this.nodes.requestState!==RequestState.Loaded||this.nodes.loadingError||this.nodes.mutating||this.nodes.hasUnconfirmedSave
    ||this.nodes.addActionState()!=='enabled')throw Error('当前查询不允许新增查询节点')
-  for(const field of ['workflow_id','position_type','node_type','node_config',...(this.operation==='query'?[]:['dataOperateModId']),'name','description','input_mapping','output_mapping','config']){
+  for(const field of ['workflow_id','position_type','node_type','node_config',...(this.sourceModel?[]:['dataOperateModId']),'name','description','input_mapping','output_mapping','config']){
    if(this.nodes.newRowFieldAccess(field).write!=='allowed')throw Error(`当前查询不允许新增节点字段: ${field}`)
   }
  }
@@ -72,12 +73,12 @@ export class WorkflowModelNodeCreate {
    fields.queryContext={...template.queryContext,dataSpaceId:workflowId,modelIds:[modelId]}
    await fields.refresh();this.guard()
    if(fields.loadingError||fields.requestState!==RequestState.Loaded||fields.rows.length!==fields.total)throw Error('查询模型字段未完整读取')
-   output=this.operation==='query'?buildWorkflowQueryOutput({workflowId,modelId,fields:fields.rows.map(row=>Object.fromEntries(
+   output=this.sourceModel?buildWorkflowQueryOutput({workflowId,modelId,fields:fields.rows.map(row=>Object.fromEntries(
     ['rowid','dataSetId','dataModelId','type','IsOutput','IsPKey','AsName','Name','FieldType','description'].map(field=>[field,read(fields,row,field)])))}):[]
-   if(this.operation!=='query'&&fields.rows.some(row=>read(fields,row,'type')!=='inputParams'))throw Error('操作目标字段必须属于输入参数')
+   if(!this.sourceModel&&fields.rows.some(row=>read(fields,row,'type')!=='inputParams'))throw Error('操作目标字段必须属于输入参数')
   }finally{fields.dataTable?.destroyView(fields.viewId)}
   this.preflightNode()
-  const values={workflow_id:workflowId,position_type:1,node_type:this.operation,node_config:this.operation==='query'?modelId:'',...(this.operation==='query'?{}:{dataOperateModId:modelId}),name,description,input_mapping:'[]',output_mapping:JSON.stringify(output),config:''}
+  const values={workflow_id:workflowId,position_type:1,node_type:this.operation,node_config:this.sourceModel?modelId:'',...(this.sourceModel?{}:{dataOperateModId:modelId}),name,description,input_mapping:'[]',output_mapping:JSON.stringify(output),config:''}
   const row=await this.nodes.addRow(values),nodeId=this.nodes.getPkKey(row)
   if(typeof nodeId!=='string'||!nodeId)throw Error('查询节点未取得原生新增身份')
   this.#nodeId=nodeId;this.#nodeValues=values
@@ -162,6 +163,14 @@ export async function openWorkflowQueryNodeCreate(input:Input):Promise<WorkflowM
  if(nodes?.queryContext['workflowId']!==input.workflowId||nodes.requestState!==RequestState.Loaded||nodes.hasUnconfirmedSave||nodes.addActionState()!=='enabled')throw Error('当前查询不允许新增查询节点')
  const model=await openWorkflowQueryModelCreate(input)
  return new WorkflowModelNodeCreate(input,model,nodes)
+}
+
+/** 迁移来源沿原模型/节点分阶段保存；目标配置由同一节点视图继续维护，不执行业务迁移。 */
+export async function openWorkflowCopyNodeCreate(input:Input):Promise<WorkflowModelNodeCreate>{
+ const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition')
+ if(nodes?.queryContext['workflowId']!==input.workflowId||nodes.requestState!==RequestState.Loaded||nodes.hasUnconfirmedSave||nodes.addActionState()!=='enabled')throw Error('当前查询不允许新增迁移节点')
+ const model=await openWorkflowCopyModelCreate(input)
+ return new WorkflowModelNodeCreate(input,model,nodes,'copy')
 }
 
 /** 按原查询授权及分阶段保存创建操作节点；目标通过dataOperateModId绑定，不复用查询node_config。 */

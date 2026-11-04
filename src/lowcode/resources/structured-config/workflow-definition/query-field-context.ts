@@ -31,7 +31,8 @@ function workflowModelFieldScope(input:Readonly<{dataSet:DataSet;workflowId:stri
  }
  const nodes=loaded('Base_WorkflowNodeDefinition'),fields=loaded('Base_DataModel_Field'),models=loaded('Base_DataModel'),edges=loaded('Base_WorkflowConnectors')
  const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId),model=models.rows[0]
- if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||!(operation?['add','edit','delete']:['query']).includes(String(readWorkflowFieldValue(nodes,node,'node_type'))))throw Error('当前不是所属工作流的唯一查询节点模型')
+ if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||!(operation?['add','edit','delete']:['query','copy']).includes(String(readWorkflowFieldValue(nodes,node,'node_type'))))throw Error('当前不是所属工作流的唯一查询节点模型')
+ if(!operation&&readWorkflowFieldValue(nodes,node,'node_type')==='copy'&&readWorkflowFieldValue(models,model,'requestType')!=='copy')throw Error('迁移来源模型requestType不符')
  const modelId=readWorkflowFieldValue(nodes,node,operation?'dataOperateModId':'node_config')
  if(operation&&!repairRequestType&&readWorkflowFieldValue(models,model,'requestType')!==readWorkflowFieldValue(nodes,node,'node_type'))throw Error('操作节点与模型requestType不符')
  if(typeof modelId!=='string'||!modelId||models.getPkKey(model)!==modelId||readWorkflowFieldValue(models,model,'dataSetId')!==workflowId)throw Error('查询模型归属不符')

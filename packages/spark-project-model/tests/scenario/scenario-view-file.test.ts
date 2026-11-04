@@ -1683,3 +1683,97 @@ describe('registered file resource binding persistence', () => {
     expect((result.toJSON()['tables'] as Record<string, Record<string, unknown>>)['AgentWorkflowFiles']).not.toHaveProperty('modelBinding')
   })
 })
+
+describe('parent result and explicit child-plan persisted model dependencies', () => {
+  function source() {
+    return {scenarioId: 'S', schemaVersion: 2, resourceRelations: [], tables: {
+      ParentConfig: {modelBinding: {modelId: 'P', modelName: 'Parent'}, views: {default: {queryConfig: {
+        pagination: 'none', outputType: 'Navigation', children: [{modelName: 'ChildA', fields: ['id']},
+          {modelName: 'ChildB', fields: ['id'], children: [{modelName: 'Grandchild', fields: ['id']}]}],
+      }}}},
+      AConfig: {modelBinding: {modelId: 'A', modelName: 'ChildA'}, views: {default: {queryConfig: {
+        pagination: 'none', autoQuery: false, parentResult: {dataViewKey: 'S@Parent@default', childModelName: 'ChildA'},
+      }}}},
+      BConfig: {modelBinding: {modelId: 'B', modelName: 'ChildB'}, views: {default: {}}},
+      GConfig: {modelBinding: {modelId: 'G', modelName: 'Grandchild'}, views: {default: {}}},
+      Unrelated: {modelBinding: {modelId: 'X', modelName: 'Unused'}, views: {default: {}}},
+    }}
+  }
+  const config = (value: unknown) => new ScenarioViewConfig('S', JSON.stringify(value))
+  it.each(['AConfig', 'ParentConfig'])('keeps every required registered model when loading %s', table => {
+    const input = source(), stored = config(input)
+    const scope = stored.selectModelScope(table)
+    expect(Object.keys(scope.toJSON()['tables'] as object)).toEqual(['ParentConfig', 'AConfig', 'BConfig', 'GConfig'])
+    expect(stored.toJSON()).toEqual(input)
+    expect(scope.toJSON()['resourceRelations']).toEqual([])
+    expect(scope.toJSON()['viewCascades']).toEqual([])
+  })
+  it('includes reverse consumers in changed model validation and protects referenced model removal', () => {
+    const before = config(source()), changed = source()
+    changed.tables.BConfig.views.default = {labelField: 'id'} as typeof changed.tables.BConfig.views.default
+    const after = config(changed)
+    expect(Object.keys(after.selectViewValidationScope(before)!.toJSON()['tables'] as object)).toEqual(['ParentConfig', 'AConfig', 'BConfig', 'GConfig'])
+    expect(before.getTableRemovalReferences('ParentConfig')).toContain('tables.AConfig.views.default.queryConfig.parentResult.dataViewKey')
+    expect(before.getTableRemovalReferences('GConfig')).toContain('tables.ParentConfig.views.default.queryConfig.children[1].children[0].modelName')
+    const resource = ScenarioDefinitionRecords.resources.DataTableBindingDefinition
+    const rows = ScenarioDefinitionRecords.read(before, resource).filter(row => row['tableName'] !== 'ParentConfig')
+    expect(() => ScenarioDefinitionRecords.write({config: before, resource, rows})).toThrow('SCENARIO_DEFINITION_REFERENCES')
+  })
+  it('resolves child plans only through formal model names and does not invent file references', () => {
+    const file = {resourceType: 'file', resourceId: 'fixture:child', columns: [{name: 'id', type: 'string', isPrimaryKey: true}], views: {default: {}}}
+    const input = source()
+    const withFile = config({...input, tables: {...input.tables, ChildB: file}})
+    expect(Object.keys(withFile.selectModelScope('ParentConfig').toJSON()['tables'] as object)).toEqual(['ParentConfig', 'AConfig', 'BConfig', 'GConfig'])
+    expect(withFile.getTableRemovalReferences('ChildB')).toEqual([])
+    const {BConfig: _removed, ...remaining} = input.tables
+    const onlyFile = config({...input, tables: {...remaining, ChildB: file}})
+    expect(() => onlyFile.selectModelScope('ParentConfig')).toThrow('子查询模型无法唯一定位')
+    expect(onlyFile.getTableRemovalReferences('ChildB')).toEqual([])
+  })
+  it.each(['cross-space', 'internal-key', 'child-identity', 'ambiguous'] as const)('rejects relevant %s parent references', kind => {
+    const input = source()
+    const parent = input.tables.AConfig.views.default.queryConfig.parentResult
+    if (kind === 'cross-space') parent.dataViewKey = 'OTHER@Parent@default'
+    if (kind === 'internal-key') parent.dataViewKey = 'S@ParentConfig@default'
+    if (kind === 'child-identity') parent.childModelName = 'ChildB'
+    if (kind === 'ambiguous') Object.assign(input.tables, {Duplicate: {...input.tables.ParentConfig}})
+    expect(() => config(input).selectModelScope('AConfig')).toThrow(kind === 'child-identity' ? '子模型身份不一致' : '父结果视图无法唯一定位')
+  })
+  it('rejects deleting a named parent view still consumed by a derived child', () => {
+    const input = source()
+    Object.assign(input.tables.ParentConfig.views, {navigation: input.tables.ParentConfig.views.default})
+    input.tables.AConfig.views.default.queryConfig.parentResult.dataViewKey = 'S@Parent@navigation'
+    const before = config(input)
+    const changed = source()
+    changed.tables.AConfig.views.default.queryConfig.parentResult.dataViewKey = 'S@Parent@navigation'
+    expect(() => config(changed).selectViewValidationScope(before)).toThrow('父结果视图无法唯一定位')
+  })
+  it('reopens native DataSet-backed file text and preserves a multi-level parent result chain', async () => {
+    const input = source()
+    input.tables.ParentConfig.views.default.queryConfig.children = [{modelName: 'ChildA', fields: ['id'], children: [
+      {modelName: 'ChildB', fields: ['id'], children: [{modelName: 'Grandchild', fields: ['id']}]},
+    ]}]
+    Object.assign(input.tables.BConfig.views.default, {queryConfig: {pagination: 'none', autoQuery: false,
+      parentResult: {dataViewKey: 'S@ChildA@default', childModelName: 'ChildB'}}})
+    Object.assign(input.tables.GConfig.views.default, {queryConfig: {pagination: 'none', autoQuery: false,
+      parentResult: {dataViewKey: 'S@ChildB@default', childModelName: 'Grandchild'}}})
+    const file = ScenarioViewFile.createDraft('S', JSON.stringify(input))
+    let persisted = ''
+    await file.saveChanges(async text => {persisted = text})
+    const reopened = new ScenarioViewFile('S', persisted)
+    expect(persisted).toBe(file.getText())
+    expect(reopened.isPersisted).toBe(true)
+    expect(reopened.value.toJSON()).toEqual(input)
+    expect(Object.keys(reopened.value.selectModelScope('GConfig').toJSON()['tables'] as object)).toEqual(['ParentConfig', 'AConfig', 'BConfig', 'GConfig'])
+  })
+  it('ignores unrelated broken references but rejects selected missing parent views and child models', () => {
+    const changed = source()
+    changed.tables.AConfig.views.default.queryConfig.parentResult.dataViewKey = 'S@Parent@missing'
+    const stored = config(changed)
+    expect(Object.keys(stored.selectModelScope('Unrelated').toJSON()['tables'] as object)).toEqual(['Unrelated'])
+    expect(() => stored.selectModelScope('AConfig')).toThrow('父结果视图无法唯一定位')
+    const missingChild = source()
+    missingChild.tables.ParentConfig.views.default.queryConfig.children[1]!.modelName = 'Missing'
+    expect(() => config(missingChild).selectModelScope('ParentConfig')).toThrow('子查询模型无法唯一定位')
+  })
+})

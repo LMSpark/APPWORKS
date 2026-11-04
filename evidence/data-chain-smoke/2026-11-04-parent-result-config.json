@@ -1,0 +1,70 @@
+{
+  "date": "2026-11-04",
+  "baseline": "fd9952d0f",
+  "scope": "persisted query configuration model dependency closure and deletion references",
+  "findings": [
+    "single-model named child assembly omitted its parent and sibling/deep models required by the parent plan",
+    "parentResult and explicit nested child-plan references were absent from model-removal protection",
+    "shared resolver incorrectly treated file internal keys as formal child-plan model names"
+  ],
+  "implementation": [
+    "same existing fixed-point selection; forward runtime and reverse changed-definition scope",
+    "full parent view key and consumer child-model identity validation",
+    "recursive children use formal modelBinding names only; filter lookup and parent view keys preserve existing contracts",
+    "exact reference paths; no resourceRelations or viewCascades invented"
+  ],
+  "verification": {
+    "initialRed": {
+      "failed": 4,
+      "passed": 198
+    },
+    "finalTargeted": {
+      "files": 2,
+      "tests": 243
+    },
+    "broaderRegression": {
+      "files": 69,
+      "tests": 2931,
+      "seconds": 611.1,
+      "sourceBoundary": "initial dependency-closure snapshot; final file-identity narrowing and additional cases separately verified in final targeted run"
+    },
+    "rootTypecheck": "passed final",
+    "changedEslint": "passed final",
+    "classModel": {
+      "files": 4,
+      "tests": 49
+    },
+    "buildFrontend": "passed",
+    "pageThin": "passed",
+    "generatedEquivalentRestored": 110,
+    "semanticGaps": {
+      "before": 3636,
+      "after": 3636,
+      "new": 0
+    }
+  },
+  "controlledStorage": {
+    "path": "original ScenarioViewFile -> ScenarioViewData -> DataSet save -> test storage callback -> new ScenarioViewFile",
+    "scope": "RAM test storage; does not prove server persistence"
+  },
+  "integration": {
+    "loader": "original loadScenarioDataSet -> LowcodeDataSpaceAssembler -> DataSet native structure and original runtime binding",
+    "observed": "request only child model; reads all 3 required formal models, excludes unrelated model; no legacy relation or business HTTP; concrete-view dependency cycle rejected"
+  },
+  "review": {
+    "type": "high-model static and RAM source probe",
+    "important": "file internal-key/formal child model mismatch",
+    "resolution": "dedicated RED to GREEN; only children exclude file candidates"
+  },
+  "realService": {
+    "reads": 0,
+    "writes": 0,
+    "newFixtures": 0
+  },
+  "open": [
+    "real pagedata save and independent reopen/readback with safe restore/cleanup",
+    "valid effective nested child path and output-kind design validation remain governed by original runtime; not claimed complete",
+    "remaining Foreign/LEFT/aggregate/long PId/reference page matrix gaps in ledger"
+  ],
+  "goal": "active"
+}

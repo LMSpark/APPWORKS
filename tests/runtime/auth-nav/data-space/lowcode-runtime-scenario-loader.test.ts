@@ -443,3 +443,48 @@ describe('loadLowcodeRuntimeScenario', () => {
     await expect(pending).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
   })
 })
+
+
+it('loads the complete parent query plan when only a persisted named child view model is requested', async () => {
+  vi.clearAllMocks()
+  const {text, models} = relationFixture('rowid')
+  const input = JSON.parse(text)
+  input.schemaVersion = 2; input.resourceRelations = []
+  input.tables.PARENT.views.default.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [
+    {modelName: 'CHILD', fields: ['id']}, {modelName: 'EXTRA', fields: ['id']},
+  ]}
+  input.tables.CHILD.views.default.queryConfig = {pagination: 'none', autoQuery: false,
+    parentResult: {dataViewKey: 'SCENE@PARENT@default', childModelName: 'CHILD'}}
+  input.tables.ThirdConfig = {modelBinding: {modelId: 'EXTRA', modelName: 'EXTRA'}, views: {default: {}}}
+  input.tables.Unavailable = {modelBinding: {modelId: 'MISSING', modelName: 'Unavailable'}, views: {default: {}}}
+  const extra = {...models[1]!, id: 'EXTRA', name: 'EXTRA', metaName: 'EXTRA', sourceName: 'physical_extra',
+    fields: models[1]!.fields.map(field => ({...field, id: 'EXTRA-key', modelId: 'EXTRA'}))}
+  mocks.readModelBatch.mockImplementation(async ({metaNames}: {metaNames: string[]}) => [...models, extra].filter(model => metaNames.includes(model.metaName)))
+  mocks.readRelations.mockRejectedValue(new Error('native configuration must not read legacy records'))
+  const config = new ScenarioViewConfig('SCENE', JSON.stringify(input))
+  const assembly = await loadScenarioDataSet({scenarioId: 'SCENE', config, modelScope: 'CHILD'})
+  try {
+    expect(mocks.readModelBatch).toHaveBeenCalledExactlyOnceWith({designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
+      dataSpaceId: 'SCENE', metaNames: ['PARENT', 'CHILD', 'EXTRA']}, undefined)
+    expect(assembly.diagnostics).toEqual([])
+    expect(Object.keys(assembly.dataSet.tables)).toEqual(['PARENT', 'CHILD', 'ThirdConfig'])
+    expect(assembly.dataSet.getView('CHILD')!.queryConfig.parentResult).toEqual({dataViewKey: 'SCENE@PARENT@default', childModelName: 'CHILD'})
+    expect(assembly.dataSet.resourceRelations).toEqual([])
+    expect(mocks.readRelations).not.toHaveBeenCalled()
+    expect(mocks.request).not.toHaveBeenCalled()
+    expect(config.toJSON()).toEqual(input)
+  } finally {assembly.dataSet.destroy()}
+})
+
+
+it('rejects a persisted concrete-view parentResult cycle during native assembly without business reads', async () => {
+  vi.clearAllMocks()
+  const {text} = relationFixture('rowid'), input = JSON.parse(text)
+  input.schemaVersion = 2; input.resourceRelations = []
+  input.tables.PARENT.views.default.queryConfig = {pagination: 'none', autoQuery: false,
+    parentResult: {dataViewKey: 'SCENE@CHILD@default', childModelName: 'PARENT'}}
+  input.tables.CHILD.views.default.queryConfig = {pagination: 'none', autoQuery: false,
+    parentResult: {dataViewKey: 'SCENE@PARENT@default', childModelName: 'CHILD'}}
+  await expect(loadScenarioDataSet({scenarioId: 'SCENE', config: new ScenarioViewConfig('SCENE', JSON.stringify(input)), modelScope: 'CHILD'})).rejects.toThrow('PARENT_CYCLE')
+  expect(mocks.request).not.toHaveBeenCalled()
+})

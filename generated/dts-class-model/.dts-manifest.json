@@ -3454,7 +3454,7 @@
     "packages/spark-project-model/src/scenario/scenario-view-config.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-view-config.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.639Z"
+      "sourceModifiedAt": "2026-11-04T02:26:55.095Z"
     },
     "packages/spark-project-model/src/scenario/scenario-view-data.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-data.ts",

@@ -20,6 +20,24 @@ type ScenarioRelationDependency = Readonly<ScenarioRelationEndpoint & {
   referencedTables: readonly string[]
 }>
 
+/** 查询声明的正式模型依赖；不生成关系或视图执行等待边。 */
+type QueryModelDependency = {
+  /** queryConfig内的引用位置，用于删除保护与诊断。 */
+  path: string
+  /** 正式模型注册名；不是pagedata内部表键。 */
+  modelName: string
+  /** 视图引用的显式空间，子计划模型沿当前空间解释。 */
+  scope?: string
+  /** 具名来源视图，子计划仅依赖模型时省略。 */
+  viewId?: string
+  /** 定位失败的业务诊断。 */
+  message: string
+  /** 显式SQL子计划只引用正式模型，不把文件表键当注册名。 */
+  formalModelOnly?: boolean
+  /** parentResult必须与所属子模型身份相同。 */
+  childModelName?: string
+}
+
 function record(value: unknown, path: string): Record<string, unknown> {
   if (!isRecord(value)) throw new Error(`${path} 必须是对象`)
   return value
@@ -212,9 +230,11 @@ export class ScenarioViewConfig {
       for (const [id, inputView] of Object.entries(record(record(input, owner)['views'], `${owner}.views`))) {
         const view = record(inputView, `${owner}@${id}`), path = `tables.${owner}.views.${id}`
         filter(view['filterExpression'], `${path}.filterExpression`)
-        for (const lookup of view['queryConfig'] === undefined ? [] : SparkData.DataViewQuery.parse(view['queryConfig']).filterLookups ?? []) {
-          const binding = SparkData.parseDataViewKey(lookup.sourceViewKey)
-          if (binding?.scope === this.scenarioId && binding.tableName === modelName) references.add(`${path}.queryConfig.filterLookups`)
+        for (const dependency of this.queryModelDependencies(view['queryConfig'])) {
+          if (!(dependency.formalModelOnly && target['resourceType'] === 'file')
+            && (dependency.scope === undefined || dependency.scope === this.scenarioId) && dependency.modelName === modelName) {
+            references.add(`${path}.queryConfig.${dependency.path}`)
+          }
         }
         for (const field of configObjects(view['fieldProjection'])) {
           if (typeof field['valueFunction'] === 'string' && field['valueFunction'].trim()) {
@@ -232,7 +252,7 @@ export class ScenarioViewConfig {
   }
 
   /**
-   * 提取模型及原生关系、显式级联、辅助过滤引用的模型，供独立运行消费；保留这些模型的全部视图与请求配置。
+   * 提取模型及原生关系、显式级联、父结果、子查询计划及辅助过滤引用的模型，供独立运行消费；保留这些模型的全部视图与请求配置。
    * 旧格式须先读取正式关系并提供依赖投影；未提供时保留完整配置。原文件不变；投影不能用作整份文件的保存载荷。
    * @param tableName 配置中的模型表键；不接受正式注册名替代或首表回退。
    * @param inherited 旧关系的完整端点及值函数模型引用；空集合表示已确认无旧关系，省略表示尚未确认。原生配置忽略此参数。
@@ -251,7 +271,7 @@ export class ScenarioViewConfig {
   }
 
   /**
-   * 为视图变更或新增模型绑定提取字段校验范围，包含级联与辅助查找的双向依赖，不读取未改动的模型关系。
+   * 为视图变更或新增模型绑定提取字段校验范围，包含级联、父结果、显式子计划与辅助查找的双向依赖，不读取未改动的模型关系。
    * @param previous 同空间原文件配置；已有模型不得删除或改绑，已有字段、关系和布局等结构必须保持不变。
    * @returns 无变更返回null；否则返回只用于校验并释放的配置，不得保存或作为整个空间的运行定义。
    * @throws 场景或非视图结构变化、相关查找引用无法定位时拒绝使用此入口。
@@ -452,6 +472,32 @@ export class ScenarioViewConfig {
     })
   }
 
+  /** 从正式查询配置提取模型引用；仅依赖投影和删除检查复用，不执行查询或推导关系。 */
+  private queryModelDependencies(input: unknown): readonly QueryModelDependency[] {
+    if (input === undefined) return []
+    const config = SparkData.DataViewQuery.parse(input), result: QueryModelDependency[] = []
+    for (const lookup of config.filterLookups ?? []) {
+      const binding = SparkData.parseDataViewKey(lookup.sourceViewKey)
+      result.push({path: 'filterLookups', modelName: binding?.tableName ?? '', scope: binding?.scope ?? '',
+        ...(binding?.viewId === undefined ? {} : {viewId: binding.viewId}), message: '辅助过滤查找视图无法唯一定位'})
+    }
+    if (config.parentResult) {
+      const binding = SparkData.parseDataViewKey(config.parentResult.dataViewKey)
+      result.push({path: 'parentResult.dataViewKey', modelName: binding?.tableName ?? '', scope: binding?.scope ?? '',
+        ...(binding?.viewId === undefined ? {} : {viewId: binding.viewId}), message: '父结果视图无法唯一定位',
+        childModelName: config.parentResult.childModelName})
+    }
+    const children = (plans: readonly SparkData.DataViewQueryChild[], path: string): void => {
+      plans.forEach((plan, index) => {
+        const at = `${path}[${index}]`
+        result.push({path: `${at}.modelName`, modelName: plan.modelName, formalModelOnly: true, message: '子查询模型无法唯一定位'})
+        children(plan.children ?? [], `${at}.children`)
+      })
+    }
+    children(config.children ?? [], 'children')
+    return result
+  }
+
   private selectTables(input: SelectTablesInput): ScenarioViewConfig {
     const {tableNames, viewValidation, inheritedGroups} = input
     const reverseLookups = input.reverseLookups ?? viewValidation
@@ -474,18 +520,23 @@ export class ScenarioViewConfig {
         const views = record(record(tables[includedTable], includedTable)['views'], `${includedTable}.views`)
         for (const view of Object.values(views)) {
           const config = record(view, 'view')['queryConfig']
-          for (const lookup of config === undefined ? [] : SparkData.DataViewQuery.parse(config).filterLookups ?? []) {
-            const binding = SparkData.parseDataViewKey(lookup.sourceViewKey)
+          for (const dependency of this.queryModelDependencies(config)) {
             const matches = Object.entries(tables).filter(([key, value]) => {
               const table = record(value, 'table')
-              return (table['resourceType'] === 'file' ? key : record(table['modelBinding'], 'modelBinding')['modelName']) === binding?.tableName
+              if (dependency.formalModelOnly && table['resourceType'] === 'file') return false
+              return (table['resourceType'] === 'file' ? key : record(table['modelBinding'], 'modelBinding')['modelName']) === dependency.modelName
             })
             const source = matches[0]
-            // A changed lookup source also affects consumers; unrelated malformed references stay outside this operation.
+            // Changed sources also affect consumers; unrelated broken references stay outside this operation.
             if (reverseLookups && !included.has(includedTable) && !matches.some(([table]) => included.has(table))) continue
-            if (binding?.scope !== this.scenarioId || matches.length !== 1 || !source
-              || !Object.hasOwn(record(record(source[1], 'table')['views'], 'views'), binding.viewId)) {
-              throw new Error(`辅助过滤查找视图无法唯一定位: ${lookup.sourceViewKey}`)
+            if (dependency.scope !== undefined && dependency.scope !== this.scenarioId || matches.length !== 1 || !source
+              || dependency.viewId !== undefined && !Object.hasOwn(record(record(source[1], 'table')['views'], 'views'), dependency.viewId)) {
+              throw new Error(`${dependency.message}: ${dependency.modelName}${dependency.viewId === undefined ? '' : `@${dependency.viewId}`}`)
+            }
+            if (dependency.childModelName !== undefined) {
+              const owner = record(tables[includedTable], includedTable)
+              const ownerName = owner['resourceType'] === 'file' ? includedTable : record(owner['modelBinding'], 'modelBinding')['modelName']
+              if (dependency.childModelName !== ownerName) throw new Error('父结果子模型身份不一致')
             }
             included.add(source[0])
             if (reverseLookups) included.add(includedTable)

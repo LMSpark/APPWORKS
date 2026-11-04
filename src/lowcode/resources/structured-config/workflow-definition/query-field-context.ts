@@ -22,14 +22,14 @@ export function workflowFieldChanges(view:DataView,row:DataRow,id:string):Record
 function workflowModelFieldScope(input:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;operation:boolean;repairRequestType?:boolean}>){
  const {dataSet,workflowId,nodeId,operation,repairRequestType=false}=input
  if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询配置目标已失效')
- const views=['Base_WorkflowNodeDefinition','Base_DataModel_Field','Base_DataModel','Base_WorkflowConnectors'].map(name=>{
-  const view=dataSet.getView(name),fields=name==='Base_DataModel_Field'
+ const loaded=(name:string)=>{
+  const view=dataSet.getView(name),fieldView=name==='Base_DataModel_Field'
   if(!view||view.destroyed||view.mutating||view.loadingError||view.requestState!==RequestState.Loaded
-   ||view.rows.length+(fields?view.dirtyTracking.pendingDeleteIds.size-view.dirtyTracking.pendingCreateIds.size:0)!==view.total)throw Error('查询配置尚未完整读取')
+   ||view.rows.length+(fieldView?view.dirtyTracking.pendingDeleteIds.size-view.dirtyTracking.pendingCreateIds.size:0)!==view.total)throw Error('查询配置尚未完整读取')
   if(view.queryContext['workflowId']!==workflowId)throw Error('查询配置目标已变化')
   return view
- })
- const [nodes,fields,models,edges]=views as [DataView,DataView,DataView,DataView]
+ }
+ const nodes=loaded('Base_WorkflowNodeDefinition'),fields=loaded('Base_DataModel_Field'),models=loaded('Base_DataModel'),edges=loaded('Base_WorkflowConnectors')
  const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId),model=models.rows[0]
  if(!node||models.rows.length!==1||!model||readWorkflowFieldValue(nodes,node,'workflow_id')!==workflowId||!(operation?['add','edit','delete']:['query']).includes(String(readWorkflowFieldValue(nodes,node,'node_type'))))throw Error('当前不是所属工作流的唯一查询节点模型')
  const modelId=readWorkflowFieldValue(nodes,node,operation?'dataOperateModId':'node_config')

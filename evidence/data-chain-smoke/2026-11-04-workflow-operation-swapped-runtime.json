@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 1,
+  "kind": "workflow-operation-swapped-target-runtime",
+  "recordedAt": "2026-11-04T11:54:17.321Z",
+  "sourceCommit": "4d40a5979bda64a99033cdc2e7adf1177cd300fa",
+  "account": {
+    "enterpriseDisplayName": "领码科技",
+    "username": "wangtao",
+    "credentialsPersisted": false
+  },
+  "fixture": {
+    "workflowId": "9788734DB45C479AAE5767CF491B48AB",
+    "marker": "SMOKE_DATA_CHAIN_SWAPPED_1793790650674",
+    "lifecycle": "cleaned"
+  },
+  "target": {
+    "from": "Base_InterfaceProvider",
+    "to": "Base_JsonData",
+    "database": "QYVirtualPlat",
+    "inputFields": 14,
+    "physicalKey": "rowid",
+    "nameField": "name"
+  },
+  "configuration": {
+    "swapsConfirmed": 3,
+    "cancelled": [
+      "add",
+      "edit",
+      "delete"
+    ],
+    "independentReopen": true
+  },
+  "singleCrud": {
+    "executions": 3,
+    "steps": [
+      {
+        "operation": "add",
+        "status": "SUCCESS",
+        "count": 1,
+        "outcome": "success",
+        "completeness": "complete",
+        "rows": 1,
+        "name": "SMOKE_DATA_CHAIN_SWAPPED_1793790650674_ROW",
+        "description": "swapped-created"
+      },
+      {
+        "operation": "edit",
+        "status": "SUCCESS",
+        "count": 1,
+        "outcome": "success",
+        "completeness": "complete",
+        "rows": 1,
+        "name": "SMOKE_DATA_CHAIN_SWAPPED_1793790650674_ROW",
+        "description": "swapped-edited"
+      },
+      {
+        "operation": "delete",
+        "status": "SUCCESS",
+        "count": 1,
+        "outcome": "success",
+        "completeness": "complete",
+        "rows": 0,
+        "name": null,
+        "description": null
+      }
+    ]
+  },
+  "wholeFlow": {
+    "executions": 1,
+    "outcome": "success",
+    "completeness": "complete",
+    "nodes": [
+      {
+        "workflowId": "9788734DB45C479AAE5767CF491B48AB",
+        "nodeId": "5553B03E2CBAE765440543C0806FC2FC",
+        "status": "SUCCESS",
+        "count": 1
+      },
+      {
+        "workflowId": "9788734DB45C479AAE5767CF491B48AB",
+        "nodeId": "C68D7B194F3E2A5692386BA2F0564658",
+        "status": "SUCCESS",
+        "count": 1
+      },
+      {
+        "workflowId": "9788734DB45C479AAE5767CF491B48AB",
+        "nodeId": "024D6745B1A7058A5EA5A7BF8AEC1849",
+        "status": "SUCCESS",
+        "count": 1
+      },
+      {
+        "workflowId": "9788734DB45C479AAE5767CF491B48AB",
+        "nodeId": "53F4A60CEF9D28A2CCF8A0AD9DBCA54D",
+        "status": "SUCCESS",
+        "count": 1
+      },
+      {
+        "workflowId": "9788734DB45C479AAE5767CF491B48AB",
+        "nodeId": "71F9739C82B5616C267EB272D841F6D3",
+        "status": "SUCCESS",
+        "count": 0
+      }
+    ],
+    "nodeInstances": [
+      {
+        "rowid": "1E31CECDAD8A402BA84BA4619E017150",
+        "nodeId": "024D6745B1A7058A5EA5A7BF8AEC1849",
+        "workflowInstanceId": "72B54542227746B68D4D71657B1C2ADB",
+        "status": "SUCCESS"
+      },
+      {
+        "rowid": "4FE6B4B69AB247E9A11E1ABCBF7CF3CD",
+        "nodeId": "5553B03E2CBAE765440543C0806FC2FC",
+        "workflowInstanceId": "72B54542227746B68D4D71657B1C2ADB",
+        "status": "SUCCESS"
+      },
+      {
+        "rowid": "D98389B1E93D4E6787670A40E4ED71C0",
+        "nodeId": "C68D7B194F3E2A5692386BA2F0564658",
+        "workflowInstanceId": "72B54542227746B68D4D71657B1C2ADB",
+        "status": "SUCCESS"
+      },
+      {
+        "rowid": "F268DC22E56240B1B1352C20F17642AB",
+        "nodeId": "71F9739C82B5616C267EB272D841F6D3",
+        "workflowInstanceId": "72B54542227746B68D4D71657B1C2ADB",
+        "status": "SUCCESS"
+      },
+      {
+        "rowid": "FA5F421556D5493AB6F538729B4409FC",
+        "nodeId": "53F4A60CEF9D28A2CCF8A0AD9DBCA54D",
+        "workflowInstanceId": "72B54542227746B68D4D71657B1C2ADB",
+        "status": "SUCCESS"
+      }
+    ],
+    "workflowInstanceTableRows": 0,
+    "businessRowsAfter": 0
+  },
+  "deletion": {
+    "operations": [
+      "add",
+      "edit",
+      "delete"
+    ],
+    "independentlyAbsent": true
+  },
+  "cleanup": {
+    "steps": [
+      "delete-five-runtime-node-records",
+      "delete-owned-startup-row",
+      "delete-observer-metadata-and-boundaries",
+      "delete-workflow-parameters",
+      "delete-workflow-definition"
+    ],
+    "reads": 111,
+    "writes": 5,
+    "unknown": false,
+    "ownedBusinessAndDefinitionsAbsent": true
+  },
+  "preflightCorrections": [
+    {
+      "issue": "Observer projection omitted the declared createtime sort column.",
+      "writes": 0,
+      "executions": 0,
+      "correction": "Retained createtime in the native query projection."
+    },
+    {
+      "issue": "Smoke script confused metadata Name with lowercase business name.",
+      "writes": 2,
+      "executions": 0,
+      "correction": "Reused the two already-confirmed observer models; no model recreation."
+    }
+  ],
+  "limitations": [
+    "This proves SQL row CRUD after changing the operation target; JSON document-content/file saving is not covered.",
+    "The test endpoint returned zero workflow-instance table rows; production workflow-instance persistence is not proven.",
+    "Existing repository-wide test and rule-gate gaps remain open; the full 20-package goal is not complete."
+  ],
+  "evidence": [
+    {
+      "kind": "fixture",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-fixture-create-audit.json",
+      "sha256": "3631cf9a0e7dfda579dfeb907caaf58eb5b5e0de4f0b4916a50681476c1f0527",
+      "reads": 39,
+      "writes": 3,
+      "executions": 0
+    },
+    {
+      "kind": "nodes",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-nodes-audit.json",
+      "sha256": "66a0cc52cba58eb533a96fef0a1210d408eb144e890f3cdc1cab7bc61829dc99",
+      "reads": 75,
+      "writes": 6,
+      "executions": 0
+    },
+    {
+      "kind": "swapAndConfiguration",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-config-audit.json",
+      "sha256": "46ae7530bd1b9ef8bf19d335f081ba69c9404cdae2ec49b9f036bdf3a12ec3ec",
+      "reads": 203,
+      "writes": 6,
+      "executions": 0
+    },
+    {
+      "kind": "crud",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-crud-audit.json",
+      "sha256": "e8e6927546c8041dd7d6988478d4f3ea7a6f59263ad6526dbacc2f45ed548a58",
+      "reads": 89,
+      "writes": 2,
+      "executions": 3
+    },
+    {
+      "kind": "flow",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-flow-audit.json",
+      "sha256": "d711e222b780c4b9831d138ccbbe50af216dda598a6932f88bd8c325e0165bf1",
+      "reads": 91,
+      "writes": 7,
+      "executions": 1
+    },
+    {
+      "kind": "deletion",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-delete-audit.json",
+      "sha256": "90eb2fddce6bde321fa922cbd29dec592ac60584d43541dbf9fcc420ca585820",
+      "reads": 120,
+      "writes": 3,
+      "executions": 0
+    },
+    {
+      "kind": "cleanup",
+      "path": "artifacts/data-chain-smoke/workflow-operation-swapped-cleanup-audit.json",
+      "sha256": "8d1164549ba90b9970cd195be13aac8c28ca59142e0c80d0fb249190703ee7c6",
+      "reads": 111,
+      "writes": 5,
+      "executions": 0
+    }
+  ],
+  "productionSourceChangedDuringLiveSmoke": false,
+  "postSmokeMaintenance": {
+    "files": [
+      "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
+      "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts"
+    ],
+    "purpose": "Group original native views in named constructor options and replace the tuple assertion with checked typed lookups; no second state or save path.",
+    "regression": {
+      "files": 3,
+      "tests": 114,
+      "log": "artifacts/data-chain-smoke/workflow-native-scope-regression.log"
+    },
+    "nativeDesignPage": {
+      "tests": 379,
+      "status": "passed",
+      "seconds": 336.09,
+      "log": "artifacts/data-chain-smoke/workflow-native-design-isolated-full.log"
+    },
+    "codegenRules": {
+      "before": 29,
+      "after": 27,
+      "remainingGate": "failed-existing-violations"
+    },
+    "typecheck": "passed",
+    "lint": "passed",
+    "frontendBuild": "passed"
+  }
+}

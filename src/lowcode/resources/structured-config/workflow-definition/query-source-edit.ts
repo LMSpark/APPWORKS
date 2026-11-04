@@ -49,7 +49,8 @@ export class WorkflowModelSourceEdit{
  #closed=false
  #busy=false
  /** 捕获当前流程、目标及私有元数据视图的只读基线；持久化由后续显式命令负责。 */
- private constructor(private readonly input:Input,scope:ReturnType<typeof workflowQueryFieldScope>,models:DataView,fields:DataView,template:DataView,relations:DataView){
+ private constructor(private readonly input:Input,scope:ReturnType<typeof workflowQueryFieldScope>,views:Readonly<{models:DataView;fields:DataView;template:DataView;relations:DataView}>){
+  const {models,fields,template,relations}=views
   this.#models=models;this.#fields=fields;this.#template=template;this.#relations=relations;this.#owned.push(models,fields,template,relations)
   this.#nodes=scope.nodes;this.#edges=scope.edges;this.#fromModelId=scope.modelId
   const before=scope.nodes.readSnapshot().rows.find(row=>row['rowid']===input.nodeId);if(!before)throw Error('原节点正式投影缺失');this.#before=before
@@ -237,7 +238,7 @@ export class WorkflowModelSourceEdit{
    relationView.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:input.workflowId},{field:'parentModId',operator:'in',value:[...modelIds]},{field:'childModId',operator:'in',value:[...modelIds]}]};await relationView.refresh();full(relationView)
    input.assertCurrent();if(fieldScope(input.dataSet,input.workflowId,input.nodeId).modelId!==scope.modelId)throw Error('来源读取期间节点模型已变化')
    if(fields.rows.some(row=>text(fields,row,'dataSetId')!==input.workflowId||text(fields,row,'dataModelId')!==scope.modelId))throw Error('原来源字段归属不符')
-   const owner=new WorkflowModelSourceEdit(input,scope,models,fields,fieldTemplate,relationView);owner.beforeNode();if(!owner.shared)owner.bindSource();return owner
+   const owner=new WorkflowModelSourceEdit(input,scope,{models,fields,template:fieldTemplate,relations:relationView});owner.beforeNode();if(!owner.shared)owner.bindSource();return owner
   }catch(cause){for(const view of owned)if(!view.hasEditingChanges()&&!view.dirtyTracking.hasPendingChanges())view.dataTable?.destroyView(view.viewId);throw cause}
  }
 }

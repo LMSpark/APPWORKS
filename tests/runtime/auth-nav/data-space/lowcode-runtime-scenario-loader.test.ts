@@ -448,6 +448,8 @@ describe('loadLowcodeRuntimeScenario', () => {
 it('loads the complete parent query plan when only a persisted named child view model is requested', async () => {
   vi.clearAllMocks()
   const {text, models} = relationFixture('rowid')
+  // This plan consumes formal SQL children, unlike the resource-relation fixture above.
+  for (const model of models) model.raw = {DbId: 'DB', ...(model.metaName === 'PARENT' ? {} : {PId: 'PARENT', ForeignKeyFields: 'rowid'})}
   const input = JSON.parse(text)
   input.schemaVersion = 2; input.resourceRelations = []
   input.tables.PARENT.views.default.queryConfig = {outputType: 'Navigation', pagination: 'none', children: [

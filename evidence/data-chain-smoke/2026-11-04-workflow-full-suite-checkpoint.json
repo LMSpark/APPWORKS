@@ -1,0 +1,33 @@
+{
+  "sourceCommit": "24bd63b84",
+  "command": "pnpm run test --run --maxWorkers=2 --reporter=verbose",
+  "fullRun": {
+    "exitCode": 1,
+    "filesPassed": 439,
+    "filesFailed": 1,
+    "testsPassed": 8033,
+    "testsFailed": 1,
+    "durationSeconds": 994.78,
+    "log": "artifacts/data-chain-smoke/workflow-swapped-full-suite-verbose.log",
+    "sha256": "DF12A7F66C0196DB8AD3B2DCFC884A495C6F0BBDBC2CE2315335FA23F281D3D0"
+  },
+  "failure": {
+    "file": "tests/runtime/auth-nav/data-space/lowcode-runtime-scenario-loader.test.ts",
+    "case": "loads the complete parent query plan when only a persisted named child view model is requested",
+    "error": "SPARK_JOIN_SOURCE",
+    "cause": "Resource-relation fixture lacked formal SQL DbId and direct-parent association metadata needed by its Navigation query plan.",
+    "change": "Only this test adds DbId, PId and ForeignKeyFields. Production query validation is unchanged."
+  },
+  "focused": {
+    "redLog": "artifacts/data-chain-smoke/workflow-loader-red.log",
+    "greenLog": "artifacts/data-chain-smoke/workflow-loader-green.log",
+    "testsPassed": 34,
+    "exitCode": 0,
+    "lint": "passed"
+  },
+  "limitations": [
+    "Full suite has not been rerun after the fixture-only correction.",
+    "27 codegen rule violations remain open.",
+    "This does not complete the 20 business packages."
+  ]
+}

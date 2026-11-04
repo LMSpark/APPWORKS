@@ -5911,3 +5911,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 下一工位沿同一原生ROOT→CHILD→GRAND与SIB完整链：新唯一19条夹具及基线→首次/已有结果根只读失败和显式恢复→暂停真实根响应后关闭预览/设计器并重开→实际应用A→B→A→Hierarchy三级关键路径→恢复Navigation/manual兄弟→精确清理和独立回读。不得重放本轮已清理marker。
 - 仅按本轮正式GetData读操作、当前应用/空间/根模型精确注入单次失败或延迟，真实响应不伪造，提交/上传/登录/清理正常放行，超时及finally释放。忙时遵守按钮约束，不调用隐藏对象强造并发。旧响应不得填入新实例，子刷新不追加根HTTP，失败后旧派生结果不可继续当有效结果；关闭的DOM证据与公共生命周期单测分别验收。
 - 执行前核当前账号确实可进入第二应用、浏览器能精确暂停读请求；无第二应用则跨应用项继续开放，目录清空或重登不冒充A→B。新driver须在清理异常时保留原owner核验，未知不重提。以上为下一工位方案，尚未实施；Foreign空条件、LEFT无匹配、聚合、长PId、其余页面矩阵及包级15项类型基线继续开放，全目标active。
+- C生命周期工位已启动：新SMOKE_QLC_1793776947846，actor18248/exec64002活跃，16读0写预检确认原SHA/4模型；36读1DB创建4模型15字段；79读1DB/1文件经原DataViewDefinition批保存并独立回读四具名视图/绑定，pending空，当前19条待清理。Ruling：已完成D的14次原生编辑不重复，在原DataSet使用上轮已验证结构替换全新marker建立本轮夹具，再从原目录重开做完整链生命周期——保持同一持久owner，成本是本轮不新增编辑器CRUD覆盖。浏览器tab8精确XHR/Fetch拦截可用，清理须Fetch.enable patterns:[]；候选第二应用数据资产管理导航加载失败，不计跨应用通过。台账6c27bdc89经命令级openssl后已实际push成功（未修改持久Git配置）。
+
+### 2026-11-04 C生命周期整批实服验收检查点
+- 原生Navigation首次根读失败、已有结果根刷新失败均清四层结果和选择并显示来源错误；解除单次传输失败后原查询按钮恢复。父切换自动子孙3行、manual兄弟清空待刷新，子及兄弟刷新追加HTTP0（该定向事件段无截断）。真实200根响应暂停后原关闭中止ERR_ABORTED/canceled=true，重开新预览无旧结果，独立新查询恢复。
+- 原菜单A(D99)→实际B（AI交付工单BE7C7452A333B0EB675F1EACBA035E8F仪表盘）→A成功，旧预览0、新A从目录重新装配；数据资产管理候选导航失败单列。模态要求先关闭才能操作应用菜单，所以尚活跃查询跨应用竞态不冒称实服通过；公共受控测试补证scope失效/close时忽略abort的旧响应不能发布，旧/新返回数据可区分，释放/退订各一次、旧视图销毁且清空、新链无额外查询。
+- 同批经原DataViewDefinition切Hierarchy单子三级，28读/1文件保存并独立回读hash45460a0b...；原浏览器三级成功、根失败全清、显式恢复、暂停真实200关闭整设计器成功。再28读/1文件恢复Navigation/manual，独立hashb63ac63d...，从原目录重开四表及manual清空/刷新通过。22个浏览器case与3PNG归档；跨应用长段网络truncated=true，不据该段承诺完整HTTP/零写计数，定向片段分开保留。
+- actor18248/exec64002终态exit0：累计270读/DB5（seed1+逆序删除4）/file3（配置1+清视图1+清绑定1）/blocked0；模式切换两个owner另各1文件写，不能漏计。清理无unknown，原SHA先逐字恢复再删19条；独立24360/exec33281实际exit0，12读0写，4模型及15字段精确ID均rows0/total0/countReported true，原4模型集合及b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3恢复。
+- 仅新增验证测试，无生产源码改动：最终5文件109通过，root typecheck、受改测试lint通过，高阶只读复核无Important阻断；采纳新旧响应区分建议后复跑仍109通过。初Hierarchy响应夹具误用Navigation属性，已改正式Items，不当成产品缺陷。本批不重复正式合同生成或生产构建；原884源码验证范围不外推全仓。
+- 证据evidence/data-chain-smoke/2026-11-04-hierarchical-lifecycle.json及lifecycle-nav-recovery/hierarchy-recovery/final-restored PNG；拦截已全部恢复、tab8关闭，待清夹具0。全目标active；下一批回到既有20业务包总表，更新实际覆盖后继续未闭环的数据工作流节点/整流及下游消费，不再对已绿层级链重复拆工位；服务缺口和其他完整页面仍开放。

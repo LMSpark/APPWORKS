@@ -1,0 +1,1745 @@
+{
+  "station": "原生层级预览生命周期烟测",
+  "status": "verified-scoped-lifecycle-full-goal-active",
+  "sourceCommit": "8842380ceb668105a40fa2c97572bd7a45502ff1",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": {
+    "backendModified": false,
+    "productionSourceChanged": false,
+    "authorizationExpanded": false,
+    "remainingTemporaryRecords": 0,
+    "newUnknownResults": 0
+  },
+  "fixture": {
+    "phase": "cleaned",
+    "error": "",
+    "pending": "",
+    "reads": 270,
+    "dbWrites": 5,
+    "fileWrites": 3,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QLC_1793776947846",
+    "names": [
+      "SMOKE_QLC_1793776947846_ROOT",
+      "SMOKE_QLC_1793776947846_CHILD",
+      "SMOKE_QLC_1793776947846_GRAND",
+      "SMOKE_QLC_1793776947846_SIB"
+    ],
+    "modelIds": [
+      "E3629D8EDD1AE180527C191FA0A4BA80",
+      "027D44C8D50E68D706C4D1D7FB9D85CC",
+      "1F1D0C75351444B255A8487A487DBEF2",
+      "71ABF1EB272EC589D95589756B8CE90F"
+    ],
+    "fieldIds": [
+      {
+        "id": "2DC700C0BE730A3C525DD94D59338778",
+        "modelId": "E3629D8EDD1AE180527C191FA0A4BA80",
+        "name": "rowid"
+      },
+      {
+        "id": "33377828992634424820E640D46AAA27",
+        "modelId": "E3629D8EDD1AE180527C191FA0A4BA80",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "78B3432102D8AD0AB9F885114F4B606C",
+        "modelId": "E3629D8EDD1AE180527C191FA0A4BA80",
+        "name": "Name"
+      },
+      {
+        "id": "E00DABFDA18001E81841584568FFFB70",
+        "modelId": "027D44C8D50E68D706C4D1D7FB9D85CC",
+        "name": "rowid"
+      },
+      {
+        "id": "D5AEB65EB6AF2188EF21A23E3D783C53",
+        "modelId": "027D44C8D50E68D706C4D1D7FB9D85CC",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "14DD4797D3993DF48EAE54C268A5B839",
+        "modelId": "027D44C8D50E68D706C4D1D7FB9D85CC",
+        "name": "Name"
+      },
+      {
+        "id": "842D35E9BACDF772CBD1098FBF3795AF",
+        "modelId": "027D44C8D50E68D706C4D1D7FB9D85CC",
+        "name": "dataModelId"
+      },
+      {
+        "id": "AB4893E703BA92040E526E5AA5DE5177",
+        "modelId": "1F1D0C75351444B255A8487A487DBEF2",
+        "name": "rowid"
+      },
+      {
+        "id": "7CDD91E85FC34E5816F9B6CB6BFC5893",
+        "modelId": "1F1D0C75351444B255A8487A487DBEF2",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "5CDD1021551ACB734152EB540EBF75E1",
+        "modelId": "1F1D0C75351444B255A8487A487DBEF2",
+        "name": "Name"
+      },
+      {
+        "id": "82A6AC623515612EE07F9F264DBA8B38",
+        "modelId": "1F1D0C75351444B255A8487A487DBEF2",
+        "name": "dataModelId"
+      },
+      {
+        "id": "A280859E6B98A6A9C85174F0AE5757D3",
+        "modelId": "71ABF1EB272EC589D95589756B8CE90F",
+        "name": "rowid"
+      },
+      {
+        "id": "0D5D7415E7C8E4776CA104A21B506E32",
+        "modelId": "71ABF1EB272EC589D95589756B8CE90F",
+        "name": "lingma_sys_ent"
+      },
+      {
+        "id": "40FD37D68C33AF74ADA3709AB5F3015F",
+        "modelId": "71ABF1EB272EC589D95589756B8CE90F",
+        "name": "Name"
+      },
+      {
+        "id": "B1D9B58BA33B39E6AE6B3423B424DFA4",
+        "modelId": "71ABF1EB272EC589D95589756B8CE90F",
+        "name": "dataModelId"
+      }
+    ],
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "lifecycle": "cleaned",
+    "noReplay": true,
+    "savedFileHash": "b63ac63d66b392dc77900bc61c02ad2b210101392edc0ea21b99f3e565cc81c5",
+    "savedQueries": {
+      "SMOKE_QLC_1793776947846_ROOT": {
+        "smoke": {
+          "queryConfig": {
+            "outputType": "Navigation",
+            "pagination": "none",
+            "children": [
+              {
+                "modelName": "SMOKE_QLC_1793776947846_CHILD",
+                "fields": [
+                  "rowid",
+                  "Name",
+                  "dataModelId"
+                ],
+                "children": [
+                  {
+                    "modelName": "SMOKE_QLC_1793776947846_GRAND",
+                    "fields": [
+                      "rowid",
+                      "Name",
+                      "dataModelId"
+                    ]
+                  }
+                ]
+              },
+              {
+                "modelName": "SMOKE_QLC_1793776947846_SIB",
+                "fields": [
+                  "rowid",
+                  "Name",
+                  "dataModelId"
+                ]
+              }
+            ]
+          },
+          "filterExpression": {
+            "field": "Name",
+            "operator": "starts-with",
+            "value": "SMOKE_QLC_1793776947846"
+          }
+        },
+        "default": {}
+      },
+      "SMOKE_QLC_1793776947846_CHILD": {
+        "smoke": {
+          "queryConfig": {
+            "pagination": "none",
+            "parentResult": {
+              "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QLC_1793776947846_ROOT@smoke",
+              "childModelName": "SMOKE_QLC_1793776947846_CHILD"
+            }
+          }
+        },
+        "default": {}
+      },
+      "SMOKE_QLC_1793776947846_GRAND": {
+        "smoke": {
+          "queryConfig": {
+            "pagination": "none",
+            "parentResult": {
+              "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QLC_1793776947846_CHILD@smoke",
+              "childModelName": "SMOKE_QLC_1793776947846_GRAND"
+            }
+          }
+        },
+        "default": {}
+      },
+      "SMOKE_QLC_1793776947846_SIB": {
+        "default": {},
+        "smoke": {
+          "queryConfig": {
+            "autoQuery": false,
+            "pagination": "none",
+            "parentResult": {
+              "dataViewKey": "944DEE5A0E5170F903E0E008172C4CD2@SMOKE_QLC_1793776947846_ROOT@smoke",
+              "childModelName": "SMOKE_QLC_1793776947846_SIB"
+            }
+          }
+        }
+      }
+    },
+    "savedBindingCount": 4,
+    "deleted2": true,
+    "deleted1": true,
+    "deleted3": true,
+    "deleted0": true,
+    "checks": [
+      "pinned existing file and four original models independently read",
+      "new fixture uses prior verified native structure via original definition DataSet",
+      "independent UI file inspection: 4 owned bindings",
+      "original pagedata bytes restored before DB cleanup",
+      "nineteen owned records removed; original file and models preserved"
+    ],
+    "uploads": [
+      {
+        "phase": "configure-views",
+        "hash": "f287342a44f25c0424825e8855b45957f4c8ac93f4d9b31bfc2278bf7e7b15b7"
+      },
+      {
+        "phase": "clear-views",
+        "hash": "7716cb81a40585bf92a23a44cd2372e18dd98a0976aa713676af41da576fd6e6"
+      },
+      {
+        "phase": "clear-bindings",
+        "hash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3"
+      }
+    ]
+  },
+  "modeChanges": [
+    {
+      "phase": "confirmed",
+      "error": "",
+      "pending": "",
+      "reads": 28,
+      "writes": 1,
+      "blockedWrites": 0,
+      "hash": "45460a0b8ae827878a80e54daaa0899d6b5a8e62bebc832ecbc574e6802a80e9",
+      "mode": "hierarchy",
+      "testedAt": "2026-11-04T07:31:15.255Z"
+    },
+    {
+      "phase": "confirmed",
+      "error": "",
+      "pending": "",
+      "reads": 28,
+      "writes": 1,
+      "blockedWrites": 0,
+      "hash": "b63ac63d66b392dc77900bc61c02ad2b210101392edc0ea21b99f3e565cc81c5",
+      "mode": "restore",
+      "testedAt": "2026-11-04T07:36:26.185Z"
+    }
+  ],
+  "browser": {
+    "testedAt": "2026-11-04T07:38:01.549Z",
+    "fixtureMarker": "SMOKE_QLC_1793776947846",
+    "injectionRestored": true,
+    "results": [
+      {
+        "case": "initial-root-read-failure",
+        "requestId": "interception-job-40364.0",
+        "model": "SMOKE_QLC_1793776947846_ROOT",
+        "output": "Navigation",
+        "dom": "数据预览\n\nNetwork Error\n\n预览条件：\nJSON\n当前 1 条条件\n并且\n或者\n添加条件\n添加分组\n模型名称\n以…开始\nƒ(x)\nJSON\n×\n清空\n取消\n应用\n输出类型：\n沿用视图默认\n关联表查询\n自引用树查询\n多表层级查询\n多表导航查询\n单表查询\n结果过滤：\n完整结果\n仅数据\n查询\n调用参数与查询设置\n>\n展开\n输出结果\n\n尚未取得有效查询结果\n\nSMOKE_QLC_1793776947846_ROOT @ smoke\n\nSMOKE_QLC_1793776947846_ROOT：Network Error\n\n暂无数据\n\nSMOKE_QLC_1793776947846_CHILD @ smoke\n\nSMOKE_QLC_1793776947846_CHILD：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_SIB @ smoke\n\nSMOKE_QLC_1793776947846_SIB：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_GRAND @ smoke\n\nSMOKE_QLC_1793776947846_GRAND：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\n关闭"
+      },
+      {
+        "case": "initial-failure-recovered",
+        "cards": [
+          {
+            "text": "预览条件：JSON当前 1 条条件并且或者添加条件添加分组模型名称以…开始ƒ(x)JSON×清空取消应用输出类型：沿用视图默认关联表查询自引用树查询多表层级查询多表导航查询单表查询结果过滤：完整结果仅数据查询 调用参数与查询设置>展开SMOKE_QLC_1793776947846_SIB @ smoke。使用当前配置查询；调用参数及结果仅在本次预览中有效。调用参数覆盖值（未填沿用视图默认）名称描述类型本次值sourceDatabaseProbe来源参数引用测试 20261018；共享行回读核验，隔离定义，勿用于业务完整调用参数（JSON对象）调用参数与请求设置作用于来源视图 SMOKE_QLC_1793776947846_ROOT @ smoke；当前结果沿父视图消费。当前查询不分页；按已配置的结果上限读取，不将返回行数当作正式总数。结果上限（行）"
+          },
+          {
+            "text": "输出结果筛选全部类型展开全部收起全部节点类型值路径$数组4 项2f36f773f3d3[0]对象3 个字段10a5790d744a[1]对象3 个字段b374464d21c8[2]对象3 个字段b7fbbf327be0[3]对象3 个字段cfc28479c06d暂无数据暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          }
+        ]
+      },
+      {
+        "case": "loaded-root-failure-clears-all",
+        "requestId": "interception-job-40508.0",
+        "cards": [
+          {
+            "text": "预览条件：JSON当前 1 条条件并且或者添加条件添加分组模型名称以…开始ƒ(x)JSON×清空取消应用输出类型：沿用视图默认关联表查询自引用树查询多表层级查询多表导航查询单表查询结果过滤：完整结果仅数据查询 调用参数与查询设置>展开SMOKE_QLC_1793776947846_SIB @ smoke。使用当前配置查询；调用参数及结果仅在本次预览中有效。调用参数覆盖值（未填沿用视图默认）名称描述类型本次值sourceDatabaseProbe来源参数引用测试 20261018；共享行回读核验，隔离定义，勿用于业务完整调用参数（JSON对象）调用参数与请求设置作用于来源视图 SMOKE_QLC_1793776947846_ROOT @ smoke；当前结果沿父视图消费。当前查询不分页；按已配置的结果上限读取，不将返回行数当作正式总数。结果上限（行）"
+          },
+          {
+            "text": "输出结果尚未取得有效查询结果"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smokeSMOKE_QLC_1793776947846_ROOT：Network Error暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smokeSMOKE_QLC_1793776947846_CHILD：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放刷新子结果 暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smokeSMOKE_QLC_1793776947846_SIB：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放刷新子结果 暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smokeSMOKE_QLC_1793776947846_GRAND：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放刷新子结果 暂无数据"
+          }
+        ],
+        "dom": "数据预览\n\nNetwork Error\n\n预览条件：\nJSON\n当前 1 条条件\n并且\n或者\n添加条件\n添加分组\n模型名称\n以…开始\nƒ(x)\nJSON\n×\n清空\n取消\n应用\n输出类型：\n沿用视图默认\n关联表查询\n自引用树查询\n多表层级查询\n多表导航查询\n单表查询\n结果过滤：\n完整结果\n仅数据\n查询\n调用参数与查询设置\n>\n展开\n输出结果\n\n尚未取得有效查询结果\n\nSMOKE_QLC_1793776947846_ROOT @ smoke\n\nSMOKE_QLC_1793776947846_ROOT：Network Error\n\n暂无数据\n\nSMOKE_QLC_1793776947846_CHILD @ smoke\n\nSMOKE_QLC_1793776947846_CHILD：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_SIB @ smoke\n\nSMOKE_QLC_1793776947846_SIB：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_GRAND @ smoke\n\nSMOKE_QLC_1793776947846_GRAND：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\n关闭"
+      },
+      {
+        "case": "loaded-failure-recovered",
+        "cards": [
+          {
+            "text": "预览条件：JSON当前 1 条条件并且或者添加条件添加分组模型名称以…开始ƒ(x)JSON×清空取消应用输出类型：沿用视图默认关联表查询自引用树查询多表层级查询多表导航查询单表查询结果过滤：完整结果仅数据查询 调用参数与查询设置>展开SMOKE_QLC_1793776947846_SIB @ smoke。使用当前配置查询；调用参数及结果仅在本次预览中有效。调用参数覆盖值（未填沿用视图默认）名称描述类型本次值sourceDatabaseProbe来源参数引用测试 20261018；共享行回读核验，隔离定义，勿用于业务完整调用参数（JSON对象）调用参数与请求设置作用于来源视图 SMOKE_QLC_1793776947846_ROOT @ smoke；当前结果沿父视图消费。当前查询不分页；按已配置的结果上限读取，不将返回行数当作正式总数。结果上限（行）"
+          },
+          {
+            "text": "输出结果筛选全部类型展开全部收起全部节点类型值路径$数组4 项489efa61cc81[0]对象3 个字段44b1b2b30685[1]对象3 个字段32d729ff40ea[2]对象3 个字段46b2fe8a4e3e[3]对象3 个字段2ba54860479d暂无数据暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          }
+        ]
+      },
+      {
+        "case": "closed-preview-with-real-200-held",
+        "requestId": "interception-job-40616.0",
+        "status": 200,
+        "releasedBy": "Fetch.enable patterns=[] after closing, before reopen"
+      },
+      {
+        "case": "reopen-before-query-empty",
+        "dom": "数据预览\n预览条件：\nJSON\n当前 1 条条件\n并且\n或者\n添加条件\n添加分组\n模型名称\n以…开始\nƒ(x)\nJSON\n×\n清空\n取消\n应用\n输出类型：\n沿用视图默认\n关联表查询\n自引用树查询\n多表层级查询\n多表导航查询\n单表查询\n结果过滤：\n完整结果\n仅数据\n查询\n调用参数与查询设置\n>\n展开\n输出结果\n\n尚未取得有效查询结果\n\nSMOKE_QLC_1793776947846_ROOT @ smoke\n\n暂无数据\n\nSMOKE_QLC_1793776947846_CHILD @ smoke\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_SIB @ smoke\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_GRAND @ smoke\n刷新子结果\n\n暂无数据\n\n关闭"
+      },
+      {
+        "case": "close-aborts-held-response-before-reopen",
+        "requestId": "interception-job-40728.0",
+        "status": 200,
+        "assemblyReads": [
+          {
+            "id": "interception-job-40729.0",
+            "name": "Base_DataModel_Relation"
+          },
+          {
+            "id": "interception-job-40730.0",
+            "name": "Base_DataSet"
+          },
+          {
+            "id": "interception-job-40731.0",
+            "name": "Base_DataModel"
+          },
+          {
+            "id": "interception-job-40733.0",
+            "name": "View_TblList"
+          },
+          {
+            "id": "interception-job-40732.0",
+            "name": "Base_DataModel_Field"
+          },
+          {
+            "id": "interception-job-40734.0",
+            "name": "Base_TblField"
+          }
+        ],
+        "releaseResult": "Invalid InterceptionId: held request aborted by original close lifecycle",
+        "before": "数据预览\n预览条件：\nJSON\n当前 1 条条件\n并且\n或者\n添加条件\n添加分组\n模型名称\n以…开始\nƒ(x)\nJSON\n×\n清空\n取消\n应用\n输出类型：\n沿用视图默认\n关联表查询\n自引用树查询\n多表层级查询\n多表导航查询\n单表查询\n结果过滤：\n完整结果\n仅数据\n查询\n调用参数与查询设置\n>\n展开\n输出结果\n\n尚未取得有效查询结果\n\nSMOKE_QLC_1793776947846_ROOT @ smoke\n\n暂无数据\n\nSMOKE_QLC_1793776947846_CHILD @ smoke\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_SIB @ smoke\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_GRAND @ smoke\n刷新子结果\n\n暂无数据\n\n关闭",
+        "after": "数据预览\n预览条件：\nJSON\n当前 1 条条件\n并且\n或者\n添加条件\n添加分组\n模型名称\n以…开始\nƒ(x)\nJSON\n×\n清空\n取消\n应用\n输出类型：\n沿用视图默认\n关联表查询\n自引用树查询\n多表层级查询\n多表导航查询\n单表查询\n结果过滤：\n完整结果\n仅数据\n查询\n调用参数与查询设置\n>\n展开\n输出结果\n\n尚未取得有效查询结果\n\nSMOKE_QLC_1793776947846_ROOT @ smoke\n\n暂无数据\n\nSMOKE_QLC_1793776947846_CHILD @ smoke\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_SIB @ smoke\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_GRAND @ smoke\n刷新子结果\n\n暂无数据\n\n关闭",
+        "unchanged": true
+      },
+      {
+        "case": "network-through-close-reopen",
+        "events": [
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.955",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.loadingFailed",
+            "requestId": "24596.955",
+            "errorText": "net::ERR_FAILED",
+            "canceled": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.956",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.957",
+            "path": "image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.715",
+            "path": "application/x-font-woff2;charset=utf-8;base64,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",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.958",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.loadingFailed",
+            "requestId": "24596.958",
+            "errorText": "net::ERR_FAILED",
+            "canceled": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.959",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.960",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.961",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.962",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.963",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.964",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.965",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.966",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.967",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.loadingFailed",
+            "requestId": "24596.960",
+            "errorText": "net::ERR_ABORTED",
+            "canceled": true
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.968",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.969",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.970",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.971",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.972",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.973",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.974",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table",
+            "hasPageParam": false
+          },
+          {
+            "method": "Network.loadingFailed",
+            "requestId": "24596.968",
+            "errorText": "net::ERR_ABORTED",
+            "canceled": true
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.975",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation",
+            "hasPageParam": false
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      },
+      {
+        "case": "root-switch-manual-sibling-waits",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke刷新子结果 暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          }
+        ]
+      },
+      {
+        "case": "derived-refresh-no-new-root",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          }
+        ]
+      },
+      {
+        "case": "parent-switch-and-child-refresh-network",
+        "events": [],
+        "hasMore": false,
+        "truncated": false
+      },
+      {
+        "case": "actual-second-application-entered",
+        "applicationId": "BE7C7452A333B0EB675F1EACBA035E8F",
+        "url": "http://127.0.0.1:5273/apps/BE7C7452A333B0EB675F1EACBA035E8F/dashboard",
+        "dom": "- complementary:\n  - generic: SPARK\n  - menubar:\n    - menuitem \"Template DSL Demo\":\n      - text: Template DSL Demo\n    - menuitem \"缓存管理\":\n      - text: 缓存管理\n    - menuitem \"仪表盘\":\n      - text: 仪表盘\n    - menuitem \"能力管理演示\":\n      - text: 能力管理演示\n    - menuitem \"工作流设计\":\n      - text: 工作流设计\n    - menuitem \"开发工作台\":\n      - text: 开发工作台\n    - menuitem \"数据库管理\":\n      - text: 数据库管理\n- banner:\n  - button \"切换侧栏\":\n  - generic: SPARK · AI 交付工单系统\n  - navigation \"应用导航\":\n    - menubar:\n      - menuitem \"SPARK 工具\":\n        - generic: SPARK 工具\n      - menuitem \"交付管理\":\n        - generic: 交付管理\n  - separator\n  - button \"系 系统管理员\":\n    - generic: 系\n    - generic: 系统管理员\n- generic: 仪表盘\n- generic: ×\n- main:\n  - button \"Back Back\":\n    - generic \"Back\":\n      - generic: 🏠\n    - generic: Back\n  - separator\n  - generic: 管理仪表板\n  - generic: 👥\n  - generic: 1,234\n  - generic: 用户总数\n  - generic: 📊\n  - generic: \"567\"\n  - generic: 今日访问\n  - generic: 🔥\n  - generic: \"89\"\n  - generic: 热门内容\n  - generic: 💰\n  - generic: ¥12,345\n  - generic: 今日收入\n  - generic: 快捷操作\n  - button \"📝 配置页面演示\":\n    - generic: 📝 配置页面演示\n  - button \"🎯 Vue 组件页面\":\n    - generic: 🎯 Vue 组件页面\n  - button \"⚙️ 系统设置\":\n    - generic: ⚙️ 系统设置\n  - generic: 页面类型对比\n  - table:\n    - rowgroup:\n      - row \"页面类型 技术实现 示例页面\":\n        - columnheader \"页面类型\":\n          - generic: 页面类型\n        - columnheader \"技术实现\":\n          - generic: 技术实现\n        - columnheader \"示例页面\":\n          - generic: 示例页面\n  - table:\n    - rowgroup:\n      - row \"Vue 组件 Vue SFC + TypeScript 管理仪表板\":\n        - cell \"Vue 组件\":\n          - generic: Vue 组件\n        - cell \"Vue SFC + TypeScript\":\n          - generic: Vue SFC + TypeScript\n        - cell \"管理仪表板\":\n          - generic: 管理仪表板\n      - row \"配置页面 JSON DSL + PageRenderer 工作台\":\n        - cell \"配置页面\":\n          - generic: 配置页面\n        - cell \"JSON DSL + PageRenderer\":\n          - generic: JSON DSL + PageRenderer\n        - cell \"工作台\":\n          - generic: 工作台\n      - row \"SPARK 组件 SPARK 组件系统 表格演示\":\n        - cell \"SPARK 组件\":\n          - generic: SPARK 组件\n        - cell \"SPARK 组件系统\":\n          - generic: SPARK 组件系统\n        - cell \"表格演示\":\n          - generic: 表格演示\n  - alert:\n    - generic: 混合渲染模式\n    - paragraph:\n      - paragraph:\n        - text: 🎯\n        - strong: 当前页面\n        - text: \": Vue 组件页面 (传统开发模式)\"\n      - paragraph:\n        - text: 📊\n        - strong: 配置页面\n        - text: \": 通过 JSON 配置生成 (零代码模式)\"\n      - paragraph:\n        - text: 🔄\n        - strong: 混合模式\n        - text: \": 同时支持两种页面渲染方式\"\n- contentinfo:\n  - generic: © 2026 SPARK AppWorks — SPARK 融合平台 · 应用工场",
+        "priorPreviewVisible": 0,
+        "limitation": "UI modals must close before application menu; pending cross-application race is not established by this navigation"
+      },
+      {
+        "case": "returned-actual-A",
+        "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+        "url": "http://127.0.0.1:5273/apps/D99A1DCE9894698799101EFD70F8FC76/features/data-platform/database-management/ui/service-management-page?__sparkNavigationId=78C58A7FE34F2987267A1E8AF10B2990",
+        "oldPreviewCount": 0
+      },
+      {
+        "case": "hierarchy-three-level-live-baseline",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          }
+        ]
+      },
+      {
+        "case": "hierarchy-loaded-failure-clears-all",
+        "requestId": "interception-job-40910.0",
+        "dom": "数据预览\n\nNetwork Error\n\n预览条件：\nJSON\n当前 1 条条件\n并且\n或者\n添加条件\n添加分组\n模型名称\n以…开始\nƒ(x)\nJSON\n×\n清空\n取消\n应用\n输出类型：\n沿用视图默认\n关联表查询\n自引用树查询\n多表层级查询\n多表导航查询\n单表查询\n结果过滤：\n完整结果\n仅数据\n查询\n调用参数与查询设置\n>\n展开\n输出结果\n\n尚未取得有效查询结果\n\nSMOKE_QLC_1793776947846_ROOT @ smoke\n\nSMOKE_QLC_1793776947846_ROOT：Network Error\n\n暂无数据\n\nSMOKE_QLC_1793776947846_CHILD @ smoke\n\nSMOKE_QLC_1793776947846_CHILD：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\nSMOKE_QLC_1793776947846_GRAND @ smoke\n\nSMOKE_QLC_1793776947846_GRAND：DATA_VIEW_PARENT_SOURCE: 父查询失败或已释放\n\n刷新子结果\n\n暂无数据\n\n关闭"
+      },
+      {
+        "case": "hierarchy-recovered",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          }
+        ]
+      },
+      {
+        "case": "hierarchy-real-response-held-close-entire-design",
+        "requestId": "interception-job-40912.0",
+        "status": 200,
+        "model": "SMOKE_QLC_1793776947846_ROOT",
+        "output": "HierarchyData"
+      },
+      {
+        "case": "actual-app-roundtrip-and-hierarchy-network",
+        "events": [
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1051",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1052",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1053",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1054",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1055",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1056",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1057",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1058",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1059",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1060",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1061",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1062",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1063",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1064",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1065",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1066",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1067",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1068",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1069",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1070",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1071",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1072",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1073",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1074",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1075",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1076",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1077",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1078",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1079",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1080",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1081",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1082",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1083",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1084",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1085",
+            "path": "/api/FormDesign/GetNavigationMenus/D99A1DCE9894698799101EFD70F8FC76/D99A1DCE9894698799101EFD70F8FC76"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1086",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1087",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1088",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1089",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1090",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1091",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1092",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1093",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1094",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1095",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_serverInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1096",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_serverInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1097",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_serverInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1098",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_serverInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1099",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1100",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1101",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1102",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1103",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1104",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1105",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1106",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1107",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1108",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1109",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1110",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1111",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1112",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1113",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1114",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1115",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1116",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_AppSystemList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1117",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_UserInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1118",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_UserInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1119",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1120",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_UserInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1121",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1122",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1123",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1124",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1125",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1126",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1127",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1128",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1129",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1130",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1131",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1132",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1133",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1134",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1135",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1136",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1137",
+            "path": "/api/File/content/text"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1138",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1139",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1140",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1141",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1142",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1143",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1144",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1145",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1146",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1147",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1148",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1149",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "HierarchyData"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1150",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "HierarchyData"
+          },
+          {
+            "method": "Network.loadingFailed",
+            "requestId": "24596.1150",
+            "errorText": "net::ERR_FAILED",
+            "canceled": false
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1151",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "HierarchyData"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1152",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "HierarchyData"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1153",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1154",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_UserInfo",
+            "output": "Table"
+          },
+          {
+            "method": "Network.loadingFailed",
+            "requestId": "24596.1152",
+            "errorText": "net::ERR_ABORTED",
+            "canceled": true
+          }
+        ],
+        "hasMore": false,
+        "truncated": true
+      },
+      {
+        "case": "final-restored-navigation-independent-reopen",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 4 行。刷新子结果 行数 4未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id14DD4797D3993DF48EAE54C268A5B839Name027D44C8D50E68D706C4D1D7FB9D85CC842D35E9BACDF772CBD1098FBF3795AFdataModelId027D44C8D50E68D706C4D1D7FB9D85CCD5AEB65EB6AF2188EF21A23E3D783C53lingma_sys_ent027D44C8D50E68D706C4D1D7FB9D85CCE00DABFDA18001E81841584568FFFB70rowid027D44C8D50E68D706C4D1D7FB9D85CC"
+          }
+        ]
+      },
+      {
+        "case": "final-restored-manual-sibling-clears",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke刷新子结果 暂无数据"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          }
+        ]
+      },
+      {
+        "case": "final-restored-manual-sibling-refresh",
+        "cards": [
+          {
+            "text": "SMOKE_QLC_1793776947846_ROOT @ smoke未报告总数；当前返回 4 行。行数 4未报告总数已选 1状态 Loadedrow_id企业标识字段模型名称027D44C8D50E68D706C4D1D7FB9D85CCNewAppSMOKE_QLC_1793776947846_CHILD1F1D0C75351444B255A8487A487DBEF2NewAppSMOKE_QLC_1793776947846_GRAND71ABF1EB272EC589D95589756B8CE90FNewAppSMOKE_QLC_1793776947846_SIBE3629D8EDD1AE180527C191FA0A4BA80NewAppSMOKE_QLC_1793776947846_ROOT"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_CHILD @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_SIB @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          },
+          {
+            "text": "SMOKE_QLC_1793776947846_GRAND @ smoke未报告总数；当前返回 3 行。刷新子结果 行数 3未报告总数已选 1状态 Loaded唯一值（ID）字段名称数据模型id2DC700C0BE730A3C525DD94D59338778rowidE3629D8EDD1AE180527C191FA0A4BA8033377828992634424820E640D46AAA27lingma_sys_entE3629D8EDD1AE180527C191FA0A4BA8078B3432102D8AD0AB9F885114F4B606CNameE3629D8EDD1AE180527C191FA0A4BA80"
+          }
+        ]
+      },
+      {
+        "case": "final-reopen-network",
+        "events": [
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1155",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1156",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1157",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1158",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1159",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1160",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1161",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1162",
+            "path": "/__spark/repository-scenarios"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1163",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1164",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1165",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1166",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1167",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1168",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1169",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1170",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1171",
+            "path": "/api/File/content/text"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1172",
+            "path": "/api/File/content/text"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1173",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1174",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1175",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1176",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1177",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Relation",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1178",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1179",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1180",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1181",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataModel_Field",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1182",
+            "path": "/api/DataOperation/GetData",
+            "table": "View_TblList",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1183",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_TblField",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1184",
+            "path": "/api/DataOperation/GetData",
+            "table": "SMOKE_QLC_1793776947846_ROOT",
+            "output": "Navigation"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1185",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_DataSet",
+            "output": "Table"
+          },
+          {
+            "method": "Network.requestWillBeSent",
+            "requestId": "24596.1186",
+            "path": "/api/DataOperation/GetData",
+            "table": "Base_UserInfo",
+            "output": "Table"
+          }
+        ],
+        "hasMore": false,
+        "truncated": false
+      }
+    ]
+  },
+  "independentCleanup": {
+    "phase": "confirmed",
+    "error": "",
+    "testedAt": "2026-11-04T07:39:15.369Z",
+    "reads": 12,
+    "writes": 0,
+    "blockedWrites": 0,
+    "targetId": "944DEE5A0E5170F903E0E008172C4CD2",
+    "marker": "SMOKE_QLC_1793776947846",
+    "originalModelIds": [
+      "87639E48BFD673CFAA2E6601FABD1467",
+      "A7199374E11E24BB0FB6938407224304",
+      "E912160BC0FA9AE6448D209D4428DDBE",
+      "F9F01665D4A98E1FF996CD8A48D3C373"
+    ],
+    "fileHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "baselineHash": "b9144ecd5f26bce4d888f876a99ac177a83d38723115daaa043c8fbc1ed3d9a3",
+    "results": [
+      {
+        "model": "Base_DataModel",
+        "requestedIds": 4,
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      },
+      {
+        "model": "Base_DataModel_Field",
+        "requestedIds": 15,
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      }
+    ]
+  },
+  "checks": {
+    "previewRegression": {
+      "files": 5,
+      "passed": 109,
+      "log": "artifacts/data-chain-smoke/lifecycle-preview-distinct-regression.log",
+      "exit": 0
+    },
+    "rootTypecheck": {
+      "exit": 0,
+      "log": "artifacts/data-chain-smoke/lifecycle-typecheck.log"
+    },
+    "changedTestLint": {
+      "exit": 0,
+      "log": "artifacts/data-chain-smoke/lifecycle-lint.log"
+    },
+    "staticReview": "high model found no Important blocker; distinct old/new response data recommendation incorporated"
+  },
+  "limitations": [
+    "Live navigation A to actual B to A is verified after normal modal close; a still-alive query racing application activation is covered by controlled lifecycle tests, not claimed as a live browser race.",
+    "The long app-roundtrip network batch reported truncated=true. Its complete HTTP count and zero-write count are not claimed. Focused initial failure/close and child-refresh batches are untruncated.",
+    "Held live 200 responses were aborted by original close (ERR_ABORTED,canceled=true); response transport intentionally ignoring abort is a controlled test, not a live service claim.",
+    "Initial synthetic Hierarchy response incorrectly used Navigation field names; corrected to formal Items. That first test failure was a fixture error, not a product bug.",
+    "No production source changed; no repeat ClassModel compilation or production build. Existing source build evidence belongs to 8842380ce.",
+    "Foreign empty JoinFilter, LEFT no-match, aggregation, long PId, remaining full-page migration matrix and package type baseline remain open."
+  ]
+}

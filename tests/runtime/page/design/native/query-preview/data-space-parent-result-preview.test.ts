@@ -39,22 +39,26 @@ describe('parent-result preview input ownership', () => {
 })
 
 
-async function formalPreview() {
+async function formalPreview(outputType: 'Navigation' | 'HierarchyData' = 'Navigation', responsePrefix = '') {
   const columns = [{name: 'id', type: 'string'}, {name: 'name', type: 'string'}]
   const ds = DataSet.fromJson({scenarioId: 'SPACE', tables: Object.fromEntries(['Root', 'Child', 'Grand'].map((tableName, index) => [tableName, {
     tableName, modelBinding: {modelId: tableName, modelName: `${tableName  }Model`}, columns,
-    views: {default: {autoCurrentFirst: true, queryConfig: index === 0 ? {pagination: 'none', autoQuery: false, outputType: 'Navigation',
+    views: {default: {autoCurrentFirst: true, queryConfig: index === 0 ? {pagination: 'none', autoQuery: false, outputType,
       children: [{modelName: 'ChildModel', fields: ['id', 'name'], children: [{modelName: 'GrandModel', fields: ['id', 'name']}]}]}
       : {pagination: 'none', autoQuery: false, parentResult: {dataViewKey: `SPACE@${  index === 1 ? 'Root' : 'Child'  }Model@default`, childModelName: `${tableName  }Model`}}}},
   }]))})
   let calls = 0, fail = false, scope = 'SCOPE'
+  let gate: Promise<void> | undefined, release: (() => void) | undefined, entered: (() => void) | undefined
+  const invalidation = new Set<() => void>(), unsubscribe = vi.fn()
   class PreviewHttp extends HttpClientBase {
     protected override async executeRequest(_request: RequestConfig): Promise<HttpResponse<unknown>> {
       calls++
+      const held = gate; gate = undefined
+      if (held) {entered?.(); await held} // Deliberately ignores abort: test the stale response guard too.
       if (fail) throw new Error('root unavailable')
       return {status: 200, statusText: 'OK', headers: {}, data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: false,
-        data: {Count: 2, Items: ['first', 'second'].map(name => ({id: 'duplicate', name, ChildModel: [{id: 'duplicate', name: `child-${  name}`,
-          GrandModel: [{id: 'duplicate', name: `grand-${  name}`}]}]}))}}}}
+        data: {Count: 2, Items: ['first', 'second'].map(name => ({id: 'duplicate', name: responsePrefix + name, [outputType === 'Navigation' ? 'ChildModel' : 'Items']: [{id: 'duplicate', name: `child-${responsePrefix}${name}`,
+          [outputType === 'Navigation' ? 'GrandModel' : 'Items']: [{id: 'duplicate', name: `grand-${responsePrefix}${name}`}]}]}))}}}}
     }
   }
   const runtime = new DataSpaceRuntimeApi({http: new PreviewHttp(), readScope: () => ({token: scope, headers: {}})})
@@ -66,9 +70,12 @@ async function formalPreview() {
     ], 'rowid')
     runtime.bindModelView(ds.getView(name)!, formal)
   }
-  const preview = new LowcodeDataSpaceQueryPreview(ds, 'GrandModel', 'default', {assertCurrent() {}, subscribe: () => () => {}})
+  const preview = new LowcodeDataSpaceQueryPreview(ds, 'GrandModel', 'default', {assertCurrent() {if (scope !== 'SCOPE') throw new Error('application changed')},
+    subscribe(listener) {invalidation.add(listener); return () => {unsubscribe(); invalidation.delete(listener)}}})
   await preview.runtime.load()
-  return {ds, preview, calls: () => calls, fail: () => {fail = true}, changeScope: () => {scope = 'OTHER'}}
+  return {ds, preview, calls: () => calls, fail: () => {fail = true}, changeScope: () => {scope = 'OTHER'; for (const listener of [...invalidation]) listener()}, unsubscribe,
+    holdNext: () => {gate = new Promise<void>(resolve => {release = resolve}); return new Promise<void>(resolve => {entered = resolve})},
+    release: () => release?.()}
 }
 
 it('queries the actual root with typed inputs and consumes both derived levels through the original owner', async () => {
@@ -130,4 +137,37 @@ it('uses the root query controls and bound standard tables for an original deriv
     expect(f.preview.view.queryConfig.parentResult?.childModelName).toBe('GrandModel')
     expect(f.calls()).toBe(1)
   } finally {wrapper.unmount(); fixture.dispose(); f.preview.dispose(); config.global.stubs = originalStubs; vi.unstubAllGlobals()}
+})
+
+
+it.each(['Navigation', 'HierarchyData'] as const)('isolates late %s responses after scope invalidation or close from a newly opened chain', async outputType => {
+  for (const action of ['scope', 'close'] as const) {
+    const old = await formalPreview(outputType, 'old-'), fresh = await formalPreview(outputType, 'new-')
+    const views = old.preview.resultViews, disposed = vi.fn()
+    old.preview.onDispose(disposed)
+    try {
+      await old.preview.query({context: {}})
+      expect(views.map(view => view.rows.length)).toEqual([2, 1, 1])
+      const entered = old.holdNext()
+      const pending = old.preview.query({context: {generation: 'old'}}).then(() => null, error => error)
+      await entered
+      if (action === 'scope') old.changeScope()
+      else old.preview.dispose()
+      old.preview.dispose()
+      expect(old.preview.disposed).toBe(true)
+      expect(disposed).toHaveBeenCalledTimes(1)
+      expect(old.unsubscribe).toHaveBeenCalledTimes(1)
+      expect(views.every(view => view.destroyed)).toBe(true)
+      await fresh.preview.query({context: {generation: 'new'}})
+      const current = fresh.preview.resultViews.map(view => view.readSnapshot().rows)
+      old.release()
+      expect(await pending).toBeInstanceOf(Error)
+      expect(fresh.preview.resultViews.map(view => view.readSnapshot().rows)).toEqual(current)
+      expect(fresh.preview.resultViews.map(view => view.rows.length)).toEqual([2, 1, 1])
+      expect(fresh.preview.resultViews.map(view => view.rows[0]?.['name'])).toEqual(['new-first', 'child-new-first', 'grand-new-first'])
+      expect(old.calls()).toBe(2); expect(fresh.calls()).toBe(1)
+      expect(() => old.preview.snapshot()).toThrow('SCENARIO_VIEW_PREVIEW_STALE')
+      expect(views.every(view => view.rows.length === 0)).toBe(true)
+    } finally {old.release(); old.preview.dispose(); fresh.preview.dispose()}
+  }
 })

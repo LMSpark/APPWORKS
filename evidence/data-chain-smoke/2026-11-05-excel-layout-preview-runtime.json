@@ -1,0 +1,1112 @@
+{
+  "scope": "Current deployed built-in v1 layout single/multi samples and memory-only preview; not persisted-scheme execution or target business writes",
+  "audit": {
+    "scope": "Deployed service built-in layout samples and memory-only workbook parse; no business CRUD, persisted files or scheme changes",
+    "requests": [
+      {
+        "path": "/api/File/excel-transform/layout/sample",
+        "method": "GET"
+      },
+      {
+        "path": "/api/File/excel-transform/layout/sample-workbook",
+        "method": "GET"
+      },
+      {
+        "path": "/api/File/excel-transform/layout/preview",
+        "method": "POST"
+      },
+      {
+        "path": "/api/File/excel-transform/layout/sample",
+        "method": "GET"
+      },
+      {
+        "path": "/api/File/excel-transform/layout/sample-workbook",
+        "method": "GET"
+      },
+      {
+        "path": "/api/File/excel-transform/layout/preview",
+        "method": "POST"
+      }
+    ],
+    "modes": [
+      {
+        "mode": "single",
+        "sample": {
+          "version": 1,
+          "enabled": true,
+          "section": {
+            "discovery": {
+              "type": "single",
+              "anchorText": null,
+              "match": "startsWith",
+              "column": "A",
+              "fromRow": 1
+            }
+          },
+          "regions": [
+            {
+              "id": "form",
+              "role": "FORM",
+              "table": null,
+              "parentRegion": null,
+              "parentField": null,
+              "foreignKeyField": null,
+              "bindRegion": null,
+              "scan": null,
+              "fields": [
+                {
+                  "name": "dept_name",
+                  "title": null,
+                  "locate": {
+                    "mode": "cell",
+                    "cell": "A2",
+                    "column": null,
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": {
+                    "import": {
+                      "kind": "afterDelimiter",
+                      "pattern": "：",
+                      "scale": null
+                    },
+                    "export": {
+                      "kind": "template",
+                      "pattern": "部门：${value}",
+                      "scale": null
+                    }
+                  },
+                  "lookup": null,
+                  "desenId": null
+                }
+              ],
+              "blocks": []
+            },
+            {
+              "id": "list",
+              "role": "LIST",
+              "table": null,
+              "parentRegion": null,
+              "parentField": null,
+              "foreignKeyField": null,
+              "bindRegion": null,
+              "scan": {
+                "header": {
+                  "mode": "anchorCell",
+                  "cell": null,
+                  "column": "A",
+                  "anchorText": "类别",
+                  "match": "equals",
+                  "rowOffset": 0,
+                  "row": null,
+                  "regionId": null,
+                  "matchIndex": 0
+                },
+                "headerRow": null,
+                "dataStartOffset": 1,
+                "stopAnchors": [
+                  "小计",
+                  "说明"
+                ],
+                "skipRowAnchors": [],
+                "fillDown": [
+                  "category"
+                ],
+                "emptyRow": "skip"
+              },
+              "fields": [
+                {
+                  "name": "category",
+                  "title": "类别",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "A",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                },
+                {
+                  "name": "seq_no",
+                  "title": "序号",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "B",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                },
+                {
+                  "name": "person_name",
+                  "title": "姓名",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "C",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                },
+                {
+                  "name": "orig_std",
+                  "title": "原预支绩效标准值",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "E",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                }
+              ],
+              "blocks": []
+            },
+            {
+              "id": "tail",
+              "role": "FOOTER",
+              "table": null,
+              "parentRegion": null,
+              "parentField": null,
+              "foreignKeyField": null,
+              "bindRegion": "form",
+              "scan": null,
+              "fields": [],
+              "blocks": [
+                {
+                  "type": "ROW",
+                  "locate": {
+                    "mode": "afterList",
+                    "cell": null,
+                    "column": null,
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 1,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "name": null,
+                  "startColumn": null,
+                  "mergeToColumn": null,
+                  "source": null,
+                  "codec": null,
+                  "cells": [
+                    {
+                      "column": "E",
+                      "name": "sum_orig",
+                      "source": null,
+                      "export": null,
+                      "codec": null,
+                      "import": true
+                    }
+                  ],
+                  "import": null
+                },
+                {
+                  "type": "PARAGRAPH",
+                  "locate": {
+                    "mode": "afterList",
+                    "cell": null,
+                    "column": null,
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 2,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "name": "remark",
+                  "startColumn": "A",
+                  "mergeToColumn": null,
+                  "source": null,
+                  "codec": null,
+                  "cells": [],
+                  "import": true
+                }
+              ]
+            }
+          ]
+        },
+        "workbook": {
+          "byteLength": 3797,
+          "sha256": "813ebb7017bab726126f25a48f99a4dec81b6065dc6624b313336817b4a24b49"
+        },
+        "preview": {
+          "sections": [
+            {
+              "index": 0,
+              "startRow": 0,
+              "endRow": 7,
+              "form": {
+                "dept_name": "人力资源部/培训中心",
+                "sum_orig": "50220",
+                "remark": "说明：根据公司2026年一季度经营业绩考核完成情况，人力资源部业绩考核指标得分为98.33分。"
+              },
+              "listRows": [
+                {
+                  "category": "一般员工",
+                  "seq_no": "1",
+                  "person_name": "喻雪",
+                  "orig_std": "7110"
+                },
+                {
+                  "category": "一般员工",
+                  "seq_no": "2",
+                  "person_name": "兰乾玉",
+                  "orig_std": "5526"
+                },
+                {
+                  "category": "一般员工",
+                  "seq_no": "3",
+                  "person_name": "郑文君",
+                  "orig_std": "4104"
+                }
+              ],
+              "listStartRow": 3,
+              "listEndRow": 5
+            }
+          ],
+          "highlights": [
+            {
+              "row": 2,
+              "col": 1,
+              "role": "FORM",
+              "field": "dept_name",
+              "raw": "部门：人力资源部/培训中心",
+              "value": "人力资源部/培训中心"
+            },
+            {
+              "row": 4,
+              "col": 1,
+              "role": "LIST",
+              "field": "category",
+              "raw": "一般员工",
+              "value": "一般员工"
+            },
+            {
+              "row": 4,
+              "col": 2,
+              "role": "LIST",
+              "field": "seq_no",
+              "raw": "1",
+              "value": "1"
+            },
+            {
+              "row": 4,
+              "col": 3,
+              "role": "LIST",
+              "field": "person_name",
+              "raw": "喻雪",
+              "value": "喻雪"
+            },
+            {
+              "row": 4,
+              "col": 5,
+              "role": "LIST",
+              "field": "orig_std",
+              "raw": "7110",
+              "value": "7110"
+            },
+            {
+              "row": 5,
+              "col": 1,
+              "role": "LIST",
+              "field": "category",
+              "raw": "",
+              "value": "一般员工"
+            },
+            {
+              "row": 5,
+              "col": 2,
+              "role": "LIST",
+              "field": "seq_no",
+              "raw": "2",
+              "value": "2"
+            },
+            {
+              "row": 5,
+              "col": 3,
+              "role": "LIST",
+              "field": "person_name",
+              "raw": "兰乾玉",
+              "value": "兰乾玉"
+            },
+            {
+              "row": 5,
+              "col": 5,
+              "role": "LIST",
+              "field": "orig_std",
+              "raw": "5526",
+              "value": "5526"
+            },
+            {
+              "row": 6,
+              "col": 1,
+              "role": "LIST",
+              "field": "category",
+              "raw": "",
+              "value": "一般员工"
+            },
+            {
+              "row": 6,
+              "col": 2,
+              "role": "LIST",
+              "field": "seq_no",
+              "raw": "3",
+              "value": "3"
+            },
+            {
+              "row": 6,
+              "col": 3,
+              "role": "LIST",
+              "field": "person_name",
+              "raw": "郑文君",
+              "value": "郑文君"
+            },
+            {
+              "row": 6,
+              "col": 5,
+              "role": "LIST",
+              "field": "orig_std",
+              "raw": "4104",
+              "value": "4104"
+            },
+            {
+              "row": 7,
+              "col": 5,
+              "role": "FOOTER",
+              "field": "sum_orig",
+              "raw": "50220",
+              "value": "50220"
+            },
+            {
+              "row": 8,
+              "col": 1,
+              "role": "FOOTER",
+              "field": "remark",
+              "raw": "说明：根据公司2026年一季度经营业绩考核完成情况，人力资源部业绩考核指标得分为98.33分。",
+              "value": "说明：根据公司2026年一季度经营业绩考核完成情况，人力资源部业绩考核指标得分为98.33分。"
+            }
+          ],
+          "grid": [
+            [
+              "2026年9月绩效分配明细表",
+              "单位：元",
+              "",
+              "",
+              ""
+            ],
+            [
+              "部门：人力资源部/培训中心",
+              "",
+              "",
+              "",
+              ""
+            ],
+            [
+              "类别",
+              "序号",
+              "姓名",
+              "职级",
+              "原预支绩效标准值"
+            ],
+            [
+              "一般员工",
+              "1",
+              "喻雪",
+              "经理",
+              "7110"
+            ],
+            [
+              "",
+              "2",
+              "兰乾玉",
+              "副经理",
+              "5526"
+            ],
+            [
+              "",
+              "3",
+              "郑文君",
+              "主管",
+              "4104"
+            ],
+            [
+              "小计",
+              "",
+              "",
+              "",
+              "50220"
+            ],
+            [
+              "说明：根据公司2026年一季度经营业绩考核完成情况，人力资源部业绩考核指标得分为98.33分。",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ],
+          "gridRowCount": 8,
+          "gridColCount": 5,
+          "mergePreviews": [],
+          "messages": [
+            "解析完成：段数=1"
+          ],
+          "tableForms": {},
+          "tableLists": {},
+          "sheetIndex": null,
+          "sheetName": null,
+          "sheets": [],
+          "mergedRanges": [],
+          "columnWidths": {
+            "0": 64,
+            "1": 64,
+            "2": 64,
+            "3": 64,
+            "4": 64
+          },
+          "rowHeights": {
+            "0": 22,
+            "1": 22,
+            "2": 22,
+            "3": 22,
+            "4": 22,
+            "5": 22,
+            "6": 22,
+            "7": 22
+          },
+          "truncated": false,
+          "sourceRowCount": 8,
+          "sourceColCount": 5
+        }
+      },
+      {
+        "mode": "multi",
+        "sample": {
+          "version": 1,
+          "enabled": true,
+          "section": {
+            "discovery": {
+              "type": "repeatByAnchor",
+              "anchorText": "部门：",
+              "match": "startsWith",
+              "column": "A",
+              "fromRow": 1
+            }
+          },
+          "regions": [
+            {
+              "id": "form",
+              "role": "FORM",
+              "table": null,
+              "parentRegion": null,
+              "parentField": null,
+              "foreignKeyField": null,
+              "bindRegion": null,
+              "scan": null,
+              "fields": [
+                {
+                  "name": "dept_name",
+                  "title": null,
+                  "locate": {
+                    "mode": "anchorCell",
+                    "cell": null,
+                    "column": "A",
+                    "anchorText": "部门：",
+                    "match": "startsWith",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": {
+                    "import": {
+                      "kind": "afterDelimiter",
+                      "pattern": "：",
+                      "scale": null
+                    },
+                    "export": {
+                      "kind": "template",
+                      "pattern": "部门：${value}",
+                      "scale": null
+                    }
+                  },
+                  "lookup": null,
+                  "desenId": null
+                }
+              ],
+              "blocks": []
+            },
+            {
+              "id": "list",
+              "role": "LIST",
+              "table": null,
+              "parentRegion": null,
+              "parentField": null,
+              "foreignKeyField": null,
+              "bindRegion": null,
+              "scan": {
+                "header": {
+                  "mode": "anchorCell",
+                  "cell": null,
+                  "column": "A",
+                  "anchorText": "类别",
+                  "match": "equals",
+                  "rowOffset": 0,
+                  "row": null,
+                  "regionId": null,
+                  "matchIndex": 0
+                },
+                "headerRow": null,
+                "dataStartOffset": 1,
+                "stopAnchors": [
+                  "小计",
+                  "说明"
+                ],
+                "skipRowAnchors": [],
+                "fillDown": [
+                  "category"
+                ],
+                "emptyRow": "skip"
+              },
+              "fields": [
+                {
+                  "name": "category",
+                  "title": "类别",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "A",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                },
+                {
+                  "name": "seq_no",
+                  "title": "序号",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "B",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                },
+                {
+                  "name": "person_name",
+                  "title": "姓名",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "C",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                },
+                {
+                  "name": "orig_std",
+                  "title": "原预支绩效标准值",
+                  "locate": {
+                    "mode": "listColumn",
+                    "cell": null,
+                    "column": "E",
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 0,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "codec": null,
+                  "lookup": null,
+                  "desenId": null
+                }
+              ],
+              "blocks": []
+            },
+            {
+              "id": "tail",
+              "role": "FOOTER",
+              "table": null,
+              "parentRegion": null,
+              "parentField": null,
+              "foreignKeyField": null,
+              "bindRegion": "form",
+              "scan": null,
+              "fields": [],
+              "blocks": [
+                {
+                  "type": "ROW",
+                  "locate": {
+                    "mode": "afterList",
+                    "cell": null,
+                    "column": null,
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 1,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "name": null,
+                  "startColumn": null,
+                  "mergeToColumn": null,
+                  "source": null,
+                  "codec": null,
+                  "cells": [
+                    {
+                      "column": "E",
+                      "name": "sum_orig",
+                      "source": null,
+                      "export": null,
+                      "codec": null,
+                      "import": true
+                    }
+                  ],
+                  "import": null
+                },
+                {
+                  "type": "PARAGRAPH",
+                  "locate": {
+                    "mode": "afterList",
+                    "cell": null,
+                    "column": null,
+                    "anchorText": null,
+                    "match": "contains",
+                    "rowOffset": 2,
+                    "row": null,
+                    "regionId": null,
+                    "matchIndex": 0
+                  },
+                  "name": "remark",
+                  "startColumn": "A",
+                  "mergeToColumn": null,
+                  "source": null,
+                  "codec": null,
+                  "cells": [],
+                  "import": true
+                }
+              ]
+            }
+          ]
+        },
+        "workbook": {
+          "byteLength": 3752,
+          "sha256": "b76d4265903f35e3c78f1c23a78598706e9d7fb4b3bdf560a32f1c79e470bf16"
+        },
+        "preview": {
+          "sections": [
+            {
+              "index": 0,
+              "startRow": 0,
+              "endRow": 5,
+              "form": {
+                "dept_name": "人力资源部/培训中心",
+                "sum_orig": "12636",
+                "remark": "说明：一段说明A"
+              },
+              "listRows": [
+                {
+                  "category": "一般员工",
+                  "seq_no": "1",
+                  "person_name": "喻雪",
+                  "orig_std": "7110"
+                },
+                {
+                  "category": "一般员工",
+                  "seq_no": "2",
+                  "person_name": "兰乾玉",
+                  "orig_std": "5526"
+                }
+              ],
+              "listStartRow": 2,
+              "listEndRow": 3
+            },
+            {
+              "index": 1,
+              "startRow": 6,
+              "endRow": 10,
+              "form": {
+                "dept_name": "财务部",
+                "sum_orig": "4104",
+                "remark": "说明：一段说明B"
+              },
+              "listRows": [
+                {
+                  "category": "一般员工",
+                  "seq_no": "1",
+                  "person_name": "张三",
+                  "orig_std": "4104"
+                }
+              ],
+              "listStartRow": 8,
+              "listEndRow": 8
+            }
+          ],
+          "highlights": [
+            {
+              "row": 1,
+              "col": 1,
+              "role": "FORM",
+              "field": "dept_name",
+              "raw": "部门：人力资源部/培训中心",
+              "value": "人力资源部/培训中心"
+            },
+            {
+              "row": 3,
+              "col": 1,
+              "role": "LIST",
+              "field": "category",
+              "raw": "一般员工",
+              "value": "一般员工"
+            },
+            {
+              "row": 3,
+              "col": 2,
+              "role": "LIST",
+              "field": "seq_no",
+              "raw": "1",
+              "value": "1"
+            },
+            {
+              "row": 3,
+              "col": 3,
+              "role": "LIST",
+              "field": "person_name",
+              "raw": "喻雪",
+              "value": "喻雪"
+            },
+            {
+              "row": 3,
+              "col": 5,
+              "role": "LIST",
+              "field": "orig_std",
+              "raw": "7110",
+              "value": "7110"
+            },
+            {
+              "row": 4,
+              "col": 1,
+              "role": "LIST",
+              "field": "category",
+              "raw": "",
+              "value": "一般员工"
+            },
+            {
+              "row": 4,
+              "col": 2,
+              "role": "LIST",
+              "field": "seq_no",
+              "raw": "2",
+              "value": "2"
+            },
+            {
+              "row": 4,
+              "col": 3,
+              "role": "LIST",
+              "field": "person_name",
+              "raw": "兰乾玉",
+              "value": "兰乾玉"
+            },
+            {
+              "row": 4,
+              "col": 5,
+              "role": "LIST",
+              "field": "orig_std",
+              "raw": "5526",
+              "value": "5526"
+            },
+            {
+              "row": 5,
+              "col": 5,
+              "role": "FOOTER",
+              "field": "sum_orig",
+              "raw": "12636",
+              "value": "12636"
+            },
+            {
+              "row": 6,
+              "col": 1,
+              "role": "FOOTER",
+              "field": "remark",
+              "raw": "说明：一段说明A",
+              "value": "说明：一段说明A"
+            },
+            {
+              "row": 7,
+              "col": 1,
+              "role": "FORM",
+              "field": "dept_name",
+              "raw": "部门：财务部",
+              "value": "财务部"
+            },
+            {
+              "row": 9,
+              "col": 1,
+              "role": "LIST",
+              "field": "category",
+              "raw": "一般员工",
+              "value": "一般员工"
+            },
+            {
+              "row": 9,
+              "col": 2,
+              "role": "LIST",
+              "field": "seq_no",
+              "raw": "1",
+              "value": "1"
+            },
+            {
+              "row": 9,
+              "col": 3,
+              "role": "LIST",
+              "field": "person_name",
+              "raw": "张三",
+              "value": "张三"
+            },
+            {
+              "row": 9,
+              "col": 5,
+              "role": "LIST",
+              "field": "orig_std",
+              "raw": "4104",
+              "value": "4104"
+            },
+            {
+              "row": 10,
+              "col": 5,
+              "role": "FOOTER",
+              "field": "sum_orig",
+              "raw": "4104",
+              "value": "4104"
+            },
+            {
+              "row": 11,
+              "col": 1,
+              "role": "FOOTER",
+              "field": "remark",
+              "raw": "说明：一段说明B",
+              "value": "说明：一段说明B"
+            }
+          ],
+          "grid": [
+            [
+              "部门：人力资源部/培训中心",
+              "",
+              "",
+              "",
+              ""
+            ],
+            [
+              "类别",
+              "序号",
+              "姓名",
+              "职级",
+              "原预支绩效标准值"
+            ],
+            [
+              "一般员工",
+              "1",
+              "喻雪",
+              "经理",
+              "7110"
+            ],
+            [
+              "",
+              "2",
+              "兰乾玉",
+              "副经理",
+              "5526"
+            ],
+            [
+              "小计",
+              "",
+              "",
+              "",
+              "12636"
+            ],
+            [
+              "说明：一段说明A",
+              "",
+              "",
+              "",
+              ""
+            ],
+            [
+              "部门：财务部",
+              "",
+              "",
+              "",
+              ""
+            ],
+            [
+              "类别",
+              "序号",
+              "姓名",
+              "职级",
+              "原预支绩效标准值"
+            ],
+            [
+              "一般员工",
+              "1",
+              "张三",
+              "主管",
+              "4104"
+            ],
+            [
+              "小计",
+              "",
+              "",
+              "",
+              "4104"
+            ],
+            [
+              "说明：一段说明B",
+              "",
+              "",
+              "",
+              ""
+            ]
+          ],
+          "gridRowCount": 11,
+          "gridColCount": 5,
+          "mergePreviews": [],
+          "messages": [
+            "解析完成：段数=2"
+          ],
+          "tableForms": {},
+          "tableLists": {},
+          "sheetIndex": null,
+          "sheetName": null,
+          "sheets": [],
+          "mergedRanges": [],
+          "columnWidths": {
+            "0": 64,
+            "1": 64,
+            "2": 64,
+            "3": 64,
+            "4": 64
+          },
+          "rowHeights": {
+            "0": 22,
+            "1": 22,
+            "2": 22,
+            "3": 22,
+            "4": 22,
+            "5": 22,
+            "6": 22,
+            "7": 22,
+            "8": 22,
+            "9": 22,
+            "10": 22
+          },
+          "truncated": false,
+          "sourceRowCount": 11,
+          "sourceColCount": 5
+        }
+      }
+    ],
+    "businessWrites": 0,
+    "filePersistenceRequests": 0,
+    "fixtureRemaining": false,
+    "phase": "confirmed",
+    "testedAt": "2026-11-05T09:07:09.813Z"
+  },
+  "checks": {
+    "sampleVersion": 1,
+    "roles": [
+      "FORM",
+      "LIST",
+      "FOOTER"
+    ],
+    "single": {
+      "sections": 1,
+      "listRows": 3,
+      "afterDelimiter": true,
+      "fillDown": true,
+      "footer": true
+    },
+    "multi": {
+      "sections": 2,
+      "listRows": [
+        2,
+        1
+      ],
+      "afterDelimiter": true,
+      "fillDown": true,
+      "footer": true
+    },
+    "businessWriteVerified": false,
+    "savedSchemeConsumerVerified": false,
+    "browserVerified": false
+  },
+  "sourceHashesObservedAfterRun": [
+    {
+      "path": "artifacts/data-chain-smoke/excel-layout-service-live.mts",
+      "sha256": "798cf11b1d8e71a223ae25c32559d9e088bbb3af237574c2b3f1b2de3a0db5eb"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-layout-service-live-run.mts",
+      "sha256": "90b22f777c941af560169449fbc636770437b61fb99053a7f20f7c0fc4779660"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-layout-service-live-driver.ps1",
+      "sha256": "2c08e5ccb7faeb1ea256fe026a70d4877dbf7491d9635f67e5d1a5b2b37bccb1"
+    }
+  ],
+  "verifiedAt": "2026-11-05T09:08:01.796Z"
+}

@@ -1,4 +1,6 @@
 import {describe,expect,it,vi} from 'vitest'
+import {LowcodeDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {HttpClientBase,type RequestConfig,type HttpResponse} from '@spark-appworks/spark-utils'
 import {DataSet} from '@spark-appworks/spark-data'
 import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 import {compensatePageToolFiles,createPageToolFiles,deletePageToolFiles,listPageToolFileNames,type PageFileOperationScope} from '../../../src/services/project/page-tool-file-operations'
@@ -91,6 +93,25 @@ describe('PageTool files use the formal ProjectToolFile DataView chain',()=>{
       await expect(deletePageToolFiles(scope)).resolves.toBeUndefined()
       expect(remove).toHaveBeenCalledOnce()
       expect(files.size).toBe(0)
+    }finally{scope.dataSet.destroy()}
+  })
+
+  it.each([403,404,'network'] as const)('verifies the original file removal after the API acknowledgement then listing %s failure without deleting twice',async kind=>{
+    const files=new Map([['PAGE/rule.json','{}']]),requests:RequestConfig[]=[]
+    class DeleteThenFailedList extends HttpClientBase{
+      protected override async executeRequest(config:RequestConfig):Promise<HttpResponse<unknown>>{
+        requests.push(config)
+        if(config.url==='/api/File/RemoveFile'){files.delete('PAGE/rule.json');return{data:{Code:200},status:200,statusText:'OK',headers:{}}}
+        if(kind==='network')throw timeoutAfterAccept()
+        return{data:{Code:kind,Message:'listing denied after delete'},status:200,statusText:'OK',headers:{}}
+      }
+    }
+    const api=new LowcodeDesignApi({http:new DeleteThenFailedList(),readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})}),remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>api.removeFile({appType:'designfile',customPath:`APP/${pageId}`,fileName})),scope=createScope(files,remove)
+    try{
+      await expect(deletePageToolFiles(scope)).rejects.toThrow('核验')
+      const view=scope.dataSet.getTable('ProjectToolFile')?.viewList.find(current=>current.queryContext['pageId']==='PAGE'&&current.queryContext['fileName']==='rule.json')
+      expect(files.size).toBe(0);expect(view?.hasUnconfirmedSave).toBe(true)
+      await deletePageToolFiles(scope);expect(view?.hasUnconfirmedSave).toBe(false);expect(remove).toHaveBeenCalledTimes(1);expect(requests.filter(request=>request.url==='/api/File/RemoveFile')).toHaveLength(1)
     }finally{scope.dataSet.destroy()}
   })
 

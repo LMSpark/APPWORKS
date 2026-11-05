@@ -213,7 +213,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T22:45:41.509Z",
+  "generatedAt": "2026-11-05T01:12:14.766Z",
   "models": {
     "LowcodeDesignApiOptions": {
       "name": "LowcodeDesignApiOptions",
@@ -500,7 +500,7 @@
             },
             {
               "name": "removeFile",
-              "jsdoc": "正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失。",
+              "jsdoc": "正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失，后续核验失败携带既有fileResourceMutationMayHaveApplied标记，交原文件链只读核验。",
               "parameters": [
                 {
                   "name": "locator",

@@ -474,7 +474,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
       }})
     const service = new LowcodeDataSpaceViewDesign({workspace, assertScope, readLegacyLayout: options.readLegacyLayout ?? (async () => null),
       fileResourceExecutors: {...Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
-        definition.createExecutor({applicationId: 'APP', api: {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(), listFileVersions: async () => []}, assertCurrent: assertScope})])),
+        definition.createExecutor({applicationId: 'APP', api: {removeFile: async () => {throw Error('unexpected layout delete')}, listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(), listFileVersions: async () => []}, assertCurrent: assertScope})])),
         ...(options.projectToolFileExecutor?{ProjectToolFile:options.projectToolFileExecutor}:{})},
       ...(options.modelSources ? {modelSources: options.modelSources} : {}),
       readModel: async input => {

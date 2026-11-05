@@ -16,7 +16,7 @@ export const WORKFLOW_LAYOUT_COLUMNS:readonly DataColumn[]=Object.freeze([
 ])
 export const WORKFLOW_LAYOUT_VIEWS=Object.freeze({default:Object.freeze({autoLoad:false,autoCurrentFirst:true,commitMode:'staged',queryContext:Object.freeze({workflowId:''})})})
 export const WORKFLOW_LAYOUT_QUERY_PARAMETERS=Object.freeze({default:Object.freeze([{name:'workflowId',type:'string',label:'工作流ID',required:true}])})
-type LayoutResourceOptions=Readonly<{api:Pick<LowcodeDesignApi,'readTextFile'>;fileUpload:Pick<LowcodeDesignFileUpload,'uploadWorkingText'>;assertCurrent():void}>
+type LayoutResourceOptions=Readonly<{api:Pick<LowcodeDesignApi,'readTextFile'|'removeFile'>;fileUpload:Pick<LowcodeDesignFileUpload,'uploadWorkingText'>;assertCurrent():void}>
 /** 严格区分真实文件缺失与读取失败；文件内容仍原文保留，JSON语义在编辑/保存时确认。 */
 export function createWorkflowLayoutExecutor(options:LayoutResourceOptions):Parameters<DataView['bindQueryExecutor']>[0]{
  const identity=(value:unknown):string=>{
@@ -24,7 +24,7 @@ export function createWorkflowLayoutExecutor(options:LayoutResourceOptions):Para
   if(value.length===0||value.trim()!==value||value==='.'||value==='..'||/[\\/%\u0000-\u001f\u007f]/.test(value))throw new Error('WORKFLOW_LAYOUT_TARGET: 工作流布局身份无效')
   return value
  }
- return createFileResourceAdapterExecutor({resourceId:WORKFLOW_LAYOUT_RESOURCE_ID,contentField:'content',canDelete:()=>false,
+ return createFileResourceAdapterExecutor({resourceId:WORKFLOW_LAYOUT_RESOURCE_ID,contentField:'content',
   assertCurrent:()=>options.assertCurrent(),
   target:view=>{const id=identity(view.queryContext['workflowId']);return {key:id,fields:{workflowId:id,fileName:`${id}.json`}}},
   transport:{
@@ -37,6 +37,10 @@ export function createWorkflowLayoutExecutor(options:LayoutResourceOptions):Para
     options.assertCurrent()
     WorkflowLayoutDocument.read(text)
     await options.fileUpload.uploadWorkingText({customPath:'SysForm',fileName:`${identity(target.key)}.json`,text});options.assertCurrent()
+   },
+   remove:async({target})=>{
+    options.assertCurrent()
+    await options.api.removeFile({appType:'designfile',customPath:'SysForm',fileName:`${identity(target.key)}.json`});options.assertCurrent()
    },
    isUnknown:error=>!(error instanceof SyntaxError)&&!(error instanceof LowcodeApiError&&error.code>=400&&error.code<500&&error.code!==408),
   },

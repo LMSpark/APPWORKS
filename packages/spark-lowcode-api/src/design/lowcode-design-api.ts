@@ -49,6 +49,11 @@ function requiredText(value: string, name: string): string {
   return normalized
 }
 
+/** 删除派发后的不确定结果沿既有文件变更标记交回同一DataView核验，不表示可以重试。 */
+function deletionUnconfirmed(error: unknown): Error {
+  return Object.assign(new Error(`文件删除结果未确认，后续核验失败：${error instanceof Error ? error.message : String(error)}`, {cause: error}), {fileResourceMutationMayHaveApplied: true})
+}
+
 function fileInfo(locator: LowcodeFileLocator): Readonly<Record<string, unknown>> {
   return {
     customPath: locator.customPath.trim(),
@@ -162,7 +167,7 @@ export class LowcodeDesignApi {
     return versions.sort((left, right) => right.version - left.version)
   }
 
-  /** 正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失。 */
+  /** 正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失，后续核验失败携带既有fileResourceMutationMayHaveApplied标记，交原文件链只读核验。 */
   public async removeFile(locator: LowcodeFileLocator): Promise<void> {
     const scope = this.readScope()
     const fileName = requiredText(locator.fileName, 'fileName')
@@ -177,11 +182,19 @@ export class LowcodeDesignApi {
       if (!isRequestError(error) || error.response === undefined) throw error
       response = error.response
     }
-    this.assertScope(scope)
-    if (!isRecord(response) || typeof response['Code'] !== 'number') throw new LowcodeApiError(0, '文件删除响应不是 AjaxResult 对象')
-    if (response['Code'] !== 200) throw new LowcodeApiError(response['Code'], typeof response['Message'] === 'string' ? response['Message'] : '文件删除失败')
-    const entries = await this.listFiles({ appType: locator.appType, folderPath: locator.customPath })
-    this.assertScope(scope)
-    if (entries.some(entry => entry.name === fileName)) throw new LowcodeApiError(0, `${fileName} 删除后仍存在，不能确认删除`)
+    try {this.assertScope(scope)} catch (error) {throw deletionUnconfirmed(error)}
+    if (!isRecord(response) || typeof response['Code'] !== 'number') throw deletionUnconfirmed(new LowcodeApiError(0, '文件删除响应不是 AjaxResult 对象'))
+    if (response['Code'] !== 200) {
+      const error = new LowcodeApiError(response['Code'], typeof response['Message'] === 'string' ? response['Message'] : '文件删除失败')
+      if (error.code >= 400 && error.code < 500 && error.code !== 408) throw error
+      throw deletionUnconfirmed(error)
+    }
+    try {
+      const entries = await this.listFiles({ appType: locator.appType, folderPath: locator.customPath })
+      this.assertScope(scope)
+      if (entries.some(entry => entry.name === fileName)) throw new LowcodeApiError(0, `${fileName} 删除后仍存在，不能确认删除`)
+    } catch (error) {
+      throw deletionUnconfirmed(error)
+    }
   }
 }

@@ -15,7 +15,7 @@ export const AGENT_WORKFLOW_FILE_COLUMNS = Object.freeze([
 ])
 
 export const AGENT_WORKFLOW_DATA_SPACE_NAME = 'Agent工作流文件资源'
-type LowcodeFileResourceApi = Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions'>
+type LowcodeFileResourceApi = Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions' | 'removeFile'>
 
 export type LowcodeFileResourceDefinition = Readonly<{
   tableName: string

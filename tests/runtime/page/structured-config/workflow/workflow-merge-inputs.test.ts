@@ -33,7 +33,7 @@ async function formalFixture(value:unknown=mapping(),sharedField=false){
  if(sharedField){const source=http.records['Base_WorkflowNodeDefinition']?.find(row=>row['rowid']==='B');if(source)source['output_mapping']=JSON.stringify([{rowid:'BROOT',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'BCOUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},{rowid:'AF',pid:'BROOT',Name:'code',FieldType:'varchar',isParent:false}])}
  const runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const ds=new LowcodeDataSpaceAssembler(runtime,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
-  fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
+  fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
  backends.set(ds,http)
  const page=new PageRuntime({pageId:'merge-source-test',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W'}},loadScenario:async()=>ds});pages.push(page);await page.load()
  await Promise.all([ds.getView('Base_WorkflowDefinition')!.refresh(),ds.getView('Base_WorkflowNodeDefinition')!.refresh(),ds.getView('Base_WorkflowConnectors')!.refresh()]);return ds

@@ -15,7 +15,7 @@ describe('workflow formal design DataSet',()=>{
   it('rejects the projected owner if the formal service model no longer outputs it',async()=>{
     const text=await readFile('config/pages/structured-config/workflow-editor/pagedata.json','utf8')
     const http=new ApiBackend(),api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
-    expect(()=>new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(SCENE,text),space:{dataSpaceId:SCENE,name:'工作流设计'},models:workflowDesignModels(false),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw new Error('unexpected upload')}},assertCurrent:()=>{}})}})).toThrow('queryConfig.fields 不是当前正式输出字段: workflow_id')
+    expect(()=>new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(SCENE,text),space:{dataSpaceId:SCENE,name:'工作流设计'},models:workflowDesignModels(false),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw new Error('unexpected upload')}},assertCurrent:()=>{}})}})).toThrow('queryConfig.fields 不是当前正式输出字段: workflow_id')
     expect(http.reads).toEqual([]);expect(http.saves).toEqual([])
   })
   it('projects the repaired node owner and keeps native create, cancel and save inside the target workflow',async()=>{
@@ -24,7 +24,7 @@ describe('workflow formal design DataSet',()=>{
     const http=new ApiBackend()
     http.records={Base_WorkflowDefinition:[{rowid:'W1'},{rowid:'W2'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'当前节点'},{rowid:'N2',workflow_id:'W2',name:'其他节点'}]}
     const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
-    const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(SCENE,text),space:{dataSpaceId:SCENE,name:'工作流设计'},models,relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw new Error('unexpected upload')}},assertCurrent:()=>{}})}}).dataSet
+    const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(SCENE,text),space:{dataSpaceId:SCENE,name:'工作流设计'},models,relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw new Error('unexpected upload')}},assertCurrent:()=>{}})}}).dataSet
     const page=new PageRuntime({pageId:'workflow-owner',scenarioIds:[SCENE],scenarioInputs:{[SCENE]:{workflowId:'W1'}},loadScenario:async()=>ds});pages.push(page)
     await page.load();ds.triggerAutoLoad()
     const nodes=ds.getView('Base_WorkflowNodeDefinition')!
@@ -56,7 +56,7 @@ describe('workflow formal design DataSet',()=>{
     const http=new ApiBackend()
     http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'当前流程'},{rowid:'W2',name:'其他流程'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',name:'当前节点',node_type:'query'},{rowid:'N2',workflow_id:'W2',name:'其他节点'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N1'},{rowid:'E2',workflow_id:'W2',sourceID:'N2',targetID:'N2'}]}
     const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
-    const assembled=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(SCENE,text),space:{dataSpaceId:SCENE,name:'工作流设计'},models,relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw new Error('unexpected upload')}},assertCurrent:()=>{}})}})
+    const assembled=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(SCENE,text),space:{dataSpaceId:SCENE,name:'工作流设计'},models,relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw new Error('unexpected upload')}},assertCurrent:()=>{}})}})
     expect(assembled.diagnostics).toEqual([])
     const ds=assembled.dataSet
     const page=new PageRuntime({pageId:'workflow-test',scenarioIds:[SCENE],scenarioInputs:{[SCENE]:{workflowId:'W1'}},loadScenario:async()=>ds});pages.push(page)

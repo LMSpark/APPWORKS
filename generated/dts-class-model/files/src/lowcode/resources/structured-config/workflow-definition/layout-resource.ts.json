@@ -19,7 +19,7 @@
       "properties": {
         "api": {
           "type": "object",
-          "title": "Pick<LowcodeDesignApi, 'readTextFile'>"
+          "title": "Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>"
         },
         "fileUpload": {
           "type": "object",
@@ -37,18 +37,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T20:13:59.393Z",
+  "generatedAt": "2026-11-05T00:54:29.323Z",
   "models": {
     "LayoutResourceOptions": {
       "name": "LayoutResourceOptions",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'readTextFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
+            "typeText": "Readonly<{\n    api: Pick<LowcodeDesignApi, 'readTextFile' | 'removeFile'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadWorkingText'>;\n    assertCurrent(): void;\n}>",
             "targetName": "Readonly"
           }
         ],

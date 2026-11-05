@@ -35,13 +35,18 @@
         "listFileVersions": {
           "type": "object",
           "title": "(locator: LowcodeFileLocator) => Promise<readonly LowcodeFileVersionSummary[]>"
+        },
+        "removeFile": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<void>"
         }
       },
       "required": [
         "listFiles",
         "readTextFile",
         "readFileBytes",
-        "listFileVersions"
+        "listFileVersions",
+        "removeFile"
       ],
       "additionalProperties": false
     },
@@ -500,18 +505,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T20:05:38.458Z",
+  "generatedAt": "2026-11-05T00:54:29.324Z",
   "models": {
     "LowcodeFileResourceApi": {
       "name": "LowcodeFileResourceApi",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions'>",
+        "declarationTypeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions' | 'removeFile'>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions'>",
+            "typeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions' | 'removeFile'>",
             "targetName": "Pick"
           }
         ],

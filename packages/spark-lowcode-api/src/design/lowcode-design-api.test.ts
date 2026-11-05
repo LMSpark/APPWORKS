@@ -58,6 +58,20 @@ describe('LowcodeDesignApi', () => {
     expect(http.requests[1]?.url).toBe('/api/File/list')
   })
 
+  it.each([403, 404])('preserves deletion uncertainty when post-success listing returns %s', async code => {
+    class DeleteThenDeniedList extends HttpClientBase {
+      readonly requests: RequestConfig[] = []
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        this.requests.push(config)
+        return {data: config.url === '/api/File/RemoveFile' ? {Code: 200} : {Code: code, Message: 'listing denied after delete'}, status: 200, statusText: 'OK', headers: {}}
+      }
+    }
+    const http = new DeleteThenDeniedList()
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'designfile', customPath: 'SysForm', fileName: 'W1.json'})).rejects.toMatchObject({message: expect.stringContaining('核验'), fileResourceMutationMayHaveApplied: true, cause: {code}})
+    expect(http.requests.map(request => request.url)).toEqual(['/api/File/RemoveFile', '/api/File/list'])
+    expect(http.requests[0]?.retry).toBe(0)
+  })
+
   it('does not confirm deletion while the file still exists', async () => {
     const http = new FixtureHttpClient({ Code: 200, Result: [{ name: '2__rule.json' }] })
     await expect(new LowcodeDesignApi({ http, readScope: fixtureScope }).removeFile({
@@ -75,14 +89,27 @@ describe('LowcodeDesignApi', () => {
     } })
     await expect(new LowcodeDesignApi({ http, readScope: () => ({ ...fixtureScope(), token }) }).removeFile({
       appType: 'designfile', customPath: 'APP-A/page', fileName: '2__rule.json',
-    })).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    })).rejects.toMatchObject({message: expect.stringContaining('SPARK_EXECUTION_SCOPE_STALE'), fileResourceMutationMayHaveApplied: true})
+  })
+
+  it('keeps a malformed post-dispatch deletion envelope unconfirmed', async () => {
+    const http = new FixtureHttpClient('invalid deletion envelope')
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'designfile', customPath: 'SysForm', fileName: 'W1.json'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied: true, cause: {code: 0}})
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it.each([408, 500])('keeps a potentially applied deletion response %s unconfirmed without retrying', async code => {
+    const http = new FixtureHttpClient({Code: code, Message: 'mutation outcome not confirmed'})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'designfile', customPath: 'SysForm', fileName: 'W1.json'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied: true, cause: {code}})
+    expect(http.requests).toHaveLength(1)
+    expect(http.requests[0]?.retry).toBe(0)
   })
 
   it('preserves a publisher denial without a retry or confirmation list', async () => {
     const http = new FixtureHttpClient({ Code: 403, Message: 'publisher only' })
     await expect(new LowcodeDesignApi({ http, readScope: fixtureScope }).removeFile({
       appType: 'designfile', customPath: 'APP-A/page', fileName: '2__rule.json',
-    })).rejects.toThrow('publisher only')
+    })).rejects.toMatchObject({code: 403, message: expect.stringContaining('publisher only')})
     expect(http.requests).toHaveLength(1)
   })
   it.each(['text', 'bytes', 'list'])('rejects a %s result after the request identity changes', async kind => {

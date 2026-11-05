@@ -3207,3 +3207,10 @@
 - 新停用夹具fixture38读2提交；首轮configure124读8提交0执行known failure，烟测误从未投影DbId的default模型视图取身份，保留失败审计。独立modelCatalog证实char身份/8字段保存正确，同夹具新resume163读14提交继续剩余步骤，原8提交未重放；恢复脚本重复catalog变量在预运行复核时修正，未派发该错误版本。该失败不能列为产品缺陷或一次无中断通过。
 - 唯一整流84读0定义提交1执行：字符AES256保持string；数字字典存储字符串0，实际查询与consumer均为number0。五节点SUCCESS同实例，字典精确rowid过滤各返1行，完整8字段/输出叶身份、标题/类型/Filter独立重开，预览及两次Filter取消均0写。cleanup103读5提交，五节点四边五模型63字段及5日志/启动行/参数定义独立清理；原两个字典设计和各4条条目在执行后/清理后未变，业务五字段未变、unknown=false。
 - 合计512读29提交1执行（含首轮失败，不含早前48读选样及单独登录）。证据2026-11-05-workflow-dictionary-runtime.json实际断言生成；不核销历史其他字典模型失败、浏览器视觉、生产启用/定时/持久流程实例、merge服务差距和20包其他范围。总墙钟未完整计量，30天存活待观察。
+
+### 2026-11-05 工作流布局删除与公共文件删除未确认合同（本地能力检查点）
+
+- 3生产/12测试文件：原布局文件适配器接通精确SysForm删除，API及registry必需removeFile，不加旧合同回退/页面入口/cleanup owner。取消、旧基线、删除丢回执和直接403先4 RED后GREEN。现有布局相关夹具和四文件宿主补齐必需API，非删除场景明确拒绝意外删除。
+- 高阶复核发现并关闭2项P1：RemoveFile成功后list403/404误判已知失败；仅包普通Error又使原PageTool链丢unknown。最终公共API沿既有fileResourceMutationMayHaveApplied标记处理派发后的scope/畸形/408500及核验失败，直接非408的4xx仍已知拒绝；原DataView核验不重删。2项API/1项布局集成、精确PAGE/rule.json的3项工具与4项派发后API反例实际RED后GREEN；工具最初finder未限定pageId的无效观察已纠正，重新对旧plain Error版本核有效RED并finally原候选字节完整恢复，不冒称所有中间失败都是产品缺陷。
+- 最终根25文件612项（workflow462+agent-file29+page-tool10+四文件65+原生布局消费46）、API包22项、通用adapter包27项、正式ClassModel4文件49项通过。workflow较457新增5，API较17新增5，工具较7新增3；另强化既有scope反例。typecheck独立进程87283、lint、build5.03秒、schema、4正式指南均通过；生成60.841秒/1049DTS/2137符号，128份完整语义等价产物恢复。缺口3637未增，代码规则26项与前基线逐条一致；严格全仓门禁未绿，未重跑8082全仓测试。
+- evidence/data-chain-smoke/2026-11-05-workflow-layout-delete-local.json已实际断言生成，明确layoutNativeIOExecuted=false。本检查点没有新建实服布局夹具或调用真实文件存储；正常文件生命周期、双实例冲突、真实上传后的客户端回执丢失注入、DB后布局阶段与精确删除仍按同卡继续，浏览器视觉未验。高阶当前3生产文件复核通过；总目标active，总墙钟未完整计量，30天存活待观察。

@@ -1,0 +1,235 @@
+{
+  "sourceCommit": "ac7ce43368f07ed67172531dd7625e720bd4d989",
+  "scope": "local capability checkpoint: WorkflowLayout exact file deletion through original DataView plus shared delete uncertainty contract; layout native IO and browser acceptance remain unverified",
+  "layoutNativeIOExecuted": false,
+  "productionChanges": 3,
+  "sourceChanges": [
+    "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+    "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+    "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+    "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+    "tests/app/dev/page-tool-file-operations.test.ts",
+    "tests/runtime/page/design/data-space-four-file.test.ts",
+    "tests/runtime/page/design/native/data-space-page.fixture.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-boundaries.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-connector-condition.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-layout-resource.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-native-design-scenario.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts",
+    "tests/runtime/page/structured-config/workflow/workflow-start-parameters.test.ts"
+  ],
+  "behavior": [
+    "same file adapter and fixed designfile/SysForm/<captured workflowId>.json",
+    "readTextFile and removeFile API required at the existing registry; no legacy fallback",
+    "cancel without remote delete; stale baseline refuses delete; denied delete preserves file",
+    "RemoveFile accepted then verification failure, scope change, malformed envelope, 408/500 remain unconfirmed via existing mutation marker",
+    "direct 4xx except 408 remains known rejection",
+    "layout and ProjectToolFile use original DataView read-only verification; no delete replay"
+  ],
+  "tests": {
+    "root": {
+      "files": 25,
+      "passed": 612,
+      "includes": "workflow462, agent-files29, page-tool-files10, four-file65, native-layout-consumers46"
+    },
+    "api": {
+      "files": 1,
+      "passed": 22
+    },
+    "adapter": {
+      "files": 1,
+      "passed": 27
+    },
+    "classModelContracts": {
+      "files": 4,
+      "passed": 49
+    }
+  },
+  "gates": {
+    "typecheckExit": 0,
+    "lintExit": 0,
+    "buildExit": 0,
+    "schemaExit": 0,
+    "formalGenerationSeconds": 60.841,
+    "dtsFiles": 1049,
+    "symbols": 2137,
+    "semanticGaps": 3637,
+    "newSemanticGaps": 0,
+    "codegenExistingViolations": 26,
+    "codegenNewViolations": 0,
+    "strictWholeRepoNotGreen": true,
+    "fullRepo8082NotRerun": true,
+    "restoredEquivalentArtifacts": 128
+  },
+  "redEvidence": {
+    "initialLayoutDelete": 4,
+    "postSuccessApi": 2,
+    "layoutApiIntegration": 1,
+    "pageToolExactScope": 3,
+    "postDispatchApi": 4,
+    "note": "some strengthened existing cases overlap; counts are observed failing cases per run, not additive new-test totals; exact PAGE/rule.json reproduction restored prior candidate bytes in finally"
+  },
+  "review": "gpt-6-astra read-only plan and repeated source review closed post-success classification and existing PageTool consumer regression; root implements",
+  "next": "new inactive fixture, exact missing layout, cancel/create/readback/move/reopen/conflict/client fault after real upload, node removal database/file stages without replay, exact file and metadata cleanup; zero workflow execution",
+  "open": [
+    "native storage endpoint/account permission and complete layout lifecycle",
+    "reference browser drag/layout acceptance temporarily unavailable",
+    "overall twenty-package migration and retained service gaps"
+  ],
+  "hashes": [
+    {
+      "path": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sha256": "8f9061e30d383fffc5f935ea32b14d67daccae212577195c76f526d3a7ac4f39"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "sha256": "cbab787030e2e5c7ca893e6298a7944ae96a59684368fc109fa44e5df2bc9489"
+    },
+    {
+      "path": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+      "sha256": "39a44b0a81bed7948891e9153f779a2ef110b705c347d84bc99d0e95f119808e"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+      "sha256": "2d6049cff2f4ba95efe5f155b57fe7ceae0d64aad87e9d3bcec724b499a0d486"
+    },
+    {
+      "path": "tests/app/dev/page-tool-file-operations.test.ts",
+      "sha256": "4d8f1a5258620043c2ec583f98715bdb8740d848be9d14f729479703f6c5a799"
+    },
+    {
+      "path": "tests/runtime/page/design/data-space-four-file.test.ts",
+      "sha256": "38538738b07ba4395964ece260511448569cb18139bb15e2146ab85f8204896d"
+    },
+    {
+      "path": "tests/runtime/page/design/native/data-space-page.fixture.ts",
+      "sha256": "01125c5d8dd7c6b90fa3cacd93d4374dddd060290bb575fbbd57083aeebfb407"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-boundaries.test.ts",
+      "sha256": "6dfa4ce6fc29e8036c993bbe0c196a78a0afa0c1b4e2d58e263d0f5babcf3f67"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-connector-condition.test.ts",
+      "sha256": "b3ee583557077375422017d58671d9b053ab8923f1966aa278e1c5c25b0e08bc"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-layout-resource.test.ts",
+      "sha256": "eebfbc9256541bbcf4bad3431e6579c89ce094ac40eab2b48512d6dcd044e676"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "db3420d9743b1d051df5cc34396cc7386957d7681adb123418c63c629db392fd"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-native-design-scenario.test.ts",
+      "sha256": "f8661a7f0f4694f03696f103702ecb260858ce11a1c650a0a0ea2e0639a9d6ba"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts",
+      "sha256": "b23b916c40c83448f594a9ff8431b698f0516c7e8690fad7406f556ab3f688ba"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts",
+      "sha256": "824bea2433a2e7d96e983a15c4db15688163aadf42838a90ae42c33ffb266df9"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-start-parameters.test.ts",
+      "sha256": "ea288c8eef9075d6cb46ba16ea879e6b4f4483831ad9d785a945dfbcf8ffe955"
+    },
+    {
+      "path": "generated/dts-class-model/.dts-manifest.json",
+      "sha256": "e80758241aa627add773ef829897d1463f4cb340498f0a639813d6a84d3aadca"
+    },
+    {
+      "path": "generated/dts-class-model/files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json",
+      "sha256": "25c118ef14ba8c2c3ec2d1efcc8361528904e2d05c719021a404ad5abaad5e61"
+    },
+    {
+      "path": "generated/dts-class-model/files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json",
+      "sha256": "0447e302e4a03e31bae257ab4a4e015edf1453c842cb0e137966e9ec48b02ff7"
+    },
+    {
+      "path": "generated/dts-class-model/files/src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts.json",
+      "sha256": "d7969ee82712404cc30aa469ceb21e65f2b2b52eeed625d633c9c3f3aadb04f5"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-root-frozen.log",
+      "sha256": "7a1d5fd8a819279fee3478321b751076363d34d7c4b403800a7ef5ee9259a89a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-api-frozen.log",
+      "sha256": "910cbd9f990ab3bb1743ad5c9e95b87cb9a7001a1793e739468a5702f2fb24d1"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-adapter-frozen.log",
+      "sha256": "f4bf4347a8532d9aeb8b39c4b93bc3c80bec636c31da597b0370dc434d22a30a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-contracts-frozen.log",
+      "sha256": "fcf185afff285815846406db7d44e9bb8bfa53e0a729bbc94a24f971b26c31fe"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-types-authoritative.log",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-lint-frozen.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-build-frozen.log",
+      "sha256": "613d42e8dab503bf85173bd6cbce0d96d62d19f57ad3321831f9bf318067d894"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-generate-frozen.log",
+      "sha256": "a9b5e2449ab497acfd280764291434f6ab2e0b8b0faf6af7460d5f0d087fd60c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-normalize-frozen.json",
+      "sha256": "92be0016044ab70a0b4fe687b29c73ca55244a98803706d666bd7f251516b425"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-guides.json",
+      "sha256": "309335aba9be31c8a13f145d423298b29d1b2d5c293bc3235a156438ad43b071"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-schema-frozen.log",
+      "sha256": "5580fa45616b8c6551f120eb3c0da514e9c5898b73ecd8f51c0a563b432d2afc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-codegen-frozen.log",
+      "sha256": "d979811be0ddef41e5eaa43f4091e833a19e5ab57d59ff66dedd4b3ea717d618"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-red.log",
+      "sha256": "48eb851f7671fc31841eb239a66cf7d99b0a2177d8c99f7ac63acead77a9aa01"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-postsuccess-api-red.log",
+      "sha256": "6cbf791348fc1b5eae47851e5a315d0c87e4ef876a0e868fc4723cda1f3b88d5"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-postsuccess-resource-red.log",
+      "sha256": "5f62f9939cb72e2a6422075ad81bea1a35bcdd8314646092c6586554328c4c05"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-tool-scoped-red.log",
+      "sha256": "151f5c03b89f03331011b616c8f064f7c863cabf6f41d5e128f08b065924d435"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-tool-scoped-red-audit.json",
+      "sha256": "949d8dcc1bf60e2851aed81e6c88eb330b216a76ab7d6bed10e6a73cc8793ce9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-uncertain-api-red.log",
+      "sha256": "c3f6c1fb60510e199925e03296367b82c5ac9a865db4bef8a3c56630b35208e5"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-delete-write-local-evidence.mjs",
+      "sha256": "c5512d73d9944e5d63f9c49ea580958257d3f99cde3746b5bd3e55be230dd232"
+    }
+  ]
+}

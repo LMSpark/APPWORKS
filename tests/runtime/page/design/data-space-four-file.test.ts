@@ -413,7 +413,7 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
       }}]
       const definition = LOWCODE_FILE_RESOURCE_REGISTRY.find(item => item.tableName === name)
       if (!definition) throw new Error(`Missing formal file resource executor: ${name}`)
-      const api = {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(),
+      const api = {removeFile: async () => {throw Error('unexpected layout delete')}, listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array(),
         listFileVersions: async () => []}
       return [name, definition.createExecutor({applicationId: 'catalog-test-app', api, assertCurrent: () => undefined})]
     }))

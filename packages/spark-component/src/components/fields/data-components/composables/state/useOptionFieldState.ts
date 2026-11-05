@@ -63,9 +63,9 @@ export function useOptionFieldState<TValue>(options: UseOptionFieldStateOptions<
       : (labels[0] ?? ''))
   }
 
-  async function handleOptionFieldChange(value: TValue): Promise<void> {
+  async function handleOptionFieldChange(value: TValue, isCurrentIntent: () => boolean = () => true): Promise<void> {
     const valid = optionResult.captureWriteGuard()
-    if (await handleControlledChange(value) && valid()) syncTextStorage(value)
+    if (await handleControlledChange(value, isCurrentIntent) && valid() && isCurrentIntent()) syncTextStorage(value)
   }
 
   return {

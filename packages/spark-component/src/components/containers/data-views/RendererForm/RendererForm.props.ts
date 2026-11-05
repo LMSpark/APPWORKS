@@ -28,6 +28,8 @@ export type RFormProps = SparkNodeProps & SparkCrudDataContainerProps & SparkGri
     contextDataMember?: DataMember | `${DataMember}`
     /** 上下文成员内部业务字段或点路径。 */
     contextDataField?: string
+    /** 固定currentRow上下文的原记录ID，不修改视图行指针。首次找到记录后锁定原视图和原行对象；切换绑定、ID或同ID行替换后失效，重新打开须重建表单。字段、插槽共用原编辑覆盖；独立子视图不受约束。 */
+    contextRowId?: string | number
     /** 无显式children时，从DataView字段元信息生成标准子组件，默认true。基础值按类型生成编辑组件；复合/枚举及未知类型仅展示，编辑须显式配置children。它不是独立列配置，也不强制业务控件类型。 */
     autoColumns?: boolean
     /** 表单标签宽度 */

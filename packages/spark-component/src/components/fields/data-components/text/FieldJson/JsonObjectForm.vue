@@ -21,13 +21,14 @@ AI用途：通过r-json form模式编辑配置，复用外层字段权限、草�
         </div>
         <p v-if="errors.has(member.name)" role="alert">{{ errors.get(member.name) }}</p>
         <JsonObjectForm v-if="member.schema.type === 'object'" :model-value="JSON.stringify(value(member.name) === undefined ? {} : value(member.name))"
-          :schema="member.schema" :read-only="readOnly" :busy="busy || committing" :commit="text => write(member.name, parseJsonDocument(text))"
+          :schema="member.schema" :read-only="readOnly" :busy="busy || committing" :commit="(text, intent) => write(member.name, parseJsonDocument(text), intent)"
           @editing-change="value => childEditing.set(member.name, value)" />
         <JsonDataViewChoice v-else-if="Object.hasOwn(member.schema, 'x-optionDataViewKey') && (member.schema.type !== 'array' || scalarArray(member.name))" :model-value="value(member.name)"
           :option-data-view-key="typeof member.schema['x-optionDataViewKey'] === 'string' ? member.schema['x-optionDataViewKey'] : ''"
           :multiple="member.schema.type === 'array'"
+          :allow-create="member.schema.type === 'string' && member.schema['x-optionAllowCreate'] === true"
           :item-type="typeof member.schema.items === 'object' && typeof member.schema.items.type === 'string' ? member.schema.items.type : undefined"
-          :label="member.schema.title || member.name" :disabled="locked" @update:model-value="write(member.name, $event)" />
+          :label="member.schema.title || member.name" :disabled="locked" @update:model-value="(value, intent) => write(member.name, value, intent)" />
         <el-select v-else-if="arrayChoices(member.schema).length && scalarArray(member.name)" multiple
           :model-value="value(member.name)" :disabled="locked" :aria-label="member.schema.title || member.name" :persistent="false"
           placeholder="未配置" @update:model-value="write(member.name, $event)">
@@ -74,13 +75,13 @@ const props = defineProps<{
   busy?: boolean
   /** 仅展示properties，保留未声明成员；不填充default。 */
   schema: JsonSchemaObject | undefined
-  /** 写回原字段；false表示被原绑定或权限守卫拒绝。 */
-  commit: (value: string) => Promise<boolean>
+  /** 写回原字段；默认写回前同时核选项/子成员意图，false表示原绑定或守卫拒绝。 */
+  commit: (value: string, isCurrentIntent?: () => boolean) => Promise<boolean>
 }>()
 const emit = defineEmits<{'editing-change': [value: boolean]}>()
 const drafts = ref(new Map<string, string>()), errors = ref(new Map<string, string>()), committing = ref(false)
 const childEditing = ref(new Map<string, boolean>())
-let active = true
+let active = true, schemaRevision = 0
 const locked = computed(() => props.readOnly || props.busy || committing.value)
 watch(() => committing.value || drafts.value.size > 0 || [...childEditing.value.values()].some(Boolean),
   value => emit('editing-change', value), {immediate: true, flush: 'sync'})
@@ -134,8 +135,10 @@ async function writeJson(name: string, text: string): Promise<void> {
   try {await write(name, JSON.parse(text))}
   catch (cause) {if (active) errors.value.set(name, cause instanceof Error ? cause.message : String(cause))}
 }
-async function write(name: string, nextValue: unknown): Promise<boolean> {
-  if (!active || locked.value || !content.value.value || !members.value.some(member => member.name === name)) return false
+async function write(name: string, nextValue: unknown, isCurrentIntent: () => boolean = () => true): Promise<boolean> {
+  if (!active || locked.value || !isCurrentIntent() || !content.value.value || !members.value.some(member => member.name === name)) return false
+  const ownSchemaRevision=schemaRevision
+  const valid = () => active && schemaRevision === ownSchemaRevision && isCurrentIntent()
   committing.value = true; errors.value.delete(name)
   try {
     const next = {...content.value.value}
@@ -149,7 +152,7 @@ async function write(name: string, nextValue: unknown): Promise<boolean> {
     }
     const text = JSON.stringify(next)
     if (text === JSON.stringify(content.value.value)) {drafts.value.delete(name); return true}
-    const accepted = await props.commit(text)
+    const accepted = await props.commit(text, valid)
     if (active && accepted) drafts.value.delete(name)
     if (active && !accepted) errors.value.set(name, '原字段未接受修改；请检查数据权限和绑定。')
     return accepted
@@ -165,6 +168,7 @@ watch(() => content.value.value, (next, previous) => {
   }
 }, {flush: 'sync'})
 watch([() => JSON.stringify(props.schema), () => props.readOnly], () => {
+  schemaRevision++
   drafts.value = new Map(); errors.value = new Map(); childEditing.value = new Map()
 }, {flush: 'sync'})
 onBeforeUnmount(() => {active = false; emit('editing-change', false)})

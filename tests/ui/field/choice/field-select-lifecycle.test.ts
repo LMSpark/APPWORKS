@@ -18,7 +18,7 @@ async function fixture(value: string | number = 'first', selection = false, inhe
   const dataSet = SparkData.fromJson({scenarioId: 'S', dataSetName: 'Selection', tables: {
     Inputs: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'choice', type: 'string'}],
       views: {default: {commitMode: 'staged', rows: [{id: 'a', choice: value}, {id: 'b', choice: 'second'}]}}},
-    Choices: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string'}],
+    Choices: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string'}, {name:'disabled',type:'boolean'}],
       views: {default: {valueField: 'id', labelField: 'title', rows: [{id: 'first', title: '第一项'}, {id: 'second', title: '第二项'}]}}},
   }})
   const runtime = new PageRuntime({pageId: 'select-lifecycle', scenarioIds: ['S'], loadScenario: async () => dataSet})
@@ -26,6 +26,7 @@ async function fixture(value: string | number = 'first', selection = false, inhe
   const view = dataSet.getView('Inputs')!, choices = dataSet.getView('Choices')!, readonly = ref(false)
   const selectionKey = ref('S@Choices@default')
   const formKey=ref(inherited?'S@Choices@default':'S@Inputs@default')
+  const allowCreate=ref(false),filterable=ref(true),staticOptions=ref<unknown[]>()
   const onChange = ref<((...args: unknown[]) => unknown) | undefined>()
   view.setCurrentRowById('a')
   const stubs = {...originalStubs}
@@ -36,12 +37,12 @@ async function fixture(value: string | number = 'first', selection = false, inhe
     sparkProvide(PAGE_RUNTIME, runtime)
     return () => h(RendererForm, {dataViewKey: formKey.value, children: [{type: 'r-select', props: {
       ...(selection ? {...(inherited?{}:{dataViewKey: selectionKey.value}), dataMember: 'value'} : {field: 'choice'}),
-      optionDataViewKey: 'S@Choices@default', filterable: true, readonly: readonly.value,
+      ...(staticOptions.value?{options:staticOptions.value}:{optionDataViewKey:'S@Choices@default'}), optionDisabledField:'disabled', filterable: filterable.value, allowCreate:allowCreate.value, readonly: readonly.value,
       onChange: onChange.value,
     }}]})
   }}), {global: {stubs: {transition: false}, plugins: [ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper); await flushPromises()
-  return {wrapper, view, choices, readonly, selectionKey, onChange,formKey,dataSet}
+  return {wrapper, view, choices, readonly, selectionKey, onChange,formKey,dataSet,allowCreate,filterable,staticOptions}
 }
 
 describe('FieldSelect native option lifecycle', () => {
@@ -159,4 +160,53 @@ describe('FieldSelect native option lifecycle', () => {
     select.vm.$emit('update:modelValue', '0'); await flushPromises()
     expect(f.view.hasEditingChanges()).toBe(false)
   })
+  it('creates only a bound text value through an explicit searchable control without changing the option view',async()=>{
+    const f=await fixture();f.allowCreate.value=true;await flushPromises()
+    const select=f.wrapper.getComponent(ElSelect);expect(select.props('allowCreate')).toBe(true)
+    select.vm.$emit('update:modelValue','generated');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['choice']).toBe('generated')
+    expect(f.view.rows[0]?.['choice']).toBe('first')
+    expect(f.choices.rows).toHaveLength(2);expect(f.choices.hasEditingChanges()).toBe(false)
+    f.view.discardEditingRows(['a']);await flushPromises()
+    expect(f.wrapper.getComponent(ElSelect).props('modelValue')).toBe('first')
+  })
+  it('does not expose creation for a record selector or non-searchable field',async()=>{
+    const field=await fixture();field.allowCreate.value=true;field.filterable.value=false;await flushPromises()
+    expect(field.wrapper.getComponent(ElSelect).props('allowCreate')).toBe(false)
+    const selection=await fixture('first',true);selection.allowCreate.value=true;await flushPromises()
+    expect(selection.wrapper.getComponent(ElSelect).props('allowCreate')).toBe(false)
+    selection.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','generated');await flushPromises()
+    expect(selection.choices.rows).toHaveLength(2);expect(selection.choices.getSelectedValues()).toEqual([])
+  })
+  it('cannot create a disabled candidate by typing the same value',async()=>{
+    const f=await fixture();f.allowCreate.value=true
+    f.choices.replaceRows([{id:'first',title:'第一项'},{id:'blocked',title:'禁用项',disabled:true}]);await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','blocked');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+  it('does not apply a late create event from the previous target row popup',async()=>{
+    const f=await fixture();f.allowCreate.value=true;await flushPromises()
+    const old=f.wrapper.getComponent(ElSelect)
+    old.vm.$emit('visible-change',true);await flushPromises()
+    f.view.setCurrentRowById('b');await flushPromises()
+    old.vm.$emit('update:modelValue','generated');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','current');await flushPromises()
+    expect(f.view.getEditingRow('b')?.['choice']).toBe('current')
+  })
+
+  it.each(['disabled','allowCreate','filterable','allowCycle','filterCycle'])('rejects a custom input invalidated during async onChange by %s',async kind=>{
+    const f=await fixture();f.allowCreate.value=true;f.staticOptions.value=[{value:'first',label:'第一项'}]
+    let started=false,release=()=>{};const barrier=new Promise<void>(resolve=>{release=resolve})
+    f.onChange.value=async()=>{started=true;await barrier};await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','generated');await flushPromises();expect(started).toBe(true)
+    if(kind==='disabled')f.staticOptions.value=[{value:'first',label:'第一项'},{value:'generated',label:'已禁用',disabled:true}]
+    else if(kind==='allowCreate')f.allowCreate.value=false
+    else if(kind==='allowCycle'){f.allowCreate.value=false;await flushPromises();f.allowCreate.value=true}
+    else if(kind==='filterCycle'){f.filterable.value=false;await flushPromises();f.filterable.value=true}
+    else f.filterable.value=false
+    await flushPromises();release();await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.view.rows[0]?.['choice']).toBe('first')
+  })
+
 })

@@ -49,3 +49,11 @@ it('checks only the lookup value function against the current row', () => {
   const layout = {version: 1, enabled: true, regions: [{id: 'R', role: 'FORM', table: 'DB@new', fields: [{name: 'keep', lookup: {refTable: 'DB@other', valueField: 'external_value', textField: 'external_text', filter}}]}]}
   expect(() => validate({...base, node: {...base.node, sheet_layout_json: JSON.stringify(layout)}})).toThrow('lookup.filter')
 })
+
+it('does not treat a non-consumed expression extension as a dependency of TRIM',()=>{
+ expect(()=>validate({...base,rules:[{id:'R',rule_type:'TRIM',source_field:'keep',target_field:'keep',config_json:'{"expression":{"field":"old"}}'}]})).not.toThrow()
+})
+
+it('treats the same blank condition as absent during save and source replacement',()=>{
+ expect(()=>validate({...base,rules:[{id:'R',rule_type:'TRIM',source_field:'keep',target_field:'keep',condition_json:'  ',config_json:'{}'}]})).not.toThrow()
+})

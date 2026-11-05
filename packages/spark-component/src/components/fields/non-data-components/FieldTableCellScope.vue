@@ -6,10 +6,11 @@ AI用途：标准字段在表格中呈现输入控件时复用此宿主，继续
 -->
 <template><slot /></template>
 <script setup lang="ts">
-import {provide} from 'vue'
+import {provide, toRaw} from 'vue'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
 import {useSparkComponent} from '../../internal'
 import {TABLE_FIELD_CELL} from '../context/tableCellContext'
+import {FIELD_ROW_CONTEXT} from '../context/fieldRowContext'
 
 const props = defineProps<{
   /** The original DataView resolved by the field's complete binding. */
@@ -20,5 +21,7 @@ const props = defineProps<{
   displayOnly?: boolean
 }>()
 useSparkComponent({type: props.displayOnly === true ? 'r-field-cell-detail' : 'r-field-cell-control'})
-provide(TABLE_FIELD_CELL, {source: () => props.source, row: () => props.row})
+provide(TABLE_FIELD_CELL, true)
+provide(FIELD_ROW_CONTEXT, {row: source => source && toRaw(source) === toRaw(props.source)
+  ? source.rows.find(row => toRaw(row) === toRaw(props.row)) ?? null : null})
 </script>

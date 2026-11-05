@@ -71,6 +71,8 @@ formatCascaderValue: (value: unknown) => string
 transferData: ComputedRef<FieldTransferOption[]>
   optionError: ComputedRef<string | undefined>
   optionsAvailable: ComputedRef<boolean>
+  /** 选项已可用且远端命名视图完成查询；本地静态来源不要求请求。用于显式自定义文本输入，不改变原候选选择合同。 */
+  optionsReady: ComputedRef<boolean>
   /** 捕获当前选项绑定与直接查询代次；异步默认写回前再次核对，不能提交旧查询的选择。 */
   captureOptionsGuard: () => () => boolean
   toControlValue: (value: unknown, multiple: boolean) => unknown
@@ -236,6 +238,13 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     const view=optionDataView.value
     return view&&!view.destroyed?view.loadingError?.message:undefined
   })
+  const optionsReady = computed(() => {
+    optionRevision.value
+    if (!optionsAvailable.value) return false
+    if (cascade.definition.value) return true
+    const view = optionDataView.value
+    return !view || view.dataTable?.resourceType === 'static-data' || view.requestState === RequestState.Loaded
+  })
   function captureOptionsGuard():()=>boolean {
     const isAvailable=()=>optionsAvailable.value
     const available=isAvailable(),view=optionDataView.value,spec=cascade.definition.value,epoch=optionIntentRevision.value
@@ -335,6 +344,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     transferData,
     optionError,
     optionsAvailable,
+    optionsReady,
     captureOptionsGuard,
     toControlValue,
     toSourceValue,

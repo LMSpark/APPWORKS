@@ -5,7 +5,7 @@
  * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
  */
 
-import { computed, shallowReactive, shallowRef, toRef, watch } from 'vue'
+import { computed, inject, provide, shallowReactive, shallowRef, toRaw, toRef, watch } from 'vue'
 import { DataMember, getSparkNodeChildren, type DataRow, type DataView, type SparkNode } from '@spark-appworks/spark-data'
 import {
   DATA_SOURCE,
@@ -20,6 +20,7 @@ import { useContainerGrid } from './container-layout.js'
 import { useContainerModuleContext } from './container-ui.js'
 import { resolveDataViewEditingRow } from '../../fields/context/dataViewEditing'
 import { sparkColumnToAutoFieldNode } from './column-auto-field.js'
+import {FIELD_ROW_CONTEXT} from '../../fields/context/fieldRowContext'
 
 // ============================================================
 // § 常量
@@ -62,6 +63,8 @@ dataViewKey?: string | undefined
 contextDataMember?: DataMember | `${DataMember}` | undefined
         /** context Data Field 字段。 */
 contextDataField?: string | undefined
+/** 固定原行身份，仅表单声明该能力。 */
+contextRowId?: string | number | undefined
         /** data Source 字段。 */
 dataSource?: DataView | undefined
         /** auto Columns 字段。 */
@@ -100,6 +103,35 @@ export function useFormDetailContainer(
     logger,
     logPrefix,
   })
+  const inheritedRowContext = inject(FIELD_ROW_CONTEXT, undefined)
+  let pinned: {view: DataView, id: string | number, row: DataRow} | undefined
+  let pinStarted = false
+  let pinInvalid = false
+  watch([() => props.contextRowId, dataState.resolvedView], ([id, view], [oldId, oldView]) => {
+    if (pinStarted && (id !== oldId || pinned && toRaw(view) !== toRaw(oldView))) pinInvalid = true
+  }, {flush: 'sync'})
+  /** 已开启的固定会话不可通过删除属性或同ID刷新恢复成游标绑定。 */
+  function resolvePinnedRow(source: DataView | null | undefined): DataRow | null | undefined {
+    const id = props.contextRowId
+    const view = dataState.resolvedView.value
+    if (id === undefined && !pinStarted) return inheritedRowContext?.row(source)
+    pinStarted = true
+    if (source && toRaw(source) !== toRaw(view)) return inheritedRowContext?.row(source)
+    if (id === undefined) pinInvalid = true
+    if (pinInvalid || id === undefined || !view || view.destroyed || view.dataSet?.destroyed) return null
+    if (pinned && (toRaw(pinned.view) !== toRaw(view) || pinned.id !== id)) pinInvalid = true
+    if (!pinned) {
+      const row = view.rows.find(candidate => view.getPkKey(candidate) === id)
+      if (row) pinned = {view, id, row}
+    }
+    if (!pinned || pinInvalid) return null
+    if (!view.rows.some(row => toRaw(row) === toRaw(pinned?.row))) {
+      pinInvalid = true
+      return null
+    }
+    return pinned.row
+  }
+  provide(FIELD_ROW_CONTEXT, {row: resolvePinnedRow})
   // 能力消费者持有原视图；只有实例切换时重建消费子树，行/选择变化保留原字段会话。
   const dataScopeKey=shallowRef(0)
   watch(dataState.resolvedView,source=>{
@@ -169,6 +201,8 @@ export function useFormDetailContainer(
     if (props.contextDataMember === DataMember.AggregateResult) {
       return aggregateToDataRow(view?.aggregateResult ?? dataState.aggregateResult.value)
     }
+    const scopedRow = resolvePinnedRow(view)
+    if (scopedRow !== undefined) return resolveDataViewEditingRow(view, scopedRow) ?? scopedRow
     const row = dataState.resolvedDataRow.value ?? dataState.currentRow.value
     return resolveDataViewEditingRow(view, row) ?? row
   }
@@ -201,10 +235,7 @@ export function useFormDetailContainer(
   useDataViewEventBridge({
     resolvedView: dataState.resolvedView,
     // currentRow 变化：以 resolveContextRow 为准，确保汇总 contextDataMember 不被 currentRow 覆盖。
-    onCurrentRowChanged: ({ row }) => {
-      const summary = props.contextDataMember === DataMember.AggregateResult || props.contextDataMember === DataMember.SelectionAggregateResult
-      syncContextDataFromCurrentRow(summary ? resolveContextRow() : resolveContextRow() ?? row)
-    },
+    onCurrentRowChanged: syncResolvedContextRow,
     // rows 变化可能导致 currentRow/聚合行失效，统一重算并同步。
     onRowsChanged: () => {
       syncResolvedContextRow()

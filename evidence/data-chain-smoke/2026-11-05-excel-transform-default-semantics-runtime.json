@@ -1,0 +1,869 @@
+{
+  "scope": "Memory-only transformation consumer defaults and native JSON semantics; no saved scheme or persisted rule execution",
+  "native": {
+    "handle": 62166,
+    "wrapperPid": 32020,
+    "processId": 27672,
+    "exitCode": 0
+  },
+  "audit": {
+    "phase": "confirmed",
+    "processId": 27672,
+    "previews": 13,
+    "businessWrites": 0,
+    "blockedRequests": 0,
+    "fixtureRemaining": false,
+    "cases": [
+      {
+        "label": "DEFAULT-missing-value",
+        "expected": [
+          {
+            "target": "existing"
+          },
+          {
+            "target": null
+          },
+          {
+            "other": 0,
+            "target": null
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "target": "existing"
+            },
+            {
+              "target": null
+            },
+            {
+              "other": 0,
+              "target": null
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 3,
+          "outputRowCount": 3
+        },
+        "matched": true
+      },
+      {
+        "label": "OVERRIDE-null-expression-priority",
+        "expected": [
+          {
+            "target": null,
+            "other": false
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "target": null,
+              "other": false
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "REPLACE-literal-space",
+        "expected": [
+          {
+            "text": "AB"
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "text": "AB"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "EXPLODE-literal-tab",
+        "expected": [
+          {
+            "text": "A\tB",
+            "zero": 0,
+            "part": "A"
+          },
+          {
+            "text": "A\tB",
+            "zero": 0,
+            "part": "B"
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "text": "A\tB",
+              "zero": 0,
+              "part": "A"
+            },
+            {
+              "text": "A\tB",
+              "zero": 0,
+              "part": "B"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 2
+        },
+        "matched": true
+      },
+      {
+        "label": "STRING-ignores-date-pattern",
+        "expected": [
+          {
+            "value": "7"
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "value": "7"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "DATE-default-pattern",
+        "expected": [
+          {
+            "value": "2026-11-05"
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "value": "2026-11-05"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "VALIDATE-required-only",
+        "expected": [
+          {
+            "code": "ok"
+          }
+        ],
+        "expectedErrors": [
+          {
+            "sourceRow": 2,
+            "ruleId": "memory-VALIDATE-required-only",
+            "ruleName": "VALIDATE-required-only",
+            "field": "",
+            "code": "RULE_EXECUTION_FAILED",
+            "message": "REQUIRED_CODE_EXPECTED"
+          }
+        ],
+        "result": {
+          "rows": [
+            {
+              "code": "ok"
+            }
+          ],
+          "errors": [
+            {
+              "sourceRow": 2,
+              "ruleId": "memory-VALIDATE-required-only",
+              "ruleName": "VALIDATE-required-only",
+              "field": "",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "REQUIRED_CODE_EXPECTED"
+            }
+          ],
+          "sourceRowCount": 2,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "VALIDATE-null-reference-defect",
+        "expected": [],
+        "expectedErrors": [
+          {
+            "sourceRow": 1,
+            "ruleId": "memory-VALIDATE-null-reference-defect",
+            "ruleName": "VALIDATE-null-reference-defect",
+            "field": "",
+            "code": "RULE_EXECUTION_FAILED",
+            "message": "NULL_EXPRESSION_EXPECTED"
+          }
+        ],
+        "result": {
+          "rows": [],
+          "errors": [
+            {
+              "sourceRow": 1,
+              "ruleId": "memory-VALIDATE-null-reference-defect",
+              "ruleName": "VALIDATE-null-reference-defect",
+              "field": "",
+              "code": "RULE_EXECUTION_FAILED",
+              "message": "NULL_EXPRESSION_EXPECTED"
+            }
+          ],
+          "sourceRowCount": 1,
+          "outputRowCount": 0
+        },
+        "matched": true
+      },
+      {
+        "label": "COMPUTE-native-args",
+        "expected": [
+          {
+            "amount": 3,
+            "target": 5
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "amount": 3,
+              "target": 5
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "COMPUTE-const-literal-object",
+        "expected": [
+          {
+            "zero": 0,
+            "target": {
+              "field": "not_a_reference",
+              "zero": 0,
+              "flag": false
+            }
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "zero": 0,
+              "target": {
+                "field": "not_a_reference",
+                "zero": 0,
+                "flag": false
+              }
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      },
+      {
+        "label": "UNPIVOT-native-keys",
+        "expected": [
+          {
+            "keep": false,
+            "kind": 0,
+            "value": 1
+          },
+          {
+            "keep": false,
+            "kind": false,
+            "value": 2
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "keep": false,
+              "kind": 0,
+              "value": 1
+            },
+            {
+              "keep": false,
+              "kind": false,
+              "value": 2
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 2
+        },
+        "matched": true
+      },
+      {
+        "label": "LOOKUP-native-values",
+        "expected": [
+          {
+            "code": "A",
+            "value": 0
+          },
+          {
+            "code": "B",
+            "value": false
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "code": "A",
+              "value": 0
+            },
+            {
+              "code": "B",
+              "value": false
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 2,
+          "outputRowCount": 2
+        },
+        "matched": true
+      },
+      {
+        "label": "TRIM-blank-config",
+        "expected": [
+          {
+            "text": "A"
+          }
+        ],
+        "expectedErrors": [],
+        "result": {
+          "rows": [
+            {
+              "text": "A"
+            }
+          ],
+          "errors": [],
+          "sourceRowCount": 1,
+          "outputRowCount": 1
+        },
+        "matched": true
+      }
+    ],
+    "testedAt": "2026-11-05T12:59:03.769Z"
+  },
+  "intent": {
+    "scope": "Memory-only explicit transformation semantics; no saved scheme or CRUD",
+    "cases": [
+      {
+        "label": "DEFAULT-missing-value",
+        "body": {
+          "rows": [
+            {
+              "target": "existing"
+            },
+            {
+              "target": ""
+            },
+            {
+              "other": 0
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-DEFAULT-missing-value",
+              "rule_name": "DEFAULT-missing-value",
+              "rule_type": "DEFAULT",
+              "source_field": "",
+              "target_field": "target",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "target": "existing"
+          },
+          {
+            "target": null
+          },
+          {
+            "other": 0,
+            "target": null
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "OVERRIDE-null-expression-priority",
+        "body": {
+          "rows": [
+            {
+              "target": "old",
+              "other": false
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-OVERRIDE-null-expression-priority",
+              "rule_name": "OVERRIDE-null-expression-priority",
+              "rule_type": "OVERRIDE",
+              "source_field": "",
+              "target_field": "target",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"value\":7,\"expression\":null}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "target": null,
+            "other": false
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "REPLACE-literal-space",
+        "body": {
+          "rows": [
+            {
+              "text": "A B"
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-REPLACE-literal-space",
+              "rule_name": "REPLACE-literal-space",
+              "rule_type": "REPLACE",
+              "source_field": "text",
+              "target_field": "text",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\" \",\"replacement\":\"\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "text": "AB"
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "EXPLODE-literal-tab",
+        "body": {
+          "rows": [
+            {
+              "text": "A\tB",
+              "zero": 0
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-EXPLODE-literal-tab",
+              "rule_name": "EXPLODE-literal-tab",
+              "rule_type": "EXPLODE",
+              "source_field": "text",
+              "target_field": "part",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"\\t\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "text": "A\tB",
+            "zero": 0,
+            "part": "A"
+          },
+          {
+            "text": "A\tB",
+            "zero": 0,
+            "part": "B"
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "STRING-ignores-date-pattern",
+        "body": {
+          "rows": [
+            {
+              "value": 7
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-STRING-ignores-date-pattern",
+              "rule_name": "STRING-ignores-date-pattern",
+              "rule_type": "CONVERT",
+              "source_field": "value",
+              "target_field": "value",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"STRING\",\"pattern\":\"\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "value": "7"
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "DATE-default-pattern",
+        "body": {
+          "rows": [
+            {
+              "value": "2026-11-05"
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-DATE-default-pattern",
+              "rule_name": "DATE-default-pattern",
+              "rule_type": "CONVERT",
+              "source_field": "value",
+              "target_field": "value",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"DATE\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "value": "2026-11-05"
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "VALIDATE-required-only",
+        "body": {
+          "rows": [
+            {
+              "code": "ok"
+            },
+            {
+              "code": ""
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-VALIDATE-required-only",
+              "rule_name": "VALIDATE-required-only",
+              "rule_type": "VALIDATE",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"requiredFields\":[\"code\"],\"message\":\"REQUIRED_CODE_EXPECTED\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "code": "ok"
+          }
+        ],
+        "errors": [
+          {
+            "sourceRow": 2,
+            "ruleId": "memory-VALIDATE-required-only",
+            "ruleName": "VALIDATE-required-only",
+            "field": "",
+            "code": "RULE_EXECUTION_FAILED",
+            "message": "REQUIRED_CODE_EXPECTED"
+          }
+        ]
+      },
+      {
+        "label": "VALIDATE-null-reference-defect",
+        "body": {
+          "rows": [
+            {
+              "code": "ok"
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-VALIDATE-null-reference-defect",
+              "rule_name": "VALIDATE-null-reference-defect",
+              "rule_type": "VALIDATE",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"requiredFields\":[\"code\"],\"expression\":null,\"message\":\"NULL_EXPRESSION_EXPECTED\"}"
+            }
+          ]
+        },
+        "expected": [],
+        "errors": [
+          {
+            "sourceRow": 1,
+            "ruleId": "memory-VALIDATE-null-reference-defect",
+            "ruleName": "VALIDATE-null-reference-defect",
+            "field": "",
+            "code": "RULE_EXECUTION_FAILED",
+            "message": "NULL_EXPRESSION_EXPECTED"
+          }
+        ]
+      },
+      {
+        "label": "COMPUTE-native-args",
+        "body": {
+          "rows": [
+            {
+              "amount": 3,
+              "target": 0
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-COMPUTE-native-args",
+              "rule_name": "COMPUTE-native-args",
+              "rule_type": "COMPUTE",
+              "source_field": "",
+              "target_field": "target",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"expression\":{\"op\":\"ADD\",\"args\":[{\"field\":\"amount\"},2]}}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "amount": 3,
+            "target": 5
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "COMPUTE-const-literal-object",
+        "body": {
+          "rows": [
+            {
+              "zero": 0
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-COMPUTE-const-literal-object",
+              "rule_name": "COMPUTE-const-literal-object",
+              "rule_type": "COMPUTE",
+              "source_field": "",
+              "target_field": "target",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"expression\":{\"const\":{\"field\":\"not_a_reference\",\"zero\":0,\"flag\":false}}}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "zero": 0,
+            "target": {
+              "field": "not_a_reference",
+              "zero": 0,
+              "flag": false
+            }
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "UNPIVOT-native-keys",
+        "body": {
+          "rows": [
+            {
+              "a": 1,
+              "b": 2,
+              "keep": false
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-UNPIVOT-native-keys",
+              "rule_name": "UNPIVOT-native-keys",
+              "rule_type": "UNPIVOT",
+              "source_field": "",
+              "target_field": "",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"columns\":[{\"sourceField\":\"a\",\"key\":0},{\"sourceField\":\"b\",\"key\":false}],\"keyTargetField\":\"kind\",\"valueTargetField\":\"value\"}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "keep": false,
+            "kind": 0,
+            "value": 1
+          },
+          {
+            "keep": false,
+            "kind": false,
+            "value": 2
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "LOOKUP-native-values",
+        "body": {
+          "rows": [
+            {
+              "code": "A"
+            },
+            {
+              "code": "B"
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-LOOKUP-native-values",
+              "rule_name": "LOOKUP-native-values",
+              "rule_type": "LOOKUP",
+              "source_field": "code",
+              "target_field": "value",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "{\"executionScope\":\"IMPORT\",\"mapping\":{\"A\":0,\"B\":false}}"
+            }
+          ]
+        },
+        "expected": [
+          {
+            "code": "A",
+            "value": 0
+          },
+          {
+            "code": "B",
+            "value": false
+          }
+        ],
+        "errors": []
+      },
+      {
+        "label": "TRIM-blank-config",
+        "body": {
+          "rows": [
+            {
+              "text": " A "
+            }
+          ],
+          "rules": [
+            {
+              "id": "memory-TRIM-blank-config",
+              "rule_name": "TRIM-blank-config",
+              "rule_type": "TRIM",
+              "source_field": "text",
+              "target_field": "text",
+              "sort_order": 10,
+              "enabled": 1,
+              "on_error": "FAIL_ROW",
+              "phase": "",
+              "condition_json": "",
+              "config_json": "  "
+            }
+          ]
+        },
+        "expected": [
+          {
+            "text": "A"
+          }
+        ],
+        "errors": []
+      }
+    ]
+  },
+  "host": {
+    "processId": 27672,
+    "hostReads": 0,
+    "blockedFetches": 0
+  },
+  "sourceFreeze": {
+    "artifacts\\data-chain-smoke\\excel-transform-default-semantics.mts": "92b7646735f047ad342b167e2bed62649224bf7e441493c10c2ec32ee98d6b1e",
+    "artifacts\\data-chain-smoke\\excel-transform-default-semantics-run.mts": "32718e3438f2818e9d8188d94b7cb36902107669411713cabbca3c0dcad5ba07",
+    "artifacts\\data-chain-smoke\\excel-transform-default-semantics-driver.ps1": "7dc0f4b66597d690fc287fa199314accfa4176c10ba67bd69f2cfc22425f08a9"
+  },
+  "sourceHashesUnchanged": true,
+  "limits": {
+    "businessCRUD": 0,
+    "fileWrites": 0,
+    "fixtureCreated": false,
+    "savedRuleCRUDVerified": false,
+    "savedScopeDirectionVerified": false,
+    "databaseNullConfigSupported": false,
+    "databaseNullEnabledSupported": false,
+    "strictImportVerified": false,
+    "realExportVerified": false,
+    "browserVerified": false
+  }
+}

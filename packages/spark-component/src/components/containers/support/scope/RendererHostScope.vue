@@ -19,7 +19,7 @@ AI用途：需要定位 components/containers/support/RendererHostScope 的声�
  * 1. 按 row 有条件地 provide DATA_ROW（通过 rowMirror 同步，防止引用替换）。
  * 2. 渲染 children 子节点（也可用 slot 替代）。
  */
-import { shallowReactive, watch } from 'vue'
+import { inject, provide, shallowReactive, toRaw, watch } from 'vue'
 import { type SparkNode, type DataRow, nodeId } from '@spark-appworks/spark-data'
 import {
   DATA_SOURCE,
@@ -28,7 +28,8 @@ import {
   useSparkComponent,
   useSparkConsume,
 } from '../../../internal'
-import { resolveDataViewRow, syncReactiveRow } from './row-mirror-sync'
+import { resolveDataViewRow, resolveReactiveRow, syncReactiveRow } from './row-mirror-sync'
+import {FIELD_ROW_CONTEXT} from '../../../fields/context/fieldRowContext'
 
 const props = withDefaults(defineProps<{
   type?: string
@@ -42,6 +43,18 @@ const props = withDefaults(defineProps<{
 const { sparkProvide, sparkRemove } = useSparkComponent({ type: props.type })
 const {sparkConsume} = useSparkConsume()
 const inheritedView = sparkConsume(DATA_SOURCE)
+const inheritedRowContext = inject(FIELD_ROW_CONTEXT, undefined)
+let ownsFormalRow = false
+// 正式逐行宿主优先于外层表单固定行；表单镜像/局部JSON模型不冒充原记录。
+provide(FIELD_ROW_CONTEXT, {row: source => {
+  if (source && toRaw(source) === toRaw(inheritedView)) {
+    const row = resolveDataViewRow(source, props.row)
+    const original = props.row && toRaw(resolveReactiveRow(props.row)) === toRaw(props.row)
+    if (row && original) {ownsFormalRow = true; return row}
+    if (ownsFormalRow) return null
+  }
+  return inheritedRowContext?.row(source)
+}})
 
 const rowMirror = shallowReactive<DataRow>({})
 let hasProvidedRow = false

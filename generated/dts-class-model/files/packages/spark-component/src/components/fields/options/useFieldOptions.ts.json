@@ -56,11 +56,11 @@
         "dataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -105,11 +105,11 @@
         "optionDataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -166,6 +166,10 @@
         "optionsAvailable": {
           "type": "object",
           "title": "ComputedRef<boolean>"
+        },
+        "optionsReady": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
         }
       },
       "required": [
@@ -173,7 +177,8 @@
         "flatOptions",
         "transferData",
         "optionError",
-        "optionsAvailable"
+        "optionsAvailable",
+        "optionsReady"
       ],
       "additionalProperties": false,
       "$defs": {
@@ -330,7 +335,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T17:55:39.970Z",
+  "generatedAt": "2026-11-05T13:40:16.078Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -395,7 +400,7 @@
       "jsdoc": "Use Field Options Return 的语义模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 调用配置项。 */\n    options: ComputedRef<FieldOption[]>;\n    /** flat Options 配置项。 */\n    flatOptions: ComputedRef<FieldOption[]>;\n    /** normalize Option Values 回调。 */\n    normalizeOptionValues: (value: unknown) => Array<string | number | boolean>;\n    /** find Option Label 回调。 */\n    findOptionLabel: (value: unknown) => string;\n    /** find Option Labels 回调。 */\n    findOptionLabels: (value: unknown) => string[];\n    /** format Option Value 回调。 */\n    formatOptionValue: (value: unknown) => string;\n    /** format Cascader Value 回调。 */\n    formatCascaderValue: (value: unknown) => string;\n    /** transfer Data 字段。 */\n    transferData: ComputedRef<FieldTransferOption[]>;\n    optionError: ComputedRef<string | undefined>;\n    optionsAvailable: ComputedRef<boolean>;\n    /** 捕获当前选项绑定与直接查询代次；异步默认写回前再次核对，不能提交旧查询的选择。 */\n    captureOptionsGuard: () => () => boolean;\n    toControlValue: (value: unknown, multiple: boolean) => unknown;\n    toSourceValue: (value: unknown) => unknown;\n}",
+        "declarationTypeText": "{\n    /** 调用配置项。 */\n    options: ComputedRef<FieldOption[]>;\n    /** flat Options 配置项。 */\n    flatOptions: ComputedRef<FieldOption[]>;\n    /** normalize Option Values 回调。 */\n    normalizeOptionValues: (value: unknown) => Array<string | number | boolean>;\n    /** find Option Label 回调。 */\n    findOptionLabel: (value: unknown) => string;\n    /** find Option Labels 回调。 */\n    findOptionLabels: (value: unknown) => string[];\n    /** format Option Value 回调。 */\n    formatOptionValue: (value: unknown) => string;\n    /** format Cascader Value 回调。 */\n    formatCascaderValue: (value: unknown) => string;\n    /** transfer Data 字段。 */\n    transferData: ComputedRef<FieldTransferOption[]>;\n    optionError: ComputedRef<string | undefined>;\n    optionsAvailable: ComputedRef<boolean>;\n    /** 选项已可用且远端命名视图完成查询；本地静态来源不要求请求。用于显式自定义文本输入，不改变原候选选择合同。 */\n    optionsReady: ComputedRef<boolean>;\n    /** 捕获当前选项绑定与直接查询代次；异步默认写回前再次核对，不能提交旧查询的选择。 */\n    captureOptionsGuard: () => () => boolean;\n    toControlValue: (value: unknown, multiple: boolean) => unknown;\n    toSourceValue: (value: unknown) => unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -423,6 +428,12 @@
             },
             {
               "name": "optionsAvailable",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "optionsReady",
+              "jsdoc": "选项已可用且远端命名视图完成查询；本地静态来源不要求请求。用于显式自定义文本输入，不改变原候选选择合同。",
               "readable": true,
               "writable": true
             }

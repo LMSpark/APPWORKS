@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/transform/definition",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/definition.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/definition.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/transform/definition",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/definition\n职责：描述正式Excel转换规则及新建时的类型专属配置，不查询或保存数据。\n边界：默认仅用于显式新建/切型，普通编辑保留原字段及未知扩展；不转换旧值。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelTransformRuleType"
+    ]
+  },
+  "$defs": {
+    "ExcelTransformRuleType": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "ExcelTransformRuleType",
+      "enum": [
+        "TRIM",
+        "REPLACE",
+        "CONVERT",
+        "EXPLODE",
+        "LOOKUP",
+        "COMPUTE",
+        "DEFAULT",
+        "OVERRIDE",
+        "VALIDATE",
+        "FILTER",
+        "DEDUPLICATE",
+        "UNPIVOT",
+        "PIVOT"
+      ]
+    }
+  },
+  "generatedAt": "2026-11-05T12:02:02.897Z",
+  "models": {
+    "ExcelTransformRuleType": {
+      "name": "ExcelTransformRuleType",
+      "jsdoc": "正式规则类型，不含兼容别名。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof EXCEL_TRANSFORM_RULE_TYPES[number]",
+        "members": {}
+      }
+    }
+  }
+}

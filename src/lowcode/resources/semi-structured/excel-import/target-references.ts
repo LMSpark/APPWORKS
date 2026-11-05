@@ -8,6 +8,7 @@ import {DataViewFilterCodec, type DataRow} from '@spark-appworks/spark-data'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import type {ExcelTarget} from './target-selection'
 import {validateExcelLayoutTarget} from './layout-target-references'
+import {visitExcelTransformExpression} from './transform/expression'
 function record(value: unknown): value is Record<string, unknown> {return value !== null && typeof value === 'object' && !Array.isArray(value)}
 function json(value: unknown, path: string): unknown {
   if (value === undefined || value === null || value === '') return undefined
@@ -39,23 +40,21 @@ export function validateExcelTargetReferences(input: Readonly<{node: Readonly<Da
   if (layout !== undefined && layout !== null) validateExcelLayoutTarget({layout, oldTable: String(node['table'] ?? ''), newTable: selection.table, nodeId: node['rowid'], fields: available})
   const reference = (value: unknown, path: string): void => {if (typeof value === 'string' && removed.has(value)) throw new Error(`${path}引用已移除字段: ${value}`)}
   const expression = (value: unknown, path: string): void => {
-    if (value === null || value === undefined) return
-    if (!record(value)) {if (Array.isArray(value)) throw new Error(`${path}表达式合同无效`); return}
-    if (Object.hasOwn(value, 'field')) {reference(value['field'], `${path}.field`); return}
-    if (Object.hasOwn(value, 'const')) return
-    if (typeof value['op'] !== 'string') throw new Error(`${path}表达式作用域无法核定`)
-    list(value['args'] ?? [], `${path}.args`).forEach((arg, index) => expression(arg, `${path}.args[${index}]`))
+    if (value === undefined) return
+    visitExcelTransformExpression({value, path, field: reference})
   }
   input.rules.forEach(rule => {
     const path = `规则[${String(rule['id'])}]`
-    const kind = rule['rule_type']
+    const kind = typeof rule['rule_type'] === 'string' ? rule['rule_type'].trim().toUpperCase() : rule['rule_type']
     if (!['TRIM', 'REPLACE', 'CONVERT', 'EXPLODE', 'LOOKUP', 'COMPUTE', 'DEFAULT', 'OVERRIDE', 'VALIDATE', 'FILTER', 'DEDUPLICATE', 'UNPIVOT', 'PIVOT'].includes(String(kind))) throw new Error(`${path}.rule_type的引用合同尚未核定`)
     reference(rule['source_field'], `${path}.source_field`); reference(rule['target_field'], `${path}.target_field`)
-    expression(json(rule['condition_json'], `${path}.condition_json`), `${path}.condition_json`)
+    const rawCondition=rule['condition_json']
+    const condition = typeof rawCondition==='string'&&!rawCondition.trim()?undefined:json(rawCondition, `${path}.condition_json`)
+    if (condition !== undefined) visitExcelTransformExpression({value: condition, path: `${path}.condition_json`, objectRoot: true, field: reference})
     const config = json(rule['config_json'], `${path}.config_json`)
     if (config === undefined || config === null) return
     if (!record(config)) throw new Error(`${path}.config_json必须是对象`)
-    expression(config['expression'], `${path}.config_json.expression`)
+    if (['COMPUTE', 'OVERRIDE', 'VALIDATE', 'FILTER'].includes(String(kind))) expression(config['expression'], `${path}.config_json.expression`)
     if (kind === 'VALIDATE') list(config['requiredFields'] ?? [], `${path}.requiredFields`).forEach(field => reference(field, `${path}.requiredFields`))
     if (kind === 'DEDUPLICATE') list(config['fields'] ?? [], `${path}.fields`).forEach(field => reference(field, `${path}.fields`))
     if (['PIVOT', 'UNPIVOT'].includes(String(kind)) && removed.size) throw new Error(`${path}涉及行结构转换，须先核定新目标的生成依赖`)

@@ -2,7 +2,7 @@ import { afterEach, describe, it, expect } from 'vitest'
 import { config, flushPromises, mount } from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import { defineComponent, h, nextTick, onBeforeUnmount, ref, shallowRef } from 'vue'
-import { RendererToolbar, RendererForm, RendererDetail, FieldText, FieldTextarea, FieldNumber, FieldSwitch, FieldDate, FieldContextRenderer, Spark, PAGE_RUNTIME, DATA_SOURCE, useSparkComponent } from '@spark-appworks/spark-component'
+import { RendererToolbar, RendererForm, RendererDetail, RendererFilter, FieldText, FieldTextarea, FieldNumber, FieldSwitch, FieldDate, FieldContextRenderer, Spark, PAGE_RUNTIME, DATA_SOURCE, useSparkComponent } from '@spark-appworks/spark-component'
 import RendererFieldScope from '../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
 import RendererHostScope from '../../../packages/spark-component/src/components/containers/support/scope/RendererHostScope.vue'
 import { SparkData, getSparkNodeChildren, nodeInputProps, isSparkNode } from '@spark-appworks/spark-data'
@@ -90,6 +90,106 @@ const ElInputStub = defineComponent({
 
 const originalStubs = config.global.stubs
 afterEach(() => { config.global.stubs = originalStubs })
+
+it('waits for the first asynchronously supplied view before capturing a fixed form row', async () => {
+  const ds = SparkData.createDataSet({scenarioId: 'LATE', dataSetName: 'LateForm', tables: {Inputs: {
+    tableName: 'Inputs', resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+    views: {default: {rows: [{id: 'a', name: 'arrived'}]}},
+  }}})
+  const source = shallowRef<DataView>()
+  const wrapper = mount(defineComponent({setup() {
+    return () => h(RendererForm, {contextRowId: 'a', autoColumns: false, ...(source.value ? {dataSource: source.value} : {})}, {
+      default: ({row}: {row: unknown}) => h('span', {'data-late-name': ''}, String(requireRecord(row, 'late row')['name'] ?? '')),
+    })
+  }}), {global: {plugins: [ElementPlus, Spark.createPlugin()]}})
+  try {
+    expect(wrapper.get('[data-late-name]').text()).toBe('')
+    source.value = ds.getView('Inputs') ?? undefined; await flushPromises()
+    expect(wrapper.get('[data-late-name]').text()).toBe('arrived')
+  } finally {wrapper.unmount(); ds.destroy()}
+})
+
+it.each(['refresh', 'unset'] as const)('keeps a fixed form on its original row and invalidates after %s', async invalidation => {
+  const ds = SparkData.createDataSet({scenarioId: 'PIN', dataSetName: 'PinnedForm', tables: {Inputs: {
+    tableName: 'Inputs', resourceType: 'static-data', modelBinding: {modelId: 'MODEL', modelName: 'Inputs'},
+    columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}],
+    views: {default: {commitMode: 'staged', rows: [
+      {id: 'a', name: 'original', lingma_sys_params: {r: [], e: ['name'], h: [], m: [], d: false}},
+      {id: 'b', name: 'other', lingma_sys_params: {r: [], e: ['name'], h: [], m: [], d: true}},
+    ]}},
+  }}})
+  const view = ds.getView('Inputs')!
+  await loadFieldQuery(view, 'Inputs')
+  const rowB = view.rows[1]
+  view.setCurrentRowById('a')
+  const runtime = new PageRuntime({pageId: 'pinned-form', scenarioIds: ['PIN'], loadScenario: async () => ds})
+  await runtime.load()
+  const pinnedId = ref<string | undefined>('a')
+  const registry = Spark.createRegistry()
+  registry.register({type: 'r-text', component: FieldText})
+  registry.register({type: 'r-field-scope', component: RendererFieldScope})
+  const activeStubs = {...config.global.stubs}
+  delete activeStubs['SparkComponentRenderer']; delete activeStubs['spark-component-renderer']
+  config.global.stubs = activeStubs
+  let release = () => {}
+  let pending: Promise<void> | undefined
+  const wrapper = mount(defineComponent({setup() {
+    useSparkComponent({type: 'pinned-form-host'}).sparkProvide(PAGE_RUNTIME, runtime)
+    return () => h(RendererForm, {dataViewKey: 'PIN@Inputs@default', ...(pinnedId.value === undefined ? {} : {contextRowId: pinnedId.value}), autoColumns: false}, {
+      default: ({row}: {row: unknown}) => [h('span', {'data-pinned-name': ''}, String(requireRecord(row, 'pinned row')['name'] ?? '')),
+        h(FieldText, {dataViewKey: 'PIN@Inputs@default', dataField: 'name', onChange: () => pending}),
+        h(RendererHostScope, {row: rowB}, {default: () => h(FieldText, {dataViewKey: 'PIN@Inputs@default', dataField: 'name'})}),
+        h(RendererFilter, {dataViewKey: 'PIN@Inputs@default', autoQuery: false, children: [{type: 'r-text', props: {field: 'name'}}]}),
+        h(RendererForm, {dataViewKey: 'PIN@Inputs@default', autoColumns: false}, {
+          default: ({row: inner}: {row: unknown}) => h('span', {'data-inner-name': ''}, String(requireRecord(inner, 'inner row')['name'] ?? '')),
+        })],
+    })
+  }}), {global: {plugins: [ElementPlus, Spark.createPlugin({registry})]}})
+  try {
+    view.setCurrentRowById('b'); await flushPromises()
+    expect(wrapper.get('[data-pinned-name]').text()).toBe('original')
+    expect(wrapper.get('[data-inner-name]').text()).toBe('original')
+    const filterInput = wrapper.findAllComponents(FieldText)[2]!.getComponent({name: 'ElInput'})
+    expect(filterInput.props('modelValue')).toBe('')
+    filterInput.vm.$emit('update:modelValue', 'changed filter'); await flushPromises()
+    expect(filterInput.props('modelValue')).toBe('changed filter')
+    expect(view.hasEditingChanges()).toBe(false)
+    const rowInput = wrapper.findAllComponents(FieldText)[1]!.getComponent({name: 'ElInput'})
+    expect(rowInput.props('modelValue')).toBe('other')
+    rowInput.vm.$emit('update:modelValue', 'other draft'); await flushPromises()
+    expect(view.getEditingRow('b')?.['name']).toBe('other draft')
+    expect(view.hasEditingChanges('a')).toBe(false)
+    view.discardEditingRows(); await flushPromises()
+    expect(view.deleteRowById('b')).toBe(true); await flushPromises()
+    expect(wrapper.findAllComponents(FieldText)[1]!.findComponent({name: 'ElInput'}).exists()).toBe(false)
+    expect(view.hasEditingChanges('a')).toBe(false)
+    const input = wrapper.getComponent(FieldText).getComponent({name: 'ElInput'})
+    input.vm.$emit('update:modelValue', 'field draft'); await flushPromises()
+    expect(view.getEditingRow('a')?.['name']).toBe('field draft')
+    expect(view.hasEditingChanges('b')).toBe(false)
+    view.discardEditingRows(); await flushPromises()
+    view.updateEditingValue('a', 'name', 'draft'); await flushPromises()
+    expect(wrapper.get('[data-pinned-name]').text()).toBe('draft')
+    view.discardEditingRows(); await flushPromises()
+    expect(wrapper.get('[data-pinned-name]').text()).toBe('original')
+    pending = new Promise<void>(resolve => {release = resolve})
+    input.vm.$emit('update:modelValue', 'late field draft'); await nextTick()
+    if (invalidation === 'refresh') await view.loadFromServer()
+    else {
+      pinnedId.value = undefined; await flushPromises()
+      pinnedId.value = 'a'
+    }
+    await flushPromises()
+    release(); await flushPromises()
+    expect(wrapper.get('[data-pinned-name]').text()).toBe('')
+    expect(wrapper.get('[data-inner-name]').text()).toBe('')
+    view.setCurrentRowById('a'); await flushPromises()
+    expect(wrapper.get('[data-pinned-name]').text()).toBe('')
+    expect(wrapper.get('[data-inner-name]').text()).toBe('')
+    expect(view.hasEditingChanges('a')).toBe(false)
+    expect(view.hasEditingChanges('b')).toBe(false)
+  } finally {release(); wrapper.unmount(); runtime.dispose()}
+})
 
 it.each(['form', 'scope', 'inline-scope'] as const)('prevents native navigation in %s while retaining explicit submit listeners and keyboard events', async kind => {
   const received: Event[] = []

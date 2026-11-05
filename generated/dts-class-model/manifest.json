@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1060,
+  "scannedFileCount": 1064,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -6374,6 +6374,19 @@
         "symbols": []
       }
     },
+    "packages/spark-component/src/components/fields/context/fieldRowContext.ts": {
+      "file": "files/packages/spark-component/src/components/fields/context/fieldRowContext.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/context/fieldRowContext",
+        "sourcePath": "packages/spark-component/src/components/fields/context/fieldRowContext.ts",
+        "sourceFile": "packages/spark-component/src/components/fields/context/fieldRowContext.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/context/fieldRowContext",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/fieldRowContext\n职责：传递标准字段的原视图与原行身份，不携带表格呈现语义。\n边界：仅定位同一DataView中的原对象，不查询、复制草稿或修改行指针。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "packages/spark-component/src/components/fields/context/json/json-field-path.ts": {
       "file": "files/packages/spark-component/src/components/fields/context/json/json-field-path.ts.json",
       "module": {
@@ -6397,7 +6410,7 @@
         "sourceFile": "packages/spark-component/src/components/fields/context/tableCellContext.ts",
         "packageName": "@spark-appworks/spark-component",
         "modulePath": "components/fields/context/tableCellContext",
-        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/tableCellContext\n职责：为标准字段单元格传递原DataView及原始行身份。\n边界：内部上下文键，不复制数据、不改行指针；绑定层验证行归属后沿原编辑及权限链消费。\nAI用途：扩展表格内标准字段控件时复用此身份链，不逐组件维护独立行草稿。",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/tableCellContext\n职责：标识标准字段当前处于表格单元格呈现宿主。\n边界：只控制呈现，原视图和原行身份由FIELD_ROW_CONTEXT承接。\nAI用途：标准控件避免重复创建单元格宿主时使用此标记。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -14011,6 +14024,49 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/transform/definition.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/definition.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/transform/definition",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/definition.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/definition.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/definition",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/definition\n职责：描述正式Excel转换规则及新建时的类型专属配置，不查询或保存数据。\n边界：默认仅用于显式新建/切型，普通编辑保留原字段及未知扩展；不转换旧值。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelTransformRuleType"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/expression.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/transform/expression",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/expression",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/expression\n职责：沿正式服务的受控表达式结构访问真实字段引用，不执行表达式。\n边界：原生标量及const整体是字面量；只访问明确的field与op.args，不扫描字符串或未知扩展。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "ExcelTransformExpressionInput"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/transform/validation.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/validation.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/transform/validation",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/validation.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/validation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/validation",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/validation\n职责：在正式规则模型保存时验证13类规则的纯结构，不查询依赖或执行行转换。\n边界：不修改JSON、不猜字段、不编译Java正则或日期格式；跨记录引用归独立的精确保存校验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/semi-structured/json-data/document-resource.ts": {
       "file": "files/src/lowcode/resources/semi-structured/json-data/document-resource.ts.json",
       "module": {
@@ -20247,6 +20303,14 @@
     "ExcelTargetStaging": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/target-selection.ts.json"
+    },
+    "ExcelTransformExpressionInput": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/expression.ts.json"
+    },
+    "ExcelTransformRuleType": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/definition.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/definition.ts.json"
     },
     "ExecuteAiApiActionCommand": {
       "sourcePath": "packages/spark-ai/src/agent/native-runtime/native-script-context.ts",

@@ -119,13 +119,13 @@ watch(() => JSON.stringify(props.rowOperations), resetEditor, {flush:'sync'})
 onBeforeUnmount(()=>{revision.value++;if(completeMode.value)props.onEditingChange?.(false)})
 const writeForRevision=computed(()=>{
   const own=revision.value, valid=permission.captureWriteGuard()
-  return async(value:string):Promise<boolean>=>{
-    if(own!==revision.value || !valid() || activeWrite) return false
+  return async(value:string,isCurrentIntent:()=>boolean=()=>true):Promise<boolean>=>{
+    if(own!==revision.value || !valid() || !isCurrentIntent() || activeWrite) return false
     activeWrite = {revision: own, previous: editorText.value}
     writing.value=true
     try {
       toSource(value);error.value=''
-      const accepted=await handleControlledChange(value)
+      const accepted=await handleControlledChange(value,isCurrentIntent)
       if(own===revision.value && completeMode.value) {
         rejectedInput.value=!accepted
         if(!accepted)error.value='原字段未接受修改；请检查数据权限和绑定。'

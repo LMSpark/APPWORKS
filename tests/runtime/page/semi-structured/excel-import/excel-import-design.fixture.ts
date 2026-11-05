@@ -6,6 +6,7 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
+import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 export {designText}
 export const EXCEL_DESIGN = '0F93B82141CF40852021D704B0E30BF4'
 export const EXCEL_DICTIONARY='69B79AB779DF4C12A5595DACDF3283F1'
@@ -29,6 +30,7 @@ export async function excelDesignRuntime(records: Record<string, Record<string, 
   const api = new DataSpaceRuntimeApi({http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}})})
   const ds = new LowcodeDataSpaceAssembler(api, http).assemble({config: new ScenarioViewConfig(EXCEL_DESIGN, designText),
     space: {dataSpaceId: EXCEL_DESIGN, name: 'Excel'}, models: excelDesignModels(), relations: []}).dataSet
+  LowcodeExcelImport.bindEditorModelRules(ds)
   const runtime = new PageRuntime({pageId: 'excel-design-domain', scenarioIds: [EXCEL_DESIGN], scenarioInputs: {[EXCEL_DESIGN]: {importConfigId}}, loadScenario: async () => ds})
   await runtime.load(); ds.triggerAutoLoad()
   const nodes = ds.getView('Base_ImportData_Config')!, fields = ds.getView('Base_ImportData_Field')!, rules = ds.getView('Base_Import_Transform_Rule')!

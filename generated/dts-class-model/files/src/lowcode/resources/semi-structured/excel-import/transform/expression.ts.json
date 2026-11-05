@@ -1,0 +1,114 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/transform/expression",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/transform/expression",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/expression\n职责：沿正式服务的受控表达式结构访问真实字段引用，不执行表达式。\n边界：原生标量及const整体是字面量；只访问明确的field与op.args，不扫描字符串或未知扩展。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "ExcelTransformExpressionInput"
+    ]
+  },
+  "$defs": {
+    "ExcelTransformExpressionInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTransformExpressionInput",
+      "properties": {
+        "value": true,
+        "path": {
+          "type": "string"
+        },
+        "objectRoot": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.field.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "path": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.field.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T13:23:16.884Z",
+  "models": {
+    "ExcelTransformExpressionInput": {
+      "name": "ExcelTransformExpressionInput",
+      "jsdoc": "原生值或受控节点的访问输入；condition根的对象要求由调用者明确给出。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前表达式子树，原生标量及const是字面量。 */\n    value: unknown;\n    /** 用于定位配置错误的路径，不含查询凭据。 */\n    path: string;\n    /** condition_json根必须是对象；config表达式及args按服务接纳原生值。 */\n    objectRoot?: boolean;\n    /** 仅访问服务真正消费的字段节点，不写入原数据。 */\n    field?: (name: string, path: string) => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前表达式子树，原生标量及const是字面量。 */\n    value: unknown;\n    /** 用于定位配置错误的路径，不含查询凭据。 */\n    path: string;\n    /** condition_json根必须是对象；config表达式及args按服务接纳原生值。 */\n    objectRoot?: boolean;\n    /** 仅访问服务真正消费的字段节点，不写入原数据。 */\n    field?: (name: string, path: string) => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "value",
+              "jsdoc": "当前表达式子树，原生标量及const是字面量。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "用于定位配置错误的路径，不含查询凭据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "objectRoot",
+              "jsdoc": "condition_json根必须是对象；config表达式及args按服务接纳原生值。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "field",
+              "jsdoc": "仅访问服务真正消费的字段节点，不写入原数据。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "path",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

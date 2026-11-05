@@ -42,12 +42,13 @@ AI用途：需要定位 components/containers/support/RendererFieldScope 的声�
  * 阻止浏览器原生提交导航；显式监听器和字段键盘事件保持，查询由过滤器动作执行。
  * @category internal
  */
-import { computed, shallowReactive, toRaw, watch } from 'vue'
+import { computed, provide, shallowReactive, toRaw, watch } from 'vue'
 import { DATA_ROW, DATA_SOURCE, SparkComponentRenderer, useSparkComponent, useSparkConsume } from '../../../internal'
 
 import { isDataRow, nodeId, type DataRow, type SparkNode } from '@spark-appworks/spark-data'
 import { useContainerGrid } from '../../runtime/container-layout'
 import { resolveDataViewRow, syncReactiveRow } from './row-mirror-sync'
+import {FIELD_ROW_CONTEXT} from '../../../fields/context/fieldRowContext'
 
 /** r-field-scope 字段宿主容器属性，负责提供行上下文和表单布局。 */
 type RendererFieldScopeProps = {
@@ -95,6 +96,8 @@ const props = withDefaults(defineProps<RendererFieldScopeProps>(), {
   inline: false,
   compact: false,
 })
+// 显式局部model建立自己的字段作用域，不借用外层固定业务记录。
+provide(FIELD_ROW_CONTEXT, {row: () => undefined})
 const { sparkProvide } = useSparkComponent({
   type: props.type,
   ...(props.id !== undefined ? { id: props.id } : {}),

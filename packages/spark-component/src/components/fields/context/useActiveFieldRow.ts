@@ -4,14 +4,14 @@
  * 边界：复用PageRuntime和DataView，不查询、不保存，不以父上下文替代失效的显式绑定。
  * AI用途：标准字段取值、权限及选项级联共用此上下文。
  */
-import {computed, inject, onScopeDispose, readonly, shallowRef, toRaw, watch} from 'vue'
+import {computed, inject, onScopeDispose, readonly, shallowRef, watch} from 'vue'
 import {DataMember, resolveDataViewMember, type DataRow} from '@spark-appworks/spark-data'
 import {DATA_MEMBER, DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, useSparkConsume} from '../../internal'
 import type {SparkFieldSemanticProps} from '../../shared-types'
 import type {FieldComposableProps} from './field-composable-props'
 import {resolveDataViewEditingRow} from './dataViewEditing'
 import {useResolvedFieldContext} from './useResolvedFieldContext'
-import {TABLE_FIELD_CELL} from './tableCellContext'
+import {FIELD_ROW_CONTEXT} from './fieldRowContext'
 import {resolveReactiveRow} from '../../containers/support/scope/row-mirror-sync'
 import { selectFieldContextRow } from './field-row-scope'
 
@@ -25,10 +25,10 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
   const runtime = sparkConsume(PAGE_RUNTIME)
   const revision = shallowRef(0)
   let generation = 0, disposed = false
-  const cell = inject(TABLE_FIELD_CELL, undefined)
+  const cell = inject(FIELD_ROW_CONTEXT, undefined)
   const fieldContext = useResolvedFieldContext()
   const explicit = computed(() => props.dataViewKey !== undefined || props.dataMember !== undefined || props.dataField !== undefined
-    || !!cell || props.editOnDblclick === true && fieldContext.value === 'table')
+    || cell?.row(dataSource.value) !== undefined || props.editOnDblclick === true && fieldContext.value === 'table')
   const fieldName = computed(() => props.dataField ?? props.field ?? '')
   const member = computed(() => {
     const value = props.dataMember ?? inheritedMember?.() ?? DataMember.CurrentRow
@@ -65,9 +65,8 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
     const source = dataSource.value
     if (source?.destroyed || source?.dataSet?.destroyed || !fieldMember.value) return null
     if (cell) {
-      if (!source || toRaw(source) !== toRaw(cell.source())) return null
-      const row = cell.row()
-      return source.rows.find(candidate => toRaw(candidate) === toRaw(row)) ?? null
+      const row = cell.row(source)
+      if (row !== undefined) return row
     }
     const row = selectFieldContextRow({
       source,

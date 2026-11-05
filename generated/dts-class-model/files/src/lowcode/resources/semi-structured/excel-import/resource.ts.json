@@ -57,6 +57,20 @@
           "type": "object",
           "title": "Promise<DataSet>"
         },
+        "method.bindEditorModelRules.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.bindEditorModelRules.return": {
+          "type": "object",
+          "title": "DataSet"
+        },
         "method.loadReferenceSources.params": {
           "type": "object",
           "properties": {},
@@ -69,7 +83,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T03:51:16.644Z",
+  "generatedAt": "2026-11-05T12:08:09.147Z",
   "models": {
     "LowcodeExcelImport": {
       "name": "LowcodeExcelImport",
@@ -149,6 +163,23 @@
                     "name": "DataSet"
                   }
                 ]
+              }
+            },
+            {
+              "name": "bindEditorModelRules",
+              "jsdoc": "在本次正式规则模型注册纯结构保存约束，所有命名视图与直接DataSet保存复用，不建立页面提交器。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
               }
             },
             {

@@ -20,14 +20,16 @@ AI用途：需要理解 field select 的实际渲染结构、slot/toolbar/状态
       </el-tabs>
       <el-select
         v-else
+        :key="props.allowCreate && !selectionMember ? controlIntent.key : undefined"
         :model-value="fieldValue"
         :placeholder="placeholder"
         :clearable="clearable"
         :value-on-clear="''"
         :filterable="filterable"
+        :allow-create="creationEnabled"
         :persistent="false"
         :disabled="!isCurrentFieldEditable"
-        @update:model-value="handleChange"
+        @update:model-value="controlIntent.change"
       >
         <template #label>{{ selectedLabel }}</template>
         <el-option
@@ -90,6 +92,21 @@ const fieldValue = computed(() => {
 const isCurrentFieldEditable = computed(() => selectionMember.value
   ? props.readonly !== true && !formDisabled.value && !!permission.dataSource.value && !permission.dataSource.value.destroyed
   : permission.isCurrentFieldEditable.value)
+const creationEnabled = computed(() => props.allowCreate === true && props.filterable === true && props.presentation !== 'tabs'
+  && isCurrentFieldEditable.value
+  && !selectionMember.value && !!permission.dataSource.value && !!permission.currentRow.value && permission.fieldName.value !== ''
+  && ['string', 'text', 'varchar', 'nvarchar', 'char', 'nchar'].includes(String(permission.boundColumn.value?.type).toLowerCase())
+  && permission.optionsReady.value)
+// 原生浮层随绑定和选项代次释放；旧浮层事件同时受捕获的原绑定/选项守卫约束。
+const controlIntent = computed(() => {
+  void permission.dataSource.value; void permission.currentRow.value; void permission.fieldName.value; void props.optionDataViewKey; void options.value
+  void props.allowCreate; void props.filterable; void props.presentation
+  const binding = permission.captureBindingGuard(), option = permission.captureOptionsGuard()
+  const key=Symbol(), enforce=props.allowCreate===true&&!selectionMember.value
+  return {key, change: async (value: string | number) => {
+    if (binding() && option()) await handleChange(value,enforce?()=>key===controlIntent.value.key&&binding()&&option():()=>true)
+  }}
+})
 const {handleControlledChange: changeSelection} = useControlledFieldChange<string | number>({
   getValue: () => fieldValue.value,
   emitUpdate: value => emitFieldValueUpdate(emit, value),
@@ -109,10 +126,21 @@ const {handleControlledChange: changeSelection} = useControlledFieldChange<strin
 // 标题从当前选项源派生，不依赖关闭后已释放或候选变化前的ElOption缓存。
 const selectedLabel = computed(() => options.value.find(option => option.value === fieldValue.value)?.label ?? String(fieldValue.value))
 
-async function handleChange(value: string | number): Promise<void> {
+async function handleChange(value: string | number, isCurrentControl: () => boolean = () => true): Promise<void> {
   if (!isCurrentFieldEditable.value) return
+  let isCurrentIntent = () => true
+  if (props.allowCreate && !selectionMember.value && value !== '') {
+    const candidate = options.value.find(option => option.value === value)
+    const custom = candidate === undefined
+    isCurrentIntent = () => {
+      const current = options.value.find(option => option.value === value)
+      return custom ? creationEnabled.value && typeof value === 'string' && !!value.trim() && current?.disabled !== true
+        : current !== undefined && current.disabled !== true
+    }
+    if (!isCurrentIntent()) return
+  }
   if (selectionMember.value) await changeSelection(value)
-  else await handleControlledChange(value)
+  else await handleControlledChange(value, () => isCurrentControl() && isCurrentIntent())
 }
 async function handleTabChange(value: string | number): Promise<void> {
   if (!isCurrentFieldEditable.value || !options.value.some(option => option.value === value && !option.disabled)) return

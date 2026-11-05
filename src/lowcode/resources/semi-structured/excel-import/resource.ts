@@ -4,6 +4,7 @@
 import type {DataSet} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
+import {validateExcelTransformRule} from './transform/validation'
 
 export class LowcodeExcelImport {
   static readonly navigationScenarioId = '36B01771C627B9BF5CD493DC75B996A1'
@@ -25,7 +26,16 @@ export class LowcodeExcelImport {
     if (scenarioId !== this.designScenarioId) throw new Error('Excel设计场景身份不匹配')
     const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
     if (!projectId) throw new Error('请先选择执行应用')
-    return loadLowcodeRuntimeScenario({projectId, scenarioId})
+    return this.bindEditorModelRules(await loadLowcodeRuntimeScenario({projectId, scenarioId}))
+  }
+
+  /** 在本次正式规则模型注册纯结构保存约束，所有命名视图与直接DataSet保存复用，不建立页面提交器。 */
+  static bindEditorModelRules(dataSet: DataSet): DataSet {
+    const table = dataSet.getView('Base_Import_Transform_Rule')?.dataTable
+    if (dataSet.scenarioId !== this.designScenarioId || table?.modelBinding?.modelName !== 'Base_Import_Transform_Rule'
+      || table.modelBinding.modelId !== 'b3ca28c2-432c-4374-ac20-bb98a85c2098') throw new Error('Excel转换规则缺少正式模型身份')
+    table.setQuerySaveRule({fields: ['rule_type', 'source_field', 'target_field', 'sort_order', 'enabled', 'on_error', 'condition_json', 'config_json'], validate: validateExcelTransformRule})
+    return dataSet
   }
 
   /** 目标表弹窗首次打开时复用正式来源配置及级联，不读取来源业务数据。 */

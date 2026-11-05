@@ -35,11 +35,11 @@
         "contextDataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -52,6 +52,16 @@
         },
         "contextDataField": {
           "type": "string"
+        },
+        "contextRowId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
         },
         "dataSource": {
           "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
@@ -85,14 +95,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.434Z",
+  "generatedAt": "2026-11-05T14:35:25.025Z",
   "models": {
     "FormDetailContainerProps": {
       "name": "FormDetailContainerProps",
       "jsdoc": "容器内部完整属性形状（包括私有布局字段）。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 已由标准组件默认值确定的组件类型。 */\n    type: string;\n    /** 运行时props允许未传入的可选项显式为undefined。 */\n    id?: string | undefined;\n    /** 同一响应式props上的子组件配置。 */\n    children?: SparkNode['children'] | undefined;\n    /** 表单自适应项宽；详情未声明时保留原固定栅格。 */\n    gridMinWidth?: string | undefined;\n    /** DataView 定位键。 */\n    dataViewKey?: string | undefined;\n    /** context Data Member 字段。 */\n    contextDataMember?: DataMember | `${DataMember}` | undefined;\n    /** context Data Field 字段。 */\n    contextDataField?: string | undefined;\n    /** data Source 字段。 */\n    dataSource?: DataView | undefined;\n    /** auto Columns 字段。 */\n    autoColumns?: boolean | undefined;\n    /** grid Columns 字段。 */\n    gridColumns?: number | undefined;\n    /** grid Gap 字段。 */\n    gridGap?: number | string | undefined;\n    /** grid Auto Rows 字段。 */\n    gridAutoRows?: string | undefined;\n}",
+        "declarationTypeText": "{\n    /** 已由标准组件默认值确定的组件类型。 */\n    type: string;\n    /** 运行时props允许未传入的可选项显式为undefined。 */\n    id?: string | undefined;\n    /** 同一响应式props上的子组件配置。 */\n    children?: SparkNode['children'] | undefined;\n    /** 表单自适应项宽；详情未声明时保留原固定栅格。 */\n    gridMinWidth?: string | undefined;\n    /** DataView 定位键。 */\n    dataViewKey?: string | undefined;\n    /** context Data Member 字段。 */\n    contextDataMember?: DataMember | `${DataMember}` | undefined;\n    /** context Data Field 字段。 */\n    contextDataField?: string | undefined;\n    /** 固定原行身份，仅表单声明该能力。 */\n    contextRowId?: string | number | undefined;\n    /** data Source 字段。 */\n    dataSource?: DataView | undefined;\n    /** auto Columns 字段。 */\n    autoColumns?: boolean | undefined;\n    /** grid Columns 字段。 */\n    gridColumns?: number | undefined;\n    /** grid Gap 字段。 */\n    gridGap?: number | string | undefined;\n    /** grid Auto Rows 字段。 */\n    gridAutoRows?: string | undefined;\n}",
         "members": {
           "attributes": [
             {
@@ -134,6 +144,12 @@
             {
               "name": "contextDataField",
               "jsdoc": "context Data Field 字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "contextRowId",
+              "jsdoc": "固定原行身份，仅表单声明该能力。",
               "readable": true,
               "writable": false
             },

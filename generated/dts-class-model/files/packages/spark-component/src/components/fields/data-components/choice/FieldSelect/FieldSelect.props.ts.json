@@ -24,6 +24,9 @@
       "type": "object",
       "title": "RSelectProps",
       "properties": {
+        "allowCreate": {
+          "type": "boolean"
+        },
         "presentation": {
           "enum": [
             "select",
@@ -51,7 +54,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-01T16:18:49.425Z",
+  "generatedAt": "2026-11-05T13:07:53.214Z",
   "models": {
     "RSelectProps": {
       "name": "RSelectProps",
@@ -65,7 +68,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkOptionFieldProps<string | number> & {\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkOptionFieldProps<string | number> & {\n    /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */\n    allowCreate?: boolean;\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -79,11 +82,17 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
+            "typeText": "{\n    /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */\n    allowCreate?: boolean;\n    /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */\n    presentation?: 'select' | 'tabs';\n    /** 表格中直接显示逐行选择控件，默认false沿用文本/双击编辑。true时优先于editOnDblclick；绑定该单元格的原视图和行，不移动当前行指针。清空写入空字符串；写权限仍由DataView判定。 */\n    showCellControl?: boolean;\n    /** 逐行额外只读限制，只能收窄DataView写权限；用于showCellControl的单元格。 */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n}"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "allowCreate",
+              "jsdoc": "允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "presentation",
               "jsdoc": "单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。",

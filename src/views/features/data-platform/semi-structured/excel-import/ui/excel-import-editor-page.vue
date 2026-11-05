@@ -34,7 +34,14 @@
             <FieldSelect field="exportType" label="导入导出方式" :option-data-view-key="methodsKey" :readonly="locked" />
             <FieldSelect v-if="association" field="parentField" label="父字段" :option-data-view-key="association.parentKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.parent" />
             <FieldSelect v-if="association" field="foreignKeyField" label="外键字段" :option-data-view-key="association.foreignKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.foreign" />
-            <FieldJson field="filters" label="过滤条件" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.filters',value)" />
+            <section class="excel-filter-definition">
+              <h3>导出过滤条件</h3>
+              <p v-if="filterReadOnly" role="status">版式过滤字段范围尚未确认，当前仅查看已存条件。</p>
+              <RendererFilterExpression v-if="!filterReadOnly" :data-view-key="nodesKey" data-member="currentRow" field="filters" format="spark-json" title="导出过滤条件"
+                :column-data-view-key="ruleFieldOptionsKey" column-type-field="type" :column-type-map="{'0':'string','1':'number','2':'datetime'}"
+                :column-table="filterTable" :readonly="locked" :on-editing-change="value => pending('nodes.filters',value)" />
+              <RendererFilterExpression v-else :data-view-key="nodesKey" data-member="currentRow" field="filters" format="spark-json" title="导出过滤条件" :columns="[]" :readonly="true" />
+            </section>
             <FieldJson field="sorted" label="排序规则" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.sorted',value)" />
             <FieldJson field="sheet_layout_json" label="Sheet 布局" mode="text" :readonly="locked" :on-change="changeLayout" :on-editing-change="value => pending('nodes.layout',value)" />
           </RendererForm>
@@ -104,7 +111,7 @@ import ExcelTargetDialog from './excel-import-target-dialog.vue'
 import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
 import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
-const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
@@ -139,7 +146,37 @@ const locked = computed(() => busy.value || unconfirmed.value || !!removal.value
 const hasPending = computed(() => {revision.value; return acting.value || !!targetChange.value || !!removal.value || !!fieldReference.value || inputs.value.size > 0 || views.value.some(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty() {return opening.value || hasPending.value}})
 const selectedNode = computed(() => {revision.value; return view(nodesTable)?.currentRow ?? null})
+const filterTable=computed(()=>{
+  revision.value
+  const source=view(nodesTable),row=source?.currentRow
+  if(!row||source?.fieldAccess(row,'sheetName').read!=='visible')return null
+  const id=source.getPkKey(row),name=id===undefined?undefined:source.getEditingRow(id)?.['sheetName']
+  if(typeof name!=='string')return null
+  return {name:name||'CurrentImportConfig',label:name||'当前列配置'}
+})
 const currentMapping=computed(()=>{revision.value;return view(fieldsTable)?.currentRow??null})
+// 执行模式由根节点决定；子节点的孤立版式不能改变整树的过滤输入范围。
+const filterReadOnly=computed(()=>{
+  revision.value
+  const nodes=view(nodesTable)
+  let row=nodes?.currentRow
+  if(!nodes||!row)return true
+  const seen=new Set<unknown>()
+  while(row['pid']!==importConfigId.value){
+    if(nodes.fieldAccess(row,'pid').read!=='visible'||seen.has(row['rowid']))return true
+    seen.add(row['rowid'])
+    row=nodes.rows.find(parent=>parent['rowid']===row?.['pid'])??null
+    if(!row)return true
+  }
+  if(nodes.fieldAccess(row,'pid').read!=='visible'||nodes.fieldAccess(row,'sheet_layout_json').read!=='visible')return true
+  const id=nodes.getPkKey(row)
+  const enabled=(value:unknown):boolean=>{
+    if(value===null||value===undefined||value==='')return false
+    if(typeof value!=='string')return true
+    try{const layout=parseJsonDocument(value);return Array.isArray(layout)||Boolean(layout['enabled'])}catch{return true}
+  }
+  return enabled(row['sheet_layout_json'])||enabled(id===undefined?undefined:nodes.getEditingRow(id)?.['sheet_layout_json'])
+})
 const layoutEnabled = computed(() => {
   revision.value
   const nodes=view(nodesTable),row=nodes?.currentRow,id=row?nodes?.getPkKey(row):undefined
@@ -220,7 +257,7 @@ async function save(table: string): Promise<void> {await act(table,async target=
   if (targetChange.value && [nodesTable, fieldsTable].includes(table)) {
     if (!targetChange.value.owns(table)) throw new Error('请先处理原结构保存，不能扩大提交范围')
     if (targetChange.value.owns(nodesTable) && pendingPart('nodes')) return
-    await targetChange.value.save(); if (targetChange.value.getState().done) targetChange.value = undefined
+    await targetChange.value.save(); if (targetChange.value.getState().done){targetChange.value = undefined;await refreshFilterDirectory(target)}
     return
   }
   if (pendingPart(table===schemeTable?'scheme':table===nodesTable?'nodes':table===rulesTable?'rules':'fields')) return
@@ -231,14 +268,23 @@ async function save(table: string): Promise<void> {await act(table,async target=
     targetChange.value=ExcelConfigurationEdit.pending({dataSet:ds,nodeId:id,tableName:table,assertCurrent:()=>{
       if(!active||own!==generation||runtime!==page||dataSet.value!==ds||view(nodesTable)?.currentRow?.['rowid']!==id)throw new Error('Excel结构保存上下文已变化')
     }})
-    await targetChange.value.save();if(targetChange.value.getState().done)targetChange.value=undefined
+    await targetChange.value.save();if(targetChange.value.getState().done){targetChange.value=undefined;await refreshFilterDirectory(target)}
     return
   }
   const owner=table===schemeTable?catalog.value:dataSet.value
   if(table===schemeTable && !validTarget.value)throw new Error('方案身份与调用参数不一致')
   const result=await owner!.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,...(table===schemeTable?{ids:[importConfigId.value]}:{})}]})
   if(!result.success)throw new Error(result.message??'保存未完整确认')
+  if(table===fieldsTable)await refreshFilterDirectory(target)
 })}
+async function refreshFilterDirectory(target:NonNullable<ReturnType<typeof view>>):Promise<void>{
+  const ds=target.dataSet
+  if(!ds||ds.destroyed)return
+  const directory=ds.getView(fieldsTable,'foreignKeyFields')
+  if(!directory)throw Error('字段已保存，但过滤字段目录视图不存在')
+  await directory.refresh()
+  if(directory.loadingError)throw Error('字段已保存，但过滤字段目录读取失败，请刷新目录')
+}
 function cancel(table: string): void {if(!busy.value&&!unconfirmed.value){try{if(targetChange.value && [nodesTable,fieldsTable].includes(table)){if(!targetChange.value.owns(table))throw new Error('请从原入口取消结构修改');targetChange.value.cancel();targetChange.value=undefined}else view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}}
 function discardAll(): boolean {if(busy.value||unconfirmed.value)return false;fieldReference.value=undefined;if(removal.value){try{removal.value.cancel();removal.value=undefined}catch{return false}}if(targetChange.value){try{targetChange.value.cancel();targetChange.value=undefined}catch{return false}}for(const target of views.value)target.discardPendingChanges();revision.value++;return !hasPending.value}
 async function openRemoval(): Promise<void> {
@@ -325,4 +371,6 @@ onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off())
 .structured-editor-page { display: grid; gap: 12px; padding: 24px; }
 .excel-workspaces {display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;}
 .excel-workspaces main {min-width:0;display:grid;gap:12px;}
+.excel-filter-definition {grid-column:1/-1;min-width:0;}
+.excel-filter-definition h3 {margin:0 0 8px;}
 </style>

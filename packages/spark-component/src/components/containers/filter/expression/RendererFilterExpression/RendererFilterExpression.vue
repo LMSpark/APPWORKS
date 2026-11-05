@@ -5,9 +5,10 @@
 <template>
   <div>
     <p v-if="problem" role="alert">{{ problem }}</p>
-    <FilterExpressionEditor v-else-if="readable" :key="revision" :model-value="parsed.tree" :columns="columns"
+    <p v-if="columnState.error || contextState.error" role="alert">{{ columnState.error || contextState.error }}</p>
+    <FilterExpressionEditor v-if="!problem && readable" :key="revision" :model-value="parsed.tree" :columns="columnState.columns"
       v-bind="editorOptions"
-      :display="display" :display-mode="displayMode" :on-editing-change="editingForRevision" :disabled="disabled || formDisabled" :readonly="readonly || access?.write !== 'allowed'" :apply-error="error" @update:model-value="applyForRevision" />
+      :display="display" :display-mode="displayMode" :on-editing-change="editingForRevision" :disabled="disabled || formDisabled || !!columnState.error || !!contextState.error" :readonly="readonly || access?.write !== 'allowed'" :apply-error="error" @update:model-value="applyForRevision" />
   </div>
 </template>
 
@@ -23,11 +24,20 @@ import FilterExpressionEditor from '../FilterExpressionEditor/FilterExpressionEd
 import {FilterExpressionEditorDraft} from '../FilterExpressionEditor/FilterExpressionEditor.props'
 import type {RFilterExpressionProps} from './RendererFilterExpression.props'
 import {useInputParameterFunctionContext} from '../../../../fields/options/useInputParameterFunctionContext'
+import {useFilterColumnView} from './useFilterColumnView'
 
 const props = withDefaults(defineProps<RFilterExpressionProps>(), {type: 'r-filter-expression', format: 'tree', display: 'dialog', displayMode: 'box', clearable: undefined})
 const inputContext=useInputParameterFunctionContext(props)
+const columnState=useFilterColumnView(props)
+const contextState=computed(()=>{
+  const context=inputContext.value,table=props.columnTable
+  if(!table||columnState.value.error||!columnState.value.columns.length)return {value:context,error:''}
+  if(!table.name.trim())return {value:context,error:'过滤字段目录的模型名称不能为空'}
+  if(context.tables?.some(item=>item.name===table.name))return {value:context,error:'过滤字段目录与已声明的值函数模型名称重复'}
+  return {value:{...context,tables:[...context.tables??[],{...table,fields:columnState.value.columns.map(column=>({name:column.name,...(column.label===undefined?{}:{label:column.label})}))}]},error:''}
+})
 const editorOptions = computed(() => ({
-  functionContext: DataViewFilter.editorContext(inputContext.value),
+  functionContext: DataViewFilter.editorContext(contextState.value.value),
   ...(props.placeholder === undefined ? {} : {placeholder: props.placeholder}),
   ...(props.title === undefined ? {} : {title: props.title}),
   ...(props.clearable === undefined ? {} : {clearable: props.clearable}),
@@ -102,18 +112,23 @@ const parsed = computed(() => {
 const problem = computed(() => aggregateError.value?.message || (!resolvedView.value || identity.value === undefined ? '过滤定义未绑定有效数据行'
   : !resolvedView.value.columns.some(column => column.name === props.field) ? `过滤定义字段不存在：${props.field}` : accessState.value.error || parsed.value.error))
 watch([resolvedView, identity, () => JSON.stringify(rawValue.value), () => pathValue.value.identity, editable, () => props.field, () => props.format, () => props.valueFormat, () => JSON.stringify(props.valuePath ?? []),
-  () => props.display, () => props.inputParameterDataViewKey], invalidate, {flush: 'sync'})
-watch([() => props.columns, () => props.allowedOperators, inputContext, () => props.maxDepth, () => props.maxRules], () => {
+  () => props.display, () => props.inputParameterDataViewKey, () => props.columnDataViewKey], invalidate, {flush: 'sync'})
+watch([columnState, contextState, () => props.allowedOperators, () => props.maxDepth, () => props.maxRules], () => {
   candidateRevision.value++; error.value = ''
 }, {deep: true, flush: 'sync'})
 const applyForRevision = computed(() => {
   const captured = revision.value, candidates = candidateRevision.value
+  let directory:ReturnType<typeof columnState.resolveSource>
+  try{directory=columnState.resolveSource()}catch{directory=null}
+  const projection=JSON.stringify(columnState.value)
   return (tree: DataViewFilterTree | undefined): void => {
-    if (!active || captured !== revision.value || candidates !== candidateRevision.value || !editable.value || problem.value) return
+    if (!active || captured !== revision.value || candidates !== candidateRevision.value || !editable.value || problem.value || columnState.value.error || contextState.value.error) return
     try {
+      const currentColumns=columnState.readCurrent()
+      if(directory!==columnState.resolveSource()||currentColumns.error||JSON.stringify(currentColumns)!==projection)throw Error('过滤字段目录已变化，请重新确认条件')
       const filter = tree === undefined ? undefined : DataViewFilter.parse(tree)
       if (filter && !filter.ok) throw new Error(filter.issues.map(issue => issue.message).join('\n'))
-      if(filter&&props.allowedOperators!==undefined){const issues=filter.value.validate({fields:FilterExpressionEditorDraft.fields(props.columns,props.allowedOperators)})
+      if(filter){const issues=filter.value.validate({fields:FilterExpressionEditorDraft.fields(columnState.value.columns,props.allowedOperators)})
         if(issues.length)throw Error(issues.map(issue=>`${issue.path}: ${issue.message}`).join('\n'))}
       const value = props.format === 'spark-json' ? DataViewFilterCodec.serializeStored(filter?.value)
         : props.format === 'spark-object' ? filter ? DataViewFilterCodec.encode(filter.value) : null : filter?.value.toJSON()

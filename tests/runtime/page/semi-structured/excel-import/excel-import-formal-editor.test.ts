@@ -3,7 +3,7 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTree, FieldJson, FieldCheckbox, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTree, RendererFilterExpression, FilterExpressionEditor, FieldJson, FieldCheckbox, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {ElSelect, ElCheckbox} from 'element-plus'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import SparkJsonEditor from '../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
@@ -11,7 +11,7 @@ import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-im
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {EXCEL, topicModels, topicTexts} from '../../structured-config/catalog/formal-topic.fixture'
 import {EXCEL_DESIGN, excelDesignModels, designText,EXCEL_DICTIONARY,excelDictionaryReferenceModels} from './excel-import-design.fixture'
-import {DataSet,getSparkNodeChildren,nodeInputProps} from '@spark-appworks/spark-data'
+import {DataSet,DataViewFilterCodec,getSparkNodeChildren,nodeInputProps} from '@spark-appworks/spark-data'
 import {sourceModels, sourceRecords, SOURCE_SCENE} from '../../structured-config/data-code/source-picker/fixture'
 import sourceText from '../../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
 import dictionaryText from '../../../../../config/pages/data-platform/data-dictionary/pagedata.json?raw'
@@ -77,6 +77,31 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it.each([true,false])('uses root layout mode for a child filter instead of the child layout flag (%s)',async(rootEnabled)=>{
+    state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']=JSON.stringify({version:3,enabled:rootEnabled})
+    state.http.records['Base_ImportData_Config']!.push({rowid:'CHILD',schemeid:'E1',pid:'C1',sheetName:'子表',sheet_layout_json:JSON.stringify({version:3,enabled:!rootEnabled})})
+    const f=await open();await f.choose(rootEnabled?1:2)
+    await f.wrapper.get('.el-tree-node__expand-icon').trigger('click');await flushPromises()
+    await f.wrapper.findAll('.el-tree-node__content').find(row=>row.text().includes('子表'))!.trigger('click');await flushPromises()
+    expect(f.wrapper.getComponent(RendererFilterExpression).props('readonly')).toBe(rootEnabled)
+    expect(state.http.saves).toHaveLength(0)
+  })
+  it('uses the standard bound condition editor and persists its SPARK filter through the original node save',async()=>{
+    const f=await open();await f.choose()
+    const component=f.wrapper.getComponent(RendererFilterExpression),editor=component.getComponent(FilterExpressionEditor)
+    expect(component.props('format')).toBe('spark-json')
+    expect(component.props('columnDataViewKey')).toBe(`${EXCEL_DESIGN}@Base_ImportData_Field@foreignKeyFields`)
+    expect(f.wrapper.findAllComponents(FieldJson).some(field=>field.props('field')==='filters')).toBe(false)
+    expect(editor.props('columns')).toContainEqual({name:'code',label:'编码',type:'number'})
+    const count=state.http.saves.length
+    editor.vm.$emit('update:modelValue',{field:'code',operator:'eq',value:0});await flushPromises()
+    expect(state.http.saves).toHaveLength(count)
+    await f.click('保存配置')
+    const raw=state.http.records['Base_ImportData_Config']![0]!['filters'];if(typeof raw!=='string')throw Error('Filter not saved as text')
+    expect(DataViewFilterCodec.parseStored(raw)?.toJSON()).toEqual({field:'code',operator:'eq',value:0})
+    const reopened=await open();await reopened.choose()
+    expect(reopened.wrapper.getComponent(RendererFilterExpression).getComponent(FilterExpressionEditor).props('modelValue')).toEqual({field:'code',operator:'eq',value:0})
+  })
   it('uses the single-record rule workspace and locks node changes until a new rule is cancelled', async () => {
     const f=await open();await f.choose()
     expect(f.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='保存规则')).toBe(false)
@@ -430,7 +455,7 @@ describe('formal Excel design editor', () => {
   })
   it('binds direct-parent and own mapping selectors and persists names with their matching descriptions', async () => {
     state.http.records['Base_ImportData_Config']!.push({rowid: 'CHILD', schemeid: 'E1', pid: 'C1', sheetName: '子表'})
-    state.http.records['Base_ImportData_Field']!.push({rowid: 'CF', configid: 'CHILD', name: 'code', title: '子编码'})
+    state.http.records['Base_ImportData_Field']!.push({rowid: 'CF', configid: 'CHILD', name: 'code', title: '子编码',type:0})
     const f = await open(); await f.choose()
     await f.wrapper.get('.el-tree-node__expand-icon').trigger('click'); await flushPromises()
     const child = f.wrapper.findAll('.el-tree-node__content').find(row => row.text().includes('子表'))!

@@ -14,6 +14,40 @@
     ]
   },
   "$defs": {
+    "FilterColumnTypeMap": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterColumnTypeMap",
+      "properties": {},
+      "additionalProperties": {
+        "$ref": "../../../../../../../spark-data/src/types.ts.json#/$defs/ColumnType"
+      }
+    },
+    "FilterFunctionTables": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "array",
+      "title": "FilterFunctionTables",
+      "items": {
+        "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionTable"
+      }
+    },
+    "FilterColumnTable": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "FilterColumnTable",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
     "RFilterExpressionProps": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -57,6 +91,25 @@
             "title": "DataColumn"
           }
         },
+        "columnDataViewKey": {
+          "type": "string"
+        },
+        "columnTypeField": {
+          "type": "string"
+        },
+        "columnTypeMap": {
+          "$ref": "#/$defs/FilterColumnTypeMap"
+        },
+        "columnTable": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FilterColumnTable"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "functionContext": {
           "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionContext"
         },
@@ -77,8 +130,7 @@
         }
       },
       "required": [
-        "field",
-        "columns"
+        "field"
       ],
       "additionalProperties": false,
       "$defs": {
@@ -95,8 +147,65 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T17:09:59.739Z",
+  "generatedAt": "2026-11-05T19:22:17.594Z",
   "models": {
+    "FilterColumnTypeMap": {
+      "name": "FilterColumnTypeMap",
+      "jsdoc": "字段目录的原生类型值到正式DataColumn类型的显式声明映射。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererFilterExpression"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, ColumnType>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, ColumnType>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FilterFunctionTables": {
+      "name": "FilterFunctionTables",
+      "jsdoc": "公共值函数上下文已经声明的模型目录。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererFilterExpression"
+      },
+      "typeAlias": {
+        "declarationTypeText": "NonNullable<DataViewFilterFunctionContext['tables']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "NonNullable<DataViewFilterFunctionContext['tables']>",
+            "targetName": "NonNullable"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "FilterColumnTable": {
+      "name": "FilterColumnTable",
+      "jsdoc": "当前字段目录在值函数中的显式编辑名称，不是物理表绑定。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererFilterExpression"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Pick<FilterFunctionTables[number], 'name' | 'label'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<FilterFunctionTables[number], 'name' | 'label'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
     "RFilterExpressionProps": {
       "name": "RFilterExpressionProps",
       "jsdoc": "r-filter-expression按完整视图键、数据成员和字段定位定义，写回原DataView编辑域。",
@@ -105,7 +214,7 @@
         "name": "RendererFilterExpression"
       },
       "typeAlias": {
-        "declarationTypeText": "LayoutDataContextProps & Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 所属JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，父路径须存在；清空依format选择移除叶、空字符串或null。 */\n    valuePath?: JsonPath;\n    /** valuePath存在时所属原字段的存储格式；默认native原生对象，text解析JSON文本并将合并结果存回文本。不改变过滤叶format，不补建父路径。格式改变使旧应用失效，畸形原文保留。 */\n    valueFormat?: 'native' | 'text';\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）；spark-object通过同一数据层Codec保存SPARK对象（清空为null）。 */\n    format?: 'tree' | 'spark-json' | 'spark-object';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}",
+        "declarationTypeText": "LayoutDataContextProps & Pick<FilterExpressionEditorProps, 'placeholder' | 'title' | 'clearable' | 'dialogWidth' | 'autoFullscreenBelow' | 'allowedOperators'> & {\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 所属JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，父路径须存在；清空依format选择移除叶、空字符串或null。 */\n    valuePath?: JsonPath;\n    /** valuePath存在时所属原字段的存储格式；默认native原生对象，text解析JSON文本并将合并结果存回文本。不改变过滤叶format，不补建父路径。格式改变使旧应用失效，畸形原文保留。 */\n    valueFormat?: 'native' | 'text';\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）；spark-object通过同一数据层Codec保存SPARK对象（清空为null）。 */\n    format?: 'tree' | 'spark-json' | 'spark-object';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns?: readonly DataColumn[];\n    /** 字段定义目录的完整视图键，与columns互斥；用该视图valueField作为字段名、labelField作为标题，仅消费完整正式可读结果，不采用未保存目录。 */\n    columnDataViewKey?: string;\n    /** 目录中存放字段类型的成员；配置后必须同时声明columnTypeMap，未配置时明确按文本字段编辑。 */\n    columnTypeField?: string;\n    /** 原生数字或文本类型编码的显式映射，含0也逐值匹配；未知类型拒绝应用，不推断SQL类型或业务模型。 */\n    columnTypeMap?: FilterColumnTypeMap;\n    /** 显式把当前可读列目录提供给引用表/表达式函数；省略或null不添加模型，空目录不保留旧模型。同名functionContext.tables冲突明确拒绝，不创建relatedFields或执行权限。 */\n    columnTable?: FilterColumnTable | null;\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -119,7 +228,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 所属JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，父路径须存在；清空依format选择移除叶、空字符串或null。 */\n    valuePath?: JsonPath;\n    /** valuePath存在时所属原字段的存储格式；默认native原生对象，text解析JSON文本并将合并结果存回文本。不改变过滤叶format，不补建父路径。格式改变使旧应用失效，畸形原文保留。 */\n    valueFormat?: 'native' | 'text';\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）；spark-object通过同一数据层Codec保存SPARK对象（清空为null）。 */\n    format?: 'tree' | 'spark-json' | 'spark-object';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns: readonly DataColumn[];\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
+            "typeText": "{\n    /** 存放过滤定义的字段；与过滤树内部的条件字段不同。 */\n    field: string;\n    /** 所属JSON字段中的过滤叶路径；只允许末级对象成员缺失。应用合并最新原字段，父路径须存在；清空依format选择移除叶、空字符串或null。 */\n    valuePath?: JsonPath;\n    /** valuePath存在时所属原字段的存储格式；默认native原生对象，text解析JSON文本并将合并结果存回文本。不改变过滤叶format，不补建父路径。格式改变使旧应用失效，畸形原文保留。 */\n    valueFormat?: 'native' | 'text';\n    /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）；spark-object通过同一数据层Codec保存SPARK对象（清空为null）。 */\n    format?: 'tree' | 'spark-json' | 'spark-object';\n    /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */\n    displayMode?: 'box' | 'inline';\n    /** 存在未应用草稿或编辑弹窗时通知true；取消、原DataView显式取消本行/全部行、应用接受、换绑定、失权及释放后通知false。取消其他行保留本行未应用输入。 */\n    onEditingChange?: (editing: boolean) => void;\n    /** 过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。 */\n    columns?: readonly DataColumn[];\n    /** 字段定义目录的完整视图键，与columns互斥；用该视图valueField作为字段名、labelField作为标题，仅消费完整正式可读结果，不采用未保存目录。 */\n    columnDataViewKey?: string;\n    /** 目录中存放字段类型的成员；配置后必须同时声明columnTypeMap，未配置时明确按文本字段编辑。 */\n    columnTypeField?: string;\n    /** 原生数字或文本类型编码的显式映射，含0也逐值匹配；未知类型拒绝应用，不推断SQL类型或业务模型。 */\n    columnTypeMap?: FilterColumnTypeMap;\n    /** 显式把当前可读列目录提供给引用表/表达式函数；省略或null不添加模型，空目录不保留旧模型。同名functionContext.tables冲突明确拒绝，不创建relatedFields或执行权限。 */\n    columnTable?: FilterColumnTable | null;\n    /** 可引用的参数、模型字段和值函数扩展；更新保留打开的窗口与草稿并使旧应用回调失效，不授予服务端执行权限。 */\n    functionContext?: DataViewFilterFunctionContext;\n    /** 输入参数候选的完整视图键；复用标准选项视图的valueField/labelField及读取权限，视图标题和禁用状态优先。更新保留未应用草稿并废弃旧应用回调；切换键释放旧编辑会话。 */\n    inputParameterDataViewKey?: string;\n    /** 最大嵌套层数；省略沿用公共编辑器默认值。 */\n    maxDepth?: number;\n    /** 最大条件数；省略沿用公共编辑器默认值。 */\n    maxRules?: number;\n    /** 业务锁定只收紧原字段的数据权限。 */\n    disabled?: boolean;\n    /** 只读浏览：允许查看条件和JSON，不能写回；false不能扩大当次DataView字段权限。 */\n    readonly?: boolean;\n}"
           }
         ],
         "members": {
@@ -164,7 +273,31 @@
               "name": "columns",
               "jsdoc": "过滤条件可使用的字段元信息，不是业务结果行；异步更新保留未应用草稿，应用时按最新目录校验。",
               "readable": true,
-              "writable": true
+              "writable": false
+            },
+            {
+              "name": "columnDataViewKey",
+              "jsdoc": "字段定义目录的完整视图键，与columns互斥；用该视图valueField作为字段名、labelField作为标题，仅消费完整正式可读结果，不采用未保存目录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnTypeField",
+              "jsdoc": "目录中存放字段类型的成员；配置后必须同时声明columnTypeMap，未配置时明确按文本字段编辑。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnTypeMap",
+              "jsdoc": "原生数字或文本类型编码的显式映射，含0也逐值匹配；未知类型拒绝应用，不推断SQL类型或业务模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columnTable",
+              "jsdoc": "显式把当前可读列目录提供给引用表/表达式函数；省略或null不添加模型，空目录不保留旧模型。同名functionContext.tables冲突明确拒绝，不创建relatedFields或执行权限。",
+              "readable": true,
+              "writable": false
             },
             {
               "name": "functionContext",

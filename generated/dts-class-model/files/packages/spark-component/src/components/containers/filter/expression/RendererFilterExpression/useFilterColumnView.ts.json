@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/useFilterColumnView",
+    "sourcePath": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/useFilterColumnView.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/useFilterColumnView.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/filter/expression/RendererFilterExpression/useFilterColumnView",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/filter/expression/RendererFilterExpression/useFilterColumnView\n职责：从本次PageRuntime的正式字段目录视图投影过滤字段。\n边界：不查询或缓存业务数据，不改候选视图；目录状态变化由同一DataView事件桥驱动。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "columnDataViewKey": {
+          "type": "string"
+        },
+        "columnTypeField": {
+          "type": "string"
+        },
+        "columnTypeMap": {
+          "$ref": "RendererFilterExpression.props.ts.json#/$defs/FilterColumnTypeMap"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-05T19:32:58.945Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "Vue字段props投影；不消费页面的业务状态。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "FieldComposableProps<Pick<RFilterExpressionProps, 'columns' | 'columnDataViewKey' | 'columnTypeField' | 'columnTypeMap'>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "FieldComposableProps<Pick<RFilterExpressionProps, 'columns' | 'columnDataViewKey' | 'columnTypeField' | 'columnTypeMap'>>",
+            "targetName": "FieldComposableProps"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

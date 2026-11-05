@@ -182,7 +182,8 @@
               "rowid",
               "configid",
               "name",
-              "title"
+              "title",
+              "type"
             ],
             "allPages": true
           },

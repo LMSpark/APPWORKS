@@ -1,0 +1,468 @@
+{
+  "scope": "Real browser creates a single-group v3 layout from an empty bound definition, cancels without submission, recreates and saves only the original DataView layout field, reopens it, and exports one/two detail rows at user-selected B3/C/D coordinates. Original native process clears the layout then removes exact fixture IDs.",
+  "codeCheckpoint": "95f4c47cb",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "outcome": "UI persistence, runtime export and exact cleanup verified; native probe retained its strict-empty-string assertion failure.",
+  "nativeExit": 1,
+  "nativeAssertion": {
+    "message": "Cleared layout did not reopen empty",
+    "expected": "empty string",
+    "independentActual": "SQL null",
+    "recovery": "Original live process continued remaining cleanup after read-only proof; clear submission was not replayed."
+  },
+  "probe": {
+    "path": "artifacts/data-chain-smoke/excel-layout-ui-owned-v1.mts",
+    "sha256": "71def0d56f2df794cc58b5d6e3b8c60a7cfdfdf4a6a73e990b2c8706441d247a",
+    "mainProcessId": 20548,
+    "launcherProcessId": 20816,
+    "driverSession": 59851,
+    "hostReads": 49,
+    "blockedFetches": 0
+  },
+  "browser": {
+    "schemeId": "98C1B4E4FFA449618874565247B0374C",
+    "rootNodeId": "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+    "cancelCrudRequests": 0,
+    "saveCrudRequests": 1,
+    "reopenCrudRequests": 0,
+    "groups": [
+      [
+        {
+          "table": "Base_ImportData_Config",
+          "added": 0,
+          "deleted": 0,
+          "changed": [
+            {
+              "rowid": "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+              "fields": [
+                "rowid",
+                "sheet_layout_json"
+              ],
+              "layoutHash": "a73a2430b3b3f4afa70cc479fc3a78583bbe7be9be6806a5f6fdf11cfc940d7d"
+            }
+          ]
+        }
+      ]
+    ],
+    "exactSaveResponse": [
+      {
+        "status": 200
+      }
+    ],
+    "earlierResponseHistoryTruncated": true,
+    "requestCaptureComplete": true,
+    "originalSaveConfirmed": true,
+    "unknown": false,
+    "independentUiReopen": true
+  },
+  "clearBeforeDelete": {
+    "exactRootField": [
+      {
+        "rowid": "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+        "type": "null",
+        "length": null,
+        "layoutHash": null
+      }
+    ]
+  },
+  "nativeCrudRequests": 12,
+  "browserCrudRequests": 1,
+  "totalCrudRequests": 13,
+  "servicePrecondition": "One owned solutionName → A / CLASSIC_NAME mapping is required by the current service entry; the detail has no classic mapping. Zero-mapping export is not claimed.",
+  "processId": 20548,
+  "testedAt": "2026-11-05T23:10:29.642Z",
+  "physicalSources": [
+    {
+      "table": "QYVirtualPlat@Base_Import_solution",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "columns": [
+        "rowid",
+        "coding",
+        "solutionName"
+      ]
+    },
+    {
+      "table": "QYVirtualPlat@Base_ImportData_Config",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "columns": [
+        "rowid",
+        "schemeid",
+        "sheetName"
+      ]
+    }
+  ],
+  "layout": {
+    "version": 3,
+    "enabled": true,
+    "tables": [
+      {
+        "id": "ca3b885ad57f46f59ed1b5135d1195c5",
+        "table": "QYVirtualPlat@Base_Import_solution",
+        "regionIds": [
+          "663ce0c129b7484b9c06a784780c2d69",
+          "ceb500b1cfd84d5791be97e704dfabd4"
+        ]
+      },
+      {
+        "id": "4a3bf0007a9a407284e1d3c643839a88",
+        "table": "QYVirtualPlat@Base_ImportData_Config",
+        "regionIds": [
+          "2af53918675a401aae955ba796c4f419"
+        ]
+      }
+    ],
+    "regions": [
+      {
+        "id": "663ce0c129b7484b9c06a784780c2d69",
+        "tableId": "ca3b885ad57f46f59ed1b5135d1195c5",
+        "shape": "form",
+        "bounds": {
+          "sheet": 0,
+          "from": "B3",
+          "to": "B3"
+        },
+        "fields": [
+          {
+            "name": "solutionName",
+            "locate": {
+              "mode": "cell",
+              "cell": "B3"
+            }
+          }
+        ]
+      },
+      {
+        "id": "2af53918675a401aae955ba796c4f419",
+        "tableId": "4a3bf0007a9a407284e1d3c643839a88",
+        "shape": "list",
+        "bounds": {
+          "sheet": 0,
+          "from": "C4",
+          "to": "C6"
+        },
+        "scan": {
+          "headerRow": 4,
+          "dataStartOffset": 1
+        },
+        "fields": [
+          {
+            "name": "sheetName",
+            "title": "ITEM_UI",
+            "locate": {
+              "mode": "listColumn",
+              "column": "C"
+            }
+          }
+        ],
+        "link": {
+          "fromTableId": "ca3b885ad57f46f59ed1b5135d1195c5",
+          "fromRegionId": "663ce0c129b7484b9c06a784780c2d69",
+          "parentField": "rowid",
+          "foreignKeyField": "schemeid"
+        }
+      },
+      {
+        "id": "ceb500b1cfd84d5791be97e704dfabd4",
+        "tableId": "ca3b885ad57f46f59ed1b5135d1195c5",
+        "shape": "block",
+        "bounds": {
+          "sheet": 0,
+          "from": "D7",
+          "to": "D8"
+        },
+        "fields": [
+          {
+            "name": "coding",
+            "locate": {
+              "mode": "afterList",
+              "column": "D",
+              "rowOffset": 2
+            }
+          }
+        ]
+      }
+    ],
+    "sheetOrder": [
+      {
+        "op": "readWrite",
+        "regionId": "663ce0c129b7484b9c06a784780c2d69"
+      },
+      {
+        "op": "readWrite",
+        "regionId": "2af53918675a401aae955ba796c4f419"
+      },
+      {
+        "op": "readWrite",
+        "regionId": "ceb500b1cfd84d5791be97e704dfabd4"
+      }
+    ]
+  },
+  "schemeId": "98C1B4E4FFA449618874565247B0374C",
+  "sourceRowIds": [
+    "CEA67C19DE98460788DFE632C6B4A793"
+  ],
+  "sourceNodeIds": [
+    "B63D9BE5D9D34120B1AD1A9A0376142E",
+    "399CB094D9CC4D449D7A51E1C4580C5F"
+  ],
+  "nodeId": "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+  "childNodeId": "92A67F1F21824603A40108170B8FB7C1",
+  "mappingIds": [
+    "BBBE366774B944F1920F5E4A074059CD"
+  ],
+  "marker": "SMOKE_LAYOUT_UI_1793919595013",
+  "reads": 683,
+  "blockedRequests": 0,
+  "cancel": {
+    "independentReopen": true,
+    "originalLayout": "",
+    "browserSaveActionInvoked": false
+  },
+  "exports": [
+    {
+      "stage": 0,
+      "detailCount": 1,
+      "requestDispatched": true,
+      "byteLength": 3399,
+      "sha256": "28f55624106ec23b790fdcd3f0149354d2e3656ef863463ffb56126bb0cc7c8d",
+      "sheetCount": 1,
+      "nonemptyCells": 4,
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_LAYOUT",
+          "cells": {
+            "B3": "SMOKE_LAYOUT_UI_1793919595013_S1",
+            "C4": "ITEM_UI",
+            "C5": "SMOKE_LAYOUT_UI_1793919595013_ITEM_1",
+            "D7": "SMOKE_LAYOUT_UI_1793919595013_SOURCE_CODE"
+          }
+        }
+      ],
+      "matches": true
+    },
+    {
+      "stage": 1,
+      "detailCount": 2,
+      "requestDispatched": true,
+      "byteLength": 3409,
+      "sha256": "7f69aeeb66c32754dc74b7ef746f29e98bc01a49562990ead55423ca88002f9e",
+      "sheetCount": 1,
+      "nonemptyCells": 5,
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_LAYOUT",
+          "cells": {
+            "B3": "SMOKE_LAYOUT_UI_1793919595013_S1",
+            "C4": "ITEM_UI",
+            "C5": "SMOKE_LAYOUT_UI_1793919595013_ITEM_2",
+            "C6": "SMOKE_LAYOUT_UI_1793919595013_ITEM_1",
+            "D8": "SMOKE_LAYOUT_UI_1793919595013_SOURCE_CODE"
+          }
+        }
+      ],
+      "matches": true
+    }
+  ],
+  "uiLayoutHash": "a73a2430b3b3f4afa70cc479fc3a78583bbe7be9be6806a5f6fdf11cfc940d7d",
+  "sourceBeforeHash": "23602797476237be1895a63a7afe2091940f5bccb48a5f9be3c562ca8717d9c8",
+  "sourceAfterHash": "23602797476237be1895a63a7afe2091940f5bccb48a5f9be3c562ca8717d9c8",
+  "acks": [
+    {
+      "label": "create-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "98C1B4E4FFA449618874565247B0374C"
+      ],
+      "writes": 1
+    },
+    {
+      "label": "create-source",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "CEA67C19DE98460788DFE632C6B4A793"
+      ],
+      "writes": 2
+    },
+    {
+      "label": "create-source-nodes",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "B63D9BE5D9D34120B1AD1A9A0376142E",
+        "399CB094D9CC4D449D7A51E1C4580C5F"
+      ],
+      "writes": 3
+    },
+    {
+      "label": "create-export-nodes",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+        "92A67F1F21824603A40108170B8FB7C1"
+      ],
+      "writes": 4
+    },
+    {
+      "label": "create-service-mapping",
+      "table": "Base_ImportData_Field",
+      "kind": "Added",
+      "ids": [
+        "BBBE366774B944F1920F5E4A074059CD"
+      ],
+      "writes": 5
+    },
+    {
+      "label": "cleanup-clear-layout",
+      "table": "Base_ImportData_Config",
+      "kind": "Changed",
+      "ids": [
+        "6CADDF9A03334D99BD9EFBEC2C4B06C3"
+      ],
+      "writes": 6
+    },
+    {
+      "label": "cleanup-fields-6CADDF9A03334D99BD9EFBEC2C4B06C3",
+      "table": "Base_ImportData_Field",
+      "kind": "Deleted",
+      "ids": [
+        "BBBE366774B944F1920F5E4A074059CD"
+      ],
+      "writes": 7
+    },
+    {
+      "label": "cleanup-node-92A67F1F21824603A40108170B8FB7C1",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "92A67F1F21824603A40108170B8FB7C1"
+      ],
+      "writes": 8
+    },
+    {
+      "label": "cleanup-node-6CADDF9A03334D99BD9EFBEC2C4B06C3",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "6CADDF9A03334D99BD9EFBEC2C4B06C3"
+      ],
+      "writes": 9
+    },
+    {
+      "label": "cleanup-source-nodes",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "399CB094D9CC4D449D7A51E1C4580C5F",
+        "B63D9BE5D9D34120B1AD1A9A0376142E"
+      ],
+      "writes": 10
+    },
+    {
+      "label": "cleanup-scheme-98C1B4E4FFA449618874565247B0374C",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "98C1B4E4FFA449618874565247B0374C"
+      ],
+      "writes": 11
+    },
+    {
+      "label": "cleanup-scheme-CEA67C19DE98460788DFE632C6B4A793",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "CEA67C19DE98460788DFE632C6B4A793"
+      ],
+      "writes": 12
+    }
+  ],
+  "readbacks": [
+    {
+      "stage": 0,
+      "detailCount": 1,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "23602797476237be1895a63a7afe2091940f5bccb48a5f9be3c562ca8717d9c8"
+    },
+    {
+      "stage": 1,
+      "detailCount": 2,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "23602797476237be1895a63a7afe2091940f5bccb48a5f9be3c562ca8717d9c8"
+    },
+    {
+      "schemeId": "98C1B4E4FFA449618874565247B0374C",
+      "solutionTotal": 0,
+      "nodesTotal": 0
+    },
+    {
+      "schemeId": "CEA67C19DE98460788DFE632C6B4A793",
+      "solutionTotal": 0,
+      "nodesTotal": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "rowid",
+      "values": [
+        "BBBE366774B944F1920F5E4A074059CD"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Config",
+      "field": "rowid",
+      "values": [
+        "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+        "92A67F1F21824603A40108170B8FB7C1",
+        "B63D9BE5D9D34120B1AD1A9A0376142E",
+        "399CB094D9CC4D449D7A51E1C4580C5F"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "configid",
+      "values": [
+        "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+        "92A67F1F21824603A40108170B8FB7C1",
+        "B63D9BE5D9D34120B1AD1A9A0376142E",
+        "399CB094D9CC4D449D7A51E1C4580C5F"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "config_id",
+      "values": [
+        "6CADDF9A03334D99BD9EFBEC2C4B06C3",
+        "92A67F1F21824603A40108170B8FB7C1",
+        "B63D9BE5D9D34120B1AD1A9A0376142E",
+        "399CB094D9CC4D449D7A51E1C4580C5F"
+      ],
+      "total": 0
+    }
+  ],
+  "unknown": false,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-05T23:10:29.592Z",
+  "screenshots": [
+    {
+      "path": "artifacts/data-chain-smoke/ui-layout-configured-20261106.jpg",
+      "sha256": "fb344d89e390eaa9f5e773f8dc73964b089479899532608d57740c4bc614afec"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/ui-layout-reopened-20261106.jpg",
+      "sha256": "9f92d3cf289106205c1fc85481186480a09a4538b397e1905506e2c53a09a219"
+    }
+  ],
+  "limitations": [
+    "Single-group FORM/LIST/BLOCK only; no repeated-group, aggregate/SUM, lookup, masking or Import acceptance.",
+    "Both source detail foreign keys are nonempty and match the parent; foreign/null-key exclusion is not proven.",
+    "The general migration goal and full Excel package remain open.",
+    "Local Java was read only; no edits, builds, startup or deployment."
+  ]
+}

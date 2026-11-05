@@ -1,0 +1,420 @@
+{
+  "scope": "Original SPARK data single-group v3 sheet_layout_json cancel, save and independent formal reopen; two real XLSX exports of the same saved layout with one/two detail IDs, followed by exact cleanup. This is a service consumption gate, not a full layout editor migration.",
+  "nativeExit": 0,
+  "codeCheckpoint": "380ec15f8",
+  "probe": {
+    "path": "artifacts/data-chain-smoke/excel-layout-export-owned-v1.mts",
+    "sha256": "877fb67791321f3f0aaedd846c3e2fcb3ac7e84b277374b168b995cbfa39c954",
+    "wrapperProcessId": 28116,
+    "driverSession": 82247
+  },
+  "limitations": [
+    "No browser or reference-page pixel/interaction acceptance.",
+    "No repeated-section/group discovery, aggregate/SUM, lookup, masking or Import claim.",
+    "Current layout page still uses a raw JSON field; this probe does not introduce a v1/v3 compatibility writer.",
+    "Both source detail foreign keys are nonempty and match the parent. Excluding foreign or null-key rows is not proven.",
+    "Source hash covers six named fields of S and six named fields of each exclusively created detail record.",
+    "Local Java was read as reference only; no Java edits, builds, startup or deployment."
+  ],
+  "phase": "confirmed",
+  "processId": 6976,
+  "testedAt": "2026-11-05T21:20:16.883Z",
+  "physicalSources": [
+    {
+      "table": "QYVirtualPlat@Base_Import_solution",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "columns": [
+        "rowid",
+        "coding",
+        "solutionName"
+      ]
+    },
+    {
+      "table": "QYVirtualPlat@Base_ImportData_Config",
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "columns": [
+        "rowid",
+        "schemeid",
+        "sheetName"
+      ]
+    }
+  ],
+  "layout": {
+    "version": 3,
+    "enabled": true,
+    "tables": [
+      {
+        "id": "HEAD",
+        "table": "QYVirtualPlat@Base_Import_solution",
+        "regionIds": [
+          "h",
+          "t"
+        ]
+      },
+      {
+        "id": "DETAIL",
+        "table": "QYVirtualPlat@Base_ImportData_Config",
+        "regionIds": [
+          "l"
+        ]
+      }
+    ],
+    "regions": [
+      {
+        "id": "h",
+        "tableId": "HEAD",
+        "shape": "form",
+        "bounds": {
+          "sheet": 0,
+          "from": "B2",
+          "to": "B2"
+        },
+        "fields": [
+          {
+            "name": "solutionName",
+            "locate": {
+              "mode": "cell",
+              "cell": "B2"
+            }
+          }
+        ]
+      },
+      {
+        "id": "l",
+        "tableId": "DETAIL",
+        "shape": "list",
+        "bounds": {
+          "sheet": 0,
+          "from": "A4",
+          "to": "A6"
+        },
+        "scan": {
+          "headerRow": 4,
+          "dataStartOffset": 1
+        },
+        "fields": [
+          {
+            "name": "sheetName",
+            "title": "ITEM",
+            "locate": {
+              "mode": "listColumn",
+              "column": "A"
+            }
+          }
+        ],
+        "link": {
+          "fromTableId": "HEAD",
+          "fromRegionId": "h",
+          "parentField": "rowid",
+          "foreignKeyField": "schemeid"
+        }
+      },
+      {
+        "id": "t",
+        "tableId": "HEAD",
+        "shape": "block",
+        "bounds": {
+          "sheet": 0,
+          "from": "B6",
+          "to": "B7"
+        },
+        "fields": [
+          {
+            "name": "coding",
+            "locate": {
+              "mode": "afterList",
+              "rowOffset": 1,
+              "column": "B"
+            }
+          }
+        ]
+      }
+    ],
+    "sheetOrder": [
+      {
+        "op": "readWrite",
+        "regionId": "h"
+      },
+      {
+        "op": "readWrite",
+        "regionId": "l"
+      },
+      {
+        "op": "readWrite",
+        "regionId": "t"
+      }
+    ]
+  },
+  "schemeId": "C20F8EF5B2D149A0B67444A3520D8192",
+  "sourceRowIds": [
+    "E031807D56F743D79FFE0D8D78B875B2"
+  ],
+  "sourceNodeIds": [
+    "3C85723F3EC24C50BBCEA619E8910E3F",
+    "A9A8C67DAB694F2FB1B246910012217D"
+  ],
+  "nodeId": "3C779016FFD0438C9C1F6A7A3F33AFEA",
+  "childNodeId": "E95E6A176FB64F68AE880A28B8DF26F5",
+  "mappingIds": [
+    "9E76CC2D668C4FC1BA7A30D0DD1661F6",
+    "D7A9E837B6544C6EB93A5BFBF6E834B2"
+  ],
+  "marker": "SMOKE_LAYOUT_1793913485882",
+  "reads": 579,
+  "writes": 14,
+  "blockedRequests": 0,
+  "cancel": {
+    "additionalWrites": 0,
+    "independentReopen": true,
+    "originalLayout": ""
+  },
+  "exports": [
+    {
+      "stage": 0,
+      "detailCount": 1,
+      "requestDispatched": true,
+      "byteLength": 3391,
+      "sha256": "3b0cf4eaa816bb0161230b264f302e9327a86db2964a68038ec01b81ec409128",
+      "sheetCount": 1,
+      "nonemptyCells": 4,
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_LAYOUT",
+          "cells": {
+            "B2": "SMOKE_LAYOUT_1793913485882_S1",
+            "A4": "ITEM",
+            "A5": "SMOKE_LAYOUT_1793913485882_ITEM_1",
+            "B6": "SMOKE_LAYOUT_1793913485882_SOURCE_CODE"
+          }
+        }
+      ],
+      "matches": true
+    },
+    {
+      "stage": 1,
+      "detailCount": 2,
+      "requestDispatched": true,
+      "byteLength": 3403,
+      "sha256": "106408c64e7be004febe28f668ec23de4205c96559eee25385b027f99f21f690",
+      "sheetCount": 1,
+      "nonemptyCells": 5,
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_LAYOUT",
+          "cells": {
+            "B2": "SMOKE_LAYOUT_1793913485882_S1",
+            "A4": "ITEM",
+            "A5": "SMOKE_LAYOUT_1793913485882_ITEM_1",
+            "A6": "SMOKE_LAYOUT_1793913485882_ITEM_2",
+            "B7": "SMOKE_LAYOUT_1793913485882_SOURCE_CODE"
+          }
+        }
+      ],
+      "matches": true
+    }
+  ],
+  "sourceBeforeHash": "945c2293a1d3cf1eed79621faa71a08f5f5bb260a9b25c3d5063fe7faac7f612",
+  "sourceAfterHash": "945c2293a1d3cf1eed79621faa71a08f5f5bb260a9b25c3d5063fe7faac7f612",
+  "acks": [
+    {
+      "label": "create-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "C20F8EF5B2D149A0B67444A3520D8192"
+      ],
+      "writes": 1
+    },
+    {
+      "label": "create-source",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "E031807D56F743D79FFE0D8D78B875B2"
+      ],
+      "writes": 2
+    },
+    {
+      "label": "create-source-nodes",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "3C85723F3EC24C50BBCEA619E8910E3F",
+        "A9A8C67DAB694F2FB1B246910012217D"
+      ],
+      "writes": 3
+    },
+    {
+      "label": "create-export-nodes",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "3C779016FFD0438C9C1F6A7A3F33AFEA",
+        "E95E6A176FB64F68AE880A28B8DF26F5"
+      ],
+      "writes": 4
+    },
+    {
+      "label": "create-mapping-0",
+      "table": "Base_ImportData_Field",
+      "kind": "Added",
+      "ids": [
+        "9E76CC2D668C4FC1BA7A30D0DD1661F6"
+      ],
+      "writes": 5
+    },
+    {
+      "label": "create-mapping-1",
+      "table": "Base_ImportData_Field",
+      "kind": "Added",
+      "ids": [
+        "D7A9E837B6544C6EB93A5BFBF6E834B2"
+      ],
+      "writes": 6
+    },
+    {
+      "label": "save-layout",
+      "table": "Base_ImportData_Config",
+      "kind": "Changed",
+      "ids": [
+        "3C779016FFD0438C9C1F6A7A3F33AFEA"
+      ],
+      "writes": 7
+    },
+    {
+      "label": "cleanup-fields-E95E6A176FB64F68AE880A28B8DF26F5",
+      "table": "Base_ImportData_Field",
+      "kind": "Deleted",
+      "ids": [
+        "D7A9E837B6544C6EB93A5BFBF6E834B2"
+      ],
+      "writes": 8
+    },
+    {
+      "label": "cleanup-fields-3C779016FFD0438C9C1F6A7A3F33AFEA",
+      "table": "Base_ImportData_Field",
+      "kind": "Deleted",
+      "ids": [
+        "9E76CC2D668C4FC1BA7A30D0DD1661F6"
+      ],
+      "writes": 9
+    },
+    {
+      "label": "cleanup-node-E95E6A176FB64F68AE880A28B8DF26F5",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "E95E6A176FB64F68AE880A28B8DF26F5"
+      ],
+      "writes": 10
+    },
+    {
+      "label": "cleanup-node-3C779016FFD0438C9C1F6A7A3F33AFEA",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "3C779016FFD0438C9C1F6A7A3F33AFEA"
+      ],
+      "writes": 11
+    },
+    {
+      "label": "cleanup-source-nodes",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "3C85723F3EC24C50BBCEA619E8910E3F",
+        "A9A8C67DAB694F2FB1B246910012217D"
+      ],
+      "writes": 12
+    },
+    {
+      "label": "cleanup-scheme-C20F8EF5B2D149A0B67444A3520D8192",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "C20F8EF5B2D149A0B67444A3520D8192"
+      ],
+      "writes": 13
+    },
+    {
+      "label": "cleanup-scheme-E031807D56F743D79FFE0D8D78B875B2",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "E031807D56F743D79FFE0D8D78B875B2"
+      ],
+      "writes": 14
+    }
+  ],
+  "readbacks": [
+    {
+      "stage": 0,
+      "detailCount": 1,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "945c2293a1d3cf1eed79621faa71a08f5f5bb260a9b25c3d5063fe7faac7f612"
+    },
+    {
+      "stage": 1,
+      "detailCount": 2,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "945c2293a1d3cf1eed79621faa71a08f5f5bb260a9b25c3d5063fe7faac7f612"
+    },
+    {
+      "schemeId": "C20F8EF5B2D149A0B67444A3520D8192",
+      "solutionTotal": 0,
+      "nodesTotal": 0
+    },
+    {
+      "schemeId": "E031807D56F743D79FFE0D8D78B875B2",
+      "solutionTotal": 0,
+      "nodesTotal": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "rowid",
+      "values": [
+        "9E76CC2D668C4FC1BA7A30D0DD1661F6",
+        "D7A9E837B6544C6EB93A5BFBF6E834B2"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Config",
+      "field": "rowid",
+      "values": [
+        "3C779016FFD0438C9C1F6A7A3F33AFEA",
+        "E95E6A176FB64F68AE880A28B8DF26F5",
+        "3C85723F3EC24C50BBCEA619E8910E3F",
+        "A9A8C67DAB694F2FB1B246910012217D"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "configid",
+      "values": [
+        "3C779016FFD0438C9C1F6A7A3F33AFEA",
+        "E95E6A176FB64F68AE880A28B8DF26F5",
+        "3C85723F3EC24C50BBCEA619E8910E3F",
+        "A9A8C67DAB694F2FB1B246910012217D"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "config_id",
+      "values": [
+        "3C779016FFD0438C9C1F6A7A3F33AFEA",
+        "E95E6A176FB64F68AE880A28B8DF26F5",
+        "3C85723F3EC24C50BBCEA619E8910E3F",
+        "A9A8C67DAB694F2FB1B246910012217D"
+      ],
+      "total": 0
+    }
+  ],
+  "unknown": false,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-05T21:20:14.989Z"
+}

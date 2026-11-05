@@ -30,6 +30,24 @@ export type DataTableAddColumnsResult = {
   skipped: string[]
 }
 
+/** 领域保存规则的隔离只读输入，不暴露原查询身份和权限。 */
+export type DataTableQuerySaveRuleInput = Readonly<{
+  /** 仅声明依赖的可读值，独立于原草稿和捕获；不含行身份或权限凭据。 */
+  values: Readonly<Record<string, unknown>>
+  /** 本次依赖字段的真实变更交集。 */
+  changedFields: readonly string[]
+  /** 本次提交是否新增行。 */
+  created: boolean
+}>
+
+/** 本次DataTable实例的同步领域保存约束，不序列化、不替代列规则和来源授权。 */
+export type DataTableQuerySaveRule = Readonly<{
+  /** 回调所需的真实声明字段；不允许主键、内部凭据或重复字段。 */
+  fields: readonly string[]
+  /** 仅新增或依赖字段实际改变时执行；抛错拒绝首轮提交，不能异步查询、写值或保存。 */
+  validate(input: DataTableQuerySaveRuleInput): undefined
+}>
+
 /**
  * DataTable - 管理单表的结构定义与配置
  *
@@ -128,6 +146,22 @@ export class DataTable {
 
   /** 数据校验器（基于列定义创建） */
   validator?: DataValidator
+
+  #querySaveRule: DataTableQuerySaveRule | undefined
+
+  /** 当前模型实例的领域保存约束；所有命名视图共用，其他DataTable实例不继承。 */
+  get querySaveRule(): DataTableQuerySaveRule | undefined { return this.#querySaveRule }
+
+  /** 注册或清除本实例的同步保存约束；原未知提交继续按原捕获核验，不执行新规则。 */
+  setQuerySaveRule(rule: DataTableQuerySaveRule | undefined): void {
+    if (rule === undefined) { this.#querySaveRule = undefined; return }
+    const fields = [...rule.fields]
+    if (!fields.length || new Set(fields).size !== fields.length || fields.some(field =>
+      field === '_pk' || field.startsWith('lingma_sys_') || !this.columns.some(column => column.name === field && !column.isPrimaryKey))) {
+      throw new Error('DATA_TABLE_SAVE_RULE: 依赖必须是唯一的正式业务字段')
+    }
+    this.#querySaveRule = Object.freeze({fields: Object.freeze(fields), validate: rule.validate})
+  }
 
   // ===== 视图容器 =====
 
@@ -450,6 +484,7 @@ export class DataTable {
    * @remarks 应在 DataTable 不再使用时调用，防止内存泄漏
    */
   destroy(): void {
+    this.#querySaveRule = undefined
     for (const view of Object.values(this.views)) {
       view.destroy()
     }

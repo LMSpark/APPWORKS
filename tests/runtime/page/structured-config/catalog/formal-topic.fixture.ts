@@ -13,6 +13,6 @@ export function topicModels(scenarioId: string) {
     if(name==='Base_TblField')fields.push('tblid')
     const key = name === 'Base_FileInspectConfig' ? 'id' : name === 'Base_UserInfo' ? 'ID' : name === '_base_dbInfo' ? 'Id' : 'rowid'
     return buildFormalModels({[name]: fields}).map(model => ({...model, id: table.modelBinding.modelId, primaryKey: key,
-      fields: model.fields.map(field => ({...field, modelId: table.modelBinding.modelId, primaryKey: field.name === key,...(name==='Base_TblField'&&field.name==='tblid'?{output:false}:{})}))}))
+      fields: model.fields.map(field => ({...field, modelId: table.modelBinding.modelId, primaryKey: field.name === key,...(name==='Base_Import_solution'&&field.name==='transform_enabled'?{type:'tinyint'}:{}),...(name==='Base_TblField'&&field.name==='tblid'?{output:false}:{})}))}))
   })
 }

@@ -11,6 +11,8 @@
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "DataTableAddColumnsResult",
+      "DataTableQuerySaveRuleInput",
+      "DataTableQuerySaveRule",
       "DataTable"
     ]
   },
@@ -38,6 +40,62 @@
         "skipped"
       ],
       "additionalProperties": false
+    },
+    "DataTableQuerySaveRuleInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTableQuerySaveRuleInput",
+      "properties": {
+        "values": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "changedFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "created": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "values",
+        "changedFields",
+        "created"
+      ],
+      "additionalProperties": false
+    },
+    "DataTableQuerySaveRule": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataTableQuerySaveRule",
+      "properties": {
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.validate.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataTableQuerySaveRuleInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.validate.return": true
+      }
     },
     "DataTable": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -80,6 +138,9 @@
         "validator": {
           "$ref": "validation/validation.ts.json#/$defs/DataValidator"
         },
+        "querySaveRule": {
+          "$ref": "#/$defs/DataTableQuerySaveRule"
+        },
         "rows": {
           "type": "array",
           "items": {
@@ -121,6 +182,16 @@
           },
           "additionalProperties": false
         },
+        "method.setQuerySaveRule.params": {
+          "type": "object",
+          "properties": {
+            "rule": {
+              "$ref": "#/$defs/DataTableQuerySaveRule"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.setQuerySaveRule.return": true,
         "method.setDataSet.params": {
           "type": "object",
           "properties": {
@@ -322,7 +393,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:17:14.389Z",
+  "generatedAt": "2026-11-05T10:00:32.907Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -343,6 +414,88 @@
               "jsdoc": "因列名已存在而跳过的列名列表。",
               "readable": true,
               "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "DataTableQuerySaveRuleInput": {
+      "name": "DataTableQuerySaveRuleInput",
+      "jsdoc": "领域保存规则的隔离只读输入，不暴露原查询身份和权限。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 仅声明依赖的可读值，独立于原草稿和捕获；不含行身份或权限凭据。 */\n    values: Readonly<Record<string, unknown>>;\n    /** 本次依赖字段的真实变更交集。 */\n    changedFields: readonly string[];\n    /** 本次提交是否新增行。 */\n    created: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 仅声明依赖的可读值，独立于原草稿和捕获；不含行身份或权限凭据。 */\n    values: Readonly<Record<string, unknown>>;\n    /** 本次依赖字段的真实变更交集。 */\n    changedFields: readonly string[];\n    /** 本次提交是否新增行。 */\n    created: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "values",
+              "jsdoc": "仅声明依赖的可读值，独立于原草稿和捕获；不含行身份或权限凭据。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changedFields",
+              "jsdoc": "本次依赖字段的真实变更交集。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "created",
+              "jsdoc": "本次提交是否新增行。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataTableQuerySaveRule": {
+      "name": "DataTableQuerySaveRule",
+      "jsdoc": "本次DataTable实例的同步领域保存约束，不序列化、不替代列规则和来源授权。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 回调所需的真实声明字段；不允许主键、内部凭据或重复字段。 */\n    fields: readonly string[];\n    /** 仅新增或依赖字段实际改变时执行；抛错拒绝首轮提交，不能异步查询、写值或保存。 */\n    validate(input: DataTableQuerySaveRuleInput): undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 回调所需的真实声明字段；不允许主键、内部凭据或重复字段。 */\n    fields: readonly string[];\n    /** 仅新增或依赖字段实际改变时执行；抛错拒绝首轮提交，不能异步查询、写值或保存。 */\n    validate(input: DataTableQuerySaveRuleInput): undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fields",
+              "jsdoc": "回调所需的真实声明字段；不允许主键、内部凭据或重复字段。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "validate",
+              "jsdoc": "仅新增或依赖字段实际改变时执行；抛错拒绝首轮提交，不能异步查询、写值或保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataTableQuerySaveRuleInput",
+                    "sourcePath": "packages/spark-data/src/data-table.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "undefined"
+              }
             }
           ]
         }
@@ -449,6 +602,12 @@
               "writable": false
             },
             {
+              "name": "querySaveRule",
+              "jsdoc": "当前模型实例的领域保存约束；所有命名视图共用，其他DataTable实例不继承。",
+              "readable": true,
+              "writable": false
+            },
+            {
               "name": "rows",
               "jsdoc": "内联静态行（来自 pagedata.json 配置）——级联内存过滤的 source of truth。\n与 DataView.rows 不同：DataView.rows 是当前视图（可能已过滤）的行；\n此字段存储全量原始行，供无 API 的内存级联过滤重复使用。\n按当前建模约定，该字段主要仅用于 resourceType = 'static-data' 的表；\n其他资源类型应视为远端数据来源，此字段通常保持空数组。",
               "readable": true,
@@ -468,6 +627,27 @@
             }
           ],
           "methods": [
+            {
+              "name": "setQuerySaveRule",
+              "jsdoc": "注册或清除本实例的同步保存约束；原未知提交继续按原捕获核验，不执行新规则。",
+              "parameters": [
+                {
+                  "name": "rule",
+                  "type": {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "DataTableQuerySaveRule",
+                      "sourcePath": "packages/spark-data/src/data-table.ts"
+                    }
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "setDataSet",
               "jsdoc": "将 DataTable 绑定到 DataSet\n- 设置 `this.dataSet = ds`\n- 为已存在的所有视图建立级联订阅\n注意：`view.dataTable` 在视图创建时（构造函数 / getOrCreateView / fromJson）\n已确保赋值，此处不重复赋值，避免触发冗余的 syncFromConfig()。\n@param ds 所属 DataSet 实例。",

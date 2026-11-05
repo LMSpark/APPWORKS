@@ -1,14 +1,15 @@
 <!--
 @module @spark-appworks/spark-component:components/fields/data-components/text/FieldJson/JsonDataViewChoice
-FieldJson内部的标量成员选项控件，复用同一DataView选项解析，不查询、编辑选项记录或保存数据。
+FieldJson内部的标量及原生标量数组选项控件，复用同一DataView选项解析，不查询、编辑选项记录或保存数据。
 -->
 <template>
   <p v-if="state.error" role="alert">{{ state.error }}</p>
   <template v-else>
     <span v-if="nonScalar">当前值：{{ JSON.stringify(modelValue) }}</span>
-    <el-select :model-value="controlValue" :disabled="state.disabled" :aria-label="label" :persistent="false"
+    <p v-if="unmatched.length" role="status">未匹配选项：{{ unmatched.join('、') }}</p>
+    <el-select :model-value="controlValue" :multiple="multiple" :disabled="state.disabled" :aria-label="label" :persistent="false"
       placeholder="未配置" @update:model-value="choose">
-      <template #label>{{ selectedLabel }}</template>
+      <template #label="selected">{{ optionLabel(multiple ? selected.value : modelValue) }}</template>
       <el-option v-for="(option, index) in state.options" :key="index" :value="option.value" :label="option.label" :disabled="option.disabled" />
     </el-select>
   </template>
@@ -28,8 +29,14 @@ const props = defineProps<{
   label?: string
   /** 原字段只读或提交锁，只能进一步限制交互。 */
   disabled: boolean
+  /** 数组成员直接读写原生标量数组，不转换为对象行。 */
+  multiple?: boolean
+  /** 数组items声明的标量类型；不转换候选或已有值。 */
+  itemType?: string | undefined
 }>()
-const emit = defineEmits<{'update:modelValue': [value: string | number | boolean]}>()
+/** 保持原生类型的JSON标量选项值。 */
+type Scalar = string | number | boolean
+const emit = defineEmits<{'update:modelValue': [value: Scalar | Scalar[]]}>()
 const {sparkConsume} = useSparkConsume(), runtime = sparkConsume(PAGE_RUNTIME)
 let active = true
 const source = computed(() => {
@@ -46,13 +53,27 @@ const state = computed(() => {
   return {options, error: source.value.error || helpers.optionError.value,
     disabled: props.disabled || !view || view.destroyed || !helpers.optionsAvailable.value}
 })
+function scalar(value: unknown): value is Scalar {return ['string', 'number', 'boolean'].includes(typeof value)}
 const nonScalar = computed(() => props.modelValue !== undefined && props.modelValue !== null
-  && !['string', 'number', 'boolean'].includes(typeof props.modelValue))
-const controlValue = computed(() => nonScalar.value ? undefined : props.modelValue)
-const selectedLabel = computed(() => state.value.options.find(option => option.value === props.modelValue)?.label ?? String(props.modelValue ?? ''))
+  && (props.multiple ? !Array.isArray(props.modelValue) || !props.modelValue.every(scalar) : !scalar(props.modelValue)))
+const controlValue = computed(() => nonScalar.value ? props.multiple ? [] : undefined : props.modelValue)
+const unmatched = computed(() => (props.multiple && Array.isArray(props.modelValue) ? props.modelValue : [])
+  .filter(scalar).filter(value => !state.value.options.some(option => option.value === value)))
+function optionLabel(value: unknown): string {return state.value.options.find(option => option.value === value)?.label ?? String(value ?? '')}
+function matchesItemType(value: Scalar): boolean {
+  return !props.itemType || props.itemType === typeof value || props.itemType === 'integer' && typeof value === 'number' && Number.isInteger(value)
+}
 function choose(value: unknown): void {
   const view = source.value.view
   if (!active || state.value.disabled || !view || view.destroyed || view.dataSet?.destroyed) return
+  if (props.multiple) {
+    if (!Array.isArray(value) || !value.every(scalar) || new Set(value).size !== value.length) return
+    const previous: unknown[] = Array.isArray(props.modelValue) ? props.modelValue : []
+    if (value.every(item => previous.includes(item) || matchesItemType(item) && state.value.options.some(option => option.value === item && option.disabled !== true))) {
+      emit('update:modelValue', [...value])
+    }
+    return
+  }
   const option = state.value.options.find(item => item.value === value && item.disabled !== true)
   if (option) emit('update:modelValue', option.value)
 }

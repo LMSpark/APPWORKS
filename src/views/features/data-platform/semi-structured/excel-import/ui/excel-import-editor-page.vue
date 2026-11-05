@@ -13,9 +13,12 @@
       <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
         <FieldText field="solutionName" label="方案名称" :readonly="true" />
         <FieldText field="dataSetId" label="方案数据空间" :readonly="true" />
+        <FieldCheckbox field="transform_enabled" label="启用增强规则" :true-value="1" :false-value="0" :readonly="locked" />
       </RendererForm>
+      <RendererButton :label="isUnconfirmed(schemeTable) ? '核验增强规则开关保存结果' : '保存增强规则开关'" :disabled="busy" @click="save(schemeTable)" />
+      <RendererButton label="取消增强规则开关修改" :disabled="busy || unconfirmed" @click="cancel(schemeTable)" />
       <div class="excel-workspaces">
-        <aside :inert="acting || !!targetChange || !!removal || !!fieldReference">
+        <aside :inert="(acting || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes')) || undefined">
           <RendererButton :data-view-key="nodesKey" label="新增根配置" perm-action="create" :disabled="locked" @click="addRoot" />
           <RendererButton :data-view-key="nodesKey" label="新增同级配置" perm-action="create" :disabled="locked" @click="addNode('sibling')" />
           <RendererButton :data-view-key="nodesKey" label="新增子级配置" perm-action="create" :disabled="locked || !selectedNode" @click="addNode('child')" />
@@ -106,11 +109,12 @@ import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionar
 import ExcelTargetDialog from './excel-import-target-dialog.vue'
 import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
 
-const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, FieldText, FieldNumber, FieldSelect, FieldJson, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
 const nodesTable = 'Base_ImportData_Config', fieldsTable = 'Base_ImportData_Field', rulesTable = 'Base_Import_Transform_Rule'
+const schemeTable = 'Base_Import_solution'
 const key = (table: string) => buildDataViewKey(table, 'default', scene)
 const nodesKey = key(nodesTable), fieldsKey = key(fieldsTable), rulesKey = key(rulesTable), methodsKey = key('ImportExportMethods')
 const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catalogScene)
@@ -128,9 +132,9 @@ const targetSaveLabel = computed(() => {
 })
 const removal = shallowRef<ExcelConfigurationRemoval>(), removalState = computed(() => {revision.value; return removal.value?.getState()})
 let runtime: PageRuntime | undefined, unsubscribers: Array<() => void> = [], generation = 0, active = true
-const view = (table: string) => dataSet.value?.getView(table)
-const views = computed(() => Object.values(dataSet.value?.tables ?? {}).flatMap(table => table.viewList))
-const validTarget = computed(() => {revision.value; return catalog.value?.getView('Base_Import_solution','editorTarget')?.rows.length === 1})
+const view = (table: string) => table === schemeTable ? catalog.value?.getView(table, 'editorTarget') : dataSet.value?.getView(table)
+const views = computed(() => [...Object.values(dataSet.value?.tables ?? {}).flatMap(table => table.viewList), ...[view(schemeTable)].filter(item => item !== undefined)])
+const validTarget = computed(() => {revision.value; const target=view(schemeTable), row=target?.rows[0]; return target?.rows.length === 1 && row !== undefined && target.getPkKey(row) === importConfigId.value})
 const loading = computed(() => {revision.value; return opening.value || views.value.some(item => item.requestState === RequestState.Preparing || item.requestState === RequestState.Loading)})
 const missing = computed(() => ready.value && !validTarget.value)
 const busy = computed(() => acting.value || loading.value)
@@ -203,6 +207,7 @@ watch(importConfigId, async id => {
     if (!active || own!==generation) return
     if (target.rows.length>1) throw new Error('方案身份不唯一')
     if (target.rows.length===1) {
+      if (target.getPkKey(target.rows[0]!) !== id) throw new Error('方案身份与调用参数不一致')
       nodes.setTreeConfig({idField:'rowid',parentIdField:'pid',textField:'sheetName',rootParentValue:id,lazy:false})
       sparkProvide(PAGE_RUNTIME,page); dataSet.value!.triggerAutoLoad()
     }
@@ -224,7 +229,7 @@ async function save(table: string): Promise<void> {await act(table,async target=
     await targetChange.value.save(); if (targetChange.value.getState().done) targetChange.value = undefined
     return
   }
-  if (pendingPart(table===nodesTable?'nodes':table===rulesTable?'rules':'fields')) return
+  if (pendingPart(table===schemeTable?'scheme':table===nodesTable?'nodes':table===rulesTable?'rules':'fields')) return
   const structural=ExcelConfigurationEdit.hasStructuralChanges(target)
   if(structural && !target.hasUnconfirmedSave && (table===nodesTable||table===fieldsTable)){
     const own=generation,page=runtime,ds=dataSet.value,id=view(nodesTable)?.currentRow?.['rowid']
@@ -235,7 +240,9 @@ async function save(table: string): Promise<void> {await act(table,async target=
     await targetChange.value.save();if(targetChange.value.getState().done)targetChange.value=undefined
     return
   }
-  const result=await dataSet.value!.saveChanges({views:[{tableName:table,viewId:'default'}]})
+  const owner=table===schemeTable?catalog.value:dataSet.value
+  if(table===schemeTable && !validTarget.value)throw new Error('方案身份与调用参数不一致')
+  const result=await owner!.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,...(table===schemeTable?{ids:[importConfigId.value]}:{})}]})
   if(!result.success)throw new Error(result.message??'保存未完整确认')
 })}
 function cancel(table: string): void {if(!busy.value&&!unconfirmed.value){try{if(targetChange.value && [nodesTable,fieldsTable].includes(table)){if(!targetChange.value.owns(table))throw new Error('请从原入口取消结构修改');targetChange.value.cancel();targetChange.value=undefined}else view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}}

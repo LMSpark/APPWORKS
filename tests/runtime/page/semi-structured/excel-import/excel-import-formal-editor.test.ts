@@ -3,8 +3,8 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTree, FieldJson, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
-import {ElSelect} from 'element-plus'
+import {RendererTree, FieldJson, FieldCheckbox, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {ElSelect, ElCheckbox} from 'element-plus'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import SparkJsonEditor from '../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
@@ -34,7 +34,7 @@ beforeEach(() => {
   state.http = new ApiBackend(); state.http.primaryKeys['Base_Import_Transform_Rule'] = 'id'
   state.http.records = {
     ...sourceRecords(),
-    Base_Import_solution: [{rowid: 'E1', solutionName: '订单导入', dataSetId: 'S1'}, {rowid: 'E2', solutionName: '其他方案'}],
+    Base_Import_solution: [{rowid: 'E1', solutionName: '订单导入', dataSetId: 'S1', transform_enabled:0, status:'UNCHANGED'}, {rowid: 'E2', solutionName: '其他方案'}],
     Base_DataSet: [], Base_UserInfo: [],
     _Base_DictType:[{rowid:'D1',TypeName:'状态',functiondesc:'业务状态',txt:'状态名',val:'状态码',secondValue:'扩展一',thirdValue:'',fourthvalue:'',fiveValue:''}],
     Base_ImportData_Config: [{rowid: 'C1', schemeid: 'E1', pid: 'E1', sheetName: '订单', sheet: 0, titleIndex: 1, dataIndex: 2, sheet_layout_json: '{"keep":false}'}],
@@ -77,6 +77,86 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('preserves an unknown layout version byte-for-byte during an unrelated edit and independent reopen', async () => {
+    const original = '{"version":73,"enabled":false,"future":{"zero":0,"active":false}}'
+    state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json'] = original
+    const f = await open(); await f.choose()
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    await sheet.get('input').setValue('保留版式'); await flushPromises(); await f.click('保存配置')
+    expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe(original)
+    const reopened = await open(); await reopened.choose()
+    const layout = reopened.wrapper.findAllComponents(FieldJson).find(field => field.props('field') === 'sheet_layout_json')!
+    expect(layout.getComponent(SparkJsonEditor).props('modelValue')).toBe(original)
+    expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
+  })
+
+  it('locks node navigation while invalid layout JSON remains unaccepted and releases it through the original cancel', async () => {
+    const f = await open(); await f.choose()
+    const layout = f.wrapper.findAllComponents(FieldJson).find(field => field.props('field') === 'sheet_layout_json')!
+    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{'); await flushPromises()
+    expect(f.wrapper.get('aside').element.hasAttribute('inert')).toBe(true)
+    expect(f.wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '保存配置')?.props('disabled')).toBe(true)
+    await f.click('取消配置修改')
+    expect(f.wrapper.get('aside').element.hasAttribute('inert')).toBe(false)
+    expect(state.http.saves).toEqual([])
+  })
+
+  it('rejects a single returned scheme whose real primary key differs from the requested target', async () => {
+    let injected = false
+    state.http.interceptors.request.use({onRequest: request => {
+      const body = request.data as {Table?: Array<{Name?: string}>} | undefined
+      if (request.url === '/api/DataOperation/GetData' && body?.Table?.[0]?.Name === 'Base_Import_solution') {
+        const text = JSON.stringify(body)
+        if (text.includes('"E1"')) {request.data = JSON.parse(text.replaceAll('"E1"', '"E2"')); injected = true}
+      }
+      return request
+    }})
+    const f = await open()
+    await vi.waitFor(() => expect(injected).toBe(true))
+    await vi.waitFor(() => expect(f.wrapper.text()).toContain('方案身份与调用参数不一致'))
+    expect(f.wrapper.findAllComponents(FieldCheckbox).some(field => field.props('field') === 'transform_enabled')).toBe(false)
+    expect(state.http.saves).toEqual([])
+    expect(state.dirtySources[0]?.isDirty).toBe(false)
+  })
+
+  it('saves and reopens only the scheme switch while retaining independent node drafts and original status', async () => {
+    const f = await open(); await f.choose()
+    const checkbox = () => f.wrapper.findAllComponents(FieldCheckbox).find(field => field.props('field') === 'transform_enabled')!
+    expect(checkbox()).toBeDefined()
+    checkbox().getComponent(ElCheckbox).vm.$emit('update:modelValue', true); await flushPromises()
+    expect(state.dirtySources[0]?.isDirty).toBe(true)
+    expect(state.http.saves).toEqual([])
+    await f.click('取消增强规则开关修改')
+    expect(checkbox().getComponent(ElCheckbox).props('modelValue')).toBe(false)
+    expect(state.dirtySources[0]?.isDirty).toBe(false)
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    await sheet.get('input').setValue('节点草稿'); await flushPromises()
+    checkbox().getComponent(ElCheckbox).vm.$emit('update:modelValue', true); await flushPromises()
+    await f.click('保存增强规则开关')
+    expect(f.wrapper.findAll('[role="alert"]').map(item=>item.text())).toEqual([])
+    expect(state.http.saves.map(save => save.table)).toEqual(['Base_Import_solution'])
+    expect(state.http.records['Base_Import_solution']![0]).toMatchObject({rowid:'E1', transform_enabled:1, status:'UNCHANGED'})
+    expect(state.http.records['Base_ImportData_Config']![0]!['sheetName']).toBe('订单')
+    expect(sheet.get('input').element.value).toBe('节点草稿')
+    expect(state.dirtySources[0]?.isDirty).toBe(true)
+    await f.click('取消配置修改'); expect(state.dirtySources[0]?.isDirty).toBe(false)
+    const reopened = await open()
+    const actual = reopened.wrapper.findAllComponents(FieldCheckbox).find(field => field.props('field') === 'transform_enabled')!
+    await vi.waitFor(() => expect(actual.getComponent(ElCheckbox).props('modelValue')).toBe(true))
+    expect(state.http.saves).toHaveLength(1)
+  })
+
+  it('keeps unsaved scheme switch changes inside the original page navigation guard', async () => {
+    const f = await open(); await f.choose()
+    const checkbox = f.wrapper.findAllComponents(FieldCheckbox).find(field => field.props('field') === 'transform_enabled')!
+    expect(checkbox).toBeDefined()
+    checkbox.getComponent(ElCheckbox).vm.$emit('update:modelValue', true); await flushPromises()
+    await f.router.push('/other'); expect(f.router.currentRoute.value.path).toBe('/editor')
+    await f.click('取消增强规则开关修改')
+    await f.router.push('/other'); expect(f.router.currentRoute.value.path).toBe('/other')
+    expect(state.http.saves).toEqual([])
+  })
+
   it('does not carry a cancelled browsing choice into another empty mapping in the same runtime',async()=>{
     state.http.records['Base_ImportData_Field']!.push({rowid:'NEW_MAPPING',configid:'C1',name:'other',title:'另一个字段',index:'B',type:0})
     const f=await open();await f.choose();const mappings=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!

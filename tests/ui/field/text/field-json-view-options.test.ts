@@ -9,11 +9,11 @@ import {PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkCompone
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = [], original = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = original})
-async function fixture(key = 'O@Choices@default') {
+async function fixture(key = 'O@Choices@default', field: unknown = 'old', multiple = false) {
   registerAllRenderers()
   const owner = SparkData.fromJson({scenarioId: 'S', dataSetName: 'Owner', tables: {
     Inputs: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'json', type: 'string'}],
-      views: {default: {commitMode: 'staged', rows: [{id: 'a', json: '{"field":"old","keep":false}'}]}}},
+      views: {default: {commitMode: 'staged', rows: [{id: 'a', json: JSON.stringify({field, keep: false})}]}}},
     Choices: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string'}],
       views: {default: {valueField: 'id', labelField: 'title', rows: [{id: 'old', title: '错误空间候选'}]}}},
   }})
@@ -26,8 +26,8 @@ async function fixture(key = 'O@Choices@default') {
   await runtime.load(); runtimes.push(runtime)
   const view = owner.getView('Inputs')!, choices = options.getView('Choices')!, readonly = ref(false)
   view.setCurrentRowById('a')
-  const schema = ref<JsonSchemaObject>({type: 'object', properties: {field: {type: 'string', title: '业务字段',
-    enum: ['static-fallback'], 'x-optionDataViewKey': key}}})
+  const schema = ref<JsonSchemaObject>({type: 'object', properties: {field: {type: multiple ? 'array' : 'string', title: '业务字段',
+    ...(multiple ? {items: {type: 'string'}} : {enum: ['static-fallback']}), 'x-optionDataViewKey': key}}})
   const stubs = {...original}
   for (const name of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[name]
   config.global.stubs = stubs
@@ -98,4 +98,67 @@ describe('JSON member DataView option bindings', () => {
     select.vm.$emit('update:modelValue', 'new'); await flushPromises()
     expect(f.view.hasEditingChanges()).toBe(false)
   })
+  it('edits a native string array through the option view and cancels only the original JSON field', async () => {
+    const f = await fixture('O@Choices@default', ['old', 'missing'], true), select = f.wrapper.getComponent(ElSelect)
+    expect(select.props('multiple')).toBe(true)
+    expect(f.wrapper.text()).toContain('missing')
+    expect(f.view.hasEditingChanges()).toBe(false)
+    select.vm.$emit('update:modelValue', ['old', 'missing', 'new']); await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['json']))).toEqual({field: ['old', 'missing', 'new'], keep: false})
+    expect(f.choices.hasEditingChanges()).toBe(false)
+    f.view.discardEditingRows(['a']); await flushPromises()
+    expect(f.wrapper.getComponent(ElSelect).props('modelValue')).toEqual(['old', 'missing'])
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+
+  it('rejects unoffered values, duplicate values and wrong native item types without losing an existing array', async () => {
+    const f = await fixture('O@Choices@default', ['old'], true)
+    for (const value of [['old', 'not-offered'], ['new', 'new'], [0], 'new', [{field: 'new'}]]) {
+      f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', value); await flushPromises()
+      expect(f.view.hasEditingChanges()).toBe(false)
+    }
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', []); await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['json']))).toEqual({field: [], keep: false})
+  })
+
+  it('keeps array edits under the original readonly and released-view guards', async () => {
+    const f = await fixture('O@Choices@default', ['old'], true)
+    f.readonly.value = true; await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', ['new']); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    f.readonly.value = false; await flushPromises()
+    f.choices.destroy()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', ['new']); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+
+  it('preserves native zero and boolean values from the bound option view without string coercion', async () => {
+    const f = await fixture('O@Choices@default', [], true)
+    f.schema.value = {type: 'object', properties: {field: {type: 'array', items: {}, 'x-optionDataViewKey': 'O@Choices@default'}}}
+    f.choices.replaceRows([{id: 'zero', code: 0, title: '零'}, {id: 'false', code: false, title: '否'}]); await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', [0, false]); await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['json']))).toEqual({field: [0, false], keep: false})
+    expect(f.choices.hasEditingChanges()).toBe(false)
+  })
+
+  it('enforces array item type even when an incorrectly typed candidate is offered', async () => {
+    const f = await fixture('O@Choices@default', ['old'], true)
+    f.choices.replaceRows([{id: 'zero', code: 0, title: '零'}]); await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', [0]); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+
+  it('retains an existing unmatched item while applying the item type only to newly chosen values', async () => {
+    const f = await fixture('O@Choices@default', [7], true)
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', [7, 'new']); await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['json']))).toEqual({field: [7, 'new'], keep: false})
+  })
+
+  it.each([{value:[{field: 'old'}]}, {value:[null]}])('keeps complex array $value in the JSON editor instead of replacing it through a scalar picker', async ({value:field}) => {
+    const f = await fixture('O@Choices@default', field, true)
+    expect(f.wrapper.findComponent(ElSelect).exists()).toBe(false)
+    expect(f.wrapper.find('textarea').exists()).toBe(true)
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+
 })

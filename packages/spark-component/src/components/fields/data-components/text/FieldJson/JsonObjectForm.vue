@@ -23,8 +23,10 @@ AI用途：通过r-json form模式编辑配置，复用外层字段权限、草�
         <JsonObjectForm v-if="member.schema.type === 'object'" :model-value="JSON.stringify(value(member.name) === undefined ? {} : value(member.name))"
           :schema="member.schema" :read-only="readOnly" :busy="busy || committing" :commit="text => write(member.name, parseJsonDocument(text))"
           @editing-change="value => childEditing.set(member.name, value)" />
-        <JsonDataViewChoice v-else-if="Object.hasOwn(member.schema, 'x-optionDataViewKey')" :model-value="value(member.name)"
+        <JsonDataViewChoice v-else-if="Object.hasOwn(member.schema, 'x-optionDataViewKey') && (member.schema.type !== 'array' || scalarArray(member.name))" :model-value="value(member.name)"
           :option-data-view-key="typeof member.schema['x-optionDataViewKey'] === 'string' ? member.schema['x-optionDataViewKey'] : ''"
+          :multiple="member.schema.type === 'array'"
+          :item-type="typeof member.schema.items === 'object' && typeof member.schema.items.type === 'string' ? member.schema.items.type : undefined"
           :label="member.schema.title || member.name" :disabled="locked" @update:model-value="write(member.name, $event)" />
         <el-select v-else-if="arrayChoices(member.schema).length && scalarArray(member.name)" multiple
           :model-value="value(member.name)" :disabled="locked" :aria-label="member.schema.title || member.name" :persistent="false"

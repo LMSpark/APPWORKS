@@ -1,0 +1,110 @@
+{
+  "scope": "Original catalog editorTarget DataView and DataSet save: isolated scheme switch cancellation, ON/OFF, independent reopen and exact cleanup",
+  "native": {
+    "handle": 66683,
+    "wrapperPid": 14288,
+    "processId": 5912,
+    "exitCode": 0
+  },
+  "audit": {
+    "phase": "confirmed",
+    "processId": 5912,
+    "schemeId": "BD1A8447E979495185C6E514223E7E03",
+    "marker": "SMOKE_EXCEL_TRANSFORM_SWITCH_1793879266789",
+    "acks": [
+      {
+        "label": "create",
+        "writes": 1
+      },
+      {
+        "label": "enable",
+        "writes": 2
+      },
+      {
+        "label": "disable",
+        "writes": 3
+      },
+      {
+        "label": "cleanup",
+        "writes": 4
+      }
+    ],
+    "proofs": [
+      {
+        "id": "BD1A8447E979495185C6E514223E7E03",
+        "transform_enabled": 0,
+        "independentRuntime": true
+      },
+      {
+        "id": "BD1A8447E979495185C6E514223E7E03",
+        "transform_enabled": 0,
+        "independentRuntime": true
+      },
+      {
+        "id": "BD1A8447E979495185C6E514223E7E03",
+        "transform_enabled": 1,
+        "independentRuntime": true
+      },
+      {
+        "id": "BD1A8447E979495185C6E514223E7E03",
+        "transform_enabled": 1,
+        "independentRuntime": true
+      },
+      {
+        "id": "BD1A8447E979495185C6E514223E7E03",
+        "transform_enabled": 0,
+        "independentRuntime": true
+      },
+      {
+        "id": "BD1A8447E979495185C6E514223E7E03",
+        "transform_enabled": 0,
+        "independentRuntime": true
+      }
+    ],
+    "fixtureRemaining": false,
+    "reads": 57,
+    "writes": 4,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "cleanupHandoff": null,
+    "testedAt": "2026-11-05T11:48:08.610Z",
+    "cancel": {
+      "writes": 0,
+      "transform_enabled": 0
+    },
+    "cleanedAt": "2026-11-05T11:48:08.610Z"
+  },
+  "host": {
+    "processId": 5912,
+    "hostReads": 8,
+    "blockedFetches": 0
+  },
+  "sourceFreeze": {
+    "artifacts/data-chain-smoke/excel-transform-switch-live.mts": "47a7ee402cd506454651d67e7f68bb92e43b325513fe4c53ba9c612c3c49acec",
+    "artifacts/data-chain-smoke/excel-transform-switch-live-run.mts": "31d9e4bbd8318d05d990d12685faf93acf7c2f9b9c3af884bb579d67ad0dc0a8",
+    "artifacts/data-chain-smoke/excel-transform-switch-live-driver.ps1": "a5f66074ea290d76acfa6eb384a0d0605ac3301493390497c669e67d59b1b457",
+    "config/pages/semi-structured/excel-import-catalog/pagedata.json": "9778cce381c31465aae5e0da2d70fd50049beb2d98acb46885ee413abe6fde61",
+    "src/lowcode/resources/semi-structured/excel-import/resource.ts": "cb2b62579100524dd18f8a309a5dccd1fc968ef7e0ef0f97e7b2741efe276009",
+    "packages/spark-data/src/data-table.ts": "fced07286567a7aa8f394a01d8e6fd6c630e0a8bfe0122115717c9845a87261f",
+    "packages/spark-data/src/data-view.ts": "b0eaf5b05c4b4873c43b78c860c5d0c89df6657f2db3d7e19cc39eb6abf4783e"
+  },
+  "sourceHashesUnchanged": true,
+  "independentAbsence": {
+    "exactSchemeId": "BD1A8447E979495185C6E514223E7E03",
+    "rows": 0,
+    "total": 0,
+    "countReported": true,
+    "assertedByOriginalScriptBeforeConfirmed": true
+  },
+  "limits": {
+    "onlyOwnedSchemeCRUD": true,
+    "statusNotSubmitted": true,
+    "sourceBusinessWrites": 0,
+    "fileWrites": 0,
+    "transformationRulesSaved": false,
+    "ruleExecutionVerified": false,
+    "realWorkbookExportVerified": false,
+    "browserVerified": false
+  }
+}

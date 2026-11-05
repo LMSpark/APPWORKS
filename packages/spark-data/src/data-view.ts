@@ -39,7 +39,7 @@ import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
 import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import { RequestState } from './types'
 import { TreeManager } from './node-tree/tree-manager'
-import type { DataTable } from './data-table'
+import type { DataTable, DataTableQuerySaveRule } from './data-table'
 import type { DataSet } from './dataset'
 import type { CrudService } from './strategies/crud/crud-service'
 import type { DataValidator } from './validation/validation'
@@ -3165,6 +3165,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return {view: target.view, capture}
     })
     for (const { view, capture } of captures) view.validateQuerySaveColumns(capture)
+    if (!recovering) for (const { view, capture } of captures) view.validateQuerySaveDomain(capture)
     if (!recovering) for (const { view, capture } of captures) await view.validateQuerySaveReferences(capture)
     const active = captures.filter(({ capture }) => capture.added.length + capture.changed.length + capture.deleted.length > 0)
     const first = active[0]
@@ -3322,6 +3323,32 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return [...added, ...changed]
   }
 
+  /** 领域约束只消费本次精确提交行；依赖值隔离，不暴露原查询凭据或修改捕获。 */
+  private validateQuerySaveDomain(capture: DataViewQuerySavePreview): void {
+    const rule = this._dataTable?.querySaveRule
+    if (rule === undefined) return
+    for (const item of this.querySaveRuleRows(capture)) {
+      const changedFields = rule.fields.filter(field => item.fields.has(field))
+      if (!item.created && !changedFields.length) continue
+      const values: Record<string, unknown> = {}
+      for (const field of rule.fields) {
+        if (this.effectivePkFields.includes(field)) throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${field}: 领域约束不能读取行身份字段`)
+        if (!this.columns.some(column => column.name === field) || this.queryConfig.fields !== undefined && !this.queryConfig.fields.includes(field)
+          || this.fieldAccess(item.row, field).read !== 'visible') throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${field}: 领域约束依赖不可读`)
+        if (!item.created && (!Object.hasOwn(item.row, field) || item.row[field] === undefined && !(item.fields.has(field) && capture.context.undefinedChanges === 'clear'))) {
+          throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${field}: 领域约束依赖未返回正式值`)
+        }
+        values[field] = structuredClone(item.row[field])
+      }
+      const validate: (...args: Parameters<DataTableQuerySaveRule['validate']>) => unknown = rule.validate
+      const result: unknown = validate(Object.freeze({values: Object.freeze(values), changedFields: Object.freeze(changedFields), created: item.created}))
+      if (result !== undefined) {
+        void Promise.resolve(result).catch(() => undefined)
+        throw new Error('DATA_VIEW_SAVE_VALIDATION: 领域保存约束必须同步且不返回值')
+      }
+    }
+  }
+
   /** 选项引用与值函数规则；只读来源视图正式查询，不改变提交捕获。 */
   private async validateQuerySaveReferences(capture: DataViewQuerySavePreview): Promise<void> {
     if (!this.columns.some(column => column.optionsView !== undefined || column.valueFunction !== undefined)) return
@@ -3470,7 +3497,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   /** @internal DataSet 在应用任何编辑缓冲前复用原查询列校验，不改变保存状态。 */
   assertQuerySaveColumns(input: DataViewQuerySaveValidationInput): void {
     if (this.#refreshingSavedRowPermissions) throw new Error('DATA_VIEW_SAVED_ROW_PERMISSIONS_BUSY: 新增行权限正在回读')
-    this.validateQuerySaveColumns(this.previewQuerySave(input), input.includeEditingRows)
+    const preview = this.previewQuerySave(input)
+    this.validateQuerySaveColumns(preview, input.includeEditingRows)
+    this.validateQuerySaveDomain(preview)
   }
 
   /** 按当前待提交状态构造只读预览；可叠加编辑覆盖，不应用任何修改。 */

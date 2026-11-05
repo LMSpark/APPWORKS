@@ -1,0 +1,197 @@
+{
+  "scope": "One exact formal model field output-definition repair; no scheme or business data writes",
+  "phase": "confirmed",
+  "testedAt": "2026-11-05T11:19:30.361Z",
+  "native": {
+    "handle": 8385,
+    "childWrapperPid": 29088,
+    "processId": 14096,
+    "exitCode": 0
+  },
+  "formalReads": 41,
+  "crudWrites": 1,
+  "blockedRequests": 0,
+  "unknown": false,
+  "host": {
+    "processId": 14096,
+    "hostReads": 6,
+    "blockedFetches": 0
+  },
+  "before": {
+    "allowAIAdd": false,
+    "canonicalName": "transform_enabled",
+    "computed": false,
+    "description": "是否启用标准转换规则：0兼容旧导入；1启用",
+    "id": "385AD6A188774DA8712B309325A1628D",
+    "modelId": "36B01771C627B9BF5CD493DC75B996A1p000",
+    "name": "transform_enabled",
+    "order": 0,
+    "orderType": "",
+    "output": false,
+    "primaryKey": false,
+    "raw": {
+      "AsName": "",
+      "DISTINCT": 0,
+      "Expression": "",
+      "FieldType": "tinyint",
+      "Group": 0,
+      "IsOutput": 0,
+      "IsPKey": 0,
+      "Name": "transform_enabled",
+      "Order": 0,
+      "OrderType": "",
+      "ReportID": null,
+      "Value": null,
+      "ValueFun": "",
+      "aiMemo": null,
+      "aiSort": 0,
+      "allowAIAdd": 0,
+      "createtime": "2026-09-17T14:31:24",
+      "createuser": "U00031",
+      "dataModelId": "36B01771C627B9BF5CD493DC75B996A1p000",
+      "dataSetId": "36B01771C627B9BF5CD493DC75B996A1",
+      "description": "是否启用标准转换规则：0兼容旧导入；1启用",
+      "flowstate": 0,
+      "rowid": "385AD6A188774DA8712B309325A1628D",
+      "type": "dataModel",
+      "updatetime": "2026-09-17T14:31:24",
+      "updateuser": "U00031",
+      "wfid": null
+    },
+    "type": "tinyint"
+  },
+  "after": {
+    "allowAIAdd": false,
+    "canonicalName": "transform_enabled",
+    "computed": false,
+    "description": "是否启用标准转换规则：0兼容旧导入；1启用",
+    "id": "385AD6A188774DA8712B309325A1628D",
+    "modelId": "36B01771C627B9BF5CD493DC75B996A1p000",
+    "name": "transform_enabled",
+    "order": 0,
+    "orderType": "",
+    "output": true,
+    "primaryKey": false,
+    "raw": {
+      "AsName": "",
+      "DISTINCT": 0,
+      "Expression": "",
+      "FieldType": "tinyint",
+      "Group": 0,
+      "IsOutput": 1,
+      "IsPKey": 0,
+      "Name": "transform_enabled",
+      "Order": 0,
+      "OrderType": "",
+      "ReportID": null,
+      "Value": null,
+      "ValueFun": "",
+      "aiMemo": null,
+      "aiSort": 0,
+      "allowAIAdd": 0,
+      "createtime": "2026-09-17T14:31:24",
+      "createuser": "U00031",
+      "dataModelId": "36B01771C627B9BF5CD493DC75B996A1p000",
+      "dataSetId": "36B01771C627B9BF5CD493DC75B996A1",
+      "description": "是否启用标准转换规则：0兼容旧导入；1启用",
+      "flowstate": 0,
+      "rowid": "385AD6A188774DA8712B309325A1628D",
+      "type": "dataModel",
+      "updatetime": "2026-11-05T19:19:27",
+      "updateuser": "U00031",
+      "wfid": null
+    },
+    "type": "tinyint"
+  },
+  "modelComparison": "Complete sanitized canonical model identical except exact target output/raw.IsOutput and target server-maintained updatetime",
+  "modelBeforeSha256": "4ce8a7f65a5640fc0307e619762a8e1d77b2f601e189e77835bac5607e289743",
+  "modelAfterSha256": "94f75f1964f94c034d09376a3dc216ba6a022785169380540b0818cd11db4b9f",
+  "independentField": {
+    "id": "385AD6A188774DA8712B309325A1628D",
+    "name": "transform_enabled",
+    "IsOutput": 1
+  },
+  "runtimeReadback": {
+    "schemeId": "014FF0030A017C3F13C7159802C6100C",
+    "transform_enabled": 0,
+    "access": {
+      "read": "visible",
+      "write": "allowed",
+      "component": "editable",
+      "required": false,
+      "writeMode": "editable"
+    },
+    "commitMode": "staged",
+    "fields": [
+      "rowid",
+      "coding",
+      "solutionName",
+      "dataSetId",
+      "templatePath",
+      "transform_enabled"
+    ],
+    "noSchemeWrite": true
+  },
+  "serverMaintainedTimestamp": {
+    "before": "2026-09-17T14:31:24",
+    "after": "2026-11-05T19:19:27"
+  },
+  "previousZeroWriteAttempts": [
+    {
+      "phase": "failed",
+      "reads": 4,
+      "writes": 0,
+      "blockedRequests": 0,
+      "unknown": false,
+      "error": "output repair blocked fetch /__spark/repository-scenarios",
+      "fieldId": "385AD6A188774DA8712B309325A1628D"
+    },
+    {
+      "phase": "failed",
+      "reads": 4,
+      "writes": 0,
+      "blockedRequests": 0,
+      "unknown": false,
+      "error": "output repair blocked fetch /__spark/repository-scenarios",
+      "fieldId": "385AD6A188774DA8712B309325A1628D"
+    }
+  ],
+  "sourceFreezes": [
+    {
+      "prefix": "excel-transform-output-repair",
+      "hashes": {
+        "artifacts/data-chain-smoke/excel-transform-output-repair.mts": "0d22b7f36217e9bec0479475a8427a3dac72ae13a1bbd6eb1a626f40dd4502f6",
+        "artifacts/data-chain-smoke/excel-transform-output-repair-run.mts": "a9d0ea94bdcbf33a09f0bd05f36a61f07463375d7b564967b72fa03af047fd9d",
+        "artifacts/data-chain-smoke/excel-transform-output-repair-driver.ps1": "8c9320649758673ab603567767df38a020c8db280725d2cc91ca7c7882b1720a"
+      },
+      "unchanged": true
+    },
+    {
+      "prefix": "excel-transform-output-repair-v2",
+      "hashes": {
+        "artifacts/data-chain-smoke/excel-transform-output-repair-v2.mts": "18deebe2ca4a528571a47b26e271b4a6b226f84cce36c348c474bd72b9ec8843",
+        "artifacts/data-chain-smoke/excel-transform-output-repair-v2-run.mts": "1167e6910cc8957c36352e0ec8b9eedf57ca02fd79a3a1c746785a6bc3343988",
+        "artifacts/data-chain-smoke/excel-transform-output-repair-v2-driver.ps1": "a466f6edda55a9551a9a0efe339bc5d5cd2d8b105795a56c43e86ab5ad6a3e2f"
+      },
+      "unchanged": true
+    },
+    {
+      "prefix": "excel-transform-output-repair-v3",
+      "hashes": {
+        "artifacts\\data-chain-smoke\\excel-transform-output-repair-v3.mts": "1cca918a76fa0a8bf238e06ddf66547ed2bab344a6f694557e4c00390b0699e0",
+        "artifacts\\data-chain-smoke\\excel-transform-output-repair-v3-run.mts": "649ddf8cb3fa4229a0a9673eba5e3a65a8f8ce761ea961e22b581a7056771cdc",
+        "artifacts\\data-chain-smoke\\excel-transform-output-repair-v3-driver.ps1": "d952b6ab01c0e30815a812e48aea6cbc92ef71f3515006d284d7403ac3dad866"
+      },
+      "unchanged": true
+    }
+  ],
+  "limits": {
+    "schemeSwitchSaved": false,
+    "rulesSaved": false,
+    "realExportVerified": false,
+    "browserVerified": false,
+    "productDefinitionRepairRetained": true,
+    "businessFixtureCreated": false
+  },
+  "modelHashAlgorithm": "Probe canonical JSON encoded as UTF-8, SHA-256"
+}

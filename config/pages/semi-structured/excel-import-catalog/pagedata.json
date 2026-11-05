@@ -8,9 +8,9 @@
         "queryConfig": {"fields": ["rowid", "coding", "solutionName", "templatePath", "description", "dataSetId", "createuser", "createtime"]},
         "sortExpression": [{"field": "createtime", "direction": "desc"}, {"field": "rowid", "direction": "asc"}]
       }, "editorTarget": {
-        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "",
+        "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
         "queryContext": {"importConfigId": ""},
-        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "dataSetId", "templatePath"]},
+        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "dataSetId", "templatePath", "transform_enabled"]},
         "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}}
       }}
     },

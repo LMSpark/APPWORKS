@@ -21,7 +21,7 @@ export type RDialogProps = LayoutDataContextProps & SparkVisibilityContainerProp
     footer?: RFooterProps
     /** 对话框标题 */
     title?: string
-    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度。 */
+    /** 弹窗宽度；数值按像素处理，字符串接受百分比或CSS宽度表达式。未配置时沿用底层默认宽度，普通模式实际宽度不超过视口减32px。 */
     width?: string | number
     /** 距视口顶部的CSS长度，默认沿用底层15vh；与数据绑定及显隐生命周期无关。 */
     top?: string

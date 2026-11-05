@@ -21,7 +21,7 @@ export type FullscreenDialogProps = DialogFullscreenOptions & {
   modelValue?: boolean
   /** 默认标题；调用方可用header插槽替换标题区域。 */
   title?: string
-  /** 常规宽度；省略或undefined沿用底层默认值，全屏时忽略。 */
+  /** 常规宽度；省略或undefined沿用底层默认值，实际宽度不超过视口减32px，全屏时忽略。 */
   width?: string | number | undefined
   /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */
   top?: string | undefined

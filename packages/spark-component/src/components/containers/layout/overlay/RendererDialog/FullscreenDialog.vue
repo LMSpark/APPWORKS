@@ -47,6 +47,7 @@ onBeforeUnmount(() => {if (typeof window !== 'undefined') window.removeEventList
 </script>
 
 <style scoped>
+:global(.el-dialog.renderer-fullscreen-dialog:not(.is-fullscreen)) {max-width:calc(100vw - 32px); box-sizing:border-box}
 .renderer-fullscreen-dialog__header {display:flex; align-items:center; width:100%; min-width:0; padding-right:36px; box-sizing:border-box}
 .renderer-fullscreen-dialog__header > :first-child {flex:1; min-width:0; margin:0}
 .renderer-fullscreen-dialog__toggle {flex:none; display:inline-grid; place-items:center; width:28px; height:28px; margin-left:8px; padding:0; cursor:pointer; color:var(--el-color-primary); background:var(--el-bg-color); border:1px solid var(--el-border-color); border-radius:4px}

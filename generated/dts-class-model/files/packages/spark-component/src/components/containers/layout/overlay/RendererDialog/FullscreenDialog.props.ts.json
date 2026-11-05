@@ -114,7 +114,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-12T07:59:27.495Z",
+  "generatedAt": "2026-11-05T20:03:34.969Z",
   "models": {
     "DialogFullscreenOptions": {
       "name": "DialogFullscreenOptions",
@@ -169,7 +169,7 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "DialogFullscreenOptions & {\n    /** 显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。 */\n    modelValue?: boolean;\n    /** 默认标题；调用方可用header插槽替换标题区域。 */\n    title?: string;\n    /** 常规宽度；省略或undefined沿用底层默认值，全屏时忽略。 */\n    width?: string | number | undefined;\n    /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */\n    top?: string | undefined;\n    /** 挂到文档body以支持嵌套窗口，不改变Vue上下文继承。 */\n    appendToBody?: boolean;\n    /** 原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。 */\n    beforeClose?: (done: () => void) => void;\n}",
+        "declarationTypeText": "DialogFullscreenOptions & {\n    /** 显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。 */\n    modelValue?: boolean;\n    /** 默认标题；调用方可用header插槽替换标题区域。 */\n    title?: string;\n    /** 常规宽度；省略或undefined沿用底层默认值，实际宽度不超过视口减32px，全屏时忽略。 */\n    width?: string | number | undefined;\n    /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */\n    top?: string | undefined;\n    /** 挂到文档body以支持嵌套窗口，不改变Vue上下文继承。 */\n    appendToBody?: boolean;\n    /** 原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。 */\n    beforeClose?: (done: () => void) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -178,7 +178,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。 */\n    modelValue?: boolean;\n    /** 默认标题；调用方可用header插槽替换标题区域。 */\n    title?: string;\n    /** 常规宽度；省略或undefined沿用底层默认值，全屏时忽略。 */\n    width?: string | number | undefined;\n    /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */\n    top?: string | undefined;\n    /** 挂到文档body以支持嵌套窗口，不改变Vue上下文继承。 */\n    appendToBody?: boolean;\n    /** 原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。 */\n    beforeClose?: (done: () => void) => void;\n}"
+            "typeText": "{\n    /** 显隐由调用方控制；关闭时发出update:modelValue，不隐式处置业务数据。 */\n    modelValue?: boolean;\n    /** 默认标题；调用方可用header插槽替换标题区域。 */\n    title?: string;\n    /** 常规宽度；省略或undefined沿用底层默认值，实际宽度不超过视口减32px，全屏时忽略。 */\n    width?: string | number | undefined;\n    /** 常规顶部间距；省略或undefined沿用底层默认值，全屏时归零。 */\n    top?: string | undefined;\n    /** 挂到文档body以支持嵌套窗口，不改变Vue上下文继承。 */\n    appendToBody?: boolean;\n    /** 原调用方的关闭守卫；只有调用done后才能关闭，窗口尺寸切换不触发它。 */\n    beforeClose?: (done: () => void) => void;\n}"
           }
         ],
         "members": {
@@ -197,7 +197,7 @@
             },
             {
               "name": "width",
-              "jsdoc": "常规宽度；省略或undefined沿用底层默认值，全屏时忽略。",
+              "jsdoc": "常规宽度；省略或undefined沿用底层默认值，实际宽度不超过视口减32px，全屏时忽略。",
               "readable": true,
               "writable": false
             },

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1055,
+  "scannedFileCount": 1057,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13859,6 +13859,36 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/association-fields.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/association-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/association-fields",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/association-fields",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/association-fields\n职责：消费已保存的直接父节点和本节点映射选项，并成组编辑关联名称与描述。\n边界：不查询、不保存、不复制草稿；来源为原命名DataView，标准组件直接绑定原命名选项视图。\nAI用途：编辑父外键时核对候选归属和读取权限，沿原节点成组更新字段名及描述。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelAssociationFields"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/configuration-edit",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/configuration-edit",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/configuration-edit\n职责：组合Excel换源、映射删除及关联编辑，消费同一DataSet的结构提交和精确回读。\n边界：不建立数据副本或请求通道；原视图持有草稿，公共定义提交器负责保存和未知核验。\nAI用途：结构变化按本次精确范围校验、保存与恢复；不将普通字段编辑扩成全依赖扫描。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelConfigurationEdit"
+        ]
+      }
+    },
     "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts.json",
       "module": {
@@ -13871,6 +13901,21 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ExcelConfigurationRemoval"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/edit-references.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/edit-references.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/edit-references",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/edit-references.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/edit-references.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/edit-references",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/edit-references\n职责：按本次删除映射或改变关联的精确身份重读正式依赖。\n边界：只使用原DataSet的查询视图，不保存、不缓存草稿，不把经典映射当成物理列。\nAI用途：配置结构命令派发前校验父子映射归属及晚到引用；普通标题编辑无需调用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelEditTarget"
         ]
       }
     },
@@ -13913,21 +13958,6 @@
         "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/target-references\n职责：按Excel过滤、排序、布局和转换表达式的各自合同检查换表引用。\n边界：只校验明确字段位置，保留原文，不扫描常量字符串、不改写布局或执行业务表达式。\nAI用途：目标替换前验证新字段仍能承接本配置及直接子配置的已有引用。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
-      }
-    },
-    "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts": {
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/target-replacement.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/semi-structured/excel-import/target-replacement",
-        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
-        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/semi-structured/excel-import/target-replacement",
-        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/target-replacement\n职责：组合Excel目标与字段替换的原生变更，消费同一DataSet的联合捕获及精确回读。\n边界：不建立数据副本或请求通道；原视图持有草稿，公共定义提交器负责保存和未知核验。\nAI用途：目标表确认后暂存、联合保存与取消；不能将节点和字段拆成两个独立提交。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ExcelTargetReplacement"
-        ]
       }
     },
     "src/lowcode/resources/semi-structured/excel-import/target-selection.ts": {
@@ -20119,9 +20149,21 @@
       "sourcePath": "packages/spark-component/src/components/containers/support/useEventDefaults.ts",
       "file": "files/packages/spark-component/src/components/containers/support/useEventDefaults.ts.json"
     },
+    "ExcelAssociationFields": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/association-fields.ts.json"
+    },
+    "ExcelConfigurationEdit": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts.json"
+    },
     "ExcelConfigurationRemoval": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts.json"
+    },
+    "ExcelEditTarget": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/edit-references.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/edit-references.ts.json"
     },
     "ExcelTarget": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
@@ -20130,10 +20172,6 @@
     "ExcelTargetField": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/target-selection.ts.json"
-    },
-    "ExcelTargetReplacement": {
-      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/target-replacement.ts.json"
     },
     "ExcelTargetStaging": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",

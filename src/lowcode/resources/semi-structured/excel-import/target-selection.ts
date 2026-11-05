@@ -5,6 +5,7 @@
  * AI用途：Excel配置页确认目标表时复用正式来源选择，保留物理名称、字段类型及原生取消责任。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {validateExcelTargetReferences} from './target-references'
 
 /** 来源字段到正式Excel映射的必要成员；列号独立于数据库字段顺序。 */
@@ -37,6 +38,8 @@ export type ExcelTargetStaging = Readonly<{
   nodeId: string | number
   /** 本次删除与新增的全部字段身份。 */
   fieldIds: ReadonlyArray<string | number>
+  /** 本次待删除的原字段身份，值基线由原DataView保管。 */
+  oldFieldIds: ReadonlyArray<string | number>
   /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */
   cancel(): void
   /** 联合提交确认后释放局部检查点。 */
@@ -103,8 +106,14 @@ export async function stageExcelTarget(input: Readonly<{nodes: DataView; fields:
   const row = nodes.currentRow, names = ['relatedappid', 'relatedAppName', 'table', 'tableDesc']
   if (nodes.dataSet !== fields.dataSet || nodes.dataSet?.scenarioId !== '0F93B82141CF40852021D704B0E30BF4' || nodes.tableName !== 'Base_ImportData_Config' || fields.tableName !== 'Base_ImportData_Field'
     || !row || nodes.getPkKey(row) !== nodeId) throw new Error('Excel来源确认目标已变化')
+  const layoutText=nodes.getEditingRow(nodeId)?.['sheet_layout_json']
+  if(typeof layoutText==='string'&&layoutText.trim()){
+    const layout=parseJsonDocument(layoutText)
+    if(!Array.isArray(layout)&&Boolean(layout['enabled']))throw new Error('相对版式启用时不能使用经典映射换源，请在版式定义中修改目标')
+  }
   if (fields.hasEditingChanges() || fields.dirtyTracking.hasPendingChanges()) throw new Error('请先保存或取消已有字段修改')
   if (!fields.countReported || fields.rows.length !== fields.total) throw new Error('当前配置字段尚未完整查询')
+  const originalFields=new Map(fields.rows.map(field=>[fields.getPkKey(field),field]))
   const oldIds = fields.rows.map(field => {
     const id = fields.getPkKey(field)
     if (id === undefined || field['configid'] !== nodeId || fields.fieldAccess(field, 'configid').read !== 'visible' || fields.deleteActionState(field) !== 'enabled') throw new Error('当前字段归属或删除权限不足')
@@ -120,9 +129,13 @@ export async function stageExcelTarget(input: Readonly<{nodes: DataView; fields:
   validateExcelTargetReferences({node: nodes.getEditingRow(nodeId) ?? row, oldFields: fields.rows.map(field => text(fields, field, 'name')), children, rules: rules.readSnapshot().rows, selection})
   for (const name of names) if (nodes.fieldAccess(row, name).read !== 'visible' || nodes.fieldAccess(row, name).write !== 'allowed') throw new Error('当前目标字段不可读写')
   if (fields.addActionState() !== 'enabled') throw new Error('当前配置不允许新增字段')
-  const checkpoint = nodes.createEditingCheckpoint(nodeId, names), added: Array<string | number> = []
+  const checkpoint = nodes.createEditingCheckpoint(nodeId, names), added: Array<string | number> = [], removed=new Set<string|number>()
   const original = row, originalSelection = JSON.stringify(selection)
-  const current = () => {input.assertCurrent(); if (nodes.currentRow !== original || JSON.stringify(selection) !== originalSelection) throw new Error('Excel来源确认目标已变化')}
+  const current = () => {
+    input.assertCurrent(); if (nodes.currentRow !== original || JSON.stringify(selection) !== originalSelection) throw new Error('Excel来源确认目标已变化')
+    const currentFields=new Map(fields.rows.map(field=>[fields.getPkKey(field),field]))
+    for(const id of oldIds)if(!removed.has(id)&&(currentFields.get(id)!==originalFields.get(id)||fields.hasEditingChanges(id)||fields.dirtyTracking.hasPendingChanges(id)))throw new Error('原字段在来源暂存期间已变化，修改已保留')
+  }
   try {
     for (const mapping of selection.fields) {
       current()
@@ -132,16 +145,16 @@ export async function stageExcelTarget(input: Readonly<{nodes: DataView; fields:
       added.push(id); current()
       if (fields.rows.find(candidate => fields.getPkKey(candidate) === id)?.['configid'] !== nodeId) throw new Error('Excel新增映射不属于原配置')
     }
-    for (const id of oldIds) {current(); await fields.removeRow(id); current()}
+    for (const id of oldIds) {current(); removed.add(id); if(await fields.removeRow(id)!==true)throw new Error('原字段未完整暂存删除'); current()}
     for (const [name, value] of Object.entries({relatedappid: selection.applicationId, relatedAppName: selection.applicationName, table: selection.table, tableDesc: selection.description})) {
       current(); nodes.updateEditingValue(nodeId, name, value)
     }
     let closed = false
-    return {nodeId, fieldIds: [...oldIds, ...added], cancel: () => {
+    return {nodeId, fieldIds: [...oldIds, ...added], oldFieldIds: oldIds, cancel: () => {
       if (closed) throw new Error('原Excel来源替换已收尾')
       fields.discardPendingChanges([...oldIds, ...added]); checkpoint.restore(); checkpoint.release(); closed = true
     }, release: () => {checkpoint.release(); closed = true}}
   } catch (cause) {
-    fields.discardPendingChanges([...oldIds, ...added]); checkpoint.restore(); checkpoint.release(); throw cause
+    fields.discardPendingChanges([...[...removed].filter(id=>fields.dirtyTracking.pendingDeleteIds.has(id)), ...added]); checkpoint.restore(); checkpoint.release(); throw cause
   }
 }

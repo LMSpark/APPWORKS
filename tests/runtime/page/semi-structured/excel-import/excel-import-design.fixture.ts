@@ -1,11 +1,11 @@
-import designText from '../../../../config/pages/semi-structured/excel-import-editor/pagedata.json?raw'
-import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
+import designText from '../../../../../config/pages/semi-structured/excel-import-editor/pagedata.json?raw'
+import {buildFormalModels} from '../../structured-config/catalog/structured-config-catalog.fixture'
 import {vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {ApiBackend} from '../api-provider/api-provider.fixture'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
 export {designText}
 export const EXCEL_DESIGN = '0F93B82141CF40852021D704B0E30BF4'
 export function excelDesignModels() {

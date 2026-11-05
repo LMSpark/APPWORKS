@@ -1246,6 +1246,7 @@ sortExpression?: SortExpression
   /** 树视图模式，代理到 treeConfig.treeMode（默认 'flat'） */
   get treeMode(): 'flat' | 'nested' { return this.treeConfig?.treeMode ?? 'flat' }
   set treeMode(v: 'flat' | 'nested') {
+    if (v === 'flat' && this.treeConfig === undefined) return
     (this.treeConfig ??= {}).treeMode = v
     this.emitConfigChanged()
   }

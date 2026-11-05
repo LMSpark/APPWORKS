@@ -3,17 +3,17 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTree, FieldJson, FieldText, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTree, FieldJson, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
 import {ElSelect} from 'element-plus'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
-import SparkJsonEditor from '../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
+import SparkJsonEditor from '../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
-import {ApiBackend} from '../api-provider/api-provider.fixture'
-import {EXCEL, topicModels, topicTexts} from '../structured-config/catalog/formal-topic.fixture'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
+import {EXCEL, topicModels, topicTexts} from '../../structured-config/catalog/formal-topic.fixture'
 import {EXCEL_DESIGN, excelDesignModels, designText} from './excel-import-design.fixture'
 import {DataSet} from '@spark-appworks/spark-data'
-import {sourceModels, sourceRecords, SOURCE_SCENE} from '../structured-config/data-code/source-picker/fixture'
-import sourceText from '../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
+import {sourceModels, sourceRecords, SOURCE_SCENE} from '../../structured-config/data-code/source-picker/fixture'
+import sourceText from '../../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi, dirtySources: [] as Array<{isDirty: boolean}>}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {isDirty: boolean}) => state.dirtySources.push(source)}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -52,10 +52,10 @@ async function open(importConfigId = 'E1') {
   const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}}); wrappers.push(wrapper)
   await flushPromises()
   const click = async (label: string) => {const button = wrapper.findAll('button').find(button => button.text() === label); expect(button, label).toBeDefined(); await button!.trigger('click'); await flushPromises()}
-  const choose = async () => {
+  const choose = async (tableCount=2) => {
     await vi.waitFor(() => expect(wrapper.findComponent(RendererTree).exists()).toBe(true))
     await wrapper.get('.el-tree-node__content').trigger('click'); await flushPromises()
-    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererTable)).toHaveLength(2))
+    await vi.waitFor(() => expect(wrapper.findAllComponents(RendererTable)).toHaveLength(tableCount))
   }
   return {wrapper, router, click, choose}
 }
@@ -75,6 +75,50 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('hides classical mappings for enabled layout, preserves their records and restores them on cancel', async () => {
+    const f=await open();await f.choose()
+    const originalFields=structuredClone(state.http.records['Base_ImportData_Field'])
+    const layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!
+    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"enabled":true,"version":1,"regions":[]}');await flushPromises()
+    expect(f.wrapper.findAllComponents(RendererTable).some(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))).toBe(false)
+    expect(f.wrapper.text()).toContain('已启用相对版式')
+    expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='选择目标数据')?.props('disabled')).toBe(true)
+    expect(state.http.records['Base_ImportData_Field']).toEqual(originalFields)
+    expect(state.http.saves).toEqual([])
+    await f.click('取消配置修改')
+    expect(f.wrapper.findAllComponents(RendererTable).some(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))).toBe(true)
+  })
+  it('rejects hiding unsaved classical mapping edits without dropping the original draft', async()=>{
+    const f=await open();await f.choose()
+    const table=f.wrapper.findAllComponents(RendererTable).find(item=>item.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await table.get('tbody tr').trigger('click');await flushPromises()
+    const title=table.findAllComponents(FieldText).find(field=>field.props('field')==='title'&&field.find('input').exists())!
+    await title.get('input').setValue('尚未保存标题');await flushPromises()
+    const layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!
+    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"enabled":true,"version":1,"regions":[]}');await flushPromises()
+    expect(f.wrapper.text()).toContain('请先保存或取消字段修改')
+    expect(title.get('input').element.value).toBe('尚未保存标题')
+    await f.click('保存配置')
+    expect(state.http.saves).toEqual([])
+    expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe('{"keep":false}')
+    await f.click('保存字段')
+    expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Field'])
+    expect(state.http.records['Base_ImportData_Field']![0]!['title']).toBe('尚未保存标题')
+  })
+  it('reopens the saved layout mode without deleting or resubmitting classical mapping rows',async()=>{
+    const f=await open();await f.choose()
+    const mappings=structuredClone(state.http.records['Base_ImportData_Field'])
+    const layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!
+    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"enabled":true,"version":1,"regions":[]}');await flushPromises()
+    await f.click('保存配置')
+    expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Config'])
+    expect(state.http.records['Base_ImportData_Field']).toEqual(mappings)
+    f.wrapper.unmount()
+    const reopened=await open();await reopened.choose(1)
+    expect(reopened.wrapper.text()).toContain('已启用相对版式')
+    expect(reopened.wrapper.findAllComponents(RendererTable).some(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))).toBe(false)
+    expect(state.http.records['Base_ImportData_Field']).toEqual(mappings)
+  })
   it('previews a leaf deletion and cancels without changing configuration, fields, or rules', async () => {
     const f = await open(); await f.choose(); await f.click('删除配置')
     await vi.waitFor(() => expect(document.body.textContent).toContain('同时删除 1 个字段和 1 条转换规则'))
@@ -138,6 +182,50 @@ describe('formal Excel design editor', () => {
       expect(state.dirtySources[0]?.isDirty).toBe(false)
       await f.router.push('/other'); expect(f.router.currentRoute.value.path).toBe('/other')
     } finally {receipt.mockRestore()}
+  })
+  it('binds direct-parent and own mapping selectors and persists names with their matching descriptions', async () => {
+    state.http.records['Base_ImportData_Config']!.push({rowid: 'CHILD', schemeid: 'E1', pid: 'C1', sheetName: '子表'})
+    state.http.records['Base_ImportData_Field']!.push({rowid: 'CF', configid: 'CHILD', name: 'code', title: '子编码'})
+    const f = await open(); await f.choose()
+    await f.wrapper.get('.el-tree-node__expand-icon').trigger('click'); await flushPromises()
+    const child = f.wrapper.findAll('.el-tree-node__content').find(row => row.text().includes('子表'))!
+    await child.trigger('click'); await flushPromises()
+    const parent = f.wrapper.findAllComponents(FieldSelect).find(field => field.props('field') === 'parentField')
+    const foreign = f.wrapper.findAllComponents(FieldSelect).find(field => field.props('field') === 'foreignKeyField')
+    expect(parent, 'parent selector bound to original node').toBeDefined(); expect(foreign).toBeDefined()
+    parent!.getComponent(ElSelect).vm.$emit('update:modelValue', 'code'); await flushPromises()
+    foreign!.getComponent(ElSelect).vm.$emit('update:modelValue', 'code'); await flushPromises()
+    expect(f.wrapper.findAll('[role="alert"]').map(item=>item.text())).toEqual([])
+    await f.click('保存配置')
+    expect(state.http.records['Base_ImportData_Config']!.find(row => row['rowid'] === 'CHILD')).toMatchObject({parentField: 'code', parentFieldDesc: '编码', foreignKeyField: 'code', foreignKeyFieldDesc: '子编码'})
+    expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
+  })
+  it('exposes only source-generated mappings with readonly field identity and type', async () => {
+    const f=await open();await f.choose()
+    expect(f.wrapper.findAll('button').some(button=>button.text()==='新增字段')).toBe(false)
+    const table=f.wrapper.findAllComponents(RendererTable).find(item=>item.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await table.get('tbody tr').trigger('click');await flushPromises()
+    for(const field of table.findAllComponents(FieldText).filter(item=>item.props('field')==='name')) {
+      if(field.find('input').exists()){const input=field.get('input').element;expect(input.readOnly||input.disabled).toBe(true)}
+    }
+    expect(table.findAllComponents(FieldNumber).find(field=>field.props('field')==='type')?.props('readonly')).toBe(true)
+  })
+  it('refuses to stage removal of a mapping referenced by a saved child association', async () => {
+    state.http.records['Base_ImportData_Config']!.push({rowid:'CHILD',schemeid:'E1',pid:'C1',sheetName:'子表',parentField:'code',parentFieldDesc:'编码'})
+    const f=await open();await f.choose()
+    const table=f.wrapper.findAllComponents(RendererTable).find(item=>item.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await table.get('tbody tr').trigger('click');await flushPromises();await f.click('删除字段')
+    expect(f.wrapper.text()).toContain('引用')
+    expect(table.findAll('tbody tr')).toHaveLength(1);expect(state.http.saves).toEqual([])
+  })
+  it('refuses an association save when its selected formal mapping has since been deleted',async()=>{
+    const f=await open();await f.choose()
+    const foreign=f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('field')==='foreignKeyField')!
+    foreign.getComponent(ElSelect).vm.$emit('update:modelValue','code');await flushPromises()
+    state.http.records['Base_ImportData_Field']=[]
+    await f.click('保存配置')
+    expect(state.http.saves).toEqual([]);expect(f.wrapper.text()).toContain('关联')
+    expect(state.http.records['Base_ImportData_Config']![0]!['foreignKeyField']).toBeUndefined()
   })
   it('previews a target through bound source views and cancels selection without changing the original configuration', async () => {
     const f = await open(); await f.choose(); await f.click('选择目标数据')
@@ -235,12 +323,9 @@ describe('formal Excel design editor', () => {
     await sheet.get('input').setValue('新增Sheet'); await flushPromises(); await f.click('保存配置')
     const created = state.http.records['Base_ImportData_Config']!.find(row => row['sheetName'] === '新增Sheet')!
     expect(created).toBeDefined()
-    await f.click('新增字段')
-    const table = f.wrapper.findAllComponents(RendererTable).find(item => item.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
-    const row = table.findAll('tbody tr').at(-1)!
-    await row.findAll('input[type="text"]')[0]!.setValue('new_code'); await flushPromises()
-    await f.click('保存字段')
-    const field = state.http.records['Base_ImportData_Field']!.find(item => item['name'] === 'new_code')!
-    expect(field?.['configid']).toBe(created['rowid'])
+    await selectTarget(f);await f.click('保存目标及字段')
+    const fields=state.http.records['Base_ImportData_Field']!.filter(item=>item['configid']===created['rowid'])
+    expect(fields.map(field=>field['name'])).toEqual(['id','name'])
+    expect(state.http.records['Base_ImportData_Field']!.find(item=>item['rowid']==='F1')?.['configid']).toBe('C1')
   })
 })

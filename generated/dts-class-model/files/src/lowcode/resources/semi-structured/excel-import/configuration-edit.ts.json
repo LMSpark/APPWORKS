@@ -2,15 +2,15 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "schemaVersion": 3,
   "module": {
-    "name": "app:lowcode/resources/semi-structured/excel-import/target-replacement",
-    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
-    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
+    "name": "app:lowcode/resources/semi-structured/excel-import/configuration-edit",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
     "packageName": "app",
-    "modulePath": "lowcode/resources/semi-structured/excel-import/target-replacement",
-    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/target-replacement\n职责：组合Excel目标与字段替换的原生变更，消费同一DataSet的联合捕获及精确回读。\n边界：不建立数据副本或请求通道；原视图持有草稿，公共定义提交器负责保存和未知核验。\nAI用途：目标表确认后暂存、联合保存与取消；不能将节点和字段拆成两个独立提交。",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/configuration-edit",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/configuration-edit\n职责：组合Excel换源、映射删除及关联编辑，消费同一DataSet的结构提交和精确回读。\n边界：不建立数据副本或请求通道；原视图持有草稿，公共定义提交器负责保存和未知核验。\nAI用途：结构变化按本次精确范围校验、保存与恢复；不将普通字段编辑扩成全依赖扫描。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "ExcelTargetReplacement"
+      "ExcelConfigurationEdit"
     ]
   },
   "$defs": {
@@ -25,10 +25,6 @@
         },
         "nodeId": {
           "type": "string"
-        },
-        "source": {
-          "type": "object",
-          "title": "DataSet"
         }
       },
       "additionalProperties": false,
@@ -41,10 +37,10 @@
         "method.assertCurrent.return": true
       }
     },
-    "ExcelTargetReplacement": {
+    "ExcelConfigurationEdit": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "ExcelTargetReplacement",
+      "title": "ExcelConfigurationEdit",
       "$defs": {
         "constructor.params": {
           "type": "object",
@@ -55,14 +51,86 @@
           "type": "object",
           "properties": {
             "input": {
-              "$ref": "#/$defs/Input"
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Input"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "source": {
+                      "type": "object",
+                      "title": "DataSet"
+                    }
+                  },
+                  "required": [
+                    "source"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
             }
           },
           "additionalProperties": false
         },
         "method.stage.return": {
           "type": "object",
-          "title": "Promise<ExcelTargetReplacement>"
+          "title": "Promise<ExcelConfigurationEdit>"
+        },
+        "method.pending.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/Input"
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "tableName": {
+                      "enum": [
+                        "Base_ImportData_Config",
+                        "Base_ImportData_Field"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "tableName"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.pending.return": {
+          "$ref": "#/$defs/ExcelConfigurationEdit"
+        },
+        "method.hasStructuralChanges.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasStructuralChanges.return": {
+          "type": "boolean"
+        },
+        "method.owns.params": {
+          "type": "object",
+          "properties": {
+            "tableName": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.owns.return": {
+          "type": "boolean"
         },
         "method.getState.params": {
           "type": "object",
@@ -72,6 +140,9 @@
         "method.getState.return": {
           "type": "object",
           "properties": {
+            "kind": {
+              "type": "string"
+            },
             "busy": {
               "type": "boolean"
             },
@@ -104,6 +175,7 @@
             }
           },
           "required": [
+            "kind",
             "busy",
             "done",
             "dispatched",
@@ -159,18 +231,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T04:28:55.136Z",
+  "generatedAt": "2026-11-05T06:25:42.872Z",
   "models": {
     "Input": {
       "name": "Input",
-      "jsdoc": "原页面本次明确的目标替换调用。",
+      "jsdoc": "原页面本次明确的Excel结构编辑上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 原Excel设计实例。 */\n    dataSet: DataSet;\n    /** 捕获的配置行身份。 */\n    nodeId: string;\n    /** 本次正式来源实例，只读消费。 */\n    source: DataSet;\n    /** 页面代次、运行实例及目标守卫。 */\n    assertCurrent(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 原Excel设计实例。 */\n    dataSet: DataSet;\n    /** 捕获的配置行身份。 */\n    nodeId: string;\n    /** 页面代次、运行实例及目标守卫。 */\n    assertCurrent(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 原Excel设计实例。 */\n    dataSet: DataSet;\n    /** 捕获的配置行身份。 */\n    nodeId: string;\n    /** 本次正式来源实例，只读消费。 */\n    source: DataSet;\n    /** 页面代次、运行实例及目标守卫。 */\n    assertCurrent(): void;\n}>",
+            "typeText": "Readonly<{\n    /** 原Excel设计实例。 */\n    dataSet: DataSet;\n    /** 捕获的配置行身份。 */\n    nodeId: string;\n    /** 页面代次、运行实例及目标守卫。 */\n    assertCurrent(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -185,12 +257,6 @@
             {
               "name": "nodeId",
               "jsdoc": "捕获的配置行身份。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "source",
-              "jsdoc": "本次正式来源实例，只读消费。",
               "readable": true,
               "writable": false
             }
@@ -209,9 +275,9 @@
         }
       }
     },
-    "ExcelTargetReplacement": {
-      "name": "ExcelTargetReplacement",
-      "jsdoc": "目标和字段的联合结构命令；状态仅描述原提交，不持有可编辑业务数据。",
+    "ExcelConfigurationEdit": {
+      "name": "ExcelConfigurationEdit",
+      "jsdoc": "来源、映射及关联共用的结构命令；状态只描述原提交，不持有可编辑业务数据。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
@@ -228,9 +294,24 @@
                 {
                   "name": "input",
                   "type": {
-                    "type": "reference",
-                    "name": "Input",
-                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts"
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Input",
+                        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        source: DataSet;\n    }"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
               ],
@@ -240,10 +321,78 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "ExcelTargetReplacement",
-                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts"
+                    "name": "ExcelConfigurationEdit",
+                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts"
                   }
                 ]
+              }
+            },
+            {
+              "name": "pending",
+              "jsdoc": "@param input 原节点或映射视图的本次结构变更，不扩大用户所选保存范围。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "intersection",
+                    "types": [
+                      {
+                        "type": "reference",
+                        "name": "Input",
+                        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts"
+                      },
+                      {
+                        "type": "reference",
+                        "name": "Readonly",
+                        "typeArguments": [
+                          {
+                            "type": "unknown",
+                            "name": "{\n        tableName: 'Base_ImportData_Config' | 'Base_ImportData_Field';\n    }"
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ExcelConfigurationEdit",
+                "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts"
+              }
+            },
+            {
+              "name": "hasStructuralChanges",
+              "jsdoc": "只为删除映射或关联变化启用结构预检；普通字段编辑保留原DataView保存流程。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "owns",
+              "jsdoc": "本命令是否负责给定视图，防止从别的按钮扩大提交范围。",
+              "parameters": [
+                {
+                  "name": "tableName",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             },
             {
@@ -252,7 +401,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        busy: boolean;\n        done: boolean;\n        dispatched: boolean;\n        applyStarted: boolean;\n        acceptedCurrent: boolean;\n        canAcceptCurrent: boolean;\n        canCancel: boolean;\n        canDiscard: boolean;\n        canRetry: boolean;\n        verificationRequired: boolean;\n    }"
+                "name": "{\n        kind: string | undefined;\n        busy: boolean;\n        done: boolean;\n        dispatched: boolean;\n        applyStarted: boolean;\n        acceptedCurrent: boolean;\n        canAcceptCurrent: boolean;\n        canCancel: boolean;\n        canDiscard: boolean;\n        canRetry: boolean;\n        verificationRequired: boolean;\n    }"
               }
             },
             {

@@ -1,0 +1,1213 @@
+{
+  "totalWrites": 0,
+  "fixtureCreated": false,
+  "browserVerified": false,
+  "earlierAttempts": [
+    {
+      "purpose": "read registered physical-view columns only",
+      "writes": 0,
+      "views": [],
+      "models": [
+        {
+          "name": "Base_AppAndSource_Relation",
+          "id": "400d5424-9a33-4faf-a10b-da436344b203"
+        },
+        {
+          "name": "_Base_ViewList",
+          "id": "7bba3b1f-23d9-40ac-86b5-11e8dfece6cf"
+        },
+        {
+          "name": "Base_TblField",
+          "id": "5d94198d-34fb-43a8-9d0a-e96b54eab33a"
+        }
+      ],
+      "phase": "failed",
+      "error": "$: 条件只接受 field、operator 与 value",
+      "reads": 12,
+      "blockedWrites": 0,
+      "testedAt": "2026-11-05T06:21:55.848Z"
+    },
+    {
+      "purpose": "read registered physical-view columns only",
+      "writes": 0,
+      "views": [],
+      "models": [
+        {
+          "name": "Base_AppAndSource_Relation",
+          "id": "400d5424-9a33-4faf-a10b-da436344b203"
+        },
+        {
+          "name": "_Base_ViewList",
+          "id": "7bba3b1f-23d9-40ac-86b5-11e8dfece6cf"
+        },
+        {
+          "name": "Base_TblField",
+          "id": "5d94198d-34fb-43a8-9d0a-e96b54eab33a"
+        }
+      ],
+      "phase": "failed",
+      "error": "named database not unique or incomplete",
+      "reads": 13,
+      "blockedWrites": 0,
+      "testedAt": "2026-11-05T06:24:36.366Z"
+    }
+  ],
+  "totalReadsExcludingLogin": 77,
+  "scope": "Registered physical-view metadata only; no source business records queried",
+  "finalSourceHashes": [
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-view-columns-readonly.mts",
+      "sha256": "67d83f1ffa322ae965db0e781824cb05f8c7bd270536fb59d8d3c01e631219a3"
+    },
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-view-columns-readonly-run.mts",
+      "sha256": "0eb9f5133ff4688c4dad23d51f658cf65a921a64f1fc1d603457c609c815f9d4"
+    },
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-view-columns-readonly-driver.ps1",
+      "sha256": "4bd5c5760d1a0d59e1e3d308c802dcff8cf46e1cd4954f13ca20a30f3d20a9f0"
+    }
+  ],
+  "finalAudit": {
+    "purpose": "read registered physical-view columns only",
+    "writes": 0,
+    "views": [
+      {
+        "id": "00DB4A97DDC8497DB329979A65C75C12",
+        "name": "View_NewDeveloper_user",
+        "description": "开发商人员",
+        "columns": [
+          {
+            "id": "0200A06E93414FD583FEC7E2A8E48096",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "developers_id",
+            "title": "开发者ID"
+          },
+          {
+            "id": "0245659D933D48159F6E2799D6956F04",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "wf_id",
+            "title": "工作流ID"
+          },
+          {
+            "id": "1096E5DCE0DE48C39E43EE54E1A89629",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "tel",
+            "title": "电话"
+          },
+          {
+            "id": "1186DBE603A743D8B014313BBFA05D13",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "mailbox",
+            "title": "邮箱"
+          },
+          {
+            "id": "167AB7136A6C4C78885DC845EE519520",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "user_id",
+            "title": "用户ID"
+          },
+          {
+            "id": "1888875C56F94E34BEC11E900F78D7D1",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "developers_id",
+            "title": "开发者ID"
+          },
+          {
+            "id": "1A8B04D553DB435DB0032BE48199D819",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "update_user",
+            "title": "更新用户"
+          },
+          {
+            "id": "1B4C47C3418D43D3919DEE9269E81151",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "update_time",
+            "title": "更新时间"
+          },
+          {
+            "id": "21827CFC9BDA4F038810176DACBF90B8",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "log_name",
+            "title": "日志名称"
+          },
+          {
+            "id": "2DE43930F31543CDAEB093AFAB3BF09D",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "description",
+            "title": "描述"
+          },
+          {
+            "id": "2F8E449D832D45A9B918F752B4B7CF2E",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "user_id",
+            "title": "用户ID"
+          },
+          {
+            "id": "37614318C64A4A119BCD291B952DDF6E",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "user_type",
+            "title": "用户类型"
+          },
+          {
+            "id": "3E2CD7DB7C5E40A09C21B99D7E069636",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "user_type",
+            "title": "用户类型"
+          },
+          {
+            "id": "4A21A8EA2F5C45BAAED8AF7FADD1CE92",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "lingma_sys_is_delete",
+            "title": "灵码系统是否删除"
+          },
+          {
+            "id": "4CFC4CAE465F4335AA3215C5CFF596EC",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "prowid",
+            "title": "父行ID"
+          },
+          {
+            "id": "5B7550D2F5E14564B1ED7C4E2FBF2551",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "rowid",
+            "title": "行ID"
+          },
+          {
+            "id": "5E3171DAC2E14D29A81198E570BD8AC3",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "user_name",
+            "title": "用户名"
+          },
+          {
+            "id": "6806840E82F74CF4BA1409D6166F043B",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "password",
+            "title": "密码"
+          },
+          {
+            "id": "72A333929C2347C58605A8658E427A98",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "rowid",
+            "title": "行ID"
+          },
+          {
+            "id": "7AEA0A2D7EAF4A03B5235AFCBA6E7532",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "post",
+            "title": "岗位"
+          },
+          {
+            "id": "82D82D2FCDD54BC79E84DBEF2CCAEEAD",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "sex",
+            "title": "性别"
+          },
+          {
+            "id": "89B16C2DA69A4274A07C02054E15BE18",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "post",
+            "title": "岗位"
+          },
+          {
+            "id": "992B609192EC4DECB1ABB36A4CB62040",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "flow_state",
+            "title": "流程状态"
+          },
+          {
+            "id": "9AC8A4AA51B345FDA5D9176A5696E4B1",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "report_id",
+            "title": "报告ID"
+          },
+          {
+            "id": "9BA867949E4743719D04FB1F41A1142F",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "sex",
+            "title": "性别"
+          },
+          {
+            "id": "9EFAA282C0DA402BA280DC6C28BBD60A",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "log_name",
+            "title": "日志名称"
+          },
+          {
+            "id": "A4E5175A6CEF4EE6BB03138FD82DD383",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "password",
+            "title": "密码"
+          },
+          {
+            "id": "BEC47315E601454B9EA56456490392AD",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "flow_state",
+            "title": "流程状态"
+          },
+          {
+            "id": "C6C80CC31FDE4F239816FB5BC37D0FBA",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "create_user",
+            "title": "创建用户"
+          },
+          {
+            "id": "D333C003EE1E4C3DAD7287211282F4B0",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "create_time",
+            "title": "创建时间"
+          },
+          {
+            "id": "D3EE3051764A48F1BEB369893053B30C",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "user_name",
+            "title": "用户名"
+          },
+          {
+            "id": "D6DE3B8C987546F499EE97719501D4F6",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "wf_id",
+            "title": "工作流ID"
+          },
+          {
+            "id": "F8B4206913214730A1C130D1E87FB0EF",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "tel",
+            "title": "电话"
+          },
+          {
+            "id": "FBC0EA90B0394CAA81700BCE6E4EC3FF",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "mailbox",
+            "title": "邮箱"
+          },
+          {
+            "id": "FC86C184109248149D6B21E72D3B5C9D",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "memo",
+            "title": "备注"
+          },
+          {
+            "id": "FC8DC38BD20F44E28DBD84E9D931D2EF",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "prowid",
+            "title": "父行ID"
+          },
+          {
+            "id": "FFB9A3A728E74D55AD9A588716B537A1",
+            "owner": "00DB4A97DDC8497DB329979A65C75C12",
+            "name": "memo",
+            "title": "备注"
+          }
+        ],
+        "valid": false
+      },
+      {
+        "id": "1E47FFB77EFC4B2EB48DC729444371BB",
+        "name": "view_user_dj",
+        "description": "人员岗位信息",
+        "columns": [
+          {
+            "id": "01629C997F12489185B3E2CE9C194C52",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Flag",
+            "title": "Flag"
+          },
+          {
+            "id": "132D097CEAD14F9DB6696345FA5CC56B",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Nation",
+            "title": "Nation"
+          },
+          {
+            "id": "145DCBAE03DF4357838BBB7196164F39",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "description",
+            "title": "摘要"
+          },
+          {
+            "id": "1888C52A1B794D73818A30C9E88AF654",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "IDCard",
+            "title": "IDCard"
+          },
+          {
+            "id": "18EACFB6CAFC4F8A8946BA4C460FDC02",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "WechatId",
+            "title": "企业微信的Id"
+          },
+          {
+            "id": "1E0FC3E71EB146568E203FA015D23A49",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "PositionLevel",
+            "title": "职级"
+          },
+          {
+            "id": "297B91518A214A56B29E43202100E7BD",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "old_id",
+            "title": "旧一体化id"
+          },
+          {
+            "id": "2B057D793D974E3B9E1F680AF10B5C98",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "company_age",
+            "title": "在职年龄"
+          },
+          {
+            "id": "32B0C352E0B44C3594C3BE662E610B6F",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "memo",
+            "title": "memo"
+          },
+          {
+            "id": "544D30BF09FB4523AB966ECBF7CA1073",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "createuser",
+            "title": "创建人"
+          },
+          {
+            "id": "54F3BF1F08494F29B9ABD60A737DA61E",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "lingma_sys_task_id",
+            "title": "默认导入任务字段，关联数据导入任务 ID，导入时由系统自动写入"
+          },
+          {
+            "id": "578C830619E34BC7BB182CBF36BE9168",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "user_types",
+            "title": "用户类型"
+          },
+          {
+            "id": "606A7CC8DDF04C5C8E63439A76CB2B76",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Sex",
+            "title": "Sex"
+          },
+          {
+            "id": "63737EBB79C645D790053CFE8C954BC1",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "rowid",
+            "title": "rowid"
+          },
+          {
+            "id": "65A05936A83F4221802FB543C19B62E3",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "updatetime",
+            "title": "修改时间"
+          },
+          {
+            "id": "66EC9989513A40B488EBAAF4739B4260",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "lingma_sys_ent",
+            "title": "企业标识字段"
+          },
+          {
+            "id": "68B59F63F83247BC8A1060B9DF093B00",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "flowstate",
+            "title": "flowstate"
+          },
+          {
+            "id": "8B18E6D5E2954CA88A9C28E21EE23A2F",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "WeChatOpenId",
+            "title": " 微信的openId"
+          },
+          {
+            "id": "8B48A9CA24754BFBBE995E219F74A268",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "WorkNo",
+            "title": "工号"
+          },
+          {
+            "id": "90487D93A0E8445AAA5F75C1C6556443",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "wfid",
+            "title": "wfid"
+          },
+          {
+            "id": "9345A13E63B947BDA405A54905B3990B",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Birthday",
+            "title": "Birthday"
+          },
+          {
+            "id": "93CC52A43CC346DA91B3F39C3DF6B6E1",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "ReportID",
+            "title": "报表id"
+          },
+          {
+            "id": "961C8049D9DB465BA2CDD8AC80C3D414",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "NativePlace",
+            "title": "NativePlace"
+          },
+          {
+            "id": "986895A9562146A3BF31E0E0A5FCCB57",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "ID",
+            "title": "ID"
+          },
+          {
+            "id": "997604730CDF4FD49C76A7DBA22743D1",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "RealName",
+            "title": "真实姓名"
+          },
+          {
+            "id": "9B172E191FB549EB82744A73B17CEB6D",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "lingma_sys_appid",
+            "title": "默认应用系统标识字段；请求携带 X-AppId 时由系统自动维护"
+          },
+          {
+            "id": "A4E9D5D9CBD84A638DAB2FDF0050227C",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "LoginName",
+            "title": "LoginName"
+          },
+          {
+            "id": "AAA5AF4F8C3446399887BC5B5E71B3AF",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "mailbox",
+            "title": "mailbox"
+          },
+          {
+            "id": "AB2D97DC70BA4116B57056BFABB6F363",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "user_jobs",
+            "title": "user_jobs"
+          },
+          {
+            "id": "B7CE83B83687477DB0F9DEDF1BFCBDF8",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "State",
+            "title": "State"
+          },
+          {
+            "id": "B7F6C1AD353C428789B1BF1852056C8B",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "PermanentTenancy",
+            "title": "PermanentTenancy"
+          },
+          {
+            "id": "BC32AC3D01324021A56D7F7B71F6B286",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Path",
+            "title": "Path"
+          },
+          {
+            "id": "BCBA1297A42B41FA83A2B6748907EAF0",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "lingma_sys_is_delete",
+            "title": "是否删除"
+          },
+          {
+            "id": "C40A03482645404280B807FFDB4C1219",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "IsWork",
+            "title": "IsWork"
+          },
+          {
+            "id": "C4A47B435A944A22ADACF0D3D4F4F9E4",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "user_roles",
+            "title": "user_roles"
+          },
+          {
+            "id": "C80AF8BA57B941B1BF73915867BEDED8",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "EntId",
+            "title": "EntId"
+          },
+          {
+            "id": "CBD517861DBC493E96DBBC6517A207A9",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "job_rank",
+            "title": "职级"
+          },
+          {
+            "id": "CCC366D867134EBEA62BC52C2904DC90",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Age",
+            "title": "Age"
+          },
+          {
+            "id": "CF086DF82C234962AB4B2A2601A20166",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "CreateTime",
+            "title": "CreateTime"
+          },
+          {
+            "id": "D6ACD5308362448B824E7D231B4D0FCE",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "LoginPass",
+            "title": "LoginPass"
+          },
+          {
+            "id": "D79A79F21FDB421AAE330185F1D6F167",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "updateuser",
+            "title": "修改人"
+          },
+          {
+            "id": "E3FF2922205E4E089A1C94228E007DD5",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Address",
+            "title": "Address"
+          },
+          {
+            "id": "EFA1856C7BF7439F8216F893E1E87D8B",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "entInfoUserPhone",
+            "title": "entInfoUserPhone"
+          },
+          {
+            "id": "EFE35CB0ECDB47B69B633AC665393F40",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "UserName",
+            "title": "UserName"
+          },
+          {
+            "id": "F1BCABCD1B9445DBA4B6CBF198F1EDBA",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "MaritalStatus",
+            "title": "MaritalStatus"
+          },
+          {
+            "id": "F651DD10F5744F55A98E19E2F65AC4A7",
+            "owner": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "name": "Height",
+            "title": "Height"
+          }
+        ],
+        "valid": true
+      },
+      {
+        "id": "2990D6F563A34F8BAA0027DA3EBF51E2",
+        "name": "desktop_system_by_appid_auth",
+        "description": "桌面授权表",
+        "columns": [
+          {
+            "id": "006B46762CD34A0F96C6798552957074",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "createtime",
+            "title": "createtime"
+          },
+          {
+            "id": "00F0ABE3D2F044C69798386E888E5606",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppIsIMShow",
+            "title": "AppIsIMShow"
+          },
+          {
+            "id": "096822DBFC264AA2990D65E0F6CACE49",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppBigIconUrl",
+            "title": "AppBigIconUrl"
+          },
+          {
+            "id": "0FCFB9E71E0B4811AD024E246FCF54E8",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "wfid",
+            "title": "wfid"
+          },
+          {
+            "id": "1DDB5883A8A24D7E8D8B87EEE930F6B4",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AllowFavorites",
+            "title": "AllowFavorites"
+          },
+          {
+            "id": "1E50C67DA7BF4F8591885049E0D62AE3",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "rowid",
+            "title": "row_id"
+          },
+          {
+            "id": "2BA6ECFBF8FB47BA983F0255FEB1308A",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "ClickNum",
+            "title": "ClickNum"
+          },
+          {
+            "id": "2FB05F1B4D2F4A8795F4C3098D510AA2",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "FontColor",
+            "title": "FontColor"
+          },
+          {
+            "id": "34F1E7CF5BF0453391023B2E2CC07F73",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "description",
+            "title": "description"
+          },
+          {
+            "id": "3FC570AD3C864DAF8410D3657A331F07",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "rn2",
+            "title": "rn2"
+          },
+          {
+            "id": "44D6D87467E24889A57D61B1F5523EFA",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppPopupMode",
+            "title": "AppPopupMode"
+          },
+          {
+            "id": "543ADECC84C04947A344A1805BA84E42",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "BgColor",
+            "title": "BgColor"
+          },
+          {
+            "id": "5D04EDA40E7E4A92A9FAE63095C93CC0",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "authorized_at",
+            "title": "authorized_at"
+          },
+          {
+            "id": "5FB156F79CD845FCB8B5FBECE9F91E7A",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "IconStyle",
+            "title": "IconStyle"
+          },
+          {
+            "id": "66662A8A96CA489BB88966A96F6FDA56",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "updatetime",
+            "title": "updatetime"
+          },
+          {
+            "id": "67277DE7FA294CF8A78BA749FE20983F",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "IsFavorites",
+            "title": "IsFavorites"
+          },
+          {
+            "id": "6ECDE1C1CFA2471B886633AFD7B90A09",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "ShortCNName",
+            "title": "ShortCNName"
+          },
+          {
+            "id": "7767957C5A9D442B977F3835F4F4A2F5",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "IsIframe",
+            "title": "IsIframe"
+          },
+          {
+            "id": "78A260E9AE9349F9909112FCB24FAF3A",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppSmallIconUrl",
+            "title": "AppSmallIconUrl"
+          },
+          {
+            "id": "7B3ECD291221477097017C2F96AF0B9A",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppUrl",
+            "title": "AppUrl"
+          },
+          {
+            "id": "870D8DE5AE4442AAAA12A84BBAEA9968",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "flowstate",
+            "title": "flowstate"
+          },
+          {
+            "id": "8C133A0893EC4E1BA9096AF712807867",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "MobileUrl",
+            "title": "MobileUrl"
+          },
+          {
+            "id": "8F4DD1C41DFB4A7098A22D86999B827E",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "updateuser",
+            "title": "updateuser"
+          },
+          {
+            "id": "9B11129C2E79441194CE86C271B9B823",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "ClickOrderValue",
+            "title": "ClickOrderValue"
+          },
+          {
+            "id": "A09757AF9BAB4A59BF9A4470E5019F6D",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppName",
+            "title": "AppName"
+          },
+          {
+            "id": "AC1C4C9FD16E4B158A65A62AFE6E82BE",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "createuser",
+            "title": "createuser"
+          },
+          {
+            "id": "B98041A75CCE472E8CDA674374384839",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppID",
+            "title": "AppID"
+          },
+          {
+            "id": "BF7EC5AB208D4924AA81991696DC134C",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "lingma_sys_ent",
+            "title": "lingma_sys_ent"
+          },
+          {
+            "id": "D8007CA221894B4F9EA4083EFE808E26",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppType",
+            "title": "AppType"
+          },
+          {
+            "id": "DC2672D5714A488DBEA0CB230E814F38",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "operator",
+            "title": "operator"
+          },
+          {
+            "id": "E384B33F79B247408890EF0BBDCD2207",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppOrdidx",
+            "title": "AppOrdidx"
+          },
+          {
+            "id": "E9AB03EC95F64862BD1700BA2DCF153E",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "IsReqLogin",
+            "title": "IsReqLogin"
+          },
+          {
+            "id": "ED20CFCA80B549E1AE4F50A523B3E0E2",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "entName",
+            "title": "entName"
+          },
+          {
+            "id": "F1696F19EF0A491599B834ED4FC525DF",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "sys_id",
+            "title": "sys_id"
+          },
+          {
+            "id": "F370B4BBC05D4C65B23B75B35B48619B",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "AppIMType",
+            "title": "AppIMType"
+          },
+          {
+            "id": "F61E398147C54D39A17752B8DA46D7D8",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "ReportID",
+            "title": "ReportID"
+          },
+          {
+            "id": "F8CD8716191C40E7A4F1EFD0E9BD3282",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "IsDesktopShow",
+            "title": "IsDesktopShow"
+          },
+          {
+            "id": "FAC79112B8EC4DB3981C7B04898B2C9E",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "lingma_sys_is_delete",
+            "title": "lingma_sys_is_delete"
+          },
+          {
+            "id": "FAEB80D28FA24778B739FEFC27047776",
+            "owner": "2990D6F563A34F8BAA0027DA3EBF51E2",
+            "name": "enterprise_id",
+            "title": "enterprise_id"
+          }
+        ],
+        "valid": true
+      },
+      {
+        "id": "2C61FE7155C94C4B950412379ECCE648",
+        "name": "View_TblList",
+        "description": "表表视图",
+        "columns": [
+          {
+            "id": "0A55AC1A7B944462A0A28C87CCDDAB15",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "WebChartViewUrl",
+            "title": "WebChartViewUrl"
+          },
+          {
+            "id": "1283B8E1AD684DF0B2EB5F1E2BFF10EF",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "IsReferenceSelf",
+            "title": "IsReferenceSelf"
+          },
+          {
+            "id": "13F9CFACD0FB4EA8AB2C5C46882F4536",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "hasDefaultFields",
+            "title": "hasDefaultFields"
+          },
+          {
+            "id": "150DEFEB78E9448CB6C4E3B88CEB7C69",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "MapSync",
+            "title": "MapSync"
+          },
+          {
+            "id": "1B55CD19DF944EF9B868180E6F5DA3F5",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "object_id",
+            "title": "object_id"
+          },
+          {
+            "id": "1B5CB4CCA24646E9BE04B8BB129E8DEC",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "DbName",
+            "title": "DbName"
+          },
+          {
+            "id": "2968C2820B7548499FEC6A101F4BEC1C",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "RecLast",
+            "title": "RecLast"
+          },
+          {
+            "id": "2A1C05B0EF0541EA93998D5A81529826",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "RecCreater",
+            "title": "RecCreater"
+          },
+          {
+            "id": "34B0FB15749A4ED580BCDA8AA9C9F42D",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "wfid",
+            "title": "wfid"
+          },
+          {
+            "id": "43E8203335524815BC0C587007B50F96",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "IsVisible",
+            "title": "IsVisible"
+          },
+          {
+            "id": "48CDBD8F03BB499DA25E1EF2AF3FFA2C",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ReferenceParentKey",
+            "title": "ReferenceParentKey"
+          },
+          {
+            "id": "4E2C82894A554F09908F817195072480",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ListViewJson",
+            "title": "ListViewJson"
+          },
+          {
+            "id": "4E5FBA9DE8D7425AB4A01BCAFEDD5FAB",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "modname",
+            "title": "modname"
+          },
+          {
+            "id": "4EB81C1C93BF454BBE570591506C86DE",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "multiTenancy",
+            "title": "multiTenancy"
+          },
+          {
+            "id": "549C744FDC014CAAA6DB14150E18B85D",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "dbid",
+            "title": "dbid"
+          },
+          {
+            "id": "55CB674328DF4A56B80AEA67C6FD7FFE",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "updateuser",
+            "title": "updateuser"
+          },
+          {
+            "id": "58BEC0F6F9614F03A343EDDCB9E019ED",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "DropDownViewJson",
+            "title": "DropDownViewJson"
+          },
+          {
+            "id": "624BBFC5569446B2A5B4A0301B018B7B",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "DetailViewJson",
+            "title": "DetailViewJson"
+          },
+          {
+            "id": "63E33793080545FB9EE50FF3553C737A",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "DetailViewUrl",
+            "title": "DetailViewUrl"
+          },
+          {
+            "id": "6480D4116D104F729C4479B6AA9A0390",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "createuser",
+            "title": "createuser"
+          },
+          {
+            "id": "6C15D7FF4C1545A29CD05E44E02036E2",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "PhysicsDel",
+            "title": "PhysicsDel"
+          },
+          {
+            "id": "6F6B9257F5964D5C9B67FE0DD1B8A6A8",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "modid",
+            "title": "modid"
+          },
+          {
+            "id": "79F22014BF8641238184B3A3590FA70F",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ListViewUrl",
+            "title": "ListViewUrl"
+          },
+          {
+            "id": "7CCB5604FBEF4A85871ED7837691DC62",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ReportID",
+            "title": "ReportID"
+          },
+          {
+            "id": "7F62521CA3724DDE8AF33F7E00C10B38",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "IsOldSys",
+            "title": "IsOldSys"
+          },
+          {
+            "id": "891BFF2D1F5E41309F0CC6DCC2C56F02",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "tbldesc",
+            "title": "tbldesc"
+          },
+          {
+            "id": "8AFA433365044737B155A88A62124A7F",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "updatetime",
+            "title": "updatetime"
+          },
+          {
+            "id": "8C1BBD1E45A946FD8DCCD8F6AEEAAE09",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "status",
+            "title": "status"
+          },
+          {
+            "id": "8DE22C8FA73D498AA6EF1370BE1BED15",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ViewTempLoc",
+            "title": "ViewTempLoc"
+          },
+          {
+            "id": "8FC5943E3A9845A692AEA4FE96803EBC",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "createtime",
+            "title": "createtime"
+          },
+          {
+            "id": "9FD1419286A14B0AAB338E655D38B1F0",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ColCount",
+            "title": "ColCount"
+          },
+          {
+            "id": "A1503AAE17AD4A41AA7C3081AE5B5170",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "lingma_sys_is_delete",
+            "title": "lingma_sys_is_delete"
+          },
+          {
+            "id": "A3485EF407F24F86BB569BCAE5BACA13",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "Expression",
+            "title": "Expression"
+          },
+          {
+            "id": "A580E88E4FE94BC49588089D89E86C3D",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "ReferenceKey",
+            "title": "ReferenceKey"
+          },
+          {
+            "id": "A67F63D787C848138CE29F7A0ACB36D1",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "crttime",
+            "title": "crttime"
+          },
+          {
+            "id": "AFC7ED98AEB044C589647876B646A4DE",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "LastTime",
+            "title": "LastTime"
+          },
+          {
+            "id": "BB3929889C90474D9008C003C3FADFAE",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "functiondesc",
+            "title": "functiondesc"
+          },
+          {
+            "id": "C87306E2D3DB4158B8569403B111607B",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "description",
+            "title": "description"
+          },
+          {
+            "id": "D7DE5657AA4946B1B6B9D79F23353776",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "flowstate",
+            "title": "flowstate"
+          },
+          {
+            "id": "DAA8B57CC63240D3AC7A9549A6EB4ED5",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "rowid",
+            "title": "rowid"
+          },
+          {
+            "id": "E71A96F379EE42EAA7DC61B318D5D6C6",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "StateTable",
+            "title": "StateTable"
+          },
+          {
+            "id": "EF5C1A00278240208DD453F54A3FE0F2",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "lingma_sys_ent",
+            "title": "lingma_sys_ent"
+          },
+          {
+            "id": "F011DE5EDA8A420DA2818C0BBD96CC5D",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "SchemaName",
+            "title": "SchemaName"
+          },
+          {
+            "id": "F0A0ADBE581C492990CE62FACE310165",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "QuoteTblid",
+            "title": "QuoteTblid"
+          },
+          {
+            "id": "F0FA8634CBB742F5BB185AC6BCC05BA3",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "RecordOrState",
+            "title": "RecordOrState"
+          },
+          {
+            "id": "F1277771FBA74883BB09522AF1DFFE19",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "FormViewType",
+            "title": "FormViewType"
+          },
+          {
+            "id": "F890C627630941CBA203C64F543110C6",
+            "owner": "2C61FE7155C94C4B950412379ECCE648",
+            "name": "tblname",
+            "title": "tblname"
+          }
+        ],
+        "valid": true
+      },
+      {
+        "id": "3FC1A87F5A314283B0F6320026AF2A1F",
+        "name": "view_auth_ent_app",
+        "description": "企业应用权限视图",
+        "columns": [
+          {
+            "id": "28369F6C9DBB4F34BFDC6C9DBD9EDACF",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "enterprise_id",
+            "title": "enterprise_id"
+          },
+          {
+            "id": "46AE44D01E4140439A37273443951458",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "entName",
+            "title": "entName"
+          },
+          {
+            "id": "53B979ED4BC94116A97AE2CFB22CC091",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "eaa_rowid",
+            "title": "eaa_rowid"
+          },
+          {
+            "id": "6F199F39CB024488AC63EA031444507A",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "AppName",
+            "title": "AppName"
+          },
+          {
+            "id": "7BB18AA7EFA547659803A01376C1C08C",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "auth_status",
+            "title": "auth_status"
+          },
+          {
+            "id": "B5F6CCB4AD834DE883A0B94AF0D264E4",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "app_id",
+            "title": "app_id"
+          },
+          {
+            "id": "C5A32DC2D88843059D113F8CA0C0792F",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "lingma_sys_ent",
+            "title": "lingma_sys_ent"
+          },
+          {
+            "id": "F5DE8A01CC614B77AEC0B5F6AE555699",
+            "owner": "3FC1A87F5A314283B0F6320026AF2A1F",
+            "name": "ShortName",
+            "title": "ShortName"
+          }
+        ],
+        "valid": true
+      }
+    ],
+    "models": [
+      {
+        "name": "Base_AppAndSource_Relation",
+        "id": "400d5424-9a33-4faf-a10b-da436344b203"
+      },
+      {
+        "name": "_Base_ViewList",
+        "id": "7bba3b1f-23d9-40ac-86b5-11e8dfece6cf"
+      },
+      {
+        "name": "Base_TblField",
+        "id": "5d94198d-34fb-43a8-9d0a-e96b54eab33a"
+      }
+    ],
+    "databaseSample": {
+      "relationTotal": 39,
+      "returned": 5,
+      "conids": [
+        "EBEFF17BBB6443B185D6FB32FF69F0BB"
+      ],
+      "selection": "first actual registry relation in bounded page; no global name uniqueness claim"
+    },
+    "database": {
+      "conid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "conName": "QYVirtualPlat",
+      "relationCount": 39
+    },
+    "viewTotal": 29,
+    "viewSampleCount": 5,
+    "phase": "confirmed",
+    "usableViews": 4,
+    "reads": 52,
+    "blockedWrites": 0,
+    "testedAt": "2026-11-05T06:30:27.504Z"
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/association-fields",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/association-fields",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/association-fields\n职责：消费已保存的直接父节点和本节点映射选项，并成组编辑关联名称与描述。\n边界：不查询、不保存、不复制草稿；来源为原命名DataView，标准组件直接绑定原命名选项视图。\nAI用途：编辑父外键时核对候选归属和读取权限，沿原节点成组更新字段名及描述。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelAssociationFields"
+    ]
+  },
+  "$defs": {
+    "Kind": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Kind",
+      "enum": [
+        "parentField",
+        "foreignKeyField"
+      ]
+    },
+    "ExcelAssociationFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelAssociationFields",
+      "properties": {
+        "parentKey": {
+          "type": "string"
+        },
+        "foreignKey": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.select.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "nodeId": true,
+                "kind": {
+                  "$ref": "#/$defs/Kind"
+                },
+                "value": true
+              },
+              "required": [
+                "nodeId",
+                "kind",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.select.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T05:06:56.710Z",
+  "models": {
+    "Kind": {
+      "name": "Kind",
+      "jsdoc": "两个关联分别消费父节点或当前节点的正式映射。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'parentField' | 'foreignKeyField'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'parentField'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'foreignKeyField'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "ExcelAssociationFields": {
+      "name": "ExcelAssociationFields",
+      "jsdoc": "本次实例内的关联选项及成组业务编辑，持久化仍由原DataSet承接。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "@param dataSet 当前Excel设计实例；不得传入参考来源或其他方案实例。",
+          "signatureText": "constructor(dataSet: DataSet)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "parentKey",
+              "jsdoc": "标准父字段选择器的完整视图键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "foreignKey",
+              "jsdoc": "标准本节点外键选择器的完整视图键。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "select",
+              "jsdoc": "@param input 关联种类与所选英文名；空字符串表示同时清空名称及描述。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        nodeId: unknown;\n        kind: Kind;\n        value: unknown;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

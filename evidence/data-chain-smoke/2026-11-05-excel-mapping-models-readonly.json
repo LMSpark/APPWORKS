@@ -1,0 +1,564 @@
+{
+  "scope": "Readonly formal model identity and output-field verification for Excel mapping reference sources; not candidate row queries or file consumer acceptance",
+  "reads": 15,
+  "writes": 0,
+  "blockedWrites": 0,
+  "loginCallsExcluded": true,
+  "models": [
+    {
+      "space": "34BDBE645F461A3D83282A941D6037F4",
+      "metaName": "_Base_ViewList",
+      "id": "7bba3b1f-23d9-40ac-86b5-11e8dfece6cf",
+      "primaryKey": "rowid",
+      "sourceType": "数据库表",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "_Base_ViewList",
+      "fields": [
+        {
+          "id": "08E32422569B222A5E9514C82C80B6C7",
+          "name": "lingma_sys_is_delete",
+          "type": "int",
+          "output": false,
+          "description": "逻辑删除标记"
+        },
+        {
+          "id": "0B7B9932540985572B500F0403B44097",
+          "name": "dbid",
+          "type": "char",
+          "output": true,
+          "description": "数据库 ID"
+        },
+        {
+          "id": "11D3B2DC8B82E742821CD20E918FE3D9",
+          "name": "status",
+          "type": "int",
+          "output": false,
+          "description": "状态"
+        },
+        {
+          "id": "131E9837C7EA4F5C7A61AC22DEBE2985",
+          "name": "sql",
+          "type": "longtext",
+          "output": false,
+          "description": "SQL 定义"
+        },
+        {
+          "id": "17368EC81A0237DE23A5069D704060E7",
+          "name": "crttime",
+          "type": "varchar",
+          "output": false,
+          "description": "创建时间"
+        },
+        {
+          "id": "22942039D807B98EA7D9B7A51095BFFE",
+          "name": "createtime",
+          "type": "datetime",
+          "output": false,
+          "description": "创建时间"
+        },
+        {
+          "id": "3E5D8DF32F169867F810EA0AD0A0A6E6",
+          "name": "visibility_scope",
+          "type": "varchar",
+          "output": false,
+          "description": "视图结构跨租户可见范围"
+        },
+        {
+          "id": "443BC76B032F59EEEED89EF4B1185BEE",
+          "name": "vewdesc",
+          "type": "text",
+          "output": true,
+          "description": "中文名"
+        },
+        {
+          "id": "605E6DE8ABC9E7E02C40F4FB38CFDB61",
+          "name": "version",
+          "type": "int",
+          "output": false,
+          "description": "版本"
+        },
+        {
+          "id": "748BE95EC52F1FC538D288CCF4D4674B",
+          "name": "ReportID",
+          "type": "varchar",
+          "output": false,
+          "description": "报表 ID"
+        },
+        {
+          "id": "775B50C21A3AB2AD411B05276E322D14",
+          "name": "description",
+          "type": "varchar",
+          "output": true,
+          "description": "摘要"
+        },
+        {
+          "id": "7CCDF4B4C875BE652494A752230FAE68",
+          "name": "vewname",
+          "type": "varchar",
+          "output": true,
+          "description": "视图名"
+        },
+        {
+          "id": "8710812407CC1EED9C05E7ED1A13EFF9",
+          "name": "wfid",
+          "type": "varchar",
+          "output": false,
+          "description": "流程实例 ID"
+        },
+        {
+          "id": "910656CBCDF296A7F445C51B349F56A9",
+          "name": "object_id",
+          "type": "varchar",
+          "output": false,
+          "description": "对象 ID"
+        },
+        {
+          "id": "A0FE99C2BF1EE5BA9C2C6D3ABB350C4D",
+          "name": "modname",
+          "type": "varchar",
+          "output": false,
+          "description": "模块名"
+        },
+        {
+          "id": "A48A018A874BD02435AFB9DBFD12FCC3",
+          "name": "updatetime",
+          "type": "datetime",
+          "output": false,
+          "description": "修改时间"
+        },
+        {
+          "id": "AC0B0E5336A4A08C99EAF0DFEE4168F4",
+          "name": "RecCreater",
+          "type": "varchar",
+          "output": false,
+          "description": "创建人"
+        },
+        {
+          "id": "C9451AE8A00615BEED460BC02E4DCC21",
+          "name": "createuser",
+          "type": "varchar",
+          "output": false,
+          "description": "创建人"
+        },
+        {
+          "id": "D1A95A3A67AD930B7801D93A75457FD8",
+          "name": "flowstate",
+          "type": "int",
+          "output": false,
+          "description": "流程状态"
+        },
+        {
+          "id": "E2D6775A3C64ECF26BD12AF03A0A5F1B",
+          "name": "rowid",
+          "type": "char",
+          "output": true,
+          "description": "唯一标识 ID"
+        },
+        {
+          "id": "E961D76B9586C9C20C5C6941EA666B7C",
+          "name": "SchemaName",
+          "type": "varchar",
+          "output": false,
+          "description": "架构名称"
+        },
+        {
+          "id": "ECD77ABFB487CB5954CCB242D8AC5747",
+          "name": "functiondesc",
+          "type": "text",
+          "output": true,
+          "description": "功能描述"
+        },
+        {
+          "id": "F1FE5314FB7BF343692F9B66B6B2EFC1",
+          "name": "updateuser",
+          "type": "varchar",
+          "output": false,
+          "description": "修改人"
+        },
+        {
+          "id": "FF135CA2D751F15D5466FD6313E86F43",
+          "name": "modid",
+          "type": "char",
+          "output": false,
+          "description": "模块 ID"
+        }
+      ]
+    },
+    {
+      "space": "34BDBE645F461A3D83282A941D6037F4",
+      "metaName": "_Base_DictType",
+      "error": "正式数据空间模型必须唯一且属于当前数据空间: _Base_DictType"
+    },
+    {
+      "space": "34BDBE645F461A3D83282A941D6037F4",
+      "metaName": "Base_Desensitization_Rule",
+      "error": "正式数据空间模型必须唯一且属于当前数据空间: Base_Desensitization_Rule"
+    },
+    {
+      "space": "0F93B82141CF40852021D704B0E30BF4",
+      "metaName": "_Base_DictType",
+      "error": "正式数据空间模型必须唯一且属于当前数据空间: _Base_DictType"
+    },
+    {
+      "space": "0F93B82141CF40852021D704B0E30BF4",
+      "metaName": "Base_Desensitization_Rule",
+      "id": "77915fa4-1a95-435a-8649-3b42efe7d8df",
+      "primaryKey": "rowid",
+      "sourceType": "数据库表",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "Base_Desensitization_Rule",
+      "fields": [
+        {
+          "id": "23B33A03FDF3640A65AFC3D7BC84D1A1",
+          "name": "description",
+          "type": "text",
+          "output": false,
+          "description": "摘要"
+        },
+        {
+          "id": "242D3CB6138136BDBDD025B9E55F9ED9",
+          "name": "original_sample",
+          "type": "varchar",
+          "output": false,
+          "description": "示例原文"
+        },
+        {
+          "id": "344BF750A35BA11474CC79BEDEC6FDF7",
+          "name": "lingma_sys_appid",
+          "type": "varchar",
+          "output": false,
+          "description": "应用系统标识"
+        },
+        {
+          "id": "3D890D49EE7BF8B5DA0A492F0E766227",
+          "name": "desensitized_sample",
+          "type": "varchar",
+          "output": false,
+          "description": "脱敏后样例"
+        },
+        {
+          "id": "43633EA3C445294886489C0317015E6D",
+          "name": "is_gabale",
+          "type": "tinyint",
+          "output": false,
+          "description": "是否全局匹配"
+        },
+        {
+          "id": "4C2CB66BD812BEAF5363B9774F33F623",
+          "name": "Remark",
+          "type": "varchar",
+          "output": true,
+          "description": "备注"
+        },
+        {
+          "id": "4FA9633BAC8416BE1BF5E294C6B04370",
+          "name": "regex",
+          "type": "varchar",
+          "output": false,
+          "description": "脱敏正则表达式"
+        },
+        {
+          "id": "500A5026FE4AAF3C13070F08672A099F",
+          "name": "updateuser",
+          "type": "varchar",
+          "output": false,
+          "description": "修改人"
+        },
+        {
+          "id": "53049014CB10731AB0236476B5102B97",
+          "name": "template",
+          "type": "varchar",
+          "output": false,
+          "description": "脱敏规则模板"
+        },
+        {
+          "id": "7DC30D7554D7D91862DF9BA3B6230B30",
+          "name": "wfid",
+          "type": "varchar",
+          "output": false,
+          "description": "流程实例id"
+        },
+        {
+          "id": "9C96BD37E9AB10ECE6D36BE90F593852",
+          "name": "flowstate",
+          "type": "bigint",
+          "output": false,
+          "description": "流程状态"
+        },
+        {
+          "id": "A32AEB172E2AC97E82E61E7B3A788D9D",
+          "name": "type",
+          "type": "bigint",
+          "output": false,
+          "description": "分类(1:个人信息类,2:地区类,3:日期类)"
+        },
+        {
+          "id": "A9FF83F3E864303E37BB27A6B51E4827",
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "output": false,
+          "description": "是否删除"
+        },
+        {
+          "id": "B15A25BD02A091C2382E38D93256A9A1",
+          "name": "ReportID",
+          "type": "varchar",
+          "output": false,
+          "description": "报表id"
+        },
+        {
+          "id": "B6F61DCF61F5E7486F9036D5A72A3B9C",
+          "name": "createtime",
+          "type": "datetime",
+          "output": false,
+          "description": "创建时间"
+        },
+        {
+          "id": "BA66EC396E73467DD1BA46B94CE4693B",
+          "name": "name",
+          "type": "varchar",
+          "output": true,
+          "description": "名称"
+        },
+        {
+          "id": "D080AC5C016A46ED6779BD4A6DFE42BF",
+          "name": "rowid",
+          "type": "varchar",
+          "output": true,
+          "description": "唯一值（ID）"
+        },
+        {
+          "id": "E53D033263948F8D95C97842E749BD3A",
+          "name": "updatetime",
+          "type": "datetime",
+          "output": false,
+          "description": "修改时间"
+        },
+        {
+          "id": "ED87D0CEA1DE87CF9FF8DDEA3DE92129",
+          "name": "createuser",
+          "type": "varchar",
+          "output": false,
+          "description": "创建人"
+        }
+      ]
+    },
+    {
+      "space": "69B79AB779DF4C12A5595DACDF3283F1",
+      "metaName": "_Base_DictType",
+      "id": "69B79AB779DF4C12A5595DACDF3283F1p000",
+      "primaryKey": "rowid",
+      "sourceType": "数据库表",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "_Base_DictType",
+      "fields": [
+        {
+          "id": "0D4449404FAF480685A97611A5FB03BF",
+          "name": "dictionaryType",
+          "type": "varchar",
+          "output": true,
+          "description": "字典类型"
+        },
+        {
+          "id": "125689B08E4841B0B20B25A533EBB767",
+          "name": "modid",
+          "type": "varchar",
+          "output": true,
+          "description": "模块ID"
+        },
+        {
+          "id": "134FED31BEA745C699C41A307517C0AD",
+          "name": "fiveValue",
+          "type": "varchar",
+          "output": true,
+          "description": "第五文本标题"
+        },
+        {
+          "id": "23FD92DF78B040C7BE1F819BD4BA377C",
+          "name": "lingma_sys_is_delete",
+          "type": "bigint",
+          "output": true,
+          "description": "是否删除"
+        },
+        {
+          "id": "34ED1B589A7F4F72838AE4A2FD550D54",
+          "name": "updateuser",
+          "type": "varchar",
+          "output": true,
+          "description": "修改人"
+        },
+        {
+          "id": "35B190327988408F8F75F48DBA243A46",
+          "name": "author",
+          "type": "varchar",
+          "output": true,
+          "description": "作者"
+        },
+        {
+          "id": "42893196373D47D6AF0E760B58136952",
+          "name": "createuser",
+          "type": "varchar",
+          "output": true,
+          "description": "创建人"
+        },
+        {
+          "id": "43A6553D11244122985905C1A035C5A5",
+          "name": "ModName",
+          "type": "varchar",
+          "output": true,
+          "description": "模块名称"
+        },
+        {
+          "id": "47F57C7193654DF9805DD62A15C2B1BF",
+          "name": "updatetime",
+          "type": "datetime",
+          "output": true,
+          "description": "修改时间"
+        },
+        {
+          "id": "54E9A827CF5C40D9B6781D972FDCF8D9",
+          "name": "flowstate",
+          "type": "int",
+          "output": true,
+          "description": "流程状态"
+        },
+        {
+          "id": "5739D12D4780485B8CEB9056564393E5",
+          "name": "ReportID",
+          "type": "varchar",
+          "output": true,
+          "description": "报表id"
+        },
+        {
+          "id": "5E0EDA04DE7C41E79E54100AA7176739",
+          "name": "StructureTypeID",
+          "type": "varchar",
+          "output": true,
+          "description": "领域分类ID"
+        },
+        {
+          "id": "7207326BAD5F48B0B29C90492105214E",
+          "name": "rowid",
+          "type": "varchar",
+          "output": true,
+          "description": "唯一值（ID）"
+        },
+        {
+          "id": "72F6A1D203DA4A55B4B6546C9E6E5D48",
+          "name": "remark",
+          "type": "varchar",
+          "output": true,
+          "description": "备注"
+        },
+        {
+          "id": "7FAD205D0F2648E2888B6E0405465B59",
+          "name": "TypeName",
+          "type": "varchar",
+          "output": true,
+          "description": "字典类型名称"
+        },
+        {
+          "id": "8C40DE3CC4AE41F281420B8B43009C9C",
+          "name": "crttime",
+          "type": "varchar",
+          "output": true,
+          "description": "创建时间"
+        },
+        {
+          "id": "8D2F0DA63A3345F58C88538B89E76A1A",
+          "name": "val",
+          "type": "varchar",
+          "output": true,
+          "description": "键名称"
+        },
+        {
+          "id": "936B3C00E58044518479DE6D20A14CC2",
+          "name": "secondValue",
+          "type": "varchar",
+          "output": true,
+          "description": "第二文本标题"
+        },
+        {
+          "id": "9C19F09331E64E2E8A423E374F556389",
+          "name": "txt",
+          "type": "varchar",
+          "output": true,
+          "description": "值名称"
+        },
+        {
+          "id": "B923FB56550D423BBE92CEA7C722B669",
+          "name": "description",
+          "type": "varchar",
+          "output": true,
+          "description": "摘要"
+        },
+        {
+          "id": "C46D3B825EE84A418E1A47F1647D1F71",
+          "name": "thirdValue",
+          "type": "varchar",
+          "output": true,
+          "description": "第三文本标题"
+        },
+        {
+          "id": "C57C572B84904B81820954F497141456",
+          "name": "wfid",
+          "type": "varchar",
+          "output": true,
+          "description": "流程实例id"
+        },
+        {
+          "id": "C5DE885211524060A06C358D8C79936E",
+          "name": "AppId",
+          "type": "varchar",
+          "output": true,
+          "description": "AppId"
+        },
+        {
+          "id": "CCB45C570B2645E8B2C2EB3110058C1A",
+          "name": "fourthvalue",
+          "type": "varchar",
+          "output": true,
+          "description": "第四文本标题"
+        },
+        {
+          "id": "E7826EF8D54E4702A5938302BDCF6309",
+          "name": "functiondesc",
+          "type": "varchar",
+          "output": true,
+          "description": "功能描述"
+        },
+        {
+          "id": "FA199B1B660A448A9867A74C05CFD758",
+          "name": "createtime",
+          "type": "datetime",
+          "output": true,
+          "description": "创建时间"
+        }
+      ]
+    }
+  ],
+  "interpretation": [
+    "34B physical view registry exists with dbid/vewname/vewdesc outputs; view-column row contract still needs runtime verification",
+    "Dictionary model could not be uniquely resolved in 34B or Excel design scenario; use verified 69B dictionary binding. The shared error does not distinguish zero rows from duplicate registrations.",
+    "Excel design scenario desensitization model has a distinct formal model ID and rowid/name outputs",
+    "All probes are read-only; no fixture or business record created"
+  ],
+  "hashes": [
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-mapping-models-audit.json",
+      "sha256": "d3499e17eeb3cac66e09e56b586ffb6b2f7c1e141361087a4f5de49aedc364fc"
+    },
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-mapping-dictionary-model-audit.json",
+      "sha256": "cde9a6d8b6bbc83d9288c7977319c5aa03e8d50ca1b22b7faa8d37a1d1b613bb"
+    },
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-mapping-models.mts",
+      "sha256": "7f00e32cdabd88654ee0fc6ea2affaf079469678d4ff2438c189426492b587ff"
+    },
+    {
+      "path": "artifacts\\data-chain-smoke\\excel-mapping-dictionary-model.mts",
+      "sha256": "736178a9483a3f116e2cc3aa302e7659a6f15e10950a466f719588f45effa2c1"
+    }
+  ]
+}

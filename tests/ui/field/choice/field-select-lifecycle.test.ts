@@ -44,6 +44,16 @@ async function fixture(value: string | number = 'first', selection = false) {
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('uses the latest field change handler after its parent updates the interaction target', async () => {
+    const f=await fixture(), first=vi.fn(), second=vi.fn()
+    f.onChange.value=first;await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','second');await flushPromises()
+    expect(first).toHaveBeenCalledTimes(1)
+    f.view.setCurrentRowById('b');f.onChange.value=second;await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','first');await flushPromises()
+    expect(second).toHaveBeenCalledTimes(1);expect(first).toHaveBeenCalledTimes(1)
+    expect(f.view.getEditingRow('b')?.['choice']).toBe('first')
+  })
   it('selects and clears view members without editing records, and respects readonly', async () => {
     const f = await fixture('first', true), select = f.wrapper.getComponent(ElSelect)
     expect(select.props('disabled')).toBe(false)

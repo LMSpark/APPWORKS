@@ -1,13 +1,13 @@
 import {afterEach, expect, it, vi} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
-import {createSourceFixture} from '../structured-config/data-code/source-picker/fixture'
+import {createSourceFixture} from '../../structured-config/data-code/source-picker/fixture'
 import {projectExcelTarget, stageExcelTarget} from '@/lowcode/resources/semi-structured/excel-import/target-selection'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {EXCEL_DESIGN, excelDesignModels, designText} from './excel-import-design.fixture'
-import {ApiBackend} from '../api-provider/api-provider.fixture'
-import {ExcelTargetReplacement} from '@/lowcode/resources/semi-structured/excel-import/target-replacement'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
+import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
 const disposers: Array<() => void> = []
 afterEach(() => disposers.splice(0).forEach(dispose => dispose()))
 async function source() {
@@ -77,9 +77,37 @@ it('restores the original field set and unrelated node draft if native staging i
   expect(f.nodes.getEditingRow('C1')).toMatchObject({sheetName: '此前名称草稿', table: 'OLD@TABLE'})
   expect(f.http.saves).toEqual([])
 })
+it('preserves an old mapping edit arriving while source rows are being staged',async()=>{
+ const s=await source(),f=await target(),add=f.fields.addRow.bind(f.fields)
+ const spy=vi.spyOn(f.fields,'addRow').mockImplementation(async data=>{
+  const row=await add(data);f.fields.updateEditingValue('OLD','title','并发本地标题');return row
+ })
+ await expect(stageExcelTarget({...f,nodeId:'C1',selection:projectExcelTarget(s.dataSet),assertCurrent:()=>{}})).rejects.toThrow('原字段')
+ spy.mockRestore()
+ expect(f.fields.getEditingRow('OLD')?.['title']).toBe('并发本地标题')
+ expect(f.fields.dirtyTracking.pendingCreateIds.size).toBe(0)
+ expect(f.fields.dirtyTracking.pendingDeleteIds.size).toBe(0)
+ expect(f.http.saves).toEqual([])
+})
+it.each(['title','index'])('compares fresh %s against the native pending-delete snapshot',async field=>{
+ const s=await source(),f=await target(),command=await ExcelConfigurationEdit.stage({dataSet:f.ds,nodeId:'C1',source:s.dataSet,assertCurrent:()=>{}})
+ expect(f.fields.rows.some(row=>row['rowid']==='OLD')).toBe(false)
+ expect(f.fields.dirtyTracking.getPendingDeleteSnapshot('OLD')).toBeDefined()
+ f.http.records['Base_ImportData_Field']![0]![field]='远端修改'
+ await expect(command.save()).rejects.toThrow('映射已变化')
+ expect(f.http.saves).toEqual([])
+})
+it('refuses classical source replacement in enabled relative layout without changing hidden mappings',async()=>{
+ const s=await source(),f=await target(),rows=f.fields.readSnapshot().rows
+ f.nodes.updateEditingValue('C1','sheet_layout_json','{"enabled":true,"version":1,"regions":[]}')
+ await expect(stageExcelTarget({...f,nodeId:'C1',selection:projectExcelTarget(s.dataSet),assertCurrent:()=>{}})).rejects.toThrow('相对版式')
+ expect(f.fields.readSnapshot().rows).toEqual(rows)
+ expect(f.fields.dirtyTracking.hasPendingChanges()).toBe(false)
+ expect(f.http.saves).toEqual([])
+})
 it('commits target and mappings through one native multi-view batch and never resaves a completed command', async () => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   const save = vi.spyOn(f.ds, 'saveChanges')
   await command.save()
   expect(save).toHaveBeenCalledTimes(1)
@@ -91,7 +119,7 @@ it('commits target and mappings through one native multi-view batch and never re
 })
 it('uses the original joint capture to verify a lost reply without resubmitting either model', async () => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   f.http.failAfterWrite = true
   await expect(command.save()).rejects.toThrow()
   const writes = f.http.saves.length
@@ -103,7 +131,7 @@ it('uses the original joint capture to verify a lost reply without resubmitting 
 })
 it('rejects a late direct child without refreshing the original reference contract or dispatching writes', async () => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   f.http.records['Base_ImportData_Config']!.push({rowid: 'LATE', schemeid: 'E1', pid: 'C1', parentField: 'old'})
   await expect(command.save()).rejects.toThrow('引用已变化')
   await expect(command.save()).rejects.toThrow('引用已变化')
@@ -113,7 +141,7 @@ it('rejects a late direct child without refreshing the original reference contra
 })
 it('refuses a late invalid node draft arriving during the asynchronous reference preflight', async () => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   let release!: () => void, entered = false
   const gate = new Promise<void>(resolve => {release = resolve})
   f.http.interceptors.request.use({onRequest: async request => {
@@ -134,7 +162,7 @@ it('rejects an immediate field view before a source preview can dispatch any wri
 })
 it('refuses a same-count replacement of the original mapping identities before dispatch', async () => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   f.http.records['Base_ImportData_Field']![0]!['rowid'] = 'REPLACED'
   await expect(command.save()).rejects.toThrow('映射已变化')
   expect(f.http.saves).toEqual([])
@@ -142,7 +170,7 @@ it('refuses a same-count replacement of the original mapping identities before d
 
 it.each(['nodes', 'fields'] as const)('reapplies the entire joint intent after a local %s apply failure instead of saving mappings alone', async failing => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   vi.spyOn(f[failing], 'applyEditingRows').mockRejectedValueOnce(new Error('local apply failure'))
   await expect(command.save()).rejects.toThrow('local apply failure')
   expect(command.getState()).toMatchObject({dispatched: false})
@@ -154,7 +182,7 @@ it.each(['nodes', 'fields'] as const)('reapplies the entire joint intent after a
 })
 
 it('explicitly accepts a current formal result after an incomplete receipt without claiming command success or replaying', async () => {
-  const s = await source(), f = await target(), command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const s = await source(), f = await target(), command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   const originalSave = f.ds.saveChanges.bind(f.ds)
   vi.spyOn(f.ds, 'saveChanges').mockImplementation(async options => {
     const result = await originalSave(options)
@@ -171,7 +199,7 @@ it('explicitly accepts a current formal result after an incomplete receipt witho
 
 it('rechecks fresh write permission on already applied node fields after a local mapping apply failure', async () => {
   const s = await source(), f = await target()
-  const command = await ExcelTargetReplacement.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
+  const command = await ExcelConfigurationEdit.stage({dataSet: f.ds, nodeId: 'C1', source: s.dataSet, assertCurrent: () => {}})
   vi.spyOn(f.fields, 'applyEditingRows').mockRejectedValueOnce(new Error('mapping local apply failed'))
   await expect(command.save()).rejects.toThrow('mapping local apply failed')
   f.http.interceptors.response.use({onResponse: response => {
@@ -187,4 +215,40 @@ it('rechecks fresh write permission on already applied node fields after a local
   }})
   await expect(command.save()).rejects.toThrow('不允许修改目标')
   expect(f.http.saves).toEqual([])
+})
+
+it('keeps opaque mapping identities in the first proof when the displayed primary-key field is masked',async()=>{
+  const s=await source(),f=await target()
+  const record=(value:unknown):value is Record<string,unknown>=>value!==null&&typeof value==='object'&&!Array.isArray(value)
+  f.http.interceptors.response.use({onResponse:response=>{
+    const body:unknown=response.data
+    if(record(body)&&record(body['Result'])&&record(body['Result']['data'])&&Array.isArray(body['Result']['data']['Items']))for(const row of body['Result']['data']['Items'])if(record(row)&&row['configid']==='C1'&&record(row['lingma_sys_params']))row['lingma_sys_params']['m']=['rowid']
+    return response
+  }})
+  await f.fields.refresh()
+  const command=await ExcelConfigurationEdit.stage({dataSet:f.ds,nodeId:'C1',source:s.dataSet,assertCurrent:()=>{}})
+  f.http.records['Base_ImportData_Field']![0]!['rowid']='REPLACED'
+  await expect(command.save()).rejects.toThrow('映射已变化')
+  expect(f.http.saves).toEqual([])
+})
+
+it.each([true,false])('checks the final edited title of a same-batch source mapping (matching=%s)',async matching=>{
+ const s=await source(),f=await target(),command=await ExcelConfigurationEdit.stage({dataSet:f.ds,nodeId:'C1',source:s.dataSet,assertCurrent:()=>{}})
+ const row=f.fields.rows.find(row=>row['name']==='id')!,id=f.fields.getPkKey(row)!
+ f.fields.updateEditingValue(id,'title','修改后的标题')
+ f.nodes.updateEditingValue('C1','foreignKeyField','id');f.nodes.updateEditingValue('C1','foreignKeyFieldDesc',matching?'修改后的标题':'编号')
+ if(matching){await command.save();expect(f.http.records['Base_ImportData_Config']![0]!['foreignKeyFieldDesc']).toBe('修改后的标题')}
+ else {await expect(command.save()).rejects.toThrow('标题');expect(f.http.saves).toEqual([])}
+})
+it('refuses source staging when a masked node key invalidates its formal tree or cascade input',async()=>{
+ const s=await source(),f=await target()
+ const record=(value:unknown):value is Record<string,unknown>=>value!==null&&typeof value==='object'&&!Array.isArray(value)
+ f.http.interceptors.response.use({onResponse:response=>{
+  const body:unknown=response.data
+  if(record(body)&&record(body['Result'])&&record(body['Result']['data'])&&Array.isArray(body['Result']['data']['Items']))for(const row of body['Result']['data']['Items'])if(record(row)&&row['schemeid']==='E1'&&record(row['lingma_sys_params']))row['lingma_sys_params']['m']=['rowid']
+  return response
+ }})
+ await f.nodes.refresh()
+ await expect(ExcelConfigurationEdit.stage({dataSet:f.ds,nodeId:'C1',source:s.dataSet,assertCurrent:()=>{}})).rejects.toThrow('查询未就绪')
+ expect(f.http.saves).toEqual([])
 })

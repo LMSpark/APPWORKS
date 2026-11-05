@@ -32,23 +32,25 @@
             <FieldText field="relatedAppName" label="应用" :readonly="true" />
             <FieldText field="tableDesc" label="目标数据" :readonly="true" />
             <FieldSelect field="exportType" label="导入导出方式" :option-data-view-key="methodsKey" :readonly="locked" />
+            <FieldSelect v-if="association" field="parentField" label="父字段" :option-data-view-key="association.parentKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.parent" />
+            <FieldSelect v-if="association" field="foreignKeyField" label="外键字段" :option-data-view-key="association.foreignKey" :option-label-fields="['title','name']" :readonly="locked" :on-change="associationHandlers.foreign" />
             <FieldJson field="filters" label="过滤条件" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.filters',value)" />
             <FieldJson field="sorted" label="排序规则" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.sorted',value)" />
-            <FieldJson field="sheet_layout_json" label="Sheet 布局" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.layout',value)" />
+            <FieldJson field="sheet_layout_json" label="Sheet 布局" mode="text" :readonly="locked" :on-change="changeLayout" :on-editing-change="value => pending('nodes.layout',value)" />
           </RendererForm>
           <RendererButton :data-view-key="nodesKey" label="选择目标数据" perm-action="edit" :disabled="locked || !!targetChange || !targetAllowed" @click="openTarget" />
-          <p v-if="targetChange" role="status">目标及字段替换共同保存；提交开始后沿同一次保存核验。</p>
-          <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(nodesTable) ? '核验配置保存结果' : '保存配置'" :disabled="busy || pendingPart('nodes')" @click="save(nodesTable)" />
-          <RendererButton label="取消配置修改" :disabled="busy || unconfirmed || !!targetChange && !targetState?.canCancel" @click="cancel(nodesTable)" />
-          <RendererButton v-if="targetState?.canRetry" label="确认未生效，重新提交目标及字段" :disabled="busy" @click="retryTarget" />
-          <RendererButton v-if="targetState?.canAcceptCurrent" label="读取并采用当前正式结果，结束原换源" :disabled="busy" @click="acceptTargetCurrent" />
-          <RendererButton v-if="targetChange && targetState?.applyStarted && targetState.canDiscard" label="放弃本次配置和字段的本地修改" :disabled="busy" @click="discardTarget" />
-          <section>
+          <p v-if="targetState?.kind==='source'" role="status">目标及字段替换共同保存；提交开始后沿同一次保存核验。</p>
+          <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(nodesTable) ? '核验配置保存结果' : '保存配置'" :disabled="busy || !!targetChange && !targetChange.owns(nodesTable) || pendingPart('nodes')" @click="save(nodesTable)" />
+          <RendererButton label="取消配置修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(nodesTable))" @click="cancel(nodesTable)" />
+          <RendererButton v-if="targetState?.canRetry" :label="targetState?.kind==='source' ? '确认未生效，重新提交目标及字段' : '确认未生效，重新提交原修改'" :disabled="busy" @click="retryTarget" />
+          <RendererButton v-if="targetState?.canAcceptCurrent" :label="targetState?.kind==='source' ? '读取并采用当前正式结果，结束原换源' : '读取并采用当前正式结果，结束原保存'" :disabled="busy" @click="acceptTargetCurrent" />
+          <RendererButton v-if="targetChange && targetState?.applyStarted && targetState.canDiscard" :label="targetState?.kind==='source' ? '放弃本次配置和字段的本地修改' : '放弃本次保存范围的本地修改'" :disabled="busy" @click="discardTarget" />
+          <p v-if="layoutEnabled" role="status">已启用相对版式，经典字段映射已隐藏。请在 Sheet 布局中维护版式定义。</p>
+          <section v-else>
             <h2>字段映射</h2>
-            <RendererButton :data-view-key="fieldsKey" label="新增字段" perm-action="create" :disabled="locked || !!targetChange" @click="add(fieldsTable,{name:'',title:'',index:''})" />
             <RendererButton :data-view-key="fieldsKey" label="删除字段" perm-action="delete" :disabled="locked || !!targetChange" @click="remove(fieldsTable)" />
-            <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(fieldsTable) ? '核验字段保存结果' : '保存字段'" :disabled="busy || pendingPart('nodes')" @click="save(fieldsTable)" />
-            <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && !targetState?.canCancel" @click="cancel(fieldsTable)" />
+            <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(fieldsTable) ? '核验字段保存结果' : '保存字段'" :disabled="busy || !!targetChange && (!targetChange.owns(fieldsTable) || targetChange.owns(nodesTable) && pendingPart('nodes'))" @click="save(fieldsTable)" />
+            <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(fieldsTable))" @click="cancel(fieldsTable)" />
             <RendererTable :data-view-key="fieldsKey" :children="fieldColumns" :highlight-current-row="true" />
           </section>
           <section>
@@ -91,8 +93,11 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
-import {ExcelTargetReplacement} from '@/lowcode/resources/semi-structured/excel-import/target-replacement'
+import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
 import {ExcelConfigurationRemoval} from '@/lowcode/resources/semi-structured/excel-import/configuration-removal'
+import {assertExcelFieldRemoval} from '@/lowcode/resources/semi-structured/excel-import/edit-references'
+import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
+import {ExcelAssociationFields} from '@/lowcode/resources/semi-structured/excel-import/association-fields'
 import ExcelTargetDialog from './excel-import-target-dialog.vue'
 
 const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, FieldText, FieldNumber, FieldSelect, FieldJson, useSparkComponent} = SparkComponent
@@ -106,10 +111,14 @@ const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catal
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-editor-page'})
 const dataSet = shallowRef<DataSet>(), catalog = shallowRef<DataSet>(), opening = ref(false), ready = ref(false), acting = ref(false), error = ref(''), revision = ref(0)
 const inputs = ref(new Set<string>())
-const sourceTargetId = ref(''), targetChange = shallowRef<ExcelTargetReplacement>()
+const sourceTargetId = ref(''), targetChange = shallowRef<ExcelConfigurationEdit>()
 const recoveryNotice = ref('')
+const association = shallowRef<ExcelAssociationFields>()
 const targetState = computed(() => {revision.value; return targetChange.value?.getState()})
-const targetSaveLabel = computed(() => targetState.value?.dispatched ? '核验目标及字段保存结果' : targetState.value?.applyStarted ? '重新保存目标及字段' : '保存目标及字段')
+const targetSaveLabel = computed(() => {
+  const state=targetState.value,part=state?.kind==='source'?'目标及字段':state?.kind===fieldsTable?'字段':'配置'
+  return state?.dispatched?`核验${part}保存结果`:state?.applyStarted?`重新保存${part}`:`保存${part}`
+})
 const removal = shallowRef<ExcelConfigurationRemoval>(), removalState = computed(() => {revision.value; return removal.value?.getState()})
 let runtime: PageRuntime | undefined, unsubscribers: Array<() => void> = [], generation = 0, active = true
 const view = (table: string) => dataSet.value?.getView(table)
@@ -123,14 +132,42 @@ const locked = computed(() => busy.value || unconfirmed.value || !!removal.value
 const hasPending = computed(() => {revision.value; return acting.value || !!targetChange.value || !!removal.value || inputs.value.size > 0 || views.value.some(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty() {return opening.value || hasPending.value}})
 const selectedNode = computed(() => {revision.value; return view(nodesTable)?.currentRow ?? null})
-const targetAllowed = computed(() => {revision.value; const nodes=view(nodesTable), row=nodes?.currentRow, id=row?nodes?.getPkKey(row):undefined; return id!==undefined && !nodes?.dirtyTracking.isPendingCreate(id) && nodes?.editActionState(row??null)==='enabled'})
+const layoutEnabled = computed(() => {
+  revision.value
+  const nodes=view(nodesTable),row=nodes?.currentRow,id=row?nodes?.getPkKey(row):undefined
+  if(!nodes||!row||id===undefined||nodes.fieldAccess(row,'sheet_layout_json').read!=='visible')return false
+  return activeLayout(nodes.getEditingRow(id)?.['sheet_layout_json'])
+})
+const associationHandlers = computed(() => {
+  const owner=association.value,nodeId=selectedNode.value?.['rowid']
+  return {parent:(value:unknown,previous:unknown,control:unknown)=>changeAssociation({owner,nodeId,kind:'parentField',value},control),
+    foreign:(value:unknown,previous:unknown,control:unknown)=>changeAssociation({owner,nodeId,kind:'foreignKeyField',value},control)}
+})
+const targetAllowed = computed(() => {revision.value; const nodes=view(nodesTable), row=nodes?.currentRow, id=row?nodes?.getPkKey(row):undefined; return !layoutEnabled.value && id!==undefined && !nodes?.dirtyTracking.isPendingCreate(id) && nodes?.editActionState(row??null)==='enabled'})
 const selectedRule = computed(() => {revision.value; return view(rulesTable)?.currentRow ?? null})
 const queryError = computed(() => {revision.value; return views.value.find(item => item.loadingError)?.loadingError?.message ?? ''})
 function pending(id: string, editing: boolean): void {if (editing) inputs.value.add(id); else inputs.value.delete(id)}
 function pendingPart(prefix: string): boolean {return [...inputs.value].some(id => id.startsWith(prefix + '.'))}
 function isUnconfirmed(table: string): boolean {revision.value; return view(table)?.hasUnconfirmedSave === true}
 function validateJson(value: unknown): void {if (typeof value !== 'string') throw new Error('配置必须是JSON文本'); if (value.trim()) parseJsonDocument(value)}
-const fieldColumns = computed<SparkNode[]>(() => Object.entries({name:'字段名称',title:'标题',index:'索引',type:'类型'}).map(([field,label]) => ({type:field === 'type' ? 'r-number' : 'r-text',props:{field,label,showCellControl:true,cellReadonly:()=>locked.value}})))
+function activeLayout(value:unknown):boolean {
+  if(typeof value!=='string'||!value.trim())return false
+  try{const layout=parseJsonDocument(value);return !Array.isArray(layout)&&Boolean(layout['enabled'])}catch{return false}
+}
+function changeLayout(value:unknown,previous:unknown,control:unknown):void {
+  if(control===null||typeof control!=='object'||!('cancel' in control))throw new Error('缺少字段交互控制')
+  try{
+    validateJson(value)
+    const fields=view(fieldsTable)
+    if(activeLayout(value)!==activeLayout(previous)&&(fields?.hasEditingChanges()||fields?.dirtyTracking.hasPendingChanges()))throw new Error('请先保存或取消字段修改，再切换相对版式')
+    error.value=''
+  }catch(cause){control.cancel=true;error.value=cause instanceof Error?cause.message:String(cause)}
+}
+const fieldColumns = computed<SparkNode[]>(() => [
+  ...Object.entries({name:'字段名称',title:'标题',index:'Excel 列号',type:'类型'}).map(([field,label]) => ({type:field === 'type' ? 'r-number' : 'r-text',props:{field,label,readonly:['name','type'].includes(field),showCellControl:true,cellReadonly:()=>locked.value}})),
+  {type:'r-select',props:{field:'DesenID',label:'脱敏规则',optionDataViewKey:key('Base_Desensitization_Rule'),showCellControl:true,cellReadonly:()=>locked.value}},
+  {type:'r-text',props:{field:'refTableDesc',label:'引用表描述',readonly:true}},
+])
 const ruleColumns = computed<SparkNode[]>(() => Object.entries({rule_name:'规则名称',rule_type:'规则类型',source_field:'来源字段',target_field:'目标字段',sort_order:'顺序',enabled:'启用',on_error:'错误处理'}).map(([field,label]) => ({type:['sort_order','enabled'].includes(field)?'r-number':'r-text',props:{field,label,showCellControl:true,cellReadonly:()=>locked.value}})))
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
@@ -138,7 +175,7 @@ defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 watch(importConfigId, async id => {
   const own = ++generation
   sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined
-  unsubscribers.forEach(off=>off()); unsubscribers=[]; sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime=undefined; dataSet.value=undefined; catalog.value=undefined
+  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime=undefined; dataSet.value=undefined; catalog.value=undefined
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
@@ -151,6 +188,7 @@ watch(importConfigId, async id => {
     const target=catalog.value?.getView('Base_Import_solution','editorTarget'), nodes=view(nodesTable)
     if (!target || !nodes) throw new Error('Excel正式设计视图缺失')
     if ([nodesTable,fieldsTable,rulesTable].some(name=>view(name)?.commitMode!=='staged')) throw new Error('Excel设计必须使用正式暂存视图')
+    association.value = new ExcelAssociationFields(dataSet.value!)
     const changed=()=>revision.value++
     unsubscribers=[catalog.value!,dataSet.value!].map(ds=>ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed}))
     await target.refresh(); if (target.loadingError) throw target.loadingError
@@ -173,22 +211,26 @@ async function act(table: string, command: (target: NonNullable<ReturnType<typeo
 }
 async function save(table: string): Promise<void> {await act(table,async target=>{
   if (targetChange.value && [nodesTable, fieldsTable].includes(table)) {
-    if (pendingPart('nodes')) return
+    if (!targetChange.value.owns(table)) throw new Error('请先处理原结构保存，不能扩大提交范围')
+    if (targetChange.value.owns(nodesTable) && pendingPart('nodes')) return
     await targetChange.value.save(); if (targetChange.value.getState().done) targetChange.value = undefined
     return
   }
-  if (pendingPart(table===nodesTable?'nodes':'rules')) return
-  if (table===nodesTable && !target.hasUnconfirmedSave) for(const row of target.rows){
-    const id=target.getPkKey(row)
-    if(id!==undefined && (target.hasEditingChanges(id)||target.dirtyTracking.hasPendingChanges(id))){
-      const value=target.getEditingRow(id)?.['sheetName']??row['sheetName']
-      if(target.fieldAccess(row,'sheetName').read!=='visible'||typeof value!=='string'||!value.trim())throw new Error('请输入工作表名称')
-    }
+  if (pendingPart(table===nodesTable?'nodes':table===rulesTable?'rules':'fields')) return
+  const structural=ExcelConfigurationEdit.hasStructuralChanges(target)
+  if(structural && !target.hasUnconfirmedSave && (table===nodesTable||table===fieldsTable)){
+    const own=generation,page=runtime,ds=dataSet.value,id=view(nodesTable)?.currentRow?.['rowid']
+    if(!ds||typeof id!=='string')throw new Error('Excel结构保存缺少原节点')
+    targetChange.value=ExcelConfigurationEdit.pending({dataSet:ds,nodeId:id,tableName:table,assertCurrent:()=>{
+      if(!active||own!==generation||runtime!==page||dataSet.value!==ds||view(nodesTable)?.currentRow?.['rowid']!==id)throw new Error('Excel结构保存上下文已变化')
+    }})
+    await targetChange.value.save();if(targetChange.value.getState().done)targetChange.value=undefined
+    return
   }
   const result=await dataSet.value!.saveChanges({views:[{tableName:table,viewId:'default'}]})
   if(!result.success)throw new Error(result.message??'保存未完整确认')
 })}
-function cancel(table: string): void {if(!busy.value&&!unconfirmed.value){try{if(targetChange.value && [nodesTable,fieldsTable].includes(table)){targetChange.value.cancel();targetChange.value=undefined}else view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}}
+function cancel(table: string): void {if(!busy.value&&!unconfirmed.value){try{if(targetChange.value && [nodesTable,fieldsTable].includes(table)){if(!targetChange.value.owns(table))throw new Error('请从原入口取消结构修改');targetChange.value.cancel();targetChange.value=undefined}else view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}}
 function discardAll(): boolean {if(busy.value||unconfirmed.value)return false;if(removal.value){try{removal.value.cancel();removal.value=undefined}catch{return false}}if(targetChange.value){try{targetChange.value.cancel();targetChange.value=undefined}catch{return false}}for(const target of views.value)target.discardPendingChanges();revision.value++;return !hasPending.value}
 async function openRemoval(): Promise<void> {
   if (locked.value || targetChange.value) return
@@ -217,14 +259,20 @@ async function applyTarget(source: DataSet): Promise<void> {
     validateSourceTarget()
     const own = generation, page = runtime, id = sourceTargetId.value
     const assertCurrent = () => {if(!active || own !== generation || runtime !== page || view(nodesTable)?.currentRow?.['rowid'] !== id)throw new Error('Excel目标替换上下文已变化')}
-    const command = await ExcelTargetReplacement.stage({dataSet: dataSet.value!, nodeId: id, source, assertCurrent})
+    const command = await ExcelConfigurationEdit.stage({dataSet: dataSet.value!, nodeId: id, source, assertCurrent})
     assertCurrent(); targetChange.value = command; sourceTargetId.value = ''
   })
 }
 async function retryTarget(): Promise<void> {await act(nodesTable,async()=>{await targetChange.value?.retry();if(targetChange.value?.getState().done)targetChange.value=undefined})}
-async function acceptTargetCurrent(): Promise<void> {await act(nodesTable,async()=>{await targetChange.value?.acceptCurrent();if(targetChange.value?.getState().done){targetChange.value=undefined;recoveryNotice.value='已读取并采用当前正式结果，未确认原换源成功。'}})}
+async function acceptTargetCurrent(): Promise<void> {await act(nodesTable,async()=>{const source=targetChange.value?.getState().kind==='source';await targetChange.value?.acceptCurrent();if(targetChange.value?.getState().done){targetChange.value=undefined;recoveryNotice.value=source?'已读取并采用当前正式结果，未确认原换源成功。':'已读取并采用当前正式结果，未确认原保存成功。'}})}
 async function acceptRemovalCurrent(): Promise<void> {await act(nodesTable,async()=>{await removal.value?.acceptCurrent();if(removal.value?.getState().done){removal.value=undefined;recoveryNotice.value='已读取并采用当前正式结果，未确认原删除成功。'}})}
 function discardTarget(): void {if(busy.value)return;try{targetChange.value?.discardLocalChanges();targetChange.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+function changeAssociation(input: Readonly<{owner: ExcelAssociationFields | undefined; nodeId: unknown; kind: 'parentField' | 'foreignKeyField'; value: unknown}>, control: unknown): void {
+  if (control === null || typeof control !== 'object' || !('cancel' in control)) throw new Error('缺少字段交互控制')
+  control.cancel = true
+  try {if(locked.value || !input.owner || input.owner!==association.value)throw new Error('关联编辑尚未就绪');input.owner.select(input);error.value=''}
+  catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
+}
 async function add(table: string, data: Partial<DataRow>): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{target.setCurrentRow(await target.addRow(data))})}
 async function addRoot(): Promise<void> {await addNode('root')}
 async function addNode(mode: 'root' | 'sibling' | 'child'): Promise<void> {
@@ -239,7 +287,18 @@ async function addNode(mode: 'root' | 'sibling' | 'child'): Promise<void> {
     target.setCurrentRow(await target.addRow({pid, sheet: 0, sheetName: '', titleIndex: 1, dataIndex: 2, exportType: 'tree'}))
   })
 }
-async function remove(table: string): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{const row=target.currentRow,id=row?target.getPkKey(row):undefined;if(id!==undefined)await target.removeRow(id)})}
+async function remove(table: string): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{
+  const row=target.currentRow,id=row?target.getPkKey(row):undefined
+  if(id===undefined)return
+  if(table===fieldsTable){
+    const ds=dataSet.value,nodeId=view(nodesTable)?.currentRow?.['rowid'],signature=definitionTargetDraftSignature(target,[String(id)]),own=generation,page=runtime
+    if(!ds||typeof nodeId!=='string'||typeof id!=='string')throw new Error('删除映射缺少原节点身份')
+    await assertExcelFieldRemoval({dataSet:ds,nodeId,ids:[id],assertCurrent:()=>{
+      if(!active||own!==generation||runtime!==page||dataSet.value!==ds||target.currentRow!==row||view(nodesTable)?.currentRow?.['rowid']!==nodeId||definitionTargetDraftSignature(target,[id])!==signature)throw new Error('删除映射期间原目标或草稿已变化')
+    }})
+  }
+  await target.removeRow(id)
+})}
 onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off());sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
 </script>
 

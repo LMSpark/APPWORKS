@@ -5,8 +5,8 @@ import {RequestState} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {ApiBackend} from '../api-provider/api-provider.fixture'
-import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
+import {ApiBackend} from '../../api-provider/api-provider.fixture'
+import {buildFormalModels} from '../../structured-config/catalog/structured-config-catalog.fixture'
 const DESIGN = '0F93B82141CF40852021D704B0E30BF4', path = 'config/pages/semi-structured/excel-import-editor/pagedata.json'
 const pages: PageRuntime[] = []
 afterEach(() => pages.splice(0).forEach(page => page.dispose()))
@@ -58,6 +58,34 @@ describe('independent formal Excel design scenario', () => {
     expect(f.rules.primaryKey).toBe('id')
     expect(f.http.saves).toEqual([])
   })
+  it('loads parent and own mapping options from different saved nodes and clears parent options at a root', async () => {
+    const f = await fixture()
+    f.http.records['Base_ImportData_Config']!.push({rowid: 'CHILD', schemeid: 'E1', pid: 'C1', sheetName: '子表'})
+    f.http.records['Base_ImportData_Field']!.push({rowid: 'CHILD_FIELD', configid: 'CHILD', name: 'code', title: '子编码'})
+    await f.nodes.refresh()
+    const child = f.nodes.rows.find(row => row['rowid'] === 'CHILD')!
+    f.nodes.setCurrentRow(child); f.nodes.setSelectedRows([child])
+    const parent = f.ds.getView('Base_ImportData_Field', 'parentFields'), own = f.ds.getView('Base_ImportData_Field', 'foreignKeyFields')
+    expect(parent, 'declared parent mapping view').toBeDefined(); expect(own).toBeDefined()
+    await vi.waitFor(() => {expect(parent!.rows.map(row => row['rowid'])).toEqual(['F1']); expect(own!.rows.map(row => row['rowid'])).toEqual(['CHILD_FIELD'])})
+    f.nodes.setCurrentRowById('C1'); f.nodes.setSelectedRows([f.nodes.currentRow!])
+    await vi.waitFor(() => expect(parent!.rows).toEqual([]))
+    expect(f.http.saves).toEqual([])
+  })
+  it('validates Excel letter indices through the original data column rule without a page validator', async () => {
+    const f = await fixture(); await f.choose()
+    f.fields.updateEditingValue('F1', 'index', 'A1')
+    await expect(f.ds.saveChanges({views: [{tableName: 'Base_ImportData_Field', viewId: 'default'}]})).rejects.toThrow('Excel')
+    expect(f.http.saves).toEqual([])
+    f.fields.updateEditingValue('F1', 'index', 'AA')
+    expect((await f.ds.saveChanges({views: [{tableName: 'Base_ImportData_Field', viewId: 'default'}]})).success).toBe(true)
+    expect(f.http.records['Base_ImportData_Field']![0]!['index']).toBe('AA')
+  })
+  it.each(['name','type'])('refuses to rewrite source-generated mapping %s through the shared save rule',async field=>{
+    const f=await fixture();await f.choose();f.fields.updateEditingValue('F1',field,field==='name'?'other':2)
+    await expect(f.ds.saveChanges({views:[{tableName:'Base_ImportData_Field',viewId:'default'}]})).rejects.toThrow()
+    expect(f.http.saves).toEqual([])
+  })
   it('submits changed fields without persisting layout or rule edits and cancels those independently', async () => {
     const f = await fixture(); await f.choose()
     f.nodes.updateEditingValue('C1', 'sheet_layout_json', '{"keep":false,"pending":1}')
@@ -72,7 +100,7 @@ describe('independent formal Excel design scenario', () => {
   })
   it('prepares new fields and rules with native query ownership and retains the transform primary key', async () => {
     const f = await fixture(); await f.choose()
-    const field = await f.fields.addRow({name: 'new', title: '新字段', index: '02', type: 1})
+    const field = await f.fields.addRow({name: 'new', title: '新字段', index: 'B', type: 1})
     const rule = await f.rules.addRow({rule_name: '新规则', config_json: '{"keep":false}'})
     expect(field).toMatchObject({configid: 'C1'})
     expect(rule).toMatchObject({config_id: 'C1', scheme_id: 'E1'})

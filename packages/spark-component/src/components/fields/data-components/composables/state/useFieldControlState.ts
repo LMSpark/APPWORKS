@@ -108,7 +108,7 @@ export function useFieldControlState<TValue>(options: UseFieldControlStateOption
     syncValue: options.state.syncValue,
     captureWriteGuard: options.state.captureWriteGuard,
     handlerSource: {
-      ...(options.props.onChange !== undefined ? { onChange: options.props.onChange } : {}),
+      get onChange() { return options.props.onChange },
     },
   })
 

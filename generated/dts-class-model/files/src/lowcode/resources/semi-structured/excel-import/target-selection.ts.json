@@ -102,6 +102,19 @@
               }
             ]
           }
+        },
+        "oldFieldIds": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
         }
       },
       "additionalProperties": false,
@@ -121,7 +134,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T04:19:00.702Z",
+  "generatedAt": "2026-11-05T06:32:01.558Z",
   "models": {
     "ExcelTargetField": {
       "name": "ExcelTargetField",
@@ -220,11 +233,11 @@
       "jsdoc": "本次来源替换的原生编辑范围；不保存记录值或提供独立提交通道。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 被替换的配置身份。 */\n    nodeId: string | number;\n    /** 本次删除与新增的全部字段身份。 */\n    fieldIds: ReadonlyArray<string | number>;\n    /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */\n    cancel(): void;\n    /** 联合提交确认后释放局部检查点。 */\n    release(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 被替换的配置身份。 */\n    nodeId: string | number;\n    /** 本次删除与新增的全部字段身份。 */\n    fieldIds: ReadonlyArray<string | number>;\n    /** 本次待删除的原字段身份，值基线由原DataView保管。 */\n    oldFieldIds: ReadonlyArray<string | number>;\n    /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */\n    cancel(): void;\n    /** 联合提交确认后释放局部检查点。 */\n    release(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 被替换的配置身份。 */\n    nodeId: string | number;\n    /** 本次删除与新增的全部字段身份。 */\n    fieldIds: ReadonlyArray<string | number>;\n    /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */\n    cancel(): void;\n    /** 联合提交确认后释放局部检查点。 */\n    release(): void;\n}>",
+            "typeText": "Readonly<{\n    /** 被替换的配置身份。 */\n    nodeId: string | number;\n    /** 本次删除与新增的全部字段身份。 */\n    fieldIds: ReadonlyArray<string | number>;\n    /** 本次待删除的原字段身份，值基线由原DataView保管。 */\n    oldFieldIds: ReadonlyArray<string | number>;\n    /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */\n    cancel(): void;\n    /** 联合提交确认后释放局部检查点。 */\n    release(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -239,6 +252,12 @@
             {
               "name": "fieldIds",
               "jsdoc": "本次删除与新增的全部字段身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "oldFieldIds",
+              "jsdoc": "本次待删除的原字段身份，值基线由原DataView保管。",
               "readable": true,
               "writable": false
             }

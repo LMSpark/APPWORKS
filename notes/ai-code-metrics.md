@@ -3214,3 +3214,9 @@
 - 高阶复核发现并关闭2项P1：RemoveFile成功后list403/404误判已知失败；仅包普通Error又使原PageTool链丢unknown。最终公共API沿既有fileResourceMutationMayHaveApplied标记处理派发后的scope/畸形/408500及核验失败，直接非408的4xx仍已知拒绝；原DataView核验不重删。2项API/1项布局集成、精确PAGE/rule.json的3项工具与4项派发后API反例实际RED后GREEN；工具最初finder未限定pageId的无效观察已纠正，重新对旧plain Error版本核有效RED并finally原候选字节完整恢复，不冒称所有中间失败都是产品缺陷。
 - 最终根25文件612项（workflow462+agent-file29+page-tool10+四文件65+原生布局消费46）、API包22项、通用adapter包27项、正式ClassModel4文件49项通过。workflow较457新增5，API较17新增5，工具较7新增3；另强化既有scope反例。typecheck独立进程87283、lint、build5.03秒、schema、4正式指南均通过；生成60.841秒/1049DTS/2137符号，128份完整语义等价产物恢复。缺口3637未增，代码规则26项与前基线逐条一致；严格全仓门禁未绿，未重跑8082全仓测试。
 - evidence/data-chain-smoke/2026-11-05-workflow-layout-delete-local.json已实际断言生成，明确layoutNativeIOExecuted=false。本检查点没有新建实服布局夹具或调用真实文件存储；正常文件生命周期、双实例冲突、真实上传后的客户端回执丢失注入、DB后布局阶段与精确删除仍按同卡继续，浏览器视觉未验。高阶当前3生产文件复核通过；总目标active，总墙钟未完整计量，30天存活待观察。
+
+### 2026-11-05 工作流布局原生实服证据
+
+- 产品/测试/配置0变更，17源与配置哈希冻结复核，复用c7的612/22/27/49及构建，不重复逐页公共逻辑测试。7原生MTS语法/Oxc转换0错。
+- 新停用夹具38读2提交；首轮预检24读0写误用asParent选择级联，改正式default并保留严格countReported，同夹具继续不重建。lifecycle301读7提交、5真实上传1精确文件删除0流程执行，7用例确认；两次故障仅真实上传回执之后客户端抛错，原实例核验零重传/零重删DB。最终定义/参数/节点/边/模型/字段/关系/布局8类独立全0，unknown=false。
+- 合计363读9DB提交5上传1删除0执行。driver60341末端时间检查文化重解析错误终态1，原UTC十一月五日被Parse成五月十一日；真实审计confirmed及清理证据保留，不虚报driver0、不重放。受控证据2026-11-05-workflow-layout-runtime.json实际断言生成。浏览器视觉、其他20包范围、生产启用及既有服务差距未核销；总墙钟未完整计量，30天存活待观察。

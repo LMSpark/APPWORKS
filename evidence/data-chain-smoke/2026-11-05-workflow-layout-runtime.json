@@ -1,0 +1,885 @@
+{
+  "sourceCommit": "c7b140c0de1dc460a49c09b71c8a14a007c8d3c5",
+  "scope": "native SPARK data workflow layout file lifecycle, per-instance conflict and verification, database-confirmed node removal followed by layout update; no workflow execution and no browser visual acceptance",
+  "workflowId": "07A76CE36C3B45BAA7175803611758AC",
+  "marker": "SMOKE_LAYOUT_LIVE_1793843002086",
+  "filePath": "designfile/SysForm/07A76CE36C3B45BAA7175803611758AC.json",
+  "lifecycle": "cleaned",
+  "unknown": false,
+  "independentAbsence": true,
+  "phases": {
+    "fixture": {
+      "reads": 38,
+      "databaseSubmissions": 2,
+      "uploads": 0,
+      "removes": 0,
+      "workflowExecutions": 0
+    },
+    "preflight": {
+      "reads": 24,
+      "databaseSubmissions": 0,
+      "uploads": 0,
+      "removes": 0,
+      "workflowExecutions": 0
+    },
+    "lifecycle": {
+      "reads": 301,
+      "databaseSubmissions": 7,
+      "uploads": 5,
+      "removes": 1,
+      "workflowExecutions": 0
+    }
+  },
+  "totals": {
+    "reads": 363,
+    "databaseSubmissions": 9,
+    "uploads": 5,
+    "removes": 1,
+    "workflowExecutions": 0
+  },
+  "separateLoginCallsExcluded": true,
+  "preflightFailure": {
+    "error": "incomplete Base_DataModel_Relation",
+    "reads": 24,
+    "mutations": 0,
+    "reason": "model-selected asParent relation view is not the complete workflow relation query; use formal default, retaining strict countReported",
+    "probe": {
+      "wholeWorkflow": {
+        "viewId": "default",
+        "rows": 0,
+        "total": 0,
+        "countReported": true
+      },
+      "selectionCascade": {
+        "viewId": "asParent",
+        "rows": 0,
+        "total": 0,
+        "loadingError": null,
+        "additionalReads": 1
+      },
+      "parentHasCurrentModel": false
+    },
+    "fixtureRecreated": false,
+    "intentHadNotBegun": true
+  },
+  "proofs": [
+    {
+      "case": "missing-create-cancel",
+      "uploads": 0,
+      "independentlyMissing": true
+    },
+    {
+      "case": "create-and-reopen",
+      "uploads": 1,
+      "projection": {
+        "nodePositions": {
+          "4AFADBEC1AB8AC37EB21BF95AA65A1BF": {
+            "x": 100,
+            "y": 100
+          },
+          "9B7F288B7A44A6E0B0BA2D3B82C6A16F": {
+            "x": 400,
+            "y": 100
+          },
+          "0EBEF4C7D3EA2DB146F3ACADA9F60736": {
+            "x": 700,
+            "y": 100
+          }
+        },
+        "edgePaths": {
+          "C746E7B23A885383DDEC493CDC4A45AC": [
+            {
+              "x": 100,
+              "y": 100
+            },
+            {
+              "x": 400,
+              "y": 100
+            }
+          ],
+          "1CA2502E0256A68DD63262A8E6ECE1B8": [
+            {
+              "x": 400,
+              "y": 100
+            },
+            {
+              "x": 700,
+              "y": 100
+            }
+          ]
+        }
+      }
+    },
+    {
+      "case": "move-cancel-save-reopen",
+      "untouchedNodesAndEdgesPreserved": true,
+      "unknownMembersPreserved": true,
+      "databaseUnchanged": true
+    },
+    {
+      "case": "two-instance-conflict",
+      "staleUploads": 0,
+      "explicitCancelRefreshAcceptedWinner": true
+    },
+    {
+      "case": "client-fault-after-real-upload",
+      "actualUploads": 1,
+      "verifiedThroughOriginalView": true,
+      "replayedUploads": 0
+    },
+    {
+      "case": "node-removal-database-and-layout",
+      "cancelWrites": 0,
+      "cancelUploads": 0,
+      "databaseConfirmedBeforeFileVerification": true,
+      "replayedDatabaseWrites": 0,
+      "replayedUploads": 0,
+      "remainingNodes": [
+        "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+        "0EBEF4C7D3EA2DB146F3ACADA9F60736"
+      ],
+      "remainingEdges": [
+        "1CA2502E0256A68DD63262A8E6ECE1B8"
+      ]
+    },
+    {
+      "case": "exact-file-delete",
+      "cancelDeletes": 0,
+      "remoteDeletes": 1,
+      "independentlyMissing": true
+    }
+  ],
+  "faultInjection": {
+    "scope": "client-side throw only after original real uploadWorkingText and its acknowledgement/readback returned; not an observed network packet loss",
+    "cases": [
+      {
+        "label": "ordinary-layout-save",
+        "actualUploadCount": 4,
+        "afterRealUploadAcknowledgement": true,
+        "clientFaultInjected": true
+      },
+      {
+        "label": "node-removal-layout",
+        "actualUploadCount": 5,
+        "afterRealUploadAcknowledgement": true,
+        "clientFaultInjected": true
+      }
+    ]
+  },
+  "documentHashes": {
+    "seed": "6ec8201fcca716ebd0b624a58afc1548e6bee11782c29220314818a34cbc3d18",
+    "moved": "ee29f9b847c63de5dd3aad7dcc871f492ecb32f4b7191111252b7d346c3327d1",
+    "concurrent": "0e42a196a745a28bcde72adc28658604b1962f015a4fa0397dcf1a06fdf66d20",
+    "faultText": "3de27d6c979cfdf14d0668682efebbf1c2abc1bccc1a786d06f80f88f3c9363d",
+    "afterRemoval": "9b69e973df59c572714186e6a11accd5a48defeb1fab1900851da8ef00687417"
+  },
+  "documents": {
+    "seed": {
+      "nodes": [
+        {
+          "id": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "x": 100,
+          "y": 100,
+          "properties": {
+            "name": "历史布局名称不作业务真源"
+          },
+          "custom": {
+            "zero": 0,
+            "flag": false,
+            "nested": [
+              null,
+              "中文"
+            ]
+          }
+        },
+        {
+          "id": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+          "x": 400,
+          "y": 100,
+          "untouched": {
+            "value": 0
+          }
+        },
+        {
+          "id": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+          "x": 700,
+          "y": 100,
+          "custom": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "C746E7B23A885383DDEC493CDC4A45AC",
+          "sourceNodeId": "历史端点",
+          "targetNodeId": "历史端点",
+          "pointsList": [
+            {
+              "x": 100,
+              "y": 100
+            },
+            {
+              "x": 400,
+              "y": 100
+            }
+          ],
+          "keep": false
+        },
+        {
+          "id": "1CA2502E0256A68DD63262A8E6ECE1B8",
+          "pointsList": [
+            {
+              "x": 400,
+              "y": 100
+            },
+            {
+              "x": 700,
+              "y": 100
+            }
+          ],
+          "untouched": {
+            "zero": 0
+          }
+        },
+        {
+          "id": "HISTORIC",
+          "sourceNodeId": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "custom": "只按正式边ID删除"
+        }
+      ],
+      "unknown": {
+        "deep": {
+          "zero": 0,
+          "flag": false,
+          "empty": null
+        }
+      },
+      "keep": false
+    },
+    "moved": {
+      "nodes": [
+        {
+          "id": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "x": 175,
+          "y": 145,
+          "properties": {
+            "name": "历史布局名称不作业务真源"
+          },
+          "custom": {
+            "zero": 0,
+            "flag": false,
+            "nested": [
+              null,
+              "中文"
+            ]
+          }
+        },
+        {
+          "id": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+          "x": 400,
+          "y": 100,
+          "untouched": {
+            "value": 0
+          }
+        },
+        {
+          "id": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+          "x": 700,
+          "y": 100,
+          "custom": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "C746E7B23A885383DDEC493CDC4A45AC",
+          "sourceNodeId": "历史端点",
+          "targetNodeId": "历史端点",
+          "pointsList": [
+            {
+              "x": 175,
+              "y": 145
+            },
+            {
+              "x": 250,
+              "y": 145
+            },
+            {
+              "x": 400,
+              "y": 100
+            }
+          ],
+          "keep": false
+        },
+        {
+          "id": "1CA2502E0256A68DD63262A8E6ECE1B8",
+          "pointsList": [
+            {
+              "x": 400,
+              "y": 100
+            },
+            {
+              "x": 700,
+              "y": 100
+            }
+          ],
+          "untouched": {
+            "zero": 0
+          }
+        },
+        {
+          "id": "HISTORIC",
+          "sourceNodeId": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "custom": "只按正式边ID删除"
+        }
+      ],
+      "unknown": {
+        "deep": {
+          "zero": 0,
+          "flag": false,
+          "empty": null
+        }
+      },
+      "keep": false
+    },
+    "concurrent": {
+      "nodes": [
+        {
+          "id": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "x": 175,
+          "y": 145,
+          "properties": {
+            "name": "历史布局名称不作业务真源"
+          },
+          "custom": {
+            "zero": 0,
+            "flag": false,
+            "nested": [
+              null,
+              "中文"
+            ]
+          }
+        },
+        {
+          "id": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+          "x": 430,
+          "y": 220,
+          "untouched": {
+            "value": 0
+          }
+        },
+        {
+          "id": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+          "x": 700,
+          "y": 100,
+          "custom": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "C746E7B23A885383DDEC493CDC4A45AC",
+          "sourceNodeId": "历史端点",
+          "targetNodeId": "历史端点",
+          "pointsList": [
+            {
+              "x": 175,
+              "y": 145
+            },
+            {
+              "x": 250,
+              "y": 145
+            },
+            {
+              "x": 400,
+              "y": 100
+            }
+          ],
+          "keep": false
+        },
+        {
+          "id": "1CA2502E0256A68DD63262A8E6ECE1B8",
+          "pointsList": [
+            {
+              "x": 430,
+              "y": 220
+            },
+            {
+              "x": 700,
+              "y": 100
+            }
+          ],
+          "untouched": {
+            "zero": 0
+          }
+        },
+        {
+          "id": "HISTORIC",
+          "sourceNodeId": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "custom": "只按正式边ID删除"
+        }
+      ],
+      "unknown": {
+        "deep": {
+          "zero": 0,
+          "flag": false,
+          "empty": null
+        }
+      },
+      "keep": false
+    },
+    "faultText": {
+      "nodes": [
+        {
+          "id": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "x": 175,
+          "y": 145,
+          "properties": {
+            "name": "历史布局名称不作业务真源"
+          },
+          "custom": {
+            "zero": 0,
+            "flag": false,
+            "nested": [
+              null,
+              "中文"
+            ]
+          }
+        },
+        {
+          "id": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+          "x": 430,
+          "y": 220,
+          "untouched": {
+            "value": 0
+          }
+        },
+        {
+          "id": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+          "x": 740,
+          "y": 155,
+          "custom": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "C746E7B23A885383DDEC493CDC4A45AC",
+          "sourceNodeId": "历史端点",
+          "targetNodeId": "历史端点",
+          "pointsList": [
+            {
+              "x": 175,
+              "y": 145
+            },
+            {
+              "x": 250,
+              "y": 145
+            },
+            {
+              "x": 400,
+              "y": 100
+            }
+          ],
+          "keep": false
+        },
+        {
+          "id": "1CA2502E0256A68DD63262A8E6ECE1B8",
+          "pointsList": [
+            {
+              "x": 430,
+              "y": 220
+            },
+            {
+              "x": 700,
+              "y": 100
+            }
+          ],
+          "untouched": {
+            "zero": 0
+          }
+        },
+        {
+          "id": "HISTORIC",
+          "sourceNodeId": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "custom": "只按正式边ID删除"
+        }
+      ],
+      "unknown": {
+        "deep": {
+          "zero": 0,
+          "flag": false,
+          "empty": null
+        }
+      },
+      "keep": false
+    },
+    "afterRemoval": {
+      "nodes": [
+        {
+          "id": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+          "x": 430,
+          "y": 220,
+          "untouched": {
+            "value": 0
+          }
+        },
+        {
+          "id": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+          "x": 740,
+          "y": 155,
+          "custom": null
+        }
+      ],
+      "edges": [
+        {
+          "id": "1CA2502E0256A68DD63262A8E6ECE1B8",
+          "pointsList": [
+            {
+              "x": 430,
+              "y": 220
+            },
+            {
+              "x": 700,
+              "y": 100
+            }
+          ],
+          "untouched": {
+            "zero": 0
+          }
+        },
+        {
+          "id": "HISTORIC",
+          "sourceNodeId": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+          "custom": "只按正式边ID删除"
+        }
+      ],
+      "unknown": {
+        "deep": {
+          "zero": 0,
+          "flag": false,
+          "empty": null
+        }
+      },
+      "keep": false
+    }
+  },
+  "unchangedDatabaseDuringLayout": {
+    "Base_WorkflowDefinition": [
+      {
+        "name": "SMOKE_LAYOUT_LIVE_1793843002086",
+        "tblName": "",
+        "sysid": "D99A1DCE9894698799101EFD70F8FC76",
+        "dbName": "",
+        "filter": "",
+        "rowid": "07A76CE36C3B45BAA7175803611758AC",
+        "activeType": "table",
+        "tableOperate": "",
+        "status": 2,
+        "workflow_key": "SM758AC",
+        "tblid": "",
+        "description": "SMOKE_LAYOUT_LIVE_1793843002086",
+        "timeExp": ""
+      }
+    ],
+    "Base_DataSet": [
+      {
+        "inputParams": "[]",
+        "rowid": "07A76CE36C3B45BAA7175803611758AC",
+        "Type": "workflow"
+      }
+    ],
+    "Base_WorkflowNodeDefinition": [
+      {
+        "description": "SMOKE_LAYOUT_LIVE_1793843002086",
+        "rowid": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+        "input_mapping": "[]",
+        "dataOperateModId": "",
+        "node_key": null,
+        "node_config": "",
+        "name": "布局节点C",
+        "position_type": 1,
+        "node_type": "query",
+        "config": "",
+        "output_mapping": "[]",
+        "workflow_id": "07A76CE36C3B45BAA7175803611758AC"
+      },
+      {
+        "description": "SMOKE_LAYOUT_LIVE_1793843002086",
+        "rowid": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+        "input_mapping": "[]",
+        "dataOperateModId": "",
+        "node_key": null,
+        "node_config": "",
+        "name": "布局节点A",
+        "position_type": 1,
+        "node_type": "query",
+        "config": "",
+        "output_mapping": "[]",
+        "workflow_id": "07A76CE36C3B45BAA7175803611758AC"
+      },
+      {
+        "description": "SMOKE_LAYOUT_LIVE_1793843002086",
+        "rowid": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+        "input_mapping": "[]",
+        "dataOperateModId": "",
+        "node_key": null,
+        "node_config": "",
+        "name": "布局节点B",
+        "position_type": 1,
+        "node_type": "query",
+        "config": "",
+        "output_mapping": "[]",
+        "workflow_id": "07A76CE36C3B45BAA7175803611758AC"
+      }
+    ],
+    "Base_WorkflowConnectors": [
+      {
+        "workflow_id": "07A76CE36C3B45BAA7175803611758AC",
+        "sourceID": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+        "params": "[]",
+        "targetID": "0EBEF4C7D3EA2DB146F3ACADA9F60736",
+        "description": "",
+        "name": "",
+        "rowid": "1CA2502E0256A68DD63262A8E6ECE1B8"
+      },
+      {
+        "workflow_id": "07A76CE36C3B45BAA7175803611758AC",
+        "sourceID": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+        "params": "[]",
+        "targetID": "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+        "description": "",
+        "name": "",
+        "rowid": "C746E7B23A885383DDEC493CDC4A45AC"
+      }
+    ]
+  },
+  "nodeRemoval": {
+    "status": "complete",
+    "pending": false,
+    "busy": false,
+    "summary": {
+      "nodeId": "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+      "modelId": "",
+      "deleteModel": false,
+      "modelContractConfirmed": true,
+      "edgeCount": 1,
+      "conditionCount": 0,
+      "modelRelationCount": 0,
+      "fieldCount": 0,
+      "layoutChanges": true
+    },
+    "databaseConfirmed": true,
+    "canReadCurrent": false,
+    "canRetryLayout": false
+  },
+  "cleanup": {
+    "removedNodeIds": [
+      "4AFADBEC1AB8AC37EB21BF95AA65A1BF",
+      "9B7F288B7A44A6E0B0BA2D3B82C6A16F",
+      "0EBEF4C7D3EA2DB146F3ACADA9F60736"
+    ],
+    "removedEdgeIds": [
+      "C746E7B23A885383DDEC493CDC4A45AC",
+      "1CA2502E0256A68DD63262A8E6ECE1B8"
+    ],
+    "onlyLayoutBasename": "07A76CE36C3B45BAA7175803611758AC.json",
+    "finalAbsence": {
+      "definition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "edges": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "layout": 0
+    },
+    "cleanedAt": "2026-11-05T01:53:02.411Z"
+  },
+  "validation": {
+    "productionChanges": 0,
+    "testChanges": 0,
+    "frozenSourcesRechecked": 17,
+    "reusedBaseline": "evidence/data-chain-smoke/2026-11-05-workflow-layout-delete-local.json",
+    "reusedRootTests": 612,
+    "reusedApiTests": 22,
+    "reusedAdapterTests": 27,
+    "reusedClassModelTests": 49,
+    "newTestBuildOrGenerationRun": false,
+    "nativeScriptSyntaxErrors": 0,
+    "nativeTransformErrors": 0
+  },
+  "review": "gpt-6-astra native plan/scope preflight and relation-view recovery review; root executes; final audit review recorded in ledger",
+  "open": [
+    "normal browser drag/layout and full reference-page acceptance temporarily unavailable",
+    "other workflow and twenty-package migration requirements",
+    "production activation and persistent workflow execution instances",
+    "known merge execution service and historical data gaps"
+  ],
+  "hashes": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+      "sha256": "2d6049cff2f4ba95efe5f155b57fe7ceae0d64aad87e9d3bcec724b499a0d486"
+    },
+    {
+      "path": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+      "sha256": "39a44b0a81bed7948891e9153f779a2ef110b705c347d84bc99d0e95f119808e"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
+      "sha256": "cbab787030e2e5c7ca893e6298a7944ae96a59684368fc109fa44e5df2bc9489"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "sha256": "08fd71704527e239a9ac9f0be9b9fa07dfe6e44cc0c4eb1ecdcdfc5599846c96"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
+      "sha256": "e42ebbbb4f9c712b00613c5abbbc274df554f366038795eb5007a3098bab6e18"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
+      "sha256": "8b28f280e6c9fe34fc2b67f003b5509275d540aec58cf196ec6f0867255745a4"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "sha256": "acafc875f22e6e31d97d712202996da826c4e5cecad5abfb255b3a9513fbeaf2"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/resource.ts",
+      "sha256": "b394d32007cad48e72c8bd3c007da228098c44bd92be2f8b2ee5464dea8c937f"
+    },
+    {
+      "path": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+      "sha256": "fe222e6c5b6f1821d1b714a3d9dac1a1bbd0d132531a4ef2b07343305c47e194"
+    },
+    {
+      "path": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "sha256": "0cf8d38c4edadcf37f5e188066c876c0808dff780aede0be676e7c0a0abb5d1a"
+    },
+    {
+      "path": "src/lowcode/lowcode-runtime.ts",
+      "sha256": "89f0bb5726076f6f15e52d0edf4ecd3b17f9ffd2b45d0a5ace1db3ab783d2105"
+    },
+    {
+      "path": "packages/spark-data/src/query/file-resource-adapter.ts",
+      "sha256": "b9e07d81b1446a355213a3248db5c282aea0e3a6f9fceb144374427193a721d5"
+    },
+    {
+      "path": "packages/spark-data/src/dataset.ts",
+      "sha256": "4711988f2f8132510436ce9cfc0739ce05262eed0ca6a298950e81ee0ab3adb7"
+    },
+    {
+      "path": "packages/spark-data/src/data-view.ts",
+      "sha256": "c87877d368e0f9c45c5468ad56d7451610fac4f4150163f7281e24d9e318ee86"
+    },
+    {
+      "path": "packages/spark-project-model/src/page/runtime-page.ts",
+      "sha256": "4b21b87dd3f1e51ed4d5648fef9bab8303128f59a1915e61209de2f6018056ac"
+    },
+    {
+      "path": "config/pages/structured-config/workflow-editor/pagedata.json",
+      "sha256": "76b03f9c22724c11a2a0b24a106f58c6de45393598de86cb1a4ddf8f066c7814"
+    },
+    {
+      "path": "config/pages/structured-config/workflow-catalog/pagedata.json",
+      "sha256": "50fdc764ef05fdf477a9e4bb4ce101c6a7d15323788bac4e58fed71bd867da34"
+    },
+    {
+      "path": "evidence/data-chain-smoke/2026-11-05-workflow-layout-delete-local.json",
+      "sha256": "273210ecdcb6711fccc08a122a6a8327e8481354dc61bb471f68994f5c32c406"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-account-auth.mts",
+      "sha256": "05b8a050ac6b39450ca63e708e1f5e3b88ed785711ff3f42cc7d547ffe29aef4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-auth-run.mts",
+      "sha256": "7da8e5a684dadc0447df88927478efd5c61a6a7d2e7a0f355f86532253f79f64"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-check-syntax.mjs",
+      "sha256": "a1fb518f4e5bb70dbc50c164a0bd7d63faefa59a39dbbd48e138a4060f55753f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-check-transform.mjs",
+      "sha256": "5dcff3dedbd7546645f2b36b4926f16ecdb4cfadf28b1f6345ba474a2a041cae"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-common.mts",
+      "sha256": "ec7ecb4f2a054cbea205c633ee1125b7ea563a70a698dad7044ee7f5b50c8666"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-driver.ps1",
+      "sha256": "a43d0b013522b6fb11230ad1fcc723a24e17d4370eb8a916bf25ef0727c5428d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-fixture-checkpoint.json",
+      "sha256": "ee2880c4d8029da11bcc67b5349a2764581d18809765382db7bf182d24b2a958"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-fixture-create-audit.json",
+      "sha256": "dc3afa26bd6bed917a90ef89aa0aef849f1e40029e21e9e40147da0917386525"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-fixture-run.mts",
+      "sha256": "2104751d6a7252412d756450789256a4030446cf839165b909c9e20435cd11c9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-fixture.mts",
+      "sha256": "2ee0224316d26dc34706b18d4299d2e2751e8c60f3739baa4f37699b2c3c99de"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-freeze.mjs",
+      "sha256": "5d5c98f102a12159faa37f12482b5b3d39cb491386329ff59018bb5ee50e7198"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-lifecycle-audit.json",
+      "sha256": "33d7efdd6d5d1acdc142e9c3f0c5f081a5f9da8bb1c1dde7712d95ac7fa01d09"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-lifecycle-intent.json",
+      "sha256": "7cb9fc18d79a2f7e4d8df9d33a370281e5c8214880b6c6757cc62d016c179e8f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-lifecycle-preflight-audit.json",
+      "sha256": "182af5162a7dc978e358f0e8bc5855cbf8cef8dd7203f777dcd059012f6deaee"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-lifecycle-run.mts",
+      "sha256": "e816b6a9db60fbb693da9b7eed31de7cc375efeba84845f5dcad077f3df86e8b"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-lifecycle.mts",
+      "sha256": "96d836af9a59e33190afc93e13b86f45b18dda79b542843d3f4b8a5ef25ebcc8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-probe.json",
+      "sha256": "88f7007342eb8bd2d4c66aa893a9387562e3fc37e7e40a141ce94eb4a2416bbe"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-resume-driver.ps1",
+      "sha256": "a70f774675ea8704863a6982ed21425f23dcac60b5fa96c375f6b3b0bc6b8d14"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-script-syntax.json",
+      "sha256": "fa648abcbab650dc7814eaf136aa727a1846be67389a480e06dd3cb13e0f41ac"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-source-freeze.json",
+      "sha256": "8981cc2d3521964d8988fdfd8a5d8c1effdec44471b1a923c0d801cd1e76fd9b"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-transform-check.json",
+      "sha256": "9ea5a0c3cfdb1e9d97460d0b64c1c96a32709e24aa3f875b77272a6887fb370a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-layout-live-write-evidence.mjs",
+      "sha256": "46a5d4179ab7288388a75648eb9db7aeaf37a4b4490692d40e0faf76c0f187e7"
+    }
+  ],
+  "driverOutcome": {
+    "sessionId": 60341,
+    "exitCode": 1,
+    "reason": "Postflight freshness check reparsed ConvertFrom-Json DateTime through culture-dependent string: UTC 2026-11-05 became 2026-05-11 +08:00; lifecycle audit itself confirmed and cleanup complete",
+    "rawAuditTestedAt": "2026-11-05T01:53:06.357Z",
+    "originalFailurePreserved": true,
+    "liveLifecycleReplayed": false
+  }
+}

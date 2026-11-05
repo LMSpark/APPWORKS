@@ -1,0 +1,843 @@
+{
+  "sourceCommit": "96d44b6465cf92197579952a010425d3aad44318",
+  "scope": "real persisted workflow dictionary sources, exact filtering, cancellation/reopen and downstream value/type; native APIs do not prove browser UI acceptance",
+  "workflowId": "B7106CF1889F4DA3895FD1232A90959F",
+  "marker": "SMOKE_DICTIONARY_LIVE_1793839143548",
+  "lifecycle": "cleaned",
+  "unknown": false,
+  "independentAbsence": true,
+  "phases": {
+    "fixture": {
+      "reads": 38,
+      "writes": 2,
+      "executions": 0
+    },
+    "configureFirst": {
+      "reads": 124,
+      "writes": 8,
+      "executions": 0
+    },
+    "configureResume": {
+      "reads": 163,
+      "writes": 14,
+      "executions": 0
+    },
+    "execute": {
+      "reads": 84,
+      "writes": 0,
+      "executions": 1
+    },
+    "cleanup": {
+      "reads": 103,
+      "writes": 5,
+      "executions": 0
+    }
+  },
+  "totals": {
+    "reads": 512,
+    "writes": 29,
+    "executions": 1
+  },
+  "separateLoginAndEarlierReadOnlyInspectionExcluded": true,
+  "configureProjectionFailure": {
+    "error": "bound dictionary model/type invalid",
+    "reads": 124,
+    "writes": 8,
+    "executions": 0,
+    "unknown": false,
+    "reason": "smoke checked DbId in editing projection that does not select DbId; same fixture independently read through modelCatalog and remaining steps resumed without replay",
+    "readback": {
+      "catalogModel": {
+        "DbId": "004F5F9B6A044BBB9891F57E2A560399",
+        "dataSetId": "B7106CF1889F4DA3895FD1232A90959F",
+        "parentField": null,
+        "requestType": "query",
+        "Filter": null,
+        "items": null,
+        "deleteApi": null,
+        "updateApi": null,
+        "selfType": "child",
+        "MetaName": "Dict_encryption_rule",
+        "addApi": null,
+        "Type": "字典",
+        "Name": "SMOKE_DICTIONARY_0_B7106CF1",
+        "hasChildField": null,
+        "rowid": "F9845C042030A9B48AD9B7144841C01E",
+        "OutputType": "Table",
+        "IsBusinessMain": 0,
+        "JoinFilter": "",
+        "IsBusiness": 0,
+        "ForeignKeyFields": "",
+        "PId": "",
+        "cacheType": null,
+        "topValue": null,
+        "DbName": "",
+        "JoinType": "",
+        "RequestComplete": null,
+        "PrimaryKeyFields": null,
+        "description": "加密规则"
+      },
+      "fieldCount": 8,
+      "defaultProjectionFields": [
+        "rowid",
+        "dataSetId",
+        "Name",
+        "MetaName",
+        "description",
+        "Type",
+        "DbName",
+        "OutputType",
+        "requestType",
+        "Filter"
+      ]
+    },
+    "resumeOf": "workflow-dictionary-live-configure-audit.json"
+  },
+  "dictionaryProof": [
+    {
+      "dictionaryId": "004F5F9B6A044BBB9891F57E2A560399",
+      "name": "Dict_encryption_rule",
+      "dictionaryType": "0",
+      "nodeId": "72B54E04B4232400A9C709FC2818437F",
+      "modelId": "F9845C042030A9B48AD9B7144841C01E",
+      "filter": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"88C9D0F72CEE4517A83B500D89BFFE04\"}}",
+      "preparedFieldType": "varchar",
+      "storedValue": "AES256",
+      "storedValueType": "string",
+      "actualValue": "AES256",
+      "actualValueType": "string",
+      "consumerField": "fromCharacterVal",
+      "consumerValue": "AES256",
+      "consumerValueType": "string",
+      "fieldContract": [
+        {
+          "rowid": "09B9EDCAB3B0C0BDA645C6CBFD551DBD",
+          "Name": "rowid",
+          "FieldType": "varchar",
+          "description": "唯一值（ID）"
+        },
+        {
+          "rowid": "13A114493BD6D29E335CBB38C1F46C76",
+          "Name": "exVal_1",
+          "FieldType": "varchar",
+          "description": "第二文本"
+        },
+        {
+          "rowid": "196983C7F668A970CC7F5E6FAC1F5853",
+          "Name": "val",
+          "FieldType": "varchar",
+          "description": "编码"
+        },
+        {
+          "rowid": "1D72A4E47DA137CC0B415E86AFC6C49F",
+          "Name": "txt",
+          "FieldType": "varchar",
+          "description": "显示文本"
+        },
+        {
+          "rowid": "7E5C3EABC0DB99F53F1DA4AC4059E7A9",
+          "Name": "exVal_4",
+          "FieldType": "varchar",
+          "description": "备注"
+        },
+        {
+          "rowid": "8DE3CED21EF2E1589178B6127F10690C",
+          "Name": "exVal_2",
+          "FieldType": "varchar",
+          "description": "第三文本"
+        },
+        {
+          "rowid": "E598F69FFD4839C0A9D09DC19E3FB069",
+          "Name": "exVal_3",
+          "FieldType": "varchar",
+          "description": "第四文本"
+        },
+        {
+          "rowid": "E925698C1D18DDE12CBD55790F188F8F",
+          "Name": "ordIdx",
+          "FieldType": "int",
+          "description": "排序字段"
+        }
+      ],
+      "output": [
+        {
+          "rowid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "pid": null,
+          "Name": "items",
+          "Description": "数据项",
+          "FieldType": "Array",
+          "isParent": true
+        },
+        {
+          "rowid": "E857BF4B8E414B4A9BE8ED8F87CC6A84",
+          "pid": null,
+          "Name": "Count",
+          "Description": "数据总数",
+          "FieldType": "int",
+          "isParent": false
+        },
+        {
+          "rowid": "09B9EDCAB3B0C0BDA645C6CBFD551DBD",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "rowid",
+          "Description": "唯一值（ID）",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "13A114493BD6D29E335CBB38C1F46C76",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "exVal_1",
+          "Description": "第二文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "196983C7F668A970CC7F5E6FAC1F5853",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "val",
+          "Description": "编码",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "1D72A4E47DA137CC0B415E86AFC6C49F",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "txt",
+          "Description": "显示文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "7E5C3EABC0DB99F53F1DA4AC4059E7A9",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "exVal_4",
+          "Description": "备注",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "8DE3CED21EF2E1589178B6127F10690C",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "exVal_2",
+          "Description": "第三文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "E598F69FFD4839C0A9D09DC19E3FB069",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "exVal_3",
+          "Description": "第四文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "E925698C1D18DDE12CBD55790F188F8F",
+          "pid": "0F0A827ACA9243EEBABAC32C4511559C",
+          "Name": "ordIdx",
+          "Description": "排序字段",
+          "FieldType": "int",
+          "isParent": false
+        }
+      ]
+    },
+    {
+      "dictionaryId": "02CC132E221449B9910FD64357E5A97E",
+      "name": "竞买人报名审核状态",
+      "dictionaryType": "1",
+      "nodeId": "E8E6BE3D8AFE585E3B3FCCF22F9BAE34",
+      "modelId": "6479CC3096B4F77AB3F6AA7DAE9254FE",
+      "filter": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"50211498AEFB44518893DF071563CDF4\"}}",
+      "preparedFieldType": "double",
+      "storedValue": "0",
+      "storedValueType": "string",
+      "actualValue": 0,
+      "actualValueType": "number",
+      "consumerField": "fromNumericVal",
+      "consumerValue": 0,
+      "consumerValueType": "number",
+      "fieldContract": [
+        {
+          "rowid": "582166B7DE02C955362C63DC28F853C8",
+          "Name": "txt",
+          "FieldType": "varchar",
+          "description": "显示文本"
+        },
+        {
+          "rowid": "67D22ADCEFF8483186F60FEAE9A0B1A6",
+          "Name": "exVal_3",
+          "FieldType": "varchar",
+          "description": "第四文本"
+        },
+        {
+          "rowid": "6A7787A119E47DC947FA52F20CEDF3F9",
+          "Name": "ordIdx",
+          "FieldType": "int",
+          "description": "排序字段"
+        },
+        {
+          "rowid": "AA23529047568AF4E97BEC8B2E049D87",
+          "Name": "rowid",
+          "FieldType": "varchar",
+          "description": "唯一值（ID）"
+        },
+        {
+          "rowid": "B322E2E6B2159B028D8BFB78F79460D7",
+          "Name": "exVal_2",
+          "FieldType": "varchar",
+          "description": "第三文本"
+        },
+        {
+          "rowid": "BB82CBB4EE8DEFC3E5C8FA6D30306B9A",
+          "Name": "exVal_1",
+          "FieldType": "varchar",
+          "description": "第二文本"
+        },
+        {
+          "rowid": "D3E9ED3691E578E23BA0ECA468B47C5C",
+          "Name": "val",
+          "FieldType": "double",
+          "description": "编码"
+        },
+        {
+          "rowid": "DDC236033D8EC17C7191BBB5DA61BAA1",
+          "Name": "exVal_4",
+          "FieldType": "varchar",
+          "description": "第五文本"
+        }
+      ],
+      "output": [
+        {
+          "rowid": "561BB4385B234A6592F46EF0C8878DE4",
+          "pid": null,
+          "Name": "items",
+          "Description": "数据项",
+          "FieldType": "Array",
+          "isParent": true
+        },
+        {
+          "rowid": "2BEF0E580C9341CFAC2198BFC575B941",
+          "pid": null,
+          "Name": "Count",
+          "Description": "数据总数",
+          "FieldType": "int",
+          "isParent": false
+        },
+        {
+          "rowid": "582166B7DE02C955362C63DC28F853C8",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "txt",
+          "Description": "显示文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "67D22ADCEFF8483186F60FEAE9A0B1A6",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "exVal_3",
+          "Description": "第四文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "6A7787A119E47DC947FA52F20CEDF3F9",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "ordIdx",
+          "Description": "排序字段",
+          "FieldType": "int",
+          "isParent": false
+        },
+        {
+          "rowid": "AA23529047568AF4E97BEC8B2E049D87",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "rowid",
+          "Description": "唯一值（ID）",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "B322E2E6B2159B028D8BFB78F79460D7",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "exVal_2",
+          "Description": "第三文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "BB82CBB4EE8DEFC3E5C8FA6D30306B9A",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "exVal_1",
+          "Description": "第二文本",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "D3E9ED3691E578E23BA0ECA468B47C5C",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "val",
+          "Description": "编码",
+          "FieldType": "double",
+          "isParent": false
+        },
+        {
+          "rowid": "DDC236033D8EC17C7191BBB5DA61BAA1",
+          "pid": "561BB4385B234A6592F46EF0C8878DE4",
+          "Name": "exVal_4",
+          "Description": "第五文本",
+          "FieldType": "varchar",
+          "isParent": false
+        }
+      ]
+    }
+  ],
+  "dictionaryReadbacks": [
+    {
+      "dictionaryId": "004F5F9B6A044BBB9891F57E2A560399",
+      "entries": 4,
+      "definitionHash": "5b9bd9b62fb3ced206dec5e6f978e7d2401e6526df1f48e67760373623f8e692",
+      "entriesHash": "fe6b8b5026f107aa46ddd729275e4ce66828e2c4294f7d03192e678fecba8c9b",
+      "unchangedAfterExecution": true,
+      "unchangedAfterCleanup": true
+    },
+    {
+      "dictionaryId": "02CC132E221449B9910FD64357E5A97E",
+      "entries": 4,
+      "definitionHash": "d15ed086e87bdd94fd8575b96df977cbd2990dc2cbffae85043638bd1df45a3e",
+      "entriesHash": "20a6350792574cab6b1322ac69f5f974ff58ee495aede62e7f82554d62c92731",
+      "unchangedAfterExecution": true,
+      "unchangedAfterCleanup": true
+    }
+  ],
+  "computedFields": [
+    {
+      "id": "6517B99D74CCE9A952D9050EC42FD798",
+      "name": "fromCharacterVal",
+      "expression": "{\"Type\":\"GetInputParam\",\"ParamName\":\"72B54E04B4232400A9C709FC2818437F.val\"}",
+      "sourceNodeId": "72B54E04B4232400A9C709FC2818437F"
+    },
+    {
+      "id": "AE8E28371C6C8DD268680512E0FACE05",
+      "name": "fromNumericVal",
+      "expression": "{\"Type\":\"GetInputParam\",\"ParamName\":\"E8E6BE3D8AFE585E3B3FCCF22F9BAE34.val\"}",
+      "sourceNodeId": "E8E6BE3D8AFE585E3B3FCCF22F9BAE34"
+    }
+  ],
+  "nodes": [
+    {
+      "nodeId": "65B06D775999F5CAD721D0B9414543FC",
+      "status": "SUCCESS",
+      "count": 1,
+      "output": [
+        {
+          "rowid": "1D240CFE15DF4B15A547A32CAFD2B277",
+          "name": "SMOKE_DICTIONARY_LIVE_1793839143548_ACTUAL"
+        }
+      ]
+    },
+    {
+      "nodeId": "72B54E04B4232400A9C709FC2818437F",
+      "status": "SUCCESS",
+      "count": 1,
+      "output": [
+        {
+          "rowid": "88C9D0F72CEE4517A83B500D89BFFE04",
+          "val": "AES256",
+          "txt": "AES加密",
+          "ordIdx": 1
+        }
+      ]
+    },
+    {
+      "nodeId": "E8E6BE3D8AFE585E3B3FCCF22F9BAE34",
+      "status": "SUCCESS",
+      "count": 1,
+      "output": [
+        {
+          "rowid": "50211498AEFB44518893DF071563CDF4",
+          "val": 0,
+          "txt": "已通过",
+          "ordIdx": 0
+        }
+      ]
+    },
+    {
+      "nodeId": "0257EFB8EBCF61DF83C78170341943A9",
+      "status": "SUCCESS",
+      "count": 1,
+      "output": [
+        {
+          "description": "owned boundary flow startup",
+          "fromCharacterVal": "AES256",
+          "fromNumericVal": 0,
+          "rowid": "1D240CFE15DF4B15A547A32CAFD2B277",
+          "name": "SMOKE_DICTIONARY_LIVE_1793839143548_ACTUAL"
+        }
+      ]
+    },
+    {
+      "nodeId": "50234859986626F58BC893D84E52BC56",
+      "status": "SUCCESS",
+      "count": 0,
+      "output": []
+    }
+  ],
+  "runtime": {
+    "workflowInstanceId": "7C33AF15D8564E2B8411AB642C5923DF",
+    "nodeInstances": [
+      {
+        "node_id": "0257EFB8EBCF61DF83C78170341943A9",
+        "workflow_instance_id": "7C33AF15D8564E2B8411AB642C5923DF",
+        "rowid": "1F9E136AEF9746F1BE4149E6325A08F5",
+        "status": "SUCCESS"
+      },
+      {
+        "node_id": "50234859986626F58BC893D84E52BC56",
+        "workflow_instance_id": "7C33AF15D8564E2B8411AB642C5923DF",
+        "rowid": "34BCCFF90EFE4312A7846A91B06180B9",
+        "status": "SUCCESS"
+      },
+      {
+        "node_id": "E8E6BE3D8AFE585E3B3FCCF22F9BAE34",
+        "workflow_instance_id": "7C33AF15D8564E2B8411AB642C5923DF",
+        "rowid": "492336370BCB4160A1C18705B0C346F1",
+        "status": "SUCCESS"
+      },
+      {
+        "node_id": "65B06D775999F5CAD721D0B9414543FC",
+        "workflow_instance_id": "7C33AF15D8564E2B8411AB642C5923DF",
+        "rowid": "6855842B010E4F5A8EF043A9BD05D4E0",
+        "status": "SUCCESS"
+      },
+      {
+        "node_id": "72B54E04B4232400A9C709FC2818437F",
+        "workflow_instance_id": "7C33AF15D8564E2B8411AB642C5923DF",
+        "rowid": "CCA400BC009040C49C5F1C5A7C3EFBBC",
+        "status": "SUCCESS"
+      }
+    ],
+    "persistedWorkflowInstances": [],
+    "scope": "debug node logs; no production activation or persistent workflow-instance claim"
+  },
+  "businessReadback": {
+    "fields": [
+      "rowid",
+      "name",
+      "description",
+      "path",
+      "createtime"
+    ],
+    "before": [
+      {
+        "rowid": "1D240CFE15DF4B15A547A32CAFD2B277",
+        "description": "owned boundary flow startup",
+        "name": "SMOKE_DICTIONARY_LIVE_1793839143548_ACTUAL",
+        "createtime": "2026-11-05T08:40:28",
+        "path": ""
+      }
+    ],
+    "after": [
+      {
+        "rowid": "1D240CFE15DF4B15A547A32CAFD2B277",
+        "description": "owned boundary flow startup",
+        "name": "SMOKE_DICTIONARY_LIVE_1793839143548_ACTUAL",
+        "createtime": "2026-11-05T08:40:28",
+        "path": ""
+      }
+    ],
+    "equal": true
+  },
+  "cleanup": {
+    "nodeIds": [
+      "65B06D775999F5CAD721D0B9414543FC",
+      "72B54E04B4232400A9C709FC2818437F",
+      "E8E6BE3D8AFE585E3B3FCCF22F9BAE34",
+      "0257EFB8EBCF61DF83C78170341943A9",
+      "50234859986626F58BC893D84E52BC56"
+    ],
+    "edgeIds": [
+      "D7C5B9DD224C819BB84F38BECFFA4BBA",
+      "864A9AE51005CFC43E13098C428C0D16",
+      "2F48A37B046DD207DAB5794966152BA0",
+      "CC94108CC39B74767423F8D7571FDA55"
+    ],
+    "modelIds": [
+      "6230BBDFBD8C354C19820BF3568EA8CF",
+      "F9845C042030A9B48AD9B7144841C01E",
+      "6479CC3096B4F77AB3F6AA7DAE9254FE",
+      "25D48C441B403E750CB9B8A6010E80D5",
+      "7D54191B19D543BA9BC888A4B4C7300E"
+    ],
+    "fieldCount": 63,
+    "logIds": [
+      "1F9E136AEF9746F1BE4149E6325A08F5",
+      "34BCCFF90EFE4312A7846A91B06180B9",
+      "492336370BCB4160A1C18705B0C346F1",
+      "6855842B010E4F5A8EF043A9BD05D4E0",
+      "CCA400BC009040C49C5F1C5A7C3EFBBC"
+    ],
+    "independentAbsence": true,
+    "cleanedAt": "2026-11-05T00:49:27.288Z"
+  },
+  "validation": {
+    "productionChanges": 0,
+    "testChanges": 0,
+    "sourceFreezeVerified": 22,
+    "reusedBaseline": "evidence/data-chain-smoke/2026-11-05-workflow-workspace-runtime.json",
+    "reusedWorkflowTests": 457,
+    "reusedContractTests": 49,
+    "noNewTestBuildOrGenerationRun": true,
+    "scriptSyntaxErrors": 0,
+    "nativeTransformErrors": 0
+  },
+  "review": "gpt-6-astra plan and native preflight, root executes; audit review recorded separately",
+  "open": [
+    "browser visual and complete reference-page acceptance temporarily unavailable",
+    "historically failed dictionary models not retroactively repaired by these samples",
+    "known merge service gaps",
+    "other resource types and remaining twenty-package scope",
+    "production activation/scheduling/persistent workflow instances"
+  ],
+  "hashes": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "93a6dd116db77dfca171da5e290fb996c659367720a0f36653d883ae6d98b726"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "cec64ed029340c828828180d19e5b68f96705a745c47f9de3b009d3c5a55e5ed"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+      "sha256": "4266588c6c0357094d38b18ca65c37ec04e936ac2468050bd5483f92ac6775c1"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",
+      "sha256": "cd805d427cd4b5c981953e4aa90e952bfd78acdb009fba990ca549fe610399be"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "0f1581524144ea03a6b8e428aa0a0915a0a76173129c7709cc5ff2d37bdd10ce"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "2a2621301cd6effac00353e59571d10200ff013d1c0fd0ca1e862d4bd9db20f0"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+      "sha256": "effb6de18df08ad16af8263be8845a2beff0ffcc5a0a823b32c5cce3f18db3d9"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+      "sha256": "641d8fd06e7290349a3c43db7d5f99ee09a97621cc3a8b50e9670dd49cde8de3"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+      "sha256": "3a92ffa4225614020a6d8befa910da59850973d5f4f27cb6824d3d386671497c"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "sha256": "1753742e1d6c428c42c705aed942eb681775eabafa743273299eab56526bbb95"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "sha256": "76a21e873acb9621d3ea2f8c592506ad92d382f709a5a86a7ecb727d25081059"
+    },
+    {
+      "path": "src/lowcode/data-space/model-source/lowcode-data-space-model-source-reader.ts",
+      "sha256": "0fd2db6980d3580099c6e580cc41e1aab45ddb266937e07394ef16b90d54dcad"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/dictionary/resource.ts",
+      "sha256": "232b1960a623b7fd02e0bbe0b62591d0faf2d8021bfe576eae8613c1b49ae680"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/workspace.ts",
+      "sha256": "ed2ad6851fd521219f8772442bc57365fa3c470263cad2b192bb9ab7e6f58ff5"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
+      "sha256": "431d1bd79a7fed651eb1789ce25a8805a8c79ae016de99bff604b2fbfdd820ba"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+      "sha256": "7a04ff9dba4a617d5e02235043270733840fc7e7f96e86bf47c60ce3aea2666b"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+      "sha256": "5135d42fbaf5736b40e3fc05b1e47f06959018424b823a8aa7c7aa2e00eb19ce"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
+      "sha256": "8f1f2452cea9cb5c559de4fe21cc001f4ae917c02518b87a2b9a4e254fd33031"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+      "sha256": "6237711f7267d5e9e66b6d8491bd95f8cb5900c7a753f342e1b54824c4e7ae51"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "sha256": "23b77f46644c64df7377543372cac2175b83e36a672507a2746c419fd75bda4e"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
+      "sha256": "acafc875f22e6e31d97d712202996da826c4e5cecad5abfb255b3a9513fbeaf2"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
+      "sha256": "ffafddc8aedc3b27d63bce08316b47b78d9eed5262c007fc4f276f9f2be31490"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-account-auth.mts",
+      "sha256": "05b8a050ac6b39450ca63e708e1f5e3b88ed785711ff3f42cc7d547ffe29aef4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-auth-run.mts",
+      "sha256": "6659c40d7f51bfa50701753c1490ef94faee165a99f3fab317c6835012ab7a9c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-check-syntax.mjs",
+      "sha256": "a392bccd5cae20a299d8c0f5c34c92688b4a02c38f62dff96ff76351782166e1"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-check-transform.mjs",
+      "sha256": "20100ac15cb84cddd9cc47af9b5a03a0c7f29e3ea461c84cea113635a7e3ac36"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-cleanup-audit.json",
+      "sha256": "cd4c4087ff67b4378947a1be77bdac1fb2d2108dc7c689f0e9004a74c5f28df6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-cleanup-intent.json",
+      "sha256": "22ba97840d3ce8e2bc44d8d133b9c640f80480b7bc43141ec4f395a2565f1746"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-cleanup-run.mts",
+      "sha256": "4517e574fb89fec567cba5217b46d2cb1c69744511d26154d9d92caa4fa4318f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-cleanup.mts",
+      "sha256": "6837be8d1d2838a1495bef31b299d03a8197d037cfca482543536f6323e07552"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-common.mts",
+      "sha256": "b48093650a468db9e17b8642d2f0df6988b3115fdce93bbf7e4996f29ec29a72"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-audit.json",
+      "sha256": "3faacea3b1325f440523f132ac620bc1142bc1ba69f84d2c6d43d7cd4784f2d9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-intent.json",
+      "sha256": "d78fcd7f5b7442a8c350da17b6cafc6915b0bc886919b5d7f5ab8e547c849dc8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-resume-audit.json",
+      "sha256": "61ed8af8c67a550d75c5132a5fc9a59568417af3049f3aa4b0ae175502016f8a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-resume-intent.json",
+      "sha256": "9866f2db40742f5cf0e963a51ea017f33af80c614aeb2fe77bb679aca3c49632"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-resume-run.mts",
+      "sha256": "8f90ad957ec15f788fc73fb55c91770b2619483d0672da0fd2b58cb0cab35550"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-resume.mts",
+      "sha256": "787837a88df248c34d28c55f923bce409688f5f00f712af0ce3c42775c6fa6fd"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure-run.mts",
+      "sha256": "a13018c147f7c0eab4356414bae7da9e9af13af12e390f6785cec7572818fbdf"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-configure.mts",
+      "sha256": "82cfe7b8c9a2283a943683040229f8fe9c3e83cc2ddec3489f581c1a62d63076"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-dictionaries.mts",
+      "sha256": "43a764af83f05d684641eb447c07c59638ebfe0448498c16924a484e06158607"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-driver.ps1",
+      "sha256": "10b72a844bf43c67cb350cb5cbbe1e56555e09f5df3fe3f5ec3e25c67205b73d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-execute-audit.json",
+      "sha256": "9456b12ac5c80a316cedd26a65a7378d529ab84c9b48196b728db0df67ea7cfe"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-execute-intent.json",
+      "sha256": "f4f158ea2d36947161e9e5734c725c56a621817ab5742616cd7df516d5f049c1"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-execute-run.mts",
+      "sha256": "a71a3cbf5907ad5e3e613f95d696c1dea70ee30348ca4eaa3fe553ac8c7b707f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-execute.mts",
+      "sha256": "938d2c675d4c77da44be7c7de7892f2e9a8f00e3379782d9794da41cd5a1cc2a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-fixture-checkpoint.json",
+      "sha256": "22fd239cb618faa59c0c949a0aa6fec7d8e0362dc89d891a2f0d68c836632290"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-fixture-create-audit.json",
+      "sha256": "5bb9e87f912527342eab929904aadaf2aed144659755fb2a3b3b6368a84dc980"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-fixture-run.mts",
+      "sha256": "2e97815d0604a830d932d38b52ad232322b594d4291e11cffa139d3e2d508d81"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-fixture.mts",
+      "sha256": "7c8dc23138c2f78c4fac9686efc70f2d5072ae43a98664f87a25f7d70ebb8097"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-freeze.mjs",
+      "sha256": "dce24637a15ebac66cfec40a7d32a95d0c3dec9bf5dd0cf2000b12ad3f788102"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect-audit.json",
+      "sha256": "7c49baafaa0d55cf8fead72286491e4bea31737dd577098c39fb930d100fb6c7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect-driver.ps1",
+      "sha256": "1b69dde94d238923aca0b8b9f5d776f557344981a64de62302a51b33aba4a821"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect-run.mts",
+      "sha256": "6d878889438f5e122778c2c33edd664aaee1c77b743d3f3bbef3c564200564a2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect.mts",
+      "sha256": "1876615bcae31562ce013de8b0b2246798f804c49570247ac07fc2337770daba"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-resume-driver.ps1",
+      "sha256": "829f4bf5f31f7564224a3fc8bbd323fca356786355f82a0bc3afc666c2e1f5a2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-script-syntax.json",
+      "sha256": "ef565ef4d687a7743370e8d85f35dcd62500e72742b01a86051ea27b602c518c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-source-freeze.json",
+      "sha256": "2fa8a7764790e7f09dca89314e0b5bc764d58b1afd05ceed8e322d1fb59e1da7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-transform-check.json",
+      "sha256": "7f1669b3ec058b0ace31495e889e79d42c54a20ad4047949235f4529361d97a1"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-write-readonly-evidence.mjs",
+      "sha256": "7516d91288d979935c2b092763fa68e70a2320149e01775790d4e07a143498f9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-write-runtime-evidence.mjs",
+      "sha256": "3e00d5c6a03510bb61ecc8d7650a64c4380a91288903369c3eb6ca08c6ef1f2f"
+    }
+  ]
+}

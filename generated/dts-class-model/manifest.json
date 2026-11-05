@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1059,
+  "scannedFileCount": 1060,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13963,6 +13963,22 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/stored-reference.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/stored-reference",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/stored-reference",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/stored-reference\n职责：按已保存的物理身份精确读取引用对象和字段，恢复原命名视图的选择。\n边界：只读正式元数据；不猜应用关系，不复制候选或编辑行，不提交或规范化原引用。\nAI用途：重开Excel引用选择器时复用同一DataSet的独立查询范围和服务路径校验。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelStoredReference",
+          "ExcelStoredScope"
+        ]
+      }
+    },
     "src/lowcode/resources/semi-structured/excel-import/target-references.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/target-references.ts.json",
       "module": {
@@ -20201,6 +20217,14 @@
     "ExcelFieldReference": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/field-reference.ts.json"
+    },
+    "ExcelStoredReference": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/stored-reference.ts.json"
+    },
+    "ExcelStoredScope": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/stored-reference.ts.json"
     },
     "ExcelTarget": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",

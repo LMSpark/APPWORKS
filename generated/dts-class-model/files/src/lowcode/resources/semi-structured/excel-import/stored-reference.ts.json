@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/stored-reference",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/stored-reference",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/stored-reference\n职责：按已保存的物理身份精确读取引用对象和字段，恢复原命名视图的选择。\n边界：只读正式元数据；不猜应用关系，不复制候选或编辑行，不提交或规范化原引用。\nAI用途：重开Excel引用选择器时复用同一DataSet的独立查询范围和服务路径校验。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelStoredReference",
+      "ExcelStoredScope"
+    ]
+  },
+  "$defs": {
+    "ExcelStoredReference": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelStoredReference",
+      "properties": {
+        "isDict": {
+          "enum": [
+            0,
+            1
+          ]
+        },
+        "refDataid": {
+          "type": "string"
+        },
+        "refTable": {
+          "type": "string"
+        },
+        "textField": {
+          "type": "string"
+        },
+        "valueField": {
+          "type": "string"
+        },
+        "filterField": {
+          "type": "string"
+        },
+        "filterValue": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "isDict",
+        "refDataid",
+        "refTable",
+        "textField",
+        "valueField",
+        "filterField",
+        "filterValue"
+      ],
+      "additionalProperties": false
+    },
+    "ExcelStoredScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelStoredScope",
+      "properties": {
+        "kind": {
+          "enum": [
+            "Table",
+            "View",
+            "Dict"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "databaseId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "source"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-05T08:35:58.103Z",
+  "models": {
+    "ExcelStoredReference": {
+      "name": "ExcelStoredReference",
+      "jsdoc": "已存引用的身份及两个字段；描述不参与定位。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式字典标志。 */\n    isDict: 0 | 1;\n    /** 已保存的注册对象身份。 */\n    refDataid: string;\n    /** 库名@物理名，字典固定为_Base_DictData。 */\n    refTable: string;\n    /** 文本字段英文名。 */\n    textField: string;\n    /** 值字段英文名。 */\n    valueField: string;\n    /** 字典固定过滤字段。 */\n    filterField: string;\n    /** 字典真实身份。 */\n    filterValue: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式字典标志。 */\n    isDict: 0 | 1;\n    /** 已保存的注册对象身份。 */\n    refDataid: string;\n    /** 库名@物理名，字典固定为_Base_DictData。 */\n    refTable: string;\n    /** 文本字段英文名。 */\n    textField: string;\n    /** 值字段英文名。 */\n    valueField: string;\n    /** 字典固定过滤字段。 */\n    filterField: string;\n    /** 字典真实身份。 */\n    filterValue: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "isDict",
+              "jsdoc": "正式字典标志。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refDataid",
+              "jsdoc": "已保存的注册对象身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "refTable",
+              "jsdoc": "库名@物理名，字典固定为_Base_DictData。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "textField",
+              "jsdoc": "文本字段英文名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "valueField",
+              "jsdoc": "值字段英文名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterField",
+              "jsdoc": "字典固定过滤字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "filterValue",
+              "jsdoc": "字典真实身份。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ExcelStoredScope": {
+      "name": "ExcelStoredScope",
+      "jsdoc": "当前已存对象所在的原生来源范围，不持有业务记录。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 唯一解析出的业务资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原宿主装配的来源空间。 */\n    source: DataSet;\n    /** 物理库身份；字典不使用。 */\n    databaseId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 唯一解析出的业务资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原宿主装配的来源空间。 */\n    source: DataSet;\n    /** 物理库身份；字典不使用。 */\n    databaseId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "唯一解析出的业务资源种类。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "原宿主装配的来源空间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "databaseId",
+              "jsdoc": "物理库身份；字典不使用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

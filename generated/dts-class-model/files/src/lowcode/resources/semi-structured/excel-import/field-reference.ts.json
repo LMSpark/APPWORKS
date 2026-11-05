@@ -35,6 +35,12 @@
             "dataSet": {
               "type": "object",
               "title": "DataSet"
+            },
+            "definitionViewId": {
+              "enum": [
+                "excelReferences",
+                "excelStoredReference"
+              ]
             }
           },
           "additionalProperties": false
@@ -51,6 +57,12 @@
             "source": {
               "type": "object",
               "title": "DataSet"
+            },
+            "definitionViewId": {
+              "enum": [
+                "excelReferences",
+                "excelStoredReference"
+              ]
             }
           },
           "additionalProperties": false
@@ -79,6 +91,29 @@
           ],
           "additionalProperties": false
         },
+        "method.restore.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "textField": {
+                  "type": "string"
+                },
+                "valueField": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "textField",
+                "valueField"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restore.return": true,
         "method.dispose.params": {
           "type": "object",
           "properties": {},
@@ -131,6 +166,12 @@
       "type": "object",
       "title": "Selection",
       "properties": {
+        "scope": {
+          "enum": [
+            "browse",
+            "stored"
+          ]
+        },
         "kind": {
           "enum": [
             "Table",
@@ -146,11 +187,15 @@
           "$ref": "#/$defs/ExcelDictionaryReferenceFields"
         }
       },
-      "required": [
-        "kind",
-        "source"
-      ],
-      "additionalProperties": false
+      "additionalProperties": false,
+      "$defs": {
+        "method.check.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.return": true
+      }
     },
     "ExcelFieldReference": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
@@ -165,6 +210,20 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.restoreStored.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.restoreStored.return": {
+          "type": "object",
+          "title": "Promise<(ExcelStoredScope & Readonly<{\n        dictionaryFields?: ExcelDictionaryReferenceFields;\n    }>) | undefined>"
         },
         "method.select.params": {
           "type": "object",
@@ -188,7 +247,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T07:15:36.422Z",
+  "generatedAt": "2026-11-05T08:41:13.014Z",
   "models": {
     "ExcelDictionaryReferenceFields": {
       "name": "ExcelDictionaryReferenceFields",
@@ -196,14 +255,30 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "jsdoc": "@param dataSet 本次宿主按需加载的正式字典空间。",
-          "signatureText": "constructor(dataSet: DataSet)",
+          "jsdoc": "@param dataSet 本次宿主按需加载的正式字典空间。\n@param definitionViewId 本次明确使用的浏览或已存引用定义视图。",
+          "signatureText": "constructor(dataSet: DataSet, definitionViewId: 'excelReferences' | 'excelStoredReference')",
           "parameters": [
             {
               "name": "dataSet",
               "type": {
                 "type": "reference",
                 "name": "DataSet"
+              }
+            },
+            {
+              "name": "definitionViewId",
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "literal",
+                    "value": "excelReferences"
+                  },
+                  {
+                    "type": "literal",
+                    "value": "excelStoredReference"
+                  }
+                ]
               }
             }
           ]
@@ -243,6 +318,22 @@
                     "type": "reference",
                     "name": "DataSet"
                   }
+                },
+                {
+                  "name": "definitionViewId",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "excelReferences"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "excelStoredReference"
+                      }
+                    ]
+                  }
                 }
               ],
               "type": {
@@ -254,6 +345,29 @@
                     "name": "{\n        textField: string;\n        textFieldDesc: string;\n        valueField: string;\n        valueFieldDesc: string;\n    }"
                   }
                 ]
+              }
+            },
+            {
+              "name": "restore",
+              "jsdoc": "仅恢复原字段名称的选择；不写字典定义或原Excel映射。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        textField: string;\n        valueField: string;\n        check(): void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {
@@ -342,16 +456,22 @@
       "jsdoc": "引用来源的业务种类，物理视图与DataView运行对象分别处理。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 实际选中的资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原PageRuntime中的正式来源实例。 */\n    source: DataSet;\n    /** 字典的两份独立派生选项；物理资源不使用。 */\n    dictionaryFields?: ExcelDictionaryReferenceFields;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 普通浏览与已存引用使用独立的命名视图。 */\n    scope: 'browse' | 'stored';\n    /** 弹窗代次、模式与取消状态守卫。 */\n    check(): void;\n    /** 实际选中的资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原PageRuntime中的正式来源实例。 */\n    source: DataSet;\n    /** 字典的两份独立派生选项；物理资源不使用。 */\n    dictionaryFields?: ExcelDictionaryReferenceFields;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 实际选中的资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原PageRuntime中的正式来源实例。 */\n    source: DataSet;\n    /** 字典的两份独立派生选项；物理资源不使用。 */\n    dictionaryFields?: ExcelDictionaryReferenceFields;\n}>",
+            "typeText": "Readonly<{\n    /** 普通浏览与已存引用使用独立的命名视图。 */\n    scope: 'browse' | 'stored';\n    /** 弹窗代次、模式与取消状态守卫。 */\n    check(): void;\n    /** 实际选中的资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原PageRuntime中的正式来源实例。 */\n    source: DataSet;\n    /** 字典的两份独立派生选项；物理资源不使用。 */\n    dictionaryFields?: ExcelDictionaryReferenceFields;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "scope",
+              "jsdoc": "普通浏览与已存引用使用独立的命名视图。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "kind",
               "jsdoc": "实际选中的资源种类。",
@@ -369,6 +489,17 @@
               "jsdoc": "字典的两份独立派生选项；物理资源不使用。",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "check",
+              "jsdoc": "弹窗代次、模式与取消状态守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
             }
           ]
         }
@@ -395,6 +526,54 @@
         },
         "members": {
           "methods": [
+            {
+              "name": "restoreStored",
+              "jsdoc": "按原映射的正式身份恢复选择；不更改原值或保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        loadSource(id: string): Promise<DataSet>;\n        assertCurrent(): void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "optional",
+                    "elementType": {
+                      "type": "intersection",
+                      "types": [
+                        {
+                          "type": "reference",
+                          "name": "ExcelStoredScope",
+                          "sourcePath": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts"
+                        },
+                        {
+                          "type": "reference",
+                          "name": "Readonly",
+                          "typeArguments": [
+                            {
+                              "type": "unknown",
+                              "name": "{\n        dictionaryFields?: ExcelDictionaryReferenceFields;\n    }"
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
             {
               "name": "select",
               "jsdoc": "@param input 原正式来源中的选择；确认前不修改原映射，成功后仍未保存。",

@@ -4,6 +4,8 @@
     "_Base_DictType": {
       "modelBinding": {"modelId": "69B79AB779DF4C12A5595DACDF3283F1p000", "modelName": "_Base_DictType"},
       "views": {
+        "excelStoredReference": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "TypeName",
+          "queryConfig": {"fields": ["rowid", "TypeName", "functiondesc", "txt", "val", "secondValue", "thirdValue", "fourthvalue", "fiveValue"], "allPages": true}},
         "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "queryConfig": {"allPages": true}},
         "excelReferences": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20, "valueField": "rowid", "labelField": "TypeName",
           "queryConfig": {"fields": ["rowid", "TypeName", "functiondesc", "txt", "val", "secondValue", "thirdValue", "fourthvalue", "fiveValue"]}}

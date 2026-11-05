@@ -1,0 +1,691 @@
+{
+  "scope": "Excel stored reference restoration and unchanged confirmation through original DataView/DataSet; source registries readonly",
+  "browserVerified": false,
+  "workbookExecutionVerified": false,
+  "sourceHashesUnchanged": true,
+  "sourceHashes": [
+    {
+      "sha256": "4a54e09a89cb0a98e432e7dbe7e3b7ad037cebfc8953516afd95bd3fd868ca26",
+      "path": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts"
+    },
+    {
+      "sha256": "6b662cf35f95e94292c72a142b457bc97a584fddc5968a3913f864577c4327c8",
+      "path": "src/lowcode/resources/semi-structured/excel-import/resource.ts"
+    },
+    {
+      "sha256": "3a81c882cd0c59469779a5789e82c5127f9840be44dbd7e90e4e89986bf3dfe7",
+      "path": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts"
+    },
+    {
+      "sha256": "fe222e6c5b6f1821d1b714a3d9dac1a1bbd0d132531a4ef2b07343305c47e194",
+      "path": "src/lowcode/data-space/model-source/data-space-definition-save.ts"
+    },
+    {
+      "sha256": "3693b42cf01afd7d9cd6060fefc62b2eaddc530e3eac279c6987d9361f76e30a",
+      "path": "src/lowcode/data-space/lowcode-data-space-assembler.ts"
+    },
+    {
+      "sha256": "232b1960a623b7fd02e0bbe0b62591d0faf2d8021bfe576eae8613c1b49ae680",
+      "path": "src/lowcode/resources/structured-config/dictionary/resource.ts"
+    },
+    {
+      "sha256": "553241ebe3bdd6da12b1a8224c7639ee8e308a0126fbd90c33b291f17ff65a90",
+      "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue"
+    },
+    {
+      "sha256": "459a220621bc0df4ebcea18d7132c8bd52dfbc96a4dcb199674ee9282ed0e7fc",
+      "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue"
+    },
+    {
+      "sha256": "c5f7cc9ff9e5c7e46add9e3e82b3c3b912502dfcb5e20a16aa45ddbc6ee823b5",
+      "path": "config/pages/shared/business-table-selector/pagedata.json"
+    },
+    {
+      "sha256": "8731eeb926b5c0a8ffdebf3620bdb172e1d3646f36da7575ff34077c677a5b9d",
+      "path": "config/pages/data-platform/data-dictionary/pagedata.json"
+    },
+    {
+      "sha256": "2662999552e88706fb14d0e0472ed228520a49da7cd0ac94cea7acf9691d21b8",
+      "path": "config/pages/semi-structured/excel-import-editor/pagedata.json"
+    },
+    {
+      "sha256": "1bd026f9fd77e4c8d3ca1af93dc5d6ff9d096224e26e75c5956ffed2df230941",
+      "path": "packages/spark-component/src/components/containers/runtime/container-form-detail.ts"
+    },
+    {
+      "sha256": "15592059cee094a8ef1b72555464f7807ad44f4af33315ccc4cb4fd1653b0475",
+      "path": "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue"
+    },
+    {
+      "sha256": "a724512cca08e2fe38fc8242c847fe58eae2549a6d86c855acbb95ac4180d887",
+      "path": "packages/spark-component/src/components/containers/data-views/RendererDetail/RendererDetail.vue"
+    },
+    {
+      "sha256": "b5ade78943097e90d41419f633ced5240b2ce314c7b882297c127840b3e27039",
+      "path": "packages/spark-data/src/query/data-view-option-catalog.ts"
+    },
+    {
+      "sha256": "3f9833c8448e4687ab1031fc175459c4a168101ecdee918516808784a52c9940",
+      "path": "packages/spark-data/src/data-view.ts"
+    },
+    {
+      "sha256": "4b21b87dd3f1e51ed4d5648fef9bab8303128f59a1915e61209de2f6018056ac",
+      "path": "packages/spark-project-model/src/page/runtime-page.ts"
+    },
+    {
+      "sha256": "4d22dcd3bcbaaa55e65a53af71eca9f16a9d50af7bd9308d38b9ab1c730f3ae6",
+      "path": "artifacts/data-chain-smoke/excel-stored-reference-v2.mts"
+    },
+    {
+      "sha256": "3d1a18a53f4dd71643d5581a1400439395a8d6b377c23068adf7161a15f3b8de",
+      "path": "artifacts/data-chain-smoke/excel-stored-reference-v2-run.mts"
+    },
+    {
+      "sha256": "ba296fee2af596cb1211c71d9a70a24e044b8a746dbeb5cd74e6d7060629465d",
+      "path": "artifacts/data-chain-smoke/excel-stored-reference-v2-driver.ps1"
+    },
+    {
+      "sha256": "cdd0ca09e82a55c8dffee52647e670943413b765f09f677d956ba94d0f61c59e",
+      "path": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts"
+    }
+  ],
+  "verifiedAt": "2026-11-05T09:01:45.5105813Z",
+  "audit": {
+    "phase": "confirmed",
+    "error": "",
+    "owns": true,
+    "reads": 283,
+    "writes": 9,
+    "blockedWrites": 0,
+    "blockedRequests": 0,
+    "uploads": 0,
+    "removes": 0,
+    "executions": 0,
+    "unknown": false,
+    "state": {
+      "schemeId": "40BB4D3297904B1DB54336FB615CDCC4",
+      "marker": "SMOKE_EXCEL_STORED_1793869188325",
+      "nodeIds": [
+        "EF37515848B8BA1F9CAB80584AA71D60"
+      ],
+      "nodeParents": {
+        "EF37515848B8BA1F9CAB80584AA71D60": "40BB4D3297904B1DB54336FB615CDCC4"
+      },
+      "fieldOwners": {
+        "A3FE1292B04472EC7C364024C7E65C72": "EF37515848B8BA1F9CAB80584AA71D60"
+      },
+      "ruleOwners": {},
+      "acks": {
+        "fixture-scheme": true,
+        "fixture-node": true,
+        "fixture-field": true,
+        "reference-Table": true,
+        "reference-Dict": true,
+        "reference-View": true,
+        "reference-clear": true,
+        "cleanup-node": true,
+        "cleanup-scheme": true
+      },
+      "proofs": [
+        {
+          "case": "table-choice-cancel",
+          "additionalWrites": 0
+        },
+        {
+          "case": "save-reopen-Table",
+          "actual": {
+            "isDict": 0,
+            "refDataid": "00EB54040C01C782BFE79D4F3C4F7884",
+            "refTable": "QYVirtualPlat@Base_NavigationInfo",
+            "refTableDesc": "导航配置主表",
+            "textField": "navParams",
+            "textFieldDesc": "导航参数，（弃用）",
+            "valueField": "rowid",
+            "valueFieldDesc": "唯一标识 ID",
+            "filterField": "",
+            "filterValue": ""
+          }
+        },
+        {
+          "case": "stored-open-unchanged-Table",
+          "selectedTextIds": [
+            "1123DC42B65A9A1F490546FDCA6EC5C8"
+          ],
+          "selectedValueIds": [
+            "387022F0C2CF455FAB3D38395298ACF6"
+          ],
+          "matchingDatabaseRelations": 28,
+          "additionalWrites": 0
+        },
+        {
+          "case": "save-reopen-Dict",
+          "actual": {
+            "isDict": 1,
+            "refDataid": "003709DDDB8469AC580AFFABFDEE70EE",
+            "refTable": "_Base_DictData",
+            "refTableDesc": "hr_performance_result_grade",
+            "textField": "txt",
+            "textFieldDesc": "显示文本",
+            "valueField": "val",
+            "valueFieldDesc": "编码",
+            "filterField": "typeid",
+            "filterValue": "003709DDDB8469AC580AFFABFDEE70EE"
+          }
+        },
+        {
+          "case": "stored-open-unchanged-Dict",
+          "selectedTextIds": [
+            "txt"
+          ],
+          "selectedValueIds": [
+            "val"
+          ],
+          "matchingDatabaseRelations": 0,
+          "additionalWrites": 0
+        },
+        {
+          "case": "save-reopen-View",
+          "actual": {
+            "isDict": 0,
+            "refDataid": "1E47FFB77EFC4B2EB48DC729444371BB",
+            "refTable": "QYVirtualPlat@view_user_dj",
+            "refTableDesc": "人员岗位信息",
+            "textField": "Flag",
+            "textFieldDesc": "Flag",
+            "valueField": "rowid",
+            "valueFieldDesc": "rowid",
+            "filterField": "",
+            "filterValue": ""
+          }
+        },
+        {
+          "case": "stored-open-unchanged-View",
+          "selectedTextIds": [
+            "01629C997F12489185B3E2CE9C194C52"
+          ],
+          "selectedValueIds": [
+            "63737EBB79C645D790053CFE8C954BC1"
+          ],
+          "matchingDatabaseRelations": 28,
+          "additionalWrites": 0
+        },
+        {
+          "case": "clear-cancel",
+          "additionalWrites": 0
+        },
+        {
+          "case": "clear-save-reopen",
+          "actual": {
+            "isDict": 0,
+            "refDataid": "",
+            "refTable": "",
+            "refTableDesc": "",
+            "textField": "",
+            "textFieldDesc": "",
+            "valueField": "",
+            "valueFieldDesc": "",
+            "filterField": "",
+            "filterValue": ""
+          }
+        }
+      ],
+      "faults": [],
+      "phase": "confirmed",
+      "sources": {
+        "table": {
+          "id": "00EB54040C01C782BFE79D4F3C4F7884",
+          "name": "Base_NavigationInfo"
+        },
+        "view": {
+          "id": "1E47FFB77EFC4B2EB48DC729444371BB",
+          "name": "view_user_dj"
+        },
+        "dictionary": {
+          "id": "003709DDDB8469AC580AFFABFDEE70EE",
+          "name": "hr_performance_result_grade"
+        },
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+      },
+      "independentExpectations": {
+        "Table": {
+          "isDict": 0,
+          "refDataid": "00EB54040C01C782BFE79D4F3C4F7884",
+          "refTable": "QYVirtualPlat@Base_NavigationInfo",
+          "refTableDesc": "导航配置主表",
+          "textField": "navParams",
+          "textFieldDesc": "导航参数，（弃用）",
+          "valueField": "rowid",
+          "valueFieldDesc": "唯一标识 ID",
+          "filterField": "",
+          "filterValue": ""
+        },
+        "View": {
+          "isDict": 0,
+          "refDataid": "1E47FFB77EFC4B2EB48DC729444371BB",
+          "refTable": "QYVirtualPlat@view_user_dj",
+          "refTableDesc": "人员岗位信息",
+          "textField": "Flag",
+          "textFieldDesc": "Flag",
+          "valueField": "rowid",
+          "valueFieldDesc": "rowid",
+          "filterField": "",
+          "filterValue": ""
+        },
+        "Dict": {
+          "isDict": 1,
+          "refDataid": "003709DDDB8469AC580AFFABFDEE70EE",
+          "refTable": "_Base_DictData",
+          "refTableDesc": "hr_performance_result_grade",
+          "textField": "txt",
+          "textFieldDesc": "显示文本",
+          "valueField": "val",
+          "valueFieldDesc": "编码",
+          "filterField": "typeid",
+          "filterValue": "003709DDDB8469AC580AFFABFDEE70EE"
+        }
+      },
+      "offPageProof": {
+        "model": "_Base_TblList",
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "pageSize": 1,
+        "sort": "rowid desc",
+        "firstPageIds": [
+          "TBPERMDEMO0000000000000000001"
+        ],
+        "total": 222,
+        "savedId": "00EB54040C01C782BFE79D4F3C4F7884",
+        "notOnFirstPage": true
+      },
+      "multipleApplicationPreflight": {
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "matchingRelations": 28,
+        "distinctApplications": 28
+      },
+      "expectedFieldIds": {
+        "Table": {
+          "text": "1123DC42B65A9A1F490546FDCA6EC5C8",
+          "value": "387022F0C2CF455FAB3D38395298ACF6"
+        },
+        "View": {
+          "text": "01629C997F12489185B3E2CE9C194C52",
+          "value": "63737EBB79C645D790053CFE8C954BC1"
+        },
+        "Dict": {
+          "text": "txt",
+          "value": "val"
+        }
+      },
+      "relationProofs": [
+        {
+          "kind": "Table",
+          "allSameNameRelations": 39,
+          "matchingResolvedDatabase": 28,
+          "distinctApplications": 28,
+          "resolvedDatabaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+        },
+        {
+          "kind": "View",
+          "allSameNameRelations": 39,
+          "matchingResolvedDatabase": 28,
+          "distinctApplications": 28,
+          "resolvedDatabaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+        }
+      ],
+      "lifecycle": "cleaned",
+      "independentAbsence": {
+        "scheme": 0,
+        "nodes": 0,
+        "fieldsById": 0,
+        "fieldsByOwner": 0,
+        "rulesByOwner": 0
+      },
+      "cleanedAt": "2026-11-05T09:01:22.272Z",
+      "originalDeletion": {
+        "busy": false,
+        "done": true,
+        "databaseConfirmed": true,
+        "acceptedCurrent": false,
+        "canAcceptCurrent": false,
+        "canCancel": false,
+        "fields": 1,
+        "rules": 0
+      },
+      "fixtureRemaining": false,
+      "lastConfirmedStage": "cleanup-scheme"
+    },
+    "testedAt": "2026-11-05T09:01:23.404Z"
+  },
+  "earlierFailedAttempt": {
+    "phase": "failed",
+    "error": "Stored physical database was not proven without guessing application relation",
+    "owns": true,
+    "reads": 137,
+    "writes": 4,
+    "blockedWrites": 0,
+    "blockedRequests": 0,
+    "uploads": 0,
+    "removes": 0,
+    "executions": 0,
+    "unknown": false,
+    "state": {
+      "schemeId": "2377712AFE6B46A8A5315E0538DB8CCD",
+      "marker": "SMOKE_EXCEL_STORED_1793868898339",
+      "nodeIds": [
+        "0F7F0709B69034D6C52663C32670CCD2"
+      ],
+      "nodeParents": {
+        "0F7F0709B69034D6C52663C32670CCD2": "2377712AFE6B46A8A5315E0538DB8CCD"
+      },
+      "fieldOwners": {
+        "7339DD1E9CD61CC9F2EFDD7B2398328E": "0F7F0709B69034D6C52663C32670CCD2"
+      },
+      "ruleOwners": {},
+      "acks": {
+        "fixture-scheme": true,
+        "fixture-node": true,
+        "fixture-field": true,
+        "reference-Table": true
+      },
+      "proofs": [
+        {
+          "case": "table-choice-cancel",
+          "additionalWrites": 0
+        },
+        {
+          "case": "save-reopen-Table",
+          "actual": {
+            "isDict": 0,
+            "refDataid": "00EB54040C01C782BFE79D4F3C4F7884",
+            "refTable": "QYVirtualPlat@Base_NavigationInfo",
+            "refTableDesc": "导航配置主表",
+            "textField": "navParams",
+            "textFieldDesc": "导航参数，（弃用）",
+            "valueField": "rowid",
+            "valueFieldDesc": "唯一标识 ID",
+            "filterField": "",
+            "filterValue": ""
+          }
+        }
+      ],
+      "faults": [],
+      "phase": "failed",
+      "sources": {
+        "table": {
+          "id": "00EB54040C01C782BFE79D4F3C4F7884",
+          "name": "Base_NavigationInfo"
+        },
+        "view": {
+          "id": "1E47FFB77EFC4B2EB48DC729444371BB",
+          "name": "view_user_dj"
+        },
+        "dictionary": {
+          "id": "003709DDDB8469AC580AFFABFDEE70EE",
+          "name": "hr_performance_result_grade"
+        },
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+      },
+      "independentExpectations": {
+        "Table": {
+          "isDict": 0,
+          "refDataid": "00EB54040C01C782BFE79D4F3C4F7884",
+          "refTable": "QYVirtualPlat@Base_NavigationInfo",
+          "refTableDesc": "导航配置主表",
+          "textField": "navParams",
+          "textFieldDesc": "导航参数，（弃用）",
+          "valueField": "rowid",
+          "valueFieldDesc": "唯一标识 ID",
+          "filterField": "",
+          "filterValue": ""
+        },
+        "View": {
+          "isDict": 0,
+          "refDataid": "1E47FFB77EFC4B2EB48DC729444371BB",
+          "refTable": "QYVirtualPlat@view_user_dj",
+          "refTableDesc": "人员岗位信息",
+          "textField": "Flag",
+          "textFieldDesc": "Flag",
+          "valueField": "rowid",
+          "valueFieldDesc": "rowid",
+          "filterField": "",
+          "filterValue": ""
+        },
+        "Dict": {
+          "isDict": 1,
+          "refDataid": "003709DDDB8469AC580AFFABFDEE70EE",
+          "refTable": "_Base_DictData",
+          "refTableDesc": "hr_performance_result_grade",
+          "textField": "txt",
+          "textFieldDesc": "显示文本",
+          "valueField": "val",
+          "valueFieldDesc": "编码",
+          "filterField": "typeid",
+          "filterValue": "003709DDDB8469AC580AFFABFDEE70EE"
+        }
+      },
+      "offPageProof": {
+        "model": "_Base_TblList",
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "pageSize": 1,
+        "sort": "rowid desc",
+        "firstPageIds": [
+          "TBPERMDEMO0000000000000000001"
+        ],
+        "total": 222,
+        "savedId": "00EB54040C01C782BFE79D4F3C4F7884",
+        "notOnFirstPage": true
+      },
+      "expectedFieldIds": {
+        "Table": {
+          "text": "1123DC42B65A9A1F490546FDCA6EC5C8",
+          "value": "387022F0C2CF455FAB3D38395298ACF6"
+        },
+        "View": {
+          "text": "01629C997F12489185B3E2CE9C194C52",
+          "value": "63737EBB79C645D790053CFE8C954BC1"
+        },
+        "Dict": {
+          "text": "txt",
+          "value": "val"
+        }
+      },
+      "error": "Stored physical database was not proven without guessing application relation",
+      "fixtureRemaining": true,
+      "lastConfirmedStage": "reference-Table",
+      "cleanupHandoff": {
+        "mode": "cleanup-only",
+        "preserveOriginalFailure": true,
+        "noRecreate": true,
+        "schemeId": "2377712AFE6B46A8A5315E0538DB8CCD",
+        "marker": "SMOKE_EXCEL_STORED_1793868898339",
+        "nodeIds": [
+          "0F7F0709B69034D6C52663C32670CCD2"
+        ],
+        "fieldOwners": {
+          "7339DD1E9CD61CC9F2EFDD7B2398328E": "0F7F0709B69034D6C52663C32670CCD2"
+        },
+        "ruleOwners": {},
+        "pendingLabel": null
+      }
+    },
+    "testedAt": "2026-11-05T08:55:35.321Z"
+  },
+  "earlierFailedAttemptCleanup": {
+    "phase": "cleanup-confirmed",
+    "error": "",
+    "owns": true,
+    "reads": 54,
+    "writes": 2,
+    "blockedWrites": 0,
+    "blockedRequests": 0,
+    "uploads": 0,
+    "removes": 0,
+    "executions": 0,
+    "unknown": false,
+    "state": {
+      "schemeId": "2377712AFE6B46A8A5315E0538DB8CCD",
+      "marker": "SMOKE_EXCEL_STORED_1793868898339",
+      "nodeIds": [
+        "0F7F0709B69034D6C52663C32670CCD2"
+      ],
+      "nodeParents": {
+        "0F7F0709B69034D6C52663C32670CCD2": "2377712AFE6B46A8A5315E0538DB8CCD"
+      },
+      "fieldOwners": {
+        "7339DD1E9CD61CC9F2EFDD7B2398328E": "0F7F0709B69034D6C52663C32670CCD2"
+      },
+      "ruleOwners": {},
+      "acks": {
+        "fixture-scheme": true,
+        "fixture-node": true,
+        "fixture-field": true,
+        "reference-Table": true,
+        "cleanup-node": true,
+        "cleanup-scheme": true
+      },
+      "proofs": [
+        {
+          "case": "table-choice-cancel",
+          "additionalWrites": 0
+        },
+        {
+          "case": "save-reopen-Table",
+          "actual": {
+            "isDict": 0,
+            "refDataid": "00EB54040C01C782BFE79D4F3C4F7884",
+            "refTable": "QYVirtualPlat@Base_NavigationInfo",
+            "refTableDesc": "导航配置主表",
+            "textField": "navParams",
+            "textFieldDesc": "导航参数，（弃用）",
+            "valueField": "rowid",
+            "valueFieldDesc": "唯一标识 ID",
+            "filterField": "",
+            "filterValue": ""
+          }
+        }
+      ],
+      "faults": [],
+      "phase": "cleanup-confirmed",
+      "sources": {
+        "table": {
+          "id": "00EB54040C01C782BFE79D4F3C4F7884",
+          "name": "Base_NavigationInfo"
+        },
+        "view": {
+          "id": "1E47FFB77EFC4B2EB48DC729444371BB",
+          "name": "view_user_dj"
+        },
+        "dictionary": {
+          "id": "003709DDDB8469AC580AFFABFDEE70EE",
+          "name": "hr_performance_result_grade"
+        },
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+      },
+      "independentExpectations": {
+        "Table": {
+          "isDict": 0,
+          "refDataid": "00EB54040C01C782BFE79D4F3C4F7884",
+          "refTable": "QYVirtualPlat@Base_NavigationInfo",
+          "refTableDesc": "导航配置主表",
+          "textField": "navParams",
+          "textFieldDesc": "导航参数，（弃用）",
+          "valueField": "rowid",
+          "valueFieldDesc": "唯一标识 ID",
+          "filterField": "",
+          "filterValue": ""
+        },
+        "View": {
+          "isDict": 0,
+          "refDataid": "1E47FFB77EFC4B2EB48DC729444371BB",
+          "refTable": "QYVirtualPlat@view_user_dj",
+          "refTableDesc": "人员岗位信息",
+          "textField": "Flag",
+          "textFieldDesc": "Flag",
+          "valueField": "rowid",
+          "valueFieldDesc": "rowid",
+          "filterField": "",
+          "filterValue": ""
+        },
+        "Dict": {
+          "isDict": 1,
+          "refDataid": "003709DDDB8469AC580AFFABFDEE70EE",
+          "refTable": "_Base_DictData",
+          "refTableDesc": "hr_performance_result_grade",
+          "textField": "txt",
+          "textFieldDesc": "显示文本",
+          "valueField": "val",
+          "valueFieldDesc": "编码",
+          "filterField": "typeid",
+          "filterValue": "003709DDDB8469AC580AFFABFDEE70EE"
+        }
+      },
+      "offPageProof": {
+        "model": "_Base_TblList",
+        "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "pageSize": 1,
+        "sort": "rowid desc",
+        "firstPageIds": [
+          "TBPERMDEMO0000000000000000001"
+        ],
+        "total": 222,
+        "savedId": "00EB54040C01C782BFE79D4F3C4F7884",
+        "notOnFirstPage": true
+      },
+      "expectedFieldIds": {
+        "Table": {
+          "text": "1123DC42B65A9A1F490546FDCA6EC5C8",
+          "value": "387022F0C2CF455FAB3D38395298ACF6"
+        },
+        "View": {
+          "text": "01629C997F12489185B3E2CE9C194C52",
+          "value": "63737EBB79C645D790053CFE8C954BC1"
+        },
+        "Dict": {
+          "text": "txt",
+          "value": "val"
+        }
+      },
+      "fixtureRemaining": false,
+      "lastConfirmedStage": "cleanup-scheme",
+      "originalFailure": "Stored physical database was not proven without guessing application relation",
+      "lifecycle": "cleaned",
+      "independentAbsence": {
+        "scheme": 0,
+        "nodes": 0,
+        "fieldsById": 0,
+        "fieldsByOwner": 0,
+        "rulesByOwner": 0
+      },
+      "cleanedAt": "2026-11-05T08:57:57.387Z",
+      "originalDeletion": {
+        "busy": false,
+        "done": true,
+        "databaseConfirmed": true,
+        "acceptedCurrent": false,
+        "canAcceptCurrent": false,
+        "canCancel": false,
+        "fields": 1,
+        "rules": 0
+      }
+    },
+    "testedAt": "2026-11-05T08:57:58.497Z"
+  },
+  "validations": {
+    "lint": "exit0",
+    "pageThinNewViolations": 0,
+    "pageThinExistingViolations": 1,
+    "codegenNewViolations": 0,
+    "buildFe": "exit0",
+    "businessAndComponentTests": {
+      "files": 14,
+      "passed": 182
+    },
+    "classModelGenerated": true,
+    "codegenExistingViolations": 26,
+    "typecheck": "exit0",
+    "semanticGaps": 3635,
+    "classModelTests": {
+      "files": 4,
+      "passed": 49
+    }
+  }
+}

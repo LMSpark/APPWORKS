@@ -1,0 +1,259 @@
+{
+  "scope": "Native SPARK data owned Excel configuration save and real classic OFF/ON XLSX export, independent source readbacks and exact cleanup; no import or layout execution",
+  "phase": "confirmed",
+  "processId": 9336,
+  "testedAt": "2026-11-05T20:00:15.979Z",
+  "physicalSource": {
+    "table": "QYVirtualPlat@Base_Import_solution",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "columns": [
+      "rowid",
+      "dataSetId",
+      "coding",
+      "solutionName"
+    ]
+  },
+  "schemeId": "C1AD08A9E7C0470DA28AEBD0C915F98D",
+  "sourceRowId": "7819BA7E701440B98E9B1115D252EB5E",
+  "nodeId": "65666E4ED7C34B99A18DED6D80E08EE7",
+  "mappingIds": [
+    "0D8917E2D14F430295A04BC1AE3C07D8",
+    "A0582785D84A454D814AEA55C027F40F"
+  ],
+  "ruleId": "2A1B4FCDF5924BAC9FE4D4C945AF7E82",
+  "reads": 335,
+  "writes": 11,
+  "blockedRequests": 0,
+  "exports": [
+    {
+      "enabled": 0,
+      "requestDispatched": true,
+      "byteLength": 3369,
+      "sha256": "8a5f6dffb389411d201fb321d480990bf6d21d5f7682db497424787085f18a3e",
+      "sheetCount": 1,
+      "dimensions": [
+        {
+          "rowCount": 2,
+          "columnCounts": [
+            2,
+            2
+          ]
+        }
+      ],
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_EXPORT",
+          "rows": [
+            [
+              "KEY",
+              "VALUE"
+            ],
+            [
+              "SMOKE_EXPORT_1793908744497_CODE",
+              "SMOKE_EXPORT_1793908744497_S"
+            ]
+          ]
+        }
+      ],
+      "matches": true
+    },
+    {
+      "enabled": 1,
+      "requestDispatched": true,
+      "byteLength": 3415,
+      "sha256": "86c76ae87d0fcca3c85cb13bf5df7abfafef527e48ca21e9a4e3c4763446b1b2",
+      "sheetCount": 1,
+      "dimensions": [
+        {
+          "rowCount": 3,
+          "columnCounts": [
+            2,
+            2,
+            2
+          ]
+        }
+      ],
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_EXPORT",
+          "rows": [
+            [
+              "KEY",
+              "VALUE"
+            ],
+            [
+              "ID",
+              "7819BA7E701440B98E9B1115D252EB5E"
+            ],
+            [
+              "SPACE",
+              "34BDBE645F461A3D83282A941D6037F4"
+            ]
+          ]
+        }
+      ],
+      "matches": true
+    }
+  ],
+  "sourceBeforeHash": "51051a10d705a2609f27336eec97d0c5ca577d063751706b698a8e675de1de70",
+  "sourceAfterHash": "51051a10d705a2609f27336eec97d0c5ca577d063751706b698a8e675de1de70",
+  "acks": [
+    {
+      "label": "create-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "C1AD08A9E7C0470DA28AEBD0C915F98D"
+      ],
+      "writes": 1
+    },
+    {
+      "label": "create-source",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "7819BA7E701440B98E9B1115D252EB5E"
+      ],
+      "writes": 2
+    },
+    {
+      "label": "create-node",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "65666E4ED7C34B99A18DED6D80E08EE7"
+      ],
+      "writes": 3
+    },
+    {
+      "label": "create-fields",
+      "table": "Base_ImportData_Field",
+      "kind": "Added",
+      "ids": [
+        "0D8917E2D14F430295A04BC1AE3C07D8",
+        "A0582785D84A454D814AEA55C027F40F"
+      ],
+      "writes": 4
+    },
+    {
+      "label": "create-rule",
+      "table": "Base_Import_Transform_Rule",
+      "kind": "Added",
+      "ids": [
+        "2A1B4FCDF5924BAC9FE4D4C945AF7E82"
+      ],
+      "writes": 5
+    },
+    {
+      "label": "enable-transform",
+      "table": "Base_Import_solution",
+      "kind": "Changed",
+      "ids": [
+        "C1AD08A9E7C0470DA28AEBD0C915F98D"
+      ],
+      "writes": 6
+    },
+    {
+      "label": "cleanup-rule",
+      "table": "Base_Import_Transform_Rule",
+      "kind": "Deleted",
+      "ids": [
+        "2A1B4FCDF5924BAC9FE4D4C945AF7E82"
+      ],
+      "writes": 7
+    },
+    {
+      "label": "cleanup-fields",
+      "table": "Base_ImportData_Field",
+      "kind": "Deleted",
+      "ids": [
+        "0D8917E2D14F430295A04BC1AE3C07D8",
+        "A0582785D84A454D814AEA55C027F40F"
+      ],
+      "writes": 8
+    },
+    {
+      "label": "cleanup-node",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "65666E4ED7C34B99A18DED6D80E08EE7"
+      ],
+      "writes": 9
+    },
+    {
+      "label": "cleanup-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "C1AD08A9E7C0470DA28AEBD0C915F98D"
+      ],
+      "writes": 10
+    },
+    {
+      "label": "cleanup-source",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "7819BA7E701440B98E9B1115D252EB5E"
+      ],
+      "writes": 11
+    }
+  ],
+  "readbacks": [
+    {
+      "enabled": 0,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true
+    },
+    {
+      "enabled": 1,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true
+    },
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "id",
+      "values": [
+        "2A1B4FCDF5924BAC9FE4D4C945AF7E82"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "rowid",
+      "values": [
+        "0D8917E2D14F430295A04BC1AE3C07D8",
+        "A0582785D84A454D814AEA55C027F40F"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Config",
+      "field": "rowid",
+      "values": [
+        "65666E4ED7C34B99A18DED6D80E08EE7"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "config_id",
+      "values": [
+        "65666E4ED7C34B99A18DED6D80E08EE7"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "configid",
+      "values": [
+        "65666E4ED7C34B99A18DED6D80E08EE7"
+      ],
+      "total": 0
+    }
+  ],
+  "unknown": false,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-05T20:00:14.73Z"
+}

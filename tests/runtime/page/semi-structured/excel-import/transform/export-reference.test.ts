@@ -1,5 +1,6 @@
 import {describe,it,expect} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords,SOURCE_SCENE} from '../../../structured-config/data-code/source-picker/fixture'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
@@ -17,6 +18,35 @@ async function fixture(mapped=true){
  return {...f,source,sourceHttp:http,save,dispose}
 }
 describe('Excel export reference actual query projection',()=>{
+ it('resolves a same-named database and table only inside the node application',async()=>{
+  const f=await fixture()
+  try{
+   f.sourceHttp.records['Base_AppAndSource_Relation']!.push({rowid:'OTHER_APP_DB',sysid:'A2',conid:'OTHER',conName:'数据库一'})
+   f.sourceHttp.records['_Base_TblList']!.push({rowid:'OTHER_TABLE',dbid:'OTHER',tblname:'table_one'})
+   f.sourceHttp.records['Base_TblField']!.push({rowid:'OTHER_FIELD',tblid:'OTHER_TABLE',enname:'wrong'})
+   expect((await f.save()).success).toBe(true)
+   expect(f.http.saves).toHaveLength(1)
+   const request=f.sourceHttp.reads.find(read=>read.table==='Base_AppAndSource_Relation')?.data as {Table:Array<{Filter:unknown}>}
+   expect(DataViewFilterCodec.decode(request.Table[0]!.Filter).toJSON()).toEqual({logic:'and',filters:[{field:'sysid',operator:'eq',value:'A1'},{field:'conName',operator:'eq',value:'数据库一'}]})
+  }finally{f.dispose()}
+ })
+ it('does not borrow a source column available only in another application with the same database and table names',async()=>{
+  const f=await fixture()
+  try{
+   f.sourceHttp.records['Base_AppAndSource_Relation']!.push({rowid:'OTHER_APP_DB',sysid:'A2',conid:'OTHER',conName:'数据库一'})
+   f.sourceHttp.records['_Base_TblList']!.push({rowid:'OTHER_TABLE',dbid:'OTHER',tblname:'table_one'})
+   f.sourceHttp.records['Base_TblField']=f.sourceHttp.records['Base_TblField']!.filter(row=>!(row['tblid']==='T1'&&row['enname']==='name'))
+   f.sourceHttp.records['Base_TblField']!.push({rowid:'OTHER_FIELD',tblid:'OTHER_TABLE',enname:'name'})
+   await expect(f.save()).rejects.toThrow('name');expect(f.http.saves).toEqual([])
+  }finally{f.dispose()}
+ })
+ it('rejects two same-named tables inside the selected application database',async()=>{
+  const f=await fixture()
+  try{
+   f.sourceHttp.records['_Base_TblList']!.push({rowid:'OTHER_TABLE',dbid:'D1',tblname:'table_one'})
+   await expect(f.save()).rejects.toThrow('物理表不存在或不唯一');expect(f.http.saves).toEqual([])
+  }finally{f.dispose()}
+ })
  it.each(['application','database'])('rejects ambiguous or foreign physical scope: %s',async kind=>{
   const f=await fixture()
   try{

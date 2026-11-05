@@ -65,10 +65,10 @@ export async function readExcelTransformExportFields(input:ExcelTransformExportS
  const guarded=()=>{check();if(page.getDataSet(sourceId)!==source||source.destroyed)throw Error('转换导出物理来源实例已变化')}
  const table=input.node['table'],app=input.node['relatedappid'],parts=typeof table==='string'?table.split('@'):[]
  if(parts.length!==2||!parts[0]||!parts[1]||typeof app!=='string'||!app)throw Error('转换导出缺少正式应用及库表路径')
- const relations=await readExcelTransformRows({dataSet:source,table:'Base_AppAndSource_Relation',viewId:'excelStoredDatabases',fields:['sysid','conName','conid'],filter:{field:'conName',operator:'eq',value:parts[0]},check:guarded})
+ const relations=await readExcelTransformRows({dataSet:source,table:'Base_AppAndSource_Relation',viewId:'excelStoredDatabases',fields:['sysid','conName','conid'],filter:{logic:'and',filters:[{field:'sysid',operator:'eq',value:app},{field:'conName',operator:'eq',value:parts[0]}]},check:guarded})
  const databaseIds=new Set(relations.map(row=>row['conid']))
  const db=[...databaseIds][0]
- if(!relations.some(row=>row['sysid']===app)||databaseIds.size!==1||typeof db!=='string'||!db||relations.some(row=>row['conName']!==parts[0]))throw Error('转换导出的数据库归属或运行库名不唯一')
+ if(!relations.length||databaseIds.size!==1||typeof db!=='string'||!db||relations.some(row=>row['sysid']!==app||row['conName']!==parts[0]))throw Error('转换导出的数据库归属或运行库名不唯一')
  const tables=await readExcelTransformRows({dataSet:source,table:'_Base_TblList',viewId:'excelStoredObject',fields:['rowid','tblname'],filter:{logic:'and',filters:[{field:'dbid',operator:'eq',value:db},{field:'tblname',operator:'eq',value:parts[1]}]},check:guarded})
  const physical=tables[0]
  if(tables.length!==1||physical?.['tblname'] !== parts[1]||typeof physical['rowid']!=='string'||!physical['rowid'])throw Error('转换导出物理表不存在或不唯一')

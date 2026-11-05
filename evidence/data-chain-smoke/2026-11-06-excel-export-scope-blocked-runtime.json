@@ -1,0 +1,143 @@
+{
+  "scope": "Owned OFF/ON export attempt stopped before rule dispatch; no export requests",
+  "phase": "failed",
+  "processId": 4896,
+  "testedAt": "2026-11-05T19:53:38.181Z",
+  "physicalSource": {
+    "table": "QYVirtualPlat@Base_Import_solution",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "columns": [
+      "rowid",
+      "dataSetId",
+      "coding",
+      "solutionName"
+    ]
+  },
+  "reads": 230,
+  "writes": 8,
+  "blockedRequests": 0,
+  "exports": [],
+  "acks": [
+    {
+      "label": "create-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "6FC45034315342709BEA9AE6B6D471E7"
+      ],
+      "writes": 1
+    },
+    {
+      "label": "create-source",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "4ED9C657EAB34A75953EB1DBBED51B37"
+      ],
+      "writes": 2
+    },
+    {
+      "label": "create-node",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "AF12CD88E0A64562A31444278F1C346A"
+      ],
+      "writes": 3
+    },
+    {
+      "label": "create-fields",
+      "table": "Base_ImportData_Field",
+      "kind": "Added",
+      "ids": [
+        "30C8DD19703147B2B0FD660D04188AA0",
+        "F8A25D1B995C45C2810BB1DEB7DAC52C"
+      ],
+      "writes": 4
+    },
+    {
+      "label": "cleanup-fields",
+      "table": "Base_ImportData_Field",
+      "kind": "Deleted",
+      "ids": [
+        "30C8DD19703147B2B0FD660D04188AA0",
+        "F8A25D1B995C45C2810BB1DEB7DAC52C"
+      ],
+      "writes": 5
+    },
+    {
+      "label": "cleanup-node",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "AF12CD88E0A64562A31444278F1C346A"
+      ],
+      "writes": 6
+    },
+    {
+      "label": "cleanup-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "6FC45034315342709BEA9AE6B6D471E7"
+      ],
+      "writes": 7
+    },
+    {
+      "label": "cleanup-source",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "4ED9C657EAB34A75953EB1DBBED51B37"
+      ],
+      "writes": 8
+    }
+  ],
+  "readbacks": [
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "id",
+      "values": [
+        "3796DAFB48EF4BE292E310AFEF03CCA7"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "rowid",
+      "values": [
+        "30C8DD19703147B2B0FD660D04188AA0",
+        "F8A25D1B995C45C2810BB1DEB7DAC52C"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Config",
+      "field": "rowid",
+      "values": [
+        "AF12CD88E0A64562A31444278F1C346A"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "config_id",
+      "values": [
+        "AF12CD88E0A64562A31444278F1C346A"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "configid",
+      "values": [
+        "AF12CD88E0A64562A31444278F1C346A"
+      ],
+      "total": 0
+    }
+  ],
+  "unknown": false,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-05T19:53:38.16Z",
+  "error": "转换导出的数据库归属或运行库名不唯一"
+}

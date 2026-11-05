@@ -4169,7 +4169,7 @@
     "src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts.json",
-      "sourceModifiedAt": "2026-11-05T18:26:02.466Z"
+      "sourceModifiedAt": "2026-11-05T19:54:51.373Z"
     },
     "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/expression.ts",

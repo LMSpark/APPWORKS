@@ -21,7 +21,7 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
         :schema="props.schema" :value-label="props.valueLabel" :height="height" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonArrayRows v-else-if="mode === 'rows'" :key="revision" :model-value="editorText" :read-only="!permission.isCurrentFieldEditable.value"
         :children="props.children" :height="height" :max-height="props.maxHeight" :row-edit-mode="props.rowEditMode"
-        :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :row-operations="props.rowOperations" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
+        :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :row-defaults="props.rowDefaults" :row-operations="props.rowOperations" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonTreeEditor v-else-if="mode === 'tree'" :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
         :height="height" v-bind="treePolicy ? {policy:treePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
       <SparkJsonEditor v-else :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
@@ -124,8 +124,13 @@ const writeForRevision=computed(()=>{
     activeWrite = {revision: own, previous: editorText.value}
     writing.value=true
     try {
-      toSource(value);error.value=''
-      const accepted=await handleControlledChange(value,isCurrentIntent)
+      let next=value
+      if(props.emptyArrayAsEmptyText&&props.mode==='rows'&&props.valueFormat!=='native'&&!props.valuePath?.length){
+        const rows=value.trim()?parseJsonDocument(value):[]
+        if(Array.isArray(rows)&&!rows.length)next=''
+      }
+      toSource(next);error.value=''
+      const accepted=await handleControlledChange(next,isCurrentIntent)
       if(own===revision.value && completeMode.value) {
         rejectedInput.value=!accepted
         if(!accepted)error.value='原字段未接受修改；请检查数据权限和绑定。'

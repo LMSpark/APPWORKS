@@ -38,7 +38,7 @@ beforeEach(() => {
     Base_Import_solution: [{rowid: 'E1', solutionName: '订单导入', dataSetId: 'S1', transform_enabled:0, status:'UNCHANGED'}, {rowid: 'E2', solutionName: '其他方案'}],
     Base_DataSet: [], Base_UserInfo: [],
     _Base_DictType:[{rowid:'D1',TypeName:'状态',functiondesc:'业务状态',txt:'状态名',val:'状态码',secondValue:'扩展一',thirdValue:'',fourthvalue:'',fiveValue:''}],
-    Base_ImportData_Config: [{rowid: 'C1', schemeid: 'E1', pid: 'E1', sheetName: '订单', sheet: 0, titleIndex: 1, dataIndex: 2, sheet_layout_json: '{"keep":false}'}],
+    Base_ImportData_Config: [{rowid: 'C1', schemeid: 'E1', pid: 'E1', sheetName: '订单', sheet: 0, titleIndex: 1, dataIndex: 2, sheet_layout_json: '{"keep":false}',relatedappid:null,table:null,sorted:null}],
     Base_ImportData_Field: [{rowid: 'F1', configid: 'C1', name: 'code', title: '编码', index: '01', type: 1}],
     Base_Import_Transform_Rule: [{id: 'R1', scheme_id: 'E1', config_id: 'C1', rule_name: '去空格', rule_type:'TRIM', source_field:'code', target_field:'code', sort_order:10, enabled:1, on_error:'FAIL_ROW', condition_json:'', config_json: '{"keep":true}'}],
     ImportExportMethods: [{rowid: 'M1', val: 'tree', txt: '树形导入', ordIdx: 1}],
@@ -78,6 +78,35 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('edits sorting with bound physical selects, cancels, saves and reopens the original node field',async()=>{
+    Object.assign(state.http.records['Base_ImportData_Config']![0]!,{relatedappid:'A1',table:'数据库一@table_one',sorted:''})
+    const f=await open();await f.choose()
+    const sort=()=>f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sorted')!
+    await vi.waitFor(()=>expect(sort().props('readonly')).toBe(false))
+    expect(sort().props('mode')).toBe('rows')
+    const add=async()=>{
+      await sort().get('[data-json-add]').trigger('click');await flushPromises()
+      const physical=sort().findAllComponents(FieldSelect).find(field=>field.props('label')==='字段')!
+      const direction=sort().findAllComponents(FieldSelect).find(field=>field.props('label')==='排序类型')!
+      expect(physical.props('optionDataViewKey')).toBe(`${SOURCE_SCENE}@Base_TblField@excelSortFields`)
+      expect(direction.getComponent(ElSelect).props('modelValue')).toBe('ascending')
+      physical.getComponent(ElSelect).vm.$emit('update:modelValue','name');await flushPromises()
+      await sort().get('[data-json-save-row]').trigger('click');await flushPromises()
+    }
+    await add();expect(state.http.saves).toEqual([])
+    await f.click('取消配置修改');expect(state.http.records['Base_ImportData_Config']![0]!['sorted']).toBe('')
+    await add();await f.click('保存配置')
+    expect(JSON.parse(String(state.http.records['Base_ImportData_Config']![0]!['sorted']))).toEqual([{Type:'ascending',Field:'name'}])
+    expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Config'])
+    f.wrapper.unmount()
+    const reopened=await open();await reopened.choose()
+    const saved=reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sorted')!
+    await vi.waitFor(()=>expect(saved.props('readonly')).toBe(false))
+    expect(saved.text()).toContain('name')
+    await saved.get('tbody tr').trigger('click');await saved.get('[data-json-delete]').trigger('click');await flushPromises()
+    await reopened.click('保存配置')
+    expect(state.http.records['Base_ImportData_Config']![0]!['sorted']).toBe('')
+  })
   it('keeps two independent standard tab groups and the same draft components without querying or saving on tab changes',async()=>{
     const f=await open();await f.choose()
     const groups=f.wrapper.findAllComponents(RendererTabs)
@@ -101,6 +130,7 @@ describe('formal Excel design editor', () => {
   })
   it.each(['sorted','sheet_layout_json'])('retains rejected %s input and its close guard across tabs until the original cancel',async(field)=>{
     const f=await open();await f.choose()
+    if(field==='sorted')await f.click('完整JSON编辑')
     const tabs=f.wrapper.findAllComponents(RendererTabs)[0]!,original=field==='sorted'?'basic':'layout'
     tabs.getComponent(ElTabs).vm.$emit('update:modelValue',original);await flushPromises()
     const component=f.wrapper.findAllComponents(FieldJson).find(item=>item.props('field')===field)!,uid=component.vm.$.uid
@@ -448,7 +478,7 @@ describe('formal Excel design editor', () => {
     await selectTarget(f); await f.click('取消字段修改'); await f.click('保存配置')
     expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
     expect(state.http.records['Base_ImportData_Config']![0]).toMatchObject({sheetName: '此前工作表草稿'})
-    expect(state.http.records['Base_ImportData_Config']![0]!['table']).toBeUndefined()
+    expect(state.http.records['Base_ImportData_Config']![0]!['table']).toBeNull()
     expect(state.http.records['Base_ImportData_Field']!.map(row => row['rowid'])).toEqual(['F1'])
   })
   it('jointly saves a confirmed target and its mapped fields then reopens through a fresh page runtime', async () => {
@@ -468,7 +498,7 @@ describe('formal Excel design editor', () => {
     await selectTarget(f); await f.click('保存目标及字段')
     expect(state.http.saves).toEqual([])
     expect(f.wrapper.text()).toContain('请输入工作表名称')
-    expect(state.http.records['Base_ImportData_Config']![0]!['table']).toBeUndefined()
+    expect(state.http.records['Base_ImportData_Config']![0]!['table']).toBeNull()
   })
   it.each(['换源', '删除'] as const)('can explicitly adopt a formal result after an invalid %s receipt and leave the page', async operation => {
     state.http.records['Base_Import_Transform_Rule'] = []
@@ -554,7 +584,7 @@ describe('formal Excel design editor', () => {
     expect(cancel).toBeDefined(); cancel.click(); await flushPromises()
     expect(state.http.saves).toEqual([])
     expect(state.http.records['Base_ImportData_Field']!.map(row => row['rowid'])).toEqual(['F1'])
-    expect(state.http.records['Base_ImportData_Config']![0]!['table']).toBeUndefined()
+    expect(state.http.records['Base_ImportData_Config']![0]!['table']).toBeNull()
   })
   it('stages child and sibling configurations in the original tree and cancels without writes', async () => {
     const f = await open(); await f.choose()

@@ -26,6 +26,16 @@ async function fixture(options:Readonly<{layoutType?:string;declaredPk?:boolean;
  return {ds,view,stored,owner,masked,denied,setAllowAdd:(value:boolean)=>{allowAdd=value},writes:()=>writes,loseNextAck:()=>{failAfterWrite=true}}
 }
 describe('DataTable instance query save rule',()=>{
+ it('excludes undeclared operations before reading reference dependencies while retaining native delete authorization',async()=>{
+  const f=await fixture(),references=vi.fn(async()=>{})
+  try{
+   f.view.dataTable!.setQuerySaveRule({fields:['layout'],validate:()=>undefined,references:{fields:['layout'],triggerFields:['layout'],operations:['create','update'],validate:references}})
+   f.masked.add('layout');await f.view.removeRow('1')
+   expect((await f.ds.saveChanges()).success).toBe(true)
+   expect(references).not.toHaveBeenCalled();expect(f.writes()).toBe(1)
+   expect(f.stored.map(row=>row['id'])).toEqual(['2'])
+  }finally{f.ds.destroy()}
+ })
  it.each(['abandon','failure'])('preserves later unknown ownership during earlier verification: %s',async mode=>{
   const f=await fixture();let release=()=>{};const waiting=new Promise<void>(resolve=>{release=resolve})
   const makeOwner=(pause:boolean)=>{

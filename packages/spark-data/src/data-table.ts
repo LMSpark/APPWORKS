@@ -56,6 +56,8 @@ export type DataTableQueryReferenceChange = Readonly<{
 
 /** 同一模型按实际派发顺序的累计引用检查；所有提交前缀均须成立，不承诺跨来源事务。 */
 export type DataTableQuerySaveReferences = Readonly<{
+  /** 仅对指定操作读取依赖并检查引用；省略检查全部。排除操作仍执行原查询身份和数据权限校验。 */
+  operations?: ReadonlyArray<'create'|'update'|'delete'>
   /** 回调所需可读业务字段，不允许主键及内部凭据。 */
   fields: readonly string[]
   /** 更新时触发检查的依赖字段；新增、删除始终参加。 */
@@ -192,9 +194,10 @@ export class DataTable {
     if(references){
       checkFields(references.fields)
       if(new Set(references.triggerFields).size!==references.triggerFields.length||references.triggerFields.some(field=>!references.fields.includes(field)))throw new Error('DATA_TABLE_SAVE_RULE: 引用触发字段须属于声明依赖')
+      if(references.operations&&(!references.operations.length||new Set(references.operations).size!==references.operations.length||references.operations.some(operation=>!['create','update','delete'].includes(operation))))throw new Error('DATA_TABLE_SAVE_RULE: 引用操作须非空且唯一')
     }
     this.#querySaveRule = Object.freeze({fields: Object.freeze([...rule.fields]), validate: rule.validate,
-      ...(references===undefined?{}:{references:Object.freeze({fields:Object.freeze([...references.fields]),triggerFields:Object.freeze([...references.triggerFields]),validate:references.validate})})})
+      ...(references===undefined?{}:{references:Object.freeze({fields:Object.freeze([...references.fields]),triggerFields:Object.freeze([...references.triggerFields]),...(references.operations===undefined?{}:{operations:Object.freeze([...references.operations])}),validate:references.validate})})})
   }
 
   // ===== 视图容器 =====

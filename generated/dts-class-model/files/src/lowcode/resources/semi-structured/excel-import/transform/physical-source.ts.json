@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/transform/physical-source",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/transform/physical-source",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/physical-source\n职责：按Excel节点的正式应用和物理路径定位唯一元数据对象。\n边界：只查询原DataSet的独立视图，不改变选择器、业务数据或保存入口。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelPhysicalObjectInput"
+    ]
+  },
+  "$defs": {
+    "ExcelPhysicalObjectInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelPhysicalObjectInput",
+      "properties": {
+        "source": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "applicationId": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "allowView": {
+          "type": "boolean"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.check.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T20:25:44.814Z",
+  "models": {
+    "ExcelPhysicalObjectInput": {
+      "name": "ExcelPhysicalObjectInput",
+      "jsdoc": "原来源实例、明确应用和库名@对象名；可选视图回退遵循表优先。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原PageRuntime按需装配的34B来源。 */\n    source: DataSet;\n    /** 当前节点的可读应用身份。 */\n    applicationId: string;\n    /** 当前节点的可读物理路径，不接受内部模型键。 */\n    path: string;\n    /** 仅实际允许物理视图的消费者显式启用，默认只接受表。 */\n    allowView?: boolean;\n    /** 每次异步边界核对原实例和目标。 */\n    check(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原PageRuntime按需装配的34B来源。 */\n    source: DataSet;\n    /** 当前节点的可读应用身份。 */\n    applicationId: string;\n    /** 当前节点的可读物理路径，不接受内部模型键。 */\n    path: string;\n    /** 仅实际允许物理视图的消费者显式启用，默认只接受表。 */\n    allowView?: boolean;\n    /** 每次异步边界核对原实例和目标。 */\n    check(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "jsdoc": "原PageRuntime按需装配的34B来源。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationId",
+              "jsdoc": "当前节点的可读应用身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "当前节点的可读物理路径，不接受内部模型键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "allowView",
+              "jsdoc": "仅实际允许物理视图的消费者显式启用，默认只接受表。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "check",
+              "jsdoc": "每次异步边界核对原实例和目标。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

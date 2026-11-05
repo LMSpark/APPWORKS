@@ -6,12 +6,12 @@ import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {Spark, PAGE_RUNTIME, RendererForm, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import JsonArrayRows from '../../../../packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayRows.vue'
-import type {JsonArrayRowAdapter} from '../../../../packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props'
+import type {JsonArrayRowAdapter,RJsonProps} from '../../../../packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.props'
 
 const wrappers: VueWrapper[] = [], runtimes: PageRuntime[] = []
 const originalStubs = {...config.global.stubs}
 afterEach(() => {wrappers.splice(0).forEach(w => w.unmount()); runtimes.splice(0).forEach(r => r.dispose()); config.global.stubs = originalStubs})
-async function fixture(value = '[{"name":"first","count":2,"active":false,"extra":{"x":1}}]', onChange?: (value: string) => Promise<void>, reorderable = false, rowAdapter?: JsonArrayRowAdapter, rowEditMode: 'row' | 'inline' = 'row', onTextChange?: (value: unknown, previous: unknown, control: {cancel: boolean}) => void) {
+async function fixture(value = '[{"name":"first","count":2,"active":false,"extra":{"x":1}}]', onChange?: (value: string) => Promise<void>, reorderable = false, rowAdapter?: JsonArrayRowAdapter, rowEditMode: 'row' | 'inline' = 'row', onTextChange?: (value: unknown, previous: unknown, control: {cancel: boolean}) => void, settings?:Pick<RJsonProps,'rowDefaults'|'emptyArrayAsEmptyText'>) {
   registerAllRenderers()
   const ds = SparkData.fromJson({scenarioId: 'S', dataSetName: 'S', tables: {Models: {resourceType: 'static-data',
     columns: [{name:'id',type:'string',isPrimaryKey:true},{name:'items',type:'string'}],
@@ -21,7 +21,7 @@ async function fixture(value = '[{"name":"first","count":2,"active":false,"extra
   const readonly=ref(false), pending=ref(false), operations=ref<Array<'create'|'edit'|'delete'>|undefined>()
   const host=defineComponent({setup(){useSparkComponent({type:'array-test'}).sparkProvide(PAGE_RUNTIME,runtime)
     return()=>h(RendererForm,{autoColumns:false,showDataViewMeta:false,dataViewKey:'S@Models@default',children:[
-      {type:'r-json',props:{field:'items',label:'数组',mode:'rows',reorderable,rowAdapter,rowEditMode,rowOperations:operations.value,readonly:readonly.value,...onChange?{onChange}:{},onEditingChange:(v:boolean)=>{pending.value=v}},children:[
+      {type:'r-json',props:{field:'items',label:'数组',mode:'rows',reorderable,rowAdapter,rowEditMode,...settings,rowOperations:operations.value,readonly:readonly.value,...onChange?{onChange}:{},onEditingChange:(v:boolean)=>{pending.value=v}},children:[
         {type:'r-text',props:{field:'name',label:'名称',onChange:onTextChange}},{type:'r-number',props:{field:'count',label:'数量'}},
         {type:'r-checkbox',props:{field:'active',label:'启用'}},
       ]},
@@ -32,6 +32,24 @@ async function fixture(value = '[{"name":"first","count":2,"active":false,"extra
   wrappers.push(wrapper);await flushPromises();return{wrapper,view,readonly,pending,operations}
 }
 describe('standard JSON array rows',()=>{
+  it('applies configured defaults only to a newly started row, and cancel never writes them to existing records',async()=>{
+    const f=await fixture('[{"name":"legacy"}]',undefined,false,undefined,'row',undefined,{rowDefaults:{count:5,active:false}})
+    expect(f.view.hasEditingChanges()).toBe(false)
+    await f.wrapper.get('[data-json-add]').trigger('click');await flushPromises()
+    expect(f.wrapper.findAll('tbody tr').at(-1)!.find('input[role="spinbutton"]').element).toHaveProperty('value','5')
+    await f.wrapper.get('[data-json-cancel-row]').trigger('click');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.view.rows[0]?.['items']).toBe('[{"name":"legacy"}]')
+    await f.wrapper.get('[data-json-add]').trigger('click');await flushPromises()
+    await f.wrapper.get('[data-json-save-row]').trigger('click');await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['items']))).toEqual([{name:'legacy'},{count:5,active:false}])
+  })
+  it('writes an explicitly configured empty text array as an empty string through the original field',async()=>{
+    const f=await fixture(undefined,undefined,false,undefined,'row',undefined,{emptyArrayAsEmptyText:true})
+    await f.wrapper.get('tbody tr').trigger('click');await f.wrapper.get('[data-json-delete]').trigger('click');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['items']).toBe('')
+    expect(f.view.rows[0]?.['items']).toContain('first')
+  })
   it('rejects disabled create and delete commands even when component events bypass disabled buttons',async()=>{
     const f=await fixture();f.operations.value=['edit'];await flushPromises()
     await f.wrapper.get('tbody tr').trigger('click')

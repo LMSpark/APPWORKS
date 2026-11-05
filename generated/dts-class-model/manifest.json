@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1072,
+  "scannedFileCount": 1074,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14100,6 +14100,21 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/transform/physical-source",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/physical-source",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/physical-source\n职责：按Excel节点的正式应用和物理路径定位唯一元数据对象。\n边界：只查询原DataSet的独立视图，不改变选择器、业务数据或保存入口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelPhysicalObjectInput"
+        ]
+      }
+    },
     "src/lowcode/resources/semi-structured/excel-import/transform/pipeline.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/pipeline.ts.json",
       "module": {
@@ -14143,6 +14158,22 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ExcelTransformReferenceOwner"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/transform/sort-fields",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/sort-fields",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/sort-fields\n职责：沿原运行实例读取Excel排序物理字段，并在原节点模型保存链验证排序。\n边界：不缓存业务行、不持有排序草稿、不提交或规范化既有定义。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelSortOwner",
+          "ExcelSortFieldDirectory"
         ]
       }
     },
@@ -20409,6 +20440,18 @@
     "ExcelFieldReference": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/field-reference.ts.json"
+    },
+    "ExcelPhysicalObjectInput": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts.json"
+    },
+    "ExcelSortFieldDirectory": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts.json"
+    },
+    "ExcelSortOwner": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts.json"
     },
     "ExcelStoredReference": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",

@@ -52,6 +52,8 @@ const props = defineProps<{
   readOnly: boolean
   /** 原字段允许的行操作子集；省略保持全部，不能扩大原字段权限。 */
   rowOperations?: Array<'create'|'edit'|'delete'> | undefined
+  /** 仅新行使用，不补既有行或覆盖已开始的行草稿。 */
+  rowDefaults?: Readonly<Record<string,unknown>> | undefined
   /** 数组字段按标准子组件描述；未声明的属性保留。 */
   children?: SparkNodeChildren | undefined
   /** 表格高度。 */
@@ -163,7 +165,7 @@ function begin(create: boolean): void {
   if (locked.value || editing.value !== null || !view.value || !create && selectedIndex.value < 0 || !canEdit(create ? undefined : selected.value)) return
   if (inline.value && create) {
     try {
-      const initial = props.rowAdapter ? object(props.rowAdapter.read({})) : {}
+      const initial = object({...props.rowDefaults,...(props.rowAdapter ? object(props.rowAdapter.read({})) : {})})
       const row = props.rowAdapter ? object(props.rowAdapter.write(initial,undefined)) : initial
       void publish(JSON.stringify([...view.value.rows.map(item => originals.get(String(item[rowKey]))),row]),selectedIndex.value < 0 ? undefined : selectedIndex.value)
     } catch (cause) {message.value = cause instanceof Error ? cause.message : String(cause)}
@@ -172,7 +174,7 @@ function begin(create: boolean): void {
   if (create) {
     const id = `new-${++sequence}`
     try {
-      const initial = props.rowAdapter ? object(props.rowAdapter.read({})) : {}
+      const initial = object({...props.rowDefaults,...(props.rowAdapter ? object(props.rowAdapter.read({})) : {})})
       view.value.replaceRows([...view.value.rows, {...Object.fromEntries(names.filter(name => Object.hasOwn(initial,name)).map(name => [alias(name),initial[name]])),[rowKey]: id}]); selected.value = id; added = true
     } catch (cause) {message.value = cause instanceof Error ? cause.message : String(cause);return}
   }

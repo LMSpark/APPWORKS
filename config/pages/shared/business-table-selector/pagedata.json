@@ -31,6 +31,9 @@
     "Base_TblField": {
       "modelBinding": {"modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a", "modelName": "Base_TblField"},
       "views": {
+        "excelSortFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "valueField": "enname", "labelField": "cnname", "filterExpression": {"field": "tblid", "operator": "eq", "value": ""},
+          "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
         "storedTableText": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname", "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
         "storedTableValue": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname", "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
         "storedViewText": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname", "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},

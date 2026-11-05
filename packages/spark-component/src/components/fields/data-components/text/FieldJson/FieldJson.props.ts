@@ -55,6 +55,10 @@ export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
   reorderable?: boolean
   /** rows模式的领域行适配。省略时对象成员直接对应子字段；适配改变会撤销未确认行编辑。row确认失败保留行草稿；inline输入失败保留原值。均不修改原字段。 */
   rowAdapter?: JsonArrayRowAdapter
+  /** rows模式仅在开始新增行时使用的JSON成员默认值；不补齐既有行、不改写当前行草稿，取消新增不写原字段。 */
+  rowDefaults?: Readonly<Record<string,JsonValue>>
+  /** 显式将text格式、无valuePath的rows根字段空数组写为空串；默认写[]，native及子路径保持原行为。只在实际编辑接纳时转换，不规范化既有原值。 */
+  emptyArrayAsEmptyText?:boolean
   /** rows模式允许的行操作；省略允许新增、编辑、删除，空数组全部禁止。只进一步限制原字段权限，不产生授权。变化时撤销未确认的行输入，旧事件失效；已派发的原字段提交不承诺回滚。重排仍由reorderable独立控制。 */
   rowOperations?: Array<'create' | 'edit' | 'delete'>
   /** rows模式默认row显式确认每行；inline直接显示标准子字段并按输入顺序写原字段编辑域，只有新增/删除，不增加后端提交。回传保留输入焦点与选择；异步写入期间onEditingChange为true，外层保存应等待，取消或换绑定使旧输入失效。 */

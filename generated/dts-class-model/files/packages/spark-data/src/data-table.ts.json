@@ -119,6 +119,16 @@
       "type": "object",
       "title": "DataTableQuerySaveReferences",
       "properties": {
+        "operations": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "create",
+              "update",
+              "delete"
+            ]
+          }
+        },
         "fields": {
           "type": "array",
           "items": {
@@ -486,7 +496,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T17:32:27.607Z",
+  "generatedAt": "2026-11-05T20:53:02.169Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -616,16 +626,22 @@
       "jsdoc": "同一模型按实际派发顺序的累计引用检查；所有提交前缀均须成立，不承诺跨来源事务。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 回调所需可读业务字段，不允许主键及内部凭据。 */\n    fields: readonly string[];\n    /** 更新时触发检查的依赖字段；新增、删除始终参加。 */\n    triggerFields: readonly string[];\n    /** 只读校验该模型的本次累计变化；每个派发前缀均在首写前检查，等待后公共链重核身份、权限及实际变化。 */\n    validate(input: Readonly<{\n        changes: readonly DataTableQueryReferenceChange[];\n    }>): Promise<void>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 仅对指定操作读取依赖并检查引用；省略检查全部。排除操作仍执行原查询身份和数据权限校验。 */\n    operations?: ReadonlyArray<'create' | 'update' | 'delete'>;\n    /** 回调所需可读业务字段，不允许主键及内部凭据。 */\n    fields: readonly string[];\n    /** 更新时触发检查的依赖字段；新增、删除始终参加。 */\n    triggerFields: readonly string[];\n    /** 只读校验该模型的本次累计变化；每个派发前缀均在首写前检查，等待后公共链重核身份、权限及实际变化。 */\n    validate(input: Readonly<{\n        changes: readonly DataTableQueryReferenceChange[];\n    }>): Promise<void>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 回调所需可读业务字段，不允许主键及内部凭据。 */\n    fields: readonly string[];\n    /** 更新时触发检查的依赖字段；新增、删除始终参加。 */\n    triggerFields: readonly string[];\n    /** 只读校验该模型的本次累计变化；每个派发前缀均在首写前检查，等待后公共链重核身份、权限及实际变化。 */\n    validate(input: Readonly<{\n        changes: readonly DataTableQueryReferenceChange[];\n    }>): Promise<void>;\n}>",
+            "typeText": "Readonly<{\n    /** 仅对指定操作读取依赖并检查引用；省略检查全部。排除操作仍执行原查询身份和数据权限校验。 */\n    operations?: ReadonlyArray<'create' | 'update' | 'delete'>;\n    /** 回调所需可读业务字段，不允许主键及内部凭据。 */\n    fields: readonly string[];\n    /** 更新时触发检查的依赖字段；新增、删除始终参加。 */\n    triggerFields: readonly string[];\n    /** 只读校验该模型的本次累计变化；每个派发前缀均在首写前检查，等待后公共链重核身份、权限及实际变化。 */\n    validate(input: Readonly<{\n        changes: readonly DataTableQueryReferenceChange[];\n    }>): Promise<void>;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "operations",
+              "jsdoc": "仅对指定操作读取依赖并检查引用；省略检查全部。排除操作仍执行原查询身份和数据权限校验。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "fields",
               "jsdoc": "回调所需可读业务字段，不允许主键及内部凭据。",

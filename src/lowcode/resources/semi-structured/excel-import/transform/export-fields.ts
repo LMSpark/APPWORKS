@@ -9,6 +9,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {excelTransformEnumValue} from './definition'
 import {readExcelTransformRows} from './queries'
+import {resolveExcelPhysicalObject} from './physical-source'
 /** 原运行实例及当前节点的精确导出来源。 */
 export type ExcelTransformExportSource=Readonly<{
  /** 原设计DataSet，不另装配同空间。 */
@@ -63,19 +64,13 @@ export async function readExcelTransformExportFields(input:ExcelTransformExportS
  const source=page.getDataSet(sourceId)
  if(!source||source.destroyed)throw Error('转换导出缺少正式物理来源空间')
  const guarded=()=>{check();if(page.getDataSet(sourceId)!==source||source.destroyed)throw Error('转换导出物理来源实例已变化')}
- const table=input.node['table'],app=input.node['relatedappid'],parts=typeof table==='string'?table.split('@'):[]
- if(parts.length!==2||!parts[0]||!parts[1]||typeof app!=='string'||!app)throw Error('转换导出缺少正式应用及库表路径')
- const relations=await readExcelTransformRows({dataSet:source,table:'Base_AppAndSource_Relation',viewId:'excelStoredDatabases',fields:['sysid','conName','conid'],filter:{logic:'and',filters:[{field:'sysid',operator:'eq',value:app},{field:'conName',operator:'eq',value:parts[0]}]},check:guarded})
- const databaseIds=new Set(relations.map(row=>row['conid']))
- const db=[...databaseIds][0]
- if(!relations.length||databaseIds.size!==1||typeof db!=='string'||!db||relations.some(row=>row['sysid']!==app||row['conName']!==parts[0]))throw Error('转换导出的数据库归属或运行库名不唯一')
- const tables=await readExcelTransformRows({dataSet:source,table:'_Base_TblList',viewId:'excelStoredObject',fields:['rowid','tblname'],filter:{logic:'and',filters:[{field:'dbid',operator:'eq',value:db},{field:'tblname',operator:'eq',value:parts[1]}]},check:guarded})
- const physical=tables[0]
- if(tables.length!==1||physical?.['tblname'] !== parts[1]||typeof physical['rowid']!=='string'||!physical['rowid'])throw Error('转换导出物理表不存在或不唯一')
- const columns=await readExcelTransformRows({dataSet:source,table:'Base_TblField',viewId:'excelFields',fields:['rowid','tblid','enname'],filter:{logic:'and',filters:[{field:'tblid',operator:'eq',value:physical['rowid']},{field:'enname',operator:'in',value:[...names]}]},check:guarded})
+ const table=input.node['table'],app=input.node['relatedappid']
+ if(typeof table!=='string'||typeof app!=='string'||!app)throw Error('转换导出缺少正式应用及库表路径')
+ const physical=await resolveExcelPhysicalObject({source,applicationId:app,path:table,check:guarded})
+ const columns=await readExcelTransformRows({dataSet:source,table:'Base_TblField',viewId:'excelFields',fields:['rowid','tblid','enname'],filter:{logic:'and',filters:[{field:'tblid',operator:'eq',value:physical.objectId},{field:'enname',operator:'in',value:[...names]}]},check:guarded})
  const found=new Set<string>(),ids=new Set<unknown>()
  for(const row of columns){
-  const name=row['enname'];if(typeof name!=='string'||!names.has(name)||row['tblid']!==physical['rowid']||found.has(name)||ids.has(row['rowid']))throw Error('转换导出物理字段身份或名称不唯一')
+  const name=row['enname'];if(typeof name!=='string'||!names.has(name)||row['tblid']!==physical.objectId||found.has(name)||ids.has(row['rowid']))throw Error('转换导出物理字段身份或名称不唯一')
   found.add(name);ids.add(row['rowid'])
  }
  for(const field of after)if(!before.has(field)&&!found.has(field))throw Error(`本次导出新增的查询字段不存在于物理表: ${field}`)

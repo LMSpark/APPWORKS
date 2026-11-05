@@ -57,7 +57,13 @@
                 :column-table="filterTable" :readonly="locked" :on-editing-change="value => pending('nodes.filters',value)" />
               <RendererFilterExpression v-else :data-view-key="nodesKey" data-member="currentRow" field="filters" format="spark-json" title="导出过滤条件" :columns="[]" :readonly="true" />
             </section>
-            <FieldJson field="sorted" label="排序规则" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.sorted',value)" />
+            <section class="excel-filter-definition">
+              <h3>导出排序</h3>
+              <p v-if="sortState.error" role="status">{{ sortState.error }}</p>
+              <RendererButton :label="sortMode==='rows'?'完整JSON编辑':'返回排序表'" :disabled="busy || pendingPart('nodes')" @click="sortMode=sortMode==='rows'?'text':'rows'" />
+              <FieldJson field="sorted" label="排序规则" :mode="sortMode" :children="sortChildren" :row-defaults="{Type:'ascending'}" :empty-array-as-empty-text="true"
+                :readonly="locked || sortMode==='rows' && !sortState.ready" :on-change="validateSorted" :on-editing-change="value => pending('nodes.sorted',value)" />
+            </section>
           </RendererForm>
           <RendererButton :data-view-key="nodesKey" label="选择目标数据" perm-action="edit" :disabled="locked || !!targetChange || !targetAllowed" @click="openTarget" />
               </template>
@@ -132,6 +138,7 @@ import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-impo
 import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
 import {ExcelConfigurationRemoval} from '@/lowcode/resources/semi-structured/excel-import/configuration-removal'
 import {assertExcelFieldRemoval} from '@/lowcode/resources/semi-structured/excel-import/edit-references'
+import {ExcelSortFieldDirectory,readExcelSortFields} from '@/lowcode/resources/semi-structured/excel-import/transform/sort-fields'
 import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
 import {ExcelAssociationFields} from '@/lowcode/resources/semi-structured/excel-import/association-fields'
 import {ExcelFieldReference} from '@/lowcode/resources/semi-structured/excel-import/field-reference'
@@ -154,6 +161,7 @@ const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-edito
 const dataSet = shallowRef<DataSet>(), catalog = shallowRef<DataSet>(), opening = ref(false), ready = ref(false), acting = ref(false), error = ref(''), revision = ref(0)
 const inputs = ref(new Set<string>())
 const activeTopTab=ref<string|number>('basic'),activeBottomTab=ref<string|number>('fields')
+const sortMode=ref<'rows'|'text'>('rows'),sortDirectory=shallowRef<ExcelSortFieldDirectory>()
 const sourceTargetId = ref(''), targetChange = shallowRef<ExcelConfigurationEdit>()
 const recoveryNotice = ref('')
 const association = shallowRef<ExcelAssociationFields>()
@@ -176,6 +184,23 @@ const locked = computed(() => busy.value || unconfirmed.value || !!removal.value
 const hasPending = computed(() => {revision.value; return acting.value || !!targetChange.value || !!removal.value || !!fieldReference.value || inputs.value.size > 0 || views.value.some(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty() {return opening.value || hasPending.value}})
 const selectedNode = computed(() => {revision.value; return view(nodesTable)?.currentRow ?? null})
+const sortState=computed(()=>{revision.value;return {ready:sortDirectory.value?.ready===true,error:sortDirectory.value?.error??''}})
+const sortChildren=computed<SparkNode[]>(()=>[
+  {type:'r-select',props:{field:'Field',label:'字段',filterable:true,clearable:false,...(sortState.value.ready?{optionDataViewKey:sortDirectory.value?.dataViewKey,optionLabelFields:['cnname','enname']}: {})}},
+  {type:'r-select',props:{field:'Type',label:'排序类型',clearable:false,options:[{value:'ascending',label:'升序'},{value:'descending',label:'降序'}]}},
+])
+watch([()=>sortDirectory.value,()=>selectedNode.value,()=>{
+  revision.value
+  try{
+  const nodes=view(nodesTable),row=nodes?.currentRow,id=row?nodes?.getPkKey(row):undefined,editing=id===undefined?undefined:nodes?.getEditingRow(id)
+  return JSON.stringify([nodes?.queryContext,nodes?.requestState,...['rowid','schemeid','relatedappid','table'].map(field=>[row?.[field],editing?.[field],row?nodes?.fieldAccess(row,field).read:undefined])])
+  }catch{return '排序来源不可读'}
+}],()=>{
+  const directory=sortDirectory.value
+  if(!directory)return
+  void directory.load().finally(()=>{if(active&&sortDirectory.value===directory)revision.value++})
+  revision.value++
+},{flush:'sync'})
 const filterTable=computed(()=>{
   revision.value
   const source=view(nodesTable),row=source?.currentRow
@@ -224,6 +249,7 @@ function pending(id: string, editing: boolean): void {if (editing) inputs.value.
 function pendingPart(prefix: string): boolean {return [...inputs.value].some(id => id.startsWith(prefix + '.'))}
 function isUnconfirmed(table: string): boolean {revision.value; return view(table)?.hasUnconfirmedSave === true}
 function validateJson(value: unknown): void {if (typeof value !== 'string') throw new Error('配置必须是JSON文本'); if (value.trim()) parseJsonDocument(value)}
+function validateSorted(value:unknown):void{readExcelSortFields(value)}
 function activeLayout(value:unknown):boolean {
   if(typeof value!=='string'||!value.trim())return false
   try{const layout=parseJsonDocument(value);return !Array.isArray(layout)&&Boolean(layout['enabled'])}catch{return false}
@@ -248,7 +274,7 @@ defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 watch(importConfigId, async id => {
   const own = ++generation
   sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined; fieldReference.value=undefined
-  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime=undefined; dataSet.value=undefined; catalog.value=undefined
+  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sortDirectory.value?.dispose();sortDirectory.value=undefined;sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime=undefined; dataSet.value=undefined; catalog.value=undefined
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
@@ -262,6 +288,7 @@ watch(importConfigId, async id => {
     if (!target || !nodes) throw new Error('Excel正式设计视图缺失')
     if ([nodesTable,fieldsTable,rulesTable].some(name=>view(name)?.commitMode!=='staged')) throw new Error('Excel设计必须使用正式暂存视图')
     association.value = new ExcelAssociationFields(dataSet.value!)
+    sortDirectory.value = new ExcelSortFieldDirectory({dataSet:dataSet.value!,getPage:()=>page},()=>{if(active)revision.value++})
     const changed=()=>revision.value++
     unsubscribers=[catalog.value!,dataSet.value!].map(ds=>ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed}))
     await target.refresh(); if (target.loadingError) throw target.loadingError
@@ -379,7 +406,7 @@ async function addNode(mode: 'root' | 'sibling' | 'child'): Promise<void> {
     if (current && (target.fieldAccess(current, 'schemeid').read !== 'visible' || current['schemeid'] !== importConfigId.value)) throw new Error('当前配置不属于本方案')
     if (mode === 'sibling' && current && target.fieldAccess(current, 'pid').read !== 'visible') throw new Error('当前配置父级不可读')
     const pid = mode === 'child' ? id : mode === 'sibling' && current ? current['pid'] || importConfigId.value : importConfigId.value
-    target.setCurrentRow(await target.addRow({pid, sheet: 0, sheetName: '', titleIndex: 1, dataIndex: 2, exportType: 'tree'}))
+    target.setCurrentRow(await target.addRow({pid, sheet: 0, sheetName: '', titleIndex: 1, dataIndex: 2, exportType: 'tree',relatedappid:'',table:'',sorted:''}))
   })
 }
 async function remove(table: string): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{
@@ -394,7 +421,7 @@ async function remove(table: string): Promise<void> {if(unconfirmed.value)return
   }
   await target.removeRow(id)
 })}
-onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off());sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
+onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off());sortDirectory.value?.dispose();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
 </script>
 
 <style scoped>

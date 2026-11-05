@@ -3482,6 +3482,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const items=[...this.querySaveRuleRows(capture).map(item=>({...item,kind:item.created?'create' as const:'update' as const})),
       ...capture.deleted.map(item=>({...item,created:false,kind:'delete' as const,fields:new Set<string>()}))]
     return items.flatMap(item=>{
+      if(references.operations&&!references.operations.includes(item.kind))return []
       const changedFields=references.fields.filter(field=>item.fields.has(field))
       if(item.kind==='update'&&!references.triggerFields.some(field=>item.fields.has(field)))return []
       const original=item.created?undefined:capture.context.rows.filter(row=>this.querySaveKey(capture.context,row)===this.querySaveKey(capture.context,item.row))

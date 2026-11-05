@@ -8,7 +8,9 @@ const DESIGN = '0F93B82141CF40852021D704B0E30BF4', loaded: DataSet[] = []
 beforeEach(() => {
   state.scope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'EXECUTION_APP'}})
   state.load.mockReset(); state.load.mockImplementation(async ({scenarioId}: {scenarioId: string}) => {
-    const ds = SparkData.fromJson({scenarioId, dataSetName: 'Excel配置', tables: {Base_Import_Transform_Rule:{modelBinding:{modelId:'b3ca28c2-432c-4374-ac20-bb98a85c2098',modelName:'Base_Import_Transform_Rule'},columns:[{name:'id',type:'string',isPrimaryKey:true},...['scheme_id','config_id','rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'].map(name=>({name,type:['sort_order','enabled'].includes(name)?'int':'string'}))],views:{default:{commitMode:'staged'}}}}}); loaded.push(ds); return ds
+    const ds = SparkData.fromJson({scenarioId, dataSetName: 'Excel配置', tables: {
+      Base_ImportData_Config:{modelBinding:{modelId:'0F93B82141CF40852021D704B0E30BF4p000',modelName:'Base_ImportData_Config'},columns:[{name:'rowid',type:'string',isPrimaryKey:true},...['schemeid','relatedappid','table','sorted'].map(name=>({name,type:'string'}))],views:{default:{commitMode:'staged'}}},
+      Base_Import_Transform_Rule:{modelBinding:{modelId:'b3ca28c2-432c-4374-ac20-bb98a85c2098',modelName:'Base_Import_Transform_Rule'},columns:[{name:'id',type:'string',isPrimaryKey:true},...['scheme_id','config_id','rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'].map(name=>({name,type:['sort_order','enabled'].includes(name)?'int':'string'}))],views:{default:{commitMode:'staged'}}}}}); loaded.push(ds); return ds
   })
 })
 afterEach(() => loaded.splice(0).forEach(ds => ds.destroy()))
@@ -16,7 +18,7 @@ describe('Excel independent design source', () => {
   it('loads the independent scene without attaching a synthetic file-design table', async () => {
     const ds = await LowcodeExcelImport.loadEditor(DESIGN)
     expect(state.load).toHaveBeenCalledExactlyOnceWith({projectId: 'EXECUTION_APP', scenarioId: DESIGN})
-    expect(Object.keys(ds.tables)).toEqual(['Base_Import_Transform_Rule'])
+    expect(Object.keys(ds.tables)).toEqual(['Base_ImportData_Config','Base_Import_Transform_Rule'])
     expect(ds.getView('Base_Import_Transform_Rule')?.dataTable?.querySaveRule?.fields).toEqual(['rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'])
   })
   it('rejects the catalog scene as the editor source', async () => {

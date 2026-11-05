@@ -1,0 +1,490 @@
+{
+  "scope": "Original SPARK data Excel sorting configuration save, independent formal reopen, four real XLSX exports using unmapped physical sort fields and exact cleanup; no import or relative layout execution",
+  "nativeExit": 0,
+  "codeCheckpoint": "e369857bff0c8effb3c2d62a2490f9c923fa9fca",
+  "probe": {
+    "path": "artifacts/data-chain-smoke/excel-sort-owned-v1.mts",
+    "sha256": "98ce969edc77d11c3d1156f437eb059be39808879529d662390129b40f9d3f7b",
+    "wrapperProcessId": 28440,
+    "driverSession": 45536
+  },
+  "limitations": [
+    "Native service probe is not a browser pixel acceptance or a public ExportExcel SDK integration.",
+    "Source hash covers six named formal fields of the three exclusively created source records.",
+    "No denied-permission, import, relative-layout or all-20-package completion claim."
+  ],
+  "phase": "confirmed",
+  "processId": 28052,
+  "testedAt": "2026-11-05T21:10:49.937Z",
+  "physicalSource": {
+    "table": "QYVirtualPlat@Base_Import_solution",
+    "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+    "columns": [
+      "rowid",
+      "dataSetId",
+      "coding",
+      "solutionName"
+    ]
+  },
+  "physicalDirectory": {
+    "ready": true,
+    "nonmappedFields": [
+      "coding",
+      "dataSetId"
+    ]
+  },
+  "schemeId": "990342635B5F47E28440EC834D506A00",
+  "sourceRowIds": [
+    "837422C07A084FFB87243D8FD420DCCA",
+    "12B3F557480042B7BF6EF7253796A272",
+    "3D30DB0B78EC42B3B6F5CE6F37961D35"
+  ],
+  "nodeId": "5ED5A46A73684380AA03C076F491E604",
+  "mappingIds": [
+    "AC1155F335C040EEB8BFD47B85A482E4"
+  ],
+  "marker": "SMOKE_SORT_1793912844488",
+  "reads": 956,
+  "writes": 16,
+  "blockedRequests": 0,
+  "exports": [
+    {
+      "stage": 0,
+      "sort": [
+        {
+          "Field": "coding",
+          "Type": "ascending"
+        }
+      ],
+      "requestDispatched": true,
+      "byteLength": 3364,
+      "sha256": "40c2d2abecb7bcff318f03fa10fd9be73e5642412e7f68b228b6d87c180df4c4",
+      "sheetCount": 1,
+      "dimensions": [
+        {
+          "rowCount": 4,
+          "columnCounts": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_SORT",
+          "rows": [
+            [
+              "NAME"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S2"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S3"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S1"
+            ]
+          ]
+        }
+      ],
+      "matches": true
+    },
+    {
+      "stage": 1,
+      "sort": [
+        {
+          "Field": "coding",
+          "Type": "descending"
+        }
+      ],
+      "requestDispatched": true,
+      "byteLength": 3364,
+      "sha256": "783704382616adbd8dee8a133d6098a9fda25374073d1c6bbf87b439cc98e452",
+      "sheetCount": 1,
+      "dimensions": [
+        {
+          "rowCount": 4,
+          "columnCounts": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_SORT",
+          "rows": [
+            [
+              "NAME"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S1"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S3"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S2"
+            ]
+          ]
+        }
+      ],
+      "matches": true
+    },
+    {
+      "stage": 2,
+      "sort": [
+        {
+          "Field": "dataSetId",
+          "Type": "ascending"
+        },
+        {
+          "Field": "coding",
+          "Type": "descending"
+        }
+      ],
+      "requestDispatched": true,
+      "byteLength": 3364,
+      "sha256": "683888bec636d17290acbdfd53087a82924538d930ba50a9f2d9080b283ba078",
+      "sheetCount": 1,
+      "dimensions": [
+        {
+          "rowCount": 4,
+          "columnCounts": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_SORT",
+          "rows": [
+            [
+              "NAME"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S1"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S2"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S3"
+            ]
+          ]
+        }
+      ],
+      "matches": true
+    },
+    {
+      "stage": 3,
+      "sort": [
+        {
+          "Field": "dataSetId",
+          "Type": "ascending"
+        },
+        {
+          "Field": "coding",
+          "Type": "ascending"
+        }
+      ],
+      "requestDispatched": true,
+      "byteLength": 3364,
+      "sha256": "7cdbc9f4c4f5c6a1f9ac8a820d6607d5bcb23a55359801f869b36d8405e9c277",
+      "sheetCount": 1,
+      "dimensions": [
+        {
+          "rowCount": 4,
+          "columnCounts": [
+            1,
+            1,
+            1,
+            1
+          ]
+        }
+      ],
+      "verifiedWorkbook": [
+        {
+          "name": "SMOKE_SORT",
+          "rows": [
+            [
+              "NAME"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S2"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S1"
+            ],
+            [
+              "SMOKE_SORT_1793912844488_S3"
+            ]
+          ]
+        }
+      ],
+      "matches": true
+    }
+  ],
+  "sourceBeforeHash": "d1233628a7b4ea3a16376444dc32cbf64b0b27de738d0ca9edc71a403a4a518e",
+  "sourceAfterHash": "d1233628a7b4ea3a16376444dc32cbf64b0b27de738d0ca9edc71a403a4a518e",
+  "acks": [
+    {
+      "label": "create-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "990342635B5F47E28440EC834D506A00"
+      ],
+      "writes": 1
+    },
+    {
+      "label": "create-source-0",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "837422C07A084FFB87243D8FD420DCCA"
+      ],
+      "writes": 2
+    },
+    {
+      "label": "create-source-1",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "12B3F557480042B7BF6EF7253796A272"
+      ],
+      "writes": 3
+    },
+    {
+      "label": "create-source-2",
+      "table": "Base_Import_solution",
+      "kind": "Added",
+      "ids": [
+        "3D30DB0B78EC42B3B6F5CE6F37961D35"
+      ],
+      "writes": 4
+    },
+    {
+      "label": "create-node",
+      "table": "Base_ImportData_Config",
+      "kind": "Added",
+      "ids": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "writes": 5
+    },
+    {
+      "label": "create-fields",
+      "table": "Base_ImportData_Field",
+      "kind": "Added",
+      "ids": [
+        "AC1155F335C040EEB8BFD47B85A482E4"
+      ],
+      "writes": 6
+    },
+    {
+      "label": "sort-stage-0",
+      "table": "Base_ImportData_Config",
+      "kind": "Changed",
+      "ids": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "writes": 7
+    },
+    {
+      "label": "sort-stage-1",
+      "table": "Base_ImportData_Config",
+      "kind": "Changed",
+      "ids": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "writes": 8
+    },
+    {
+      "label": "sort-stage-2",
+      "table": "Base_ImportData_Config",
+      "kind": "Changed",
+      "ids": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "writes": 9
+    },
+    {
+      "label": "sort-stage-3",
+      "table": "Base_ImportData_Config",
+      "kind": "Changed",
+      "ids": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "writes": 10
+    },
+    {
+      "label": "cleanup-fields",
+      "table": "Base_ImportData_Field",
+      "kind": "Deleted",
+      "ids": [
+        "AC1155F335C040EEB8BFD47B85A482E4"
+      ],
+      "writes": 11
+    },
+    {
+      "label": "cleanup-node",
+      "table": "Base_ImportData_Config",
+      "kind": "Deleted",
+      "ids": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "writes": 12
+    },
+    {
+      "label": "cleanup-scheme",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "990342635B5F47E28440EC834D506A00"
+      ],
+      "writes": 13
+    },
+    {
+      "label": "cleanup-source-3D30DB0B78EC42B3B6F5CE6F37961D35",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "3D30DB0B78EC42B3B6F5CE6F37961D35"
+      ],
+      "writes": 14
+    },
+    {
+      "label": "cleanup-source-12B3F557480042B7BF6EF7253796A272",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "12B3F557480042B7BF6EF7253796A272"
+      ],
+      "writes": 15
+    },
+    {
+      "label": "cleanup-source-837422C07A084FFB87243D8FD420DCCA",
+      "table": "Base_Import_solution",
+      "kind": "Deleted",
+      "ids": [
+        "837422C07A084FFB87243D8FD420DCCA"
+      ],
+      "writes": 16
+    }
+  ],
+  "readbacks": [
+    {
+      "stage": 0,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "d1233628a7b4ea3a16376444dc32cbf64b0b27de738d0ca9edc71a403a4a518e"
+    },
+    {
+      "stage": 1,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "d1233628a7b4ea3a16376444dc32cbf64b0b27de738d0ca9edc71a403a4a518e"
+    },
+    {
+      "stage": 2,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "d1233628a7b4ea3a16376444dc32cbf64b0b27de738d0ca9edc71a403a4a518e"
+    },
+    {
+      "stage": 3,
+      "independentRuntime": true,
+      "formalDefinitionMatches": true,
+      "sourceHash": "d1233628a7b4ea3a16376444dc32cbf64b0b27de738d0ca9edc71a403a4a518e"
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "rowid",
+      "values": [
+        "AC1155F335C040EEB8BFD47B85A482E4"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Config",
+      "field": "rowid",
+      "values": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_Import_Transform_Rule",
+      "field": "config_id",
+      "values": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "total": 0
+    },
+    {
+      "table": "Base_ImportData_Field",
+      "field": "configid",
+      "values": [
+        "5ED5A46A73684380AA03C076F491E604"
+      ],
+      "total": 0
+    }
+  ],
+  "unknown": false,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-05T21:10:48.202Z",
+  "cleanupAssertions": {
+    "validatedByProbeBeforeConfirmed": true,
+    "independentRuntime": true,
+    "schemeIds": [
+      "990342635B5F47E28440EC834D506A00",
+      "837422C07A084FFB87243D8FD420DCCA",
+      "12B3F557480042B7BF6EF7253796A272",
+      "3D30DB0B78EC42B3B6F5CE6F37961D35"
+    ],
+    "solutionAndNodeScopesEmpty": true,
+    "exactChildQueries": [
+      {
+        "table": "Base_ImportData_Field",
+        "field": "rowid",
+        "values": [
+          "AC1155F335C040EEB8BFD47B85A482E4"
+        ],
+        "total": 0
+      },
+      {
+        "table": "Base_ImportData_Config",
+        "field": "rowid",
+        "values": [
+          "5ED5A46A73684380AA03C076F491E604"
+        ],
+        "total": 0
+      },
+      {
+        "table": "Base_Import_Transform_Rule",
+        "field": "config_id",
+        "values": [
+          "5ED5A46A73684380AA03C076F491E604"
+        ],
+        "total": 0
+      },
+      {
+        "table": "Base_ImportData_Field",
+        "field": "configid",
+        "values": [
+          "5ED5A46A73684380AA03C076F491E604"
+        ],
+        "total": 0
+      }
+    ]
+  }
+}

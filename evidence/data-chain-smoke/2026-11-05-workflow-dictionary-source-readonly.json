@@ -1,0 +1,376 @@
+{
+  "sourceCommit": "5d3b580f4",
+  "scope": "read-only current dictionary definitions/entries and native workflow SourceReader.prepare; no persisted workflow binding or dictionary execution performed",
+  "phase": "confirmed",
+  "reads": 48,
+  "writes": 0,
+  "blockedWriteAttempts": 0,
+  "loginCallsExcluded": true,
+  "allDictionaryDataReadOnly": true,
+  "samples": [
+    {
+      "dictionaryId": "004F5F9B6A044BBB9891F57E2A560399",
+      "name": "Dict_encryption_rule",
+      "dictionaryType": "0",
+      "entryCount": 4,
+      "definitionLabels": {
+        "val": null,
+        "txt": null
+      },
+      "source": {
+        "type": "dict",
+        "id": "004F5F9B6A044BBB9891F57E2A560399",
+        "name": "Dict_encryption_rule",
+        "description": "加密规则",
+        "dbid": "",
+        "databaseName": "",
+        "providerId": ""
+      },
+      "preparedModel": {
+        "Type": "字典",
+        "MetaName": "Dict_encryption_rule",
+        "description": "加密规则",
+        "DbId": "004F5F9B6A044BBB9891F57E2A560399",
+        "DbName": "",
+        "JoinType": "",
+        "ForeignKeyFields": "",
+        "JoinFilter": "",
+        "PId": ""
+      },
+      "preparedFields": [
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "rowid",
+          "description": "唯一值（ID）",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "val",
+          "description": "编码",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "txt",
+          "description": "显示文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_1",
+          "description": "第二文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_2",
+          "description": "第三文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_3",
+          "description": "第四文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_4",
+          "description": "备注",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "ascending",
+          "Order": 1,
+          "Group": 0,
+          "Name": "ordIdx",
+          "description": "排序字段",
+          "FieldType": "int"
+        }
+      ],
+      "selectedStoredEntry": {
+        "rowid": "88C9D0F72CEE4517A83B500D89BFFE04",
+        "val": "AES256",
+        "txt": "AES加密",
+        "ordIdx": 1
+      },
+      "storedValueType": "string",
+      "entriesFingerprint": "fe6b8b5026f107aa46ddd729275e4ce66828e2c4294f7d03192e678fecba8c9b",
+      "observedAt": "2026-11-05T00:22:31.399Z"
+    },
+    {
+      "dictionaryId": "02CC132E221449B9910FD64357E5A97E",
+      "name": "竞买人报名审核状态",
+      "dictionaryType": "1",
+      "entryCount": 4,
+      "definitionLabels": {
+        "val": null,
+        "txt": null
+      },
+      "source": {
+        "type": "dict",
+        "id": "02CC132E221449B9910FD64357E5A97E",
+        "name": "竞买人报名审核状态",
+        "description": "报名",
+        "dbid": "",
+        "databaseName": "",
+        "providerId": ""
+      },
+      "preparedModel": {
+        "Type": "字典",
+        "MetaName": "竞买人报名审核状态",
+        "description": "报名",
+        "DbId": "02CC132E221449B9910FD64357E5A97E",
+        "DbName": "",
+        "JoinType": "",
+        "ForeignKeyFields": "",
+        "JoinFilter": "",
+        "PId": ""
+      },
+      "preparedFields": [
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "rowid",
+          "description": "唯一值（ID）",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "val",
+          "description": "编码",
+          "FieldType": "double"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "txt",
+          "description": "显示文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_1",
+          "description": "第二文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_2",
+          "description": "第三文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_3",
+          "description": "第四文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "",
+          "Order": 0,
+          "Group": 0,
+          "Name": "exVal_4",
+          "description": "第五文本",
+          "FieldType": "varchar"
+        },
+        {
+          "type": "dataModel",
+          "IsPKey": 0,
+          "IsOutput": 1,
+          "AsName": "",
+          "ValueFun": "",
+          "Expression": "",
+          "allowAIAdd": 0,
+          "OrderType": "ascending",
+          "Order": 1,
+          "Group": 0,
+          "Name": "ordIdx",
+          "description": "排序字段",
+          "FieldType": "int"
+        }
+      ],
+      "selectedStoredEntry": {
+        "rowid": "50211498AEFB44518893DF071563CDF4",
+        "val": "0",
+        "txt": "已通过",
+        "ordIdx": 0
+      },
+      "storedValueType": "string",
+      "entriesFingerprint": "20a6350792574cab6b1322ac69f5f974ff58ee495aede62e7f82554d62c92731",
+      "observedAt": "2026-11-05T00:22:40.565Z"
+    }
+  ],
+  "validation": {
+    "unchangedSourceHashesRechecked": true,
+    "reusedWorkflowTests": 457,
+    "reusedContractTests": 49,
+    "noNewTestBuildOrClassModelRun": true,
+    "baseline": "evidence/data-chain-smoke/2026-11-05-workflow-workspace-runtime.json"
+  },
+  "open": [
+    "numeric dictionary storage string zero to actual service numeric zero",
+    "persisted workflow dictionary model/filter/output and independent reopen",
+    "actual downstream GetInputParam value and type",
+    "dictionary data unchanged after isolated workflow execution",
+    "browser visual acceptance temporarily unavailable by user reply",
+    "full twenty-package scope"
+  ],
+  "testedAt": "2026-11-05T00:22:40.565Z",
+  "hashes": [
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect.mts",
+      "sha256": "1876615bcae31562ce013de8b0b2246798f804c49570247ac07fc2337770daba"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect-run.mts",
+      "sha256": "6d878889438f5e122778c2c33edd664aaee1c77b743d3f3bbef3c564200564a2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect-driver.ps1",
+      "sha256": "1b69dde94d238923aca0b8b9f5d776f557344981a64de62302a51b33aba4a821"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-inspect-audit.json",
+      "sha256": "7c49baafaa0d55cf8fead72286491e4bea31737dd577098c39fb930d100fb6c7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-account-auth.mts",
+      "sha256": "05b8a050ac6b39450ca63e708e1f5e3b88ed785711ff3f42cc7d547ffe29aef4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-dictionary-live-auth-run.mts",
+      "sha256": "6659c40d7f51bfa50701753c1490ef94faee165a99f3fab317c6835012ab7a9c"
+    }
+  ]
+}

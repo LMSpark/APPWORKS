@@ -1,0 +1,481 @@
+{
+  "sourceCommit": "c06433a2be054e24f9851055be43f27a981c0e85",
+  "scope": "workflow manual workspace source/mounted behavior, formal two-parameter presentation and one real API_CALL→query→API_CALL test execution; native API is separate from unverified browser visual acceptance",
+  "workflowId": "00D1E8237F0F42218B78529F65EBA1DF",
+  "marker": "SMOKE_WORKSPACE_LIVE_1793837531015",
+  "lifecycle": "cleaned",
+  "unknown": false,
+  "independentAbsence": true,
+  "phases": {
+    "fixture": {
+      "reads": 38,
+      "writes": 2,
+      "executions": 0
+    },
+    "configure": {
+      "reads": 124,
+      "writes": 14,
+      "executions": 0
+    },
+    "execute": {
+      "reads": 50,
+      "writes": 0,
+      "executions": 1
+    },
+    "cleanup": {
+      "reads": 87,
+      "writes": 5,
+      "executions": 0
+    }
+  },
+  "totals": {
+    "reads": 299,
+    "writes": 21,
+    "executions": 1
+  },
+  "loginExcluded": true,
+  "parameterSynchronization": {
+    "parameters": [
+      {
+        "Description": "本轮隔离触发行主键",
+        "ValueFun": null,
+        "NodeName": "开始",
+        "FieldType": "string",
+        "Value": "8C174537996B4FE8B1AC059C17B84AFB",
+        "Name": "rowid",
+        "rowid": "9AAF8ACA828346F49133F964BE9F384D"
+      },
+      {
+        "Description": "真实触发行名称",
+        "ValueFun": null,
+        "NodeName": "开始",
+        "FieldType": "string",
+        "Value": "SMOKE_WORKSPACE_LIVE_1793837531015_DEFAULT",
+        "Name": "name",
+        "rowid": "90F8D31D7E024791B8E996AB6AB46C08"
+      }
+    ],
+    "output": [
+      {
+        "rowid": "9AAF8ACA828346F49133F964BE9F384D",
+        "pid": null,
+        "Name": "rowid",
+        "Description": "本轮隔离触发行主键",
+        "FieldType": "string",
+        "isParent": false
+      },
+      {
+        "rowid": "90F8D31D7E024791B8E996AB6AB46C08",
+        "pid": null,
+        "Name": "name",
+        "Description": "真实触发行名称",
+        "FieldType": "string",
+        "isParent": false
+      }
+    ]
+  },
+  "testPresentation": {
+    "groups": [
+      {
+        "id": "workflow",
+        "label": "测试参数",
+        "path": [],
+        "fields": [
+          {
+            "id": "9AAF8ACA828346F49133F964BE9F384D",
+            "name": "rowid",
+            "label": "本轮隔离触发行主键",
+            "type": "string"
+          },
+          {
+            "id": "90F8D31D7E024791B8E996AB6AB46C08",
+            "name": "name",
+            "label": "真实触发行名称",
+            "type": "string"
+          }
+        ]
+      }
+    ],
+    "startParams": [
+      {
+        "rowid": "8C174537996B4FE8B1AC059C17B84AFB",
+        "name": "SMOKE_WORKSPACE_LIVE_1793837531015_DEFAULT"
+      }
+    ],
+    "signature": "[{\"id\":\"workflow\",\"label\":\"测试参数\",\"path\":[],\"fields\":[{\"id\":\"9AAF8ACA828346F49133F964BE9F384D\",\"name\":\"rowid\",\"label\":\"本轮隔离触发行主键\",\"type\":\"string\"},{\"id\":\"90F8D31D7E024791B8E996AB6AB46C08\",\"name\":\"name\",\"label\":\"真实触发行名称\",\"type\":\"string\"}]}]"
+  },
+  "actualName": "SMOKE_WORKSPACE_LIVE_1793837531015_ACTUAL",
+  "designDefault": "SMOKE_WORKSPACE_LIVE_1793837531015_DEFAULT",
+  "computedExpression": "{\"Type\":\"GetInputParam\",\"ParamName\":\"91B729231A37175FA11F2D1B7848C7A9.name\"}",
+  "nodes": [
+    {
+      "workflowId": "00D1E8237F0F42218B78529F65EBA1DF",
+      "nodeId": "91B729231A37175FA11F2D1B7848C7A9",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0,
+      "count": 1,
+      "output": [
+        {
+          "rowid": "8C174537996B4FE8B1AC059C17B84AFB",
+          "name": "SMOKE_WORKSPACE_LIVE_1793837531015_ACTUAL"
+        }
+      ]
+    },
+    {
+      "workflowId": "00D1E8237F0F42218B78529F65EBA1DF",
+      "nodeId": "C0A88245F8F4DCE21B3FB0F59B290014",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0.009,
+      "count": 1,
+      "output": [
+        {
+          "fromStartName": "SMOKE_WORKSPACE_LIVE_1793837531015_ACTUAL",
+          "rowid": "8C174537996B4FE8B1AC059C17B84AFB",
+          "description": "owned boundary flow startup",
+          "name": "SMOKE_WORKSPACE_LIVE_1793837531015_ACTUAL"
+        }
+      ]
+    },
+    {
+      "workflowId": "00D1E8237F0F42218B78529F65EBA1DF",
+      "nodeId": "4525F9E55C42C1D18A94C50F8B59231E",
+      "status": "SUCCESS",
+      "errorMsg": null,
+      "execTime": 0,
+      "count": 0,
+      "output": []
+    }
+  ],
+  "runtime": {
+    "workflowInstanceId": "B2F6BC3C85F0487485469CEF2F0C5DFE",
+    "nodeInstances": [
+      {
+        "workflow_instance_id": "B2F6BC3C85F0487485469CEF2F0C5DFE",
+        "node_id": "C0A88245F8F4DCE21B3FB0F59B290014",
+        "status": "SUCCESS",
+        "rowid": "16363E8B3DAC453C840F01E4F99FBDE9"
+      },
+      {
+        "workflow_instance_id": "B2F6BC3C85F0487485469CEF2F0C5DFE",
+        "node_id": "4525F9E55C42C1D18A94C50F8B59231E",
+        "status": "SUCCESS",
+        "rowid": "16FC576F01934EEEB5DB0C797160598C"
+      },
+      {
+        "workflow_instance_id": "B2F6BC3C85F0487485469CEF2F0C5DFE",
+        "node_id": "91B729231A37175FA11F2D1B7848C7A9",
+        "status": "SUCCESS",
+        "rowid": "A330BBAEBDD24420A35650ADD36A3053"
+      }
+    ],
+    "persistedWorkflowInstances": [],
+    "scope": "debug node logs only; no production workflow-instance persistence claim"
+  },
+  "businessReadback": {
+    "fields": [
+      "rowid",
+      "name",
+      "description",
+      "path",
+      "createtime"
+    ],
+    "before": [
+      {
+        "rowid": "8C174537996B4FE8B1AC059C17B84AFB",
+        "description": "owned boundary flow startup",
+        "name": "SMOKE_WORKSPACE_LIVE_1793837531015_ACTUAL",
+        "createtime": "2026-11-05T08:13:09",
+        "path": ""
+      }
+    ],
+    "after": [
+      {
+        "rowid": "8C174537996B4FE8B1AC059C17B84AFB",
+        "description": "owned boundary flow startup",
+        "name": "SMOKE_WORKSPACE_LIVE_1793837531015_ACTUAL",
+        "createtime": "2026-11-05T08:13:09",
+        "path": ""
+      }
+    ],
+    "equal": true
+  },
+  "cleanup": {
+    "nodeIds": [
+      "91B729231A37175FA11F2D1B7848C7A9",
+      "C0A88245F8F4DCE21B3FB0F59B290014",
+      "4525F9E55C42C1D18A94C50F8B59231E"
+    ],
+    "edgeIds": [
+      "252356E5FC445267602041211333110B",
+      "0459B18534DF56113830A09344186D11"
+    ],
+    "modelIds": [
+      "F52C56A437E51CE2430850D3EFB1E8B2",
+      "C0BD7CEE45FA3299A37268F3F77512A1",
+      "5B3578833CCB7AA489B74BD3C6003ABA"
+    ],
+    "fieldCount": 46,
+    "ownedLogIds": [
+      "16363E8B3DAC453C840F01E4F99FBDE9",
+      "16FC576F01934EEEB5DB0C797160598C",
+      "A330BBAEBDD24420A35650ADD36A3053"
+    ],
+    "independentAbsence": true,
+    "cleanedAt": "2026-11-05T00:15:36.904Z"
+  },
+  "validation": {
+    "workflowTests": 457,
+    "workflowFiles": 21,
+    "classModelContractTests": 49,
+    "classModelContractFiles": 4,
+    "typecheckExit": 0,
+    "lintExit": 0,
+    "buildExit": 0,
+    "schemaExit": 0,
+    "codegenExistingViolations": 26,
+    "semanticGaps": 3637,
+    "semanticGateExisting": 677,
+    "noNewSemanticGaps": true,
+    "fullRepo8082NotRerun": true,
+    "postRunFormattingOnly": [
+      {
+        "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+        "testedAndNativeHash": "c1e3c184412f014c1c568ace8a1568cec3481ba1c669f2972a71c4061ee758e4",
+        "finalHash": "cec64ed029340c828828180d19e5b68f96705a745c47f9de3b009d3c5a55e5ed",
+        "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
+      },
+      {
+        "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+        "testedAndNativeHash": "0eb5354bf5b88bab5b112e153d449ad1cfa691343b49609ddefacd55ab144226",
+        "finalHash": "4266588c6c0357094d38b18ca65c37ec04e936ac2468050bd5483f92ac6775c1",
+        "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
+      },
+      {
+        "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",
+        "testedAndNativeHash": "be78acedf3844ec44b846fb303ca0375986e7c59a1ecbfc0823972ac09d8e99a",
+        "finalHash": "cd805d427cd4b5c981953e4aa90e952bfd78acdb009fba990ca549fe610399be",
+        "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
+      },
+      {
+        "path": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+        "testedAndNativeHash": "3207262c061c547172e5227492e917752e8053fa8ac11d3fe62ead746ecd7753",
+        "finalHash": "effb6de18df08ad16af8263be8845a2beff0ffcc5a0a823b32c5cce3f18db3d9",
+        "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
+      },
+      {
+        "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+        "testedAndNativeHash": "dd62ecf2e9576486d28faa6428b30fde79f5919988721e6cd1f0dc0a36a0353b",
+        "finalHash": "641d8fd06e7290349a3c43db7d5f99ee09a97621cc3a8b50e9670dd49cde8de3",
+        "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
+      },
+      {
+        "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+        "testedAndNativeHash": "b58fe5c022771c8ee71fc7a950981b98091b244870840ad23c6c0d9ad8812589",
+        "finalHash": "3a92ffa4225614020a6d8befa910da59850973d5f4f27cb6824d3d386671497c",
+        "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
+      }
+    ],
+    "verification": {
+      "workflow": "workflow-workspace-workflow-tests-frozen.log",
+      "contracts": "workflow-workspace-frozen-contracts.log",
+      "typecheck": "workflow-workspace-frozen-typecheck.log",
+      "lint": "workflow-workspace-frozen-lint.log",
+      "build": "workflow-workspace-frozen-build.log",
+      "schema": "workflow-workspace-final-schema.log",
+      "generation": "workflow-workspace-final-generate.log",
+      "rules": "workflow-workspace-frozen-codegen.log",
+      "semantic": "workflow-workspace-frozen-semantic.log"
+    }
+  },
+  "review": "gpt-6-astra read-only plan, source fixes review and native-scope preflight; root implementation",
+  "open": [
+    "normal browser visual and reference full-page acceptance",
+    "known merge service execution gaps",
+    "production activation scheduling and persisted workflow instance",
+    "remaining twenty-package migration scope"
+  ],
+  "hashes": [
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "sha256": "93a6dd116db77dfca171da5e290fb996c659367720a0f36653d883ae6d98b726"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
+      "sha256": "cec64ed029340c828828180d19e5b68f96705a745c47f9de3b009d3c5a55e5ed"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
+      "sha256": "4266588c6c0357094d38b18ca65c37ec04e936ac2468050bd5483f92ac6775c1"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue",
+      "sha256": "cd805d427cd4b5c981953e4aa90e952bfd78acdb009fba990ca549fe610399be"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "sha256": "0f1581524144ea03a6b8e428aa0a0915a0a76173129c7709cc5ff2d37bdd10ce"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "sha256": "2a2621301cd6effac00353e59571d10200ff013d1c0fd0ca1e862d4bd9db20f0"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+      "sha256": "effb6de18df08ad16af8263be8845a2beff0ffcc5a0a823b32c5cce3f18db3d9"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+      "sha256": "641d8fd06e7290349a3c43db7d5f99ee09a97621cc3a8b50e9670dd49cde8de3"
+    },
+    {
+      "path": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+      "sha256": "3a92ffa4225614020a6d8befa910da59850973d5f4f27cb6824d3d386671497c"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "sha256": "1753742e1d6c428c42c705aed942eb681775eabafa743273299eab56526bbb95"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
+      "sha256": "76a21e873acb9621d3ea2f8c592506ad92d382f709a5a86a7ecb727d25081059"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-workflow-tests-frozen.log",
+      "sha256": "a12aae7e1289f766f0709130b57f95d20b9d8679a29e792d00fc06a234ad8f26"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-frozen-contracts.log",
+      "sha256": "13e61c6ca144f487954d53841a6a1634d25303a9c8ada89f17debf928cddec60"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-frozen-typecheck.log",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-frozen-lint.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-frozen-build.log",
+      "sha256": "04a5d5ff7741f52a240ca8a49ed3a65438001c8090cdf71b90b566a4c67e9509"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-final-schema.log",
+      "sha256": "5580fa45616b8c6551f120eb3c0da514e9c5898b73ecd8f51c0a563b432d2afc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-final-generate.log",
+      "sha256": "bec8facf47d5d2203bfe728f64920a41a1dbb01e83e65e223903f6836f0d83e6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-frozen-codegen.log",
+      "sha256": "d979811be0ddef41e5eaa43f4091e833a19e5ab57d59ff66dedd4b3ea717d618"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-frozen-semantic.log",
+      "sha256": "e80f408b361a9d352e502c0ad49d818dff858db06fca2957cf92eb5d05c178eb"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-account-auth.mts",
+      "sha256": "05b8a050ac6b39450ca63e708e1f5e3b88ed785711ff3f42cc7d547ffe29aef4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-auth-run.mts",
+      "sha256": "fd0829c00c1d65dcdec9a653129d3af492b66b32613ed6a3cd3b7c3895c139fd"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-check-syntax.mjs",
+      "sha256": "41690e9f943e15e8f1803786aa1d5d76a30e457edb1e56da9364910495568832"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-cleanup-audit.json",
+      "sha256": "545b09831e84cf6105fdeba27c993e8a4e77ad73190f205f710ea2ce6750a7c8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-cleanup-intent.json",
+      "sha256": "2afb374c49ae96e27e1c54bcb3656914c3f0481972d75e37116237f5668ec910"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-cleanup-run.mts",
+      "sha256": "246285eb8def199d08d97da2232541c9f021240d4c0eefb3a3864cced0e39f04"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-cleanup.mts",
+      "sha256": "e25719ba59da49f9fa2425bb059f996bd1f65dfab4be312cdc37015d019a4f69"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-common.mts",
+      "sha256": "7285fa17507f26d9fc6b7bce97eda7f52b49a3d7127581089382ec164ab0c497"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-configure-audit.json",
+      "sha256": "25a83dd4238fb9b8c28d28a1c72d535fdda1aa62a9c98cb26fcdc52969d38488"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-configure-intent.json",
+      "sha256": "89349011f3df8c217e4ccbbf596a1a2561b2373e60ee8501b3330d6e89990d74"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-configure-run.mts",
+      "sha256": "3ee5314173de668d9b9232144d1163ca78490fe7a1417ca6658d36eb3d879e62"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-configure.mts",
+      "sha256": "9a46e9d2b6ee5904b09237a75779691e4aa30c0dfd5f054d6b74df72b334d917"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-driver.ps1",
+      "sha256": "2d9633cae65fb34d6bcc785d753e11f65f62e88202a56c63ae7c66f9a7298915"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-execute-audit.json",
+      "sha256": "f131e16deee36e06c9cb23c3998bfa6b3f0da34f638a4573ecb5b6a18d65db4e"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-execute-intent.json",
+      "sha256": "9ec102256707596a4ef63bbe085bb2e00a4f360bae3cb83a018c973dca321b5e"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-execute-run.mts",
+      "sha256": "9e4359244650ae4766b3f4321bcaec3c0f3bf6c9fbb19451fc5815e80e91132a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-execute.mts",
+      "sha256": "b2bab824298dd1317e834aa1d7ab1db5a6b83d1a6f80a9c87f0d737213bd803e"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-fixture-checkpoint.json",
+      "sha256": "22a5ac248c15b8c7d0e4ea955ccd906a09f250539f39edce8b48b017413173e4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-fixture-create-audit.json",
+      "sha256": "9ac467da73ae40c11c9eacbd05a964ca82a6d4b563e7409784178a155613e3b2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-fixture-run.mts",
+      "sha256": "dbd056db4e8775f36c46748519cc974eb2d9af9ac93f2196bad558a993748828"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-fixture.mts",
+      "sha256": "f6378e1a82ed41ec78b7c85b2d7b12c0d7f90b7b4108d08ecbe49ffbc2562856"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-freeze.mjs",
+      "sha256": "8b1764cec0fe0f48d4db5ea9bf5c889b6e8470b005ce62e037043b779ca03889"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-script-syntax.json",
+      "sha256": "db10430e77a3effcef9aad1575a2ef1c824268741508925bcb782b8f95a1fc88"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-source-freeze.json",
+      "sha256": "14cc22ce403c362d3da31eb704f2029e7e34a6c3f3ef6e5cc37bf2409f6814a3"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-workspace-live-write-evidence.mjs",
+      "sha256": "72132672c3c15d7cc92c0fa1410e185d5f29f3cd0151d37b10324ed354ab1eef"
+    }
+  ]
+}

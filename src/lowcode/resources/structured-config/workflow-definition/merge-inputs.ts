@@ -190,13 +190,16 @@ export async function validateWorkflowMergeOutput(input:Target):Promise<void>{
  await assertWorkflowNodeOutputChanges({...input,before:formal,after:before,assertCurrent});assertCurrent()
 }
 
-/** 原节点保存前检查所有被修改的合并定义，共用首轮合同；未知结果交回原保存责任方。 */
-export async function validateWorkflowMergeNodeChanges(input:Pick<Target,'dataSet'|'workflowId'>):Promise<void>{
+/** 原节点保存前仅检查本次显式ID中的合并定义，共用首轮合同；未知结果交回原保存责任方。 */
+export async function validateWorkflowMergeNodeChanges(input:Pick<Target,'dataSet'|'workflowId'>&{nodeIds:readonly string[]}):Promise<void>{
  const nodes=input.dataSet.getView('Base_WorkflowNodeDefinition')
  if(!nodes)throw Error('合并保存缺少原节点视图')
  if(nodes.hasUnconfirmedSave)return
+ const savedIds=new Set(input.nodeIds)
+ if(!savedIds.size||savedIds.size!==input.nodeIds.length||input.nodeIds.some(id=>!id||!nodes.rows.some(row=>nodes.getPkKey(row)===id)))throw Error('节点保存范围缺失或身份无效')
  const baseline=definitionState(input.dataSet)
  for(const row of nodes.rows){
+  if(!savedIds.has(String(nodes.getPkKey(row))))continue
   const key=nodes.getPkKey(row);if(typeof key!=='string')throw Error('节点保存身份缺失')
   const changes=workflowFieldChanges(nodes,row,key)
   if(!['input_mapping','output_mapping'].some(field=>Object.hasOwn(changes,field)))continue

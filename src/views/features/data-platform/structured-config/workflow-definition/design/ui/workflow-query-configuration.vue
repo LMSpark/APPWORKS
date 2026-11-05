@@ -3,13 +3,20 @@
 职责：原查询模型的字段、来源入参与Filter绑定；草稿及保存归原DataView和宿主。
 -->
 <template>
+ <RendererTabPane name="model" :label="operation ? '数据处理' : '模型参数'" :index="0" :data-view-key="modelKey">
+
   <RendererForm :data-view-key="modelKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
     <FieldText field="Name" label="模型名称" :readonly="true" />
     <FieldText field="MetaName" label="来源资源" :readonly="true" />
     <FieldText field="Type" label="资源类型" :readonly="true" />
     <FieldText field="description" label="模型说明" :readonly="disabled" />
   </RendererForm>
-  <p v-if="presentation.error" role="alert">{{ presentation.error }}</p>
+  <h3>{{ operation ? '操作输入字段' : '字段与来源参数' }}</h3>
+  <WorkflowComputedFieldEditor v-if="!operation" :data-set="dataSet" :workflow-id="workflowId" :node-id="nodeId" :revision="revision" :disabled="disabled"
+    :input-parameter-data-view-key="inputs.dataViewKey" @pending-change="value=>emit('pendingChange','computed',value)" />
+  <RendererTable :data-view-key="fieldsKey" :children="children" :highlight-current-row="true" />
+
+ <template v-if="operation">  <p v-if="presentation.error" role="alert">{{ presentation.error }}</p>
   <p v-for="message in presentation.diagnostics" :key="message" role="status">{{ message }}</p>
   <p v-if="addOperation" role="status">新增操作不使用过滤条件；已有条件不参与执行。</p>
   <template v-if="!addOperation && sourceType && !['接口','视图'].includes(sourceType)">
@@ -18,15 +25,27 @@
       :columns="presentation.columns" :input-parameter-data-view-key="inputs.dataViewKey" :function-context="operationContext"
       :readonly="disabled || !!presentation.error" :on-editing-change="value=>emit('pendingChange','filter',value)" />
   </template>
-  <h3>{{ operation ? '操作输入字段' : '字段与来源参数' }}</h3>
-  <WorkflowComputedFieldEditor v-if="!operation" :data-set="dataSet" :workflow-id="workflowId" :node-id="nodeId" :revision="revision" :disabled="disabled"
-    :input-parameter-data-view-key="inputs.dataViewKey" @pending-change="value=>emit('pendingChange','computed',value)" />
-  <RendererTable :data-view-key="fieldsKey" :children="children" :highlight-current-row="true" />
+</template>
+ <slot name="model-actions" />
+ </RendererTabPane>
+ <RendererTabPane v-if="!operation" name="conditions" label="条件参数" :index="1" :data-view-key="modelKey">
+   <p v-if="presentation.error" role="alert">{{ presentation.error }}</p>
+  <p v-for="message in presentation.diagnostics" :key="message" role="status">{{ message }}</p>
+  <p v-if="addOperation" role="status">新增操作不使用过滤条件；已有条件不参与执行。</p>
+  <template v-if="!addOperation && sourceType && !['接口','视图'].includes(sourceType)">
+    <h3>{{ operation ? '数据条件' : '查询条件' }}</h3>
+    <RendererFilterExpression :data-view-key="modelKey" field="Filter" format="spark-json" display="inline"
+      :columns="presentation.columns" :input-parameter-data-view-key="inputs.dataViewKey" :function-context="operationContext"
+      :readonly="disabled || !!presentation.error" :on-editing-change="value=>emit('pendingChange','filter',value)" />
+  </template>
+
+ <slot name="condition-extra" />
+ </RendererTabPane>
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,shallowRef,watch} from 'vue'
 import {buildDataViewKey,DataViewFilter,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
-import {RendererForm,RendererTable,RendererFilterExpression,FieldText} from '@spark-appworks/spark-component'
+import {RendererForm,RendererTable,RendererFilterExpression,RendererTabPane,FieldText} from '@spark-appworks/spark-component'
 import {WorkflowQueryInputs,workflowOperationFunctionContext} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
 import WorkflowComputedFieldEditor from './workflow-computed-field-editor.vue'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;revision:number;disabled:boolean;operation?:boolean}>()

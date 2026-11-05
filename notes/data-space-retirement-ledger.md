@@ -6223,3 +6223,23 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终清理87读5提交0执行，unknown=false、pending空、independentAbsence=true：精确删除三节点日志、单隔离启动行、三节点/两边/三模型46字段、参数及定义；布局/关系原空保持，节点/流程实例独立回读均[]。fixture.lifecycle=cleaned，清理引用本轮cleanup-intent，driver exec30784及cleanup PID22320终态0。原exec7353因清理预检失败终态1单独记录，未取消/回滚已成功整流、未重执行。
 - 成功阶段合计299读21提交1执行，含原29读0写清理预检为328读21提交1执行；独立登录帮助器调用不混入资源统计。证据evidence/data-chain-smoke/2026-11-05-workflow-api-call-boundary-flow-runtime.json由实际审计断言生成，含真实开始参数/输出、三节点结果及同实例日志、业务五字段前后值、精确清理与脚本/源文件/审计哈希。产品源码0改动，ac40b7eb0基线五份源/测试/正式README哈希全匹配；未重跑441/49、构建或ClassModel，不伪称新运行。高阶最终交叉核实服审计及清理确认本批范围。
 - 已核销本批“正常API_CALL边界→只读query→结束”的测试接口整流、非空开始参数保存重开/派生输出与真实触发行下游消费。既有add/edit/delete真实CRUD及整流证据仍按原范围引用，不重复计量。生产启用/定时、流程实例持久化（本次表0）、浏览器入口及参考全页、merge已证实服务差距、20包其他业务仍未核销。后续沿同一总表，先核参考工作区差距与可行后续整包，不重放cleaned夹具、不加旧owner或query边界兼容。
+
+### 2026-11-05 工作流画布、对象配置和运行测试完整工作区（实施中）
+
+- c06433a2b已实际推送干净，上轮真实API_CALL整流及精确清理为进展。高阶gpt-6-astra核固定1147b00参考：主画布、节点/连线配置1280对话框、按类型页签、测试参数/输出两区。本仓现380px旁栏、忽略GraphSelection.open、对象命令散在顶部、执行常驻JSON输入，属于正常工作区差距；不重复既有CRUD/配置/整流证据，不依赖merge坏服务。
+- 本卡成组恢复：单击仅选中，双击或明确配置动作开标准RendererDialog；新增节点开同一配置窗。真实节点/连线业务模板落原参考node-panel/edge-panel路径，删除旁栏及重复入口。已有来源/模型/字段/过滤/输入/merge命令按参考页签组织，输出目录只读标准FieldJson层级；原WorkflowQueryConfiguration只分呈现区，不复制输入查询实例/字段数组。
+- 运行测试保留唯一WorkflowExecutionResource.requests，整流input直接按业务行数组FieldJson rows编辑，多声明组成同一业务行；单节点按正式祖先ID的valuePath编辑该行数组。候选来自正式开始声明、workflowQueryAncestors/workflowOutputFields；result/outcome/completeness绑定原命令视图。删除旧常驻原文输入，不照搬参考将多个参数拆成多条业务行的缺陷。
+- 弹窗/页签仅呈现状态，原DataView持有草稿和未知捕获；切换页签不重建来源/模型/查询输入实例，不能关闭/遮罩/Esc丢未确认修改。已有开始/节点/查询字段/操作字段/连线条件保存取消复用原命令；普通节点/边提交按当前ID收口，派生输出保留原合法范围，布局仍独立文件回执。主控单写者，按executing-plans/TDD实施，高阶只读方案/复核。
+- 开始前正式刷新ClassModel后查RGraphProps/GraphSelection/RDialogProps/RTabsProps/RTabPaneProps/FieldJson合同；ui-ux-pro-max仅按仓内组件/参考布局核对焦点、关闭与响应式，不另造设计系统或数据owner。原组件closeDisabled/页签lazy和DataView绑定合同优先，UX离线建议保存在workflow-workspace-ux*.txt。新挂载回归覆盖双击身份/页签同视图/关闭守卫/迟到/未知；新实服卡覆盖两非空声明同一业务行及下游消费，浏览器门禁未解除仍不称视觉1:1。
+- 用户再次明确“不向后兼容，一步到位”：同步删除被替代入口，不增旧合同回退。高阶复核三项已用四个RED反例复现：异步预检后祖先声明变化仍派发、范围外merge草稿阻塞当前ID保存、数组/对象变文本与缺失显式null。实施修复限原命令链：merge校验必须显式nodeIds；参数首轮签名在prepare后及graph捕获派发前复核；标准JSON子字段native承接结构值/显式null，未增加业务行副本。取消必须仍可用，声明检查不能放进供组件读取的资源身份guard；首次105断言虽通过但出现未处理渲染拒绝，已调整检查位置，最终回归进行中，不计通过。
+- 原始消费者核查：参考Java只作证据，query配置含分页/总数消费者，copy配置由原迁移目标命令维护，merge input_mapping有明确消费者；删除非merge通用input_mapping原文入口，保留绑定原记录的查询请求配置，未清空历史字段，未将缺少确认消费者解释为可删正式数据。实服新双参数烟测、最终编译产物/构建/复核及本批提交推送尚未完成。
+- 冻结实现的最终回归：21文件457项（相对441基线新增16项），61.73秒、终态0；4文件49项ClassModel合同、typecheck、9路径lint及build终态0。正式生成30.671秒、1049 DTS/2137符号，124份语义等价JSON恢复；schema通过，语义缺口3638→3637（消除执行窗弱模块文档，无新增项），严格677项门禁仍失败；代码规则仍26项既有，不报全仓绿。提交身份进一步收口：prepare前后强制首轮合同存在、mode/nodeId与同一合同引用相符，直接DataSet保存/改目标/无窗口合同均拒绝；普通视图读取guard不承担业务校验，取消仍可用。高阶最终代码复核确认。
+- 新SMOKE_WORKSPACE_LIVE_原生烟测已预检，旧cleaned夹具不可重放；全新停用隔离ID 00D1E8237F0F42218B78529F65EBA1DF，fixture38读2提交、configure124读14提交confirmed。两个非空参数rowid/name已保存重开及同步原API_CALL开始输出；工作流输入由workflowExecutionInputs组合一条业务行，execute本次唯一意图进行中。认证态仅RAM；未据原生脚本宣称浏览器布局通过。最终执行/清理/证据/本批提交推送待后续实际回执。
+- 最终新实服整流50读0定义提交1执行confirmed：startParams恰为一行{rowid,name}，正式默认name=DEFAULT而API_CALL开始返回ACTUAL；query.fromStartName=ACTUAL，API_CALL结束count0/output[]。三节点日志精确覆盖本次节点且同一实例B2F6BC3C85F0487485469CEF2F0C5DFE；工作流实例表0，不声称生产实例持久化。业务五个读取字段前后完全相同。cleanup87读5提交终态0，独立核3节点/2边/3模型46字段/3日志/隔离启动行/参数及定义为空，fixture.lifecycle=cleaned，unknown=false；driver31108终态0，凭据与会话未落盘。四阶段合计299读21提交1执行，不含独立登录帮助器，不重计历史整流。
+- evidence/data-chain-smoke/2026-11-05-workflow-workspace-runtime.json已由真实断言构造器生成；高阶交叉核配置/执行/清理审计通过。烟测后仅6文件空白/换行整理，前后hash与非空白内容相等证明载入证据，未额外重跑无行为变更的门禁。浏览器1:1/单节点新投影实服、生产启用/定时/流程实例持久化、merge服务差距与20包其他范围仍未核销。本卡提交推送中。
+
+### 下一连续工位：字典来源查询与下游类型消费（高阶只读方案，待实服核定）
+
+- 现有六类型来源候选读取不等于字典工作流查询消费已验。沿固定参考1147b00的composables/dialog/modelSource.ts及workflow node-panel，核本仓lowcode-data-space-model-source-reader.ts对dict的六业务字段+rowid/ordIdx、正式标题、Type=字典/DbId=字典ID、dictionaryType=1时val double否则varchar；Java仅提供待核路径，不充当部署支持证据。
+- 下一组只读选字符/数字非空字典样本，冻结精确ID/类型/标题/条目，避开历史失败字典但不据其他样本成功核销旧失败。新停用隔离图开始→字符字典query→数字字典query→本轮隔离行只读consumer query→结束，原openWorkflowNodeModelBinding/saveWorkflowQueryFields/WorkflowQueryInputs/WorkflowExecutionContext/Resource承接；按原标准过滤器精确返回一行，下游GetInputParam使用真实祖先ID并独立核实际值与类型，不前端强转。新资源合同的取消/保存/重开与字典独立基准比对，字典全程只读。
+- 不新增页面通用查询/保存owner，不重跑已验add/edit/delete整包，不再为新来源造一套逻辑。只修实际失败归属，若服务不支持保留真实请求/响应及缺口。写入只限新标记测试定义/模型/启动行/日志；最终精确清理核空并复读字典未变。本卡不扩大整字典删除、外部API、权限或生产启用范围。

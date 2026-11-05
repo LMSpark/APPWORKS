@@ -7,11 +7,11 @@
     "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
     "packageName": "app",
     "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel",
-    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel\n职责：标准组件绑定原DataSet的测试命令输入与回执；不在页面发送HTTP或持有执行结果副本。",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel\n职责：测试对话框直接绑定唯一命令DataView的输入、状态和输出。\n边界：字段描述来自正式定义，测试值只在requests.input，不持有结果或业务行副本，不重放未知执行。\nAI用途：宿主和节点设置调用open进入同一测试工作区，多个声明属于同一业务行。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-11-02T22:16:21.045Z",
+  "generatedAt": "2026-11-05T00:06:39.400Z",
   "models": {}
 }

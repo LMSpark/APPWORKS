@@ -30,22 +30,12 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
         <RendererButton v-if="boundaryCompletion?.canDiscardNotApplied" label="放弃未生效的边界补齐" :disabled="busy" @click="changeBoundaries('discard')" />
         <RendererButton label="取消边界补齐" :disabled="!boundaryCompletion?.canCancel" @click="changeBoundaries('cancel')" />
       </template>
-      <WorkflowExecutionPanel v-if="dataSet" :key="loadedTarget" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedKind === 'node' ? selectedQueryId : ''"
+      <RendererButton label="测试" :disabled="locked || hasPending" @click="executionApi?.open('workflow')" />
+      <WorkflowExecutionPanel v-if="dataSet" ref="executionApi" :key="loadedTarget" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedKind === 'node' ? selectedQueryId : ''"
         :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('execution.'+key,value)" />
       <RendererButton label="新增节点" :data-view-key="nodesKey" action="append-row" :set-current-row-on-success="true"
         :append-payload="{workflow_id:workflowId,position_type:1,node_type:'query',node_config:'',dataOperateModId:'',name:'',description:'',input_mapping:'[]',output_mapping:'[]',config:''}"
         :disabled="locked || hasPending" />
-      <WorkflowQueryNodeCreate v-if="dataSet" :key="loadedTarget" ref="queryCreateApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId"
-        :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && String(selectedNode?.['position_type']) === '1'"
-        :disabled="locked || pendingPart('nodes') || (hasPending && !nodeDraftOnly && !pendingPart('create'))" :on-created="queryNodeCreated" @pending-change="value=>pending('create.query',value)" />
-      <WorkflowQuerySourceEdit v-if="dataSet" :key="loadedTarget" ref="querySourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :revision="revision"
-        :operation="isOperationNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode) && validModel && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" :on-saved="queryNodeCreated" @pending-change="value=>pending('source.query',value)" />
-      <WorkflowCopyTarget v-if="dataSet" :key="loadedTarget" ref="copyTargetApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId"
-        :eligible="selectedKind === 'node' && isCopyNode && String(selectedNode?.['position_type']) === '1'" :disabled="locked || hasPending" @pending-change="value=>pending('target.copy',value)" />
-      <WorkflowMergeSources v-if="dataSet" :key="loadedTarget" ref="mergeSourceApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedQueryId" :parent-path="mergePath"
-        :eligible="selectedKind === 'node' && isMergeNode" :disabled="locked || pendingPart('nodes')" @pending-change="value=>pending('nodes.mergeSources',value)" @changed="path=>mergePath=path" />
-      <WorkflowNodeRemove v-if="dataSet" :key="loadedTarget" ref="nodeRemoveApi" :data-set="dataSet" :workflow-id="workflowId"
-        :node-id="selectedQueryId" :operation="isOperationNode" :copy="isCopyNode" :merge="isMergeNode" :eligible="selectedKind === 'node' && (isQueryNode || isOperationNode || isMergeNode) && String(selectedNode?.['position_type']) === '1'" :data-view-key="nodesKey" :disabled="locked || hasPending" :on-removed="nodeRemoved" @pending-change="value=>pending('remove.node',value)" />
       <div>
         <RendererButton v-if="layoutMissing" label="创建布局" :data-view-key="layoutKey" perm-action="create" :disabled="locked" @click="createLayout" />
         <RendererButton v-if="layoutRow" label="自动对齐" :disabled="locked || !!layoutError" @click="graphApi?.arrange()" />
@@ -55,158 +45,55 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
       <RendererForm v-if="layoutRow && layoutError" :data-view-key="layoutKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
         <FieldJson field="content" label="布局原文" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('layout.content',value)" />
       </RendererForm>
+      <RendererButton label="配置所选对象" :disabled="locked || hasPending || !selectedKind" @click="openSelectedObject" />
       <div class="workflow-workspaces">
         <RendererGraph ref="graphApi" :data-view-key="nodesKey" :edge-data-view-key="edgesKey" label-field="name" description-field="description"
           node-caption-field="node_type" edge-source-field="sourceID" edge-target-field="targetID"
-          :connectable-keys="connectableKeys" :on-connect="connectObjects"
+          :connectable-keys="connectableKeys" :on-connect="connectObjects" :viewport-controls="true"
           :disabled="locked" :on-select="selectObject" :node-positions="layoutProjection?.nodePositions ?? {}" :edge-paths="layoutProjection?.edgePaths ?? {}"
           :draggable-keys="layoutEditableKeys" :on-node-move="moveLayout" :on-arrange="arrangeLayout" background-pattern="dots" />
-        <aside>
-          <template v-if="selectedKind === 'node' && selectedNode">
-            <section v-if="isStartNode">
-              <h2>开始输入参数</h2>
-              <p role="status">已有输入参数需通过“保存开始参数”确认并同步为开始输出。</p>
-              <p v-if="startParametersMissing && !loading" role="alert">当前流程缺少唯一的开始参数定义或开始节点</p>
-              <RendererForm v-if="!startParametersMissing" :data-view-key="parametersKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-                <FieldJson :data-view-key="parametersKey" field="inputParams" label="输入参数" mode="rows" :children="parameterFields" :row-adapter="parameterAdapter" :readonly="locked" :on-editing-change="value=>pending('start.parameters',value)" />
-              </RendererForm>
-              <RendererButton :label="startUnconfirmed ? '核验开始参数保存结果' : '保存开始参数'" :disabled="busy || pendingPart('start') || startParametersMissing" @click="saveStartParameters" />
-              <RendererButton label="取消开始参数修改" :disabled="busy || unconfirmed" @click="cancelStartParameters" />
-            </section>
-            <section v-else-if="isEndNode"><h2>结束节点</h2><p>此节点标记流程结束，不能添加下游连线。</p></section>
-            <template v-else>
-            <h2>节点配置</h2>
-            <RendererForm :data-view-key="nodesKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-              <FieldText :data-view-key="nodesKey" field="name" label="节点名称" :readonly="locked" />
-              <FieldText field="description" label="节点描述" :readonly="locked" />
-              <FieldSelect v-if="nodeTypeEditable" field="node_type" label="操作类型" :options="nodeTypes" :clearable="false" :readonly="locked" />
-              <FieldText v-else field="node_type" label="节点类型" :readonly="true" />
-              <FieldText field="dataOperateModId" label="数据模型" :readonly="true" />
-              <FieldJson v-if="isMergeNode" field="input_mapping" label="合并输入层级" mode="outline" outline-id-field="rowid" outline-parent-field="pid"
-                :children="mergeInputFields" :readonly="true" :selected-path="mergePath" :on-selected-path-change="selectMergePath" />
-              <template v-if="isMergeNode && mergePath">
-                <p v-if="mergeJoin.error" role="alert">{{ mergeJoin.error }}</p>
-                <template v-if="mergeJoin.state && !mergeJoin.state.root">
-                  <FieldJson field="input_mapping" label="合并连接类型" mode="form" :value-path="mergePath" :schema="mergeJoinSchema"
-                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeJoinType',value)" />
-                  <RendererFilterExpression field="input_mapping" :value-path="[...mergePath,'JoinFilter']" value-format="text" format="spark-object" display="inline"
-                    :columns="mergeJoin.state.columns" :function-context="mergeJoin.state.functionContext"
-                    :readonly="locked || pendingPart('nodes.mergeFields') || pendingPart('nodes.mergeJoinType') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeJoinFilter',value)" />
-                </template>
-                <FieldJson field="input_mapping" label="合并来源字段" mode="rows" :value-path="[...mergePath,'Fields']" :children="mergeFields"
-                  :row-operations="mergeFieldOperations" :readonly="locked || pendingPart('nodes.mergeJoinFilter') || pendingPart('nodes.mergeJoinType') || pendingPart('nodes.mergeSources')" :on-editing-change="value=>pending('nodes.mergeFields',value)" />
-                <RendererButton label="返回输入列表" :disabled="pendingPart('nodes')" @click="selectMergePath(null)" />
-              </template>
-              <FieldJson v-if="!isMergeNode" field="input_mapping" label="输入映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.input',value)" />
-              <template v-if="isMergeNode">
-                <RendererButton label="生成输出模型" :data-view-key="nodesKey" perm-action="edit" :disabled="locked || pendingPart('nodes')" @click="generateMergeOutput" />
-                <FieldJson field="output_mapping" label="合并输出模型" mode="rows" :children="mergeOutputFields" :readonly="true" />
-              </template>
-              <FieldJson v-if="!isMergeNode" field="output_mapping" label="输出映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.output',value)" />
-              <FieldText field="node_config" label="查询模型ID" :readonly="true" />
-              <FieldJson field="config" :label="isCopyNode ? '迁移目标配置' : '操作配置'" mode="text" :readonly="locked" :on-change="validateNodeConfig" :on-editing-change="value => pending('nodes.operation',value)" />
-            </RendererForm>
-            <RendererButton :label="isUnconfirmed(nodesTable) ? '核验节点保存结果' : '保存节点'" :disabled="busy || pendingPart('nodes')" @click="save(nodesTable)" />
-            <RendererButton label="取消节点修改" :disabled="busy || unconfirmed || boundaryActive" @click="cancel(nodesTable)" />
-            <p v-if="missingModel" role="alert">当前节点引用的模型不存在或不属于当前流程</p>
-            <p v-if="modelBindingIssue" role="alert">{{ modelBindingIssue }}</p>
-            <section v-if="validModel">
-              <h2>模型配置</h2>
-              <WorkflowQueryConfiguration v-if="(isQueryNode || isOperationNode) && dataSet && selectedQueryId" :key="selectedQueryId" :data-set="dataSet" :workflow-id="workflowId"
-                :node-id="selectedQueryId" :revision="revision" :disabled="locked" :operation="isOperationNode" @pending-change="(key,value)=>pending('query.'+key,value)" />
-              <template v-else>
-              <RendererForm :data-view-key="modelKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-                <FieldText field="Name" label="模型名称" :readonly="true" />
-                <FieldText field="MetaName" label="来源资源" :readonly="true" />
-                <FieldText field="Type" label="资源类型" :readonly="true" />
-                <FieldText field="description" label="模型说明" :readonly="locked" />
-              </RendererForm>
-              <RendererButton :label="isUnconfirmed(modelTable) ? '核验模型说明保存结果' : '保存模型说明'" :disabled="busy" @click="save(modelTable)" />
-              <RendererButton label="取消模型说明修改" :disabled="busy || unconfirmed" @click="cancel(modelTable)" />
-              <h3>字段与参数</h3>
-              <RendererTable :data-view-key="fieldsKey" :children="modelFields" :highlight-current-row="true" />
-              </template>
-              <RendererButton :label="isQueryNode ? (isUnconfirmed(fieldsTable) || isUnconfirmed(nodesTable) || isUnconfirmed(modelTable) ? '核验查询配置保存结果' : '保存查询配置') : isOperationNode ? '保存操作配置' : '保存字段配置'" :disabled="busy || pendingPart('nodes') || pendingPart('query')" @click="saveFields" />
-              <RendererButton :label="isQueryNode ? '取消查询配置修改' : isOperationNode ? '取消操作配置修改' : '取消字段配置修改'" :disabled="busy || unconfirmed" @click="cancelFields" />
-              <h3>作为父模型的原服务关系</h3>
-              <RendererTable :data-view-key="parentRelationsKey" :children="relationFields" />
-              <h3>作为子模型的原服务关系</h3>
-              <RendererTable :data-view-key="childRelationsKey" :children="relationFields" />
-            </section>
-            </template>
-          </template>
-          <template v-else-if="selectedKind === 'edge' && selectedEdge">
-            <h2>连线配置</h2>
-            <RendererForm :data-view-key="edgesKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-              <FieldText field="name" label="连线名称" :readonly="locked" />
-              <FieldText field="description" label="连线描述" :readonly="locked" />
-              <FieldText field="sourceID" label="来源节点" :readonly="true" />
-              <FieldText field="targetID" label="目标节点" :readonly="true" />
-              <FieldJson field="params" label="输入参数映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('edges.params',value)" />
-            </RendererForm>
-            <RendererButton :label="isUnconfirmed(edgesTable) ? '核验连线保存结果' : '保存连线'" :disabled="busy || pendingPart('edges')" @click="save(edgesTable)" />
-            <RendererButton label="取消连线修改" :disabled="busy || unconfirmed" @click="cancel(edgesTable)" />
-            <h3>连线条件</h3>
-            <p v-if="conditionState.error" role="alert">{{ conditionState.error }}</p>
-            <RendererButton v-if="conditionState.ready && !conditionState.row && !conditionUnconfirmed && !conditionDeleting" label="新增条件" :data-view-key="conditionKey" perm-action="create" :disabled="locked || !!conditionState.error" @click="changeCondition('add')" />
-            <RendererFilterExpression v-if="conditionState.row && !conditionState.error" :data-view-key="conditionKey" field="filter" format="spark-json" display="inline" :columns="conditionState.columns" :function-context="conditionState.functionContext" :allowed-operators="conditionState.allowedOperators" :readonly="locked" :on-editing-change="value=>pending('condition.filter',value)" />
-            <RendererForm v-if="conditionState.row && conditionState.error" :data-view-key="conditionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-              <FieldJson field="filter" label="原条件" mode="text" :readonly="true" />
-            </RendererForm>
-            <RendererButton v-if="conditionState.row || conditionUnconfirmed || conditionDeleting" :label="conditionUnconfirmed ? '核验条件保存结果' : conditionDeleting ? '重试条件删除' : '保存条件'" :disabled="busy || pendingPart('condition') || (!!conditionState.error && !conditionUnconfirmed && !conditionDeleting)" @click="changeCondition('save')" />
-            <RendererButton v-if="conditionState.ready" label="取消条件修改" :disabled="busy || unconfirmed" @click="cancelCondition" />
-          </template>
-          <p v-else>请选择节点或连线后编辑</p>
-        </aside>
+
+        <RendererDialog v-if="dataSet" v-model="objectVisible" :title="objectTitle" :data-view-key="selectedKind === 'edge' ? edgesKey : nodesKey"
+          width="1280px" top="4vh" :append-to-body="true" :destroy-on-close="false" :close-disabled="busy || hasPending" :grid-columns="1" :auto-fullscreen-below="960">
+          <WorkflowDesignNodePanel v-show="selectedKind === 'node'" :key="loadedTarget" ref="nodePanelApi" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedKind === 'node' ? selectedQueryId : ''" :visible="objectVisible && selectedKind === 'node'"
+            :revision="revision" :disabled="locked" :busy="busy" :unconfirmed="unconfirmed" :has-pending="hasPending" :pending-keys="inputs" :boundary-pending="boundaryActive" :on-removed="nodeRemoved"
+            @pending-change="pending" @changed="revision++" @test="executionApi?.open('node')" @dismiss="objectVisible=false" />
+          <WorkflowDesignEdgePanel v-show="selectedKind === 'edge'" :key="loadedTarget" :data-set="dataSet" :workflow-id="workflowId" :edge-id="selectedKind === 'edge' ? selectedEdgeId : undefined" :visible="objectVisible && selectedKind === 'edge'"
+            :revision="revision" :disabled="locked" :busy="busy" :unconfirmed="unconfirmed" :pending-keys="inputs" @pending-change="pending" @changed="revision++" @dismiss="objectVisible=false" />
+          <RendererButton label="关闭配置" :disabled="busy || hasPending" @click="objectVisible=false" />
+        </RendererDialog>
       </div>
     </template>
   </section>
 </template>
 <script setup lang="ts">
+
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
-import {buildDataViewKey,RequestState,type DataRow,type DataSet,type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey,RequestState,type DataSet} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {parseJsonDocument,type JsonPath,type JsonSchemaObject} from '@spark-appworks/spark-json-document'
+import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {WORKFLOW_LAYOUT_TABLE} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {WorkflowLayoutDocument} from '@/lowcode/resources/structured-config/workflow-definition/layout-document'
-import {workflowStartParameterAdapter,saveWorkflowStartParameters} from '@/lowcode/resources/structured-config/workflow-definition/start-parameters'
-import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
-import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
-import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
-import WorkflowQueryNodeCreate from './workflow-query-node-create.vue'
-import WorkflowCopyTarget from './workflow-copy-target.vue'
-import WorkflowMergeSources from './workflow-merge-sources.vue'
-import {workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
-import {workflowMergeInputPresentation,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
-import {workflowNodeTypeEditable,validateWorkflowNodeTypeChanges} from '@/lowcode/resources/structured-config/workflow-definition/node-definition'
 import {workflowBoundaryState,WorkflowBoundaryCompletion} from '@/lowcode/resources/structured-config/workflow-definition/boundaries'
-import WorkflowQuerySourceEdit from './workflow-query-source-edit.vue'
-import WorkflowNodeRemove from './workflow-node-remove.vue'
-import WorkflowQueryConfiguration from './workflow-query-configuration.vue'
 import WorkflowExecutionPanel from './workflow-execution-panel.vue'
-const {PAGE_RUNTIME,RendererForm,RendererTable,RendererGraph,RendererButton,RendererFilterExpression,FieldText,FieldSelect,FieldJson,useSparkComponent}=SparkComponent
+const {PAGE_RUNTIME,RendererForm,RendererGraph,RendererButton,RendererDialog,FieldText,FieldJson,useSparkComponent}=SparkComponent
+import WorkflowDesignNodePanel from './node-panel/workflow-design-node-panel.vue'
+import WorkflowDesignEdgePanel from './edge-panel/workflow-design-edge-panel.vue'
+const nodePanelApi=ref<InstanceType<typeof WorkflowDesignNodePanel>>()
+const executionApi=ref<InstanceType<typeof WorkflowExecutionPanel>>()
+const objectVisible=ref(false)
 const props=defineProps<{rowid?:string}>(),route=useRoute()
 const workflowId=computed(()=>props.rowid ?? (typeof route.query['workflowId']==='string'?route.query['workflowId']:''))
 const scene=LowcodeWorkflowDefinition.designScenarioId,nodesTable='Base_WorkflowNodeDefinition',edgesTable='Base_WorkflowConnectors'
 const nodesKey=buildDataViewKey(nodesTable,'default',scene),edgesKey=buildDataViewKey(edgesTable,'default',scene),definitionKey=buildDataViewKey('Base_WorkflowDefinition','default',scene)
-const modelTable='Base_DataModel',fieldsTable='Base_DataModel_Field',relationsTable='Base_DataModel_Relation'
-const modelKey=buildDataViewKey(modelTable,'default',scene),fieldsKey=buildDataViewKey(fieldsTable,'default',scene)
-const parametersKey=buildDataViewKey('Base_DataSet','default',scene)
-const conditionKey=buildDataViewKey(relationsTable,'connector',scene),conditionView=()=>dataSet.value?.getView(relationsTable,'connector')
-const parentRelationsKey=buildDataViewKey(relationsTable,'asParent',scene),childRelationsKey=buildDataViewKey(relationsTable,'asChild',scene)
 const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'default',scene),graphApi=ref<SparkComponent.RendererGraphApi>()
-const queryCreateApi=ref<InstanceType<typeof WorkflowQueryNodeCreate>>()
-const copyTargetApi=ref<InstanceType<typeof WorkflowCopyTarget>>()
 const boundaryCompletion=shallowRef<WorkflowBoundaryCompletion>()
 const boundaryActive=computed(()=>{revision.value;return !!boundaryCompletion.value&&!boundaryCompletion.value.complete})
-const mergeSourceApi=ref<InstanceType<typeof WorkflowMergeSources>>()
-const querySourceApi=ref<InstanceType<typeof WorkflowQuerySourceEdit>>()
-const nodeRemoveApi=ref<InstanceType<typeof WorkflowNodeRemove>>()
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
 const dataSet=shallowRef<DataSet>(),opening=ref(false),ready=ref(false),acting=ref(false),error=ref(''),revision=ref(0),selectedKind=ref<'node'|'edge'>(),inputs=ref(new Set<string>()),loadedTarget=ref('')
 let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,active=true
@@ -215,7 +102,7 @@ const views=computed(()=>{revision.value;return Object.values(dataSet.value?.tab
 const validTarget=computed(()=>{revision.value;return view('Base_WorkflowDefinition')?.rows.length===1})
 const missing=computed(()=>ready.value&&!validTarget.value)
 const loading=computed(()=>{revision.value;return opening.value||views.value.some(v=>v.requestState===RequestState.Preparing||v.requestState===RequestState.Loading)})
-const busy=computed(()=>acting.value||loading.value||inputs.value.has('execution.running'))
+const busy=computed(()=>acting.value||loading.value||(inputs.value.has('execution.running')||inputs.value.has('object.running')))
 const unconfirmed=computed(()=>{revision.value;return views.value.some(v=>v.hasUnconfirmedSave)})
 const locked=computed(()=>busy.value||unconfirmed.value||inputs.value.has('remove.node')||inputs.value.has('source.query')||loadedTarget.value!==workflowId.value)
 const hasPending=computed(()=>{revision.value;return boundaryActive.value||acting.value||inputs.value.size>0||views.value.some(v=>v.hasUnconfirmedSave||v.hasEditingChanges()||v.dirtyTracking.hasPendingChanges())})
@@ -223,95 +110,15 @@ useSystemPageDirtySource({get isDirty(){return opening.value||hasPending.value}}
 const selectedNode=computed(()=>{revision.value;return view(nodesTable)?.currentRow})
 const selectedEdge=computed(()=>{revision.value;return view(edgesTable)?.currentRow})
 const selectedEdgeId=computed(()=>{revision.value;const row=selectedEdge.value;return row?view(edgesTable)?.getPkKey(row):undefined})
-const conditionUnconfirmed=computed(()=>{revision.value;return conditionView()?.hasUnconfirmedSave===true})
-const conditionDeleting=computed(()=>{revision.value;return (conditionView()?.dirtyTracking.pendingDeleteIds.size??0)>0})
-const conditionState=computed(()=>{
- revision.value
- const empty={ready:false,row:undefined,columns:[],functionContext:{},allowedOperators:undefined,error:''},ds=dataSet.value,id=selectedEdgeId.value
- if(id!==undefined&&view(edgesTable)?.dirtyTracking.isPendingCreate(id))return {...empty,error:'请先保存新连线，再维护连线条件'}
- if(selectedKind.value!=='edge'||!ds||id===undefined||conditionView()?.requestState!==RequestState.Loaded)return empty
- try{const state=WorkflowConnectorCondition.presentation(ds,workflowId.value,id);return{...state,ready:true,error:state.outputError}}
- catch(cause){return{...empty,error:cause instanceof Error?cause.message:String(cause)}}
-})
 const isStartNode=computed(()=>{revision.value;const node=selectedNode.value;return !!node&&view(nodesTable)?.fieldAccess(node,'position_type').read==='visible'&&String(node['position_type']).trim()==='0'})
-const isEndNode=computed(()=>{revision.value;const node=selectedNode.value;return !!node&&view(nodesTable)?.fieldAccess(node,'position_type').read==='visible'&&String(node['position_type']).trim()==='2'})
+
 const boundaries=computed(()=>{
  revision.value;const empty:{missing:readonly number[];error:string}={missing:[],error:''}
  if(!ready.value||!validTarget.value||!dataSet.value)return empty
  try{return{...workflowBoundaryState({dataSet:dataSet.value,workflowId:workflowId.value}),error:''}}
  catch(cause){return{...empty,error:cause instanceof Error?cause.message:String(cause)}}
 })
-const startView=()=>dataSet.value?.getView(nodesTable,'start')
-const startParametersMissing=computed(()=>{revision.value;const params=view('Base_DataSet'),start=startView(),node=selectedNode.value;return !node||params?.rows.length!==1||params.getPkKey(params.rows[0]!)!==workflowId.value||start?.rows.length!==1||start.getPkKey(start.rows[0]!)!==view(nodesTable)?.getPkKey(node)})
-const startUnconfirmed=computed(()=>{revision.value;return view('Base_DataSet')?.hasUnconfirmedSave===true||startView()?.hasUnconfirmedSave===true})
-const parameterAdapter=computed(()=>workflowStartParameterAdapter(String(selectedNode.value?.['name']??'开始')))
-const parameterFields:SparkNode[]=Object.entries({Name:'参数名称',FieldType:'数据类型',Value:'默认值',Description:'参数说明'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
-const mergeInputFields:SparkNode[]=Object.entries({Name:'输入节点',JoinType:'连接类型'}).map(([field,label])=>({type:'r-text',props:{field,label}}))
-const mergeOutputFields:SparkNode[]=Object.entries({Name:'字段名称',FieldType:'字段类型',Description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
-const mergePath=ref<JsonPath|null>(null),mergeFieldOperations:Array<'edit'>=['edit']
-const mergeJoinSchema:JsonSchemaObject={type:'object',required:['JoinType'],properties:{JoinType:{type:'string',title:'连接类型','x-control':'radio',oneOf:[
- {const:'LEFT',title:'左连接'},{const:'RIGHT',title:'右连接'},{const:'INNER',title:'内连接'},{const:'FULL',title:'全连接'},
-]}}}
-const mergeJoin=computed(()=>{
- revision.value;const ds=dataSet.value,path=mergePath.value
- if(!ds||!path)return {state:undefined,error:''}
- try{return{state:workflowMergeInputPresentation({dataSet:ds,workflowId:workflowId.value,nodeId:selectedQueryId.value,path}),error:''}}
- catch(cause){return{state:undefined,error:cause instanceof Error?cause.message:String(cause)}}
-})
-const mergeFields:SparkNode[]=[
- ...Object.entries({Name:'字段名称',FieldType:'字段类型'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}})),
- {type:'r-text',props:{field:'AsName',label:'输出名称'}},
- {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0}},
- {type:'r-text',props:{field:'Description',label:'字段说明'}},
-]
-function selectMergePath(path:JsonPath|null):void{if(path===null||!pendingPart('nodes'))mergePath.value=path===null?null:[...path]}
-function nodeModelId(row:DataRow):string{
- const nodes=view(nodesTable);if(!nodes||nodes.fieldAccess(row,'node_type').read!=='visible')throw new Error('节点类型不可读')
- if(nodes.fieldAccess(row,'position_type').read!=='visible')throw new Error('节点位置类型不可读')
- const key=nodes.getPkKey(row);if(key===undefined)throw Error('节点身份缺失')
- const effective=nodes.getEditingRow(key)??row,position=String(effective['position_type']??'').trim()
- if(position!=='1')return ''
- const type=typeof effective['node_type']==='string'?effective['node_type']:''
- if(!['query','copy','add','edit','delete'].includes(type))return ''
- const field=type==='query'||type==='copy'?'node_config':'dataOperateModId'
- for(const key of ['node_config','dataOperateModId'])if(nodes.fieldAccess(row,key).read!=='visible')throw new Error('节点模型身份不可读')
- const other=field==='node_config'?'dataOperateModId':'node_config'
- if(effective[other]!==undefined&&effective[other]!==null&&effective[other]!=='')throw Error('节点存在混合模型绑定，请核查正式配置')
- const id=effective[field];if(id===null||id===undefined||id==='')return ''
- if(typeof id!=='string'||id!==id.trim())throw Error('节点模型身份无效')
- return id
-}
-const modelBindingIssue=computed(()=>{revision.value;const row=selectedNode.value;if(!row)return '';try{nodeModelId(row);return ''}catch(cause){return cause instanceof Error?cause.message:String(cause)}})
-const currentModelId=computed(()=>{revision.value;const row=selectedNode.value;if(!row)return '';try{return nodeModelId(row)}catch{return ''}})
-const validModel=computed(()=>{revision.value;const model=view(modelTable),row=model?.rows[0];return !!row&&model?.getPkKey(row)===currentModelId.value&&currentModelId.value!==''})
-const missingModel=computed(()=>{revision.value;const model=view(modelTable);return currentModelId.value!==''&&model?.requestState===RequestState.Loaded&&!model.loadingError&&!validModel.value})
-const selectedType=computed(()=>{revision.value;const target=view(nodesTable),row=selectedNode.value,key=row&&target?.getPkKey(row);return row&&key!==undefined&&key!==null&&target?.fieldAccess(row,'node_type').read==='visible'?(target.getEditingRow(key)??row)['node_type']:undefined})
-const isQueryNode=computed(()=>['query','copy'].includes(String(selectedType.value)))
-const isCopyNode=computed(()=>selectedType.value==='copy')
-const isMergeNode=computed(()=>selectedType.value==='merge')
-const isOperationNode=computed(()=>['add','edit','delete'].includes(String(selectedType.value)))
-const nodeTypes=Object.entries({query:'查询',copy:'迁移',add:'新增',edit:'编辑',delete:'删除',merge:'合并'}).map(([value,label])=>({value,label}))
-const nodeTypeEditable=computed(()=>{
- revision.value;const ds=dataSet.value,id=selectedQueryId.value
- if(!ds||!id)return false
- try{return workflowNodeTypeEditable({dataSet:ds,workflowId:workflowId.value,nodeId:id})}catch{return false}
-})
-const nodeDraftOnly=computed(()=>{
- revision.value;const nodes=view(nodesTable),id=selectedNode.value&&nodes?.getPkKey(selectedNode.value)
- if(!nodes||id===undefined)return false
- return views.value.every(target=>target===nodes?!target.rows.some(row=>{const key=target.getPkKey(row);return key!==id&&(target.hasEditingChanges(key)||target.dirtyTracking.hasPendingChanges(key))}):!target.hasEditingChanges()&&!target.dirtyTracking.hasPendingChanges())
-})
 const selectedQueryId=computed(()=>{revision.value;const row=selectedNode.value,id=row&&view(nodesTable)?.getPkKey(row);return typeof id==='string'?id:''})
-watch([selectedQueryId,loadedTarget],()=>{mergePath.value=null},{flush:'sync'})
-const modelFields=computed<SparkNode[]>(()=>[
- {type:'r-text',props:{field:'Name',label:'字段名称',readonly:true}},
- {type:'r-text',props:{field:'AsName',label:'输出名称',readonly:true}},
- {type:'r-checkbox',props:{field:'IsOutput',label:'输出',trueValue:1,falseValue:0,readonly:true}},
- ...Object.entries({type:'分类',FieldType:'字段类型',description:'字段说明'}).map(([field,label])=>({type:'r-text',props:{field,label,showCellControl:field==='description',cellReadonly:()=>field!=='description'||locked.value}})),
- {type:'r-text',props:{field:'OrderType',label:'排序方向',readonly:true}},
- ...Object.entries({Order:'排序顺序',Group:'分组标记'}).map(([field,label])=>({type:'r-number',props:{field,label,readonly:true}})),
-])
-const relationFields:SparkNode[]=Object.entries({parentModId:'父模型',childModId:'子模型',depType:'原服务关系类型',filter:'原服务条件',description:'说明'}).map(([field,label])=>({type:'r-text',props:{field,label,readonly:true}}))
 const layoutRow=computed(()=>{revision.value;return view(layoutTable)?.rows[0]})
 const layoutMissing=computed(()=>{revision.value;const target=view(layoutTable);return target?.requestState===RequestState.Loaded&&!target.loadingError&&target.rows.length===0})
 const layoutState=computed(()=>{
@@ -332,7 +139,6 @@ const queryError=computed(()=>{revision.value;return views.value.find(v=>v.loadi
 function pending(id:string,value:boolean):void{if(value)inputs.value.add(id);else inputs.value.delete(id)}
 function pendingPart(prefix:string):boolean{return [...inputs.value].some(id=>id.startsWith(prefix+'.'))}
 function validateJson(value:unknown):void{if(typeof value!=='string')throw new Error('配置必须是JSON文本');if(value.trim())parseJsonDocument(value)}
-function validateNodeConfig(value:unknown):void{validateJson(value);if(isCopyNode.value&&typeof value==='string'&&value.trim())workflowCopyTargetConfig(value)}
 function isUnconfirmed(table:string):boolean{revision.value;return view(table)?.hasUnconfirmedSave===true}
 const connectableKeys=computed(()=>{
  revision.value;const nodes=view(nodesTable),edges=view(edgesTable)
@@ -342,7 +148,7 @@ const connectableKeys=computed(()=>{
 async function connectObjects(edge:Readonly<{source:string|number;target:string|number}>):Promise<void>{
  const ds=dataSet.value,own=generation;if(!ds||locked.value||hasPending.value)return
  acting.value=true;error.value=''
- try{await WorkflowConnectors.add(ds,workflowId.value,edge);if(active&&own===generation)selectedKind.value='edge'}
+ try{await WorkflowConnectors.add(ds,workflowId.value,edge);if(active&&own===generation){selectedKind.value='edge';objectVisible.value=true}}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
@@ -351,71 +157,27 @@ function selectObject(event:SparkComponent.GraphSelection):void{
  const target=view(event.kind==='node'?nodesTable:edgesTable),row=target?.rows.find(row=>target.getPkKey(row)===event.id)
  if(!row){event.control.cancel=true;return}
  target?.setCurrentRow(row);selectedKind.value=event.kind;revision.value++
- if(event.kind==='node'){if(isStartNode.value)void loadStartParameters();else void loadNodeModel(row)}
- else void loadCondition()
+ if(event.open)objectVisible.value=true
 }
-async function loadCondition():Promise<void>{
- const ds=dataSet.value,id=selectedEdgeId.value,own=generation;if(!ds||id===undefined)return
- try{await WorkflowConnectorCondition.load(ds,workflowId.value,id)}catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
-}
-async function changeCondition(action:'add'|'save'):Promise<void>{
- const ds=dataSet.value,id=selectedEdgeId.value,own=generation
- if(!ds||id===undefined||busy.value||loadedTarget.value!==workflowId.value||pendingPart('condition'))return
- acting.value=true;error.value=''
- try{if(action==='add')await WorkflowConnectorCondition.add(ds,workflowId.value,id);else{const result=await WorkflowConnectorCondition.save(ds,workflowId.value,id);if(!result.success)throw Error(result.message??'条件保存未完整确认')}}
- catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
- finally{if(active&&own===generation){acting.value=false;revision.value++}}
-}
-function cancelCondition():void{if(busy.value||unconfirmed.value)return;try{conditionView()?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-async function loadStartParameters():Promise<void>{
- const params=view('Base_DataSet'),start=startView(),own=generation
- try{if(!params||!start)throw Error('开始参数正式视图缺失');await Promise.all([params.refresh(),start.refresh()]);if(params.loadingError)throw params.loadingError;if(start.loadingError)throw start.loadingError}
- catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
-}
-async function saveStartParameters():Promise<void>{
- if(busy.value||pendingPart('start')||loadedTarget.value!==workflowId.value||!dataSet.value||!isStartNode.value)return
- const own=generation;acting.value=true;error.value=''
- try{
-  const result=await saveWorkflowStartParameters(dataSet.value,workflowId.value);if(!result.success)throw Error(result.message??'开始参数保存未完整确认')
-  const targets=[view('Base_DataSet'),startView()],nodes=view(nodesTable)
-  if(targets.every(target=>target&&!target.hasUnconfirmedSave&&!target.hasEditingChanges()&&!target.dirtyTracking.hasPendingChanges())&&nodes&&!nodes.hasEditingChanges()&&!nodes.dirtyTracking.hasPendingChanges()){
-   const selectedId=nodes.currentRow?nodes.getPkKey(nodes.currentRow):undefined
-   await nodes.refresh();if(nodes.loadingError)throw nodes.loadingError
-   if(active&&own===generation&&selectedId!==undefined)nodes.setCurrentRow(nodes.rows.find(row=>nodes.getPkKey(row)===selectedId)??null)
-  }
- }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
- finally{if(active&&own===generation){acting.value=false;revision.value++}}
-}
-function cancelStartParameters():void{if(busy.value||unconfirmed.value)return;try{view('Base_DataSet')?.discardPendingChanges();startView()?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-async function loadNodeModel(row:DataRow):Promise<void>{
- const model=view(modelTable),own=generation;if(!model)return
- try{const modelId=nodeModelId(row);if(!modelId)return;model.queryContext={...model.queryContext,modelId};await model.refresh();if(model.loadingError)throw model.loadingError}
- catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
-}
-async function queryNodeCreated(id:string):Promise<void>{
- const nodes=view(nodesTable),row=nodes?.rows.find(row=>nodes.getPkKey(row)===id)
- if(!nodes||!row)throw Error('已创建节点未返回当前工作流')
- nodes.setCurrentRow(row);selectedKind.value='node';revision.value++
- await loadNodeModel(row)
-}
+
 async function nodeRemoved():Promise<void>{
  const ds=dataSet.value,own=generation;if(!ds)throw Error('工作流实例已失效')
  for(const table of [nodesTable,edgesTable,layoutTable]){const target=ds.getView(table);if(!target)throw Error('工作流视图已失效');await target.refresh();if(!active||own!==generation||ds!==dataSet.value)throw Error('工作流实例已变化');if(target.loadingError)throw target.loadingError}
- selectedKind.value=undefined;revision.value++
+ selectedKind.value=undefined;objectVisible.value=false;revision.value++
 }
 onBeforeRouteLeave(()=>!hasPending.value)
 onBeforeRouteUpdate(()=>!hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 watch(workflowId,async id=>{
  if(hasPending.value){error.value='请先保存或取消当前工作流修改';return}
- const own=++generation;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined;dataSet.value=undefined;boundaryCompletion.value=undefined;ready.value=false;opening.value=true;selectedKind.value=undefined;error.value='';inputs.value.clear()
+ const own=++generation;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined;dataSet.value=undefined;boundaryCompletion.value=undefined;ready.value=false;opening.value=true;selectedKind.value=undefined;objectVisible.value=false;error.value='';inputs.value.clear()
  try{
   if(!id.trim())throw new Error('缺少 workflowId 参数')
   const page=new PageRuntime({pageId:'workflow-design-page',scenarioIds:[scene],scenarioInputs:{[scene]:{workflowId:id}},loadScenario:()=>LowcodeWorkflowDefinition.loadEditor(scene)})
   runtime=page;await page.load();if(!active||own!==generation){page.dispose();return}
   dataSet.value=page.getDataSet(scene);const ds=dataSet.value,definition=view('Base_WorkflowDefinition')
   if(!ds||!definition||!view(nodesTable)||!view(edgesTable)||!view(layoutTable))throw new Error('工作流正式设计视图缺失')
-  const changed=()=>{revision.value++;const nodes=ds.getView(nodesTable),row=nodes?.currentRow,key=row&&nodes?.getPkKey(row);if(key!==undefined&&key!==null&&nodes?.dirtyTracking.isPendingCreate(key))selectedKind.value='node'}
+  const changed=()=>{revision.value++;const nodes=ds.getView(nodesTable),row=nodes?.currentRow,key=row&&nodes?.getPkKey(row);if(key!==undefined&&key!==null&&nodes?.dirtyTracking.isPendingCreate(key)&&row&&nodes.fieldAccess(row,'position_type').read==='visible'&&String(row['position_type'])==='1'){selectedKind.value='node';objectVisible.value=true}}
   off=ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
   await definition.refresh();if(definition.loadingError)throw definition.loadingError
   if(!active||own!==generation)return
@@ -441,46 +203,15 @@ async function changeBoundaries(action:'stage'|'save'|'cancel'|'discard'|'accept
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
-async function generateMergeOutput():Promise<void>{
- const ds=dataSet.value,id=selectedQueryId.value,own=generation
- if(locked.value||pendingPart('nodes')||!ds||!isMergeNode.value||!id||loadedTarget.value!==workflowId.value)return
- acting.value=true;error.value=''
- try{await generateWorkflowMergeOutput({dataSet:ds,workflowId:workflowId.value,nodeId:id})}
- catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
- finally{if(active&&own===generation){acting.value=false;revision.value++}}
-}
 async function save(table:string):Promise<void>{
  if(busy.value||loadedTarget.value!==workflowId.value)return
  const target=view(table),ds=dataSet.value,own=generation;if(!target||!ds)return
  acting.value=true;error.value=''
- try{const id=target.currentRow&&target.getPkKey(target.currentRow)
-  if(table===nodesTable){if(boundaryActive.value)throw Error('请先保存或取消边界补齐');await validateWorkflowNodeTypeChanges({dataSet:ds,workflowId:workflowId.value});await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value})}
-  if(!active||own!==generation||dataSet.value!==ds||loadedTarget.value!==workflowId.value)throw Error('节点保存目标已变化')
-  const result=table===edgesTable&&typeof id==='string'?await WorkflowConnectors.save(ds,workflowId.value,id):await ds.saveChanges({views:[{tableName:table,viewId:'default'}]})
-  if(!result.success)throw new Error(result.message??'保存未完整确认')
-  if(table===edgesTable&&active&&own===generation)await loadCondition()
- }
+ try{const result=await ds.saveChanges({views:[{tableName:table,viewId:target.viewId}]});if(!result.success)throw Error(result.message??'保存未完整确认')}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
-async function saveFields():Promise<void>{
- if(!isQueryNode.value&&!isOperationNode.value){await save(fieldsTable);return}
- const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
- if(busy.value||!ds||typeof id!=='string'||loadedTarget.value!==workflowId.value)return
- acting.value=true;error.value=''
- try{const result=await (isOperationNode.value?saveWorkflowOperationFields:saveWorkflowQueryFields)(ds,workflowId.value,id);if(!result?.success)throw Error(result?.message??'查询字段保存未完整确认')}
- catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
- finally{if(active&&own===generation){acting.value=false;revision.value++}}
-}
-async function cancelFields():Promise<void>{
- if(!isQueryNode.value&&!isOperationNode.value){cancel(fieldsTable);return}
- const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
- if(busy.value||unconfirmed.value||!ds||typeof id!=='string')return
- acting.value=true;error.value=''
- try{await (isOperationNode.value?cancelWorkflowOperationFields:cancelWorkflowQueryFields)(ds,workflowId.value,id)}
- catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
- finally{if(active&&own===generation){acting.value=false;revision.value++}}
-}
+
 async function createLayout():Promise<void>{
  if(locked.value||!layoutMissing.value)return
  const target=view(layoutTable),nodes=view(nodesTable),edges=view(edgesTable);if(!target||!nodes||!edges)return
@@ -507,11 +238,21 @@ function writeLayout(nodes:ReadonlyArray<Readonly<{id:string|number;x:number;y:n
 function moveLayout(event:SparkComponent.GraphNodeMove):void{try{writeLayout([event],event.edges);error.value=''}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function arrangeLayout(event:SparkComponent.GraphArrange):void{try{writeLayout(event.nodes,event.edges);error.value=''}catch(cause){event.control.cancel=true;error.value=cause instanceof Error?cause.message:String(cause)}}
 function cancel(table:string):void{if(busy.value||unconfirmed.value)return;try{view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-function discardAll():boolean{if(busy.value||unconfirmed.value)return false;try{if(boundaryActive.value){if(!boundaryCompletion.value?.canCancel)return false;boundaryCompletion.value.cancel()}if(mergeSourceApi.value&&!mergeSourceApi.value.discardChanges())return false;if(copyTargetApi.value&&!copyTargetApi.value.discardChanges())return false;if(querySourceApi.value&&!querySourceApi.value.discardChanges())return false;if(nodeRemoveApi.value&&!nodeRemoveApi.value.discardChanges())return false;if(queryCreateApi.value&&!queryCreateApi.value.discardChanges())return false;for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges();revision.value++;return !hasPending.value}catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}}
+function discardAll():boolean{
+ if(busy.value||unconfirmed.value)return false
+ try{if(boundaryActive.value){if(!boundaryCompletion.value?.canCancel)return false;boundaryCompletion.value.cancel()}
+  if(nodePanelApi.value&&!nodePanelApi.value.discardChanges())return false
+  for(const target of views.value)if(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()||inputs.value.size>0)target.discardPendingChanges()
+  revision.value++;return !hasPending.value
+ }catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}
+}
+
 onBeforeUnmount(()=>{active=false;generation++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
+const objectTitle=computed(()=>selectedKind.value==='edge'?'节点关系设置':isStartNode.value?'输入参数设置':'节点设置')
+function openSelectedObject():void{if(!locked.value&&!hasPending.value&&selectedKind.value)objectVisible.value=true}
+
 </script>
 <style scoped>
 .workflow-design-page{display:grid;gap:12px;padding:24px}
-.workflow-workspaces{display:grid;grid-template-columns:minmax(0,1fr) 380px;min-height:560px;gap:20px}
-.workflow-workspaces aside{min-width:0}
+.workflow-workspaces{min-width:0;min-height:560px}
 </style>

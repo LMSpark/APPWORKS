@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/edge-panel/workflow-design-edge-panel\n职责：原连线及条件DataView的配置交互。\n边界：使用原连接器/条件命令，按当前连线ID保存取消，不复制关系或条件数据。\nAI用途：画布关系设置对话框复用同一工作流实例及正式连线身份。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-04T23:24:25.331Z",
+  "models": {}
+}

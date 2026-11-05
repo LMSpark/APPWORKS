@@ -1,0 +1,296 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/execution-inputs",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/execution-inputs",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution-inputs\n职责：从正式开始声明及已核定祖先输出生成测试输入的字段描述和初始参数。\n边界：只读本次DataView，不查询、编辑、求值或执行；初始参数直接交原命令视图持有。\nAI用途：运行测试窗口按原节点ID及实际字段名称绑定input，不把多个声明拆成多条业务行。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowTestField",
+      "WorkflowTestInputGroup",
+      "WorkflowTestInputPresentation"
+    ]
+  },
+  "$defs": {
+    "WorkflowTestField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowTestField",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "label",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowTestInputGroup": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowTestInputGroup",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "path": {
+          "$ref": "../../../../../packages/spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowTestField"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "label",
+        "path",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowTestInputPresentation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowTestInputPresentation",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/WorkflowTestInputGroup"
+          }
+        },
+        "seed": true,
+        "signature": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "groups",
+        "seed",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "node",
+            "workflow"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "dataSet",
+        "workflowId",
+        "mode"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-04T23:44:25.438Z",
+  "models": {
+    "WorkflowTestField": {
+      "name": "WorkflowTestField",
+      "jsdoc": "输入字段描述；不持有可编辑测试值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式参数或发布字段的身份。 */\n    id: string;\n    /** 实际业务行字段名，保留别名。 */\n    name: string;\n    /** 字段标题。 */\n    label: string;\n    /** 已声明的字段类型。 */\n    type: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式参数或发布字段的身份。 */\n    id: string;\n    /** 实际业务行字段名，保留别名。 */\n    name: string;\n    /** 字段标题。 */\n    label: string;\n    /** 已声明的字段类型。 */\n    type: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "正式参数或发布字段的身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "name",
+              "jsdoc": "实际业务行字段名，保留别名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "字段标题。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "已声明的字段类型。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowTestInputGroup": {
+      "name": "WorkflowTestInputGroup",
+      "jsdoc": "同一input字段中一个业务行数组的呈现位置。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式来源节点；整流使用固定的呈现标识。 */\n    id: string;\n    /** 来源名称或可读的真实ID。 */\n    label: string;\n    /** 相对原命令input的路径；整流为空路径。 */\n    path: JsonPath;\n    /** 已正式声明的行字段。 */\n    fields: readonly WorkflowTestField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式来源节点；整流使用固定的呈现标识。 */\n    id: string;\n    /** 来源名称或可读的真实ID。 */\n    label: string;\n    /** 相对原命令input的路径；整流为空路径。 */\n    path: JsonPath;\n    /** 已正式声明的行字段。 */\n    fields: readonly WorkflowTestField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "id",
+              "jsdoc": "正式来源节点；整流使用固定的呈现标识。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "来源名称或可读的真实ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "path",
+              "jsdoc": "相对原命令input的路径；整流为空路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "已正式声明的行字段。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowTestInputPresentation": {
+      "name": "WorkflowTestInputPresentation",
+      "jsdoc": "测试窗口一次打开时读取的声明与初始值。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 输入位置及正式字段；没有业务运行行副本。 */\n    groups: readonly WorkflowTestInputGroup[];\n    /** 初始值立即交原命令视图，不作为第二份可编辑状态。 */\n    seed: unknown;\n    /** 原字段声明合同，刷新期间不得重置本次测试。 */\n    signature: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 输入位置及正式字段；没有业务运行行副本。 */\n    groups: readonly WorkflowTestInputGroup[];\n    /** 初始值立即交原命令视图，不作为第二份可编辑状态。 */\n    seed: unknown;\n    /** 原字段声明合同，刷新期间不得重置本次测试。 */\n    signature: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "groups",
+              "jsdoc": "输入位置及正式字段；没有业务运行行副本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "seed",
+              "jsdoc": "初始值立即交原命令视图，不作为第二份可编辑状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "signature",
+              "jsdoc": "原字段声明合同，刷新期间不得重置本次测试。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "本次测试的原实例、工作流及模式。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 宿主元数据实例。 */\n    dataSet: DataSet;\n    /** 真实工作流ID。 */\n    workflowId: string;\n    /** 单节点或整流。 */\n    mode: 'node' | 'workflow';\n    /** 单节点测试的正式目标。 */\n    nodeId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 宿主元数据实例。 */\n    dataSet: DataSet;\n    /** 真实工作流ID。 */\n    workflowId: string;\n    /** 单节点或整流。 */\n    mode: 'node' | 'workflow';\n    /** 单节点测试的正式目标。 */\n    nodeId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "宿主元数据实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "jsdoc": "真实工作流ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "jsdoc": "单节点或整流。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "单节点测试的正式目标。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

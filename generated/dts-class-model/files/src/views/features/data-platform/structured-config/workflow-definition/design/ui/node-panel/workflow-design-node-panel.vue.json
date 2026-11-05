@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel",
+    "sourcePath": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+    "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel",
+    "jsdoc": "@module app:views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel\n职责：原节点DataView上的配置呈现与业务命令触发。\n边界：复用宿主实例、公共保存及原领域命令，不创建第二份节点/字段草稿或数据查询实现。\nAI用途：节点对话框承接同一节点身份，来源和字段操作不因页签切换重建。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-05T00:01:49.621Z",
+  "models": {}
+}

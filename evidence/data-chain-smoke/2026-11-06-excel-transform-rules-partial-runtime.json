@@ -1,0 +1,1111 @@
+{
+  "scope": "Partial real metadata CRUD; controlled fault did not activate; not thirteen-type completion",
+  "completedTypes": [
+    "TRIM",
+    "REPLACE",
+    "CONVERT",
+    "EXPLODE"
+  ],
+  "controlledRecoveryProven": false,
+  "independentCleanupConfirmed": true,
+  "sourcesUnchanged": true,
+  "scripts": [
+    {
+      "path": "artifacts/data-chain-smoke/excel-rules-crud-owned.mts",
+      "sha256": "d4ab7eb758a45fb9686e7b4b714f27b8cce70a161e578325e5ec1b548768891c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-rules-crud-owned-run.mts",
+      "sha256": "f2fd28b8fe7cac120b6502a099cf4e5e7184fa72e96103adc6840503e6b89bdc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-rules-crud-owned-driver.ps1",
+      "sha256": "0a2d858fa762ebc184492e56a9b22a840ec5b5d9afe5984b7b1e9322d3a3ea21"
+    }
+  ],
+  "audit": {
+    "phase": "failed",
+    "processId": 368,
+    "schemeId": "A9C70F4F86EA443F8FD57B60A08F11A0",
+    "nodeId": "40A5596EC0EA433ABF9338710E81C6BC",
+    "mappingIds": [
+      "0BD1C1AF98F24A1EA0D8ADFE2F190091",
+      "7EB6281C974846FA90036DB2C57F2092",
+      "7E6B294F96904C128B3DEEF817CC8E1E"
+    ],
+    "marker": "SMOKE_EXCEL_RULES_1793904198345",
+    "rules": [
+      {
+        "id": "BA3670F16A034FD481E2F3B954E74F48",
+        "type": "TRIM"
+      },
+      {
+        "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+        "type": "REPLACE"
+      },
+      {
+        "id": "E365FB75C56048D7BDF827A5BF9590BA",
+        "type": "CONVERT"
+      },
+      {
+        "id": "CB11C0F80A2943A69151F421EF9E16F0",
+        "type": "EXPLODE"
+      },
+      {
+        "id": "21556CFBE5514A4090B80ACE32B5219F",
+        "type": "LOOKUP"
+      },
+      {
+        "id": "60FD4DC5402D46FE8303A0BA656C3AF2",
+        "type": "COMPUTE"
+      },
+      {
+        "id": "2408973FF2D54EF8A109C16554587805",
+        "type": "DEFAULT"
+      },
+      {
+        "id": "30CD29C396144E3CAD97B37A706CF344",
+        "type": "OVERRIDE"
+      },
+      {
+        "id": "7E69481CCFDE489395E3C4C5663A92CA",
+        "type": "VALIDATE"
+      },
+      {
+        "id": "6E12ACFEE86C407F9A26DDFF2188445F",
+        "type": "FILTER"
+      },
+      {
+        "id": "63558425ED5243E6A00CB24831362C10",
+        "type": "DEDUPLICATE"
+      },
+      {
+        "id": "FD483F3F196A478CA2D92142A48EF769",
+        "type": "UNPIVOT"
+      },
+      {
+        "id": "FA6021BD04274272B61412C67D67A1A5",
+        "type": "PIVOT"
+      }
+    ],
+    "acks": [
+      {
+        "label": "create-scheme",
+        "table": "Base_Import_solution",
+        "kind": "Added",
+        "ids": [
+          "A9C70F4F86EA443F8FD57B60A08F11A0"
+        ],
+        "writes": 1,
+        "values": [
+          {
+            "coding": "SMOKE_EXCEL_RULES_1793904198345",
+            "dataSetId": "34BDBE645F461A3D83282A941D6037F4",
+            "rowid": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "solutionName": "SMOKE_EXCEL_RULES_1793904198345",
+            "transform_enabled": 0
+          }
+        ]
+      },
+      {
+        "label": "create-node",
+        "table": "Base_ImportData_Config",
+        "kind": "Added",
+        "ids": [
+          "40A5596EC0EA433ABF9338710E81C6BC"
+        ],
+        "writes": 2,
+        "values": [
+          {
+            "dataIndex": 2,
+            "exportType": "default",
+            "foreignKeyField": "",
+            "parentField": "",
+            "pid": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "relatedappid": "",
+            "rowid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "schemeid": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sheet": 0,
+            "sheetName": "SMOKE_EXCEL_RULES_1793904198345",
+            "sheet_layout_json": "",
+            "table": "",
+            "titleIndex": 1
+          }
+        ]
+      },
+      {
+        "label": "create-mappings",
+        "table": "Base_ImportData_Field",
+        "kind": "Added",
+        "ids": [
+          "0BD1C1AF98F24A1EA0D8ADFE2F190091",
+          "7EB6281C974846FA90036DB2C57F2092",
+          "7E6B294F96904C128B3DEEF817CC8E1E"
+        ],
+        "writes": 3,
+        "values": [
+          {
+            "configid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "index": "A",
+            "isDict": 0,
+            "isReadOnly": 0,
+            "name": "a",
+            "rowid": "0BD1C1AF98F24A1EA0D8ADFE2F190091",
+            "title": "a",
+            "type": 0
+          },
+          {
+            "configid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "index": "B",
+            "isDict": 0,
+            "isReadOnly": 0,
+            "name": "b",
+            "rowid": "7EB6281C974846FA90036DB2C57F2092",
+            "title": "b",
+            "type": 0
+          },
+          {
+            "configid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "index": "C",
+            "isDict": 0,
+            "isReadOnly": 0,
+            "name": "c",
+            "rowid": "7E6B294F96904C128B3DEEF817CC8E1E",
+            "title": "c",
+            "type": 0
+          }
+        ]
+      },
+      {
+        "label": "TRIM-create",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Added",
+        "ids": [
+          "BA3670F16A034FD481E2F3B954E74F48"
+        ],
+        "writes": 4,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "BA3670F16A034FD481E2F3B954E74F48",
+            "on_error": "FAIL_ROW",
+            "phase": "SMOKE",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_TRIM",
+            "rule_type": "TRIM",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "TRIM-update",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Changed",
+        "ids": [
+          "BA3670F16A034FD481E2F3B954E74F48"
+        ],
+        "writes": 5,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "BA3670F16A034FD481E2F3B954E74F48",
+            "on_error": "FAIL_ROW",
+            "phase": "SMOKE",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_TRIM_edited",
+            "rule_type": "TRIM",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "TRIM-delete",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Deleted",
+        "ids": [
+          "BA3670F16A034FD481E2F3B954E74F48"
+        ],
+        "writes": 6,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "BA3670F16A034FD481E2F3B954E74F48",
+            "on_error": "FAIL_ROW",
+            "phase": "SMOKE",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_TRIM_edited",
+            "rule_type": "TRIM",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "REPLACE-create",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Added",
+        "ids": [
+          "B5965E3C9CBC426EAFC43D39D6FD7A78"
+        ],
+        "writes": 7,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\"x\",\"replacement\":\"\",\"regex\":false,\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_REPLACE",
+            "rule_type": "REPLACE",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "REPLACE-update",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Changed",
+        "ids": [
+          "B5965E3C9CBC426EAFC43D39D6FD7A78"
+        ],
+        "writes": 8,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\"x\",\"replacement\":\"\",\"regex\":false,\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_REPLACE_edited",
+            "rule_type": "REPLACE",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "REPLACE-delete",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Deleted",
+        "ids": [
+          "B5965E3C9CBC426EAFC43D39D6FD7A78"
+        ],
+        "writes": 9,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\"x\",\"replacement\":\"\",\"regex\":false,\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_REPLACE_edited",
+            "rule_type": "REPLACE",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "CONVERT-create",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Added",
+        "ids": [
+          "E365FB75C56048D7BDF827A5BF9590BA"
+        ],
+        "writes": 10,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "E365FB75C56048D7BDF827A5BF9590BA",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_CONVERT",
+            "rule_type": "CONVERT",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "b",
+            "target_field": "b"
+          }
+        ]
+      },
+      {
+        "label": "CONVERT-update",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Changed",
+        "ids": [
+          "E365FB75C56048D7BDF827A5BF9590BA"
+        ],
+        "writes": 11,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "E365FB75C56048D7BDF827A5BF9590BA",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_CONVERT_edited",
+            "rule_type": "CONVERT",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "b",
+            "target_field": "b"
+          }
+        ]
+      },
+      {
+        "label": "CONVERT-delete",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Deleted",
+        "ids": [
+          "E365FB75C56048D7BDF827A5BF9590BA"
+        ],
+        "writes": 12,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "E365FB75C56048D7BDF827A5BF9590BA",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_CONVERT_edited",
+            "rule_type": "CONVERT",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "b",
+            "target_field": "b"
+          }
+        ]
+      },
+      {
+        "label": "EXPLODE-create",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Added",
+        "ids": [
+          "CB11C0F80A2943A69151F421EF9E16F0"
+        ],
+        "writes": 13,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"[,，]+\",\"trim\":true,\"ignoreEmpty\":true,\"distinct\":true,\"maxItems\":50,\"emptyPolicy\":\"KEEP_NULL\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "CB11C0F80A2943A69151F421EF9E16F0",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_EXPLODE",
+            "rule_type": "EXPLODE",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "EXPLODE-update",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Changed",
+        "ids": [
+          "CB11C0F80A2943A69151F421EF9E16F0"
+        ],
+        "writes": 14,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"[,，]+\",\"trim\":true,\"ignoreEmpty\":true,\"distinct\":true,\"maxItems\":50,\"emptyPolicy\":\"KEEP_NULL\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "CB11C0F80A2943A69151F421EF9E16F0",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_EXPLODE_edited",
+            "rule_type": "EXPLODE",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "EXPLODE-delete",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Deleted",
+        "ids": [
+          "CB11C0F80A2943A69151F421EF9E16F0"
+        ],
+        "writes": 15,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"[,，]+\",\"trim\":true,\"ignoreEmpty\":true,\"distinct\":true,\"maxItems\":50,\"emptyPolicy\":\"KEEP_NULL\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "CB11C0F80A2943A69151F421EF9E16F0",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_EXPLODE_edited",
+            "rule_type": "EXPLODE",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "LOOKUP-create",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Added",
+        "ids": [
+          "21556CFBE5514A4090B80ACE32B5219F"
+        ],
+        "writes": 16,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"mapping\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null},\"missingPolicy\":\"ERROR\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "21556CFBE5514A4090B80ACE32B5219F",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_LOOKUP",
+            "rule_type": "LOOKUP",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "cleanup-rules",
+        "table": "Base_Import_Transform_Rule",
+        "kind": "Deleted",
+        "ids": [
+          "21556CFBE5514A4090B80ACE32B5219F"
+        ],
+        "writes": 18,
+        "values": [
+          {
+            "condition_json": "",
+            "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+            "config_json": "{\"executionScope\":\"IMPORT\",\"mapping\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null},\"missingPolicy\":\"ERROR\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+            "description": "owned smoke",
+            "enabled": 1,
+            "id": "21556CFBE5514A4090B80ACE32B5219F",
+            "on_error": "FAIL_ROW",
+            "phase": "",
+            "rule_name": "SMOKE_EXCEL_RULES_1793904198345_LOOKUP_edited",
+            "rule_type": "LOOKUP",
+            "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sort_order": 10,
+            "source_field": "a",
+            "target_field": "a"
+          }
+        ]
+      },
+      {
+        "label": "cleanup-mappings",
+        "table": "Base_ImportData_Field",
+        "kind": "Deleted",
+        "ids": [
+          "0BD1C1AF98F24A1EA0D8ADFE2F190091",
+          "7EB6281C974846FA90036DB2C57F2092",
+          "7E6B294F96904C128B3DEEF817CC8E1E"
+        ],
+        "writes": 19,
+        "values": [
+          {
+            "DesenID": null,
+            "configid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "filterField": null,
+            "filterValue": null,
+            "index": "A",
+            "isDict": 0,
+            "isReadOnly": 0,
+            "name": "a",
+            "refDataid": null,
+            "refTable": null,
+            "refTableDesc": null,
+            "rowid": "0BD1C1AF98F24A1EA0D8ADFE2F190091",
+            "textField": null,
+            "textFieldDesc": null,
+            "title": "a",
+            "type": 0,
+            "valueField": null,
+            "valueFieldDesc": null
+          },
+          {
+            "DesenID": null,
+            "configid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "filterField": null,
+            "filterValue": null,
+            "index": "B",
+            "isDict": 0,
+            "isReadOnly": 0,
+            "name": "b",
+            "refDataid": null,
+            "refTable": null,
+            "refTableDesc": null,
+            "rowid": "7EB6281C974846FA90036DB2C57F2092",
+            "textField": null,
+            "textFieldDesc": null,
+            "title": "b",
+            "type": 0,
+            "valueField": null,
+            "valueFieldDesc": null
+          },
+          {
+            "DesenID": null,
+            "configid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "filterField": null,
+            "filterValue": null,
+            "index": "C",
+            "isDict": 0,
+            "isReadOnly": 0,
+            "name": "c",
+            "refDataid": null,
+            "refTable": null,
+            "refTableDesc": null,
+            "rowid": "7E6B294F96904C128B3DEEF817CC8E1E",
+            "textField": null,
+            "textFieldDesc": null,
+            "title": "c",
+            "type": 0,
+            "valueField": null,
+            "valueFieldDesc": null
+          }
+        ]
+      },
+      {
+        "label": "cleanup-node",
+        "table": "Base_ImportData_Config",
+        "kind": "Deleted",
+        "ids": [
+          "40A5596EC0EA433ABF9338710E81C6BC"
+        ],
+        "writes": 20,
+        "values": [
+          {
+            "dataIndex": 2,
+            "exportType": "default",
+            "filters": null,
+            "foreignKeyField": "",
+            "foreignKeyFieldDesc": null,
+            "parentField": "",
+            "parentFieldDesc": null,
+            "pid": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "relatedAppName": null,
+            "relatedappid": "",
+            "rowid": "40A5596EC0EA433ABF9338710E81C6BC",
+            "schemeid": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "sheet": 0,
+            "sheetName": "SMOKE_EXCEL_RULES_1793904198345",
+            "sheet_layout_json": "",
+            "sorted": null,
+            "table": "",
+            "tableDesc": null,
+            "titleIndex": 1
+          }
+        ]
+      },
+      {
+        "label": "cleanup-scheme",
+        "table": "Base_Import_solution",
+        "kind": "Deleted",
+        "ids": [
+          "A9C70F4F86EA443F8FD57B60A08F11A0"
+        ],
+        "writes": 21,
+        "values": [
+          {
+            "coding": "SMOKE_EXCEL_RULES_1793904198345",
+            "dataSetId": "34BDBE645F461A3D83282A941D6037F4",
+            "rowid": "A9C70F4F86EA443F8FD57B60A08F11A0",
+            "solutionName": "SMOKE_EXCEL_RULES_1793904198345",
+            "templatePath": null,
+            "transform_enabled": 0
+          }
+        ]
+      }
+    ],
+    "readbacks": [
+      {
+        "id": "BA3670F16A034FD481E2F3B954E74F48",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "BA3670F16A034FD481E2F3B954E74F48",
+          "on_error": "FAIL_ROW",
+          "phase": "SMOKE",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_TRIM",
+          "rule_type": "TRIM",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null
+          }
+        }
+      },
+      {
+        "id": "BA3670F16A034FD481E2F3B954E74F48",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "BA3670F16A034FD481E2F3B954E74F48",
+          "on_error": "FAIL_ROW",
+          "phase": "SMOKE",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_TRIM_edited",
+          "rule_type": "TRIM",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null,
+            "edited": true
+          }
+        }
+      },
+      {
+        "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\"x\",\"replacement\":\"\",\"regex\":false,\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_REPLACE",
+          "rule_type": "REPLACE",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "search": "x",
+          "replacement": "",
+          "regex": false,
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null
+          }
+        }
+      },
+      {
+        "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"search\":\"x\",\"replacement\":\"\",\"regex\":false,\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_REPLACE_edited",
+          "rule_type": "REPLACE",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "search": "x",
+          "replacement": "",
+          "regex": false,
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null,
+            "edited": true
+          }
+        }
+      },
+      {
+        "id": "E365FB75C56048D7BDF827A5BF9590BA",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "E365FB75C56048D7BDF827A5BF9590BA",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_CONVERT",
+          "rule_type": "CONVERT",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "b",
+          "target_field": "b"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "targetType": "INTEGER",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null
+          }
+        }
+      },
+      {
+        "id": "E365FB75C56048D7BDF827A5BF9590BA",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"targetType\":\"INTEGER\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "E365FB75C56048D7BDF827A5BF9590BA",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_CONVERT_edited",
+          "rule_type": "CONVERT",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "b",
+          "target_field": "b"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "targetType": "INTEGER",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null,
+            "edited": true
+          }
+        }
+      },
+      {
+        "id": "CB11C0F80A2943A69151F421EF9E16F0",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"[,，]+\",\"trim\":true,\"ignoreEmpty\":true,\"distinct\":true,\"maxItems\":50,\"emptyPolicy\":\"KEEP_NULL\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "CB11C0F80A2943A69151F421EF9E16F0",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_EXPLODE",
+          "rule_type": "EXPLODE",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "delimiterRegex": "[,，]+",
+          "trim": true,
+          "ignoreEmpty": true,
+          "distinct": true,
+          "maxItems": 50,
+          "emptyPolicy": "KEEP_NULL",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null
+          }
+        }
+      },
+      {
+        "id": "CB11C0F80A2943A69151F421EF9E16F0",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"delimiterRegex\":\"[,，]+\",\"trim\":true,\"ignoreEmpty\":true,\"distinct\":true,\"maxItems\":50,\"emptyPolicy\":\"KEEP_NULL\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null,\"edited\":true}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "CB11C0F80A2943A69151F421EF9E16F0",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_EXPLODE_edited",
+          "rule_type": "EXPLODE",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "delimiterRegex": "[,，]+",
+          "trim": true,
+          "ignoreEmpty": true,
+          "distinct": true,
+          "maxItems": 50,
+          "emptyPolicy": "KEEP_NULL",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null,
+            "edited": true
+          }
+        }
+      },
+      {
+        "id": "21556CFBE5514A4090B80ACE32B5219F",
+        "independentRuntime": true,
+        "values": {
+          "condition_json": "",
+          "config_id": "40A5596EC0EA433ABF9338710E81C6BC",
+          "config_json": "{\"executionScope\":\"IMPORT\",\"mapping\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null},\"missingPolicy\":\"ERROR\",\"smokeExtension\":{\"zero\":0,\"flag\":false,\"empty\":\"\",\"nil\":null}}",
+          "description": "owned smoke",
+          "enabled": 1,
+          "id": "21556CFBE5514A4090B80ACE32B5219F",
+          "on_error": "FAIL_ROW",
+          "phase": "",
+          "rule_name": "SMOKE_EXCEL_RULES_1793904198345_LOOKUP",
+          "rule_type": "LOOKUP",
+          "scheme_id": "A9C70F4F86EA443F8FD57B60A08F11A0",
+          "sort_order": 10,
+          "source_field": "a",
+          "target_field": "a"
+        },
+        "json": {
+          "executionScope": "IMPORT",
+          "mapping": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null
+          },
+          "missingPolicy": "ERROR",
+          "smokeExtension": {
+            "zero": 0,
+            "flag": false,
+            "empty": "",
+            "nil": null
+          }
+        }
+      },
+      {
+        "table": "Base_Import_Transform_Rule",
+        "ids": [
+          "BA3670F16A034FD481E2F3B954E74F48",
+          "B5965E3C9CBC426EAFC43D39D6FD7A78",
+          "E365FB75C56048D7BDF827A5BF9590BA",
+          "CB11C0F80A2943A69151F421EF9E16F0",
+          "21556CFBE5514A4090B80ACE32B5219F",
+          "60FD4DC5402D46FE8303A0BA656C3AF2",
+          "2408973FF2D54EF8A109C16554587805",
+          "30CD29C396144E3CAD97B37A706CF344",
+          "7E69481CCFDE489395E3C4C5663A92CA",
+          "6E12ACFEE86C407F9A26DDFF2188445F",
+          "63558425ED5243E6A00CB24831362C10",
+          "FD483F3F196A478CA2D92142A48EF769",
+          "FA6021BD04274272B61412C67D67A1A5"
+        ],
+        "exactAbsence": true,
+        "total": 0
+      },
+      {
+        "table": "Base_ImportData_Field",
+        "ids": [
+          "0BD1C1AF98F24A1EA0D8ADFE2F190091",
+          "7EB6281C974846FA90036DB2C57F2092",
+          "7E6B294F96904C128B3DEEF817CC8E1E"
+        ],
+        "exactAbsence": true,
+        "total": 0
+      },
+      {
+        "table": "Base_ImportData_Config",
+        "ids": [
+          "40A5596EC0EA433ABF9338710E81C6BC"
+        ],
+        "exactAbsence": true,
+        "total": 0
+      },
+      {
+        "table": "Base_Import_Transform_Rule",
+        "field": "config_id",
+        "nodeId": "40A5596EC0EA433ABF9338710E81C6BC",
+        "scopeAbsence": true,
+        "total": 0
+      },
+      {
+        "table": "Base_ImportData_Field",
+        "field": "configid",
+        "nodeId": "40A5596EC0EA433ABF9338710E81C6BC",
+        "scopeAbsence": true,
+        "total": 0
+      }
+    ],
+    "cancels": [
+      {
+        "id": "BA3670F16A034FD481E2F3B954E74F48",
+        "type": "TRIM",
+        "writes": 0
+      },
+      {
+        "id": "B5965E3C9CBC426EAFC43D39D6FD7A78",
+        "type": "REPLACE",
+        "writes": 0
+      },
+      {
+        "id": "E365FB75C56048D7BDF827A5BF9590BA",
+        "type": "CONVERT",
+        "writes": 0
+      },
+      {
+        "id": "CB11C0F80A2943A69151F421EF9E16F0",
+        "type": "EXPLODE",
+        "writes": 0
+      },
+      {
+        "id": "21556CFBE5514A4090B80ACE32B5219F",
+        "type": "LOOKUP",
+        "writes": 0
+      }
+    ],
+    "fixtureRemaining": false,
+    "sources": [
+      {
+        "path": "packages/spark-data/src/data-view.ts",
+        "sha256": "5b6d41edbeaacf8795fde92f0f7349ddedcbab23f1ad31d9a6b784b7ef23e1c8"
+      },
+      {
+        "path": "packages/spark-data/src/dataset.ts",
+        "sha256": "91232876305a5347a747560e59d4f9f1775cb5770a6645e3a56bee3f36bc4f08"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+        "sha256": "89ea7f290b54511ec9837dea838cb29d751747478b008f6f79c56e377fdaa84c"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/transform/references.ts",
+        "sha256": "d538b5fa6f46025dbe1f7a38ebb1af73861f08c024c404d42466e1a95d8a9837"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/transform/pipeline.ts",
+        "sha256": "5d3d6227557dd4735bc2743c009c56b133c723da8dc1a1c12a4b816222c4ea16"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/transform/queries.ts",
+        "sha256": "707dbde2b16b81f3ac9dd6673fa2ad2b081d3a47b79b23c17ad05bbc54f49b9a"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts",
+        "sha256": "d03238f7fc5bd377b3e00f55387fb1ca6dfa3551b22ef0eed81ff417f2b054ea"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/transform/validation.ts",
+        "sha256": "1d9b036d1341f72c1d2030eb06f7866c37ef8ef65b3c3c12cea168156b9f1fc2"
+      },
+      {
+        "path": "config/pages/semi-structured/excel-import-editor/pagedata.json",
+        "sha256": "2662999552e88706fb14d0e0472ed228520a49da7cd0ac94cea7acf9691d21b8"
+      }
+    ],
+    "reads": 554,
+    "normalReads": 460,
+    "recoveryReads": 0,
+    "cleanupReads": 94,
+    "writes": 21,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "testedAt": "2026-11-05T18:45:30.985Z",
+    "error": "Controlled transport boundary was not observed; stop before continuing",
+    "cleanedAt": "2026-11-05T18:45:30.957Z"
+  },
+  "host": {
+    "processId": 368,
+    "hostReads": 42,
+    "blockedFetches": 0
+  }
+}

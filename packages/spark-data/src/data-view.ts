@@ -39,7 +39,7 @@ import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
 import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import { RequestState } from './types'
 import { TreeManager } from './node-tree/tree-manager'
-import type { DataTable, DataTableQuerySaveRule } from './data-table'
+import type { DataTable, DataTableQuerySaveRule, DataTableQueryReferenceChange } from './data-table'
 import type { DataSet } from './dataset'
 import type { CrudService } from './strategies/crud/crud-service'
 import type { DataValidator } from './validation/validation'
@@ -284,6 +284,30 @@ type DataViewQuerySaveCapture = Readonly<{
   deleted: readonly DataViewQuerySaveRow[]
 }>
 type DataViewQuerySavePreview = Pick<DataViewQuerySaveCapture, 'context' | 'added' | 'changed' | 'deleted'>
+
+/** 数据集首次保存引用预检的内部输入，原目标集合不向业务回调暴露。 */
+type DataViewDomainPreflightInput = Readonly<{
+  /** 本次全部选中视图，包含尚无修改的目标。 */
+  targets: readonly DataViewQuerySaveTarget[]
+  /** 是否将原编辑覆盖纳入本次捕获。 */
+  includeEditingRows: boolean
+}>
+/** 已验证批次仅在同一原生保存链中消费一次，不提供跳过校验开关。 */
+type DataViewDomainPreflight = Readonly<{
+  /** 应用任何编辑覆盖前重核原查询、规则、权限及变化。 */
+  assertCurrent(): void
+  /** 应用后核对实际捕获，再进入原查询owner保存管线。 */
+  save(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>>
+}>
+/** 原保存捕获的私有派发前守卫。 */
+type DataViewDomainDispatchCheck = (captures: ReadonlyArray<Readonly<{view: DataView; capture: DataViewQuerySaveCapture}>>) => void
+/** 同一实际派发来源中、同一模型的只读检查输入。 */
+type DataViewDomainReferenceGroup = {
+  /** 本次不可替换的模型规则。 */
+  rule: DataTableQuerySaveRule
+  /** 已隔离投影的本批变化。 */
+  changes: DataTableQueryReferenceChange[]
+}
 type DataViewQuerySaveAcceptance = DataViewQuerySaveCapture & Readonly<{
   receipt: DataViewQuerySaveReceipt
 }>
@@ -444,7 +468,11 @@ rows: DataRow[] = []
   /** 与当前 rows 同一次查询登记的后端最终权限事实。 */
 
   #queryExecutor: DataViewQueryExecutor | undefined
+  /** 后发的同视图引用预检使旧票据失效，不能同时派发相同变更。 */
+  #domainSaveRevision = 0
   #unconfirmedQuerySave: DataViewQuerySaveCapture | undefined
+  /** 仅关联原失败对象与当前未知捕获，不序列化或暴露捕获内容。 */
+  #unconfirmedQuerySaveFailure: Error | undefined
   /**
    * 本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。
    * 抛错使本次请求失败并保留旧结果；校验期间若被新查询替代，旧结果及错误均不接纳。
@@ -737,9 +765,7 @@ rows: DataRow[] = []
     }
     if (!context || !row) return DENIED_FIELD_ACCESS
     if (context.columns !== undefined && !this.getColumn(field)) return DENIED_FIELD_ACCESS
-    const draftKey = this.getPkKey(row)
-    if (draftKey !== undefined && this.dirtyTrackingDelegate.pendingCreateIds.has(draftKey)
-      && this.getRowById(draftKey) && !context.rows.some(original => context.rowKey(original) === draftKey)) {
+    if (this.isPendingQueryCreation(row,context)) {
       return this.queryNewRowFieldAccess(context, field)
     }
     if (this._computedDelegate.isConfigured(field)) {
@@ -771,6 +797,13 @@ rows: DataRow[] = []
       component: editable ? 'editable' : 'readonly', writeMode: editable ? required ? 'required' : 'editable' : 'readonly'}
   }
 
+  /** 当前视图中确实尚未进入正式查询结果的本地新增，不以缺失行权限推导。 */
+  private isPendingQueryCreation(row:DataRow,context:DataViewQueryResult): boolean {
+    const key=this.getPkKey(row)
+    return key!==undefined&&this.dirtyTrackingDelegate.pendingCreateIds.has(key)&&this.getRowById(key)!==null
+      &&!context.rows.some(original=>context.rowKey(original)===key)
+  }
+
   /** @internal Configured calculations consume only fields visible in this view's current query. */
   computedInputIsVisible(row: DataRow, field: string): boolean {
     const context = this.currentQueryResult()
@@ -792,9 +825,10 @@ rows: DataRow[] = []
     return this.currentQueryResult()?.addActionState(available && !this._resultStale && !this.queryParentPendingCreate()) ?? 'hidden'
   }
 
-  /** 行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。 */
+  /** 本视图待新增草稿沿同次A，其余记录沿E；只控制呈现，不授予保存权限。 */
   editActionState(row: DataRow | null, available = true): DataViewActionState {
     const context = this.currentQueryResult()
+    if(context&&row&&this.isPendingQueryCreation(row,context))return this.addActionState(available&&this.#queryResultRefreshIdentity===this.refreshIdentity())
     return context && row ? context.editActionState(context.rowKey(row), available && !this._resultStale) : 'disabled'
   }
 
@@ -3091,12 +3125,24 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     capture.executor.abandonUnconfirmedSave(capture.context)
     if (capture.executor.hasUnconfirmedSave?.(capture.context) === true) return false
     this.#unconfirmedQuerySave = undefined
+    this.#unconfirmedQuerySaveFailure = undefined
     return true
   }
 
   get hasUnconfirmedSave(): boolean {
     const capture = this.#unconfirmedQuerySave
     return capture !== undefined && capture.executor.hasUnconfirmedSave?.(capture.context) === true
+  }
+
+  /**
+   * 只读判断当前未知捕获的全部原生ID是否与调用范围严格相同。
+   * 提供本次失败对象时，还须由原保存链证明其对应当前捕获；不返回身份、凭据或新提交能力。
+   */
+  hasUnconfirmedSaveFor(ids:ReadonlyArray<string|number>,failure?:Error): boolean {
+    const capture=this.#unconfirmedQuerySave
+    if(!capture||!this.hasUnconfirmedSave||failure!==undefined&&failure!==this.#unconfirmedQuerySaveFailure)return false
+    const expected=new Set([...capture.added,...capture.changed,...capture.deleted].map(row=>row.id)),selected=new Set(ids)
+    return expected.size>0&&expected.size===selected.size&&[...selected].every(id=>expected.has(id))
   }
 
   /** 已确认新增行正在等待原查询的行权限；与保存结果未知分别处理。 */
@@ -3151,6 +3197,95 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /** 同一运行实例先捕获请求配置并校验全部变更，再按原查询owner串行提交；有未知提交时本轮仅核验原捕获，各来源独立确认。 */
   static async saveQueryViews(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>> {
+    const captured=targets.map(target=>({view:target.view,...(target.ids===undefined?{}:{ids:[...target.ids]})}))
+    const checking=DataView.prepareQuerySaveDomainReferences({targets:captured,includeEditingRows:false})
+    if(checking!==undefined)return (await checking).save(captured)
+    return DataView.savePreparedQueryViews(captured)
+  }
+
+  /** @internal 在首次应用编辑之前按DataTable合并只读引用预检；恢复原捕获不重跑。 */
+  static prepareQuerySaveDomainReferences(input: DataViewDomainPreflightInput): Promise<DataViewDomainPreflight> | undefined {
+    if(input.targets.some(target=>target.view.hasUnconfirmedSave)||!input.targets.some(target=>target.view.dataTable?.querySaveRule?.references))return undefined
+    if(input.targets.some(target=>target.view.mutating))throw new Error('DATA_VIEW_SAVE_BUSY: 原视图保存仍在执行')
+    return DataView.prepareDomainReferenceBatch(input)
+  }
+
+  /** 预检与实际派发共用的原owner顺序；独立视图不被包装成事务。 */
+  private static querySaveDispatchBatches<T extends {view:DataView;executor:DataViewQueryExecutor}>(items:readonly T[]):T[][] {
+    const groups=new Map<DataViewQueryExecutor,T[]>()
+    for(const item of items){const group=groups.get(item.executor)??[];group.push(item);groups.set(item.executor,group)}
+    return [...groups.values()].flatMap(group=>group[0]?.executor.saveIndependently?group.map(item=>[item]):[group])
+  }
+
+  private static async prepareDomainReferenceBatch(input: DataViewDomainPreflightInput): Promise<DataViewDomainPreflight> {
+    const snapshots=input.targets.map(target=>{
+      const view=target.view,validation={...(target.ids===undefined?{}:{ids:[...target.ids]}),includeEditingRows:input.includeEditingRows}
+      const preview=view.getQuerySaveRowKeys(validation).length?view.previewQuerySave(validation):undefined
+      if(preview)view.assertQuerySaveColumns(validation)
+      return {target,validation,view,preview,version:++view.#domainSaveRevision,signature:preview?structuredClone(view.domainSaveSignature(preview)):[],context:view.currentQueryResult(),queryContext:JSON.stringify(view.queryContext),identity:view.#queryExecutor?structuredClone(view.queryIdentity()):undefined,table:view._dataTable,rule:view._dataTable?.querySaveRule,executor:view.#queryExecutor,save:view.#queryExecutor?.save,independent:Boolean(view.#queryExecutor?.saveIndependently)}
+    })
+    const activeSnapshots=snapshots.flatMap(snapshot=>{
+      if(!snapshot.signature.length)return []
+      if(!snapshot.executor)throw new Error('DATA_VIEW_SAVE_OWNER: 引用预检缺少原查询owner')
+      return [{...snapshot,executor:snapshot.executor}]
+    })
+    const partitions=DataView.querySaveDispatchBatches(activeSnapshots).map(batch=>{
+      const groups=new Map<DataTable,DataViewDomainReferenceGroup>()
+      for(const snapshot of batch){
+        if(!snapshot.preview||!snapshot.table||!snapshot.rule?.references)continue
+        const changes=snapshot.view.domainReferenceChanges(snapshot.preview)
+        if(!changes.length)continue
+        const group=groups.get(snapshot.table)??{rule:snapshot.rule,changes:[]}
+        group.changes.push(...changes);groups.set(snapshot.table,group)
+      }
+      return groups
+    })
+    const assertSnapshot=(includeEditingRows:boolean):void=>{
+      for(const snapshot of snapshots){
+        const {view,validation}=snapshot
+        if(view.#domainSaveRevision!==snapshot.version||view._dataTable!==snapshot.table||view._dataTable?.querySaveRule!==snapshot.rule||view.#queryExecutor!==snapshot.executor
+          ||view.#queryExecutor?.save!==snapshot.save||Boolean(view.#queryExecutor?.saveIndependently)!==snapshot.independent
+          ||JSON.stringify(view.queryContext)!==snapshot.queryContext||view.#queryExecutor&&!view.sameQuerySaveValue(view.queryIdentity(),snapshot.identity)
+          || !view.sameQuerySaveValue(snapshot.target.ids,validation.ids))throw new Error('DATA_VIEW_SAVE_STALE: 引用预检的目标或规则已变化')
+        const current=view.getQuerySaveRowKeys({...validation,includeEditingRows}).length?view.previewQuerySave({...validation,includeEditingRows}):undefined
+        if(view.currentQueryResult()!==snapshot.context||!view.sameQuerySaveValue(current?view.domainSaveSignature(current):[],snapshot.signature))throw new Error('DATA_VIEW_SAVE_STALE: 引用预检期间编辑或查询身份已变化')
+        if(current){view.assertQuerySaveColumns({...validation,includeEditingRows});view.domainReferenceChanges(current)}
+      }
+    }
+    const cumulative=new Map<DataTable,DataViewDomainReferenceGroup>()
+    for(const partition of partitions)for(const [table,group]of partition){
+      const changes=[...cumulative.get(table)?.changes??[],...group.changes]
+      cumulative.set(table,{rule:group.rule,changes})
+      const isolated=changes.map(change=>Object.freeze({...change,values:Object.freeze(structuredClone(change.values)),
+        ...(change.originalValues===undefined?{}:{originalValues:Object.freeze(structuredClone(change.originalValues))})}))
+      await group.rule.references?.validate(Object.freeze({changes:Object.freeze(isolated)}))
+      assertSnapshot(input.includeEditingRows)
+    }
+    assertSnapshot(input.includeEditingRows)
+    let consumed=false
+    return {
+      assertCurrent:()=>assertSnapshot(input.includeEditingRows),
+      save:async targets=>{
+        if(consumed)throw new Error('DATA_VIEW_SAVE_STALE: 引用预检批次已消费')
+        consumed=true;assertSnapshot(false)
+        for(const target of targets)if(!snapshots.some(snapshot=>snapshot.view===target.view&&snapshot.view.sameQuerySaveValue(snapshot.validation.ids,target.ids)))throw new Error('DATA_VIEW_SAVE_STALE: 实际提交扩大了原引用预检范围')
+        for(const snapshot of snapshots)if(snapshot.signature.length&&!targets.some(target=>target.view===snapshot.view))throw new Error('DATA_VIEW_SAVE_STALE: 应用失败改变了原引用预检组合')
+        const ordered=targets.flatMap(target=>snapshots.filter(snapshot=>snapshot.view===target.view&&snapshot.signature.length>0))
+        if(ordered.length!==activeSnapshots.length||ordered.some((snapshot,index)=>snapshot.view!==activeSnapshots[index]?.view))throw new Error('DATA_VIEW_SAVE_STALE: 实际提交改变了原引用预检顺序')
+        return DataView.savePreparedQueryViews(targets,captures=>{
+          for(const {view,capture}of captures){
+            const snapshot=snapshots.find(candidate=>candidate.view===view)
+            if(snapshot===undefined)throw new Error('DATA_VIEW_SAVE_STALE: 实际捕获扩大了原引用预检范围')
+            if(view.#domainSaveRevision!==snapshot.version||view.currentQueryResult()!==snapshot.context||capture.context!==snapshot.context||view.#queryExecutor!==snapshot.executor||view.#queryExecutor?.save!==snapshot.save||Boolean(view.#queryExecutor?.saveIndependently)!==snapshot.independent||view._dataTable!==snapshot.table||view._dataTable?.querySaveRule!==snapshot.rule||JSON.stringify(view.queryContext)!==snapshot.queryContext||!view.sameQuerySaveValue(capture.identity,snapshot.identity))throw new Error('DATA_VIEW_SAVE_STALE: 实际捕获身份与已验证引用组合不一致')
+            if(!view.sameQuerySaveValue(view.domainSaveSignature(capture),snapshot.signature))throw new Error('DATA_VIEW_SAVE_STALE: 实际捕获变化与已验证引用组合不一致')
+            view.validateQuerySaveColumns(capture);view.domainReferenceChanges(capture)
+          }
+        })
+      },
+    }
+  }
+
+  private static async savePreparedQueryViews(targets: readonly DataViewQuerySaveTarget[], checkDomain?: DataViewDomainDispatchCheck): Promise<Array<CrudResult<SaveChangesData>>> {
     const recovering = targets.some(target => target.view.hasUnconfirmedSave)
     const selected = recovering ? targets.filter(target => target.view.hasUnconfirmedSave) : targets
     for (const target of selected) if (!recovering) target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
@@ -3167,11 +3302,12 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     for (const { view, capture } of captures) view.validateQuerySaveColumns(capture)
     if (!recovering) for (const { view, capture } of captures) view.validateQuerySaveDomain(capture)
     if (!recovering) for (const { view, capture } of captures) await view.validateQuerySaveReferences(capture)
+    if(!recovering)checkDomain?.(captures)
     const active = captures.filter(({ capture }) => capture.added.length + capture.changed.length + capture.deleted.length > 0)
+    if(active.some(({view})=>view.mutating))throw new Error('DATA_VIEW_SAVE_BUSY: 原视图提交仍在执行')
     const first = active[0]
     if (first === undefined) return captures.map(() => ({ success: true, message: '没有待提交的变更',
       data: { createdCount: 0, savedCount: 0, deletedCount: 0, failedCount: 0, failedIds: [], failedErrors: {} } }))
-    const groups = new Map<DataViewQueryExecutor, typeof active>()
     const models = new Map<string, {table: DataTable | null; keys: Set<string>}>()
     for (const { view, capture } of active) {
       if (view.dataSet !== first.view.dataSet || capture.identity.scenarioId !== first.capture.identity.scenarioId) {
@@ -3184,25 +3320,28 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         throw new Error('DATA_VIEW_SAVE_MODEL_CONFLICT: 同批模型身份不一致或记录重复')
       }
       models.set(capture.identity.metaName, {table: view.dataTable, keys: new Set([...previous?.keys ?? [], ...keys])})
-      const group = groups.get(capture.executor) ?? []
-      group.push({view, capture})
-      groups.set(capture.executor, group)
     }
+    const batches=DataView.querySaveDispatchBatches(active.map(item=>({...item,executor:item.capture.executor})))
+    const previousErrors=new Map(active.map(({view})=>[view,view.mutatingError]))
     active.forEach(({ view }) => view._trackMutating(1))
     const results = new Map<DataView, CrudResult<SaveChangesData>>()
+    const dispatched = new Set<DataView>()
     let failure: Error | null = null
     try {
-      for (const [executor, group] of groups) {
+      for (const batch of batches) {
+        const executor=batch[0]?.executor
+        if(!executor)throw new Error('DATA_VIEW_SAVE_OWNER: 实际派发批次缺少原owner')
         const save = executor.save
         if (save === undefined) throw new Error('DATA_VIEW_SAVE_OWNER: 保存需要原查询 owner')
-        const batches = executor.saveIndependently ? group.map(item => [item]) : [group]
-        for (const batch of batches) {
+          if(!recovering)checkDomain?.(batch)
           for (const {view, capture} of batch) {
+            if(recovering&&(view.#unconfirmedQuerySave!==capture||capture.executor.hasUnconfirmedSave?.(capture.context)!==true))throw new Error('DATA_VIEW_SAVE_RECOVERY: 原未确认提交已结束，停止本次核验')
             view.assertResultWritable()
             if (view.currentQueryResult() !== capture.context || view.#queryExecutor !== capture.executor) {
               throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
             }
           }
+          batch.forEach(({view})=>dispatched.add(view))
           const receipts = await save.call(executor, { changes: batch.map(({ capture }) => ({ identity: capture.identity,
             ...(capture.tableConfig === undefined ? {} : {tableConfig: capture.tableConfig}),
             context: capture.context, changes: { added: capture.added.map(item => item.row),
@@ -3222,18 +3361,21 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
           for (const {view, command} of acceptances) {
             results.set(view, view.acceptQuerySaveReceipt(command))
             view.#unconfirmedQuerySave = undefined
+            view.#unconfirmedQuerySaveFailure = undefined
           }
-        }
       }
       return targets.map(({ view }) => results.get(view) ?? { success: true, message: recovering ? '本轮仅核验原提交，此视图未派发' : '没有待提交的变更',
         data: { createdCount: 0, savedCount: 0, deletedCount: 0, failedCount: 0, failedIds: [], failedErrors: {} } })
     } catch (error) {
       failure = toError(error)
-      throw error
+      throw failure
     } finally {
       active.forEach(({ view, capture }) => {
-        view.#unconfirmedQuerySave = !results.has(view) && capture.executor.hasUnconfirmedSave?.(capture.context) === true ? capture : undefined
-        view._trackMutating(-1, results.has(view) ? null : failure)
+        if(dispatched.has(view)){
+          view.#unconfirmedQuerySave = !results.has(view) && capture.executor.hasUnconfirmedSave?.(capture.context) === true ? capture : undefined
+          view.#unconfirmedQuerySaveFailure=view.#unconfirmedQuerySave===undefined?undefined:failure??undefined
+        }
+        view._trackMutating(-1,results.has(view)?null:recovering&&!dispatched.has(view)?previousErrors.get(view):failure)
       })
     }
   }
@@ -3321,6 +3463,41 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return { id: item.id, row: item.row, created: false, fields }
     })
     return [...added, ...changed]
+  }
+
+  /** 仅比较实际变化，允许编辑覆盖被原链应用为相同的暂存行。 */
+  private domainSaveSignature(capture:DataViewQuerySavePreview): unknown[] {
+    const rows=this.querySaveRuleRows(capture)
+    return [
+      ...rows.filter(item=>item.created||item.fields.size>0).map(item=>({kind:item.created?'create':'update',id:item.id,row:this.stripComputedColumns(item.row),fields:[...item.fields].sort(),
+        ...(!item.created?{original:capture.context.rows.filter(row=>this.querySaveKey(capture.context,row)===this.querySaveKey(capture.context,item.row)).map(row=>this.stripComputedColumns(row))}:{})})),
+      ...capture.deleted.map(item=>({kind:'delete',id:item.id,row:this.stripComputedColumns(item.row)})),
+    ]
+  }
+
+  /** 隔离投影本模型声明的可读依赖，不把主键、权限或DataRow交给领域回调。 */
+  private domainReferenceChanges(capture:DataViewQuerySavePreview): DataTableQueryReferenceChange[] {
+    const references=this._dataTable?.querySaveRule?.references
+    if(!references)return []
+    const items=[...this.querySaveRuleRows(capture).map(item=>({...item,kind:item.created?'create' as const:'update' as const})),
+      ...capture.deleted.map(item=>({...item,created:false,kind:'delete' as const,fields:new Set<string>()}))]
+    return items.flatMap(item=>{
+      const changedFields=references.fields.filter(field=>item.fields.has(field))
+      if(item.kind==='update'&&!references.triggerFields.some(field=>item.fields.has(field)))return []
+      const original=item.created?undefined:capture.context.rows.filter(row=>this.querySaveKey(capture.context,row)===this.querySaveKey(capture.context,item.row))
+      if(original&&(original.length!==1||!original[0]))throw new Error('DATA_VIEW_SAVE_BASELINE: 引用检查缺少唯一原查询行')
+      const project=(row:DataRow,originalValue:boolean):Readonly<Record<string,unknown>>=>{
+        const values:Record<string,unknown>={}
+        for(const field of references.fields){
+          if(this.effectivePkFields.includes(field)||!this.columns.some(column=>column.name===field)||this.queryConfig.fields!==undefined&&!this.queryConfig.fields.includes(field)
+            ||this.fieldAccess(item.row,field).read!=='visible'||!item.created&&(!Object.hasOwn(row,field)||row[field]===undefined&&!(!originalValue&&item.kind==='update'&&item.fields.has(field)&&capture.context.undefinedChanges==='clear')))throw new Error(`DATA_VIEW_SAVE_VALIDATION: ${this.tableName}@${this.viewId}.${field}: 引用依赖不可读或缺失`)
+          values[field]=structuredClone(row[field])
+        }
+        return Object.freeze(values)
+      }
+      return [Object.freeze({kind:item.kind,values:project(item.kind==='delete'&&original?.[0]?original[0]:item.row,item.kind==='delete'),changedFields:Object.freeze(changedFields),
+        ...(original?.[0]===undefined?{}:{originalValues:project(original[0],true)}),matchesKey:(value:unknown)=>value===item.id})]
+    })
   }
 
   /** 领域约束只消费本次精确提交行；依赖值隔离，不暴露原查询凭据或修改捕获。 */
@@ -3986,6 +4163,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     this.validateQueryResult = undefined
     this.#queryExecutor = undefined
     this.#unconfirmedQuerySave = undefined
+    this.#unconfirmedQuerySaveFailure = undefined
     this.#resourceIdentity = undefined
 
     this.logger.debug(`销毁 DataView: ${this.tableName}:${this.viewId}`)

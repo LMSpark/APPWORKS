@@ -13,12 +13,9 @@
       <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
         <FieldText field="solutionName" label="方案名称" :readonly="true" />
         <FieldText field="dataSetId" label="方案数据空间" :readonly="true" />
-        <FieldCheckbox field="transform_enabled" label="启用增强规则" :true-value="1" :false-value="0" :readonly="locked" />
       </RendererForm>
-      <RendererButton :label="isUnconfirmed(schemeTable) ? '核验增强规则开关保存结果' : '保存增强规则开关'" :disabled="busy" @click="save(schemeTable)" />
-      <RendererButton label="取消增强规则开关修改" :disabled="busy || unconfirmed" @click="cancel(schemeTable)" />
       <div class="excel-workspaces">
-        <aside :inert="(acting || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes')) || undefined">
+        <aside :inert="(acting || unconfirmed || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes') || pendingPart('rules')) || undefined">
           <RendererButton :data-view-key="nodesKey" label="新增根配置" perm-action="create" :disabled="locked" @click="addRoot" />
           <RendererButton :data-view-key="nodesKey" label="新增同级配置" perm-action="create" :disabled="locked" @click="addNode('sibling')" />
           <RendererButton :data-view-key="nodesKey" label="新增子级配置" perm-action="create" :disabled="locked || !selectedNode" @click="addNode('child')" />
@@ -58,21 +55,18 @@
             <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(fieldsTable))" @click="cancel(fieldsTable)" />
             <RendererTable :data-view-key="fieldsKey" :children="fieldColumns" :highlight-current-row="true" />
           </section>
-          <section>
-            <h2>增强规则</h2>
-            <RendererButton :data-view-key="rulesKey" label="新增规则" perm-action="create" :disabled="locked" @click="add(rulesTable,{rule_name:'',rule_type:'',sort_order:0,enabled:1,on_error:'FAIL_ROW',condition_json:'',config_json:'{}'})" />
-            <RendererButton :data-view-key="rulesKey" label="删除规则" perm-action="delete" :disabled="locked" @click="remove(rulesTable)" />
-            <RendererButton :label="isUnconfirmed(rulesTable) ? '核验规则保存结果' : '保存规则'" :disabled="busy || pendingPart('rules')" @click="save(rulesTable)" />
-            <RendererButton label="取消规则修改" :disabled="busy || unconfirmed" @click="cancel(rulesTable)" />
-            <RendererTable :data-view-key="rulesKey" :children="ruleColumns" :highlight-current-row="true" />
-            <RendererForm v-if="selectedRule" :data-view-key="rulesKey" :auto-columns="false" :show-data-view-meta="false">
-              <FieldJson field="condition_json" label="执行条件" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('rules.condition',value)" />
-              <FieldJson field="config_json" label="规则配置" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('rules.config',value)" />
-            </RendererForm>
-          </section>
         </main>
         <p v-else role="status">请选择左侧节点后再编辑</p>
       </div>
+      <ExcelTransformRulesPane :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">
+        <template #scheme-tools>
+          <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false">
+            <FieldCheckbox field="transform_enabled" label="启用增强规则" :true-value="1" :false-value="0" :readonly="locked || pendingPart('rules')" />
+          </RendererForm>
+          <RendererButton :label="isUnconfirmed(schemeTable) ? '核验增强规则开关保存结果' : '保存增强规则开关'" :disabled="busy || pendingPart('rules')" @click="save(schemeTable)" />
+          <RendererButton label="取消增强规则开关修改" :disabled="busy || unconfirmed || pendingPart('rules')" @click="cancel(schemeTable)" />
+        </template>
+      </ExcelTransformRulesPane>
     </template>
     <ExcelTargetDialog v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget" />
     <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
@@ -93,7 +87,7 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
-import {buildDataViewKey, RequestState, type DataRow, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
@@ -108,6 +102,7 @@ import {ExcelFieldReference} from '@/lowcode/resources/semi-structured/excel-imp
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import ExcelTargetDialog from './excel-import-target-dialog.vue'
 import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
+import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
@@ -117,6 +112,7 @@ const nodesTable = 'Base_ImportData_Config', fieldsTable = 'Base_ImportData_Fiel
 const schemeTable = 'Base_Import_solution'
 const key = (table: string) => buildDataViewKey(table, 'default', scene)
 const nodesKey = key(nodesTable), fieldsKey = key(fieldsTable), rulesKey = key(rulesTable), methodsKey = key('ImportExportMethods')
+const ruleFieldOptionsKey=buildDataViewKey(fieldsTable,'foreignKeyFields',scene)
 const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catalogScene)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-editor-page'})
 const dataSet = shallowRef<DataSet>(), catalog = shallowRef<DataSet>(), opening = ref(false), ready = ref(false), acting = ref(false), error = ref(''), revision = ref(0)
@@ -156,7 +152,6 @@ const associationHandlers = computed(() => {
     foreign:(value:unknown,previous:unknown,control:unknown)=>changeAssociation({owner,nodeId,kind:'foreignKeyField',value},control)}
 })
 const targetAllowed = computed(() => {revision.value; const nodes=view(nodesTable), row=nodes?.currentRow, id=row?nodes?.getPkKey(row):undefined; return !layoutEnabled.value && id!==undefined && !nodes?.dirtyTracking.isPendingCreate(id) && nodes?.editActionState(row??null)==='enabled'})
-const selectedRule = computed(() => {revision.value; return view(rulesTable)?.currentRow ?? null})
 const queryError = computed(() => {revision.value; return views.value.find(item => item.loadingError)?.loadingError?.message ?? ''})
 function pending(id: string, editing: boolean): void {if (editing) inputs.value.add(id); else inputs.value.delete(id)}
 function pendingPart(prefix: string): boolean {return [...inputs.value].some(id => id.startsWith(prefix + '.'))}
@@ -180,7 +175,6 @@ const fieldColumns = computed<SparkNode[]>(() => [
   {type:'r-select',props:{field:'DesenID',label:'脱敏规则',optionDataViewKey:key('Base_Desensitization_Rule'),showCellControl:true,cellReadonly:()=>locked.value}},
   {type:'r-text',props:{field:'refTableDesc',label:'引用表描述',readonly:true}},
 ])
-const ruleColumns = computed<SparkNode[]>(() => Object.entries({rule_name:'规则名称',rule_type:'规则类型',source_field:'来源字段',target_field:'目标字段',sort_order:'顺序',enabled:'启用',on_error:'错误处理'}).map(([field,label]) => ({type:['sort_order','enabled'].includes(field)?'r-number':'r-text',props:{field,label,showCellControl:true,cellReadonly:()=>locked.value}})))
 onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
@@ -191,8 +185,8 @@ watch(importConfigId, async id => {
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
-    const page = new PageRuntime({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
-      loadScenario: space => space === scene ? LowcodeExcelImport.loadEditor(scene) : space === catalogScene ? LowcodeExcelImport.loadCatalog(catalogScene)
+    const page:PageRuntime = new PageRuntime({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
+      loadScenario: space => space === scene ? LowcodeExcelImport.loadEditor(scene,()=>page) : space === catalogScene ? LowcodeExcelImport.loadCatalog(catalogScene)
         : space === LowcodeExcelImport.referenceScenarioId ? LowcodeExcelImport.loadReferenceSources() : space===LowcodeDictionary.editorScenarioId ? LowcodeDictionary.loadEditor().then(result=>result.dataSet) : Promise.reject(new Error('Excel页面未声明该来源空间'))})
     runtime=page; await page.load()
     if (!active || own!==generation) {page.dispose();return}
@@ -299,7 +293,6 @@ function editReference(clear:boolean):void{
     error.value='';revision.value++
   }catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
 }
-async function add(table: string, data: Partial<DataRow>): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{target.setCurrentRow(await target.addRow(data))})}
 async function addRoot(): Promise<void> {await addNode('root')}
 async function addNode(mode: 'root' | 'sibling' | 'child'): Promise<void> {
   if (unconfirmed.value) return

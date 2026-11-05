@@ -9,7 +9,7 @@ async function fixture() {
     {rowid: 'SIB', schemeid: 'E1', pid: 'E1', sheetName: '保留', sheet_layout_json: '{"version":1,"literal":"C1","regions":[{"table":"C1"}]}'},
     {rowid: 'OTHER', schemeid: 'E2', pid: 'E2', sheetName: '其他方案'}],
   Base_ImportData_Field: [{rowid: 'F1', configid: 'C1', name: 'one'}, {rowid: 'FS', configid: 'SIB', name: 'keep'}],
-  Base_Import_Transform_Rule: [{id: 'R1', scheme_id: 'E1', config_id: 'C1', enabled: 0}, {id: 'RS', scheme_id: 'E1', config_id: 'SIB', enabled: 1}], ImportExportMethods: []})
+  Base_Import_Transform_Rule: [{id: 'R1', scheme_id: 'E1', config_id: 'C1', enabled: 0,rule_type:null,source_field:null,target_field:null,sort_order:null,condition_json:null,config_json:null,on_error:null}, {id: 'RS', scheme_id: 'E1', config_id: 'SIB', enabled: 1}], ImportExportMethods: []})
   disposers.push(() => f.runtime.dispose())
   const open = () => ExcelConfigurationRemoval.open({dataSet: f.ds, schemeId: 'E1', nodeId: 'C1', assertCurrent: () => {}})
   return {...f, open}

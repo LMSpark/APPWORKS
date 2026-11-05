@@ -11,6 +11,8 @@ export type ExcelTransformRuleType = typeof EXCEL_TRANSFORM_RULE_TYPES[number]
 export const EXCEL_TRANSFORM_ROW_SHAPES = ['EXPLODE','FILTER','DEDUPLICATE','UNPIVOT','PIVOT'] as const
 /** 预览错误策略；正式导入仍按服务端整体回滚，不能由此推导逐行继续。 */
 export const EXCEL_TRANSFORM_ERROR_POLICIES = ['FAIL_ROW','SKIP_ROW','KEEP_RAW','USE_NULL'] as const
+/** 按正式服务的枚举判定规则取规范值，仅供分支比较，不改写原字段。 */
+export function excelTransformEnumValue(value: unknown): string {return typeof value==='string'?value.trim().toUpperCase():''}
 /** 为显式新建或切换类型创建独立配置；待填项由同模型保存规则校验，不猜业务字段。 */
 export function createExcelTransformConfig(type: string): Record<string, unknown> {
  let config: Record<string, unknown>

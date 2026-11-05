@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/transform/export-fields",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/transform/export-fields",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/export-fields\n职责：按导出实际库表路径核对候选输入列；不把Excel映射当成物理字段。\n边界：仅查询原PageRuntime按需装配的34B元数据，独立查询不改变选择弹窗。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelTransformExportSource",
+      "ExcelTransformExportProjection"
+    ]
+  },
+  "$defs": {
+    "ExcelTransformExportSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTransformExportSource",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "node": {
+          "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "before": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "after": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "outputFields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getPage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPage.return": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.check.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.check.return": true
+      }
+    },
+    "ExcelTransformExportProjection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTransformExportProjection",
+      "properties": {
+        "before": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "after": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "before",
+        "after"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-05T18:26:02.466Z",
+  "models": {
+    "ExcelTransformExportSource": {
+      "name": "ExcelTransformExportSource",
+      "jsdoc": "原运行实例及当前节点的精确导出来源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原设计DataSet，不另装配同空间。 */\n    dataSet: DataSet;\n    /** 返回本次宿主，缺失时显式拒绝物理证明。 */\n    getPage?: () => PageRuntime;\n    /** 正式节点投影。 */\n    node: Readonly<DataRow>;\n    /** 本次变更前正式规则。 */\n    before: ReadonlyArray<Readonly<DataRow>>;\n    /** 仅叠加本批变更后的规则。 */\n    after: ReadonlyArray<Readonly<DataRow>>;\n    /** 有有效列号的Excel输出映射。 */\n    outputFields: readonly string[];\n    /** 原实例生命周期守卫。 */\n    check(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原设计DataSet，不另装配同空间。 */\n    dataSet: DataSet;\n    /** 返回本次宿主，缺失时显式拒绝物理证明。 */\n    getPage?: () => PageRuntime;\n    /** 正式节点投影。 */\n    node: Readonly<DataRow>;\n    /** 本次变更前正式规则。 */\n    before: ReadonlyArray<Readonly<DataRow>>;\n    /** 仅叠加本批变更后的规则。 */\n    after: ReadonlyArray<Readonly<DataRow>>;\n    /** 有有效列号的Excel输出映射。 */\n    outputFields: readonly string[];\n    /** 原实例生命周期守卫。 */\n    check(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "原设计DataSet，不另装配同空间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "node",
+              "jsdoc": "正式节点投影。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "jsdoc": "本次变更前正式规则。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "jsdoc": "仅叠加本批变更后的规则。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputFields",
+              "jsdoc": "有有效列号的Excel输出映射。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getPage",
+              "jsdoc": "返回本次宿主，缺失时显式拒绝物理证明。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "PageRuntime"
+              }
+            },
+            {
+              "name": "check",
+              "jsdoc": "原实例生命周期守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExcelTransformExportProjection": {
+      "name": "ExcelTransformExportProjection",
+      "jsdoc": "原规则和本批规则分别产生的真实查询初始字段。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    before: string[];\n    after: string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    before: string[];\n    after: string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "before",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

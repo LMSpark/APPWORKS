@@ -13,6 +13,8 @@ export type RCheckboxProps = SparkNodeProps & SparkFieldSemanticProps<boolean> &
   trueValue?: boolean | string | number
   /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */
   falseValue?: boolean | string | number
+  /** 明确指定null值的勾选呈现，缺省false；不填充原字段，用户主动切换仍仅写trueValue/falseValue，undefined及其他原值继续既有匹配规则。 */
+  nullChecked?: boolean
   /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */
   cellReadonly?: (row: Readonly<DataRow>) => boolean
   /** 选中状态下展示的文本。 */

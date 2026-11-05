@@ -972,6 +972,59 @@
       ],
       "additionalProperties": false
     },
+    "DataViewDomainPreflightInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewDomainPreflightInput",
+      "properties": {
+        "targets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewQuerySaveTarget"
+          }
+        },
+        "includeEditingRows": {
+          "enum": [
+            false,
+            true
+          ]
+        }
+      },
+      "required": [
+        "targets",
+        "includeEditingRows"
+      ],
+      "additionalProperties": false
+    },
+    "DataViewDomainPreflight": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewDomainPreflight",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.save.params": {
+          "type": "object",
+          "properties": {
+            "targets": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataViewQuerySaveTarget"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<Array<CrudResult<SaveChangesData>>>"
+        }
+      }
+    },
     "DataView": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -2550,6 +2603,32 @@
         "method.abandonUnconfirmedSave.return": {
           "type": "boolean"
         },
+        "method.hasUnconfirmedSaveFor.params": {
+          "type": "object",
+          "properties": {
+            "ids": {
+              "type": "array",
+              "items": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "number"
+                  }
+                ]
+              }
+            },
+            "failure": {
+              "type": "object",
+              "title": "Error"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.hasUnconfirmedSaveFor.return": {
+          "type": "boolean"
+        },
         "method.refreshSavedRowPermissions.params": {
           "type": "object",
           "properties": {},
@@ -2574,6 +2653,19 @@
         "method.saveQueryViews.return": {
           "type": "object",
           "title": "Promise<Array<CrudResult<SaveChangesData>>>"
+        },
+        "method.prepareQuerySaveDomainReferences.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/DataViewDomainPreflightInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareQuerySaveDomainReferences.return": {
+          "type": "object",
+          "title": "Promise<DataViewDomainPreflight>"
         },
         "method.prepareQuerySave.params": {
           "type": "object",
@@ -2926,7 +3018,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T06:41:12.800Z",
+  "generatedAt": "2026-11-05T18:25:31.726Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4214,6 +4306,99 @@
         }
       }
     },
+    "DataViewDomainPreflightInput": {
+      "name": "DataViewDomainPreflightInput",
+      "jsdoc": "数据集首次保存引用预检的内部输入，原目标集合不向业务回调暴露。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次全部选中视图，包含尚无修改的目标。 */\n    targets: readonly DataViewQuerySaveTarget[];\n    /** 是否将原编辑覆盖纳入本次捕获。 */\n    includeEditingRows: boolean;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次全部选中视图，包含尚无修改的目标。 */\n    targets: readonly DataViewQuerySaveTarget[];\n    /** 是否将原编辑覆盖纳入本次捕获。 */\n    includeEditingRows: boolean;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "targets",
+              "jsdoc": "本次全部选中视图，包含尚无修改的目标。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "includeEditingRows",
+              "jsdoc": "是否将原编辑覆盖纳入本次捕获。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataViewDomainPreflight": {
+      "name": "DataViewDomainPreflight",
+      "jsdoc": "已验证批次仅在同一原生保存链中消费一次，不提供跳过校验开关。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 应用任何编辑覆盖前重核原查询、规则、权限及变化。 */\n    assertCurrent(): void;\n    /** 应用后核对实际捕获，再进入原查询owner保存管线。 */\n    save(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 应用任何编辑覆盖前重核原查询、规则、权限及变化。 */\n    assertCurrent(): void;\n    /** 应用后核对实际捕获，再进入原查询owner保存管线。 */\n    save(targets: readonly DataViewQuerySaveTarget[]): Promise<Array<CrudResult<SaveChangesData>>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "应用任何编辑覆盖前重核原查询、规则、权限及变化。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "应用后核对实际捕获，再进入原查询owner保存管线。",
+              "parameters": [
+                {
+                  "name": "targets",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataViewQuerySaveTarget[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "CrudResult",
+                      "sourcePath": "packages/spark-data/src/types.ts",
+                      "typeArguments": [
+                        {
+                          "type": "reference",
+                          "name": "SaveChangesData",
+                          "sourcePath": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
     "DataView": {
       "name": "DataView",
       "jsdoc": "DataView - 单个表视图的数据操作子模块。\n查询失败保留旧结果并暂停写入；重试成功才恢复，等待期间的编辑必须显式处理。",
@@ -5112,7 +5297,7 @@
             },
             {
               "name": "editActionState",
-              "jsdoc": "行编辑呈现来自原 E 汇总，并受当前结果可写状态约束。",
+              "jsdoc": "本视图待新增草稿沿同次A，其余记录沿E；只控制呈现，不授予保存权限。",
               "parameters": [
                 {
                   "name": "row",
@@ -6796,6 +6981,45 @@
               }
             },
             {
+              "name": "hasUnconfirmedSaveFor",
+              "jsdoc": "只读判断当前未知捕获的全部原生ID是否与调用范围严格相同。\n提供本次失败对象时，还须由原保存链证明其对应当前捕获；不返回身份、凭据或新提交能力。",
+              "parameters": [
+                {
+                  "name": "ids",
+                  "type": {
+                    "type": "array",
+                    "elementType": {
+                      "type": "union",
+                      "types": [
+                        {
+                          "type": "intrinsic",
+                          "name": "string"
+                        },
+                        {
+                          "type": "intrinsic",
+                          "name": "number"
+                        }
+                      ]
+                    }
+                  }
+                },
+                {
+                  "name": "failure",
+                  "type": {
+                    "type": "reference",
+                    "name": "Error"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
               "name": "refreshSavedRowPermissions",
               "jsdoc": "只读恢复已确认新增行的正式权限，保留其他行、选择及读取期间产生的本地编辑。",
               "parameters": [],
@@ -6842,6 +7066,34 @@
                     }
                   }
                 ]
+              }
+            },
+            {
+              "name": "prepareQuerySaveDomainReferences",
+              "jsdoc": "@internal 在首次应用编辑之前按DataTable合并只读引用预检；恢复原捕获不重跑。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewDomainPreflightInput",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "Promise",
+                  "typeArguments": [
+                    {
+                      "type": "reference",
+                      "name": "DataViewDomainPreflight",
+                      "sourcePath": "packages/spark-data/src/data-view.ts"
+                    }
+                  ]
+                }
               }
             },
             {

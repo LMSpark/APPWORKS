@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog",
+    "sourcePath": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog",
+    "jsdoc": "@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog\n职责：在原规则DataView固定单记录上编排编辑、取消及精确保存。\n边界：不复制规则草稿、不创建查询或保存owner；未知结果沿原DataSet捕获核验。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-05T17:53:33.155Z",
+  "models": {}
+}

@@ -5,6 +5,8 @@ import type {DataSet} from '@spark-appworks/spark-data'
 import {lowcodeApi} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {validateExcelTransformRule} from './transform/validation'
+import {createExcelTransformReferences} from './transform/references'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 
 export class LowcodeExcelImport {
   static readonly navigationScenarioId = '36B01771C627B9BF5CD493DC75B996A1'
@@ -22,19 +24,20 @@ export class LowcodeExcelImport {
   }
 
   /** 装配正式Excel配置场景；目标方案由本次PageRuntime输入统一限制。 */
-  static async loadEditor(scenarioId: string): Promise<DataSet> {
+  static async loadEditor(scenarioId: string, getPage?:()=>PageRuntime): Promise<DataSet> {
     if (scenarioId !== this.designScenarioId) throw new Error('Excel设计场景身份不匹配')
     const projectId = lowcodeApi.readRequestScope().headers['X-AppId']
     if (!projectId) throw new Error('请先选择执行应用')
-    return this.bindEditorModelRules(await loadLowcodeRuntimeScenario({projectId, scenarioId}))
+    return this.bindEditorModelRules(await loadLowcodeRuntimeScenario({projectId, scenarioId}),getPage)
   }
 
-  /** 在本次正式规则模型注册纯结构保存约束，所有命名视图与直接DataSet保存复用，不建立页面提交器。 */
-  static bindEditorModelRules(dataSet: DataSet): DataSet {
+  /** 在正式规则模型注册结构及异步引用约束，所有命名视图与直接DataSet保存复用；物理来源仅按原宿主需要加载。 */
+  static bindEditorModelRules(dataSet: DataSet, getPage?:()=>PageRuntime): DataSet {
     const table = dataSet.getView('Base_Import_Transform_Rule')?.dataTable
     if (dataSet.scenarioId !== this.designScenarioId || table?.modelBinding?.modelName !== 'Base_Import_Transform_Rule'
       || table.modelBinding.modelId !== 'b3ca28c2-432c-4374-ac20-bb98a85c2098') throw new Error('Excel转换规则缺少正式模型身份')
-    table.setQuerySaveRule({fields: ['rule_type', 'source_field', 'target_field', 'sort_order', 'enabled', 'on_error', 'condition_json', 'config_json'], validate: validateExcelTransformRule})
+    table.setQuerySaveRule({fields: ['rule_type', 'source_field', 'target_field', 'sort_order', 'enabled', 'on_error', 'condition_json', 'config_json'], validate: validateExcelTransformRule,
+      references:createExcelTransformReferences({dataSet,...(getPage===undefined?{}:{getPage})})})
     return dataSet
   }
 

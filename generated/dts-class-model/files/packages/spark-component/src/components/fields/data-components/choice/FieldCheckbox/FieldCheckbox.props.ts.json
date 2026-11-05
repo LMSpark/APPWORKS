@@ -50,6 +50,9 @@
             }
           ]
         },
+        "nullChecked": {
+          "type": "boolean"
+        },
         "checkedText": {
           "type": "string"
         },
@@ -77,7 +80,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T21:21:03.164Z",
+  "generatedAt": "2026-11-05T17:43:23.904Z",
   "models": {
     "RCheckboxProps": {
       "name": "RCheckboxProps",
@@ -91,7 +94,7 @@
         "directory": "fields/data-components"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<boolean> & {\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}",
+        "declarationTypeText": "SparkNodeProps & SparkFieldSemanticProps<boolean> & {\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** 明确指定null值的勾选呈现，缺省false；不填充原字段，用户主动切换仍仅写trueValue/falseValue，undefined及其他原值继续既有匹配规则。 */\n    nullChecked?: boolean;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -105,7 +108,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}"
+            "typeText": "{\n    /** Checked value written to the bound field. Defaults to true; configure 1 explicitly for numeric flags. */\n    trueValue?: boolean | string | number;\n    /** Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags. */\n    falseValue?: boolean | string | number;\n    /** 明确指定null值的勾选呈现，缺省false；不填充原字段，用户主动切换仍仅写trueValue/falseValue，undefined及其他原值继续既有匹配规则。 */\n    nullChecked?: boolean;\n    /** Additional table-cell restriction; true makes this row readonly and can never grant write permission. */\n    cellReadonly?: (row: Readonly<DataRow>) => boolean;\n    /** 选中状态下展示的文本。 */\n    checkedText?: string;\n    /** 未选中状态下展示的文本。 */\n    uncheckedText?: string;\n    /** 复选框旁边的标签文本。 */\n    checkboxText?: string;\n}"
           }
         ],
         "members": {
@@ -119,6 +122,12 @@
             {
               "name": "falseValue",
               "jsdoc": "Unchecked value written to the bound field. Defaults to false; configure 0 explicitly for numeric flags.",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nullChecked",
+              "jsdoc": "明确指定null值的勾选呈现，缺省false；不填充原字段，用户主动切换仍仅写trueValue/falseValue，undefined及其他原值继续既有匹配规则。",
               "readable": true,
               "writable": false
             },

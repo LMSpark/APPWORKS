@@ -6,11 +6,11 @@
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataTableQuerySaveRuleInput} from '@spark-appworks/spark-data'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {EXCEL_TRANSFORM_RULE_TYPES,EXCEL_TRANSFORM_ERROR_POLICIES} from './definition'
+import {EXCEL_TRANSFORM_RULE_TYPES,EXCEL_TRANSFORM_ERROR_POLICIES,excelTransformEnumValue} from './definition'
 import {visitExcelTransformExpression} from './expression'
 function object(value:unknown,path:string):Record<string,unknown>{if(!isRecord(value))throw new Error(`${path}必须是对象`);return value}
 function text(value:unknown,path:string):string{if(typeof value!=='string'||!value.trim())throw new Error(`${path}不能为空`);return value}
-function choice(value:unknown,allowed:readonly string[],path:string):string{const normalized=typeof value==='string'?value.trim().toUpperCase():'';if(!allowed.includes(normalized))throw new Error(`${path}不是支持的选项`);return normalized}
+function choice(value:unknown,allowed:readonly string[],path:string):string{const normalized=excelTransformEnumValue(value);if(!allowed.includes(normalized))throw new Error(`${path}不是支持的选项`);return normalized}
 function names(value:unknown,path:string,required=true):string[]{if(!Array.isArray(value)||required&&!value.length)throw new Error(`${path}必须是字段数组`);const list=value.map((v,i)=>text(v,`${path}[${i}]`));if(new Set(list).size!==list.length)throw new Error(`${path}不能重复`);return list}
 function json(value:unknown,path:string):unknown{if(typeof value!=='string'||!value.trim())throw new Error(`${path}必须是正式JSON文本`);try{return parseJsonDocument(value)}catch{throw new Error(`${path}不是有效JSON对象文本`)}}
 /** 同步校验本次规则的配置及正式字段类型；原文本与未知扩展保持原样，失败在首轮派发前拒绝。 */
@@ -19,7 +19,7 @@ export function validateExcelTransformRule(input:DataTableQuerySaveRuleInput):un
  if((created||changed.has('sort_order'))&&row['sort_order']!==null&&(!Number.isSafeInteger(row['sort_order'])||Number(row['sort_order'])< -2147483648||Number(row['sort_order'])>2147483647))throw new Error('sort_order必须是正式整数')
  if((created||changed.has('enabled'))&&row['enabled']!==null&&row['enabled']!==0&&row['enabled']!==1)throw new Error('enabled必须是0或1')
  if((created||changed.has('on_error'))&&row['on_error']!==null)choice(row['on_error'],EXCEL_TRANSFORM_ERROR_POLICIES,'on_error')
- const full=created||['rule_type','source_field','target_field','condition_json','config_json'].some(field=>changed.has(field))||changed.has('enabled')&&row['enabled']===1
+ const full=created||['rule_type','source_field','target_field','condition_json','config_json'].some(field=>changed.has(field))||changed.has('enabled')&&(row['enabled']===1||row['enabled']===null)
  if(!full)return undefined
  const type=choice(row['rule_type'],EXCEL_TRANSFORM_RULE_TYPES,'rule_type')
  if(row['config_json']===null)throw new Error('config_json须显式设置有效对象后才能启用')

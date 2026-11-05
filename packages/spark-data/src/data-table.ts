@@ -40,12 +40,38 @@ export type DataTableQuerySaveRuleInput = Readonly<{
   created: boolean
 }>
 
-/** 本次DataTable实例的同步领域保存约束，不序列化、不替代列规则和来源授权。 */
+/** 模型引用预检的隔离变更；身份仅用于与正式查询行匹配，不暴露原行或凭据。 */
+export type DataTableQueryReferenceChange = Readonly<{
+  /** 本批实际操作。 */
+  kind: 'create' | 'update' | 'delete'
+  /** 声明的可读依赖值副本。删除时为原正式值。 */
+  values: Readonly<Record<string, unknown>>
+  /** 既有记录的原正式依赖值；新增没有原值。 */
+  originalValues?: Readonly<Record<string, unknown>>
+  /** 声明依赖中本次实际修改的字段。 */
+  changedFields: readonly string[]
+  /** 仅判断候选原生主键是否对应本变更，不返回身份。 */
+  matchesKey(value: unknown): boolean
+}>
+
+/** 同一模型按实际派发顺序的累计引用检查；所有提交前缀均须成立，不承诺跨来源事务。 */
+export type DataTableQuerySaveReferences = Readonly<{
+  /** 回调所需可读业务字段，不允许主键及内部凭据。 */
+  fields: readonly string[]
+  /** 更新时触发检查的依赖字段；新增、删除始终参加。 */
+  triggerFields: readonly string[]
+  /** 只读校验该模型的本次累计变化；每个派发前缀均在首写前检查，等待后公共链重核身份、权限及实际变化。 */
+  validate(input: Readonly<{changes: readonly DataTableQueryReferenceChange[]}>): Promise<void>
+}>
+
+/** 本次DataTable实例的领域保存约束，不序列化、不替代列规则和来源授权。 */
 export type DataTableQuerySaveRule = Readonly<{
   /** 回调所需的真实声明字段；不允许主键、内部凭据或重复字段。 */
   fields: readonly string[]
   /** 仅新增或依赖字段实际改变时执行；抛错拒绝首轮提交，不能异步查询、写值或保存。 */
   validate(input: DataTableQuerySaveRuleInput): undefined
+  /** 首次提交的异步批量引用预检；原未知捕获恢复不重跑。 */
+  references?: DataTableQuerySaveReferences
 }>
 
 /**
@@ -155,12 +181,20 @@ export class DataTable {
   /** 注册或清除本实例的同步保存约束；原未知提交继续按原捕获核验，不执行新规则。 */
   setQuerySaveRule(rule: DataTableQuerySaveRule | undefined): void {
     if (rule === undefined) { this.#querySaveRule = undefined; return }
-    const fields = [...rule.fields]
+    const checkFields = (fields: readonly string[]): void => {
     if (!fields.length || new Set(fields).size !== fields.length || fields.some(field =>
       field === '_pk' || field.startsWith('lingma_sys_') || !this.columns.some(column => column.name === field && !column.isPrimaryKey))) {
       throw new Error('DATA_TABLE_SAVE_RULE: 依赖必须是唯一的正式业务字段')
     }
-    this.#querySaveRule = Object.freeze({fields: Object.freeze(fields), validate: rule.validate})
+    }
+    checkFields(rule.fields)
+    const references=rule.references
+    if(references){
+      checkFields(references.fields)
+      if(new Set(references.triggerFields).size!==references.triggerFields.length||references.triggerFields.some(field=>!references.fields.includes(field)))throw new Error('DATA_TABLE_SAVE_RULE: 引用触发字段须属于声明依赖')
+    }
+    this.#querySaveRule = Object.freeze({fields: Object.freeze([...rule.fields]), validate: rule.validate,
+      ...(references===undefined?{}:{references:Object.freeze({fields:Object.freeze([...references.fields]),triggerFields:Object.freeze([...references.triggerFields]),validate:references.validate})})})
   }
 
   // ===== 视图容器 =====

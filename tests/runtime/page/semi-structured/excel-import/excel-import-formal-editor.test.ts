@@ -11,7 +11,7 @@ import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-im
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {EXCEL, topicModels, topicTexts} from '../../structured-config/catalog/formal-topic.fixture'
 import {EXCEL_DESIGN, excelDesignModels, designText,EXCEL_DICTIONARY,excelDictionaryReferenceModels} from './excel-import-design.fixture'
-import {DataSet} from '@spark-appworks/spark-data'
+import {DataSet,getSparkNodeChildren,nodeInputProps} from '@spark-appworks/spark-data'
 import {sourceModels, sourceRecords, SOURCE_SCENE} from '../../structured-config/data-code/source-picker/fixture'
 import sourceText from '../../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
 import dictionaryText from '../../../../../config/pages/data-platform/data-dictionary/pagedata.json?raw'
@@ -77,6 +77,19 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('uses the single-record rule workspace and locks node changes until a new rule is cancelled', async () => {
+    const f=await open();await f.choose()
+    expect(f.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='保存规则')).toBe(false)
+    const rules=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_Import_Transform_Rule@'))
+    expect(getSparkNodeChildren(rules?.props('children')).every(node=>nodeInputProps(node)['readonly']===true)).toBe(true)
+    await f.click('新增规则')
+    expect(f.wrapper.get('aside').element.hasAttribute('inert')).toBe(true)
+    const cancel=f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='取消')
+    expect(cancel).toBeDefined();await cancel!.get('button').trigger('click');await flushPromises()
+    expect(f.wrapper.get('aside').element.hasAttribute('inert')).toBe(false)
+    expect(state.http.saves).toEqual([])
+    expect(state.http.records['Base_Import_Transform_Rule']).toHaveLength(1)
+  })
   it('preserves an unknown layout version byte-for-byte during an unrelated edit and independent reopen', async () => {
     const original = '{"version":73,"enabled":false,"future":{"zero":0,"active":false}}'
     state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json'] = original
@@ -510,7 +523,8 @@ describe('formal Excel design editor', () => {
     expect(state.http.reads[0]?.table).toBe('Base_Import_solution')
     expect(f.wrapper.getComponent(RendererTree).props('dataViewKey')).toBe(`${EXCEL_DESIGN}@Base_ImportData_Config@default`)
     expect(f.wrapper.findAll('input').map(input => (input.element as HTMLInputElement).value)).toContain('编码')
-    expect(f.wrapper.findAll('input').map(input => (input.element as HTMLInputElement).value)).toContain('去空格')
+    const rules=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_Import_Transform_Rule@'))
+    expect(rules?.text()).toContain('去空格')
     expect(state.http.reads.some(read => read.table === 'Base_ImportData_Field')).toBe(true)
     expect(state.http.saves).toEqual([])
   })

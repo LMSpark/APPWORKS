@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/transform/references",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/references.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/transform/references",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/references\n职责：在原DataTable公共保存预检中重读精确正式规则，验证本批导致的引用变化。\n边界：不保存、不持有草稿，不把未提交解除当正式状态；未知提交由公共数据链恢复。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelTransformReferenceOwner"
+    ]
+  },
+  "$defs": {
+    "ExcelTransformReferenceOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTransformReferenceOwner",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getPage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPage.return": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T18:24:05.608Z",
+  "models": {
+    "ExcelTransformReferenceOwner": {
+      "name": "ExcelTransformReferenceOwner",
+      "jsdoc": "原设计实例及按需访问物理字段的原宿主。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式0F93 DataSet，不另装配编辑空间。 */\n    dataSet: DataSet;\n    /** EXPORT需要原宿主；IMPORT不为此提前加载物理来源。 */\n    getPage?: () => PageRuntime;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式0F93 DataSet，不另装配编辑空间。 */\n    dataSet: DataSet;\n    /** EXPORT需要原宿主；IMPORT不为此提前加载物理来源。 */\n    getPage?: () => PageRuntime;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "正式0F93 DataSet，不另装配编辑空间。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getPage",
+              "jsdoc": "EXPORT需要原宿主；IMPORT不为此提前加载物理来源。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "PageRuntime"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

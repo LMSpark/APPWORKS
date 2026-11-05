@@ -60,6 +60,7 @@ function formatCheckboxValue(value: unknown): string {
 }
 
 function toChecked(value: unknown): boolean {
+  if(value===null)return props.nullChecked===true
   return props.trueValue === true && props.falseValue === false ? coerceBooleanValue(value) : value === props.trueValue
 }
 

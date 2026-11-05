@@ -1489,6 +1489,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     const targets = recovering ? requested.filter(target => target.view.hasUnconfirmedSave) : requested
     if (recovering) options = {...options, applyEditingRows: false}
     const mode = options?.mode ?? this.saveChangesConfig?.mode ?? 'perView'
+    let referenceCheck: Awaited<ReturnType<typeof DataView.prepareQuerySaveDomainReferences>>
     try {
       this.assertScenarioSaveTargets(targets, mode, options)
       if (this.scenarioId !== undefined) {
@@ -1505,6 +1506,8 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
           target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
             includeEditingRows: options?.applyEditingRows ?? true })
         }
+        const checking=DataView.prepareQuerySaveDomainReferences({targets,includeEditingRows:options?.applyEditingRows??true})
+        if(checking!==undefined)referenceCheck=await checking
       }
     } catch (cause) {
       // A failed recovery preflight cannot certify the earlier unknown submission.
@@ -1516,6 +1519,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     }
 
     return this.withCascadeSuspended(async () => {
+      referenceCheck?.assertCurrent()
       const result = emptyDataSetSaveChangesResult(targets.length)
       const shouldApplyEditingRows = options?.applyEditingRows ?? true
       const querySaves: DataSetScenarioSavePlan[] = []
@@ -1575,7 +1579,8 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
       }
 
       if (querySaves.length > 0) {
-        const saved = await DataView.saveQueryViews(querySaves.map(plan => plan.target))
+        const selected=querySaves.map(plan=>plan.target)
+        const saved = await (referenceCheck===undefined?DataView.saveQueryViews(selected):referenceCheck.save(selected))
         querySaves.forEach((plan, index) => {
           const saveData = saved[index]?.data
           if (saveData === undefined) throw new Error('DATA_SET_SAVE_RECEIPT: 缺少视图保存统计')

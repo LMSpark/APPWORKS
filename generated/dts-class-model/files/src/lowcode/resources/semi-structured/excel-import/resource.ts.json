@@ -49,6 +49,10 @@
           "properties": {
             "scenarioId": {
               "type": "string"
+            },
+            "getPage": {
+              "type": "object",
+              "title": "() => PageRuntime"
             }
           },
           "additionalProperties": false
@@ -63,6 +67,10 @@
             "dataSet": {
               "type": "object",
               "title": "DataSet"
+            },
+            "getPage": {
+              "type": "object",
+              "title": "() => PageRuntime"
             }
           },
           "additionalProperties": false
@@ -83,7 +91,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T12:08:09.147Z",
+  "generatedAt": "2026-11-05T18:16:04.883Z",
   "models": {
     "LowcodeExcelImport": {
       "name": "LowcodeExcelImport",
@@ -152,6 +160,26 @@
                     "type": "intrinsic",
                     "name": "string"
                   }
+                },
+                {
+                  "name": "getPage",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "PageRuntime"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
                 }
               ],
               "type": {
@@ -167,13 +195,33 @@
             },
             {
               "name": "bindEditorModelRules",
-              "jsdoc": "在本次正式规则模型注册纯结构保存约束，所有命名视图与直接DataSet保存复用，不建立页面提交器。",
+              "jsdoc": "在正式规则模型注册结构及异步引用约束，所有命名视图与直接DataSet保存复用；物理来源仅按原宿主需要加载。",
               "parameters": [
                 {
                   "name": "dataSet",
                   "type": {
                     "type": "reference",
                     "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "getPage",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [],
+                          "type": {
+                            "type": "reference",
+                            "name": "PageRuntime"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

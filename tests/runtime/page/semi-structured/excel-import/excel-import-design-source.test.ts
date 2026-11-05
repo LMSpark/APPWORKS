@@ -8,7 +8,7 @@ const DESIGN = '0F93B82141CF40852021D704B0E30BF4', loaded: DataSet[] = []
 beforeEach(() => {
   state.scope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'EXECUTION_APP'}})
   state.load.mockReset(); state.load.mockImplementation(async ({scenarioId}: {scenarioId: string}) => {
-    const ds = SparkData.fromJson({scenarioId, dataSetName: 'Excel配置', tables: {Base_Import_Transform_Rule:{modelBinding:{modelId:'b3ca28c2-432c-4374-ac20-bb98a85c2098',modelName:'Base_Import_Transform_Rule'},columns:[{name:'id',type:'string',isPrimaryKey:true},...['rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'].map(name=>({name,type:['sort_order','enabled'].includes(name)?'int':'string'}))],views:{default:{commitMode:'staged'}}}}}); loaded.push(ds); return ds
+    const ds = SparkData.fromJson({scenarioId, dataSetName: 'Excel配置', tables: {Base_Import_Transform_Rule:{modelBinding:{modelId:'b3ca28c2-432c-4374-ac20-bb98a85c2098',modelName:'Base_Import_Transform_Rule'},columns:[{name:'id',type:'string',isPrimaryKey:true},...['scheme_id','config_id','rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'].map(name=>({name,type:['sort_order','enabled'].includes(name)?'int':'string'}))],views:{default:{commitMode:'staged'}}}}}); loaded.push(ds); return ds
   })
 })
 afterEach(() => loaded.splice(0).forEach(ds => ds.destroy()))

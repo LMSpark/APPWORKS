@@ -66,6 +66,7 @@ describe('Excel transformation formal rule definitions',()=>{
   expect(()=>validateExcelTransformRule({values:{...values,sort_order:20},created:false,changedFields:['sort_order']})).not.toThrow()
   expect(()=>validateExcelTransformRule({values:{...values,enabled:0},created:false,changedFields:['enabled']})).not.toThrow()
   expect(()=>validateExcelTransformRule({values:{...values,enabled:1},created:false,changedFields:['enabled']})).toThrow('config_json')
+  expect(()=>validateExcelTransformRule({values:{...values,enabled:null},created:false,changedFields:['enabled']})).toThrow('config_json')
   expect(()=>validateExcelTransformRule({values:{...values,config_json:'null'},created:false,changedFields:['config_json']})).toThrow('config_json')
   expect(JSON.stringify(values)).toBe(before)
  })

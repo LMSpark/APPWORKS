@@ -4,7 +4,7 @@ import {excelDesignRuntime} from '../excel-import-design.fixture'
 const sessions:Awaited<ReturnType<typeof excelDesignRuntime>>[]=[]
 afterEach(()=>sessions.splice(0).forEach(f=>f.runtime.dispose()))
 const rule={id:'R1',scheme_id:'E1',config_id:'C1',rule_name:'去空白',phase:'ORIGINAL',description:'保留说明',rule_type:'TRIM',source_field:'code',target_field:'code',sort_order:10,enabled:1,on_error:'FAIL_ROW',condition_json:'',config_json:'{"executionScope":"IMPORT","keep":false}'}
-async function fixture(patch:Record<string,unknown>={}){const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'订单'}],Base_ImportData_Field:[],Base_Import_Transform_Rule:[{...rule,...patch},{...rule,id:'R2',sort_order:20}]});sessions.push(f);return f}
+async function fixture(patch:Record<string,unknown>={}){const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'订单',exportType:'default',sheet_layout_json:'',relatedappid:'APP',table:'db@orders',parentField:'',foreignKeyField:''}],Base_ImportData_Field:[{rowid:'F1',configid:'C1',name:'code',index:'A',isReadOnly:0}],Base_Import_Transform_Rule:[{...rule,...patch},{...rule,id:'R2',sort_order:20}]});sessions.push(f);return f}
 const target=(ids:string[])=>({views:[{tableName:'Base_Import_Transform_Rule',viewId:'default',ids}]})
 describe('Excel model-owned transformation save validation',()=>{
  it('rejects an invalid edited rule before apply or dispatch and leaves its draft cancellable',async()=>{

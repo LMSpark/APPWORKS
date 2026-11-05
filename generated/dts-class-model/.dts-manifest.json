@@ -834,7 +834,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererDetail/RendererDetail.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererDetail/RendererDetail.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererDetail/RendererDetail.vue.json",
-      "sourceModifiedAt": "2026-11-04T06:04:26.209Z"
+      "sourceModifiedAt": "2026-11-05T06:55:39.883Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererDetail/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererDetail/types.ts",
@@ -859,7 +859,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererForm/RendererForm.vue.json",
-      "sourceModifiedAt": "2026-11-04T06:04:26.210Z"
+      "sourceModifiedAt": "2026-11-05T06:55:39.882Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererForm/types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererForm/types.ts",
@@ -1414,7 +1414,7 @@
     "packages/spark-component/src/components/containers/runtime/container-form-detail.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-form-detail.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/runtime/container-form-detail.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.434Z"
+      "sourceModifiedAt": "2026-11-05T07:01:18.795Z"
     },
     "packages/spark-component/src/components/containers/runtime/container-layout.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/runtime/container-layout.ts",
@@ -1859,7 +1859,7 @@
     "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useActiveFieldRow.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.480Z"
+      "sourceModifiedAt": "2026-11-05T07:01:18.796Z"
     },
     "packages/spark-component/src/components/fields/context/useFieldContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
@@ -4121,6 +4121,11 @@
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/edit-references.ts.json",
       "sourceModifiedAt": "2026-11-05T06:12:42.137Z"
     },
+    "src/lowcode/resources/semi-structured/excel-import/field-reference.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/field-reference.ts.json",
+      "sourceModifiedAt": "2026-11-05T07:15:36.422Z"
+    },
     "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts.json",
@@ -5034,12 +5039,17 @@
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-05T06:31:42.040Z"
+      "sourceModifiedAt": "2026-11-05T07:15:15.997Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
       "sourceModifiedAt": "2026-11-01T19:39:48.653Z"
+    },
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-05T07:20:21.191Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue",

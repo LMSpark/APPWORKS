@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
 import ElementPlus, {ElSelect} from 'element-plus'
-import {SparkData} from '@spark-appworks/spark-data'
+import {SparkData,DataViewOptionCatalog} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 
@@ -13,7 +13,7 @@ afterEach(() => {
   config.global.stubs = originalStubs
 })
 
-async function fixture(value: string | number = 'first', selection = false) {
+async function fixture(value: string | number = 'first', selection = false, inherited=false) {
   registerAllRenderers()
   const dataSet = SparkData.fromJson({scenarioId: 'S', dataSetName: 'Selection', tables: {
     Inputs: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'choice', type: 'string'}],
@@ -25,6 +25,7 @@ async function fixture(value: string | number = 'first', selection = false) {
   await runtime.load(); runtimes.push(runtime)
   const view = dataSet.getView('Inputs')!, choices = dataSet.getView('Choices')!, readonly = ref(false)
   const selectionKey = ref('S@Choices@default')
+  const formKey=ref(inherited?'S@Choices@default':'S@Inputs@default')
   const onChange = ref<((...args: unknown[]) => unknown) | undefined>()
   view.setCurrentRowById('a')
   const stubs = {...originalStubs}
@@ -33,17 +34,28 @@ async function fixture(value: string | number = 'first', selection = false) {
   const wrapper = mount(defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'select-lifecycle'})
     sparkProvide(PAGE_RUNTIME, runtime)
-    return () => h(RendererForm, {dataViewKey: 'S@Inputs@default', children: [{type: 'r-select', props: {
-      ...(selection ? {dataViewKey: selectionKey.value, dataMember: 'value'} : {field: 'choice'}),
+    return () => h(RendererForm, {dataViewKey: formKey.value, children: [{type: 'r-select', props: {
+      ...(selection ? {...(inherited?{}:{dataViewKey: selectionKey.value}), dataMember: 'value'} : {field: 'choice'}),
       optionDataViewKey: 'S@Choices@default', filterable: true, readonly: readonly.value,
       onChange: onChange.value,
     }}]})
   }}), {global: {stubs: {transition: false}, plugins: [ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper); await flushPromises()
-  return {wrapper, view, choices, readonly, selectionKey, onChange}
+  return {wrapper, view, choices, readonly, selectionKey, onChange,formKey,dataSet}
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('rebinds an inherited selection when its form switches to a derived option view',async()=>{
+    const f=await fixture('first',true,true),catalog=new DataViewOptionCatalog(f.dataSet)
+    catalog.replace([{value:'first',label:'第一项'},{value:'second',label:'第二项'}])
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','second');await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual(['second'])
+    f.formKey.value=catalog.dataViewKey;await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','first');await flushPromises()
+    expect(f.choices.getSelectedValues()).toEqual(['second'])
+    expect(catalog.view.getSelectedValues()).toEqual(['first'])
+    catalog.dispose()
+  })
   it('uses the latest field change handler after its parent updates the interaction target', async () => {
     const f=await fixture(), first=vi.fn(), second=vi.fn()
     f.onChange.value=first;await flushPromises()

@@ -3,7 +3,11 @@
   "tables": {
     "_Base_DictType": {
       "modelBinding": {"modelId": "69B79AB779DF4C12A5595DACDF3283F1p000", "modelName": "_Base_DictType"},
-      "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "queryConfig": {"allPages": true}}}
+      "views": {
+        "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "queryConfig": {"allPages": true}},
+        "excelReferences": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20, "valueField": "rowid", "labelField": "TypeName",
+          "queryConfig": {"fields": ["rowid", "TypeName", "functiondesc", "txt", "val", "secondValue", "thirdValue", "fourthvalue", "fiveValue"]}}
+      }
     },
     "_Base_DictData": {
       "modelBinding": {"modelId": "FBC266CB81A3E3D1D6D67F9B9D7FFF04", "modelName": "_Base_DictData"},

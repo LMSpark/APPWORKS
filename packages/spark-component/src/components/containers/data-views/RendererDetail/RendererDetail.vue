@@ -5,7 +5,7 @@
 AI用途：需要理解 renderer detail 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div :class="['renderer-detail-layout', `renderer-detail-layout--${toolbarPositionValue}`]">
+  <div :key="dataScopeKey" :class="['renderer-detail-layout', `renderer-detail-layout--${toolbarPositionValue}`]">
     <div v-if="toolbarConfig" :class="['renderer-detail-toolbar', toolbarClassValue]">
       <SparkComponentRenderer :config="toolbarConfig" />
     </div>
@@ -98,6 +98,7 @@ const {
   logger,
   resolvedView,
   dataState,
+  dataScopeKey,
   gridChildren,
   gridStyle,
   getChildGridStyle,

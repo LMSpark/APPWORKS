@@ -15,7 +15,7 @@
         <FieldText field="dataSetId" label="方案数据空间" :readonly="true" />
       </RendererForm>
       <div class="excel-workspaces">
-        <aside :inert="acting || !!targetChange || !!removal">
+        <aside :inert="acting || !!targetChange || !!removal || !!fieldReference">
           <RendererButton :data-view-key="nodesKey" label="新增根配置" perm-action="create" :disabled="locked" @click="addRoot" />
           <RendererButton :data-view-key="nodesKey" label="新增同级配置" perm-action="create" :disabled="locked" @click="addNode('sibling')" />
           <RendererButton :data-view-key="nodesKey" label="新增子级配置" perm-action="create" :disabled="locked || !selectedNode" @click="addNode('child')" />
@@ -48,6 +48,8 @@
           <p v-if="layoutEnabled" role="status">已启用相对版式，经典字段映射已隐藏。请在 Sheet 布局中维护版式定义。</p>
           <section v-else>
             <h2>字段映射</h2>
+            <RendererButton :data-view-key="fieldsKey" label="设置引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(false)" />
+            <RendererButton :data-view-key="fieldsKey" label="清空引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(true)" />
             <RendererButton :data-view-key="fieldsKey" label="删除字段" perm-action="delete" :disabled="locked || !!targetChange" @click="remove(fieldsTable)" />
             <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(fieldsTable) ? '核验字段保存结果' : '保存字段'" :disabled="busy || !!targetChange && (!targetChange.owns(fieldsTable) || targetChange.owns(nodesTable) && pendingPart('nodes'))" @click="save(fieldsTable)" />
             <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(fieldsTable))" @click="cancel(fieldsTable)" />
@@ -70,6 +72,7 @@
       </div>
     </template>
     <ExcelTargetDialog v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget" />
+    <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
     <RendererDialog v-if="removal" :model-value="true" :data-view-key="nodesKey" title="删除配置确认" :width="560" @update:model-value="cancelRemoval">
       <p>将删除当前叶配置，同时删除 {{ removalState?.fields }} 个字段和 {{ removalState?.rules }} 条转换规则。</p>
       <p>保留方案、兄弟配置、模板和来源业务数据。</p>
@@ -98,7 +101,10 @@ import {ExcelConfigurationRemoval} from '@/lowcode/resources/semi-structured/exc
 import {assertExcelFieldRemoval} from '@/lowcode/resources/semi-structured/excel-import/edit-references'
 import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
 import {ExcelAssociationFields} from '@/lowcode/resources/semi-structured/excel-import/association-fields'
+import {ExcelFieldReference} from '@/lowcode/resources/semi-structured/excel-import/field-reference'
+import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import ExcelTargetDialog from './excel-import-target-dialog.vue'
+import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
 
 const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, FieldText, FieldNumber, FieldSelect, FieldJson, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
@@ -114,6 +120,7 @@ const inputs = ref(new Set<string>())
 const sourceTargetId = ref(''), targetChange = shallowRef<ExcelConfigurationEdit>()
 const recoveryNotice = ref('')
 const association = shallowRef<ExcelAssociationFields>()
+const fieldReference=shallowRef<ExcelFieldReference>()
 const targetState = computed(() => {revision.value; return targetChange.value?.getState()})
 const targetSaveLabel = computed(() => {
   const state=targetState.value,part=state?.kind==='source'?'目标及字段':state?.kind===fieldsTable?'字段':'配置'
@@ -128,10 +135,11 @@ const loading = computed(() => {revision.value; return opening.value || views.va
 const missing = computed(() => ready.value && !validTarget.value)
 const busy = computed(() => acting.value || loading.value)
 const unconfirmed = computed(() => {revision.value; return views.value.some(item => item.hasUnconfirmedSave)})
-const locked = computed(() => busy.value || unconfirmed.value || !!removal.value || targetState.value?.applyStarted === true)
-const hasPending = computed(() => {revision.value; return acting.value || !!targetChange.value || !!removal.value || inputs.value.size > 0 || views.value.some(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())})
+const locked = computed(() => busy.value || unconfirmed.value || !!removal.value || !!fieldReference.value || targetState.value?.applyStarted === true)
+const hasPending = computed(() => {revision.value; return acting.value || !!targetChange.value || !!removal.value || !!fieldReference.value || inputs.value.size > 0 || views.value.some(item => item.hasUnconfirmedSave || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty() {return opening.value || hasPending.value}})
 const selectedNode = computed(() => {revision.value; return view(nodesTable)?.currentRow ?? null})
+const currentMapping=computed(()=>{revision.value;return view(fieldsTable)?.currentRow??null})
 const layoutEnabled = computed(() => {
   revision.value
   const nodes=view(nodesTable),row=nodes?.currentRow,id=row?nodes?.getPkKey(row):undefined
@@ -174,14 +182,14 @@ onBeforeRouteUpdate(() => !hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 watch(importConfigId, async id => {
   const own = ++generation
-  sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined
+  sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined; fieldReference.value=undefined
   unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime=undefined; dataSet.value=undefined; catalog.value=undefined
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
-    const page = new PageRuntime({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId],scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
+    const page = new PageRuntime({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
       loadScenario: space => space === scene ? LowcodeExcelImport.loadEditor(scene) : space === catalogScene ? LowcodeExcelImport.loadCatalog(catalogScene)
-        : space === LowcodeExcelImport.referenceScenarioId ? LowcodeExcelImport.loadReferenceSources() : Promise.reject(new Error('Excel页面未声明该来源空间'))})
+        : space === LowcodeExcelImport.referenceScenarioId ? LowcodeExcelImport.loadReferenceSources() : space===LowcodeDictionary.editorScenarioId ? LowcodeDictionary.loadEditor().then(result=>result.dataSet) : Promise.reject(new Error('Excel页面未声明该来源空间'))})
     runtime=page; await page.load()
     if (!active || own!==generation) {page.dispose();return}
     catalog.value=page.getDataSet(catalogScene); dataSet.value=page.getDataSet(scene)
@@ -231,7 +239,7 @@ async function save(table: string): Promise<void> {await act(table,async target=
   if(!result.success)throw new Error(result.message??'保存未完整确认')
 })}
 function cancel(table: string): void {if(!busy.value&&!unconfirmed.value){try{if(targetChange.value && [nodesTable,fieldsTable].includes(table)){if(!targetChange.value.owns(table))throw new Error('请从原入口取消结构修改');targetChange.value.cancel();targetChange.value=undefined}else view(table)?.discardPendingChanges();error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}}
-function discardAll(): boolean {if(busy.value||unconfirmed.value)return false;if(removal.value){try{removal.value.cancel();removal.value=undefined}catch{return false}}if(targetChange.value){try{targetChange.value.cancel();targetChange.value=undefined}catch{return false}}for(const target of views.value)target.discardPendingChanges();revision.value++;return !hasPending.value}
+function discardAll(): boolean {if(busy.value||unconfirmed.value)return false;fieldReference.value=undefined;if(removal.value){try{removal.value.cancel();removal.value=undefined}catch{return false}}if(targetChange.value){try{targetChange.value.cancel();targetChange.value=undefined}catch{return false}}for(const target of views.value)target.discardPendingChanges();revision.value++;return !hasPending.value}
 async function openRemoval(): Promise<void> {
   if (locked.value || targetChange.value) return
   await act(nodesTable, async nodes => {
@@ -272,6 +280,17 @@ function changeAssociation(input: Readonly<{owner: ExcelAssociationFields | unde
   control.cancel = true
   try {if(locked.value || !input.owner || input.owner!==association.value)throw new Error('关联编辑尚未就绪');input.owner.select(input);error.value=''}
   catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
+}
+function editReference(clear:boolean):void{
+  if(locked.value||targetChange.value)return
+  try{
+    const ds=dataSet.value,nodeId=selectedNode.value?.['rowid'],row=currentMapping.value,fieldId=row?view(fieldsTable)?.getPkKey(row):undefined,own=generation,page=runtime
+    if(!ds||typeof nodeId!=='string'||typeof fieldId!=='string')throw new Error('请先选择当前配置的字段映射')
+    let command:ExcelFieldReference|undefined
+    command=new ExcelFieldReference({dataSet:ds,nodeId,fieldId,resolveSource:id=>page?.getDataSet(id),assertCurrent:()=>{if(!active||generation!==own||runtime!==page||dataSet.value!==ds||!clear&&command!==undefined&&fieldReference.value!==command)throw new Error('原引用映射宿主已失效')}})
+    if(clear)command.clear();else fieldReference.value=command
+    error.value='';revision.value++
+  }catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
 }
 async function add(table: string, data: Partial<DataRow>): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{target.setCurrentRow(await target.addRow(data))})}
 async function addRoot(): Promise<void> {await addNode('root')}

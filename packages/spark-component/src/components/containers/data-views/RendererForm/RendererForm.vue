@@ -5,7 +5,7 @@
 AI用途：需要理解 renderer form 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
-  <div :class="['renderer-form-layout', `renderer-form-layout--${toolbarPositionValue}`]">
+  <div :key="dataScopeKey" :class="['renderer-form-layout', `renderer-form-layout--${toolbarPositionValue}`]">
     <div v-if="toolbarConfig" :class="['renderer-form-toolbar', toolbarClassValue]">
       <SparkComponentRenderer :config="toolbarConfig" />
     </div>
@@ -93,6 +93,7 @@ const {
   logger,
   resolvedView,
   dataState,
+  dataScopeKey,
   contextData: formModel,
   gridChildren,
   gridStyle,

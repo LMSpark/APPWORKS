@@ -5,7 +5,7 @@
  * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
  */
 
-import { computed, shallowReactive, toRef, watch } from 'vue'
+import { computed, shallowReactive, shallowRef, toRef, watch } from 'vue'
 import { DataMember, getSparkNodeChildren, type DataRow, type DataView, type SparkNode } from '@spark-appworks/spark-data'
 import {
   DATA_SOURCE,
@@ -87,7 +87,7 @@ export function useFormDetailContainer(
   containerType: 'r-form' | 'r-detail',
 ) {
   const logPrefix = containerType === 'r-form' ? FORM_CONTAINER_LOG_PREFIX : DETAIL_CONTAINER_LOG_PREFIX
-  const { sparkConsume, sparkProvide, logger, registerApi } = useSparkPageComponent(props)
+  const { sparkConsume, sparkProvide, sparkRemove, logger, registerApi } = useSparkPageComponent(props)
   const moduleContext = useContainerModuleContext(sparkConsume(MODULE_CONTEXT))
 
   const dataState = useContainerDataSource({
@@ -97,10 +97,15 @@ export function useFormDetailContainer(
     contextDataMember: computed(() => props.contextDataMember ?? DataMember.CurrentRow),
     contextDataField: toRef(props, 'contextDataField'),
     sparkConsume,
-    provideDataSource: (view: DataView) => sparkProvide(DATA_SOURCE, view),
     logger,
     logPrefix,
   })
+  // 能力消费者持有原视图；只有实例切换时重建消费子树，行/选择变化保留原字段会话。
+  const dataScopeKey=shallowRef(0)
+  watch(dataState.resolvedView,source=>{
+    if(source)sparkProvide(DATA_SOURCE,source);else sparkRemove(DATA_SOURCE)
+    dataScopeKey.value++
+  },{immediate:true,flush:'sync'})
 
   // ==========================================================================
   // 分区 1：布局层（children → 网格投影）
@@ -246,6 +251,7 @@ export function useFormDetailContainer(
     sparkProvide,
     logger,
     resolvedView: dataState.resolvedView,
+    dataScopeKey,
     dataState,
     contextData,
     gridChildren,

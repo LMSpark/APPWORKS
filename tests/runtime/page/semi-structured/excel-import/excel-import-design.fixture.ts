@@ -8,6 +8,11 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 export {designText}
 export const EXCEL_DESIGN = '0F93B82141CF40852021D704B0E30BF4'
+export const EXCEL_DICTIONARY='69B79AB779DF4C12A5595DACDF3283F1'
+export function excelDictionaryReferenceModels(){
+  return buildFormalModels({_Base_DictType:['rowid','TypeName','functiondesc','val','txt','secondValue','thirdValue','fourthvalue','fiveValue'],_Base_DictData:['rowid','typeid','txt','val','ordIdx']})
+    .map(model=>({...model,id:model.name==='_Base_DictType'?'69B79AB779DF4C12A5595DACDF3283F1p000':'FBC266CB81A3E3D1D6D67F9B9D7FFF04'}))
+}
 export function excelDesignModels() {
   const config = JSON.parse(designText) as {tables: Record<string, {modelBinding: {modelId: string}; views: Record<string, {queryConfig: {fields: string[]}}>}>}
   return Object.entries(config.tables).flatMap(([name, table]) => {

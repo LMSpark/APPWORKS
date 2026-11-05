@@ -1,0 +1,436 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/field-reference",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/field-reference",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/field-reference\n职责：将本次正式表、物理视图或字典选择成组编辑到原Excel映射行。\n边界：视图确认仅精确核对物理路径路由；不保存、不持有业务草稿，派生字段只作选项。\nAI用途：引用弹窗确认与清空复用原DataView检查点，不将选择器主键保存为物理字段名。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelDictionaryReferenceFields",
+      "ExcelFieldReference"
+    ]
+  },
+  "$defs": {
+    "ExcelDictionaryReferenceFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelDictionaryReferenceFields",
+      "properties": {
+        "text": {
+          "$ref": "../../../../../packages/spark-data/src/query/data-view-option-catalog.ts.json#/$defs/DataViewOptionCatalog"
+        },
+        "value": {
+          "$ref": "../../../../../packages/spark-data/src/query/data-view-option-catalog.ts.json#/$defs/DataViewOptionCatalog"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": true,
+        "method.selection.params": {
+          "type": "object",
+          "properties": {
+            "source": {
+              "type": "object",
+              "title": "DataSet"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.selection.return": {
+          "type": "object",
+          "properties": {
+            "textField": {
+              "type": "string"
+            },
+            "textFieldDesc": {
+              "type": "string"
+            },
+            "valueField": {
+              "type": "string"
+            },
+            "valueFieldDesc": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "textField",
+            "textFieldDesc",
+            "valueField",
+            "valueFieldDesc"
+          ],
+          "additionalProperties": false
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    },
+    "Target": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Target",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "fieldId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.resolveSource.params": {
+          "type": "object",
+          "properties": {
+            "scenarioId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveSource.return": {
+          "type": "object",
+          "title": "DataSet"
+        }
+      }
+    },
+    "Selection": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Selection",
+      "properties": {
+        "kind": {
+          "enum": [
+            "Table",
+            "View",
+            "Dict"
+          ]
+        },
+        "source": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "dictionaryFields": {
+          "$ref": "#/$defs/ExcelDictionaryReferenceFields"
+        }
+      },
+      "required": [
+        "kind",
+        "source"
+      ],
+      "additionalProperties": false
+    },
+    "ExcelFieldReference": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelFieldReference",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Target"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.select.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Selection"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.select.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.clear.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.clear.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T07:15:36.422Z",
+  "models": {
+    "ExcelDictionaryReferenceFields": {
+      "name": "ExcelDictionaryReferenceFields",
+      "jsdoc": "按已读取字典定义派生两份独立选项视图；不伪造正式字段模型或保存定义。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "@param dataSet 本次宿主按需加载的正式字典空间。",
+          "signatureText": "constructor(dataSet: DataSet)",
+          "parameters": [
+            {
+              "name": "dataSet",
+              "type": {
+                "type": "reference",
+                "name": "DataSet"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "text",
+              "jsdoc": "文本字段标准选择器。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "value",
+              "jsdoc": "值字段标准选择器。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "refresh",
+              "jsdoc": "从当前可读定义重算；定义切换时清空旧选择，不自动代选字段。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "selection",
+              "jsdoc": "@param source 原定义来源；确认时核对可读标题和所选字段，不相信旧目录内容。",
+              "parameters": [
+                {
+                  "name": "source",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Readonly",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "{\n        textField: string;\n        textFieldDesc: string;\n        valueField: string;\n        valueFieldDesc: string;\n    }"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放派生选项，不修改原字典及Excel映射。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Target": {
+      "name": "Target",
+      "jsdoc": "本次原字段的不可变上下文；真实编辑、取消及提交始终属于原DataView。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原Excel设计空间。 */\n    dataSet: DataSet;\n    /** 原配置身份。 */\n    nodeId: string;\n    /** 原映射身份。 */\n    fieldId: string;\n    /** 宿主实例、目标和页面代次守卫。 */\n    assertCurrent(): void;\n    /** 由原PageRuntime按正式空间身份返回当前已装配的来源实例。 */\n    resolveSource(scenarioId: string): DataSet | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原Excel设计空间。 */\n    dataSet: DataSet;\n    /** 原配置身份。 */\n    nodeId: string;\n    /** 原映射身份。 */\n    fieldId: string;\n    /** 宿主实例、目标和页面代次守卫。 */\n    assertCurrent(): void;\n    /** 由原PageRuntime按正式空间身份返回当前已装配的来源实例。 */\n    resolveSource(scenarioId: string): DataSet | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "原Excel设计空间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "原配置身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldId",
+              "jsdoc": "原映射身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "宿主实例、目标和页面代次守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "resolveSource",
+              "jsdoc": "由原PageRuntime按正式空间身份返回当前已装配的来源实例。",
+              "parameters": [
+                {
+                  "name": "scenarioId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "DataSet"
+                }
+              }
+            }
+          ]
+        }
+      }
+    },
+    "Selection": {
+      "name": "Selection",
+      "jsdoc": "引用来源的业务种类，物理视图与DataView运行对象分别处理。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 实际选中的资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原PageRuntime中的正式来源实例。 */\n    source: DataSet;\n    /** 字典的两份独立派生选项；物理资源不使用。 */\n    dictionaryFields?: ExcelDictionaryReferenceFields;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 实际选中的资源种类。 */\n    kind: 'Table' | 'View' | 'Dict';\n    /** 原PageRuntime中的正式来源实例。 */\n    source: DataSet;\n    /** 字典的两份独立派生选项；物理资源不使用。 */\n    dictionaryFields?: ExcelDictionaryReferenceFields;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "实际选中的资源种类。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "原PageRuntime中的正式来源实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dictionaryFields",
+              "jsdoc": "字典的两份独立派生选项；物理资源不使用。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ExcelFieldReference": {
+      "name": "ExcelFieldReference",
+      "jsdoc": "Excel引用成组编辑命令；不建立第二份草稿或保存通道。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "@param input 打开弹窗时的原实例、配置和字段。",
+          "signatureText": "constructor(input: Target)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Target",
+                "sourcePath": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "select",
+              "jsdoc": "@param input 原正式来源中的选择；确认前不修改原映射，成功后仍未保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Selection",
+                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "clear",
+              "jsdoc": "明确清空引用的全部业务字段；取消仍由原DataView负责。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

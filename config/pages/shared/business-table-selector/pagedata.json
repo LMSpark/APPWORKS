@@ -16,6 +16,11 @@
       "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20,
         "valueField": "rowid", "labelField": "tblname", "queryConfig": {"fields": ["rowid", "tblname", "tbldesc"]}}}
     },
+    "_Base_ViewList": {
+      "modelBinding": {"modelId": "7bba3b1f-23d9-40ac-86b5-11e8dfece6cf", "modelName": "_Base_ViewList"},
+      "views": {"default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 20,
+        "valueField": "rowid", "labelField": "vewname", "queryConfig": {"fields": ["rowid", "dbid", "vewname", "vewdesc"]}}}
+    },
     "Base_TblField": {
       "modelBinding": {"modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a", "modelName": "Base_TblField"},
       "views": {
@@ -23,6 +28,10 @@
           "valueField": "enname", "labelField": "cnname",
           "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname", "DataType", "ordIdx"], "allPages": true},
           "sortExpression": [{"field": "ordIdx", "direction": "asc"}, {"field": "rowid", "direction": "asc"}]},
+        "viewTextFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname",
+          "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
+        "viewValueFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname",
+          "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
         "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false},
         "textFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname",
           "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
@@ -33,6 +42,12 @@
   },
   "resourceRelations": [],
   "viewCascades": [
+    {"kind": "query", "cascadeId": "source-database-views", "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default",
+      "childTable": "_Base_ViewList", "childViewId": "default", "autoLoad": false, "filterBindings": [{"sourceField": "conid", "targetField": "dbid", "operator": "eq"}]},
+    {"kind": "query", "cascadeId": "source-view-text-fields", "parentTable": "_Base_ViewList", "parentViewId": "default",
+      "childTable": "Base_TblField", "childViewId": "viewTextFields", "autoLoad": true, "filterBindings": [{"targetField": "tblid", "operator": "in"}]},
+    {"kind": "query", "cascadeId": "source-view-value-fields", "parentTable": "_Base_ViewList", "parentViewId": "default",
+      "childTable": "Base_TblField", "childViewId": "viewValueFields", "autoLoad": true, "filterBindings": [{"targetField": "tblid", "operator": "in"}]},
     {"kind": "query", "cascadeId": "source-table-excel-fields", "parentTable": "_Base_TblList", "parentViewId": "default",
       "childTable": "Base_TblField", "childViewId": "excelFields", "autoLoad": true, "filterBindings": [{"targetField": "tblid", "operator": "in"}]},
     {"kind": "query", "cascadeId": "source-application-databases", "parentTable": "Base_AppSystemList", "parentViewId": "default",

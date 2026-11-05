@@ -15,7 +15,7 @@ export function sourceRecords() {
 export async function sourceModels() {
   const text = await readFile('config/pages/shared/business-table-selector/pagedata.json', 'utf8'), config = JSON.parse(text)
   const specs = {Base_AppSystemList: ['rowid', 'AppName'], Base_AppAndSource_Relation: ['rowid', 'sysid', 'conid', 'conName'],
-    _Base_TblList: ['rowid', 'dbid', 'tblname', 'tbldesc'], Base_TblField: ['rowid', 'tblid', 'enname', 'cnname', 'DataType', 'ordIdx']}
+    _Base_TblList: ['rowid', 'dbid', 'tblname', 'tbldesc'], _Base_ViewList:['rowid','dbid','vewname','vewdesc'], Base_TblField: ['rowid', 'tblid', 'enname', 'cnname', 'DataType', 'ordIdx']}
   return buildFormalModels(specs).map(model => ({...model, id: config.tables[model.name].modelBinding.modelId,
     fields: model.fields.map(field => ({...field, output: !(model.name === '_Base_TblList' && field.name === 'dbid')}))}))
 }

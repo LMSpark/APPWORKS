@@ -10,19 +10,20 @@ import SparkJsonEditor from '../../../../../packages/spark-component/src/compone
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {EXCEL, topicModels, topicTexts} from '../../structured-config/catalog/formal-topic.fixture'
-import {EXCEL_DESIGN, excelDesignModels, designText} from './excel-import-design.fixture'
+import {EXCEL_DESIGN, excelDesignModels, designText,EXCEL_DICTIONARY,excelDictionaryReferenceModels} from './excel-import-design.fixture'
 import {DataSet} from '@spark-appworks/spark-data'
 import {sourceModels, sourceRecords, SOURCE_SCENE} from '../../structured-config/data-code/source-picker/fixture'
 import sourceText from '../../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
+import dictionaryText from '../../../../../config/pages/data-platform/data-dictionary/pagedata.json?raw'
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi, dirtySources: [] as Array<{isDirty: boolean}>}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {isDirty: boolean}) => state.dirtySources.push(source)}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
-  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === EXCEL_DESIGN ? designText : id === SOURCE_SCENE ? sourceText : topicTexts[id] ?? null}}),
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === EXCEL_DESIGN ? designText : id === SOURCE_SCENE ? sourceText : id===EXCEL_DICTIONARY?dictionaryText:topicTexts[id] ?? null}}),
   lowcodeApi: {readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'Excel'}),
-      readModelBatch: async ({dataSpaceId, metaNames}: {dataSpaceId: string; metaNames: string[]}) => (dataSpaceId === EXCEL_DESIGN ? excelDesignModels() : dataSpaceId === SOURCE_SCENE ? await sourceModels() : topicModels(dataSpaceId)).filter(model => metaNames.includes(model.metaName)),
+      readModelBatch: async ({dataSpaceId, metaNames}: {dataSpaceId: string; metaNames: string[]}) => (dataSpaceId === EXCEL_DESIGN ? excelDesignModels() : dataSpaceId === SOURCE_SCENE ? await sourceModels() : dataSpaceId===EXCEL_DICTIONARY?excelDictionaryReferenceModels():topicModels(dataSpaceId)).filter(model => metaNames.includes(model.metaName)),
       readRelations: async () => [],
     },
   }},
@@ -35,6 +36,7 @@ beforeEach(() => {
     ...sourceRecords(),
     Base_Import_solution: [{rowid: 'E1', solutionName: '订单导入', dataSetId: 'S1'}, {rowid: 'E2', solutionName: '其他方案'}],
     Base_DataSet: [], Base_UserInfo: [],
+    _Base_DictType:[{rowid:'D1',TypeName:'状态',functiondesc:'业务状态',txt:'状态名',val:'状态码',secondValue:'扩展一',thirdValue:'',fourthvalue:'',fiveValue:''}],
     Base_ImportData_Config: [{rowid: 'C1', schemeid: 'E1', pid: 'E1', sheetName: '订单', sheet: 0, titleIndex: 1, dataIndex: 2, sheet_layout_json: '{"keep":false}'}],
     Base_ImportData_Field: [{rowid: 'F1', configid: 'C1', name: 'code', title: '编码', index: '01', type: 1}],
     Base_Import_Transform_Rule: [{id: 'R1', scheme_id: 'E1', config_id: 'C1', rule_name: '去空格', config_json: '{"keep":true}'}],
@@ -75,6 +77,81 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('closes an unconfirmed reference selector through the original host discard contract',async()=>{
+    const f=await open();await f.choose()
+    const mappings=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await mappings.get('tbody tr').trigger('click');await flushPromises();await f.click('设置引用')
+    expect(state.dirtySources[0]?.isDirty).toBe(true)
+    expect(f.wrapper.getComponent(ExcelEditor).vm.discardChanges()).toBe(true);await flushPromises()
+    expect(state.dirtySources[0]?.isDirty).toBe(false)
+    expect(f.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='确认引用')).toBe(false)
+    expect(state.http.saves).toEqual([])
+  })
+  it('selects registered physical view fields through its independent bound views',async()=>{
+    state.http.records['_Base_ViewList']=[{rowid:'V1',dbid:'D1',vewname:'view_one',vewdesc:'视图一'}]
+    state.http.records['Base_TblField']!.push({rowid:'VF1',tblid:'V1',enname:'id',cnname:'视图编码'},{rowid:'VF2',tblid:'V1',enname:'name',cnname:'视图标题'})
+    const f=await open();await f.choose()
+    const mappings=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await mappings.get('tbody tr').trigger('click');await flushPromises();await f.click('设置引用')
+    const click=async(label:string)=>{await f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label)!.get('button').trigger('click');await flushPromises()}
+    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='视图')?.props('disabled')).toBe(false));await click('视图')
+    f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_AppSystemList@default`)!.getComponent(ElSelect).vm.$emit('update:modelValue','A1');await flushPromises()
+    for(const model of ['Base_AppAndSource_Relation','_Base_ViewList']){
+      const table=()=>f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')===`${SOURCE_SCENE}@${model}@default`)!
+      await vi.waitFor(()=>expect(table().findAll('tbody tr').length).toBeGreaterThan(0));await table().get('tbody tr').trigger('click');await flushPromises()
+    }
+    for(const [view,value] of [['viewTextFields','VF2'],['viewValueFields','VF1']]){
+      const field=f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_TblField@${view}`)!
+      await vi.waitFor(()=>expect(field.getComponent(ElSelect).props('disabled')).toBe(false));field.getComponent(ElSelect).vm.$emit('update:modelValue',value);await flushPromises()
+    }
+    await click('确认引用');expect([...document.querySelectorAll('[role="alert"]')].map(alert=>alert.textContent)).toEqual([]);await f.click('保存字段')
+    expect(state.http.records['Base_ImportData_Field']![0]!).toMatchObject({refDataid:'V1',refTable:'数据库一@view_one',refTableDesc:'视图一',textField:'name',valueField:'id'})
+  })
+  it('opens a bound table reference selector, cancels without drafts, then saves only the selected mapping',async()=>{
+    const f=await open();await f.choose()
+    const mappings=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await mappings.get('tbody tr').trigger('click');await flushPromises()
+    await f.click('设置引用');await vi.waitFor(()=>expect(document.body.textContent).toContain('选择引用表／视图／字典字段'))
+    const click=async(label:string)=>{await f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label)!.get('button').trigger('click');await flushPromises()}
+    await click('取消引用选择');expect(state.dirtySources[0]?.isDirty).toBe(false);expect(state.http.saves).toEqual([])
+    await f.click('设置引用')
+    const application=()=>f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_AppSystemList@default`)!
+    await vi.waitFor(()=>expect(application()).toBeDefined());application().getComponent(ElSelect).vm.$emit('update:modelValue','A1');await flushPromises()
+    for(const model of ['Base_AppAndSource_Relation','_Base_TblList']){
+      const table=()=>f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')===`${SOURCE_SCENE}@${model}@default`)!
+      await vi.waitFor(()=>expect(table().findAll('tbody tr').length).toBeGreaterThan(0));await table().get('tbody tr').trigger('click');await flushPromises()
+    }
+    for(const [view,value] of [['textFields','F2'],['valueFields','F1']]){
+      const field=f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('optionDataViewKey')===`${SOURCE_SCENE}@Base_TblField@${view}`)!
+      await vi.waitFor(()=>expect(field.getComponent(ElSelect).props('disabled')).toBe(false));field.getComponent(ElSelect).vm.$emit('update:modelValue',value);await flushPromises()
+    }
+    await click('确认引用');expect(state.http.saves).toEqual([])
+    await f.click('保存字段')
+    expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Field'])
+    expect(state.http.records['Base_ImportData_Field']![0]!).toMatchObject({refDataid:'T1',refTable:'数据库一@table_one',textField:'name',valueField:'id',isDict:0,filterField:'',filterValue:''})
+    await f.click('清空引用');await f.click('取消字段修改')
+    expect(state.http.records['Base_ImportData_Field']![0]!['refDataid']).toBe('T1')
+  })
+  it('loads dictionary definitions on demand and binds separate text and value option views without reading entries',async()=>{
+    const f=await open();await f.choose()
+    expect(state.http.reads.some(read=>read.table==='_Base_DictType')).toBe(false)
+    const mappings=f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
+    await mappings.get('tbody tr').trigger('click');await flushPromises();await f.click('设置引用')
+    const click=async(label:string)=>{await f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')===label)!.get('button').trigger('click');await flushPromises()}
+    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='字典')?.props('disabled')).toBe(false));await click('字典')
+    const definitions=()=>f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')===`${EXCEL_DICTIONARY}@_Base_DictType@excelReferences`)!
+    await vi.waitFor(()=>expect(definitions()?.findAll('tbody tr').length).toBe(1));await definitions().get('tbody tr').trigger('click');await flushPromises()
+    for(const [label,value] of [['文本字段','txt'],['值字段','val']]){
+      const field=f.wrapper.findAllComponents(FieldSelect).find(field=>field.props('label')===label)!
+      expect(field.props('dataMember')).toBe('value');expect(field.props('optionDataViewKey')).toContain('optionCatalog_')
+      field.getComponent(ElSelect).vm.$emit('update:modelValue',value);await flushPromises()
+    }
+    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='确认引用')?.props('disabled')).toBe(false))
+    await click('确认引用');expect([...document.querySelectorAll('[role="alert"]')].map(alert=>alert.textContent)).toEqual([]);await f.click('保存字段')
+    expect(state.http.records['Base_ImportData_Field']![0]!).toMatchObject({isDict:1,refDataid:'D1',refTable:'_Base_DictData',filterField:'typeid',filterValue:'D1',textField:'txt',valueField:'val'})
+    expect(state.http.reads.some(read=>read.table==='_Base_DictData')).toBe(false)
+    expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Field'])
+  })
   it('hides classical mappings for enabled layout, preserves their records and restores them on cancel', async () => {
     const f=await open();await f.choose()
     const originalFields=structuredClone(state.http.records['Base_ImportData_Field'])

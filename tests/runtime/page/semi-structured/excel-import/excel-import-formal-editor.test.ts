@@ -4,7 +4,8 @@ import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
 import {RendererTree, RendererFilterExpression, FilterExpressionEditor, FieldJson, FieldCheckbox, FieldText, FieldNumber, FieldSelect, RendererTable, RendererButton, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
-import {ElSelect, ElCheckbox} from 'element-plus'
+import {ElSelect, ElCheckbox, ElTabs} from 'element-plus'
+import {RendererTabs,RendererTabPane} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import SparkJsonEditor from '../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
@@ -77,6 +78,47 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('keeps two independent standard tab groups and the same draft components without querying or saving on tab changes',async()=>{
+    const f=await open();await f.choose()
+    const groups=f.wrapper.findAllComponents(RendererTabs)
+    expect(groups).toHaveLength(2)
+    expect(groups[0]!.findAllComponents(RendererTabPane).map(pane=>pane.props('label'))).toEqual(['基本信息','增强规则','相对版式'])
+    expect(groups[1]!.findAllComponents(RendererTabPane).map(pane=>pane.props('label'))).toEqual(['列配置','动态列字典'])
+    const field=f.wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='sheetName'&&!field.props('readonly'))!
+    await field.get('input').setValue('页签中保留草稿');await flushPromises()
+    const nodeField=field.vm.$.uid,layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!.vm.$.uid
+    const reads=state.http.reads.length
+    for(const name of ['transform','layout','basic']){groups[0]!.getComponent(ElTabs).vm.$emit('update:modelValue',name);await flushPromises()}
+    groups[1]!.getComponent(ElTabs).vm.$emit('update:modelValue','dynamicDict');await flushPromises()
+    expect(groups[0]!.props('modelValue')).toBe('basic')
+    expect(groups[1]!.props('modelValue')).toBe('dynamicDict')
+    expect(field.vm.$.uid).toBe(nodeField)
+    expect(f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!.vm.$.uid).toBe(layout)
+    expect(field.get('input').element.value).toBe('页签中保留草稿')
+    expect(state.http.reads).toHaveLength(reads);expect(state.http.saves).toEqual([])
+    expect(state.dirtySources[0]?.isDirty).toBe(true)
+    await f.click('取消配置修改');expect(field.get('input').element.value).toBe('订单')
+  })
+  it.each(['sorted','sheet_layout_json'])('retains rejected %s input and its close guard across tabs until the original cancel',async(field)=>{
+    const f=await open();await f.choose()
+    const tabs=f.wrapper.findAllComponents(RendererTabs)[0]!,original=field==='sorted'?'basic':'layout'
+    tabs.getComponent(ElTabs).vm.$emit('update:modelValue',original);await flushPromises()
+    const component=f.wrapper.findAllComponents(FieldJson).find(item=>item.props('field')===field)!,uid=component.vm.$.uid
+    component.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{');await flushPromises()
+    expect(state.dirtySources[0]?.isDirty).toBe(true)
+    const alerts=component.findAll('[role="alert"]').map(item=>item.text())
+    expect(alerts.length).toBeGreaterThan(0)
+    tabs.getComponent(ElTabs).vm.$emit('update:modelValue','transform');await flushPromises()
+    tabs.getComponent(ElTabs).vm.$emit('update:modelValue',original);await flushPromises()
+    const returned=f.wrapper.findAllComponents(FieldJson).find(item=>item.props('field')===field)!
+    expect(returned.vm.$.uid).toBe(uid)
+    expect(returned.findAll('[role="alert"]').map(item=>item.text())).toEqual(alerts)
+    expect(state.dirtySources[0]?.isDirty).toBe(true)
+    expect(state.http.saves).toEqual([])
+    await f.click('取消配置修改')
+    expect(state.dirtySources[0]?.isDirty).toBe(false)
+    expect(returned.findAll('[role="alert"]')).toHaveLength(0)
+  })
   it.each([true,false])('uses root layout mode for a child filter instead of the child layout flag (%s)',async(rootEnabled)=>{
     state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']=JSON.stringify({version:3,enabled:rootEnabled})
     state.http.records['Base_ImportData_Config']!.push({rowid:'CHILD',schemeid:'E1',pid:'C1',sheetName:'子表',sheet_layout_json:JSON.stringify({version:3,enabled:!rootEnabled})})
@@ -119,7 +161,7 @@ describe('formal Excel design editor', () => {
     const original = '{"version":73,"enabled":false,"future":{"zero":0,"active":false}}'
     state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json'] = original
     const f = await open(); await f.choose()
-    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!
     await sheet.get('input').setValue('保留版式'); await flushPromises(); await f.click('保存配置')
     expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe(original)
     const reopened = await open(); await reopened.choose()
@@ -167,7 +209,7 @@ describe('formal Excel design editor', () => {
     await f.click('取消增强规则开关修改')
     expect(checkbox().getComponent(ElCheckbox).props('modelValue')).toBe(false)
     expect(state.dirtySources[0]?.isDirty).toBe(false)
-    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!
     await sheet.get('input').setValue('节点草稿'); await flushPromises()
     checkbox().getComponent(ElCheckbox).vm.$emit('update:modelValue', true); await flushPromises()
     await f.click('保存增强规则开关')
@@ -402,7 +444,7 @@ describe('formal Excel design editor', () => {
   it('cancels a target replacement as one operation while retaining an earlier worksheet-name draft', async () => {
     state.http.records['Base_Import_Transform_Rule'] = []
     const f = await open(); await f.choose()
-    await f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!.get('input').setValue('此前工作表草稿'); await flushPromises()
+    await f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!.get('input').setValue('此前工作表草稿'); await flushPromises()
     await selectTarget(f); await f.click('取消字段修改'); await f.click('保存配置')
     expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
     expect(state.http.records['Base_ImportData_Config']![0]).toMatchObject({sheetName: '此前工作表草稿'})
@@ -422,7 +464,7 @@ describe('formal Excel design editor', () => {
   it('rejects an empty worksheet name when saving a joint source change from the fields action', async () => {
     state.http.records['Base_Import_Transform_Rule'] = []
     const f = await open(); await f.choose()
-    await f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!.get('input').setValue('   '); await flushPromises()
+    await f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!.get('input').setValue('   '); await flushPromises()
     await selectTarget(f); await f.click('保存目标及字段')
     expect(state.http.saves).toEqual([])
     expect(f.wrapper.text()).toContain('请输入工作表名称')
@@ -517,7 +559,7 @@ describe('formal Excel design editor', () => {
   it('stages child and sibling configurations in the original tree and cancels without writes', async () => {
     const f = await open(); await f.choose()
     await f.click('新增子级配置')
-    const sheet = () => f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    const sheet = () => f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!
     await sheet().get('input').setValue('子配置一'); await flushPromises()
     await f.click('新增同级配置')
     await sheet().get('input').setValue('子配置二'); await flushPromises()
@@ -530,7 +572,7 @@ describe('formal Excel design editor', () => {
 
   it('persists a child configuration under its captured parent using the scheme query scope', async () => {
     const f = await open(); await f.choose(); await f.click('新增子级配置')
-    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!
     await sheet.get('input').setValue('子Sheet'); await flushPromises(); await f.click('保存配置')
     expect(state.http.records['Base_ImportData_Config']!.find(row => row['sheetName'] === '子Sheet')).toMatchObject({schemeid: 'E1', pid: 'C1'})
     expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
@@ -538,7 +580,7 @@ describe('formal Excel design editor', () => {
 
   it('retains the selected root parent for a saved sibling rather than nesting it', async () => {
     const f = await open(); await f.choose(); await f.click('新增同级配置')
-    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!
     await sheet.get('input').setValue('同级Sheet'); await flushPromises(); await f.click('保存配置')
     expect(state.http.records['Base_ImportData_Config']!.find(row => row['sheetName'] === '同级Sheet')).toMatchObject({schemeid: 'E1', pid: 'E1'})
     expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
@@ -590,7 +632,7 @@ describe('formal Excel design editor', () => {
   })
   it('saves a new root before creating fields and binds the field to that new root rather than the previous selection', async () => {
     const f = await open(); await f.choose(); await f.click('新增根配置')
-    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName')!
+    const sheet = f.wrapper.findAllComponents(FieldText).find(field => field.props('field') === 'sheetName' && field.props('label') === '工作表名称')!
     await sheet.get('input').setValue('新增Sheet'); await flushPromises(); await f.click('保存配置')
     const created = state.http.records['Base_ImportData_Config']!.find(row => row['sheetName'] === '新增Sheet')!
     expect(created).toBeDefined()

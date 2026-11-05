@@ -3,17 +3,12 @@
 -->
 <template>
   <section class="structured-editor-page">
-    <header><h1>导入配置设置</h1></header>
     <p v-if="loading" role="status">正在读取设计…</p>
     <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
     <p v-if="missing" role="alert">当前方案不存在</p>
     <p v-if="unconfirmed" role="status">存在尚未确认的保存结果，请通过原保存入口核验。</p>
     <p v-if="recoveryNotice" role="status">{{ recoveryNotice }}</p>
     <template v-if="ready && validTarget">
-      <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
-        <FieldText field="solutionName" label="方案名称" :readonly="true" />
-        <FieldText field="dataSetId" label="方案数据空间" :readonly="true" />
-      </RendererForm>
       <div class="excel-workspaces">
         <aside :inert="(acting || unconfirmed || !!targetChange || !!removal || !!fieldReference || pendingPart('nodes') || pendingPart('rules')) || undefined">
           <RendererButton :data-view-key="nodesKey" label="新增根配置" perm-action="create" :disabled="locked" @click="addRoot" />
@@ -22,9 +17,29 @@
           <RendererButton :data-view-key="nodesKey" label="删除配置" perm-action="delete" :disabled="locked || !selectedNode" @click="openRemoval" />
           <RendererTree :data-view-key="nodesKey" :expand-level="1" :tree-props="{highlightCurrent:true,expandOnClickNode:false}" :show-data-view-meta="false" />
         </aside>
-        <main v-if="selectedNode">
-          <h2>基本信息</h2>
-          <RendererForm :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
+        <main>
+          <header class="excel-workspace-header">
+            <h1>导入配置设置</h1>
+      <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="2">
+        <FieldText field="solutionName" label="方案名称" :readonly="true" />
+        <FieldText field="dataSetId" label="方案数据空间" :readonly="true" />
+      </RendererForm>
+            <RendererForm v-if="selectedNode" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
+              <FieldText field="sheetName" label="当前节点" :readonly="true" />
+            </RendererForm>
+            <div v-if="selectedNode" class="excel-workspace-actions">
+          <p v-if="targetState?.kind==='source'" role="status">目标及字段替换共同保存；提交开始后沿同一次保存核验。</p>
+          <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(nodesTable) ? '核验配置保存结果' : '保存配置'" :disabled="busy || !!targetChange && !targetChange.owns(nodesTable) || pendingPart('nodes')" @click="save(nodesTable)" />
+          <RendererButton label="取消配置修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(nodesTable))" @click="cancel(nodesTable)" />
+          <RendererButton v-if="targetState?.canRetry" :label="targetState?.kind==='source' ? '确认未生效，重新提交目标及字段' : '确认未生效，重新提交原修改'" :disabled="busy" @click="retryTarget" />
+          <RendererButton v-if="targetState?.canAcceptCurrent" :label="targetState?.kind==='source' ? '读取并采用当前正式结果，结束原换源' : '读取并采用当前正式结果，结束原保存'" :disabled="busy" @click="acceptTargetCurrent" />
+          <RendererButton v-if="targetChange && targetState?.applyStarted && targetState.canDiscard" :label="targetState?.kind==='source' ? '放弃本次配置和字段的本地修改' : '放弃本次保存范围的本地修改'" :disabled="busy" @click="discardTarget" />
+            </div>
+          </header>
+          <RendererTabs v-model="activeTopTab" :data-view-key="nodesKey" data-member="currentRow">
+            <RendererTabPane name="basic" label="基本信息" :index="0" :data-view-key="nodesKey">
+              <template v-if="selectedNode">
+          <RendererForm class="excel-node-form" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="3">
             <FieldText field="sheetName" label="工作表名称" :readonly="locked" />
             <FieldNumber field="sheet" label="工作表索引" :readonly="locked" />
             <FieldNumber field="titleIndex" label="表头行（负数则无表头）" :readonly="locked" />
@@ -43,28 +58,12 @@
               <RendererFilterExpression v-else :data-view-key="nodesKey" data-member="currentRow" field="filters" format="spark-json" title="导出过滤条件" :columns="[]" :readonly="true" />
             </section>
             <FieldJson field="sorted" label="排序规则" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('nodes.sorted',value)" />
-            <FieldJson field="sheet_layout_json" label="Sheet 布局" mode="text" :readonly="locked" :on-change="changeLayout" :on-editing-change="value => pending('nodes.layout',value)" />
           </RendererForm>
           <RendererButton :data-view-key="nodesKey" label="选择目标数据" perm-action="edit" :disabled="locked || !!targetChange || !targetAllowed" @click="openTarget" />
-          <p v-if="targetState?.kind==='source'" role="status">目标及字段替换共同保存；提交开始后沿同一次保存核验。</p>
-          <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(nodesTable) ? '核验配置保存结果' : '保存配置'" :disabled="busy || !!targetChange && !targetChange.owns(nodesTable) || pendingPart('nodes')" @click="save(nodesTable)" />
-          <RendererButton label="取消配置修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(nodesTable))" @click="cancel(nodesTable)" />
-          <RendererButton v-if="targetState?.canRetry" :label="targetState?.kind==='source' ? '确认未生效，重新提交目标及字段' : '确认未生效，重新提交原修改'" :disabled="busy" @click="retryTarget" />
-          <RendererButton v-if="targetState?.canAcceptCurrent" :label="targetState?.kind==='source' ? '读取并采用当前正式结果，结束原换源' : '读取并采用当前正式结果，结束原保存'" :disabled="busy" @click="acceptTargetCurrent" />
-          <RendererButton v-if="targetChange && targetState?.applyStarted && targetState.canDiscard" :label="targetState?.kind==='source' ? '放弃本次配置和字段的本地修改' : '放弃本次保存范围的本地修改'" :disabled="busy" @click="discardTarget" />
-          <p v-if="layoutEnabled" role="status">已启用相对版式，经典字段映射已隐藏。请在 Sheet 布局中维护版式定义。</p>
-          <section v-else>
-            <h2>字段映射</h2>
-            <RendererButton :data-view-key="fieldsKey" label="设置引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(false)" />
-            <RendererButton :data-view-key="fieldsKey" label="清空引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(true)" />
-            <RendererButton :data-view-key="fieldsKey" label="删除字段" perm-action="delete" :disabled="locked || !!targetChange" @click="remove(fieldsTable)" />
-            <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(fieldsTable) ? '核验字段保存结果' : '保存字段'" :disabled="busy || !!targetChange && (!targetChange.owns(fieldsTable) || targetChange.owns(nodesTable) && pendingPart('nodes'))" @click="save(fieldsTable)" />
-            <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(fieldsTable))" @click="cancel(fieldsTable)" />
-            <RendererTable :data-view-key="fieldsKey" :children="fieldColumns" :highlight-current-row="true" />
-          </section>
-        </main>
-        <p v-else role="status">请选择左侧节点后再编辑</p>
-      </div>
+              </template>
+              <p v-else role="status">请选择左侧节点后再编辑</p>
+            </RendererTabPane>
+            <RendererTabPane name="transform" label="增强规则" :index="1" :data-view-key="rulesKey">
       <ExcelTransformRulesPane :data-view-key="rulesKey" :field-options-key="ruleFieldOptionsKey" :has-node="!!selectedNode" :disabled="locked" @session-change="value => pending('rules.dialog',value)">
         <template #scheme-tools>
           <RendererForm :data-view-key="schemeKey" :auto-columns="false" :show-data-view-meta="false">
@@ -74,6 +73,36 @@
           <RendererButton label="取消增强规则开关修改" :disabled="busy || unconfirmed || pendingPart('rules')" @click="cancel(schemeTable)" />
         </template>
       </ExcelTransformRulesPane>
+            </RendererTabPane>
+            <RendererTabPane name="layout" label="相对版式" :index="2" :data-view-key="nodesKey">
+              <RendererForm v-if="selectedNode" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
+            <FieldJson field="sheet_layout_json" label="Sheet 布局" mode="text" :readonly="locked" :on-change="changeLayout" :on-editing-change="value => pending('nodes.layout',value)" />
+              </RendererForm>
+              <p v-else role="status">请选择左侧节点后再编辑</p>
+            </RendererTabPane>
+          </RendererTabs>
+          <template v-if="selectedNode">
+            <p v-if="layoutEnabled" role="status">已启用相对版式，经典字段映射已隐藏。请在相对版式中维护版式定义。</p>
+            <RendererTabs v-else v-model="activeBottomTab" :data-view-key="fieldsKey" data-member="currentRow">
+              <RendererTabPane name="fields" label="列配置" :index="0" :data-view-key="fieldsKey">
+
+            <h2>字段映射</h2>
+            <RendererButton :data-view-key="fieldsKey" label="设置引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(false)" />
+            <RendererButton :data-view-key="fieldsKey" label="清空引用" perm-action="edit" :disabled="locked || !!targetChange || !currentMapping" @click="editReference(true)" />
+            <RendererButton :data-view-key="fieldsKey" label="删除字段" perm-action="delete" :disabled="locked || !!targetChange" @click="remove(fieldsTable)" />
+            <RendererButton :label="targetChange ? targetSaveLabel : isUnconfirmed(fieldsTable) ? '核验字段保存结果' : '保存字段'" :disabled="busy || !!targetChange && (!targetChange.owns(fieldsTable) || targetChange.owns(nodesTable) && pendingPart('nodes'))" @click="save(fieldsTable)" />
+            <RendererButton label="取消字段修改" :disabled="busy || unconfirmed || !!targetChange && (!targetState?.canCancel || !targetChange.owns(fieldsTable))" @click="cancel(fieldsTable)" />
+            <RendererTable :data-view-key="fieldsKey" :children="fieldColumns" :highlight-current-row="true" />
+
+              </RendererTabPane>
+              <RendererTabPane name="dynamicDict" label="动态列字典" :index="1" :data-view-key="fieldsKey">
+                <p role="status">动态列字典待后续实现</p>
+              </RendererTabPane>
+            </RendererTabs>
+          </template>
+        </main>
+      </div>
+
     </template>
     <ExcelTargetDialog v-if="sourceTargetId" :data-view-key="nodesKey" :record-id="sourceTargetId" :busy="acting" :validate-target="validateSourceTarget" @close="sourceTargetId = ''" @confirm="applyTarget" />
     <ExcelReferenceDialog v-if="fieldReference" :data-view-key="fieldsKey" :reference="fieldReference" :busy="acting" @close="fieldReference=undefined" />
@@ -111,7 +140,7 @@ import ExcelTargetDialog from './excel-import-target-dialog.vue'
 import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
 import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
-const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
+const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
 const scene = LowcodeExcelImport.designScenarioId, catalogScene = LowcodeExcelImport.navigationScenarioId
@@ -124,6 +153,7 @@ const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catal
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-editor-page'})
 const dataSet = shallowRef<DataSet>(), catalog = shallowRef<DataSet>(), opening = ref(false), ready = ref(false), acting = ref(false), error = ref(''), revision = ref(0)
 const inputs = ref(new Set<string>())
+const activeTopTab=ref<string|number>('basic'),activeBottomTab=ref<string|number>('fields')
 const sourceTargetId = ref(''), targetChange = shallowRef<ExcelConfigurationEdit>()
 const recoveryNotice = ref('')
 const association = shallowRef<ExcelAssociationFields>()
@@ -369,8 +399,14 @@ onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off())
 
 <style scoped>
 .structured-editor-page { display: grid; gap: 12px; padding: 24px; }
-.excel-workspaces {display:grid;grid-template-columns:240px minmax(0,1fr);gap:20px;}
+.excel-workspaces {display:grid;grid-template-columns:280px minmax(0,1fr);gap:20px;min-width:0;}
 .excel-workspaces main {min-width:0;display:grid;gap:12px;}
 .excel-filter-definition {grid-column:1/-1;min-width:0;}
 .excel-filter-definition h3 {margin:0 0 8px;}
+.excel-workspaces aside,.excel-workspace-header {min-width:0;}
+.excel-workspace-header h1 {margin:0;}
+.excel-workspace-actions {display:flex;flex-wrap:wrap;gap:8px;align-items:center;}
+@media (max-width:1280px) {.excel-workspaces {grid-template-columns:minmax(0,1fr);}}
+@media (max-width:1280px) {.excel-node-form :deep(.renderer-form-grid) {grid-template-columns:repeat(2,minmax(0,1fr)) !important;}}
+@media (max-width:900px) {.excel-node-form :deep(.renderer-form-grid) {grid-template-columns:minmax(0,1fr) !important;}}
 </style>

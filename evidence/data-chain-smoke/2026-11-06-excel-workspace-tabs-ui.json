@@ -1,0 +1,65 @@
+{
+  "scope": "Read-only browser validation of standard Excel workspace tabs and viewport bounds; no configuration apply/save/delete actions",
+  "recordedAt": "2026-11-05T20:19:57.4685094Z",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "topTabs": [
+    "基本信息",
+    "增强规则",
+    "相对版式"
+  ],
+  "bottomTabs": [
+    "列配置",
+    "动态列字典"
+  ],
+  "dimensions": [
+    {
+      "viewport": 1273,
+      "dialogWidth": 1241,
+      "x": 11,
+      "right": 1252,
+      "workspaceClient": 1161,
+      "workspaceScroll": 1161,
+      "layout": "stacked",
+      "formColumns": 2
+    },
+    {
+      "viewport": 1700,
+      "dialogWidth": 1560,
+      "x": 65,
+      "right": 1625,
+      "workspaceClient": 1480,
+      "workspaceScroll": 1480,
+      "layout": "280px + 1180px",
+      "formColumns": 3
+    },
+    {
+      "viewport": 760,
+      "dialogWidth": 728,
+      "x": 11,
+      "right": 739,
+      "workspaceClient": 648,
+      "workspaceScroll": 648,
+      "layout": "stacked",
+      "formColumns": 1
+    }
+  ],
+  "filterFullscreen": {
+    "restoredWidth": 980,
+    "fullscreenWidth": 1273,
+    "cancelled": true,
+    "restoredX": 146.5,
+    "viewport": 1273,
+    "fullscreenX": 0
+  },
+  "viewportReset": true,
+  "configurationWriteActionsInvoked": false,
+  "screenshot": "artifacts/data-chain-smoke/ui-excel-workspace-tabs-20261106.jpg",
+  "screenshotSha256": "2f356b03e60d573da9e704542f344f86a36d85b32d03b78481388a97de84dd02",
+  "remaining": [
+    "Structured sorting editor",
+    "Structured relative layout editor and execution",
+    "Dynamic column dictionary data",
+    "Real Import business/ledger/archive readback and exact cleanup",
+    "Full twenty-package migration"
+  ]
+}

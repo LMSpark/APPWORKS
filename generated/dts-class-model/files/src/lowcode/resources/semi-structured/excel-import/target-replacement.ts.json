@@ -1,0 +1,326 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/target-replacement",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/target-replacement",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/target-replacement\n职责：组合Excel目标与字段替换的原生变更，消费同一DataSet的联合捕获及精确回读。\n边界：不建立数据副本或请求通道；原视图持有草稿，公共定义提交器负责保存和未知核验。\nAI用途：目标表确认后暂存、联合保存与取消；不能将节点和字段拆成两个独立提交。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelTargetReplacement"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "source": {
+          "type": "object",
+          "title": "DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ExcelTargetReplacement": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTargetReplacement",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<ExcelTargetReplacement>"
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "busy": {
+              "type": "boolean"
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "dispatched": {
+              "type": "boolean"
+            },
+            "applyStarted": {
+              "type": "boolean"
+            },
+            "acceptedCurrent": {
+              "type": "boolean"
+            },
+            "canAcceptCurrent": {
+              "type": "boolean"
+            },
+            "canCancel": {
+              "type": "boolean"
+            },
+            "canDiscard": {
+              "type": "boolean"
+            },
+            "canRetry": {
+              "type": "boolean"
+            },
+            "verificationRequired": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "busy",
+            "done",
+            "dispatched",
+            "applyStarted",
+            "acceptedCurrent",
+            "canAcceptCurrent",
+            "canCancel",
+            "canDiscard",
+            "canRetry",
+            "verificationRequired"
+          ],
+          "additionalProperties": false
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.retry.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.retry.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.discardLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChanges.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T04:28:55.136Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "原页面本次明确的目标替换调用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原Excel设计实例。 */\n    dataSet: DataSet;\n    /** 捕获的配置行身份。 */\n    nodeId: string;\n    /** 本次正式来源实例，只读消费。 */\n    source: DataSet;\n    /** 页面代次、运行实例及目标守卫。 */\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原Excel设计实例。 */\n    dataSet: DataSet;\n    /** 捕获的配置行身份。 */\n    nodeId: string;\n    /** 本次正式来源实例，只读消费。 */\n    source: DataSet;\n    /** 页面代次、运行实例及目标守卫。 */\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "原Excel设计实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "捕获的配置行身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "本次正式来源实例，只读消费。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "页面代次、运行实例及目标守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExcelTargetReplacement": {
+      "name": "ExcelTargetReplacement",
+      "jsdoc": "目标和字段的联合结构命令；状态仅描述原提交，不持有可编辑业务数据。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获正式配置、映射与引用的首轮只读证明，不创建额外编辑真源。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "stage",
+              "jsdoc": "@param input 原实例、原配置及来源。\n@returns 仅暂存在原视图中的替换命令，不发生保存。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ExcelTargetReplacement",
+                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getState",
+              "jsdoc": "本次原命令的交互状态，不包含行值。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        busy: boolean;\n        done: boolean;\n        dispatched: boolean;\n        applyStarted: boolean;\n        acceptedCurrent: boolean;\n        canAcceptCurrent: boolean;\n        canCancel: boolean;\n        canDiscard: boolean;\n        canRetry: boolean;\n        verificationRequired: boolean;\n    }"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "联合提交原配置与捕获字段；存在原捕获时只核验，不自动重放。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "retry",
+              "jsdoc": "仅在公共核验已确认整个原批次未生效后，明确重新提交同一意图。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "显式读取并采用回执无效批次的当前正式结果；不将该结果标为原换源成功，不重发提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "派发前局部取消，仅恢复来源字段与替换集合，保留工作表名称等既有编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discardLocalChanges",
+              "jsdoc": "明确放弃本次配置行及字段的本地改动；只允许未派发或公共核验已确定的结果，不撤销正式写入。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

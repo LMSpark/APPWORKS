@@ -1,0 +1,1623 @@
+{
+  "scope": "Native SPARK data Excel configuration tree, source projection and joint replacement, original-capture verification, leaf removal and exact cleanup; not full Excel package or browser/file-consumer acceptance",
+  "baseCommit": "f2e70d2ad993ae28e61e5358a8d4188cd757f8a0",
+  "workingTreeImplementation": true,
+  "fixture": {
+    "schemeId": "F1D777DDDBB24D0DA0474CF4FE0C856A",
+    "marker": "SMOKE_EXCEL_LIVE_1793850808359",
+    "nodeIds": [
+      "54F3CAAB8363D5233C765DBC58104A54",
+      "C4C40FACA8F2733C2C18577E206F38B7",
+      "7F478A04B67774C0A95239F696F690B4"
+    ],
+    "nodeParents": {
+      "54F3CAAB8363D5233C765DBC58104A54": "F1D777DDDBB24D0DA0474CF4FE0C856A",
+      "C4C40FACA8F2733C2C18577E206F38B7": "54F3CAAB8363D5233C765DBC58104A54",
+      "7F478A04B67774C0A95239F696F690B4": "F1D777DDDBB24D0DA0474CF4FE0C856A"
+    },
+    "firstFieldIds": [
+      "CB765A177DCACE319EA470EAC4BEF54D",
+      "846BAD7B0258BCA9DCF783EA7489D2BF",
+      "59340A2A6E23D63B3A6699B677FD2F2F",
+      "4E2F577B87AD9773B128C470FC6D06A5",
+      "AF51A3D2FA11F2F7D0317D1594D3268A",
+      "725D5A165B52DF98954EE59DED804524",
+      "E412B37DD47EE0F469134BB8417C93C6",
+      "47F5E204B09EF149B7ABEDF7BCD610EF",
+      "B67D3A9FE4C85EA85C03727E8BC705EF",
+      "739652D41456BB18EF936EDA9C123876",
+      "4C66D303DCBF946C63434A0F39C3CBC8",
+      "E0E4FD3ED7C9E1A972298D7D94873633",
+      "19D204D2AB5DE350E3E54F6D29FEFB2C",
+      "E550A3DC10F80D2A0DD4494105D2066D",
+      "ED5436BD39344AE512BC3CE3CA31CCA5",
+      "B275CF69CD95952DCAB538C710805A22",
+      "4F6BD6490AC4DE24038488508738AA4D",
+      "B87B79C3858C439DBE753CCC4C18B29E",
+      "ED4475D7B3AB334675516DED8ACF9DA9",
+      "694DA2446814BF45BE8BC8F37B5B0ECE",
+      "67FCE5FA2840A469C75795F82E85C4AF",
+      "7FB13950C6F0C06FF25736CF97522863",
+      "B4BD577488B4A62601FA09AA1E4F1E07",
+      "014035D48B61550B115932A5FA154476",
+      "80B2BE15CC868DE25AEBA884F3962F63",
+      "A4A102C131EF3B6EE794D289354E8147",
+      "18E44BD5B48D575B17DE808D4C853E41",
+      "C7FC4A532B8222372F642913CE15F651",
+      "97D6C5ACBC78F0173653CACF714EC1D5",
+      "4A6851724A97B0699D3EF5C71965F6E3",
+      "58442DB2B9B6C871AF9DB26E2055A2EF",
+      "0434384E16FADC581C343833E474A042",
+      "809A3F3215FDE1EDA9D7C20FADD57664",
+      "70E57F193DF84FB38F17DBE9119109F8",
+      "931035258EAA59C96D0121618515579F",
+      "3668A8FE33EA3943F5A567504665EFB7",
+      "4E94A64E50A265A8601814E948C0A554",
+      "B8DFA1A00531DBC393E96C27CC7770E7",
+      "56935DE1CCB809079CDE70D3F17B73F5",
+      "7693B6470CFF92593B4AB4BAE1BD5236",
+      "6BAFC72362C1B7C6DEA9F12FD860BB2C",
+      "FCD6238165CE3C138BA5A6E68AFA4DF5",
+      "919AD32B0EC276332287A7D7D53D1C94",
+      "D28F637945DFDF9DDE72BBA4E014CB09",
+      "CB7079091528D101ED8D86CCA7D70EAD",
+      "74B7B76D5D67AA2DA84C3351B855FA3A",
+      "177EB5B99A661575CE67011A2BAE62A9",
+      "7F3EF1BB4C338C539A2219BE5D7D6559",
+      "DF11945D7D920DC40847779FA3FC3576",
+      "4FA940CE144A918AD64AFFACC5C70A4F",
+      "46AE564C7272ADD3804C725BBC7E933C",
+      "0B9857B8AF6F7540266B69815BF00936",
+      "F4E9DB69F5B884403C08F77ED40AD7B6",
+      "44FDCD31BEC202851A7CC4C34D23BC09",
+      "1707BF5723065D191DF7FE06AA93F55C",
+      "A5024C2F33F896C7052457A42DF978F9",
+      "F724641F850835395A88BC0E74B1BC3C",
+      "4C3EE6F13EEEDFDF4CAEBBA3DAE9FA70",
+      "FD8CD705B74B06ECC11772944F844A86",
+      "E6797D170A1F1B1355C36B5F06FE76CE",
+      "918A94A618122EDC1905375EEB92ADFF",
+      "FA4A9EDE1A09010FE84BFBC00F27C66A",
+      "0E0B904CC99A743BF9B5479038B71A38"
+    ],
+    "secondFieldIds": [
+      "A6B7959C987A9929C0ECD0E737479EF7",
+      "9F9C9564C70E780491F06B1B723EC537",
+      "E1B183DEA983557DE7D98714D090265E",
+      "78722AF53166CB670ADFE54413763104",
+      "541DBE8264A061C2D83BAE82DCB1FD3A",
+      "62E05235F714BC833160B778DA5BF03D",
+      "4FD465CBF4D82CAAA00D1D6845B28339",
+      "1BC86061308C8659C176B9CFC7C771B3",
+      "3D22983B0D1B51ECC315C12F53BFE3A8",
+      "972108F2D9B43E09408023AA2123C2F6",
+      "E472B706553A61C6F9B19B1AD8DCF9E0",
+      "50048CCFC88D592758DD601310754B2F",
+      "9B080571830B2D0E9E1DA78BEC9E5E85",
+      "F951A09B9D8AF4502027235C62A8F39F",
+      "71A0019DD05C6DC0C0AF64101301E089",
+      "98A6450F5F67AF903D2F88556907E755",
+      "C9C4681C1897D1A9866A63048A302D89",
+      "4C2A881C4827528D2BFD25AF0BEAC648"
+    ],
+    "childFieldIds": [
+      "5C7CF9E05C90CEC31E130C435F6CC60D",
+      "4E60E09282F96599A735749FADAF43D8",
+      "480E19E49CA5C0F35F40F471713B0259",
+      "A8C81194FC0BCC276BFAA042FE98A74C",
+      "9359E9D125C1474CE250B5484BD990A0",
+      "83892E3DBF0A6551FBB52408FDD5BCED",
+      "54FA11F0DF3A0D285D69CBBABDB43B21",
+      "12246B8AC28C79CFC60EE1E22F053875",
+      "CF6F0A371B3D154E8B1A66C77BB7A119",
+      "2151F5C9BFFA2DD2DE4D2ED06501677B",
+      "06D35D6F4C4F432043886232A9CEE197",
+      "551F639A3ADC035A5A82D7D550129B7D",
+      "BBDA05CBF53A49B2CFDAD77FA617BA5C",
+      "CEA2FD73F5E80434E58DF96F092ED99C",
+      "5C21086EB36307E00F7396B7B326EB0A",
+      "7A9574C5A6F17F267825930C37DD223F",
+      "416054EC69D7FC74B26172A21ED24321",
+      "6C2CFA4A0F742602FDA3720EFEEF23A1"
+    ],
+    "ruleIds": [
+      "28CADADB58FF203C4A4A03138C697F99"
+    ]
+  },
+  "phases": {
+    "sourceConfiguration": [
+      {
+        "artifact": "excel-source-readonly-initial-audit.json",
+        "phase": "confirmed",
+        "reads": 14,
+        "databaseSubmissions": 0,
+        "unknown": false
+      },
+      {
+        "artifact": "excel-source-readonly-dbid-failed-audit.json",
+        "phase": "failed",
+        "reads": 16,
+        "databaseSubmissions": 0,
+        "unknown": false
+      },
+      {
+        "artifact": "excel-source-readonly-type-failed-audit.json",
+        "phase": "failed",
+        "reads": 20,
+        "databaseSubmissions": 0,
+        "unknown": false
+      },
+      {
+        "artifact": "excel-source-output-repair-audit.json",
+        "phase": "failed",
+        "reads": 18,
+        "databaseSubmissions": 0,
+        "unknown": true
+      },
+      {
+        "artifact": "excel-source-output-repair2-audit.json",
+        "phase": "failed",
+        "reads": 23,
+        "databaseSubmissions": 1,
+        "unknown": false
+      },
+      {
+        "artifact": "excel-source-readonly-audit.json",
+        "phase": "confirmed",
+        "reads": 31,
+        "databaseSubmissions": 0,
+        "unknown": false
+      }
+    ],
+    "initialFixture": {
+      "reads": 63,
+      "databaseSubmissions": 3,
+      "phase": "failed"
+    },
+    "readonlyRecovery": {
+      "reads": 43,
+      "databaseSubmissions": 0
+    },
+    "sameFixtureRecovery": {
+      "reads": 163,
+      "databaseSubmissions": 7,
+      "phase": "confirmed"
+    }
+  },
+  "totals": {
+    "reads": 391,
+    "databaseSubmissions": 11,
+    "uploads": 0,
+    "fileRemovals": 0,
+    "importExportCalls": 0,
+    "workflowExecutions": 0
+  },
+  "separateLoginCallsExcluded": true,
+  "outputRepair": {
+    "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
+    "modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a",
+    "fields": [
+      {
+        "id": "ABF2619C144184E205DC15F9B30ECA90",
+        "name": "ordIdx"
+      },
+      {
+        "id": "FC27E7E37CB79E789D9DD72928263FC4",
+        "name": "DataType"
+      }
+    ],
+    "diff": [
+      {
+        "path": "model.fields.37.output",
+        "before": false,
+        "after": true
+      },
+      {
+        "path": "model.fields.37.raw.IsOutput",
+        "before": 0,
+        "after": 1
+      },
+      {
+        "path": "model.fields.37.raw.updatetime",
+        "before": "2026-08-15T15:24:10",
+        "after": "2026-11-05T10:25:16"
+      },
+      {
+        "path": "model.fields.49.output",
+        "before": false,
+        "after": true
+      },
+      {
+        "path": "model.fields.49.raw.IsOutput",
+        "before": 0,
+        "after": 1
+      },
+      {
+        "path": "model.fields.49.raw.updatetime",
+        "before": "2026-08-15T15:24:10",
+        "after": "2026-11-05T10:25:16"
+      }
+    ],
+    "retainedProductConfiguration": true,
+    "dbidOutputUnchangedFalse": true,
+    "originalZeroDispatchAttempt": {
+      "writes": 0,
+      "conservativeUnknown": true,
+      "originalApiCaptureNotClaimedResolved": true,
+      "ramProcessReleasedAfterExactIdentityCheck": true
+    },
+    "repair2DriverExitCode": 1,
+    "reason": "Strict full-formal comparison included service-generated update timestamps; independent read recomputed the six exact differences above",
+    "fullFormalBeforeSha256": "5ca07ee006a24df9ae06258f4069ddac7fb4ded354ede9a3cc557d38e7ecc9b4",
+    "fullFormalAfterSha256": "0fc947c33b6a7e926f8ade28437c487a70bc3f642467f76d92ab1b9b1ee13f9a"
+  },
+  "sourceProjectionConflict": {
+    "tableId": "03BA8DB503E847C7AF5DE70C8AF142A8",
+    "total": 35,
+    "countReported": true,
+    "rejection": "Excel来源字段身份或名称重复",
+    "duplicateIds": [],
+    "duplicateNames": [
+      [
+        {
+          "rowid": "0c6500fa930611f185000242ac110008",
+          "tblid": "03BA8DB503E847C7AF5DE70C8AF142A8",
+          "enname": "request_hash",
+          "normalizedName": "request_hash",
+          "ordIdx": 33
+        },
+        {
+          "rowid": "2F0F043A9B7441CCB4E26EE3C920ACF3",
+          "tblid": "03BA8DB503E847C7AF5DE70C8AF142A8",
+          "enname": "request_hash",
+          "normalizedName": "request_hash",
+          "ordIdx": 33
+        }
+      ]
+    ],
+    "scope": [
+      {
+        "field": "dbid",
+        "operator": "eq",
+        "value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+      }
+    ],
+    "meaning": "Two different formal field identities have the same normalized field name; physical database versus service projection cause remains unverified",
+    "automaticallyDeduplicated": false,
+    "repaired": false
+  },
+  "frozenAlternative": {
+    "tableId": "05827C52B6E4A82075AC5D5BFB9C6F00",
+    "projection": {
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "applicationName": "DataSchemaManage",
+      "table": "QYVirtualPlat@enterprise_module_auth",
+      "description": "企业模块授权表[QYVirtualPlat@enterprise_module_auth]",
+      "fields": [
+        {
+          "name": "id",
+          "title": "唯一标识 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "createuser",
+          "title": "创建人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "createtime",
+          "title": "创建时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "updateuser",
+          "title": "修改人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "updatetime",
+          "title": "修改时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "wfid",
+          "title": "流程实例 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "flowstate",
+          "title": "流程状态",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "ReportID",
+          "title": "报表 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "description",
+          "title": "摘要",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "title": "逻辑删除标记",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "lingma_sys_ent",
+          "title": "企业标识",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "operator",
+          "title": "操作人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "authorized_at",
+          "title": "授权时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "authorized",
+          "title": "是否授权",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "parent_nav_id",
+          "title": "父导航 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "nav_id",
+          "title": "导航 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "enterprise_id",
+          "title": "企业租户 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "lingma_sys_appid",
+          "title": "应用系统标识",
+          "index": "",
+          "type": 0
+        }
+      ]
+    },
+    "signature": "3ce93aadd023cbaacf5fe0e795b2de919cd16c2e455f9e00072e24bb8d4ee54b",
+    "fieldIds": [
+      "0BB50AE174E747E2A2A3CBCA66B0C983",
+      "637DA9BB99C34B09B1F9221C045ED946",
+      "0FCF1D6A1DEA43889C638C29D40722A4",
+      "936DA19BBC4049DFA133CCB0242CFA0C",
+      "DFF654246037410F910AE846355827F2",
+      "448FDB8C648A4F12AD64EF8A82CC25B6",
+      "1D2BFF1B2AD14F12B261E537187B424F",
+      "3CD4DECC97BC429FBF9261C575605CFD",
+      "3FBB8C1C2A174202B498C4F12BD76F6D",
+      "26E14FF643044F51AFE2C3D3902C00E7",
+      "859963CDB3984656A6AE6635CBAE933E",
+      "1833A56E20D140CE8D1002CC5FCC583E",
+      "584C0ABF097F4400BE7D29B4E43B3E6F",
+      "F3DADC45888248E7AFAA08DEBF27BD27",
+      "1078F45B83544A48BEA86543DE248F7F",
+      "4F949C406DC04F4CA02E9C634F331064",
+      "0AB6F1E019954608A0D02466B6258DD7",
+      "3216a27e9d1311f185000242ac110008"
+    ],
+    "scope": [
+      {
+        "field": "dbid",
+        "operator": "eq",
+        "value": "EBEFF17BBB6443B185D6FB32FF69F0BB"
+      }
+    ]
+  },
+  "sources": {
+    "first": {
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "applicationName": "DataSchemaManage",
+      "table": "QYVirtualPlat@Base_NavigationInfo",
+      "description": "导航配置主表[QYVirtualPlat@Base_NavigationInfo]",
+      "fields": [
+        {
+          "name": "rowid",
+          "title": "唯一标识 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "IsFavoriteApp",
+          "title": "是否收藏至桌面",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "lingma_sys_ent",
+          "title": "企业标识字段",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "modid",
+          "title": "模块ID，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "conid",
+          "title": "内容 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "conType",
+          "title": "内容类型，模块或功能",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "funCode",
+          "title": "功能码",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "name",
+          "title": "导航名称",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "caption",
+          "title": "导航标题，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "memo",
+          "title": "备注",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "htmlDesc",
+          "title": "原型描述",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "IsShowAtNav",
+          "title": "是否显示到导航",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "NavigationUrl",
+          "title": "导航地址",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "NavigationOrderValue",
+          "title": "导航排序，（弃用）",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "NavigationShowType",
+          "title": "导航显示类型",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "Width",
+          "title": "宽度，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "HorizontalAlignment",
+          "title": "水平对齐",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "NavigationImageWxz",
+          "title": "导航图标",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "SysId",
+          "title": "系统 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "NavigationType",
+          "title": "导航类型",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "IsShowChildItem",
+          "title": "是否显示子项",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "wfid",
+          "title": "流程实例 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "flowstate",
+          "title": "流程状态",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "prowid",
+          "title": "父节点 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "FunCodeID",
+          "title": "功能码 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "NavCsrName",
+          "title": "导航路径名称",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "FunOrderValue",
+          "title": "功能排序",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "FunName",
+          "title": "功能名称，也是导航标题",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "ChildItemLocation",
+          "title": "子项位置",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "DataType",
+          "title": "数据目录-数据类型，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "DataId",
+          "title": "数据 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "CtrlType",
+          "title": "控件类型，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "DataTextField",
+          "title": "文字字段，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "DataValField",
+          "title": "值字段，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "DataName",
+          "title": "数据名称，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "promptText",
+          "title": "提示文本，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "BeginGroup",
+          "title": "是否分组",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "VersionId",
+          "title": "版本 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "DifficultyFactor",
+          "title": "难度系数",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "Number",
+          "title": "人数",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "Manhour",
+          "title": "人天工时",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "Total",
+          "title": "总工时",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "Sum",
+          "title": "合计",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "IsChild",
+          "title": "是否叶子节点",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "NavCsrType",
+          "title": "导航路径拼类型",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "JSValue",
+          "title": "JS 标识，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "FromId",
+          "title": "关联表单 ID，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "folderName",
+          "title": "文件夹名称，（弃用，设计文件存放文件夹）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "FormName",
+          "title": "表单名称，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "status",
+          "title": "状态",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "navParams",
+          "title": "导航参数，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "createuser",
+          "title": "创建人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "createtime",
+          "title": "创建时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "updateuser",
+          "title": "修改人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "updatetime",
+          "title": "修改时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "ReportID",
+          "title": "报表 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "description",
+          "title": "摘要",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "authDefaultSet",
+          "title": "权限默认设置，（弃用）",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "title": "逻辑删除标记",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "IsToDeskApp",
+          "title": "是否添加到桌面",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "personCharge",
+          "title": "负责人 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "MobileUrl",
+          "title": "移动端地址",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "lingma_sys_appid",
+          "title": "应用系统标识",
+          "index": "",
+          "type": 0
+        }
+      ]
+    },
+    "second": {
+      "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+      "applicationName": "DataSchemaManage",
+      "table": "QYVirtualPlat@enterprise_module_auth",
+      "description": "企业模块授权表[QYVirtualPlat@enterprise_module_auth]",
+      "fields": [
+        {
+          "name": "id",
+          "title": "唯一标识 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "createuser",
+          "title": "创建人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "createtime",
+          "title": "创建时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "updateuser",
+          "title": "修改人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "updatetime",
+          "title": "修改时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "wfid",
+          "title": "流程实例 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "flowstate",
+          "title": "流程状态",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "ReportID",
+          "title": "报表 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "description",
+          "title": "摘要",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "lingma_sys_is_delete",
+          "title": "逻辑删除标记",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "lingma_sys_ent",
+          "title": "企业标识",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "operator",
+          "title": "操作人",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "authorized_at",
+          "title": "授权时间",
+          "index": "",
+          "type": 2
+        },
+        {
+          "name": "authorized",
+          "title": "是否授权",
+          "index": "",
+          "type": 1
+        },
+        {
+          "name": "parent_nav_id",
+          "title": "父导航 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "nav_id",
+          "title": "导航 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "enterprise_id",
+          "title": "企业租户 ID",
+          "index": "",
+          "type": 0
+        },
+        {
+          "name": "lingma_sys_appid",
+          "title": "应用系统标识",
+          "index": "",
+          "type": 0
+        }
+      ]
+    }
+  },
+  "proofs": [
+    {
+      "case": "source-preview-cancel",
+      "additionalWrites": 0
+    },
+    {
+      "case": "exact-identity-absence",
+      "label": "old-source-fields",
+      "table": "Base_ImportData_Field",
+      "pk": "rowid",
+      "ids": [
+        "CB765A177DCACE319EA470EAC4BEF54D",
+        "846BAD7B0258BCA9DCF783EA7489D2BF",
+        "59340A2A6E23D63B3A6699B677FD2F2F",
+        "4E2F577B87AD9773B128C470FC6D06A5",
+        "AF51A3D2FA11F2F7D0317D1594D3268A",
+        "725D5A165B52DF98954EE59DED804524",
+        "E412B37DD47EE0F469134BB8417C93C6",
+        "47F5E204B09EF149B7ABEDF7BCD610EF",
+        "B67D3A9FE4C85EA85C03727E8BC705EF",
+        "739652D41456BB18EF936EDA9C123876",
+        "4C66D303DCBF946C63434A0F39C3CBC8",
+        "E0E4FD3ED7C9E1A972298D7D94873633",
+        "19D204D2AB5DE350E3E54F6D29FEFB2C",
+        "E550A3DC10F80D2A0DD4494105D2066D",
+        "ED5436BD39344AE512BC3CE3CA31CCA5",
+        "B275CF69CD95952DCAB538C710805A22",
+        "4F6BD6490AC4DE24038488508738AA4D",
+        "B87B79C3858C439DBE753CCC4C18B29E",
+        "ED4475D7B3AB334675516DED8ACF9DA9",
+        "694DA2446814BF45BE8BC8F37B5B0ECE",
+        "67FCE5FA2840A469C75795F82E85C4AF",
+        "7FB13950C6F0C06FF25736CF97522863",
+        "B4BD577488B4A62601FA09AA1E4F1E07",
+        "014035D48B61550B115932A5FA154476",
+        "80B2BE15CC868DE25AEBA884F3962F63",
+        "A4A102C131EF3B6EE794D289354E8147",
+        "18E44BD5B48D575B17DE808D4C853E41",
+        "C7FC4A532B8222372F642913CE15F651",
+        "97D6C5ACBC78F0173653CACF714EC1D5",
+        "4A6851724A97B0699D3EF5C71965F6E3",
+        "58442DB2B9B6C871AF9DB26E2055A2EF",
+        "0434384E16FADC581C343833E474A042",
+        "809A3F3215FDE1EDA9D7C20FADD57664",
+        "70E57F193DF84FB38F17DBE9119109F8",
+        "931035258EAA59C96D0121618515579F",
+        "3668A8FE33EA3943F5A567504665EFB7",
+        "4E94A64E50A265A8601814E948C0A554",
+        "B8DFA1A00531DBC393E96C27CC7770E7",
+        "56935DE1CCB809079CDE70D3F17B73F5",
+        "7693B6470CFF92593B4AB4BAE1BD5236",
+        "6BAFC72362C1B7C6DEA9F12FD860BB2C",
+        "FCD6238165CE3C138BA5A6E68AFA4DF5",
+        "919AD32B0EC276332287A7D7D53D1C94",
+        "D28F637945DFDF9DDE72BBA4E014CB09",
+        "CB7079091528D101ED8D86CCA7D70EAD",
+        "74B7B76D5D67AA2DA84C3351B855FA3A",
+        "177EB5B99A661575CE67011A2BAE62A9",
+        "7F3EF1BB4C338C539A2219BE5D7D6559",
+        "DF11945D7D920DC40847779FA3FC3576",
+        "4FA940CE144A918AD64AFFACC5C70A4F",
+        "46AE564C7272ADD3804C725BBC7E933C",
+        "0B9857B8AF6F7540266B69815BF00936",
+        "F4E9DB69F5B884403C08F77ED40AD7B6",
+        "44FDCD31BEC202851A7CC4C34D23BC09",
+        "1707BF5723065D191DF7FE06AA93F55C",
+        "A5024C2F33F896C7052457A42DF978F9",
+        "F724641F850835395A88BC0E74B1BC3C",
+        "4C3EE6F13EEEDFDF4CAEBBA3DAE9FA70",
+        "FD8CD705B74B06ECC11772944F844A86",
+        "E6797D170A1F1B1355C36B5F06FE76CE",
+        "918A94A618122EDC1905375EEB92ADFF",
+        "FA4A9EDE1A09010FE84BFBC00F27C66A",
+        "0E0B904CC99A743BF9B5479038B71A38"
+      ],
+      "count": 0
+    },
+    {
+      "case": "real-target-switch-and-original-capture-verification",
+      "firstTarget": "QYVirtualPlat@Base_NavigationInfo",
+      "secondTarget": "QYVirtualPlat@enterprise_module_auth",
+      "firstIds": [
+        "CB765A177DCACE319EA470EAC4BEF54D",
+        "846BAD7B0258BCA9DCF783EA7489D2BF",
+        "59340A2A6E23D63B3A6699B677FD2F2F",
+        "4E2F577B87AD9773B128C470FC6D06A5",
+        "AF51A3D2FA11F2F7D0317D1594D3268A",
+        "725D5A165B52DF98954EE59DED804524",
+        "E412B37DD47EE0F469134BB8417C93C6",
+        "47F5E204B09EF149B7ABEDF7BCD610EF",
+        "B67D3A9FE4C85EA85C03727E8BC705EF",
+        "739652D41456BB18EF936EDA9C123876",
+        "4C66D303DCBF946C63434A0F39C3CBC8",
+        "E0E4FD3ED7C9E1A972298D7D94873633",
+        "19D204D2AB5DE350E3E54F6D29FEFB2C",
+        "E550A3DC10F80D2A0DD4494105D2066D",
+        "ED5436BD39344AE512BC3CE3CA31CCA5",
+        "B275CF69CD95952DCAB538C710805A22",
+        "4F6BD6490AC4DE24038488508738AA4D",
+        "B87B79C3858C439DBE753CCC4C18B29E",
+        "ED4475D7B3AB334675516DED8ACF9DA9",
+        "694DA2446814BF45BE8BC8F37B5B0ECE",
+        "67FCE5FA2840A469C75795F82E85C4AF",
+        "7FB13950C6F0C06FF25736CF97522863",
+        "B4BD577488B4A62601FA09AA1E4F1E07",
+        "014035D48B61550B115932A5FA154476",
+        "80B2BE15CC868DE25AEBA884F3962F63",
+        "A4A102C131EF3B6EE794D289354E8147",
+        "18E44BD5B48D575B17DE808D4C853E41",
+        "C7FC4A532B8222372F642913CE15F651",
+        "97D6C5ACBC78F0173653CACF714EC1D5",
+        "4A6851724A97B0699D3EF5C71965F6E3",
+        "58442DB2B9B6C871AF9DB26E2055A2EF",
+        "0434384E16FADC581C343833E474A042",
+        "809A3F3215FDE1EDA9D7C20FADD57664",
+        "70E57F193DF84FB38F17DBE9119109F8",
+        "931035258EAA59C96D0121618515579F",
+        "3668A8FE33EA3943F5A567504665EFB7",
+        "4E94A64E50A265A8601814E948C0A554",
+        "B8DFA1A00531DBC393E96C27CC7770E7",
+        "56935DE1CCB809079CDE70D3F17B73F5",
+        "7693B6470CFF92593B4AB4BAE1BD5236",
+        "6BAFC72362C1B7C6DEA9F12FD860BB2C",
+        "FCD6238165CE3C138BA5A6E68AFA4DF5",
+        "919AD32B0EC276332287A7D7D53D1C94",
+        "D28F637945DFDF9DDE72BBA4E014CB09",
+        "CB7079091528D101ED8D86CCA7D70EAD",
+        "74B7B76D5D67AA2DA84C3351B855FA3A",
+        "177EB5B99A661575CE67011A2BAE62A9",
+        "7F3EF1BB4C338C539A2219BE5D7D6559",
+        "DF11945D7D920DC40847779FA3FC3576",
+        "4FA940CE144A918AD64AFFACC5C70A4F",
+        "46AE564C7272ADD3804C725BBC7E933C",
+        "0B9857B8AF6F7540266B69815BF00936",
+        "F4E9DB69F5B884403C08F77ED40AD7B6",
+        "44FDCD31BEC202851A7CC4C34D23BC09",
+        "1707BF5723065D191DF7FE06AA93F55C",
+        "A5024C2F33F896C7052457A42DF978F9",
+        "F724641F850835395A88BC0E74B1BC3C",
+        "4C3EE6F13EEEDFDF4CAEBBA3DAE9FA70",
+        "FD8CD705B74B06ECC11772944F844A86",
+        "E6797D170A1F1B1355C36B5F06FE76CE",
+        "918A94A618122EDC1905375EEB92ADFF",
+        "FA4A9EDE1A09010FE84BFBC00F27C66A",
+        "0E0B904CC99A743BF9B5479038B71A38"
+      ],
+      "secondIds": [
+        "A6B7959C987A9929C0ECD0E737479EF7",
+        "9F9C9564C70E780491F06B1B723EC537",
+        "E1B183DEA983557DE7D98714D090265E",
+        "78722AF53166CB670ADFE54413763104",
+        "541DBE8264A061C2D83BAE82DCB1FD3A",
+        "62E05235F714BC833160B778DA5BF03D",
+        "4FD465CBF4D82CAAA00D1D6845B28339",
+        "1BC86061308C8659C176B9CFC7C771B3",
+        "3D22983B0D1B51ECC315C12F53BFE3A8",
+        "972108F2D9B43E09408023AA2123C2F6",
+        "E472B706553A61C6F9B19B1AD8DCF9E0",
+        "50048CCFC88D592758DD601310754B2F",
+        "9B080571830B2D0E9E1DA78BEC9E5E85",
+        "F951A09B9D8AF4502027235C62A8F39F",
+        "71A0019DD05C6DC0C0AF64101301E089",
+        "98A6450F5F67AF903D2F88556907E755",
+        "C9C4681C1897D1A9866A63048A302D89",
+        "4C2A881C4827528D2BFD25AF0BEAC648"
+      ],
+      "verificationWrites": 0
+    },
+    {
+      "case": "leaf-cancel-delete-and-independent-retention",
+      "removedNode": "C4C40FACA8F2733C2C18577E206F38B7",
+      "removedFieldIds": [
+        "5C7CF9E05C90CEC31E130C435F6CC60D",
+        "4E60E09282F96599A735749FADAF43D8",
+        "480E19E49CA5C0F35F40F471713B0259",
+        "A8C81194FC0BCC276BFAA042FE98A74C",
+        "9359E9D125C1474CE250B5484BD990A0",
+        "83892E3DBF0A6551FBB52408FDD5BCED",
+        "54FA11F0DF3A0D285D69CBBABDB43B21",
+        "12246B8AC28C79CFC60EE1E22F053875",
+        "CF6F0A371B3D154E8B1A66C77BB7A119",
+        "2151F5C9BFFA2DD2DE4D2ED06501677B",
+        "06D35D6F4C4F432043886232A9CEE197",
+        "551F639A3ADC035A5A82D7D550129B7D",
+        "BBDA05CBF53A49B2CFDAD77FA617BA5C",
+        "CEA2FD73F5E80434E58DF96F092ED99C",
+        "5C21086EB36307E00F7396B7B326EB0A",
+        "7A9574C5A6F17F267825930C37DD223F",
+        "416054EC69D7FC74B26172A21ED24321",
+        "6C2CFA4A0F742602FDA3720EFEEF23A1"
+      ],
+      "removedRuleId": "28CADADB58FF203C4A4A03138C697F99",
+      "remainingNodeIds": [
+        "54F3CAAB8363D5233C765DBC58104A54",
+        "7F478A04B67774C0A95239F696F690B4"
+      ]
+    },
+    {
+      "case": "exact-identity-absence",
+      "label": "all-owned-nodes",
+      "table": "Base_ImportData_Config",
+      "pk": "rowid",
+      "ids": [
+        "54F3CAAB8363D5233C765DBC58104A54",
+        "C4C40FACA8F2733C2C18577E206F38B7",
+        "7F478A04B67774C0A95239F696F690B4"
+      ],
+      "count": 0
+    },
+    {
+      "case": "exact-identity-absence",
+      "label": "all-owned-fields",
+      "table": "Base_ImportData_Field",
+      "pk": "rowid",
+      "ids": [
+        "CB765A177DCACE319EA470EAC4BEF54D",
+        "846BAD7B0258BCA9DCF783EA7489D2BF",
+        "59340A2A6E23D63B3A6699B677FD2F2F",
+        "4E2F577B87AD9773B128C470FC6D06A5",
+        "AF51A3D2FA11F2F7D0317D1594D3268A",
+        "725D5A165B52DF98954EE59DED804524",
+        "E412B37DD47EE0F469134BB8417C93C6",
+        "47F5E204B09EF149B7ABEDF7BCD610EF",
+        "B67D3A9FE4C85EA85C03727E8BC705EF",
+        "739652D41456BB18EF936EDA9C123876",
+        "4C66D303DCBF946C63434A0F39C3CBC8",
+        "E0E4FD3ED7C9E1A972298D7D94873633",
+        "19D204D2AB5DE350E3E54F6D29FEFB2C",
+        "E550A3DC10F80D2A0DD4494105D2066D",
+        "ED5436BD39344AE512BC3CE3CA31CCA5",
+        "B275CF69CD95952DCAB538C710805A22",
+        "4F6BD6490AC4DE24038488508738AA4D",
+        "B87B79C3858C439DBE753CCC4C18B29E",
+        "ED4475D7B3AB334675516DED8ACF9DA9",
+        "694DA2446814BF45BE8BC8F37B5B0ECE",
+        "67FCE5FA2840A469C75795F82E85C4AF",
+        "7FB13950C6F0C06FF25736CF97522863",
+        "B4BD577488B4A62601FA09AA1E4F1E07",
+        "014035D48B61550B115932A5FA154476",
+        "80B2BE15CC868DE25AEBA884F3962F63",
+        "A4A102C131EF3B6EE794D289354E8147",
+        "18E44BD5B48D575B17DE808D4C853E41",
+        "C7FC4A532B8222372F642913CE15F651",
+        "97D6C5ACBC78F0173653CACF714EC1D5",
+        "4A6851724A97B0699D3EF5C71965F6E3",
+        "58442DB2B9B6C871AF9DB26E2055A2EF",
+        "0434384E16FADC581C343833E474A042",
+        "809A3F3215FDE1EDA9D7C20FADD57664",
+        "70E57F193DF84FB38F17DBE9119109F8",
+        "931035258EAA59C96D0121618515579F",
+        "3668A8FE33EA3943F5A567504665EFB7",
+        "4E94A64E50A265A8601814E948C0A554",
+        "B8DFA1A00531DBC393E96C27CC7770E7",
+        "56935DE1CCB809079CDE70D3F17B73F5",
+        "7693B6470CFF92593B4AB4BAE1BD5236",
+        "6BAFC72362C1B7C6DEA9F12FD860BB2C",
+        "FCD6238165CE3C138BA5A6E68AFA4DF5",
+        "919AD32B0EC276332287A7D7D53D1C94",
+        "D28F637945DFDF9DDE72BBA4E014CB09",
+        "CB7079091528D101ED8D86CCA7D70EAD",
+        "74B7B76D5D67AA2DA84C3351B855FA3A",
+        "177EB5B99A661575CE67011A2BAE62A9",
+        "7F3EF1BB4C338C539A2219BE5D7D6559",
+        "DF11945D7D920DC40847779FA3FC3576",
+        "4FA940CE144A918AD64AFFACC5C70A4F",
+        "46AE564C7272ADD3804C725BBC7E933C",
+        "0B9857B8AF6F7540266B69815BF00936",
+        "F4E9DB69F5B884403C08F77ED40AD7B6",
+        "44FDCD31BEC202851A7CC4C34D23BC09",
+        "1707BF5723065D191DF7FE06AA93F55C",
+        "A5024C2F33F896C7052457A42DF978F9",
+        "F724641F850835395A88BC0E74B1BC3C",
+        "4C3EE6F13EEEDFDF4CAEBBA3DAE9FA70",
+        "FD8CD705B74B06ECC11772944F844A86",
+        "E6797D170A1F1B1355C36B5F06FE76CE",
+        "918A94A618122EDC1905375EEB92ADFF",
+        "FA4A9EDE1A09010FE84BFBC00F27C66A",
+        "0E0B904CC99A743BF9B5479038B71A38",
+        "A6B7959C987A9929C0ECD0E737479EF7",
+        "9F9C9564C70E780491F06B1B723EC537",
+        "E1B183DEA983557DE7D98714D090265E",
+        "78722AF53166CB670ADFE54413763104",
+        "541DBE8264A061C2D83BAE82DCB1FD3A",
+        "62E05235F714BC833160B778DA5BF03D",
+        "4FD465CBF4D82CAAA00D1D6845B28339",
+        "1BC86061308C8659C176B9CFC7C771B3",
+        "3D22983B0D1B51ECC315C12F53BFE3A8",
+        "972108F2D9B43E09408023AA2123C2F6",
+        "E472B706553A61C6F9B19B1AD8DCF9E0",
+        "50048CCFC88D592758DD601310754B2F",
+        "9B080571830B2D0E9E1DA78BEC9E5E85",
+        "F951A09B9D8AF4502027235C62A8F39F",
+        "71A0019DD05C6DC0C0AF64101301E089",
+        "98A6450F5F67AF903D2F88556907E755",
+        "C9C4681C1897D1A9866A63048A302D89",
+        "4C2A881C4827528D2BFD25AF0BEAC648",
+        "5C7CF9E05C90CEC31E130C435F6CC60D",
+        "4E60E09282F96599A735749FADAF43D8",
+        "480E19E49CA5C0F35F40F471713B0259",
+        "A8C81194FC0BCC276BFAA042FE98A74C",
+        "9359E9D125C1474CE250B5484BD990A0",
+        "83892E3DBF0A6551FBB52408FDD5BCED",
+        "54FA11F0DF3A0D285D69CBBABDB43B21",
+        "12246B8AC28C79CFC60EE1E22F053875",
+        "CF6F0A371B3D154E8B1A66C77BB7A119",
+        "2151F5C9BFFA2DD2DE4D2ED06501677B",
+        "06D35D6F4C4F432043886232A9CEE197",
+        "551F639A3ADC035A5A82D7D550129B7D",
+        "BBDA05CBF53A49B2CFDAD77FA617BA5C",
+        "CEA2FD73F5E80434E58DF96F092ED99C",
+        "5C21086EB36307E00F7396B7B326EB0A",
+        "7A9574C5A6F17F267825930C37DD223F",
+        "416054EC69D7FC74B26172A21ED24321",
+        "6C2CFA4A0F742602FDA3720EFEEF23A1"
+      ],
+      "count": 0
+    },
+    {
+      "case": "exact-identity-absence",
+      "label": "all-owned-rules",
+      "table": "Base_Import_Transform_Rule",
+      "pk": "id",
+      "ids": [
+        "28CADADB58FF203C4A4A03138C697F99"
+      ],
+      "count": 0
+    }
+  ],
+  "faultInjection": {
+    "scope": "Client-side throw after real successful CRUD reply; not observed transport packet loss",
+    "faults": [
+      {
+        "label": "source-root-switch",
+        "afterRealEnvelope": true,
+        "code": 200,
+        "writes": 1
+      }
+    ]
+  },
+  "cleanup": {
+    "lifecycle": "cleaned",
+    "independentAbsence": {
+      "scheme": 0,
+      "nodes": 0,
+      "fields": 0,
+      "rules": 0
+    },
+    "cleanedAt": "2026-11-05T04:18:24.985Z",
+    "exactIdentityAndParentScopeQueries": true
+  },
+  "nativeDriver": {
+    "preflightSession": 82734,
+    "preflightExitCode": 0,
+    "resumeSession": 47671,
+    "resumeExitCode": 0
+  },
+  "sourceFreeze": {
+    "verified": true,
+    "sources": [
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+        "sha256": "6b662cf35f95e94292c72a142b457bc97a584fddc5968a3913f864577c4327c8"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
+        "sha256": "8b40f3682500d89c7bba9a2061535e2f91ff670833c7309dbf1074f3091e6315"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
+        "sha256": "e345d99ed976ffbc85f073f80abe830a0fad9f5404bda2a2ce534119e8b96b75"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/target-references.ts",
+        "sha256": "45f52ac4113906136a2e365cc8fe5d82bc840cf1ab4d24196fae8de4773af22d"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts",
+        "sha256": "2ada891592b0485256d8548f43b249d75c64cb892fe0fad5deaa00a075066ff1"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts",
+        "sha256": "76c08db160bf5e2651615978904808433c65bb51e6dd476cf364f3b0e234a173"
+      },
+      {
+        "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+        "sha256": "e2f4410fdb1d6553c366e63b243dde937f0cf4976874cbf7f13ddd3194d5a72e"
+      },
+      {
+        "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue",
+        "sha256": "a18fd8fcbad4505599a3f0d681efc955c9fa6506238fcb6db8562bf40e2c90ed"
+      },
+      {
+        "path": "config/pages/shared/business-table-selector/pagedata.json",
+        "sha256": "f80a2215cef919da688929c86c9dca4e871ff53d9285a4ee927afcfb211504f4"
+      },
+      {
+        "path": "config/pages/semi-structured/excel-import-editor/pagedata.json",
+        "sha256": "d353e91a327854cd3829f01e6ec82abdfbfa04c08b13f69a5650af1ef4e39c2d"
+      },
+      {
+        "path": "config/pages/semi-structured/excel-import-catalog/pagedata.json",
+        "sha256": "45d068dcdbf03dbb403386b6a2c49fe596f00bc4284935f3331a94d53b3f4fe7"
+      },
+      {
+        "path": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+        "sha256": "fe222e6c5b6f1821d1b714a3d9dac1a1bbd0d132531a4ef2b07343305c47e194"
+      },
+      {
+        "path": "packages/spark-data/src/data-view.ts",
+        "sha256": "c87877d368e0f9c45c5468ad56d7451610fac4f4150163f7281e24d9e318ee86"
+      },
+      {
+        "path": "packages/spark-data/src/dataset.ts",
+        "sha256": "4711988f2f8132510436ce9cfc0739ce05262eed0ca6a298950e81ee0ab3adb7"
+      },
+      {
+        "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+        "sha256": "9690a24f666b618cc2ecda9ec7805a2be7cd7d48096e9c166ce740c471b2a1df"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-config-resume.mts",
+        "sha256": "80f86c6381c88320c0a4d39bd356c3c3a4cca2c9f30f0c5b0090a41cb21c089a"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-config-resume-run.mts",
+        "sha256": "b0529da4f061672925d694f8ef4371290e0c9ca37894f71036dab3777078dcbe"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-config-resume-driver.ps1",
+        "sha256": "b80c9c71708fa96b7a208dbc7849dfaf8c717fd088f531323a9001c2e04539a0"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-config-resume-preflight-audit.json",
+        "sha256": "7a3cab5c77eb9147aa730b51459c10b3cd85e7b19f9d88061005f8b8ae031137"
+      }
+    ],
+    "scope": "Verified immediately after native driver 47671 terminal0 and before post-smoke codegen signature cleanup"
+  },
+  "open": [
+    "Full mapping controls, parent/foreign-key selection and reference controls",
+    "Structured filters, sorting, Sheet layout and transform rule editors",
+    "Catalog normal coding allocation, template and file lifecycle",
+    "Actual deployed import/export consumer and browser acceptance",
+    "Formal duplicate source projection remains unresolved",
+    "Twenty business package migration continues"
+  ],
+  "hashes": [
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-readonly-initial-audit.json",
+      "sha256": "2ddc43ce8cc490b70f6cdb93580cc6e1b07ec4bc721579565cc9d45bc8ff22b0"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-readonly-dbid-failed-audit.json",
+      "sha256": "b7ee69b9b4f2055130955af548ae1350229bdde35e8af498e0d1859736b65700"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-readonly-type-failed-audit.json",
+      "sha256": "7f6af45f145c235c9b203f87595f8e1e640fc5cc9bfe16764d3f93654952f064"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-output-repair-audit.json",
+      "sha256": "a04db32e405c6e0f4a0bc17982bdaa9e55501a8ba25969ac04f3c93cef5e1ea1"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-output-repair2-audit.json",
+      "sha256": "006cb284f627a6ad0423207e66edefe0b8789b67244ee0f527679abd32c60c25"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-readonly-audit.json",
+      "sha256": "b32619419e7e81c7c03e74bf25a37e2e844e9a55dde430d178c3535d1c08f902"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-source-output-repair-diff.json",
+      "sha256": "93f42affbec9ef83b29267093c994437dc9a514cc3698c493eed4f8fc60ef780"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-live-source-second-failed-audit.json",
+      "sha256": "2995e8ab9a26732bde6d2adc8c57bc28100888de93c32abf2320748de0b2b71a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-live-source-second-failed-intent.json",
+      "sha256": "134b647fa5ccf87c9f0d3f976de62270b79fc717e2217ea93aa7f89501739727"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-preflight-audit.json",
+      "sha256": "7a3cab5c77eb9147aa730b51459c10b3cd85e7b19f9d88061005f8b8ae031137"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-audit.json",
+      "sha256": "d8955a4d3870fb55fb31090afe8baf02bd73917a19554eb6d7ace45bfca74662"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-source-freeze.json",
+      "sha256": "00e39d78c91b9b84c4a09b38e625319c3bbdd9276c3af58111d757934707767a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-freeze-verified.json",
+      "sha256": "43e9fbed27b20928af854df5f9de8b934f192e921fa85f9b0c91ce4088a735a4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume.mts",
+      "sha256": "80f86c6381c88320c0a4d39bd356c3c3a4cca2c9f30f0c5b0090a41cb21c089a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-run.mts",
+      "sha256": "b0529da4f061672925d694f8ef4371290e0c9ca37894f71036dab3777078dcbe"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-driver.ps1",
+      "sha256": "b80c9c71708fa96b7a208dbc7849dfaf8c717fd088f531323a9001c2e04539a0"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-preflight.mts",
+      "sha256": "09bc34104571c86ce2443e04005044be68484fa046e39bd22117d1e447d779d2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-preflight-run.mts",
+      "sha256": "5593f11b7957da1b664175711ef658f41f5fb00dc8246dad31313a9877d34da6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-config-resume-preflight-driver.ps1",
+      "sha256": "db7b27ffa9e977e4b88032645c31ecc86072945fd7385a7f0c153eb54198930f"
+    }
+  ],
+  "postSmokeReviewValidation": {
+    "scope": "Post-native-review fixes verified by regressions; original native sourceFreeze remains the exact older tested version",
+    "tests": {
+      "files": 6,
+      "passed": 54
+    },
+    "typecheckExitCode": 0,
+    "rootLintExitCode": 0,
+    "frontendBuildExitCode": 0,
+    "classModelGenerated": true,
+    "classModelSemanticGaps": 3635,
+    "previousSemanticGaps": 3637,
+    "classModelGuideSchemaPassed": true,
+    "pagesConfigPassed": true,
+    "docsPassed": true,
+    "consumerLedger": {
+      "endpoints": 611,
+      "consumers": 208,
+      "checkPassed": true
+    },
+    "strictCodegen": {
+      "current": 26,
+      "sameFileHeadBaseline": 26,
+      "added": 0,
+      "fullGatePassed": false
+    },
+    "reviewFixes": [
+      "Retry after any local apply failure applies both node and fields before dispatch",
+      "Fresh formal field permissions checked against original DataView dirty changes plus editing patch on retry",
+      "Real capture controls verification text; local apply start only locks edits and offers explicit resave",
+      "First joint save validates worksheet name; original capture recovery bypasses new form checks",
+      "Invalid aggregated receipts expose explicit accept-current without claiming command success and allow navigation"
+    ],
+    "newNativeFixtureAfterReview": false,
+    "logHashes": [
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-final-54.log",
+        "sha256": "4a6e764411c8977fd2be10bc2ba27085f50583ccdcbc2240ecdb22c91960e434"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-final-root-lint.log",
+        "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-typecheck.log",
+        "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-build.log",
+        "sha256": "bb9d3fffbdd08f7ba23b4d796582697e8accd0df9ceb4b68489a287f7ca807a5"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-generation.log",
+        "sha256": "b33e768b05306514fa530acbb15032491e0e70cc337e3ba8bdb6cd13d566e529"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-contracts.log",
+        "sha256": "7abd3a12b64c34fdfa8360d2c6f5c1426fa8a852c066556ce9fc193c46452d4f"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-docs.log",
+        "sha256": "37f40ec28c1c14af501e620652de3304816f8b0080912f7dd1bff355990d0468"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-class-schema.log",
+        "sha256": "5580fa45616b8c6551f120eb3c0da514e9c5898b73ecd8f51c0a563b432d2afc"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-push-pages.log",
+        "sha256": "6a3b0a4325b616d2ef32ab5cd1de08486f3fa5e9d8c4337cf83ce58120613532"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-review-apply-name-red.log",
+        "sha256": "5faeb077dc0bba6d670d68f43e54a6d696772c398070c3bbb455cb581247f396"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-review-receipt-red.log",
+        "sha256": "1e5479508b3e7618dad41d51a8393ecf42a630da71ce3eb0bd9c6adc2ca3e943"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-review-retry-permission-red.log",
+        "sha256": "37d012cfd2a396806fbe104a18e0bbb393d2d666455f728c22352d3b4b1bc1bc"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-review-retry-permission-green.log",
+        "sha256": "890598bc913641b5073996c29a3b3cb14544bfe89b3073fe9cb48ed46719695e"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-review-recovery-ui.log",
+        "sha256": "b5ddf576fb538aa655b5e2232fb8cc2044b6d525f04a1d73fb3892da2a8ede21"
+      },
+      {
+        "path": "artifacts/data-chain-smoke/excel-lifecycle-codegen-baseline.json",
+        "sha256": "243b8ff19b9faaa451007c7b2d9514e214562e2909b3c362c19d05f6c6dfabbe"
+      }
+    ],
+    "currentProductSources": [
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
+        "sha256": "6b662cf35f95e94292c72a142b457bc97a584fddc5968a3913f864577c4327c8"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
+        "sha256": "444364703db2d801fd5990b17d7a517c8b41dbcf0f048940ed4ccbb1680f368e"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
+        "sha256": "4477880cbc12b3d8322765df43dc8723890c3900671d22daf77eb1138c81d702"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/target-references.ts",
+        "sha256": "e510ffef7e47b6a0e0ea274c3660750c47576b14434dd7a2bf34b48806eba785"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts",
+        "sha256": "bb48cd9971d3c50e0eea4b6ab3139b7c3670846be387fb3b0e294597cf92bd71"
+      },
+      {
+        "path": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts",
+        "sha256": "3a81c882cd0c59469779a5789e82c5127f9840be44dbd7e90e4e89986bf3dfe7"
+      },
+      {
+        "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
+        "sha256": "ce96acd85af1ad12f38c6e716293ebbb49e82560c05168267ee873e80290532c"
+      },
+      {
+        "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue",
+        "sha256": "a18fd8fcbad4505599a3f0d681efc955c9fa6506238fcb6db8562bf40e2c90ed"
+      },
+      {
+        "path": "config/pages/shared/business-table-selector/pagedata.json",
+        "sha256": "f80a2215cef919da688929c86c9dca4e871ff53d9285a4ee927afcfb211504f4"
+      },
+      {
+        "path": "config/pages/semi-structured/excel-import-editor/pagedata.json",
+        "sha256": "d353e91a327854cd3829f01e6ec82abdfbfa04c08b13f69a5650af1ef4e39c2d"
+      },
+      {
+        "path": "config/pages/semi-structured/excel-import-catalog/pagedata.json",
+        "sha256": "45d068dcdbf03dbb403386b6a2c49fe596f00bc4284935f3331a94d53b3f4fe7"
+      },
+      {
+        "path": "src/lowcode/data-space/model-source/data-space-definition-save.ts",
+        "sha256": "fe222e6c5b6f1821d1b714a3d9dac1a1bbd0d132531a4ef2b07343305c47e194"
+      },
+      {
+        "path": "packages/spark-data/src/data-view.ts",
+        "sha256": "c87877d368e0f9c45c5468ad56d7451610fac4f4150163f7281e24d9e318ee86"
+      },
+      {
+        "path": "packages/spark-data/src/dataset.ts",
+        "sha256": "4711988f2f8132510436ce9cfc0739ce05262eed0ca6a298950e81ee0ab3adb7"
+      },
+      {
+        "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
+        "sha256": "9690a24f666b618cc2ecda9ec7805a2be7cd7d48096e9c166ce740c471b2a1df"
+      }
+    ]
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/configuration-removal",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/configuration-removal",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/configuration-removal\n职责：预览并删除单个Excel叶配置及所属字段、转换规则，精确保留兄弟配置。\n边界：通过原DataSet的查询克隆与联合捕获提交；不删除方案、模板或来源业务表。\nAI用途：配置树删除确认及原批次核验；数据库已确认后只回读，不重复删除。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelConfigurationRemoval"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "schemeId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "ExcelConfigurationRemoval": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelConfigurationRemoval",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<ExcelConfigurationRemoval>"
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "busy": {
+              "type": "boolean"
+            },
+            "done": {
+              "type": "boolean"
+            },
+            "databaseConfirmed": {
+              "type": "boolean"
+            },
+            "acceptedCurrent": {
+              "type": "boolean"
+            },
+            "canAcceptCurrent": {
+              "type": "boolean"
+            },
+            "canCancel": {
+              "type": "boolean"
+            },
+            "fields": {
+              "type": "number"
+            },
+            "rules": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "busy",
+            "done",
+            "databaseConfirmed",
+            "acceptedCurrent",
+            "canAcceptCurrent",
+            "canCancel",
+            "fields",
+            "rules"
+          ],
+          "additionalProperties": false
+        },
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.acceptCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.acceptCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T04:24:19.809Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "本次原Excel配置删除的唯一实例及目标输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次原生Excel设计实例。 */\n    dataSet: DataSet;\n    /** 正式方案身份。 */\n    schemeId: string;\n    /** 本次捕获的配置身份。 */\n    nodeId: string;\n    /** 页面运行实例、方案及释放状态守卫。 */\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次原生Excel设计实例。 */\n    dataSet: DataSet;\n    /** 正式方案身份。 */\n    schemeId: string;\n    /** 本次捕获的配置身份。 */\n    nodeId: string;\n    /** 页面运行实例、方案及释放状态守卫。 */\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次原生Excel设计实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemeId",
+              "jsdoc": "正式方案身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "本次捕获的配置身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "页面运行实例、方案及释放状态守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExcelConfigurationRemoval": {
+      "name": "ExcelConfigurationRemoval",
+      "jsdoc": "一个叶配置删除命令，仅保留身份、首轮只读证明及原公共提交捕获。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获正式模型与原视图，仅创建本次查询克隆，不执行删除。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "open",
+              "jsdoc": "@param input 原实例与明确目标。\n@returns 完成正式依赖读取的删除预览，不暂存或提交删除。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "ExcelConfigurationRemoval",
+                    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getState",
+              "jsdoc": "已读取的精确删除数量与原批次状态，不包含记录值。",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        busy: boolean;\n        done: boolean;\n        databaseConfirmed: boolean;\n        acceptedCurrent: boolean;\n        canAcceptCurrent: boolean;\n        canCancel: boolean;\n        fields: number;\n        rules: number;\n    }"
+              }
+            },
+            {
+              "name": "save",
+              "jsdoc": "原删除确认；已有捕获时只核验，数据库已确认后只回读及刷新。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "只取消未派发或已确认未生效的原删除；不修改原页面记录。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "acceptCurrent",
+              "jsdoc": "显式采用回执无效批次的当前正式结果并刷新原页面；不认定原删除成功，不重放删除。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

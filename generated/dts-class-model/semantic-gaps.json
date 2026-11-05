@@ -1,5 +1,5 @@
 {
-  "gapCount": 3637,
+  "gapCount": 3635,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -34911,30 +34911,6 @@
       "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "declarationLine": 8,
-      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "LowcodeExcelImport",
-      "memberName": "loadCatalog",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeExcelImport.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "LowcodeExcelImport",
-      "memberName": "loadEditor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeExcelImport.loadEditor 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
-      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "declarationKind": "class"
     },

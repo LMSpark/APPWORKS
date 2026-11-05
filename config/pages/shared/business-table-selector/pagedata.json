@@ -19,6 +19,10 @@
     "Base_TblField": {
       "modelBinding": {"modelId": "5d94198d-34fb-43a8-9d0a-e96b54eab33a", "modelName": "Base_TblField"},
       "views": {
+        "excelFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "valueField": "enname", "labelField": "cnname",
+          "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname", "DataType", "ordIdx"], "allPages": true},
+          "sortExpression": [{"field": "ordIdx", "direction": "asc"}, {"field": "rowid", "direction": "asc"}]},
         "default": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false},
         "textFields": {"autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "cnname",
           "queryConfig": {"fields": ["rowid", "tblid", "enname", "cnname"], "allPages": true}},
@@ -29,6 +33,8 @@
   },
   "resourceRelations": [],
   "viewCascades": [
+    {"kind": "query", "cascadeId": "source-table-excel-fields", "parentTable": "_Base_TblList", "parentViewId": "default",
+      "childTable": "Base_TblField", "childViewId": "excelFields", "autoLoad": true, "filterBindings": [{"targetField": "tblid", "operator": "in"}]},
     {"kind": "query", "cascadeId": "source-application-databases", "parentTable": "Base_AppSystemList", "parentViewId": "default",
       "childTable": "Base_AppAndSource_Relation", "childViewId": "default", "autoLoad": true, "filterBindings": [{"targetField": "sysid", "operator": "in"}]},
     {"kind": "query", "cascadeId": "source-database-tables", "parentTable": "Base_AppAndSource_Relation", "parentViewId": "default",

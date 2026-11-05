@@ -1,0 +1,270 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/target-selection",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/target-selection",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/target-selection\n职责：投影本次正式来源选择及Excel字段类型，暂存至原配置和映射视图。\n边界：不查询、不保存、不持有业务草稿；所有变更和取消仍由原DataView负责。\nAI用途：Excel配置页确认目标表时复用正式来源选择，保留物理名称、字段类型及原生取消责任。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelTargetField",
+      "ExcelTarget",
+      "ExcelTargetStaging"
+    ]
+  },
+  "$defs": {
+    "ExcelTargetField": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTargetField",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "type": {
+          "type": "number"
+        },
+        "index": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "title",
+        "type",
+        "index"
+      ],
+      "additionalProperties": false
+    },
+    "ExcelTarget": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTarget",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "applicationName": {
+          "type": "string"
+        },
+        "table": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ExcelTargetField"
+          }
+        }
+      },
+      "required": [
+        "applicationId",
+        "applicationName",
+        "table",
+        "description",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "ExcelTargetStaging": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTargetStaging",
+      "properties": {
+        "nodeId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "number"
+              }
+            ]
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.release.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.release.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T04:19:00.702Z",
+  "models": {
+    "ExcelTargetField": {
+      "name": "ExcelTargetField",
+      "jsdoc": "来源字段到正式Excel映射的必要成员；列号独立于数据库字段顺序。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 正式来源字段物理名称。 */\n    name: string;\n    /** 可读来源标题，无标题时使用物理名称。 */\n    title: string;\n    /** 正式Excel类型：0文本、1数值、2日期时间。 */\n    type: number;\n    /** Excel列索引；新映射为空，不能从数据库字段顺序猜测。 */\n    index: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 正式来源字段物理名称。 */\n    name: string;\n    /** 可读来源标题，无标题时使用物理名称。 */\n    title: string;\n    /** 正式Excel类型：0文本、1数值、2日期时间。 */\n    type: number;\n    /** Excel列索引；新映射为空，不能从数据库字段顺序猜测。 */\n    index: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "正式来源字段物理名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "title",
+              "jsdoc": "可读来源标题，无标题时使用物理名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "type",
+              "jsdoc": "正式Excel类型：0文本、1数值、2日期时间。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "index",
+              "jsdoc": "Excel列索引；新映射为空，不能从数据库字段顺序猜测。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ExcelTarget": {
+      "name": "ExcelTarget",
+      "jsdoc": "同一次正式来源选择的只读投影，不是编辑真源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次来源所属正式应用。 */\n    applicationId: string;\n    /** 来源应用可读名称。 */\n    applicationName: string;\n    /** 正式数据库名称@物理表名称。 */\n    table: string;\n    /** 目标标题及完整物理路径。 */\n    description: string;\n    /** 当前表完整正式来源字段的必要映射。 */\n    fields: readonly ExcelTargetField[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次来源所属正式应用。 */\n    applicationId: string;\n    /** 来源应用可读名称。 */\n    applicationName: string;\n    /** 正式数据库名称@物理表名称。 */\n    table: string;\n    /** 目标标题及完整物理路径。 */\n    description: string;\n    /** 当前表完整正式来源字段的必要映射。 */\n    fields: readonly ExcelTargetField[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "jsdoc": "本次来源所属正式应用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationName",
+              "jsdoc": "来源应用可读名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "table",
+              "jsdoc": "正式数据库名称@物理表名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "jsdoc": "目标标题及完整物理路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "当前表完整正式来源字段的必要映射。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "ExcelTargetStaging": {
+      "name": "ExcelTargetStaging",
+      "jsdoc": "本次来源替换的原生编辑范围；不保存记录值或提供独立提交通道。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 被替换的配置身份。 */\n    nodeId: string | number;\n    /** 本次删除与新增的全部字段身份。 */\n    fieldIds: ReadonlyArray<string | number>;\n    /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */\n    cancel(): void;\n    /** 联合提交确认后释放局部检查点。 */\n    release(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 被替换的配置身份。 */\n    nodeId: string | number;\n    /** 本次删除与新增的全部字段身份。 */\n    fieldIds: ReadonlyArray<string | number>;\n    /** 派发前恢复来源字段与本次字段集合，保留范围外编辑。 */\n    cancel(): void;\n    /** 联合提交确认后释放局部检查点。 */\n    release(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "nodeId",
+              "jsdoc": "被替换的配置身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldIds",
+              "jsdoc": "本次删除与新增的全部字段身份。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "cancel",
+              "jsdoc": "派发前恢复来源字段与本次字段集合，保留范围外编辑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "release",
+              "jsdoc": "联合提交确认后释放局部检查点。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -4101,10 +4101,35 @@
       "shardFile": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json",
       "sourceModifiedAt": "2026-11-02T04:09:10.982Z"
     },
+    "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/configuration-removal.ts.json",
+      "sourceModifiedAt": "2026-11-05T04:24:19.809Z"
+    },
+    "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts.json",
+      "sourceModifiedAt": "2026-11-05T04:19:00.700Z"
+    },
     "src/lowcode/resources/semi-structured/excel-import/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
-      "sourceModifiedAt": "2026-11-01T19:20:26.114Z"
+      "sourceModifiedAt": "2026-11-05T03:51:16.644Z"
+    },
+    "src/lowcode/resources/semi-structured/excel-import/target-references.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-references.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/target-references.ts.json",
+      "sourceModifiedAt": "2026-11-05T04:08:25.121Z"
+    },
+    "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-replacement.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/target-replacement.ts.json",
+      "sourceModifiedAt": "2026-11-05T04:28:55.136Z"
+    },
+    "src/lowcode/resources/semi-structured/excel-import/target-selection.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/target-selection.ts.json",
+      "sourceModifiedAt": "2026-11-05T04:19:00.702Z"
     },
     "src/lowcode/resources/semi-structured/json-data/document-resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
@@ -4999,12 +5024,17 @@
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T19:33:44.297Z"
+      "sourceModifiedAt": "2026-11-05T04:28:05.400Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
       "sourceModifiedAt": "2026-11-01T19:39:48.653Z"
+    },
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-05T02:37:18.863Z"
     },
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",

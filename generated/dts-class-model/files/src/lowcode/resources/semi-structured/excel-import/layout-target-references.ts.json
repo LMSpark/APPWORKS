@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/layout-target-references",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout-target-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/layout-target-references",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout-target-references\n职责：按正式Sheet布局版本定位目标表、区域字段和关联两端，校验换表影响。\n边界：不升级或重写布局，不把标题、定位、codec、lookup字面值当作目标字段。\nAI用途：Excel目标替换时保持多区域作用域，精确指出尚未完成的布局映射。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-05T04:19:00.700Z",
+  "models": {}
+}

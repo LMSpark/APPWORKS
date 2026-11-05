@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog",
+    "sourcePath": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog",
+    "jsdoc": "@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog\n职责：按正式DataView级联选择Excel物理目标并预览字段；确认交回原配置命令。\n边界：只读来源，不复制候选，不自行暂存或保存目标记录。\nAI用途：Excel编辑器选择与替换目标表时复用原PageRuntime及标准容器。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-05T02:37:18.863Z",
+  "models": {}
+}

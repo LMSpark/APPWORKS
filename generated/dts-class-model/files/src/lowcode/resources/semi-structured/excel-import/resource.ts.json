@@ -21,7 +21,8 @@
       "properties": {
         "navigationScenarioId": true,
         "catalogMetaName": true,
-        "designScenarioId": true
+        "designScenarioId": true,
+        "referenceScenarioId": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -55,11 +56,20 @@
         "method.loadEditor.return": {
           "type": "object",
           "title": "Promise<DataSet>"
+        },
+        "method.loadReferenceSources.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.loadReferenceSources.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-01T19:20:26.114Z",
+  "generatedAt": "2026-11-05T03:51:16.644Z",
   "models": {
     "LowcodeExcelImport": {
       "name": "LowcodeExcelImport",
@@ -86,11 +96,18 @@
               "name": "designScenarioId",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "referenceScenarioId",
+              "jsdoc": "原PageRuntime按需装配的正式表来源空间，不创建独立选择器数据链。",
+              "readable": true,
+              "writable": false
             }
           ],
           "methods": [
             {
               "name": "loadCatalog",
+              "jsdoc": "按本次执行应用装配正式方案目录，身份不匹配时拒绝，不使用备用目录。",
               "parameters": [
                 {
                   "name": "scenarioId",
@@ -113,6 +130,7 @@
             },
             {
               "name": "loadEditor",
+              "jsdoc": "装配正式Excel配置场景；目标方案由本次PageRuntime输入统一限制。",
               "parameters": [
                 {
                   "name": "scenarioId",
@@ -122,6 +140,21 @@
                   }
                 }
               ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadReferenceSources",
+              "jsdoc": "目标表弹窗首次打开时复用正式来源配置及级联，不读取来源业务数据。",
+              "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "Promise",

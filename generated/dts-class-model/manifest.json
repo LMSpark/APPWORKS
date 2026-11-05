@@ -9159,6 +9159,7 @@
           "DataTableQuerySaveRuleInput",
           "DataTableQueryReferenceChange",
           "DataTableQuerySaveReferences",
+          "DataTableQuerySaveRuleGroup",
           "DataTableQuerySaveRule",
           "DataTable"
         ]
@@ -19746,6 +19747,10 @@
       "file": "files/packages/spark-data/src/data-table.ts.json"
     },
     "DataTableQuerySaveRule": {
+      "sourcePath": "packages/spark-data/src/data-table.ts",
+      "file": "files/packages/spark-data/src/data-table.ts.json"
+    },
+    "DataTableQuerySaveRuleGroup": {
       "sourcePath": "packages/spark-data/src/data-table.ts",
       "file": "files/packages/spark-data/src/data-table.ts.json"
     },

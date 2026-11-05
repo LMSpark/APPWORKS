@@ -19,7 +19,7 @@ describe('Excel independent design source', () => {
     const ds = await LowcodeExcelImport.loadEditor(DESIGN)
     expect(state.load).toHaveBeenCalledExactlyOnceWith({projectId: 'EXECUTION_APP', scenarioId: DESIGN})
     expect(Object.keys(ds.tables)).toEqual(['Base_ImportData_Config','Base_Import_Transform_Rule'])
-    expect(ds.getView('Base_Import_Transform_Rule')?.dataTable?.querySaveRule?.fields).toEqual(['rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'])
+    expect(ds.getView('Base_Import_Transform_Rule')?.dataTable?.querySaveRule?.groups[0]?.fields).toEqual(['rule_type','source_field','target_field','sort_order','enabled','on_error','condition_json','config_json'])
   })
   it('rejects the catalog scene as the editor source', async () => {
     await expect(LowcodeExcelImport.loadEditor(LowcodeExcelImport.navigationScenarioId)).rejects.toThrow(/设计.*场景/)

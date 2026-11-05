@@ -25,7 +25,7 @@ export { SparkData } from './spark-data'
 // ===== 核心类（框架层必要直接引用）=====
 
 export { DataSet, DataSetSavePreflightError } from './dataset'
-export { DataTable, type DataTableQuerySaveRule, type DataTableQuerySaveRuleInput, type DataTableQueryReferenceChange, type DataTableQuerySaveReferences } from './data-table'
+export { DataTable, type DataTableQuerySaveRule, type DataTableQuerySaveRuleGroup, type DataTableQuerySaveRuleInput, type DataTableQueryReferenceChange, type DataTableQuerySaveReferences } from './data-table'
 export { DataView, type DataViewNewRowIdentity, type DataViewChildRowInput } from './data-view'
 export type {DataViewSourceHistoryStatus, DataViewSourceHistoryAttempt, DataViewSourceVersion, DataViewSourceWriteAttemptStatus} from './query/data-view-source'
 export {bindFileDirectoryQueryAdapter, bindFileResourceAdapter, createFileResourceAdapterExecutor, getOrCreateFileResourceView} from './query/file-resource-adapter'

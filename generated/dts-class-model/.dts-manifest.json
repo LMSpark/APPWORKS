@@ -2644,12 +2644,12 @@
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
       "shardFile": "files/packages/spark-data/src/data-table.ts.json",
-      "sourceModifiedAt": "2026-11-05T20:53:02.169Z"
+      "sourceModifiedAt": "2026-11-05T21:29:53.808Z"
     },
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-05T20:35:14.145Z"
+      "sourceModifiedAt": "2026-11-05T21:28:49.575Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2669,7 +2669,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-05T16:24:34.892Z"
+      "sourceModifiedAt": "2026-11-05T21:24:15.374Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -4144,7 +4144,7 @@
     "src/lowcode/resources/semi-structured/excel-import/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
-      "sourceModifiedAt": "2026-11-05T20:32:48.394Z"
+      "sourceModifiedAt": "2026-11-05T21:25:04.037Z"
     },
     "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/stored-reference.ts",

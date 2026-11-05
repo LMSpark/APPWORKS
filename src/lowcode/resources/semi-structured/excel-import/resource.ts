@@ -37,12 +37,12 @@ export class LowcodeExcelImport {
     const table = dataSet.getView('Base_Import_Transform_Rule')?.dataTable
     if (dataSet.scenarioId !== this.designScenarioId || table?.modelBinding?.modelName !== 'Base_Import_Transform_Rule'
       || table.modelBinding.modelId !== 'b3ca28c2-432c-4374-ac20-bb98a85c2098') throw new Error('Excel转换规则缺少正式模型身份')
-    table.setQuerySaveRule({fields: ['rule_type', 'source_field', 'target_field', 'sort_order', 'enabled', 'on_error', 'condition_json', 'config_json'], validate: validateExcelTransformRule,
-      references:createExcelTransformReferences({dataSet,...(getPage===undefined?{}:{getPage})})})
+    table.setQuerySaveRule({groups:[{fields: ['rule_type', 'source_field', 'target_field', 'sort_order', 'enabled', 'on_error', 'condition_json', 'config_json'], validate: validateExcelTransformRule,
+      references:createExcelTransformReferences({dataSet,...(getPage===undefined?{}:{getPage})})}]})
     const nodes=dataSet.getView('Base_ImportData_Config')?.dataTable
     if(!nodes)throw Error('Excel排序缺少原节点模型')
-    nodes.setQuerySaveRule({fields:['sorted'],validate:validateExcelSort,
-      references:createExcelSortReferences({dataSet,...(getPage===undefined?{}:{getPage})})})
+    nodes.setQuerySaveRule({groups:[{fields:['sorted'],validate:validateExcelSort,
+      references:createExcelSortReferences({dataSet,...(getPage===undefined?{}:{getPage})})}]})
     return dataSet
   }
 

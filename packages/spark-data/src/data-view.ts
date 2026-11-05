@@ -39,7 +39,7 @@ import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
 import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'
 import { RequestState } from './types'
 import { TreeManager } from './node-tree/tree-manager'
-import type { DataTable, DataTableQuerySaveRule, DataTableQueryReferenceChange } from './data-table'
+import type { DataTable, DataTableQuerySaveRuleGroup, DataTableQueryReferenceChange } from './data-table'
 import type { DataSet } from './dataset'
 import type { CrudService } from './strategies/crud/crud-service'
 import type { DataValidator } from './validation/validation'
@@ -304,7 +304,7 @@ type DataViewDomainDispatchCheck = (captures: ReadonlyArray<Readonly<{view: Data
 /** 同一实际派发来源中、同一模型的只读检查输入。 */
 type DataViewDomainReferenceGroup = {
   /** 本次不可替换的模型规则。 */
-  rule: DataTableQuerySaveRule
+  rule: DataTableQuerySaveRuleGroup
   /** 已隔离投影的本批变化。 */
   changes: DataTableQueryReferenceChange[]
 }
@@ -3205,7 +3205,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
 
   /** @internal 在首次应用编辑之前按DataTable合并只读引用预检；恢复原捕获不重跑。 */
   static prepareQuerySaveDomainReferences(input: DataViewDomainPreflightInput): Promise<DataViewDomainPreflight> | undefined {
-    if(input.targets.some(target=>target.view.hasUnconfirmedSave)||!input.targets.some(target=>target.view.dataTable?.querySaveRule?.references))return undefined
+    if(input.targets.some(target=>target.view.hasUnconfirmedSave)||!input.targets.some(target=>target.view.dataTable?.querySaveRule?.groups.some(group=>group.references)))return undefined
     if(input.targets.some(target=>target.view.mutating))throw new Error('DATA_VIEW_SAVE_BUSY: 原视图保存仍在执行')
     return DataView.prepareDomainReferenceBatch(input)
   }
@@ -3230,15 +3230,20 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return [{...snapshot,executor:snapshot.executor}]
     })
     const partitions=DataView.querySaveDispatchBatches(activeSnapshots).map(batch=>{
-      const groups=new Map<DataTable,DataViewDomainReferenceGroup>()
+      const groups=new Map<DataTableQuerySaveRuleGroup,DataViewDomainReferenceGroup>()
       for(const snapshot of batch){
-        if(!snapshot.preview||!snapshot.table||!snapshot.rule?.references)continue
-        const changes=snapshot.view.domainReferenceChanges(snapshot.preview)
-        if(!changes.length)continue
-        const group=groups.get(snapshot.table)??{rule:snapshot.rule,changes:[]}
-        group.changes.push(...changes);groups.set(snapshot.table,group)
+        if(!snapshot.preview||!snapshot.table)continue
+        for(const projected of snapshot.view.domainReferenceChanges(snapshot.preview)){
+          const group=groups.get(projected.rule)??{rule:projected.rule,changes:[]}
+          group.changes.push(...projected.changes);groups.set(projected.rule,group)
+        }
       }
-      return groups
+      const ordered=new Map<DataTableQuerySaveRuleGroup,DataViewDomainReferenceGroup>()
+      for(const snapshot of batch)for(const rule of snapshot.rule?.groups??[]){
+        const group=groups.get(rule)
+        if(group)ordered.set(rule,group)
+      }
+      return ordered
     })
     const assertSnapshot=(includeEditingRows:boolean):void=>{
       for(const snapshot of snapshots){
@@ -3252,10 +3257,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         if(current){view.assertQuerySaveColumns({...validation,includeEditingRows});view.domainReferenceChanges(current)}
       }
     }
-    const cumulative=new Map<DataTable,DataViewDomainReferenceGroup>()
-    for(const partition of partitions)for(const [table,group]of partition){
-      const changes=[...cumulative.get(table)?.changes??[],...group.changes]
-      cumulative.set(table,{rule:group.rule,changes})
+    const cumulative=new Map<DataTableQuerySaveRuleGroup,DataViewDomainReferenceGroup>()
+    for(const partition of partitions)for(const [rule,group]of partition){
+      const changes=[...cumulative.get(rule)?.changes??[],...group.changes]
+      cumulative.set(rule,{rule:group.rule,changes})
       const isolated=changes.map(change=>Object.freeze({...change,values:Object.freeze(structuredClone(change.values)),
         ...(change.originalValues===undefined?{}:{originalValues:Object.freeze(structuredClone(change.originalValues))})}))
       await group.rule.references?.validate(Object.freeze({changes:Object.freeze(isolated)}))
@@ -3476,12 +3481,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   }
 
   /** 隔离投影本模型声明的可读依赖，不把主键、权限或DataRow交给领域回调。 */
-  private domainReferenceChanges(capture:DataViewQuerySavePreview): DataTableQueryReferenceChange[] {
-    const references=this._dataTable?.querySaveRule?.references
+  private domainReferenceChanges(capture:DataViewQuerySavePreview): DataViewDomainReferenceGroup[] {
+    return (this._dataTable?.querySaveRule?.groups??[]).flatMap(rule=>{
+    const references=rule.references
     if(!references)return []
     const items=[...this.querySaveRuleRows(capture).map(item=>({...item,kind:item.created?'create' as const:'update' as const})),
       ...capture.deleted.map(item=>({...item,created:false,kind:'delete' as const,fields:new Set<string>()}))]
-    return items.flatMap(item=>{
+    const changes=items.flatMap(item=>{
       if(references.operations&&!references.operations.includes(item.kind))return []
       const changedFields=references.fields.filter(field=>item.fields.has(field))
       if(item.kind==='update'&&!references.triggerFields.some(field=>item.fields.has(field)))return []
@@ -3499,12 +3505,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       return [Object.freeze({kind:item.kind,values:project(item.kind==='delete'&&original?.[0]?original[0]:item.row,item.kind==='delete'),changedFields:Object.freeze(changedFields),
         ...(original?.[0]===undefined?{}:{originalValues:project(original[0],true)}),matchesKey:(value:unknown)=>value===item.id})]
     })
+    return changes.length?[{rule,changes}]:[]
+    })
   }
 
   /** 领域约束只消费本次精确提交行；依赖值隔离，不暴露原查询凭据或修改捕获。 */
   private validateQuerySaveDomain(capture: DataViewQuerySavePreview): void {
-    const rule = this._dataTable?.querySaveRule
-    if (rule === undefined) return
+    for(const rule of this._dataTable?.querySaveRule?.groups??[]){
     for (const item of this.querySaveRuleRows(capture)) {
       const changedFields = rule.fields.filter(field => item.fields.has(field))
       if (!item.created && !changedFields.length) continue
@@ -3518,12 +3525,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         }
         values[field] = structuredClone(item.row[field])
       }
-      const validate: (...args: Parameters<DataTableQuerySaveRule['validate']>) => unknown = rule.validate
+      const validate: (...args: Parameters<DataTableQuerySaveRuleGroup['validate']>) => unknown = rule.validate
       const result: unknown = validate(Object.freeze({values: Object.freeze(values), changedFields: Object.freeze(changedFields), created: item.created}))
       if (result !== undefined) {
         void Promise.resolve(result).catch(() => undefined)
         throw new Error('DATA_VIEW_SAVE_VALIDATION: 领域保存约束必须同步且不返回值')
       }
+    }
     }
   }
 

@@ -66,14 +66,20 @@ export type DataTableQuerySaveReferences = Readonly<{
   validate(input: Readonly<{changes: readonly DataTableQueryReferenceChange[]}>): Promise<void>
 }>
 
-/** 本次DataTable实例的领域保存约束，不序列化、不替代列规则和来源授权。 */
-export type DataTableQuerySaveRule = Readonly<{
+/** 独立投影依赖的领域保存规则组；只在本组依赖实际变化或新增时校验。 */
+export type DataTableQuerySaveRuleGroup = Readonly<{
   /** 回调所需的真实声明字段；不允许主键、内部凭据或重复字段。 */
   fields: readonly string[]
   /** 仅新增或依赖字段实际改变时执行；抛错拒绝首轮提交，不能异步查询、写值或保存。 */
   validate(input: DataTableQuerySaveRuleInput): undefined
   /** 首次提交的异步批量引用预检；原未知捕获恢复不重跑。 */
   references?: DataTableQuerySaveReferences
+}>
+
+/** 本次DataTable实例唯一的领域保存约束；不序列化、不替代列规则和来源授权。 */
+export type DataTableQuerySaveRule = Readonly<{
+  /** 按声明顺序独立校验的非空规则组；共享原保存捕获，不合并依赖或拆分提交。 */
+  groups: readonly DataTableQuerySaveRuleGroup[]
 }>
 
 /**
@@ -183,21 +189,27 @@ export class DataTable {
   /** 注册或清除本实例的同步保存约束；原未知提交继续按原捕获核验，不执行新规则。 */
   setQuerySaveRule(rule: DataTableQuerySaveRule | undefined): void {
     if (rule === undefined) { this.#querySaveRule = undefined; return }
+    if(!Array.isArray(rule.groups)||!rule.groups.length)throw new Error('DATA_TABLE_SAVE_RULE: 必须声明非空规则组')
     const checkFields = (fields: readonly string[]): void => {
     if (!fields.length || new Set(fields).size !== fields.length || fields.some(field =>
       field === '_pk' || field.startsWith('lingma_sys_') || !this.columns.some(column => column.name === field && !column.isPrimaryKey))) {
       throw new Error('DATA_TABLE_SAVE_RULE: 依赖必须是唯一的正式业务字段')
     }
     }
-    checkFields(rule.fields)
-    const references=rule.references
+    const groups=Array.from(rule.groups,(group:DataTableQuerySaveRuleGroup|undefined|null)=>{
+    if(group===undefined||group===null||typeof group.validate!=='function')throw new Error('DATA_TABLE_SAVE_RULE: 规则组必须声明同步校验函数')
+    checkFields(group.fields)
+    const references=group.references
     if(references){
+      if(typeof references.validate!=='function')throw new Error('DATA_TABLE_SAVE_RULE: 引用必须声明校验函数')
       checkFields(references.fields)
       if(new Set(references.triggerFields).size!==references.triggerFields.length||references.triggerFields.some(field=>!references.fields.includes(field)))throw new Error('DATA_TABLE_SAVE_RULE: 引用触发字段须属于声明依赖')
       if(references.operations&&(!references.operations.length||new Set(references.operations).size!==references.operations.length||references.operations.some(operation=>!['create','update','delete'].includes(operation))))throw new Error('DATA_TABLE_SAVE_RULE: 引用操作须非空且唯一')
     }
-    this.#querySaveRule = Object.freeze({fields: Object.freeze([...rule.fields]), validate: rule.validate,
+    return Object.freeze({fields: Object.freeze([...group.fields]), validate: group.validate,
       ...(references===undefined?{}:{references:Object.freeze({fields:Object.freeze([...references.fields]),triggerFields:Object.freeze([...references.triggerFields]),...(references.operations===undefined?{}:{operations:Object.freeze([...references.operations])}),validate:references.validate})})})
+    })
+    this.#querySaveRule=Object.freeze({groups:Object.freeze(groups)})
   }
 
   // ===== 视图容器 =====

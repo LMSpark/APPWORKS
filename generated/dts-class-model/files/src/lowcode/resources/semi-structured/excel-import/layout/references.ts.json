@@ -1,0 +1,79 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/layout/references",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/layout/references",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout/references\n职责：原节点保存链核对单组版式的正式节点、物理字段与删除引用。\n边界：精确当前方案及相关父子范围；只读预检，不应用草稿、不提交、不另建owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ExcelLayoutContext"
+    ]
+  },
+  "$defs": {
+    "ExcelLayoutContext": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelLayoutContext",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.getPage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPage.return": {
+          "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-05T22:49:31.649Z",
+  "models": {
+    "ExcelLayoutContext": {
+      "name": "ExcelLayoutContext",
+      "jsdoc": "本次原设计实例及按需原宿主。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次设计DataSet。 */\n    dataSet: DataSet;\n    /** 页面原PageRuntime；无版式时不要求装配物理来源。 */\n    getPage?: () => PageRuntime;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次设计DataSet。 */\n    dataSet: DataSet;\n    /** 页面原PageRuntime；无版式时不要求装配物理来源。 */\n    getPage?: () => PageRuntime;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次设计DataSet。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "getPage",
+              "jsdoc": "页面原PageRuntime；无版式时不要求装配物理来源。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "PageRuntime"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

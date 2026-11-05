@@ -1,16 +1,17 @@
+import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/transform/physical-fields'
 import {describe,it,expect,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
 import {createSourceDataSet,sourceRecords,SOURCE_SCENE} from '../../../structured-config/data-code/source-picker/fixture'
 import {excelDesignRuntime,EXCEL_DESIGN} from '../excel-import-design.fixture'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
-import {ExcelSortFieldDirectory,readExcelSortFields} from '@/lowcode/resources/semi-structured/excel-import/transform/sort-fields'
+import {readExcelSortFields} from '@/lowcode/resources/semi-structured/excel-import/transform/sort-fields'
 async function fixture(onStateChange?:()=>void){
  const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'C1',schemeid:'E1',pid:'E1',sheetName:'节点',relatedappid:'A1',table:'数据库一@table_one',sorted:''}],Base_ImportData_Field:[],Base_Import_Transform_Rule:[]})
  const sourceHttp=new ApiBackend();sourceHttp.records=sourceRecords();const source=await createSourceDataSet(sourceHttp)
  const page=new PageRuntime({pageId:'sort-fields',scenarioIds:[EXCEL_DESIGN,SOURCE_SCENE],deferredScenarioIds:[SOURCE_SCENE],scenarioInputs:{[EXCEL_DESIGN]:{importConfigId:'E1'}},loadScenario:async id=>id===EXCEL_DESIGN?f.ds:source})
  await page.load();LowcodeExcelImport.bindEditorModelRules(f.ds,()=>page)
- const directory=new ExcelSortFieldDirectory({dataSet:f.ds,getPage:()=>page},onStateChange)
+ const directory=new ExcelPhysicalFieldDirectory({dataSet:f.ds,getPage:()=>page,viewId:'excelSortFields',recordId:()=>{const row=f.nodes.currentRow;return row?f.nodes.getPkKey(row):undefined},allowView:true},onStateChange)
  const dispose=()=>{directory.dispose();page.dispose();f.runtime.dispose()}
  const save=()=>f.ds.saveChanges({views:[{tableName:'Base_ImportData_Config',viewId:'default',ids:['C1']}]})
  return {...f,source,sourceHttp,page,directory,dispose,save}

@@ -3,7 +3,7 @@
  * 职责：沿原运行实例读取Excel排序物理字段，并在原节点模型保存链验证排序。
  * 边界：不缓存业务行、不持有排序草稿、不提交或规范化既有定义。
  */
-import {buildDataViewKey,RequestState,type DataSet,type DataView,type DataTableQuerySaveReferences,type DataTableQuerySaveRuleInput} from '@spark-appworks/spark-data'
+import type {DataSet,DataView,DataTableQuerySaveReferences,DataTableQuerySaveRuleInput} from '@spark-appworks/spark-data'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
@@ -66,70 +66,4 @@ export function createExcelSortReferences(owner:ExcelSortOwner):DataTableQuerySa
    if(selected.some(name=>!names.has(name)))throw Error('导出排序字段不属于当前物理表或视图')
   }
  }}
-}
-/** 仅管理原命名视图的读取代次；字段记录及权限仍由该DataView持有。 */
-export class ExcelSortFieldDirectory{
- /** 标准字段候选直接绑定的完整键。 */
- readonly dataViewKey=buildDataViewKey('Base_TblField','excelSortFields',sourceId)
- /** 仅完整正式读取成功后允许编辑；字段和权限仍在原视图。 */
- private isReady=false
- /** 每次消费重新核对原目录，关闭事件派发前的旧候选窗口。 */
- get ready():boolean{this.recheck();return this.isReady}
- /** 当前读取失败或目标未保存的诊断，不吞成合法空候选。 */
- error=''
- private generation=0
- private disposed=false
- private validateDirectory:(()=>void)|undefined
- private detach:(()=>void)|undefined
- /** @param owner 原设计实例及其宿主，不持有页面排序数组。 */
- constructor(private readonly owner:ExcelSortOwner,private readonly onStateChange?:()=>void){requireNodes(owner)}
- private recheck():void{
-  if(!this.isReady||!this.validateDirectory)return
-  try{this.validateDirectory()}catch(cause){this.isReady=false;this.error=cause instanceof Error?cause.message:String(cause);this.onStateChange?.()}
- }
- private get view():DataView|undefined{return this.owner.getPage?.().getDataSet(sourceId)?.getView('Base_TblField','excelSortFields')}
- private clearDirectory():void{const view=this.view;if(view&&!view.destroyed&&!view.hasUnconfirmedSave&&!view.hasEditingChanges()&&!view.dirtyTracking.hasPendingChanges())view.clearAll()}
- /** 切换节点/来源时立即撤销旧目录和正在飞行的查询结果。 */
- invalidate():void{this.generation++;this.detach?.();this.detach=undefined;this.validateDirectory=undefined;this.isReady=false;this.error='';this.clearDirectory()}
- /** 只读取当前已保存的源身份；草稿来源须先沿原保存或取消命令处理。 */
- async load():Promise<void>{
-  this.invalidate()
-  const own=this.generation,nodes=requireNodes(this.owner),ds=this.owner.dataSet,page=this.owner.getPage?.(),row=nodes.currentRow,id=row?nodes.getPkKey(row):undefined
-  if(!row||id===undefined)return
-  const context=JSON.stringify(nodes.queryContext),fields=['rowid','schemeid','relatedappid','table'],values=fields.map(field=>row[field])
-  const check=()=>{
-   const editing=nodes.getEditingRow(id)
-   if(nodes.dirtyTracking.isPendingCreate(id)||fields.some(field=>Object.hasOwn(nodes.getDirtyChanges(id),field)))throw Error('排序来源尚未保存，请先保存或取消来源修改')
-   if(this.disposed||own!==this.generation||ds.destroyed||ds.getView(table)!==nodes||nodes.currentRow!==row||JSON.stringify(nodes.queryContext)!==context||this.owner.getPage?.()!==page||page?.getDataSet(designId)!==ds||fields.some((field,index)=>nodes.fieldAccess(row,field).read!=='visible'||row[field]!==values[index]||editing?.[field]!==values[index]))throw Error('排序目录的原节点或来源已变化')
-  }
-  try{
-   check();nodes.readSnapshot()
-   if(!page||row['schemeid']!==nodes.queryContext['importConfigId']||typeof row['relatedappid']!=='string'||!row['relatedappid']||typeof row['table']!=='string'||!row['table'])throw Error('请先选择并保存目标数据表或视图')
-   await page.ensureScenarioLoaded(sourceId);check()
-   const source=page.getDataSet(sourceId),view=this.view
-   if(!source||!view)throw Error('排序字段缺少正式命名视图')
-   const guarded=()=>{check();if(source.destroyed||view.destroyed||page.getDataSet(sourceId)!==source||this.view!==view)throw Error('排序字段来源实例已变化')}
-   const physical=await resolveExcelPhysicalObject({source,applicationId:row['relatedappid'],path:row['table'],allowView:true,check:guarded})
-   const expected={field:'tblid',operator:'eq' as const,value:physical.objectId}
-   const filter=JSON.stringify(expected),viewContext=JSON.stringify(view.queryContext),queryConfig=JSON.stringify(view.queryConfig)
-   view.filterExpression=expected
-   await view.refresh();guarded()
-   const validate=()=>{
-   guarded()
-   if(JSON.stringify(view.filterExpression)!==filter||JSON.stringify(view.queryContext)!==viewContext||JSON.stringify(view.queryConfig)!==queryConfig||view.hasUnconfirmedSave)throw Error('排序字段目录查询身份已变化')
-   if(view.loadingError)throw view.loadingError
-   if(view.requestState!==RequestState.Loaded||!view.countReported||view.total!==view.rows.length||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('排序字段目录尚未取得完整正式结果')
-   view.readSnapshot()
-   const names=new Set<string>(),ids=new Set<unknown>()
-   for(const field of view.rows){if(['rowid','tblid','enname'].some(name=>view.fieldAccess(field,name).read!=='visible')||field['tblid']!==physical.objectId||typeof field['enname']!=='string'||!field['enname'].trim()||names.has(field['enname'])||ids.has(field['rowid']))throw Error('排序字段目录身份或名称不唯一');names.add(field['enname']);ids.add(field['rowid'])}
-   }
-   validate();this.validateDirectory=validate;this.isReady=true
-   const events=['configChanged','rowsChanged','requestStateChanged','cleared','editingChanged','mutatingChanged','disposing'] as const
-   const changed=()=>this.recheck()
-   for(const event of events)view.events.on(event,changed)
-   this.detach=()=>{for(const event of events)view.events.off(event,changed)}
-  }catch(cause){if(own===this.generation&&!this.disposed){this.isReady=false;this.error=cause instanceof Error?cause.message:String(cause)}}
- }
- /** 释放不触碰正式节点或来源表，撤销本次专用视图的晚结果。 */
- dispose():void{this.invalidate();this.disposed=true}
 }

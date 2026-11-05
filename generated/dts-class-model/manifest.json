@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1074,
+  "scannedFileCount": 1079,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13979,6 +13979,49 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/layout/definition.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/layout/definition",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/layout/definition",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout/definition\n职责：已实服验证的单组导出版式结构与坐标校验。\n边界：不查询、不规范化历史定义、不保存；未知成员保持原文归属。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelSingleExportLayout"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/layout/references.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/layout/references.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/layout/references",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/layout/references",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout/references\n职责：原节点保存链核对单组版式的正式节点、物理字段与删除引用。\n边界：精确当前方案及相关父子范围；只读预检，不应用草稿、不提交、不另建owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelLayoutContext"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/layout/routes.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/layout/routes",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/layout/routes",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout/routes\n职责：按实际导出服务的路由比较和版式启用语义核引用；不改写原定义。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/semi-structured/excel-import/resource.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
       "module": {
@@ -14101,6 +14144,22 @@
         ]
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/transform/physical-fields",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/physical-fields",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/physical-fields\n职责：排序与版式共用原命名DataView的物理字段目录与读取代次。\n边界：显式节点身份，各目录独立绑定；不缓存字段数组、不保存、不建立查询owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelPhysicalFieldOwner",
+          "ExcelPhysicalFieldDirectory"
+        ]
+      }
+    },
     "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts.json",
       "module": {
@@ -14173,8 +14232,7 @@
         "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/sort-fields\n职责：沿原运行实例读取Excel排序物理字段，并在原节点模型保存链验证排序。\n边界：不缓存业务行、不持有排序草稿、不提交或规范化既有定义。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ExcelSortOwner",
-          "ExcelSortFieldDirectory"
+          "ExcelSortOwner"
         ]
       }
     },
@@ -16831,6 +16889,19 @@
         "packageName": "app",
         "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog",
         "jsdoc": "@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog\n职责：标准组件绑定原宿主的表、物理视图和字典候选，确认交回原映射编辑命令。\n边界：不复制候选、不查询业务数据、不保存；字典字段是可读定义的派生选项。\nAI用途：为Excel映射设置引用时复用本次PageRuntime的命名视图，字段写回与持久化交由原映射命令和DataSet。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue": {
+      "file": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
+        "sourcePath": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+        "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
+        "jsdoc": "@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane\n职责：用标准绑定组件维护单组主表、明细和相对表尾；不持有布局草稿或保存owner。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -20446,13 +20517,25 @@
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/field-reference.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/field-reference.ts.json"
     },
+    "ExcelLayoutContext": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/layout/references.ts.json"
+    },
+    "ExcelPhysicalFieldDirectory": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts.json"
+    },
+    "ExcelPhysicalFieldOwner": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts.json"
+    },
     "ExcelPhysicalObjectInput": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts.json"
     },
-    "ExcelSortFieldDirectory": {
-      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts",
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts.json"
+    "ExcelSingleExportLayout": {
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/layout/definition.ts.json"
     },
     "ExcelSortOwner": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts",

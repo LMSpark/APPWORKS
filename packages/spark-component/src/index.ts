@@ -312,6 +312,7 @@ export type {
   RTextDisplayProps,
   RTextareaProps,
   RTextProps,
+  RJsonProps,
   RTimePickerProps,
   RTimeSelectProps,
   RTimelineItemProps,

@@ -5,7 +5,8 @@
  * AI用途：配置树删除确认及原批次核验；数据库已确认后只回读，不重复删除。
  */
 import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {isJsonObject,parseJsonDocument} from '@spark-appworks/spark-json-document'
+import {excelLayoutTableKey,hasExcelLayoutReferences} from './layout/routes'
 import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
 /** 本次原Excel配置删除的唯一实例及目标输入。 */
 type Input = Readonly<{
@@ -77,18 +78,23 @@ export class ExcelConfigurationRemoval {
     for (const row of nodes.rows) {
       if (this.read(nodes, row, 'pid') === this.input.nodeId) throw new Error(this.read(nodes, row, 'schemeid') === this.input.schemeId ? '当前配置存在子级，不能删除' : '存在跨方案子配置引用，不能删除')
       if (this.read(nodes, row, 'schemeid') !== this.input.schemeId) throw new Error('删除返回范围外配置')
-      if (row === target[0]) continue
-      const raw = this.read(nodes, row, 'sheet_layout_json')
-      if (raw === undefined || raw === null || raw === '') continue
-      if (typeof raw !== 'string') throw new Error('其他配置布局引用无法核定')
+    }
+    let parent=this.read(nodes,targetRow,'pid')
+    const visited=new Set<string>()
+    while(parent!==this.input.schemeId){
+      if(typeof parent!=='string'||!parent||visited.has(parent)||visited.size>=64)throw new Error('删除配置祖先链无法核定')
+      visited.add(parent)
+      const ancestors=nodes.rows.filter(row=>this.read(nodes,row,'rowid')===parent),ancestor=ancestors[0]
+      if(ancestors.length!==1||!ancestor)throw new Error('删除配置祖先身份不唯一或缺失')
+      parent=this.read(nodes,ancestor,'pid')
+      const raw = this.read(nodes, ancestor, 'sheet_layout_json')
+      if (!hasExcelLayoutReferences(raw)) continue
+      if (typeof raw !== 'string') throw new Error('祖先配置布局引用无法核定')
       const layout = parseJsonDocument(raw)
-      if (Array.isArray(layout)) throw new Error('其他配置布局必须是对象，引用无法核定')
-      if (layout['version'] !== undefined && (typeof layout['version'] !== 'number' || ![1,2,3].includes(layout['version']))) throw new Error('其他配置布局版本合同无法核定')
-      if (layout['version'] === 3) {
-        if (!Array.isArray(layout['tables'])) throw new Error('其他配置v3布局表引用无法核定')
-        const tables: readonly unknown[] = layout['tables']
-        if (tables.some(table => table !== null && typeof table === 'object' && !Array.isArray(table) && 'configId' in table && table.configId === this.input.nodeId)) throw new Error('其他配置布局仍声明引用本配置，不能删除')
-      }
+      if (!isJsonObject(layout)||layout['version']!==3||!Array.isArray(layout['tables']))throw new Error('祖先配置布局引用合同无法核定')
+      const tables=layout['tables'],route=this.read(nodes,targetRow,'table')
+      if(typeof route!=='string'||!route||tables.some(table=>!isJsonObject(table)||typeof table['table']!=='string'||!table['table']))throw new Error('祖先配置布局物理来源无法核定')
+      if(tables.some(table=>isJsonObject(table)&&excelLayoutTableKey(table['table'])===excelLayoutTableKey(route)))throw new Error('祖先配置布局仍声明引用本配置物理来源，不能删除')
     }
     const ids:[string[],string[],string[]] = [[this.input.nodeId], fields.rows.map(row => {
       if (this.read(fields, row, 'configid') !== this.input.nodeId) throw new Error('待删字段归属异常')

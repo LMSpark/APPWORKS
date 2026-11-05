@@ -125,12 +125,16 @@ export class FilterExpressionEditorDraft {
     this.root = reactive(root)
   }
 
-  addCondition(group: FilterExpressionEditorGroup): void {
-    group.children.push({ id: ++this.sequence, kind: 'condition', field: '', operator: 'eq', valueText: '' })
+  /** 用户显式新增时取当前可用字段及其首个合法运算符；不修写已存在条件。 */
+  addCondition(group: FilterExpressionEditorGroup, fields: readonly Data.DataViewFilterField[]): void {
+    const field=fields.find(item=>getDataViewFilterFieldOperators(item).length>0)
+    group.children.push({ id: ++this.sequence, kind: 'condition', field: field?.name??'', operator: field?getDataViewFilterFieldOperators(field)[0]??'eq':'eq', valueText: '' })
   }
 
-  addGroup(group: FilterExpressionEditorGroup): void {
-    group.children.push({ id: ++this.sequence, kind: 'group', logic: 'and', children: [], existing: false })
+  /** 新增子组包含一条待填条件，使用同一字段目录并计入条件数上限。 */
+  addGroup(group: FilterExpressionEditorGroup, fields: readonly Data.DataViewFilterField[]): void {
+    const child:FilterExpressionEditorGroup={ id: ++this.sequence, kind: 'group', logic: 'and', children: [], existing: false }
+    this.addCondition(child,fields);group.children.push(child)
   }
 
   countRules(node: FilterExpressionEditorNode = this.root): number {

@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
-import ElementPlus, {ElSelect} from 'element-plus'
+import ElementPlus, {ElSelect,ElInputNumber} from 'element-plus'
 import {DataViewFilter, DataViewFilterCodec, getDataViewFilterFunctionDefinitions, SparkData} from '@spark-appworks/spark-data'
 import {DATA_SOURCE, useSparkComponent} from '../../core'
 import {PAGE_RUNTIME_SERVICES} from '../../runtime'
@@ -41,6 +41,17 @@ function fixture(format: 'tree' | 'spark-json' = 'tree', value: unknown = undefi
 }
 
 describe('standard filter definition binding', () => {
+  it('applies a changed field and numeric zero only to the bound draft and restores the original on cancel',async()=>{
+    const tree={field:'Name',operator:'eq' as const,value:{Type:'SystemData',ParamName:'UserID'}},raw=DataViewFilterCodec.serializeStored(DataViewFilter.condition(tree)),f=fixture('spark-json',raw,'inline')
+    f.columns.value=[{name:'Name',type:'string'},{name:'Amount',type:'number'}];await flushPromises()
+    f.wrapper.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤字段')!.vm.$emit('update:modelValue','Amount');await flushPromises()
+    f.wrapper.getComponent(ElInputNumber).vm.$emit('update:modelValue',0);await flushPromises()
+    await f.wrapper.get('[data-action="apply"]').trigger('click');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['predicate']).toBe(DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Amount',operator:'eq',value:0})))
+    expect(f.view.rows[0]?.['predicate']).toBe(raw)
+    f.view.discardEditingRows(['a']);await flushPromises()
+    expect(f.view.getEditingRow('a')?.['predicate']).toBe(raw);expect(f.view.hasEditingChanges('a')).toBe(false)
+  })
   it('keeps drafts while narrowing operators and refuses both stale callbacks and unsupported bound updates',async()=>{
     const original={field:'Name',operator:'contains' as const,value:'original'},f=fixture('tree',original,'inline')
     f.presentation.value={allowedOperators:['eq','contains']};await flushPromises()

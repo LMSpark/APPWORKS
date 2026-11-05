@@ -346,6 +346,12 @@
           "properties": {
             "group": {
               "$ref": "#/$defs/FilterExpressionEditorGroup"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+              }
             }
           },
           "additionalProperties": false
@@ -356,6 +362,12 @@
           "properties": {
             "group": {
               "$ref": "#/$defs/FilterExpressionEditorGroup"
+            },
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "../../../../../../../spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterField"
+              }
             }
           },
           "additionalProperties": false
@@ -401,7 +413,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T01:37:34.437Z",
+  "generatedAt": "2026-11-05T22:35:46.872Z",
   "models": {
     "FilterExpressionEditorProps": {
       "name": "FilterExpressionEditorProps",
@@ -798,6 +810,7 @@
             },
             {
               "name": "addCondition",
+              "jsdoc": "用户显式新增时取当前可用字段及其首个合法运算符；不修写已存在条件。",
               "parameters": [
                 {
                   "name": "group",
@@ -805,6 +818,13 @@
                     "type": "reference",
                     "name": "FilterExpressionEditorGroup",
                     "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly Data.DataViewFilterField[]"
                   }
                 }
               ],
@@ -815,6 +835,7 @@
             },
             {
               "name": "addGroup",
+              "jsdoc": "新增子组包含一条待填条件，使用同一字段目录并计入条件数上限。",
               "parameters": [
                 {
                   "name": "group",
@@ -822,6 +843,13 @@
                     "type": "reference",
                     "name": "FilterExpressionEditorGroup",
                     "sourcePath": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts"
+                  }
+                },
+                {
+                  "name": "fields",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly Data.DataViewFilterField[]"
                   }
                 }
               ],

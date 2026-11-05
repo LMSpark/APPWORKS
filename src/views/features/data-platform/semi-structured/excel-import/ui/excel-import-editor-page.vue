@@ -80,10 +80,8 @@
         </template>
       </ExcelTransformRulesPane>
             </RendererTabPane>
-            <RendererTabPane name="layout" label="相对版式" :index="2" :data-view-key="nodesKey">
-              <RendererForm v-if="selectedNode" :data-view-key="nodesKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-            <FieldJson field="sheet_layout_json" label="Sheet 布局" mode="text" :readonly="locked" :on-change="changeLayout" :on-editing-change="value => pending('nodes.layout',value)" />
-              </RendererForm>
+            <RendererTabPane name="layout" label="相对版式" :lazy="true" :index="2" :data-view-key="nodesKey">
+              <ExcelImportSheetLayoutPane v-if="selectedNode" :data-view-key="nodesKey" :disabled="locked" :before-change="changeLayout" @session-change="value => pending('nodes.layout',value)" />
               <p v-else role="status">请选择左侧节点后再编辑</p>
             </RendererTabPane>
           </RendererTabs>
@@ -138,7 +136,7 @@ import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-impo
 import {ExcelConfigurationEdit} from '@/lowcode/resources/semi-structured/excel-import/configuration-edit'
 import {ExcelConfigurationRemoval} from '@/lowcode/resources/semi-structured/excel-import/configuration-removal'
 import {assertExcelFieldRemoval} from '@/lowcode/resources/semi-structured/excel-import/edit-references'
-import {ExcelSortFieldDirectory,readExcelSortFields} from '@/lowcode/resources/semi-structured/excel-import/transform/sort-fields'
+import {readExcelSortFields} from '@/lowcode/resources/semi-structured/excel-import/transform/sort-fields'
 import {definitionTargetDraftSignature} from '@/lowcode/data-space/model-source/data-space-definition-save'
 import {ExcelAssociationFields} from '@/lowcode/resources/semi-structured/excel-import/association-fields'
 import {ExcelFieldReference} from '@/lowcode/resources/semi-structured/excel-import/field-reference'
@@ -147,6 +145,8 @@ import ExcelTargetDialog from './excel-import-target-dialog.vue'
 import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
 import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
+import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
+import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/transform/physical-fields'
 const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))
@@ -161,7 +161,7 @@ const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-edito
 const dataSet = shallowRef<DataSet>(), catalog = shallowRef<DataSet>(), opening = ref(false), ready = ref(false), acting = ref(false), error = ref(''), revision = ref(0)
 const inputs = ref(new Set<string>())
 const activeTopTab=ref<string|number>('basic'),activeBottomTab=ref<string|number>('fields')
-const sortMode=ref<'rows'|'text'>('rows'),sortDirectory=shallowRef<ExcelSortFieldDirectory>()
+const sortMode=ref<'rows'|'text'>('rows'),sortDirectory=shallowRef<ExcelPhysicalFieldDirectory>()
 const sourceTargetId = ref(''), targetChange = shallowRef<ExcelConfigurationEdit>()
 const recoveryNotice = ref('')
 const association = shallowRef<ExcelAssociationFields>()
@@ -288,7 +288,7 @@ watch(importConfigId, async id => {
     if (!target || !nodes) throw new Error('Excel正式设计视图缺失')
     if ([nodesTable,fieldsTable,rulesTable].some(name=>view(name)?.commitMode!=='staged')) throw new Error('Excel设计必须使用正式暂存视图')
     association.value = new ExcelAssociationFields(dataSet.value!)
-    sortDirectory.value = new ExcelSortFieldDirectory({dataSet:dataSet.value!,getPage:()=>page},()=>{if(active)revision.value++})
+    sortDirectory.value = new ExcelPhysicalFieldDirectory({dataSet:dataSet.value!,getPage:()=>page,viewId:'excelSortFields',recordId:()=>{const nodes=view(nodesTable),row=nodes?.currentRow;return row?nodes?.getPkKey(row):undefined},allowView:true},()=>{if(active)revision.value++})
     const changed=()=>revision.value++
     unsubscribers=[catalog.value!,dataSet.value!].map(ds=>ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed}))
     await target.refresh(); if (target.loadingError) throw target.loadingError
@@ -406,7 +406,7 @@ async function addNode(mode: 'root' | 'sibling' | 'child'): Promise<void> {
     if (current && (target.fieldAccess(current, 'schemeid').read !== 'visible' || current['schemeid'] !== importConfigId.value)) throw new Error('当前配置不属于本方案')
     if (mode === 'sibling' && current && target.fieldAccess(current, 'pid').read !== 'visible') throw new Error('当前配置父级不可读')
     const pid = mode === 'child' ? id : mode === 'sibling' && current ? current['pid'] || importConfigId.value : importConfigId.value
-    target.setCurrentRow(await target.addRow({pid, sheet: 0, sheetName: '', titleIndex: 1, dataIndex: 2, exportType: 'tree',relatedappid:'',table:'',sorted:''}))
+    target.setCurrentRow(await target.addRow({pid, sheet: 0, sheetName: '', titleIndex: 1, dataIndex: 2, exportType: 'tree',relatedappid:'',table:'',sorted:'',sheet_layout_json:''}))
   })
 }
 async function remove(table: string): Promise<void> {if(unconfirmed.value)return;await act(table,async target=>{

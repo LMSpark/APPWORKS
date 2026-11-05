@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/layout/routes",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/layout/routes",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/layout/routes\n职责：按实际导出服务的路由比较和版式启用语义核引用；不改写原定义。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-05T22:44:30.803Z",
+  "models": {}
+}

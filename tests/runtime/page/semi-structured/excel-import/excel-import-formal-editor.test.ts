@@ -9,6 +9,7 @@ import {RendererTabs,RendererTabPane} from '@spark-appworks/spark-component'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import SparkJsonEditor from '../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
 import ExcelEditor from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'
+import {createSingleExportLayout,readSingleExportLayout} from '@/lowcode/resources/semi-structured/excel-import/layout/definition'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {EXCEL, topicModels, topicTexts} from '../../structured-config/catalog/formal-topic.fixture'
 import {EXCEL_DESIGN, excelDesignModels, designText,EXCEL_DICTIONARY,excelDictionaryReferenceModels} from './excel-import-design.fixture'
@@ -38,7 +39,7 @@ beforeEach(() => {
     Base_Import_solution: [{rowid: 'E1', solutionName: '订单导入', dataSetId: 'S1', transform_enabled:0, status:'UNCHANGED'}, {rowid: 'E2', solutionName: '其他方案'}],
     Base_DataSet: [], Base_UserInfo: [],
     _Base_DictType:[{rowid:'D1',TypeName:'状态',functiondesc:'业务状态',txt:'状态名',val:'状态码',secondValue:'扩展一',thirdValue:'',fourthvalue:'',fiveValue:''}],
-    Base_ImportData_Config: [{rowid: 'C1', schemeid: 'E1', pid: 'E1', sheetName: '订单', sheet: 0, titleIndex: 1, dataIndex: 2, sheet_layout_json: '{"keep":false}',relatedappid:null,table:null,sorted:null}],
+    Base_ImportData_Config: [{rowid: 'C1', schemeid: 'E1', pid: 'E1', sheetName: '订单', sheet: 0, titleIndex: 1, dataIndex: 2, sheet_layout_json: '{"keep":false}',relatedappid:null,table:null,sorted:null,exportType:null}],
     Base_ImportData_Field: [{rowid: 'F1', configid: 'C1', name: 'code', title: '编码', index: '01', type: 1}],
     Base_Import_Transform_Rule: [{id: 'R1', scheme_id: 'E1', config_id: 'C1', rule_name: '去空格', rule_type:'TRIM', source_field:'code', target_field:'code', sort_order:10, enabled:1, on_error:'FAIL_ROW', condition_json:'', config_json: '{"keep":true}'}],
     ImportExportMethods: [{rowid: 'M1', val: 'tree', txt: '树形导入', ordIdx: 1}],
@@ -62,6 +63,22 @@ async function open(importConfigId = 'E1') {
   }
   return {wrapper, router, click, choose}
 }
+function seedLayout():string{
+  const parsed=readSingleExportLayout(JSON.stringify(createSingleExportLayout('数据库一@table_one','数据库一@table_three')))!
+  parsed.document['keep']=false
+  parsed.form['bounds']={sheet:0,from:'B2',to:'B2'};parsed.form['fields']=[{name:'name',locate:{mode:'cell',cell:'B2'}}]
+  parsed.list['bounds']={sheet:0,from:'A4',to:'A6'};parsed.list['scan']={headerRow:4,dataStartOffset:1};parsed.list['fields']=[{name:'code',title:'ITEM',locate:{mode:'listColumn',column:'A'}}]
+  parsed.list['link']={fromTableId:parsed.rootTable['id']!,fromRegionId:parsed.form['id']!,parentField:'id',foreignKeyField:'code'}
+  parsed.block['bounds']={sheet:0,from:'B6',to:'B7'};parsed.block['fields']=[{name:'id',locate:{mode:'afterList',rowOffset:1,column:'B'}}]
+  const text=JSON.stringify(parsed.document)
+  Object.assign(state.http.records['Base_ImportData_Config']![0]!,{relatedappid:'A1',table:'数据库一@table_one',exportType:'default',sheet_layout_json:text})
+  state.http.records['Base_ImportData_Config']!.push({rowid:'C2',schemeid:'E1',pid:'C1',sheetName:'明细',relatedappid:'A1',table:'数据库一@table_three',exportType:'default',sheet_layout_json:'',sorted:''})
+  return text
+}
+async function layoutTab(f:Awaited<ReturnType<typeof open>>):Promise<void>{f.wrapper.findAllComponents(RendererTabs)[0]!.getComponent(ElTabs).vm.$emit('update:modelValue','layout');await flushPromises()}
+function layoutField(f:Awaited<ReturnType<typeof open>>,label:string){return f.wrapper.findAllComponents(FieldJson).find(field=>field.props('label')===label)!}
+async function enableLayout(f:Awaited<ReturnType<typeof open>>):Promise<void>{await layoutTab(f);await vi.waitFor(()=>expect(layoutField(f,'启用设置').props('readonly')).toBe(false));layoutField(f,'启用设置').getComponent(ElSelect).vm.$emit('update:modelValue',true);await flushPromises()}
+async function rejectedLayoutRow(f:Awaited<ReturnType<typeof open>>){await layoutTab(f);const field=layoutField(f,'主表字段');await vi.waitFor(()=>expect(field.props('readonly')).toBe(false));await field.get('[data-json-add]').trigger('click');await flushPromises();await field.get('[data-json-save-row]').trigger('click');await flushPromises();return field}
 async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await f.click('选择目标数据')
   await vi.waitFor(() => expect(document.body.textContent).toContain('字段替换预览'))
@@ -78,6 +95,32 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('creates the structured layout from a selected formal detail and cancels through the original node',async()=>{
+    Object.assign(state.http.records['Base_ImportData_Config']![0]!,{relatedappid:'A1',table:'数据库一@table_one',exportType:'default',sheet_layout_json:''})
+    state.http.records['Base_ImportData_Config']!.push({rowid:'C2',schemeid:'E1',pid:'C1',sheetName:'明细',relatedappid:'A1',table:'数据库一@table_three',exportType:'default',sheet_layout_json:'',sorted:''})
+    const f=await open();await f.choose()
+    const tabs=f.wrapper.findAllComponents(RendererTabs).find(tab=>tab.props('dataViewKey')?.includes('@Base_ImportData_Config@'))!
+    tabs.getComponent(ElTabs).vm.$emit('update:modelValue','layout');await flushPromises()
+    const choices=()=>f.wrapper.findAllComponents(RendererTable).find(table=>table.props('dataViewKey')===`${EXCEL_DESIGN}@Base_ImportData_Config@layoutChildren`)!
+    await vi.waitFor(()=>expect(choices().findAll('tbody tr')).toHaveLength(1));await choices().get('tbody tr').trigger('click');await flushPromises()
+    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='创建单组导出版式')?.props('disabled')).toBe(false))
+    await f.click('创建单组导出版式')
+    expect(f.wrapper.findAllComponents(FieldJson).filter(field=>field.props('mode')==='rows'&&field.props('field')==='sheet_layout_json')).toHaveLength(3)
+    const head=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='主表字段')!
+    await head.get('[data-json-add]').trigger('click');await flushPromises()
+    const field=head.findAllComponents(FieldSelect).find(field=>field.props('label')==='物理字段')!
+    expect(field.props('optionDataViewKey')).toBe(`${SOURCE_SCENE}@Base_TblField@excelLayoutRootFields`)
+    field.getComponent(ElSelect).vm.$emit('update:modelValue','name');await flushPromises()
+    await head.findAllComponents(FieldText).find(field=>field.props('label')==='固定单元格')!.get('input').setValue('B3');await flushPromises()
+    await head.get('[data-json-save-row]').trigger('click');await flushPromises()
+    expect(head.text()).toContain('B3');expect(state.http.saves).toEqual([])
+    await head.get('[data-json-add]').trigger('click');await flushPromises();expect(state.dirtySources[0]?.isDirty).toBe(true)
+    await head.get('[data-json-cancel-row]').trigger('click');await flushPromises()
+    await f.click('取消配置修改')
+    expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe('')
+    expect(state.http.saves).toEqual([])
+    expect(f.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='创建单组导出版式')).toBe(true)
+  })
   it('edits sorting with bound physical selects, cancels, saves and reopens the original node field',async()=>{
     Object.assign(state.http.records['Base_ImportData_Config']![0]!,{relatedappid:'A1',table:'数据库一@table_one',sorted:''})
     const f=await open();await f.choose()
@@ -109,6 +152,7 @@ describe('formal Excel design editor', () => {
   })
   it('keeps two independent standard tab groups and the same draft components without querying or saving on tab changes',async()=>{
     const f=await open();await f.choose()
+    await layoutTab(f)
     const groups=f.wrapper.findAllComponents(RendererTabs)
     expect(groups).toHaveLength(2)
     expect(groups[0]!.findAllComponents(RendererTabPane).map(pane=>pane.props('label'))).toEqual(['基本信息','增强规则','相对版式'])
@@ -128,7 +172,7 @@ describe('formal Excel design editor', () => {
     expect(state.dirtySources[0]?.isDirty).toBe(true)
     await f.click('取消配置修改');expect(field.get('input').element.value).toBe('订单')
   })
-  it.each(['sorted','sheet_layout_json'])('retains rejected %s input and its close guard across tabs until the original cancel',async(field)=>{
+  it.each(['sorted'])('retains rejected %s input and its close guard across tabs until the original cancel',async(field)=>{
     const f=await open();await f.choose()
     if(field==='sorted')await f.click('完整JSON编辑')
     const tabs=f.wrapper.findAllComponents(RendererTabs)[0]!,original=field==='sorted'?'basic':'layout'
@@ -148,6 +192,14 @@ describe('formal Excel design editor', () => {
     await f.click('取消配置修改')
     expect(state.dirtySources[0]?.isDirty).toBe(false)
     expect(returned.findAll('[role="alert"]')).toHaveLength(0)
+  })
+  it('retains an unaccepted structured layout row across tabs until the original cancel',async()=>{
+    seedLayout();const f=await open();await f.choose();const component=await rejectedLayoutRow(f),uid=component.vm.$.uid
+    expect(state.dirtySources[0]?.isDirty).toBe(true);const alerts=component.findAll('[role="alert"]').map(item=>item.text());expect(alerts.length).toBeGreaterThan(0)
+    const tabs=f.wrapper.findAllComponents(RendererTabs)[0]!
+    tabs.getComponent(ElTabs).vm.$emit('update:modelValue','transform');await flushPromises();await layoutTab(f)
+    const returned=layoutField(f,'主表字段');expect(returned.vm.$.uid).toBe(uid);expect(returned.findAll('[role="alert"]').map(item=>item.text())).toEqual(alerts)
+    expect(state.http.saves).toEqual([]);await f.click('取消配置修改');expect(state.dirtySources[0]?.isDirty).toBe(false);expect(returned.findAll('[role="alert"]')).toHaveLength(0)
   })
   it.each([true,false])('uses root layout mode for a child filter instead of the child layout flag (%s)',async(rootEnabled)=>{
     state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']=JSON.stringify({version:3,enabled:rootEnabled})
@@ -195,15 +247,14 @@ describe('formal Excel design editor', () => {
     await sheet.get('input').setValue('保留版式'); await flushPromises(); await f.click('保存配置')
     expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe(original)
     const reopened = await open(); await reopened.choose()
+    await layoutTab(reopened)
     const layout = reopened.wrapper.findAllComponents(FieldJson).find(field => field.props('field') === 'sheet_layout_json')!
     expect(layout.getComponent(SparkJsonEditor).props('modelValue')).toBe(original)
     expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
   })
 
-  it('locks node navigation while invalid layout JSON remains unaccepted and releases it through the original cancel', async () => {
-    const f = await open(); await f.choose()
-    const layout = f.wrapper.findAllComponents(FieldJson).find(field => field.props('field') === 'sheet_layout_json')!
-    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{'); await flushPromises()
+  it('locks node navigation while a structured layout row remains unaccepted and releases it through the original cancel', async () => {
+    seedLayout();const f = await open(); await f.choose();await rejectedLayoutRow(f)
     expect(f.wrapper.get('aside').element.hasAttribute('inert')).toBe(true)
     expect(f.wrapper.findAllComponents(RendererButton).find(button => button.props('label') === '保存配置')?.props('disabled')).toBe(true)
     await f.click('取消配置修改')
@@ -418,10 +469,10 @@ describe('formal Excel design editor', () => {
     expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Field'])
   })
   it('hides classical mappings for enabled layout, preserves their records and restores them on cancel', async () => {
+    seedLayout()
     const f=await open();await f.choose()
     const originalFields=structuredClone(state.http.records['Base_ImportData_Field'])
-    const layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!
-    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"enabled":true,"version":1,"regions":[]}');await flushPromises()
+    await enableLayout(f)
     expect(f.wrapper.findAllComponents(RendererTable).some(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))).toBe(false)
     expect(f.wrapper.text()).toContain('已启用相对版式')
     expect(f.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='选择目标数据')?.props('disabled')).toBe(true)
@@ -431,27 +482,27 @@ describe('formal Excel design editor', () => {
     expect(f.wrapper.findAllComponents(RendererTable).some(table=>table.props('dataViewKey')?.includes('@Base_ImportData_Field@'))).toBe(true)
   })
   it('rejects hiding unsaved classical mapping edits without dropping the original draft', async()=>{
+    const original=seedLayout()
     const f=await open();await f.choose()
     const table=f.wrapper.findAllComponents(RendererTable).find(item=>item.props('dataViewKey')?.includes('@Base_ImportData_Field@'))!
     await table.get('tbody tr').trigger('click');await flushPromises()
     const title=table.findAllComponents(FieldText).find(field=>field.props('field')==='title'&&field.find('input').exists())!
     await title.get('input').setValue('尚未保存标题');await flushPromises()
-    const layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!
-    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"enabled":true,"version":1,"regions":[]}');await flushPromises()
+    await enableLayout(f)
     expect(f.wrapper.text()).toContain('请先保存或取消字段修改')
     expect(title.get('input').element.value).toBe('尚未保存标题')
     await f.click('保存配置')
     expect(state.http.saves).toEqual([])
-    expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe('{"keep":false}')
+    expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe(original)
     await f.click('保存字段')
     expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Field'])
     expect(state.http.records['Base_ImportData_Field']![0]!['title']).toBe('尚未保存标题')
   })
   it('reopens the saved layout mode without deleting or resubmitting classical mapping rows',async()=>{
+    seedLayout()
     const f=await open();await f.choose()
     const mappings=structuredClone(state.http.records['Base_ImportData_Field'])
-    const layout=f.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='sheet_layout_json')!
-    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"enabled":true,"version":1,"regions":[]}');await flushPromises()
+    await enableLayout(f)
     await f.click('保存配置')
     expect(state.http.saves.map(save=>save.table)).toEqual(['Base_ImportData_Config'])
     expect(state.http.records['Base_ImportData_Field']).toEqual(mappings)
@@ -626,13 +677,17 @@ describe('formal Excel design editor', () => {
     expect(state.http.saves).toEqual([])
   })
   it('saves layout changes through the node view without submitting field or transform edits', async () => {
+    seedLayout()
     const f = await open(); await f.choose()
-    const layout = f.wrapper.findAllComponents(FieldJson).find(field => field.props('field') === 'sheet_layout_json')!
-    layout.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{"keep":false,"layout":1}'); await flushPromises()
+    await layoutTab(f);const layout=layoutField(f,'主表字段');await vi.waitFor(()=>expect(layout.props('readonly')).toBe(false));await layout.get('tbody tr').trigger('click');await layout.get('[data-json-edit]').trigger('click');await flushPromises()
+    await layout.findAllComponents(FieldText).find(field=>field.props('label')==='固定单元格')!.get('input').setValue('B3');await flushPromises();await layout.get('[data-json-save-row]').trigger('click');await flushPromises()
+    const bounds=layoutField(f,'主表范围');await bounds.get('input[aria-label="范围起点"]').setValue('B3');await flushPromises();await bounds.get('input[aria-label="范围终点"]').setValue('B3');await flushPromises()
     expect(state.dirtySources[0]?.isDirty).toBe(true)
     await f.click('保存配置')
     expect(state.http.saves.map(save => save.table)).toEqual(['Base_ImportData_Config'])
-    expect(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json']).toBe('{"keep":false,"layout":1}')
+    const saved=readSingleExportLayout(state.http.records['Base_ImportData_Config']![0]!['sheet_layout_json'])!
+    expect(saved.form['fields']).toEqual([{name:'name',locate:{mode:'cell',cell:'B3'}}]);expect(saved.form['bounds']).toMatchObject({from:'B3',to:'B3'});expect(saved.document['keep']).toBe(false)
+    await vi.waitFor(()=>expect(layoutField(f,'主表字段').props('readonly')).toBe(false))
     expect(state.dirtySources[0]?.isDirty).toBe(false)
   })
   it('saves standard field edits separately and does not overwrite the original layout', async () => {

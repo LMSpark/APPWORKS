@@ -7,6 +7,8 @@ import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space
 import {validateExcelTransformRule} from './transform/validation'
 import {createExcelTransformReferences} from './transform/references'
 import {createExcelSortReferences,validateExcelSort} from './transform/sort-fields'
+import {validateSingleExportLayout} from './layout/definition'
+import {createExcelLayoutReferences,createExcelLayoutDeleteReferences} from './layout/references'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 
 export class LowcodeExcelImport {
@@ -42,7 +44,9 @@ export class LowcodeExcelImport {
     const nodes=dataSet.getView('Base_ImportData_Config')?.dataTable
     if(!nodes)throw Error('Excel排序缺少原节点模型')
     nodes.setQuerySaveRule({groups:[{fields:['sorted'],validate:validateExcelSort,
-      references:createExcelSortReferences({dataSet,...(getPage===undefined?{}:{getPage})})}]})
+      references:createExcelSortReferences({dataSet,...(getPage===undefined?{}:{getPage})})},
+      {fields:['sheet_layout_json'],validate:input=>validateSingleExportLayout(input.values['sheet_layout_json']),references:createExcelLayoutReferences({dataSet,...(getPage===undefined?{}:{getPage})})},
+      {fields:['pid'],validate:()=>undefined,references:createExcelLayoutDeleteReferences({dataSet,...(getPage===undefined?{}:{getPage})})}]})
     return dataSet
   }
 

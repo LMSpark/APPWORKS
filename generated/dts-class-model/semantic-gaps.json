@@ -1,5 +1,5 @@
 {
-  "gapCount": 3653,
+  "gapCount": 3656,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -5065,36 +5065,12 @@
     {
       "kind": "method",
       "className": "FilterExpressionEditorDraft",
-      "memberName": "addCondition",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FilterExpressionEditorDraft.addCondition 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationLine": 82,
-      "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "FilterExpressionEditorDraft",
-      "memberName": "addGroup",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FilterExpressionEditorDraft.addGroup 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationLine": 83,
-      "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "FilterExpressionEditorDraft",
       "memberName": "countRules",
       "reason": "missing-jsdoc",
       "chainBreak": "FilterExpressionEditorDraft.countRules 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationLine": 84,
+      "declarationLine": 86,
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
       "declarationKind": "class"
     },
@@ -5106,7 +5082,7 @@
       "chainBreak": "FilterExpressionEditorDraft.check 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationLine": 85,
+      "declarationLine": 87,
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
       "declarationKind": "class"
     },
@@ -5118,7 +5094,7 @@
       "chainBreak": "FilterExpressionEditorDraft.checkInput 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
-      "declarationLine": 86,
+      "declarationLine": 88,
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props.ts",
       "declarationKind": "class"
     },
@@ -34868,6 +34844,39 @@
     },
     {
       "kind": "module",
+      "className": "app:lowcode/resources/semi-structured/excel-import/layout/definition",
+      "moduleName": "app:lowcode/resources/semi-structured/excel-import/layout/definition",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/semi-structured/excel-import/layout/definition 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/layout/definition.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/semi-structured/excel-import/layout/references",
+      "moduleName": "app:lowcode/resources/semi-structured/excel-import/layout/references",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/semi-structured/excel-import/layout/references 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/layout/references.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/references.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/semi-structured/excel-import/layout/routes",
+      "moduleName": "app:lowcode/resources/semi-structured/excel-import/layout/routes",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/semi-structured/excel-import/layout/routes 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/layout/routes.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/layout/routes.ts"
+    },
+    {
+      "kind": "module",
       "className": "app:lowcode/resources/semi-structured/excel-import/resource",
       "moduleName": "app:lowcode/resources/semi-structured/excel-import/resource",
       "reason": "weak-module-jsdoc",
@@ -35003,6 +35012,17 @@
       "declarationFile": "src/lowcode/resources/semi-structured/excel-import/transform/forms.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/forms.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/semi-structured/excel-import/transform/physical-fields",
+      "moduleName": "app:lowcode/resources/semi-structured/excel-import/transform/physical-fields",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/semi-structured/excel-import/transform/physical-fields 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts"
     },
     {
       "kind": "module",
@@ -42822,6 +42842,17 @@
       "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
+      "moduleName": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-sheet-layout-pane.vue"
     },
     {
       "kind": "module",

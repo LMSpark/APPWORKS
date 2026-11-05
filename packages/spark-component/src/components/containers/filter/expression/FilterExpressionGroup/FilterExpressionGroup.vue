@@ -36,17 +36,17 @@
                   class="filter-expression-group__json" aria-label="条件值 JSON" data-condition-json mode="text" :height="160" :read-only="disabled"
                   :main-menu-bar="false" :navigation-bar="false" :status-bar="false" v-on="{'update:modelValue': jsonUpdates.get(node.id)}" />
                 <el-select v-else-if="valueMode(node) === 'list'" :model-value="listValue(node)" multiple filterable allow-create default-first-option clearable
-                  aria-label="列表常量" :disabled="disabled" placeholder="输入条件值后按回车" @update:model-value="updateList(node, $event)">
+                  aria-label="列表常量" :disabled="disabled" placeholder="输入条件值后按回车" v-on="{'update:modelValue': valueUpdates.get(node.id)}">
                   <el-option v-for="(value, itemIndex) in listValue(node)" :key="itemIndex" :label="String(value)" :value="value" />
                 </el-select>
-                <el-input-number v-else-if="valueMode(node) === 'number'" :model-value="numberValue(node)" aria-label="数字常量" controls-position="right" :disabled="disabled" @update:model-value="updateValue(node, $event)" />
-                <el-select v-else-if="valueMode(node) === 'boolean'" :model-value="booleanValue(node)" aria-label="布尔常量" :disabled="disabled" clearable @update:model-value="updateValue(node, $event)">
+                <el-input-number v-else-if="valueMode(node) === 'number'" :model-value="numberValue(node)" aria-label="数字常量" controls-position="right" :disabled="disabled" v-on="{'update:modelValue': valueUpdates.get(node.id)}" />
+                <el-select v-else-if="valueMode(node) === 'boolean'" :model-value="booleanValue(node)" aria-label="布尔常量" :disabled="disabled" clearable v-on="{'update:modelValue': valueUpdates.get(node.id)}">
                   <el-option label="是" :value="true" /><el-option label="否" :value="false" />
                 </el-select>
                 <el-date-picker v-else-if="valueMode(node) === 'date' || valueMode(node) === 'datetime'" :model-value="textValue(node)"
                   :type="valueMode(node) === 'datetime' ? 'datetime' : 'date'" :value-format="valueMode(node) === 'datetime' ? 'YYYY-MM-DD HH:mm:ss' : 'YYYY-MM-DD'"
-                  :disabled="disabled" aria-label="日期常量" @update:model-value="updateValue(node, $event)" />
-                <el-input v-else :model-value="textValue(node)" aria-label="文本常量" :disabled="disabled" clearable placeholder="请输入条件值" @update:model-value="updateValue(node, $event)" />
+                  :disabled="disabled" aria-label="日期常量" v-on="{'update:modelValue': valueUpdates.get(node.id)}" />
+                <el-input v-else :model-value="textValue(node)" aria-label="文本常量" :disabled="disabled" clearable placeholder="请输入条件值" v-on="{'update:modelValue': valueUpdates.get(node.id)}" />
                 <el-button :disabled="disabled" title="使用服务端值函数" aria-label="使用服务端值函数" @click="emit('valueFunction', node)">ƒ(x)</el-button>
                 <el-button size="small" :disabled="disabled" aria-label="切换条件值 JSON" @click="setValueMode(node, valueModes[node.id] === 'json' ? 'auto' : 'json')">{{ valueModes[node.id] === 'json' ? '类型输入' : 'JSON' }}</el-button>
               </div>
@@ -81,6 +81,14 @@ let active = true
 watch([() => props.group, () => props.disabled], () => {jsonRevision.value++}, {flush: 'sync'})
 onBeforeUnmount(() => {active = false})
 function canEdit(node?: FilterExpressionEditorCondition): boolean {return active && !props.disabled && (!node || props.group.children.includes(node))}
+const valueUpdates=computed(()=>{
+  const group=props.group,revision=jsonRevision.value
+  return new Map(group.children.flatMap(node=>node.kind!=='condition'?[]:[[node.id,(value:unknown):void=>{
+    if(!canEdit(node)||revision!==jsonRevision.value||props.group!==group)return
+    if(node.operator==='in'||node.operator==='not-in')updateList(node,value)
+    else updateValue(node,value)
+  }] as const]))
+})
 function removeGroup(): void {if (canEdit() && props.removable) emit('remove')}
 const jsonUpdates = computed(() => {
   const group = props.group, revision = jsonRevision.value
@@ -106,6 +114,7 @@ function valueMode(node: FilterExpressionEditorCondition): ValueMode {
   if (value !== undefined && typeof value !== 'string') return 'json'
   return type === 'date' || type === 'datetime' ? type : 'text'
 }
+watch(()=>props.group.children.map(node=>node.kind==='condition'?`${node.id}:${valueMode(node)}`:`group:${node.id}`).join('|'),()=>{jsonRevision.value++},{flush:'sync'})
 function setValueMode(node: FilterExpressionEditorCondition, value: 'json' | 'auto'): void {
   if (!canEdit(node)) return
   jsonRevision.value++
@@ -133,11 +142,13 @@ function updateValue(node: FilterExpressionEditorCondition, value: unknown): voi
 }
 function operators(node: FilterExpressionEditorCondition) {
   const allowed = getDataViewFilterFieldOperators(field(node) ?? { name: node.field, type: 'text' })
-  return allowed.includes(node.operator) ? allowed : [node.operator, ...allowed]
+  return allowed
 }
 function changeField(node: FilterExpressionEditorCondition, value: unknown): void {
-  if (!canEdit(node) || typeof value !== 'string') return
-  jsonRevision.value++; delete valueModes[node.id]; node.field = value; emit('change')
+  if (!canEdit(node) || typeof value !== 'string' || value===node.field || !props.fields.some(item=>item.name===value)) return
+  jsonRevision.value++; delete valueModes[node.id]; node.field = value;node.valueText=''
+  const allowed=operators(node);if(!allowed.includes(node.operator))node.operator=allowed[0]??'eq'
+  emit('change')
 }
 function isOperatorChoice(value: unknown, allowed: readonly DataViewFilterOperator[]): value is DataViewFilterOperator {
   return typeof value === 'string' && allowed.some(operator => operator === value)
@@ -145,11 +156,13 @@ function isOperatorChoice(value: unknown, allowed: readonly DataViewFilterOperat
 function changeOperator(node: FilterExpressionEditorCondition, value: unknown): void {
   const allowed = operators(node)
   if (!canEdit(node) || !isOperatorChoice(value, allowed)) return
-  jsonRevision.value++; delete valueModes[node.id]; node.operator = value; emit('change')
+  jsonRevision.value++; delete valueModes[node.id]; node.operator = value
+  if(isUnaryDataViewFilterOperator(value))node.valueText=''
+  emit('change')
 }
 function updateLogic(value: unknown): void {if (canEdit() && (value === 'and' || value === 'or')) {props.group.logic = value; emit('change')}}
-function addCondition(): void {if (canEdit() && props.draft.countRules() < props.maxRules) {props.draft.addCondition(props.group); emit('change')}}
-function addGroup(): void {if (canEdit() && props.depth < props.maxDepth && props.draft.countRules() < props.maxRules) {props.draft.addGroup(props.group); emit('change')}}
+function addCondition(): void {if (canEdit() && props.draft.countRules() < props.maxRules) {props.draft.addCondition(props.group,props.fields); emit('change')}}
+function addGroup(): void {if (canEdit() && props.depth < props.maxDepth && props.draft.countRules() < props.maxRules) {props.draft.addGroup(props.group,props.fields); emit('change')}}
 function remove(index: number): void {if (canEdit()) {props.group.children.splice(index, 1); emit('change')}}
 </script>
 

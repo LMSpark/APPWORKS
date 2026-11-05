@@ -58,11 +58,22 @@ it('retains database confirmation when refreshing the original page fails and re
   const count = f.http.saves.length; fail.mockRestore(); await command.save()
   expect(f.http.saves).toHaveLength(count); expect(command.getState().done).toBe(true)
 })
-it('protects an explicit v3 design association without scanning arbitrary literal strings', async () => {
+it('protects a physical route referenced by an ancestor layout', async () => {
   const f = await fixture()
-  f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json'] = '{"version":3,"enabled":false,"tables":[{"id":"T","configId":"C1"}]}'
-  await expect(f.open()).rejects.toThrow('布局仍声明引用')
+  Object.assign(f.http.records['Base_ImportData_Config']![0]!,{pid:'SIB',table:'db@detail'})
+  f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json'] = '{"version":3,"enabled":false,"tables":[{"id":"T","table":" DB@DETAIL "}]}'
+  await expect(f.open()).rejects.toThrow(/布局仍.*引用/)
   expect(f.http.saves).toEqual([])
+})
+it('does not treat an unrelated root layout configId as a node reference', async () => {
+  const f = await fixture()
+  f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json']='{"version":3,"enabled":false,"tables":[{"id":"T","configId":"C1","table":"db@detail"}]}'
+  const command=await f.open();command.cancel();expect(f.http.saves).toEqual([])
+})
+it('allows a leaf under an explicitly disabled historical definition without rewriting it',async()=>{
+  const f=await fixture(),raw='{"version":1,"enabled":false}'
+  f.http.records['Base_ImportData_Config']![0]!['pid']='SIB';f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json']=raw
+  const command=await f.open();command.cancel();expect(f.http.saves).toEqual([]);expect(f.http.records['Base_ImportData_Config']![1]!['sheet_layout_json']).toBe(raw)
 })
 
 it('explicitly accepts a current formal result after an incomplete receipt without claiming command success or replaying', async () => {

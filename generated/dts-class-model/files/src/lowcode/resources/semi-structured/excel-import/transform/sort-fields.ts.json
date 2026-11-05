@@ -10,8 +10,7 @@
     "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/sort-fields\n职责：沿原运行实例读取Excel排序物理字段，并在原节点模型保存链验证排序。\n边界：不缓存业务行、不持有排序草稿、不提交或规范化既有定义。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
-      "ExcelSortOwner",
-      "ExcelSortFieldDirectory"
+      "ExcelSortOwner"
     ]
   },
   "$defs": {
@@ -36,65 +35,9 @@
           "$ref": "../../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
         }
       }
-    },
-    "ExcelSortFieldDirectory": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "ExcelSortFieldDirectory",
-      "properties": {
-        "dataViewKey": {
-          "type": "string"
-        },
-        "ready": {
-          "type": "boolean"
-        },
-        "error": {
-          "type": "string"
-        }
-      },
-      "required": [
-        "error"
-      ],
-      "additionalProperties": false,
-      "$defs": {
-        "constructor.params": {
-          "type": "object",
-          "properties": {
-            "owner": {
-              "$ref": "#/$defs/ExcelSortOwner"
-            },
-            "onStateChange": {
-              "type": "object",
-              "title": "() => void"
-            }
-          },
-          "additionalProperties": false
-        },
-        "method.invalidate.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.invalidate.return": true,
-        "method.load.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.load.return": {
-          "type": "object",
-          "title": "Promise<void>"
-        },
-        "method.dispose.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.dispose.return": true
-      }
     }
   },
-  "generatedAt": "2026-11-05T20:59:27.955Z",
+  "generatedAt": "2026-11-05T22:32:23.146Z",
   "models": {
     "ExcelSortOwner": {
       "name": "ExcelSortOwner",
@@ -126,107 +69,6 @@
               "type": {
                 "type": "reference",
                 "name": "PageRuntime"
-              }
-            }
-          ]
-        }
-      }
-    },
-    "ExcelSortFieldDirectory": {
-      "name": "ExcelSortFieldDirectory",
-      "jsdoc": "仅管理原命名视图的读取代次；字段记录及权限仍由该DataView持有。",
-      "declarationKind": "class",
-      "classDecl": {
-        "constructorMeta": {
-          "jsdoc": "@param owner 原设计实例及其宿主，不持有页面排序数组。",
-          "signatureText": "constructor(owner: ExcelSortOwner, onStateChange?: (() => void) | undefined)",
-          "parameters": [
-            {
-              "name": "owner",
-              "type": {
-                "type": "reference",
-                "name": "ExcelSortOwner",
-                "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/sort-fields.ts"
-              }
-            },
-            {
-              "name": "onStateChange",
-              "type": {
-                "type": "optional",
-                "elementType": {
-                  "type": "reflection",
-                  "declaration": {
-                    "signatures": [
-                      {
-                        "parameters": [],
-                        "type": {
-                          "type": "intrinsic",
-                          "name": "void"
-                        }
-                      }
-                    ]
-                  }
-                }
-              },
-              "flags": {
-                "isOptional": true
-              }
-            }
-          ]
-        },
-        "members": {
-          "attributes": [
-            {
-              "name": "dataViewKey",
-              "jsdoc": "标准字段候选直接绑定的完整键。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "ready",
-              "jsdoc": "每次消费重新核对原目录，关闭事件派发前的旧候选窗口。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "error",
-              "jsdoc": "当前读取失败或目标未保存的诊断，不吞成合法空候选。",
-              "readable": true,
-              "writable": true
-            }
-          ],
-          "methods": [
-            {
-              "name": "invalidate",
-              "jsdoc": "切换节点/来源时立即撤销旧目录和正在飞行的查询结果。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
-              }
-            },
-            {
-              "name": "load",
-              "jsdoc": "只读取当前已保存的源身份；草稿来源须先沿原保存或取消命令处理。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "intrinsic",
-                    "name": "void"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "dispose",
-              "jsdoc": "释放不触碰正式节点或来源表，撤销本次专用视图的晚结果。",
-              "parameters": [],
-              "type": {
-                "type": "intrinsic",
-                "name": "void"
               }
             }
           ]

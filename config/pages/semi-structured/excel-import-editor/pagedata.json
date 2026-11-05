@@ -89,6 +89,34 @@
               "ParamName": "importConfigId"
             }
           }
+        },
+        "layoutChildren": {
+          "queryConfig": {
+            "allPages": true,
+            "fields": [
+              "rowid",
+              "schemeid",
+              "pid",
+              "sheetName",
+              "relatedappid",
+              "table",
+              "exportType"
+            ]
+          },
+          "autoSelectFirst": false,
+          "filterExpression": {
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "importConfigId"
+            },
+            "field": "schemeid",
+            "operator": "eq"
+          },
+          "autoCurrentFirst": false,
+          "autoLoad": false,
+          "queryContext": {
+            "importConfigId": ""
+          }
         }
       },
       "columns": [
@@ -405,6 +433,22 @@
           "operator": "in"
         }
       ]
+    },
+    {
+      "parentTable": "Base_ImportData_Config",
+      "cascadeId": "excel-layout-children",
+      "kind": "query",
+      "parentViewId": "default",
+      "filterBindings": [
+        {
+          "targetField": "pid",
+          "sourceField": "rowid",
+          "operator": "eq"
+        }
+      ],
+      "childViewId": "layoutChildren",
+      "autoLoad": false,
+      "childTable": "Base_ImportData_Config"
     }
   ]
 }

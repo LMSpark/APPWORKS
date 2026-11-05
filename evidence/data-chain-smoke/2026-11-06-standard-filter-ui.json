@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-06",
+  "kind": "standard-filter-browser-interaction",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "page": "excel-import-editor-page",
+  "component": "RendererFilterExpression",
+  "scheme": "IMEX_00018",
+  "checks": [
+    "new condition selects an available field and valid operator",
+    "changing field clears the typed previous value",
+    "new nested group contains one condition and increments count",
+    "cancel closes dialog and restores empty summary"
+  ],
+  "saveActionInvoked": false,
+  "scope": "UI draft interaction only; does not establish real CRUD or runtime export",
+  "screenshot": "artifacts/data-chain-smoke/ui-standard-filter-20261106.jpg",
+  "screenshotSha256": "69091050600b26738f0cd23fa6ec8d93ea27a0b6967b480ed23785a4a17fb9dc",
+  "observedSeparateGap": "existing selected physical view directory reports missing or nonunique; no source registration changed"
+}

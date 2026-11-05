@@ -34,7 +34,7 @@
       <el-button v-if="!readonly" data-action="apply" type="primary" :disabled="disabled || checking" @click="apply">{{ display === 'inline' ? '应用' : '应用过滤条件' }}</el-button>
     </div>
   </component>
-  <FilterValueFunctionDialog v-model="functionVisible" :value="functionValue" :context="functionContext" @confirm="applyFunction" />
+  <FilterValueFunctionDialog v-model="functionVisible" :value="functionValue" :context="functionContext" @confirm="functionConfirmation" />
 </template>
 
 <script setup lang="ts">
@@ -69,6 +69,10 @@ const invalidateCheck = (): void => {checkRevision++; checking.value = false}
 watch([() => props.functionContext, () => props.columns, () => props.allowedOperators, () => props.modelValue, () => props.maxDepth, () => props.maxRules,
   writeLocked, visible, rawJson, jsonMode, () => draft.value.root], invalidateCheck, {deep: true, flush: 'sync'})
 let functionTarget: FilterExpressionEditorCondition | undefined
+let stopFunctionGuard:(()=>void)|undefined
+const functionRevision=ref(0)
+function invalidateFunction():void{functionRevision.value++;functionVisible.value=false;functionTarget=undefined;stopFunctionGuard?.();stopFunctionGuard=undefined}
+const functionConfirmation=computed(()=>{const revision=functionRevision.value;return(value:DataViewFilterValueFunction):void=>{if(revision===functionRevision.value)applyFunction(value)}})
 let awaitingApplication = false
 let pendingValue: DataViewFilterTree | undefined
 watch([() => props.modelValue, () => props.display], () => {
@@ -87,15 +91,14 @@ function resetDraft(): void {
   jsonFormat.value = 'tree'
   issues.value = []
   awaitingApplication = false
-  functionVisible.value = false
-  functionTarget = undefined
+  invalidateFunction()
 }
 watch(() => props.readonly, () => {resetDraft(); visible.value = false})
 const editing = computed(() => !props.readonly && (functionVisible.value || (props.display === 'inline'
   ? (jsonMode.value ? rawJson.value !== originalJson.value : JSON.stringify(draft.value.root) !== baseline.value)
   : visible.value)))
 watch(editing, value => props.onEditingChange?.(value), {immediate: true})
-onBeforeUnmount(() => {alive = false; invalidateCheck(); jsonRevision.value++; props.onEditingChange?.(false)})
+onBeforeUnmount(() => {alive = false; invalidateCheck();invalidateFunction(); jsonRevision.value++; props.onEditingChange?.(false)})
 const updateJson = computed(() => {
   const revision = jsonRevision.value
   return (value: string): void => {
@@ -182,6 +185,7 @@ function submit(tree: DataViewFilterTree | undefined): void {
 }
 function openFunction(condition: FilterExpressionEditorCondition): void {
   if (writeLocked.value) return
+  invalidateFunction()
   functionTarget = condition
   functionValue.value = undefined
   // 草稿文本先作为 JSON 解读，不能把普通字符串推断为函数。
@@ -195,10 +199,11 @@ function openFunction(condition: FilterExpressionEditorCondition): void {
       }
     } catch { /* 无效常量草稿仍保留，弹框确认后才替换。 */ }
   }
+  stopFunctionGuard=watch([()=>draft.value.root,()=>condition.field,()=>condition.operator,()=>condition.valueText,writeLocked],invalidateFunction,{deep:true,flush:'sync'})
   functionVisible.value = true
 }
 function applyFunction(value: DataViewFilterValueFunction): void {
-  if (writeLocked.value || !functionVisible.value) return
+  if (!alive || writeLocked.value || !functionVisible.value) return
   if (functionTarget) functionTarget.valueText = JSON.stringify(value)
   issues.value = []
 }

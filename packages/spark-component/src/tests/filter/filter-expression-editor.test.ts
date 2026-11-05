@@ -417,16 +417,69 @@ describe('full public filter editor', () => {
     }
   })
 
-  it('keeps field changes lossless and applies reference group limits at the actual controls', async () => {
+  it('resets the old value and invalid operator only on an explicit field change', async () => {
     const draft = new FilterExpressionEditorDraft({field: 'Name', operator: 'contains', value: 'kept'})
     const wrapper = mount(FilterExpressionGroup, {props: {group: draft.root, draft, fields, depth: 0, maxDepth: 0, maxRules: 1},
       global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}}); wrappers.push(wrapper)
     wrapper.findAllComponents(ElSelect).find(s => s.props('ariaLabel') === '过滤字段')!.vm.$emit('update:modelValue', 'Amount')
     await flushPromises()
-    expect(wrapper.getComponent(SparkJsonEditor).props('modelValue')).toBe('"kept"')
-    expect(draft.root.children[0]).toMatchObject({field: 'Amount', operator: 'contains', valueText: '"kept"'})
+    expect(wrapper.findComponent(SparkJsonEditor).exists()).toBe(false)
+    expect(draft.root.children[0]).toMatchObject({field: 'Amount', operator: 'eq', valueText: ''})
     expect(draft.check({fields}).ok).toBe(false)
     for (const label of ['添加条件', '添加分组']) expect(wrapper.findAll('button').find(b => b.text() === label)!.attributes('disabled')).toBeDefined()
+  })
+
+  it('creates a populated nested group from the current field choices and counts its condition', async () => {
+    const draft=new FilterExpressionEditorDraft()
+    const wrapper=mount(FilterExpressionGroup,{props:{group:draft.root,draft,fields,depth:0,maxDepth:3,maxRules:1},global:{plugins:[ElementPlus]}});wrappers.push(wrapper)
+    await wrapper.findAll('button').find(button=>button.text()==='添加分组')!.trigger('click')
+    expect(draft.countRules()).toBe(1)
+    expect(draft.root.children[0]).toMatchObject({kind:'group',children:[{kind:'condition',field:fields[0]!.name,operator:'eq',valueText:''}]})
+    expect(wrapper.findAll('button').filter(button=>button.text()==='添加条件').every(button=>button.attributes('disabled')!==undefined)).toBe(true)
+  })
+
+  it('discards the previous value when switching to a unary operator', async () => {
+    const draft=new FilterExpressionEditorDraft({field:'Name',operator:'eq',value:{Type:'SystemData',ParamName:'UserID'}})
+    const wrapper=mount(FilterExpressionGroup,{props:{group:draft.root,draft,fields,depth:0,maxDepth:3,maxRules:5},global:{plugins:[ElementPlus]}});wrappers.push(wrapper)
+    const operator=wrapper.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤运算符')!
+    operator.vm.$emit('update:modelValue','is-null');await flushPromises()
+    operator.vm.$emit('update:modelValue','eq');await flushPromises()
+    expect(draft.root.children[0]).toMatchObject({operator:'eq',valueText:''})
+  })
+
+  it('rejects a function confirmation captured before changing the target field and back',async()=>{
+    const wrapper=editor({field:'Name',operator:'eq',value:{Type:'SystemData',ParamName:'UserID'}})
+    await wrapper.get('[data-action="open"]').trigger('click')
+    const group=wrapper.getComponent(FilterExpressionGroup)
+    await group.findAll('button').find(button=>button.text()==='更换函数')!.trigger('click')
+    const late=wrapper.getComponent(FilterValueFunctionDialog).vm.$.vnode.props?.['onConfirm']
+    expect(typeof late).toBe('function')
+    const field=group.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤字段')!
+    field.vm.$emit('update:modelValue','Amount');await flushPromises()
+    field.vm.$emit('update:modelValue','Name');await flushPromises()
+    if(typeof late==='function')late({Type:'SystemData',ParamName:'UserID'})
+    expect(group.props('group').children[0]).toMatchObject({field:'Name',valueText:''})
+    await new DOMWrapper(document.body).get('[data-action="cancel"]').trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+  })
+  it('rejects a scalar update captured before an explicit field switch',async()=>{
+    const draft=new FilterExpressionEditorDraft({field:'Name',operator:'eq',value:'old'})
+    const wrapper=mount(FilterExpressionGroup,{props:{group:draft.root,draft,fields:[...fields,{name:'Other',type:'string'}],depth:0,maxDepth:3,maxRules:5},global:{plugins:[ElementPlus]}});wrappers.push(wrapper)
+    const late=wrapper.getComponent(ElInput).vm.$.vnode.props?.['onUpdate:modelValue']
+    expect(typeof late).toBe('function')
+    wrapper.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤字段')!.vm.$emit('update:modelValue','Other');await flushPromises()
+    if(typeof late==='function')late('old field blur')
+    expect(draft.root.children[0]).toMatchObject({field:'Other',valueText:''})
+  })
+  it('retires a scalar callback across function selection and return to a constant',async()=>{
+    const draft=new FilterExpressionEditorDraft({field:'Name',operator:'eq',value:'old'}),node=draft.root.children[0]!
+    if(node.kind!=='condition')throw Error('missing condition')
+    const wrapper=mount(FilterExpressionGroup,{props:{group:draft.root,draft,fields,depth:0,maxDepth:3,maxRules:5},global:{plugins:[ElementPlus]}});wrappers.push(wrapper)
+    const late=wrapper.getComponent(ElInput).vm.$.vnode.props?.['onUpdate:modelValue'];expect(typeof late).toBe('function')
+    node.valueText=JSON.stringify({Type:'SystemData',ParamName:'UserID'});await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='改为常量')!.trigger('click')
+    if(typeof late==='function')late('old blur')
+    expect(node.valueText).toBe('""')
   })
 
   it.each(['disabled', 'removed', 'mode', 'group', 'unmount'] as const)('rejects a captured condition JSON update after %s', async change => {
@@ -491,7 +544,7 @@ describe('full public filter editor', () => {
   })
   it('keeps an invalid child and blocks the entire tree', () => {
     const draft = new FilterExpressionEditorDraft({ logic: 'or', filters: [{ field: 'Name', operator: 'eq', value: 'x' }] })
-    draft.addCondition(draft.root)
+    draft.addCondition(draft.root,[])
     expect(draft.root.children).toHaveLength(2)
     expect(draft.check({ fields }).ok).toBe(false)
     expect(draft.root.children).toHaveLength(2)
@@ -500,7 +553,7 @@ describe('full public filter editor', () => {
   it('preserves applied empty groups but rejects newly added incomplete groups', () => {
     const draft = new FilterExpressionEditorDraft({ logic: 'or', filters: [] })
     expect(draft.check({ fields })).toMatchObject({ ok: true, tree: { logic: 'or', filters: [] } })
-    draft.addGroup(draft.root)
+    draft.addGroup(draft.root,[])
     expect(draft.check({ fields }).ok).toBe(false)
   })
 

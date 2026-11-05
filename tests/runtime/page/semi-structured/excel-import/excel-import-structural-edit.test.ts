@@ -5,7 +5,7 @@ import {excelDesignRuntime} from './excel-import-design.fixture'
 const disposers:Array<()=>void>=[]
 afterEach(()=>disposers.splice(0).forEach(dispose=>dispose()))
 async function fixture(parentField=''){
- const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'P',schemeid:'E1',pid:'E1',sheetName:'父',foreignKeyField:'',foreignKeyFieldDesc:''},{rowid:'C',schemeid:'E1',pid:'P',sheetName:'子',parentField,parentFieldDesc:parentField?'父编码':''}],Base_ImportData_Field:[{rowid:'PF',configid:'P',name:'code',title:'父编码',type:0,index:'A'},{rowid:'CF',configid:'C',name:'code',title:'子编码',type:0,index:'B'}],Base_Import_Transform_Rule:[],ImportExportMethods:[]},'E1','P')
+ const f=await excelDesignRuntime({Base_ImportData_Config:[{rowid:'P',schemeid:'E1',pid:'E1',sheetName:'父',sheet_layout_json:null,foreignKeyField:'',foreignKeyFieldDesc:''},{rowid:'C',schemeid:'E1',pid:'P',sheetName:'子',parentField,parentFieldDesc:parentField?'父编码':''}],Base_ImportData_Field:[{rowid:'PF',configid:'P',name:'code',title:'父编码',type:0,index:'A'},{rowid:'CF',configid:'C',name:'code',title:'子编码',type:0,index:'B'}],Base_Import_Transform_Rule:[],ImportExportMethods:[]},'E1','P')
  disposers.push(()=>f.runtime.dispose())
  const command=(tableName:'Base_ImportData_Config'|'Base_ImportData_Field')=>ExcelConfigurationEdit.pending({dataSet:f.ds,nodeId:'P',tableName,assertCurrent:()=>{}})
  return {...f,command}

@@ -1,0 +1,31 @@
+{
+  "scope": "Read-only deployed metadata preflight for future Excel OFF/ON export; no export request or business fixture",
+  "phase": "confirmed",
+  "testedAt": "2026-11-05T19:46:08.914Z",
+  "reads": 25,
+  "writes": 0,
+  "blockedWrites": 0,
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "physicalTable": "QYVirtualPlat@Base_Import_solution",
+  "verifiedColumns": [
+    {
+      "name": "dataSetId",
+      "type": 0
+    },
+    {
+      "name": "rowid",
+      "type": 0
+    },
+    {
+      "name": "solutionName",
+      "type": 0
+    },
+    {
+      "name": "coding",
+      "type": 0
+    }
+  ],
+  "allSourceFieldsReturned": 20,
+  "sourceFieldCountReported": true,
+  "fixtureRemaining": false
+}

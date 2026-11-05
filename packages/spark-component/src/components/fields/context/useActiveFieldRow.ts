@@ -24,7 +24,8 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
   const inheritedMember = sparkConsume(DATA_MEMBER)
   const runtime = sparkConsume(PAGE_RUNTIME)
   const revision = shallowRef(0)
-  let generation = 0, disposed = false
+  const generation = shallowRef(0)
+  let disposed = false
   const cell = inject(FIELD_ROW_CONTEXT, undefined)
   const fieldContext = useResolvedFieldContext()
   const explicit = computed(() => props.dataViewKey !== undefined || props.dataMember !== undefined || props.dataField !== undefined
@@ -50,7 +51,7 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
     const bump = () => {revision.value++}
     const names = ['editingFieldChanged', 'editingChanged', 'rowsChanged', 'currentRowChanged', 'selectedRowsChanged',
       'cleared', 'requestStateChanged', 'summaryChanged', 'selectionSummaryChanged', 'mutatingChanged', 'configChanged'] as const
-    const invalidateRows = () => {generation++}
+    const invalidateRows = () => {generation.value++}
     view.events.on('rowsChanged', invalidateRows)
     view.events.on('cleared', invalidateRows)
     for (const name of names) view.events.on(name, bump)
@@ -99,11 +100,11 @@ export function useActiveFieldRow(props: FieldValueBindingProps = {}) {
   // 编辑覆盖每次读取可产生新对象；同一行连续编辑不换身份，行替换由rowsChanged单独失效。
   watch([dataSource, () => dataSource.value
     ? contextData.value ? dataSource.value.getPkKey(contextData.value) : undefined : contextData.value,
-    fieldName, member, () => props.dataViewKey], () => {generation++}, {flush: 'sync'})
-  onScopeDispose(() => {disposed = true; generation++})
+    fieldName, member, () => props.dataViewKey], () => {generation.value++}, {flush: 'sync'})
+  onScopeDispose(() => {disposed = true; generation.value++})
   function captureWriteGuard(): () => boolean {
-    const captured = generation
-    return () => !disposed && captured === generation && !dataSource.value?.destroyed && !dataSource.value?.dataSet?.destroyed
+    const captured = generation.value
+    return () => !disposed && captured === generation.value && !dataSource.value?.destroyed && !dataSource.value?.dataSet?.destroyed
   }
   // 集合引用未变时，状态/权限/分页仍可能改变；复杂只读呈现按该修订重新投影，不能仅观察数组身份。
   return {revision: readonly(revision), contextData, dataSource, activeRow, activeSelectedRows, fieldName, member, fieldMember, memberValue, memberError, explicit, captureWriteGuard, resolveEditingRow}

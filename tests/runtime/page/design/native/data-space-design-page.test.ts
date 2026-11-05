@@ -4811,6 +4811,7 @@ describe('native data-space design entry', () => {
     await select(wrapper, '数据级联')
     const editor = wrapper.getComponent(DataSpaceCascadeEditor)
     await chooseBound(editor, '新级联类型', 'query')
+    expect(boundSelect(editor,'新级联类型').props('modelValue')).toBe('query')
     await writeBound(editor, 'newId', 'query-selection')
     await editor.get('[data-action="add-cascade"]').trigger('click'); await flushPromises()
     expect(editor.text()).toContain('父视图的字段值或选中主键数组形成子视图的过滤条件')

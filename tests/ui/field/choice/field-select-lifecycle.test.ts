@@ -46,6 +46,19 @@ async function fixture(value: string | number = 'first', selection = false, inhe
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('refreshes the control callback after a row event with unchanged current-row identity while rejecting its previous callback',async()=>{
+    const f=await fixture(),oldApply=f.wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue']
+    const row=f.view.currentRow
+    f.view.replaceRows(f.view.rows)
+    await flushPromises()
+    expect(f.view.currentRow).toBe(row)
+    if(typeof oldApply!=='function')throw Error('Missing select callback')
+    await oldApply('second');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','second');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['choice']).toBe('second')
+    expect(f.view.rows[0]?.['choice']).toBe('first')
+  })
   it('rebinds an inherited selection when its form switches to a derived option view',async()=>{
     const f=await fixture('first',true,true),catalog=new DataViewOptionCatalog(f.dataSet)
     catalog.replace([{value:'first',label:'第一项'},{value:'second',label:'第二项'}])

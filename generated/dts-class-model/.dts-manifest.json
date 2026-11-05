@@ -1869,7 +1869,7 @@
     "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useActiveFieldRow.ts.json",
-      "sourceModifiedAt": "2026-11-05T14:29:39.003Z"
+      "sourceModifiedAt": "2026-11-05T19:38:14.544Z"
     },
     "packages/spark-component/src/components/fields/context/useFieldContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useFieldContext.ts",
@@ -1959,7 +1959,7 @@
     "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue.json",
-      "sourceModifiedAt": "2026-11-05T13:49:35.175Z"
+      "sourceModifiedAt": "2026-11-05T19:38:14.546Z"
     },
     "packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/composables/state/useBasicFieldState.ts",

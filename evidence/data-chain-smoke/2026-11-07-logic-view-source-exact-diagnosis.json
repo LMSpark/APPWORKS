@@ -1,0 +1,798 @@
+{
+  "status": "readonly-metadata-diagnosis-complete-persistence-and-key-gaps-open",
+  "baseline": "a7a3ac97ac2fb9c315451f8ab85ef43aff3e8ee5",
+  "account": "requested authorized account",
+  "countedReadRequests": 73,
+  "businessWrites": 0,
+  "blockedRequests": 0,
+  "currentFormalModel": {
+    "id": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+    "name": "View_TblList",
+    "sourceName": "View_TblList",
+    "sourceType": "数据库视图",
+    "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+    "fields": [
+      {
+        "id": "2347DE920BDE456F9AD8F0A57EB51172",
+        "name": "dbid",
+        "canonicalName": "dbid",
+        "type": "char",
+        "output": true,
+        "computed": false
+      },
+      {
+        "id": "420DC85130F04D80BBFEAFB86D814033",
+        "name": "DbName",
+        "canonicalName": "DbName",
+        "type": "varchar",
+        "output": true,
+        "computed": false
+      },
+      {
+        "id": "5CA7A89CD91F46308E07866B52156008",
+        "name": "tblname",
+        "canonicalName": "tblname",
+        "type": "varchar",
+        "output": true,
+        "computed": false
+      },
+      {
+        "id": "B153A91F1D114CA7B8D86B3CBD2CEDDB",
+        "name": "tblname",
+        "canonicalName": "tblname",
+        "type": "varchar",
+        "output": true,
+        "computed": false
+      },
+      {
+        "id": "C84E4763301048B783FE0970BD93985D",
+        "name": "rowid",
+        "canonicalName": "rowid",
+        "type": "char",
+        "output": true,
+        "computed": false
+      }
+    ]
+  },
+  "exactQueries": [
+    {
+      "id": "001466A6ACE74D8ABE24AAB6247D8926",
+      "model": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+        "modelName": "View_TblList"
+      },
+      "primaryKey": "",
+      "receivedIds": [
+        "001466A6ACE74D8ABE24AAB6247D8926"
+      ],
+      "nativeKeyMatchesField": [
+        false
+      ],
+      "fields": [
+        "rowid",
+        "tblname",
+        "tbldesc",
+        "dbid",
+        "DbName"
+      ],
+      "filter": {
+        "field": "rowid",
+        "operator": "eq",
+        "value": "001466A6ACE74D8ABE24AAB6247D8926"
+      },
+      "countReported": true,
+      "total": 1,
+      "count": 1,
+      "members": {
+        "rowid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "e52ccf3e5a47bc30af2691789af12c6b09cf29387f2790cd04c8faeea4bf16b4"
+        },
+        "tblname": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "31c2f500e8f5db622c0c6f563822c3552b7be9f8368f7dfc9d4e32945d1246d8"
+        },
+        "dbid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "02a98e232a7daa6399873ad37c6d2b92bda9e949256fec04d902d75421388c2f"
+        },
+        "DbName": {
+          "read": "visible",
+          "own": true,
+          "kind": "null",
+          "valueType": "object",
+          "nonEmpty": false
+        }
+      },
+      "databaseId": "922DFB035AA4482E8DD6D820CB19FEA7",
+      "status": "failed",
+      "error": "数据库来源缺少数据库身份（dbid/DbName），无法创建模型"
+    },
+    {
+      "id": "00EB54040C01C782BFE79D4F3C4F7884",
+      "model": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+        "modelName": "View_TblList"
+      },
+      "primaryKey": "",
+      "receivedIds": [
+        "00EB54040C01C782BFE79D4F3C4F7884"
+      ],
+      "nativeKeyMatchesField": [
+        false
+      ],
+      "fields": [
+        "rowid",
+        "tblname",
+        "tbldesc",
+        "dbid",
+        "DbName"
+      ],
+      "filter": {
+        "field": "rowid",
+        "operator": "eq",
+        "value": "00EB54040C01C782BFE79D4F3C4F7884"
+      },
+      "countReported": true,
+      "total": 1,
+      "count": 1,
+      "members": {
+        "rowid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "bcc726d4642840a123379081d22dd6c8b036f648fd5f52e11861e93fdafde403"
+        },
+        "tblname": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "61216d4cb9c1471c143292d0ba60e210e0495d275240ea2c902f9ffd56decbca"
+        },
+        "dbid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "1e3064e7b59b2a34e190387c3dc86a091dcfaec735d8333be1647fcb3666c1c2"
+        },
+        "DbName": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "bd0048dfee11682b178b578ca5fba0c5a919dbe9b2bb8b8f255cdfe9e3ad0f32"
+        }
+      },
+      "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "status": "failed",
+      "error": "输出主键尚未由正式单表唯一身份确认"
+    },
+    {
+      "id": "81F00D878D684AE9A7E077578F04249E",
+      "model": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+        "modelName": "View_TblList"
+      },
+      "primaryKey": "",
+      "receivedIds": [
+        "81F00D878D684AE9A7E077578F04249E"
+      ],
+      "nativeKeyMatchesField": [
+        false
+      ],
+      "fields": [
+        "rowid",
+        "tblname",
+        "tbldesc",
+        "dbid",
+        "DbName"
+      ],
+      "filter": {
+        "field": "rowid",
+        "operator": "eq",
+        "value": "81F00D878D684AE9A7E077578F04249E"
+      },
+      "countReported": true,
+      "total": 1,
+      "count": 1,
+      "members": {
+        "rowid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "407674c2adb2993a041fa5fceb6866f5af269c0c066f9ab7ed3c82166ad5094a"
+        },
+        "tblname": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "11fbc5f6fd1dff5a447a5efbb1e458bbebd0409a36797ae563fa29b1f70f76d3"
+        },
+        "dbid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "1e3064e7b59b2a34e190387c3dc86a091dcfaec735d8333be1647fcb3666c1c2"
+        },
+        "DbName": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "bd0048dfee11682b178b578ca5fba0c5a919dbe9b2bb8b8f255cdfe9e3ad0f32"
+        }
+      },
+      "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "status": "prepared-and-compiled",
+      "outputFields": [
+        {
+          "enname": "rowid",
+          "cnname": "唯一值（ID）",
+          "description": "唯一值（ID）",
+          "DataType": "varchar",
+          "IsPKey": 1
+        }
+      ]
+    }
+  ],
+  "relationQueries": [
+    {
+      "databaseId": "922DFB035AA4482E8DD6D820CB19FEA7",
+      "status": "read",
+      "model": {
+        "modelId": "400d5424-9a33-4faf-a10b-da436344b203",
+        "modelName": "Base_AppAndSource_Relation"
+      },
+      "count": 0,
+      "total": 0,
+      "countReported": true,
+      "currentApplicationMatches": 0,
+      "connectionNameKinds": [],
+      "connectionNameDigests": []
+    },
+    {
+      "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "status": "read",
+      "model": {
+        "modelId": "400d5424-9a33-4faf-a10b-da436344b203",
+        "modelName": "Base_AppAndSource_Relation"
+      },
+      "count": 28,
+      "total": 28,
+      "countReported": true,
+      "currentApplicationMatches": 1,
+      "connectionNameKinds": [
+        "value"
+      ],
+      "connectionNameDigests": [
+        "bd0048dfee11682b178b578ca5fba0c5a919dbe9b2bb8b8f255cdfe9e3ad0f32"
+      ]
+    }
+  ],
+  "navigationPrimaryEvidence": {
+    "fieldCount": 63,
+    "total": 63,
+    "duplicateNames": [],
+    "declaredPrimaryRecords": [
+      {
+        "id": "387022F0C2CF455FAB3D38395298ACF6",
+        "name": "rowid",
+        "type": "VARCHAR",
+        "primary": 1,
+        "primaryType": "number"
+      },
+      {
+        "id": "71832CA547924043BD8D29E9825C7EAE",
+        "name": "lingma_sys_ent",
+        "type": "VARCHAR",
+        "primary": 1,
+        "primaryType": "number"
+      }
+    ],
+    "normalizedPrimaryNames": [
+      "rowid",
+      "lingma_sys_ent"
+    ],
+    "compilerStatus": "rejected",
+    "error": "输出主键尚未由正式单表唯一身份确认",
+    "limitation": "Two formal PK flags do not by themselves prove a physical composite constraint or a supported deployed publication key protocol"
+  },
+  "interfaceSample": {
+    "sampleCount": 10,
+    "total": 88,
+    "countReported": true,
+    "fieldCount": 12,
+    "fieldTotal": 12,
+    "fieldCountReported": true,
+    "candidates": [
+      {
+        "id": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+        "fieldCount": 0
+      },
+      {
+        "id": "10BB927CEA5924592D7214A5FDBD1514",
+        "fieldCount": 0
+      },
+      {
+        "id": "127B3D3131B419FEBED9CDFE8C4B709A",
+        "fieldCount": 0
+      },
+      {
+        "id": "1690CB71721D466AC26CA8C36EC6E27C",
+        "fieldCount": 0
+      },
+      {
+        "id": "17C3B5A3EAF95F99EC2A4D60A8FAF869",
+        "fieldCount": 0
+      },
+      {
+        "id": "18CDFC0C583FB4D6D027A1A1E375FC62",
+        "fieldCount": 6
+      },
+      {
+        "id": "1B9AE4197C60113A11EAE2F50542365F",
+        "fieldCount": 0
+      },
+      {
+        "id": "1DEB83CC48A9B1FFBE781AA2FFF8D504",
+        "fieldCount": 0
+      },
+      {
+        "id": "1F6EE08675F0CA12B3F531B0B27B5461",
+        "fieldCount": 6
+      },
+      {
+        "id": "22EB0E6D0DD24AC14FDC638C5E40362C",
+        "fieldCount": 0
+      }
+    ],
+    "chosenId": "18CDFC0C583FB4D6D027A1A1E375FC62"
+  },
+  "explicitSelectedOutputPlans": [
+    {
+      "id": "81F00D878D684AE9A7E077578F04249E",
+      "type": "table",
+      "model": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+        "modelName": "View_TblList"
+      },
+      "primaryKey": "",
+      "receivedIds": [
+        "81F00D878D684AE9A7E077578F04249E"
+      ],
+      "nativeKeyMatchesField": [
+        false
+      ],
+      "fields": [
+        "rowid",
+        "tblname",
+        "tbldesc",
+        "dbid",
+        "DbName"
+      ],
+      "filter": {
+        "field": "rowid",
+        "operator": "eq",
+        "value": "81F00D878D684AE9A7E077578F04249E"
+      },
+      "countReported": true,
+      "total": 1,
+      "count": 1,
+      "members": {
+        "rowid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "407674c2adb2993a041fa5fceb6866f5af269c0c066f9ab7ed3c82166ad5094a"
+        },
+        "tblname": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "11fbc5f6fd1dff5a447a5efbb1e458bbebd0409a36797ae563fa29b1f70f76d3"
+        },
+        "dbid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "1e3064e7b59b2a34e190387c3dc86a091dcfaec735d8333be1647fcb3666c1c2"
+        },
+        "DbName": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "bd0048dfee11682b178b578ca5fba0c5a919dbe9b2bb8b8f255cdfe9e3ad0f32"
+        }
+      },
+      "databaseId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "inputCount": 0,
+      "sourceDefaultFlags": [
+        {
+          "Name": "lingma_sys_is_delete",
+          "IsOutput": 0
+        },
+        {
+          "Name": "path",
+          "IsOutput": 0
+        },
+        {
+          "Name": "rowid",
+          "IsOutput": 1
+        },
+        {
+          "Name": "lingma_sys_appid",
+          "IsOutput": 0
+        },
+        {
+          "Name": "description",
+          "IsOutput": 0
+        },
+        {
+          "Name": "updatetime",
+          "IsOutput": 0
+        },
+        {
+          "Name": "flowstate",
+          "IsOutput": 0
+        },
+        {
+          "Name": "updater",
+          "IsOutput": 0
+        },
+        {
+          "Name": "updateuser",
+          "IsOutput": 0
+        },
+        {
+          "Name": "ReportID",
+          "IsOutput": 0
+        },
+        {
+          "Name": "createuser",
+          "IsOutput": 0
+        },
+        {
+          "Name": "createtime",
+          "IsOutput": 0
+        },
+        {
+          "Name": "name",
+          "IsOutput": 0
+        },
+        {
+          "Name": "wfid",
+          "IsOutput": 0
+        }
+      ],
+      "selection": "Explicit all formal dataModel fields, matching normal node creation; inputParams excluded",
+      "status": "prepared-and-compiled",
+      "outputFields": [
+        {
+          "enname": "lingma_sys_is_delete",
+          "cnname": "是否删除",
+          "description": "是否删除",
+          "DataType": "bigint",
+          "IsPKey": 0
+        },
+        {
+          "enname": "path",
+          "cnname": "存储路径",
+          "description": "存储路径",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "rowid",
+          "cnname": "唯一值（ID）",
+          "description": "唯一值（ID）",
+          "DataType": "varchar",
+          "IsPKey": 1
+        },
+        {
+          "enname": "lingma_sys_appid",
+          "cnname": "应用系统标识",
+          "description": "应用系统标识",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "description",
+          "cnname": "摘要",
+          "description": "摘要",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "updatetime",
+          "cnname": "修改时间",
+          "description": "修改时间",
+          "DataType": "datetime",
+          "IsPKey": 0
+        },
+        {
+          "enname": "flowstate",
+          "cnname": "流程状态",
+          "description": "流程状态",
+          "DataType": "int",
+          "IsPKey": 0
+        },
+        {
+          "enname": "updater",
+          "cnname": "修改人",
+          "description": "修改人",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "updateuser",
+          "cnname": "修改人",
+          "description": "修改人",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "ReportID",
+          "cnname": "报表id",
+          "description": "报表id",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "createuser",
+          "cnname": "创建人",
+          "description": "创建人",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "createtime",
+          "cnname": "创建时间",
+          "description": "创建时间",
+          "DataType": "datetime",
+          "IsPKey": 0
+        },
+        {
+          "enname": "name",
+          "cnname": "文件名称",
+          "description": "文件名称",
+          "DataType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "enname": "wfid",
+          "cnname": "流程实例id",
+          "description": "流程实例id",
+          "DataType": "varchar",
+          "IsPKey": 0
+        }
+      ]
+    },
+    {
+      "id": "18CDFC0C583FB4D6D027A1A1E375FC62",
+      "type": "interface",
+      "model": {
+        "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp006",
+        "modelName": "Base_DataServiceInterface"
+      },
+      "primaryKey": "rowid",
+      "receivedIds": [
+        "18CDFC0C583FB4D6D027A1A1E375FC62"
+      ],
+      "nativeKeyMatchesField": [
+        true
+      ],
+      "fields": [
+        "rowid",
+        "Name",
+        "Desc",
+        "ProviderID"
+      ],
+      "filter": {
+        "field": "rowid",
+        "operator": "eq",
+        "value": "18CDFC0C583FB4D6D027A1A1E375FC62"
+      },
+      "countReported": true,
+      "total": 1,
+      "count": 1,
+      "members": {
+        "rowid": {
+          "read": "visible",
+          "own": true,
+          "kind": "value",
+          "valueType": "string",
+          "nonEmpty": true,
+          "digest": "44fbf137fce6436a074a237e9d26d358f7422e98187715e07bfc6362e90bc9d2"
+        },
+        "tblname": {
+          "read": "visible",
+          "own": false,
+          "kind": "missing",
+          "valueType": "undefined",
+          "nonEmpty": false
+        },
+        "dbid": {
+          "read": "visible",
+          "own": false,
+          "kind": "missing",
+          "valueType": "undefined",
+          "nonEmpty": false
+        },
+        "DbName": {
+          "read": "visible",
+          "own": false,
+          "kind": "missing",
+          "valueType": "undefined",
+          "nonEmpty": false
+        }
+      },
+      "databaseId": "",
+      "inputCount": 1,
+      "sourceDefaultFlags": [
+        {
+          "Name": "Time",
+          "IsOutput": 0
+        },
+        {
+          "Name": "Result",
+          "IsOutput": 0
+        },
+        {
+          "Name": "Code",
+          "IsOutput": 0
+        },
+        {
+          "Name": "Type",
+          "IsOutput": 0
+        },
+        {
+          "Name": "Message",
+          "IsOutput": 0
+        },
+        {
+          "Name": "Extras",
+          "IsOutput": 0
+        }
+      ],
+      "selection": "Explicit all formal dataModel fields, matching normal node creation; inputParams excluded",
+      "status": "prepared-and-compiled",
+      "outputFields": [
+        {
+          "enname": "Time",
+          "cnname": "返回时间",
+          "description": "返回时间",
+          "DataType": "string",
+          "IsPKey": 0
+        },
+        {
+          "enname": "Result",
+          "cnname": "返回缓存内容",
+          "description": "返回缓存内容",
+          "DataType": "string",
+          "IsPKey": 0
+        },
+        {
+          "enname": "Code",
+          "cnname": "返回状态码",
+          "description": "返回状态码",
+          "DataType": "int",
+          "IsPKey": 0
+        },
+        {
+          "enname": "Type",
+          "cnname": "返回状态",
+          "description": "返回状态",
+          "DataType": "string",
+          "IsPKey": 0
+        },
+        {
+          "enname": "Message",
+          "cnname": "返回信息",
+          "description": "返回信息",
+          "DataType": "string",
+          "IsPKey": 0
+        },
+        {
+          "enname": "Extras",
+          "cnname": "附加信息",
+          "description": "附加信息",
+          "DataType": "string",
+          "IsPKey": 0
+        }
+      ]
+    }
+  ],
+  "probeCorrections": [
+    {
+      "requests": 11,
+      "kind": "runtime-row-key-used-as-business-rowid",
+      "description": "View_TblList primaryKey is empty. Internal row keys differ from visible rowid. First diagnostic stopped before value classification; it does not show an ignored server filter."
+    },
+    {
+      "kind": "source-default-output-selection-used-instead-of-page-selection",
+      "description": "Source reader default IsOutput is only a planning hint. Normal node creation selects all dataModel fields and keeps inputParams separate. The corrected explicit-selection probe changes no formal PK or permission result."
+    }
+  ],
+  "conclusions": [
+    "The failed source DataView row has visible, own DbName with null value; other exact source rows have nonempty values. No inference about the entire directory or underlying database failure.",
+    "Current formal DbName is output=true, canonicalName DbName. Repeated tblname formal definitions remain a separate uncorrected observation.",
+    "Known complete table source prepares and compiles 14 selected fields. Known interface source prepares and compiles 6 selected fields while 1 input parameter is excluded.",
+    "No SaveView, output persistence, external interface execution, business CRUD, or browser verification was performed."
+  ],
+  "cleanup": {
+    "allFourProbeProcessesExited": true,
+    "probeExitCodes": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "dataSetsDestroyed": true,
+    "ownedProxyPid": 13968,
+    "ownedProxyStopped": true,
+    "proxySession": 54524,
+    "proxyExitCode": 1,
+    "dataFixturesCreated": 0
+  },
+  "pending": [
+    "SaveView service persistence confirmation",
+    "Composite or tenant-scoped key source and deployment contracts",
+    "Malformed source connection relationship resolution without guessing",
+    "Repeated formal tblname definitions require identity and reference analysis",
+    "External API output definition CRUD and original reader consumption",
+    "Browser visual verification"
+  ],
+  "provenance": [
+    {
+      "path": "artifacts/data-chain-smoke/logic-view-source-exact-diagnostic.json",
+      "sha256": "0083D2A52E2370C9DED59408B1535356EBF532B43D18BE105B6FD9EBCE4C255B"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/logic-view-source-exact-diagnostic-v2.json",
+      "sha256": "A2355510BA2636989131DA5BE8B65F8A011F1A30FFB7A03740361E13AF39FD32"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/logic-view-source-relations-output-diagnostic.json",
+      "sha256": "12513D645D98F6F37285A2CC7B0C25BFDC03AC41BEC1160755386DC6E9F27625"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/logic-view-source-selected-output-plan.json",
+      "sha256": "B519E6F36B598EAD0CE036B83B42C5EBB5C2161CA3BB04D5E17A3A1AAC238507"
+    }
+  ],
+  "productionSourceChanges": 0
+}

@@ -15,6 +15,96 @@ import SparkJsonEditor from '../../components/editors/SparkJsonEditor.vue'
 const wrappers: ReturnType<typeof mount>[] = []
 afterEach(() => wrappers.splice(0).forEach(wrapper => wrapper.unmount()))
 
+it('writes valid inline edits through the bound DataView without replacing the focused control', async () => {
+  const original = {field: 'Name', operator: 'eq' as const, value: 'A'}
+  const f = fixture('tree', original, 'inline')
+  const control = f.wrapper.get('input[aria-label="文本常量"]')
+  const editor = f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid
+  await control.setValue('AB'); await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, value: 'AB'})
+  expect(f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid).toBe(editor)
+  expect(f.wrapper.get('input[aria-label="文本常量"]').element).toBe(control.element)
+  await control.setValue('ABC'); await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, value: 'ABC'})
+  expect(f.view.rows[0]?.['predicate']).toEqual(original)
+  expect(f.wrapper.find('[data-action="apply"]').exists()).toBe(false)
+  expect(f.editing.value).toBe(false)
+  f.view.discardEditingRows(['a']); await flushPromises()
+  expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('A')
+  expect(f.view.hasEditingChanges()).toBe(false)
+})
+
+it.each([0, false])('writes confirmed inline value functions with native %s without an extra apply', async value => {
+  const f = fixture('tree', {field: 'Name', operator: 'eq', value: 'A'}, 'inline')
+  await f.wrapper.get('[aria-label="使用服务端值函数"]').trigger('click'); await flushPromises()
+  f.wrapper.getComponent(FilterValueFunctionDialog).vm.$emit('confirm', {Type: 'GetConstValue', Value: value})
+  await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({field: 'Name', operator: 'eq', value: {Type: 'GetConstValue', Value: value}})
+  expect(f.editing.value).toBe(false)
+})
+
+it.each(['row', 'external', 'permission'] as const)('rejects late inline reference validation after %s changes', async change => {
+  const tree = {field: 'Name', operator: 'eq' as const, value: {Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'name', FkFieldName: 'id'}}
+  const f = fixture('tree', tree, 'inline')
+  let resolve!: (fields: {name: string}[]) => void
+  const load = vi.fn(() => new Promise<{name: string}[]>(accept => {resolve = accept}))
+  f.functionContext.value = {tables: [{name: 'Orders', loadFields: load}]}; await flushPromises()
+  f.wrapper.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤运算符')!.vm.$emit('update:modelValue','ne')
+  await flushPromises(); expect(load).toHaveBeenCalledOnce()
+  expect(f.view.hasEditingChanges()).toBe(false)
+  if (change === 'row') f.view.setCurrentRowById('b')
+  if (change === 'external') f.view.updateEditingValue('a', 'predicate', {...tree, value: 'external'})
+  if (change === 'permission') f.disabled.value = true
+  await flushPromises(); resolve([{name: 'id'}, {name: 'name'}]); await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual(change === 'external' ? {...tree, value: 'external'} : tree)
+  expect(f.view.hasEditingChanges('b')).toBe(false)
+})
+
+it('keeps inline JSON staged, cancels incomplete input and clears the accepted visible tree', async () => {
+  const original = {field: 'Name', operator: 'eq' as const, value: 'A'}, f = fixture('tree', original, 'inline')
+  await f.wrapper.get('[data-action="json"]').trigger('click'); await flushPromises()
+  await f.wrapper.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+  f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{bad'); await flushPromises()
+  expect(f.editing.value).toBe(true); expect(f.view.hasEditingChanges()).toBe(false)
+  await f.wrapper.get('[data-action="cancel"]').trigger('click'); await flushPromises()
+  expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('A')
+  await f.wrapper.get('[data-action="json"]').trigger('click'); await flushPromises()
+  await f.wrapper.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+  f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({...original, value: 'JSON accepted'})); await flushPromises()
+  expect(f.view.hasEditingChanges()).toBe(false)
+  await f.wrapper.get('[data-action="apply"]').trigger('click'); await flushPromises()
+  expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('JSON accepted')
+  await f.wrapper.get('[data-action="clear"]').trigger('click'); await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toBeUndefined()
+  expect(f.wrapper.find('input[aria-label="文本常量"]').exists()).toBe(false)
+  f.view.discardEditingRows(['a']); await flushPromises()
+  expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('A')
+})
+
+it('invalidates the inline control when a nested external edit replaces its own synchronous write', async () => {
+  const original = {field: 'Name', operator: 'eq' as const, value: 'A'}, f = fixture('tree', original, 'inline')
+  const instance = f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid
+  let replaced = false
+  const replace = (): void => {if (!replaced) {replaced = true; f.view.updateEditingValue('a', 'predicate', {...original, value: 'external'})}}
+  f.view.events.on('editingChanged', replace)
+  await f.wrapper.get('input[aria-label="文本常量"]').setValue('B'); await flushPromises()
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, value: 'external'})
+  expect(f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid).not.toBe(instance)
+  expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('external')
+  f.view.events.off('editingChanged', replace)
+})
+
+it('tracks JSON edits against the accepted inline value after automatic tree changes', async () => {
+  const original = {field: 'Name', operator: 'eq' as const, value: 'A'}, f = fixture('tree', original, 'inline')
+  await f.wrapper.get('input[aria-label="文本常量"]').setValue('B'); await flushPromises()
+  await f.wrapper.get('[data-action="json"]').trigger('click'); await flushPromises()
+  expect(f.editing.value).toBe(false)
+  await f.wrapper.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+  f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(original, null, 2)); await flushPromises()
+  expect(f.editing.value).toBe(true)
+  expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, value: 'B'})
+})
+
 function fixture(format: 'tree' | 'spark-json' = 'tree', value: unknown = undefined, display: 'dialog' | 'inline' = 'dialog') {
   const ds = SparkData.createDataSet({dataSetName: 'Definitions', tables: {Definitions: {tableName: 'Definitions', resourceType: 'static-data',
     columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'predicate', type: 'json'}],
@@ -46,7 +136,6 @@ describe('standard filter definition binding', () => {
     f.columns.value=[{name:'Name',type:'string'},{name:'Amount',type:'number'}];await flushPromises()
     f.wrapper.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤字段')!.vm.$emit('update:modelValue','Amount');await flushPromises()
     f.wrapper.getComponent(ElInputNumber).vm.$emit('update:modelValue',0);await flushPromises()
-    await f.wrapper.get('[data-action="apply"]').trigger('click');await flushPromises()
     expect(f.view.getEditingRow('a')?.['predicate']).toBe(DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Amount',operator:'eq',value:0})))
     expect(f.view.rows[0]?.['predicate']).toBe(raw)
     f.view.discardEditingRows(['a']);await flushPromises()
@@ -61,9 +150,9 @@ describe('standard filter definition binding', () => {
     f.presentation.value={allowedOperators:['eq']};await flushPromises()
     expect(f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid).toBe(instance)
     expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('draft')
-    oldApply({field:'Name',operator:'eq',value:'stale'});expect(f.view.hasEditingChanges('a')).toBe(false)
+    oldApply({field:'Name',operator:'eq',value:'stale'});expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original,value:'draft'})
     editor.vm.$emit('update:modelValue',{field:'Name',operator:'contains',value:'unsupported'});await flushPromises()
-    expect(f.view.hasEditingChanges('a')).toBe(false);expect(f.wrapper.text()).toContain('运算符')
+    expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original,value:'draft'});expect(f.wrapper.text()).toContain('运算符')
     editor.vm.$emit('update:modelValue',{field:'Name',operator:'eq',value:'accepted'});await flushPromises()
     expect(f.view.getEditingRow('a')?.['predicate']).toEqual({field:'Name',operator:'eq',value:'accepted'})
   })
@@ -84,17 +173,20 @@ describe('standard filter definition binding', () => {
     await flushPromises()
     expect(f.wrapper.getComponent(FilterExpressionEditor).vm.$.uid).toBe(instance)
     expect(body.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('draft')
-    expect(f.editing.value).toBe(true)
+    expect(f.editing.value).toBe(display === 'dialog')
     if (typeof oldApply === 'function') oldApply({...tree, value: 'stale'})
-    expect(f.view.hasEditingChanges()).toBe(false)
-    await body.get('[data-action="cancel"]').trigger('click'); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(display === 'inline')
+    if (display === 'dialog') await body.get('[data-action="cancel"]').trigger('click')
+    else f.view.discardEditingRows(['a'])
+    await flushPromises()
     expect(f.view.hasEditingChanges()).toBe(false)
     expect(f.editing.value).toBe(false)
     if (display === 'dialog') await f.wrapper.get('[data-action="open"]').trigger('click')
     await body.get('input[aria-label="文本常量"]').setValue('applied')
     f.columns.value = [{name: 'Name', label: '最新字段名称', type: 'string'}]
     await flushPromises()
-    await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
+    if (display === 'dialog') await body.get('[data-action="apply"]').trigger('click')
+    await flushPromises()
     const stored = f.view.getEditingRow('a')?.['predicate']
     expect(format === 'tree' ? stored : DataViewFilterCodec.parseStored(String(stored))?.toJSON()).toEqual({...tree, value: 'applied'})
     expect(f.view.rows[0]?.['predicate']).toEqual(original)
@@ -196,29 +288,29 @@ describe('standard filter definition binding', () => {
     expect(f.view.rows[0]?.['predicate']).toBeUndefined()
   })
 
-  it('exposes inline editing and releases unapplied drafts after cancellation, row switch and loss of access', async () => {
+  it('writes inline edits immediately and releases incomplete drafts on row cancellation, switching and loss of access', async () => {
     const f = fixture('spark-json', '{"Type":"cond","Field":"Name","Operator":"equal","ValueFun":{"Type":"GetConstValue","Value":"A"}}', 'inline')
     expect(f.wrapper.find('[data-action="open"]').exists()).toBe(false)
     await f.wrapper.get('input[aria-label="文本常量"]').setValue('B'); await flushPromises()
-    expect(f.editing.value).toBe(true)
-    expect(f.view.hasEditingChanges()).toBe(false)
-    await f.wrapper.get('[data-action="cancel"]').trigger('click')
+    expect(f.editing.value).toBe(false)
+    expect(f.view.hasEditingChanges()).toBe(true)
+    f.view.discardEditingRows(['a']);await flushPromises()
     expect(f.editing.value).toBe(false)
     await f.wrapper.get('input[aria-label="文本常量"]').setValue('C'); await flushPromises()
-    await f.wrapper.get('[data-action="apply"]').trigger('click'); await flushPromises()
     expect(f.editing.value).toBe(false)
     expect(DataViewFilterCodec.parseStored(String(f.view.getEditingRow('a')?.['predicate']))?.toJSON()).toEqual({field: 'Name', operator: 'eq', value: 'C'})
-    await f.wrapper.get('input[aria-label="文本常量"]').setValue('stale'); await flushPromises()
+    await f.wrapper.findAll('button').find(button=>button.text()==='添加条件')!.trigger('click'); await flushPromises()
+    expect(f.editing.value).toBe(true)
     const old = f.wrapper.getComponent(FilterExpressionEditor)
     f.view.setCurrentRowById('b'); await flushPromises()
     expect(f.editing.value).toBe(false)
     old.vm.$emit('update:modelValue', {field: 'Name', operator: 'eq', value: 'stale'})
     expect(f.view.hasEditingChanges('b')).toBe(false)
     f.view.setCurrentRowById('a'); await flushPromises()
-    await f.wrapper.get('input[aria-label="文本常量"]').setValue('denied'); await flushPromises()
     f.disabled.value = true; await flushPromises()
+    await f.wrapper.get('input[aria-label="文本常量"]').setValue('denied'); await flushPromises()
     expect(f.editing.value).toBe(false)
-    expect(f.wrapper.get('[data-action="apply"]').attributes('disabled')).toBeDefined()
+    expect(f.wrapper.get('input[aria-label="文本常量"]').attributes('disabled')).toBeDefined()
     expect(DataViewFilterCodec.parseStored(String(f.view.getEditingRow('a')?.['predicate']))?.toJSON()).toEqual({field: 'Name', operator: 'eq', value: 'C'})
   })
 

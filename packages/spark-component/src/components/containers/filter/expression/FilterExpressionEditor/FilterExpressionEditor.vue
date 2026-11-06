@@ -20,15 +20,16 @@
         <el-button v-else data-action="json-tree" @click="setJsonFormat('tree')">JSON 树</el-button>
       </template>
       <span v-else>当前 {{ draft.countRules() }} 条条件</span>
+      <el-button v-if="display === 'inline' && !jsonMode && !editing && clearable && !readonly" data-action="clear" :disabled="disabled" @click="clear">清空</el-button>
     </div>
     <component :is="jsonFormat === 'tree' ? JsonTreeEditor : SparkJsonEditor" v-if="jsonMode" :key="jsonRevision" :model-value="rawJson" data-filter-json
       v-bind="jsonFormat === 'text' ? {mode: 'text'} : {}"
       :height="320" :read-only="writeLocked" @update:model-value="updateJson" />
-    <FilterExpressionGroup v-else :group="draft.root" :draft="draft" :fields="fields" :function-context="functionContext" :depth="0" :max-depth="maxDepth" :max-rules="maxRules" :disabled="writeLocked" @value-function="openFunction" />
+    <FilterExpressionGroup v-else :group="draft.root" :draft="draft" :fields="fields" :function-context="functionContext" :depth="0" :max-depth="maxDepth" :max-rules="maxRules" :disabled="writeLocked" @change="inlineChange" @value-function="openFunction" />
     <p v-if="issues.length" role="alert">{{ issues.map(issue => `${issue.path}: ${issue.message}`).join('\n') }}</p>
     <p v-if="applyError" role="alert">{{ applyError }}</p>
     <p v-if="checking" role="status">正在读取过滤表达式引用的模型字段…</p>
-    <div class="filter-expression-editor__footer">
+    <div v-if="display !== 'inline' || jsonMode || editing" class="filter-expression-editor__footer">
       <el-button v-if="clearable && !readonly" data-action="clear" :disabled="disabled" @click="clear">清空</el-button>
       <el-button data-action="cancel" @click="cancel">{{ readonly ? '关闭' : '取消' }}</el-button>
       <el-button v-if="!readonly" data-action="apply" type="primary" :disabled="disabled || checking" @click="apply">{{ display === 'inline' ? '应用' : '应用过滤条件' }}</el-button>
@@ -75,8 +76,12 @@ function invalidateFunction():void{functionRevision.value++;functionVisible.valu
 const functionConfirmation=computed(()=>{const revision=functionRevision.value;return(value:DataViewFilterValueFunction):void=>{if(revision===functionRevision.value)applyFunction(value)}})
 let awaitingApplication = false
 let pendingValue: DataViewFilterTree | undefined
+let pendingDraft = '', pendingReset = false
 watch([() => props.modelValue, () => props.display], () => {
-  if (props.display === 'inline') resetDraft()
+  if (props.display === 'inline') {
+    if (awaitingApplication && JSON.stringify(props.modelValue) === JSON.stringify(pendingValue)) acknowledgeInline()
+    else resetDraft()
+  }
   else if (awaitingApplication && JSON.stringify(props.modelValue) === JSON.stringify(pendingValue)) visible.value = false
 }, {immediate: true})
 function context() { return { fields: fields.value, maxDepth: props.maxDepth, maxRules: props.maxRules, valueFunctions: props.functionContext } }
@@ -146,6 +151,16 @@ function apply(): void {
   if (writeLocked.value) return
   checkTree(submit)
 }
+function inlineChange(): void {
+  if (props.display === 'inline' && !jsonMode.value && !writeLocked.value) checkTree(submit)
+}
+function acknowledgeInline(): void {
+  if (pendingReset) {resetDraft(); return}
+  baseline.value = pendingDraft
+  originalJson.value = pendingValue === undefined ? '' : JSON.stringify(pendingValue, null, 2)
+  awaitingApplication = false
+  issues.value = []
+}
 function checkTree(accept: (tree: DataViewFilterTree) => void): void {
   if (checking.value || !alive) return
   const {valueFunctions, ...shape} = context()
@@ -176,10 +191,12 @@ function clear(): void {
 }
 function submit(tree: DataViewFilterTree | undefined): void {
   pendingValue = tree
+  pendingDraft = JSON.stringify(draft.value.root)
+  pendingReset = tree === undefined || jsonMode.value
   awaitingApplication = true
   emit('update:modelValue', tree)
   if (JSON.stringify(props.modelValue) === JSON.stringify(tree)) {
-    if (props.display === 'inline') resetDraft()
+    if (props.display === 'inline') acknowledgeInline()
     else visible.value = false
   }
 }
@@ -206,6 +223,7 @@ function applyFunction(value: DataViewFilterValueFunction): void {
   if (!alive || writeLocked.value || !functionVisible.value) return
   if (functionTarget) functionTarget.valueText = JSON.stringify(value)
   issues.value = []
+  inlineChange()
 }
 </script>
 

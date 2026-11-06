@@ -371,7 +371,7 @@ describe('full public filter editor', () => {
     expect(wrapper.getComponent(ElDatePicker).props('type')).toBe('datetime')
     const flag = wrapper.findAllComponents(ElSelect).find(s => s.props('ariaLabel') === '布尔常量')!
     expect(flag.props('modelValue')).toBe(false)
-    await wrapper.get('[data-action="apply"]').trigger('click')
+    await flushPromises()
     expect(wrapper.emitted('update:modelValue')?.at(-1)?.[0]).toEqual({logic: 'and', filters: [
       {field: 'Name', operator: 'eq', value: 'B'}, {field: 'Amount', operator: 'gte', value: 2},
       {field: 'Enabled', operator: 'eq', value: false}, {field: 'At', operator: 'eq', value: '2026-10-12 12:00:00'},

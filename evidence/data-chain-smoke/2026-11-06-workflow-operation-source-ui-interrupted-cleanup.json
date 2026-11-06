@@ -1,0 +1,56 @@
+{
+  "scope": "Interrupted ordinary operation-source UI probe and independent exact cleanup; not source lifecycle acceptance",
+  "original": {
+    "processId": 26152,
+    "workflowId": "9E1B56B55C4B453D90E7F8C805B9B161",
+    "marker": "SMOKE_OP_SOURCE_UI_1793934984084",
+    "phase": "awaiting-ui-normal",
+    "reads": 302,
+    "writes": 18,
+    "executions": 0,
+    "unknown": false,
+    "pending": null,
+    "normalBefore": "cd1a4c8f92b42966c76886713a39347d8876b520555264cbeab685c051705cbd",
+    "fixtureRemaining": true
+  },
+  "originalProcessObservedMissing": true,
+  "originalNativeExit": "unavailable: process disappeared; no terminal success claimed",
+  "browser": {
+    "requests": [],
+    "responses": [],
+    "issues": [],
+    "closed": true,
+    "sourceSaveClicked": false,
+    "reason": "Original native process and server handles missing before source confirmation"
+  },
+  "cleanup": {
+    "processId": 22460,
+    "originalProcessId": 26152,
+    "phase": "cleanup-confirmed",
+    "reads": 266,
+    "writes": 7,
+    "executions": 0,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "originalStateIndependentlyConfirmed": true,
+    "fixtureRemaining": false,
+    "cleanedAt": "2026-11-06T03:43:06.907Z",
+    "readbacks": [
+      {
+        "workflowDefinition": 0,
+        "parameters": 0,
+        "nodes": 0,
+        "connectors": 0,
+        "models": 0,
+        "fields": 0,
+        "relations": 0,
+        "business": 0,
+        "startup": 0
+      }
+    ]
+  },
+  "cleanupNativeExit": 0,
+  "cleanupSourceSha256": "cf88cddebbe8960c7163f076909f709937a43842b6c49c7a94b9223ef50c8e7c",
+  "screenshot": "artifacts/data-chain-smoke/ui-operation-source-cancelled-20261106.jpg"
+}

@@ -11,7 +11,7 @@ import type * as Data from '@spark-appworks/spark-data'
 
 /** 完整过滤编辑输入；默认递归条件树，辅助JSON树/文本复用仓内编辑器并编辑同一表达式。字段与函数上下文用于校验，应用错误由父级查询 owner 回传。 */
 export type FilterExpressionEditorProps = {
-  /** 默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。 */
+  /** 默认dialog确认后应用；inline条件树有效修改立即提交，未完成输入保留为草稿。JSON仍显式应用；取消恢复已接受条件，整行撤销由DataView负责。 */
   display?: 'dialog' | 'inline'
   /** 弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。 */
   displayMode?: 'box' | 'inline'

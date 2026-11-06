@@ -1,0 +1,47 @@
+{
+  "scope": "Standard filter inline editing contract; not full reference interaction acceptance or all migration packages",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "referenceBehavior": "FilterBuilder.handleDraftChange commits valid inline edits",
+  "implementationSha256": {
+    "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue": "2054eef56a3fc3a405dbd429477c6af330bd7b18f6e4b0f8b14e2428695b5782",
+    "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue": "36105579956e24f25627d60bf8f63d1050a111e9aa44f007a34f6cdbfdc73769"
+  },
+  "redEvidence": [
+    "Bound input AB left original DataView A before change listener fix",
+    "Accepted inline B produced wrong JSON editing baseline before acknowledgement fix"
+  ],
+  "verified": {
+    "filterTests": {
+      "files": 2,
+      "passed": 88,
+      "exit": 0
+    },
+    "workflowTests": {
+      "files": 22,
+      "passed": 498,
+      "exit": 0,
+      "note": "Old connector test explicitly applied inline draft; updated to assert valid draft enables Save, remains unpersisted until Save, and row cancel restores original"
+    },
+    "classModelTests": {
+      "files": 4,
+      "passed": 49,
+      "exit": 0
+    },
+    "targetedLintExit": 0,
+    "typecheckExit": 0,
+    "buildFeExit": 0,
+    "classModelGenerated": true
+  },
+  "browser": {
+    "workflowId": "B48E384F2B9F4E1898FD750228E189B9",
+    "consecutiveInputSameControl": true,
+    "extraApplyButtons": 0,
+    "originalCancelRestored": true,
+    "crudDuringFilterCancel": 0,
+    "screenshot": "artifacts/data-chain-smoke/ui-standard-filter-inline-20261106.jpg"
+  },
+  "open": [
+    "Reference options and valueSources require actual option view contract",
+    "Source-preview cancellation leaves cached local lock; separate lifecycle regression required"
+  ]
+}

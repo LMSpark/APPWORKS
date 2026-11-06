@@ -413,7 +413,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T22:35:46.872Z",
+  "generatedAt": "2026-11-06T03:44:53.148Z",
   "models": {
     "FilterExpressionEditorProps": {
       "name": "FilterExpressionEditorProps",
@@ -423,12 +423,12 @@
         "name": "FilterExpressionEditor"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。 */\n    displayMode?: 'box' | 'inline';\n    /** 空条件入口提示；省略或undefined为“空”，显式空字符串保留。 */\n    placeholder?: string | undefined;\n    /** 条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。 */\n    title?: string | undefined;\n    /** 是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。 */\n    clearable?: boolean | undefined;\n    /** 常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。 */\n    dialogWidth?: string | number | undefined;\n    /** 视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。 */\n    autoFullscreenBelow?: number | undefined;\n    /** 未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。 */\n    onEditingChange?: (editing: boolean) => void;\n    modelValue?: Data.DataViewFilterTree | undefined;\n    /** 字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。 */\n    columns: readonly Data.DataColumn[];\n    /** 消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。 */\n    allowedOperators?: readonly Data.DataViewFilterOperator[];\n    functionContext?: Data.DataViewFilterFunctionContext;\n    maxDepth?: number;\n    maxRules?: number;\n    disabled?: boolean;\n    /** 可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。 */\n    readonly?: boolean;\n    applyError?: string | null | undefined;\n}",
+        "declarationTypeText": "{\n    /** 默认dialog确认后应用；inline条件树有效修改立即提交，未完成输入保留为草稿。JSON仍显式应用；取消恢复已接受条件，整行撤销由DataView负责。 */\n    display?: 'dialog' | 'inline';\n    /** 弹窗入口的摘要样式；box为输入框，inline为参考页的行内文本链接。与display编辑模式不同。 */\n    displayMode?: 'box' | 'inline';\n    /** 空条件入口提示；省略或undefined为“空”，显式空字符串保留。 */\n    placeholder?: string | undefined;\n    /** 条件编辑窗口标题；省略或undefined为“过滤设置”，不改变过滤定义。 */\n    title?: string | undefined;\n    /** 是否显示快捷清空入口；默认true，false不禁止通过条件树编辑得到空条件，也不改变数据权限。 */\n    clearable?: boolean | undefined;\n    /** 常规窗口宽度；默认980px，数值按像素处理，字符串接受CSS宽度；全屏时忽略。 */\n    dialogWidth?: string | number | undefined;\n    /** 视口宽度小于等于该像素值时自动全屏；默认900，0或负数禁用；仅作用于过滤窗口。 */\n    autoFullscreenBelow?: number | undefined;\n    /** 未应用草稿或编辑弹窗存在时为true；接受应用、取消及释放后为false，不表示已保存。 */\n    onEditingChange?: (editing: boolean) => void;\n    modelValue?: Data.DataViewFilterTree | undefined;\n    /** 字段名称是条件身份，label用于显示；排除isComputed框架列及computeExpression本地计算列，树和JSON应用共用此查询字段目录。type选择常量输入类型。 */\n    columns: readonly Data.DataColumn[];\n    /** 消费端支持的运算符子集，与字段类型规则取交集；省略沿用字段默认值，空数组不允许条件应用。原不支持的条件保留并诊断，JSON和条件树共用校验。 */\n    allowedOperators?: readonly Data.DataViewFilterOperator[];\n    functionContext?: Data.DataViewFilterFunctionContext;\n    maxDepth?: number;\n    maxRules?: number;\n    disabled?: boolean;\n    /** 可浏览完整条件树和JSON，但不得修改、清空或应用；不会通知存在待提交编辑。disabled仍禁止打开。 */\n    readonly?: boolean;\n    applyError?: string | null | undefined;\n}",
         "members": {
           "attributes": [
             {
               "name": "display",
-              "jsdoc": "默认dialog；inline直接显示条件树，取消恢复已应用条件，不创建第二套过滤逻辑。",
+              "jsdoc": "默认dialog确认后应用；inline条件树有效修改立即提交，未完成输入保留为草稿。JSON仍显式应用；取消恢复已接受条件，整行撤销由DataView负责。",
               "readable": true,
               "writable": false
             },

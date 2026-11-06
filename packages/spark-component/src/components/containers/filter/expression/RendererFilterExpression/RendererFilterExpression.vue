@@ -111,8 +111,13 @@ const parsed = computed(() => {
 })
 const problem = computed(() => aggregateError.value?.message || (!resolvedView.value || identity.value === undefined ? '过滤定义未绑定有效数据行'
   : !resolvedView.value.columns.some(column => column.name === props.field) ? `过滤定义字段不存在：${props.field}` : accessState.value.error || parsed.value.error))
-watch([resolvedView, identity, () => JSON.stringify(rawValue.value), () => pathValue.value.identity, editable, () => props.field, () => props.format, () => props.valueFormat, () => JSON.stringify(props.valuePath ?? []),
+let ownWrite: (() => boolean) | undefined
+watch([resolvedView, identity, () => pathValue.value.identity, editable, () => props.field, () => props.format, () => props.valueFormat, () => JSON.stringify(props.valuePath ?? []),
   () => props.display, () => props.inputParameterDataViewKey, () => props.columnDataViewKey], invalidate, {flush: 'sync'})
+watch(() => JSON.stringify(rawValue.value), () => {
+  if (ownWrite?.()) {candidateRevision.value++; error.value = ''}
+  else invalidate()
+}, {flush: 'sync'})
 watch([columnState, contextState, () => props.allowedOperators, () => props.maxDepth, () => props.maxRules], () => {
   candidateRevision.value++; error.value = ''
 }, {deep: true, flush: 'sync'})
@@ -137,7 +142,14 @@ const applyForRevision = computed(() => {
         const next=JsonFieldPath.replace(JsonFieldPath.root(rawRoot.value,props.valueFormat!=='text'),props.valuePath,value,true)
         stored=props.valueFormat==='text'?JSON.stringify(next):next
       }
-      if (!writeDataViewEditingValue({source: resolvedView.value, row: row.value, field: props.field, value: stored})) throw new Error('过滤定义编辑目标已失效')
+      const target = resolvedView.value, original = row.value, key = identity.value, field = props.field,
+        path = JSON.stringify(props.valuePath ?? []), format = props.format, valueFormat = props.valueFormat, expected = JSON.stringify(stored)
+      ownWrite = () => active && resolvedView.value === target && row.value === original && identity.value === key
+        && props.field === field && JSON.stringify(props.valuePath ?? []) === path && props.format === format && props.valueFormat === valueFormat
+        && editable.value && JSON.stringify(rawRoot.value) === expected
+      try {
+        if (!writeDataViewEditingValue({source: target, row: original, field, value: stored})) throw new Error('过滤定义编辑目标已失效')
+      } finally {ownWrite = undefined}
     } catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
   }
 })

@@ -25,7 +25,7 @@ export type RFilterExpressionProps = LayoutDataContextProps & Pick<FilterExpress
   valueFormat?: 'native' | 'text'
   /** tree保存原生树（清空为undefined）；spark-json保存数据库SPARK文本（清空为空字符串）；spark-object通过同一数据层Codec保存SPARK对象（清空为null）。 */
   format?: 'tree' | 'spark-json' | 'spark-object'
-  /** 默认dialog；inline在绑定位置编辑，应用才写回原DataView。 */
+  /** 默认dialog确认后写回；inline有效条件树修改立即写回原DataView编辑域，JSON仍显式应用；持久保存由原DataSet/DataView承担。 */
   display?: 'dialog' | 'inline'
   /** 弹窗入口摘要样式，box为输入框，inline为参考页的行内文本链接；不改变DataView绑定或编辑模式。 */
   displayMode?: 'box' | 'inline'

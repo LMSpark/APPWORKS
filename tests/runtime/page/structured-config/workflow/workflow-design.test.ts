@@ -661,7 +661,7 @@ describe('workflow formal design page',()=>{
   expect(code.get('input').element.value).toBe(target.code)
   expect(state.http.saves).toEqual([])
  })
- it('binds connector conditions to node endpoints, cancels unapplied input and clears only the condition record',async()=>{
+ it('binds inline connector edits to the original view, cancels before saving and clears only the condition record',async()=>{
   const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
   state.http.records['Base_WorkflowNodeDefinition']![0]!['position_type']=0
   state.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']=JSON.stringify([{rowid:'OUT',Name:'Count',Description:'数量',FieldType:'int'}])
@@ -675,10 +675,11 @@ describe('workflow formal design page',()=>{
   expect(editor.props('format')).toBe('spark-json');expect(editor.props('columns')).toEqual([{name:'Count',label:'数量',type:'int'}])
   expect(editor.props('allowedOperators')).toEqual(['eq','ne','gt','lt'])
   await editor.get('input[aria-label="数字常量"]').setValue('3');await flushPromises()
-  expect(f.buttons().find(button=>button.text()==='保存条件')?.attributes('disabled')).toBeDefined()
+  expect(f.buttons().find(button=>button.text()==='保存条件')?.attributes('disabled')).toBeUndefined()
+  expect(state.http.saves).toEqual([])
   await f.click('取消条件修改');expect(state.dirty[0]?.isDirty).toBe(false)
   expect(editor.get('input[aria-label="数字常量"]').element).toHaveProperty('value','0')
-  await editor.get('input[aria-label="数字常量"]').setValue('3');await flushPromises();await editor.get('[data-action="apply"]').trigger('click');await flushPromises()
+  await editor.get('input[aria-label="数字常量"]').setValue('3');await flushPromises()
   await f.click('保存条件')
   expect(state.http.saves.map(save=>save.table)).toEqual(['Base_DataModel_Relation'])
   expect(DataViewFilterCodec.parseStored(String(state.http.records['Base_DataModel_Relation']!.find(row=>row['rowid']==='RC')!['filter']))!.toJSON()).toEqual({field:'Count',operator:'eq',value:3})

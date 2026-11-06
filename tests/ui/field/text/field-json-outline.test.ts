@@ -4,21 +4,31 @@ import {defineComponent, h, ref} from 'vue'
 import ElementPlus from 'element-plus'
 import {SparkData} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {Spark, PAGE_RUNTIME, RendererForm, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {Spark, PAGE_RUNTIME, RendererForm, FieldJson, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+
+import {DataSpaceQueryTable} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
+import {DataSpaceQueryContext} from '../../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 
 let wrapper: VueWrapper | undefined, runtime: PageRuntime | undefined
 const originalStubs = {...config.global.stubs}
 afterEach(() => {wrapper?.unmount();runtime?.dispose();config.global.stubs = originalStubs})
-async function fixture(options:{baseline?:string;outline?:Record<string,unknown>}={}) {
+async function fixture(options:{baseline?:string;outline?:Record<string,unknown>;standalone?:boolean;visibility?:'masked'|'hidden'}={}) {
   registerAllRenderers()
   const baseline = options.baseline??JSON.stringify([{Name:'root',Type:'table',ChildTables:[{Name:'child',Type:'dict',unknown:{x:1}}]}])
-  const ds = SparkData.fromJson({scenarioId:'S',tables:{Design:{resourceType:'static-data',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'json',type:'string'}],
+  const ds = SparkData.fromJson({scenarioId:'S',tables:{Design:{...(options.visibility?{modelBinding:{modelId:'M',modelName:'Design'}}:{}),resourceType:'static-data',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'json',type:'string'}],
     views:{default:{commitMode:'staged',rows:[{id:'a',json:baseline},{id:'b',json:'[]'}]}}}}})
   runtime = new PageRuntime({pageId:'outline',scenarioIds:['S'],loadScenario:async()=>ds});await runtime.load()
-  const view=ds.getView('Design')!;view.setCurrentRowById('a')
+  const view=ds.getView('Design')!
+  if(options.visibility){
+    const table=new DataSpaceQueryTable({scenarioId:'S',metaName:'Design'})
+    view.bindQueryExecutor({executeQuery:async()=>new DataSpaceQueryContext({identity:table.identity,scope:'query',readScope:()=> 'query',
+      snapshot:table.applyResult({Result:{primaryKeyField:'id',data:{Items:[{id:'a',json:baseline,lingma_sys_params:{m:options.visibility==='masked'?['json']:[],h:options.visibility==='hidden'?['json']:[],e:options.visibility==='hidden'?['json']:[]}}],Count:1}}})})})
+    await view.loadFromServer()
+  }
+  view.setCurrentRowById('a')
   const path=ref<ReadonlyArray<string|number>|null>(null)
   const host=defineComponent({setup(){useSparkComponent({type:'outline-host'}).sparkProvide(PAGE_RUNTIME,runtime!)
-    return()=>h(RendererForm,{dataViewKey:'S@Design@default',autoColumns:false,showDataViewMeta:false,children:[{
+    return()=>options.standalone?h(FieldJson,{dataViewKey:'S@Design@default',field:'json',mode:'outline',outlineChildrenField:'ChildTables',readonly:true,children:[{type:'r-text',props:{field:'Name',label:'名称'}}]}):h(RendererForm,{dataViewKey:'S@Design@default',autoColumns:false,showDataViewMeta:false,children:[{
       type:'r-json',props:{field:'json',mode:'outline',outlineChildrenField:'ChildTables',...options.outline,selectedPath:path.value,
         onSelectedPathChange:(value:ReadonlyArray<string|number>|null)=>{path.value=value}},children:[
         {type:'r-text',props:{field:'Type',label:'类型'}},{type:'r-text',props:{field:'Name',label:'名称'}},
@@ -30,6 +40,28 @@ async function fixture(options:{baseline?:string;outline?:Record<string,unknown>
   await flushPromises();return {view,path,baseline,wrapper}
 }
 describe('bound JSON outline',()=>{
+  it.each(['masked','hidden'] as const)('preserves formal %s field presentation in detail context',async visibility=>{
+    const f=await fixture({standalone:true,visibility})
+    expect(f.wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(0)
+    expect(f.wrapper.find('[role="alert"]').exists()).toBe(false)
+    expect(f.wrapper.text()).not.toContain('child')
+    expect(f.wrapper.text()).not.toContain(f.baseline)
+    if(visibility==='masked')expect(f.wrapper.text()).toContain('••••')
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
+  it('renders the configured readonly outline outside an editing form without exposing raw JSON or writing',async()=>{
+    const f=await fixture({standalone:true})
+    expect(f.wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(2)
+    expect(f.wrapper.text()).toContain('root');expect(f.wrapper.text()).toContain('child')
+    expect(f.wrapper.text()).not.toContain(f.baseline)
+    expect(f.wrapper.find('input').exists()).toBe(false)
+    expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.view.rows[0]?.['json']).toBe(f.baseline)
+    f.view.setCurrentRowById('b');await flushPromises()
+    expect(f.wrapper.text()).not.toContain('child')
+    expect(f.wrapper.findAll('.el-table__body-wrapper tbody tr')).toHaveLength(0)
+    expect(f.view.hasEditingChanges()).toBe(false)
+  })
   it('projects a flat parent relation without rewriting the array or losing original selection paths',async()=>{
     const baseline=JSON.stringify([{rowid:'child',pid:'root',Name:'flat child',Type:'query',unknown:{keep:true}},{rowid:'root',pid:null,Name:'flat root',Type:'merge'}])
     const f=await fixture({baseline,outline:{outlineChildrenField:undefined,outlineIdField:'rowid',outlineParentField:'pid'}})

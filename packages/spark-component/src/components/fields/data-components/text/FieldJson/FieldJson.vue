@@ -27,6 +27,11 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
       <SparkJsonEditor v-else :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
         :mode="mode" :height="height" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
     </template>
+    <template v-if="mode === 'outline' && !permission.isCurrentFieldMasked.value && !permission.isCurrentFieldHidden.value" #detail>
+      <JsonArrayOutline :key="revision" :model-value="editorText" :children="props.children"
+        :children-field="props.outlineChildrenField" :id-field="props.outlineIdField" :parent-field="props.outlineParentField"
+        :selected-path="props.selectedPath" :height="height" @select-path="props.onSelectedPathChange?.($event)" />
+    </template>
   </FieldContextRenderer>
 </template>
 <script setup lang="ts">

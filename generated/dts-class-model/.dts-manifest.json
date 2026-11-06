@@ -1879,7 +1879,7 @@
     "packages/spark-component/src/components/fields/context/useFieldPermission.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useFieldPermission.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useFieldPermission.ts.json",
-      "sourceModifiedAt": "2026-11-02T02:44:28.579Z"
+      "sourceModifiedAt": "2026-11-06T01:22:41.692Z"
     },
     "packages/spark-component/src/components/fields/context/useResolvedFieldContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/useResolvedFieldContext.ts",
@@ -2184,7 +2184,7 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue.json",
-      "sourceModifiedAt": "2026-11-05T20:37:55.834Z"
+      "sourceModifiedAt": "2026-11-06T01:24:02.920Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
@@ -5294,7 +5294,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/node-panel/workflow-design-node-panel.vue.json",
-      "sourceModifiedAt": "2026-11-06T00:13:38.363Z"
+      "sourceModifiedAt": "2026-11-06T00:35:33.520Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue",

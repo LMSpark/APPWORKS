@@ -124,6 +124,8 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     return currentFieldState.value?.readable ?? true
   })
 
+  const isCurrentFieldMasked = computed(() => currentFieldState.value?.visibility === FieldVisibility.Masked)
+
   const isCurrentFieldHidden = computed(() => {
     return currentFieldState.value?.visibility === FieldVisibility.Hidden
   })
@@ -253,6 +255,7 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     currentRawValue,
     currentRawStringValue,
     isCurrentFieldHidden,
+    isCurrentFieldMasked,
     isCurrentFieldEditable,
     shouldRenderCurrentField,
     currentDisplayValue,

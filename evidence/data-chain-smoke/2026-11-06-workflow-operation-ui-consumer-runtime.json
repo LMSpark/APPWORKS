@@ -1,0 +1,104 @@
+{
+  "date": "2026-11-06",
+  "kind": "workflow-operation-standard-ui-consumer-runtime",
+  "sourceCommit": "58cd2728290af5de783076f895808d4e3eb6da9a",
+  "nativeExit": 0,
+  "phase": "confirmed",
+  "workflowId": "99143CD3616D4609A4C38EF1DDAA37FD",
+  "reads": 796,
+  "nativeCrud": 35,
+  "browserCrud": 1,
+  "executions": 1,
+  "blockedRequests": 0,
+  "unknown": false,
+  "fixtureRemaining": false,
+  "consumerResult": {
+    "rowid": "FDB992DDD29F401097E93EEB7EB0D105",
+    "fields": {
+      "fromAddDescription": {
+        "value": "output-created",
+        "type": "string"
+      },
+      "fromEditDescription": {
+        "value": "output-edited",
+        "type": "string"
+      },
+      "fromEditFlowstate": {
+        "value": 0,
+        "type": "number"
+      },
+      "fromDeleteRowid": {
+        "value": "E556306F56754637A0FA9BDDD027A474",
+        "type": "string"
+      }
+    }
+  },
+  "runtime": {
+    "nodeIds": [
+      "F2E7F6BF05AD1B31249C06BF4C73C6A7",
+      "E20BEAF97B344C70B5DA83DD8B50A59D",
+      "7AAC7B5E64524A858A14676A1EAB2FFB",
+      "03F9F483F83485D0A9CC063F1FA44ABD",
+      "7D22DF4832FF030D328D6ED707AC1012",
+      "0310DA559171AF25ABCBB1549AE6217C"
+    ],
+    "instanceId": "1629A16BE8934485883339C1370C8DFE",
+    "nodeCount": 6,
+    "flowCount": 0
+  },
+  "businessAbsent": true,
+  "startupUnchanged": true,
+  "readbacks": [
+    {
+      "runtimeNodes": 0,
+      "runtimeFlows": 0
+    },
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "cleanedAt": "2026-11-06T01:14:30.415Z",
+  "browser": {
+    "originalObserverIssues": [
+      "CRUD scope requires checking",
+      "CRUD scope requires checking",
+      "CRUD scope requires checking",
+      "CRUD scope requires checking"
+    ],
+    "reopened": true,
+    "closed": true,
+    "scopeValidation": {
+      "originalObserverMessages": [
+        "CRUD scope requires checking",
+        "CRUD scope requires checking",
+        "CRUD scope requires checking",
+        "CRUD scope requires checking"
+      ],
+      "rechecked": true,
+      "valid": true,
+      "note": "Initial scope warnings retained; independent exact comparison of sanitized CRUD payload proves only the declared fixture was changed."
+    },
+    "responses": [
+      {
+        "requestId": "5064.46191",
+        "status": 200
+      }
+    ],
+    "fieldIds": [
+      "93B9AC8FB061C1B7D6CBDBA8199E4FF1",
+      "3BDD8AD687D14ABC8C07E3E5B2ECB926",
+      "DCC077F1B4E6525AEB6A999587B8BDFE",
+      "69D9F0FB763A0298DF2EB595E35A1AEC"
+    ]
+  },
+  "screenshot": "artifacts/data-chain-smoke/ui-workflow-operation-consumer-reopened-20261106.jpg",
+  "remainingGap": "Readonly output outline displays raw JSON; whole-page and all migration packages remain open"
+}

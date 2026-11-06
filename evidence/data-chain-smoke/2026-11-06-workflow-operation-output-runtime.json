@@ -1,0 +1,211 @@
+{
+  "testedAt": "2026-11-06T00:00:49.607Z",
+  "codeCommit": "2300c30b40784ec026bae6af47fda13bd49534ab",
+  "scriptHash": "a5765935cd31e3822509f7b855a6b1e1fa4a18a656dacf363ffcd5412d4eb7f5",
+  "cleanupScriptHash": "648d6ca0d6d36a7ebd7ac5a14cd2853862603acc9ce7eeece12dee13f409983f",
+  "scope": "SQL table operation output-shape gate; not downstream consumption or all migration acceptance",
+  "nativeExit": -1,
+  "nativeError": "Incomplete formal query Base_DataModel_Relation",
+  "cleanupExit": 0,
+  "workflowId": "5E27FB3041C542D28EEFEED786AA35E4",
+  "businessId": "5325BAD623BD40A1A4BD09715E6615B2",
+  "startupId": "7D8E8873F0824B498BB5A8422B8F731C",
+  "reads": 645,
+  "writes": 30,
+  "executions": 1,
+  "blockedRequests": 0,
+  "unknown": false,
+  "outputs": [
+    {
+      "operation": "add",
+      "nodeId": "B1F026E6644064B1BE843FD0926C28FE",
+      "status": "SUCCESS",
+      "count": 1,
+      "rowCount": 1,
+      "keys": [
+        "ReportID",
+        "createtime",
+        "createuser",
+        "description",
+        "flowstate",
+        "name",
+        "path",
+        "rowid",
+        "updater",
+        "updatetime",
+        "updateuser",
+        "wfid"
+      ],
+      "fields": {
+        "rowid": {
+          "value": "5325BAD623BD40A1A4BD09715E6615B2",
+          "type": "string"
+        },
+        "name": {
+          "value": "SMOKE_OP_OUTPUT_1793922409107_ROW",
+          "type": "string"
+        },
+        "description": {
+          "value": "output-created",
+          "type": "string"
+        },
+        "path": {
+          "value": "SMOKE_OP_OUTPUT_1793922409107_ROW.json",
+          "type": "string"
+        },
+        "flowstate": {
+          "value": 0,
+          "type": "number"
+        }
+      }
+    },
+    {
+      "operation": "edit",
+      "nodeId": "8EAEEF34045FAC0627A8189AFC0BE485",
+      "status": "SUCCESS",
+      "count": 1,
+      "rowCount": 1,
+      "keys": [
+        "ReportID",
+        "createtime",
+        "createuser",
+        "description",
+        "flowstate",
+        "name",
+        "path",
+        "rowid",
+        "updater",
+        "updatetime",
+        "updateuser",
+        "wfid"
+      ],
+      "fields": {
+        "rowid": {
+          "value": "5325BAD623BD40A1A4BD09715E6615B2",
+          "type": "string"
+        },
+        "name": {
+          "value": "SMOKE_OP_OUTPUT_1793922409107_ROW",
+          "type": "string"
+        },
+        "description": {
+          "value": "output-edited",
+          "type": "string"
+        },
+        "path": {
+          "value": "SMOKE_OP_OUTPUT_1793922409107_ROW.json",
+          "type": "string"
+        },
+        "flowstate": {
+          "value": 0,
+          "type": "number"
+        }
+      }
+    },
+    {
+      "operation": "delete",
+      "nodeId": "AB4D667293B6FDBB31119EDEDBD8E028",
+      "status": "SUCCESS",
+      "count": 1,
+      "rowCount": 1,
+      "keys": [
+        "rowid"
+      ],
+      "fields": {
+        "rowid": {
+          "value": "5325BAD623BD40A1A4BD09715E6615B2",
+          "type": "string"
+        }
+      }
+    }
+  ],
+  "formalExecutionPlan": [
+    {
+      "nodeId": "B1F026E6644064B1BE843FD0926C28FE",
+      "modelId": "D67075ED7AC379078C91078A78C5F8F5",
+      "operation": "add",
+      "target": "Base_JsonData",
+      "fieldCount": 14,
+      "valueHash": "18f3422142487716a24403c2bd2f2b5ed4ea4ef73fc66b5e413b4d3fec9de5dc",
+      "filterEmpty": true
+    },
+    {
+      "nodeId": "8EAEEF34045FAC0627A8189AFC0BE485",
+      "modelId": "F46098EC5580E770FD3F274FC26317BB",
+      "operation": "edit",
+      "target": "Base_JsonData",
+      "fieldCount": 14,
+      "valueHash": "841044d145e318ddd372376414731ba1bea8df687dc9ef1df7aeba12b46bfb08",
+      "filterEmpty": true
+    },
+    {
+      "nodeId": "AB4D667293B6FDBB31119EDEDBD8E028",
+      "modelId": "2780C97F879F5B18DDEFD0D2F3F9FE5F",
+      "operation": "delete",
+      "target": "Base_JsonData",
+      "fieldCount": 14,
+      "valueHash": "5eb27d11886efd6d238207b9a4414a44933dc52de855a29214aef90d49e6ef85",
+      "filterEmpty": true
+    }
+  ],
+  "runtime": {
+    "nodeIds": [
+      "73BEED148B1680216868E36BA1CAEA24",
+      "AB4D667293B6FDBB31119EDEDBD8E028",
+      "8EAEEF34045FAC0627A8189AFC0BE485",
+      "B1F026E6644064B1BE843FD0926C28FE",
+      "0E9128FC0C549E38303573AE1577D363"
+    ],
+    "instanceId": "86A8C0CC9A58428F8C1B1EA5D5CEBBB8",
+    "nodeCount": 5,
+    "flowCount": 0
+  },
+  "businessAbsent": true,
+  "startupUnchanged": true,
+  "cleanedAt": "2026-11-06T00:00:47.643Z",
+  "fixtureRemaining": false,
+  "readbacks": [
+    {
+      "runtimeNodes": 0,
+      "runtimeFlows": 0
+    },
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "limitations": [
+    "Original run failed during cleanup relation-view validation; separate cleanup-only recovery preserved that failure.",
+    "Only five add/edit output values have native types asserted; other observed keys are not inferred contracts.",
+    "Delete returned only the business primary key.",
+    "Output publication, UI regeneration and downstream GetInputParam acceptance remain open."
+  ],
+  "recoveryAttempts": [
+    {
+      "exit": -1,
+      "additionalReads": 0,
+      "additionalWrites": 0,
+      "reason": "Stopped before any new submission to narrow remaining metadata scope."
+    },
+    {
+      "exit": -1,
+      "additionalReads": 38,
+      "additionalWrites": 0,
+      "reason": "Incomplete formal query WorkflowLayout"
+    },
+    {
+      "exit": 0,
+      "additionalReads": 79,
+      "additionalWrites": 3,
+      "reason": "Independent exact absence confirmed."
+    }
+  ],
+  "totalReadsIncludingStoppedRecoveries": 683
+}

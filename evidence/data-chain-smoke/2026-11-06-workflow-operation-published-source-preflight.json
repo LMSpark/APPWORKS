@@ -1,0 +1,229 @@
+{
+  "phase": "confirmed",
+  "error": "",
+  "reads": 14,
+  "writes": 0,
+  "result": [
+    {
+      "source": {
+        "type": "table",
+        "id": "81F00D878D684AE9A7E077578F04249E",
+        "name": "Base_JsonData",
+        "description": "JSON 文件元数据注册表",
+        "dbid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "databaseName": "QYVirtualPlat",
+        "providerId": ""
+      },
+      "model": {
+        "Type": "数据库表",
+        "MetaName": "Base_JsonData",
+        "description": "JSON 文件元数据注册表",
+        "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "DbName": "QYVirtualPlat",
+        "JoinType": "",
+        "ForeignKeyFields": "",
+        "JoinFilter": "",
+        "PId": ""
+      },
+      "fields": [
+        {
+          "Name": "lingma_sys_is_delete",
+          "FieldType": "bigint",
+          "IsPKey": 0
+        },
+        {
+          "Name": "path",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "rowid",
+          "FieldType": "varchar",
+          "IsPKey": 1
+        },
+        {
+          "Name": "lingma_sys_appid",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "description",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "updatetime",
+          "FieldType": "datetime",
+          "IsPKey": 0
+        },
+        {
+          "Name": "flowstate",
+          "FieldType": "int",
+          "IsPKey": 0
+        },
+        {
+          "Name": "updater",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "updateuser",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "ReportID",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "createuser",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "createtime",
+          "FieldType": "datetime",
+          "IsPKey": 0
+        },
+        {
+          "Name": "name",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "wfid",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        }
+      ]
+    },
+    {
+      "source": {
+        "type": "table",
+        "id": "FD189F2199A7473483C791D9F5C5A023",
+        "name": "Base_Import_solution",
+        "description": "Excel 导入业务方案配置表",
+        "dbid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "databaseName": "QYVirtualPlat",
+        "providerId": ""
+      },
+      "model": {
+        "Type": "数据库表",
+        "MetaName": "Base_Import_solution",
+        "description": "Excel 导入业务方案配置表",
+        "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+        "DbName": "QYVirtualPlat",
+        "JoinType": "",
+        "ForeignKeyFields": "",
+        "JoinFilter": "",
+        "PId": ""
+      },
+      "fields": [
+        {
+          "Name": "version",
+          "FieldType": "int",
+          "IsPKey": 0
+        },
+        {
+          "Name": "dataSetId",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "lingma_sys_appid",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "solutionName",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "ReportID",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "status",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "description",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "wfid",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "coding",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "templatePath",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "flowstate",
+          "FieldType": "int",
+          "IsPKey": 0
+        },
+        {
+          "Name": "createuser",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "updatetime",
+          "FieldType": "datetime",
+          "IsPKey": 0
+        },
+        {
+          "Name": "createtime",
+          "FieldType": "datetime",
+          "IsPKey": 0
+        },
+        {
+          "Name": "transform_enabled",
+          "FieldType": "tinyint",
+          "IsPKey": 0
+        },
+        {
+          "Name": "lingma_sys_ent",
+          "FieldType": "varchar",
+          "IsPKey": 1
+        },
+        {
+          "Name": "lingma_sys_is_delete",
+          "FieldType": "bigint",
+          "IsPKey": 0
+        },
+        {
+          "Name": "updateuser",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        },
+        {
+          "Name": "rowid",
+          "FieldType": "varchar",
+          "IsPKey": 1
+        },
+        {
+          "Name": "config_hash",
+          "FieldType": "varchar",
+          "IsPKey": 0
+        }
+      ]
+    }
+  ],
+  "testedAt": "2026-11-06T01:28:54.772Z",
+  "nativeExit": 0,
+  "scope": "Physical source metadata only; no business rows, workflow execution, fixture or CRUD writes"
+}

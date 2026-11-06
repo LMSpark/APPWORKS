@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/crud/record-value-proof",
+    "sourcePath": "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/crud/record-value-proof",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/crud/record-value-proof\n职责：捕获仅用于比较的原生值证明，区分缺失属性、undefined、NaN及嵌套成员变化。\n边界：只返回比较函数，不返回可编辑副本；不参与保存序列化。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-06T21:00:30.801Z",
+  "models": {}
+}

@@ -45,5 +45,7 @@ export type {
 } from './crud/base-container-api.js'
 
 export { createBaseCrudMethods } from './crud/base-crud-methods.js'
+export {useDataViewRecordEditing} from './crud/useDataViewRecordEditing.js'
+export type {DataViewRecordEditing,DataViewRecordEditingInput,DataViewRecordEditingFinish} from './crud/useDataViewRecordEditing.js'
 
 export { createToolbarScope, createRowScope, createCurrentRowScope } from './scope/scopeFactories.js'

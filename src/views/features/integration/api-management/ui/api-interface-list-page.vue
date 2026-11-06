@@ -7,8 +7,10 @@ AI用途：原页面结构与输入语义保留，不查询凭据、不维护调
 <template>
   <p v-if="loading">正在读取接口方案…</p>
   <p v-if="error && !ready" role="alert">{{ error }}</p>
-  <RendererDialog v-if="ready" :data-view-key="mainKey" :model-value="true" title="接口方案设计" width="min(1400px, 96vw)" :close-disabled="busy || dirty" @update:model-value="close">
+  <RendererDialog v-if="ready" :data-view-key="mainKey" :model-value="true" title="接口方案设计" width="min(1400px, 96vw)" :close-disabled="busy || dirty || outputSession" @update:model-value="close">
     <p v-if="error" role="alert">{{ error }}</p>
+    <p v-if="openedProvider !== providerId" role="status">当前仍在处理服务商 {{ openedProvider }} 的原方案。</p>
+    <RendererButton v-if="openedProvider !== providerId" label="切换到所选服务商" :disabled="busy || dirty || unconfirmed || outputSession" @click="loadProvider(providerId)" />
     <RendererSection :data-view-key="mainKey" :grid-columns="1" :bordered="false" body-class="interface-workspace">
       <RendererTable :data-view-key="mainKey" :children="listFields" :toolbar="toolbar" :show-pagination="false" :show-data-view-meta="false" :on-row-click="choose" />
       <RendererSection :data-view-key="mainKey" :grid-columns="1" :bordered="false">
@@ -33,8 +35,14 @@ AI用途：原页面结构与输入语义保留，不查询凭据、不维护调
               <RendererButton :data-view-key="headerKey" label="保存接口头部" :disabled="locked" @click="save('Base_InterfaceApi_Headers')" />
             </RendererTabPane>
             <RendererTabPane name="outputs" label="输出定义" :index="3" :lazy="true" :data-view-key="outputKey">
-              <p>当前正式输出定义。字段类型和主键的完整元数据写入合同尚待补齐，此区暂只读。</p>
-              <RendererTable :data-view-key="outputKey" :children="outputFields" />
+              <p>输出定义由原数据视图维护；所属名称保留正式值。</p>
+              <RendererButton :data-view-key="outputKey" label="新增输出" perm-action="create" :disabled="locked || outputSession" @click="addOutput" />
+              <RendererButton label="编辑当前输出" :disabled="locked || outputSession || !current('Base_TblField')" @click="editOutput" />
+              <RendererButton label="删除当前输出" :disabled="locked || outputSession || !current('Base_TblField')" @click="operateOutput('delete')" />
+              <RendererButton label="处理当前输出待提交修改" :disabled="locked || outputSession || !current('Base_TblField')" @click="operateOutput('pending')" />
+              <RendererTable :data-view-key="outputKey" :children="outputFields" :on-row-click="(row: DataRow) => point('Base_TblField', row)" />
+              <OutputEditDialog v-if="outputEditing" :key="outputEditing.epoch" :data-view-key="outputKey" :record-id="outputEditing.id" :created="outputEditing.created" :type-options-key="key('ParamType')" @close="outputEditing=undefined" />
+              <OutputOperationDialog v-if="outputAction" :key="outputAction.epoch" :data-view-key="outputKey" :record-id="outputAction.id" :mode="outputAction.mode" @close="outputAction=undefined" />
             </RendererTabPane>
           </RendererTabs>
         </template>
@@ -57,15 +65,22 @@ import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
+import OutputEditDialog from './api-output-edit-dialog.vue'
+import OutputOperationDialog from './api-output-operation-dialog.vue'
 type RToolbarProps = SparkComponent.RToolbarProps
 const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererTable, RendererForm, RendererButton, RendererTabs, RendererTabPane} = SparkComponent
 const scenarioId = 'EC84BD89BDBDF46B1FE5132DD53836E5'
-const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers'] as const
+const writable = ['Base_DataServiceInterface', '_Base_ParamList', 'Base_InterfaceApi_Headers', 'Base_TblField'] as const
 const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-interface-list-page'})
 const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('definition')
+const outputEditing=ref<{id:string|number;epoch:number;created:boolean}>()
+const outputAction=ref<{id:string|number;epoch:number;mode:'pending'|'delete'}>()
+const outputSession=computed(()=>!!outputEditing.value||!!outputAction.value)
+const openedProvider=ref('')
+let outputEpoch=0
 let dataSet: DataSet | undefined, runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
 const key = (name: string, view = 'default') => buildDataViewKey(name, view, scenarioId)
 const mainKey = key('Base_DataServiceInterface'), parameterKey = key('_Base_ParamList'), headerKey = key('Base_InterfaceApi_Headers'), outputKey = key('Base_TblField')
@@ -106,7 +121,7 @@ const headerToolbar = computed<RToolbarProps>(() => {
     {type: 'r-button', props: {label: '移除当前头部', disabled: locked.value || !row || !headers
       || !headers.dirtyTracking.isPendingCreate(headers.getPkKey(row)!) && headers.deleteActionState(row) !== 'enabled', onClick: removeHeader}}]}
 })
-useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || dirty.value || unconfirmed.value}})
+useSystemPageDirtySource({get isDirty() {return loading.value || busy.value || dirty.value || unconfirmed.value || outputSession.value}})
 function changed(): void {revision.value++}
 async function act(action: () => Promise<unknown> | unknown): Promise<void> {
   if (busy.value) return
@@ -115,8 +130,36 @@ async function act(action: () => Promise<unknown> | unknown): Promise<void> {
   finally {busy.value = false; changed()}
 }
 function choose(row: DataRow): void {
+  if(outputSession.value)return
   const interfaces = view('Base_DataServiceInterface')
   if (interfaces) void act(() => {interfaces.setCurrentRow(row); interfaces.setSelectedRows([row])})
+}
+function editOutput():void{
+  if(locked.value||outputSession.value)return
+  const outputs=view('Base_TblField'),row=outputs?.currentRow,id=row?outputs?.getPkKey(row):undefined
+  if(!outputs||!row||id===undefined)return
+  if(outputs.dirtyTracking.hasPendingChanges(id)){error.value='请先处理原输出待提交修改';return}
+  if(outputs.editActionState(row)!=='enabled'){error.value='当前输出不可编辑';return}
+  outputEditing.value={id,epoch:++outputEpoch,created:false}
+}
+function operateOutput(mode:'pending'|'delete'):void{
+  if(locked.value||outputSession.value)return
+  const outputs=view('Base_TblField'),row=outputs?.currentRow,id=row?outputs?.getPkKey(row):undefined
+  if(!outputs||!row||id===undefined)return
+  if(outputs.hasEditingChanges(id)){error.value='请先处理原输出编辑输入';return}
+  if(mode==='pending'?!outputs.dirtyTracking.hasPendingChanges(id):outputs.dirtyTracking.hasPendingChanges(id)||outputs.deleteActionState(row)!=='enabled'){error.value='当前输出不满足该操作的前置条件';return}
+  outputAction.value={id,mode,epoch:++outputEpoch}
+}
+async function addOutput():Promise<void>{
+  if(locked.value||outputSession.value)return
+  const outputs=view('Base_TblField'),parent=selected.value,owner=runtime
+  if(!outputs||!parent||outputs.addActionState()!=='enabled')return
+  await act(async()=>{
+    const row=await outputs.addRow({}),id=outputs.getPkKey(row)
+    if(!active||owner!==runtime||selected.value!==parent)return
+    if(id===undefined)throw Error('新增输出未返回原生身份')
+    outputEditing.value={id,created:true,epoch:++outputEpoch}
+  })
 }
 function point(table: string, row: DataRow): void {if (!busy.value) view(table)?.setCurrentRow(row)}
 async function add(table: string): Promise<void> {
@@ -139,11 +182,15 @@ async function save(tableName: string): Promise<void> {
     if (tableName === '_Base_ParamList') await target.getView(tableName, 'references')?.refresh()
   })
 }
-async function reload(): Promise<void> {const target = dataSet; if (target) await act(() => target.discardAndReload({views: writable.map(tableName => ({tableName, viewId: 'default'}))}))}
-function close(): void {if (!busy.value && !dirty.value && !unconfirmed.value) emit('close')}
-function cancel(): void {if (!locked.value) {for (const item of views.value) item.discardPendingChanges(); emit('close')}}
-watch(() => props.providerId, async providerId => {
+async function reload(): Promise<void> {if(outputSession.value)return;const target = dataSet; if (target) await act(() => target.discardAndReload({views: writable.map(tableName => ({tableName, viewId: 'default'}))}))}
+function close(): void {if (!outputSession.value && !busy.value && !dirty.value && !unconfirmed.value) emit('close')}
+function cancel(): void {if (!outputSession.value && !locked.value) {for (const item of views.value) item.discardPendingChanges(); emit('close')}}
+async function loadProvider(providerId:string):Promise<void>{
+  if(runtime&&(busy.value||dirty.value||unconfirmed.value||outputSession.value)){error.value='请先处理当前服务商的原修改或未确认提交，再切换服务商';return}
   const own = ++generation; ready.value = false; loading.value = true; busy.value = false; error.value = ''; tab.value = 'definition'
+  openedProvider.value=providerId
+  outputEditing.value=undefined
+  outputAction.value=undefined
   unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
   try {
     const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
@@ -157,7 +204,8 @@ watch(() => props.providerId, async providerId => {
     sparkProvide(PAGE_RUNTIME, next); ready.value = true; changed()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
-}, {immediate: true})
+}
+watch(() => props.providerId, loadProvider, {immediate:true})
 onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
 </script>
 <style scoped>

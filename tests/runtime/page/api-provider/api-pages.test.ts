@@ -1,10 +1,11 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
-import {defineComponent, h, type Component} from 'vue'
+import {defineComponent, h, reactive, type Component} from 'vue'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ElementPlus from 'element-plus'
-import {Spark, registerAllRenderers, RendererForm} from '@spark-appworks/spark-component'
+import VXETable from 'vxe-table'
+import {Spark, registerAllRenderers, RendererForm, RendererButton} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
@@ -45,7 +46,7 @@ async function mountAt(component: Component, props: Record<string, unknown> = {}
     loadNavigation: async () => ({id: 'root', title: 'Root', childPlacement: 'header', items: [
       {id: 'providers', title: '外部服务管理', path: '/providers', itemKind: 'system-page', blueprintScenarioId: NAV}]})})
   await dynamic.registerRoutes(); await router.push('/apps/APP/providers'); await router.isReady()
-  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]}})
+  const wrapper = mount(defineComponent({setup: () => () => h(RouterView)}), {attachTo: document.body, global: {plugins: [router, ElementPlus, VXETable, Spark.createPlugin()]}})
   wrappers.push(wrapper)
   await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).not.toContain('正在读取')})
   await flushPromises()
@@ -55,6 +56,72 @@ const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button')
 const records = (table: string) => api.current.state.http.records[table]!
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it('confirms an unreferenced output deletion through the original ID without replaying an unknown result',async()=>{
+    const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+    const props=reactive({providerId:'P1'}),wrapper=await mountAt(InterfacePage,props),runtime=[...observed].find(p=>p.getDataSet(API))!,ds=runtime.getDataSet(API)!,parent=ds.getView('Base_DataServiceInterface')!
+    parent.setCurrentRowById('I2');parent.setSelectedRows([parent.currentRow!]);await flushPromises()
+    await wrapper.findAll('.el-tabs__item').find(item=>item.text()==='输出定义')!.trigger('click');await flushPromises()
+    const outputs=ds.getView('Base_TblField')!;await vi.waitFor(()=>expect(outputs.rows).toHaveLength(1));outputs.setCurrentRowById('F2');await flushPromises()
+    const remove=button(wrapper,'删除当前输出');expect(remove).toBeDefined();await remove!.trigger('click');await flushPromises()
+    const click=async(label:string)=>{wrapper.findAllComponents(RendererButton).find(item=>item.props('label')===label)!.vm.$emit('click');await flushPromises()}
+    await click('取消删除输出');expect(api.current.state.http.saves).toHaveLength(0);expect(outputs.rows).toHaveLength(1)
+    await button(wrapper,'删除当前输出')!.trigger('click');await flushPromises();api.current.state.http.failAfterWrite=true
+    await click('确认删除输出');await vi.waitFor(()=>expect(outputs.hasUnconfirmedSave).toBe(true))
+    props.providerId='P2';await flushPromises()
+    expect(ds.destroyed).toBe(false);expect(outputs.hasUnconfirmedSave).toBe(true);expect(runtime.getDataSet(API)).toBe(ds)
+    await click('核验原输出提交');await vi.waitFor(()=>expect(outputs.hasUnconfirmedSave).toBe(false))
+    expect(api.current.state.http.saves).toHaveLength(1);expect(api.current.state.http.saves[0]?.deleted[0]?.['rowid']).toBe('F2')
+    expect(records('Base_TblField').map(row=>row['rowid'])).toEqual(['F1'])
+    await flushPromises();await button(wrapper,'切换到所选服务商')!.trigger('click')
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('其他'));expect(ds.destroyed).toBe(true)
+  })
+  it('cancels a new output without writing or inventing its parent display name',async()=>{
+    const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+    const wrapper=await mountAt(InterfacePage,{providerId:'P1'}),ds=[...observed].find(p=>p.getDataSet(API))!.getDataSet(API)!,parent=ds.getView('Base_DataServiceInterface')!
+    parent.setCurrentRowById('I1');parent.setSelectedRows([parent.currentRow!]);await flushPromises()
+    await wrapper.findAll('.el-tabs__item').find(item=>item.text()==='输出定义')!.trigger('click');await flushPromises()
+    const outputs=ds.getView('Base_TblField')!;await vi.waitFor(()=>expect(outputs.rows).toHaveLength(1))
+    const add=button(wrapper,'新增输出');expect(add).toBeDefined();await add!.trigger('click');await flushPromises()
+    const created=outputs.rows.find(row=>outputs.dirtyTracking.isPendingCreate(outputs.getPkKey(row)!))!
+    expect(created).toBeDefined();expect(created['tblid']).toBe('I1');expect(created['tblname']??'').toBe('')
+    wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='取消输出编辑')!.vm.$emit('click');await flushPromises()
+    expect(outputs.rows).toHaveLength(1);expect(outputs.dirtyTracking.hasPendingChanges()).toBe(false);expect(api.current.state.http.saves).toHaveLength(0)
+    await button(wrapper,'新增输出')!.trigger('click');await flushPromises()
+    const next=outputs.rows.find(row=>outputs.dirtyTracking.isPendingCreate(outputs.getPkKey(row)!))!,id=outputs.getPkKey(next)!
+    for(const [field,value]of Object.entries({enname:'new_field',cnname:'新字段',DataType:'string',IsPKey:0}))outputs.updateEditingValue(id,field,value)
+    wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='保存输出定义')!.vm.$emit('click')
+    await vi.waitFor(()=>expect(api.current.state.http.saves).toHaveLength(1))
+    expect(api.current.state.http.saves[0]?.added[0]).toMatchObject({rowid:id,tblid:'I1',enname:'new_field',IsPKey:0})
+    expect(api.current.state.http.saves[0]?.added[0]?.['tblname']??'').toBe('')
+    await vi.waitFor(()=>expect(outputs.hasPendingSavedRowPermissions).toBe(false))
+  })
+  it('edits an original output through a fixed-row standard form and cancels without writing',async()=>{
+    const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+    const wrapper=await mountAt(InterfacePage,{providerId:'P1'})
+    const ds=[...observed].find(p=>p.getDataSet(API))!.getDataSet(API)!,interfaces=ds.getView('Base_DataServiceInterface')!
+    interfaces.setCurrentRowById('I1');interfaces.setSelectedRows([interfaces.currentRow!]);await flushPromises()
+    await wrapper.findAll('.el-tabs__item').find(item=>item.text()==='输出定义')!.trigger('click');await flushPromises()
+    const outputs=ds.getView('Base_TblField')!;await vi.waitFor(()=>expect(outputs.rows).toHaveLength(1));outputs.setCurrentRowById('F1');await flushPromises()
+    const edit=button(wrapper,'编辑当前输出');expect(edit).toBeDefined();await edit!.trigger('click');await flushPromises()
+    const form=wrapper.findAllComponents(RendererForm).find(item=>item.props('contextRowId')==='F1');expect(form).toBeDefined()
+    outputs.updateEditingValue('F1','cnname','cancelled title')
+    wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='取消输出编辑')!.vm.$emit('click');await flushPromises()
+    expect(outputs.getEditingRow('F1')?.['cnname']).toBe('令牌');expect(api.current.state.http.saves).toHaveLength(0)
+    await button(wrapper,'编辑当前输出')!.trigger('click');await flushPromises()
+    outputs.updateEditingValue('F1','cnname','saved title')
+    const inputs=ds.getView('_Base_ParamList')!;inputs.updateEditingValue('A1','pardesc','keep input draft')
+    wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='保存输出定义')!.vm.$emit('click')
+    await vi.waitFor(()=>expect(records('Base_TblField')[0]?.['cnname']).toBe('saved title'))
+    expect(api.current.state.http.saves).toHaveLength(1);expect(api.current.state.http.saves[0]?.changed).toMatchObject([{rowid:'F1',cnname:'saved title'}])
+    expect(inputs.hasEditingChanges('A1')).toBe(true)
+    await mountAt(InterfacePage,{providerId:'P1'})
+    const reopened=[...observed].filter(p=>p.getDataSet(API)).at(-1)!.getDataSet(API)!,parent=reopened.getView('Base_DataServiceInterface')!
+    parent.setCurrentRowById('I1');parent.setSelectedRows([parent.currentRow!])
+    await vi.waitFor(()=>expect(reopened.getView('Base_TblField')!.rows[0]?.['cnname']).toBe('saved title'))
+  })
   it.each([{component:InterfacePage,scenario:API},{component:ConfigPage,scenario:CONFIG}])('provides its original deferred metadata host for $scenario',async({component,scenario})=>{
     const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
     vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})

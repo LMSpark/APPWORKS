@@ -311,6 +311,8 @@
       ],
       "views": {
         "default": {
+          "commitMode": "staged",
+          "lockCurrentWhilePending": true,
           "autoLoad": true,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
@@ -320,7 +322,11 @@
               "tblid",
               "enname",
               "cnname",
-              "DataTypeName"
+              "DataTypeName",
+              "DataType",
+              "IsPKey",
+              "tblname",
+              "Memo"
             ],
             "allPages": true
           }

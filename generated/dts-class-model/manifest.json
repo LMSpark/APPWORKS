@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1087,
+  "scannedFileCount": 1092,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -5020,6 +5020,36 @@
         "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/crud/crud-result-helpers\n职责：提供 crud result helpers 在 spark-component 渲染体系中的辅助能力，连接配置、上下文和组件运行时。\n边界：只服务 component-runtime，不绕过 DataViewKey/DataSet 管线，也不承担应用路由职责。\nAI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。\n\nCrudResult 类型守卫与工具函数。\nbuiltin-action-handler.ts 和 page/actions/action-executor.ts 共享。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
+      }
+    },
+    "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts": {
+      "file": "files/packages/spark-component/src/components/containers/support/crud/record-value-proof.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/support/crud/record-value-proof",
+        "sourcePath": "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts",
+        "sourceFile": "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/support/crud/record-value-proof",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/crud/record-value-proof\n职责：捕获仅用于比较的原生值证明，区分缺失属性、undefined、NaN及嵌套成员变化。\n边界：只返回比较函数，不返回可编辑副本；不参与保存序列化。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts": {
+      "file": "files/packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/support/crud/useDataViewRecordEditing",
+        "sourcePath": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+        "sourceFile": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/support/crud/useDataViewRecordEditing",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/crud/useDataViewRecordEditing\n职责：为标准组件交互编排固定记录的编辑检查点、单ID保存和原捕获核验。\n边界：值与待提交状态始终归原DataView；不查询、不复制草稿、不创建保存owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataViewRecordEditingFinish",
+          "DataViewRecordEditingInput",
+          "DataViewRecordEditing"
+        ]
       }
     },
     "packages/spark-component/src/components/containers/support/index.ts": {
@@ -17029,6 +17059,19 @@
         "symbols": []
       }
     },
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue": {
+      "file": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog",
+        "sourcePath": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue",
+        "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog",
+        "jsdoc": "@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog\n职责：展示原规则删除确认或明确处理待提交修改的入口。\n边界：提交、原异常核验及取消由公共记录操作能力承接，不复制规则草稿。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue": {
       "file": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue.json",
       "module": {
@@ -17603,6 +17646,32 @@
         "packageName": "app",
         "modulePath": "views/features/integration/api-management/ui/api-management-page",
         "jsdoc": "@module app:views/features/integration/api-management/ui/api-management-page\n职责：外部服务商目录与基础定义维护，保留原导航和业务路径。\n边界：经标准场景入口装配；标准组件绑定DataView，校验、权限、保存及重读均由SPARK data承接，页面只转发事件。\nAI用途：目录选择经查询级联驱动definition视图，新建使用空结果的create视图。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
+      "file": "files/src/views/features/integration/api-management/ui/api-output-edit-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/integration/api-management/ui/api-output-edit-dialog",
+        "sourcePath": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
+        "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/api-management/ui/api-output-edit-dialog",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-output-edit-dialog\n职责：固定原输出记录的标准字段编辑。\n边界：读写及保存使用原DataView，生命周期由公共记录编辑能力承接；不持有草稿或存储owner。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue": {
+      "file": "files/src/views/features/integration/api-management/ui/api-output-operation-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/integration/api-management/ui/api-output-operation-dialog",
+        "sourcePath": "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue",
+        "sourceFile": "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/integration/api-management/ui/api-output-operation-dialog",
+        "jsdoc": "@module app:views/features/integration/api-management/ui/api-output-operation-dialog\n职责：确认原输出删除或明确处理原待提交修改。\n边界：复用公共单记录操作，不复制提交、取消与原捕获核验管线。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -20254,6 +20323,18 @@
     "DataViewRecomputeColumnsOptions": {
       "sourcePath": "packages/spark-data/src/data-view.ts",
       "file": "files/packages/spark-data/src/data-view.ts.json"
+    },
+    "DataViewRecordEditing": {
+      "sourcePath": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+      "file": "files/packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts.json"
+    },
+    "DataViewRecordEditingFinish": {
+      "sourcePath": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+      "file": "files/packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts.json"
+    },
+    "DataViewRecordEditingInput": {
+      "sourcePath": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+      "file": "files/packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts.json"
     },
     "DataViewRequestAndAggregateState": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/view-runtime-state.ts",

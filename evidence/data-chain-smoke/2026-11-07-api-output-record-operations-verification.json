@@ -1,0 +1,115 @@
+{
+  "status": "verified-checkpoint",
+  "scope": "Shared explicit edit/pending/delete lifecycle; Excel reuse; API output create/edit/delete/pending UI. Public parameter rebinding remains open.",
+  "frozenSourceHashes": {
+    "config/pages/integration/api-interface/pagedata.json": "2714bcdf16f65adf412f8dfa2d31cd2c268cde1f1ed1162143ac7274ca7b6e45",
+    "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts": "95512b1712028e78d1b3dfa21f027b093c90108273400d04564f722aaaa61661",
+    "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts": "96d8a767a53aadb41ce52c89320071440712d4a1818682f0c75208f45c117023",
+    "packages/spark-component/src/components/containers/support/index.ts": "c35364aba191f2598c451deeb018653174c36a2a7ddd5308ed00e39211d02149",
+    "packages/spark-component/src/index.ts": "c0bda2d5e4dfbb915ba8a5d50b6d41ff876558fb555818fe412873393dd0f6f7",
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue": "07271f4d5f7741564312d17a15a56dd51cd7b63b29b2a9b6421f74432d43fcc2",
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue": "2df28b9275e78c8a526ab4c819738d0e440201d20de48202dc6ed562bd140331",
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue": "ca3a708fb01a261e7797932c9b543f474ffdc171010d8f5e6f1ff665acba0bd0",
+    "src/views/features/integration/api-management/ui/api-interface-list-page.vue": "3594b57d0e5764b8d71e3c7979fbc102a4724bde383ac1d4664b6de83548cdbe",
+    "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": "e44098a82adf0a35295495f3b59caba25dab9d8e3d163cbc8c41ba2741d9b17d",
+    "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue": "690d1f0c18471e054a622b8a2747ebc0e1a5db36e15d7a04ab267a5e9af3aa6c",
+    "tests/runtime/component/data-view-record-editing.test.ts": "592715644b8555ad1fc7d40905760c0c9ffc1880bd462fe2259c75155a83c43c",
+    "tests/runtime/page/api-provider/api-pages.test.ts": "2f0ded735ee917d4912d152828b4e78abc833192740c2534a7252cd91effe302"
+  },
+  "validation": {
+    "impact": {
+      "files": 7,
+      "tests": 105,
+      "passed": true,
+      "durationSeconds": 37.88
+    },
+    "types": {
+      "exitCode": 0,
+      "session": 36607
+    },
+    "lint": {
+      "exitCode": 0,
+      "session": 93250
+    },
+    "rules": {
+      "exitCode": 0,
+      "session": 77847
+    },
+    "build": {
+      "exitCode": 0,
+      "session": 49280,
+      "limitation": "Before final equivalent module facade import adjustment; full repository run includes final import."
+    },
+    "classModel": {
+      "exitCode": 0,
+      "session": 27099
+    },
+    "freshGuides": {
+      "exitCode": 0,
+      "session": 6259
+    },
+    "fullRepository": {
+      "status": "passed",
+      "exitCode": 0,
+      "session": 14951,
+      "files": 479,
+      "tests": 8890,
+      "durationSeconds": 1164.45,
+      "workers": 2,
+      "testTimeoutMs": 15000,
+      "frozenSourceHashesMatched": 13,
+      "log": "artifacts/data-chain-smoke/api-output-operations-full-repository.log"
+    }
+  },
+  "readOnlyReview": {
+    "frozenSourceHashesMatched": 13,
+    "newDefiniteBlockers": 0
+  },
+  "liveService": {
+    "newRequests": 0,
+    "outputCreationParentTypeFailure": "remains open; no replay or mutation of existing six outputs"
+  },
+  "redAndFixtureNotes": [
+    "Explicit mode tests: four real failures before implementation.",
+    "Create/delete UI buttons missing were real failing assertions.",
+    "Provider switch destroyed original unknown DataSet before guard fix.",
+    "Missing property to undefined incorrectly dispatched one save in test backend before exact proof fix.",
+    "Result-column change test originally mutated getColumn model metadata rather than current result columns; corrected fixture, not counted as a validated product RED.",
+    "Initial API page fixture lacked VXETable plugin; fixture correction, not product RED."
+  ],
+  "logHashes": {
+    "api-output-operations-impact-v6.log": {
+      "sha256": "aced7cbfbb41b84c20ed3298e53c72d25eea1c2375e7129547e11d080d8b97aa"
+    },
+    "api-output-operations-types-v3.log": {
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    "api-output-operations-full-lint.log": {
+      "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    "api-output-operations-rules-v2.log": {
+      "sha256": "2bf884f74ec0d3556aa5e442af15e25302d0adeb922689e0b3ad703b1be41ae1"
+    },
+    "api-output-operations-build.log": {
+      "sha256": "b1a17b9cf0d698753a14c15b8c23645a77c183b0af9f1efc5a25e0657bb5763d"
+    },
+    "api-output-operations-class-model-v4.log": {
+      "sha256": "bcdda7639b85820786d256d226dc36a0e44801a5edb8205ee84875f527b32ace"
+    },
+    "api-output-operations-fresh-guides.log": {
+      "sha256": "44e28f3bbc367f3713008b88c4344f445a419b6912fbf9bc3051cadc32b4d002"
+    },
+    "api-output-operations-generated-audit.json": {
+      "sha256": "f493df8d0294db9523416c52df39cfc13ed31511c8b0c9f90bc5a03df2571c68"
+    },
+    "api-output-operations-full-repository.log": {
+      "sha256": "7c1236b7f0ccb31a6a1d2e5485f41ccf0a4cd93600925ca5cc5505507bfc5ce5"
+    }
+  },
+  "openItems": [
+    "Public parameter rebinding UI remains unimplemented.",
+    "Output list still reads DataTypeName independently from edited DataType; follow-up uses readonly standard option field and removes unused projection.",
+    "Actual deployed output creation parent-type validation failure remains open; frontend tests do not prove deployment supports it.",
+    "20-package migration and browser visual acceptance remain incomplete."
+  ]
+}

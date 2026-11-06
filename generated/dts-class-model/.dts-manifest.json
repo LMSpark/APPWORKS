@@ -1466,10 +1466,20 @@
       "shardFile": "files/packages/spark-component/src/components/containers/support/crud/crud-result-helpers.ts.json",
       "sourceModifiedAt": "2026-10-07T02:30:27.135Z"
     },
+    "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts": {
+      "sourceFile": "packages/spark-component/src/components/containers/support/crud/record-value-proof.ts",
+      "shardFile": "files/packages/spark-component/src/components/containers/support/crud/record-value-proof.ts.json",
+      "sourceModifiedAt": "2026-11-06T21:00:30.801Z"
+    },
+    "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts": {
+      "sourceFile": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+      "shardFile": "files/packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts.json",
+      "sourceModifiedAt": "2026-11-06T21:02:33.893Z"
+    },
     "packages/spark-component/src/components/containers/support/index.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/support/index.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/support/index.ts.json",
-      "sourceModifiedAt": "2026-10-07T02:30:26.822Z"
+      "sourceModifiedAt": "2026-11-06T20:33:57.887Z"
     },
     "packages/spark-component/src/components/containers/support/interactionControl.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/support/interactionControl.ts",
@@ -2459,7 +2469,7 @@
     "packages/spark-component/src/index.ts": {
       "sourceFile": "packages/spark-component/src/index.ts",
       "shardFile": "files/packages/spark-component/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-05T21:54:48.641Z"
+      "sourceModifiedAt": "2026-11-06T20:33:57.889Z"
     },
     "packages/spark-component/src/page/actions/action-data.ts": {
       "sourceFile": "packages/spark-component/src/page/actions/action-data.ts",
@@ -5186,15 +5196,20 @@
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-target-dialog.vue.json",
       "sourceModifiedAt": "2026-11-05T02:37:18.863Z"
     },
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue": {
+      "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue",
+      "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-06T20:54:25.996Z"
+    },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rule-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-05T17:53:33.155Z"
+      "sourceModifiedAt": "2026-11-06T20:53:05.238Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-rules-pane.vue.json",
-      "sourceModifiedAt": "2026-11-05T17:46:28.434Z"
+      "sourceModifiedAt": "2026-11-06T20:54:26.454Z"
     },
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
@@ -5399,12 +5414,22 @@
     "src/views/features/integration/api-management/ui/api-interface-list-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-interface-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T19:31:27.247Z"
+      "sourceModifiedAt": "2026-11-06T21:00:03.828Z"
     },
     "src/views/features/integration/api-management/ui/api-management-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-management-page.vue.json",
       "sourceModifiedAt": "2026-10-30T15:31:33.797Z"
+    },
+    "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
+      "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
+      "shardFile": "files/src/views/features/integration/api-management/ui/api-output-edit-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-06T21:04:32.297Z"
+    },
+    "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue": {
+      "sourceFile": "src/views/features/integration/api-management/ui/api-output-operation-dialog.vue",
+      "shardFile": "files/src/views/features/integration/api-management/ui/api-output-operation-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-06T20:56:43.873Z"
     },
     "src/views/platform/About.vue": {
       "sourceFile": "src/views/platform/About.vue",

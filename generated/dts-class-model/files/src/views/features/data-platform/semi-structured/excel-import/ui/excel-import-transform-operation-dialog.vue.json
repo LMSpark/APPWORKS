@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog",
+    "sourcePath": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue",
+    "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog",
+    "jsdoc": "@module app:views/features/data-platform/semi-structured/excel-import/ui/excel-import-transform-operation-dialog\n职责：展示原规则删除确认或明确处理待提交修改的入口。\n边界：提交、原异常核验及取消由公共记录操作能力承接，不复制规则草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-06T20:54:25.996Z",
+  "models": {}
+}

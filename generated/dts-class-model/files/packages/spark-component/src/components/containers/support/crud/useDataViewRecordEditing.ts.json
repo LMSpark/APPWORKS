@@ -1,0 +1,461 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/support/crud/useDataViewRecordEditing",
+    "sourcePath": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/support/crud/useDataViewRecordEditing",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/crud/useDataViewRecordEditing\n职责：为标准组件交互编排固定记录的编辑检查点、单ID保存和原捕获核验。\n边界：值与待提交状态始终归原DataView；不查询、不复制草稿、不创建保存owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataViewRecordEditingFinish",
+      "DataViewRecordEditingInput",
+      "DataViewRecordEditing"
+    ]
+  },
+  "$defs": {
+    "DataViewRecordEditingFinish": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "DataViewRecordEditingFinish",
+      "enum": [
+        "saved",
+        "cancelled",
+        "preserved"
+      ]
+    },
+    "DataViewRecordEditingInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewRecordEditingInput",
+      "$defs": {
+        "method.runtime.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.runtime.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "method.dataViewKey.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dataViewKey.return": {
+          "type": "string"
+        },
+        "method.recordId.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.recordId.return": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "method.pendingInputs.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.pendingInputs.return": {
+          "type": "boolean"
+        },
+        "method.onFinish.params": {
+          "type": "object",
+          "properties": {
+            "result": {
+              "$ref": "#/$defs/DataViewRecordEditingFinish"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onFinish.return": true
+      }
+    },
+    "DataViewRecordEditing": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewRecordEditing",
+      "properties": {
+        "view": {
+          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "dataViewKey": {
+          "type": "string"
+        },
+        "recordId": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "number"
+            }
+          ]
+        },
+        "originalRow": {
+          "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "current": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "locked": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "busy": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "error": {
+          "type": "object",
+          "title": "ComputedRef<string>"
+        },
+        "ownUnconfirmed": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "foreignRecovery": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "recoveryEnded": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "permissionsPending": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "confirmedCreation": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "hasStaged": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
+        "row": {
+          "type": "object",
+          "title": "ComputedRef<Readonly<DataRow> | undefined>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.save.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.save.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.discard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discard.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T21:02:33.893Z",
+  "models": {
+    "DataViewRecordEditingFinish": {
+      "name": "DataViewRecordEditingFinish",
+      "jsdoc": "明确区分本窗保存、取消与关闭保留原修改。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'saved' | 'cancelled' | 'preserved'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'saved'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cancelled'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'preserved'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "DataViewRecordEditingInput": {
+      "name": "DataViewRecordEditingInput",
+      "jsdoc": "原组件实例的固定记录编辑输入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次原PageRuntime；改变时失效，不跟随新实例。 */\n    runtime: () => PageRuntime | null | undefined;\n    /** 完整视图键；输入改变不自动重绑。 */\n    dataViewKey: () => string;\n    /** 该视图原生记录身份；改变时失效。 */\n    recordId: () => string | number;\n    /** 控件还有未提交输入时禁止保存，不接管控件内部输入。 */\n    pendingInputs?: () => boolean;\n    /** 已结束后的通知；卸载和迟到响应不会触发。 */\n    onFinish?: (result: DataViewRecordEditingFinish) => void;\n} & ({\n    /** 编辑原行，创建可恢复的字段检查点。 */\n    mode: 'edit';\n    /** 仅为checkpoint恢复范围，不是保存白名单；save提交本ID全部变更。 */\n    editableFields: readonly string[];\n    /** 是否为原视图待新增行，默认false；须与原生状态一致。 */\n    created?: () => boolean;\n} | {\n    /** 明确处理原生待提交修改，或确认删除原正式行；均不创建编辑checkpoint。 */\n    mode: 'pending' | 'delete';\n})>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次原PageRuntime；改变时失效，不跟随新实例。 */\n    runtime: () => PageRuntime | null | undefined;\n    /** 完整视图键；输入改变不自动重绑。 */\n    dataViewKey: () => string;\n    /** 该视图原生记录身份；改变时失效。 */\n    recordId: () => string | number;\n    /** 控件还有未提交输入时禁止保存，不接管控件内部输入。 */\n    pendingInputs?: () => boolean;\n    /** 已结束后的通知；卸载和迟到响应不会触发。 */\n    onFinish?: (result: DataViewRecordEditingFinish) => void;\n} & ({\n    /** 编辑原行，创建可恢复的字段检查点。 */\n    mode: 'edit';\n    /** 仅为checkpoint恢复范围，不是保存白名单；save提交本ID全部变更。 */\n    editableFields: readonly string[];\n    /** 是否为原视图待新增行，默认false；须与原生状态一致。 */\n    created?: () => boolean;\n} | {\n    /** 明确处理原生待提交修改，或确认删除原正式行；均不创建编辑checkpoint。 */\n    mode: 'pending' | 'delete';\n})>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "runtime",
+              "jsdoc": "本次原PageRuntime；改变时失效，不跟随新实例。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "PageRuntime"
+                  },
+                  {
+                    "type": "literal",
+                    "value": null
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "undefined"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "完整视图键；输入改变不自动重绑。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "recordId",
+              "jsdoc": "该视图原生记录身份；改变时失效。",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  },
+                  {
+                    "type": "intrinsic",
+                    "name": "number"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "pendingInputs",
+              "jsdoc": "控件还有未提交输入时禁止保存，不接管控件内部输入。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "onFinish",
+              "jsdoc": "已结束后的通知；卸载和迟到响应不会触发。",
+              "parameters": [
+                {
+                  "name": "result",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewRecordEditingFinish",
+                    "sourcePath": "packages/spark-component/src/components/containers/support/crud/useDataViewRecordEditing.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewRecordEditing": {
+      "name": "DataViewRecordEditing",
+      "jsdoc": "原DataView的只读交互状态与窄操作；不是新的记录状态真源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 原视图句柄，业务交互仍使用其正式API。 */\n    view: DataView;\n    /** 原DataSet句柄，未决状态不会由本能力销毁。 */\n    dataSet: DataSet;\n    /** 打开时捕获的完整视图键。 */\n    dataViewKey: string;\n    /** 打开时捕获的原生记录ID。 */\n    recordId: string | number;\n    /** 原查询行，只供读取身份与权限，不能手工写入。 */\n    originalRow: Readonly<DataRow>;\n    /** 原绑定、原行及输入身份仍有效。 */\n    current: ComputedRef<boolean>;\n    /** 通用编辑锁；不替代字段数据权限。 */\n    locked: ComputedRef<boolean>;\n    /** 当前保存或权限回读在途。 */\n    busy: ComputedRef<boolean>;\n    /** 当前交互错误，保留原数据层错误文本。 */\n    error: ComputedRef<string>;\n    /** 由本次原异常与完整目标ID证明属于本窗的未知保存。 */\n    ownUnconfirmed: ComputedRef<boolean>;\n    /** 同视图存在不属于本窗的未知捕获。 */\n    foreignRecovery: ComputedRef<boolean>;\n    /** 原未知已结束；不自动开启新的提交意图。 */\n    recoveryEnded: ComputedRef<boolean>;\n    /** 已确认新增正在等待原权限回读，不重做新增。 */\n    permissionsPending: ComputedRef<boolean>;\n    /** 本窗新增已由原保存回执确认；不从本地行消失推断成功。 */\n    confirmedCreation: ComputedRef<boolean>;\n    /** 本ID已有原生待提交状态。 */\n    hasStaged: ComputedRef<boolean>;\n    /** 当前原行的编辑覆盖；失效时不跟随替换记录。 */\n    row: ComputedRef<Readonly<DataRow> | undefined>;\n    /** 首次单ID保存或只核本窗原捕获。 */\n    save(): Promise<void>;\n    /** 未apply时恢复本范围；已apply/失效/foreign时关闭保留，不伪造回滚。 */\n    cancel(): void;\n    /** 用户明确放弃原pending；不取消未知提交或已确认新增。 */\n    discard(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 原视图句柄，业务交互仍使用其正式API。 */\n    view: DataView;\n    /** 原DataSet句柄，未决状态不会由本能力销毁。 */\n    dataSet: DataSet;\n    /** 打开时捕获的完整视图键。 */\n    dataViewKey: string;\n    /** 打开时捕获的原生记录ID。 */\n    recordId: string | number;\n    /** 原查询行，只供读取身份与权限，不能手工写入。 */\n    originalRow: Readonly<DataRow>;\n    /** 原绑定、原行及输入身份仍有效。 */\n    current: ComputedRef<boolean>;\n    /** 通用编辑锁；不替代字段数据权限。 */\n    locked: ComputedRef<boolean>;\n    /** 当前保存或权限回读在途。 */\n    busy: ComputedRef<boolean>;\n    /** 当前交互错误，保留原数据层错误文本。 */\n    error: ComputedRef<string>;\n    /** 由本次原异常与完整目标ID证明属于本窗的未知保存。 */\n    ownUnconfirmed: ComputedRef<boolean>;\n    /** 同视图存在不属于本窗的未知捕获。 */\n    foreignRecovery: ComputedRef<boolean>;\n    /** 原未知已结束；不自动开启新的提交意图。 */\n    recoveryEnded: ComputedRef<boolean>;\n    /** 已确认新增正在等待原权限回读，不重做新增。 */\n    permissionsPending: ComputedRef<boolean>;\n    /** 本窗新增已由原保存回执确认；不从本地行消失推断成功。 */\n    confirmedCreation: ComputedRef<boolean>;\n    /** 本ID已有原生待提交状态。 */\n    hasStaged: ComputedRef<boolean>;\n    /** 当前原行的编辑覆盖；失效时不跟随替换记录。 */\n    row: ComputedRef<Readonly<DataRow> | undefined>;\n    /** 首次单ID保存或只核本窗原捕获。 */\n    save(): Promise<void>;\n    /** 未apply时恢复本范围；已apply/失效/foreign时关闭保留，不伪造回滚。 */\n    cancel(): void;\n    /** 用户明确放弃原pending；不取消未知提交或已确认新增。 */\n    discard(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "view",
+              "jsdoc": "原视图句柄，业务交互仍使用其正式API。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
+              "jsdoc": "原DataSet句柄，未决状态不会由本能力销毁。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataViewKey",
+              "jsdoc": "打开时捕获的完整视图键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recordId",
+              "jsdoc": "打开时捕获的原生记录ID。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "originalRow",
+              "jsdoc": "原查询行，只供读取身份与权限，不能手工写入。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "current",
+              "jsdoc": "原绑定、原行及输入身份仍有效。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "locked",
+              "jsdoc": "通用编辑锁；不替代字段数据权限。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "busy",
+              "jsdoc": "当前保存或权限回读在途。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "当前交互错误，保留原数据层错误文本。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ownUnconfirmed",
+              "jsdoc": "由本次原异常与完整目标ID证明属于本窗的未知保存。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "foreignRecovery",
+              "jsdoc": "同视图存在不属于本窗的未知捕获。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "recoveryEnded",
+              "jsdoc": "原未知已结束；不自动开启新的提交意图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "permissionsPending",
+              "jsdoc": "已确认新增正在等待原权限回读，不重做新增。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "confirmedCreation",
+              "jsdoc": "本窗新增已由原保存回执确认；不从本地行消失推断成功。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "hasStaged",
+              "jsdoc": "本ID已有原生待提交状态。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "row",
+              "jsdoc": "当前原行的编辑覆盖；失效时不跟随替换记录。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "save",
+              "jsdoc": "首次单ID保存或只核本窗原捕获。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "未apply时恢复本范围；已apply/失效/foreign时关闭保留，不伪造回滚。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "discard",
+              "jsdoc": "用户明确放弃原pending；不取消未知提交或已确认新增。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

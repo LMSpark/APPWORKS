@@ -41,6 +41,8 @@ export type {
   ComponentRegistry,
 } from './core/index.js'
 export type { CancellableControl } from './components/containers/support/interactionControl.js'
+export {useDataViewRecordEditing} from './components/containers/support/crud/useDataViewRecordEditing.js'
+export type {DataViewRecordEditing,DataViewRecordEditingInput,DataViewRecordEditingFinish} from './components/containers/support/crud/useDataViewRecordEditing.js'
 
 // ── 5. DI Keys + SparkNode 结构常量 ──
 export {

@@ -1,0 +1,92 @@
+{
+  "status": "verified-checkpoint",
+  "baselineCommit": "93a0176bf1daade340e2f88a1aea7beb2238805f",
+  "scope": "Original rowid public-parameter rebinding using existing DataViews and fixed-record edit/pending helper. Existing owner-based matching by interface/output is not used.",
+  "sourceHashes": {
+    "config/pages/integration/api-interface/pagedata.json": "4497a1831da876acabf8abd875dd9fb06092149af5116e18154f77e57515f51f",
+    "src/lowcode/resources/integration/api-management/model-rules.ts": "e90564b51b74f72d5f48a472927df2f5e32b7441440a377edf4c5b013b17fa9b",
+    "src/views/features/integration/api-management/ui/api-interface-list-page.vue": "84fbc6c38269ce9fe0e526c3cdd1c1e5318d5d74df3e9dfa9584befae12ec7c7",
+    "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-dialog.vue": "41ebd4d0936721f7d18273cef16394c7cf212cc5e326f92f1a9c83742c6a6edf",
+    "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue": "4d5ff83e3cf856c4617a79c21ed3d194d4ec0f71d5004f08de3102ff52d030a9",
+    "tests/runtime/page/api-provider/api-model-rules.test.ts": "66a9dfaa6b59be9d3b84d5f477c697f3260b98f4595d7f4c318082b7926020ec",
+    "tests/runtime/page/api-provider/api-pages.test.ts": "d3d489c6775fede951cf761b440a7e98c77b5e2a2ab0b8931e08882ac4d3ac64",
+    "tests/runtime/page/api-provider/api-provider.fixture.ts": "f42c5b384e1d3b5bedd409d7ed31334b2136660e0ca5c32aa889a4da294ee64a"
+  },
+  "validation": {
+    "impact": {
+      "files": 7,
+      "tests": 124,
+      "durationSeconds": 41.85,
+      "exitCode": 0
+    },
+    "types": {
+      "session": 21069,
+      "exitCode": 0
+    },
+    "lint": {
+      "session": 86736,
+      "exitCode": 0
+    },
+    "rules": {
+      "session": 27915,
+      "exitCode": 0
+    },
+    "build": {
+      "session": 7043,
+      "exitCode": 0
+    },
+    "classModel": {
+      "session": 64422,
+      "exitCode": 0
+    },
+    "guides": {
+      "roots": 7,
+      "session": 12627,
+      "exitCode": 0
+    },
+    "fullRepository": {
+      "status": "passed",
+      "session": 92344,
+      "workers": 2,
+      "testTimeoutMs": 15000,
+      "files": 479,
+      "tests": 8909,
+      "durationSeconds": 1110.34,
+      "exitCode": 0,
+      "terminalEvidence": "Original session released; persisted exit file is 0 and complete log contains terminal totals."
+    }
+  },
+  "readOnlyReview": {
+    "frozenHashesMatched": 8,
+    "newDefiniteBlockers": 0
+  },
+  "liveReadonlyEvidence": "evidence/data-chain-smoke/2026-11-07-api-parameter-binding-live-readonly.json",
+  "logHashes": {
+    "api-parameter-binding-red.log": "cc1df285602a25336604c4c5f2d351c32fd4781bda2234199867311f273459b2",
+    "api-parameter-binding-async-red.log": "9a2c278df0eb8e9f4bedf19cdf0bf92ade9618b751d760e9fd76e839e7e61736",
+    "api-parameter-binding-read-permission-red.log": "6f552597911fd5c26f8853da80c330595c1f378814ea443090b5927b05ec813b",
+    "api-parameter-binding-impact-v8.log": "21fbfc00c5f0c24f0cc03c5026b22ffcfd3a2af21e883f069422819761d8f996",
+    "api-parameter-binding-types-v6.log": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962",
+    "api-parameter-binding-full-lint-v2.log": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d",
+    "api-parameter-binding-rules.log": "509aa5d77057ba1324a73d0d6dad55e600f2bbd267354c02c58a2268c0119858",
+    "api-parameter-binding-build.log": "8b0512547525dfefcde91efb363218605daa4471a479c7c6824e9bc9afdfc8d8",
+    "api-parameter-binding-class-model-v3.log": "0b6caa8a687e76e4bd292ba313e27ebf7e77afb345060eca95e228fe130dde9b",
+    "api-parameter-binding-contracts.log": "3efe6fc5240b831f1ce837afc1c039719dce1d9427790e8f335bc70db9b102f5",
+    "api-parameter-binding-contracts.json": "b906133b3baedfd48d218596405835475a95334bd8b8fa45ce31ec8d113a35b1",
+    "api-parameter-binding-generated-audit.json": "e27d87b78436df583d3aed72faaf6ab7a1ca02236d63a51acac96601684e8c09",
+    "api-parameter-binding-full-repository.log": "a58928dbe1547fa01dccd8e15f29dd9b1de54db9bb69b78c42eb6f0d6629b7aa"
+  },
+  "redAndFixtureNotes": [
+    "Three UI tests failed because the binding entry was absent.",
+    "Deferred formal reference read plus source change dispatched one erroneous batch before the existing domain scope/check was extended.",
+    "Masked title was genuinely disclosed by plain proposal text before standard readonly fields replaced it.",
+    "Hidden permission test initially expected hidden instead of the native invisible classification; corrected fixture expectation, not a validated disclosure RED.",
+    "allowAdd was an unsupported scene property and was removed without weakening scene validation.",
+    "Record selector required the standard Form context and its same named option DataView."
+  ],
+  "openItems": [
+    "Actual public parameter write/readback smoke not performed on existing records.",
+    "Deployed output creation parent validation failure.",
+    "20-package migration and browser visual acceptance."
+  ]
+}

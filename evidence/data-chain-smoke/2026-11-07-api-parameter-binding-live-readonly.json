@@ -1,0 +1,604 @@
+{
+  "status": "readonly-verified",
+  "sdkReads": 30,
+  "localScenarioReads": 4,
+  "businessWrites": 0,
+  "externalInterfaceExecutions": 0,
+  "blockedRequests": 0,
+  "sameRowIdentitiesAcrossIndependentRuns": true,
+  "runs": [
+    {
+      "phase": "finished",
+      "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "businessWrites": 0,
+      "externalInterfaceExecutions": 0,
+      "binding": {
+        "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p005",
+        "modelName": "Base_Interface_PublicParam",
+        "viewId": "outputBinding",
+        "commitMode": "staged",
+        "queryFields": [
+          "rowid",
+          "providerId",
+          "paramName",
+          "desc",
+          "interfaceId",
+          "outputfield",
+          "interfaceName",
+          "accessPath"
+        ],
+        "count": 4,
+        "total": 4,
+        "columns": [
+          "updatetime",
+          "interfaceId",
+          "accessPath",
+          "wfid",
+          "dictName",
+          "providerId",
+          "outputfield",
+          "lingma_sys_is_delete",
+          "ReportID",
+          "description",
+          "desc",
+          "flowstate",
+          "interfaceName",
+          "rowid",
+          "updateuser",
+          "createuser",
+          "createtime",
+          "paramName",
+          "_pk"
+        ],
+        "selection": "original-rowid",
+        "hasDomainRule": true,
+        "rows": [
+          {
+            "identityDigest": "cec478a902fb030ebb3a3f1eb02eb74fab5b9e17f51873df3f2f35008083ce3a",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          },
+          {
+            "identityDigest": "81dd651cf8cf2b65c3bbc4a5ca7af1946b5de6bdb2149d1889a153495345c38e",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          },
+          {
+            "identityDigest": "4f2c5b8e82d99dfb1779f615925e48eb021fd8f5cca0e9abc7cb313d042dcac5",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          },
+          {
+            "identityDigest": "0a36b395edfc05991f0a767a38db43f1197e1670cdf1907b86d99fa8aa01e05b",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          }
+        ]
+      },
+      "catalog": {
+        "viewId": "default",
+        "queryFields": [
+          "rowid",
+          "providerId",
+          "paramName",
+          "desc"
+        ],
+        "count": 4,
+        "total": 4,
+        "selection": "unexpected"
+      },
+      "pending": {
+        "editing": false,
+        "native": false,
+        "unconfirmed": false
+      },
+      "source": {
+        "providerIdentityVerified": true,
+        "interfaceIdentityVerified": true,
+        "metadataScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+      },
+      "reads": 15,
+      "blocked": 0,
+      "originalInstancesDisposed": true
+    },
+    {
+      "phase": "finished",
+      "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "businessWrites": 0,
+      "externalInterfaceExecutions": 0,
+      "binding": {
+        "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p005",
+        "modelName": "Base_Interface_PublicParam",
+        "viewId": "outputBinding",
+        "commitMode": "staged",
+        "queryFields": [
+          "rowid",
+          "providerId",
+          "paramName",
+          "desc",
+          "interfaceId",
+          "outputfield",
+          "interfaceName",
+          "accessPath"
+        ],
+        "count": 4,
+        "total": 4,
+        "columns": [
+          "updatetime",
+          "interfaceId",
+          "accessPath",
+          "wfid",
+          "dictName",
+          "providerId",
+          "outputfield",
+          "lingma_sys_is_delete",
+          "ReportID",
+          "description",
+          "desc",
+          "flowstate",
+          "interfaceName",
+          "rowid",
+          "updateuser",
+          "createuser",
+          "createtime",
+          "paramName",
+          "_pk"
+        ],
+        "selection": "original-rowid",
+        "optionValueField": "rowid",
+        "hasDomainRule": true,
+        "rows": [
+          {
+            "identityDigest": "cec478a902fb030ebb3a3f1eb02eb74fab5b9e17f51873df3f2f35008083ce3a",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          },
+          {
+            "identityDigest": "81dd651cf8cf2b65c3bbc4a5ca7af1946b5de6bdb2149d1889a153495345c38e",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          },
+          {
+            "identityDigest": "4f2c5b8e82d99dfb1779f615925e48eb021fd8f5cca0e9abc7cb313d042dcac5",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          },
+          {
+            "identityDigest": "0a36b395edfc05991f0a767a38db43f1197e1670cdf1907b86d99fa8aa01e05b",
+            "members": {
+              "rowid": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "providerId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "paramName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "desc": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceId": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "outputfield": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "interfaceName": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              },
+              "accessPath": {
+                "read": "visible",
+                "write": "allowed",
+                "required": false,
+                "present": true
+              }
+            }
+          }
+        ]
+      },
+      "catalog": {
+        "viewId": "default",
+        "queryFields": [
+          "rowid",
+          "providerId",
+          "paramName",
+          "desc"
+        ],
+        "count": 4,
+        "total": 4,
+        "selection": "native-primary-key",
+        "optionValueField": "paramName"
+      },
+      "probeCorrection": {
+        "prior": "api-parameter-binding-readonly.json",
+        "reason": "getSelectedValues uses the native primary key when one exists; valueField configures option values, not primary-key selection. No product change."
+      },
+      "pending": {
+        "editing": false,
+        "native": false,
+        "unconfirmed": false
+      },
+      "source": {
+        "providerIdentityVerified": true,
+        "interfaceIdentityVerified": true,
+        "metadataScenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD"
+      },
+      "reads": 15,
+      "blocked": 0,
+      "originalInstancesDisposed": true
+    }
+  ],
+  "correction": "First run incorrectly expected option valueField to change native getSelectedValues; second run separately checks native PK selection and optionValueField. Not a product RED.",
+  "authentication": "Initial refresh executor timed out and reset RAM; specified-account session restored through SDK. Authentication transport was not counted by the probe and is excluded from read totals. No credential files were written.",
+  "cleanup": {
+    "probeProcessesExited": true,
+    "originalInstancesDisposed": true,
+    "ownedProxyPid": 34096,
+    "ownedProxyStopped": true,
+    "proxySession": 65816,
+    "proxyExitCode": 1,
+    "proxyExitReason": "explicit stop after both read-only runs"
+  },
+  "limitations": [
+    "No real parameter rebinding writes performed; existing four parameters and six outputs were not modified.",
+    "Actual deployed output creation parent-type failure remains open."
+  ]
+}

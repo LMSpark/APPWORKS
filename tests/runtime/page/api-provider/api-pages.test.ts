@@ -3,9 +3,10 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h, reactive, type Component} from 'vue'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import ElementPlus from 'element-plus'
+import {isRecord} from '@spark-appworks/spark-utils'
+import ElementPlus, {ElSelect} from 'element-plus'
 import VXETable from 'vxe-table'
-import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable, FieldSelect} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
@@ -54,8 +55,128 @@ async function mountAt(component: Component, props: Record<string, unknown> = {}
 }
 const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button').find(item => item.text() === label)
 const records = (table: string) => api.current.state.http.records[table]!
+async function bindingFixture(parameterPatch:Record<string,unknown>={}){
+  records('Base_Interface_PublicParam').push({rowid:'Q3',providerId:'P1',paramName:'second_token',desc:'保留说明',interfaceId:'I2',outputfield:'data',interfaceName:'查询',accessPath:'/query',...parameterPatch})
+  const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+  vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+  const wrapper=await mountAt(InterfacePage,{providerId:'P1'}),runtime=[...observed].find(p=>p.getDataSet(API))!,ds=runtime.getDataSet(API)!,parent=ds.getView('Base_DataServiceInterface')!
+  parent.setCurrentRowById('I1');parent.setSelectedRows([parent.currentRow!]);await flushPromises()
+  await wrapper.findAll('.el-tabs__item').find(item=>item.text()==='输出定义')!.trigger('click');await flushPromises()
+  const outputs=ds.getView('Base_TblField')!;await vi.waitFor(()=>expect(outputs.rows).toHaveLength(1));outputs.setCurrentRowById('F1');await flushPromises()
+  const open=button(wrapper,'设置公共参数');expect(open).toBeDefined();await open!.trigger('click');await flushPromises()
+  const parameters=ds.getView('Base_Interface_PublicParam','outputBinding')!;await vi.waitFor(()=>expect(parameters.rows).toHaveLength(2))
+  const selector=wrapper.findAllComponents(FieldSelect).find(item=>item.props('dataMember')==='value'&&!item.props('field'))!
+  expect(selector).toBeDefined();selector.getComponent(ElSelect).vm.$emit('update:modelValue','Q3');await flushPromises()
+  expect(parameters.getSelectedValues()).toEqual(['Q3'])
+  const click=async(label:string)=>{const action=wrapper.findAllComponents(RendererButton).find(item=>item.props('label')===label);expect(action).toBeDefined();action!.vm.$emit('click');await flushPromises()}
+  await click('编辑选中参数绑定')
+  return{wrapper,runtime,ds,parent,outputs,parameters,selector,click,http:api.current.state.http}
+}
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it('cancels cross-interface parameter rebinding without writing or changing the original row',async()=>{
+    const f=await bindingFixture();expect(f.wrapper.findAllComponents(RendererForm).some(form=>form.props('contextRowId')==='Q3')).toBe(true)
+    await f.click('取消参数重绑')
+    expect(api.current.state.http.saves).toHaveLength(0);expect(f.parameters.hasEditingChanges()).toBe(false)
+    expect(records('Base_Interface_PublicParam').find(row=>row['rowid']==='Q3')).toMatchObject({interfaceId:'I2',outputfield:'data',paramName:'second_token',desc:'保留说明'})
+  })
+  it('updates only the selected parameter rowid and permits two names to use the same saved output',async()=>{
+    const f=await bindingFixture();await f.click('确认替换原绑定')
+    await vi.waitFor(()=>expect(api.current.state.http.saves).toHaveLength(1))
+    expect(api.current.state.http.saves[0]).toMatchObject({table:'Base_Interface_PublicParam',added:[],deleted:[],changed:[{rowid:'Q3',interfaceId:'I1',outputfield:'token',interfaceName:'取令牌',accessPath:'/token'}]})
+    expect(records('Base_Interface_PublicParam').find(row=>row['rowid']==='Q3')).toMatchObject({providerId:'P1',paramName:'second_token',desc:'保留说明',interfaceId:'I1',outputfield:'token'})
+    expect(records('Base_Interface_PublicParam').filter(row=>row['interfaceId']==='I1'&&row['outputfield']==='token')).toHaveLength(2)
+    const {loadLowcodeRuntimeScenario}=await import('@/lowcode/data-space/lowcode-data-space-runtime')
+    const reopened:PageRuntime=new PageRuntime({pageId:'parameter-binding-reopen',scenarioIds:[API,META],deferredScenarioIds:[META],scenarioInputs:{[API]:{providerId:'P1'}},loadScenario:id=>loadLowcodeRuntimeScenario({projectId:'APP',scenarioId:id,getPage:()=>reopened})})
+    try{await reopened.load();const parameters=reopened.getDataSet(API)!.getView('Base_Interface_PublicParam','outputBinding')!;await parameters.refresh()
+      expect(parameters.rows.find(row=>row['rowid']==='Q3')).toMatchObject({interfaceId:'I1',outputfield:'token',paramName:'second_token'})
+    }finally{reopened.dispose()}
+  })
+  it('refuses confirmation when another parameter field acquired an editing patch',async()=>{
+    const f=await bindingFixture();f.parameters.updateEditingValue('Q3','desc','later unrelated draft')
+    await f.click('确认替换原绑定')
+    expect(api.current.state.http.saves).toHaveLength(0);expect(f.parameters.getEditingRow('Q3')?.['desc']).toBe('later unrelated draft')
+  })
+  it.each(['hidden','masked'] as const)('does not disclose or bind a %s interface title despite write permission',async mode=>{
+    const secret='private-interface-title';records('Base_DataServiceInterface')[0]!['Name']=secret
+    const permissions=mode==='hidden'?api.current.state.http.hiddenFields:api.current.state.http.maskedFields
+    permissions['Base_DataServiceInterface']=['Name']
+    const f=await bindingFixture();expect(f.parent.fieldAccess(f.parent.currentRow!,'Name').read).toBe(mode==='hidden'?'invisible':'masked')
+    expect(document.body.textContent).not.toContain(secret)
+    await f.click('确认替换原绑定');expect(f.http.saves).toHaveLength(0)
+  })
+  it.each(['hidden','masked'] as const)('does not disclose or replace a %s original binding title',async mode=>{
+    const secret='private-original-binding-title',permissions=mode==='hidden'?api.current.state.http.hiddenFields:api.current.state.http.maskedFields
+    permissions['Base_Interface_PublicParam']=['interfaceName']
+    const f=await bindingFixture({interfaceName:secret})
+    expect(document.body.textContent).not.toContain(secret);await f.click('确认替换原绑定');expect(f.http.saves).toHaveLength(0)
+  })
+  it.each(['hidden','masked'] as const)('does not disclose or bind a %s output name',async mode=>{
+    const secret='private-output-name',permissions=mode==='hidden'?api.current.state.http.hiddenFields:api.current.state.http.maskedFields
+    records('Base_TblField')[0]!['enname']=secret;permissions['Base_TblField']=['enname']
+    const f=await bindingFixture();expect(document.body.textContent).not.toContain(secret)
+    await f.click('确认替换原绑定');expect(f.http.saves).toHaveLength(0)
+  })
+  it('keeps the captured parameter identity when external selection changes',async()=>{
+    const f=await bindingFixture();f.parameters.setSelectedRows([f.parameters.rows.find(row=>row['rowid']==='Q1')!])
+    await f.click('确认替换原绑定');await vi.waitFor(()=>expect(f.http.saves).toHaveLength(1))
+    expect(f.http.saves[0]?.changed.map(row=>row['rowid'])).toEqual(['Q3'])
+  })
+  it('does not submit after the original output query replaced its source row',async()=>{
+    const f=await bindingFixture();await f.outputs.refresh();await f.click('确认替换原绑定')
+    expect(f.http.saves).toHaveLength(0);expect(f.parameters.hasEditingChanges()).toBe(false)
+  })
+  it('verifies an unknown binding once without replaying its change',async()=>{
+    const f=await bindingFixture();f.http.failAfterWrite=true;await f.click('确认替换原绑定')
+    await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(true));await f.click('核验原参数重绑')
+    await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(false));expect(f.http.saves).toHaveLength(1)
+  })
+  it('does not write when source selection changes during the original formal reference query',async()=>{
+    const f=await bindingFixture();let entered=false,release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve})
+    f.http.beforeDefinitionRead=async table=>{if(table==='Base_Interface_PublicParam'&&!entered){entered=true;await gate}}
+    try{
+      await f.click('确认替换原绑定');await vi.waitFor(()=>expect(entered).toBe(true))
+      f.parent.setCurrentRowById('I2');f.parent.setSelectedRows([f.parent.currentRow!]);await flushPromises();release();await flushPromises()
+      await vi.waitFor(()=>expect(f.parameters.mutating).toBe(false));expect(f.http.saves).toHaveLength(0)
+    }finally{release()}
+  })
+  it('lets the shared save proof reject a later unrelated patch during reference validation',async()=>{
+    const f=await bindingFixture();let entered=false,release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve})
+    f.http.beforeDefinitionRead=async table=>{if(table==='Base_Interface_PublicParam'&&!entered){entered=true;await gate}}
+    try{
+      await f.click('确认替换原绑定');await vi.waitFor(()=>expect(entered).toBe(true))
+      f.parameters.updateEditingValue('Q3','desc','late draft');release();await flushPromises()
+      await vi.waitFor(()=>expect(f.parameters.mutating).toBe(false));expect(f.http.saves).toHaveLength(0)
+      expect(f.parameters.getEditingRow('Q3')?.['desc']).toBe('late draft')
+    }finally{release()}
+  })
+  it('verifies the already dispatched binding after a late source change without replaying it',async()=>{
+    const f=await bindingFixture();let entered=false,release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve})
+    f.http.beforeSave=async()=>{entered=true;await gate}
+    try{
+      await f.click('确认替换原绑定');await vi.waitFor(()=>expect(entered).toBe(true))
+      f.parent.setCurrentRowById('I2');f.parent.setSelectedRows([f.parent.currentRow!]);f.http.failAfterWrite=true;release();await flushPromises()
+      await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(true));await f.click('核验原参数重绑')
+      await vi.waitFor(()=>expect(f.parameters.hasUnconfirmedSave).toBe(false));expect(f.http.saves).toHaveLength(1)
+      expect(records('Base_Interface_PublicParam').find(row=>row['rowid']==='Q3')?.['interfaceId']).toBe('I1')
+    }finally{release()}
+  })
+  it('handles a known failed binding from an explicit original pending interaction',async()=>{
+    const f=await bindingFixture();f.http.rejectNextSave=true;await f.click('确认替换原绑定')
+    await vi.waitFor(()=>expect(f.parameters.dirtyTracking.hasPendingChanges('Q3')).toBe(true));expect(f.parameters.hasUnconfirmedSave).toBe(false)
+    await f.click('关闭并保留参数修改');await f.click('编辑选中参数绑定');await f.click('继续保存原参数修改')
+    await vi.waitFor(()=>expect(f.http.saves).toHaveLength(1));expect(f.http.saves[0]?.changed.map(row=>row['rowid'])).toEqual(['Q3'])
+  })
+  it('keeps a confirmed binding saved when the separate function catalog refresh fails',async()=>{
+    const f=await bindingFixture();f.http.interceptors.request.use({onRequest:request=>{
+      const body=request.data,table=isRecord(body)&&Array.isArray(body['Table'])?body['Table'][0]:undefined
+      if(request.url==='/api/DataOperation/GetData'&&isRecord(table)&&table['Name']==='Base_Interface_PublicParam'&&Array.isArray(table['Fields'])&&table['Fields'].length===4)throw Error('Function catalog refresh failed')
+      return request
+    }})
+    await f.click('确认替换原绑定');await vi.waitFor(()=>expect(f.wrapper.text()).toContain('绑定已保存'))
+    expect(f.http.saves).toHaveLength(1);expect(f.wrapper.findAllComponents(RendererButton).some(item=>item.props('label')==='确认替换原绑定')).toBe(false)
+    expect(records('Base_Interface_PublicParam').find(row=>row['rowid']==='Q3')?.['interfaceId']).toBe('I1')
+  })
   it('displays the actual output type option after cancel and save despite a stale display column',async()=>{
     records('Base_TblField')[1]!['DataTypeName']='过时类型标签'
     const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load

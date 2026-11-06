@@ -24,6 +24,14 @@ async function outputs(scenario=API,named=true,full=true,host=false){
 }
 async function parameters(scenario:string){const ds=await open(scenario),v=ds.getView('Base_Interface_PublicParam')!;v.queryConfig={fields:['rowid','providerId','paramName','interfaceId','outputfield','interfaceName','accessPath','desc'],allPages:true};await v.refresh();return{ds,v}}
 function directSave(v:DataView){return v.dataSet!.saveChanges({views:[{tableName:v.tableName,viewId:v.viewId}]})}
+it('saves a parameter description without scanning binding sources or adopting an interface draft',async()=>{
+ const {ds,v}=await parameters(API),interfaces=ds.getView('Base_DataServiceInterface')!
+ await interfaces.refresh();interfaces.setCurrentRowById('I1');interfaces.updateEditingValue('I1','Name','unrelated interface draft')
+ const reads=api.current.state.http.reads.length;v.updateEditingValue('Q1','desc','updated description')
+ expect((await directSave(v)).success).toBe(true)
+ expect(api.current.state.http.reads.slice(reads).some(read=>['Base_DataServiceInterface','Base_TblField','Base_DataModel'].includes(read.table))).toBe(false)
+ expect(interfaces.hasEditingChanges('I1')).toBe(true);expect(api.current.state.http.saves[0]?.changed).toEqual([{rowid:'Q1',desc:'updated description'}])
+})
 it('registers output structural rules through the official loader, without a page binder',async()=>{
  const {v,save}=await outputs();v.updateEditingValue('F1','IsPKey',2)
  await expect(save()).rejects.toThrow('Base_TblField@output-edit.IsPKey');expect(api.current.state.http.saves).toHaveLength(0)

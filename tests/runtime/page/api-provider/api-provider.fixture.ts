@@ -51,6 +51,9 @@ export class ApiBackend extends HttpClientBase {
   denyDelete = new Set<string>()
   denyAdd = new Set<string>()
   failAfterWrite = false
+  rejectNextSave = false
+  hiddenFields:Record<string,string[]> = {}
+  maskedFields:Record<string,string[]> = {}
   beforeSave?: () => Promise<void>
   beforeDefinitionRead?: (table:string)=>Promise<void>
   protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
@@ -72,8 +75,9 @@ export class ApiBackend extends HttpClientBase {
       const fields = table.Fields.map(field => field.Name)
       result = {primaryKeyField: this.primaryKeys[table.Name] ?? 'rowid', allowAdd: !this.denyAdd.has(table.Name), lingma_sys_key: 'table-key',
         data: {Items: rows.map(row => ({...Object.fromEntries(fields.map(field => [field, row[field]])), lingma_sys_key: 'row-key',
-          lingma_sys_params: {r: [], e: fields, h: [], m: [], d: !this.denyDelete.has(table.Name)}})), Count: rows.length}}
+          lingma_sys_params: {r: [], e: fields, h: this.hiddenFields[table.Name]??[], m: this.maskedFields[table.Name]??[], d: !this.denyDelete.has(table.Name)}})), Count: rows.length}}
     } else if (request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
+      if(this.rejectNextSave){this.rejectNextSave=false;return{data:{Code:500,Message:'Rejected before write',Result:null},status:200,statusText:'OK',headers:{}}}
       await this.beforeSave?.()
       const maplistadd: Record<string, Row[]>[] = [], maplistedit: Record<string, Row[]>[] = [], maplistdelete: Record<string, Row[]>[] = []
       for (const group of request.data as Array<{TableName: string; CrudModel: {Added: Row[]; Changed: Row[]; Deleted: Row[]}}>) {

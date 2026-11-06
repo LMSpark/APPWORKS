@@ -29,6 +29,21 @@ function scope(dataSet:DataSet,host:ApiModelRuleHost){
  check();return check
 }
 function provider(dataSet:DataSet):string{return text(apiDefinitionTable(dataSet,PUBLIC)?.getView('default')?.queryContext['providerId']??apiDefinitionTable(dataSet,INTERFACE)?.getView('default')?.queryContext['providerId'],'providerId')}
+/** 关联变更沿原正式引用读取核当前来源；不把选项视图的选择当作参数身份。 */
+function parameterScope(dataSet:DataSet,host:ApiModelRuleHost):()=>void{
+ const check=scope(dataSet,host)
+ const sources=[{name:INTERFACE,fields:['ProviderID','Name','LinkUrl']},{name:OUTPUT,fields:['tblid','enname']}].map(({name,fields})=>{
+  const view=apiDefinitionTable(dataSet,name)?.getView('default'),row=view?.currentRow
+  return{view,row,context:JSON.stringify(view?.queryContext),values:fields.map(field=>({field,present:row?Object.hasOwn(row,field):false,value:row?.[field]}))}
+ })
+ return()=>{
+  check()
+  for(const {view,row,context,values}of sources){
+   if(view?.currentRow!==row||JSON.stringify(view?.queryContext)!==context||row&&(!view?.rows.includes(row)||values.some(({field,present,value})=>Object.hasOwn(row,field)!==present||!Object.is(row[field],value))))throw Error('API_PARAMETER_SOURCE_STALE: 原接口或输出来源已变化')
+   if(view&&row){const id=view.getPkKey(row);if(id===undefined||view.hasEditingChanges(id)||view.dirtyTracking.hasPendingChanges(id))throw Error('API_PARAMETER_SOURCE_PENDING: 原接口或输出存在未保存修改')}
+  }
+ }
+}
 function applyChanges(before:DataRow[],changes:readonly DataTableQueryReferenceChange[],fields:readonly string[]):DataRow[]{
  const after=[...before]
  for(const change of changes){
@@ -82,7 +97,7 @@ function outputReferences(dataSet:DataSet,host:ApiModelRuleHost):DataTableQueryS
 }
 function parameterReferences(dataSet:DataSet,host:ApiModelRuleHost):DataTableQuerySaveReferences{
  return{fields:parameterFields,triggerFields:parameterFields,operations:['create','update'],validate:async({changes})=>{
-  const check=scope(dataSet,host),providerId=provider(dataSet)
+  const check=parameterScope(dataSet,host),providerId=provider(dataSet)
   for(const change of changes){
    if(change.values['providerId']!==providerId||change.originalValues&&(change.originalValues['providerId']!==providerId||change.originalValues['paramName']!==change.values['paramName']))throw Error('API_PARAMETER_IDENTITY: 不能改变所属服务或已有参数名称')
   }

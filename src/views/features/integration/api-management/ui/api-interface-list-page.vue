@@ -40,9 +40,11 @@ AI用途：原页面结构与输入语义保留，不查询凭据、不维护调
               <RendererButton label="编辑当前输出" :disabled="locked || outputSession || !current('Base_TblField')" @click="editOutput" />
               <RendererButton label="删除当前输出" :disabled="locked || outputSession || !current('Base_TblField')" @click="operateOutput('delete')" />
               <RendererButton label="处理当前输出待提交修改" :disabled="locked || outputSession || !current('Base_TblField')" @click="operateOutput('pending')" />
+              <RendererButton label="设置公共参数" :disabled="locked || outputSession || !current('Base_TblField')" @click="openBinding" />
               <RendererTable :data-view-key="outputKey" :children="outputFields" :on-row-click="(row: DataRow) => point('Base_TblField', row)" />
               <OutputEditDialog v-if="outputEditing" :key="outputEditing.epoch" :data-view-key="outputKey" :record-id="outputEditing.id" :created="outputEditing.created" :type-options-key="key('ParamType')" @close="outputEditing=undefined" />
               <OutputOperationDialog v-if="outputAction" :key="outputAction.epoch" :data-view-key="outputKey" :record-id="outputAction.id" :mode="outputAction.mode" @close="outputAction=undefined" />
+              <ParameterBindingDialog v-if="bindingWindow" :key="bindingWindow.epoch" :parameters-key="bindingKey" :interface-key="mainKey" :interface-id="bindingWindow.interfaceId" :output-key="outputKey" :output-id="bindingWindow.outputId" @close="closeBinding" />
             </RendererTabPane>
           </RendererTabs>
         </template>
@@ -67,6 +69,7 @@ import {parseApplicationPathScope} from '@/services/application-scope'
 import type {ApiInterfaceListPageProps} from './api-interface-list-page.props'
 import OutputEditDialog from './api-output-edit-dialog.vue'
 import OutputOperationDialog from './api-output-operation-dialog.vue'
+import ParameterBindingDialog from './public-parameter-binding/api-public-parameter-binding-dialog.vue'
 type RToolbarProps = SparkComponent.RToolbarProps
 const {PAGE_RUNTIME, useSparkComponent, RendererSection, RendererDialog, RendererTable, RendererForm, RendererButton, RendererTabs, RendererTabPane} = SparkComponent
 const scenarioId = 'EC84BD89BDBDF46B1FE5132DD53836E5'
@@ -78,15 +81,17 @@ const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-interface-list
 const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('definition')
 const outputEditing=ref<{id:string|number;epoch:number;created:boolean}>()
 const outputAction=ref<{id:string|number;epoch:number;mode:'pending'|'delete'}>()
-const outputSession=computed(()=>!!outputEditing.value||!!outputAction.value)
+const bindingWindow=ref<{interfaceId:string|number;outputId:string|number;epoch:number}>()
+const outputSession=computed(()=>!!outputEditing.value||!!outputAction.value||!!bindingWindow.value)
 const openedProvider=ref('')
 let outputEpoch=0
 let dataSet: DataSet | undefined, runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
 const key = (name: string, view = 'default') => buildDataViewKey(name, view, scenarioId)
 const mainKey = key('Base_DataServiceInterface'), parameterKey = key('_Base_ParamList'), headerKey = key('Base_InterfaceApi_Headers'), outputKey = key('Base_TblField')
+const bindingKey=key('Base_Interface_PublicParam','outputBinding')
 const view = (table: string): DataView | undefined => {revision.value; return dataSet?.getView(table, 'default')}
 const current = (table: string) => view(table)?.currentRow ?? null
-const views = computed(() => writable.flatMap(table => view(table) ?? []))
+const views = computed(() => {const parameters=dataSet?.getView('Base_Interface_PublicParam','outputBinding');return [...writable.flatMap(table => view(table) ?? []),...(parameters?[parameters]:[])]})
 const dirty = computed(() => views.value.some(item => item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges()))
 const unconfirmed = computed(() => views.value.some(item => item.hasUnconfirmedSave))
 const locked = computed(() => busy.value || unconfirmed.value)
@@ -161,6 +166,29 @@ async function addOutput():Promise<void>{
     outputEditing.value={id,created:true,epoch:++outputEpoch}
   })
 }
+async function openBinding():Promise<void>{
+  if(locked.value||outputSession.value)return
+  const parent=view('Base_DataServiceInterface'),outputs=view('Base_TblField'),parameters=dataSet?.getView('Base_Interface_PublicParam','outputBinding'),owner=runtime
+  const iface=parent?.currentRow,output=outputs?.currentRow,interfaceId=iface?parent?.getPkKey(iface):undefined,outputId=output?outputs?.getPkKey(output):undefined
+  if(!parent||!outputs||!parameters||!iface||!output||interfaceId===undefined||outputId===undefined)return
+  const context=JSON.stringify([parent.queryContext,outputs.queryContext])
+  const assertSource=()=>{if(owner!==runtime||parent.currentRow!==iface||outputs.currentRow!==output||JSON.stringify([parent.queryContext,outputs.queryContext])!==context||parent.hasEditingChanges(interfaceId)||parent.dirtyTracking.hasPendingChanges(interfaceId)||outputs.hasEditingChanges(outputId)||outputs.dirtyTracking.hasPendingChanges(outputId))throw Error('请先保存原接口和输出定义，再设置公共参数')}
+  await act(async()=>{
+    assertSource()
+    if(!parameters.hasEditingChanges()&&!parameters.dirtyTracking.hasPendingChanges()){await parameters.refresh();if(parameters.loadingError)throw parameters.loadingError}
+    assertSource();parameters.setSelectedRows([]);bindingWindow.value={interfaceId,outputId,epoch:++outputEpoch}
+  })
+}
+async function closeBinding(result:SparkComponent.DataViewRecordEditingFinish):Promise<void>{
+  bindingWindow.value=undefined
+  if(result!=='saved')return
+  const catalog=dataSet?.getView('Base_Interface_PublicParam'),owner=runtime
+  if(!catalog)return
+  try{
+    if(catalog.hasEditingChanges()||catalog.dirtyTracking.hasPendingChanges()||catalog.hasUnconfirmedSave)throw Error('目录有原修改')
+    await catalog.refresh();if(catalog.loadingError)throw catalog.loadingError
+  }catch{if(active&&runtime===owner)error.value='绑定已保存，公共参数目录待刷新；不会重新提交原绑定'}
+}
 function point(table: string, row: DataRow): void {if (!busy.value) view(table)?.setCurrentRow(row)}
 async function add(table: string): Promise<void> {
   const target = view(table)
@@ -182,7 +210,7 @@ async function save(tableName: string): Promise<void> {
     if (tableName === '_Base_ParamList') await target.getView(tableName, 'references')?.refresh()
   })
 }
-async function reload(): Promise<void> {if(outputSession.value)return;const target = dataSet; if (target) await act(() => target.discardAndReload({views: writable.map(tableName => ({tableName, viewId: 'default'}))}))}
+async function reload(): Promise<void> {if(outputSession.value)return;const target = dataSet; if (target) await act(() => target.discardAndReload({views: views.value.map(item => ({tableName:item.tableName,viewId:item.viewId}))}))}
 function close(): void {if (!outputSession.value && !busy.value && !dirty.value && !unconfirmed.value) emit('close')}
 function cancel(): void {if (!outputSession.value && !locked.value) {for (const item of views.value) item.discardPendingChanges(); emit('close')}}
 async function loadProvider(providerId:string):Promise<void>{
@@ -191,6 +219,7 @@ async function loadProvider(providerId:string):Promise<void>{
   openedProvider.value=providerId
   outputEditing.value=undefined
   outputAction.value=undefined
+  bindingWindow.value=undefined
   unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
   try {
     const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''

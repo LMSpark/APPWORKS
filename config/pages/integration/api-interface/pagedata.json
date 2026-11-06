@@ -338,6 +338,26 @@
         "modelName": "Base_Interface_PublicParam"
       },
       "views": {
+        "outputBinding": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "lockCurrentWhilePending": true,
+          "allowDelete": false,
+          "valueField": "rowid",
+          "labelField": "paramName",
+          "queryContext": {"providerId": ""},
+          "queryConfig": {
+            "fields": ["rowid", "providerId", "paramName", "desc", "interfaceId", "outputfield", "interfaceName", "accessPath"],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "providerId",
+            "operator": "eq",
+            "value": {"Type": "GetInputParam", "ParamName": "providerId"}
+          }
+        },
         "default": {
           "autoLoad": true,
           "autoCurrentFirst": false,

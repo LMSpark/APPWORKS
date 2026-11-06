@@ -3267,3 +3267,10 @@
 - 高阶职责方案69文件迁移/109引用同步，旧入口和32旧指南路径删除，无wrapper/重复Symbol/URL修改。9目录违规清零，接口消费者正式生成只更新5路径，611端点/208消费者不变。薄页规则从词法邻近rows误判改局部symbol依赖证据；13正反例通过，基线只收紧，85待审诊断及动态调用检测边界保留，不作架构已完成事实。
 - 大范围回归实际发现1366 ElDialog递归：渲染卸载字段时useActiveFieldRow dispose的generation.value++读写ref触发父渲染。拒绝最初plain计数器方案（高阶发现FieldSelect computed间接依赖，真实兄弟追加反例RED1）；最终仅去掉dispose多余代次递增，disposed永久拒旧写，正常reactive代次保持。原42例无未处理错误，最终129文件2406项exit0；API运行14文件754项exit0。types/lint和最终正式生成/规则/构建后续记录；失败/普通候选日志保留，不洗成首轮通过。
 - 最新最小源码最终types/lint/generate/build（4.31s）与完整verify:rules均exit0；正式ClassModel49项，合计3209验证项通过。85用途待审及旧AI model告警保留，未新增实服写入，不称20包完成。
+
+### 2026-11-06 逻辑视图正式配置、按需实例与手动过滤
+
+- 删除目录动态构造与来源手工装表，正式EB720 pagedata由原PageRuntime装配；8D参数/四来源复用同一按需实例。真实只读证据29读定位、4读字段核对、最终16读0写，首轮错误crttime投影拒绝保留，不加旧别名。未完成输出发布与SaveView CRUD，不核销20包。
+- RendererFilter autoQuery=false实际RED2→GREEN，原DataView setter保留过滤与权限守卫，手动搜索一次；声明由正式ClassModel生成。旧测试Apply断言更新仍保留暂存/保存/重开与结果验证，响应夹具继续真实loader/assembler/ApiBackend。最新typecheck、eslint、build:fe11.26s、完整verify:rules均exit0（原2warning/1info及page-thin待审诊断保留）；最终受影响全量测试进行中，结果稍后追加。
+- 最终广域71文件2282项exit0；新增审查反例跨应用/停design切目标RED3及同Runtime设计重读RED1均复现后修正。原scope固定、迟到销毁，metadataReady仅通知原DS可用，不另建owner；最终logic/目录/JSON10文件96项通过。中间来源disabled与目录旧夹具失败保留，不洗成首轮通过。最后eslint/build再次exit0，types最终复核中；实服仍0写，发布/保存/清理闭环未完成。
+- 最后typecheck77116已exit0，最后build:fe4.01s；检查点提交不代表逻辑视图/20包目标完成。

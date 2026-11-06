@@ -1,0 +1,844 @@
+{
+  "phase": "confirmed",
+  "processId": 28784,
+  "reads": 4,
+  "writes": 0,
+  "blockedWrites": 0,
+  "models": [
+    {
+      "id": "b1722bbf-d55c-43b1-a41d-44fdd599ce96",
+      "name": "Base_AppSystemList",
+      "metaName": "Base_AppSystemList",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "Base_AppSystemList",
+      "sourceType": "数据库表",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "08C009158F20857F737A660A67BA89C6",
+          "name": "ReportID",
+          "canonicalName": "ReportID",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "报表 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "09443DB9A085A15834824CCD4A7F8EC6",
+          "name": "CrossEnt",
+          "canonicalName": "CrossEnt",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "跨企业共享",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "0C56BF6FC1DE2490DC92962DBA72B72D",
+          "name": "rowid",
+          "canonicalName": "rowid",
+          "type": "varchar",
+          "primaryKey": true,
+          "description": "唯一标识 ID",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "0D5249833E57E4ED7BBFA259BDF8C781",
+          "name": "updatetime",
+          "canonicalName": "updatetime",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改时间",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "0E7ACFE48CEE17983D99BCC08BC4505A",
+          "name": "WeChatUrl",
+          "canonicalName": "WeChatUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "微信小程序地址",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "1014F07909B699150B015313EF27A81C",
+          "name": "IsProjectRelation",
+          "canonicalName": "IsProjectRelation",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否关联项目",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "14C7349E3DBF9DBCA75D5721E8A97204",
+          "name": "lingma_sys_is_delete",
+          "canonicalName": "lingma_sys_is_delete",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "逻辑删除标记",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "15655DEF2F450C441E0116EF35E1374C",
+          "name": "Memo",
+          "canonicalName": "Memo",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "系统描述",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "15ab5f9297b711f185000242ac110008",
+          "name": "publisher_ent",
+          "canonicalName": "publisher_ent",
+          "type": "text",
+          "primaryKey": false,
+          "description": "应用原始发布企业简称，页面只读",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "1BAA78FCAB2209F24739D5503644827A",
+          "name": "EntId",
+          "canonicalName": "EntId",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "企业 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "22F08F5E9BDC01AD27514815631B9F67",
+          "name": "updateuser",
+          "canonicalName": "updateuser",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改人",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "27E0E4970C73FCE852F3F5728ECECEEB",
+          "name": "EntShortName",
+          "canonicalName": "EntShortName",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "企业简称",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "3366871B82FA1FE2030428E53FCB5C8F",
+          "name": "isdel",
+          "canonicalName": "isdel",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否删除",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "358F318EA95CB7807BA7A9493538BA0F",
+          "name": "WebUrl",
+          "canonicalName": "WebUrl",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "应用系统地址",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "433ED7FFDAF2DDF7DB58697B5963F74A",
+          "name": "DeveloperId",
+          "canonicalName": "DeveloperId",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "开发商 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "5243A5C8217C61877BFC202D8939A1A6",
+          "name": "isWeChat",
+          "canonicalName": "isWeChat",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否微信小程序",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "587DBB8B3DE2CD96F07A1A8B49113F73",
+          "name": "CreateTime",
+          "canonicalName": "CreateTime",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "创建时间",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "740E8BF1D727D5E03DE7F0774A94CC95",
+          "name": "WeChartimg",
+          "canonicalName": "WeChartimg",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "微信小程序图片",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "7A32672975B075F23BED3FF5311EBA3A",
+          "name": "Icon",
+          "canonicalName": "Icon",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "系统图标",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "9D16B57F3B5DA2B7EDA41B8E16CF0C83",
+          "name": "description",
+          "canonicalName": "description",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "摘要",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "A8E3F63925BA537B6B6DA0BFEE9204E2",
+          "name": "AppName",
+          "canonicalName": "AppName",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "应用代码",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "ACED752F742A00D22F175063518763DA",
+          "name": "flowstate",
+          "canonicalName": "flowstate",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "流程状态",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "B1DF312028FC0B184510B5337A5C3D14",
+          "name": "isSass",
+          "canonicalName": "isSass",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否 SaaS 应用",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "B9AA2A64F78FF2BF1635FF0B38E73602",
+          "name": "AppType",
+          "canonicalName": "AppType",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "应用状态",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "BBE4346142B6A399C9AD849C3B9B0845",
+          "name": "IsSys",
+          "canonicalName": "IsSys",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否默认系统",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "C6886D13A92420B4151D2E0BECE3BC5B",
+          "name": "CreateUser",
+          "canonicalName": "CreateUser",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "创建人",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "C72F62AA935F8816D2C89A9571D8EE5F",
+          "name": "AppDesc",
+          "canonicalName": "AppDesc",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "系统中文名称",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "C884C6F7F690CCBBCC3CC7D3AA7BCBA2",
+          "name": "wfid",
+          "canonicalName": "wfid",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "流程实例 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "D03651DAAFBB45AF5D5436092BC2E525",
+          "name": "NameStr",
+          "canonicalName": "NameStr",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "拼接名称",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "F404AF6592B3B7D9BE9FE30F19B50EA4",
+          "name": "DeveloperName",
+          "canonicalName": "DeveloperName",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "开发商名称",
+          "output": false,
+          "computed": false
+        }
+      ]
+    },
+    {
+      "id": "d996a0f8-2770-4da4-95ed-379f9baf3824",
+      "name": "Base_DataViewList",
+      "metaName": "Base_DataViewList",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "Base_DataViewList",
+      "sourceType": "数据库表",
+      "primaryKey": "rowid",
+      "fields": [
+        {
+          "id": "0DE835446130008D614ED6FE5A6333BA",
+          "name": "updatetime",
+          "canonicalName": "updatetime",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改时间",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "1E492D8736D002E6ECD8C9988D65990B",
+          "name": "addInf",
+          "canonicalName": "addInf",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "新增数据接口",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "2E0D078FBB9AD0BD64E665742C5EEA9A",
+          "name": "name",
+          "canonicalName": "name",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "视图名称",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "3EC8243C6739F5D5B7256677AC350B4E",
+          "name": "flowstate",
+          "canonicalName": "flowstate",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "流程状态",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "64AA51408A5631E5A38E9C567CC3B40A",
+          "name": "editInf",
+          "canonicalName": "editInf",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "编辑数据接口",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "7019C2FC1DD70ABACA8333AC431224EB",
+          "name": "updater",
+          "canonicalName": "updater",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改人",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "82983157FF5D57679B8BA92721838982",
+          "name": "ReportID",
+          "canonicalName": "ReportID",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "报表id",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "8A5A0C4A15B1F36FD5F824C6E17899C8",
+          "name": "description",
+          "canonicalName": "description",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "摘要",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "ACE026D94C7AD9D94B9454278CF20207",
+          "name": "updateuser",
+          "canonicalName": "updateuser",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改人",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "B500AEEEFABBEAA8E44D6307424C6132",
+          "name": "rowid",
+          "canonicalName": "rowid",
+          "type": "varchar",
+          "primaryKey": true,
+          "description": "唯一值（ID）",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "B91F4DB7908ADA334EFD8405EC18BD7C",
+          "name": "createtime",
+          "canonicalName": "createtime",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "创建时间",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "C4F1E7E49E0D8519827917ED9E04A2CD",
+          "name": "wfid",
+          "canonicalName": "wfid",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "流程实例id",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "C59B94B77E2B2E16A674AB3E9BF2800E",
+          "name": "createuser",
+          "canonicalName": "createuser",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "创建人",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "D07755225738BECE9F54ECF1E892F9BF",
+          "name": "lingma_sys_is_delete",
+          "canonicalName": "lingma_sys_is_delete",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否删除",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "F5ED8E377F4CC72FD524FE903B3471C5",
+          "name": "sysid",
+          "canonicalName": "sysid",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "所属系统 ID",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "FEC539C6E857FD3464E20DBF0CA2BE8D",
+          "name": "deleteInf",
+          "canonicalName": "deleteInf",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "删除数据接口",
+          "output": true,
+          "computed": false
+        }
+      ]
+    },
+    {
+      "id": "3ea3484a-f6d4-4da8-adee-3b19d96dc67a",
+      "name": "Base_UserInfo",
+      "metaName": "Base_UserInfo",
+      "sourceId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "sourceName": "Base_UserInfo",
+      "sourceType": "数据库表",
+      "primaryKey": "ID",
+      "fields": [
+        {
+          "id": "06A13056473F8108E4E6E1F72884E04A",
+          "name": "MaritalStatus",
+          "canonicalName": "MaritalStatus",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "婚姻状况",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "0E5CE7041338DDC1DA2FEE22FC1A29C7",
+          "name": "ReportID",
+          "canonicalName": "ReportID",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "报表 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "0E9F06744A8A1761EFDFDA72DDC70ADF",
+          "name": "PermanentTenancy",
+          "canonicalName": "PermanentTenancy",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "户口地",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "13F885FC51A9E33EF79F08A9B43AEA32",
+          "name": "Flag",
+          "canonicalName": "Flag",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "人员标识",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "1BA84DA5023BF5DBB8D3FFAF8BAF6A0B",
+          "name": "State",
+          "canonicalName": "State",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "状态",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "1BB725495007397778799B921D826F77",
+          "name": "WechatId",
+          "canonicalName": "WechatId",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "企业微信 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "1E68F2A63D673D97ED3203478CD8E4C9",
+          "name": "WeChatOpenId",
+          "canonicalName": "WeChatOpenId",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "微信 OpenID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "2517B29704B236926A0A7A83A5C06959",
+          "name": "Nation",
+          "canonicalName": "Nation",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "民族",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "2702B9BFD43104DC5EB39DB8D1C20C76",
+          "name": "Birthday",
+          "canonicalName": "Birthday",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "出生日期",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "34821D361ECFECEC186B8F055E48B2CF",
+          "name": "ID",
+          "canonicalName": "ID",
+          "type": "varchar",
+          "primaryKey": true,
+          "description": "内部 ID",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "3A2D98B2CCD094690B376B3174265A41",
+          "name": "memo",
+          "canonicalName": "memo",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "备注",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "495517A09ED2E23D3911DCF31BC17A0B",
+          "name": "IsWork",
+          "canonicalName": "IsWork",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "是否在职",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "49D63CF0481B5286A321CD6710AE551B",
+          "name": "CreateTime",
+          "canonicalName": "CreateTime",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "创建时间",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "558CBF53F1E2DD07C3C01FF2201437A6",
+          "name": "Sex",
+          "canonicalName": "Sex",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "性别",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "613DB32B51117AB498F0B0A93F7850CC",
+          "name": "description",
+          "canonicalName": "description",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "摘要",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "7623978C2535D11637B30FE2C15655CC",
+          "name": "LoginName",
+          "canonicalName": "LoginName",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "登录名",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "7BB4F5BE0AF7F3733F2DF9EEE3A91632",
+          "name": "flowstate",
+          "canonicalName": "flowstate",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "流程状态",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "7E5E79B67F0E705BED8C61B40CD2B787",
+          "name": "EntId",
+          "canonicalName": "EntId",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "企业 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "8617868ADC87BDF85E2240973EAC9935",
+          "name": "IDCard",
+          "canonicalName": "IDCard",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "身份证号",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "8C2AF1421A7A6223F64440DD2C45C300",
+          "name": "Path",
+          "canonicalName": "Path",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "照片路径",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "9702877DC41B15E097E65ABEA594A0E6",
+          "name": "lingma_sys_is_delete",
+          "canonicalName": "lingma_sys_is_delete",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "逻辑删除标记",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "A65D14C8029B45BCBDB945C2CBF9C83E",
+          "name": "ROWID",
+          "canonicalName": "ROWID",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "唯一标识 ID",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "AAE62D7120582AF72558B39A837216AD",
+          "name": "updatetime",
+          "canonicalName": "updatetime",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改时间",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "B238F4CE08F9DE449EBBD946E373822F",
+          "name": "Address",
+          "canonicalName": "Address",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "地址",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "B2E737573FAAD5451EA0DAFF891CC505",
+          "name": "Age",
+          "canonicalName": "Age",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "年龄",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "B2EC10E7F50F72EEB43561944F0BF366",
+          "name": "NativePlace",
+          "canonicalName": "NativePlace",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "籍贯",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "C1A11AC80FFAB8DFC458F6971CC27D90",
+          "name": "wfid",
+          "canonicalName": "wfid",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "流程实例 ID",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "C8D2B6DD23CD67375627D86536EB7D33",
+          "name": "LoginPass",
+          "canonicalName": "LoginPass",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "登录密码",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "CA49A0B4DD8FCACC58E4318EC421D328",
+          "name": "UserName",
+          "canonicalName": "UserName",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "用户姓名",
+          "output": true,
+          "computed": false
+        },
+        {
+          "id": "CBD3CF8D9BEDB324B9A7BCC8207074BA",
+          "name": "Height",
+          "canonicalName": "Height",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "身高",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "D882D9C4457DE409F1168657A2CF1164",
+          "name": "entInfoUserPhone",
+          "canonicalName": "entInfoUserPhone",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "电话号码",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "E1C9D97F265377698838AFD47FC6D2FE",
+          "name": "updateuser",
+          "canonicalName": "updateuser",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "修改人",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "F309C6AEA34447C9D3EE926E29AB63E9",
+          "name": "mailbox",
+          "canonicalName": "mailbox",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "邮箱",
+          "output": false,
+          "computed": false
+        },
+        {
+          "id": "F5DD9386E8D7C64C2F4A41EC1609EDBC",
+          "name": "createuser",
+          "canonicalName": "createuser",
+          "type": "varchar",
+          "primaryKey": false,
+          "description": "创建人",
+          "output": false,
+          "computed": false
+        }
+      ]
+    }
+  ],
+  "finishedAt": "2026-11-06T10:13:34.981Z",
+  "scope": "Readonly EB720 formal output schema: createtime exists, crttime absent. No metadata maintenance."
+}

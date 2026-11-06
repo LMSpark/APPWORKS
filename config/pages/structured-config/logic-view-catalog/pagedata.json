@@ -1,0 +1,148 @@
+{
+  "scenarioId": "EB720370EF06A5A656838F87E0716D6B",
+  "tables": {
+    "Base_DataViewList": {
+      "modelBinding": {
+        "modelId": "d996a0f8-2770-4da4-95ed-379f9baf3824",
+        "modelName": "Base_DataViewList"
+      },
+      "columns": [
+        {
+          "name": "name",
+          "required": true,
+          "immutable": true,
+          "trim": "normalize"
+        },
+        {
+          "name": "sysid",
+          "required": true,
+          "immutable": true
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "lockCurrentWhilePending": true,
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "sysid",
+              "name",
+              "description",
+              "createuser"
+            ],
+            "filterLookups": [
+              {
+                "field": "createuser",
+                "sourceViewKey": "EB720370EF06A5A656838F87E0716D6B@Base_UserInfo@default",
+                "matchField": "UserName",
+                "valueField": "ROWID"
+              }
+            ]
+          },
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        },
+        "editorTarget": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "lockCurrentWhilePending": true,
+          "queryContext": {
+            "viewId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "sysid",
+              "name",
+              "description",
+              "createuser"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "rowid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "viewId"
+            }
+          }
+        }
+      }
+    },
+    "Base_UserInfo": {
+      "modelBinding": {
+        "modelId": "3ea3484a-f6d4-4da8-adee-3b19d96dc67a",
+        "modelName": "Base_UserInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "ROWID",
+          "labelField": "UserName",
+          "queryConfig": {
+            "fields": [
+              "ID",
+              "ROWID",
+              "UserName"
+            ],
+            "allPages": true
+          },
+          "sortExpression": [
+            {
+              "field": "ID",
+              "direction": "asc"
+            }
+          ]
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {
+        "modelId": "b1722bbf-d55c-43b1-a41d-44fdd599ce96",
+        "modelName": "Base_AppSystemList"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "AppDesc",
+          "queryConfig": {
+            "fields": [
+              "rowid",
+              "AppDesc",
+              "AppName"
+            ],
+            "allPages": true
+          },
+          "sortExpression": [
+            {
+              "field": "rowid",
+              "direction": "asc"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "resourceRelations": [],
+  "viewCascades": []
+}

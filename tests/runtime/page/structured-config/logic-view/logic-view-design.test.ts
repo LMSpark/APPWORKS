@@ -1,4 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
@@ -7,9 +8,9 @@ import {Spark, FieldText, FieldJson, FieldCheckbox, FieldNumber, FieldValueFunct
 import LogicViewDesign from '@/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
-import {LogicViewHttp} from './logic-view.fixture'
+import {LogicViewHttp,configureLogicFixture} from './logic-view.fixture'
 
-const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
+const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),createGateways:vi.fn()}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: () => undefined}))
 let http: LogicViewHttp, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
@@ -24,7 +25,8 @@ const parameterBase = buildFormalModels({_Base_ParamList: ['parid', 'pid', 'parn
 models.push({...parameterBase, primaryKey: 'parid', fields: parameterBase.fields.map(field => ({...field, primaryKey: field.name === 'parid'}))})
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
+  createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({readText:()=>{throw Error('Unexpected tool file read')},writeText:()=>{throw Error('Unexpected tool file write')}}),
+  lowcodeApi: {design:{},readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
 const originalStubs = {...config.global.stubs}
 const mounted: Array<ReturnType<typeof mount>> = []
@@ -57,6 +59,7 @@ beforeEach(() => {
   service.readSpaceDefinition.mockImplementation(({dataSpaceId}: {dataSpaceId: string}) => Promise.resolve({dataSpaceId, name: '逻辑视图', raw: {}}))
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
+  configureLogicFixture(service,http,models)
   config.global.stubs = {...originalStubs, JsonTreeEditor: {
     template: '<textarea :value="modelValue" @input="$emit(\'update:modelValue\', $event.target.value)" />',
     props: ['modelValue'],
@@ -66,6 +69,27 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it('queries only the exact editor target after input injection and reuses one deferred metadata instance',async()=>{
+    http.records['Base_DataViewList']!.push({rowid:'V2',sysid:'APP',name:'Other View',description:'other target'})
+    const prepare=LowcodeLogicView.prepareEditor.bind(LowcodeLogicView)
+    let deferred=false
+    const capture=vi.spyOn(LowcodeLogicView,'prepareEditor').mockImplementation(async page=>{
+      deferred=page.getDataSet(LowcodeLogicView.parameterScenarioId)===undefined
+      await prepare(page)
+    })
+    await openDesigner()
+    const page=capture.mock.calls[0]![0],catalog=page.getDataSet(LowcodeLogicView.navigationScenarioId)!
+    await vi.waitFor(()=>expect(page.getDataSet(LowcodeLogicView.parameterScenarioId)?.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)?.rows).toHaveLength(1))
+    expect(deferred).toBe(true)
+    expect(catalog.getView('Base_DataViewList','default')?.rows).toEqual([])
+    expect(catalog.getView('Base_DataViewList','editorTarget')?.rows.map(row=>row['rowid'])).toEqual(['V1'])
+    expect(http.reads.filter(read=>read.table==='Base_DataViewList')).toHaveLength(1)
+    expect(http.reads.some(read=>['View_TblList','_Base_DictType','Base_DataServiceInterface','Base_JsonData'].includes(read.table))).toBe(false)
+    const metadata=page.getDataSet(LowcodeLogicView.parameterScenarioId)
+    expect(await page.ensureScenarioLoaded(LowcodeLogicView.parameterScenarioId)).toBe(metadata)
+    expect(service.readModelBatch.mock.calls.filter(([input])=>input.dataSpaceId===LowcodeLogicView.parameterScenarioId)).toHaveLength(1)
+    expect(http.saves).toHaveLength(0)
+  })
   it('offers node input definitions alongside the bound view parameters without losing the original node metadata',async()=>{
     const inputs=[{Name:'nodeOnly',Description:'节点入参',FieldType:'',extra:false},{Name:'first',Description:'旧标题'}]
     http.logicDesigns['V1']=[{Name:'Lookup',MetaName:'Lookup',Fields:[{Name:'out',ValueFun:null}],inputParams:inputs,ChildTables:[]}]
@@ -155,6 +179,23 @@ describe('logic-view design page', () => {
     expect(http.logicDesigns['V1']).toEqual([{Name:'root',Fields:[{Name:'id',IsOutput:0},{Name:'CreateUser',IsOutput:0}],ChildTables:[{Name:'child',Fields:[{Name:'other',IsOutput:1}]}]}])
     expect(http.saves).toHaveLength(0)
   })
+  it('loads sources for a new target while keeping the design tab selected',async()=>{
+    http.records['Base_DataViewList']!.push({rowid:'V2',sysid:'APP',name:'View Two',description:'other'})
+    http.records['View_TblList']=[{rowid:'T',tblname:'Orders',tbldesc:'订单',dbid:'DB',DbName:'Database'}]
+    const {wrapper,router}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    await router.push({path:'/design',query:{viewId:'V2'}});await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='表')!.trigger('click');await flushPromises()
+    expect(wrapper.get('[data-logic-source-dialog]').text()).toContain('Orders')
+    expect(wrapper.text()).not.toContain('来源元数据空间未装配')
+    await wrapper.get('[data-logic-source-dialog]').findAll('button').find(button=>button.text()==='取消')!.trigger('click');await flushPromises()
+    const batches=service.readModelBatch.mock.calls.length
+    await wrapper.findAll('button').find(button=>button.text()==='放弃修改并重读')!.trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='表')!.trigger('click');await flushPromises()
+    expect(wrapper.get('[data-logic-source-dialog]').text()).toContain('Orders')
+    expect(service.readModelBatch).toHaveBeenCalledTimes(batches)
+    expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  })
   it('keeps an incomplete database source visible as an error without inventing its database identity',async()=>{
     http.records['View_TblList']=[{rowid:'T',tblname:'Orphan',tbldesc:'',dbid:null,DbName:null}]
     const {wrapper}=await openDesigner()
@@ -187,17 +228,18 @@ describe('logic-view design page', () => {
   it('drops a late source read after cancel and target switch without adding a node to either design',async()=>{
     http.records['Base_DataViewList']!.push({rowid:'V2',sysid:'APP',name:'View Two',description:'other'})
     const {wrapper,router}=await openDesigner()
-    const original=service.readModel.getMockImplementation()!
-    let release:()=>void=()=>{};const wait=new Promise<void>(resolve=>{release=resolve})
-    service.readModel.mockImplementation(async input=>{if(input.metaName==='View_TblList')await wait;return original(input)})
+    let entered=false,release:()=>void=()=>{};const wait=new Promise<void>(resolve=>{release=resolve})
+    http.beforeRead=async request=>{const body=request.data;if(isRecord(body)&&Array.isArray(body['Table'])&&isRecord(body['Table'][0])&&body['Table'][0]['Name']==='View_TblList'){entered=true;await wait}}
     await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
     await wrapper.findAll('button').find(button=>button.text()==='表')!.trigger('click');await flushPromises()
+    await vi.waitFor(()=>expect(entered).toBe(true))
     await wrapper.get('[data-logic-source-dialog]').findAll('button').find(button=>button.text()==='取消')!.trigger('click');await flushPromises()
     await router.push({path:'/design',query:{viewId:'V2'}});await flushPromises();release();await flushPromises()
     expect(router.currentRoute.value.query['viewId']).toBe('V2')
     expect(wrapper.find('[data-logic-source-dialog]').exists()).toBe(false)
     expect(wrapper.text()).not.toContain('LOGIC_SOURCE_STALE')
     expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+    expect(http.saves).toHaveLength(0)
   })
   it('selects a formal table source and stages a node through the original field before explicit design save',async()=>{
     http.records['View_TblList']=[{rowid:'T',tblname:'Orders',tbldesc:'订单',dbid:'DB',DbName:'Business'}]

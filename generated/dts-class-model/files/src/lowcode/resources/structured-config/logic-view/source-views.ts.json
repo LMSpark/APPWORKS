@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/structured-config/logic-view/source-views",
-    "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/source-views\n职责：在本次元数据DataSet按需加入正式来源表和辅助命名视图。\n边界：只装配结构，候选与字段读取由原DataView和来源准备器承担；不替换参数视图、不保存设计。",
+    "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/source-views\n职责：消费本次PageRuntime已装配的正式来源命名视图。\n边界：不读模型定义、不增表或复制配置；行查询和来源准备沿原DataView。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LogicViewSourceType",
@@ -88,7 +88,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T05:21:42.248Z",
+  "generatedAt": "2026-11-06T10:38:27.311Z",
   "models": {
     "LogicViewSourceType": {
       "name": "LogicViewSourceType",
@@ -170,7 +170,7 @@
             },
             {
               "name": "details",
-              "jsdoc": "已有正式表只新增独立辅助视图，复用原查询owner，不继承参数草稿或选中行。",
+              "jsdoc": "复用已有正式详情视图，参数草稿和选中行仍由各自命名视图持有。",
               "parameters": [
                 {
                   "name": "name",

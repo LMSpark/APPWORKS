@@ -1,3 +1,4 @@
+import {configureLogicFixture} from './logic-view.fixture'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {config, flushPromises, mount} from '@vue/test-utils'
@@ -13,16 +14,17 @@ import {createDynamicRouter} from '../../../../../packages/spark-app/src/router/
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 
-const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn()}))
+const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),createGateways:vi.fn()}))
 let http: ApiBackend, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
-  Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'crttime'],
+  Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'createtime'],
   Base_UserInfo: ['ID', 'ROWID', 'UserName'],
   Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
 })
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
-  lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
+  createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({readText:()=>{throw Error('Unexpected tool file read')},writeText:()=>{throw Error('Unexpected tool file write')}}),
+  lowcodeApi: {design:{},readRequestScope: service.readRequestScope, dataSpace: {design: service, get runtime() {return runtime}}},
 }))
 const originalStubs = {...config.global.stubs}
 beforeEach(() => {
@@ -35,6 +37,7 @@ beforeEach(() => {
   service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeLogicView.navigationScenarioId, name: '逻辑视图', raw: {}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(models.find(m => m.metaName === metaName)))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
+  configureLogicFixture(service,http,models)
   registerAllRenderers()
   const stubs = {...originalStubs}
   for (const key of ['el-button', 'el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[key]

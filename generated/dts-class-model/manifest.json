@@ -14329,13 +14329,9 @@
         "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/catalog",
-        "jsdoc": "@module app:lowcode/resources/structured-config/catalog\n职责：structured-config 专题目录页共用的 DataSet 装配（AppId 级联 + 选项模型刷新）。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "StructuredCatalogModelOptions",
-          "LoadStructuredCatalogInput",
-          "FormalModel"
-        ]
+        "jsdoc": "@module app:lowcode/resources/structured-config/catalog",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
@@ -14560,7 +14556,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/logic-view/resource",
-        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/resource",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/resource\n职责：从正式场景配置装配目录、设计及按需元数据；目标仅为本次viewId。\n边界：查询在PageRuntime注入输入后执行，保存与未知结果由原DataView承担。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeLogicView"
@@ -14575,7 +14571,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/logic-view/source-views",
-        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/source-views\n职责：在本次元数据DataSet按需加入正式来源表和辅助命名视图。\n边界：只装配结构，候选与字段读取由原DataView和来源准备器承担；不替换参数视图、不保存设计。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/source-views\n职责：消费本次PageRuntime已装配的正式来源命名视图。\n边界：不读模型定义、不增表或复制配置；行查询和来源准备沿原DataView。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LogicViewSourceType",
@@ -20876,10 +20872,6 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
-    "FormalModel": {
-      "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
-      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json"
-    },
     "FormalTableRequestConfig": {
       "sourcePath": "packages/spark-data/src/core/formal-table-request-config.ts",
       "file": "files/packages/spark-data/src/core/formal-table-request-config.ts.json"
@@ -21155,10 +21147,6 @@
     "LoadScenarioDataSetInput": {
       "sourcePath": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "file": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json"
-    },
-    "LoadStructuredCatalogInput": {
-      "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
-      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json"
     },
     "LocalMutationDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/crud/local-mutation-delegate.ts",
@@ -23919,10 +23907,6 @@
     "StructuredCapabilityCard": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "StructuredCatalogModelOptions": {
-      "sourcePath": "src/lowcode/resources/structured-config/catalog.ts",
-      "file": "files/src/lowcode/resources/structured-config/catalog.ts.json"
     },
     "StructuredFieldRow": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",

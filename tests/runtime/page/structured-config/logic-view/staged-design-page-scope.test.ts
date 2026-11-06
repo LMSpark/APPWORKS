@@ -36,9 +36,13 @@ async function setup(options: {companion?: boolean} = {}) {
   let page!: ReturnType<typeof useStagedDesignPage>
   const component = defineComponent({setup() {
     page = useStagedDesignPage({pageId: 'scope-test', scenarioId: computed(() => 'SCENE'), scopeId: computed(() => scope.value),
-      scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design', loadDataSets: async input => {
+      scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design', runtimeOptions: input => {
         const ds = loads++ === 0 ? dataSet : createDataSet()
-        return options.companion ? [ds, await companion(input.scopeId)] : [ds]
+        return {scenarioIds:options.companion?['SCENE','PARAMETERS']:['SCENE'],loadScenario:async id=>{
+          if(id==='SCENE')return ds
+          if(id==='PARAMETERS'&&options.companion)return companion(input.scopeId)
+          throw Error('Unexpected synthetic workspace')
+        }}
       }, missingScopeMessage: 'Missing target'})
     return () => h('div')
   }})

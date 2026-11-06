@@ -91,6 +91,12 @@
     {
       "name": "excelImportEditor", "scenarioId": "0F93B82141CF40852021D704B0E30BF4",
       "resourceId": "repository:scenario-view:0F93B82141CF40852021D704B0E30BF4", "path": "config/pages/semi-structured/excel-import-editor/pagedata.json"
+    },
+    {
+      "name": "logicViewCatalog",
+      "scenarioId": "EB720370EF06A5A656838F87E0716D6B",
+      "resourceId": "repository:scenario-view:EB720370EF06A5A656838F87E0716D6B",
+      "path": "config/pages/structured-config/logic-view-catalog/pagedata.json"
     }
   ]
 }

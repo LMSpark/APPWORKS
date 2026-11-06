@@ -4,7 +4,7 @@
  */
 import {computed, onBeforeUnmount, ref, shallowRef, watch, type ComputedRef} from 'vue'
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {PageRuntime,type PageRuntimeOptions} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
@@ -16,7 +16,10 @@ export type StagedDesignPageConfig = Readonly<{
   scopeInputTable: string
   scopeField: string
   designViewTable: string
-  loadDataSets: (input: Readonly<{scenarioId: string; scopeId: string}>) => Promise<readonly DataSet[]>
+  /** 本次正式场景、输入和装配回调；唯一PageRuntime由本helper创建并释放。 */
+  runtimeOptions: (input: Readonly<{scenarioId: string; scopeId: string}>) => PageRuntimeOptions
+  /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */
+  prepareRuntime?: (runtime: PageRuntime) => Promise<void>
   missingScopeMessage: string
 }>
 
@@ -98,18 +101,14 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
         if (hasPending()) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
         sparkRemove(PAGE_RUNTIME); runtime.value?.dispose(); runtime.value = undefined
         loadedScenario.value = ''; boundScope.value = ''
-        const loaded = await config.loadDataSets({scenarioId: scenario, scopeId: scope})
-        if (!isCurrent(own)) {loaded.forEach(ds => ds.destroy()); return}
-        if (!loaded.some(ds => ds.scenarioId === scenario)) {loaded.forEach(ds => ds.destroy()); throw new Error('设计工作区缺少主空间')}
-        const ids = loaded.map(ds => ds.scenarioId).filter((id): id is string => typeof id === 'string' && id.trim().length > 0)
-        if (ids.length !== loaded.length || new Set(ids).size !== ids.length) {loaded.forEach(ds => ds.destroy()); throw new Error('设计工作区空间身份缺失或重复')}
-        const next = new PageRuntime({pageId: config.pageId, scenarioIds: ids, loadScenario: id => {
-          const ds = loaded.find(value => value.scenarioId === id)
-          if (!ds) throw new Error('设计工作区空间未装配')
-          return Promise.resolve(ds)
-        }})
-        await next.load()
-        if (!isCurrent(own)) {next.dispose(); return}
+        const next = new PageRuntime({...config.runtimeOptions({scenarioId: scenario, scopeId: scope}), pageId: config.pageId})
+        try {
+          await next.load()
+          if (!isCurrent(own)) {next.dispose(); return}
+          if (!next.getDataSet(scenario)) throw new Error('设计工作区缺少主空间')
+          await config.prepareRuntime?.(next)
+          if (!isCurrent(own)) {next.dispose(); return}
+        } catch (cause) {next.dispose(); throw cause}
         runtime.value = next; loadedScenario.value = scenario
         sparkProvide(PAGE_RUNTIME, next)
       }

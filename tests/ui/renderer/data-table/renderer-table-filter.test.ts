@@ -6,6 +6,8 @@ import {FieldText, RendererTable, Spark, SparkJsonEditor, PAGE_RUNTIME, useSpark
 import RendererFilter from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.vue'
 import type {RFilterProps} from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.types'
 import {DataSet} from '@spark-appworks/spark-data'
+import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
+import {ApiBackend} from '../../../runtime/page/api-provider/api-provider.fixture'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 
 const originalStubs = config.global.stubs
@@ -16,19 +18,21 @@ afterEach(() => {
   vi.unstubAllGlobals()
 })
 
-async function fixture(filter?: RFilterProps) {
+async function fixture(filter?: RFilterProps,remote=false) {
   const stubs = {...config.global.stubs}
   for (const name of ['el-table', 'el-table-column', 'SparkComponentRenderer', 'spark-component-renderer']) delete stubs[name]
   config.global.stubs = stubs
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
   const dataSet = DataSet.fromJson({scenarioId: 'SPACE', dataSetName: 'FilterFixture', tables: {
-    Orders: {tableName: 'Orders', resourceType: 'static-data',
+    Orders: {tableName: 'Orders', resourceType: 'static-data',...(remote?{modelBinding:{modelId:'ORDERS',modelName:'Orders'}}:{}),
       columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'Name', type: 'string'}],
       views: {
         default: {rows: [{id: 1, Name: 'first'}, {id: 2, Name: 'kept'}]},
         other: {},
       }},
   }})
+  const http=new ApiBackend();http.primaryKeys['Orders']='id';http.records['Orders']=[{id:1,Name:'first'},{id:2,Name:'kept'}]
+  if(remote){const view=dataSet.getView('Orders','default')!;view.bindQueryExecutor(new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})}));await view.refresh();if(view.loadingError)throw view.loadingError}
   const runtime = new PageRuntime({pageId: 'filter-test', scenarioIds: ['SPACE'], loadScenario: async () => dataSet})
   await runtime.load()
   cleanups.push(() => runtime.dispose())
@@ -44,7 +48,7 @@ async function fixture(filter?: RFilterProps) {
   const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin({registry})], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
   cleanups.push(() => wrapper.unmount())
   await flushPromises()
-  return {wrapper, filterConfig, view: dataSet.getView('Orders', 'default')!, other: dataSet.getView('Orders', 'other')!}
+  return {wrapper, filterConfig,http, view: dataSet.getView('Orders', 'default')!, other: dataSet.getView('Orders', 'other')!}
 }
 
 async function applyName(wrapper: ReturnType<typeof mount>, value: string) {
@@ -57,6 +61,21 @@ async function applyName(wrapper: ReturnType<typeof mount>, value: string) {
 }
 
 describe('container unified DataView filter', () => {
+  it.each(['explicit','inherited'] as const)('accepts %s manual filtering without querying and executes the expression-only search once',async mode=>{
+    const f=await fixture(mode==='explicit'?{autoQuery:false}:{},true)
+    if(mode==='inherited')f.view.queryConfig={...f.view.queryConfig,autoQuery:false}
+    const initial=f.http.reads.length
+    await applyName(f.wrapper,'kept')
+    expect(f.view.filterExpression).toEqual({field:'Name',operator:'eq',value:'kept'})
+    expect(f.http.reads).toHaveLength(initial);expect(f.view.rows.map(row=>row['id'])).toEqual([1,2])
+    await f.wrapper.getComponent(RendererFilter).vm.search();await flushPromises()
+    expect(f.http.reads).toHaveLength(initial+1);expect(f.view.rows.map(row=>row['id'])).toEqual([2])
+  })
+  it('continues querying exactly once when automatic filtering is enabled',async()=>{
+    const f=await fixture({autoQuery:true},true),initial=f.http.reads.length
+    await applyName(f.wrapper,'kept')
+    expect(f.http.reads).toHaveLength(initial+1);expect(f.view.rows.map(row=>row['id'])).toEqual([2])
+  })
   it('renders filter:{} and applies and clears the bound DataView through the full editor', async () => {
     const {wrapper, view} = await fixture({})
     expect(wrapper.find('[data-action="open"]').exists()).toBe(true)

@@ -127,6 +127,8 @@ watch(scenarioId, async id => {
     if (!active || own !== generation) {dataSet.destroy(); return}
     runtime = new PageRuntime({pageId: 'logic-view-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
     await runtime.load()
+    const results=await Promise.allSettled(['Base_DataViewList','Base_UserInfo','Base_AppSystemList'].map(async name=>{const current=dataSet.getView(name);if(!current)throw Error('逻辑视图目录缺少正式视图');await current.refresh();if(current.loadingError)throw current.loadingError}))
+    const failure=results.find(result=>result.status==='rejected');if(failure?.status==='rejected')throw failure.reason
     if (!active || own !== generation) {runtime.dispose(); return}
     view.value = dataSet.getView(LowcodeLogicView.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++, rowsChanged: () => revision.value++, editingChanged: () => revision.value++, requestStateChanged: () => revision.value++})

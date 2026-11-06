@@ -139,7 +139,12 @@
         "modelName": "View_TblList"
       },
       "columns": [
-        {"name": "databaseDisplay", "type": "string", "label": "数据库名称 / 稳定 ID", "computeExpression": "DbName || dbid || '-'"}
+        {
+          "name": "databaseDisplay",
+          "type": "string",
+          "label": "数据库名称 / 稳定 ID",
+          "computeExpression": "DbName || dbid || '-'"
+        }
       ],
       "views": {
         "default": {
@@ -210,7 +215,8 @@
               "DbName"
             ]
           },
-          "pageSize": 10
+          "pageSize": 10,
+          "selectionDelimiter": ""
         }
       }
     },
@@ -282,7 +288,8 @@
               "functiondesc"
             ]
           },
-          "pageSize": 10
+          "pageSize": 10,
+          "selectionDelimiter": ""
         }
       }
     },
@@ -357,7 +364,8 @@
               "ProviderID"
             ]
           },
-          "pageSize": 10
+          "pageSize": 10,
+          "selectionDelimiter": ""
         }
       }
     },
@@ -426,7 +434,8 @@
               "name"
             ]
           },
-          "pageSize": 10
+          "pageSize": 10,
+          "selectionDelimiter": ""
         }
       }
     },
@@ -689,8 +698,51 @@
             "maxRows": 50000
           },
           "pageSize": 500
+        },
+        "logicViewParameters": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "commitMode": "staged",
+          "lockCurrentWhilePending": true,
+          "valueField": "parname",
+          "labelField": "parname",
+          "queryContext": {
+            "viewId": ""
+          },
+          "queryConfig": {
+            "fields": [
+              "parid",
+              "pid",
+              "parname",
+              "pardesc",
+              "testvalue"
+            ],
+            "allPages": true
+          },
+          "filterExpression": {
+            "field": "pid",
+            "operator": "eq",
+            "value": {
+              "Type": "GetInputParam",
+              "ParamName": "viewId"
+            }
+          }
         }
-      }
+      },
+      "columns": [
+        {
+          "name": "pid",
+          "immutable": true
+        },
+        {
+          "name": "parname",
+          "required": true,
+          "trim": "normalize",
+          "unique": true
+        }
+      ]
     },
     "Base_DataModel": {
       "modelBinding": {

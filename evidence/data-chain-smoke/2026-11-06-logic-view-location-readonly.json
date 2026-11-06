@@ -1,0 +1,49 @@
+{
+  "phase": "readonly-location-confirmed",
+  "processId": 9576,
+  "reads": 29,
+  "writes": 0,
+  "blockedWrites": 0,
+  "modelBindings": [
+    {
+      "metaName": "Base_AppSystemList",
+      "id": "b1722bbf-d55c-43b1-a41d-44fdd599ce96",
+      "primaryKey": "rowid"
+    },
+    {
+      "metaName": "Base_DataViewList",
+      "id": "d996a0f8-2770-4da4-95ed-379f9baf3824",
+      "primaryKey": "rowid"
+    },
+    {
+      "metaName": "Base_UserInfo",
+      "id": "3ea3484a-f6d4-4da8-adee-3b19d96dc67a",
+      "primaryKey": "ID"
+    }
+  ],
+  "designs": [
+    {
+      "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+      "nodeCount": 1,
+      "hash": "08a33e0f506eb82cd13f26f2a70e699a91b32840dfad1084be17db62e2ae7d89",
+      "fileHash": "08a33e0f506eb82cd13f26f2a70e699a91b32840dfad1084be17db62e2ae7d89",
+      "same": true,
+      "locator": {
+        "appType": "viewdatapath",
+        "customPath": "",
+        "fileName": "db_relation_show.json"
+      }
+    }
+  ],
+  "errors": [
+    {
+      "stage": "compare-file-and-view",
+      "viewId": "1CF5A4F1B6FC4FBABB8FBDC4A694EFD8",
+      "error": "[1003] 数据不存在"
+    }
+  ],
+  "cleanupLocatorConfirmed": true,
+  "finishedAt": "2026-11-06T09:48:30.031Z",
+  "scope": "Readonly exact file locator: public text and GetView hash comparison. No mutation, no deletion proof, no replay of sys_edit.",
+  "sourceSha256": "161a84cd6da124bc07af05cb4be8f65d89618f3d3254d34173ea3b8f300c8805"
+}

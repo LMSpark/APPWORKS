@@ -199,14 +199,15 @@ const appliedFilter = computed(() => {
   return dataState.resolvedView.value?.filterExpression
 })
 
-async function applyExpression(tree: DataViewFilterTree | undefined): Promise<void> {
+async function applyExpression(tree: DataViewFilterTree | undefined, options: Readonly<{forceQuery?: boolean}> = {}): Promise<void> {
   const view = dataState.resolvedView.value
   if (!view) { expressionError.value = 'RendererFilter: 未绑定 DataView'; return }
   if (!view.supportsQueryFiltering) return
   applyingExpression.value = true
   expressionError.value = null
   try {
-    await view.executeFilter(tree)
+    if (options.forceQuery || (props.autoQuery ?? view.queryConfig.autoQuery ?? true)) await view.executeFilter(tree)
+    else view.filterExpression = tree
   } catch (error) {
     if (view === dataState.resolvedView.value) expressionError.value = error instanceof Error ? error.message : String(error)
     logger.error('RendererFilter: 应用完整过滤失败', error)
@@ -300,7 +301,8 @@ const fieldScopeConfig = computed<SparkNode>(() => ({
 sparkProvide(SUBTREE_FIELD_POLICY, 'unrestricted')
 
 async function handleSearch(): Promise<void> {
-  await searchFilters()
+  if (isPanelMode.value && standaloneChildren.value.length > 0) await searchFilters()
+  else await applyExpression(dataState.resolvedView.value?.filterExpression, {forceQuery: true})
 }
 
 async function handleReset(): Promise<void> {

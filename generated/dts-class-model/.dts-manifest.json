@@ -1519,12 +1519,12 @@
     "packages/spark-component/src/components/containers/zones/RendererFilter.types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFilter.types.ts",
       "shardFile": "files/packages/spark-component/src/components/containers/zones/RendererFilter.types.ts.json",
-      "sourceModifiedAt": "2026-11-02T17:44:24.107Z"
+      "sourceModifiedAt": "2026-11-06T10:44:29.644Z"
     },
     "packages/spark-component/src/components/containers/zones/RendererFilter.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFilter.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/zones/RendererFilter.vue.json",
-      "sourceModifiedAt": "2026-11-04T06:04:26.195Z"
+      "sourceModifiedAt": "2026-11-06T10:23:27.621Z"
     },
     "packages/spark-component/src/components/containers/zones/RendererFooter.types.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/zones/RendererFooter.types.ts",
@@ -4259,7 +4259,7 @@
     "src/lowcode/resources/structured-config/catalog.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/catalog.ts.json",
-      "sourceModifiedAt": "2026-11-02T03:10:44.948Z"
+      "sourceModifiedAt": "2026-11-06T10:54:57.663Z"
     },
     "src/lowcode/resources/structured-config/data-code/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/data-code/design-ops.ts",
@@ -4319,7 +4319,7 @@
     "src/lowcode/resources/structured-config/logic-view/design-ops.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/design-ops.ts.json",
-      "sourceModifiedAt": "2026-11-02T04:09:10.982Z"
+      "sourceModifiedAt": "2026-11-06T09:54:02.445Z"
     },
     "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/field-row-adapter.ts",
@@ -4339,12 +4339,12 @@
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
-      "sourceModifiedAt": "2026-11-02T06:16:04.335Z"
+      "sourceModifiedAt": "2026-11-06T10:54:57.664Z"
     },
     "src/lowcode/resources/structured-config/logic-view/source-views.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/source-views.ts.json",
-      "sourceModifiedAt": "2026-11-02T05:21:42.248Z"
+      "sourceModifiedAt": "2026-11-06T10:38:27.311Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",
@@ -4514,7 +4514,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-02T09:01:13.220Z"
+      "sourceModifiedAt": "2026-11-06T09:49:58.041Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -5194,7 +5194,7 @@
     "src/views/features/data-platform/shared/model/use-staged-design-page.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
       "shardFile": "files/src/views/features/data-platform/shared/model/use-staged-design-page.ts.json",
-      "sourceModifiedAt": "2026-11-02T03:23:57.040Z"
+      "sourceModifiedAt": "2026-11-06T10:44:29.645Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
@@ -5274,12 +5274,12 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T06:16:04.335Z"
+      "sourceModifiedAt": "2026-11-06T10:55:56.073Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T01:34:24.838Z"
+      "sourceModifiedAt": "2026-11-06T09:55:15.449Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",

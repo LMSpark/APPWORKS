@@ -1,4 +1,5 @@
 import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
+import logicCatalog from '../../../../../config/pages/structured-config/logic-view-catalog/pagedata.json'
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
@@ -13,7 +14,7 @@ let http: StructuredCatalogHttp, runtime: DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return http},
   lowcodeDesignFileUpload: async () => {throw new Error('unexpected file upload')},
-  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? catalogText}}),
+  createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id===LowcodeLogicView.navigationScenarioId?JSON.stringify(logicCatalog):topicTexts[id] ?? catalogText}}),
   lowcodeApi: {readRequestScope: service.readRequestScope, dataSpace: {design: {...service, readRelations: async () => [], readModelBatch: async (input: {dataSpaceId: string; metaNames: string[]}) => input.dataSpaceId === WORKFLOW ? topicModels(WORKFLOW) : Promise.all(input.metaNames.map(metaName => service.readModel({...input, metaName})))}, get runtime() {return runtime}}},
 }))
 
@@ -27,10 +28,10 @@ beforeEach(() => {
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
     buildFormalModels({
-      Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'crttime'],
+      Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'createtime'],
       Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
       Base_UserInfo: ['ID', 'ROWID', 'UserName'],
-    }).find(m => m.metaName === metaName),
+    }).map(model=>({...model,id:logicCatalog.tables[model.metaName as keyof typeof logicCatalog.tables].modelBinding.modelId})).find(m => m.metaName === metaName),
   ))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
 })
@@ -60,6 +61,8 @@ describe('structured-config catalog loaders', () => {
   it('LowcodeLogicView.loadCatalog loads through the formal DataView owner', async () => {
     service.readSpaceDefinition.mockResolvedValue({dataSpaceId: LowcodeLogicView.navigationScenarioId, name: 'lv', raw: {}})
     const ds = await LowcodeLogicView.loadCatalog(LowcodeLogicView.navigationScenarioId)
+    expect(ds.getView(LowcodeLogicView.catalogMetaName, 'default')?.rows).toHaveLength(0)
+    await ds.getView(LowcodeLogicView.catalogMetaName, 'default')!.refresh()
     expect(ds.getView(LowcodeLogicView.catalogMetaName, 'default')?.rows[0]).toMatchObject({name: 'A'})
     ds.destroy()
   })

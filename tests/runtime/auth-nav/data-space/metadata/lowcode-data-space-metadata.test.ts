@@ -75,7 +75,7 @@ function formalModel(metaName: string) {
     Base_JsonData: ['rowid', 'name'], Base_DataViewList: ['rowid', 'name'],
     View_ViewList: ['rowid', 'vewname', 'vewdesc', 'dbid', 'DbName'],
     Base_TblField: ['rowid', 'tblid', 'enname', 'cnname', 'description', 'DataType', 'IsPKey'],
-    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'parzdtype'],
+    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'parzdtype', 'testvalue'],
   }
   const fields = sourceFields[metaName] ?? ['rowid', ...(metaName === 'Base_DataSet' ? ['inputParams'] : ['dataSetId']),
     ...(metaName === 'Base_DataModel' ? ['Name'] : []),
@@ -1176,15 +1176,17 @@ describe('data-space metadata DataSet', () => {
       if (tableName === 'View_TblList' || tableName === 'View_ViewList') {
         expect(table['columns']).toEqual([{name: 'databaseDisplay', type: 'string', label: '数据库名称 / 稳定 ID', computeExpression: "DbName || dbid || '-'"}])
         expect(formalModel(tableName).fields.map(field => field.name)).not.toContain('databaseDisplay')
-      } else expect(table).not.toHaveProperty('columns')
-      for (const view of Object.values(record(table['views']))) {
+      } else if(tableName==='_Base_ParamList')expect(table['columns']).toEqual([{name:'pid',immutable:true},{name:'parname',required:true,trim:'normalize',unique:true}])
+      else expect(table).not.toHaveProperty('columns')
+      for (const [viewId,view] of Object.entries(record(table['views']))) {
         if (tables.some(name => name === tableName)) {
           const filter = record(record(view)['filterExpression'])
           if (Array.isArray(filter['filters'])) expect(filter['logic']).toBe('and')
           expect(Array.isArray(filter['filters']) ? filter['filters'] : [filter]).toContainEqual({field: ownerField, operator: 'eq',
             value: {Type: 'GetInputParam', ParamName: 'dataSpaceId'}})
         } else {
-          expect(view).not.toHaveProperty('filterExpression')
+          if(tableName==='_Base_ParamList'&&viewId==='logicViewParameters')expect(record(view)['filterExpression']).toEqual({field:'pid',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}})
+          else expect(view).not.toHaveProperty('filterExpression')
           expect(record(record(view)['queryConfig'])['fields']).toContain(tableName === '_Base_ParamList' ? 'parid' : 'rowid')
         }
         expect(view).not.toHaveProperty('rows')

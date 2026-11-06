@@ -1,0 +1,99 @@
+{
+  "phase": "confirmed",
+  "processId": 18480,
+  "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+  "readOnly": true,
+  "reads": 16,
+  "writes": 0,
+  "blockedWrites": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataViewList"
+    },
+    {
+      "path": "/api/ViewData/GetView",
+      "table": null
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "_Base_ParamList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    }
+  ],
+  "checks": [
+    "metadata-deferred-and-default-catalog-unqueried",
+    "one-exact-formal-editor-target",
+    "parameter-input-before-query-and-single-metadata-instance",
+    "same-formal-named-view-and-one-explicit-candidate-query"
+  ],
+  "design": {
+    "hash": "e7a3b98ce67d320642b63bc06765a7eb2655d4949d94bb32369bd7a922f5a299",
+    "nodes": 1
+  },
+  "candidate": {
+    "count": 10,
+    "total": 1209,
+    "pageSize": 10,
+    "selectionDelimiter": ""
+  },
+  "parameters": {
+    "count": 2,
+    "primaryKey": "parid"
+  },
+  "disposed": true,
+  "finishedAt": "2026-11-06T10:17:50.902Z",
+  "sourceSha256": "fc2878ba535f65ceb80e918ab15e05e5bc2995cb3e81a6fc4e782d52ba7e0409",
+  "scope": "Formal PageRuntime catalog/editor/deferred metadata and exact named source views; readonly, original unknown sys_edit excluded."
+}

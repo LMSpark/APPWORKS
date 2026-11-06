@@ -11,13 +11,16 @@
         <RendererTabPane :index="0" name="basic" label="视图基本信息" :data-view-key="catalogKey">
           <RendererForm :data-view-key="catalogKey" :children="basicFields" :grid-columns="1" :show-data-view-meta="false" />
           <h2>视图参数</h2>
+          <p v-if="!parametersReady" role="status">正在读取视图参数…</p>
+          <template v-else>
           <RendererTable :data-view-key="parameterKey" :children="parameterFields" :toolbar="parameterToolbar" :show-pagination="false" :show-data-view-meta="false" />
           <RendererButton :data-view-key="parameterKey" label="核验参数保存结果" :disabled="busy || parameterState.mutating" @click="verifyParameters" />
           <RendererButton :data-view-key="parameterKey" label="取消参数修改" :disabled="busy || parameterState.mutating || parameterState.unknown" @click="cancelParameters" />
+          </template>
         </RendererTabPane>
         <RendererTabPane :index="1" name="design" label="视图数据设计" :data-view-key="designKey">
           <template v-if="designView">
-      <LogicViewNodeEditor :view-key="designKey" :view="designView" :parameter-view-key="parameterKey" :metadata="runtime?.getDataSet(LowcodeLogicView.parameterScenarioId)" :disabled="busy || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
+      <LogicViewNodeEditor :view-key="designKey" :view="designView" :parameter-view-key="parameterKey" :metadata="metadataReady ? runtime?.getDataSet(LowcodeLogicView.parameterScenarioId) : undefined" :disabled="busy || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
       <details><summary>完整设计</summary><RendererForm :data-view-key="designKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
         <FieldJson field="designJson" label="完整设计" mode="tree" :height="360" :readonly="busy || nodeEditing" :on-editing-change="value=>completeEditing=value" />
       </RendererForm></details>
@@ -51,8 +54,8 @@ const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const viewId = computed(() => typeof route.query['viewId'] === 'string' ? route.query['viewId'] : '')
 const designKey = computed(() => buildDataViewKey(LOGIC_VIEW_DESIGN_VIEW, 'default', scenarioId.value))
-const catalogKey = computed(() => buildDataViewKey(LowcodeLogicView.catalogMetaName, 'default', scenarioId.value))
-const parameterKey = buildDataViewKey(LowcodeLogicView.parameterModelName, 'default', LowcodeLogicView.parameterScenarioId)
+const catalogKey = computed(() => buildDataViewKey(LowcodeLogicView.catalogMetaName, 'editorTarget', scenarioId.value))
+const parameterKey = buildDataViewKey(LowcodeLogicView.parameterModelName, LowcodeLogicView.parameterViewId, LowcodeLogicView.parameterScenarioId)
 const activeTab = ref('basic'), revision = ref(0), deleteId = ref<string | number>(), parameterBusy = ref(false)
 const nodeEditing=ref(false),completeEditing=ref(false)
 useSystemPageDirtySource({get isDirty(){return nodeEditing.value||completeEditing.value}})
@@ -66,10 +69,26 @@ const {runtime, designView, designError, loading, ready, busy, error, saveChange
   scopeInputTable: LOGIC_VIEW_DESIGN_INPUT,
   scopeField: 'viewId',
   designViewTable: LOGIC_VIEW_DESIGN_VIEW,
-  loadDataSets: input => LowcodeLogicView.loadEditorWorkspace({scenarioId: input.scenarioId, viewId: input.scopeId}),
+  runtimeOptions: input => LowcodeLogicView.editorRuntimeOptions({scenarioId: input.scenarioId, viewId: input.scopeId}),
+  prepareRuntime: page => LowcodeLogicView.prepareEditor(page),
   missingScopeMessage: '缺少 viewId 参数',
 })
-const parameterView = computed(() => ready.value ? runtime.value?.resolveView(parameterKey) : undefined)
+const parametersReady=ref(false),metadataReady=ref(false)
+watch([ready,runtime,activeTab],async()=>{
+ const page=runtime.value
+ if(!ready.value||!page){parametersReady.value=false;metadataReady.value=false;return}
+ metadataReady.value=!!page.getDataSet(LowcodeLogicView.parameterScenarioId)
+ if(activeTab.value==='basic'?parametersReady.value:!!page.getDataSet(LowcodeLogicView.parameterScenarioId))return
+ parameterBusy.value=true
+ try{
+  if(activeTab.value==='basic'){await LowcodeLogicView.ensureParameters(page);if(runtime.value===page)parametersReady.value=true}
+  else await page.ensureScenarioLoaded(LowcodeLogicView.parameterScenarioId)
+  if(runtime.value===page)metadataReady.value=true
+ }
+ catch(cause){if(runtime.value===page)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(runtime.value===page)parameterBusy.value=false}
+},{immediate:true})
+const parameterView = computed(() => ready.value && parametersReady.value ? runtime.value?.resolveView(parameterKey) : undefined)
 watch(runtime, () => {deleteId.value = undefined})
 watch(parameterView, (view, _, cleanup) => {
   if (!view) return

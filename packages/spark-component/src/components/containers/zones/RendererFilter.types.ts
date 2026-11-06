@@ -17,7 +17,7 @@ export type RendererFilterApi = {
  * `r-filter` / `RendererFilter` 完整属性定义。
  *
  * 容器统一过滤入口：通过 `dataViewKey` 绑定 DataView，未指定时继承父级 DATA_SOURCE。
- * 完整表达式编辑器使用 DataViewFilterTree / DataView.executeFilter；
+ * 完整表达式即时写入原DataView.filterExpression，按autoQuery决定查询；search始终显式executeFilter。
  * 可选的常用筛选子组件通过同一 useFilterPanel / DataView.setFilter 同步。
  * 过滤属于绑定视图，表格、树、列表共享视图时消费同一结果；容器不另建过滤或查询逻辑。
  */
@@ -41,9 +41,9 @@ export type RFilterProps = SparkNodeProps & {
      * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。
      */
     dataViewKey?: string
-    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与常用筛选时机。 */
+    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。 */
     autoQuery?: boolean | undefined
-    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器，取消恢复已应用条件，应用仍走DataView过滤链。 */
+    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器并即时接纳有效结构编辑；JSON草稿可取消，过滤仍走同一DataView链。 */
     expressionDisplay?: 'dialog' | 'inline'
     /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */
     filterFunctionContext?: DataViewFilterFunctionContext

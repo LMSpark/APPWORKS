@@ -1,0 +1,41 @@
+{
+  "phase": "failed",
+  "processId": 26204,
+  "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+  "readOnly": true,
+  "reads": 6,
+  "writes": 0,
+  "blockedWrites": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    }
+  ],
+  "checks": [],
+  "error": "queryConfig.fields 不是当前正式输出字段: crttime",
+  "disposed": true,
+  "finishedAt": "2026-11-06T10:10:13.699Z",
+  "sourceSha256": "8a6f5ff8c2f1d6d57a26e7162d8286ad7904356b8d13a30bad441135a3d68420",
+  "scope": "Formal PageRuntime catalog/editor/deferred metadata and exact named source views; readonly, original unknown sys_edit excluded."
+}

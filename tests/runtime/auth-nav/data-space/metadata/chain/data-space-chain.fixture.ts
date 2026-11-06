@@ -76,7 +76,7 @@ export function dataSpaceChainFixture(options: {metadataCreate?: boolean} = {}) 
     Base_JsonData: ['rowid', 'name'], Base_DataViewList: ['rowid', 'name'],
     View_ViewList: ['rowid', 'vewname', 'vewdesc', 'dbid', 'DbName'],
     Base_TblField: ['rowid', 'tblid', 'enname', 'cnname', 'description', 'DataType', 'IsPKey'],
-    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc'],
+    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'testvalue'],
     Base_DataSet: ['rowid', 'Name', 'inputParams'],
     Base_DataModel: ['rowid', 'dataSetId', 'Name', 'MetaName', 'Type', 'DbId', 'PrimaryKeyFields', 'description', 'DbName', 'JoinType', 'ForeignKeyFields', 'JoinFilter', 'PId'],
     Base_DataModel_Field: ['rowid', 'dataSetId', 'dataModelId', 'Name', 'type', 'FieldType', 'IsPKey', 'IsOutput', 'ValueFun', 'Expression', 'AsName', 'description', 'allowAIAdd', 'OrderType', 'Order', 'Group'],

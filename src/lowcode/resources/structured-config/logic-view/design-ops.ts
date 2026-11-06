@@ -23,7 +23,7 @@ export function attachLogicViewDesignEdit(options: Readonly<{dataSet: DataSet; h
     jsonFields: ['designJson'],
     editing:{fields:['designJson'],allowed:viewId=>{
       guard()
-      const catalog=dataSet.getView('Base_DataViewList'),row=catalog?.rows.find(item=>catalog.getPkKey(item)===viewId)
+      const catalog=dataSet.getView('Base_DataViewList','editorTarget'),row=catalog?.rows.find(item=>catalog.getPkKey(item)===viewId)
       return !!catalog&&!!row&&catalog.editActionState(row)==='enabled'
     }},
     columns: [{name: 'rowid', primary: true}, {name: 'viewId'}, {name: 'designJson'}],

@@ -1,5 +1,5 @@
 {
-  "gapCount": 3683,
+  "gapCount": 3668,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -35396,147 +35396,6 @@
       "sourceFile": "src/lowcode/resources/structured-config/catalog.ts"
     },
     {
-      "kind": "model",
-      "className": "StructuredCatalogModelOptions",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StructuredCatalogModelOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 7,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "StructuredCatalogModelOptions",
-      "memberName": "metaName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StructuredCatalogModelOptions.metaName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 8,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "StructuredCatalogModelOptions",
-      "memberName": "sortExpression",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StructuredCatalogModelOptions.sortExpression 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "StructuredCatalogModelOptions",
-      "memberName": "userLookup",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StructuredCatalogModelOptions.userLookup 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 13,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "StructuredCatalogModelOptions",
-      "memberName": "treeSelect",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StructuredCatalogModelOptions.treeSelect 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 14,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "StructuredCatalogModelOptions",
-      "memberName": "fields",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StructuredCatalogModelOptions.fields 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "model",
-      "className": "LoadStructuredCatalogInput",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LoadStructuredCatalogInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 19,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "attribute",
-      "className": "LoadStructuredCatalogInput",
-      "memberName": "scenarioId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LoadStructuredCatalogInput.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 20,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "LoadStructuredCatalogInput",
-      "memberName": "catalogMetaName",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LoadStructuredCatalogInput.catalogMetaName 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 21,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "LoadStructuredCatalogInput",
-      "memberName": "models",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LoadStructuredCatalogInput.models 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 22,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "method",
-      "className": "LoadStructuredCatalogInput",
-      "memberName": "assertCurrent",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LoadStructuredCatalogInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 23,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
-      "kind": "model",
-      "className": "FormalModel",
-      "reason": "missing-jsdoc",
-      "chainBreak": "FormalModel 的模型语义链在首次声明处断开：声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/catalog.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationLine": 29,
-      "sourceFile": "src/lowcode/resources/structured-config/catalog.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "module",
       "className": "app:lowcode/resources/structured-config/data-code/design-ops",
       "moduleName": "app:lowcode/resources/structured-config/data-code/design-ops",
@@ -36446,7 +36305,7 @@
       "chainBreak": "LowcodeLogicView.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 5,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "declarationKind": "class"
     },
@@ -36457,7 +36316,7 @@
       "chainBreak": "LowcodeLogicView 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 5,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "declarationKind": "class"
     },
@@ -36469,7 +36328,7 @@
       "chainBreak": "LowcodeLogicView.navigationScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 6,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "declarationKind": "class"
     },
@@ -36481,7 +36340,7 @@
       "chainBreak": "LowcodeLogicView.catalogMetaName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 7,
+      "declarationLine": 10,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "declarationKind": "class"
     },
@@ -36493,7 +36352,7 @@
       "chainBreak": "LowcodeLogicView.parameterScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 8,
+      "declarationLine": 11,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "declarationKind": "class"
     },
@@ -36505,31 +36364,7 @@
       "chainBreak": "LowcodeLogicView.parameterModelName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 9,
-      "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "LowcodeLogicView",
-      "memberName": "loadCatalog",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeLogicView.loadCatalog 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 17,
-      "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationKind": "class"
-    },
-    {
-      "kind": "method",
-      "className": "LowcodeLogicView",
-      "memberName": "loadEditor",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeLogicView.loadEditor 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/structured-config/logic-view/resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
-      "declarationLine": 18,
+      "declarationLine": 12,
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "declarationKind": "class"
     },
@@ -43330,18 +43165,6 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "method",
-      "className": "StagedDesignPageConfig",
-      "memberName": "loadDataSets",
-      "reason": "missing-jsdoc",
-      "chainBreak": "StagedDesignPageConfig.loadDataSets 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/views/features/data-platform/shared/model/use-staged-design-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
-      "declarationKind": "typeAlias"
-    },
-    {
       "kind": "attribute",
       "className": "StagedDesignPageConfig",
       "memberName": "missingScopeMessage",
@@ -43349,7 +43172,7 @@
       "chainBreak": "StagedDesignPageConfig.missingScopeMessage 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/views/features/data-platform/shared/model/use-staged-design-page.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
-      "declarationLine": 19,
+      "declarationLine": 22,
       "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
       "declarationKind": "interface"
     },

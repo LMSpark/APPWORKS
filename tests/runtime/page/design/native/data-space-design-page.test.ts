@@ -6294,7 +6294,6 @@ describe('native data-space design entry', () => {
     choice.vm.$emit('update:modelValue', 'customer'); await flushPromises()
     await new DOMWrapper(document.body).get('[data-function-confirm]').trigger('click'); await flushPromises()
     expect(writes(f)).toHaveLength(0)
-    await filter.get('[data-action="apply"]').trigger('click'); await flushPromises()
     const fieldView = f.sessions[0]!.metadataDataSet.getView('DataViewDefinition')!
     const expected = {field: 'rowid', operator: 'eq', value: {Type: 'GetInputParam', ParamName: 'customer'}}
     expect(fieldView.getEditingRow(editor.props('rowKey')!)?.['filterExpression']).toEqual(expected)

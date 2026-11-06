@@ -1,0 +1,28 @@
+{
+  "phase": "failed",
+  "processId": 26448,
+  "marker": "LVmw4y7ugz17fe",
+  "locator": {
+    "appType": "viewdatapath",
+    "customPath": "",
+    "fileName": "LVmw4y7ugz17fe.json"
+  },
+  "acks": [],
+  "readbacks": [],
+  "fixtureRemaining": false,
+  "error": "Fixture system is not a formal current option",
+  "viewId": "",
+  "sysid": "00BE6ED455CD4BD7B785C61A12A1E67D",
+  "reads": 8,
+  "writes": 0,
+  "blockedRequests": 0,
+  "unknown": false,
+  "pending": null,
+  "testedAt": "2026-11-06T12:26:24.013Z",
+  "sourceSha256": "2dd6bd501af56fc056b4b7595a1b48c178255221ed86a38f235fba12c6de0430",
+  "launcherProcessId": 30008,
+  "driverSession": 4286,
+  "nativeExit": 1,
+  "scope": "Owned logic view file lifecycle preflight; no creation dispatched",
+  "interpretation": "Existing reference sysid is not a formal current application option; reject before writes. No fixture or unknown remains."
+}

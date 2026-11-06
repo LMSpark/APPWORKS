@@ -1,0 +1,66 @@
+{
+  "phase": "failed",
+  "processId": 26860,
+  "marker": "LVmw4ybcqtd225",
+  "locator": {
+    "appType": "viewdatapath",
+    "customPath": "",
+    "fileName": "LVmw4ybcqtd225.json"
+  },
+  "acks": [
+    {
+      "label": "create-catalog",
+      "type": "catalog",
+      "writes": 1
+    }
+  ],
+  "readbacks": [],
+  "fixtureRemaining": true,
+  "referenceSystem": "00BE6ED455CD4BD7B785C61A12A1E67D",
+  "applicationOptions": {
+    "count": 1,
+    "total": 1,
+    "ids": [
+      "D99A1DCE9894698799101EFD70F8FC76"
+    ]
+  },
+  "viewId": "B37C669BF9FD5D979CA6CCE5A1E4B696",
+  "sysid": "D99A1DCE9894698799101EFD70F8FC76",
+  "reads": 36,
+  "writes": 2,
+  "blockedRequests": 0,
+  "unknown": true,
+  "pending": {
+    "label": "create-file",
+    "type": "design",
+    "dispatched": true
+  },
+  "testedAt": "2026-11-06T12:29:35.439Z",
+  "error": "DESIGN_SAVE_UNCONFIRMED: 设计回读与原提交不一致，请核验或明确放弃后重读",
+  "waitingForOriginalRuntime": true,
+  "recoveryError": "DESIGN_SAVE_UNCONFIRMED: 设计回读与原提交不一致，请核验或明确放弃后重读",
+  "sourceSha256": "e903d21bd20b93d82d3a82bff150c8c314530a895fad61d6039cbb299eeb3047",
+  "launcherProcessId": 8456,
+  "driverSession": 11225,
+  "originalRuntimeRetained": true,
+  "initialWrites": 2,
+  "verificationAdditionalWrites": 0,
+  "interpretation": "Catalog creation confirmed. SaveView dispatch returned without a matching readback. Original capture remains unresolved; do not replay or delete catalog.",
+  "independentReadOnlyDiagnostic": {
+    "viewId": "B37C669BF9FD5D979CA6CCE5A1E4B696",
+    "fileName": "LVmw4ybcqtd225.json",
+    "processId": 23016,
+    "writes": 0,
+    "getView": {
+      "viewId": "B37C669BF9FD5D979CA6CCE5A1E4B696",
+      "data": []
+    },
+    "physical": {
+      "error": "[404] 文件不存在",
+      "code": 404
+    },
+    "reads": 2,
+    "blocked": 0,
+    "testedAt": "2026-11-06T12:32:36.590Z"
+  }
+}

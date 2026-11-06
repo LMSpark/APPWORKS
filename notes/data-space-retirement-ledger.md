@@ -6640,3 +6640,21 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 补入暂存后正式引用复查verify：第一次无消费者并暂存删除，之后出现跨空间/名称漂移消费者时，第二次必须重新查正式原view并阻断，不能复用第一次空结果。反例RED1→GREEN13，参数和输出文件草稿均未参与取消。保存接线仍待实现，verify不替代DataSet原保存预检；后续applyEditingRows导致的原生状态转换须由同命令明确接纳，不能丢首轮签名或重建计划。
 - 最终冻结19文件429项真实exit0，最新types97119、eslint71043、正式ClassModel9108、完整verify:rules72814与前端build5.39s均exit0；正式生成160份结构等价噪声恢复，新命令合同真实保留。ClassModel49项与原85待审/2warning/1info照实公开。所有本卡实服进程已终态，无目录/文件夹具、无业务写入、无新增unknown；负证据保留，不说native stage成功。
 - 高阶下一门已明确且不存在可直接复跑owned逻辑目录runner：复用excel-export-offon-owned-v2.mts的wx/nonce/精确CRUD预算/原capture恢复骨架；正式Base_DataViewList addRow/save，捕获新ID独立回读名称/sysid及删除权限。文件创建沿原LogicViewDesignEdit→DataSet.saveChanges→SaveView，禁止把uploadWorkingText强传viewdatapath。独占文件精确delete-only视图可用getOrCreateFileResourceView/createFileResourceAdapterExecutor，transport内readTextFile/removeFile，外层removeRow/save，禁止创建或正文更新，且原设计提交须已确认。只认真实文件接口Missing，不把GetView通用1003或读失败当不存在；最后精确删目录，任何unknown保留原RAM核验，不重POST、不先删目录。四次变更最小文件门通过后再完整输出CRUD，不借已坏公共基线/不碰sys_edit；完整20包目标未完成。
+
+
+### 2026-11-06 独占逻辑视图文件生命周期脚本预检（尚未派发）
+
+- 当前HEAD e7d5e21e7，起点工作树干净。新增ignored草稿 artifacts/data-chain-smoke/logic-view-owned-file-v1.mts及run/driver，尚未登录/启动，intent文件不存在；本轮没有新增服务端写入、夹具或unknown。现有前端HTTP200。此项是预检进展，不是文件CRUD通过。
+- 创建范围由默认目录宽查询改为唯一marker的原命名查询视图，原DataView生成目录身份。保存改用DataSpaceDefinitionSave.run捕获原批次，核验只沿verifyDataSpaceDefinitionCapture；未知结果不重新run或重发初写。删除适配守卫仅排除自己的捕获，不放行其他未知批次。
+- SaveView已派发但物理定位未确认时禁止删目录。原设计恢复确认后仍须新PageRuntime GetView与精确物理文件双读一致；not-applied只能显式经shared verifyAndDiscard丢弃原IDs，不能因SDKunknown消失就丢掉pending。目录不存在的清理终态仍须实测文件Missing，不能把读失败视为不存在。
+- 草稿语法转译通过（esbuild非bundle）；初次python读取编码失败未改文件，改用UTF8后完成修正。当前草稿SHA256 555db8ff01c8d6a1493ea3a4dbe0e3f993b7d29866079c06cf7cf913be2d7e71，仍等高阶最终只读复核，未经冻结不得派发。恢复无效回执的accept-current路径尚未实现，必须先补齐或明确阻断；当前不以此脚本运行成功作假定。
+- 下一断点：最终核原capture/not-applied及invalid receipt恢复、冻结脚本，再原运行实例内执行四次变更与独立回读清理；之后继续原输出发布/真实模型消费。旧sys_edit零重放，20业务包目标保持未完成。
+
+- 最终复核再发现正常SaveView ACK后过早清capture会令首次独立读取失败无法续核；已保留design的confirmed capture/recover直到双读成功。新增显式discard-local，仅原capture尚未建立、未派发、写计数未变且无SDKunknown时丢弃原view/ID；不能用于已派发或无效回执。脚本仍未启动，上一草稿SHA已失效，须最终冻结后再记录运行SHA。
+
+- 实际v1冻结SHA2dd6bd501af56fc056b4b7595a1b48c178255221ed86a38f235fba12c6de0430，main26448/launcher30008/driver session4286均已终态exit1：8读0写0blocked，无intent/fixture/unknown。原因是参考视图sysid不在本次正式Base_AppSystemList选项，创建前拒绝；不能沿用公共旧关联。正式负证据evidence/data-chain-smoke/2026-11-06-logic-view-owned-file-preflight-rejection.json。最终复审还指出accept-current须仅用于SDKcapture已消失且shared返回accepted-current，v1本轮未触发该分支，不改已运行源码。
+- 新v2改为本次明确宿主应用ID，在正式选项原查询中验证唯一可读rowid后才允许关联（LowcodeApplication合同id=rowid）；不能取首选项。保留options计数/可读IDs，仍无匹配则继续零写拒绝。修accept-current条件及返回值，语法转译通过，冻结SHAe903d21bd20b93d82d3a82bff150c8c314530a895fad61d6039cbb299eeb3047，driver session11225已启动，须轮询同句柄，不因观测失败重跑。
+
+- v2已实际派发：main26860/launcher8456/driver session11225原RAM仍存活；独占目录B37C669BF9FD5D979CA6CCE5A1E4B696，name=LVmw4ybcqtd225，sysid正式当前应用D99A1DCE9894698799101EFD70F8FC76。创建目录ACK已确认；随后SaveView导致DESIGN_SAVE_UNCONFIRMED，35读2写0blocked。原verify仅增加1读，仍不一致，保留原capture/pending，禁止重Save/先删目录。
+- 独立readonly diagnostic-v1 main23016/launcher28316/driver46174均exit0，2读0写0blocked：GetView实际[]；精确viewdatapath根LVmw4ybcqtd225.json返回真实404。只能证明这两次正式读取的当前状态，不能把SaveView ACK当落盘，也不能据此将原unknown私自改成confirmed。原始文件未重写，旧sys_edit零重放。
+- 正式负证据evidence/data-chain-smoke/2026-11-06-logic-view-owned-file-save-unconfirmed.json。本次fixture目录仍存在、原unknown仍保留；后续先解决原实例显式放弃/清理控制边界，不能复跑v2或另建新fixture掩盖。本轮已发现实服SaveView ACK与正式文件读取断链，尚未证明后端是否写到其他位置；本地Java源码只读显示save忽略fileFeignClient上传回执，此为源码推断，不能当部署实服结论，不修改/运行Java。

@@ -3,12 +3,34 @@ import {dataSpacePageFixture} from '../data-space-page.fixture'
 import {RequestState} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {createModelSourceEditHost, createModelSourceEditHandle} from '@/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session'
+import {DataSpaceSourceControls} from '@/views/features/data-platform/data-set-management/design/model/source/data-space-source-controls'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
 afterEach(() => {vi.restoreAllMocks(); fixtures.splice(0).forEach(f => f.dispose())})
 const source = {type: 'table' as const, id: 'NEXT', name: 'NextOrders', description: '新来源', dbid: 'DB2', databaseName: 'new-database', providerId: ''}
 const field = {type: 'dataModel' as const, Name: 'rowid', description: 'ID', FieldType: 'varchar', IsPKey: 1, IsOutput: 1,
   AsName: '', ValueFun: '', Expression: '', allowAIAdd: 0, OrderType: '', Order: 0, Group: 0}
+
+it.each([false,true])('releases its own search edits while preserving an existing formal draft=%s',async retainedDraft=>{
+  const {session}=await setup(),ds=session.metadataDataSet,formal=ds.getView('Base_DataSet','default')!
+  if(retainedDraft)formal.updateEditingValue('A','inputParams','[{"Name":"unrelated draft"}]')
+  const before=structuredClone(formal.getEditingRow('A')),changed=vi.fn(),controls=new DataSpaceSourceControls(ds,changed)
+  let observedDirty=false
+  const updated=vi.fn(()=>{observedDirty=Object.values(ds.tables).flatMap(table=>table.viewList).some(view=>view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())})
+  const off=ds.onAnyViewChange({editingChanged:updated})
+  try{
+    controls.search.updateEditingValue('search','keyword','NextOrders')
+    expect(observedDirty).toBe(true)
+    const calls=updated.mock.calls.length,ownerCalls=changed.mock.calls.length
+    controls.dispose()
+    expect(updated.mock.calls.length).toBeGreaterThan(calls)
+    expect(observedDirty).toBe(retainedDraft)
+    expect(formal.getEditingRow('A')).toEqual(before)
+    expect(formal.hasEditingChanges('A')).toBe(retainedDraft)
+    expect(Object.keys(ds.tables).some(name=>name.startsWith('ModelSourceControls_'))).toBe(false)
+    expect(changed).toHaveBeenCalledTimes(ownerCalls)
+  }finally{off();controls.dispose()}
+})
 const prepared = {source, model: {Type: '数据库表', MetaName: source.name, description: source.description, DbId: source.dbid, DbName: source.databaseName,
   JoinType: '', ForeignKeyFields: '', JoinFilter: '', PId: ''}, fields: [field, {...field, Name: 'parentId', IsPKey: 0}, {...field, Name: 'extra', IsPKey: 0}]}
 async function setup(options: Parameters<typeof dataSpacePageFixture>[0] = {}) {

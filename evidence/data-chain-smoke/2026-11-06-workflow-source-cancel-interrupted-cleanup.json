@@ -1,0 +1,95 @@
+{
+  "scope": "Interrupted browser observation retained as incomplete; independent exact cleanup only",
+  "nativeExit": 0,
+  "originalNativeExit": -1,
+  "sourceSha256": "8740661868c81434f4df7a1bcf3c7f35fed8fd9a6e2edf80759cdf1381a3a14c",
+  "result": {
+    "phase": "cleanup-confirmed",
+    "processId": 22532,
+    "workflowId": "29DCDF629978456684B9DAC0ED9DAB77",
+    "businessId": "88AFD0B30FDE4C0C8395A0ABB2D52A87",
+    "startupId": "14BE52B8ED8B4BAD9ACFFA7A7A03E885",
+    "marker": "SMOKE_OP_CANCEL_UI_1793940962227",
+    "reads": 176,
+    "writes": 4,
+    "executions": 0,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "fixtureRemaining": false,
+    "originalProcessId": 31700,
+    "originalUi": {
+      "nonce": "9D363C5FD9214496A59ECD1210820BBD",
+      "workflowId": "29DCDF629978456684B9DAC0ED9DAB77",
+      "phase": "normal",
+      "purpose": "cancel-only",
+      "closed": false,
+      "browserUnknown": null
+    },
+    "browserObservedClosed": true,
+    "browserNetworkComplete": false,
+    "originalOutcome": "Observation incomplete; exact idle process intentionally stopped. No zero-browser-CRUD or two-cycle success claim.",
+    "originalStateIndependentlyConfirmed": true,
+    "cleanedAt": "2026-11-06T05:19:43.050Z",
+    "ownedIds": {
+      "Base_WorkflowDefinition": [
+        "29DCDF629978456684B9DAC0ED9DAB77"
+      ],
+      "Base_DataSet": [
+        "29DCDF629978456684B9DAC0ED9DAB77"
+      ],
+      "Base_WorkflowNodeDefinition": [
+        "9888DF3C57738017900B0A5FBD11B451",
+        "0DC0E10AB34461BDA49A1C847167D4CB",
+        "332D701D25862796D21858B579CCD9ED"
+      ],
+      "Base_DataModel": [
+        "83133EAB98C08014858AB2B767464818"
+      ],
+      "Base_DataModel_Field": [
+        "2AF29FB2CEE67CDEAA5BFC997A845FD2",
+        "B8BAC4E7B3DFA7B454552A440A9E01CE",
+        "85FC7F39082F2B66FE72C51BE901BAD4",
+        "05CD15ACF73EAF04268F7C3A5366B544",
+        "81EA3642F045A904087D545629879504",
+        "1B7B8C62A201DC5FA92971BD33B27739",
+        "3487D8F4D9CD5E8BD200D51A16D3B8C5",
+        "D96E64B038DD701B0CB9B156603686C7",
+        "3A3F5C36925F0E43D919B5387578C41B",
+        "BDDF35262C25567777E3279EE36A2CF7",
+        "39FD387615552EE0BF61B6D64EEFF106",
+        "DBBEBFCB991BA6779BA1D087529EDEA4",
+        "4D0B4532694D073E00E2559157439B57",
+        "EA54FA3BB98F8FB82E8FF8B17BEC2FB5",
+        "05012CDD3A5D64863FAF57CD08F76D46",
+        "12B3B3613DA15A8054A12171F954C843",
+        "3F413D0AA39C1004AEC59B1AD343B923",
+        "A8597E8DCAFE8C3F57EF5724158CF421",
+        "BD8CBD50E516C0DDBA63D43F2BB825C8",
+        "9BC56D27E392FA15E6AB198D522AABBA"
+      ],
+      "Base_WorkflowConnectors": [
+        "822859C903F8088E57B2AEBCBB32627C",
+        "7F1D41460EB4CF2EB1568EC99BE0F762"
+      ]
+    },
+    "readbacks": [
+      {
+        "workflowDefinition": 0,
+        "parameters": 0,
+        "nodes": 0,
+        "connectors": 0,
+        "models": 0,
+        "fields": 0,
+        "relations": 0,
+        "business": 0,
+        "startup": 0
+      }
+    ]
+  },
+  "artifacts": [
+    "workflow-operation-source-cancel-ui-owned-v1-browser-interrupted.json",
+    "workflow-operation-source-cancel-ui-owned-v1-first-cycle-observation.json",
+    "workflow-operation-source-cancel-ui-owned-v1-independent-cleanup-audit.json"
+  ]
+}

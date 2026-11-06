@@ -5,10 +5,11 @@ import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldText,FieldSelect,FieldJson,FieldNumber,FieldCheckbox,FieldValueFunction,FilterValueFunctionDialog,FilterExpressionEditor,SparkJsonEditor,RendererButton,RendererDialog,RendererTable,RendererGraph,RendererTabs,RendererTabPane,RendererFilterExpression,Spark,registerAllRenderers} from '@spark-appworks/spark-component'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
-import {DataViewFilter,DataViewFilterCodec,getSparkNodeChildren} from '@spark-appworks/spark-data'
+import {DataViewFilter,DataViewFilterCodec,getSparkNodeChildren,type DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
+import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'
 import WorkflowQueryConfiguration from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-configuration.vue'
 import WorkflowExecutionPanel from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue'
@@ -391,6 +392,9 @@ describe('workflow formal design page',()=>{
   expect(state.http.saves).toHaveLength(1)
  })
  it('selects an operation target through bound tables, explicitly clears its condition, cancels without writes, then saves and reopens the confirmed target',async()=>{
+  let captured:DataSet|undefined
+  const load=LowcodeWorkflowDefinition.loadEditor.bind(LowcodeWorkflowDefinition)
+  const loadSpy=vi.spyOn(LowcodeWorkflowDefinition,'loadEditor').mockImplementation(async(...args)=>{captured=await load(...args);return captured})
   const filter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:0}))
   state.http.records['Base_WorkflowNodeDefinition']=[{rowid:'N1',workflow_id:'W1',name:'编辑',node_type:'edit',position_type:1,node_config:'',dataOperateModId:'M1',output_mapping:'[]'}]
   state.http.records['Base_WorkflowConnectors']=[];state.http.records['Base_DataModel_Relation']=[]
@@ -398,18 +402,29 @@ describe('workflow formal design page',()=>{
   Object.assign(state.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',FieldType:'varchar',IsPKey:1,IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
   state.http.records['View_TblList']=[{rowid:'T1',tblname:'NextTarget',tbldesc:'新目标',dbid:'DB1',DbName:'main'}]
   state.http.records['Base_TblField']=[{rowid:'SF1',tblid:'T1',enname:'code',cnname:'编码',DataType:'varchar',IsPKey:1},{rowid:'SF2',tblid:'T1',enname:'note',cnname:'说明',DataType:'varchar',IsPKey:0}]
-  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  let f:Awaited<ReturnType<typeof open>>
+  try{f=await open()}finally{loadSpy.mockRestore()}
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
   const choose=async()=>{
    await f.click('更换操作目标');await f.click('选择模型来源')
    await vi.waitFor(()=>expect(f.wrapper.findAllComponents(RendererTable).some(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))).toBe(true))
    const table=f.wrapper.findAllComponents(RendererTable).find(table=>String(table.props('dataViewKey')).includes('@View_TblList@'))!
+   const search=f.wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='keyword')!
+   expect(search).toBeDefined();await search.get('input').setValue('NextTarget');await flushPromises()
+   await vi.waitFor(()=>expect(state.http.reads.some(read=>read.table==='View_TblList'&&JSON.stringify(read.data).includes('NextTarget'))).toBe(true))
    await vi.waitFor(()=>expect(table.find('tbody tr').exists()).toBe(true));await table.get('tbody tr').trigger('click');await flushPromises();await f.click('确定')
    await vi.waitFor(()=>expect(document.body.textContent).toContain('随目标切换清空原条件'))
    expect(document.body.textContent).not.toContain('引入为输出字段')
    await f.click('随目标切换清空原条件');await vi.waitFor(()=>expect(document.body.textContent).toContain('保留并迁移原条件'))
   }
-  await choose();await f.click('取消来源选择');expect(state.http.saves).toHaveLength(0);expect(state.http.records['Base_DataModel']![0]?.['Filter']).toBe(filter)
+  await choose();await f.click('取消选择');await f.click('取消来源选择')
+  const remaining=Object.values(captured!.tables).flatMap(table=>table.viewList)
+  expect(remaining.filter(view=>view.destroyed||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges()).map(view=>`${view.tableName}@${view.viewId}`)).toEqual([])
+  expect(state.dirty[0]?.isDirty).toBe(false)
+  expect(f.buttons().find(button=>button.text()==='更换操作目标')?.attributes('disabled')).toBeUndefined()
+  expect(f.buttons().find(button=>button.text()==='关闭配置')?.attributes('disabled')).toBeUndefined()
+  expect(state.http.saves).toHaveLength(0);expect(state.http.records['Base_DataModel']![0]?.['Filter']).toBe(filter)
   await choose();await f.click('确认更换目标')
   await vi.waitFor(()=>expect(state.http.records['Base_DataModel']![0]).toMatchObject({MetaName:'NextTarget',DbName:'main',Filter:'',requestType:'edit'}))
   await vi.waitFor(()=>expect(state.dirty[0]?.isDirty).toBe(false))

@@ -248,12 +248,13 @@ export class DataSpaceSourceControls {
   private releaseChoice(choice: Choice): void {
     for (const table of [choice.options, choice.table]) if (table) {
       if (table === choice.options) this.dataSet.removeCascade({cascadeId: table.tableName})
+      for (const view of table.viewList) if (!view.destroyed) view.discardEditingRows()
       this.dataSet.removeTable(table.tableName)
       this.#tables.splice(this.#tables.indexOf(table), 1)
     }
   }
 
-  /** 卸载释放本实例输入、候选命名视图和级联，保留正式模型及原视图。 */
+  /** 先取消自有控件的暂存输入，再释放输入表、候选视图和级联；保留正式模型及其编辑。 */
   dispose(): void {
     this.#active = false
     if (!this.dataSet.destroyed) {
@@ -263,7 +264,10 @@ export class DataSpaceSourceControls {
         view.dataTable?.destroyView(view.viewId)
       }
       for (const choice of this.#choices.values()) this.releaseChoice(choice)
-      for (const table of this.#tables) this.dataSet.removeTable(table.tableName)
+      for (const table of this.#tables) {
+        for (const view of table.viewList) if (!view.destroyed) view.discardEditingRows()
+        this.dataSet.removeTable(table.tableName)
+      }
     }
     this.#candidates.clear(); this.#choices.clear(); this.#tables.length = 0
   }

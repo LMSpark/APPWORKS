@@ -1,0 +1,1021 @@
+{
+  "scope": "Same operation node/runtime, two source search-preview cancellation cycles; second includes a removal choice edit. No save clicked. Independent formal metadata hash and original Filter/zero constant unchanged. Exact fixture cleanup.",
+  "sourceSha256": "85d0ea87bf5e1b7ccd786ed6f060d2717f7eb2229b5adfecad9daacd2f265e91",
+  "result": {
+    "phase": "confirmed",
+    "processId": 28772,
+    "workflowId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+    "businessId": "EBF81664376C4F998A59518CA967F186",
+    "startupId": "296FA37864B34C5DA0F50A4866BD0A93",
+    "marker": "SMOKE_OP_CANCEL_UI_1793942476214",
+    "reads": 306,
+    "writes": 12,
+    "executions": 0,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "fixtureRemaining": false,
+    "cleanedAt": "2026-11-06T05:25:18.011Z",
+    "ownedIds": {
+      "Base_WorkflowDefinition": [
+        "8104A4BF02DB4B3DA9F31F2FC18C17E1"
+      ],
+      "Base_DataSet": [
+        "8104A4BF02DB4B3DA9F31F2FC18C17E1"
+      ],
+      "Base_WorkflowNodeDefinition": [
+        "2D157168F833F73FED8BFCD691632D17",
+        "F0E7A801E14CAE1DAF2DDF5884B25A82",
+        "16DC2FF9CD3A7A1CD80EBAF52741A2CC"
+      ],
+      "Base_DataModel": [
+        "CC1CE3695467C057B6B10DC4E78A94AF"
+      ],
+      "Base_DataModel_Field": [
+        "4FB812080EDF54AD1AC7CD780A965584",
+        "8E31868118832F149C27A583675E07D9",
+        "F4C40E3E9B4DDDD355BBC76FF88E619E",
+        "7DD63AA362F09FE7BC5C8A8BE3570EFA",
+        "EC4031CB58759F28AA992C57004A084C",
+        "32CF337360A75E1ADA739B8D8FAC6A30",
+        "B4122AEEC57EEAF7F90D8DCACDED0381",
+        "955C24FC9DF9687BEFF105EF897F2F03",
+        "D3BC1108908FC6483B78FE311142D15C",
+        "18C58D03865B5A2DC0FD9567F9762133",
+        "6E78056B5784FF5F2FDAF466C26C5CFA",
+        "60EE9FDBDB33EB85E4E1731862723734",
+        "2286FBB08A1E5E5036BEC38985F43899",
+        "062A6CD0AD1A8E8005593FE7BC52CEDA",
+        "F307F754141AD1EA94F179049C0A563D",
+        "14D2F43C7E679FBD16DE3D381F31A1B5",
+        "B4E6A3947A0804169A2B1B6956A3DA5A",
+        "68328626F601EEF045E5F6093B93813C",
+        "71C3C56A878BC105833F34BE022F944C",
+        "8F548603DC601ABD81F6E0E36441B70D"
+      ],
+      "Base_WorkflowConnectors": [
+        "0593022DF9C709AC0425F9D60BC1E40E",
+        "45CDB9EB0DBB56139FF99B22AF0F49F9"
+      ]
+    },
+    "readbacks": [
+      {
+        "workflowDefinition": 0,
+        "parameters": 0,
+        "nodes": 0,
+        "connectors": 0,
+        "models": 0,
+        "fields": 0,
+        "relations": 0,
+        "business": 0,
+        "startup": 0
+      }
+    ],
+    "cancelConfirmed": {
+      "model": [
+        {
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "DbId": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+          "DbName": "QYVirtualPlat",
+          "description": "Excel 导入业务方案配置表",
+          "Filter": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"EBF81664376C4F998A59518CA967F186\"}}",
+          "MetaName": "Base_Import_solution",
+          "Name": "OP_OUT_8104A4_EDIT",
+          "OutputType": "Table",
+          "requestType": "edit",
+          "rowid": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "Type": "数据库表"
+        }
+      ],
+      "fields": [
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "创建时间",
+          "Expression": "",
+          "FieldType": "datetime",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "createtime",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "062A6CD0AD1A8E8005593FE7BC52CEDA",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "企业标识字段",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 1,
+          "Name": "lingma_sys_ent",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "14D2F43C7E679FBD16DE3D381F31A1B5",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "模板路径",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "templatePath",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "18C58D03865B5A2DC0FD9567F9762133",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "修改时间",
+          "Expression": "",
+          "FieldType": "datetime",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "updatetime",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "2286FBB08A1E5E5036BEC38985F43899",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "规则方案状态：DRAFT草稿；PUBLISHED已启用",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "status",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "32CF337360A75E1ADA739B8D8FAC6A30",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "方案版本号",
+          "Expression": "",
+          "FieldType": "int",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "version",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "4FB812080EDF54AD1AC7CD780A965584",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "创建人",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "createuser",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "60EE9FDBDB33EB85E4E1731862723734",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "修改人",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "updateuser",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "68328626F601EEF045E5F6093B93813C",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "流程状态",
+          "Expression": "",
+          "FieldType": "int",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "flowstate",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "6E78056B5784FF5F2FDAF466C26C5CFA",
+          "type": "inputParams",
+          "ValueFun": "{\"Type\":\"GetConstValue\",\"Value\":0}"
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "rowid",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 1,
+          "Name": "rowid",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "71C3C56A878BC105833F34BE022F944C",
+          "type": "inputParams",
+          "ValueFun": "{\"Type\":\"GetConstValue\",\"Value\":\"EBF81664376C4F998A59518CA967F186\"}"
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "方案名称",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "solutionName",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "7DD63AA362F09FE7BC5C8A8BE3570EFA",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "数据空间id",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "dataSetId",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "8E31868118832F149C27A583675E07D9",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "规则配置摘要，保留用于版本一致性校验",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "config_hash",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "8F548603DC601ABD81F6E0E36441B70D",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "流程实例id",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "wfid",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "955C24FC9DF9687BEFF105EF897F2F03",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "摘要",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "description",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "B4122AEEC57EEAF7F90D8DCACDED0381",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "是否删除",
+          "Expression": "",
+          "FieldType": "bigint",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "lingma_sys_is_delete",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "B4E6A3947A0804169A2B1B6956A3DA5A",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "编码方案",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "coding",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "D3BC1108908FC6483B78FE311142D15C",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "报表id",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "ReportID",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "EC4031CB58759F28AA992C57004A084C",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "是否启用标准转换规则：0兼容旧导入；1启用",
+          "Expression": "",
+          "FieldType": "tinyint",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "transform_enabled",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "F307F754141AD1EA94F179049C0A563D",
+          "type": "inputParams",
+          "ValueFun": ""
+        },
+        {
+          "allowAIAdd": 0,
+          "AsName": "",
+          "dataModelId": "CC1CE3695467C057B6B10DC4E78A94AF",
+          "dataSetId": "8104A4BF02DB4B3DA9F31F2FC18C17E1",
+          "description": "默认应用系统标识字段；请求携带 X-AppId 时由系统自动维护",
+          "Expression": "",
+          "FieldType": "varchar",
+          "Group": 0,
+          "IsOutput": 0,
+          "IsPKey": 0,
+          "Name": "lingma_sys_appid",
+          "Order": 0,
+          "OrderType": "",
+          "rowid": "F4C40E3E9B4DDDD355BBC76FF88E619E",
+          "type": "inputParams",
+          "ValueFun": ""
+        }
+      ],
+      "output": [
+        {
+          "rowid": "062A6CD0AD1A8E8005593FE7BC52CEDA",
+          "pid": null,
+          "Name": "createtime",
+          "Description": "创建时间",
+          "FieldType": "datetime",
+          "isParent": false
+        },
+        {
+          "rowid": "18C58D03865B5A2DC0FD9567F9762133",
+          "pid": null,
+          "Name": "templatePath",
+          "Description": "模板路径",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "2286FBB08A1E5E5036BEC38985F43899",
+          "pid": null,
+          "Name": "updatetime",
+          "Description": "修改时间",
+          "FieldType": "datetime",
+          "isParent": false
+        },
+        {
+          "rowid": "32CF337360A75E1ADA739B8D8FAC6A30",
+          "pid": null,
+          "Name": "status",
+          "Description": "规则方案状态：DRAFT草稿；PUBLISHED已启用",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "4FB812080EDF54AD1AC7CD780A965584",
+          "pid": null,
+          "Name": "version",
+          "Description": "方案版本号",
+          "FieldType": "int",
+          "isParent": false
+        },
+        {
+          "rowid": "60EE9FDBDB33EB85E4E1731862723734",
+          "pid": null,
+          "Name": "createuser",
+          "Description": "创建人",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "68328626F601EEF045E5F6093B93813C",
+          "pid": null,
+          "Name": "updateuser",
+          "Description": "修改人",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "6E78056B5784FF5F2FDAF466C26C5CFA",
+          "pid": null,
+          "Name": "flowstate",
+          "Description": "流程状态",
+          "FieldType": "int",
+          "isParent": false
+        },
+        {
+          "rowid": "71C3C56A878BC105833F34BE022F944C",
+          "pid": null,
+          "Name": "rowid",
+          "Description": "rowid",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "7DD63AA362F09FE7BC5C8A8BE3570EFA",
+          "pid": null,
+          "Name": "solutionName",
+          "Description": "方案名称",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "8E31868118832F149C27A583675E07D9",
+          "pid": null,
+          "Name": "dataSetId",
+          "Description": "数据空间id",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "8F548603DC601ABD81F6E0E36441B70D",
+          "pid": null,
+          "Name": "config_hash",
+          "Description": "规则配置摘要，保留用于版本一致性校验",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "955C24FC9DF9687BEFF105EF897F2F03",
+          "pid": null,
+          "Name": "wfid",
+          "Description": "流程实例id",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "B4122AEEC57EEAF7F90D8DCACDED0381",
+          "pid": null,
+          "Name": "description",
+          "Description": "摘要",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "D3BC1108908FC6483B78FE311142D15C",
+          "pid": null,
+          "Name": "coding",
+          "Description": "编码方案",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "EC4031CB58759F28AA992C57004A084C",
+          "pid": null,
+          "Name": "ReportID",
+          "Description": "报表id",
+          "FieldType": "varchar",
+          "isParent": false
+        },
+        {
+          "rowid": "F307F754141AD1EA94F179049C0A563D",
+          "pid": null,
+          "Name": "transform_enabled",
+          "Description": "是否启用标准转换规则：0兼容旧导入；1启用",
+          "FieldType": "tinyint",
+          "isParent": false
+        }
+      ],
+      "node": {
+        "config": "",
+        "dataOperateModId": "CC1CE3695467C057B6B10DC4E78A94AF",
+        "description": "",
+        "input_mapping": "[]",
+        "name": "SMOKE_OP_CANCEL_UI_1793942476214_edit",
+        "node_config": "",
+        "node_key": null,
+        "node_type": "edit",
+        "output_mapping": "[{\"rowid\":\"062A6CD0AD1A8E8005593FE7BC52CEDA\",\"pid\":null,\"Name\":\"createtime\",\"Description\":\"创建时间\",\"FieldType\":\"datetime\",\"isParent\":false},{\"rowid\":\"18C58D03865B5A2DC0FD9567F9762133\",\"pid\":null,\"Name\":\"templatePath\",\"Description\":\"模板路径\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"2286FBB08A1E5E5036BEC38985F43899\",\"pid\":null,\"Name\":\"updatetime\",\"Description\":\"修改时间\",\"FieldType\":\"datetime\",\"isParent\":false},{\"rowid\":\"32CF337360A75E1ADA739B8D8FAC6A30\",\"pid\":null,\"Name\":\"status\",\"Description\":\"规则方案状态：DRAFT草稿；PUBLISHED已启用\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"4FB812080EDF54AD1AC7CD780A965584\",\"pid\":null,\"Name\":\"version\",\"Description\":\"方案版本号\",\"FieldType\":\"int\",\"isParent\":false},{\"rowid\":\"60EE9FDBDB33EB85E4E1731862723734\",\"pid\":null,\"Name\":\"createuser\",\"Description\":\"创建人\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"68328626F601EEF045E5F6093B93813C\",\"pid\":null,\"Name\":\"updateuser\",\"Description\":\"修改人\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"6E78056B5784FF5F2FDAF466C26C5CFA\",\"pid\":null,\"Name\":\"flowstate\",\"Description\":\"流程状态\",\"FieldType\":\"int\",\"isParent\":false},{\"rowid\":\"71C3C56A878BC105833F34BE022F944C\",\"pid\":null,\"Name\":\"rowid\",\"Description\":\"rowid\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"7DD63AA362F09FE7BC5C8A8BE3570EFA\",\"pid\":null,\"Name\":\"solutionName\",\"Description\":\"方案名称\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"8E31868118832F149C27A583675E07D9\",\"pid\":null,\"Name\":\"dataSetId\",\"Description\":\"数据空间id\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"8F548603DC601ABD81F6E0E36441B70D\",\"pid\":null,\"Name\":\"config_hash\",\"Description\":\"规则配置摘要，保留用于版本一致性校验\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"955C24FC9DF9687BEFF105EF897F2F03\",\"pid\":null,\"Name\":\"wfid\",\"Description\":\"流程实例id\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"B4122AEEC57EEAF7F90D8DCACDED0381\",\"pid\":null,\"Name\":\"description\",\"Description\":\"摘要\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"D3BC1108908FC6483B78FE311142D15C\",\"pid\":null,\"Name\":\"coding\",\"Description\":\"编码方案\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"EC4031CB58759F28AA992C57004A084C\",\"pid\":null,\"Name\":\"ReportID\",\"Description\":\"报表id\",\"FieldType\":\"varchar\",\"isParent\":false},{\"rowid\":\"F307F754141AD1EA94F179049C0A563D\",\"pid\":null,\"Name\":\"transform_enabled\",\"Description\":\"是否启用标准转换规则：0兼容旧导入；1启用\",\"FieldType\":\"tinyint\",\"isParent\":false}]",
+        "position_type": 1,
+        "rowid": "16DC2FF9CD3A7A1CD80EBAF52741A2CC",
+        "workflow_id": "8104A4BF02DB4B3DA9F31F2FC18C17E1"
+      }
+    },
+    "browserCancellation": {
+      "cycles": 2,
+      "sourceEnabled": true,
+      "closeEnabled": true,
+      "crud": 0,
+      "proof": {
+        "cursor": 4380,
+        "requests": [],
+        "responses": [],
+        "issues": [],
+        "stages": [
+          {
+            "stage": "start",
+            "cursor": 3644,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "catalog-refresh",
+            "cursor": 3648,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "catalog-loaded",
+            "cursor": 3677,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "select-workflow",
+            "cursor": 3696,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "open-design",
+            "cursor": 3699,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "design-loaded",
+            "cursor": 3788,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "select-edit",
+            "cursor": 3791,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "open-config",
+            "cursor": 3794,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "config-loaded",
+            "cursor": 3823,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-open-source",
+            "cursor": 3825,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-source-loaded",
+            "cursor": 3854,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-picker-open",
+            "cursor": 3857,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-search",
+            "cursor": 3874,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-search-loaded",
+            "cursor": 3876,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-select-candidate",
+            "cursor": 3877,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-candidate-confirm",
+            "cursor": 3880,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-preview-loaded",
+            "cursor": 3947,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-cancel-selection",
+            "cursor": 3999,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle1-cancel-source",
+            "cursor": 4033,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-open-source",
+            "cursor": 4046,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-source-loaded",
+            "cursor": 4067,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-picker-open",
+            "cursor": 4070,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-search",
+            "cursor": 4087,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-search-loaded",
+            "cursor": 4087,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-select-candidate",
+            "cursor": 4089,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-candidate-confirm",
+            "cursor": 4092,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-preview-loaded",
+            "cursor": 4160,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-edit-removal-choice",
+            "cursor": 4162,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-cancel-selection",
+            "cursor": 4290,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "cycle2-cancel-source",
+            "cursor": 4323,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "close-config",
+            "cursor": 4338,
+            "requests": 0,
+            "responses": 0
+          },
+          {
+            "stage": "close-design",
+            "cursor": 4380,
+            "requests": 0,
+            "responses": 0
+          }
+        ]
+      }
+    }
+  },
+  "browser": {
+    "proof": {
+      "cursor": 4380,
+      "requests": [],
+      "responses": [],
+      "issues": [],
+      "stages": [
+        {
+          "stage": "start",
+          "cursor": 3644,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "catalog-refresh",
+          "cursor": 3648,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "catalog-loaded",
+          "cursor": 3677,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "select-workflow",
+          "cursor": 3696,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "open-design",
+          "cursor": 3699,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "design-loaded",
+          "cursor": 3788,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "select-edit",
+          "cursor": 3791,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "open-config",
+          "cursor": 3794,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "config-loaded",
+          "cursor": 3823,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-open-source",
+          "cursor": 3825,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-source-loaded",
+          "cursor": 3854,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-picker-open",
+          "cursor": 3857,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-search",
+          "cursor": 3874,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-search-loaded",
+          "cursor": 3876,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-select-candidate",
+          "cursor": 3877,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-candidate-confirm",
+          "cursor": 3880,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-preview-loaded",
+          "cursor": 3947,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-cancel-selection",
+          "cursor": 3999,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle1-cancel-source",
+          "cursor": 4033,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-open-source",
+          "cursor": 4046,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-source-loaded",
+          "cursor": 4067,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-picker-open",
+          "cursor": 4070,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-search",
+          "cursor": 4087,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-search-loaded",
+          "cursor": 4087,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-select-candidate",
+          "cursor": 4089,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-candidate-confirm",
+          "cursor": 4092,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-preview-loaded",
+          "cursor": 4160,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-edit-removal-choice",
+          "cursor": 4162,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-cancel-selection",
+          "cursor": 4290,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cycle2-cancel-source",
+          "cursor": 4323,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "close-config",
+          "cursor": 4338,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "close-design",
+          "cursor": 4380,
+          "requests": 0,
+          "responses": 0
+        }
+      ]
+    },
+    "interfaceUnlocked": true,
+    "twoCycles": true,
+    "browserClosed": true,
+    "browserUnknown": false,
+    "dialogs": 0,
+    "screenshot": "ui-source-search-cancel-second-20261106.jpg"
+  },
+  "nativeExit": 0
+}

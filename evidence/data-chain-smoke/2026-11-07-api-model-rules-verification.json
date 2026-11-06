@@ -1,0 +1,196 @@
+{
+  "scope": "Shared API output/public parameter model save constraints, original PageRuntime host wiring, and formal-model identity resolution",
+  "phase": "verified checkpoint",
+  "models": [
+    "EC84BD89BDBDF46B1FE5132DD53836E5p009",
+    "EC84BD89BDBDF46B1FE5132DD53836E5p005",
+    "446B5D94A71587E9BD4D325A4DF5F6F8p006",
+    "446B5D94A71587E9BD4D325A4DF5F6F8p002"
+  ],
+  "sourceHashes": [
+    {
+      "path": "config/pages/integration/api-interface/pagedata.json",
+      "sha256": "c6bdba80fe6e9a14eaabf00835ca49c699b055a09f8e588ae8aebacc37b2b416"
+    },
+    {
+      "path": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "sha256": "da0c22dfec4d111679aec31deae376537e5f8daf904e75f8d2a316aeb397c18e"
+    },
+    {
+      "path": "src/lowcode/resources/integration/api-management/model-rules.ts",
+      "sha256": "ad08ba66dc2d22f435b6156e42dd9351fa43d708d6a07dc5c58e8b59b6202f46"
+    },
+    {
+      "path": "src/lowcode/resources/integration/api-management/queries.ts",
+      "sha256": "a8946c3a485f4831e6a40f45008b7e9cc96d5c53dea50b8f5425a02b893f856f"
+    },
+    {
+      "path": "src/views/features/integration/api-management/ui/api-config-page.vue",
+      "sha256": "e53b903f3a5c43bebb4cbcacb9c9990dd8b4d2fef6348a7b1b9d25de7c09c23c"
+    },
+    {
+      "path": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
+      "sha256": "f5de44b698b4aa53e150e23bf32823f0098f836b25bc161ab0d4d6b18b127452"
+    },
+    {
+      "path": "tests/runtime/page/api-provider/api-model-rules.test.ts",
+      "sha256": "748f47ee6f57112cb12e981d4ac7cc9f9816266cee74e2a1f422ec4b67b22993"
+    },
+    {
+      "path": "tests/runtime/page/api-provider/api-pages.test.ts",
+      "sha256": "2f2d59ee49f2bc7410555a8aa5efddfd8d028ef308a429825598fe1b27c37b53"
+    },
+    {
+      "path": "tests/runtime/page/api-provider/api-provider.fixture.ts",
+      "sha256": "e698f212848f0207c77ab5a766f97b0a9ea18eed567dfe8cdb1f0197f6e41dd4"
+    },
+    {
+      "path": "tests/runtime/page/api-provider/api-scenarios.test.ts",
+      "sha256": "68a966516320389f458075c7a29b6d8ea83f0352e6462f47b766d8538dfe8be6"
+    }
+  ],
+  "checks": [
+    {
+      "tests": 8863,
+      "testTimeout": 15000,
+      "kind": "full repository",
+      "durationSeconds": 1192.14,
+      "maxWorkers": 2,
+      "path": "artifacts/data-chain-smoke/api-model-rules-full-repository.log",
+      "files": 478,
+      "exitCode": 0,
+      "sha256": "77e5020c500f8d4015f0bb310b9520930bb8dbf0585305c9c0082cf0429e1234"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-post-freeze-typecheck.log",
+      "exitCode": 0,
+      "kind": "final typecheck",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-post-freeze-lint.log",
+      "exitCode": 0,
+      "kind": "full lint",
+      "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-v3-rules.log",
+      "exitCode": 0,
+      "kind": "full rules",
+      "sha256": "a6d9691962ebf1063fcedec0c20706531fb6426f11728fac245181bc2c743286"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-build.log",
+      "exitCode": 0,
+      "kind": "frontend build",
+      "sha256": "9259b363a8b3222b02dc7aef826134259c54a75f5c6872485827f45373303615"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-v2-class-model.log",
+      "exitCode": 0,
+      "kind": "formal ClassModel generation",
+      "sha256": "a60b78404c696e665df9dc320aab5b342510b78e7b7b505889c9443451e18a4a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-v2-contracts.log",
+      "roots": 8,
+      "exitCode": 0,
+      "kind": "fresh catalog summary and guides",
+      "sha256": "bba8f61ab7b14a5cfe7cb2a0e91e321481ae9c0fd6fa71e4f87dc5a0e90e0de0"
+    },
+    {
+      "tests": 35,
+      "path": "artifacts/data-chain-smoke/api-model-rules-trim-green.log",
+      "files": 1,
+      "exitCode": 0,
+      "kind": "focused model rules",
+      "sha256": "29c544e22cb845901eda8b92dbdddec498b5d6bacdf912aab2c0574df4403f81"
+    }
+  ],
+  "observedRedTests": [
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-red.log",
+      "reason": "Direct official loader saves bypassed structural, host and public-binding constraints",
+      "failed": 4,
+      "total": 7,
+      "sha256": "f1ca68e78f3cef2435c81ce048041a38fb48dba5a4a8cce5702e720596e0d8f5"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-option-red.log",
+      "reason": "CONFIG output option model did not share save constraints",
+      "failed": 4,
+      "total": 12,
+      "sha256": "6c1b3ec313b2b9e315a70d77505053250bf94d6612d633879cb8c0dd4cefb423"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-page-host-red.log",
+      "reason": "Both original pages did not pass their original deferred host",
+      "failed": 2,
+      "total": 6,
+      "sha256": "833a578b72110b86ad60301dfcf0e86e2e96e248491548c51ca53afc7bc1f93e"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-review-red.log",
+      "reason": "CONFIG type mutation and both public parameter deletion paths bypassed constraints",
+      "failed": 3,
+      "total": 27,
+      "sha256": "af9e0d8aefe0c1e83b638ae61b8d0e896d926853702c2b74e7b2aa02a173909b"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-alias-red4.log",
+      "reason": "Internal table alias bypassed registration for the same formal output model",
+      "failed": 1,
+      "total": 28,
+      "sha256": "f7583177ce3d3fd6a547b69b6b9887c5b39f1f93d0aedfb37f8d1b869da9bdc2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-model-rules-trim-red.log",
+      "reason": "Rejecting whitespace diverged from reference output-name normalization",
+      "failed": 1,
+      "total": 33,
+      "sha256": "6cb9a777e23b2a4f988c7e08f518d7ac537e8cc5d96fd452abdaef7c47e1fea4"
+    }
+  ],
+  "fixtureCorrections": [
+    "Alias probe used wrong cascades property before viewCascades correction",
+    "Formal fixture used internal table key as metaName before correction",
+    "Default cascade view had no selected parent; alias probe corrected to independent named view",
+    "Original unknown save throws rather than returns failure",
+    "Earlier native column or fresh domain rejection changes message ownership while preserving zero writes"
+  ],
+  "generation": {
+    "equivalentCompilerNoiseRestored": 164,
+    "comparisonReport": "artifacts/data-chain-smoke/api-model-rules-v2-equivalent-generated.json",
+    "actualChangesRetained": true,
+    "generatedArtifactsHandEdited": false
+  },
+  "businessWritesThisCard": 0,
+  "newLiveRequestsThisCard": 0,
+  "noNewSaveOwner": true,
+  "noSecondDraftStore": true,
+  "unknownRecoveryReplaysWrites": false,
+  "openItems": [
+    "Output edit and public parameter rebind UI remain to implement",
+    "Deployed API output creation rejects interface parent type; no live retry or bypass",
+    "Model consumer lookup does not prove a complete saved logic-view file reference index",
+    "CONFIG interface option model overall maintenance is outside this checkpoint",
+    "Browser visual verification and complete 20-package migration remain open"
+  ],
+  "testedAt": "2026-11-06T20:18:07.0234106Z",
+  "postTestCosmeticChanges": [
+    {
+      "path": "tests/runtime/page/api-provider/api-provider.fixture.ts",
+      "testedSha256": "e698f212848f0207c77ab5a766f97b0a9ea18eed567dfe8cdb1f0197f6e41dd4",
+      "currentSha256": "16f41605a724c5e3adf1c17c02cab4d697ef78a63d00f0d03528119c116ff452",
+      "classification": "EOF newline cleanup only; all preceding bytes unchanged",
+      "removedBytes": 2
+    },
+    {
+      "path": "tests/runtime/page/api-provider/api-model-rules.test.ts",
+      "testedSha256": "748f47ee6f57112cb12e981d4ac7cc9f9816266cee74e2a1f422ec4b67b22993",
+      "currentSha256": "e857eafb9cec32422c9b57f06aff1a9d94cc1b134e0ebeed37a4dabfadd259b8",
+      "classification": "EOF newline cleanup only; all preceding bytes unchanged",
+      "removedBytes": 4
+    }
+  ]
+}

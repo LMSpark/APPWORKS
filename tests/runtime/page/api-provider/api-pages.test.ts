@@ -2,11 +2,12 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent, h, type Component} from 'vue'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ElementPlus from 'element-plus'
 import {Spark, registerAllRenderers, RendererForm} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {createApiService, seed, NAV, pagedata} from './api-provider.fixture'
+import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
 
 const api = vi.hoisted(() => ({current: undefined as unknown as ReturnType<typeof import('./api-provider.fixture')['createApiService']>}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -54,6 +55,19 @@ const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button')
 const records = (table: string) => api.current.state.http.records[table]!
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it.each([{component:InterfacePage,scenario:API},{component:ConfigPage,scenario:CONFIG}])('provides its original deferred metadata host for $scenario',async({component,scenario})=>{
+    const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+    await mountAt(component,{providerId:'P1'})
+    const runtime=[...observed].find(p=>p.getDataSet(scenario))!
+    expect(runtime).toBeDefined();expect(runtime.getDataSet(META)).toBeUndefined()
+    const ds=runtime.getDataSet(scenario)!,v=ds.getView('Base_TblField')!.createQueryView('host-proof')
+    v.commitMode='staged';v.queryConfig={fields:['rowid','tblid','enname','DataType','IsPKey'],allPages:true};v.filterExpression={field:'tblid',operator:'eq',value:'I1'};await v.refresh()
+    api.current.state.http.records['Base_Interface_PublicParam']=[]
+    v.updateEditingValue('F1','enname','host_verified')
+    expect((await ds.saveChanges({views:[{tableName:v.tableName,viewId:v.viewId}]})).success).toBe(true)
+    expect(runtime.getDataSet(META)).toBeDefined()
+  })
   it('keeps the original business path', () => {
     const path = '/features/integration/api-management/ui/api-management-page'
     expect(getVuePageEntry(path)).toMatchObject({source: `src/views${path}.vue`, scope: 'app', shellTool: false})

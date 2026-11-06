@@ -127,7 +127,7 @@ describe('request settings scenario', () => {
     await expect(ds.saveChanges({views: views('Base_Interface_PublicParam')})).rejects.toThrow('首尾空白')
     params.updateEditingValue(id, 'paramName', 'query_data')
     params.updateEditingValue(id, 'outputfield', 'token')
-    await expect(ds.saveChanges({views: views('Base_Interface_PublicParam')})).rejects.toThrow('Base_Interface_PublicParam@default.outputfield')
+    await expect(ds.saveChanges({views: views('Base_Interface_PublicParam')})).rejects.toThrow('API_PARAMETER_OUTPUT')
     params.updateEditingValue(id, 'outputfield', 'data')
     expect((await ds.saveChanges({views: views('Base_Interface_PublicParam')})).success).toBe(true)
     expect(http().records['Base_Interface_PublicParam']!.find(item => item['paramName'] === 'query_data'))

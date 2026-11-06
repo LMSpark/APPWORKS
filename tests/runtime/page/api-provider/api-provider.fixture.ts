@@ -6,30 +6,39 @@ import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appw
 import navigation from '../../../../config/pages/integration/api-provider/pagedata.json?raw'
 import configuration from '../../../../config/pages/integration/api-config/pagedata.json?raw'
 import interfaces from '../../../../config/pages/integration/api-interface/pagedata.json?raw'
+import metadata from '../../../../config/pages/data-platform/data-space-design/pagedata.json?raw'
 
 export const NAV = '8CBB62EBC873A38DB9E6EEF177AFC731', CONFIG = '446B5D94A71587E9BD4D325A4DF5F6F8', API = 'EC84BD89BDBDF46B1FE5132DD53836E5'
-export const pagedata: Record<string, string> = {[NAV]: navigation, [CONFIG]: configuration, [API]: interfaces}
+export const META='8D1AB14DD8277F3E7017CD38F77B09FD'
+const metadataTables=(JSON.parse(metadata) as {tables:Record<string,Table>}).tables
+const modelMetadata=metadataTables['Base_DataModel']!,sourceFieldMetadata=metadataTables['Base_TblField']!
+export const pagedata: Record<string, string> = {[NAV]: navigation, [CONFIG]: configuration, [API]: interfaces,
+ [META]:JSON.stringify({scenarioId:META,tables:{Base_DataModel:{modelBinding:modelMetadata.modelBinding,views:{default:{autoLoad:false,queryConfig:{fields:['rowid','Type','DbId','MetaName'],allPages:true}}}},
+ Base_TblField:{modelBinding:sourceFieldMetadata.modelBinding,views:{default:{autoLoad:false,queryConfig:{fields:['rowid','tblid','enname','DataType','IsPKey'],allPages:true}}}}}})}
 type Row = Record<string, unknown>
 type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 type Table = {modelBinding: {modelId: string; modelName: string}; columns?: Array<{name: string}>; views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown}>}
 
 const keys: Record<string, string> = {Base_UserInfo: 'ID', _Base_ParamList: 'parid'}
-const extra: Record<string, string[]> = {Base_UserInfo: ['ROWID'], Base_InterfaceProvider_Account: ['ProviderID']}
+const extra: Record<string, string[]> = {Base_UserInfo: ['ROWID'], Base_InterfaceProvider_Account: ['ProviderID'],
+  Base_TblField: ['DataType', 'IsPKey', 'tblname', 'Memo', 'description'],
+  Base_Interface_PublicParam: ['providerId', 'paramName', 'interfaceId', 'outputfield', 'interfaceName', 'accessPath', 'desc']}
 
 /** 按正式pagedata推导各空间的正式模型：字段取视图投影、列规则与过滤引用的并集。 */
 export function models(scenarioId: string): FormalModel[] {
   const tables = (JSON.parse(pagedata[scenarioId]!) as {tables: Record<string, Table>}).tables
   return Object.entries(tables).map(([name, table]) => {
-    const fields = new Set<string>([keys[name] ?? 'rowid', ...(extra[name] ?? [])])
+    const formalName=table.modelBinding.modelName
+    const fields = new Set<string>([keys[formalName] ?? 'rowid', ...(extra[formalName] ?? [])])
     for (const column of table.columns ?? []) fields.add(column.name)
     for (const view of Object.values(table.views)) {
       for (const field of view.queryConfig?.fields ?? []) fields.add(field)
       for (const match of JSON.stringify(view.filterExpression ?? {}).matchAll(/"field":"([^"]+)"/g)) fields.add(match[1]!)
     }
-    const pk = keys[name] ?? 'rowid', modelId = table.modelBinding.modelId
-    return {id: modelId, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name, primaryKey: pk, businessMain: false, raw: {},
+    const pk = keys[formalName] ?? 'rowid', modelId = table.modelBinding.modelId
+    return {id: modelId, name, metaName: formalName, sourceType: 'table', sourceId: 'DB', sourceName: formalName, primaryKey: pk, businessMain: false, raw: {},
       fields: [...fields].map((field, order) => ({id: `${modelId}-${field}`, modelId, name: field, canonicalName: field, primaryKey: field === pk,
-        description: field, type: field === 'requiresAuth' ? 'number' : 'string', output: true, computed: false, order, orderType: '', raw: {}}))}
+        description: field, type: ['requiresAuth', 'IsPKey'].includes(field) ? 'number' : 'string', output: true, computed: false, order, orderType: '', raw: {}}))}
   })
 }
 
@@ -43,12 +52,14 @@ export class ApiBackend extends HttpClientBase {
   denyAdd = new Set<string>()
   failAfterWrite = false
   beforeSave?: () => Promise<void>
+  beforeDefinitionRead?: (table:string)=>Promise<void>
   protected override async executeRequest(request: RequestConfig): Promise<HttpResponse<unknown>> {
     let result: unknown
     if (request.url === '/api/DataOperation/GetData') {
       const body = request.data as {Table: Array<{Name: string; Filter?: unknown; Fields: Array<{Name: string}>}>; InputParams?: Row; Params?: Row}
       const table = body.Table[0]!
       this.reads.push({table: table.Name, data: request.data})
+      await this.beforeDefinitionRead?.(table.Name)
       let rows = this.records[table.Name] ?? []
       if (table.Filter) {
         const context = {...body.Params, ...body.InputParams}
@@ -113,8 +124,8 @@ export const seed: Record<string, Row[]> = {
   Base_DataServiceInterface: [{rowid: 'I1', ProviderID: 'P1', Name: '取令牌', LinkUrl: '/token', request: 'POST', requiresAuth: 0},
     {rowid: 'I2', ProviderID: 'P1', Name: '查询', LinkUrl: '/query', request: 'GET', requiresAuth: 1},
     {rowid: 'I3', ProviderID: 'P2', Name: '其他', LinkUrl: '/other', request: 'GET', requiresAuth: 0}],
-  Base_TblField: [{rowid: 'F1', tblid: 'I1', enname: 'token', cnname: '令牌', DataTypeName: 'string'},
-    {rowid: 'F2', tblid: 'I2', enname: 'data', cnname: '数据', DataTypeName: 'string'}],
+  Base_TblField: [{rowid: 'F1', tblid: 'I1', enname: 'token', cnname: '令牌', DataTypeName: 'string', DataType: 'string', IsPKey: 0, tblname: '取令牌', Memo: null, description: null},
+    {rowid: 'F2', tblid: 'I2', enname: 'data', cnname: '数据', DataTypeName: 'string', DataType: 'string', IsPKey: 0, tblname: '查询', Memo: null, description: null}],
   _Base_ParamList: [{parid: 'A1', pid: 'I1', parname: 'user', pardesc: '用户', parzdtype: 'string'},
     {parid: 'A2', pid: 'I2', parname: 'keyword', pardesc: '关键词', parzdtype: 'string'}],
   Base_InterfaceApi_Headers: [{rowid: 'X1', interfaceId: 'I2', ParamName: 'X-Token', ParamDesc: '', ValueFun: 'plain'}],
@@ -122,5 +133,5 @@ export const seed: Record<string, Row[]> = {
   request: [{rowid: 'R1', val: 'GET', txt: 'GET'}, {rowid: 'R2', val: 'POST', txt: 'POST'}],
   ContentType: [{rowid: 'CT1', val: 'application/json', txt: 'json'}],
   接口参数类型: [{rowid: 'PT1', val: 'json', txt: 'JSON'}],
-  ParamType: [{rowid: 'K1', val: 'string', txt: '文本'}],
+  ParamType: [{rowid: 'K1', val: 'string', txt: '文本'}, {rowid: 'K2', val: 'int', txt: '整数'}],
 }

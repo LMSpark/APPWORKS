@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/integration/api-management/model-rules",
+    "sourcePath": "src/lowcode/resources/integration/api-management/model-rules.ts",
+    "sourceFile": "src/lowcode/resources/integration/api-management/model-rules.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/integration/api-management/model-rules",
+    "jsdoc": "@module app:lowcode/resources/integration/api-management/model-rules\n职责：在正式场景装配时注册API输出与公共参数领域约束，所有命名视图和保存入口共用。\n边界：不保存、不持有草稿、不装配第二数据空间；跨空间引用只沿原PageRuntime按需加载。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "ApiModelRuleHost"
+    ]
+  },
+  "$defs": {
+    "ApiModelRuleHost": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ApiModelRuleHost",
+      "$defs": {
+        "method.getPage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getPage.return": {
+          "$ref": "../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T19:49:25.498Z",
+  "models": {
+    "ApiModelRuleHost": {
+      "name": "ApiModelRuleHost",
+      "jsdoc": "本次装配的宿主访问；省略宿主不能跳过需要跨空间证明的约束。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 返回本次固定的原PageRuntime；注册时不读取，破坏性校验按需取其8D空间。 */\n    getPage?: () => PageRuntime | undefined;\n    /** 原装配捕获的执行范围守卫；每次引用读取前后核验。 */\n    assertCurrent?: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 返回本次固定的原PageRuntime；注册时不读取，破坏性校验按需取其8D空间。 */\n    getPage?: () => PageRuntime | undefined;\n    /** 原装配捕获的执行范围守卫；每次引用读取前后核验。 */\n    assertCurrent?: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "getPage",
+              "jsdoc": "返回本次固定的原PageRuntime；注册时不读取，破坏性校验按需取其8D空间。",
+              "parameters": [],
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "PageRuntime"
+                }
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "原装配捕获的执行范围守卫；每次引用读取前后核验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -33,7 +33,8 @@
         "metadataDataSet": {
           "type": "object",
           "title": "DataSet"
-        }
+        },
+        "getPage": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -46,18 +47,18 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T06:38:57.768Z",
+  "generatedAt": "2026-11-06T19:23:06.233Z",
   "models": {
     "LoadScenarioDataSetInput": {
       "name": "LoadScenarioDataSetInput",
       "jsdoc": "场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n    /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */\n    getPage?: ApiModelRuleHost['getPage'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n    /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */\n    getPage?: ApiModelRuleHost['getPage'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -93,6 +94,12 @@
             {
               "name": "metadataDataSet",
               "jsdoc": "活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "getPage",
+              "jsdoc": "本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。",
               "readable": true,
               "writable": false
             }

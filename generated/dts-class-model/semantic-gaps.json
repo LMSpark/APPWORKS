@@ -1,5 +1,5 @@
 {
-  "gapCount": 3683,
+  "gapCount": 3685,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -23250,7 +23250,7 @@
       "chainBreak": "LoadScenarioDataSetInput.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
-      "declarationLine": 6,
+      "declarationLine": 7,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "declarationKind": "interface"
     },
@@ -23262,7 +23262,7 @@
       "chainBreak": "LoadScenarioDataSetInput.designScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
-      "declarationLine": 7,
+      "declarationLine": 8,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "declarationKind": "interface"
     },
@@ -23274,7 +23274,7 @@
       "chainBreak": "LoadScenarioDataSetInput.config 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "declarationKind": "interface"
     },
@@ -23286,7 +23286,7 @@
       "chainBreak": "LoadScenarioDataSetInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
-      "declarationLine": 15,
+      "declarationLine": 16,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "declarationKind": "typeAlias"
     },
@@ -33468,6 +33468,28 @@
       "declarationLine": 17,
       "sourceFile": "src/lowcode/resources/database/server/view-ops.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/integration/api-management/model-rules",
+      "moduleName": "app:lowcode/resources/integration/api-management/model-rules",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/integration/api-management/model-rules 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/integration/api-management/model-rules.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/integration/api-management/model-rules.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/integration/api-management/model-rules.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/integration/api-management/queries",
+      "moduleName": "app:lowcode/resources/integration/api-management/queries",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/integration/api-management/queries 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/integration/api-management/queries.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/integration/api-management/queries.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/integration/api-management/queries.ts"
     },
     {
       "kind": "module",

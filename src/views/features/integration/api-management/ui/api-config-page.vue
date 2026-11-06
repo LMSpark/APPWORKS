@@ -40,6 +40,7 @@ import {useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
@@ -135,8 +136,8 @@ watch(() => props.providerId, async providerId => {
   unsubscribe?.(); unsubscribeCascade?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
   try {
     const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
-    const next = new PageRuntime({pageId: 'api-config-page', scenarioIds: [scenarioId], scenarioInputs: {[scenarioId]: {providerId}},
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id})})
+    const next:PageRuntime = new PageRuntime({pageId: 'api-config-page', scenarioIds: [scenarioId,DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY], scenarioInputs: {[scenarioId]: {providerId}},
+      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,getPage:()=>next})})
     runtime = next; await next.load()
     if (!active || own !== generation) {next.dispose(); return}
     dataSet = next.getDataSet(scenarioId)!

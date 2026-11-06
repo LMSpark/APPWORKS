@@ -3734,7 +3734,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-31T06:38:57.768Z"
+      "sourceModifiedAt": "2026-11-06T19:23:06.233Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4060,6 +4060,16 @@
       "sourceFile": "src/lowcode/resources/database/server/view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/server/view-ops.ts.json",
       "sourceModifiedAt": "2026-10-30T19:39:23.782Z"
+    },
+    "src/lowcode/resources/integration/api-management/model-rules.ts": {
+      "sourceFile": "src/lowcode/resources/integration/api-management/model-rules.ts",
+      "shardFile": "files/src/lowcode/resources/integration/api-management/model-rules.ts.json",
+      "sourceModifiedAt": "2026-11-06T19:49:25.498Z"
+    },
+    "src/lowcode/resources/integration/api-management/queries.ts": {
+      "sourceFile": "src/lowcode/resources/integration/api-management/queries.ts",
+      "shardFile": "files/src/lowcode/resources/integration/api-management/queries.ts.json",
+      "sourceModifiedAt": "2026-11-06T19:49:25.496Z"
     },
     "src/lowcode/resources/repository/agent-workflow-file-owner.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
@@ -5379,7 +5389,7 @@
     "src/views/features/integration/api-management/ui/api-config-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-config-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.795Z"
+      "sourceModifiedAt": "2026-11-06T19:31:27.248Z"
     },
     "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
@@ -5389,7 +5399,7 @@
     "src/views/features/integration/api-management/ui/api-interface-list-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-interface-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.796Z"
+      "sourceModifiedAt": "2026-11-06T19:31:27.247Z"
     },
     "src/views/features/integration/api-management/ui/api-management-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",

@@ -15,6 +15,7 @@ import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/repository/agent-work
 import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
+import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -28,6 +29,8 @@ export type LoadScenarioDataSetInput = Readonly<{
  /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */
  metadataDataSet?: DataSet
  assertCurrent?: () => void
+ /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */
+ getPage?: ApiModelRuleHost['getPage']
 }>
 
 type DefinitionExecutorsInput = Readonly<{
@@ -83,8 +86,10 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
   config.usesNativeResourceRelations ? Promise.resolve([]) : inherited !== undefined ? Promise.resolve(inherited) : lowcodeApi.dataSpace.design.readRelations(formalInput, input.metadataDataSet),
  ])
  input.assertCurrent?.()
- return new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,
+ const result=new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,
   ...(input.fileExecutors ? {fileExecutors: input.fileExecutors} : {})})
+ try{registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})});return result}
+ catch(error){result.dataSet.destroy();throw error}
 }
 
 /** 当前请求的应用头。调用方固定这一次读取；之后只核对令牌和应用头是否仍是这一次。 */
@@ -101,7 +106,7 @@ export function readLowcodeExecutionProject(): Readonly<{projectId: string; asse
 }
 
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
-export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string }>): Promise<DataSet> {
+export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string; getPage?:ApiModelRuleHost['getPage'] }>): Promise<DataSet> {
  const { projectId, scenarioId } = command
  if (isBuiltinApplication(projectId) && !resolveBuiltinScenarioResource(scenarioId)) {
   throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
@@ -118,6 +123,7 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
  const config = new ScenarioViewConfig(scenarioId, text)
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
+  ...(command.getPage?{getPage:command.getPage}:{}),
   fileExecutors: definitionExecutors({projectId, scenarioId, config, assertCurrent})})
  try {
   assertCurrent()

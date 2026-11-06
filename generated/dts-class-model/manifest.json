@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1085,
+  "scannedFileCount": 1087,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13737,6 +13737,36 @@
         ]
       }
     },
+    "src/lowcode/resources/integration/api-management/model-rules.ts": {
+      "file": "files/src/lowcode/resources/integration/api-management/model-rules.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/integration/api-management/model-rules",
+        "sourcePath": "src/lowcode/resources/integration/api-management/model-rules.ts",
+        "sourceFile": "src/lowcode/resources/integration/api-management/model-rules.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/integration/api-management/model-rules",
+        "jsdoc": "@module app:lowcode/resources/integration/api-management/model-rules\n职责：在正式场景装配时注册API输出与公共参数领域约束，所有命名视图和保存入口共用。\n边界：不保存、不持有草稿、不装配第二数据空间；跨空间引用只沿原PageRuntime按需加载。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApiModelRuleHost"
+        ]
+      }
+    },
+    "src/lowcode/resources/integration/api-management/queries.ts": {
+      "file": "files/src/lowcode/resources/integration/api-management/queries.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/integration/api-management/queries",
+        "sourcePath": "src/lowcode/resources/integration/api-management/queries.ts",
+        "sourceFile": "src/lowcode/resources/integration/api-management/queries.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/integration/api-management/queries",
+        "jsdoc": "@module app:lowcode/resources/integration/api-management/queries\n职责：在原实例上精确读取接口定义引用；不读取接口响应或执行接口。\n边界：只创建短生命周期查询视图，返回公开字段，不复制权限凭据或保存状态。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ApiDefinitionQuery"
+        ]
+      }
+    },
     "src/lowcode/resources/repository/agent-workflow-file-owner.ts": {
       "file": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json",
       "module": {
@@ -18597,6 +18627,10 @@
       "sourcePath": "src/views/features/integration/api-management/ui/api-config-page.props.ts",
       "file": "files/src/views/features/integration/api-management/ui/api-config-page.props.ts.json"
     },
+    "ApiDefinitionQuery": {
+      "sourcePath": "src/lowcode/resources/integration/api-management/queries.ts",
+      "file": "files/src/lowcode/resources/integration/api-management/queries.ts.json"
+    },
     "ApiEnvelope": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
@@ -18616,6 +18650,10 @@
     "ApiInterfaceListPageProps": {
       "sourcePath": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
       "file": "files/src/views/features/integration/api-management/ui/api-interface-list-page.props.ts.json"
+    },
+    "ApiModelRuleHost": {
+      "sourcePath": "src/lowcode/resources/integration/api-management/model-rules.ts",
+      "file": "files/src/lowcode/resources/integration/api-management/model-rules.ts.json"
     },
     "ApiObjectValidationFinding": {
       "sourcePath": "packages/spark-ai/src/class-model/metadata/validate-api-object-metadata.ts",

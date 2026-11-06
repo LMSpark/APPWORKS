@@ -63,13 +63,13 @@ it.each(['row', 'external', 'permission'] as const)('rejects late inline referen
 it('keeps inline JSON staged, cancels incomplete input and clears the accepted visible tree', async () => {
   const original = {field: 'Name', operator: 'eq' as const, value: 'A'}, f = fixture('tree', original, 'inline')
   await f.wrapper.get('[data-action="json"]').trigger('click'); await flushPromises()
-  await f.wrapper.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+  await flushPromises()
   f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{bad'); await flushPromises()
   expect(f.editing.value).toBe(true); expect(f.view.hasEditingChanges()).toBe(false)
   await f.wrapper.get('[data-action="cancel"]').trigger('click'); await flushPromises()
   expect(f.wrapper.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('A')
   await f.wrapper.get('[data-action="json"]').trigger('click'); await flushPromises()
-  await f.wrapper.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+  await flushPromises()
   f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({...original, value: 'JSON accepted'})); await flushPromises()
   expect(f.view.hasEditingChanges()).toBe(false)
   await f.wrapper.get('[data-action="apply"]').trigger('click'); await flushPromises()
@@ -99,7 +99,7 @@ it('tracks JSON edits against the accepted inline value after automatic tree cha
   await f.wrapper.get('input[aria-label="文本常量"]').setValue('B'); await flushPromises()
   await f.wrapper.get('[data-action="json"]').trigger('click'); await flushPromises()
   expect(f.editing.value).toBe(false)
-  await f.wrapper.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+  await flushPromises()
   f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(original, null, 2)); await flushPromises()
   expect(f.editing.value).toBe(true)
   expect(f.view.getEditingRow('a')?.['predicate']).toEqual({...original, value: 'B'})
@@ -238,7 +238,7 @@ describe('standard filter definition binding', () => {
     expect(body.get<HTMLInputElement>('input[aria-label="文本常量"]').element.value).toBe('draft')
     expect(f.view.hasEditingChanges()).toBe(false)
     f.columns.value = [{name: 'Name', type: 'string'}]; await flushPromises()
-    await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click');
     const invalid = '{incomplete'
     f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', invalid); await flushPromises()
     f.functionContext.value = {inputParams: [{value: 'customer', label: '客户'}]}; await flushPromises()
@@ -271,7 +271,7 @@ describe('standard filter definition binding', () => {
     await dialog.get('[data-action="cancel"]').trigger('click'); await flushPromises()
     expect(f.view.hasEditingChanges()).toBe(false)
     await f.wrapper.get('[data-action="open"]').trigger('click'); await flushPromises()
-    await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click');
     const tree = {field: 'Name', operator: 'eq' as const, value: 'B'}
     f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(tree)); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
@@ -330,7 +330,7 @@ describe('standard filter definition binding', () => {
     const f = fixture(format)
     const body = new DOMWrapper(document.body)
     await f.wrapper.get('[data-action="open"]').trigger('click')
-    await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click');
     const tree = {field: 'Name', operator: 'eq', value: {Type: 'SystemData', ParamName: 'UserID'}}
     f.wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(tree)); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click')

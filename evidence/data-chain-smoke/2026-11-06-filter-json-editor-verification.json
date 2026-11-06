@@ -1,0 +1,123 @@
+{
+  "scope": "FilterExpressionEditor reuses existing SparkJsonEditor; no compatibility editor branch",
+  "backendRequests": 0,
+  "frozenFiles": [
+    {
+      "path": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue",
+      "sha256": "63e730e4a88749bb8303d5518b9ed4353944cbfd7080ed3bcbceb35947221a2b"
+    },
+    {
+      "path": "packages/spark-component/src/components/editors/SparkJsonEditor.vue",
+      "sha256": "1f12af5340a98715c426bb13231542200beb22100c8c8f3e0018f511106a0ba9"
+    },
+    {
+      "path": "packages/spark-component/src/tests/filter/filter-expression-editor.test.ts",
+      "sha256": "32856247f45c977a9de90caa841396cd4b79cc1a771ce89896e76dcf09f26229"
+    },
+    {
+      "path": "packages/spark-component/src/tests/filter/filter-json-native-editor.test.ts",
+      "sha256": "dae628313b5793e5c8db0708df24310782a3fc988f84e36a759ef31e34aa0c42"
+    },
+    {
+      "path": "packages/spark-component/src/tests/filter/renderer-filter-expression.test.ts",
+      "sha256": "c83a4722d6f255bf936ed3a5fd0b6f4f213a12f7c2aa91d4eae8377e3592d71b"
+    },
+    {
+      "path": "tests/ui/renderer/filter-expression-inline.test.ts",
+      "sha256": "e4bd9ea520a50a916da8a09a59bfefc37682c39ebcf44b54f9fd3563fd65fcee"
+    },
+    {
+      "path": "tests/ui/renderer/data-table/renderer-table-filter.test.ts",
+      "sha256": "4e383b791a7ee6906037c392a5230f19ba48f86a394b7e10da2a3bc7741fcbac"
+    },
+    {
+      "path": "tests/runtime/page/design/native/data-space-design-page.test.ts",
+      "sha256": "a5f1d1fa1401ddfdf4689caa86b58887aefc865670e6ee674489c3045e2fa1d0"
+    },
+    {
+      "path": "tests/runtime/page/design/native/query-preview/data-space-query-plan.test.ts",
+      "sha256": "97eaee4892ae19cfc3ce3f81fca6209670d8630d195ab7cfdeb868bc1c6ef95f"
+    },
+    {
+      "path": "tests/runtime/page/design/native/query-preview/data-space-query-preview.test.ts",
+      "sha256": "d3c99ca3d2be0fbcc13be16897d1d3de8b1f195e6eb35d297327ab7dd33b42fa"
+    },
+    {
+      "path": "tests/runtime/page/design/native/relation/data-space-relation-editor.test.ts",
+      "sha256": "4ae4808d1c43671f0adef4e1f73b08a2c1b2deabff7502a9651159b28121f9d1"
+    }
+  ],
+  "fullRun": {
+    "session": 24795,
+    "exitCode": 1,
+    "filesPassed": 473,
+    "filesFailed": 1,
+    "testsPassed": 8757,
+    "testsFailed": 2,
+    "seconds": 783.58,
+    "log": {
+      "path": "artifacts/data-chain-smoke/filter-json-editor-full-final-v3.log",
+      "sha256": "9b852bd7ca305815a6952111606e6c8639e3bd9a35a3d40b2ca53c01af7ffd98",
+      "text": "Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`\n\n RUN  v4.1.9 D:/SPARK_AppWorks\n\nstdout | tests/runtime/page/design/native/filter-system-binding.test.ts > system filter component formal persistence chain > rejects the retired model Filter write and preserves its stored value\n🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default\n🐛 [DataView] 销毁 DataView: ProjectToolFile:default\n🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default\n🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels\n🐛 [DataView] 销毁 DataView: DataViewDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph\n🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default\n\nstdout | tests/runtime/page/design/native/filter-system-binding.test.ts > system filter component formal persistence chain > rejects the retired model Filter write and preserves its stored value\n🐛 [DataView] 销毁 DataView: Base_DataSet:default\n🐛 [DataView] 销毁 DataView: Base_DataModel:default\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields\n🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default\n🐛 [DataView] 销毁 DataView: View_TblList:default\n🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates\n🐛 [DataView] 销毁 DataView: _Base_DictType:default\n🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates\n🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default\n🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates\n🐛 [DataView] 销毁 DataView: Base_JsonData:default\n🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates\n🐛 [DataView] 销毁 DataView: Base_DataViewList:default\n🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates\n🐛 [DataView] 销毁 DataView: View_ViewList:default\n🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates\n🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default\n🐛 [DataView] 销毁 DataView: ProjectToolFile:default\n🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default\n🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels\n🐛 [DataView] 销毁 DataView: DataViewDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph\n🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default\n🐛 [DataView] 销毁 DataView: DataViewFieldOption:default\n🐛 [DataView] 销毁 DataView: OrdersAlias:default\n🐛 [DataView] 销毁 DataView: OrdersAlias:shared\n🐛 [DataView] 销毁 DataView: CustomersAlias:default\n🐛 [DataView] 销毁 DataView: CustomersAlias:shared\n\nstdout | tests/runtime/page/design/native/filter-system-binding.test.ts > system filter component formal persistence chain > saves native view definitions through pagedata and reconstructs the same DataView filter\n🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default\n🐛 [DataView] 销毁 DataView: ProjectToolFile:default\n🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default\n🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels\n🐛 [DataView] 销毁 DataView: DataViewDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph\n🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default\n\nstdout | tests/runtime/page/design/native/filter-system-binding.test.ts > system filter component formal persistence chain > saves native view definitions through pagedata and reconstructs the same DataView filter\n🐛 [DataView] 销毁 DataView: Base_DataSet:default\n🐛 [DataView] 销毁 DataView: Base_DataModel:default\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:default\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelFields\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:modelInputFields\n🐛 [DataView] 销毁 DataView: Base_DataModel_Field:sourceInputFields\n🐛 [DataView] 销毁 DataView: Base_DataModel_Relation:default\n🐛 [DataView] 销毁 DataView: View_TblList:default\n🐛 [DataView] 销毁 DataView: View_TblList:sourceCandidates\n🐛 [DataView] 销毁 DataView: _Base_DictType:default\n🐛 [DataView] 销毁 DataView: _Base_DictType:sourceCandidates\n🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:default\n🐛 [DataView] 销毁 DataView: Base_DataServiceInterface:sourceCandidates\n🐛 [DataView] 销毁 DataView: Base_JsonData:default\n🐛 [DataView] 销毁 DataView: Base_JsonData:sourceCandidates\n🐛 [DataView] 销毁 DataView: Base_DataViewList:default\n🐛 [DataView] 销毁 DataView: Base_DataViewList:sourceCandidates\n🐛 [DataView] 销毁 DataView: View_ViewList:default\n🐛 [DataView] 销毁 DataView: View_ViewList:sourceCandidates\n🐛 [DataView] 销毁 DataView: ProjectToolCatalog:default\n🐛 [DataView] 销毁 DataView: ProjectToolFile:default\n🐛 [DataView] 销毁 DataView: DataSpaceReferenceLayout:default\n🐛 [DataView] 销毁 DataView: DataSpaceLayoutDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:default\n🐛 [DataView] 销毁 DataView: DataTableBindingDefinition:fileModels\n🐛 [DataView] 销毁 DataView: DataViewDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:default\n🐛 [DataView] 销毁 DataView: DataResourceRelationDefinition:graph\n🐛 [DataView] 销毁 DataView: DataViewCascadeDefinition:default\n🐛 [DataView] 销毁 DataView: DataViewFieldOption:default\n🐛 [DataView] 销毁 DataView: OrdersAlias:default\n🐛 [DataView] 销毁 DataView: OrdersAlias:shared\n🐛 [DataView] 销毁 DataView: CustomersAlias:default\n🐛 [DataView] 销毁 DataView: CustomersAlias:shared\n\n ❯ tests/runtime/page/design/native/filter-system-binding.test.ts (6 tests | 2 failed) 618ms\n     × rejects the retired model Filter write and preserves its stored value 354ms\n     × saves native view definitions through pagedata and reconstructs the same DataView filter 93ms\n\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯\n\n FAIL  tests/runtime/page/design/native/filter-system-binding.test.ts > system filter component formal persistence chain > rejects the retired model Filter write and preserves its stored value\nError: Unable to get specified component within: <div>\n  <!--v-if-->\n  <!--v-if-->\n  <div data-v-d1b51cb1=\"\" class=\"filter-expression-editor__display-wrap\"><button data-v-d1b51cb1=\"\" type=\"button\" data-action=\"open\" class=\"filter-expression-editor__display filter-expression-editor__display--box is-empty\" title=\"空\" aria-label=\"空\"><span data-v-d1b51cb1=\"\">空</span>\n      <!--v-if-->\n    </button>\n    <!--v-if-->\n  </div>\n  <!--teleport start-->\n  <!--teleport end-->\n  <!--teleport start-->\n  <!--teleport end-->\n</div>\n ❯ VueWrapper.getComponent node_modules/.pnpm/@vue+test-utils@2.5.1_patch_24507fb050aede2aa232946896aeeb64/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:7354:15\n ❯ apply tests/runtime/page/design/native/filter-system-binding.test.ts:39:11\n     37|   await wrapper.get('[data-action=\"open\"]').trigger('click')\n     38|   await body.get('[data-action=\"json\"]').trigger('click')\n     39|   wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', …\n       |           ^\n     40|   await body.get('[data-action=\"apply\"]').trigger('click'); await flus…\n     41| }\n ❯ tests/runtime/page/design/native/filter-system-binding.test.ts:51:5\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯\n\n FAIL  tests/runtime/page/design/native/filter-system-binding.test.ts > system filter component formal persistence chain > saves native view definitions through pagedata and reconstructs the same DataView filter\nError: Unable to get specified component within: <div>\n  <!--v-if-->\n  <!--v-if-->\n  <div data-v-d1b51cb1=\"\" class=\"filter-expression-editor__display-wrap\"><button data-v-d1b51cb1=\"\" type=\"button\" data-action=\"open\" class=\"filter-expression-editor__display filter-expression-editor__display--box is-empty\" title=\"空\" aria-label=\"空\"><span data-v-d1b51cb1=\"\">空</span>\n      <!--v-if-->\n    </button>\n    <!--v-if-->\n  </div>\n  <!--teleport start-->\n  <!--teleport end-->\n  <!--teleport start-->\n  <!--teleport end-->\n</div>\n ❯ VueWrapper.getComponent node_modules/.pnpm/@vue+test-utils@2.5.1_patch_24507fb050aede2aa232946896aeeb64/node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:7354:15\n ❯ apply tests/runtime/page/design/native/filter-system-binding.test.ts:39:11\n     37|   await wrapper.get('[data-action=\"open\"]').trigger('click')\n     38|   await body.get('[data-action=\"json\"]').trigger('click')\n     39|   wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', …\n       |           ^\n     40|   await body.get('[data-action=\"apply\"]').trigger('click'); await flus…\n     41| }\n ❯ tests/runtime/page/design/native/filter-system-binding.test.ts:65:5\n\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯\n\n\n Test Files  1 failed | 473 passed (474)\n      Tests  2 failed | 8757 passed (8759)\n   Start at  22:25:30\n   Duration  783.58s (transform 62.39s, setup 61.76s, import 756.47s, tests 1480.48s, environment 566.40s)\n\n"
+    },
+    "reason": "filter-system-binding test still targeted/stubbed JsonTreeEditor when this run loaded it. Test-only migration was completed during the run; production sources unchanged."
+  },
+  "correctedTestOnlyFollowup": {
+    "session": 33893,
+    "exitCode": 0,
+    "filesPassed": 1,
+    "testsPassed": 6,
+    "source": "tests/runtime/page/design/native/filter-system-binding.test.ts",
+    "sha256": "d0aa7428fb0cebf654ccb08d48c06c3667458bd5c830f62c6218ea537383f7df",
+    "log": {
+      "path": "artifacts/data-chain-smoke/filter-json-editor-system-binding-final.log",
+      "sha256": "bda98a13f07dbe9b8da3627337ed00f2f47b63d6781ebe745aaed40c3a34b561",
+      "text": "Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`\n\n RUN  v4.1.9 D:/SPARK_AppWorks\n\n\n Test Files  1 passed (1)\n      Tests  6 passed (6)\n   Start at  22:33:11\n   Duration  22.14s (transform 14.62s, setup 189ms, import 18.69s, tests 923ms, environment 1.82s)\n\n"
+    }
+  },
+  "targetedConsumers": {
+    "exitCode": 0,
+    "filesPassed": 8,
+    "testsPassed": 162,
+    "log": {
+      "path": "artifacts/data-chain-smoke/filter-json-editor-combined-final-v2.log",
+      "sha256": "fa788ff018f697d93ca35050240cc63046b1e1897421c4a2c306f1425485a6d7",
+      "text": "Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`\n\n RUN  v4.1.9 D:/SPARK_AppWorks\n\n\n Test Files  8 passed (8)\n      Tests  162 passed (162)\n   Start at  22:19:06\n   Duration  19.40s (transform 32.24s, setup 1.67s, import 59.75s, tests 33.78s, environment 12.96s)\n\n"
+    }
+  },
+  "checks": {
+    "typecheck": {
+      "session": 69367,
+      "exitCode": 0
+    },
+    "rootLint": {
+      "session": 46878,
+      "exitCode": 0
+    },
+    "migratedTestsLint": {
+      "sessions": [
+        73437,
+        56009
+      ],
+      "exitCode": 0
+    },
+    "officialClassModel": {
+      "session": 62996,
+      "exitCode": 0
+    },
+    "rules": {
+      "session": 69341,
+      "exitCode": 0
+    },
+    "build": {
+      "session": 94261,
+      "exitCode": 0,
+      "seconds": 12.01
+    }
+  },
+  "limitations": [
+    "No single all-green full-suite rerun after the final test-only fixture migration; corrected suite independently passed all six original tests.",
+    "No browser screenshot or real service acceptance in this card.",
+    "Logic-view SaveView service gap and 20-package goal remain open."
+  ]
+}

@@ -54,7 +54,7 @@ async function fixture(filter?: RFilterProps,remote=false) {
 async function applyName(wrapper: ReturnType<typeof mount>, value: string) {
   const body = new DOMWrapper(document.body)
   await body.get('[data-action="open"]').trigger('click')
-  await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+  await body.get('[data-action="json"]').trigger('click')
   wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'Name', operator: 'eq', value})); await flushPromises()
   await body.get('[data-action="apply"]').trigger('click')
   await flushPromises()

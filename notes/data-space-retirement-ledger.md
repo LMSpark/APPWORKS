@@ -6702,3 +6702,9 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 21:55继续同冻结全套73912：真实running、日志尚无新失败；main12692及原首worker16860持续CPU增长，不以长耗时认定停止。全仓（排除生成/历史/ignored产物）的updateRecord调用再次rg核定全部已用新options或无第三参数；没有保留旧third-argument兼容调用。生产/测试保持冻结，其他门禁已终态通过。
 - 冻结最终全套73912已自然终态exit0：473文件8753项全部通过，772.18s，原15s超时/断言/用例不变。六源码/测试hash与冻结记录逐一一致；正式证据evidence/data-chain-smoke/2026-11-06-data-view-apply-final-verification.json附终态日志/hash及最终各门禁。原2失败负证据完整保留。准备提交推送原生apply保留晚到输入修复，不称实服SaveView或20包完成。
 - 下一张卡先按用户JSON编辑器纠偏，过滤表达式整份JSON仅用既有SparkJsonEditor树/文本/表格菜单，删JsonTreeEditor选择分支和自建jsonFormat切换；保留结构/引用校验、显式应用取消、权限/绑定以及未发出输入保护。高阶已核固定参考只有条件树，不能宣称JSON页签为参考1:1；不扩大到FieldJson或函数保护policy树。随后继续既定输出apply与两来源保存。
+
+- 2026-11-06续接：native检查点ed6285b635c6832046f7e5a1711d567f8665d492已提交推送且核远端一致。过滤表达式JSON区已切既有SparkJsonEditor原生tree/text/table菜单，删除旧JsonTreeEditor及自建格式切换；不扩大FieldJson。当前过滤3文件92项通过，含真实vanilla-jsoneditor/CodeMirror非法JSON、修复及模式切换；目标lint通过。复审新增待核边界：未发出输入遇disabled→enabled可能丢内容或锁住pending，尚未解决，不称交付。正式ClassModel生成日志已完成；前端build日志exit1待核原错误，不能记为通过。本卡尚未提交，继续补真实组件反例与公共编辑器修正。
+
+- JSON卡已用真实原生编辑器补disabled→enabled即时及600ms通知到期两种RED；公共SparkJsonEditor选项/Schema更新不再重设content/mode，显式mode变化才更新模式；只读期间原currentContent保留已到达通知，恢复后同链交付，外部替换/销毁清待交付标志。全过滤94项、相关8文件162项通过；高阶最终只读复审无新确定阻断。types69367/lint46878/ClassModel62996/build94261均exit0（build12.01s）；生成恢复162份纯等价产物，仅留manifest。
+- 全仓首轮71683发现设计页/关系页测试仍点击已删除json-text入口，保留日志后停止自有测试进程；同步迁移全部旧selector，不放回兼容入口。第二轮60516因本次测试编辑误重复导入SparkJsonEditor导致native suite导入失败，立即修正并停止自有第二轮；这两轮均无完整终态统计，不冒称全仓通过。下一轮先核native实际业务用例，再运行冻结全套。生产实现已冻结，不新增实服请求。
+- JSON卡最终全仓24795自然终态exit1：474文件473通过/1失败，8759项8757通过/2失败，783.58s。唯一失败文件filter-system-binding仍按旧JsonTreeEditor定位/存根；仅该测试夹具改为SparkJsonEditor，33893独立6项原断言全通过、lint56009 exit0。未修改生产代码；冻结11文件hash逐项相同。未对最后测试夹具再跑完整全套，不写成单轮全绿。正式证据evidence/data-chain-smoke/2026-11-06-filter-json-editor-verification.json完整保存全仓日志及修后6项、8文件162项结果；反例另有同日counterexamples.json。最新全门禁exit0，准备提交推送JSON纠偏卡；不核销实服SaveView和20包，下一步仍沿原台账推进输出apply与两来源发布。

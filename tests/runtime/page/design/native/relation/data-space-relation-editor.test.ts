@@ -122,7 +122,7 @@ async function add(wrapper: ReturnType<typeof mount>, id = 'ORDERS') {
 async function editFilter(wrapper: ReturnType<typeof mount>, tree: unknown) {
   await wrapper.get('[data-relation-filter] [data-action="open"]').trigger('click'); await flushPromises()
   const body = new DOMWrapper(document.body)
-  await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+  await body.get('[data-action="json"]').trigger('click')
   wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(tree)); await flushPromises()
   await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
 }
@@ -247,7 +247,7 @@ describe('native relation definition editor', () => {
     expect(wrapper.get('[data-action="save-relations"]').attributes('disabled')).toBeDefined()
     expect(boundSelect(wrapper, '父模型绑定').props('disabled')).toBe(true)
     const body = new DOMWrapper(document.body)
-    await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click')
     wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'rowid', operator: 'eq', value: 'cancelled'})); await flushPromises()
     await body.get('[data-action="cancel"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false)
@@ -262,7 +262,7 @@ describe('native relation definition editor', () => {
     const next = {logic: 'or', filters: [expression, {field: 'rowid', operator: 'eq', value: 'extra'}]}
     await wrapper.getComponent(RendererFilterExpression).get('[data-action="open"]').trigger('click'); await flushPromises()
     const body = new DOMWrapper(document.body)
-    await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click')
     wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(next)); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
     expect(wrapper.find('[data-action="finish-relation-filter"]').exists()).toBe(false)

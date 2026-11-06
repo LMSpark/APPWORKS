@@ -238,7 +238,7 @@ describe('native complete query preview', () => {
     await input.get('input').setValue('{"customer":"R2"}'); await flushPromises()
     await w.get('[data-action="run-query-preview"]').trigger('click'); await flushPromises()
     expect(preview.view.rows.map(row => row['rowid'])).toEqual(['R2'])
-    await editor.get('[data-action="json"]').trigger('click'); await editor.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+    await editor.get('[data-action="json"]').trigger('click'); await flushPromises()
     editor.getComponent(SparkJsonEditor).vm.$emit('update:modelValue',JSON.stringify({field:'rowid',operator:'eq',value:'R1'}));await flushPromises()
     await editor.get('[data-action="cancel"]').trigger('click'); await flushPromises()
     expect(preview.view.filterExpression).toEqual(expected)
@@ -918,7 +918,7 @@ describe('native complete query preview', () => {
     await w.get('[data-action="run-query-preview"]').trigger('click'); await flushPromises()
     expect(w.find('[data-action="open"]').exists()).toBe(false)
     const body = new DOMWrapper(document.body), start = queries(f).length
-    await body.get('[data-action="json"]').trigger('click'); await body.get('[data-action="json-text"]').trigger('click')
+    await body.get('[data-action="json"]').trigger('click')
     w.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'rowid', operator: 'eq', value: 'R2'})); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
     expect(queries(f)).toHaveLength(start + 1)

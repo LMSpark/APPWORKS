@@ -3295,3 +3295,11 @@
 - checkpoint用例37增至49；先实证晚到值/回原值/跨字段/跨行/并发取消RED，再据高阶只读复审实证未派发换行、同步summaryChanged重入两类RED并修。最新相关32文件598项通过；不累计中间重叠回归数量。
 - 原全仓473文件8753项中2失败，真实桥接回退定向复现后修；合成key新options反例独立通过。失败日志和hash入evidence/data-chain-smoke/2026-11-06-data-view-apply-initial-full-test.json；最终冻结全套73912运行，不报全仓通过。最新types74511/lint15304/ClassModel49539 exit0；最终rules64876/build10626待终态。本轮0实服请求，逻辑视图实服SaveView及20包目标未核销。
 - 最终冻结全仓473文件8753项全通过，772.18s、73912 exit0；六源码/测试hash逐项匹配。最后types/lint/ClassModel/fullrules/build均终态0，原2失败证据及最终完整日志入正式JSON。没有新增实服请求，不用离线回归核销逻辑视图实服SaveView/20业务包。
+
+### 2026-11-06 过滤表达式复用仓内JSON编辑器（检查中）
+
+- 整份过滤JSON改用既有SparkJsonEditor，删JsonTreeEditor分支及页面自建tree/text切换，不保留兼容入口；RendererFilterExpression原DataView绑定、显式应用/取消、结构与引用校验继续使用。
+- 新增真实vanilla-jsoneditor/CodeMirror挂载：原生模式、非法文本与修复、禁用重启即时及600ms延迟；补异步引用校验中的未发出输入、取消后过期通知。公共wrapper只在明确model/mode更新时改对应状态，选项更新不覆盖native输入；只读延迟通知复用原currentContent。
+- 8文件162项已通过，native设计页真实配置保存重开单例通过；同步迁移全仓消费者的旧按钮selector及过滤编辑器引用，未削弱业务/持久化断言。首轮全套发现旧selector后停止，第二轮测试导入重复已修（非业务RED），原日志保留；最终冻结全套24795运行，不冒称全仓通过。
+- types69367、全仓lint46878、ClassModel62996、完整rules69341、build94261均exit0；build12.01s。生成恢复162份等价噪声，仅保留manifest源码hash。无实服请求，不核销SaveView与20包。
+- 全仓终态474文件473通过/1失败，8759项8757通过/2失败（783.58s）；唯一旧编辑器测试夹具完成迁移后独立6项全通过、lint通过。生产与冻结11文件hash一致；不冒称修后单轮全绿。正式负/正证据已保存。本卡0实服请求，整页浏览器实测、实服SaveView及20包未完成。

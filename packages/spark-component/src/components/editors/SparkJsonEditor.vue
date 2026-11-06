@@ -127,6 +127,7 @@ const initError = ref<string | null>(null)
 const schemaError = ref<string | null>(null)
 const currentContent = shallowRef<Content>(toEditorContent(props.modelValue ?? ''))
 const lastSerializedValue = ref(props.modelValue)
+let notificationPending = false
 const editorExtensionProps = shallowRef<Pick<JSONEditorPropsOptional, 'validator' | 'onRenderValue'>>({})
 
 const rootStyle = computed(() => ({
@@ -197,11 +198,8 @@ function refreshSchemaExtensions(): void {
 }
 
 function buildEditorProps(): JSONEditorPropsOptional {
-  const mode = resolveEditorMode(editorModuleRef.value, props.mode)
   return {
-    content: currentContent.value,
     readOnly: props.readOnly,
-    ...(mode !== undefined ? { mode } : {}),
     indentation: props.indentation,
     tabSize: props.tabSize,
     mainMenuBar: props.mainMenuBar,
@@ -210,16 +208,21 @@ function buildEditorProps(): JSONEditorPropsOptional {
     askToFormat: props.askToFormat,
     ...editorExtensionProps.value,
     onChange: (updatedContent) => {
-      if (!active || props.readOnly) return
+      if (!active) return
       currentContent.value = updatedContent
-      const nextValue = toEditorText(updatedContent)
-      lastSerializedValue.value = nextValue
-      if (nextValue !== props.modelValue) {
-        emit('update:modelValue', nextValue)
-      }
-      emit('editing-change', false)
+      notificationPending = true
+      deliverPendingContent()
     },
   }
+}
+
+function deliverPendingContent(): void {
+  if (!active || props.readOnly || !notificationPending) return
+  notificationPending = false
+  const nextValue = toEditorText(currentContent.value)
+  lastSerializedValue.value = nextValue
+  if (nextValue !== props.modelValue) emit('update:modelValue', nextValue)
+  emit('editing-change', false)
 }
 
 async function mountEditor(): Promise<void> {
@@ -236,7 +239,11 @@ async function mountEditor(): Promise<void> {
     refreshSchemaExtensions()
     editorRef.value = editorModule.createJSONEditor({
       target: containerRef.value,
-      props: buildEditorProps(),
+      props: {
+        ...buildEditorProps(),
+        content: currentContent.value,
+        mode: editorModule.Mode[props.mode],
+      },
     })
     initError.value = null
   } catch (error) {
@@ -270,15 +277,15 @@ watch(() => props.modelValue, (value) => {
   if (value === undefined) return
   if (value === lastSerializedValue.value) return
   currentContent.value = toEditorContent(value)
+  notificationPending = false
   lastSerializedValue.value = value
   emit('editing-change', false)
-  editorRef.value?.updateProps(buildEditorProps())
+  editorRef.value?.updateProps({content: currentContent.value})
 })
 
 watch(
   () => [
     props.readOnly,
-    props.mode,
     props.indentation,
     props.tabSize,
     props.mainMenuBar,
@@ -287,10 +294,20 @@ watch(
     props.askToFormat,
   ] as const,
   () => {
-    if (props.readOnly) emit('editing-change', false)
+    // Options must not replace native mode or its unnotified text buffer.
+    // Once writable again, validate drains that buffer through the normal onChange.
+    if (!props.readOnly) {
+      flushPendingInput()
+      deliverPendingContent()
+    }
     editorRef.value?.updateProps(buildEditorProps())
   },
 )
+
+watch(() => props.mode, (mode) => {
+  const nativeMode = resolveEditorMode(editorModuleRef.value, mode)
+  if (nativeMode !== undefined) editorRef.value?.updateProps({mode: nativeMode})
+})
 
 watch(
   () => [
@@ -311,6 +328,7 @@ onMounted(() => {
 })
 
 onBeforeUnmount(() => {
+  notificationPending = false
   active = false; emit('editing-change', false)
   const editor = editorRef.value
   editorRef.value = null

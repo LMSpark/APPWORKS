@@ -1039,7 +1039,7 @@
     "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue.json",
-      "sourceModifiedAt": "2026-11-06T03:51:40.052Z"
+      "sourceModifiedAt": "2026-11-06T14:08:55.512Z"
     },
     "packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.props.ts",
@@ -1804,7 +1804,7 @@
     "packages/spark-component/src/components/editors/SparkJsonEditor.vue": {
       "sourceFile": "packages/spark-component/src/components/editors/SparkJsonEditor.vue",
       "shardFile": "files/packages/spark-component/src/components/editors/SparkJsonEditor.vue.json",
-      "sourceModifiedAt": "2026-10-18T15:19:44.403Z"
+      "sourceModifiedAt": "2026-11-06T14:19:04.386Z"
     },
     "packages/spark-component/src/components/fields/actions/useFieldActionMode.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/actions/useFieldActionMode.ts",

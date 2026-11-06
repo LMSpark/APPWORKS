@@ -222,7 +222,7 @@ it('locks root request fields while preserving the original uncommitted filter e
     const editor = filter.getComponent(FilterExpressionEditor), instance = editor.vm.$.uid, body = new DOMWrapper(document.body)
     await editor.get('[data-action="open"]').trigger('click'); await flushPromises()
     await body.get('[data-action="json"]').trigger('click'); await flushPromises()
-    await body.get('[data-action="json-text"]').trigger('click'); await flushPromises()
+    await flushPromises()
     const draft = '{"field":"rowid","operator":"eq","value":"pending-filter"}'
     editor.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', draft); await flushPromises()
     const request = f.wrapper.findAllComponents(FieldJson).filter(field => field.props('field') === 'queryConfig' && field.props('mode') === 'form' && !field.props('valuePath'))

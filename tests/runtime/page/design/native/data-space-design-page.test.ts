@@ -11,7 +11,7 @@ import {createTestProjectToolFileExecutor, dataSpacePageFixture, designPageHost}
 import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-data-space-design'
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {DataSet, DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
-import {FilterExpressionEditor, RendererFilterExpression, SparkJsonEditor} from '@spark-appworks/spark-component'
+import {FilterExpressionEditor, RendererFilterExpression} from '@spark-appworks/spark-component'
 import {PageRuntime, type ProjectBlueprintTreeData} from '@spark-appworks/spark-project-model'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
@@ -1135,7 +1135,7 @@ describe('layout rebuild entry', () => {
     await filter.get('[data-action="open"]').trigger('click'); await flushPromises()
     const body = new DOMWrapper(document.body)
     await body.get('[data-action="json"]').trigger('click');await flushPromises()
-    filter.getComponent(SparkJsonEditor).vm.$emit('update:modelValue','{"logic":"and","conditions":[]} ');await flushPromises()
+    filter.getComponent(JsonTreeEditor).vm.$emit('update:modelValue','{"logic":"and","conditions":[]} ');await flushPromises()
     expect(instance.isDirty).toBe(true)
     expect(editor.get('[data-action="save-views"]').attributes('disabled')).toBeDefined()
     request.get('[data-json-member="outputType"]').getComponent(ElRadioGroup).vm.$emit('update:modelValue','Join');await flushPromises()
@@ -6230,13 +6230,13 @@ describe('native data-space design entry', () => {
     expect(filter.props('display')).toBe('inline')
     expect(filter.find('[data-action="open"]').exists()).toBe(false)
     await filter.get('[data-action="json"]').trigger('click')
-    filter.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{invalid'); await flushPromises()
+    filter.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', '{invalid'); await flushPromises()
     expect(instance.isDirty).toBe(true)
     expect(viewEditor.get('[data-action="save-views"]').attributes('disabled')).toBeDefined()
     expect(viewEditor.get('[data-action="finish-view-property"]').attributes('disabled')).toBeDefined()
     expect(() => dynamic.closeSystemPageInstance(instance.instanceId)).toThrow('未保存')
     await writeBound(viewEditor, 'selectionDelimiter', '|')
-    expect(filter.getComponent(SparkJsonEditor).props('modelValue')).toBe('{invalid')
+    expect(filter.getComponent(JsonTreeEditor).props('modelValue')).toBe('{invalid')
     await select(wrapper, 'Customers')
     expect(wrapper.get('.design-detail h2').text()).toBe('default')
     await filter.get('[data-action="cancel"]').trigger('click'); await flushPromises()
@@ -6861,7 +6861,7 @@ describe('native data-space design entry', () => {
     expect(dialog.props('display')).toBe('inline')
     await dialog.get('[data-action="json"]').trigger('click')
     const filter = {field: 'rowid', operator: 'eq', value: 'a,b'}
-    editor.getComponent(RendererFilterExpression).getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(filter)); await flushPromises()
+    editor.getComponent(RendererFilterExpression).getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify(filter)); await flushPromises()
     await dialog.get('[data-action="apply"]').trigger('click')
     await wrapper.get('[data-action="finish-view-property"]').trigger('click')
     await editor.get('[data-action="save-views"]').trigger('click'); await flushPromises()

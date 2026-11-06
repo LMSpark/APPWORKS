@@ -2,7 +2,7 @@ import {afterEach, beforeAll, beforeEach, describe, expect, it, vi} from 'vitest
 import {DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import ElementPlus, {ElButton, ElSelect, ElOption, ElTree, ElCheckbox} from 'element-plus'
-import {FieldText, FieldTextarea, FieldJson, FieldSelect, FieldCheckbox, FilterExpressionEditor, RendererFilterExpression, SparkJsonEditor, Spark, registerAllRenderers, RendererButton, RendererForm} from '@spark-appworks/spark-component'
+import {FieldText, FieldTextarea, FieldJson, FieldSelect, FieldCheckbox, FilterExpressionEditor, RendererFilterExpression, JsonTreeEditor, SparkJsonEditor, Spark, registerAllRenderers, RendererButton, RendererForm} from '@spark-appworks/spark-component'
 import {resolveDataViewKey, RequestState} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
@@ -123,7 +123,7 @@ async function editFilter(wrapper: ReturnType<typeof mount>, tree: unknown) {
   await wrapper.get('[data-relation-filter] [data-action="open"]').trigger('click'); await flushPromises()
   const body = new DOMWrapper(document.body)
   await body.get('[data-action="json"]').trigger('click')
-  wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(tree)); await flushPromises()
+  wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify(tree)); await flushPromises()
   await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
 }
 async function connect(wrapper: ReturnType<typeof mount>, source = 'Customers', target = 'Orders') {
@@ -248,7 +248,7 @@ describe('native relation definition editor', () => {
     expect(boundSelect(wrapper, '父模型绑定').props('disabled')).toBe(true)
     const body = new DOMWrapper(document.body)
     await body.get('[data-action="json"]').trigger('click')
-    wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'rowid', operator: 'eq', value: 'cancelled'})); await flushPromises()
+    wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'rowid', operator: 'eq', value: 'cancelled'})); await flushPromises()
     await body.get('[data-action="cancel"]').trigger('click'); await flushPromises()
     expect(instance.isDirty).toBe(false)
     expect(wrapper.getComponent(FilterExpressionEditor).props('modelValue')).toEqual(expression)
@@ -263,7 +263,7 @@ describe('native relation definition editor', () => {
     await wrapper.getComponent(RendererFilterExpression).get('[data-action="open"]').trigger('click'); await flushPromises()
     const body = new DOMWrapper(document.body)
     await body.get('[data-action="json"]').trigger('click')
-    wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(next)); await flushPromises()
+    wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify(next)); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
     expect(wrapper.find('[data-action="finish-relation-filter"]').exists()).toBe(false)
     expect(wrapper.getComponent(FilterExpressionEditor).props('modelValue')).toEqual(next)

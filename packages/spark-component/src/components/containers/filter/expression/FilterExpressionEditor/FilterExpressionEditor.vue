@@ -18,7 +18,7 @@
       <span v-if="!jsonMode">当前 {{ draft.countRules() }} 条条件</span>
       <el-button v-if="display === 'inline' && !jsonMode && !editing && clearable && !readonly" data-action="clear" :disabled="disabled" @click="clear">清空</el-button>
     </div>
-    <SparkJsonEditor v-if="jsonMode" :key="jsonRevision" :model-value="rawJson" mode="tree" data-filter-json
+    <JsonTreeEditor v-if="jsonMode" :key="jsonRevision" :model-value="rawJson" data-filter-json
       :height="320" :read-only="writeLocked" @update:model-value="updateJson" @editing-change="jsonEditingChange" />
     <FilterExpressionGroup v-else :group="draft.root" :draft="draft" :fields="fields" :function-context="functionContext" :depth="0" :max-depth="maxDepth" :max-rules="maxRules" :disabled="writeLocked" @change="inlineChange" @value-function="openFunction" />
     <p v-if="issues.length" role="alert">{{ issues.map(issue => `${issue.path}: ${issue.message}`).join('\n') }}</p>
@@ -40,7 +40,7 @@ import { DataViewFilter, type DataViewFilterIssue, type DataViewFilterTree, type
 import { FilterExpressionEditorDraft, type FilterExpressionEditorCondition, type FilterExpressionEditorProps } from './FilterExpressionEditor.props'
 import FilterExpressionGroup from '../FilterExpressionGroup/FilterExpressionGroup.vue'
 import FilterValueFunctionDialog from '../../value/FilterValueFunctionDialog/FilterValueFunctionDialog.vue'
-import SparkJsonEditor from '../../../../editors/SparkJsonEditor.vue'
+import JsonTreeEditor from '../../../../editors/JsonTreeEditor.vue'
 const props = withDefaults(defineProps<FilterExpressionEditorProps>(), { display: 'dialog', displayMode: 'box', placeholder: '空', title: '过滤设置',
   clearable: true, dialogWidth: '980px', autoFullscreenBelow: 900, functionContext: () => ({}), maxDepth: 3, maxRules: 50, disabled: false, readonly: false })
 const emit = defineEmits<{ 'update:modelValue': [tree: DataViewFilterTree | undefined] }>()
@@ -107,11 +107,14 @@ const updateJson = computed(() => {
   }
 })
 function isCurrentJsonInput(revision: number): boolean {
-  return alive && revision === jsonRevision.value && jsonMode.value && !writeLocked.value && (props.display === 'inline' || visible.value)
+  return isCurrentJsonSession(revision) && !writeLocked.value
+}
+function isCurrentJsonSession(revision: number): boolean {
+  return alive && revision === jsonRevision.value && jsonMode.value && (props.display === 'inline' || visible.value)
 }
 const jsonEditingChange = computed(() => {
   const revision = jsonRevision.value
-  return (pending: boolean): void => {if (isCurrentJsonInput(revision)) jsonPending.value = pending}
+  return (pending: boolean): void => {if (isCurrentJsonSession(revision) && (!writeLocked.value || !pending)) jsonPending.value = pending}
 })
 function open(): void {
   if (props.disabled) return

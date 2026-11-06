@@ -12,7 +12,6 @@ import SparkJsonEditor from '../../components/editors/SparkJsonEditor.vue'
 import FilterExpressionGroup from '../../components/containers/filter/expression/FilterExpressionGroup/FilterExpressionGroup.vue'
 import FilterValueFunctionDialog from '../../components/containers/filter/value/FilterValueFunctionDialog/FilterValueFunctionDialog.vue'
 import { FilterExpressionEditorDraft } from '../../components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.props'
-import type {JSONEditorPropsOptional} from 'vanilla-jsoneditor'
 import VXETable, {VxeTable} from 'vxe-table'
 import JsonTreeEditor from '../../components/editors/JsonTreeEditor.vue'
 
@@ -83,13 +82,13 @@ function editor(modelValue?: ReturnType<DataViewFilter['toJSON']>) {
   return wrapper
 }
 
-it('uses the existing Spark JSON tree editor without a parallel format selector', async () => {
+it('uses the requested JsonTreeEditor without a parallel format selector', async () => {
   const wrapper = editor({field: 'Name', operator: 'eq', value: 'original'})
   await wrapper.get('[data-action="open"]').trigger('click')
   const body = new DOMWrapper(document.body)
   await body.get('[data-action="json"]').trigger('click')
-  expect(wrapper.getComponent(SparkJsonEditor).props('mode')).toBe('tree')
-  expect(wrapper.findComponent(JsonTreeEditor).exists()).toBe(false)
+  expect(wrapper.getComponent(JsonTreeEditor).props('readOnly')).toBe(false)
+  expect(wrapper.findComponent(SparkJsonEditor).exists()).toBe(false)
   expect(body.find('[data-action="json-text"]').exists()).toBe(false)
   expect(body.find('[data-action="json-tree"]').exists()).toBe(false)
 })
@@ -100,7 +99,7 @@ it('reports pending JSON input and ignores its late notification after cancellat
     global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
   wrappers.push(wrapper)
   await wrapper.get('[data-action="json"]').trigger('click')
-  const json = wrapper.getComponent(SparkJsonEditor)
+  const json = wrapper.getComponent(JsonTreeEditor)
   const late = json.vm.$.vnode.props?.['onEditingChange']
   expect(typeof late).toBe('function')
   json.vm.$emit('editing-change', true); await flushPromises()
@@ -116,10 +115,10 @@ it('invalidates asynchronous application when JSON input starts before its text 
   const fields = pendingFields()
   const wrapper = mount(FilterExpressionEditor, {props: {display: 'inline', columns: [{name: 'Name', type: 'string'}],
     functionContext: {tables: [{name: 'Orders', loadFields: fields.load}]}},
-    global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+    global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
   wrappers.push(wrapper)
   await wrapper.get('[data-action="json"]').trigger('click')
-  const json = wrapper.getComponent(SparkJsonEditor)
+  const json = wrapper.getComponent(JsonTreeEditor)
   json.vm.$emit('update:modelValue', JSON.stringify({field: 'Name', operator: 'eq', value: {Type: 'GetRefData', RefTableName: 'Orders', RefFieldName: 'name', FkFieldName: 'id'}}))
   await flushPromises(); await wrapper.get('[data-action="apply"]').trigger('click'); await flushPromises()
   expect(fields.load).toHaveBeenCalledOnce()
@@ -368,7 +367,7 @@ describe('full public filter editor', () => {
     expect(body.find('[data-action="clear"]').exists()).toBe(false)
     expect(body.get('[aria-label="使用服务端值函数"]').attributes('disabled')).toBeDefined()
     await body.get('[data-action="json"]').trigger('click');
-    const json = wrapper.getComponent(SparkJsonEditor)
+    const json = wrapper.getComponent(JsonTreeEditor)
     expect(json.props('readOnly')).toBe(true)
     json.vm.$emit('update:modelValue', '{"field":"Name","operator":"eq","value":"forbidden"}')
     await body.get('[data-action="cancel"]').trigger('click')
@@ -553,40 +552,20 @@ describe('full public filter editor', () => {
     expect(node.valueText).toBe('"original"')
     expect(wrapper.emitted('change')).toBeUndefined()
   })
-  it('flushes the existing JSON topic pending text on blur before applying the filter', async () => {
-    let settings: JSONEditorPropsOptional | undefined
-    let pending = ''
-    const validate = vi.fn(() => {
-      if (!pending) return undefined
-      const next = pending; pending = ''
-      settings?.onChange?.({text: next}, {text: ''}, {contentErrors: undefined, patchResult: undefined})
-      return undefined
-    })
-    vi.doMock('vanilla-jsoneditor', () => ({Mode: {text: 'text', tree: 'tree', table: 'table'},
-      createJSONEditor: ({props}: {props: JSONEditorPropsOptional}) => {
-        settings = props
-        return {validate, updateProps: (props: JSONEditorPropsOptional) => {settings = props}, destroy: async () => {}}
-      },
-    }))
-    vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
-    const wrapper = mount(FilterExpressionEditor, {props: {display: 'inline', columns: [{name: 'Name', type: 'string'}]},
-      global: {plugins: [ElementPlus], stubs: {JsonTreeEditor: true}}})
-    try {
-      await wrapper.get('[data-action="json"]').trigger('click'); await vi.dynamicImportSettled(); await flushPromises()
-      expect(settings).toBeDefined()
-      pending = '{invalid'
-      await wrapper.getComponent(SparkJsonEditor).trigger('focusout')
-      await wrapper.get('[data-action="apply"]').trigger('click')
-      expect(wrapper.get('[role="alert"]').text()).toContain('过滤表达式不是有效 JSON')
-      const tree = {field: 'Name', operator: 'eq', value: 'latest'}
-      pending = JSON.stringify(tree)
-      await wrapper.getComponent(SparkJsonEditor).trigger('focusout')
-      // 失焦发生在鼠标按下与click之间；校验提示此时消失会移动“应用”按钮，丢失这次点击。
-      expect(wrapper.get('[role="alert"]').text()).toContain('过滤表达式不是有效 JSON')
-      await wrapper.get('[data-action="apply"]').trigger('click')
-      expect(validate).toHaveBeenCalled()
-      expect(wrapper.emitted('update:modelValue')).toEqual([[tree]])
-    } finally {wrapper.unmount(); vi.doUnmock('vanilla-jsoneditor'); vi.unstubAllGlobals()}
+  it('retains validation feedback until the selected tree editor explicitly applies corrected JSON', async () => {
+    const wrapper = editor({field:'Name',operator:'eq',value:'original'})
+    await wrapper.get('[data-action="open"]').trigger('click')
+    const body = new DOMWrapper(document.body)
+    await body.get('[data-action="json"]').trigger('click')
+    const json = wrapper.getComponent(JsonTreeEditor)
+    json.vm.$emit('update:modelValue', '{invalid'); await flushPromises()
+    await body.get('[data-action="apply"]').trigger('click')
+    expect(body.get('[role="alert"]').text()).toContain('过滤表达式不是有效 JSON')
+    const tree = {field:'Name',operator:'eq',value:'latest'}
+    json.vm.$emit('update:modelValue', JSON.stringify(tree)); await flushPromises()
+    expect(body.get('[role="alert"]').text()).toContain('过滤表达式不是有效 JSON')
+    await body.get('[data-action="apply"]').trigger('click')
+    expect(wrapper.emitted('update:modelValue')).toEqual([[tree]])
   })
   it('keeps an invalid child and blocks the entire tree', () => {
     const draft = new FilterExpressionEditorDraft({ logic: 'or', filters: [{ field: 'Name', operator: 'eq', value: 'x' }] })
@@ -642,7 +621,7 @@ describe('full public filter editor', () => {
     const body = new DOMWrapper(document.body)
     await wrapper.get('[data-action="open"]').trigger('click')
     await body.get('[data-action="json"]').trigger('click');
-    const json = wrapper.getComponent(SparkJsonEditor)
+    const json = wrapper.getComponent(JsonTreeEditor)
     json.vm.$emit('update:modelValue', '{"logic":"or","filters":['); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
@@ -666,7 +645,7 @@ describe('full public filter editor', () => {
     const body = new DOMWrapper(document.body)
     await wrapper.get('[data-action="open"]').trigger('click')
     await body.get('[data-action="json"]').trigger('click');
-    wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{"field":"Amount","operator":"eq","value":0}'); await flushPromises()
+    wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', '{"field":"Amount","operator":"eq","value":0}'); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click')
     const emitted: unknown = wrapper.emitted('update:modelValue')?.[0]?.[0]
     expect(emitted).toEqual({ field: 'Amount', operator: 'eq', value: 0 })
@@ -691,7 +670,7 @@ describe('full public filter editor', () => {
     const body = new DOMWrapper(document.body)
     await body.get('[data-action="open"]').trigger('click')
     await body.get('[data-action="json"]').trigger('click');
-    wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{"field":"Name","operator":"eq","value":""}'); await flushPromises()
+    wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', '{"field":"Name","operator":"eq","value":""}'); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click')
     await flushPromises()
     expect(view.rows.map(row => row['id'])).toEqual([1])
@@ -705,10 +684,10 @@ describe('full public filter editor', () => {
     expect(view.getEditingRow(1)?.['Name']).toBe('unsaved')
     await body.get('[data-action="json"]').trigger('click');
     const rejected = '{"field":"Name","operator":"eq","value":"new predicate"}'
-    wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', rejected); await flushPromises()
+    wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', rejected); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click')
     await flushPromises()
-    expect(wrapper.getComponent(SparkJsonEditor).props('modelValue')).toBe(rejected)
+    expect(wrapper.getComponent(JsonTreeEditor).props('modelValue')).toBe(rejected)
     expect(view.filterExpression).toEqual({ field: 'Name', operator: 'eq', value: '' })
   })
 

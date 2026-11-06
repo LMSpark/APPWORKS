@@ -3,7 +3,7 @@ import {config, DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {markRaw} from 'vue'
 import VXETable from 'vxe-table'
 import ElementPlus, {ElCheckbox, ElInputNumber, ElOption, ElRadioGroup, ElSelect, ElTabs} from 'element-plus'
-import {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, RendererButton, RendererForm, RendererSection, RendererTable, Spark, JsonTreeEditor, SparkJsonEditor} from '@spark-appworks/spark-component'
+import {FieldCheckbox, FieldJson, FieldNumber, FieldRadio, FieldSelect, FieldText, RendererButton, RendererForm, RendererSection, RendererTable, Spark, JsonTreeEditor} from '@spark-appworks/spark-component'
 import RendererFilter from '../../../../../../packages/spark-component/src/components/containers/zones/RendererFilter.vue'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {RequestState} from '@spark-appworks/spark-data'
@@ -239,7 +239,7 @@ describe('native complete query preview', () => {
     await w.get('[data-action="run-query-preview"]').trigger('click'); await flushPromises()
     expect(preview.view.rows.map(row => row['rowid'])).toEqual(['R2'])
     await editor.get('[data-action="json"]').trigger('click'); await flushPromises()
-    editor.getComponent(SparkJsonEditor).vm.$emit('update:modelValue',JSON.stringify({field:'rowid',operator:'eq',value:'R1'}));await flushPromises()
+    editor.getComponent(JsonTreeEditor).vm.$emit('update:modelValue',JSON.stringify({field:'rowid',operator:'eq',value:'R1'}));await flushPromises()
     await editor.get('[data-action="cancel"]').trigger('click'); await flushPromises()
     expect(preview.view.filterExpression).toEqual(expected)
     expect(f.stored.get('A')).toBe(stored); expect(f.fileWrites).toEqual([])
@@ -913,13 +913,13 @@ describe('native complete query preview', () => {
     registry.register({type: 'r-filter', component: RendererFilter})
     const f = fixture(), session = await f.open('A'), before = f.stored.get('A')
     const w = mount(DataSpaceQueryPreview, {attachTo: document.body, props: {session: markRaw(session), modelId: 'M1', modelName: 'Orders'},
-      global: {plugins: [ElementPlus, VXETable, Spark.createPlugin({registry})], stubs: {SparkJsonEditor: true}}})
+      global: {plugins: [ElementPlus, VXETable, Spark.createPlugin({registry})], stubs: {JsonTreeEditor: true}}})
     wrappers.push(w); await flushPromises()
     await w.get('[data-action="run-query-preview"]').trigger('click'); await flushPromises()
     expect(w.find('[data-action="open"]').exists()).toBe(false)
     const body = new DOMWrapper(document.body), start = queries(f).length
     await body.get('[data-action="json"]').trigger('click')
-    w.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'rowid', operator: 'eq', value: 'R2'})); await flushPromises()
+    w.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'rowid', operator: 'eq', value: 'R2'})); await flushPromises()
     await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
     expect(queries(f)).toHaveLength(start + 1)
     expect(JSON.stringify(queries(f).at(-1)?.data)).toContain('R2')

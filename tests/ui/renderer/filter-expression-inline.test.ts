@@ -2,7 +2,7 @@ import {describe, expect, it} from 'vitest'
 import {flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h, ref, shallowRef} from 'vue'
 import ElementPlus from 'element-plus'
-import {FilterExpressionEditor, SparkJsonEditor} from '@spark-appworks/spark-component'
+import {FilterExpressionEditor, JsonTreeEditor, SparkJsonEditor} from '@spark-appworks/spark-component'
 import type {DataViewFilterTree} from '@spark-appworks/spark-data'
 
 describe('inline filter expression', () => {
@@ -15,17 +15,17 @@ describe('inline filter expression', () => {
     const editing = ref(false)
     const w = mount(FilterExpressionEditor, {props: {display: 'inline', modelValue: initial,
       columns: [{name: 'name', type: 'string'}], onEditingChange: value => {editing.value = value}},
-    global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+    global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
     try {
       await w.get('[data-action="json"]').trigger('click')
-      const json = w.getComponent(SparkJsonEditor)
+      const json = w.getComponent(JsonTreeEditor)
       expect(JSON.parse(json.props('modelValue')!)).toEqual(initial)
       expect(editing.value).toBe(false)
       const changed = {logic: 'and', filters: initial.filters}
       json.vm.$emit('update:modelValue', JSON.stringify(changed)); await flushPromises()
       expect(editing.value).toBe(true)
 
-      expect(JSON.parse(w.getComponent(SparkJsonEditor).props('modelValue')!)).toEqual(changed)
+      expect(JSON.parse(w.getComponent(JsonTreeEditor).props('modelValue')!)).toEqual(changed)
       await w.get('[data-action="json"]').trigger('click')
       expect(w.findAll('.filter-expression-group')).toHaveLength(2)
       await w.get('[data-action="apply"]').trigger('click')
@@ -38,15 +38,15 @@ describe('inline filter expression', () => {
   it('retains malformed text when switching back to the condition tree and rejects stale mode callbacks', async () => {
     const initial: DataViewFilterTree = {field: 'name', operator: 'eq', value: 'A'}
     const w = mount(FilterExpressionEditor, {props: {display: 'inline', modelValue: initial, columns: [{name: 'name', type: 'string'}]},
-      global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+      global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
     try {
       await w.get('[data-action="json"]').trigger('click')
-      const stale = w.getComponent(SparkJsonEditor).vm.$.vnode.props?.['onUpdate:modelValue']
+      const stale = w.getComponent(JsonTreeEditor).vm.$.vnode.props?.['onUpdate:modelValue']
 
-      const text = w.getComponent(SparkJsonEditor)
+      const text = w.getComponent(JsonTreeEditor)
       text.vm.$emit('update:modelValue', '{broken'); await flushPromises()
       await w.get('[data-action="json"]').trigger('click')
-      expect(w.findComponent(SparkJsonEditor).exists()).toBe(true)
+      expect(w.findComponent(JsonTreeEditor).exists()).toBe(true)
       expect(text.props('modelValue')).toBe('{broken')
       expect(w.get('[role="alert"]').text()).toContain('JSON')
       await w.get('[data-action="apply"]').trigger('click')
@@ -56,14 +56,14 @@ describe('inline filter expression', () => {
       expect(typeof stale).toBe('function')
       if (typeof stale === 'function') stale('{late invalid')
       await flushPromises()
-      expect(JSON.parse(w.getComponent(SparkJsonEditor).props('modelValue')!)).toEqual(initial)
+      expect(JSON.parse(w.getComponent(JsonTreeEditor).props('modelValue')!)).toEqual(initial)
     } finally {w.unmount()}
   })
 
   it('deletes a nested group from its own reference toolbar and adds from its empty state', async () => {
     const w = mount(FilterExpressionEditor, {props: {display: 'inline', columns: [{name: 'name', type: 'string'}],
       modelValue: {logic: 'or', filters: [{field: 'name', operator: 'eq', value: 'kept'}, {logic: 'and', filters: []}]}},
-      global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+      global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
     try {
       const group = w.get('.filter-expression-group--nested')
       await group.get('.filter-expression-group__empty button').trigger('click')
@@ -83,7 +83,7 @@ describe('inline filter expression', () => {
       display: 'inline', columns: [{name: 'name', type: 'string'}], modelValue: value.value,
       onEditingChange: (next: boolean) => {editing.value = next},
       'onUpdate:modelValue': next => {if (next) value.value = next},
-    })}), {global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+    })}), {global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
     try {
       expect(w.find('[data-action="open"]').exists()).toBe(false)
       expect(editing.value).toBe(false)
@@ -92,7 +92,7 @@ describe('inline filter expression', () => {
       expect(editing.value).toBe(false)
       expect(w.find('[data-action="apply"]').exists()).toBe(false)
       await w.get('[data-action="json"]').trigger('click')
-      w.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'name', operator: 'eq', value: 'unaccepted'})); await flushPromises()
+      w.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'name', operator: 'eq', value: 'unaccepted'})); await flushPromises()
       expect(editing.value).toBe(true)
       await w.get('[data-action="cancel"]').trigger('click')
       expect(editing.value).toBe(false)
@@ -104,8 +104,8 @@ describe('inline filter expression', () => {
       await w.get('[aria-label="切换条件值 JSON"]').trigger('click')
       expect(w.getComponent(SparkJsonEditor).attributes('data-condition-json')).toBeDefined()
       await w.get('[data-action="json"]').trigger('click')
-      const json = w.getComponent(SparkJsonEditor)
-      expect(json.props('mode')).toBe('tree')
+      const json = w.getComponent(JsonTreeEditor)
+      expect(json.props('readOnly')).toBe(false)
       expect(w.find('textarea[data-filter-json]').exists()).toBe(false)
       json.vm.$emit('update:modelValue', '{invalid'); await flushPromises()
       await w.get('[data-action="apply"]').trigger('click')
@@ -118,15 +118,15 @@ describe('inline filter expression', () => {
   it('rejects readonly and cancelled JSON editor events without replacing a new draft', async () => {
     const w = mount(FilterExpressionEditor, {props: {display: 'inline',
       modelValue: {field: 'name', operator: 'eq', value: 'A'}, columns: [{name: 'name', type: 'string'}]},
-    global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+    global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
     try {
       await w.get('[data-action="json"]').trigger('click')
-      const old = w.getComponent(SparkJsonEditor)
+      const old = w.getComponent(JsonTreeEditor)
       old.vm.$emit('update:modelValue', '{invalid'); await flushPromises()
       expect(old.props('modelValue')).toBe('{invalid')
       await w.get('[data-action="cancel"]').trigger('click')
       await w.get('[data-action="json"]').trigger('click')
-      const current = w.getComponent(SparkJsonEditor), initial = current.props('modelValue')
+      const current = w.getComponent(JsonTreeEditor), initial = current.props('modelValue')
       old.vm.$emit('update:modelValue', '{stale'); await flushPromises()
       expect(current.props('modelValue')).toBe(initial)
       await w.setProps({disabled: true})

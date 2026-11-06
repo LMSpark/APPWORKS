@@ -4,7 +4,7 @@ import {defineComponent, h, ref} from 'vue'
 import ElementPlus from 'element-plus'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey, DataViewFilterCodec} from '@spark-appworks/spark-data'
-import {FilterExpressionEditor, SparkJsonEditor, PAGE_RUNTIME, RendererFilterExpression, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
+import {FilterExpressionEditor, JsonTreeEditor, PAGE_RUNTIME, RendererFilterExpression, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
 import {dataSpacePageFixture} from './data-space-page.fixture'
 
 const fixtures: ReturnType<typeof dataSpacePageFixture>[] = []
@@ -26,7 +26,7 @@ async function fixture(options: Parameters<typeof dataSpacePageFixture>[0] = {},
     return () => h(RendererFilterExpression, {dataViewKey: binding.value, dataMember: 'currentRow', field,
       format: table === 'Base_DataModel' ? 'spark-json' : 'tree', columns: [{name: 'rowid', type: 'string'}]})
   }})
-  const wrapper = mount(host, {attachTo: document.body, global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true}}})
+  const wrapper = mount(host, {attachTo: document.body, global: {plugins: [ElementPlus], stubs: {JsonTreeEditor: true}}})
   wrappers.push(wrapper)
   return {f, session, view, key, wrapper, binding}
 }
@@ -36,7 +36,7 @@ async function apply(wrapper: ReturnType<typeof mount>) {
   const body = new DOMWrapper(document.body)
   await wrapper.get('[data-action="open"]').trigger('click')
   await body.get('[data-action="json"]').trigger('click')
-  wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify(predicate)); await flushPromises()
+  wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify(predicate)); await flushPromises()
   await body.get('[data-action="apply"]').trigger('click'); await flushPromises()
 }
 

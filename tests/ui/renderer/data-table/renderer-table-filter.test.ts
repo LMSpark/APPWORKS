@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount} from '@vue/test-utils'
 import {defineComponent, h, shallowRef} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText, RendererTable, Spark, SparkJsonEditor, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
+import {FieldText, RendererTable, Spark, JsonTreeEditor, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import RendererFilter from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.vue'
 import type {RFilterProps} from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.types'
 import {DataSet} from '@spark-appworks/spark-data'
@@ -45,7 +45,7 @@ async function fixture(filter?: RFilterProps,remote=false) {
     return () => h(RendererTable, {dataViewKey: 'SPACE@Orders@default', autoColumns: true, showPagination: false, showDataViewMeta: false,
       ...(filterConfig.value !== undefined ? {filter: filterConfig.value} : {})})
   }})
-  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin({registry})], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
+  const wrapper = mount(Host, {attachTo: document.body, global: {plugins: [ElementPlus, Spark.createPlugin({registry})], stubs: {JsonTreeEditor: true}}})
   cleanups.push(() => wrapper.unmount())
   await flushPromises()
   return {wrapper, filterConfig,http, view: dataSet.getView('Orders', 'default')!, other: dataSet.getView('Orders', 'other')!}
@@ -55,7 +55,7 @@ async function applyName(wrapper: ReturnType<typeof mount>, value: string) {
   const body = new DOMWrapper(document.body)
   await body.get('[data-action="open"]').trigger('click')
   await body.get('[data-action="json"]').trigger('click')
-  wrapper.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'Name', operator: 'eq', value})); await flushPromises()
+  wrapper.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'Name', operator: 'eq', value})); await flushPromises()
   await body.get('[data-action="apply"]').trigger('click')
   await flushPromises()
 }

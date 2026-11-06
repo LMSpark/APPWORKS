@@ -6,7 +6,7 @@ import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {buildDataViewKey} from '@spark-appworks/spark-data'
 import {FieldJson, RendererFilterExpression, PAGE_RUNTIME, registerAllRenderers, Spark, useSparkComponent} from '@spark-appworks/spark-component'
 import FilterExpressionEditor from '../../../../../../packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
-import SparkJsonEditor from '../../../../../../packages/spark-component/src/components/editors/SparkJsonEditor.vue'
+import JsonTreeEditor from '../../../../../../packages/spark-component/src/components/editors/JsonTreeEditor.vue'
 import DataSpaceQueryPlan from '@/views/features/data-platform/data-set-management/design/views/query-plan/DataSpaceQueryPlan.vue'
 import DataSpaceViewEditor from '@/views/features/data-platform/data-set-management/design/views/DataSpaceViewEditor.vue'
 import {dataSpacePageFixture} from '../data-space-page.fixture'
@@ -38,7 +38,7 @@ async function fixture(initial: Record<string, unknown> = {outputType: 'Navigati
   const runtime = new PageRuntime({pageId: 'plan-test', scenarioIds: [scenarioId], loadScenario: async () => dataSet})
   await runtime.load(); registerAllRenderers()
   const originalStubs = config.global.stubs
-  const stubs: typeof originalStubs = {...originalStubs, SparkJsonEditor: true, JsonTreeEditor: true}; delete stubs['el-table']; delete stubs['el-table-column']; delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']; config.global.stubs = stubs
+  const stubs: typeof originalStubs = {...originalStubs, JsonTreeEditor: true}; delete stubs['el-table']; delete stubs['el-table-column']; delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']; config.global.stubs = stubs
   const host = defineComponent({setup() {useSparkComponent({type: 'plan-host'}).sparkProvide(PAGE_RUNTIME, runtime)
     return () => h(DataSpaceViewEditor, {session: markRaw(session), modelId: 'M1', modelName: 'Orders', rowKey: key, revision: 0})}})
   const wrapper = mount(host, {global: {plugins: [ElementPlus, Spark.createPlugin()], stubs}})
@@ -224,12 +224,12 @@ it('locks root request fields while preserving the original uncommitted filter e
     await body.get('[data-action="json"]').trigger('click'); await flushPromises()
     await flushPromises()
     const draft = '{"field":"rowid","operator":"eq","value":"pending-filter"}'
-    editor.getComponent(SparkJsonEditor).vm.$emit('update:modelValue', draft); await flushPromises()
+    editor.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', draft); await flushPromises()
     const request = f.wrapper.findAllComponents(FieldJson).filter(field => field.props('field') === 'queryConfig' && field.props('mode') === 'form' && !field.props('valuePath'))
     expect(request.length).toBeGreaterThan(0)
     expect(request.every(field => field.props('readonly') === true)).toBe(true)
     expect(filter.getComponent(FilterExpressionEditor).vm.$.uid).toBe(instance)
-    expect(editor.getComponent(SparkJsonEditor).props('modelValue')).toBe(draft)
+    expect(editor.getComponent(JsonTreeEditor).props('modelValue')).toBe(draft)
     expect(f.view.getEditingRow(f.key)?.['filterExpression']).toBeUndefined()
     await body.get('[data-action="cancel"]').trigger('click'); await flushPromises()
     expect(request.every(field => !field.props('readonly'))).toBe(true)

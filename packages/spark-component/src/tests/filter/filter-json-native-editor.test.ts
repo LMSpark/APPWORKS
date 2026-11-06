@@ -1,67 +1,55 @@
-import {afterEach, expect, it, vi} from 'vitest'
-import {mount, flushPromises} from '@vue/test-utils'
-import ElementPlus from 'element-plus'
-import {EditorView} from '@codemirror/view'
+import {afterEach,expect,it,vi} from 'vitest'
+import {mount,flushPromises,type VueWrapper} from '@vue/test-utils'
+import ElementPlus,{ElInput} from 'element-plus'
+import VXETable,{VxeTable} from 'vxe-table'
 import FilterExpressionEditor from '../../components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue'
-
-afterEach(() => {vi.unstubAllGlobals()})
-
-it.each([0, 600])('retains pending native text through disable (%i ms) and enable before explicit apply', async (disabledMs) => {
-  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
-  const original = {field: 'Name', operator: 'eq' as const, value: 'original'}
-  const edited = {...original, value: 'pending through readonly'}
-  const wrapper = mount(FilterExpressionEditor, {attachTo: document.body, props: {display: 'inline', modelValue: original, columns: [{name: 'Name', type: 'string'}]}, global: {plugins: [ElementPlus]}})
-  try {
-    await wrapper.get('[data-action="json"]').trigger('click')
-    await vi.dynamicImportSettled(); await flushPromises()
-    const text = wrapper.findAll('button').find(button => button.text().trim().toLowerCase() === 'text')
-    await text?.trigger('click'); await flushPromises()
-    const native = EditorView.findFromDOM(wrapper.get<HTMLElement>('.cm-editor').element)
-    if (!native) throw new Error('missing native text editor')
-    native.dispatch({changes: {from: 0, to: native.state.doc.length, insert: JSON.stringify(edited)}})
-    await wrapper.get('.cm-content').trigger('input')
-    await wrapper.setProps({disabled: true})
-    if (disabledMs) await new Promise(resolve => setTimeout(resolve, disabledMs))
-    await wrapper.setProps({disabled: false})
-    await flushPromises()
-    expect(wrapper.get('.cm-content').text()).toContain('pending through readonly')
-    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
-    await wrapper.get('[data-action="apply"]').trigger('click')
-    expect(wrapper.emitted('update:modelValue')).toEqual([[edited]])
-  } finally {wrapper.unmount()}
+import JsonTreeEditor from '../../components/editors/JsonTreeEditor.vue'
+const wrappers:VueWrapper[]=[]
+afterEach(()=>wrappers.splice(0).forEach(wrapper=>wrapper.unmount()))
+async function editor(){
+ const editing=vi.fn(),original={field:'Name',operator:'eq' as const,value:'kept'}
+ const wrapper=mount(FilterExpressionEditor,{attachTo:document.body,props:{display:'inline',modelValue:original,columns:[{name:'Name',type:'string'}],onEditingChange:editing},
+  global:{plugins:[ElementPlus,VXETable],stubs:{JsonTreeEditor:false}}})
+ wrappers.push(wrapper);await wrapper.get('[data-action="json"]').trigger('click');await flushPromises()
+ const tree=wrapper.getComponent(JsonTreeEditor),table=tree.getComponent(VxeTable)
+ const row=table.props('data')?.find(row=>JSON.stringify(row.path)==='["value"]')
+ if(!row)throw Error('missing actual value row')
+ table.vm.$emit('current-row-change',{newValue:row});await flushPromises()
+ const input=tree.findAllComponents(ElInput).find(input=>input.props('modelValue')==='kept')
+ if(!input)throw Error('missing actual string editor')
+ return{wrapper,tree,input,editing,original}
+}
+it('uses the actual tree table and applies its latest committed value only through the filter action',async()=>{
+ const {wrapper,input,editing,original}=await editor()
+ expect(wrapper.find('.spark-json-editor').exists()).toBe(false)
+ input.vm.$emit('update:modelValue','latest');await flushPromises()
+ expect(editing).toHaveBeenLastCalledWith(true)
+ await wrapper.get('[data-action="apply"]').trigger('click')
+ expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+ input.vm.$emit('change','latest');await flushPromises()
+ await wrapper.get('[data-action="apply"]').trigger('click')
+ expect(wrapper.emitted('update:modelValue')).toEqual([[{...original,value:'latest'}]])
 })
-
-it('mounts the existing JSON editor and switches its native modes without applying the filter', async () => {
-  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
-  const original = {field: 'Name', operator: 'eq' as const, value: 'kept'}
-  const wrapper = mount(FilterExpressionEditor, {attachTo: document.body, props: {display: 'inline', modelValue: original, columns: [{name: 'Name', type: 'string'}]},
-    global: {plugins: [ElementPlus]}})
-  try {
-    await wrapper.get('[data-action="json"]').trigger('click')
-    await vi.dynamicImportSettled(); await flushPromises()
-    expect(wrapper.find('.spark-json-editor__fallback').exists()).toBe(false)
-    const text = wrapper.findAll('button').find(button => button.text().trim().toLowerCase() === 'text')
-    expect(text, wrapper.text()).toBeDefined()
-    await text?.trigger('click'); await flushPromises()
-    expect(wrapper.find('.cm-editor').exists()).toBe(true)
-    const native = EditorView.findFromDOM(wrapper.get<HTMLElement>('.cm-editor').element)
-    if (!native) throw new Error('missing native text editor')
-    native.dispatch({changes: {from: 0, to: native.state.doc.length, insert: '{invalid'}})
-    await wrapper.get('.spark-json-editor').trigger('focusout'); await flushPromises()
-    await wrapper.get('[data-action="apply"]').trigger('click')
-    expect(wrapper.get('[role="alert"]').text()).toContain('过滤表达式不是有效 JSON')
-    expect(native.state.doc.toString()).toBe('{invalid')
-    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
-    const repaired = {...original, value: 'kept after repair'}
-    native.dispatch({changes: {from: 0, to: native.state.doc.length, insert: JSON.stringify(repaired)}})
-    await wrapper.get('.spark-json-editor').trigger('focusout'); await flushPromises()
-    const tree = wrapper.findAll('button').find(button => button.text().trim().toLowerCase() === 'tree')
-    expect(tree).toBeDefined()
-    await tree?.trigger('click'); await flushPromises()
-    expect(wrapper.find('.cm-editor').exists()).toBe(false)
-    expect(wrapper.text()).toContain('kept after repair')
-    expect(wrapper.emitted('update:modelValue')).toBeUndefined()
-    await wrapper.get('[data-action="apply"]').trigger('click')
-    expect(wrapper.emitted('update:modelValue')).toEqual([[repaired]])
-  } finally {wrapper.unmount()}
+it('releases a discarded tree input notification when disabled then enabled',async()=>{
+ const {wrapper,input,editing,original}=await editor()
+ input.vm.$emit('update:modelValue','pending');await flushPromises()
+ expect(editing).toHaveBeenLastCalledWith(true)
+ await wrapper.setProps({disabled:true});await wrapper.setProps({disabled:false});await flushPromises()
+ expect(editing).toHaveBeenLastCalledWith(false)
+ await wrapper.get('[data-action="apply"]').trigger('click')
+ expect(wrapper.emitted('update:modelValue')).toEqual([[original]])
+})
+it('preserves malformed input for the tree repair action without prematurely applying the filter',async()=>{
+ const {wrapper,tree,original}=await editor()
+ tree.vm.$emit('update:modelValue','{invalid');await flushPromises()
+ await wrapper.get('[data-action="apply"]').trigger('click')
+ expect(wrapper.get('[role="alert"]').text()).toContain('过滤表达式不是有效 JSON')
+ const repair=tree.findAllComponents(ElInput).find(input=>input.props('type')==='textarea')
+ if(!repair)throw Error('missing actual tree repair control')
+ const fixed={...original,value:'repaired'}
+ await repair.setValue(JSON.stringify(fixed));await flushPromises()
+ await tree.findAll('button').find(button=>button.text()==='应用修复')!.trigger('click');await flushPromises()
+ expect(wrapper.emitted('update:modelValue')).toBeUndefined()
+ await wrapper.get('[data-action="apply"]').trigger('click')
+ expect(wrapper.emitted('update:modelValue')).toEqual([[fixed]])
 })

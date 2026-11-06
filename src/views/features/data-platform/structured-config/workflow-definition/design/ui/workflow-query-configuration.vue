@@ -46,7 +46,7 @@
 import {computed,onBeforeUnmount,shallowRef,watch} from 'vue'
 import {buildDataViewKey,DataViewFilter,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
 import {RendererForm,RendererTable,RendererFilterExpression,RendererTabPane,FieldText} from '@spark-appworks/spark-component'
-import {WorkflowQueryInputs,workflowOperationFunctionContext} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
+import {WorkflowQueryInputs,workflowOperationFunctionContext} from '@/lowcode/resources/structured-config/workflow-definition/fields/query-inputs'
 import WorkflowComputedFieldEditor from './workflow-computed-field-editor.vue'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;revision:number;disabled:boolean;operation?:boolean}>()
 const emit=defineEmits<{pendingChange:[key:string,value:boolean]}>()

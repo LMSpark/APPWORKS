@@ -7,18 +7,18 @@
     "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
     "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
     "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
-    "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+    "src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts",
     "tests/app/dev/page-tool-file-operations.test.ts",
     "tests/runtime/page/design/data-space-four-file.test.ts",
     "tests/runtime/page/design/native/data-space-page.fixture.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-boundaries.test.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-connector-condition.test.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-layout-resource.test.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+    "tests/runtime/page/structured-config/workflow/graph/workflow-boundaries.test.ts",
+    "tests/runtime/page/structured-config/workflow/graph/workflow-connector-condition.test.ts",
+    "tests/runtime/page/structured-config/workflow/layout/workflow-layout-resource.test.ts",
+    "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts",
     "tests/runtime/page/structured-config/workflow/workflow-native-design-scenario.test.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts",
-    "tests/runtime/page/structured-config/workflow/workflow-start-parameters.test.ts"
+    "tests/runtime/page/structured-config/workflow/graph/workflow-node-removal.test.ts",
+    "tests/runtime/page/structured-config/workflow/source/workflow-query-model-create.test.ts",
+    "tests/runtime/page/structured-config/workflow/trigger/workflow-start-parameters.test.ts"
   ],
   "behavior": [
     "same file adapter and fixed designfile/SysForm/<captured workflowId>.json",
@@ -92,7 +92,7 @@
       "sha256": "39a44b0a81bed7948891e9153f779a2ef110b705c347d84bc99d0e95f119808e"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts",
       "sha256": "2d6049cff2f4ba95efe5f155b57fe7ceae0d64aad87e9d3bcec724b499a0d486"
     },
     {
@@ -108,19 +108,19 @@
       "sha256": "01125c5d8dd7c6b90fa3cacd93d4374dddd060290bb575fbbd57083aeebfb407"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-boundaries.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/graph/workflow-boundaries.test.ts",
       "sha256": "6dfa4ce6fc29e8036c993bbe0c196a78a0afa0c1b4e2d58e263d0f5babcf3f67"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-connector-condition.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/graph/workflow-connector-condition.test.ts",
       "sha256": "b3ee583557077375422017d58671d9b053ab8923f1966aa278e1c5c25b0e08bc"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-layout-resource.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/layout/workflow-layout-resource.test.ts",
       "sha256": "eebfbc9256541bbcf4bad3431e6579c89ce094ac40eab2b48512d6dcd044e676"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts",
       "sha256": "db3420d9743b1d051df5cc34396cc7386957d7681adb123418c63c629db392fd"
     },
     {
@@ -128,15 +128,15 @@
       "sha256": "f8661a7f0f4694f03696f103702ecb260858ce11a1c650a0a0ea2e0639a9d6ba"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/graph/workflow-node-removal.test.ts",
       "sha256": "b23b916c40c83448f594a9ff8431b698f0516c7e8690fad7406f556ab3f688ba"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/source/workflow-query-model-create.test.ts",
       "sha256": "824bea2433a2e7d96e983a15c4db15688163aadf42838a90ae42c33ffb266df9"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-start-parameters.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/trigger/workflow-start-parameters.test.ts",
       "sha256": "ea288c8eef9075d6cb46ba16ea879e6b4f4483831ad9d785a945dfbcf8ffe955"
     },
     {

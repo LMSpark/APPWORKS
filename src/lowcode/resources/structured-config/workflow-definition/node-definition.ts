@@ -6,7 +6,7 @@
  */
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
-import {workflowFieldChanges,workflowQueryDraftSignature} from './query-field-context'
+import {workflowFieldChanges,workflowQueryDraftSignature} from './fields/query-field-context'
 
 /** 本次普通节点的原运行实例及正式身份。 */
 type Target=Readonly<{

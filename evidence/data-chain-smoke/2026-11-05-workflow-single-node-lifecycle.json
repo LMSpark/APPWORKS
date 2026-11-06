@@ -64,11 +64,11 @@
   "hashes": [
     {
       "sha256": "1753742E1D6C428C42C705AED942EB681775EABAFA743273299EAB56526BBB95",
-      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts"
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts"
     },
     {
       "sha256": "C528ADD23A0A2BB3A9202403F7BE4510B444D404412A8730F65AD5857B19927C",
-      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts"
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts"
     },
     {
       "sha256": "8B28F280E6C9FE34FC2B67F003B5509275D540AEC58CF196EC6F0867255745A4",
@@ -76,7 +76,7 @@
     },
     {
       "sha256": "5135D42FBAF5736B40E3FC05B1E47F06959018424B823A8AA7C7AA2E00EB19CE",
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts"
+      "path": "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts"
     },
     {
       "sha256": "3E314289930B7A66CF12966E89EAB10985614CDA366E9A9BE5997AD63A92B8EB",
@@ -100,15 +100,15 @@
     },
     {
       "sha256": "C7A551B18DEE97CE7AD3EE5D4220ACF3858D979A758A6110CB4B7521329853D9",
-      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts"
+      "path": "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts"
     },
     {
       "sha256": "5198DA3A2055D3E9DEC747EE6572C270B8A80DD3E5333BC1B0FA819351477A94",
-      "path": "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts"
+      "path": "tests/runtime/page/structured-config/workflow/graph/workflow-node-removal.test.ts"
     },
     {
       "sha256": "8FF5416DDDA4B4C54EF04E29D76373284801611C094D87A87BC238F3B69334F8",
-      "path": "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts"
+      "path": "tests/runtime/page/structured-config/workflow/source/workflow-query-model-create.test.ts"
     },
     {
       "sha256": "8112B3ED1CD74D5AD0F5369F6BFA834C71CA509D25EEB04BD200F7B336BA6157",

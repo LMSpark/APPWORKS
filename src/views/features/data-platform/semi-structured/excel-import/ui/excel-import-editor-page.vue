@@ -146,7 +146,7 @@ import ExcelReferenceDialog from './excel-import-reference-dialog.vue'
 import ExcelTransformRulesPane from './excel-import-transform-rules-pane.vue'
 
 import ExcelImportSheetLayoutPane from './excel-import-sheet-layout-pane.vue'
-import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/transform/physical-fields'
+import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
 const {PAGE_RUNTIME, RendererTree, RendererTable, RendererForm, RendererButton, RendererDialog, RendererFilterExpression, RendererTabs, RendererTabPane, FieldText, FieldNumber, FieldSelect, FieldJson, FieldCheckbox, useSparkComponent} = SparkComponent
 const props = defineProps<{schemeRowid?: string}>(), route = useRoute()
 const importConfigId = computed(() => props.schemeRowid ?? (typeof route.query['importConfigId'] === 'string' ? route.query['importConfigId'] : ''))

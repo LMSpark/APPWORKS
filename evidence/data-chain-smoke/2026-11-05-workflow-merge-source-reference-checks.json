@@ -4,15 +4,15 @@
   "scope": "Precise declared descendant-merge input references during source field structure changes",
   "sources": [
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
       "sha256": "3bfa4ed5f5736f3ef287f5a020d09a815f6866ba8c6b9f8b57cf859a941b6125"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-references.ts",
       "sha256": "f93d7bfc18770f9319d0d249961ca32ff78d65face8d020ad02525d9c5f28a6c"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/source/workflow-query-model-create.test.ts",
       "sha256": "3b5f6afcaf1f39e74a591a332326c3a0aab5f5002a7abb069a326ee6bde770d7"
     }
   ],

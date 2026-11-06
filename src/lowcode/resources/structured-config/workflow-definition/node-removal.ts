@@ -8,9 +8,9 @@ import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {DataSpaceDefinitionSave,definitionTargetDraftSignature,verifyDataSpaceDefinitionCapture,type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
 import {LowcodeDataSpaceModelRemoveReferences} from '@/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references'
-import {workflowQueryAncestors} from './query-inputs'
-import {WorkflowLayoutDocument} from './layout-document'
-import {WORKFLOW_LAYOUT_TABLE} from './layout-resource'
+import {workflowQueryAncestors} from './fields/query-inputs'
+import {WorkflowLayoutDocument} from './layout/layout-document'
+import {WORKFLOW_LAYOUT_TABLE} from './layout/layout-resource'
 
 type Input=Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;assertCurrent():void}>
 type Selection=Readonly<{view:DataView;ids:readonly string[]}>

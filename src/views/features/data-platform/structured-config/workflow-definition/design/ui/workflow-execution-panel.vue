@@ -43,8 +43,8 @@ import {buildDataViewKey,RequestState,type DataSet,type DataView,type SparkNode}
 import {WorkflowExecutionResource} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {lowcodeApi,lowcodeHttp} from '@/lowcode/lowcode-runtime'
-import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
-import {workflowExecutionInputs,type WorkflowTestInputGroup} from '@/lowcode/resources/structured-config/workflow-definition/execution-inputs'
+import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-context'
+import {workflowExecutionInputs,type WorkflowTestInputGroup} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs'
 const {RendererDialog,RendererForm,RendererButton,FieldText,FieldJson}=SparkComponent
 const props=defineProps<{
  /** 本次宿主元数据实例。 */

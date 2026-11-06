@@ -29,7 +29,7 @@
 import {computed,onBeforeUnmount,ref,watchEffect} from 'vue'
 import {buildDataViewKey,type DataSet} from '@spark-appworks/spark-data'
 import {RendererButton,RendererDialog,RendererForm,FieldText,FieldValueFunction} from '@spark-appworks/spark-component'
-import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/query-computed-fields'
+import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields'
 const props=defineProps<{dataSet:DataSet;workflowId:string;nodeId:string;revision:number;disabled:boolean;inputParameterDataViewKey:string}>()
 const emit=defineEmits<{pendingChange:[value:boolean]}>()
 const visible=ref(false),busy=ref(false),created=ref(false),fieldId=ref(''),error=ref(''),functionOpen=ref(false)

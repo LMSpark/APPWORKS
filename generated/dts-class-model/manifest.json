@@ -6374,32 +6374,6 @@
         "symbols": []
       }
     },
-    "packages/spark-component/src/components/fields/context/field-row-scope.ts": {
-      "file": "files/packages/spark-component/src/components/fields/context/field-row-scope.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-component:components/fields/context/field-row-scope",
-        "sourcePath": "packages/spark-component/src/components/fields/context/field-row-scope.ts",
-        "sourceFile": "packages/spark-component/src/components/fields/context/field-row-scope.ts",
-        "packageName": "@spark-appworks/spark-component",
-        "modulePath": "components/fields/context/field-row-scope",
-        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/field-row-scope\n职责：解析标准字段绑定与其父数据容器提供的行作用域。\n边界：只有 DataView 身份相同时才把容器行用于显式字段绑定，不查询、不授权、不写入。\nAI用途：需要理解显式 DataViewKey 与列表/表格行上下文如何相交时，从本模块核实身份判定。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "packages/spark-component/src/components/fields/context/fieldRowContext.ts": {
-      "file": "files/packages/spark-component/src/components/fields/context/fieldRowContext.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-component:components/fields/context/fieldRowContext",
-        "sourcePath": "packages/spark-component/src/components/fields/context/fieldRowContext.ts",
-        "sourceFile": "packages/spark-component/src/components/fields/context/fieldRowContext.ts",
-        "packageName": "@spark-appworks/spark-component",
-        "modulePath": "components/fields/context/fieldRowContext",
-        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/fieldRowContext\n职责：传递标准字段的原视图与原行身份，不携带表格呈现语义。\n边界：仅定位同一DataView中的原对象，不查询、复制草稿或修改行指针。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
     "packages/spark-component/src/components/fields/context/json/json-field-path.ts": {
       "file": "files/packages/spark-component/src/components/fields/context/json/json-field-path.ts.json",
       "module": {
@@ -6412,6 +6386,47 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "JsonFieldPath"
+        ]
+      }
+    },
+    "packages/spark-component/src/components/fields/context/row/field-row-scope.ts": {
+      "file": "files/packages/spark-component/src/components/fields/context/row/field-row-scope.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/context/row/field-row-scope",
+        "sourcePath": "packages/spark-component/src/components/fields/context/row/field-row-scope.ts",
+        "sourceFile": "packages/spark-component/src/components/fields/context/row/field-row-scope.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/context/row/field-row-scope",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/row/field-row-scope\n职责：解析标准字段绑定与其父数据容器提供的行作用域。\n边界：只有 DataView 身份相同时才把容器行用于显式字段绑定，不查询、不授权、不写入。\nAI用途：需要理解显式 DataViewKey 与列表/表格行上下文如何相交时，从本模块核实身份判定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "packages/spark-component/src/components/fields/context/row/fieldRowContext.ts": {
+      "file": "files/packages/spark-component/src/components/fields/context/row/fieldRowContext.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/context/row/fieldRowContext",
+        "sourcePath": "packages/spark-component/src/components/fields/context/row/fieldRowContext.ts",
+        "sourceFile": "packages/spark-component/src/components/fields/context/row/fieldRowContext.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/context/row/fieldRowContext",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/row/fieldRowContext\n职责：传递标准字段的原视图与原行身份，不携带表格呈现语义。\n边界：仅定位同一DataView中的原对象，不查询、复制草稿或修改行指针。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts": {
+      "file": "files/packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/fields/context/row/useActiveFieldRow",
+        "sourcePath": "packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts",
+        "sourceFile": "packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/fields/context/row/useActiveFieldRow",
+        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/row/useActiveFieldRow\n职责：解析字段值绑定，保持视图、数据成员、行指针和编辑覆盖一致。\n边界：复用PageRuntime和DataView，不查询、不保存，不以父上下文替代失效的显式绑定。\nAI用途：标准字段取值、权限及选项级联共用此上下文。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "FieldValueBindingProps"
         ]
       }
     },
@@ -6439,21 +6454,6 @@
         "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/tableColumnContext\n职责：维护 @spark-appworks/spark-component 中 components/fields/context/tableColumnContext 的模块能力，围绕 模块入口、副作用注册或内部组合逻辑 提供稳定的公开契约。\n边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。\nAI用途：需要定位 components/fields/context/tableColumnContext 的声明、导出和使用边界时，从本模块开始。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
-      }
-    },
-    "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts": {
-      "file": "files/packages/spark-component/src/components/fields/context/useActiveFieldRow.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-component:components/fields/context/useActiveFieldRow",
-        "sourcePath": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
-        "sourceFile": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
-        "packageName": "@spark-appworks/spark-component",
-        "modulePath": "components/fields/context/useActiveFieldRow",
-        "jsdoc": "@module @spark-appworks/spark-component:components/fields/context/useActiveFieldRow\n职责：解析字段值绑定，保持视图、数据成员、行指针和编辑覆盖一致。\n边界：复用PageRuntime和DataView，不查询、不保存，不以父上下文替代失效的显式绑定。\nAI用途：标准字段取值、权限及选项级联共用此上下文。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "FieldValueBindingProps"
-        ]
       }
     },
     "packages/spark-component/src/components/fields/context/useFieldContext.ts": {
@@ -9370,21 +9370,6 @@
         ]
       }
     },
-    "packages/spark-data/src/query/data-view-filter-lookup.ts": {
-      "file": "files/packages/spark-data/src/query/data-view-filter-lookup.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-data:query/data-view-filter-lookup",
-        "sourcePath": "packages/spark-data/src/query/data-view-filter-lookup.ts",
-        "sourceFile": "packages/spark-data/src/query/data-view-filter-lookup.ts",
-        "packageName": "@spark-appworks/spark-data",
-        "modulePath": "query/data-view-filter-lookup",
-        "jsdoc": "@module @spark-appworks/spark-data:query/data-view-filter-lookup\n职责：按视图配置将文本筛选转换为辅助视图的正式值集合过滤。\n边界：复用queryOptionRows的完整查询与权限，不持有缓存、选中集合或HTTP入口。\nAI用途：姓名等辅助字段筛选配置在queryConfig.filterLookups，页面只消费标准过滤API。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "DataViewFilterLookup"
-        ]
-      }
-    },
     "packages/spark-data/src/query/data-view-local-query.ts": {
       "file": "files/packages/spark-data/src/query/data-view-local-query.ts.json",
       "module": {
@@ -9579,6 +9564,21 @@
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "DataViewFilterLocal"
+        ]
+      }
+    },
+    "packages/spark-data/src/query/filter/data-view-filter-lookup.ts": {
+      "file": "files/packages/spark-data/src/query/filter/data-view-filter-lookup.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-data:query/filter/data-view-filter-lookup",
+        "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-lookup.ts",
+        "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-lookup.ts",
+        "packageName": "@spark-appworks/spark-data",
+        "modulePath": "query/filter/data-view-filter-lookup",
+        "jsdoc": "@module @spark-appworks/spark-data:query/filter/data-view-filter-lookup\n职责：按视图配置将文本筛选转换为辅助视图的正式值集合过滤。\n边界：复用queryOptionRows的完整查询与权限，不持有缓存、选中集合或HTTP入口。\nAI用途：姓名等辅助字段筛选配置在queryConfig.filterLookups，页面只消费标准过滤API。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "DataViewFilterLookup"
         ]
       }
     },
@@ -14022,6 +14022,52 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/metadata/physical-fields",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/metadata/physical-fields",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/metadata/physical-fields\n职责：排序与版式共用原命名DataView的物理字段目录与读取代次。\n边界：显式节点身份，各目录独立绑定；不缓存字段数组、不保存、不建立查询owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelPhysicalFieldOwner",
+          "ExcelPhysicalFieldDirectory"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/metadata/physical-source.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/physical-source.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/metadata/physical-source",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-source.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-source.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/metadata/physical-source",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/metadata/physical-source\n职责：按Excel节点的正式应用和物理路径定位唯一元数据对象。\n边界：只查询原DataSet的独立视图，不改变选择器、业务数据或保存入口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelPhysicalObjectInput"
+        ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/metadata/queries",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/metadata/queries",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/metadata/queries\n职责：通过原DataSet的独立查询视图读取转换校验所需正式元数据。\n边界：不保存、不更改浏览视图，不读取来源业务行；每次完整回读后释放临时视图。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "ExcelTransformQuery"
+        ]
+      }
+    },
     "src/lowcode/resources/semi-structured/excel-import/resource.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/resource.ts.json",
       "module": {
@@ -14144,37 +14190,6 @@
         ]
       }
     },
-    "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts": {
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/semi-structured/excel-import/transform/physical-fields",
-        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
-        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/physical-fields",
-        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/physical-fields\n职责：排序与版式共用原命名DataView的物理字段目录与读取代次。\n边界：显式节点身份，各目录独立绑定；不缓存字段数组、不保存、不建立查询owner。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ExcelPhysicalFieldOwner",
-          "ExcelPhysicalFieldDirectory"
-        ]
-      }
-    },
-    "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts": {
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/semi-structured/excel-import/transform/physical-source",
-        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
-        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/physical-source",
-        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/physical-source\n职责：按Excel节点的正式应用和物理路径定位唯一元数据对象。\n边界：只查询原DataSet的独立视图，不改变选择器、业务数据或保存入口。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ExcelPhysicalObjectInput"
-        ]
-      }
-    },
     "src/lowcode/resources/semi-structured/excel-import/transform/pipeline.ts": {
       "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/pipeline.ts.json",
       "module": {
@@ -14188,21 +14203,6 @@
         "symbols": [
           "ExcelTransformReferenceFields",
           "ExcelTransformReferenceTransition"
-        ]
-      }
-    },
-    "src/lowcode/resources/semi-structured/excel-import/transform/queries.ts": {
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/queries.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/semi-structured/excel-import/transform/queries",
-        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/queries.ts",
-        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/queries.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/semi-structured/excel-import/transform/queries",
-        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/transform/queries\n职责：通过原DataSet的独立查询视图读取转换校验所需正式元数据。\n边界：不保存、不更改浏览视图，不读取来源业务行；每次完整回读后释放临时视图。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "ExcelTransformQuery"
         ]
       }
     },
@@ -14628,19 +14628,6 @@
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/copy-target.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/copy-target",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/copy-target",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/copy-target\n职责：核验迁移目标的正式物理表身份，将目标配置暂存到原节点DataView。\n边界：不保存、不执行业务迁移、不建立第二份可编辑配置；保留目标之外的原配置。\nAI用途：迁移节点选择物理目标或执行预检时复用同一配置解析与正式来源核验。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
     "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts.json",
       "module": {
@@ -14656,30 +14643,30 @@
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/execution-context",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/execution/execution-context",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/execution-context",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution-context\n职责：执行命令按需读取正式连线条件，捕获可达节点和可证明必经的结果。\n边界：原DataView持有定义，不执行条件、不假设条件分支都命中，不参与普通保存。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/execution/execution-context",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution/execution-context\n职责：执行命令按需读取正式连线条件，捕获可达节点和可证明必经的结果。\n边界：原DataView持有定义，不执行条件、不假设条件分支都命中，不参与普通保存。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "WorkflowExecutionContext"
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/execution-inputs",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/execution/execution-inputs",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/execution-inputs",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution-inputs\n职责：从正式开始声明及已核定祖先输出生成测试输入的字段描述和初始参数。\n边界：只读本次DataView，不查询、编辑、求值或执行；初始参数直接交原命令视图持有。\nAI用途：运行测试窗口按原节点ID及实际字段名称绑定input，不把多个声明拆成多条业务行。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/execution/execution-inputs",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution/execution-inputs\n职责：从正式开始声明及已核定祖先输出生成测试输入的字段描述和初始参数。\n边界：只读本次DataView，不查询、编辑、求值或执行；初始参数直接交原命令视图持有。\nAI用途：运行测试窗口按原节点ID及实际字段名称绑定input，不把多个声明拆成多条业务行。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "WorkflowTestField",
@@ -14688,47 +14675,130 @@
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout-document.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/layout-document",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/merge-inputs",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/layout-document",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/layout-document\n职责：投影与更新工作流布局文件的坐标，保留未修改的原生图快照成员。\n边界：文件中的节点属性和边端点不作为数据库业务真源；不读写视图或文件。\nAI用途：从DataView当前content派生图坐标，移动后把新文本写回同一content字段。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/merge-inputs",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/merge-inputs\n职责：原合并输入的范围核对、连接目录、来源增删及输出配置生成命令。\n边界：只读正式图，仅写原DataView的input_mapping/output_mapping；不查询、保存、推导源身份或执行连接。\nAI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowMergeSourceOptions"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/fields/operation-fields.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/operation-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/operation-fields",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/operation-fields.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/operation-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/operation-fields",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/operation-fields\n职责：操作目标的输入值和条件沿原DataView编辑、取消并由DataSet按修改范围提交。\n边界：不执行CRUD、不推导未核定输出，不改字段结构或共享模型归属。\nAI用途：操作字段工作区沿原绑定视图调用保存或取消，不另设运行数据入口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields\n职责：工作流计算字段只暂存到原DataView。\n边界：保存、取消与输出同步交同一查询字段命令，不执行函数或另建草稿。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowComputedFields"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-context.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-field-context.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/query-field-context",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-context.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-context.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/query-field-context",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/query-field-context\n职责：查询字段命令共用原视图及目标身份。\n边界：不复制行、权限或编辑状态；仅字段视图计入原生待新增/删除数量。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-references.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-field-references.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/query-field-references",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-references.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-references.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/query-field-references",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/query-field-references\n职责：显式字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。\n边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。\nAI用途：源字段结构变化时复用正式依赖查询与首轮守卫，核对合并字段及连接引用。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/fields/query-fields.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-fields.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/query-fields",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-fields.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/query-fields.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/query-fields",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/query-fields\n职责：查询字段显示与输出配置和引用同一模型的节点输出目录沿原DataSet同步提交。\n边界：不持有草稿、不查询全空间、不执行流程；尚未核定的下游输出引用明确阻断结构变更。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/fields/query-inputs",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/query-inputs",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/query-inputs\n职责：按当前工作流正式连线定位祖先，提供已核定开始参数、查询叶字段及模型过滤字段。\n边界：只读原DataView及其权限；不猜测items路径，不执行值函数，不修改定义。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowQueryModelProjection",
+          "WorkflowQueryInputs"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/layout/layout-document",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/layout/layout-document",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/layout/layout-document\n职责：投影与更新工作流布局文件的坐标，保留未修改的原生图快照成员。\n边界：文件中的节点属性和边端点不作为数据库业务真源；不读写视图或文件。\nAI用途：从DataView当前content派生图坐标，移动后把新文本写回同一content字段。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "WorkflowLayoutDocument"
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/layout-resource",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/layout/layout-resource",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/layout-resource",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/layout-resource\n职责：将独立工作流布局文件接入公共SPARK data文件资源链。\n边界：固定SysForm及本次workflowId，不保存数据库节点、连线或模型；不吞权限/协议错误。\nAI用途：配置WorkflowLayout命名视图，输入workflowId，经DataSet提交布局文本。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/layout/layout-resource",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/layout/layout-resource\n职责：将独立工作流布局文件接入公共SPARK data文件资源链。\n边界：固定SysForm及本次workflowId，不保存数据库节点、连线或模型；不吞权限/协议错误。\nAI用途：配置WorkflowLayout命名视图，输入workflowId，经DataSet提交布局文本。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/merge-inputs",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/merge-inputs",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/merge-inputs\n职责：原合并输入的范围核对、连接目录、来源增删及输出配置生成命令。\n边界：只读正式图，仅写原DataView的input_mapping/output_mapping；不查询、保存、推导源身份或执行连接。\nAI用途：以标准组件绑定原JSON、只读候选视图及父链字段目录，不复制业务草稿。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "WorkflowMergeSourceOptions"
-        ]
       }
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts": {
@@ -14746,19 +14816,6 @@
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/node-output-references",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/node-output-references",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/node-output-references\n职责：无独立模型的节点输出结构变更按正式工作流定义核查引用。\n边界：仅显式结构命令使用，不伪造模型身份、不执行节点、不修改引用。\nAI用途：生成输出前读取真实元数据依赖，保持调用方首轮合同并释放自有查询。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json",
       "module": {
@@ -14774,213 +14831,82 @@
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/operation-fields",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/output/node-output-references",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-fields",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-fields\n职责：操作目标的输入值和条件沿原DataView编辑、取消并由DataSet按修改范围提交。\n边界：不执行CRUD、不推导未核定输出，不改字段结构或共享模型归属。\nAI用途：操作字段工作区沿原绑定视图调用保存或取消，不另设运行数据入口。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/output/node-output-references",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/node-output-references\n职责：无独立模型的节点输出结构变更按正式工作流定义核查引用。\n边界：仅显式结构命令使用，不伪造模型身份、不执行节点、不修改引用。\nAI用途：生成输出前读取真实元数据依赖，保持调用方首轮合同并释放自有查询。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/operation-output-edit.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/operation-output-edit.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/output/operation-output-edit.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output/operation-output-edit.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/operation-output-edit",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-output-edit.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-output-edit.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output-edit",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output-edit.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output-edit.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-output-edit",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-output-edit\n职责：显式生成操作输出到原节点编辑域，保存前重核首轮目标及真实来源。\n边界：不保存、不持有可编辑副本；不可变签名只防止刷新或换源后覆盖旧生成意图。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/output/operation-output-edit",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/operation-output-edit\n职责：显式生成操作输出到原节点编辑域，保存前重核首轮目标及真实来源。\n边界：不保存、不持有可编辑副本；不可变签名只防止刷新或换源后覆盖旧生成意图。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/operation-output-source.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/operation-output-source.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/output/operation-output-source.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output/operation-output-source.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/operation-output-source",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-output-source.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-output-source.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output-source",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output-source.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output-source.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-output-source",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-output-source\n职责：显式操作输出命令按正式SQL身份重读物理列，复用唯一纯投影。\n边界：只查询来源元数据，不查询业务行，不缓存、保存或重置调用方首轮合同。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/output/operation-output-source",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/operation-output-source\n职责：显式操作输出命令按正式SQL身份重读物理列，复用唯一纯投影。\n边界：只查询来源元数据，不查询业务行，不缓存、保存或重置调用方首轮合同。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/operation-output.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/operation-output.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/operation-output",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-output.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-output.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/output/operation-output",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/operation-output.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-output",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-output\n职责：按正式SQL目标字段与物理来源核定操作节点的平面输出目录。\n边界：纯定义投影，不执行节点、不分配字段身份、不保存或改动输入字段用途。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/output/operation-output",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/operation-output\n职责：按正式SQL目标字段与物理来源核定操作节点的平面输出目录。\n边界：纯定义投影，不执行节点、不分配字段身份、不保存或改动输入字段用途。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output-fields.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/output/output-fields.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output/output-fields.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/output-fields",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output-fields.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/output/output-fields",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/output-fields.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/output-fields.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/output-fields",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output-fields\n职责：按已验证的开始参数、查询叶及SQL操作平面目录解析实际输出字段。\n边界：纯结构投影，不读写视图、不求值、不把合成items/Count映射为实际行字段。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/output/output-fields",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/output-fields\n职责：按已验证的开始参数、查询叶及SQL操作平面目录解析实际输出字段。\n边界：纯结构投影，不读写视图、不求值、不把合成items/Count映射为实际行字段。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-computed-fields",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/output/query-output",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/query-output.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-computed-fields",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-computed-fields\n职责：工作流计算字段只暂存到原DataView。\n边界：保存、取消与输出同步交同一查询字段命令，不执行函数或另建草稿。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "WorkflowComputedFields"
-        ]
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-field-context",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-field-context",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-context\n职责：查询字段命令共用原视图及目标身份。\n边界：不复制行、权限或编辑状态；仅字段视图计入原生待新增/删除数量。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-field-references",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-field-references",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-field-references\n职责：显式字段结构命令按当前工作流读取正式依赖，拒绝尚有引用的变更。\n边界：不改写引用、不执行表达式，不为普通保存加载全空间；常量内部不是引用。\nAI用途：源字段结构变化时复用正式依赖查询与首轮守卫，核对合并字段及连接引用。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-fields.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-fields",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-fields",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-fields\n职责：查询字段显示与输出配置和引用同一模型的节点输出目录沿原DataSet同步提交。\n边界：不持有草稿、不查询全空间、不执行流程；尚未核定的下游输出引用明确阻断结构变更。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-inputs",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-inputs",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-inputs\n职责：按当前工作流正式连线定位祖先，提供已核定开始参数、查询叶字段及模型过滤字段。\n边界：只读原DataView及其权限；不猜测items路径，不执行值函数，不修改定义。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "WorkflowQueryModelProjection",
-          "WorkflowQueryInputs"
-        ]
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-model-create",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-model-create",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-model-create\n职责：在当前工作流元数据实例内复用原模型新增命令，明确查询模型的归属和requestType。\n边界：不复制来源、字段、权限或保存逻辑；不创建节点、不执行流程。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "WorkflowDataOperation"
-        ]
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-node-create",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-node-create",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-node-create\n职责：为已存在的普通空节点首次绑定来源或操作目标，保留模型与节点分别确认的身份。\n边界：复用原模型owner和DataSet保存核验，不创建第二节点，不执行流程或自动删除已确认模型。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": [
-          "WorkflowNodeModelBinding"
-        ]
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-output.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-output.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-output",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-output",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-output\n职责：从当前查询模型字段派生节点输出目录，新建与编辑共用同一结构与身份规则。\n边界：只做领域投影，不查询、保存或推导权限；调用方先沿原DataView核对可读字段及完整范围。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/output/query-output",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/query-output\n职责：从当前查询模型字段派生节点输出目录，新建与编辑共用同一结构与身份规则。\n边界：只做领域投影，不查询、保存或推导权限；调用方先沿原DataView核对可读字段及完整范围。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-source-edit",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-source-edit",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-source-edit\n职责：组合原模型fork、来源替换与节点收口owner，逐阶段确认当前查询节点来源。\n边界：正式草稿与捕获仍归各原DataView；不伪造来源、权限、事务或失败回滚。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "WorkflowModelSourceEdit"
-        ]
-      }
-    },
-    "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json",
-      "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/query-source-node-commit",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
-        "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/query-source-node-commit",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/query-source-node-commit\n职责：来源正式确认后，沿原节点DataView收口改绑与输出身份，保留原批次核验。\n边界：不保存模型或字段、不重做fork；新输出只取独立正式字段，未知结果不自动重放。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": [
-          "WorkflowConfirmedSource",
-          "WorkflowModelSourceNodeCommit"
-        ]
       }
     },
     "src/lowcode/resources/structured-config/workflow-definition/resource.ts": {
@@ -14998,43 +14924,117 @@
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/source/copy-target.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/copy-target.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/start-parameters",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/source/copy-target",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/copy-target.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/copy-target.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/start-parameters",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/start-parameters\n职责：保留开始参数元数据，校验参数身份并派生开始输出；提交原DataSet中的两份正式记录。\n边界：不查询、不持有草稿、不推导权限、不重放未知提交，也不执行工作流。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/source/copy-target",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/copy-target\n职责：核验迁移目标的正式物理表身份，将目标配置暂存到原节点DataView。\n边界：不保存、不执行业务迁移、不建立第二份可编辑配置；保留目标之外的原配置。\nAI用途：迁移节点选择物理目标或执行预检时复用同一配置解析与正式来源核验。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/trigger-condition",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-model-create",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger-condition",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger-condition\n职责：按定义原编辑视图的触发表身份读取字段元数据，供标准条件编辑器消费。\n边界：不编辑条件、不保存、不执行过滤；不把目录记录变成第二份字段真源。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-model-create",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-model-create\n职责：在当前工作流元数据实例内复用原模型新增命令，明确查询模型的归属和requestType。\n边界：不复制来源、字段、权限或保存逻辑；不创建节点、不执行流程。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowDataOperation"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-node-create",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-node-create",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-node-create\n职责：为已存在的普通空节点首次绑定来源或操作目标，保留模型与节点分别确认的身份。\n边界：复用原模型owner和DataSet保存核验，不创建第二节点，不执行流程或自动删除已确认模型。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "WorkflowNodeModelBinding"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-source-edit",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-source-edit",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-source-edit\n职责：组合原模型fork、来源替换与节点收口owner，逐阶段确认当前查询节点来源。\n边界：正式草稿与捕获仍归各原DataView；不伪造来源、权限、事务或失败回滚。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowModelSourceEdit"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit\n职责：来源正式确认后，沿原节点DataView收口改绑与输出身份，保留原批次核验。\n边界：不保存模型或字段、不重做fork；新输出只取独立正式字段，未知结果不自动重放。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowConfirmedSource",
+          "WorkflowModelSourceNodeCommit"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/trigger/start-parameters.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger/start-parameters.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/trigger/start-parameters",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger/start-parameters.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger/start-parameters.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger/start-parameters",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger/start-parameters\n职责：保留开始参数元数据，校验参数身份并派生开始输出；提交原DataSet中的两份正式记录。\n边界：不查询、不持有草稿、不推导权限、不重放未知提交，也不执行工作流。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition\n职责：按定义原编辑视图的触发表身份读取字段元数据，供标准条件编辑器消费。\n边界：不编辑条件、不保存、不执行过滤；不把目录记录变成第二份字段真源。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "WorkflowTriggerCondition"
         ]
       }
     },
-    "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts": {
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts.json",
+    "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts.json",
       "module": {
-        "name": "app:lowcode/resources/structured-config/workflow-definition/trigger-selection",
-        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
-        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
+        "name": "app:lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger-selection",
-        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger-selection\n职责：确认当前数据库及表选择，原子写回定义编辑视图并清除旧条件。\n边界：只消费原DataView身份、权限和检查点；不查询、不持草稿、不保存或触发流程。",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection\n职责：确认当前数据库及表选择，原子写回定义编辑视图并清除旧条件。\n边界：只消费原DataView身份、权限和检查点；不查询、不持草稿、不保存或触发流程。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -20045,8 +20045,8 @@
       "file": "files/packages/spark-data/src/query/filter/data-view-filter-local.ts.json"
     },
     "DataViewFilterLookup": {
-      "sourcePath": "packages/spark-data/src/query/data-view-filter-lookup.ts",
-      "file": "files/packages/spark-data/src/query/data-view-filter-lookup.ts.json"
+      "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-lookup.ts",
+      "file": "files/packages/spark-data/src/query/filter/data-view-filter-lookup.ts.json"
     },
     "DataViewFilterLookupConfig": {
       "sourcePath": "packages/spark-data/src/types.ts",
@@ -20561,16 +20561,16 @@
       "file": "files/src/lowcode/resources/semi-structured/excel-import/layout/references.ts.json"
     },
     "ExcelPhysicalFieldDirectory": {
-      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts.json"
     },
     "ExcelPhysicalFieldOwner": {
-      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts",
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-fields.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/physical-fields.ts.json"
     },
     "ExcelPhysicalObjectInput": {
-      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts",
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/physical-source.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/physical-source.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/physical-source.ts.json"
     },
     "ExcelSingleExportLayout": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/layout/definition.ts",
@@ -20617,8 +20617,8 @@
       "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/forms.ts.json"
     },
     "ExcelTransformQuery": {
-      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/queries.ts",
-      "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/queries.ts.json"
+      "sourcePath": "src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts",
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts.json"
     },
     "ExcelTransformReferenceFields": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/pipeline.ts",
@@ -20769,8 +20769,8 @@
       "file": "files/packages/spark-component/src/components/fields/options/useFieldOptions.ts.json"
     },
     "FieldValueBindingProps": {
-      "sourcePath": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
-      "file": "files/packages/spark-component/src/components/fields/context/useActiveFieldRow.ts.json"
+      "sourcePath": "packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts",
+      "file": "files/packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts.json"
     },
     "FieldValueScope": {
       "sourcePath": "src/lowcode/data-space/model-source/field/lowcode-data-space-field-value.ts",
@@ -24257,12 +24257,12 @@
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/boundaries.ts.json"
     },
     "WorkflowComputedFields": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts.json"
     },
     "WorkflowConfirmedSource": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts.json"
     },
     "WorkflowConnectorCondition": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
@@ -24277,8 +24277,8 @@
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowDataOperation": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts.json"
     },
     "WorkflowDefinitionReadResult": {
       "sourcePath": "src/services/workflow-designs.ts",
@@ -24401,8 +24401,8 @@
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowExecutionContext": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts.json"
     },
     "WorkflowExecutionGraph": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
@@ -24429,32 +24429,32 @@
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowLayoutDocument": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout-document.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts.json"
     },
     "WorkflowLineRuntimeStatus": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowMergeSourceOptions": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts.json"
     },
     "WorkflowMetadataRow": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowModelSourceEdit": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts.json"
     },
     "WorkflowModelSourceNodeCommit": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts.json"
     },
     "WorkflowNodeModelBinding": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts.json"
     },
     "WorkflowNodeOriginal": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts",
@@ -24465,32 +24465,32 @@
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json"
     },
     "WorkflowQueryInputs": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts.json"
     },
     "WorkflowQueryModelProjection": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts.json"
     },
     "WorkflowRuntimeBinding": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
       "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowTestField": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json"
     },
     "WorkflowTestInputGroup": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json"
     },
     "WorkflowTestInputPresentation": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json"
     },
     "WorkflowTriggerCondition": {
-      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts",
-      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger-condition.ts.json"
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts.json"
     },
     "WorkflowVariableEditorRow": {
       "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",

@@ -43,7 +43,7 @@ import * as Components from '@spark-appworks/spark-component'
 import type {RJsonProps} from '@spark-appworks/spark-component'
 import {createSingleExportLayout,readSingleExportLayout,validateSingleExportLayout} from '@/lowcode/resources/semi-structured/excel-import/layout/definition'
 import {excelLayoutTableKey} from '@/lowcode/resources/semi-structured/excel-import/layout/routes'
-import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/transform/physical-fields'
+import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
 const {PAGE_RUNTIME,RendererButton,RendererTable,RendererForm,FieldJson,useSparkComponent}=Components
 type JsonArrayRowAdapter=NonNullable<RJsonProps['rowAdapter']>
 const props=withDefaults(defineProps<{dataViewKey:string;disabled?:boolean;beforeChange?:(value:unknown,previous:unknown,control:{cancel:boolean})=>void}>(),{disabled:false})

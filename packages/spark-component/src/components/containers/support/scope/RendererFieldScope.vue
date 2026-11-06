@@ -48,7 +48,7 @@ import { DATA_ROW, DATA_SOURCE, SparkComponentRenderer, useSparkComponent, useSp
 import { isDataRow, nodeId, type DataRow, type SparkNode } from '@spark-appworks/spark-data'
 import { useContainerGrid } from '../../runtime/container-layout'
 import { resolveDataViewRow, syncReactiveRow } from './row-mirror-sync'
-import {FIELD_ROW_CONTEXT} from '../../../fields/context/fieldRowContext'
+import {FIELD_ROW_CONTEXT} from '../../../fields/context/row/fieldRowContext'
 
 /** r-field-scope 字段宿主容器属性，负责提供行上下文和表单布局。 */
 type RendererFieldScopeProps = {

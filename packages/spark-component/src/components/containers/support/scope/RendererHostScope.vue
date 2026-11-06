@@ -29,7 +29,7 @@ import {
   useSparkConsume,
 } from '../../../internal'
 import { resolveDataViewRow, resolveReactiveRow, syncReactiveRow } from './row-mirror-sync'
-import {FIELD_ROW_CONTEXT} from '../../../fields/context/fieldRowContext'
+import {FIELD_ROW_CONTEXT} from '../../../fields/context/row/fieldRowContext'
 
 const props = withDefaults(defineProps<{
   type?: string

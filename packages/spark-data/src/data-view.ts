@@ -33,7 +33,7 @@ import {DataViewParentResult} from './query/data-view-parent-result'
 import { DataViewQuery } from './query/data-view-query'
 import {DataViewSource, type DataViewSourceAdapter, type DataViewSourceSnapshot, type DataViewSourceAdoptOptions,
   type DataViewSourceVersion, type DataViewSourceHistoryStatus, type DataViewSourceWriteAttemptStatus} from './query/data-view-source'
-import {DataViewFilterLookup} from './query/data-view-filter-lookup'
+import {DataViewFilterLookup} from './query/filter/data-view-filter-lookup'
 import { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 import { DataViewFilterLocal } from './query/filter/data-view-filter-local'
 import type { DataViewFilterTree } from './query/filter/data-view-filter-contract'

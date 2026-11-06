@@ -5,7 +5,7 @@
  */
 import * as SparkData from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {workflowOutputFields} from './output-fields'
+import {workflowOutputFields} from './output/output-fields'
 
 const table='Base_DataModel_Relation',viewId='connector'
 const allowedOperators:readonly SparkData.DataViewFilterOperator[]=['eq','ne','gt','lt']

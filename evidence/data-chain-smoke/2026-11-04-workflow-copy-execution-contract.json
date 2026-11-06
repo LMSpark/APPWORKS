@@ -7,9 +7,9 @@
   "nativeChain": "PageRuntime -> metadata DataSet/DataView -> WorkflowExecutionResource command DataView; observer models through original model-create handle",
   "productSourceChanged": false,
   "sourceHashes": {
-    "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": "6f8dd0073ac4fa470342064b99c17b87fcec0cadb1d5b1bf563db6462b4ea943",
-    "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts": "246ffa85162f60ba5092493a7d492d88b42ff0ea937cf1251111f9bebfbe4e81",
-    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": "465194898b846c57cdddf909420577b36c851b5772427581ae04f72bdd9bd848",
+    "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts": "6f8dd0073ac4fa470342064b99c17b87fcec0cadb1d5b1bf563db6462b4ea943",
+    "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts": "246ffa85162f60ba5092493a7d492d88b42ff0ea937cf1251111f9bebfbe4e81",
+    "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts": "465194898b846c57cdddf909420577b36c851b5772427581ae04f72bdd9bd848",
     "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts": "76a21e873acb9621d3ea2f8c592506ad92d382f709a5a86a7ecb727d25081059"
   },
   "contract": {

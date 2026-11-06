@@ -8,7 +8,7 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {assertExcelTransformReferenceTransition} from './pipeline'
-import {readExcelTransformRows} from './queries'
+import {readExcelTransformRows} from '../metadata/queries'
 import {readExcelTransformExportFields} from './export-fields'
 import {excelTransformEnumValue} from './definition'
 const fields=['scheme_id','config_id','rule_type','source_field','target_field','sort_order','enabled','condition_json','config_json','on_error']

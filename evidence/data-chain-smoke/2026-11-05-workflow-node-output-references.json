@@ -42,23 +42,23 @@
       "sha256": "AA30FA809D50344DF3A8FEA3E01789262632980AD65DC5E3A61A113AA339C5C6"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/node-output-references.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts",
       "sha256": "9BD15F4FC2FA0860B66F4E359CFC28DF3362BC2184911F8AAC1DACB84249AA00"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-references.ts",
       "sha256": "009824471834288BA6A431B2772D1E94E5978ED79057938E7B1141AF0B8B2F89"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
       "sha256": "0B39008D5E710C3FF8661F686B0733E2C53A52E99AD6D732DEDA0C57FAE7481C"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-node-output-references.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/output/workflow-node-output-references.test.ts",
       "sha256": "B743DA236F380A865FEF61176D7FBE6EF920DCFAA0A050675B6675D0DDF0B9A3"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts",
       "sha256": "3605C43EAF402BA3E9AD00BFC103FAA6BFB0140A44FD48996B1DB8AFF0DCD0FD"
     },
     {

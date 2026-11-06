@@ -221,19 +221,19 @@
       "sha256": "431d1bd79a7fed651eb1789ce25a8805a8c79ae016de99bff604b2fbfdd820ba"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/start-parameters.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/trigger/start-parameters.ts",
       "sha256": "7a04ff9dba4a617d5e02235043270733840fc7e7f96e86bf47c60ce3aea2666b"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-node-create.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts",
       "sha256": "5135d42fbaf5736b40e3fc05b1e47f06959018424b823a8aa7c7aa2e00eb19ce"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/query-fields.ts",
       "sha256": "6237711f7267d5e9e66b6d8491bd95f8cb5900c7a753f342e1b54824c4e7ae51"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts",
       "sha256": "23b77f46644c64df7377543372cac2175b83e36a672507a2746c419fd75bda4e"
     },
     {
@@ -241,15 +241,15 @@
       "sha256": "acafc875f22e6e31d97d712202996da826c4e5cecad5abfb255b3a9513fbeaf2"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/trigger-selection.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts",
       "sha256": "ffafddc8aedc3b27d63bce08316b47b78d9eed5262c007fc4f276f9f2be31490"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
       "sha256": "1753742e1d6c428c42c705aed942eb681775eabafa743273299eab56526bbb95"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
       "sha256": "8f1f2452cea9cb5c559de4fe21cc001f4ae917c02518b87a2b9a4e254fd33031"
     },
     {

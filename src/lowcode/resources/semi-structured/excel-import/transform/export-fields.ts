@@ -8,8 +8,8 @@ import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {excelTransformEnumValue} from './definition'
-import {readExcelTransformRows} from './queries'
-import {resolveExcelPhysicalObject} from './physical-source'
+import {readExcelTransformRows} from '../metadata/queries'
+import {resolveExcelPhysicalObject} from '../metadata/physical-source'
 /** 原运行实例及当前节点的精确导出来源。 */
 export type ExcelTransformExportSource=Readonly<{
  /** 原设计DataSet，不另装配同空间。 */

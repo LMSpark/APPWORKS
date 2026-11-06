@@ -11,7 +11,7 @@ AI用途：r-json dataMember=rows的内部呈现，沿统一绑定处理视图�
 </template>
 <script setup lang="ts">
 import {computed} from 'vue'
-import {useActiveFieldRow} from '../../../context/useActiveFieldRow'
+import {useActiveFieldRow} from '../../../context/row/useActiveFieldRow'
 import SparkJsonEditor from '../../../../editors/SparkJsonEditor.vue'
 import JsonTreeEditor from '../../../../editors/JsonTreeEditor.vue'
 import type {RJsonProps} from './FieldJson.props'

@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/fields/query-computed-fields\n职责：工作流计算字段只暂存到原DataView。\n边界：保存、取消与输出同步交同一查询字段命令，不执行函数或另建草稿。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowComputedFields"
+    ]
+  },
+  "$defs": {
+    "Values": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Values",
+      "properties": {
+        "Name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "ValueFun": {
+          "type": "string"
+        },
+        "IsOutput": {
+          "enum": [
+            0,
+            1
+          ]
+        }
+      },
+      "required": [
+        "Name",
+        "description",
+        "ValueFun"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowComputedFields": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowComputedFields",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.remove.params": {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "workflowId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "fieldId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dataSet",
+                "workflowId",
+                "nodeId",
+                "fieldId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.remove.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.confirm.params": {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "workflowId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "fieldId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dataSet",
+                "workflowId",
+                "nodeId",
+                "fieldId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.confirm.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.begin.params": {
+          "type": "object",
+          "properties": {
+            "dataSet": {
+              "type": "object",
+              "title": "DataSet"
+            },
+            "workflowId": {
+              "type": "string"
+            },
+            "nodeId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.begin.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.add.params": {
+          "type": "object",
+          "properties": {
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "workflowId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "input": {
+                  "$ref": "#/$defs/Values"
+                }
+              },
+              "required": [
+                "dataSet",
+                "workflowId",
+                "nodeId",
+                "input"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.add.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.491Z",
+  "models": {
+    "Values": {
+      "name": "Values",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    Name: string;\n    description: string;\n    ValueFun: string;\n    IsOutput?: 0 | 1;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    Name: string;\n    description: string;\n    ValueFun: string;\n    IsOutput?: 0 | 1;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "Name",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "description",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "ValueFun",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "IsOutput",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowComputedFields": {
+      "name": "WorkflowComputedFields",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "remove",
+              "jsdoc": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
+              "parameters": [
+                {
+                  "name": "parameters",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dataSet: DataSet;\n        workflowId: string;\n        nodeId: string;\n        fieldId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "confirm",
+              "jsdoc": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
+              "parameters": [
+                {
+                  "name": "parameters",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dataSet: DataSet;\n        workflowId: string;\n        nodeId: string;\n        fieldId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "begin",
+              "jsdoc": "对话框从原视图的空白新增行开始，不生成临时名称或另一份表单真源。",
+              "parameters": [
+                {
+                  "name": "dataSet",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                },
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "nodeId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "add",
+              "jsdoc": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
+              "parameters": [
+                {
+                  "name": "parameters",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dataSet: DataSet;\n        workflowId: string;\n        nodeId: string;\n        input: Values;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

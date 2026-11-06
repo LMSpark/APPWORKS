@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { DataRow, DataView } from '@spark-appworks/spark-data'
-import { selectFieldContextRow } from '../../components/fields/context/field-row-scope'
+import { selectFieldContextRow } from '../../components/fields/context/row/field-row-scope'
 
 describe('selectFieldContextRow', () => {
   it('uses the row scope when the explicit binding resolves to that same DataView', () => {

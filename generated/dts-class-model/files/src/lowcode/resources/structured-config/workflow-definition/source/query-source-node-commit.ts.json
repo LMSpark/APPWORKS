@@ -1,0 +1,472 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit\n职责：来源正式确认后，沿原节点DataView收口改绑与输出身份，保留原批次核验。\n边界：不保存模型或字段、不重做fork；新输出只取独立正式字段，未知结果不自动重放。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowConfirmedSource",
+      "WorkflowModelSourceNodeCommit"
+    ]
+  },
+  "$defs": {
+    "WorkflowConfirmedSource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowConfirmedSource",
+      "properties": {
+        "model": {
+          "type": "object",
+          "properties": {
+            "lingma_sys_params": {
+              "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+            },
+            "lingma_sys_key": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": true
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "lingma_sys_params": {
+                "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataPermissionSets"
+              },
+              "lingma_sys_key": {
+                "type": "string"
+              }
+            },
+            "additionalProperties": true
+          }
+        }
+      },
+      "required": [
+        "model",
+        "fields"
+      ],
+      "additionalProperties": false
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "fromModelId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "expectedSource": {
+          "$ref": "#/$defs/WorkflowConfirmedSource"
+        },
+        "operation": {
+          "enum": [
+            "add",
+            "edit",
+            "delete",
+            "copy"
+          ]
+        },
+        "nodeBefore": {
+          "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+        },
+        "fieldsBefore": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "removedIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "WorkflowModelSourceNodeCommit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowModelSourceNodeCommit",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.complete.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.complete.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {
+            "acceptCurrent": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.resubmitNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resubmitNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardLocalChangesAndVerify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardLocalChangesAndVerify.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "complete": {
+              "type": "boolean"
+            },
+            "notApplied": {
+              "type": "boolean"
+            },
+            "dispatched": {
+              "type": "boolean"
+            },
+            "canAcceptCurrent": {
+              "type": "boolean"
+            },
+            "canDiscardLocalChanges": {
+              "type": "boolean"
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "modelId": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "complete",
+            "notApplied",
+            "dispatched",
+            "canAcceptCurrent",
+            "canDiscardLocalChanges",
+            "nodeId",
+            "modelId"
+          ],
+          "additionalProperties": false
+        },
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "$ref": "#/$defs/WorkflowModelSourceNodeCommit"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.505Z",
+  "models": {
+    "WorkflowConfirmedSource": {
+      "name": "WorkflowConfirmedSource",
+      "jsdoc": "来源阶段经正式回读确认的只读合同证明；不作草稿，恢复时不替换为后来出现的目标。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 已确认的完整模型业务字段投影，包含来源身份及操作类型。 */\n    model: Readonly<DataRow>;\n    /** 同阶段确认的所属字段投影；比较按字段身份与内容，不依赖服务端返回顺序。 */\n    fields: ReadonlyArray<Readonly<DataRow>>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 已确认的完整模型业务字段投影，包含来源身份及操作类型。 */\n    model: Readonly<DataRow>;\n    /** 同阶段确认的所属字段投影；比较按字段身份与内容，不依赖服务端返回顺序。 */\n    fields: ReadonlyArray<Readonly<DataRow>>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "model",
+              "jsdoc": "已确认的完整模型业务字段投影，包含来源身份及操作类型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "同阶段确认的所属字段投影；比较按字段身份与内容，不依赖服务端返回顺序。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    fromModelId: string;\n    modelId: string;\n    expectedSource: WorkflowConfirmedSource;\n    operation?: 'add' | 'edit' | 'delete' | 'copy';\n    nodeBefore: Readonly<DataRow>;\n    fieldsBefore: ReadonlyArray<Readonly<DataRow>>;\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    fromModelId: string;\n    modelId: string;\n    expectedSource: WorkflowConfirmedSource;\n    operation?: 'add' | 'edit' | 'delete' | 'copy';\n    nodeBefore: Readonly<DataRow>;\n    fieldsBefore: ReadonlyArray<Readonly<DataRow>>;\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fromModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "expectedSource",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeBefore",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldsBefore",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "removedIds",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowModelSourceNodeCommit": {
+      "name": "WorkflowModelSourceNodeCommit",
+      "jsdoc": "一个已确认来源对应的原节点批次；记录值只用于不可编辑的原意图/回读证据。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "锁定已确认来源合同与原节点意图，建立私有回读视图；不暂存或派发写入。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "complete",
+              "jsdoc": "来源owner与无delta外层共用同一个幂等收口动作。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "只核验原节点捕获；无效回执必须显式选择原范围读回。",
+              "parameters": [
+                {
+                  "name": "acceptCurrent",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resubmitNotApplied",
+              "jsdoc": "显式重提已独立确认未生效的同一节点；不保存来源或重新fork。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardLocalChangesAndVerify",
+              "jsdoc": "用户明确放弃原节点后续本地修改后，只核验原捕获，不重放提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        complete: boolean;\n        notApplied: boolean;\n        dispatched: boolean;\n        canAcceptCurrent: boolean;\n        canDiscardLocalChanges: boolean;\n        nodeId: string;\n        modelId: string;\n    }"
+              }
+            },
+            {
+              "name": "open",
+              "jsdoc": "捕获正式原节点身份，尚不暂存或提交。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "WorkflowModelSourceNodeCommit",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

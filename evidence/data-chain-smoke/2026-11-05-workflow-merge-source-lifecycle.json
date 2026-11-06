@@ -4,7 +4,7 @@
   "scope": "Original-DataView merge source addition and precise input-subtree removal, native storage lifecycle",
   "sourceHashes": [
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
       "sha256": "f6b2093981aa41864967b8009ec82e9219d8dded2d7a1294bdd021f4e89efffd"
     },
     {
@@ -16,7 +16,7 @@
       "sha256": "85fae7dce51ca18e2485e23684465d97e5a625c4cada7ad9985669d93140246f"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts",
       "sha256": "21e28d747820536db6ace8d3d4d9f0ee28033f94e1cd215d05eec6af655157e0"
     },
     {

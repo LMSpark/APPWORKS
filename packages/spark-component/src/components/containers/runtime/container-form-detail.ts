@@ -20,7 +20,7 @@ import { useContainerGrid } from './container-layout.js'
 import { useContainerModuleContext } from './container-ui.js'
 import { resolveDataViewEditingRow } from '../../fields/context/dataViewEditing'
 import { sparkColumnToAutoFieldNode } from './column-auto-field.js'
-import {FIELD_ROW_CONTEXT} from '../../fields/context/fieldRowContext'
+import {FIELD_ROW_CONTEXT} from '../../fields/context/row/fieldRowContext'
 
 // ============================================================
 // § 常量

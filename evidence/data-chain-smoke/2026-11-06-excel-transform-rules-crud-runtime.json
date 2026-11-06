@@ -2411,7 +2411,7 @@
         "sha256": "5d3d6227557dd4735bc2743c009c56b133c723da8dc1a1c12a4b816222c4ea16"
       },
       {
-        "path": "src/lowcode/resources/semi-structured/excel-import/transform/queries.ts",
+        "path": "src/lowcode/resources/semi-structured/excel-import/metadata/queries.ts",
         "sha256": "707dbde2b16b81f3ac9dd6673fa2ad2b081d3a47b79b23c17ad05bbc54f49b9a"
       },
       {

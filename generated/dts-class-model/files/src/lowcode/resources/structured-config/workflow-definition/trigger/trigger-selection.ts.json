@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/trigger/trigger-selection\n职责：确认当前数据库及表选择，原子写回定义编辑视图并清除旧条件。\n边界：只消费原DataView身份、权限和检查点；不查询、不持草稿、不保存或触发流程。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-06T09:09:33.510Z",
+  "models": {}
+}

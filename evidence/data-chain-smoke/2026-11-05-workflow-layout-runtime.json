@@ -714,7 +714,7 @@
   ],
   "hashes": [
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/layout-resource.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-resource.ts",
       "sha256": "2d6049cff2f4ba95efe5f155b57fe7ceae0d64aad87e9d3bcec724b499a0d486"
     },
     {
@@ -730,7 +730,7 @@
       "sha256": "08fd71704527e239a9ac9f0be9b9fa07dfe6e44cc0c4eb1ecdcdfc5599846c96"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts",
       "sha256": "e42ebbbb4f9c712b00613c5abbbc274df554f366038795eb5007a3098bab6e18"
     },
     {

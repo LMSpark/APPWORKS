@@ -3,10 +3,10 @@
   "kind": "workflow-operation-concurrency-preflight",
   "recordedAt": "2026-11-04T13:14:12.292Z",
   "sourceHashes": {
-    "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": "465194898b846c57cdddf909420577b36c851b5772427581ae04f72bdd9bd848",
+    "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts": "465194898b846c57cdddf909420577b36c851b5772427581ae04f72bdd9bd848",
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": "c8f4caf79acfd166eeccee86993df219a57a9a1c3f996e079fa792aff18d50f3",
-    "tests/runtime/page/structured-config/workflow/workflow-query-model-create.test.ts": "3d353baa67327eed0424260910871ac59d30033032a65d2debc3cd16fe83f5fc",
-    "tests/runtime/page/structured-config/workflow/workflow-node-removal.test.ts": "99d0847bf1b17887fdcec0083a504675bab4c90e5bc715700e939bcc88b8db75"
+    "tests/runtime/page/structured-config/workflow/source/workflow-query-model-create.test.ts": "3d353baa67327eed0424260910871ac59d30033032a65d2debc3cd16fe83f5fc",
+    "tests/runtime/page/structured-config/workflow/graph/workflow-node-removal.test.ts": "99d0847bf1b17887fdcec0083a504675bab4c90e5bc715700e939bcc88b8db75"
   },
   "account": {
     "enterpriseDisplayName": "领码科技",

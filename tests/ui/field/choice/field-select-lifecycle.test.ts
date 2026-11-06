@@ -46,6 +46,16 @@ async function fixture(value: string | number = 'first', selection = false, inhe
 }
 
 describe('FieldSelect native option lifecycle', () => {
+  it('keeps new selections writable after appending a sibling while invalidating the previous callback',async()=>{
+    const f=await fixture(),oldApply=f.wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue'],row=f.view.currentRow
+    f.view.appendRow({id:'c',choice:'first'});await flushPromises()
+    expect(f.view.currentRow).toBe(row)
+    if(typeof oldApply!=='function')throw Error('Missing select callback')
+    await oldApply('second');await flushPromises();expect(f.view.hasEditingChanges()).toBe(false)
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue','second');await flushPromises()
+    expect(f.view.getEditingRow('a')?.['choice']).toBe('second')
+    expect(f.view.rows.find(item=>item['id']==='c')?.['choice']).toBe('first')
+  })
   it('refreshes the control callback after a row event with unchanged current-row identity while rejecting its previous callback',async()=>{
     const f=await fixture(),oldApply=f.wrapper.getComponent(ElSelect).vm.$.vnode.props?.['onUpdate:modelValue']
     const row=f.view.currentRow

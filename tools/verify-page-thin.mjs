@@ -3,7 +3,8 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import process from 'node:process'
-import { collectSourceFiles, isCliEntrypoint, printViolations, relativePath } from './verifier-common.mjs'
+import ts from 'typescript'
+import { collectSourceFiles, forEachParsedSource, isCliEntrypoint, lineFor, printViolations, relativePath } from './verifier-common.mjs'
 
 /**
  * 页面层瘦身门禁（AppWorks 语义整合硬约束 1）：业务页面与页面专用 TS 不得自建
@@ -14,12 +15,51 @@ export const PAGE_THIN_BASELINE_FILE = 'tools/page-thin-baseline.json'
 const ROOTS = ['src/views/features', 'src/lowcode']
 const RULES = [
   { id: 'command-status', pattern: /'(?:idle|previewing|saving|unknown|readback)'\s*\|/gu, message: '命令状态机（应由 spark-data 公共能力承接）' },
-  { id: 'json-baseline', pattern: /JSON\.stringify\([^)\n]*\.rows\b/gu, message: 'JSON 快照基线比对（应使用 DataView 变更跟踪）' },
   { id: 'static-copy', pattern: /resourceType\s*=\s*['"]static-data['"]/gu, message: '页面自建 static-data 表（须证明不是正式数据副本）' },
   { id: 'hand-passed-ids', pattern: /\s:[a-z-]+-ids=/gu, message: '手传 ID 列表 props（应绑定 DataView）', vueOnly: true },
 ]
 
-export function measurePageThin(root) {
+function recordBaselineUses(sourceFile) {
+  const options = {noLib: true, noResolve: true, target: ts.ScriptTarget.Latest}, host = ts.createCompilerHost(options)
+  host.getSourceFile = file => file === sourceFile.fileName ? sourceFile : undefined
+  const checker = ts.createProgram([sourceFile.fileName], options, host).getTypeChecker()
+  const candidates = new Set(), declarations = new Map(), dirtyRoots = []
+  const isDirtyName = name => /dirty|unsaved/iu.test(name)
+  const containsRows = (node, visited = new Set()) => {
+    if (visited.has(node)) return false
+    visited.add(node)
+    if (ts.isPropertyAccessExpression(node) && node.name.text === 'rows') return true
+    if (ts.isIdentifier(node)) {
+      const declaration = checker.getSymbolAtLocation(node)?.valueDeclaration
+      if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer && containsRows(declaration.initializer, visited)) return true
+    }
+    return ts.forEachChild(node, child => containsRows(child, visited)) === true
+  }
+  const collect = node => {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      const symbol = checker.getSymbolAtLocation(node.name), values = declarations.get(symbol) ?? []
+      if (symbol) { values.push(node.initializer); declarations.set(symbol, values) }
+      if (isDirtyName(node.name.text)) dirtyRoots.push(node.initializer)
+    }
+    if ((ts.isFunctionDeclaration(node) || ts.isMethodDeclaration(node)) && node.name && isDirtyName(node.name.getText(sourceFile)) && node.body) dirtyRoots.push(node.body)
+    if (ts.isPropertyAssignment(node) && isDirtyName(node.name.getText(sourceFile))) dirtyRoots.push(node.initializer)
+    if (ts.isCallExpression(node) && node.expression.getText(sourceFile) === 'JSON.stringify' && node.arguments.some(argument => containsRows(argument))) candidates.add(node)
+    ts.forEachChild(node, collect)
+  }
+  collect(sourceFile)
+  const proven = new Set(), visited = new Set()
+  const visitDependency = node => {
+    if (visited.has(node)) return
+    visited.add(node)
+    if (candidates.has(node)) proven.add(node)
+    if (ts.isIdentifier(node)) for (const initializer of declarations.get(checker.getSymbolAtLocation(node)) ?? []) visitDependency(initializer)
+    ts.forEachChild(node, visitDependency)
+  }
+  dirtyRoots.forEach(visitDependency)
+  return {proven, uncertain: [...candidates].filter(node => !proven.has(node))}
+}
+
+export function measurePageThin(root, diagnostics = []) {
   const files = collectSourceFiles({ root, includeRoots: ROOTS })
   const result = {}
   for (const file of files) {
@@ -30,6 +70,12 @@ export function measurePageThin(root) {
       const count = [...source.matchAll(rule.pattern)].length
       if (count > 0) counts[rule.id] = count
     }
+    forEachParsedSource(file, root, ({sourceFile, lineOffset}) => {
+      const {proven, uncertain} = recordBaselineUses(sourceFile)
+      if (proven.size) counts['json-baseline'] = (counts['json-baseline'] ?? 0) + proven.size
+      for (const node of uncertain) diagnostics.push({file: relativePath(root, file), line: lineFor(sourceFile, node, lineOffset),
+        message: 'JSON 行序列化用途待审：须区分正式合同校验、响应式失效键与替代 DataView 的编辑基线'})
+    })
     if (Object.keys(counts).length > 0) result[relativePath(root, file)] = counts
   }
   return result
@@ -42,14 +88,14 @@ function readBaseline(root) {
 
 export function scanPageThin(options = {}) {
   const root = options.root ?? process.cwd()
-  const current = measurePageThin(root)
+  const diagnostics = [], current = measurePageThin(root, diagnostics)
   const baseline = readBaseline(root)
   const violations = []
   for (const [file, counts] of Object.entries(current)) {
     for (const [rule, count] of Object.entries(counts)) {
       const allowed = baseline[file]?.[rule] ?? 0
       if (count > allowed) {
-        const message = RULES.find(item => item.id === rule)?.message ?? rule
+        const message = rule === 'json-baseline' ? 'JSON 记录基线用于推导脏状态（应使用 DataView 变更跟踪）' : RULES.find(item => item.id === rule)?.message ?? rule
         violations.push({ file, line: 1, message: `${message}：${count}（基线 ${allowed}）` })
       }
     }
@@ -61,7 +107,7 @@ export function scanPageThin(options = {}) {
       }
     }
   }
-  return { violations, current }
+  return { violations, current, diagnostics }
 }
 
 export function runPageThinCli(argv = process.argv.slice(2)) {
@@ -83,7 +129,11 @@ export function runPageThinCli(argv = process.argv.slice(2)) {
     console.info('page thin baseline initialized')
     return 0
   }
-  const { violations } = scanPageThin({ root })
+  const { violations, diagnostics } = scanPageThin({ root })
+  if (diagnostics.length) {
+    console.info(`page thin review diagnostics: ${diagnostics.length} item(s) requiring review`)
+    for (const item of diagnostics) console.info(`  ${item.file}:${item.line} ${item.message}`)
+  }
   if (violations.length > 0) {
     printViolations('page thin', violations)
     return 1

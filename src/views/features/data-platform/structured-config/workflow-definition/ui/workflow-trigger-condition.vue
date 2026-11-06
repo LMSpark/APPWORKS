@@ -15,7 +15,7 @@
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {RequestState} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME,RendererFilterExpression,useSparkComponent} from '@spark-appworks/spark-component'
-import {WorkflowTriggerCondition} from '@/lowcode/resources/structured-config/workflow-definition/trigger-condition'
+import {WorkflowTriggerCondition} from '@/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition'
 import configuration from '../../../../../../../config/pages/structured-config/workflow-catalog/pagedata.json'
 const props=defineProps<{workflowId:string;dataViewKey:string;readonly:boolean}>()
 const emit=defineEmits<{editing:[value:boolean]}>()

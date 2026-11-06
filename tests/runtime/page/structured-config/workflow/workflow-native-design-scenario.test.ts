@@ -6,7 +6,7 @@ import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {workflowDesignModels} from './workflow-native-design.fixture'
-import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
+import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 const SCENE='0DD8D28D462F51C5790AA6FBFAE39366'
 const pages: PageRuntime[]=[]

@@ -32,11 +32,11 @@
   ],
   "evidence": [
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
       "sha256": "3C606247C44D431C686A85E1FDCB3D833266CD8ACA47F7FD680D55ECFADDB144"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts",
       "sha256": "237B6C09244759E24C7B4203A24C8E5CC70529C27FED1DADA20FD73295D6147C"
     },
     {

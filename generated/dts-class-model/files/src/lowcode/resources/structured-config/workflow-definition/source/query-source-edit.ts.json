@@ -1,0 +1,1304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-source-edit",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-source-edit",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-source-edit\n职责：组合原模型fork、来源替换与节点收口owner，逐阶段确认当前查询节点来源。\n边界：正式草稿与捕获仍归各原DataView；不伪造来源、权限、事务或失败回滚。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowModelSourceEdit"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "operation": {
+          "type": "boolean"
+        },
+        "sources": {
+          "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "WorkflowModelSourceEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowModelSourceEdit",
+      "properties": {
+        "shared": {
+          "type": "boolean"
+        },
+        "source": {
+          "$ref": "../../../../data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts.json#/$defs/ModelSourceEditHandle"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.isolationPlan.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isolationPlan.return": {
+          "type": "object",
+          "properties": {
+            "models": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "from": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "previousName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "from",
+                  "name",
+                  "previousName"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "relationCount": {
+              "type": "number"
+            }
+          },
+          "required": [
+            "models",
+            "relationCount"
+          ],
+          "additionalProperties": false
+        },
+        "method.isolate.params": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isolate.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.verifyIsolation.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verifyIsolation.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.abandonIsolationNotApplied.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.abandonIsolationNotApplied.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardIsolationLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardIsolationLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verifyNodeCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verifyNodeCurrent.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.resubmitNode.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.resubmitNode.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.discardNodeLocalChanges.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.discardNodeLocalChanges.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.getState.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.getState.return": {
+          "type": "object",
+          "properties": {
+            "shared": {
+              "type": "boolean"
+            },
+            "modelId": {
+              "type": "string"
+            },
+            "isolation": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "object",
+                      "title": "import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus"
+                    },
+                    "pending": {
+                      "type": "boolean"
+                    },
+                    "modelId": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "canAbandonNotApplied": {
+                      "type": "boolean"
+                    },
+                    "canDiscardLocalChanges": {
+                      "type": "boolean"
+                    },
+                    "preview": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "name": {
+                          "type": "string"
+                        },
+                        "prepared": {
+                          "type": "object",
+                          "properties": {
+                            "source": {
+                              "type": "object",
+                              "title": "import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource"
+                            },
+                            "model": {
+                              "type": "object",
+                              "properties": {
+                                "Type": {
+                                  "type": "string"
+                                },
+                                "MetaName": {
+                                  "type": "string"
+                                },
+                                "description": {
+                                  "type": "string"
+                                },
+                                "DbId": {
+                                  "type": "string"
+                                },
+                                "DbName": {
+                                  "type": "string"
+                                },
+                                "JoinType": {
+                                  "type": "string"
+                                },
+                                "ForeignKeyFields": {
+                                  "type": "string"
+                                },
+                                "JoinFilter": {
+                                  "type": "string"
+                                },
+                                "PId": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "Type",
+                                "MetaName",
+                                "description",
+                                "DbId",
+                                "DbName",
+                                "JoinType",
+                                "ForeignKeyFields",
+                                "JoinFilter",
+                                "PId"
+                              ],
+                              "additionalProperties": false
+                            },
+                            "fields": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "title": "import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField"
+                              }
+                            }
+                          },
+                          "required": [
+                            "source",
+                            "model",
+                            "fields"
+                          ],
+                          "additionalProperties": false
+                        }
+                      },
+                      "required": [
+                        "name",
+                        "prepared"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "fork": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "sourceModelId": {
+                          "type": "string"
+                        },
+                        "modelId": {
+                          "type": [
+                            "null",
+                            "string"
+                          ]
+                        },
+                        "fieldIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string"
+                              },
+                              "to": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "to"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "confirmed": {
+                          "type": "boolean"
+                        }
+                      },
+                      "required": [
+                        "sourceModelId",
+                        "modelId",
+                        "fieldIds",
+                        "confirmed"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "nameError": {
+                      "type": "string"
+                    },
+                    "verification": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "table": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "table",
+                          "id",
+                          "result"
+                        ],
+                        "additionalProperties": false
+                      }
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "pending",
+                    "modelId",
+                    "canAbandonNotApplied",
+                    "canDiscardLocalChanges",
+                    "preview",
+                    "fork",
+                    "nameError",
+                    "verification"
+                  ],
+                  "additionalProperties": false
+                },
+                {
+                  "type": "object",
+                  "properties": {
+                    "status": {
+                      "type": "object",
+                      "title": "import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus"
+                    },
+                    "pending": {
+                      "type": "boolean"
+                    },
+                    "modelId": {
+                      "type": [
+                        "null",
+                        "string"
+                      ]
+                    },
+                    "canAbandonNotApplied": {
+                      "type": "boolean"
+                    },
+                    "canDiscardLocalChanges": {
+                      "type": "boolean"
+                    },
+                    "verification": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "table": {
+                            "type": "string"
+                          },
+                          "id": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "table",
+                          "id",
+                          "result"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "fork": {
+                      "type": [
+                        "null",
+                        "object"
+                      ],
+                      "properties": {
+                        "sourceModelId": {
+                          "type": "string"
+                        },
+                        "modelId": {
+                          "type": "string"
+                        },
+                        "fieldIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string"
+                              },
+                              "to": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "to"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "confirmed": {
+                          "type": "boolean"
+                        },
+                        "models": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string"
+                              },
+                              "to": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "to",
+                              "name"
+                            ],
+                            "additionalProperties": false
+                          }
+                        },
+                        "relationIds": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "from": {
+                                "type": "string"
+                              },
+                              "to": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "from",
+                              "to"
+                            ],
+                            "additionalProperties": false
+                          }
+                        }
+                      },
+                      "required": [
+                        "sourceModelId",
+                        "modelId",
+                        "fieldIds",
+                        "confirmed",
+                        "models",
+                        "relationIds"
+                      ],
+                      "additionalProperties": false
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "pending",
+                    "modelId",
+                    "canAbandonNotApplied",
+                    "canDiscardLocalChanges",
+                    "verification",
+                    "fork"
+                  ],
+                  "additionalProperties": false
+                }
+              ]
+            },
+            "source": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "string"
+                },
+                "inputTarget": {
+                  "type": "boolean"
+                },
+                "pending": {
+                  "type": "boolean"
+                },
+                "preview": {
+                  "type": [
+                    "null",
+                    "object"
+                  ],
+                  "properties": {
+                    "inputTarget": {
+                      "type": "boolean"
+                    },
+                    "clearFilter": {
+                      "type": "boolean"
+                    },
+                    "operation": {
+                      "enum": [
+                        "replace",
+                        "synchronize"
+                      ]
+                    },
+                    "removals": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "type": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "type"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "removalChoices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "removed": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "removed"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "inputChoices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sourceName": {
+                            "type": "string"
+                          },
+                          "value": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "sourceName",
+                          "value"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "inputParams": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "value": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "value",
+                          "label"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "parameterWarning": {
+                      "type": "string"
+                    },
+                    "contractChanges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "before": {
+                            "type": "string"
+                          },
+                          "after": {
+                            "type": "string"
+                          },
+                          "accepted": {
+                            "type": "boolean"
+                          },
+                          "patch": {
+                            "type": "object",
+                            "title": "Record<string, unknown>"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "before",
+                          "after",
+                          "accepted",
+                          "patch"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "viewChanges": true,
+                    "name": {
+                      "type": "string"
+                    },
+                    "prepared": {
+                      "type": "object",
+                      "properties": {
+                        "source": {
+                          "type": "object",
+                          "title": "import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource"
+                        },
+                        "model": {
+                          "type": "object",
+                          "properties": {
+                            "Type": {
+                              "type": "string"
+                            },
+                            "MetaName": {
+                              "type": "string"
+                            },
+                            "description": {
+                              "type": "string"
+                            },
+                            "DbId": {
+                              "type": "string"
+                            },
+                            "DbName": {
+                              "type": "string"
+                            },
+                            "JoinType": {
+                              "type": "string"
+                            },
+                            "ForeignKeyFields": {
+                              "type": "string"
+                            },
+                            "JoinFilter": {
+                              "type": "string"
+                            },
+                            "PId": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "Type",
+                            "MetaName",
+                            "description",
+                            "DbId",
+                            "DbName",
+                            "JoinType",
+                            "ForeignKeyFields",
+                            "JoinFilter",
+                            "PId"
+                          ],
+                          "additionalProperties": false
+                        },
+                        "fields": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "title": "import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField"
+                          }
+                        }
+                      },
+                      "required": [
+                        "source",
+                        "model",
+                        "fields"
+                      ],
+                      "additionalProperties": false
+                    },
+                    "differences": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "name": {
+                            "type": "string"
+                          },
+                          "result": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "name",
+                          "result"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "problems": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "fieldChoices": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "outputName": {
+                            "type": "string"
+                          },
+                          "sourceName": {
+                            "type": "string"
+                          },
+                          "candidates": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "outputName",
+                          "sourceName",
+                          "candidates"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "additions": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "sourceName": {
+                            "type": "string"
+                          },
+                          "included": {
+                            "type": "boolean"
+                          }
+                        },
+                        "required": [
+                          "sourceName",
+                          "included"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "relationChanges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "before": {
+                            "type": "string"
+                          },
+                          "after": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "before",
+                          "after"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "modelChanges": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "property": {
+                            "type": "string"
+                          },
+                          "before": {
+                            "type": "string"
+                          },
+                          "after": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "property",
+                          "before",
+                          "after"
+                        ],
+                        "additionalProperties": false
+                      }
+                    },
+                    "expressionChanges": {
+                      "type": "object",
+                      "title": "ReturnType<typeof import(\"../../../../data-space/model-source/model/lowcode-data-space-model-migration\").LowcodeDataSpaceModelMigration.prepare>"
+                    },
+                    "fieldExpressionChanges": {
+                      "type": "object",
+                      "title": "ReturnType<typeof import(\"../../../../data-space/model-source/migration/lowcode-data-space-field-migration\").LowcodeDataSpaceFieldMigration.prepare>"
+                    }
+                  },
+                  "required": [
+                    "operation",
+                    "removals",
+                    "removalChoices",
+                    "inputChoices",
+                    "inputParams",
+                    "parameterWarning",
+                    "contractChanges",
+                    "viewChanges",
+                    "name",
+                    "prepared",
+                    "differences",
+                    "problems",
+                    "fieldChoices",
+                    "additions",
+                    "relationChanges",
+                    "modelChanges",
+                    "expressionChanges",
+                    "fieldExpressionChanges"
+                  ],
+                  "additionalProperties": false
+                },
+                "verification": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "table": {
+                        "type": "string"
+                      },
+                      "id": {
+                        "type": "string"
+                      },
+                      "result": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "table",
+                      "id",
+                      "result"
+                    ],
+                    "additionalProperties": false
+                  }
+                },
+                "discardRecovered": {
+                  "type": "boolean"
+                },
+                "abandonNotApplied": {
+                  "type": "boolean"
+                },
+                "canAcceptCurrent": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "status",
+                "inputTarget",
+                "pending",
+                "preview",
+                "verification",
+                "discardRecovered",
+                "abandonNotApplied",
+                "canAcceptCurrent"
+              ],
+              "additionalProperties": false
+            },
+            "node": {
+              "type": "object",
+              "properties": {
+                "complete": {
+                  "type": "boolean"
+                },
+                "notApplied": {
+                  "type": "boolean"
+                },
+                "dispatched": {
+                  "type": "boolean"
+                },
+                "canAcceptCurrent": {
+                  "type": "boolean"
+                },
+                "canDiscardLocalChanges": {
+                  "type": "boolean"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "modelId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "complete",
+                "notApplied",
+                "dispatched",
+                "canAcceptCurrent",
+                "canDiscardLocalChanges",
+                "nodeId",
+                "modelId"
+              ],
+              "additionalProperties": false
+            },
+            "complete": {
+              "type": "boolean"
+            },
+            "pending": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "shared",
+            "modelId",
+            "isolation",
+            "source",
+            "node",
+            "complete",
+            "pending"
+          ],
+          "additionalProperties": false
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true,
+        "method.close.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.close.return": true,
+        "method.open.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.open.return": {
+          "type": "object",
+          "title": "Promise<WorkflowModelSourceEdit>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.503Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    operation?: boolean;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    nodeId: string;\n    operation?: boolean;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowModelSourceEdit": {
+      "name": "WorkflowModelSourceEdit",
+      "jsdoc": "原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获当前流程、目标及私有元数据视图的只读基线；持久化由后续显式命令负责。",
+          "signatureText": "private constructor()",
+          "parameters": []
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "shared",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "source",
+              "jsdoc": "只有独立模型可进入原来源owner；共享模型须先明确创建隔离定义。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "isolationPlan",
+              "jsdoc": "创建前展示关联分量及全部新注册名；不创建记录或改变原关系。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        models: Array<{\n            from: string;\n            name: string;\n            previousName: string;\n        }>;\n        relationCount: number;\n    }"
+              }
+            },
+            {
+              "name": "isolate",
+              "jsdoc": "明确创建隔离模型分量；不会改绑原节点，失回执保留原fork owner。",
+              "parameters": [
+                {
+                  "name": "name",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifyIsolation",
+              "jsdoc": "只接续同一隔离创建捕获，不再创建一份模型。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "abandonIsolationNotApplied",
+              "jsdoc": "明确放弃原fork已独立证明未生效的创建，保留原共享定义。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardIsolationLocalChanges",
+              "jsdoc": "原fork已确认后只放弃其目标后续草稿，再核原模型与字段；不会重建。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verifyNodeCurrent",
+              "jsdoc": "节点回执无效时显式采用原范围；未生效结果不自动重提。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resubmitNode",
+              "jsdoc": "原节点独立确认未生效后显式重提，不再保存模型或来源。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "discardNodeLocalChanges",
+              "jsdoc": "明确放弃仅原节点目标的后续草稿，再核验原批次。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "getState",
+              "parameters": [],
+              "type": {
+                "type": "unknown",
+                "name": "{\n        shared: boolean;\n        modelId: string;\n        isolation: {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            preview: {\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n            } | null;\n            fork: {\n                sourceModelId: string;\n                modelId: string | null;\n                fieldIds: Array<{\n                    from: string;\n                    to: string;\n                }>;\n                confirmed: boolean;\n            } | null;\n            nameError: string;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n        } | {\n            status: import(\"@/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session\").ModelCreateStatus;\n            pending: boolean;\n            modelId: string | null;\n            canAbandonNotApplied: boolean;\n            canDiscardLocalChanges: boolean;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            fork: {\n                sourceModelId: string;\n                modelId: string;\n                fieldIds: {\n                    from: string;\n                    to: string;\n                }[];\n                confirmed: boolean;\n                models: {\n                    from: string;\n                    to: string;\n                    name: string;\n                }[];\n                relationIds: {\n                    from: string;\n                    to: string;\n                }[];\n            } | null;\n        } | undefined;\n        source: {\n            status: string;\n            inputTarget: boolean;\n            pending: boolean;\n            preview: {\n                inputTarget?: boolean;\n                clearFilter?: boolean;\n                operation: \"replace\" | \"synchronize\";\n                removals: Array<{\n                    id: string;\n                    name: string;\n                    type: string;\n                }>;\n                removalChoices: Array<{\n                    id: string;\n                    name: string;\n                    removed: boolean;\n                }>;\n                inputChoices: Array<{\n                    sourceName: string;\n                    value: string;\n                }>;\n                inputParams: Array<{\n                    value: string;\n                    label: string;\n                }>;\n                parameterWarning: string;\n                contractChanges: Array<{\n                    id: string;\n                    name: string;\n                    before: string;\n                    after: string;\n                    accepted: boolean;\n                    patch: Record<string, unknown>;\n                }>;\n                viewChanges: SourceContractPlan[\"viewChanges\"];\n                name: string;\n                prepared: Readonly<{\n                    source: import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSource;\n                    model: Readonly<{\n                        Type: string;\n                        MetaName: string;\n                        description: string;\n                        DbId: string;\n                        DbName: string;\n                        JoinType: string;\n                        ForeignKeyFields: string;\n                        JoinFilter: string;\n                        PId: string;\n                    }>;\n                    fields: readonly import(\"@/lowcode/data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n                }>;\n                differences: Array<{\n                    name: string;\n                    result: string;\n                }>;\n                problems: string[];\n                fieldChoices: Array<{\n                    id: string;\n                    name: string;\n                    outputName: string;\n                    sourceName: string;\n                    candidates: string[];\n                }>;\n                additions: Array<{\n                    sourceName: string;\n                    included: boolean;\n                }>;\n                relationChanges: Array<{\n                    id: string;\n                    before: string;\n                    after: string;\n                }>;\n                modelChanges: Array<{\n                    property: string;\n                    before: string;\n                    after: string;\n                }>;\n                expressionChanges: ReturnType<typeof import(\"../../../../data-space/model-source/model/lowcode-data-space-model-migration\").LowcodeDataSpaceModelMigration.prepare>;\n                fieldExpressionChanges: ReturnType<typeof import(\"../../../../data-space/model-source/migration/lowcode-data-space-field-migration\").LowcodeDataSpaceFieldMigration.prepare>;\n            } | null;\n            verification: {\n                table: string;\n                id: string;\n                result: string;\n            }[];\n            discardRecovered: boolean;\n            abandonNotApplied: boolean;\n            canAcceptCurrent: boolean;\n        } | undefined;\n        node: {\n            complete: boolean;\n            notApplied: boolean;\n            dispatched: boolean;\n            canAcceptCurrent: boolean;\n            canDiscardLocalChanges: boolean;\n            nodeId: string;\n            modelId: string;\n        } | undefined;\n        complete: boolean;\n        pending: boolean;\n    }"
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "未派发预览可以取消；已创建隔离模型或已确认来源须保留后续收口入口。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "close",
+              "jsdoc": "已完成后释放本工位视图；未确认阶段必须保留原捕获。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "open",
+              "jsdoc": "只读取当前工作流元数据，并分离模型关系与节点条件；不创建任何正式记录。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Input",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "WorkflowModelSourceEdit",
+                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

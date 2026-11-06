@@ -259,7 +259,7 @@
         "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
       },
       {
-        "path": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+        "path": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
         "testedAndNativeHash": "3207262c061c547172e5227492e917752e8053fa8ac11d3fe62ead746ecd7753",
         "finalHash": "effb6de18df08ad16af8263be8845a2beff0ffcc5a0a823b32c5cce3f18db3d9",
         "scope": "trailing blank lines or blank-line spaces only; non-whitespace content equal"
@@ -298,7 +298,7 @@
   ],
   "hashes": [
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
       "sha256": "93a6dd116db77dfca171da5e290fb996c659367720a0f36653d883ae6d98b726"
     },
     {
@@ -318,11 +318,11 @@
       "sha256": "0f1581524144ea03a6b8e428aa0a0915a0a76173129c7709cc5ff2d37bdd10ce"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-merge-inputs.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/fields/workflow-merge-inputs.test.ts",
       "sha256": "2a2621301cd6effac00353e59571d10200ff013d1c0fd0ca1e862d4bd9db20f0"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
       "sha256": "effb6de18df08ad16af8263be8845a2beff0ffcc5a0a823b32c5cce3f18db3d9"
     },
     {
@@ -334,7 +334,7 @@
       "sha256": "3a92ffa4225614020a6d8befa910da59850973d5f4f27cb6824d3d386671497c"
     },
     {
-      "path": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
+      "path": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
       "sha256": "1753742e1d6c428c42c705aed942eb681775eabafa743273299eab56526bbb95"
     },
     {

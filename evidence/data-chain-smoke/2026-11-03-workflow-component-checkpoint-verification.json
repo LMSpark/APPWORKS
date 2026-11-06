@@ -44,7 +44,7 @@
         "message": "type assertion is forbidden: result as DataRow"
       },
       {
-        "file": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
+        "file": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
         "line": 45,
         "message": "signature has too many positional parameters: constructor has 6, limit is 4; use a named options object or domain command object"
       }
@@ -71,7 +71,7 @@
         "message": "type assertion is forbidden: result as DataRow"
       },
       {
-        "file": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
+        "file": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
         "line": 47,
         "message": "signature has too many positional parameters: constructor has 6, limit is 4; use a named options object or domain command object"
       }

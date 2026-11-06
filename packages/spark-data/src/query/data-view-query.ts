@@ -7,7 +7,7 @@
 import {parseDataViewKey} from '../core/data-view-key'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {SortExpression, DataViewQueryChild, QueryParams, ViewMetadata} from '../types'
-import {DataViewFilterLookup} from './data-view-filter-lookup'
+import {DataViewFilterLookup} from './filter/data-view-filter-lookup'
 import {DataViewFilter} from './filter/data-view-filter'
 
 /** 查询模式与读取范围的唯一配置解析器；省略属性保持责任方既定默认值。 */

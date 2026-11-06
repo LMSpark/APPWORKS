@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/source/query-model-create",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/source/query-model-create",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/source/query-model-create\n职责：在当前工作流元数据实例内复用原模型新增命令，明确查询模型的归属和requestType。\n边界：不复制来源、字段、权限或保存逻辑；不创建节点、不执行流程。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowDataOperation"
+    ]
+  },
+  "$defs": {
+    "WorkflowQueryModelCreateInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowQueryModelCreateInput",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "sources": {
+          "$ref": "../../../../data-space/model-source/lowcode-data-space-source-catalog.ts.json#/$defs/PageDataSpaceModelSourceReader"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "WorkflowDataOperation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "WorkflowDataOperation",
+      "enum": [
+        "delete",
+        "add",
+        "edit"
+      ]
+    },
+    "WorkflowQueryModelCreateHandle": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowQueryModelCreateHandle",
+      "properties": {
+        "save": {
+          "type": "object",
+          "title": "() => Promise<string>"
+        },
+        "preview": {
+          "type": "object",
+          "title": "(source: Readonly<{ type: PageDataSpaceModelSourceType; id: string; name: string; description: string; dbid: string; databaseName: string; providerId: string; }>) => Promise<void>"
+        },
+        "getState": {
+          "type": "object",
+          "title": "() => ReturnType<typeof modelCreateGetState>"
+        },
+        "setName": {
+          "type": "object",
+          "title": "(name: string) => void"
+        },
+        "discard": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "verify": {
+          "type": "object",
+          "title": "() => Promise<Readonly<{ confirmed: boolean; modelId: string | null; }>>"
+        },
+        "abandonNotApplied": {
+          "type": "object",
+          "title": "() => Promise<void>"
+        },
+        "discardLocalChanges": {
+          "type": "object",
+          "title": "() => Promise<string>"
+        }
+      },
+      "required": [
+        "save",
+        "preview",
+        "getState",
+        "setName",
+        "discard",
+        "verify",
+        "abandonNotApplied",
+        "discardLocalChanges"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.498Z",
+  "models": {
+    "WorkflowQueryModelCreateInput": {
+      "name": "WorkflowQueryModelCreateInput",
+      "jsdoc": "当前工作流的查询模型新增输入；来源读取器已绑定同一实例及执行应用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    sources: PageDataSpaceModelSourceReader;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sources",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowDataOperation": {
+      "name": "WorkflowDataOperation",
+      "jsdoc": "已核定数据库表目标的行写操作类型；输入由所属模型的inputParams字段承接。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'add' | 'edit' | 'delete'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'add'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'edit'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'delete'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowQueryModelCreateHandle": {
+      "name": "WorkflowQueryModelCreateHandle",
+      "jsdoc": "查询模型入口不暴露绕过来源准备的数组创建命令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Omit<ModelCreateHandle, 'createArray' | 'fork'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Omit<ModelCreateHandle, 'createArray' | 'fork'>",
+            "targetName": "Omit"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

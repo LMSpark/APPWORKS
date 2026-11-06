@@ -1,4 +1,4 @@
-import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/transform/physical-fields'
+import {ExcelPhysicalFieldDirectory} from '@/lowcode/resources/semi-structured/excel-import/metadata/physical-fields'
 import {describe,it,expect,vi} from 'vitest'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'

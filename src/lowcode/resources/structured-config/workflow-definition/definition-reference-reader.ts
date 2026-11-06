@@ -5,7 +5,7 @@
  * AI用途：在显式结构命令中读取完整正式依赖，复用原DataView查询权限与身份。
  */
 import {RequestState,type DataSet,type DataView} from '@spark-appworks/spark-data'
-import {readWorkflowFieldValue as read} from './query-field-context'
+import {readWorkflowFieldValue as read} from './fields/query-field-context'
 
 /** 本次正式依赖读取的工作流与首轮守卫。 */
 type ReaderInput=Readonly<{

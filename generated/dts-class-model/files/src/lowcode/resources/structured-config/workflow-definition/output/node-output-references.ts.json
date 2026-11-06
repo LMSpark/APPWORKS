@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/output/node-output-references",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/output/node-output-references.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/output/node-output-references",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/output/node-output-references\n职责：无独立模型的节点输出结构变更按正式工作流定义核查引用。\n边界：仅显式结构命令使用，不伪造模型身份、不执行节点、不修改引用。\nAI用途：生成输出前读取真实元数据依赖，保持调用方首轮合同并释放自有查询。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "NodeOutputChange": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NodeOutputChange",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "before": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        },
+        "after": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "Record<string, unknown>"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T09:09:33.479Z",
+  "models": {
+    "NodeOutputChange": {
+      "name": "NodeOutputChange",
+      "jsdoc": "输出结构命令的正式前态、拟态及不可重置守卫。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次宿主元数据实例。 */\n    dataSet: DataSet;\n    /** 工作流正式身份。 */\n    workflowId: string;\n    /** 被变更的正式节点身份，不是模型身份。 */\n    nodeId: string;\n    /** 原正式输出目录。 */\n    before: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    /** 拟生成的输出配置，不是第二份可编辑状态。 */\n    after: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    /** 首轮查询、草稿及目标合同守卫。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次宿主元数据实例。 */\n    dataSet: DataSet;\n    /** 工作流正式身份。 */\n    workflowId: string;\n    /** 被变更的正式节点身份，不是模型身份。 */\n    nodeId: string;\n    /** 原正式输出目录。 */\n    before: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    /** 拟生成的输出配置，不是第二份可编辑状态。 */\n    after: ReadonlyArray<Readonly<Record<string, unknown>>>;\n    /** 首轮查询、草稿及目标合同守卫。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次宿主元数据实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "jsdoc": "工作流正式身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "jsdoc": "被变更的正式节点身份，不是模型身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "before",
+              "jsdoc": "原正式输出目录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "after",
+              "jsdoc": "拟生成的输出配置，不是第二份可编辑状态。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "首轮查询、草稿及目标合同守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

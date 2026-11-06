@@ -109,7 +109,7 @@
       "sha256": "2DD5BE22C68732E005BEC26EF1B45FAD3654845A633CA48FCD91876D9876183A"
     },
     {
-      "path": "tests/runtime/page/structured-config/workflow/workflow-boundaries.test.ts",
+      "path": "tests/runtime/page/structured-config/workflow/graph/workflow-boundaries.test.ts",
       "sha256": "456D6F66BD1C0DB7FEC64433E102AEC0955D571B3D22DE3C4B56B106DA01AFD1"
     },
     {

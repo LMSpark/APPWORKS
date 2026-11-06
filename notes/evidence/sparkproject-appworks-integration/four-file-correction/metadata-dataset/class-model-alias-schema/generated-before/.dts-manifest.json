@@ -1751,8 +1751,8 @@
       "shardFile": "files/packages/spark-component/src/components/fields/context/tableColumnContext.ts.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.526Z"
     },
-    "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts": {
-      "sourceFile": "packages/spark-component/src/components/fields/context/useActiveFieldRow.ts",
+    "packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts": {
+      "sourceFile": "packages/spark-component/src/components/fields/context/row/useActiveFieldRow.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/useActiveFieldRow.ts.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.527Z"
     },

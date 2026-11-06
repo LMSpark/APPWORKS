@@ -10,7 +10,7 @@ import {provide, toRaw} from 'vue'
 import type {DataRow, DataView} from '@spark-appworks/spark-data'
 import {useSparkComponent} from '../../internal'
 import {TABLE_FIELD_CELL} from '../context/tableCellContext'
-import {FIELD_ROW_CONTEXT} from '../context/fieldRowContext'
+import {FIELD_ROW_CONTEXT} from '../context/row/fieldRowContext'
 
 const props = defineProps<{
   /** The original DataView resolved by the field's complete binding. */

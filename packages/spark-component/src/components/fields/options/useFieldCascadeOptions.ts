@@ -1,6 +1,6 @@
 import {computed, onScopeDispose, shallowRef, watch} from 'vue'
 import type {DataViewFieldCascade, DataViewFieldCascadeState} from '@spark-appworks/spark-data'
-import type {useActiveFieldRow} from '../context/useActiveFieldRow'
+import type {useActiveFieldRow} from '../context/row/useActiveFieldRow'
 
 const idle: DataViewFieldCascadeState = {status: 'idle', options: [], valueStatus: 'unverified'}
 

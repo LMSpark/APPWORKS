@@ -7,8 +7,8 @@ import type {DataSet,DataView,DataTableQuerySaveReferences,DataTableQuerySaveRul
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
-import {resolveExcelPhysicalObject} from './physical-source'
-import {readExcelTransformRows} from './queries'
+import {resolveExcelPhysicalObject} from '../metadata/physical-source'
+import {readExcelTransformRows} from '../metadata/queries'
 const sourceId='34BDBE645F461A3D83282A941D6037F4',designId='0F93B82141CF40852021D704B0E30BF4',table='Base_ImportData_Config'
 /** 已核原始存储合同；顺序就是排序优先级，未知扩展不在此丢弃。 */
 export function readExcelSortFields(value:unknown):string[]{

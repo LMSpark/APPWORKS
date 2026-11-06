@@ -237,8 +237,8 @@
   "productionSourceChangedDuringLiveSmoke": false,
   "postSmokeMaintenance": {
     "files": [
-      "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
-      "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts"
+      "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
+      "src/lowcode/resources/structured-config/workflow-definition/fields/query-field-context.ts"
     ],
     "purpose": "Group original native views in named constructor options and replace the tuple assertion with checked typed lookups; no second state or save path.",
     "regression": {

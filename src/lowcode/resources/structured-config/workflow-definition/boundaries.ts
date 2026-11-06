@@ -6,7 +6,7 @@
  */
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
 import {DataSpaceDefinitionSave,verifyDataSpaceDefinitionCapture,verifyAndDiscardDataSpaceDefinitionCapture,type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
-import {workflowQueryDraftSignature} from './query-field-context'
+import {workflowQueryDraftSignature} from './fields/query-field-context'
 /** 本次设计器的唯一目标及原运行实例。 */
 type Input=Readonly<{
  /** 宿主提供的元数据实例。 */

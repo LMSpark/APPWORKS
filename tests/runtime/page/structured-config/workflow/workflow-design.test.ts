@@ -7,7 +7,7 @@ import {FieldText,FieldSelect,FieldJson,FieldNumber,FieldCheckbox,FieldValueFunc
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 import {DataViewFilter,DataViewFilterCodec,getSparkNodeChildren,type DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi,LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
-import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution-context'
+import {WorkflowExecutionContext} from '@/lowcode/resources/structured-config/workflow-definition/execution/execution-context'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import WorkflowDesign from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'

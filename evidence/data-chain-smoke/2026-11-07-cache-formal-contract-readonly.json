@@ -1,0 +1,39 @@
+{
+  "status": "formal-contract-confirmed-query-shape-unresolved",
+  "navigationSource": "config/navigation/appworks-system.json",
+  "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+  "spaceName": "缓存管理",
+  "formalMetadata": {
+    "sdkRequests": 6,
+    "blockedRequests": 0,
+    "exitCode": 0,
+    "cacheQueries": 0,
+    "cacheDeletes": 0,
+    "models": [
+      {"name": "缓存过滤条件", "id": "84e3c2b4-0df0-4b5d-b148-885c7c812baf", "primaryKey": "", "sourceType": "字典", "sourceId": "66841C21FA884119A5AE2B5DFC933780", "outputFields": ["txt", "ordIdx", "rowid", "val"]},
+      {"name": "获取缓存信息", "id": "4f22a823-4da7-472c-8b0e-5dc8a7c23b18", "primaryKey": "", "sourceType": "接口", "sourceId": "BA0159D310154FEC9CFEF05558DEA012", "inputFields": ["size", "page", "prefix"], "outputFields": ["cacheValue", "cacheKey"]},
+      {"name": "根据键删除缓存中的值", "id": "2f47b3e2-f619-4330-b355-4f217fc5cfd5", "primaryKey": "", "sourceType": "接口", "sourceId": "BA0159D310154FEC9CFEF05558DEA012", "inputFields": ["key"], "outputFields": ["Time", "Extras", "Code", "Type", "Result", "Message"]}
+    ]
+  },
+  "queryProbe": {
+    "exitCode": 1,
+    "sdkRequests": 8,
+    "blockedRequests": 0,
+    "error": "[500] 提取输出结果失败；根因：Missing property in path $['Result']",
+    "limitations": [
+      "Probe used a sentinel prefix rather than a confirmed dictionary value. No claim that this prefix is supported.",
+      "Per-model query dispatch counts and the partially accumulated results were not persisted before failure. Raw probe cacheQueries=0 was an uninstrumented initializer and must not be interpreted as a measured count.",
+      "Failure does not establish the deployed cache endpoint, pagination or extraction root cause."
+    ]
+  },
+  "businessWrites": 0,
+  "cacheDeletes": 0,
+  "cacheValuesPersisted": false,
+  "cleanup": {"probeProcessesExited": true, "ownedProxySession": 51553, "proxyStopped": true},
+  "nextRequired": [
+    "Resolve the two API definitions through their formal provider and names, without treating provider id as interface id.",
+    "Read authorized dictionary values, instrument per-model dispatch, and verify source page/size against outer pagination.",
+    "Confirm exact delete receipt and owned-key creation/cleanup before any actual delete smoke.",
+    "Implement bound standard page at the original relative path, with explicit command submit inside the data layer and no legacy business owner."
+  ]
+}

@@ -1,0 +1,284 @@
+{
+  "outcome": "Interface create/read/delete confirmed; output create rejected; all owned fixture IDs independently absent",
+  "experimentConfirmed": false,
+  "cleanupConfirmed": true,
+  "countedSdkReads": 89,
+  "dispatchedBatches": 3,
+  "confirmedInterfaceMutations": 2,
+  "rejectedOutputCreateBatches": 1,
+  "confirmedOutputRowWrites": 0,
+  "externalInterfaceExecuted": false,
+  "blocked": 0,
+  "originalAudit": {
+    "phase": "delete-owned-interface",
+    "marker": "AI_API_OUTPUT_mw5cpa93_d277a5",
+    "auditPath": "artifacts/data-chain-smoke/api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-audit.json",
+    "intentPath": "artifacts/data-chain-smoke/api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-intent.json",
+    "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+    "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+    "reads": 67,
+    "writes": 3,
+    "blocked": 0,
+    "steps": [
+      {
+        "step": "create-owned-interface",
+        "operation": "Added",
+        "table": "Base_DataServiceInterface",
+        "id": "EB94FCCD9E49C93F5A0CA05F011319CE",
+        "fields": [
+          "ProviderID",
+          "Name",
+          "LinkUrl",
+          "request",
+          "Desc",
+          "rowid"
+        ],
+        "tblnameOmitted": true
+      },
+      {
+        "step": "create-owned-output",
+        "operation": "Added",
+        "table": "Base_TblField",
+        "id": "170831CDDB884A8EBB8F65C03C2DF613",
+        "fields": [
+          "tblid",
+          "enname",
+          "DataType",
+          "IsPKey",
+          "cnname",
+          "Memo",
+          "description",
+          "rowid"
+        ],
+        "tblnameOmitted": true
+      },
+      {
+        "step": "delete-owned-interface",
+        "operation": "Deleted",
+        "table": "Base_DataServiceInterface",
+        "id": "EB94FCCD9E49C93F5A0CA05F011319CE",
+        "fields": [
+          "ProviderID",
+          "rowid",
+          "request",
+          "Desc",
+          "Name",
+          "LinkUrl"
+        ],
+        "tblnameOmitted": true
+      }
+    ],
+    "interfaceId": "EB94FCCD9E49C93F5A0CA05F011319CE",
+    "outputId": "170831CDDB884A8EBB8F65C03C2DF613",
+    "interfaceExecuted": false,
+    "requestOption": {
+      "id": "AD49485C6DEC4FC2A5A7A341D5B2EB49",
+      "value": "3",
+      "label": "Get"
+    },
+    "sourceHash": "0bb6f6adff5c66d325d85d6eb1637f7cfb97efb1583dd1ce73e2e073a685b6c8",
+    "hasUnconfirmed": false,
+    "pendingViews": [],
+    "testedAt": "2026-11-06T19:15:37.626Z",
+    "linkUrl": "https://example.invalid/AI_API_OUTPUT_mw5cpa93_d277a5",
+    "failedStep": "create-owned-output",
+    "error": "[500] 父表或视图元数据不存在",
+    "knownConsumerCheck": {
+      "parameters": 0,
+      "headers": 0,
+      "publicParameters": 0,
+      "models": 0,
+      "logicViewFileIndex": "not available; unique fixture only, no claim of general deletion completeness"
+    },
+    "cleanup": {
+      "interfaceAbsent": true,
+      "outputAbsent": true,
+      "capturedIdsIndependentlyAbsent": true,
+      "markerAndParentScopesEmpty": true
+    },
+    "cleanupConfirmed": true,
+    "closed": true
+  },
+  "originalAuditPath": "artifacts/data-chain-smoke/api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-audit.json",
+  "originalAuditHash": "8a55256cb6e68081dc6de77bd28e27b318a4c83c4964051f7f1f6f0e6b086f66",
+  "requestOptions": {
+    "phase": "finished",
+    "reads": 7,
+    "writes": 0,
+    "blocked": 0,
+    "options": [
+      {
+        "id": "AD49485C6DEC4FC2A5A7A341D5B2EB49",
+        "val": "3",
+        "txt": "Get"
+      },
+      {
+        "id": "FE0E4D29BCAF41FE809E9D0E2200EDB1",
+        "val": "1",
+        "txt": "Post"
+      }
+    ],
+    "total": 2
+  },
+  "zeroWritePreflights": [
+    {
+      "phase": "prepare-failed",
+      "marker": "AI_API_OUTPUT_mw5chztx_17c257",
+      "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+      "reads": 7,
+      "writes": 0,
+      "blocked": 0,
+      "steps": [],
+      "interfaceId": "",
+      "outputId": "",
+      "interfaceExecuted": false,
+      "error": "Actual request dictionary lacks explicit GET option",
+      "hasUnconfirmed": false,
+      "pendingViews": [],
+      "testedAt": "2026-11-06T19:06:11.863Z"
+    },
+    {
+      "phase": "prepared",
+      "marker": "AI_API_OUTPUT_mw5cmt6c_8cad84",
+      "auditPath": "artifacts/data-chain-smoke/api-output-owned-crud-AI_API_OUTPUT_mw5cmt6c_8cad84-audit.json",
+      "intentPath": "artifacts/data-chain-smoke/api-output-owned-crud-AI_API_OUTPUT_mw5cmt6c_8cad84-intent.json",
+      "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+      "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+      "reads": 8,
+      "writes": 0,
+      "blocked": 0,
+      "steps": [],
+      "interfaceId": "",
+      "outputId": "",
+      "interfaceExecuted": false,
+      "requestOption": {
+        "id": "AD49485C6DEC4FC2A5A7A341D5B2EB49",
+        "value": "3",
+        "label": "Get"
+      },
+      "sourceHash": "4bf89f1918fb5fa39484f480084d5fba8d31ba1a7b40aca9cff350a56a40b99f",
+      "hasUnconfirmed": false,
+      "pendingViews": [],
+      "testedAt": "2026-11-06T19:10:36.544Z",
+      "cleanup": {
+        "interfaceAbsent": true,
+        "outputAbsent": true
+      },
+      "cleanupConfirmed": true,
+      "closed": true
+    }
+  ],
+  "localJavaReadonlyInference": {
+    "scope": "Source explanation matching live rejection, not proof of deployed binary equality",
+    "tblnameCausation": "Not established; parent validation does not inspect tblname in reference source",
+    "files": [
+      {
+        "path": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/BasicFunServiceImpl.java",
+        "lines": "695,839",
+        "role": "Dispatch Base_TblField to operateField",
+        "sha256": "c9c6e896ef09d02cb0b00a375396ab4a9da5acdbb5bdf3abd856333ff468fa6f"
+      },
+      {
+        "path": "E:/lowcode-jdk17/lowcode-mainbody/src/main/java/com/htong/service/impl/TableFieldServiceImpl.java",
+        "lines": "497-514",
+        "role": "Interface/view owner branch delegates to ordinary row CRUD by tblid",
+        "sha256": "2ab78ecf427afa08748ac871e22d54b3dea4e8714eec00659cd88bd81406be37"
+      },
+      {
+        "path": "E:/lowcode-jdk17/lowcode-framework/lowcode-anyline/src/main/java/com/htong/service/CrudServiceImpl.java",
+        "lines": "873-893",
+        "role": "Creation parent validation only accepts owned table or database view",
+        "sha256": "78e034d6b1619826429ce850aa920e23b0957c0a471a402056d8b23f48ad2107"
+      }
+    ]
+  },
+  "prohibitionsObserved": [
+    "No tblname constant retry",
+    "No same-ID physical parent fixture",
+    "No alternate write model or endpoint",
+    "No mutation of existing six outputs",
+    "No local Java build/start/change/deploy"
+  ],
+  "next": "Register shared API output/public parameter rules in original scenario assembly and standard bound editing; deployment parent-type support remains an explicit gap",
+  "immutableIntents": [
+    {
+      "path": "D:\\SPARK_AppWorks\\artifacts\\data-chain-smoke\\api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-create-owned-interface-intent.json",
+      "sha256": "a081016c6f06b07d8ddebd72972bed516c73b8ebbb3f297a41586f8fa727ea51",
+      "intent": {
+        "marker": "AI_API_OUTPUT_mw5cpa93_d277a5",
+        "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+        "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+        "table": "Base_DataServiceInterface",
+        "id": "EB94FCCD9E49C93F5A0CA05F011319CE",
+        "step": "create-owned-interface",
+        "kind": "Added",
+        "values": {
+          "ProviderID": "BA0159D310154FEC9CFEF05558DEA012",
+          "Name": "AI_API_OUTPUT_mw5cpa93_d277a5",
+          "LinkUrl": "https://example.invalid/AI_API_OUTPUT_mw5cpa93_d277a5",
+          "request": "3",
+          "Desc": "AI_API_OUTPUT_mw5cpa93_d277a5"
+        },
+        "sourceHash": "0bb6f6adff5c66d325d85d6eb1637f7cfb97efb1583dd1ce73e2e073a685b6c8"
+      }
+    },
+    {
+      "path": "D:\\SPARK_AppWorks\\artifacts\\data-chain-smoke\\api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-create-owned-output-intent.json",
+      "sha256": "e6919d12ce28e8c5ea583f11b651b1da7ed908cf6bce0f0ef11729819e598909",
+      "intent": {
+        "marker": "AI_API_OUTPUT_mw5cpa93_d277a5",
+        "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+        "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+        "table": "Base_TblField",
+        "id": "170831CDDB884A8EBB8F65C03C2DF613",
+        "step": "create-owned-output",
+        "kind": "Added",
+        "values": {
+          "tblid": "EB94FCCD9E49C93F5A0CA05F011319CE",
+          "enname": "owned_value",
+          "DataType": "string",
+          "IsPKey": 1,
+          "cnname": "Owned output",
+          "Memo": "AI_API_OUTPUT_mw5cpa93_d277a5",
+          "description": "AI_API_OUTPUT_mw5cpa93_d277a5"
+        },
+        "sourceHash": "0bb6f6adff5c66d325d85d6eb1637f7cfb97efb1583dd1ce73e2e073a685b6c8"
+      }
+    },
+    {
+      "path": "D:\\SPARK_AppWorks\\artifacts\\data-chain-smoke\\api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-delete-owned-interface-intent.json",
+      "sha256": "ef1b498a8eb45fa53c2db8d0b25d063c9dd3f7e2f97a417672a2b63922585217",
+      "intent": {
+        "marker": "AI_API_OUTPUT_mw5cpa93_d277a5",
+        "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+        "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+        "table": "Base_DataServiceInterface",
+        "id": "EB94FCCD9E49C93F5A0CA05F011319CE",
+        "step": "delete-owned-interface",
+        "kind": "Deleted",
+        "values": {},
+        "sourceHash": "0bb6f6adff5c66d325d85d6eb1637f7cfb97efb1583dd1ce73e2e073a685b6c8"
+      }
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-output-owned-crud-AI_API_OUTPUT_mw5cpa93_d277a5-intent.json",
+      "sha256": "e7c5701bb8ba4fff2ffd3752130c68589c31d131415d7e1244f945fef5ebb035",
+      "intent": {
+        "marker": "AI_API_OUTPUT_mw5cpa93_d277a5",
+        "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+        "providerId": "BA0159D310154FEC9CFEF05558DEA012",
+        "sourceHash": "0bb6f6adff5c66d325d85d6eb1637f7cfb97efb1583dd1ce73e2e073a685b6c8",
+        "allowedSteps": [
+          "create-owned-interface",
+          "create-owned-output",
+          "edit-owned-output",
+          "delete-owned-output",
+          "delete-owned-interface"
+        ],
+        "tblname": "must be omitted",
+        "interfaceExecution": "forbidden"
+      }
+    }
+  ]
+}

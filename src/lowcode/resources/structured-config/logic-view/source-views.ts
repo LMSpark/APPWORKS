@@ -37,14 +37,17 @@ export class LogicViewSourceViews {
     this.assertCurrent();const prepared=await this.#reader.prepare(source,this.dataSet,{missingInputType:'preserve'});this.assertCurrent()
     return prepared
   }
-  /** 已存节点以数据库及表名精确定位正式来源，不借候选选择或旧字段缓存。 */
-  public async prepareStoredTable(input:Readonly<{dbid:string;name:string}>){
+  /** 已存普通节点按其类型、资源身份及名称精确恢复；不借候选选择或旧字段缓存。 */
+  public async prepareStored(input:Readonly<{Type:string;DbId:string;MetaName:string}>){
     this.assertCurrent()
-    if(!input.dbid.trim()||!input.name.trim())throw Error('输出发布缺少已存来源身份')
-    const template=await this.details('View_TblList'),view=template.createQueryView(`logicOutputSource_${crypto.randomUUID().replaceAll('-','')}`)
+    const types:readonly LogicViewSourceType[]=['table','dict','interface','json']
+    const type=types.find(value=>LowcodeDataSpaceSourceCatalog.config(value).label===input.Type)
+    if(!type||!input.DbId.trim()||!input.MetaName.trim())throw Error('输出发布缺少已存来源身份或来源类型未确认')
+    const spec=LowcodeDataSpaceSourceCatalog.config(type),identityField=spec.dbid??spec.providerId??'rowid'
+    const template=await this.details(spec.metaName),view=template.createQueryView(`logicOutputSource_${crypto.randomUUID().replaceAll('-','')}`)
     try{
       view.queryConfig={...view.queryConfig,allPages:true}
-      view.filterExpression=DataViewFilter.group({logic:'and',filters:[{field:'dbid',operator:'eq',value:input.dbid},{field:'tblname',operator:'eq',value:input.name}]}).toJSON()
+      view.filterExpression=DataViewFilter.group({logic:'and',filters:[{field:identityField,operator:'eq',value:input.DbId},{field:spec.name,operator:'eq',value:input.MetaName}]}).toJSON()
       const signature=JSON.stringify([view.filterExpression,view.queryConfig,view.queryContext])
       const assertQuery=()=>{this.assertCurrent();if(view.destroyed||view.dataTable?.getView(view.viewId)!==view
         ||JSON.stringify([view.filterExpression,view.queryConfig,view.queryContext])!==signature)throw Error('输出发布来源查询已变化')}
@@ -52,8 +55,9 @@ export class LogicViewSourceViews {
       await view.refresh();assertQuery();if(view.loadingError)throw view.loadingError
       const row=view.rows[0]
       if(view.requestState!==RequestState.Loaded||!row||!view.countReported||view.total!==1||view.rows.length!==1)throw Error('输出发布来源尚未完整确认')
-      const source=LowcodeDataSpaceSourceCatalog.source('table',view,row)
-      if(source.dbid!==input.dbid||source.name!==input.name)throw Error('输出发布来源身份不一致')
+      const source=LowcodeDataSpaceSourceCatalog.source(type,view,row)
+      const identity=spec.dbid?source.dbid:spec.providerId?source.providerId:source.id
+      if(identity!==input.DbId||source.name!==input.MetaName)throw Error('输出发布来源身份不一致')
       return await this.prepare(source)
     }finally{if(!this.dataSet.destroyed)view.dataTable?.destroyView(view.viewId)}
   }

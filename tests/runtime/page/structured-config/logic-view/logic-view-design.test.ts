@@ -20,6 +20,7 @@ const models = buildFormalModels({
   View_TblList:['rowid','tblname','tbldesc','dbid','DbName'],
   Base_TblField:['rowid','tblid','enname','cnname','description','DataType','IsPKey'],
   Base_DataServiceInterface:['rowid','Name','Desc','ProviderID'],
+  _Base_DictType:['rowid','TypeName','functiondesc','dictionaryType','txt','val','secondValue','thirdValue','fourthvalue','fiveValue'],
 })
 const parameterBase = buildFormalModels({_Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'testvalue']})[0]!
 models.push({...parameterBase, primaryKey: 'parid', fields: parameterBase.fields.map(field => ({...field, primaryKey: field.name === 'parid'}))})
@@ -95,6 +96,46 @@ beforeEach(() => {
 afterEach(() => {mounted.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = originalStubs; vi.restoreAllMocks(); vi.unstubAllGlobals()})
 
 describe('logic-view design page', () => {
+  it.each(['字典','接口','JSON'])('creates %s through the bound source selector, cancels, edits an alias, saves and reopens',async label=>{
+    http.logicDesigns['V1']=[]
+    http.records['_Base_DictType']=[{rowid:'DICT',TypeName:'Statuses',functiondesc:'状态',dictionaryType:'1',txt:'标题',val:'编码',secondValue:'扩展1',thirdValue:'扩展2',fourthvalue:'扩展3',fiveValue:'扩展4'}]
+    http.records['Base_JsonData']=[{rowid:'JSON',name:'Document'}]
+    http.records['Base_DataServiceInterface']=[{rowid:'IF',Name:'Orders',Desc:'接口',ProviderID:'PROVIDER'}]
+    http.records['Base_TblField']=[{rowid:'IF_FIELD',tblid:'IF',enname:'id',cnname:'编号',description:'编号',DataType:'int',IsPKey:1}]
+    http.records['_Base_ParamList']!.push({parid:'IF_ARG',pid:'IF',parname:'arg',pardesc:'来源输入',testvalue:'keep'})
+    const {wrapper}=await openDesigner()
+    await wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    const add=async(confirm:boolean)=>{
+      await wrapper.findAll('button').find(button=>button.text()===label)!.trigger('click');await flushPromises()
+      const dialog=wrapper.get('[data-logic-source-dialog]')
+      await dialog.get('.el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+      await dialog.findAll('button').find(button=>button.text()===(confirm?'确认添加':'取消'))!.trigger('click');await flushPromises()
+    }
+    await add(false)
+    expect(wrapper.findAll('[data-logic-node-outline] tbody tr')).toHaveLength(0)
+    expect(http.saves).toHaveLength(0);expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+    await add(true)
+    await wrapper.get('[data-logic-node-outline] .el-table__body-wrapper tbody tr').trigger('click');await flushPromises()
+    const editor=wrapper.get('[data-logic-node-editor] .json-array-rows')
+    await editor.get('.el-table__body-wrapper tbody tr').trigger('click');await editor.get('[data-json-edit]').trigger('click');await flushPromises()
+    await editor.get('.el-table__body-wrapper tbody td:nth-child(4) input').setValue('published_key');await flushPromises()
+    await editor.get('[data-json-save-row]').trigger('click');await flushPromises()
+    await wrapper.findAll('button').find(button=>button.text()==='保存设计')!.trigger('click');await flushPromises()
+    const outputs=http.records['Base_TblField']!.filter(row=>row['tblid']==='V1')
+    expect(outputs).toHaveLength(label==='字典'?8:label==='JSON'?6:1)
+    expect(outputs.find(row=>row['enname']==='published_key')).toMatchObject({IsPKey:label==='接口'?1:0})
+    expect(outputs.some(row=>row['enname']==='arg')).toBe(false)
+    expect(http.records['_Base_ParamList']!.find(row=>row['parid']==='IF_ARG')?.['testvalue']).toBe('keep')
+    const persisted=structuredClone(http.logicDesigns['V1'])
+    expect(persisted?.[0]).toMatchObject({Type:label,Fields:expect.arrayContaining([expect.objectContaining({AsName:'published_key'})])})
+    if(label==='接口')expect(persisted?.[0]).toMatchObject({inputParams:[expect.objectContaining({Name:'arg',IsOutput:0})]})
+    wrapper.unmount()
+    const reopened=await openDesigner()
+    await reopened.wrapper.findAll('[role="tab"]').find(tab=>tab.text()==='视图数据设计')!.trigger('click');await flushPromises()
+    const complete=reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('label')==='完整设计')!
+    expect(JSON.parse(complete.get('textarea').element.value)).toEqual(persisted)
+    expect(http.posts.filter(post=>post.url.includes('SaveView'))).toHaveLength(1)
+  })
   it('retains an unknown file save and verifies only that original capture before a separate explicit output save',async()=>{
     const {wrapper,router}=await publishingPage(),post=http.post.bind(http)
     http.records['Base_DataViewList']!.push({rowid:'V2',sysid:'APP',name:'Other View'})

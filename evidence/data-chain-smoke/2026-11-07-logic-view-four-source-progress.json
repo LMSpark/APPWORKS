@@ -1,0 +1,103 @@
+{
+  "status": "local-verification-passed-partial-live-source-confirmation",
+  "scope": "Four ordinary single-root logic-view source recovery and publication",
+  "baseline": "ac77fd7e919016f5daf9b123cb7e415ce117c8c1",
+  "sourceKinds": [
+    "table",
+    "dict",
+    "interface",
+    "json"
+  ],
+  "implementation": [
+    "One prepareStored entry resolves resource identity and exact source name through the original DataViews",
+    "Existing source reader owns definition and formal fields; no new persistence owner",
+    "Original two-DataSet publication command saves independent sources",
+    "Dictionary and JSON fields do not acquire primary-key status by field name"
+  ],
+  "verified": [
+    "JSON rename or deletion between initial resolution and formal preparation rejects without writes",
+    "Interface provider and name identify a unique interface before fields and parameters are read",
+    "Formal interface type and PK changes reject both writes",
+    "Non-table source switch with an existing consumer rejects and cancellation preserves original output IDs, parameter input and file input",
+    "Standard page source selectors cancel without writes, then create dictionary/interface/JSON nodes, edit alias, save and independently reopen",
+    "Published output counts are 8 dictionary fields, 1 selected interface field, 6 JSON fields; interface input stays separate"
+  ],
+  "tests": {
+    "files": 11,
+    "tests": 150,
+    "exitCode": 0,
+    "log": "artifacts/data-chain-smoke/logic-view-four-source-complete-regression.log",
+    "logSha256": "46D32BC05C58E1483173A2064CCEB681783999A2A86F42F9285E69509B85A4AD"
+  },
+  "checks": {
+    "typecheck": 0,
+    "lint": 0,
+    "classModel": 0,
+    "guideQuery": 0,
+    "rules": 0,
+    "build": 0,
+    "fullLint": 0
+  },
+  "negativeEvidence": [
+    "artifacts/data-chain-smoke/logic-view-four-source-compiler-red.log",
+    "artifacts/data-chain-smoke/logic-view-four-source-restore-red.log"
+  ],
+  "testFixtureCorrections": [
+    "Independent design readback uses original file DataView, not catalog row",
+    "Complete JSON object equality accounts for storage formatting",
+    "Multi-field source assertion includes exact published field count rather than assuming one field",
+    "Seeded fixture record arrays have explicit non-null guarantees for typechecking"
+  ],
+  "pending": [
+    "Complete-identity table source sample with DbName in actual service",
+    "Actual service SaveView persistence confirmation",
+    "Browser visual confirmation",
+    "Commit and push"
+  ],
+  "review": "High-tier read-only final review found no new definite blocker. Source selection cancel and pre-dispatch consumer rejection are separate evidence; existing shared tests own staged-output cancellation.",
+  "frozenFiles": [
+    {
+      "path": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
+      "sha256": "908ED5993C0B030323C3335204BC2503E5E352B496E4C9D60AE180C70122B575"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/logic-view/resource.ts",
+      "sha256": "65C9D628274956FD8C364D70C006081211D77FEBC6AF834FADDAB2CB4CA53544"
+    },
+    {
+      "path": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
+      "sha256": "90EBA0AF65016153643AD3DCB1D4A330BD04981E6BE5DF9297CD9830198950F5"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/logic-view/logic-view-design.test.ts",
+      "sha256": "3ECDD230D19D10DF58C55902CD63D6FFEF701F337937DBAC919E6AB25F84E4D0"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/logic-view/logic-view-source-views.test.ts",
+      "sha256": "132C347BC582E6A33B08BEA6318168367155D22A27C4C2BA40C4C0BC14C00BD9"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/logic-view/logic-view.fixture.ts",
+      "sha256": "D0CD548E90881E24F60E72428167B38529267417DA59A5FAC95EF61656C68BA9"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/logic-view/output/publication-plan.test.ts",
+      "sha256": "64312EC7BF5CCF74C1436EE4B01F5390BD23AED5C2CF6A7FAA6B0A260DFDF0EC"
+    },
+    {
+      "path": "tests/runtime/page/structured-config/logic-view/output/publication.test.ts",
+      "sha256": "2B81BB5CFA03041C01F34DEEAC1A376B86F93C38C2113ED59A659C4C98E24641"
+    }
+  ],
+  "fullRepository": {
+    "files": 477,
+    "tests": 8826,
+    "exitCode": 0,
+    "durationSeconds": 932.92,
+    "log": "artifacts/data-chain-smoke/logic-view-four-source-full-repository.log",
+    "logSha256": "C45C0455772E3D7D23F2EEC9F29D8148113893294EFB9357CD702DB230526DB4",
+    "command": "pnpm exec vitest run --maxWorkers=2",
+    "testTimeoutMs": 15000
+  },
+  "liveSourceEvidence": "evidence/data-chain-smoke/2026-11-07-logic-view-four-source-live-readonly.json"
+}

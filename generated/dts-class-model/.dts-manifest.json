@@ -4344,7 +4344,7 @@
     "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json",
-      "sourceModifiedAt": "2026-11-06T11:22:00.623Z"
+      "sourceModifiedAt": "2026-11-06T17:11:37.582Z"
     },
     "src/lowcode/resources/structured-config/logic-view/output/publication.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
@@ -4354,12 +4354,12 @@
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
-      "sourceModifiedAt": "2026-11-06T15:03:43.977Z"
+      "sourceModifiedAt": "2026-11-06T17:11:37.581Z"
     },
     "src/lowcode/resources/structured-config/logic-view/source-views.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/source-views.ts.json",
-      "sourceModifiedAt": "2026-11-06T14:53:04.865Z"
+      "sourceModifiedAt": "2026-11-06T17:11:37.580Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/boundaries.ts",

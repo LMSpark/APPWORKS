@@ -1,10 +1,10 @@
 /**
  * @module app:lowcode/resources/structured-config/logic-view/output/publication-plan
- * 职责：依据当前正式来源核对普通单表输出，生成发布字段值。
+ * 职责：依据当前正式来源核对普通单根输出，生成发布字段值。
  * 边界：不读取或保存数据，不持有草稿；不将未核实的层次/计算结果伪装为平面字段。
  */
 import {isRecord} from '@spark-appworks/spark-utils'
-import type {PageDataSpaceModelSourcePrepared} from '../../../../data-space/model-source/lowcode-data-space-source-catalog'
+import {LowcodeDataSpaceSourceCatalog,type PageDataSpaceModelSourcePrepared} from '../../../../data-space/model-source/lowcode-data-space-source-catalog'
 
 /** 正式Base_TblField的可发布成员；身份与所属viewId由原DataView承接。 */
 export type LogicViewOutputField=Readonly<{enname:string;cnname:string;description:string;DataType:string;IsPKey:number}>
@@ -16,14 +16,17 @@ function flag(value:unknown,required=false):boolean{
  if(value===undefined||value===null||value===0||value==='0'||value===false||value==='')return false
  throw Error('输出字段标记不是明确的0或1')
 }
-/** 仅接受已核实的单根普通数据库表；发布前须以当次来源reader重新准备source。 */
+/** 仅接受已核实的单根普通表、字典、接口或JSON；发布前须以当次来源reader重新准备source。 */
 export function compileLogicViewOutputFields(input:Readonly<{design:unknown;source:PageDataSpaceModelSourcePrepared}>):readonly LogicViewOutputField[]{
  const {design,source}=input
  if(!Array.isArray(design)||design.length!==1||!isRecord(design[0]))throw Error('输出发布尚未确认多根或非节点数组形态')
  const node=design[0]
  if(node['OutputType']!=='Table'||!Array.isArray(node['ChildTables'])||node['ChildTables'].length)throw Error('输出发布尚未确认层次、导航或子表形态')
- if(source.source.type!=='table'||node['Type']!==source.model.Type||text(node['MetaName'])!==source.source.name
-  ||text(node['DbId'])!==source.source.dbid||!source.source.id||!source.source.dbid||!source.source.databaseName)throw Error('输出发布来源身份不一致')
+ if(!['table','dict','interface','json'].includes(source.source.type))throw Error('输出发布来源类型未确认')
+ const spec=LowcodeDataSpaceSourceCatalog.config(source.source.type),identity=spec.dbid?source.source.dbid:spec.providerId?source.source.providerId:source.source.id
+ if(node['Type']!==source.model.Type||source.model.Type!==spec.label||source.model.MetaName!==source.source.name
+  ||text(node['MetaName'])!==source.source.name||source.model.DbId!==identity||text(node['DbId'])!==identity
+  ||!text(source.source.id)||!text(identity)||spec.dbid&&!text(source.source.databaseName))throw Error('输出发布来源身份不一致')
  if(!Array.isArray(node['Fields']))throw Error('输出字段数组缺失')
  const formal=new Map<string,typeof source.fields[number]>()
  for(const field of source.fields){if(field.type!=='dataModel')continue

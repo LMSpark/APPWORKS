@@ -9,6 +9,7 @@ import {DataSpaceDefinitionSave} from '@/lowcode/data-space/model-source/data-sp
 import {LOGIC_VIEW_DESIGN_INPUT,LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 import {configureLogicFixture,LogicViewHttp} from '../logic-view.fixture'
+import {buildFormalModels} from '../../catalog/structured-config-catalog.fixture'
 const service=vi.hoisted(()=>({readSpaceDefinition:vi.fn(),readModel:vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),readRequestScope:vi.fn(),createGateways:vi.fn()}))
 let http:PublicationHttp,owner:DataSpaceRuntimeApi
 vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return http},createLowcodeProjectGateways:(...args:unknown[])=>service.createGateways(...args),lowcodeDesignFileUpload:undefined,createPageToolFilesIo:()=>({}),lowcodeApi:{design:{},readRequestScope:service.readRequestScope,dataSpace:{design:service,get runtime(){return owner}}}}))
@@ -34,17 +35,20 @@ beforeEach(()=>{
    {rowid:'F1',tblid:'V1',enname:'id',cnname:'old',description:'old',DataType:'int',IsPKey:1},
    {rowid:'OLD',tblid:'V1',enname:'obsolete',cnname:'旧字段',description:'旧字段',DataType:'varchar',IsPKey:0}],
   _Base_ParamList:[{parid:'P1',pid:'V1',parname:'arg',testvalue:'original'}]}
- http.logicDesigns['V1']=design('old');configureLogicFixture(service,http)
+ http.logicDesigns['V1']=design('old');configureLogicFixture(service,http,buildFormalModels({
+  Base_DataServiceInterface:['rowid','Name','Desc','ProviderID'],
+  _Base_DictType:['rowid','TypeName','functiondesc','dictionaryType','txt','val','secondValue','thirdValue','fourthvalue','fiveValue'],
+ }))
 })
 afterEach(()=>{commands.splice(0).forEach(command=>command.dispose());pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
-async function workspace(){
+async function workspace(next:unknown[]=design('新编号')){
  const page=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'publication-test'})
  pages.push(page);await page.load();await LowcodeLogicView.prepareEditor(page)
  const ds=page.getDataSet(LowcodeLogicView.navigationScenarioId)!
  setDesignScopeValue({dataSet:ds,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
  const file=ds.getView(LOGIC_VIEW_DESIGN_VIEW)!
  await file.refresh();if(file.loadingError)throw file.loadingError
- file.updateEditingValue('V1','designJson',JSON.stringify(design('新编号')))
+ file.updateEditingValue('V1','designJson',JSON.stringify(next))
  const command=new LogicViewPublication({page,viewId:'V1',assertCurrent:()=>{}});commands.push(command)
  return{page,file,command}
 }
@@ -61,6 +65,64 @@ async function invalidOutputReceipt(afterSave?:(view:DataView)=>void){
  return{...state,metadata,outputs:metadata.getView('Base_TblField',LowcodeLogicView.outputFieldViewId)!}
 }
 describe('logic view two-source publication through original DataSets',()=>{
+ it.each(['type','primary'])('rejects a formal interface %s change before either source writes',async change=>{
+  http.records['Base_DataServiceInterface']=[{rowid:'IF',Name:'Orders',Desc:'接口',ProviderID:'PROVIDER'}]
+  const formal=http.records['Base_TblField']![0]!
+  formal['tblid']='IF'
+  const input=design('new')[0]!;input.Type='接口';input.DbId='PROVIDER';input.DbName=''
+  const {command,file}=await workspace([input]),before=structuredClone(http.records['Base_TblField'])
+  if(change==='type')formal['DataType']='varchar';else formal['IsPKey']=0
+  const current=structuredClone(http.records['Base_TblField'])
+  await expect(command.save()).rejects.toThrow(change==='type'?'类型':'主键')
+  expect(http.saves).toHaveLength(0);expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+  expect(http.records['Base_TblField']).toEqual(current)
+  expect(current?.filter(row=>row['tblid']==='V1')).toEqual(before?.filter(row=>row['tblid']==='V1'))
+  expect(file.getEditingRow('V1')?.['designJson']).toBe(JSON.stringify([input]))
+ })
+ it('blocks a non-table source switch used by another model and cancels only its output intent',async()=>{
+  http.records['Base_JsonData']=[{rowid:'JSON',name:'Document'}]
+  http.records['Base_DataModel']=[{rowid:'USED',dataSetId:'OTHER',Type:'视图',DbId:'V1',MetaName:'View One'}]
+  const input=design('new')[0]!;input.Type='JSON';input.DbId='JSON';input.MetaName='Document';input.DbName='';input.PrimaryKeyFields=''
+  input.Fields[0]!.FieldType='varchar';input.Fields[0]!.IsPKey=0
+  const {command,page,file}=await workspace([input]),metadata=await LowcodeLogicView.ensureParameters(page)
+  const params=metadata.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!;params.updateEditingValue('P1','testvalue','keep')
+  const before=structuredClone(http.records['Base_TblField']?.filter(row=>row['tblid']==='V1'))
+  await expect(command.save()).rejects.toThrow('消费者')
+  command.cancelBeforeDispatch()
+  expect(http.records['Base_TblField']?.filter(row=>row['tblid']==='V1')).toEqual(before)
+  expect(params.getEditingRow('P1')?.['testvalue']).toBe('keep')
+  expect(file.getEditingRow('V1')?.['designJson']).toBe(JSON.stringify([input]))
+  expect(http.saves).toHaveLength(0);expect(http.posts.some(post=>post.url.includes('SaveView'))).toBe(false)
+ })
+ it.each(['dict','interface','json'] as const)('publishes %s through both original sources and independently reopens the definition and stable output',async kind=>{
+  const input=design('Published')[0]!,fieldName=kind==='dict'?'val':'id',fieldType=kind==='dict'?'double':kind==='json'?'varchar':'int',primary=kind==='interface'?1:0
+  input.Type=kind==='dict'?'字典':kind==='json'?'JSON':'接口'
+  input.DbId=kind==='interface'?'PROVIDER':'RESOURCE';input.DbName='';input.MetaName=kind==='dict'?'Statuses':kind==='json'?'Document':'Orders';input.Name=input.MetaName
+  input.PrimaryKeyFields=primary?'id':'';input.Fields=[{Name:fieldName,Description:'Published',FieldType:fieldType,IsPKey:primary,IsOutput:1}]
+  http.records['_Base_DictType']=[{rowid:'RESOURCE',TypeName:'Statuses',functiondesc:'状态',dictionaryType:'1',txt:'标题',val:'编码',secondValue:'扩展1',thirdValue:'扩展2',fourthvalue:'扩展3',fiveValue:'扩展4'}]
+  http.records['Base_JsonData']=[{rowid:'RESOURCE',name:'Document'}]
+  http.records['Base_DataServiceInterface']=[{rowid:'INTERFACE',Name:'Orders',Desc:'接口',ProviderID:'PROVIDER'},{rowid:'OTHER',Name:'Orders',Desc:'other',ProviderID:'OTHER'}]
+  http.records['Base_TblField']!.push({rowid:'IF',tblid:'INTERFACE',enname:'id',cnname:'编号',description:'编号',DataType:'int',IsPKey:1})
+  const existing=http.records['Base_TblField']!.find(row=>row['rowid']==='F1')!
+  Object.assign(existing,{enname:fieldName,DataType:fieldType,IsPKey:primary})
+  const {page,command}=await workspace([input]),metadata=await LowcodeLogicView.ensureParameters(page)
+  const params=metadata.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!
+  params.updateEditingValue('P1','testvalue','keep')
+  await command.save()
+  expect(command.published).toBe(true);expect(params.getEditingRow('P1')?.['testvalue']).toBe('keep')
+  const reopened=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'source-readback'})
+  pages.push(reopened);await reopened.load();await LowcodeLogicView.prepareEditor(reopened)
+  const outputs=(await LowcodeLogicView.ensureOutputFields(reopened)).getView('Base_TblField',LowcodeLogicView.outputFieldViewId)!
+  expect(outputs.readSnapshot().rows).toEqual([expect.objectContaining({rowid:'F1',enname:fieldName,DataType:fieldType,IsPKey:primary,cnname:'Published'})])
+  const reopenedDs=reopened.getDataSet(LowcodeLogicView.navigationScenarioId)!
+  setDesignScopeValue({dataSet:reopenedDs,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
+  const reopenedFile=reopenedDs.getView(LOGIC_VIEW_DESIGN_VIEW)!
+  await reopenedFile.refresh();if(reopenedFile.loadingError)throw reopenedFile.loadingError
+  const persisted=reopenedFile.readSnapshot().rows[0]?.['designJson']
+  expect(typeof persisted).toBe('string');expect(JSON.parse(String(persisted))).toEqual([input])
+  expect(http.records['Base_TblField']!.some(row=>row['rowid']==='OLD')).toBe(false)
+  expect(http.posts.filter(post=>post.url.includes('SaveView'))).toHaveLength(1)
+ })
  it.each(['undefined','missing'] as const)('preserves a nullable native member changed to %s after an invalid receipt',async change=>{
   const {command,outputs}=await invalidOutputReceipt(view=>{view.rows.find(row=>view.getPkKey(row)==='F1')!['description']=null})
   const row=outputs.rows.find(row=>outputs.getPkKey(row)==='F1')!

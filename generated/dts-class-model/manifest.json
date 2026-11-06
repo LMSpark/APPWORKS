@@ -14571,7 +14571,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/logic-view/output/publication-plan",
-        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication-plan\n职责：依据当前正式来源核对普通单表输出，生成发布字段值。\n边界：不读取或保存数据，不持有草稿；不将未核实的层次/计算结果伪装为平面字段。",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication-plan\n职责：依据当前正式来源核对普通单根输出，生成发布字段值。\n边界：不读取或保存数据，不持有草稿；不将未核实的层次/计算结果伪装为平面字段。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "LogicViewOutputField"

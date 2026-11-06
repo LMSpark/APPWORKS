@@ -72,9 +72,9 @@ export class LowcodeLogicView {
  static async prepareOutputPublication(input:Readonly<{page:PageRuntime;design:unknown;assertCurrent:()=>void}>):Promise<LogicViewOutputEdit>{
   input.assertCurrent();const {design,page}=input
   const node:unknown=Array.isArray(design)&&design.length===1?design[0]:undefined
-  if(!isRecord(node)||node['Type']!=='数据库表'||typeof node['DbId']!=='string'||typeof node['MetaName']!=='string')throw Error('输出发布尚未确认该设计来源形态')
+  if(!isRecord(node)||typeof node['Type']!=='string'||typeof node['DbId']!=='string'||typeof node['MetaName']!=='string')throw Error('输出发布尚未确认该设计来源形态')
   const dataSet=await this.ensureOutputFields(page);input.assertCurrent()
-  const source=await new LogicViewSourceViews(dataSet).prepareStoredTable({dbid:node['DbId'],name:node['MetaName']});input.assertCurrent()
+  const source=await new LogicViewSourceViews(dataSet).prepareStored({Type:node['Type'],DbId:node['DbId'],MetaName:node['MetaName']});input.assertCurrent()
   const viewId=page.call.scenarioInputs?.[this.parameterScenarioId]?.['viewId']
   if(typeof viewId!=='string'||!viewId)throw Error('输出发布缺少正式目标')
   return new LogicViewOutputEdit({dataSet,viewId,fields:compileLogicViewOutputFields({design,source}),assertCurrent:input.assertCurrent})

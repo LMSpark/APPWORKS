@@ -4,12 +4,14 @@ import {vi,type Mock} from 'vitest'
 import {isRecord} from '@spark-appworks/spark-utils'
 import catalogText from '../../../../../config/pages/structured-config/logic-view-catalog/pagedata.json?raw'
 import metadataText from '../../../../../config/pages/data-platform/data-space-design/pagedata.json?raw'
+import dictionaryText from '../../../../../config/pages/data-platform/data-dictionary/pagedata.json?raw'
 import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 
 /** 只替换正式定义和仓库IO边界；场景loader、assembler、PageRuntime与CRUD owner均使用真实实现。 */
 export function configureLogicFixture(service:Readonly<{readSpaceDefinition:Mock;readModel:Mock;readModelBatch:Mock;readRelations:Mock;createGateways:Mock}>,http:ApiBackend,
  extras:ReturnType<typeof buildFormalModels>=[]){
- const texts:Record<string,string>={'EB720370EF06A5A656838F87E0716D6B':catalogText,'8D1AB14DD8277F3E7017CD38F77B09FD':metadataText}
+ const texts:Record<string,string>={'EB720370EF06A5A656838F87E0716D6B':catalogText,'8D1AB14DD8277F3E7017CD38F77B09FD':metadataText,
+  '69B79AB779DF4C12A5595DACDF3283F1':dictionaryText}
  const readText=vi.fn(async(id:string)=>{const text=texts[id];if(!text)throw Error(`Unexpected fixture scenario ${id}`);return text})
  const unexpected=()=>{throw Error('Unexpected fixture repository IO')}
  service.createGateways.mockReturnValue({scenarioViews:{readScope:()=> 'fixture-scope',readText,writeText:unexpected},tools:{readText:unexpected,writeText:unexpected},navigation:{read:unexpected,write:unexpected}})

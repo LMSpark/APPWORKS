@@ -85,36 +85,40 @@
           "type": "object",
           "title": "Promise<Readonly<{\n        source: PageDataSpaceModelSource;\n        model: Readonly<{\n            Type: string;\n            MetaName: string;\n            description: string;\n            DbId: string;\n            DbName: string;\n            JoinType: string;\n            ForeignKeyFields: string;\n            JoinFilter: string;\n            PId: string;\n        }>;\n        fields: readonly import(\"../../../data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n    }>>"
         },
-        "method.prepareStoredTable.params": {
+        "method.prepareStored.params": {
           "type": "object",
           "properties": {
             "input": {
               "type": "object",
               "properties": {
-                "dbid": {
+                "Type": {
                   "type": "string"
                 },
-                "name": {
+                "DbId": {
+                  "type": "string"
+                },
+                "MetaName": {
                   "type": "string"
                 }
               },
               "required": [
-                "dbid",
-                "name"
+                "Type",
+                "DbId",
+                "MetaName"
               ],
               "additionalProperties": false
             }
           },
           "additionalProperties": false
         },
-        "method.prepareStoredTable.return": {
+        "method.prepareStored.return": {
           "type": "object",
           "title": "Promise<Readonly<{\n        source: PageDataSpaceModelSource;\n        model: Readonly<{\n            Type: string;\n            MetaName: string;\n            description: string;\n            DbId: string;\n            DbName: string;\n            JoinType: string;\n            ForeignKeyFields: string;\n            JoinFilter: string;\n            PId: string;\n        }>;\n        fields: readonly import(\"../../../data-space/model-source/lowcode-data-space-source-catalog\").PageDataSpaceModelSourceField[];\n    }>>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-06T14:53:04.865Z",
+  "generatedAt": "2026-11-06T17:11:37.580Z",
   "models": {
     "LogicViewSourceType": {
       "name": "LogicViewSourceType",
@@ -248,8 +252,8 @@
               }
             },
             {
-              "name": "prepareStoredTable",
-              "jsdoc": "已存节点以数据库及表名精确定位正式来源，不借候选选择或旧字段缓存。",
+              "name": "prepareStored",
+              "jsdoc": "已存普通节点按其类型、资源身份及名称精确恢复；不借候选选择或旧字段缓存。",
               "parameters": [
                 {
                   "name": "input",
@@ -259,7 +263,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        dbid: string;\n        name: string;\n    }"
+                        "name": "{\n        Type: string;\n        DbId: string;\n        MetaName: string;\n    }"
                       }
                     ]
                   }

@@ -1,0 +1,190 @@
+{
+  "status": "three-source-types-confirmed-table-sample-incomplete",
+  "account": "requested test account",
+  "authenticationConfirmed": true,
+  "countedSourceRequests": 34,
+  "businessWrites": 0,
+  "blockedSourceRequests": 0,
+  "firstProbe": {
+    "phase": "finished",
+    "reads": 27,
+    "writes": 0,
+    "blocked": 0,
+    "sources": [
+      {
+        "type": "table",
+        "status": "failed",
+        "error": "数据库来源缺少数据库身份（dbid/DbName），无法创建模型"
+      },
+      {
+        "type": "dict",
+        "status": "confirmed",
+        "sourceId": "003709DDDB8469AC580AFFABFDEE70EE",
+        "fields": [
+          {
+            "name": "rowid",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "val",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "txt",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "exVal_1",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "exVal_2",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "exVal_3",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "exVal_4",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "ordIdx",
+            "type": "int",
+            "member": "dataModel",
+            "primary": 0
+          }
+        ]
+      },
+      {
+        "type": "interface",
+        "status": "confirmed",
+        "sourceId": "0416D1D8C18A4784B15CA4BDFF2F96D7",
+        "fields": [
+          {
+            "name": "ip",
+            "type": "",
+            "member": "inputParams",
+            "primary": 0
+          },
+          {
+            "name": "uid",
+            "type": "",
+            "member": "inputParams",
+            "primary": 0
+          },
+          {
+            "name": "type",
+            "type": "",
+            "member": "inputParams",
+            "primary": 0
+          },
+          {
+            "name": "pwd",
+            "type": "",
+            "member": "inputParams",
+            "primary": 0
+          },
+          {
+            "name": "port",
+            "type": "",
+            "member": "inputParams",
+            "primary": 0
+          },
+          {
+            "name": "dbname",
+            "type": "",
+            "member": "inputParams",
+            "primary": 0
+          }
+        ]
+      },
+      {
+        "type": "json",
+        "status": "confirmed",
+        "sourceId": "164E9619378943B298687C28B02983E2",
+        "fields": [
+          {
+            "name": "id",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "pid",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "name",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "type",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "haschild",
+            "type": "bool",
+            "member": "dataModel",
+            "primary": 0
+          },
+          {
+            "name": "value",
+            "type": "varchar",
+            "member": "dataModel",
+            "primary": 0
+          }
+        ]
+      }
+    ],
+    "error": ""
+  },
+  "tableFollowup": {
+    "phase": "finished",
+    "reads": 7,
+    "writes": 0,
+    "blocked": 0,
+    "sources": [
+      {
+        "type": "table",
+        "status": "rejected-incomplete-sample",
+        "sourceId": "001466A6ACE74D8ABE24AAB6247D8926",
+        "dbidPresent": true,
+        "databaseNamePresent": false
+      },
+      {
+        "type": "table",
+        "status": "no-readable-sample"
+      }
+    ],
+    "error": ""
+  },
+  "tableGap": "The sampled table row has dbid but no DbName. No complete-identity table sample was obtained in the sampled candidate page; this is not a claim that the entire catalog is invalid.",
+  "scope": "Actual source metadata reads only, not interface execution, JSON data CRUD, SaveView persistence, or browser verification",
+  "localBootstrap": "Initial proxy startup exits were not HTTP-instrumented. A credential-free reproduction confirmed port 5273 EADDRINUSE. A temporary proxy on 54321 was used and stopped after both probes exited.",
+  "provenance": [
+    "artifacts/data-chain-smoke/logic-view-four-source-readonly.json",
+    "artifacts/data-chain-smoke/logic-view-table-source-readonly-v2.json"
+  ]
+}

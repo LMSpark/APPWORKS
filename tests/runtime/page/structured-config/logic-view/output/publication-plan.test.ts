@@ -12,6 +12,25 @@ const node=()=>({Name:'Orders',MetaName:'Orders',Type:'数据库表',DbId:'DB',O
  {Name:'name',Description:'名称',FieldType:'varchar',IsPKey:0,IsOutput:1},
  {Name:'hidden',FieldType:'varchar',IsOutput:0}],inputParams:[{Name:'arg',IsOutput:1}],Filter:{field:'hidden',value:'keep'},ChildTables:[]})
 describe('logical-view output publication semantics',()=>{
+ it.each(['dict','json','interface'] as const)('publishes ordinary %s output using its prepared resource identity',kind=>{
+  const prepared:PageDataSpaceModelSourcePrepared={...source,
+   source:{...source.source,type:kind,id:'RESOURCE',dbid:'',databaseName:'',providerId:kind==='interface'?'PROVIDER':''},
+   model:{...source.model,Type:kind==='dict'?'字典':kind==='json'?'JSON':'接口',DbId:kind==='interface'?'PROVIDER':'RESOURCE',DbName:''},
+   fields:source.fields.map(field=>({...field,IsPKey:kind==='interface'?field.IsPKey:0})),
+  }
+  const input={...node(),Type:prepared.model.Type,DbId:prepared.model.DbId,PrimaryKeyFields:kind==='interface'?'id':''}
+  input.Fields[0]!.IsPKey=kind==='interface'?1:0
+  expect(compileLogicViewOutputFields({design:[input],source:prepared})).toEqual([
+   {enname:'order_id',cnname:'订单号',description:'订单号',DataType:'int',IsPKey:kind==='interface'?1:0},
+   {enname:'name',cnname:'名称',description:'名称',DataType:'varchar',IsPKey:0},
+  ])
+  if(kind!=='interface'){
+   input.Fields[0]!.IsPKey=1;input.PrimaryKeyFields='id'
+   expect(()=>compileLogicViewOutputFields({design:[input],source:prepared})).toThrow('主键')
+  }
+  input.DbId='WRONG'
+  expect(()=>compileLogicViewOutputFields({design:[input],source:prepared})).toThrow('来源身份')
+ })
  it.each(['empty','zero','false'])('rejects %s output instead of interpreting backend default projection as zero columns',kind=>{
   const input:Record<string,unknown>=node()
   input['Fields']=kind==='empty'?[]:(input['Fields'] as Array<Record<string,unknown>>).map(field=>({...field,IsOutput:kind==='zero'?0:false}))

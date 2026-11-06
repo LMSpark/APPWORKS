@@ -1,0 +1,26 @@
+{
+  "scope": "Native DataView editing application - initial full regression",
+  "exitCode": 1,
+  "files": {
+    "total": 473,
+    "passed": 471,
+    "failed": 2
+  },
+  "tests": {
+    "total": 8753,
+    "passed": 8751,
+    "failed": 2
+  },
+  "durationSeconds": 864.58,
+  "log": {
+    "path": "artifacts/data-chain-smoke/data-view-apply-full-tests.log",
+    "sha256": "e298b42b9ad583af600142ce87428420d38afb3efcd9a5d589627fadb072ddeb"
+  },
+  "failures": [
+    "CRUD business key submission: explicit synthetic key before transport",
+    "DataView CRUD bridge: direct commit uses original updateRowById"
+  ],
+  "followup": "Original run completed naturally. Current options migration and ordinary CRUD bridge correction passed 32 files / 598 tests. Frozen final full regression is running; not yet a passing full-suite result.",
+  "backendRequests": 0,
+  "terminalLog": "Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`\r\n\r\n RUN  v4.1.9 D:/SPARK_AppWorks\r\n\r\n ❯ packages/spark-data/src/tests/crud/crud-delegates.test.ts (33 tests | 1 failed) 141ms\r\n     × rejects an explicit synthetic key before transport 6ms\r\nstdout | tests/runtime/data-view/dataview-crud-bridge.test.ts > DataView CRUD bridge > view CRUD should direct-commit to remote when create/update/delete API is configured\r\nℹ️ [CrudService] 记录创建成功 { data: { id: 2, name: 'Bob' } }\r\n\r\nstdout | tests/runtime/data-view/dataview-crud-bridge.test.ts > DataView CRUD bridge > view CRUD should direct-commit to remote when create/update/delete API is configured\r\nℹ️ [CrudService] 记录更新成功 { pk: { id: 1 }, data: { id: 1, name: 'Alice-2', status: 'active' } }\r\n\r\n ❯ tests/runtime/data-view/dataview-crud-bridge.test.ts (24 tests | 1 failed) 84ms\r\n     × view CRUD should direct-commit to remote when create/update/delete API is configured 13ms\r\n\r\n⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯\r\n\r\n FAIL  tests/runtime/data-view/dataview-crud-bridge.test.ts > DataView CRUD bridge > view CRUD should direct-commit to remote when create/update/delete API is configured\r\nAssertionError: expected \"updateRowById\" to be called with arguments: [ 1, ObjectContaining{…} ]\r\n\r\nNumber of calls: 0\r\n\r\n ❯ tests/runtime/data-view/dataview-crud-bridge.test.ts:250:30\r\n    248|     expect(put).toHaveBeenCalledWith('/api/users/1', { id: 1, name: 'A…\r\n    249|     expect(updateResult).toMatchObject({ success: true, data: { id: 1,…\r\n    250|     expect(updateRowByIdSpy).toHaveBeenCalledWith(1, expect.objectCont…\r\n       |                              ^\r\n    251|     expect(view.rows.find(row => row['id'] === 1)?.['name']).toBe('Ali…\r\n    252|\r\n\r\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯\r\n\r\n FAIL  packages/spark-data/src/tests/crud/crud-delegates.test.ts > CRUD business key submission > rejects an explicit synthetic key before transport\r\nAssertionError: promise resolved \"{ success: true }\" instead of rejecting\r\n\r\n- Expected\r\n+ Received\r\n\r\n- Error {\r\n-   \"message\": \"rejected promise\",\r\n+ {\r\n+   \"success\": true,\r\n  }\r\n\r\n ❯ packages/spark-data/src/tests/crud/crud-delegates.test.ts:490:98\r\n    488|   it('rejects an explicit synthetic key before transport', async () =>…\r\n    489|     const { view, update, remove } = fixture()\r\n    490|     await expect(view.crud.updateRecord('0+10', { name: 'Changed' }, {…\r\n       |                                                                                                  ^\r\n    491|     await expect(view.crud.deleteRecord('0+10', { _pk: '0+10' })).reje…\r\n    492|     expect(update).not.toHaveBeenCalled()\r\n\r\n⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯\r\n\r\n\r\n Test Files  2 failed | 471 passed (473)\r\n      Tests  2 failed | 8751 passed (8753)\r\n   Start at  21:31:15\r\n   Duration  864.58s (transform 69.58s, setup 68.67s, import 800.46s, tests 1730.87s, environment 646.87s)\r\n\r\n"
+}

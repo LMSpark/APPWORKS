@@ -1523,6 +1523,13 @@ treeManager?: TreeManager | undefined
 
   /** 编辑态 patch：UI 字段变化先进入这里，apply 后再进入 editRowById / dirtyTracking。 */
   private _editingPatches = new Map<string | number, Partial<DataRow>>()
+  private _applyingEditingIds = new Map<string | number, {patch: Partial<DataRow>; appliedRow?: DataRow}>()
+
+  private assertEditingApplyIdle(ids?: ReadonlyArray<string | number>): void {
+    if (ids === undefined ? this._applyingEditingIds.size > 0 : ids.some(id => this._applyingEditingIds.has(id))) {
+      throw new Error('DATA_VIEW_EDITING_APPLY_BUSY: 正在应用的编辑不能重复应用或取消')
+    }
+  }
   /** 首次进入编辑态前的行快照，用于 discard / diff / 诊断。 */
   private _editingOriginalRows = new Map<string | number, DataRow>()
 
@@ -2435,8 +2442,12 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * @param data 要合并到目标行上的字段更新。
    */
   updateRowById(id: string | number, data: Partial<DataRow>): boolean {
+    return this.updateNativeRow(id, data)
+  }
+
+  private updateNativeRow(id: string | number, data: Partial<DataRow>, onApplied?: (row: DataRow) => void): boolean {
     this.assertResultWritable()
-    const updated = this.localMutationDelegate.updateRowById(id, data)
+    const updated = this.localMutationDelegate.updateRowById(id, data, onApplied)
     if (updated) this.syncTreeManagerFromRows()
     return updated
   }
@@ -2536,6 +2547,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     assertCurrent()
     return {
       restore: () => {
+        this.assertEditingApplyIdle([id])
         assertCurrent()
         const previous = {...row, ...this._editingPatches.get(id)}
         const patch = Object.fromEntries(Object.entries(this._editingPatches.get(id) ?? {}).filter(([field]) => !names.includes(field)))
@@ -2599,7 +2611,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     for (const [key, patchValue] of Object.entries(previousPatch)) {
       if (key !== normalizedField) nextPatch[key] = patchValue
     }
-    if (!Object.is(originalRow[normalizedField], value)) {
+    if (this._applyingEditingIds.has(id) || !Object.is(originalRow[normalizedField], value)) {
       nextPatch[normalizedField] = value
     }
 
@@ -2629,9 +2641,11 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * 丢弃指定行或全部编辑态变更。
    *
    * @param ids 可选行主键值列表；省略时丢弃全部编辑态变更。
+   * @throws 正在应用的目标不能取消；混合范围在任何修改前整体拒绝。
    */
   discardEditingRows(ids?: Array<string | number>): number {
     this.checkDestroyed()
+    this.assertEditingApplyIdle(ids)
     const targets = ids ?? [...this._editingPatches.keys()]
     let discardedCount = 0
     for (const id of targets) {
@@ -2651,6 +2665,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    */
   discardPendingChanges(ids?: ReadonlyArray<string | number>): number {
     this.checkDestroyed()
+    this.assertEditingApplyIdle(ids)
     if (ids?.length === 0) return 0
     if (this.mutating || this.requestState === RequestState.Loading) {
       throw new Error('DATA_VIEW_DISCARD_BUSY: 保存或查询期间不能丢弃待处理变更')
@@ -2820,23 +2835,35 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
    * 将编辑态 patch 应用到现有 editRowById 管线。
    *
    * @param ids 可选行主键值列表；省略时应用全部编辑态变更。
+   * @remarks 首轮同步捕获全部目标的覆盖与查询身份；等待期间的新输入留在原编辑域，不加入本次应用。
+   * 仅消费本次原生修改产生的行中已应用的字段；部分失败不回滚已修改行，同目标重复应用及取消在修改前拒绝。
    */
   async applyEditingRows(ids?: Array<string | number>): Promise<CrudResult<DataViewApplyEditingRowsResult>> {
     this.assertResultWritable()
-    const targets = ids ?? [...this._editingPatches.keys()]
+    const targets = [...new Set(ids ?? [...this._editingPatches.keys()])]
+    this.assertEditingApplyIdle(targets)
+    const query = this.currentQueryResult(), context = JSON.stringify(this.queryContext)
+    const captures = targets.flatMap(id => {
+      const patch = this._editingPatches.get(id)
+      return patch && Object.keys(patch).length ? [{id, patch: {...patch}, row: this.getRowById(id),
+        creating: this.dirtyTracking.isPendingCreate(id), deleting: this.dirtyTracking.pendingDeleteIds.has(id)}] : []
+    })
+    for (const {id, patch} of captures) this._applyingEditingIds.set(id, {patch})
     let appliedCount = 0
     const failedIds: Array<string | number> = []
     const failedErrors: Record<string, string> = {}
 
-    for (const id of targets) {
-      const patch = this._editingPatches.get(id)
-      if (!patch || Object.keys(patch).length === 0) continue
+    for (const {id, patch, row, creating, deleting} of captures) {
+      const execution = this._applyingEditingIds.get(id)
       try {
+        this.assertResultWritable()
+        if (this.currentQueryResult() !== query || JSON.stringify(this.queryContext) !== context || this.getRowById(id) !== row
+          || this.dirtyTracking.isPendingCreate(id) !== creating || this.dirtyTracking.pendingDeleteIds.has(id) !== deleting) {
+          throw new Error('DATA_VIEW_EDITING_APPLY_STALE: 原查询或目标行已变化')
+        }
         const result = await this.editRowById(id, patch)
         const success = typeof result === 'boolean' ? result : result.success
         if (success) {
-          this._editingPatches.delete(id)
-          this._editingOriginalRows.delete(id)
           appliedCount++
         } else {
           failedIds.push(id)
@@ -2845,10 +2872,27 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       } catch (error) {
         failedIds.push(id)
         failedErrors[String(id)] = error instanceof Error ? error.message : String(error)
+      } finally {
+        this._applyingEditingIds.delete(id)
+        // Only consume values actually present in the same native row. Later input
+        // remains in the original overlay, including an explicit return to baseline.
+        const current = !this._isDestroyed && !this._isDisposing ? this.getRowById(id) : undefined
+        if (current && current === execution?.appliedRow && this.currentQueryResult() === query && JSON.stringify(this.queryContext) === context
+          && this.dirtyTracking.isPendingCreate(id) === creating && this.dirtyTracking.pendingDeleteIds.has(id) === deleting) {
+          const remaining = Object.fromEntries(Object.entries(this._editingPatches.get(id) ?? {})
+            .filter(([field, value]) => !Object.is(current[field], value)))
+          if (Object.keys(remaining).length) {
+            this._editingPatches.set(id, remaining)
+            this._editingOriginalRows.set(id, {...current})
+          } else {
+            this._editingPatches.delete(id)
+            this._editingOriginalRows.delete(id)
+          }
+        }
       }
     }
 
-    if (appliedCount > 0) this.emitEditingChanged()
+    if (appliedCount > 0 && !this._isDestroyed && !this._isDisposing) this.emitEditingChanged()
     const failedCount = failedIds.length
     return {
       success: failedCount === 0,
@@ -3056,14 +3100,19 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     data: Partial<DataRow>,
   ): Promise<boolean | CrudResult<DataRow>> {
     this.assertResultWritable()
+    const execution = this._applyingEditingIds.get(id)
+    const recordApplied = (row: DataRow): void => {
+      if (execution?.patch === data && !this._isDestroyed && !this._isDisposing) execution.appliedRow = row
+    }
     if (this.shouldDirectCommitCrud('update')) {
-      return this.crudDelegate.updateRecord(id, data)
+      if (execution?.patch !== data) return this.crudDelegate.updateRecord(id, data)
+      return this.crudDelegate.updateRecord(id, data, {applyRecord: row => {this.updateNativeRow(id, row, recordApplied)}})
     }
     // 先获取编辑前快照（updateRowById 会替换行对象，必须在之前取）
     const original = this.rows.find(r => this.getPkKey(r) === id)
     if (!original) return false
 
-    const result = this.updateRowById(id, data)
+    const result = execution?.patch === data ? this.updateNativeRow(id, data, recordApplied) : this.updateRowById(id, data)
     if (result) {
       this.dirtyTrackingDelegate.markDirty(id, original)
     }

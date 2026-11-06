@@ -487,7 +487,7 @@ describe('CRUD business key submission', () => {
 
   it('rejects an explicit synthetic key before transport', async () => {
     const { view, update, remove } = fixture()
-    await expect(view.crud.updateRecord('0+10', { name: 'Changed' }, { _pk: '0+10' })).rejects.toThrow('_pk')
+    await expect(view.crud.updateRecord('0+10', { name: 'Changed' }, {serverPk: { _pk: '0+10' }})).rejects.toThrow('_pk')
     await expect(view.crud.deleteRecord('0+10', { _pk: '0+10' })).rejects.toThrow('_pk')
     expect(update).not.toHaveBeenCalled()
     expect(remove).not.toHaveBeenCalled()

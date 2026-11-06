@@ -1,17 +1,173 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {SparkData, type DataSet} from '@spark-appworks/spark-data'
+import {SparkData, type DataSet, type DataView} from '@spark-appworks/spark-data'
 
 const instances: DataSet[] = []
 afterEach(() => {instances.splice(0).forEach(instance => instance.destroy())})
-function setup() {
+function setup(immediate = false) {
   const dataSet = SparkData.createDataSet({dataSetName: 'Checkpoint', tables: {Items: {tableName: 'Items',
     columns: [{name: 'id', type: 'number', isPrimaryKey: true}, {name: 'name', type: 'string'}, {name: 'note', type: 'string'}],
+    ...(immediate ? {api: {update: {url: '/items/{id}', method: 'PUT' as const}}} : {}),
     views: {default: {rows: [{id: 1, name: 'one', note: 'first'}, {id: 2, name: 'two', note: 'second'}]}}}}})
   instances.push(dataSet)
   const view = dataSet.getView('Items')!
-  view.commitMode = 'staged'
+  view.commitMode = immediate ? 'immediate' : 'staged'
   return view
 }
+
+function pauseAppliedEdit(view: DataView) {
+  let reached!: () => void, release!: () => void
+  const applied = new Promise<void>(resolve => {reached = resolve})
+  const gate = new Promise<void>(resolve => {release = resolve})
+  const edit = view.editRowById.bind(view)
+  vi.spyOn(view, 'editRowById').mockImplementationOnce(async (...args) => {
+    const result = await edit(...args)
+    reached(); await gate
+    return result
+  })
+  return {applied, release}
+}
+
+describe('DataView concurrent editing application', () => {
+  it('preserves later input when immediate CRUD accepts its asynchronous receipt', async () => {
+    const view = setup(true), service = view.crudService
+    if (!service) throw new Error('missing formal CRUD service')
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    const update = vi.spyOn(service, 'update').mockImplementationOnce(async () => {
+      await gate
+      return {success: true, data: {id: 1, name: 'capture', note: 'first'}}
+    })
+    view.updateEditingValue(1, 'name', 'capture')
+    const applying = view.applyEditingRows([1])
+    view.updateEditingValue(1, 'name', 'one')
+    release(); expect((await applying).success).toBe(true)
+    expect(update).toHaveBeenCalledTimes(1)
+    expect(view.rows[0]?.['name']).toBe('capture')
+    expect(view.getEditingPatch(1)).toEqual({name: 'one'})
+  })
+
+  it('does not adopt a row replaced by a synchronous summary subscriber', async () => {
+    const view = setup()
+    view.configure({aggregates: {count: {type: 'count', field: 'id'}}})
+    let replaced = false
+    view.events.on('summaryChanged', () => {
+      if (replaced) return
+      replaced = true
+      view.updateRowById(1, {name: 'capture', note: 'subscriber'})
+    })
+    view.updateEditingValue(1, 'name', 'capture')
+    await view.applyEditingRows([1])
+    expect(replaced).toBe(true)
+    expect(view.getEditingPatch(1)).toEqual({name: 'capture'})
+  })
+
+  it('does not consume the overlay using a later replacement of the applied row', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'capture')
+    const applying = view.applyEditingRows([1]); await pause.applied
+    view.updateRowById(1, {name: 'capture', note: 'external replacement'})
+    pause.release(); await applying
+    expect(view.getEditingPatch(1)).toEqual({name: 'capture'})
+  })
+
+  it('does not consume an overlay on a replaced row rejected before dispatch', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'first capture')
+    view.updateEditingValue(2, 'name', 'second capture')
+    const applying = view.applyEditingRows([1, 2]); await pause.applied
+    view.updateRowById(2, {name: 'second capture'})
+    pause.release()
+    expect((await applying).data?.failedIds).toEqual([2])
+    expect(view.getEditingPatch(2)).toEqual({name: 'second capture'})
+  })
+
+  it('does not adopt an initially clean selected row edited during the wait', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'capture')
+    const applying = view.applyEditingRows([1, 2]); await pause.applied
+    view.updateEditingValue(2, 'name', 'later')
+    pause.release(); await applying
+    expect(view.rows[1]?.['name']).toBe('two')
+    expect(view.getEditingPatch(2)).toEqual({name: 'later'})
+  })
+
+  it('retains newer input when the original edit fails without mutating rows', async () => {
+    const view = setup()
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
+    vi.spyOn(view, 'editRowById').mockImplementationOnce(async () => {await gate; return false})
+    view.updateEditingValue(1, 'name', 'capture')
+    const applying = view.applyEditingRows([1])
+    view.updateEditingValue(1, 'name', 'later')
+    release(); expect((await applying).success).toBe(false)
+    expect(view.rows[0]?.['name']).toBe('one')
+    expect(view.getEditingPatch(1)).toEqual({name: 'later'})
+  })
+
+  it('does not revive editing state after destruction during an apply', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'capture')
+    const applying = view.applyEditingRows([1]); await pause.applied
+    view.destroy(); pause.release()
+    await expect(applying).resolves.toMatchObject({data: {appliedCount: 1}})
+  })
+
+  it('freezes every selected patch before awaiting the first row', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'first capture')
+    view.updateEditingValue(2, 'name', 'second capture')
+    const applying = view.applyEditingRows([1, 2]); await pause.applied
+    view.updateEditingValue(2, 'name', 'two')
+    pause.release(); expect((await applying).success).toBe(true)
+    expect(view.rows[1]?.['name']).toBe('second capture')
+    expect(view.getEditingPatch(2)).toEqual({name: 'two'})
+  })
+
+  it('rejects overlapping apply and cancellation before changing any target', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'capture')
+    view.updateEditingValue(2, 'name', 'outside')
+    const applying = view.applyEditingRows([1]); await pause.applied
+    await expect(view.applyEditingRows([1])).rejects.toThrow(/EDITING_APPLY_BUSY/)
+    expect(() => view.discardEditingRows([2, 1])).toThrow(/EDITING_APPLY_BUSY/)
+    expect(() => view.discardPendingChanges([1])).toThrow(/EDITING_APPLY_BUSY/)
+    expect(view.getEditingPatch(2)).toEqual({name: 'outside'})
+    expect(view.discardEditingRows([2])).toBe(1)
+    pause.release(); await applying
+  })
+
+  it('retains a newer same-field overlay after applying the captured value', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'captured')
+    const applying = view.applyEditingRows([1]); await pause.applied
+    view.updateEditingValue(1, 'name', 'later')
+    pause.release(); expect((await applying).success).toBe(true)
+    expect(view.rows[0]?.['name']).toBe('captured')
+    expect(view.getEditingPatch(1)).toEqual({name:'later'})
+    expect(view.getEditingRow(1)?.['name']).toBe('later')
+  })
+
+  it('preserves a late request to restore the original value', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'captured')
+    const applying = view.applyEditingRows([1]); await pause.applied
+    view.updateEditingValue(1, 'name', 'one')
+    pause.release(); expect((await applying).success).toBe(true)
+    expect(view.rows[0]?.['name']).toBe('captured')
+    expect(view.getEditingPatch(1)).toEqual({name:'one'})
+    expect(view.getEditingRow(1)?.['name']).toBe('one')
+  })
+
+  it('consumes the captured field while retaining a later different-field overlay', async () => {
+    const view = setup(), pause = pauseAppliedEdit(view)
+    view.updateEditingValue(1, 'name', 'captured')
+    const applying = view.applyEditingRows([1]); await pause.applied
+    view.updateEditingValue(1, 'note', 'later note')
+    pause.release(); expect((await applying).success).toBe(true)
+    expect(view.getEditingPatch(1)).toEqual({note:'later note'})
+    expect(view.getEditingRow(1)).toMatchObject({name:'captured',note:'later note'})
+  })
+})
 
 async function setupNewRowQuery(options: {
   isFieldReadOnly?: (field: string, scope: string) => boolean

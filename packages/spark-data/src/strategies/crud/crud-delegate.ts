@@ -197,12 +197,12 @@ constructor(
    * 更新记录，成功后刷新对应行
    * @param id 本地主键值（用于本地 rows 更新）
    * @param data 更新数据
-   * @param serverPk 服务端 PK payload（用于 HTTP 请求，可选，默认从 id 构建）
+   * @param options 服务端主键及内部原生行接纳函数；默认从 id 构建主键并沿宿主更新。
    */
   async updateRecord(
     id: string | number,
     data: Partial<DataRow>,
-    serverPk?: Record<string, unknown>,
+    options: {serverPk?: Record<string, unknown>; applyRecord?: (row: DataRow) => void} = {},
   ): Promise<CrudResult<DataRow>> {
     if (!this.fireBefore('update', { id, ...data })) return this.cancelledResult('update')
 
@@ -219,11 +219,12 @@ constructor(
 
     return this.withMutating(async () => {
       const svc = this.ensureCrudService()
-      const pk = serverPk ?? this._extractPkPayload(id, originalRow)
+      const pk = options.serverPk ?? this._extractPkPayload(id, originalRow)
       this.assertBusinessPk(pk)
       const result = await svc.update<DataRow>(pk, requestData, this.getCrudConfig())
       if (result.success && result.data) {
-        this.host.updateRowById(id, result.data)
+        if (options.applyRecord) options.applyRecord(result.data)
+        else this.host.updateRowById(id, result.data)
       }
       this.fireAfter('update', { id, ...data }, result)
       return result

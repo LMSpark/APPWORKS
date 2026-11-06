@@ -3288,3 +3288,10 @@
 - 真实APIBackend回归覆盖部分行内失败、后续新增失败、同ID/新行介入、同合同消费者查询被替代，以及暂存后新正式消费者；高阶RED2与引用复查RED1均复现后修正。消费者按Type/DbId跨空间精确查，MetaName漂移也命中，标题/新增不查。
 - 最终19文件429项+ClassModel49，types/lint/generate/fullrules/build5.39s全部exit0；生成160份结构等价噪声恢复，原告警保留。实服18读0写，消费者5/5；输出旧基线拒绝发生在暂存前，保留正式失败证据，未自动修正数据。
 - 当前未接页面保存，尚未证明发布/运行消费。下一独占目录→SaveView→文件delete-only DataView→Missing→目录清理门，再继续两侧保存/unknown恢复与输出CRUD；不核销20包。
+
+### 2026-11-06 原生 DataView 编辑应用并发修复（检查中）
+
+- 在原DataView编辑map保留晚到输入，首轮冻结全目标patch；原生LocalMutationDelegate在同步通知前登记实际写入行引用，staged/immediate共用，无页面补偿草稿。普通CRUD仍沿原公开更新入口；内部CRUD第三参数改命名options，全调用迁移，无旧形状兼容。
+- checkpoint用例37增至49；先实证晚到值/回原值/跨字段/跨行/并发取消RED，再据高阶只读复审实证未派发换行、同步summaryChanged重入两类RED并修。最新相关32文件598项通过；不累计中间重叠回归数量。
+- 原全仓473文件8753项中2失败，真实桥接回退定向复现后修；合成key新options反例独立通过。失败日志和hash入evidence/data-chain-smoke/2026-11-06-data-view-apply-initial-full-test.json；最终冻结全套73912运行，不报全仓通过。最新types74511/lint15304/ClassModel49539 exit0；最终rules64876/build10626待终态。本轮0实服请求，逻辑视图实服SaveView及20包目标未核销。
+- 最终冻结全仓473文件8753项全通过，772.18s、73912 exit0；六源码/测试hash逐项匹配。最后types/lint/ClassModel/fullrules/build均终态0，原2失败证据及最终完整日志入正式JSON。没有新增实服请求，不用离线回归核销逻辑视图实服SaveView/20业务包。

@@ -1,0 +1,47 @@
+{
+  "scope": "Final native DataView apply regression",
+  "session": 73912,
+  "log": "artifacts/data-chain-smoke/data-view-apply-full-final-v2.log",
+  "backendRequests": 0,
+  "files": [
+    {
+      "path": "packages/spark-data/src/data-view.ts",
+      "sha256": "5e96b7a412bb87eab746d836a547ae67c3e935c08b8020d3849476d2c85ed3a6"
+    },
+    {
+      "path": "packages/spark-data/src/strategies/crud/crud-delegate.ts",
+      "sha256": "12bc2ec724bdaf5ca0ea6c39a179b50a59f3d98cca9ebc4dc3a8b472c164e3d3"
+    },
+    {
+      "path": "packages/spark-data/src/strategies/crud/dirty-tracking-delegate.ts",
+      "sha256": "f5a1f451e13b384b05950c17892baa605f30b0046c8fc301de7f88dd20034897"
+    },
+    {
+      "path": "packages/spark-data/src/strategies/crud/local-mutation-delegate.ts",
+      "sha256": "fdf6b5a97ae8a33f9eb64bae4a6bc89f0184d44428930c0802cd8ce46e181598"
+    },
+    {
+      "path": "packages/spark-data/src/tests/data-view/data-view-editing-checkpoint.test.ts",
+      "sha256": "ca05f69bd677cbbe278374676740463c5ac90a6dfaa3859b9ed449dc453c4ce5"
+    },
+    {
+      "path": "packages/spark-data/src/tests/crud/crud-delegates.test.ts",
+      "sha256": "bc6b039fc357f9faada1506cfb8d7654aecd568801e15781921801e564b8b59b"
+    }
+  ],
+  "exitCode": 0,
+  "filesPassed": 473,
+  "testsPassed": 8753,
+  "durationSeconds": 772.18,
+  "terminalLog": "Both esbuild and oxc options were set. oxc options will be used and esbuild options will be ignored. The following esbuild options were set: `{ target: 'node14' }`\r\n\r\n RUN  v4.1.9 D:/SPARK_AppWorks\r\n\r\n\r\n Test Files  473 passed (473)\r\n      Tests  8753 passed (8753)\r\n   Start at  21:46:22\r\n   Duration  772.18s (transform 57.67s, setup 62.24s, import 753.00s, tests 1516.87s, environment 573.85s)\r\n\r\n",
+  "logSha256": "3324cb054f0f48a545016787db3d09dd29a956a50d9648bbc8259dd7f05c20fe",
+  "verification": {
+    "typecheck": "74511 exit0",
+    "lint": "15304 exit0",
+    "classModel": "49539 exit0",
+    "rules": "64876 exit0",
+    "build": "10626 exit0, 11.86s",
+    "targeted": "32 files 598 tests exit0",
+    "review": "High-tier read-only review: no confirmed blocker"
+  }
+}

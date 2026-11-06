@@ -115,6 +115,10 @@
             },
             "data": {
               "$ref": "../../types.ts.json#/$defs/DataRow"
+            },
+            "onApplied": {
+              "type": "object",
+              "title": "(row: DataRow) => void"
             }
           },
           "additionalProperties": false
@@ -157,7 +161,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:17:08.547Z",
+  "generatedAt": "2026-11-06T13:28:55.948Z",
   "models": {
     "EmitRowsChangedFn": {
       "name": "EmitRowsChangedFn",
@@ -332,6 +336,35 @@
                         "sourcePath": "packages/spark-data/src/types.ts"
                       }
                     ]
+                  }
+                },
+                {
+                  "name": "onApplied",
+                  "type": {
+                    "type": "reflection",
+                    "declaration": {
+                      "signatures": [
+                        {
+                          "parameters": [
+                            {
+                              "name": "row",
+                              "type": {
+                                "type": "reference",
+                                "name": "DataRow",
+                                "sourcePath": "packages/spark-data/src/types.ts"
+                              }
+                            }
+                          ],
+                          "type": {
+                            "type": "intrinsic",
+                            "name": "void"
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

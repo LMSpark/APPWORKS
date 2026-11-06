@@ -445,7 +445,7 @@ constructor(
       if (!row) { this.clearDirty(id); continue }
       try {
         const serverPk = host.buildServerPk(row)
-        const result = await crud.updateRecord(id, host.stripComputedColumns({ ...row }), serverPk)
+        const result = await crud.updateRecord(id, host.stripComputedColumns({ ...row }), {serverPk})
         if (result.success) {
           this.clearDirty(id)
           savedCount++

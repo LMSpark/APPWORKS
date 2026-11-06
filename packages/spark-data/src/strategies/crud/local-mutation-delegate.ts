@@ -97,7 +97,7 @@ constructor(
    * 同步 currentRow / selectedRows 引用（引用已变，UI 需感知）
    * @returns 是否成功（行不存在时 false）
    */
-  updateRowById(id: string | number, data: Partial<DataRow>): boolean {
+  updateRowById(id: string | number, data: Partial<DataRow>, onApplied?: (row: DataRow) => void): boolean {
     const h = this.host
     const idx = h.rows.findIndex(r => h.getPkKey(r) === id)
     if (idx < 0) return false
@@ -133,6 +133,7 @@ constructor(
 
     // 主键未变，_currentRowId / _selectedRowIds 仍有效。
     // Phase 4 M5: 仅发射 rows 事件，订阅方从 getter 获取最新行对象引用。
+    onApplied?.(newRow)
     this.postMutation?.([newRow])
     this.emitRowsChanged()
     return true

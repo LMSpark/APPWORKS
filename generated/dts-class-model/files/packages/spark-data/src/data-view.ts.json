@@ -3018,7 +3018,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T18:25:31.726Z",
+  "generatedAt": "2026-11-06T13:44:32.142Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -6533,7 +6533,7 @@
             },
             {
               "name": "discardEditingRows",
-              "jsdoc": "丢弃指定行或全部编辑态变更。\n@param ids 可选行主键值列表；省略时丢弃全部编辑态变更。",
+              "jsdoc": "丢弃指定行或全部编辑态变更。\n@param ids 可选行主键值列表；省略时丢弃全部编辑态变更。\n@throws 正在应用的目标不能取消；混合范围在任何修改前整体拒绝。",
               "parameters": [
                 {
                   "name": "ids",
@@ -6597,7 +6597,7 @@
             },
             {
               "name": "applyEditingRows",
-              "jsdoc": "将编辑态 patch 应用到现有 editRowById 管线。\n@param ids 可选行主键值列表；省略时应用全部编辑态变更。",
+              "jsdoc": "将编辑态 patch 应用到现有 editRowById 管线。\n@param ids 可选行主键值列表；省略时应用全部编辑态变更。\n@remarks 首轮同步捕获全部目标的覆盖与查询身份；等待期间的新输入留在原编辑域，不加入本次应用。\n仅消费本次原生修改产生的行中已应用的字段；部分失败不回滚已修改行，同目标重复应用及取消在修改前拒绝。",
               "parameters": [
                 {
                   "name": "ids",

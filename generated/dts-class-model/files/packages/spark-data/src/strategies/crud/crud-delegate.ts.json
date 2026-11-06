@@ -108,9 +108,19 @@
             "data": {
               "$ref": "../../types.ts.json#/$defs/DataRow"
             },
-            "serverPk": {
+            "options": {
               "type": "object",
-              "title": "Record<string, unknown>"
+              "properties": {
+                "serverPk": {
+                  "type": "object",
+                  "title": "Record<string, unknown>"
+                },
+                "applyRecord": {
+                  "type": "object",
+                  "title": "(row: DataRow) => void"
+                }
+              },
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -234,7 +244,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-31T04:17:05.974Z",
+  "generatedAt": "2026-11-06T13:33:36.228Z",
   "models": {
     "EmitCrudLifecycleFn": {
       "name": "EmitCrudLifecycleFn",
@@ -423,7 +433,7 @@
             },
             {
               "name": "updateRecord",
-              "jsdoc": "更新记录，成功后刷新对应行\n@param id 本地主键值（用于本地 rows 更新）\n@param data 更新数据\n@param serverPk 服务端 PK payload（用于 HTTP 请求，可选，默认从 id 构建）",
+              "jsdoc": "更新记录，成功后刷新对应行\n@param id 本地主键值（用于本地 rows 更新）\n@param data 更新数据\n@param options 服务端主键及内部原生行接纳函数；默认从 id 构建主键并沿宿主更新。",
               "parameters": [
                 {
                   "name": "id",
@@ -456,20 +466,10 @@
                   }
                 },
                 {
-                  "name": "serverPk",
+                  "name": "options",
                   "type": {
-                    "type": "reference",
-                    "name": "Record",
-                    "typeArguments": [
-                      {
-                        "type": "intrinsic",
-                        "name": "string"
-                      },
-                      {
-                        "type": "intrinsic",
-                        "name": "unknown"
-                      }
-                    ]
+                    "type": "unknown",
+                    "name": "{\n        serverPk?: Record<string, unknown>;\n        applyRecord?: (row: DataRow) => void;\n    }"
                   },
                   "flags": {
                     "isOptional": true

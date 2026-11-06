@@ -1,0 +1,29 @@
+{
+  "writes": 0,
+  "serviceRequests": 0,
+  "result": {
+    "success": true,
+    "message": "应用 1 行编辑态变更",
+    "data": {
+      "appliedCount": 1,
+      "failedCount": 0,
+      "failedIds": [],
+      "failedErrors": {}
+    }
+  },
+  "before": {
+    "name": "late"
+  },
+  "after": null,
+  "row": {
+    "id": "A",
+    "name": "first",
+    "_pk": "A"
+  },
+  "lateEditRetained": false,
+  "kind": "native-apply-late-edit-loss-reproduction",
+  "nativeExit": 1,
+  "sourceSha256": "b542e571114c5d9d1b4ffc5cb3bab67a432053e14a71b99182f17a43804f57c3",
+  "scope": "Pure in-memory DataView. writes=0 denotes service writes; local native edits were executed. No backend requests.",
+  "status": "Reproduced before any production fix; shared apply currently deletes the later patch."
+}

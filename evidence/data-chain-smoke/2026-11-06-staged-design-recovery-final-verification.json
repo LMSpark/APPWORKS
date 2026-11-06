@@ -1,0 +1,28 @@
+{
+  "kind": "full-repository-staged-design-recovery-verification",
+  "nativeExit": 0,
+  "testFiles": 473,
+  "tests": 8741,
+  "failedTests": 0,
+  "durationSeconds": 696.48,
+  "command": "pnpm exec vitest run --maxWorkers=4",
+  "sameTestTimeoutMs": 15000,
+  "sameAssertions": true,
+  "logSha256": "9bc118239168b665c8aae35292368f71966e11ce3deddfee9930952edb5fc2b3",
+  "otherChecks": {
+    "typecheck": 0,
+    "repositoryLint": 0,
+    "targetedLint": 0,
+    "formalClassModelGeneration": 0,
+    "fullRules": 0,
+    "frontendBuild": {
+      "exit": 0,
+      "durationSeconds": 6.2
+    }
+  },
+  "limits": [
+    "Does not resolve live SaveView/file readback mismatch.",
+    "Does not fix separately reproduced native apply late-edit loss.",
+    "Does not complete logic-view output publication or the 20 business packages."
+  ]
+}

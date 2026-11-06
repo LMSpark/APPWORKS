@@ -6658,3 +6658,29 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - v2已实际派发：main26860/launcher8456/driver session11225原RAM仍存活；独占目录B37C669BF9FD5D979CA6CCE5A1E4B696，name=LVmw4ybcqtd225，sysid正式当前应用D99A1DCE9894698799101EFD70F8FC76。创建目录ACK已确认；随后SaveView导致DESIGN_SAVE_UNCONFIRMED，35读2写0blocked。原verify仅增加1读，仍不一致，保留原capture/pending，禁止重Save/先删目录。
 - 独立readonly diagnostic-v1 main23016/launcher28316/driver46174均exit0，2读0写0blocked：GetView实际[]；精确viewdatapath根LVmw4ybcqtd225.json返回真实404。只能证明这两次正式读取的当前状态，不能把SaveView ACK当落盘，也不能据此将原unknown私自改成confirmed。原始文件未重写，旧sys_edit零重放。
 - 正式负证据evidence/data-chain-smoke/2026-11-06-logic-view-owned-file-save-unconfirmed.json。本次fixture目录仍存在、原unknown仍保留；后续先解决原实例显式放弃/清理控制边界，不能复跑v2或另建新fixture掩盖。本轮已发现实服SaveView ACK与正式文件读取断链，尚未证明后端是否写到其他位置；本地Java源码只读显示save忽略fileFeignClient上传回执，此为源码推断，不能当部署实服结论，不修改/运行Java。
+
+- 两名高阶只读复核均同意明确弃本次失败烟测后独立清理已ACK自有目录；不是解决原SaveView捕获。冻结原intent/audit/diagnostic及脚本hash到evidence/data-chain-smoke/2026-11-06-logic-view-owned-file-retirement.json；CIM核main26860父8456和精确脚本后停止原进程，driver11225终态-1，main/launcher均已不存在；原unknown历史结论保留，不造not-applied或成功。
+- 新cleanup-v1仅允许一笔Base_DataViewList Deleted原ID，同scope原SPARK data查询核ID/name/sysid/description和deleteActionState；GetView仍[]、root精确404后才派发。高阶预检发现公开row不含lingma_sys_key，已删复制凭据的错误预检，正式数据层持有key，请求guard只核自动协议key非空。main26324/launcher14672/driver61213实服终态exit0：20读1目录删除0blocked/unknownfalse，独立按ID与marker查空、精确文件404。正式证据evidence/data-chain-smoke/2026-11-06-logic-view-owned-catalog-cleanup.json；自有目录清理完成，未证明SaveView落点/成功或完整文件生命周期。
+- 继续修公共staged-design-file-view原capture恢复缺口：首次派发固定原context.rows基线和原提交，首次不符仍unknown，后续原捕获读=原基线时仅结束原pending并抛SPARK_SAVE_NOT_APPLIED，草稿保留、无重发。不同第三方结果、读取失败、scope失效仍unknown。新增反例先RED，修后28项通过（晚到编辑、结构JSON基线、读失败与scope变化覆盖）；旧design-clients测试目录fixture仅default导致正式editorTarget授权拒绝，修fixture绑定而不改守卫。等待高阶复审与完整检查；此修复不能证明实服上传缺陷已解决。
+
+- 公共恢复修复已获高阶只读复审无确定阻断；原定义批次→not-applied→显式verifyAndDiscard的集成测试通过，最新design-clients29项。结构化配置52文件811项通过；最终types70834、targetlint23999、正式ClassModel97583、fullrules53967（49项ClassModel，原85待审/2warning/1info保留）、build58127（6.20s）均exit0。正式生成161份等价噪声及仅时间戳manifest已恢复，无真实公开合同变化。全仓lint54100已exit0。
+- 全仓test session6456仍运行（log artifacts/data-chain-smoke/staged-design-recovery-final-test.log）；已捕获four-file64项共同失败及workflow-design/parameter-input各1失败，未取得最终错误栈前不归因为环境。高阶静态核共同fixture缺正式8D的testvalue/DbId/MetaName，已只补原fixture三字段，不删命名view/不放宽assembler。修后单suite session84363正在运行，targetlint37901已exit0；不得将全仓测试写成通过，继续轮询原句柄。
+- 高阶下一实施断点：原logic-view-design-page save仍只通用文件保存，publication-plan/edit未接产品。保存前从已存节点DbId+MetaName在原8D sourceDetails精确查询唯一正式来源并prepare（不能借旧选择缓存）；预检编译/完整输出/权限/消费者后，EB文件原capture确认再8D稳定输出原capture，各自独立回执，参数不参加。补output edit自身apply后的签名转换与原capture恢复责任；文件unknown输出零写，输出unknown不再SaveView；部分成功必须保关闭保护。下一卡实服0写，先原APIBackend完整页面反例验证，不再新夹具盲试服务缺口，不将该前端卡核销20包或逻辑视图整包。
+
+- fixture修后三字段的data-space-four-file单suite session84363已终态exit0，65/65通过；targetlint37901 exit0。全仓test session6456仍保留原运行，launcher vitest PID30452、当前工作进程7556（20:49:55启动），20:57仍有CPU增长而未终态，不因耗时重启。日志保持原64+两项失败，修后结果另记，不覆写初轮失败。两项15s附近失败另开精确单worker复核session81737（只选原失败名称，log staged-design-recovery-two-failures-recheck.log），尚未得终态，不先归因环境。
+- 注意Windows已复用先前退休probe的PID26860为后来的vitest worker；判断原进程必须核CreationDate/父进程/脚本，不凭PID宣称旧RAM恢复或直接终止。原失败probe退休时session11225已实测终态-1，清理fixture结果不变。当前代码修复未提交，需先取得完整测试终态、处理剩余失败后再提交推送；已推送负证据检查点7c56189cb远端核一致。
+
+- 两个精确失败名称单worker复核session81737已终态exit0：2文件2通过/84未选，用时29.88s，未改这两个用例的代码或延长超时。不能因此将原全仓回归6456写成通过；其唯一剩余工作进程仍活跃，继续原句柄等待最终统计。当前共同fixture65项和原保存恢复29项已独立通过；全仓完整终态仍是提交前断点。
+
+- 原全仓session6456已自然终态exit1，未执行终止：473文件（469通过/4失败）、8741项（8674通过/67失败），824.30s。最终栈确认four-file64项首报testvalue非正式输出；其余3项均明确15000ms超时（此前只看到2，末新增metadata/chain/data-space-chain）。原日志hash与失败分组正式保留evidence/data-chain-smoke/2026-11-06-staged-design-recovery-initial-full-test.json，不删除失败证据。先前“准备停止失败轮”未执行，CIM观察时进程已经退出。
+- 当前冻结修正代码按同一vitest配置完整重跑，CLI maxWorkers=4以避免原全并发资源争用，不改testTimeout、不跳用例、不改断言。log artifacts/data-chain-smoke/staged-design-recovery-full-final-v2.log；须轮询新句柄，取得全套终态才提交。第三项chain超时未单独改动，完整复核仍未完成。
+
+- 完整修后重跑句柄为session99883，21:03已核实际vitest进程23312/8320（21:01:10启动，含maxWorkers=4）仍活跃，尚未新失败/最终统计。上一轮session6456确定自然exit1，不能再作活进程轮询。工作树保留公共恢复修复、原fixture三字段和负证据/清理证据；源代码在本轮测试期间冻结，继续同99883，不重启，不提前提交或宣称全套通过。
+
+- 在完整回归代码冻结期间已通过正式DtsBundleClassModelKnowledgeService（fs fetch读取本次正式生成bundle）查目录/成员概要/modelGuide/methodGuide，未手造合同：LogicViewSourceViews.details/prepare、LogicViewOutputEdit.stage/verify/cancel、DataSpaceDefinitionSave.run、DataView.applyEditingRows/createQueryView/saveChanges。query脚本session62611已exit0，结果artifacts/data-chain-smoke/logic-view-publication-classmodel-v1.json；下一发布编排代码前已核API边界，原输出edit仍无apply/capture恢复成员，须从实际缺口扩展而非页面绕过。结果SHA256 2c4749303e4dbfb36910cce7c2aa8fbc4dc7df78bd2e25aa4f3bd7e649f8655c。此项仅知识查询，没有修改被测源码或访问实服。
+
+- 高阶后续合同纠偏：apply前后getDiff不恒等，干净正式行仅有editingPatch时getDiff={}，首次apply才markDirty生成from/to；不能只删签名patch槽或盲接纳当前signature。发布编排要验证本次允许的原生状态转换、独立处理部分成功，文件prettyJSON只允许本次回执格式化，不接纳晚到同结构编辑。
+- 核查进一步发现公共DataView.applyEditingRows在await editRowById后无条件清当前patch。冻结源码下新增ignored纯本地probe data-view-apply-late-edit-v1.mts：旧patch已写入native row、返回Promise暂停→同ID新patch=late→resolve，实际result.success=true但after=null，late编辑丢失。probe真实exit1，0服务请求/写，正式RED证据evidence/data-chain-smoke/2026-11-06-data-view-apply-late-edit-red.json。未改正式被测源码；当前99883完整回归仍是在修复前该native实现上运行。下一步先原spark-data添加正式反例并修只消费本次捕获patch/代次，不能在领域类复制草稿补回；再继续输出发布接线。
+
+- 完整修后重跑session99883已自然终态exit0：473文件/8741项全部通过，696.48s；CLI maxWorkers4，原15000ms超时与全部断言保持。原64夹具失败已正向覆盖，3个超时用例在全套本次均通过；不能把这一结果写成实服SaveView或native晚到编辑缺口已解决。正式全套证据evidence/data-chain-smoke/2026-11-06-staged-design-recovery-final-verification.json，初轮失败证据原样保留。
+- 准备提交公共设计保存原基线核验与明确未应用恢复、完整场景fixture三正式字段、独占目录清理/失败退休证据和native新RED断点。该检查点不新增实服写入；目录已独立清理，原SaveView结果仍未证实，旧sys_edit零重放。下一卡先修DataView.applyEditingRows原native丢晚到patch，再按已查正式指南实施两来源发布编排；20包目标不收窄。

@@ -1,0 +1,76 @@
+{
+  "kind": "explicitly-abandoned-native-smoke",
+  "originalProcessId": 26860,
+  "launcherProcessId": 8456,
+  "originalUnknownRemainsUnresolved": true,
+  "reason": "SaveView readback mismatch; frozen original control has no permitted explicit abandonment path. No replay. Independent cleanup will capture only the already-confirmed owned catalog deletion.",
+  "files": {
+    "logic-view-owned-file-v2.mts": "e903d21bd20b93d82d3a82bff150c8c314530a895fad61d6039cbb299eeb3047",
+    "logic-view-owned-file-v2-run.mts": "e190e962614d06ff7488004eb64f9774ad31abc51d979e060503bf1d71bb6ffe",
+    "logic-view-owned-file-v2-driver.ps1": "e91a993b7bccfe8b237de7cd59ef4f97f248e36dfaea908f5b65df4a91e150ee",
+    "logic-view-owned-file-v2-intent.json": "79c42e7ea6156dcecbc56992df5a854d62a3344cd662fe3729791a165434c307",
+    "logic-view-owned-file-v2-audit.json": "56257cab59b8d6e2724dd182d51a6671314552a65697e975b09afac9e6728068",
+    "logic-view-owned-file-diagnostic-v1-evidence.json": "641f423edf0c564037712d1e0b722512397f261d0a817dc6202070d718cc2794"
+  },
+  "originalIntent": {
+    "processId": 26860,
+    "viewId": "B37C669BF9FD5D979CA6CCE5A1E4B696",
+    "marker": "LVmw4ybcqtd225",
+    "sysid": "D99A1DCE9894698799101EFD70F8FC76",
+    "locator": {
+      "appType": "viewdatapath",
+      "customPath": "",
+      "fileName": "LVmw4ybcqtd225.json"
+    },
+    "normalWrites": 4,
+    "maxWrites": 6,
+    "source": {
+      "id": "38EC64F5FEE74113B8499F1A498AD8BC",
+      "name": "Base_DataViewList",
+      "fieldHash": "23542c1cde21fa62fa3e9881326f963f128d0d404815da2202153e2bd83367de"
+    },
+    "scope": "One new owned catalog and its original SaveView file only; no output publication or business execution"
+  },
+  "originalAudit": {
+    "phase": "failed",
+    "processId": 26860,
+    "marker": "LVmw4ybcqtd225",
+    "locator": {
+      "appType": "viewdatapath",
+      "customPath": "",
+      "fileName": "LVmw4ybcqtd225.json"
+    },
+    "acks": [
+      {
+        "label": "create-catalog",
+        "type": "catalog",
+        "writes": 1
+      }
+    ],
+    "readbacks": [],
+    "fixtureRemaining": true,
+    "referenceSystem": "00BE6ED455CD4BD7B785C61A12A1E67D",
+    "applicationOptions": {
+      "count": 1,
+      "total": 1,
+      "ids": [
+        "D99A1DCE9894698799101EFD70F8FC76"
+      ]
+    },
+    "viewId": "B37C669BF9FD5D979CA6CCE5A1E4B696",
+    "sysid": "D99A1DCE9894698799101EFD70F8FC76",
+    "reads": 36,
+    "writes": 2,
+    "blockedRequests": 0,
+    "unknown": true,
+    "pending": {
+      "label": "create-file",
+      "type": "design",
+      "dispatched": true
+    },
+    "testedAt": "2026-11-06T12:29:35.439Z",
+    "error": "DESIGN_SAVE_UNCONFIRMED: 设计回读与原提交不一致，请核验或明确放弃后重读",
+    "waitingForOriginalRuntime": true,
+    "recoveryError": "DESIGN_SAVE_UNCONFIRMED: 设计回读与原提交不一致，请核验或明确放弃后重读"
+  }
+}

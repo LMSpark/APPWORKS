@@ -352,7 +352,7 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
     Base_JsonData: ['rowid', 'name'], Base_DataViewList: ['rowid', 'name'],
     View_ViewList: ['rowid', 'vewname', 'vewdesc', 'dbid', 'DbName'],
     Base_TblField: ['rowid', 'tblid', 'enname', 'cnname', 'description', 'DataType', 'IsPKey'],
-    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc'],
+    _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'testvalue'],
   }
   const designTables = recordAt(designConfig.toJSON()['tables'], 'tables')
   const designModels: FormalModel[] = [
@@ -373,6 +373,8 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
       { id: 'design-model-rowid', name: 'rowid', type: 'string', primaryKey: true },
       { id: 'design-model-name', name: 'Name', type: 'string', primaryKey: false },
       { id: 'design-model-type', name: 'Type', type: 'string', primaryKey: false },
+      { id: 'design-model-resource', name: 'DbId', type: 'string', primaryKey: false },
+      { id: 'design-model-meta-name', name: 'MetaName', type: 'string', primaryKey: false },
       { id: 'design-model-dataset', name: 'dataSetId', type: 'string', primaryKey: false },
     ] }),
     formalModel({ id: '8D1AB14DD8277F3E7017CD38F77B09FDp002', metaName: 'Base_DataModel_Field', primaryKey: 'rowid', fields: [

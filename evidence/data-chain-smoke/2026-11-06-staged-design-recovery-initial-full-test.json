@@ -1,0 +1,43 @@
+{
+  "kind": "full-repository-test-initial-failure",
+  "nativeExit": 1,
+  "testFiles": {
+    "failed": 4,
+    "passed": 469,
+    "total": 473
+  },
+  "tests": {
+    "failed": 67,
+    "passed": 8674,
+    "total": 8741
+  },
+  "durationSeconds": 824.3,
+  "failureGroups": [
+    {
+      "file": "tests/runtime/page/design/data-space-four-file.test.ts",
+      "count": 64,
+      "error": "queryConfig.fields is not a current formal output field: testvalue",
+      "followup": "Fixture formal declarations corrected; isolated complete suite65 passed."
+    },
+    {
+      "file": "tests/runtime/page/design/native/data-space-view-parameter-input.test.ts",
+      "count": 1,
+      "error": "15000ms timeout",
+      "followup": "Exact failing case isolated recheck passed without timeout changes."
+    },
+    {
+      "file": "tests/runtime/page/structured-config/workflow/workflow-design.test.ts",
+      "count": 1,
+      "error": "15000ms timeout",
+      "followup": "Exact failing case isolated recheck passed without timeout changes."
+    },
+    {
+      "file": "tests/runtime/auth-nav/data-space/metadata/chain/data-space-chain.test.ts",
+      "count": 1,
+      "error": "15000ms timeout",
+      "followup": "Full corrected repository rerun pending."
+    }
+  ],
+  "logSha256": "d8827f9ce054dd098a2c9b44ba69db35956e1c9a87fc30bdb9311ef29f17cd06",
+  "notCancelled": true
+}

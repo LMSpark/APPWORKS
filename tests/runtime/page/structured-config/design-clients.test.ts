@@ -5,6 +5,8 @@ import {LogicViewDesignClient} from '@spark-appworks/spark-lowcode-api'
 import {attachLogicViewDesignEdit, LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
+import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, verifyAndDiscardDataSpaceDefinitionCapture,
+  type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
 
 let http: StructuredCatalogHttp
 const readScope = () => ({token: 'scope', headers: {'X-AppId': 'APP'}})
@@ -97,9 +99,9 @@ it('requires the owning DataSet to carry a formal scenario before attaching desi
 
 it('edits, cancels and saves a real design array through the existing DataSet owner without losing nested fields', async () => {
   const dataSet = DataSet.fromJson({scenarioId:'SPACE',tables:{Base_DataViewList:{resourceType:'static-data',
-    columns:[{name:'rowid',type:'string',isPrimaryKey:true}],views:{default:{rows:[{rowid:'V1'}]}}}}})
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true}],views:{default:{},editorTarget:{rows:[{rowid:'V1'}]}}}}})
   sets.push(dataSet)
-  vi.spyOn(dataSet.getView('Base_DataViewList')!,'editActionState').mockReturnValue('enabled')
+  vi.spyOn(dataSet.getView('Base_DataViewList','editorTarget')!,'editActionState').mockReturnValue('enabled')
   let stored = [{Name: 'Orders', Fields: [{Name: 'id', IsOutput: 0}], ChildTables: [{Name: 'Lines', Fields: []}], custom: {keep: false}}]
   const writes: unknown[] = []
   http.post = async <T>(url: string, data?: unknown): Promise<T> => {
@@ -142,23 +144,44 @@ it('does not grant design editing or dispatch a file write without the original 
 const sets: DataSet[] = []
 afterEach(() => {sets.splice(0).forEach(set => set.destroy())})
 
-async function open() {
+async function open(options: {content?: string; json?: boolean} = {}) {
   const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {}})
   sets.push(dataSet)
-  let stored: DataRow = {rowid: 'A', targetId: 'A', content: 'original'}
+  let stored: DataRow = {rowid: 'A', targetId: 'A', content: options.content ?? 'original'}
+  const guard = vi.fn()
   const load = vi.fn(async () => ({...stored}))
   const persist = vi.fn(async (row: Readonly<DataRow>) => {stored = {...row}})
   const view = attachStagedDesignView(dataSet, {scopeInputTable: 'Input', scopeField: 'targetId',
     designViewTable: 'Design', resourceId: 'test-design',
     columns: [{name: 'rowid', primary: true}, {name: 'targetId'}, {name: 'content'}],
-    loadRow: load, persistRow: persist}, () => {})
+    ...(options.json ? {jsonFields:['content']} : {}),
+    loadRow: load, persistRow: persist}, guard)
   const scope = (scopeId: string) => setDesignScopeValue({dataSet, tableName: 'Input', field: 'targetId', scopeId})
   scope('A'); await view.refresh()
   const save = () => dataSet.saveChanges({views: [{tableName: 'Design', viewId: 'default'}]})
-  return {dataSet, view, persist, load, scope, save}
+  return {dataSet, view, persist, load, scope, save, guard}
 }
 
 describe('staged design storage confirmation', () => {
+  it('resolves the original definition capture as not applied before explicitly discarding its draft', async () => {
+    const {dataSet,view,persist} = await open()
+    persist.mockResolvedValue(undefined)
+    await view.editRowById('A',{content:'not stored'})
+    let capture:DataSpaceDefinitionCaptureBatch|undefined
+    await expect(DataSpaceDefinitionSave.run([{dataSet,targetId:'A',modelId:'A',
+      prepare:async()=>{},apply:async()=>{},check:()=>{},
+      targets:()=>[{tableName:'Design',viewId:'default',ids:['A']}],
+      dispatched:value=>{capture=value},confirm:async()=>{},failed:()=>{},
+    }])).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    expect(capture).toBeDefined()
+    await expect(verifyDataSpaceDefinitionCapture(dataSet,capture!)).resolves.toBe('not-applied')
+    expect(view.dirtyTracking.hasPendingChanges('A')).toBe(true)
+    expect(view.hasUnconfirmedSave).toBe(false)
+    await expect(verifyAndDiscardDataSpaceDefinitionCapture(dataSet,capture!,{acceptCurrentOnInvalidReceipt:false})).resolves.toBe('not-applied')
+    expect(view.dirtyTracking.hasPendingChanges('A')).toBe(false)
+    expect(view.rows[0]?.['content']).toBe('original')
+    expect(persist).toHaveBeenCalledTimes(1)
+  })
   it('verifies a possibly applied write without replaying it', async () => {
     const {view, persist, load, save} = await open()
     await view.editRowById('A', {content: 'saved'})
@@ -178,9 +201,68 @@ describe('staged design storage confirmation', () => {
     persist.mockResolvedValue(undefined)
     await view.editRowById('A', {content: 'not stored'})
     await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
-    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    await expect(save()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED:')
     expect(persist).toHaveBeenCalledTimes(1)
+    expect(view.hasUnconfirmedSave).toBe(false)
     expect(view.dirtyTracking.hasPendingChanges()).toBe(true)
+  })
+
+  it('retains the original unknown when a different result replaces the baseline', async () => {
+    const {view, persist, load, save} = await open()
+    persist.mockResolvedValue(undefined)
+    await view.editRowById('A', {content: 'not stored'})
+    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    load.mockResolvedValue({rowid:'A',targetId:'A',content:'another writer'})
+    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(persist).toHaveBeenCalledTimes(1)
+  })
+
+  it('keeps later local edits when the original write is verified not applied', async () => {
+    const {view, persist, save} = await open()
+    persist.mockResolvedValue(undefined)
+    await view.editRowById('A', {content:'first intent'})
+    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    view.updateEditingValue('A','content','later draft')
+    await expect(save()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED:')
+    expect(view.getEditingRow('A')?.['content']).toBe('later draft')
+    expect(view.dirtyTracking.hasPendingChanges('A')).toBe(true)
+    expect(persist).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not classify a failed verification read as the original baseline', async () => {
+    const {view, persist, load, save} = await open()
+    persist.mockResolvedValue(undefined)
+    await view.editRowById('A', {content:'not stored'})
+    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    load.mockRejectedValueOnce(new Error('read failed'))
+    await expect(save()).rejects.toThrow('read failed')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    await expect(save()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED:')
+    expect(persist).toHaveBeenCalledTimes(1)
+  })
+
+  it('compares the original JSON baseline structurally without accepting a different document', async () => {
+    const {view, persist, load, save} = await open({content:'{"a":1,"b":false}',json:true})
+    persist.mockResolvedValue(undefined)
+    await view.editRowById('A', {content:'{"a":2,"b":false}'})
+    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    load.mockResolvedValue({rowid:'A',targetId:'A',content:'{"b":false,"a":1}'})
+    await expect(save()).rejects.toThrow('SPARK_SAVE_NOT_APPLIED:')
+    expect(view.hasUnconfirmedSave).toBe(false)
+    expect(persist).toHaveBeenCalledTimes(1)
+  })
+
+  it('preserves the unknown capture when the original execution scope becomes invalid', async () => {
+    const {view, persist, guard, save} = await open()
+    persist.mockResolvedValue(undefined)
+    await view.editRowById('A', {content:'not stored'})
+    await expect(save()).rejects.toThrow('DESIGN_SAVE_UNCONFIRMED')
+    guard.mockImplementation(()=>{throw new Error('execution scope changed')})
+    await expect(save()).rejects.toThrow('execution scope changed')
+    expect(view.hasUnconfirmedSave).toBe(true)
+    expect(persist).toHaveBeenCalledTimes(1)
   })
 
   it('rejects saving an old target after a failed scope switch', async () => {

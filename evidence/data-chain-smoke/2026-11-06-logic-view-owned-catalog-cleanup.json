@@ -1,0 +1,24 @@
+{
+  "phase": "confirmed",
+  "processId": 26324,
+  "viewId": "B37C669BF9FD5D979CA6CCE5A1E4B696",
+  "marker": "LVmw4ybcqtd225",
+  "fileName": "LVmw4ybcqtd225.json",
+  "originalSaveUnresolved": true,
+  "catalogCleanupConfirmed": true,
+  "reads": 20,
+  "writes": 1,
+  "blocked": 0,
+  "unknown": false,
+  "testedAt": "2026-11-06T12:40:27.866Z",
+  "sourceSha256": "e64ef28bc29763ffc3b2fe03135be5ebdcb189e583c0e857d9271b1673ff9328",
+  "launcherProcessId": 14672,
+  "driverSession": 61213,
+  "nativeExit": 0,
+  "scope": "Explicitly abandoned failed smoke; only confirmed owned catalog removed. Original SaveView unresolved; no file lifecycle success.",
+  "independentReadback": {
+    "catalogIdAbsent": true,
+    "catalogMarkerAbsent": true,
+    "exactPhysicalFileMissing404": true
+  }
+}

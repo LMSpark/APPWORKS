@@ -90,7 +90,7 @@ export function attachStagedDesignView(
     guard()
     if (scopeId() !== expected) throw new Error('DESIGN_SCOPE_STALE: 设计目标已变化，请重开对应目标')
   }
-  const pending = new WeakMap<object, Readonly<{row: DataRow; scope: string}>>()
+  const pending = new WeakMap<object, Readonly<{row: DataRow; baseline: DataRow; scope: string}>>()
   const queryResult = async (rows:readonly DataRow[], scope:string) => {
     const result=await dataSetCommandQueryResultFromLocalRows(editView,rows,()=>assertScope(scope))
     const editing=options.editing
@@ -140,8 +140,12 @@ export function attachStagedDesignView(
         const scope = scopeId()
         change.context.assertIdentity(change.identity)
         if (row['rowid'] !== scope || row[options.scopeField] !== scope) throw new Error('DESIGN_SCOPE_STALE: 提交目标不一致')
-        const captured = pending.get(change.context) ?? {row: structuredClone(row), scope}
-        if (!pending.has(change.context)) {
+        const recovering = pending.has(change.context)
+        const original = change.context.rows.filter(item => item['rowid'] === scope && item[options.scopeField] === scope)
+        const baseline = original[0]
+        if (original.length !== 1 || !baseline) throw new Error('DESIGN_SCOPE_STALE: 原设计查询基线不唯一')
+        const captured = pending.get(change.context) ?? {row: structuredClone(row), baseline: structuredClone(baseline), scope}
+        if (!recovering) {
           pending.set(change.context, captured)
           try {await options.persistRow(captured.row)}
           catch (error) {
@@ -153,6 +157,10 @@ export function attachStagedDesignView(
         const read = await options.loadRow(captured.scope)
         assertScope(captured.scope)
         if (!options.columns.every(column => matches(column.name, captured.row[column.name], read[column.name]))) {
+          if (recovering && options.columns.every(column => matches(column.name, captured.baseline[column.name], read[column.name]))) {
+            pending.delete(change.context)
+            throw new Error('SPARK_SAVE_NOT_APPLIED: 原设计核验仍为原查询基线；草稿保留，未重新提交')
+          }
           throw new Error('DESIGN_SAVE_UNCONFIRMED: 设计回读与原提交不一致，请核验或明确放弃后重读')
         }
         const saved: DataRow = {...read}

@@ -645,6 +645,23 @@
             "maxRows": 50000
           },
           "pageSize": 500
+        },
+        "logicViewOutputFields": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "commitMode": "staged",
+          "lockCurrentWhilePending": true,
+          "selectionDelimiter": "",
+          "valueField": "rowid",
+          "labelField": "enname",
+          "queryContext": {"viewId": ""},
+          "queryConfig": {
+            "allPages": true,
+            "maxRows": 50000,
+            "fields": ["rowid", "tblid", "enname", "cnname", "description", "DataType", "IsPKey"]
+          },
+          "filterExpression": {"field": "tblid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "viewId"}}
         }
       }
     },

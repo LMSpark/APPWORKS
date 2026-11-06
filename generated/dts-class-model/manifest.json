@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1082,
+  "scannedFileCount": 1083,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14548,6 +14548,21 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/output/publication-plan",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/output/publication-plan",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication-plan\n职责：依据当前正式来源核对普通单表输出，生成发布字段值。\n边界：不读取或保存数据，不持有草稿；不将未核实的层次/计算结果伪装为平面字段。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LogicViewOutputField"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "file": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
       "module": {
@@ -21167,6 +21182,10 @@
     "LogicViewNodeCommands": {
       "sourcePath": "src/lowcode/resources/structured-config/logic-view/node-commands.ts",
       "file": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json"
+    },
+    "LogicViewOutputField": {
+      "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
+      "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json"
     },
     "LogicViewSourceType": {
       "sourcePath": "src/lowcode/resources/structured-config/logic-view/source-views.ts",

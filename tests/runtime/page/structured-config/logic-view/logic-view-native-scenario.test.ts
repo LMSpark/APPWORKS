@@ -3,6 +3,14 @@ import {expect,it} from 'vitest'
 import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 const scenarioId='EB720370EF06A5A656838F87E0716D6B'
+it('declares an independent staged output publication view scoped to the original viewId',()=>{
+ const config=new ScenarioViewConfig('8D1AB14DD8277F3E7017CD38F77B09FD',readFileSync('config/pages/data-platform/data-space-design/pagedata.json','utf8')).toJSON()
+ const tables=config['tables'] as Record<string,{modelBinding:{modelName:string};views:Record<string,Record<string,unknown>>}>
+ const fields=tables['Base_TblField']!
+ expect(fields.modelBinding.modelName).toBe('Base_TblField')
+ expect(fields.views['logicViewOutputFields']).toMatchObject({autoLoad:false,autoCurrentFirst:false,autoSelectFirst:false,commitMode:'staged',lockCurrentWhilePending:true,queryContext:{viewId:''},queryConfig:{allPages:true,fields:['rowid','tblid','enname','cnname','description','DataType','IsPKey']},filterExpression:{field:'tblid',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}}})
+ expect(fields.views['default']).toBeDefined();expect(fields.views['sourceDetails']).toBeDefined()
+})
 it('declares a formal catalog and an independent exact editor target without eager queries',()=>{
  const resource=resolveBuiltinScenarioResource(scenarioId)
  expect(resource?.path).toBe('config/pages/structured-config/logic-view-catalog/pagedata.json')

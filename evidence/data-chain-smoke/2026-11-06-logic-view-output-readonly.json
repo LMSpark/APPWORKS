@@ -1,0 +1,115 @@
+{
+  "phase": "confirmed",
+  "processId": 18256,
+  "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+  "readOnly": true,
+  "reads": 18,
+  "writes": 0,
+  "blockedWrites": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataViewList"
+    },
+    {
+      "path": "/api/ViewData/GetView",
+      "table": null
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "_Base_ParamList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    }
+  ],
+  "checks": [
+    "metadata-deferred-and-default-catalog-unqueried",
+    "one-exact-formal-editor-target",
+    "parameter-input-before-query-and-single-metadata-instance",
+    "exact-complete-output-view-in-original-metadata-instance",
+    "same-formal-named-view-and-one-explicit-candidate-query"
+  ],
+  "design": {
+    "hash": "e7a3b98ce67d320642b63bc06765a7eb2655d4949d94bb32369bd7a922f5a299",
+    "nodes": 1
+  },
+  "outputFields": {
+    "count": 25,
+    "total": 25,
+    "primaryKey": "rowid",
+    "readableNames": true,
+    "dirty": false
+  },
+  "candidate": {
+    "count": 10,
+    "total": 1209,
+    "pageSize": 10,
+    "selectionDelimiter": ""
+  },
+  "parameters": {
+    "count": 2,
+    "primaryKey": "parid"
+  },
+  "disposed": true,
+  "finishedAt": "2026-11-06T11:12:24.352Z",
+  "sourceSha256": "177afbe4473caf2dee75757377a591096487f47a5bd73886168b1985ae619c3a",
+  "scope": "Formal output view read only; no SaveView, publication, CRUD or deletion proof"
+}

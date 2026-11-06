@@ -1186,6 +1186,7 @@ describe('data-space metadata DataSet', () => {
             value: {Type: 'GetInputParam', ParamName: 'dataSpaceId'}})
         } else {
           if(tableName==='_Base_ParamList'&&viewId==='logicViewParameters')expect(record(view)['filterExpression']).toEqual({field:'pid',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}})
+          else if(tableName==='Base_TblField'&&viewId==='logicViewOutputFields')expect(record(view)['filterExpression']).toEqual({field:'tblid',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}})
           else expect(view).not.toHaveProperty('filterExpression')
           expect(record(record(view)['queryConfig'])['fields']).toContain(tableName === '_Base_ParamList' ? 'parid' : 'rowid')
         }

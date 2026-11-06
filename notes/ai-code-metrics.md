@@ -3274,3 +3274,10 @@
 - RendererFilter autoQuery=false实际RED2→GREEN，原DataView setter保留过滤与权限守卫，手动搜索一次；声明由正式ClassModel生成。旧测试Apply断言更新仍保留暂存/保存/重开与结果验证，响应夹具继续真实loader/assembler/ApiBackend。最新typecheck、eslint、build:fe11.26s、完整verify:rules均exit0（原2warning/1info及page-thin待审诊断保留）；最终受影响全量测试进行中，结果稍后追加。
 - 最终广域71文件2282项exit0；新增审查反例跨应用/停design切目标RED3及同Runtime设计重读RED1均复现后修正。原scope固定、迟到销毁，metadataReady仅通知原DS可用，不另建owner；最终logic/目录/JSON10文件96项通过。中间来源disabled与目录旧夹具失败保留，不洗成首轮通过。最后eslint/build再次exit0，types最终复核中；实服仍0写，发布/保存/清理闭环未完成。
 - 最后typecheck77116已exit0，最后build:fe4.01s；检查点提交不代表逻辑视图/20包目标完成。
+
+### 2026-11-06 输出发布合同与只读核验
+
+- 高阶核对参考全树扁平/全删全增/PK0缺陷，新增原8D输出命名视图和同Runtime精确读取，未建第二查询owner。实服冻结probe18读0写0blocked，完整25字段、同原实例、无草稿且释放；未发布写入，未证SaveView/运行消费/删除闭环。
+- 纯投影核来源类型和真实PK，禁止不明层次/计算、重复别名、缺输出标记与空输出；17项边界测试通过。完整性检查在正式结果接纳前执行，不拿含新增草稿行数比较total。缓存scope验证复用正式query owner，新增真实LowcodeApi换app token变化4项。旧夹具过滤假设及不一致same-token mock失败均保留、更正依据明确。
+- 正式ClassModel刷新并恢复159份结构等价生成噪声，API消费者611/208不变。typecheck、eslint、完整verify:rules及build:fe4.28s已exit0，最后空输出修复后17项及lint通过，冻结全范围复核/最新build终态待追加。稳定暂存、引用保护、两侧保存、独立回读和清理尚待继续，不核销逻辑视图或20包目标。
+- 最终冻结18文件415项、包内真实scope4项均exit0；types/lint/generate/fullrules通过，最新build6.36s。只读18读25字段证据已入仓，未接发布写入。所有worker已终态，无新增夹具/unknown。

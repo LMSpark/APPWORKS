@@ -4336,10 +4336,15 @@
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json",
       "sourceModifiedAt": "2026-11-02T05:32:39.172Z"
     },
+    "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json",
+      "sourceModifiedAt": "2026-11-06T11:13:29.670Z"
+    },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
-      "sourceModifiedAt": "2026-11-06T10:54:57.664Z"
+      "sourceModifiedAt": "2026-11-06T11:15:17.624Z"
     },
     "src/lowcode/resources/structured-config/logic-view/source-views.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
@@ -5274,7 +5279,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T10:55:56.073Z"
+      "sourceModifiedAt": "2026-11-06T10:59:16.987Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",

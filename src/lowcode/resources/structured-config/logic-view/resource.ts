@@ -18,6 +18,8 @@ export class LowcodeLogicView {
  static readonly parameterModelName='_Base_ParamList'
  /** 视图自身参数与接口来源参数共用模型，使用独立命名视图保留各自查询和编辑身份。 */
  static readonly parameterViewId='logicViewParameters'
+ /** 正式输出发布与来源字段读取分开跟踪编辑及提交。 */
+ static readonly outputFieldViewId='logicViewOutputFields'
 
  /** Loader只装配正式结构；业务查询须等待PageRuntime注入viewId。 */
  static async loadCatalog(scenarioId:string):Promise<DataSet>{
@@ -56,12 +58,25 @@ export class LowcodeLogicView {
  }
  /** 参数与来源共享同一按需实例；只查询参数命名视图，保留其它视图和既有草稿。 */
  static async ensureParameters(page:PageRuntime):Promise<DataSet>{
-  const {assertCurrent}=readStructuredConfigScope('逻辑视图参数'),dataSet=await page.ensureScenarioLoaded(this.parameterScenarioId)
+  return this.ensureMetadataView(page,{modelName:this.parameterModelName,viewId:this.parameterViewId,primaryKey:'parid',targetField:'pid'})
+ }
+ /** 只完整读取本次逻辑视图的正式输出，不查询其他目标或覆盖参数草稿。 */
+ static async ensureOutputFields(page:PageRuntime):Promise<DataSet>{
+  return this.ensureMetadataView(page,{modelName:'Base_TblField',viewId:this.outputFieldViewId,primaryKey:'rowid',targetField:'tblid'})
+ }
+ private static async ensureMetadataView(page:PageRuntime,spec:Readonly<{modelName:string;viewId:string;primaryKey:string;targetField:string}>):Promise<DataSet>{
+  const {assertCurrent}=readStructuredConfigScope('逻辑视图元数据'),dataSet=await page.ensureScenarioLoaded(this.parameterScenarioId)
   assertCurrent()
-  const view=dataSet.getView(this.parameterModelName,this.parameterViewId),target=page.call.scenarioInputs?.[this.parameterScenarioId]?.['viewId']
-  if(view?.primaryKey!=='parid'||typeof target!=='string'||!target.trim()||view.queryContext['viewId']!==target)throw Error('逻辑视图参数身份不匹配')
-  view.validateQueryResult=result=>{assertCurrent();if(page.getDataSet(this.parameterScenarioId)!==dataSet||view.queryContext['viewId']!==target||result.rows.some(row=>row['pid']!==target||result.fieldAccess(result.rowKey(row),'pid').read!=='visible'))throw Error('逻辑视图参数返回目标之外的记录')}
+  const view=dataSet.getView(spec.modelName,spec.viewId),target=page.call.scenarioInputs?.[this.parameterScenarioId]?.['viewId']
+  if(view?.primaryKey!==spec.primaryKey||view.dataTable?.modelBinding?.modelName!==spec.modelName||typeof target!=='string'||!target.trim()||view.queryContext['viewId']!==target)throw Error('逻辑视图元数据身份不匹配')
+  view.validateQueryResult=result=>{
+   assertCurrent()
+   if(!result.countReported||result.rows.length!==result.total)throw Error('逻辑视图元数据尚未完整读取')
+   if(page.getDataSet(this.parameterScenarioId)!==dataSet||view.queryContext['viewId']!==target||result.rows.some(row=>row[spec.targetField]!==target||result.fieldAccess(result.rowKey(row),spec.targetField).read!=='visible'))throw Error('逻辑视图元数据返回目标之外的记录')
+  }
   if(view.requestState!==RequestState.Loaded){await view.refresh();assertCurrent();if(view.loadingError)throw view.loadingError}
+  // 从原正式结果取声明，同时由查询owner核对已缓存结果的原应用/登录scope；不比较含草稿的本地行数。
+  if(!view.countReported)throw Error('逻辑视图元数据尚未完整读取')
   return dataSet
  }
 }

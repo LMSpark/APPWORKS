@@ -28,6 +28,28 @@ const pages:PageRuntime[]=[]
 afterEach(()=>pages.splice(0).forEach(page=>page.dispose()))
 async function parameters(viewId:string){const page=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId}),pageId:'parameter-test'});pages.push(page);await page.load();return LowcodeLogicView.ensureParameters(page)}
 describe('logical-view formal parameter resource', () => {
+  it('rejects cached parameter results after the original request scope changes',async()=>{
+    const page=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'cached-parameter-test'})
+    pages.push(page);await page.load();await LowcodeLogicView.ensureParameters(page)
+    const reads=http.reads.length
+    service.readRequestScope.mockReturnValue({token:'changed-token',headers:{'X-AppId':'APP-B'}})
+    await expect(LowcodeLogicView.ensureParameters(page)).rejects.toThrow()
+    expect(http.reads).toHaveLength(reads)
+  })
+  it('loads exact output fields through the same deferred metadata instance without touching parameter drafts',async()=>{
+    http.records['Base_TblField']=[{rowid:'F1',tblid:'V1',enname:'id',DataType:'int',IsPKey:1},{rowid:'F2',tblid:'V2',enname:'other',DataType:'varchar',IsPKey:0}]
+    const page=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'publication-test'})
+    pages.push(page);await page.load()
+    const metadata=await LowcodeLogicView.ensureParameters(page),params=metadata.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!
+    params.updateEditingValue('P1','testvalue','keep draft')
+    await params.addRow({parname:'new-param',pardesc:'',testvalue:''})
+    expect(await LowcodeLogicView.ensureParameters(page)).toBe(metadata)
+    const result=await LowcodeLogicView.ensureOutputFields(page)
+    expect(result).toBe(metadata)
+    expect(result.getView('Base_TblField','logicViewOutputFields')?.rows.map(row=>row['rowid'])).toEqual(['F1'])
+    expect(result.getView('Base_TblField','default')?.rows).toHaveLength(0)
+    expect(params.getEditingRow('P1')?.['testvalue']).toBe('keep draft');expect(http.saves).toHaveLength(0)
+  })
   it.each(['scope','changed-token'])('rejects a deferred metadata load after application changes with token %s',async token=>{
     const page=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'stale-parameter-test'})
     pages.push(page);await page.load()

@@ -23,7 +23,8 @@
         "catalogMetaName": true,
         "parameterScenarioId": true,
         "parameterModelName": true,
-        "parameterViewId": true
+        "parameterViewId": true,
+        "outputFieldViewId": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -108,11 +109,24 @@
         "method.ensureParameters.return": {
           "type": "object",
           "title": "Promise<DataSet>"
+        },
+        "method.ensureOutputFields.params": {
+          "type": "object",
+          "properties": {
+            "page": {
+              "$ref": "../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.ensureOutputFields.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-06T10:54:57.664Z",
+  "generatedAt": "2026-11-06T11:15:17.624Z",
   "models": {
     "LowcodeLogicView": {
       "name": "LowcodeLogicView",
@@ -148,6 +162,12 @@
             {
               "name": "parameterViewId",
               "jsdoc": "视图自身参数与接口来源参数共用模型，使用独立命名视图保留各自查询和编辑身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputFieldViewId",
+              "jsdoc": "正式输出发布与来源字段读取分开跟踪编辑及提交。",
               "readable": true,
               "writable": false
             }
@@ -248,6 +268,29 @@
             {
               "name": "ensureParameters",
               "jsdoc": "参数与来源共享同一按需实例；只查询参数命名视图，保留其它视图和既有草稿。",
+              "parameters": [
+                {
+                  "name": "page",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageRuntime"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "ensureOutputFields",
+              "jsdoc": "只完整读取本次逻辑视图的正式输出，不查询其他目标或覆盖参数草稿。",
               "parameters": [
                 {
                   "name": "page",

@@ -87,5 +87,9 @@ describe('LowcodeApi request scopes', () => {
         api.session.revision, api.application.revision]),
       headers: {'tenant-id': 'Enterprise', 'visit-tenant-id': 'Enterprise', 'x-FirstFolder': 'Enterprise', 'X-AppId': 'APP-1'},
     })
+    const original=api.readRequestScope()
+    api.application.save({application:{id:'APP-2',name:'Second'},navigationRootId:'ROOT-2'})
+    expect(api.readRequestScope().headers['X-AppId']).toBe('APP-2')
+    expect(api.readRequestScope().token).not.toBe(original.token)
   })
 })

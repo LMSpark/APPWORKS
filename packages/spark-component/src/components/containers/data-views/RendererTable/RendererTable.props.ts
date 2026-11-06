@@ -43,6 +43,13 @@ export type RTableProps = SparkNodeProps & SparkInteractiveDataContainerProps & 
      * 函数须无副作用；涉及字段分类时由调用方检查绑定DataView的字段读取权限。
      */
     rowClassName?: (context: TableRowClassContext) => string
+    /** 仅搜索当前已加载平面页的呈现行，不查询、不改变原视图行/总数/选择/编辑。字段须为已声明列，仅可见标量值参与不区分大小写的包含匹配；搜索词去首尾空白。换视图、查询上下文、页码或页大小清空。树视图不支持。 */
+    currentPageSearch?: {
+      /** 参与匹配的字段名；至少一个，不能引用未声明字段。 */
+      fields: readonly string[]
+      /** 搜索输入提示及无障碍名称，默认“搜索当前页”。 */
+      placeholder?: string
+    }
     /** 是否允许拖动列宽，默认 true。 */
     resizable?: boolean
     /** 设为true且没有显式children时，根据DataView字段生成r-text子组件；由子组件按表格父容器渲染。 */

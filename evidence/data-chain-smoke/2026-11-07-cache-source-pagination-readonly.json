@@ -1,0 +1,147 @@
+{
+  "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+  "phase": "finished",
+  "businessWrites": 0,
+  "cacheDeletes": 0,
+  "steps": [
+    {
+      "stage": "interfaceDefinitions",
+      "rows": [
+        {
+          "rowid": "59EAA39E216B4A028E93539DC6607FE5",
+          "ProviderID": "BA0159D310154FEC9CFEF05558DEA012",
+          "Name": "获取缓存信息",
+          "LinkUrl": "/sysCache/findByPatternPageWithTotal",
+          "RequestType": "Body",
+          "resultPath": "$.Result.Items"
+        },
+        {
+          "rowid": "F708490CBE65581D09937D4AB5A20EAD",
+          "ProviderID": "BA0159D310154FEC9CFEF05558DEA012",
+          "Name": "根据键删除缓存中的值",
+          "LinkUrl": "/sysCache/delete",
+          "RequestType": "FormData",
+          "resultPath": "$"
+        }
+      ]
+    },
+    {
+      "stage": "缓存过滤条件",
+      "sourcePage": 1,
+      "count": 8,
+      "total": 8,
+      "countReported": true,
+      "primaryKey": "",
+      "reportedPrimaryKey": "",
+      "resultKind": "entity",
+      "selectedReadablePrefix": "USER_INFO"
+    },
+    {
+      "stage": "获取缓存信息",
+      "sourcePage": 1,
+      "count": 1,
+      "total": 1,
+      "countReported": false,
+      "primaryKey": "",
+      "reportedPrimaryKey": "",
+      "resultKind": "entity",
+      "keyDigests": [
+        "a070c673dc948d05e500de38a8ca0b336909c256c8b18686b6563ac274ecdad4"
+      ]
+    },
+    {
+      "stage": "获取缓存信息",
+      "sourcePage": 2,
+      "count": 1,
+      "total": 1,
+      "countReported": false,
+      "primaryKey": "",
+      "reportedPrimaryKey": "",
+      "resultKind": "entity",
+      "keyDigests": [
+        "fa325bb63e8704c7d2ab0a201d07a65879362dd3ad415d1593f1a1a31767304e"
+      ]
+    }
+  ],
+  "sdkRequests": 12,
+  "blocked": 0,
+  "dispatches": [
+    {
+      "ordinal": 2,
+      "modelName": "Base_DataModel"
+    },
+    {
+      "ordinal": 3,
+      "modelName": "Base_DataModel_Field"
+    },
+    {
+      "ordinal": 4,
+      "modelName": "Base_DataModel_Field"
+    },
+    {
+      "ordinal": 5,
+      "modelName": "Base_DataModel"
+    },
+    {
+      "ordinal": 6,
+      "modelName": "Base_DataModel_Field"
+    },
+    {
+      "ordinal": 7,
+      "modelName": "View_TblList"
+    },
+    {
+      "ordinal": 8,
+      "modelName": "Base_TblField"
+    },
+    {
+      "ordinal": 9,
+      "modelName": "Base_DataServiceInterface"
+    },
+    {
+      "ordinal": 10,
+      "modelName": "缓存过滤条件",
+      "inputParams": [],
+      "outerPage": {
+        "index": 1,
+        "size": 20
+      }
+    },
+    {
+      "ordinal": 11,
+      "modelName": "获取缓存信息",
+      "inputParams": [
+        {
+          "Name": "prefix",
+          "Value": "USER_INFO"
+        },
+        {
+          "Name": "page",
+          "Value": "1"
+        },
+        {
+          "Name": "size",
+          "Value": "1"
+        }
+      ]
+    },
+    {
+      "ordinal": 12,
+      "modelName": "获取缓存信息",
+      "inputParams": [
+        {
+          "Name": "prefix",
+          "Value": "USER_INFO"
+        },
+        {
+          "Name": "page",
+          "Value": "2"
+        },
+        {
+          "Name": "size",
+          "Value": "1"
+        }
+      ]
+    }
+  ]
+}

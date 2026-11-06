@@ -3340,3 +3340,5 @@
 
 - 2026-11-07 公共参数原ID重绑：p005 outputBinding原rowid选择＋固定ID标准Form，四字段经原DataView/public helper写回，API页完整纳入named view脏状态/unknown/关闭/重读。引用等待换源误派1批真实RED推动原parameterReferences scope/check收口；晚到desc直接复用原SPARK data保存proof，说明修改不扫来源。masked提案泄露真实RED改标准readonly字段及read/write分核，hidden正式invisible术语误断言单独保留。最终7文件124项过41.85s，types21069/full lint86736/full rules27915/build7043/正式生成64422/fresh7根指南12627均exit0，8源冻结高阶SHA全同无新阻断；全仓92344运行，未提交。真实指定账号两轮各15 SDK+2host只读，4参数8字段及原PK/选项字段合同核实，30＋4计数读/0业务写/0外部执行/0拦截，原实例及自有proxy34096释放。先前getSelectedValues假设错未改平台，auth transport未计数不冒称0总请求；真实重绑写及部署输出新增缺口不核销。正式验证证据awaiting-full-repository-test。
 - 公共参数原rowid重绑最终全仓：479文件8909项通过，1110.34s，原15000ms/maxWorkers2；8源SHA逐项匹配，exit文件0/完整终态日志一致，原92344句柄已释放。实服仅只读30SDK+4host，无真实重绑写验收。
+- 标准表格当前页搜索：先RED缺入口/隐藏选择丢失/隐式嵌套树，再复用原视图权限、编辑覆盖、行引用及选择；最终11文件69项过36.56s，types/lint/正式生成均exit0。4源冻结，全仓9862及最终rules22686/build34608/指南85175未收终态，不称本卡完成；缓存实际仅只读双页、权威总数/命令写入及页面消费开放。
+- 当前页搜索最终单轮全仓：480文件8918项全部通过，1015.04s，原15000ms/maxWorkers2，原9862自然exit0且.exit=0；4冻结源hash再次一致。该检查点不核销缓存分页/命令/页面接线及真实删除缺口。

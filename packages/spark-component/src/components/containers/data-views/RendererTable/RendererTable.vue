@@ -9,6 +9,8 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
   <div :class="['renderer-table-layout', `renderer-table-layout--${toolbarPositionValue}`]">
     <SparkComponentRenderer v-if="toolbarNode" :config="toolbarNode" />
     <SparkComponentRenderer v-if="filterSparkNode" :config="filterSparkNode" />
+    <el-input v-if="props.currentPageSearch" v-model="pageSearch" clearable
+      :placeholder="props.currentPageSearch.placeholder ?? '搜索当前页'" :aria-label="props.currentPageSearch.placeholder ?? '搜索当前页'" />
     <DataViewMetaBar
       :rows="dataState.rows.value"
       :columns="dataState.columns.value"
@@ -148,13 +150,14 @@ import type { SparkNode, DataRow, DataView } from '@spark-appworks/spark-data'
 import { createRendererTableZeroCode, type NativeTableLike } from './zero-code'
 import { toSortDirection, type ElementPlusTableSortOrder } from './types'
 import { useContainerDataSource } from '../view-data-source'
-import { buildTreeTableRows } from '../view-tree-state'
+import { buildTreeTableRows, isAlreadyNested } from '../view-tree-state'
 import { useContainerToolbar } from '../../runtime/container-ui'
 import { sparkColumnToAutoFieldNode } from '../../runtime/column-auto-field.js'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
 import { TABLE_COLUMN_RESIZABLE_KEY, TABLE_COLUMN_SORTING_KEY } from '../../../fields/context/tableColumnContext'
 import { toDataRecord } from '../data-row-utils'
+import {resolveDataViewEditingRow} from '../../../fields/context/dataViewEditing'
 
 const { DataMember, RequestState, getSparkNodeChildren, nodeInputProps, nodeId } = SparkData
 
@@ -314,9 +317,36 @@ const DEFAULT_TABLE_TREE_PROPS: Readonly<Record<string, unknown>> = Object.freez
 })
 
 // ── 筛选区透传：r-filter 自治 DataView 同步与 filterModel ─────────────────────────────
+const pageSearch = ref('')
+watch(dataState.resolvedView, (view, _previous, onCleanup) => {
+  pageSearch.value = ''
+  if (!view) return
+  let baseline = JSON.stringify([view.queryContext, view.page, view.pageSize])
+  const changed = () => {
+    const next = JSON.stringify([view.queryContext, view.page, view.pageSize])
+    if (next !== baseline) {baseline = next; pageSearch.value = ''}
+  }
+  view.events.on('configChanged', changed)
+  view.events.on('requestStateChanged', changed)
+  onCleanup(() => {view.events.off('configChanged', changed); view.events.off('requestStateChanged', changed)})
+}, {immediate: true, flush: 'sync'})
+const searchedRows = computed(() => {
+  const search = props.currentPageSearch, view = dataState.resolvedView.value, original = dataState.rows.value
+  if (!search || !view) return original
+  if (dataState.treeConfig.value || isAlreadyNested(original)) throw new Error('TABLE_PAGE_SEARCH: 当前页搜索不支持树视图')
+  if (!search.fields.length || search.fields.some(field => !dataState.columns.value.some(column => column.name === field))) throw new Error('TABLE_PAGE_SEARCH: 搜索字段未声明')
+  const keyword = pageSearch.value.trim().toLowerCase()
+  if (!keyword) return original
+  dataState.editingRows.value
+  return original.filter(row => search.fields.some(field => {
+    if (view.fieldAccess(row, field).read !== 'visible') return false
+    const value = (resolveDataViewEditingRow(view, row) ?? row)[field]
+    return ['string', 'number', 'boolean'].includes(typeof value) && String(value).toLowerCase().includes(keyword)
+  }))
+})
 const rows = computed(() => buildTreeTableRows({
   view: dataState.resolvedView.value,
-  rows: dataState.rows.value,
+  rows: searchedRows.value,
   treeConfig: dataState.treeConfig.value,
   primaryKey: dataState.primaryKey.value,
 }))
@@ -481,7 +511,12 @@ async function handleRowClick(row: DataRow, column?: unknown, event?: Event) {
 /** 多选变更事件桥接。 */
 async function handleSelectionChange(selection: DataRow[]) {
   if (_isSyncingSelection) return
-  await dispatch('selection-change', Array.isArray(selection) ? selection : [])
+  const selected = Array.isArray(selection) ? selection : []
+  if (props.currentPageSearch && pageSearch.value.trim() && isMultiSelect.value) {
+    const visible = new Set(rows.value.map(row => toRaw(row)))
+    const hidden = selectedRows.value.filter(row => !visible.has(toRaw(row)))
+    await dispatch('selection-change', [...hidden, ...selected])
+  } else await dispatch('selection-change', selected)
 }
 
 /** 处理排序变化（服务端排序）；Element Plus order → SortDirection */

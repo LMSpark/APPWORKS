@@ -1,0 +1,92 @@
+{
+  "status": "verified-checkpoint",
+  "scope": "Standard table current-page presentation search required by original cache management. Cache page migration and command submit remain open.",
+  "sourceHashes": {
+    "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.props.ts": "d0362041124b765507ccedfe48cc4da03e27dd75577b55ef656ef2fcaafd8da2",
+    "packages/spark-component/src/components/containers/data-views/RendererTable/RendererTable.vue": "f53e5be5cc90df65c76ab7a007881656c9c2c79e7e291367fc24ccad51f143e3",
+    "packages/spark-component/src/components/containers/data-views/view-tree-state.ts": "6dbea160bd39896362d8492919f46025b992b50fb59bd9687594bc3870b94a4b",
+    "tests/ui/renderer/data-table/search/current-page-search.test.ts": "82644f68f32e00355d39d573f1c9264c77721037fdbfce8a60216740480c773d"
+  },
+  "validation": {
+    "impact": {
+      "exitCode": 0,
+      "files": 11,
+      "tests": 69,
+      "durationSeconds": 36.56
+    },
+    "types": {
+      "session": 95377,
+      "exitCode": 0
+    },
+    "lint": {
+      "session": 56736,
+      "exitCode": 0
+    },
+    "classModel": {
+      "session": 42997,
+      "exitCode": 0
+    },
+    "rules": {
+      "session": 22686,
+      "exitCode": 0
+    },
+    "build": {
+      "session": 34608,
+      "exitCode": 0
+    },
+    "guides": {
+      "session": 85175,
+      "exitCode": 0,
+      "roots": 4,
+      "includes": "RTableProps.currentPageSearch attribute guide"
+    },
+    "fullRepository": {
+      "session": 9862,
+      "status": "passed",
+      "files": 480,
+      "tests": 8918,
+      "durationSeconds": 1015.04,
+      "workers": 2,
+      "testTimeoutMs": 15000,
+      "exitCode": 0
+    }
+  },
+  "review": {
+    "nestedRowsCorrection": "Reuses original nested-table predicate after observed RED",
+    "newDefiniteBlockers": 0,
+    "scope": "Current-page search only",
+    "oldViewListeners": "Released on binding change",
+    "keylessCheckboxes": "Actual table checkbox interactions verified"
+  },
+  "corrections": [
+    "Initial probe used a metadata catalog that does not declare LinkUrl; rejected before its definition query.",
+    "Substring query gate blocked a metadata lookup; replaced with parsed query model allowlist.",
+    "Initial table fixture reported rowid rather than declared id and referenced a nonexistent batches member; corrected fixture, not production rules.",
+    "Direct queryContext assignment emits no config event; configure changes and subsequent request events define the reset boundary.",
+    "First full test was deliberately stopped for a confirmed nested-row defect; only the second frozen run may establish final verification."
+  ],
+  "openItems": [
+    "Original cache page is still mapped to the browser file-cache utility.",
+    "Source pagination returns countReported=false; no authoritative total or complete end-page contract established.",
+    "No owned-key create/delete smoke performed.",
+    "20-package migration and browser visual acceptance."
+  ],
+  "liveReadonlyEvidence": "evidence/data-chain-smoke/2026-11-07-cache-source-pagination-readonly.json",
+  "logHashes": {
+    "table-current-page-search-impact-v4.log": "55341afdf81af89256034784f60195c2bff1bcfa4c15654163645bec9219f9d3",
+    "table-current-page-search-types-v3.log": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962",
+    "table-current-page-search-lint-v2.log": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d",
+    "table-current-page-search-class-model-v3.log": "9e86fd83496e2a2fac1e36da0aca8796da2488d1df3241d2e82870eeb023c8e9",
+    "table-current-page-search-rules-v2.log": "463664677a3cdae0bb5208a425c0813f63bc7e28d9770d98ca8f26d9c38a3cae",
+    "table-current-page-search-build-v2.log": "e9d038a5af9e38208a8208b2e924a9a27315fd3ee63c804c90ccf78b0ae52f0c",
+    "table-current-page-search-contracts-v3.log": "57f601b20dbfca418b104620fd68c088270ba2d2319ac1d9ff8ec8ff97ee2fee",
+    "cache-management-contracts.json": "c710b7222aab68629588654a2c04ba0643f1a2aa51b1d69a82750f63b3ebc1d1",
+    "table-current-page-search-generated-audit.json": "bdc25798a677fc59c4938cf39041e4712119b181e8fba331e358496b4ae11406",
+    "table-current-page-search-full-v2.log": "eb2162f7898d94d9d11041f2a0a062569f6496701a4060a5b0f6d9f57200435d"
+  },
+  "postValidationFormatting": {
+    "file": "tests/ui/renderer/data-table/search/current-page-search.test.ts",
+    "change": "Removed one extra blank line at EOF reported by git diff --check; executable test content unchanged.",
+    "sha256": "58dbce5cc68f3c8aa912f3008ce6e28f0ba469cd0320b17874f39e5035f69f75"
+  }
+}

@@ -87,7 +87,8 @@ function resolveParentId(rawParentId: unknown): string | number | null {
   return String(rawParentId)
 }
 
-function isAlreadyNested(rows: readonly unknown[]): boolean {
+/** 表格原生嵌套行判定；呈现及不支持树的交互共用，不以缺少treeConfig推断平面结果。 */
+export function isAlreadyNested(rows: readonly unknown[]): boolean {
   return rows.some(row => {
     const record = toDataRecord(row)
     if (!record) return false

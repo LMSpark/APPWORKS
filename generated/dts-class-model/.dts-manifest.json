@@ -4354,7 +4354,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
-      "sourceModifiedAt": "2026-11-06T05:43:44.595Z"
+      "sourceModifiedAt": "2026-11-06T08:53:45.414Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/connectors.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",

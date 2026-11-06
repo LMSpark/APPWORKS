@@ -3251,3 +3251,8 @@
 ### 2026-11-06 工作流复用仓内JSON树编辑器
 
 - 四处FieldJson改用已有tree模式，未新增页面数据通道。标准JsonTreeEditor补畸形原文显式修复/取消与权限、schema/policy、绑定代次保护；FieldJson转发schema。676项消费测试与49项ClassModel校验通过，字段36项含回调过期/false/0/取消；真实UI截图因桌面管道不可用未补验。类型复核optional schema改null后重跑，正式产物从源码生成，等价噪声恢复。
+
+### 2026-11-06 ADD/DELETE条件真实消费
+
+- 最小生产变更：删除共同条件目录的ADD/DELETE临时门，原公共DataView保存/权限不变。两个gate测试替换原视图新增取消保存重开，实际RED2→GREEN22，workflow510/types/lint通过。正式ClassModel刷新，150等价噪声恢复。首次build与生成并发读临时manifest失败，顺序重跑通过；全仓rules26项待收敛。
+- 实服v2因测试startup name过长500失败，exec0，原RAM精确清理1049读51CRUD/exit1，保留失败。高阶核v3短marker及冻结名称长度23/19；27离线门后一次执行1293读53CRUD/exit0，六SUCCESS/twofalseabsent、原生number0/DELETE仅PK、独立实例日志、startup不变及全scope0。所有结果保留unverified含义，不称全部组合或浏览器交互验收；下一步26规则具名参数/类型收窄，不加兼容层。

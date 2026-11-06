@@ -1,0 +1,422 @@
+{
+  "phase": "confirmed",
+  "workflowId": "38DC3A9BCCCE41279DC486CDA8DC2C97",
+  "processId": 22632,
+  "marker": "AD1793954670050",
+  "reads": 1293,
+  "writes": 53,
+  "executions": 1,
+  "blockedRequests": 0,
+  "unknown": false,
+  "error": null,
+  "pending": null,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-06T08:53:12.920Z",
+  "readbacks": [
+    {
+      "runtimeNodes": 0,
+      "runtimeFlows": 0
+    },
+    {
+      "conditionId": "5C84A8571FCB4F45952AD0C27F5D2FCF",
+      "count": 0
+    },
+    {
+      "conditionId": "F5DF01A4AB2F4178BAAD0BBBC24C5BE1",
+      "count": 0
+    },
+    {
+      "conditionId": "66C8E26AFB264C6DB1977271656155ED",
+      "count": 0
+    },
+    {
+      "conditionId": "E0E8AEAADF964645B501292682BB8C61",
+      "count": 0
+    },
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "conditions": [
+    {
+      "name": "A_true",
+      "rowid": "5C84A8571FCB4F45952AD0C27F5D2FCF",
+      "edgeId": "07B887DC1CC3D0E6CF9DF4A5DC55659F",
+      "source": "FD5E15015208464595AB76B478E6F40B",
+      "target": "07795365161D407CB925C7B14C836E26",
+      "text": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"AD1793954670050\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}]}",
+      "absentBeforeNodes": true
+    },
+    {
+      "name": "A_false",
+      "rowid": "F5DF01A4AB2F4178BAAD0BBBC24C5BE1",
+      "edgeId": "3A7975ABBDD170508DC7807806AD0DFD",
+      "source": "FD5E15015208464595AB76B478E6F40B",
+      "target": "87AA870A8F644AB8868A1CDFDA457AC1",
+      "text": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"AD1793954670050\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}]}",
+      "absentBeforeNodes": true
+    },
+    {
+      "name": "D_true",
+      "rowid": "66C8E26AFB264C6DB1977271656155ED",
+      "edgeId": "53B4CF8896DEDBC05829C2220FAF2339",
+      "source": "511EA09CD432406397691E7828009F02",
+      "target": "703FD5C6BC7141F98A73B53C7F424F8E",
+      "text": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"ABFAC0F26ECA43E4831FB7AA4224E74E\"}}",
+      "absentBeforeNodes": true
+    },
+    {
+      "name": "D_false",
+      "rowid": "E0E8AEAADF964645B501292682BB8C61",
+      "edgeId": "6BB12A1FA827FC57DB96BE33416E998A",
+      "source": "511EA09CD432406397691E7828009F02",
+      "target": "8AA5E457EF8449AE9F2B3D1A30BAA105",
+      "text": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"75F120C027854B3FA1CDB66D638572D1\"}}",
+      "absentBeforeNodes": true
+    }
+  ],
+  "runtimeCases": [
+    {
+      "name": "single",
+      "logs": {
+        "instanceId": "19F619C124B54011A96043437EDFEEA5",
+        "nodes": [
+          {
+            "rowid": "060EBBCA9775487A97B400CFA6D5118A",
+            "node_id": "222BAA001CC04EE59ABCBBB5240EBD6D",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "0AC6D7D6E1CF49F592D4BA111E72EF24",
+            "node_id": "703FD5C6BC7141F98A73B53C7F424F8E",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "0CA53C96FD6545C890267F3C3FA8794E",
+            "node_id": "511EA09CD432406397691E7828009F02",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "1B915E2038A548C99D80CC165F2431F2",
+            "node_id": "FEE56BA180E5412EA28E2323188A58CB",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "F6A5D9F02D9249DCA8A90B62D6322C9B",
+            "node_id": "FD5E15015208464595AB76B478E6F40B",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "FD3B32C5492B420FBE625A4C58D608FF",
+            "node_id": "07795365161D407CB925C7B14C836E26",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          }
+        ],
+        "flows": []
+      }
+    }
+  ],
+  "lastCaseResult": {
+    "outcome": "unverified",
+    "completeness": "unverified",
+    "responseHash": "147a80242aa96bf5d6893161684bfb2ef8eb7f1686e66cb4a97f4c5351d52673",
+    "nodeCount": 6,
+    "nodeIds": [
+      "FEE56BA180E5412EA28E2323188A58CB",
+      "FD5E15015208464595AB76B478E6F40B",
+      "07795365161D407CB925C7B14C836E26",
+      "511EA09CD432406397691E7828009F02",
+      "222BAA001CC04EE59ABCBBB5240EBD6D",
+      "703FD5C6BC7141F98A73B53C7F424F8E"
+    ]
+  },
+  "formalExecutionPlan": [
+    {
+      "nodeId": "FD5E15015208464595AB76B478E6F40B",
+      "modelId": "C68B3470EAFF507186E9BFC4C389EE44",
+      "operation": "add",
+      "target": "Base_JsonData",
+      "fieldCount": 14,
+      "valueHash": "c154b4f7368d4f40e76842ac52e4317a5f06b1cece595013079081b6ff580eac",
+      "filterEmpty": true
+    },
+    {
+      "nodeId": "511EA09CD432406397691E7828009F02",
+      "modelId": "B89D2EE5D439DE73CD4C11A9B89BA90E",
+      "operation": "delete",
+      "target": "Base_JsonData",
+      "fieldCount": 14,
+      "valueHash": "81902a9af021cda8677e009f9bf753c3e589de46b87da6c5d16065679420bd95",
+      "filterEmpty": true
+    }
+  ],
+  "outputs": [],
+  "startupHash": "9e75d70b9d8c6d7cd031004a736a6c145de98684c42b552ff468441559ca65ac",
+  "readonlyPairContractHashes": {
+    "A": "dfa0732342be9f1578ba7a17e56857039077127e58c082918939e371c82af7dd",
+    "D": "dfa0732342be9f1578ba7a17e56857039077127e58c082918939e371c82af7dd"
+  },
+  "executionState": "confirmed",
+  "scope": "One real ADD/DELETE execution: six SUCCESS including two true readonly queries, two false queries absent. Public unverified outcome/completeness retained. Exact native outputs, independent unique instance logs, business target absent, startup unchanged, exact cleanup all scopes absent.",
+  "nativeExit": 0,
+  "sourceSha256": "47c5149dde34aadbf99b8a9a871eca7bc4391387d9353f8048e08d42e6041e9c",
+  "graph": {
+    "nodeIds": [
+      "FEE56BA180E5412EA28E2323188A58CB",
+      "FD5E15015208464595AB76B478E6F40B",
+      "511EA09CD432406397691E7828009F02",
+      "222BAA001CC04EE59ABCBBB5240EBD6D",
+      "07795365161D407CB925C7B14C836E26",
+      "87AA870A8F644AB8868A1CDFDA457AC1",
+      "703FD5C6BC7141F98A73B53C7F424F8E",
+      "8AA5E457EF8449AE9F2B3D1A30BAA105"
+    ],
+    "links": [
+      {
+        "source": "FEE56BA180E5412EA28E2323188A58CB",
+        "target": "FD5E15015208464595AB76B478E6F40B"
+      },
+      {
+        "source": "FD5E15015208464595AB76B478E6F40B",
+        "target": "511EA09CD432406397691E7828009F02"
+      },
+      {
+        "source": "511EA09CD432406397691E7828009F02",
+        "target": "222BAA001CC04EE59ABCBBB5240EBD6D"
+      },
+      {
+        "source": "FD5E15015208464595AB76B478E6F40B",
+        "target": "07795365161D407CB925C7B14C836E26"
+      },
+      {
+        "source": "FD5E15015208464595AB76B478E6F40B",
+        "target": "87AA870A8F644AB8868A1CDFDA457AC1"
+      },
+      {
+        "source": "511EA09CD432406397691E7828009F02",
+        "target": "703FD5C6BC7141F98A73B53C7F424F8E"
+      },
+      {
+        "source": "511EA09CD432406397691E7828009F02",
+        "target": "8AA5E457EF8449AE9F2B3D1A30BAA105"
+      }
+    ],
+    "requiredIds": [
+      "FEE56BA180E5412EA28E2323188A58CB",
+      "FD5E15015208464595AB76B478E6F40B",
+      "511EA09CD432406397691E7828009F02",
+      "222BAA001CC04EE59ABCBBB5240EBD6D"
+    ],
+    "expectedIds": [
+      "FEE56BA180E5412EA28E2323188A58CB",
+      "FD5E15015208464595AB76B478E6F40B",
+      "511EA09CD432406397691E7828009F02",
+      "222BAA001CC04EE59ABCBBB5240EBD6D",
+      "07795365161D407CB925C7B14C836E26",
+      "703FD5C6BC7141F98A73B53C7F424F8E"
+    ],
+    "falseIds": [
+      "87AA870A8F644AB8868A1CDFDA457AC1",
+      "8AA5E457EF8449AE9F2B3D1A30BAA105"
+    ]
+  },
+  "plannedNames": {
+    "startup": "AD1793954670050_STARTUP",
+    "add": "AD1793954670050_ROW"
+  },
+  "plannedNameLengths": {
+    "startup": 23,
+    "add": 19
+  },
+  "cases": [
+    {
+      "name": "single",
+      "outcome": "unverified",
+      "completeness": "unverified",
+      "nodeIds": [
+        "FEE56BA180E5412EA28E2323188A58CB",
+        "FD5E15015208464595AB76B478E6F40B",
+        "07795365161D407CB925C7B14C836E26",
+        "511EA09CD432406397691E7828009F02",
+        "222BAA001CC04EE59ABCBBB5240EBD6D",
+        "703FD5C6BC7141F98A73B53C7F424F8E"
+      ],
+      "falseIdsAbsent": [
+        "87AA870A8F644AB8868A1CDFDA457AC1",
+        "8AA5E457EF8449AE9F2B3D1A30BAA105"
+      ],
+      "add": {
+        "rowid": "ABFAC0F26ECA43E4831FB7AA4224E74E",
+        "description": "AD1793954670050",
+        "flowstate": {
+          "value": 0,
+          "type": "number"
+        }
+      },
+      "delete": {
+        "rowid": "ABFAC0F26ECA43E4831FB7AA4224E74E",
+        "keys": [
+          "rowid"
+        ]
+      },
+      "trueProbes": [
+        "A_true",
+        "D_true"
+      ],
+      "logs": {
+        "instanceId": "19F619C124B54011A96043437EDFEEA5",
+        "nodes": [
+          {
+            "rowid": "060EBBCA9775487A97B400CFA6D5118A",
+            "node_id": "222BAA001CC04EE59ABCBBB5240EBD6D",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "0AC6D7D6E1CF49F592D4BA111E72EF24",
+            "node_id": "703FD5C6BC7141F98A73B53C7F424F8E",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "0CA53C96FD6545C890267F3C3FA8794E",
+            "node_id": "511EA09CD432406397691E7828009F02",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "1B915E2038A548C99D80CC165F2431F2",
+            "node_id": "FEE56BA180E5412EA28E2323188A58CB",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "F6A5D9F02D9249DCA8A90B62D6322C9B",
+            "node_id": "FD5E15015208464595AB76B478E6F40B",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          },
+          {
+            "rowid": "FD3B32C5492B420FBE625A4C58D608FF",
+            "node_id": "07795365161D407CB925C7B14C836E26",
+            "workflow_instance_id": "19F619C124B54011A96043437EDFEEA5",
+            "status": "SUCCESS",
+            "error_message": null
+          }
+        ],
+        "flows": []
+      }
+    }
+  ],
+  "businessId": "ABFAC0F26ECA43E4831FB7AA4224E74E",
+  "startupId": "02C61F08FE04416A9B21EC4C65789B16",
+  "physical": {
+    "source": {
+      "type": "table",
+      "id": "81F00D878D684AE9A7E077578F04249E",
+      "name": "Base_JsonData",
+      "description": "JSON 文件元数据注册表",
+      "dbid": "EBEFF17BBB6443B185D6FB32FF69F0BB",
+      "databaseName": "QYVirtualPlat",
+      "providerId": ""
+    },
+    "fields": [
+      {
+        "Name": "lingma_sys_is_delete",
+        "FieldType": "bigint",
+        "IsPKey": 0
+      },
+      {
+        "Name": "path",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "rowid",
+        "FieldType": "varchar",
+        "IsPKey": 1
+      },
+      {
+        "Name": "lingma_sys_appid",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "description",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "updatetime",
+        "FieldType": "datetime",
+        "IsPKey": 0
+      },
+      {
+        "Name": "flowstate",
+        "FieldType": "int",
+        "IsPKey": 0
+      },
+      {
+        "Name": "updater",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "updateuser",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "ReportID",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "createuser",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "createtime",
+        "FieldType": "datetime",
+        "IsPKey": 0
+      },
+      {
+        "Name": "name",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      },
+      {
+        "Name": "wfid",
+        "FieldType": "varchar",
+        "IsPKey": 0
+      }
+    ]
+  },
+  "falseSentinelId": "75F120C027854B3FA1CDB66D638572D1"
+}

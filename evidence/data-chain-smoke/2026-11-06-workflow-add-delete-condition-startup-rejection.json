@@ -1,0 +1,89 @@
+{
+  "phase": "failed",
+  "error": "[500] insert异常:[redacted]: [redacted]; Data truncation: Data too long for column 'name' at row 1",
+  "workflowId": "B1B18CC64A0643668615A10BFD78A674",
+  "processId": 24952,
+  "reads": 1049,
+  "writes": 51,
+  "executions": 0,
+  "unknown": false,
+  "pending": null,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-06T08:42:37.511Z",
+  "readbacks": [
+    {
+      "runtimeNodes": 0,
+      "runtimeFlows": 0
+    },
+    {
+      "conditionId": "042676D74FDC4F93BC948E530BF862F0",
+      "count": 0
+    },
+    {
+      "conditionId": "3F9973FFE25144D08AB5EFCA42D2AEBB",
+      "count": 0
+    },
+    {
+      "conditionId": "719A6091D8A547FE93793F1559D80289",
+      "count": 0
+    },
+    {
+      "conditionId": "95271CF70C7947AA972818C81F80FE5A",
+      "count": 0
+    },
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "conditions": [
+    {
+      "name": "A_true",
+      "rowid": "042676D74FDC4F93BC948E530BF862F0",
+      "edgeId": "BFD9E22C3329F95044B6138A1B89EA7D",
+      "source": "151ED4F4872D4E539929DA0591767C52",
+      "target": "F1B75DA47C3642179D014E483554C43D",
+      "text": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_ADD_DELETE_CONDITION_1793954081240\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}]}",
+      "absentBeforeNodes": true
+    },
+    {
+      "name": "A_false",
+      "rowid": "3F9973FFE25144D08AB5EFCA42D2AEBB",
+      "edgeId": "237EC3368B9B4AFAF793EC9E3310E97B",
+      "source": "151ED4F4872D4E539929DA0591767C52",
+      "target": "07D97FC79B1F4AD68B5E77F4E8513939",
+      "text": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_ADD_DELETE_CONDITION_1793954081240\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}]}",
+      "absentBeforeNodes": true
+    },
+    {
+      "name": "D_true",
+      "rowid": "719A6091D8A547FE93793F1559D80289",
+      "edgeId": "96449471B2CD3AD7281FBE82BF9888B1",
+      "source": "7EA8E76DC3E34DE6A45B1A2F654CD005",
+      "target": "AC3AABB1513D42809262A1DCD9F1A287",
+      "text": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"A065BFC3BF2D4617B139B80EDBC527A6\"}}",
+      "absentBeforeNodes": true
+    },
+    {
+      "name": "D_false",
+      "rowid": "95271CF70C7947AA972818C81F80FE5A",
+      "edgeId": "BC2B89F0E14F936116C32C56CD144B4F",
+      "source": "7EA8E76DC3E34DE6A45B1A2F654CD005",
+      "target": "7B33AC05D91D4873A07ACF31270EE12F",
+      "text": "{\"Type\":\"cond\",\"Field\":\"rowid\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"1CA2D73874DD479C8F38B4A32349EDF9\"}}",
+      "absentBeforeNodes": true
+    }
+  ],
+  "blockedRequests": 0,
+  "recoveryError": null,
+  "scope": "Startup name too long: service insert rejected before execution. Original RAM process performed exact cleanup; all declared scopes absent. This is a failed smoke, not verified ADD/DELETE behavior.",
+  "nativeExit": 1,
+  "sourceSha256": "ad3ce32f2330c4cdeb96e065139f07d6948d9a6c15025f2422a11232e97e409d"
+}

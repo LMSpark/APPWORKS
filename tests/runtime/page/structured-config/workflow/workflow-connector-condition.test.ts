@@ -39,11 +39,22 @@ describe('workflow connector condition',()=>{
   expect(f.http.records['Base_DataModel_Relation']!.slice(0,3)).toEqual(baseline)
   expect(f.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']).toBe(JSON.stringify(output))
  })
- it.each(['add','delete'])('retains the unverified %s condition gate without writing',async kind=>{
-  const f=await fixture();Object.assign(f.http.records['Base_WorkflowNodeDefinition']![0]!,{position_type:1,node_type:kind,output_mapping:JSON.stringify([{rowid:'P',Name:'rowid',FieldType:'varchar',pid:null,isParent:false}])})
-  await f.ds.getView('Base_WorkflowNodeDefinition')!.refresh();await WorkflowConnectorCondition.load(f.ds,'W1','E1')
-  expect(()=>WorkflowConnectorCondition.columns(f.ds,'W1','E1')).toThrow('实服验证')
-  await expect(WorkflowConnectorCondition.add(f.ds,'W1','E1')).rejects.toThrow('实服验证');expect(f.http.saves).toEqual([])
+ it.each(['add','delete'])('uses verified %s output leaves through the original condition view',async kind=>{
+  const f=await fixture(),output=[{rowid:'P',Name:'rowid',Description:'主键',FieldType:'varchar',pid:null,isParent:false}]
+  Object.assign(f.http.records['Base_WorkflowNodeDefinition']![0]!,{position_type:1,node_type:kind,output_mapping:JSON.stringify(output)})
+  await f.ds.getView('Base_WorkflowNodeDefinition')!.refresh()
+  const view=await WorkflowConnectorCondition.load(f.ds,'W1','E1'),baseline=structuredClone(f.http.records['Base_DataModel_Relation'])
+  expect(WorkflowConnectorCondition.columns(f.ds,'W1','E1')).toEqual([{name:'rowid',label:'主键',type:'varchar'}])
+  const value=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'rowid',operator:'eq',value:'owned-target'}))
+  const draft=await WorkflowConnectorCondition.add(f.ds,'W1','E1');view.updateEditingValue(view.getPkKey(draft)!,'filter',value)
+  view.discardEditingRows();view.discardPendingChanges();expect(view.rows).toEqual([]);expect(f.http.saves).toEqual([])
+  const row=await WorkflowConnectorCondition.add(f.ds,'W1','E1'),id=view.getPkKey(row)!;view.updateEditingValue(id,'filter',value)
+  expect((await WorkflowConnectorCondition.save(f.ds,'W1','E1')).success).toBe(true)
+  const reopened=await WorkflowConnectorCondition.load(f.ds,'W1','E1')
+  expect(reopened.rows).toHaveLength(1);expect(reopened.rows[0]).toMatchObject({rowid:id,parentModId:'N1',childModId:'N2',filter:value})
+  expect(f.http.saves.map(save=>save.table)).toEqual(['Base_DataModel_Relation'])
+  expect(f.http.records['Base_DataModel_Relation']!.slice(0,3)).toEqual(baseline)
+  expect(f.http.records['Base_WorkflowNodeDefinition']![0]!['output_mapping']).toBe(JSON.stringify(output))
  })
  it.each([
   {field:'Count',operator:'in' as const,value:[0,1]},

@@ -49,10 +49,10 @@
     "Seeded fixture record arrays have explicit non-null guarantees for typechecking"
   ],
   "pending": [
-    "Complete-identity table source sample with DbName in actual service",
+    "Exact table DbName diagnosis and complete-identity sample in actual service",
+    "Formal interface sample with dataModel output fields; current live sample has input parameters only",
     "Actual service SaveView persistence confirmation",
-    "Browser visual confirmation",
-    "Commit and push"
+    "Browser visual confirmation"
   ],
   "review": "High-tier read-only final review found no new definite blocker. Source selection cancel and pre-dispatch consumer rejection are separate evidence; existing shared tests own staged-output cancellation.",
   "frozenFiles": [

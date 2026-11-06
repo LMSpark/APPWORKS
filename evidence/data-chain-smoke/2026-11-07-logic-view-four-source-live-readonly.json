@@ -1,5 +1,5 @@
 {
-  "status": "three-source-types-confirmed-table-sample-incomplete",
+  "status": "dictionary-json-prepared-interface-input-only-table-sample-incomplete",
   "account": "requested test account",
   "authenticationConfirmed": true,
   "countedSourceRequests": 34,
@@ -186,5 +186,12 @@
   "provenance": [
     "artifacts/data-chain-smoke/logic-view-four-source-readonly.json",
     "artifacts/data-chain-smoke/logic-view-table-source-readonly-v2.json"
-  ]
+  ],
+  "interfaceEvidence": {
+    "sourceIdentityConfirmed": true,
+    "inputFields": 6,
+    "outputFields": 0,
+    "liveOutputPublicationProven": false,
+    "limitation": "Input-only sample does not prove interface output publication"
+  }
 }

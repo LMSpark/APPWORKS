@@ -43,7 +43,7 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
         <RendererButton v-if="layoutRow" label="取消布局修改" :disabled="busy || unconfirmed" @click="cancel(layoutTable)" />
       </div>
       <RendererForm v-if="layoutRow && layoutError" :data-view-key="layoutKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-        <FieldJson field="content" label="布局原文" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('layout.content',value)" />
+        <FieldJson field="content" label="布局原文" mode="tree" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('layout.content',value)" />
       </RendererForm>
       <RendererButton label="配置所选对象" :disabled="locked || hasPending || !selectedKind" @click="openSelectedObject" />
       <div class="workflow-workspaces">

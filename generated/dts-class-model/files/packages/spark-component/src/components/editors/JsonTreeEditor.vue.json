@@ -159,7 +159,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T15:48:12.555Z",
+  "generatedAt": "2026-11-06T08:20:41.114Z",
   "models": {
     "JsonTreeEditorProps": {
       "name": "JsonTreeEditorProps",
@@ -172,7 +172,7 @@
         "directory": "editors"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 固定编辑器类型，用于组件注册和配置识别。 */\n    type?: 'json-tree-editor';\n    /** 字段绑定名，映射到 DataView 行字段 */\n    field?: string;\n    /** 显示标签 */\n    label?: string;\n    /** r-table 内列宽 */\n    width?: number;\n    /** JSON 字符串内容 */\n    modelValue?: string;\n    /** 已解析的 JSON 文档对象 */\n    documentValue?: Sjd.JsonDocument | null;\n    /** 编辑器高度 */\n    height?: number | string;\n    /** 是否只读 */\n    readOnly?: boolean;\n    /** JSON Schema 校验规则 */\n    schema?: {\n        [key: string]: unknown;\n    } | null;\n    /** 筛选框占位文本 */\n    filterPlaceholder?: string;\n    /** 策略聚合对象（复杂场景一次传入） */\n    policy?: Sjd.JsonTreePolicy;\n    /** 根节点标签 */\n    rootLabel?: string;\n    /** 判断路径是否受保护 */\n    isProtected?: (path: Sjd.JsonPath) => boolean;\n    /** 判断路径是否可编辑键名 */\n    canEditKey?: (path: Sjd.JsonPath) => boolean;\n    /** 判断路径是否可编辑类型 */\n    canEditType?: (path: Sjd.JsonPath) => boolean;\n    /** 推荐子节点键名 */\n    suggestChildKey?: (target: Sjd.JsonObject, parentPath: Sjd.JsonPath) => string;\n    /** 创建数组默认子项 */\n    createDefaultArrayItem?: (parentPath: Sjd.JsonPath) => Sjd.JsonValue;\n    /** 创建对象默认子值 */\n    createDefaultObjectValue?: (parentPath: Sjd.JsonPath, key: string) => Sjd.JsonValue;\n}",
+        "declarationTypeText": "{\n    /** 固定编辑器类型，用于组件注册和配置识别。 */\n    type?: 'json-tree-editor';\n    /** 字段绑定名，映射到 DataView 行字段 */\n    field?: string;\n    /** 显示标签 */\n    label?: string;\n    /** r-table 内列宽 */\n    width?: number;\n    /** JSON字符串内容；解析失败保留原文。可编辑且无Schema/结构策略时允许显式修复为合法对象或数组；受约束或只读时仅展示原文，不绕过约束。修复仍由原字段接纳，不提交后端。 */\n    modelValue?: string;\n    /** 已解析的 JSON 文档对象 */\n    documentValue?: Sjd.JsonDocument | null;\n    /** 编辑器高度 */\n    height?: number | string;\n    /** 是否只读 */\n    readOnly?: boolean;\n    /** JSON Schema 校验规则 */\n    schema?: {\n        [key: string]: unknown;\n    } | null;\n    /** 筛选框占位文本 */\n    filterPlaceholder?: string;\n    /** 策略聚合对象（复杂场景一次传入） */\n    policy?: Sjd.JsonTreePolicy;\n    /** 根节点标签 */\n    rootLabel?: string;\n    /** 判断路径是否受保护 */\n    isProtected?: (path: Sjd.JsonPath) => boolean;\n    /** 判断路径是否可编辑键名 */\n    canEditKey?: (path: Sjd.JsonPath) => boolean;\n    /** 判断路径是否可编辑类型 */\n    canEditType?: (path: Sjd.JsonPath) => boolean;\n    /** 推荐子节点键名 */\n    suggestChildKey?: (target: Sjd.JsonObject, parentPath: Sjd.JsonPath) => string;\n    /** 创建数组默认子项 */\n    createDefaultArrayItem?: (parentPath: Sjd.JsonPath) => Sjd.JsonValue;\n    /** 创建对象默认子值 */\n    createDefaultObjectValue?: (parentPath: Sjd.JsonPath, key: string) => Sjd.JsonValue;\n}",
         "members": {
           "attributes": [
             {
@@ -201,7 +201,7 @@
             },
             {
               "name": "modelValue",
-              "jsdoc": "JSON 字符串内容",
+              "jsdoc": "JSON字符串内容；解析失败保留原文。可编辑且无Schema/结构策略时允许显式修复为合法对象或数组；受约束或只读时仅展示原文，不绕过约束。修复仍由原字段接纳，不提交后端。",
               "readable": true,
               "writable": false
             },

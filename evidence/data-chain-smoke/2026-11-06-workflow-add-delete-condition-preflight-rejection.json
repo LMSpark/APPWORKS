@@ -1,0 +1,42 @@
+{
+  "scope": "Pre-execution probe definition rejected; default query publication has only rowid, while name was required. No execution; original exact cleanup completed.",
+  "phase": "failed",
+  "error": "Readonly probe publication is not its formal source fields",
+  "nativeExit": 1,
+  "sourceSha256": "3335bbd56483fd47551688c75fa24b317d05abe0fa10e86b27db9a1e7a34f898",
+  "workflowId": "DB88B5B9C1C74266A9942AA4349528C0",
+  "processId": 15820,
+  "reads": 429,
+  "writes": 18,
+  "executions": 0,
+  "unknown": false,
+  "pending": null,
+  "fixtureRemaining": false,
+  "cleanedAt": "2026-11-06T07:31:02.143Z",
+  "readbacks": [
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "publication": [
+    {
+      "Name": "name",
+      "FieldType": "varchar",
+      "IsOutput": 0
+    },
+    {
+      "Name": "rowid",
+      "FieldType": "varchar",
+      "IsOutput": 1
+    }
+  ],
+  "nextCorrection": "Explicitly select name and rowid through the original query fields view and sync publication before verifying/using the readonly probe; keep the same result requirements."
+}

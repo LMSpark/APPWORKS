@@ -23,7 +23,7 @@ AI用途：通过r-json维护JSON配置字段，不在业务页面手传值或�
         :children="props.children" :height="height" :max-height="props.maxHeight" :row-edit-mode="props.rowEditMode"
         :toolbar="props.toolbar" :reorderable="props.reorderable" :row-adapter="props.rowAdapter" :row-defaults="props.rowDefaults" :row-operations="props.rowOperations" :commit="writeForRevision" @editing-change="props.onEditingChange?.($event)" />
       <JsonTreeEditor v-else-if="mode === 'tree'" :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
-        :height="height" v-bind="treePolicy ? {policy:treePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
+        :height="height" :schema="props.schema ?? null" v-bind="treePolicy ? {policy:treePolicy} : {}" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
       <SparkJsonEditor v-else :key="revision" :model-value="editorText" :read-only="writing || !permission.isCurrentFieldEditable.value"
         :mode="mode" :height="height" @update:model-value="writeForRevision" @editing-change="completeInput = $event" />
     </template>

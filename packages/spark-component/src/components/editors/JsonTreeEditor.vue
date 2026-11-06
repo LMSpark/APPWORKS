@@ -45,6 +45,12 @@ AI用途：需要理解 json tree editor 的实际渲染结构、slot/toolbar/�
 
     <div v-if="parseError" class="vxe-json-tree-editor__notice vxe-json-tree-editor__notice--warning">
       {{ parseError }}
+      <el-input :model-value="repairText" type="textarea" :rows="6" data-json-repair-input aria-label="JSON 原文修复"
+        :readonly="!canRepairText" @update:model-value="repairHandlers.input" />
+      <div v-if="canRepairText" class="vxe-json-tree-editor__toolbar-actions">
+        <el-button size="small" @click="repairHandlers.apply">应用修复</el-button>
+        <el-button size="small" @click="repairHandlers.cancel">取消修复</el-button>
+      </div>
     </div>
 
     <div v-else-if="displayRows.length === 0" class="vxe-json-tree-editor__empty">
@@ -244,7 +250,7 @@ type JsonTreeEditorProps = {
   label?: string
   /** r-table 内列宽 */
   width?: number
-  /** JSON 字符串内容 */
+  /** JSON字符串内容；解析失败保留原文。可编辑且无Schema/结构策略时允许显式修复为合法对象或数组；受约束或只读时仅展示原文，不绕过约束。修复仍由原字段接纳，不提交后端。 */
   modelValue?: string
   /** 已解析的 JSON 文档对象 */
   documentValue?: Sjd.JsonDocument | null
@@ -286,7 +292,7 @@ const props = withDefaults(defineProps<JsonTreeEditorProps>(), {
 const emit = defineEmits<{
   'update:modelValue': [value: string]
   'update:documentValue': [value: Sjd.JsonDocument]
-  /** 输入中的键名或字符串尚未写回文档；接纳结果由绑定字段负责。 */
+  /** 输入中的键名、字符串或解析失败后的原文修复尚未写回文档；取消、换输入、失权及释放时清除。接纳结果由绑定字段负责。 */
   'editing-change': [value: boolean]
 }>()
 
@@ -343,10 +349,21 @@ const typeFilter = ref<'all' | Sjd.JsonNodeType>('all')
 const schemaOnly = ref(false)
 const keyInputDrafts = ref<Record<string, string>>({})
 const stringInputDrafts = ref<Record<string, string>>({})
+const repairDraft = ref<string | null>(null)
+const repairGeneration = ref(0)
+const repairText = computed(() => repairDraft.value ?? (typeof effectiveFieldInput.value === 'string' ? effectiveFieldInput.value : ''))
+const canRepairText = computed(() => isEditable.value && props.schema === null
+  && Object.entries(mergedPolicy.value).every(([key,value]) => key === 'rootLabel' || value === undefined))
+const repairHandlers = computed(() => {
+  const context = captureRepairContext()
+  return {input: (value: string | number) => handleRepairInput(value, context), apply: () => applyRepair(context), cancel: () => cancelRepair(context)}
+})
 let active = true
-watch(() => Object.keys(keyInputDrafts.value).length > 0 || Object.keys(stringInputDrafts.value).length > 0,
+watch(() => Object.keys(keyInputDrafts.value).length > 0 || Object.keys(stringInputDrafts.value).length > 0
+  || repairDraft.value !== null && repairDraft.value !== effectiveFieldInput.value,
   value => emit('editing-change', value), {immediate: true, flush: 'sync'})
-watch(isEditable, value => {if (!value) clearInputDrafts()}, {flush: 'sync'})
+watch(isEditable, value => {if (!value) invalidateRepair()}, {flush: 'sync'})
+watch([() => props.schema, mergedPolicy], () => invalidateRepair(), {flush: 'sync'})
 const parseError = ref<string | null>(null)
 const treeModelRef = shallowRef<Sjd.TreeModel>(Sjd.buildTreeModel({}))
 const currentRowId = ref(Sjd.rootOf(treeModelRef.value))
@@ -492,7 +509,7 @@ function captureTreeState(): void {
 // ── 文档同步 ─────────────────────────────────────────────────
 
 function syncDocument(rawText: string): void {
-  clearInputDrafts()
+  invalidateRepair()
   if (rawText.trim() === '') {
     captureTreeState()
     treeModelRef.value = Sjd.buildTreeModel({}, mergedPolicy.value)
@@ -510,7 +527,7 @@ function syncDocument(rawText: string): void {
 }
 
 function syncDocumentValue(value: Sjd.JsonDocument): void {
-  clearInputDrafts()
+  invalidateRepair()
   const nextDocument = deepClone(value)
   const nextText = Sjd.serializeJsonDocument(nextDocument)
   if (lastEmittedValue !== null && nextText === lastEmittedValue) {
@@ -642,6 +659,47 @@ function hasInputDraft(drafts: Record<string, string>, rowId: string): boolean {
 function clearInputDrafts(): void {
   keyInputDrafts.value = {}
   stringInputDrafts.value = {}
+  repairDraft.value = null
+}
+
+function captureRepairContext() {
+  return {generation: repairGeneration.value, source: effectiveFieldInput.value, row: permission.currentRow.value, schema: props.schema, policy: mergedPolicy.value}
+}
+type RepairContext = ReturnType<typeof captureRepairContext>
+
+function currentRepair(context: RepairContext): boolean {
+  return active && Boolean(parseError.value) && canRepairText.value && context.generation === repairGeneration.value
+    && context.source === effectiveFieldInput.value && context.row === permission.currentRow.value
+    && context.schema === props.schema && context.policy === mergedPolicy.value
+}
+
+function invalidateRepair(): void {
+  repairGeneration.value++
+  clearInputDrafts()
+}
+
+function handleRepairInput(value: string | number, context: RepairContext): void {
+  if (currentRepair(context) && typeof value === 'string') repairDraft.value = value
+}
+
+function cancelRepair(context: RepairContext): void {
+  if (!currentRepair(context)) return
+  const source = effectiveFieldInput.value
+  if (typeof source === 'string') syncDocument(source)
+  else syncDocumentValue(source)
+}
+
+function applyRepair(context: RepairContext): void {
+  if (!currentRepair(context)) return
+  try {
+    const document = Sjd.parseJsonDocument(repairText.value)
+    const model = Sjd.buildTreeModel(document, mergedPolicy.value)
+    if (!currentRepair(context)) return
+    publishModel(model)
+    invalidateRepair()
+  } catch (error) {
+    if (currentRepair(context)) parseError.value = error instanceof Error ? error.message : String(error)
+  }
 }
 
 function getKeyInputValue(row: DisplayRow): string {
@@ -735,7 +793,7 @@ function mutateModel(
   changedPath?: Sjd.JsonPath,
   changedValue?: Sjd.JsonValue,
 ): void {
-  if (!active || !isEditable.value) return
+  if (!active || !isEditable.value || parseError.value) return
   const result = mutator(treeModelRef.value)
   if (result.model === treeModelRef.value) return
   // uid 稳定标识，直接用作焦点/展开行，无数组索引偏移问题
@@ -756,6 +814,10 @@ function mutateModel(
     }
   }
 
+  publishModel(model)
+}
+
+function publishModel(model: Sjd.TreeModel): void {
   treeModelRef.value = model
   const nextDocument = Sjd.exportJsonDocument(model)
   const nextText = Sjd.serializeJsonDocument(nextDocument)

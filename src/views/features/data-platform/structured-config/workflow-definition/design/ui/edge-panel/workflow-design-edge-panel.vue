@@ -13,7 +13,7 @@ AI用途：画布关系设置对话框复用同一工作流实例及正式连线
               <FieldText field="description" label="连线描述" :readonly="locked" />
               <FieldText field="sourceID" label="来源节点" :readonly="true" />
               <FieldText field="targetID" label="目标节点" :readonly="true" />
-              <FieldJson field="params" label="输入参数映射" mode="text" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('edges.params',value)" />
+              <FieldJson field="params" label="输入参数映射" mode="tree" :readonly="locked" :on-change="validateJson" :on-editing-change="value => pending('edges.params',value)" />
             </RendererForm>
             <RendererButton :label="isUnconfirmed(edgesTable) ? '核验连线保存结果' : '保存连线'" :disabled="busy || pendingPart('edges')" @click="save()" />
             <RendererButton label="取消连线修改" :disabled="busy || unconfirmed" @click="cancel()" />
@@ -22,7 +22,7 @@ AI用途：画布关系设置对话框复用同一工作流实例及正式连线
             <RendererButton v-if="conditionState.ready && !conditionState.row && !conditionUnconfirmed && !conditionDeleting" label="新增条件" :data-view-key="conditionKey" perm-action="create" :disabled="locked || !!conditionState.error" @click="changeCondition('add')" />
             <RendererFilterExpression v-if="conditionState.row && !conditionState.error" :data-view-key="conditionKey" field="filter" format="spark-json" display="inline" :columns="conditionState.columns" :function-context="conditionState.functionContext" :allowed-operators="conditionState.allowedOperators" :readonly="locked" :on-editing-change="value=>pending('condition.filter',value)" />
             <RendererForm v-if="conditionState.row && conditionState.error" :data-view-key="conditionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-              <FieldJson field="filter" label="原条件" mode="text" :readonly="true" />
+              <FieldJson field="filter" label="原条件" mode="tree" :readonly="true" />
             </RendererForm>
             <RendererButton v-if="conditionState.row || conditionUnconfirmed || conditionDeleting" :label="conditionUnconfirmed ? '核验条件保存结果' : conditionDeleting ? '重试条件删除' : '保存条件'" :disabled="busy || pendingPart('condition') || (!!conditionState.error && !conditionUnconfirmed && !conditionDeleting)" @click="changeCondition('save')" />
             <RendererButton v-if="conditionState.ready" label="取消条件修改" :disabled="busy || unconfirmed" @click="cancelCondition" />

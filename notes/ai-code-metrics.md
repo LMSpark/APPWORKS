@@ -3247,3 +3247,7 @@
 - 生产复杂度低：唯一改变是原connector目录解除EDIT门，保留ADD/DELETE尚未实证范围；无页面查询/保存/权限/兼容分支。先公共目录RED，再原View保存取消重开及标准inline挂载GREEN；2文件103项、整workflow22文件510项、types/lint/build通过。正式生成ClassModel、4脚本27项通过，150份等价生成噪声核定恢复。
 - 实服高阶四节点两条件样本方案：724读31CRUD/2exec exit0、6日志分属两唯一实例；false2SUCCESS但公共unverified原样保留，true4SUCCESS/complete并下游消费marker/原生0，scope全清。探针复审修安全身份捕获/已ACK日志只读恢复、未知整output不落盘、六字段启动投影等预检问题，未算产品bug。
 - 标准UI原native8+条件1提交，浏览器1字段1CRUD/HTTP200，步进1取消0、保存1退出新实例重开1；原验收脚本asParent误作节点条件导致gate失败，200读9写0exec、权威停止idle原worker后实际exit-1保留。独立正确connector核验与清理210读5删除exit0，全scope0/unknownfalse，不重做UI、不伪造原pass。原UI首工具fill+Tab回0未判定，键盘路径不声称通过；水平SVG描边改用实际UI鼠标事件选择。当前生产差异复核无阻断，独立清理末审无阻断。跨压缩总墙钟未完整计量，真实时间/SHA/证据见唯一台账；30天存活待观察。
+
+### 2026-11-06 工作流复用仓内JSON树编辑器
+
+- 四处FieldJson改用已有tree模式，未新增页面数据通道。标准JsonTreeEditor补畸形原文显式修复/取消与权限、schema/policy、绑定代次保护；FieldJson转发schema。676项消费测试与49项ClassModel校验通过，字段36项含回调过期/false/0/取消；真实UI截图因桌面管道不可用未补验。类型复核optional schema改null后重跑，正式产物从源码生成，等价噪声恢复。

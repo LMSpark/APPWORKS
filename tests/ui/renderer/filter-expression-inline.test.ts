@@ -71,12 +71,14 @@ describe('inline filter expression', () => {
       await group.get('.filter-expression-group__empty button').trigger('click')
       expect(group.findAll('[aria-label="过滤字段"]')).toHaveLength(1)
       await group.get('header [aria-label="删除分组"]').trigger('click')
-      await w.get('[data-action="apply"]').trigger('click')
-      expect(w.emitted('update:modelValue')).toEqual([[{logic: 'or', filters: [{field: 'name', operator: 'eq', value: 'kept'}]}]])
+      const accepted: DataViewFilterTree = {logic: 'or', filters: [{field: 'name', operator: 'eq', value: 'kept'}]}
+      expect(w.emitted('update:modelValue')).toEqual([[accepted]])
+      await w.setProps({modelValue: accepted}); await flushPromises()
+      expect(w.find('[data-action="apply"]').exists()).toBe(false)
     } finally {w.unmount()}
   })
 
-  it('shows the applied condition, cancels drafts and applies through the same contract without opening a dialog', async () => {
+  it('accepts valid inline changes immediately and cancels only unaccepted JSON drafts without opening a dialog', async () => {
     const value = shallowRef<DataViewFilterTree>({field: 'name', operator: 'eq', value: 'A'})
     const editing = ref(false)
     const w = mount(defineComponent({setup: () => () => h(FilterExpressionEditor, {
@@ -88,13 +90,17 @@ describe('inline filter expression', () => {
       expect(w.find('[data-action="open"]').exists()).toBe(false)
       expect(editing.value).toBe(false)
       await w.get('input[aria-label="文本常量"]').setValue('B'); await flushPromises()
+      expect(value.value).toEqual({field: 'name', operator: 'eq', value: 'B'})
+      expect(editing.value).toBe(false)
+      expect(w.find('[data-action="apply"]').exists()).toBe(false)
+      await w.get('[data-action="json"]').trigger('click')
+      w.getComponent(JsonTreeEditor).vm.$emit('update:modelValue', JSON.stringify({field: 'name', operator: 'eq', value: 'unaccepted'})); await flushPromises()
       expect(editing.value).toBe(true)
       await w.get('[data-action="cancel"]').trigger('click')
       expect(editing.value).toBe(false)
-      expect(value.value).toEqual({field: 'name', operator: 'eq', value: 'A'})
-      expect((w.get('input[aria-label="文本常量"]').element as HTMLInputElement).value).toBe('A')
+      expect(value.value).toEqual({field: 'name', operator: 'eq', value: 'B'})
+      expect((w.get('input[aria-label="文本常量"]').element as HTMLInputElement).value).toBe('B')
       await w.get('input[aria-label="文本常量"]').setValue('C'); await flushPromises()
-      await w.get('[data-action="apply"]').trigger('click'); await flushPromises()
       expect(value.value).toEqual({field: 'name', operator: 'eq', value: 'C'})
       expect(editing.value).toBe(false)
       await w.get('[aria-label="切换条件值 JSON"]').trigger('click')

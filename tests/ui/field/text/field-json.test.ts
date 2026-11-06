@@ -12,12 +12,85 @@ async function fixture(realEditor = false, native = false, onChange?: () => Prom
   registerAllRenderers()
   const ds=SparkData.fromJson({scenarioId:'S',dataSetName:'S',tables:{Rules:{resourceType:'static-data',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'json',type:'string'}],views:{default:{commitMode:'staged',rows:[{id:'a',json:'{"old":1}'},{id:'b',json:'{}'}]}}}}})
   const runtime=new PageRuntime({pageId:'json-test',scenarioIds:['S'],loadScenario:async()=>ds}); await runtime.load(); runtimes.push(runtime)
-  const view=ds.getView('Rules')!; if(native) view.replaceRows([{id:'a',json:{old:1}},{id:'b'}]); view.setCurrentRowById('a'); const readonly=ref(false), editing=ref(false), mode=ref<'tree'|'text'|'table'>('tree'), valuePath=ref<(string | number)[]>([])
+  const view=ds.getView('Rules')!; if(native) view.replaceRows([{id:'a',json:{old:1}},{id:'b'}]); view.setCurrentRowById('a'); const readonly=ref(false), editing=ref(false), schema=ref<{type:'object'}>(), mode=ref<'tree'|'text'|'table'>('tree'), valuePath=ref<(string | number)[]>([])
   const stubs={...original}; delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']; config.global.stubs=stubs
-  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-test'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererForm,{dataViewKey:'S@Rules@default',children:[{type:'r-json',props:{field:'json',label:'规则',onChange,onEditingChange:(value:boolean)=>{editing.value=value},readonly:readonly.value,mode:mode.value,valuePath:valuePath.value,...(native?{valueFormat:'native',emptyValue:[]}: {})}}]})}}),{global:{plugins:[ElementPlus,VXETable,Spark.createPlugin()],stubs:{JsonTreeEditor:!realEditor,SparkJsonEditor:!realEditor}}})
-  wrappers.push(wrapper);await flushPromises();return{wrapper,view,readonly,editing,mode,valuePath}
+  const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'json-test'});sparkProvide(PAGE_RUNTIME,runtime);return()=>h(RendererForm,{dataViewKey:'S@Rules@default',children:[{type:'r-json',props:{field:'json',label:'规则',onChange,onEditingChange:(value:boolean)=>{editing.value=value},readonly:readonly.value,schema:schema.value,mode:mode.value,valuePath:valuePath.value,...(native?{valueFormat:'native',emptyValue:[]}: {})}}]})}}),{global:{plugins:[ElementPlus,VXETable,Spark.createPlugin()],stubs:{JsonTreeEditor:!realEditor,SparkJsonEditor:!realEditor}}})
+  wrappers.push(wrapper);await flushPromises();return{wrapper,view,readonly,editing,schema,mode,valuePath}
 }
 describe('bound JSON field',()=>{
+  it('rejects captured repair callbacks after the same tree receives a different malformed document',async()=>{
+    const tree=mount(JsonTreeEditor,{props:{modelValue:'{badA'},global:{plugins:[ElementPlus,VXETable]}});wrappers.push(tree);await flushPromises()
+    const input=()=>tree.findAllComponents(ElInput).find(item=>item.props('type')==='textarea')!
+    const oldInput=input().vm.$.vnode.props?.['onUpdate:modelValue'],buttons=tree.findAllComponents({name:'GlobalElButtonStub'})
+    const oldApply=buttons.find(button=>button.text()==='应用修复')!.vm.$.vnode.props?.['onClick'],oldCancel=buttons.find(button=>button.text()==='取消修复')!.vm.$.vnode.props?.['onClick']
+    await tree.setProps({modelValue:'{badB'});await flushPromises();input().vm.$emit('update:modelValue','{"fromB":0}');await flushPromises()
+    if(typeof oldInput==='function')oldInput('{"lateA":1}');if(typeof oldApply==='function')oldApply();if(typeof oldCancel==='function')oldCancel();await flushPromises()
+    expect(tree.emitted('update:modelValue')).toBeUndefined();expect(input().props('modelValue')).toBe('{"fromB":0}')
+    expect(tree.emitted('editing-change')?.at(-1)).toEqual([true])
+    await tree.findAll('button').find(button=>button.text()==='应用修复')!.trigger('click');await flushPromises()
+    expect(JSON.parse(String(tree.emitted('update:modelValue')?.at(-1)?.[0]))).toEqual({fromB:0})
+  })
+  it('forwards the bound tree schema so malformed repair cannot bypass it',async()=>{
+    const f=await fixture(true);f.schema.value={type:'object'};f.view.replaceRows([{id:'a',json:'{bad'}]);f.view.setCurrentRowById('a');await flushPromises()
+    const tree=()=>f.wrapper.getComponent(JsonTreeEditor)
+    expect(tree().props('schema')).toEqual({type:'object'})
+    expect(tree().findAllComponents(ElInput).find(input=>input.props('type')==='textarea')?.props('readonly')).toBe(true)
+    expect(tree().findAll('button').some(button=>button.text()==='应用修复')).toBe(false);expect(f.view.hasEditingChanges()).toBe(false)
+    f.schema.value=undefined;await flushPromises()
+    expect(tree().findAll('button').some(button=>button.text()==='应用修复')).toBe(true);expect(f.view.hasEditingChanges()).toBe(false)
+  })
+  it.each([{policy:{isProtected:()=>true}},{schema:{type:'object'}}])('does not bypass structural constraints with malformed text repair: %j',async constraint=>{
+    const tree=mount(JsonTreeEditor,{props:{modelValue:'{bad'},global:{plugins:[ElementPlus,VXETable]}});wrappers.push(tree);await flushPromises()
+    const input=()=>tree.findAllComponents(ElInput).find(item=>item.props('type')==='textarea')!
+    expect(input()).toBeDefined();input().vm.$emit('update:modelValue','{"ok":0}');await flushPromises()
+    const captured=tree.findAllComponents({name:'GlobalElButtonStub'}).find(button=>button.text()==='应用修复')!.vm.$.vnode.props?.['onClick']
+    await tree.setProps(constraint);await flushPromises();if(typeof captured==='function')captured();await flushPromises()
+    expect(input().props('readonly')).toBe(true);expect(input().props('modelValue')).toBe('{bad')
+    expect(tree.emitted('update:modelValue')).toBeUndefined();expect(tree.emitted('update:documentValue')).toBeUndefined()
+    expect(tree.emitted('editing-change')?.at(-1)).toEqual([false])
+  })
+  it('does not let a captured tree action overwrite a newly malformed external document',async()=>{
+    const tree=mount(JsonTreeEditor,{props:{modelValue:'{}'},global:{plugins:[ElementPlus,VXETable]}});wrappers.push(tree);await flushPromises()
+    const captured=tree.findAllComponents({name:'GlobalElButtonStub'}).find(button=>button.text()==='加子项')!.vm.$.vnode.props?.['onClick']
+    await tree.setProps({modelValue:'{bad'});await flushPromises();if(typeof captured==='function')captured();await flushPromises()
+    expect(tree.emitted('update:modelValue')).toBeUndefined();expect(tree.emitted('update:documentValue')).toBeUndefined()
+    expect(tree.findAllComponents(ElInput).find(item=>item.props('type')==='textarea')?.props('modelValue')).toBe('{bad')
+  })
+  it('repairs malformed source text through the bound tree field and restores the original on cancel',async()=>{
+    const f=await fixture(true);f.view.replaceRows([{id:'a',json:'{bad'},{id:'b',json:'{}'}]);f.view.setCurrentRowById('a');await flushPromises()
+    const tree=()=>f.wrapper.getComponent(JsonTreeEditor),input=()=>tree().findAllComponents(ElInput).find(item=>item.props('type')==='textarea')!
+    expect(input()).toBeDefined();expect(input().props('modelValue')).toBe('{bad')
+    input().vm.$emit('update:modelValue','{"enabled":false,"count":0}');await flushPromises()
+    expect(f.editing.value).toBe(true);expect(f.view.hasEditingChanges()).toBe(false)
+    await tree().findAll('button').find(button=>button.text()==='应用修复')!.trigger('click');await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['json']))).toEqual({enabled:false,count:0});expect(f.editing.value).toBe(false)
+    await tree().findAll('button').find(button=>button.text()==='加子项')!.trigger('click');await flushPromises()
+    expect(JSON.parse(String(f.view.getEditingRow('a')?.['json']))).toEqual({enabled:false,count:0,newKey:''})
+    f.view.discardEditingRows(['a']);await flushPromises()
+    expect(input().props('modelValue')).toBe('{bad');expect(f.view.hasEditingChanges()).toBe(false)
+  })
+  it('keeps malformed repair input local, cancels it and rejects a captured action after readonly changes',async()=>{
+    const f=await fixture(true);f.view.replaceRows([{id:'a',json:'{bad'}]);f.view.setCurrentRowById('a');await flushPromises()
+    const tree=f.wrapper.getComponent(JsonTreeEditor),input=()=>tree.findAllComponents(ElInput).find(item=>item.props('type')==='textarea')!
+    expect(input()).toBeDefined();input().vm.$emit('update:modelValue','{still');await flushPromises()
+    const apply=tree.findAll('button').find(button=>button.text()==='应用修复')!
+    await apply.trigger('click');await flushPromises();expect(f.editing.value).toBe(true);expect(f.view.hasEditingChanges()).toBe(false)
+    await tree.findAll('button').find(button=>button.text()==='取消修复')!.trigger('click');await flushPromises()
+    expect(input().props('modelValue')).toBe('{bad');expect(f.editing.value).toBe(false)
+    const captured=tree.findAllComponents({name:'GlobalElButtonStub'}).find(button=>button.text()==='应用修复')!.vm.$.vnode.props?.['onClick']
+    input().vm.$emit('update:modelValue','{"ok":0}');await flushPromises();f.readonly.value=true;await flushPromises()
+    if(typeof captured==='function')captured();await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.editing.value).toBe(false)
+    expect(f.wrapper.findAll('button').some(button=>button.text()==='应用修复')).toBe(false)
+  })
+  it('drops a malformed repair draft on row change and does not let an old editor write the new row',async()=>{
+    const f=await fixture(true);f.view.replaceRows([{id:'a',json:'{bad'},{id:'b',json:'{}'}]);f.view.setCurrentRowById('a');await flushPromises()
+    const tree=f.wrapper.getComponent(JsonTreeEditor),input=tree.findAllComponents(ElInput).find(item=>item.props('type')==='textarea')!
+    expect(input).toBeDefined();input.vm.$emit('update:modelValue','{"pending":0}');await flushPromises()
+    const captured=tree.findAllComponents({name:'GlobalElButtonStub'}).find(button=>button.text()==='应用修复')!.vm.$.vnode.props?.['onClick']
+    f.view.setCurrentRowById('b');await flushPromises();if(typeof captured==='function')captured();input.vm.$emit('update:modelValue','{"late":1}');await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false);expect(f.view.getEditingRow('b')?.['json']).toBe('{}');expect(f.editing.value).toBe(false)
+  })
   it('does not emit a document change from a captured insertion after its policy denies the container',async()=>{
     const wrapper=mount(JsonTreeEditor,{props:{modelValue:'{"value":{}}'},global:{plugins:[ElementPlus,VXETable]}})
     wrappers.push(wrapper);await flushPromises()

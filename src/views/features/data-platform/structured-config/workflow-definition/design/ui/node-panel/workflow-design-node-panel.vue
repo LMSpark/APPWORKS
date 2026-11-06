@@ -72,7 +72,7 @@ AI用途：节点对话框承接同一节点身份，来源和字段操作不因
     </template>
     <template #condition-extra>
      <RendererForm :data-view-key="nodesKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-      <FieldJson field="config" :label="isCopyNode ? '迁移目标配置' : '查询请求配置'" mode="text" :readonly="locked || isCopyNode" :on-change="validateNodeConfig" :on-editing-change="value=>pending('nodes.operation',value)" />
+      <FieldJson field="config" :label="isCopyNode ? '迁移目标配置' : '查询请求配置'" mode="tree" :readonly="locked || isCopyNode" :on-change="validateNodeConfig" :on-editing-change="value=>pending('nodes.operation',value)" />
      </RendererForm>
     </template>
    </WorkflowQueryConfiguration>

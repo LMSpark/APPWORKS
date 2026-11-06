@@ -388,7 +388,7 @@ describe('workflow formal design page',()=>{
   const reopened=await open();await vi.waitFor(()=>expect(reopened.wrapper.findComponent(RendererGraph).exists()).toBe(true))
   reopened.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'node',id:'N1',open:true,control:{cancel:false}});await flushPromises()
   const config=reopened.wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='config')!
-  expect(config).toBeDefined();await vi.waitFor(()=>expect(config.findComponent(SparkJsonEditor).props('modelValue')).toContain('Target'))
+  expect(config).toBeDefined();await vi.waitFor(()=>expect(config.findComponent({name:'JsonTreeEditor'}).props('modelValue')).toContain('Target'))
   expect(state.http.saves).toHaveLength(1)
  })
  it('selects an operation target through bound tables, explicitly clears its condition, cancels without writes, then saves and reopens the confirmed target',async()=>{

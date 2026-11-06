@@ -18,7 +18,7 @@ export type JsonArrayRowAdapter = {
 }
 /** modelValue及更新事件保持编辑器JSON文本；绑定字段可显式选择原生值格式，业务有效性仍由所属合同核定。 */
 export type RJsonProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
-  /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */
+  /** 默认tree，复用JsonTreeEditor及spark-json-document的对象树；非法原文在可编辑且无结构约束时可显式修复，未应用输入不写字段，取消恢复原文，不绕过只读及树策略；text/table使用SparkJsonEditor；rows按children维护对象数组，原字段值先于写入确认回传时保留已接纳视图及选择，不重复重建；properties按Schema维护固定对象成员；form按Schema以类型化表单维护对象及嵌套对象。均写回原字段编辑域。 */
   mode?: 'text' | 'tree' | 'table' | 'rows' | 'properties' | 'form' | 'outline'
   /** outline模式按同名子数组递归展示对象树，children标准字段只读消费原JSON字段的可读值；不新增、修改或保存节点。缺失子数组视为空，已存在但非对象数组明确报错。 */
   outlineChildrenField?: string

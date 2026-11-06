@@ -676,6 +676,22 @@ describe('workflow formal design page',()=>{
   expect(code.get('input').element.value).toBe(target.code)
   expect(state.http.saves).toEqual([])
  })
+ it('binds EDIT connector leaves to the standard inline editor without a page data path',async()=>{
+  const original=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'flowstate',operator:'eq',value:0}))
+  Object.assign(state.http.records['Base_WorkflowNodeDefinition']![0]!,{position_type:1,node_type:'edit',output_mapping:JSON.stringify([{rowid:'OD',Name:'description',Description:'说明',FieldType:'varchar',pid:null,isParent:false},{rowid:'OZ',Name:'flowstate',Description:'流程状态',FieldType:'int',pid:null,isParent:false}])})
+  state.http.records['Base_DataModel_Relation']!.push({rowid:'RC',dataSetId:'W1',parentModId:'N1',childModId:'N1',filter:original})
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+  f.wrapper.getComponent(RendererGraph).props('onSelect')?.({kind:'edge',id:'E1',open:true,control:{cancel:false}});await flushPromises()
+  await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererFilterExpression).exists()).toBe(true))
+  const editor=f.wrapper.getComponent(RendererFilterExpression)
+  expect(editor.props('dataViewKey')).toBe(`${WORKFLOW_DESIGN}@Base_DataModel_Relation@connector`)
+  expect(editor.props('columns')).toEqual([{name:'description',label:'说明',type:'varchar'},{name:'flowstate',label:'流程状态',type:'int'}])
+  await editor.get('input[aria-label="数字常量"]').setValue('1');await flushPromises();expect(state.http.saves).toEqual([])
+  await f.click('取消条件修改');expect(editor.get('input[aria-label="数字常量"]').element).toHaveProperty('value','0')
+  await editor.get('input[aria-label="数字常量"]').setValue('1');await flushPromises();await f.click('保存条件')
+  expect(state.http.saves.map(save=>save.table)).toEqual(['Base_DataModel_Relation'])
+  expect(DataViewFilterCodec.parseStored(String(state.http.records['Base_DataModel_Relation']!.find(row=>row['rowid']==='RC')!['filter']))!.toJSON()).toEqual({field:'flowstate',operator:'eq',value:1})
+ })
  it('binds inline connector edits to the original view, cancels before saving and clears only the condition record',async()=>{
   const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
   state.http.records['Base_WorkflowNodeDefinition']![0]!['position_type']=0

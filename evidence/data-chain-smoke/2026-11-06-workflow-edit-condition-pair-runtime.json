@@ -1,0 +1,478 @@
+{
+  "scope": "Two native service condition cases on the same EDIT output and exact four-node chain. Condition scalar alone changes 1 to 0; false remains unverified. Does not claim ADD/DELETE/merge condition acceptance or universal skipped-node proof.",
+  "intent": {
+    "nonce": "6AD0B7369CEA4B15BB7C35AEACA68DBD",
+    "workflowId": "8F0ECA3ABE2340B2ABF3BE8FD7008C21",
+    "businessId": "E83F72D5847C4AF59A27AC166BDFF5B5",
+    "startupId": "ED0ECA05895B43ABA66790EA383D194C",
+    "marker": "SMOKE_OP_CONDITION_1793943311805",
+    "plannedNodeIds": {
+      "start": "1C97EFD7C482458292D90422EE190FEB",
+      "edit": "3198137DD8DE4AA5B7F716AED6AB9761",
+      "query": "40F8995E1EB74BD2A72F997E93675A49",
+      "end": "4F427C37FB77420DB0CE647B2DAC3B86"
+    },
+    "conditions": [
+      "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_CONDITION_1793943311805\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}]}",
+      "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_CONDITION_1793943311805\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}]}"
+    ],
+    "sourceSha256": "a2c1df25ad2ba58e8c93af187c6c712d1784f270d3b26dafa33cf797468f86bd",
+    "processId": 8536,
+    "maxNativeCrud": 40,
+    "normalCrudCeiling": 24,
+    "cleanupReserve": 16,
+    "maxExecutions": 2,
+    "scope": "Own inactive START EDIT QUERY END chain. Two predeclared cases differing only condition flowstate 1 to 0. Exact owned business row edited twice; two native calculated query fields, two observer models. No UI or existing business mutation.",
+    "cases": [
+      {
+        "name": "false",
+        "constant": 1,
+        "expected": [
+          "START",
+          "EDIT"
+        ],
+        "completeness": "unverified"
+      },
+      {
+        "name": "true",
+        "constant": 0,
+        "expected": [
+          "START",
+          "EDIT",
+          "QUERY",
+          "END"
+        ],
+        "completeness": "complete"
+      }
+    ],
+    "compareFields": [
+      "rowid",
+      "description",
+      "flowstate"
+    ],
+    "startupComparedFields": [
+      "rowid",
+      "name",
+      "description",
+      "path",
+      "createtime",
+      "flowstate"
+    ],
+    "targetComparedImmutableFields": [
+      "rowid",
+      "name",
+      "path",
+      "createtime"
+    ],
+    "otherPhysicalColumnsCompared": false,
+    "noRetries": true
+  },
+  "result": {
+    "phase": "confirmed",
+    "processId": 8536,
+    "workflowId": "8F0ECA3ABE2340B2ABF3BE8FD7008C21",
+    "businessId": "E83F72D5847C4AF59A27AC166BDFF5B5",
+    "startupId": "ED0ECA05895B43ABA66790EA383D194C",
+    "marker": "SMOKE_OP_CONDITION_1793943311805",
+    "reads": 724,
+    "writes": 31,
+    "executions": 2,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "fixtureRemaining": false,
+    "cleanedAt": "2026-11-06T05:42:02.261Z",
+    "cases": [
+      {
+        "name": "false",
+        "condition": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_CONDITION_1793943311805\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}]}",
+        "nodeIds": [
+          "1C97EFD7C482458292D90422EE190FEB",
+          "3198137DD8DE4AA5B7F716AED6AB9761"
+        ],
+        "outcome": "unverified",
+        "completeness": "unverified",
+        "operationFields": {
+          "rowid": {
+            "value": "E83F72D5847C4AF59A27AC166BDFF5B5",
+            "type": "string"
+          },
+          "description": {
+            "value": "SMOKE_OP_CONDITION_1793943311805",
+            "type": "string"
+          },
+          "flowstate": {
+            "value": 0,
+            "type": "number"
+          }
+        },
+        "business": {
+          "rowid": "E83F72D5847C4AF59A27AC166BDFF5B5",
+          "description": "SMOKE_OP_CONDITION_1793943311805",
+          "flowstate": 0
+        },
+        "logs": {
+          "instanceId": "94E00094D2134B54AFF3BDE3C167E323",
+          "nodes": [
+            {
+              "rowid": "2F67DFA0A1B7469AA4F462DCF2B55F03",
+              "node_id": "1C97EFD7C482458292D90422EE190FEB",
+              "workflow_instance_id": "94E00094D2134B54AFF3BDE3C167E323",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "EBD11DC9B20B495F8878EBCC7B6A189F",
+              "node_id": "3198137DD8DE4AA5B7F716AED6AB9761",
+              "workflow_instance_id": "94E00094D2134B54AFF3BDE3C167E323",
+              "status": "SUCCESS",
+              "error_message": null
+            }
+          ],
+          "flows": []
+        }
+      },
+      {
+        "name": "true",
+        "condition": "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_CONDITION_1793943311805\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}]}",
+        "nodeIds": [
+          "1C97EFD7C482458292D90422EE190FEB",
+          "3198137DD8DE4AA5B7F716AED6AB9761",
+          "40F8995E1EB74BD2A72F997E93675A49",
+          "4F427C37FB77420DB0CE647B2DAC3B86"
+        ],
+        "outcome": "success",
+        "completeness": "complete",
+        "operationFields": {
+          "rowid": {
+            "value": "E83F72D5847C4AF59A27AC166BDFF5B5",
+            "type": "string"
+          },
+          "description": {
+            "value": "SMOKE_OP_CONDITION_1793943311805",
+            "type": "string"
+          },
+          "flowstate": {
+            "value": 0,
+            "type": "number"
+          }
+        },
+        "business": {
+          "rowid": "E83F72D5847C4AF59A27AC166BDFF5B5",
+          "description": "SMOKE_OP_CONDITION_1793943311805",
+          "flowstate": 0
+        },
+        "consumerFields": {
+          "description": {
+            "value": "SMOKE_OP_CONDITION_1793943311805",
+            "type": "string"
+          },
+          "flowstate": {
+            "value": 0,
+            "type": "number"
+          }
+        },
+        "logs": {
+          "instanceId": "A16BCD9976C943779870D5D8058BF8A3",
+          "nodes": [
+            {
+              "rowid": "0E824206D2314D459B0A9E0F378FA7DC",
+              "node_id": "1C97EFD7C482458292D90422EE190FEB",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "14514B330DBF4721B59E9409BB7FEEB9",
+              "node_id": "40F8995E1EB74BD2A72F997E93675A49",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "A5C99C13DDC24D6385F5622FD0D57E60",
+              "node_id": "3198137DD8DE4AA5B7F716AED6AB9761",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "B0CB89C00FA94BE4A455AB8944D392F4",
+              "node_id": "4F427C37FB77420DB0CE647B2DAC3B86",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            }
+          ],
+          "flows": []
+        }
+      }
+    ],
+    "runtimeCases": [
+      {
+        "name": "false",
+        "logs": {
+          "instanceId": "94E00094D2134B54AFF3BDE3C167E323",
+          "nodes": [
+            {
+              "rowid": "2F67DFA0A1B7469AA4F462DCF2B55F03",
+              "node_id": "1C97EFD7C482458292D90422EE190FEB",
+              "workflow_instance_id": "94E00094D2134B54AFF3BDE3C167E323",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "EBD11DC9B20B495F8878EBCC7B6A189F",
+              "node_id": "3198137DD8DE4AA5B7F716AED6AB9761",
+              "workflow_instance_id": "94E00094D2134B54AFF3BDE3C167E323",
+              "status": "SUCCESS",
+              "error_message": null
+            }
+          ],
+          "flows": []
+        }
+      },
+      {
+        "name": "true",
+        "logs": {
+          "instanceId": "A16BCD9976C943779870D5D8058BF8A3",
+          "nodes": [
+            {
+              "rowid": "0E824206D2314D459B0A9E0F378FA7DC",
+              "node_id": "1C97EFD7C482458292D90422EE190FEB",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "14514B330DBF4721B59E9409BB7FEEB9",
+              "node_id": "40F8995E1EB74BD2A72F997E93675A49",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "A5C99C13DDC24D6385F5622FD0D57E60",
+              "node_id": "3198137DD8DE4AA5B7F716AED6AB9761",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            },
+            {
+              "rowid": "B0CB89C00FA94BE4A455AB8944D392F4",
+              "node_id": "4F427C37FB77420DB0CE647B2DAC3B86",
+              "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+              "status": "SUCCESS",
+              "error_message": null
+            }
+          ],
+          "flows": []
+        }
+      }
+    ],
+    "runtimeCapture": {
+      "nodes": [
+        {
+          "rowid": "2F67DFA0A1B7469AA4F462DCF2B55F03",
+          "node_id": "1C97EFD7C482458292D90422EE190FEB",
+          "workflow_instance_id": "94E00094D2134B54AFF3BDE3C167E323",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "EBD11DC9B20B495F8878EBCC7B6A189F",
+          "node_id": "3198137DD8DE4AA5B7F716AED6AB9761",
+          "workflow_instance_id": "94E00094D2134B54AFF3BDE3C167E323",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "0E824206D2314D459B0A9E0F378FA7DC",
+          "node_id": "1C97EFD7C482458292D90422EE190FEB",
+          "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "14514B330DBF4721B59E9409BB7FEEB9",
+          "node_id": "40F8995E1EB74BD2A72F997E93675A49",
+          "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "A5C99C13DDC24D6385F5622FD0D57E60",
+          "node_id": "3198137DD8DE4AA5B7F716AED6AB9761",
+          "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "B0CB89C00FA94BE4A455AB8944D392F4",
+          "node_id": "4F427C37FB77420DB0CE647B2DAC3B86",
+          "workflow_instance_id": "A16BCD9976C943779870D5D8058BF8A3",
+          "status": "SUCCESS",
+          "error_message": null
+        }
+      ],
+      "flows": []
+    },
+    "runtimeAbsenceVerified": true,
+    "startupHash": "50dcde67b7d32a9ea73a859242517234e01ed04f1a3d1bc2d4b048b7f2d6e26e",
+    "businessImmutable": {
+      "rowid": "E83F72D5847C4AF59A27AC166BDFF5B5",
+      "name": "SMOKE_OP_CONDITION_1793943311805_ROW",
+      "path": "SMOKE_OP_CONDITION_1793943311805_ROW.json",
+      "createtime": "2026-11-06T13:38:32"
+    },
+    "graphDefinitionHash": "e7792906706a4d532f5c6b26180821b42890cd8e613e436a0808caca5d98a9fe",
+    "frozenConditions": [
+      "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_CONDITION_1793943311805\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}]}",
+      "{\"Type\":\"and\",\"Filters\":[{\"Type\":\"cond\",\"Field\":\"description\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":\"SMOKE_OP_CONDITION_1793943311805\"}},{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":0}}]}"
+    ],
+    "conditionId": "B77145AA09A9D9C96DB60F1F4B31AF64",
+    "ownedIds": {
+      "Base_WorkflowDefinition": [
+        "8F0ECA3ABE2340B2ABF3BE8FD7008C21"
+      ],
+      "Base_DataSet": [
+        "8F0ECA3ABE2340B2ABF3BE8FD7008C21"
+      ],
+      "Base_WorkflowNodeDefinition": [
+        "1C97EFD7C482458292D90422EE190FEB",
+        "4F427C37FB77420DB0CE647B2DAC3B86",
+        "3198137DD8DE4AA5B7F716AED6AB9761",
+        "40F8995E1EB74BD2A72F997E93675A49"
+      ],
+      "Base_DataModel": [
+        "E4BBB60E9251C21FEF4A4848EA4270B7",
+        "60708CC29DF4CA4F17328AEA579ECE85",
+        "CAC748401BEC74B35AE99BB48936355A",
+        "044BF0E1633285573173AE4F8FABA293"
+      ],
+      "Base_DataModel_Field": [
+        "7CECE2C9F5A7A56DEEB9C4D8B196730D",
+        "52AF2074CECF918D9D15131FC58418AE",
+        "03B425F711ABAC9C8859E848ACA23A85",
+        "E96B9E8489D6269A87FC5BFC464993C4",
+        "B1484AF77BA6963FB407D95322E51A0E",
+        "C98AF78944B26C57235DF71D7A9BF052",
+        "16C769E2C5E91228D5FF7DA1E60FE075",
+        "C19DF583D65553761177E67F6B4AF1C7",
+        "E04127DEC256D14289C56B8C23BDC76D",
+        "689B4CF43F5FFBA56197B673BB6F81C1",
+        "B1DC3B4A8D3BA8A74245C3DF280E8FFB",
+        "D932392A2D2BEFDD49246E8E51E7A70D",
+        "B46ED55F68283DA10291BEAB9C0E2318",
+        "4030F2401A106722528C05CAF9A033B9",
+        "72D26D0D9A8FA19C7458611A8525C575",
+        "7CD0CF766F1DA267669EFB9844A6CD40",
+        "A9D39E3234ACCDB3F0ABCABFAD68EEE9",
+        "9CA69FF98F4D489084127F1A0FC9FDD2",
+        "DE7C6F1492D27C1F6093E9113EC39329",
+        "59A8400884487C1D6C7515179735E5CE",
+        "C7BF7956604D41BB8054E62964EF437D",
+        "3145C826F2A6A898500D3CA419DA160D",
+        "768FFEB66B381B76C89E46F57585BE08",
+        "B40EAB50D0A46AB2B6AF57295A678ED3",
+        "7213936C3C5436832558C4C9C83ECA15",
+        "974389290382173A8370F4CAB3FD2E74",
+        "78F405188FC10E3DAA7929E985D9DCA8",
+        "BBE4A45DD5A9BD41347FD63BB0019AEC",
+        "E740D9544F934DC24AEAB09A96F5CEDE",
+        "4745DFF0125FDF7EA2333CF7C738C0C6",
+        "1AE9D18FF9838C2E3B39E16CEEBE12A6",
+        "4FD381D613FA1E68F68AF5ED886FAFCC",
+        "5FA2022582C061451E0A3FFB10A9568D",
+        "9017C10C7A3A4DB0A41B6EC3E2D5564C",
+        "D61F3E0A9D28BB2E1256FB3E70781356",
+        "C83FEDB721DBB772E4298BE6B906BCAD",
+        "579C9DE14D08921CEB0055D83C5F0C89",
+        "3A10A13A08DD5001D5580ED06FFC2EA7",
+        "3CD6C7DC7C9239D2E79798B441D78E6F",
+        "F6E6F88C0BA999BC2FFD74796F531053",
+        "A85ED7A61634DC0ABC23AF0784E45487",
+        "695FAC9816B0D14A332200D75446995B",
+        "A151E007060DCFBA5BEAAE8E06FFDE34",
+        "64715FA73BAF2190BC76B385CE3366E2",
+        "A57F8A218FCB126333616581017CE643",
+        "5A734220BE36E8CB802859DA6CA6E5D5",
+        "1E574518BA03731E66BC7CEBA6114D24",
+        "7CDD3360F2CD3DDBA758BFECF316954C",
+        "BE1FB8F77603DD2A60256FAB98214E7A",
+        "073AC3D80979C6C015FD1A027B3C0434",
+        "23F907E49F27C341279DE4275BC801CC",
+        "20B2B8C95905502E870C40DC4F545517",
+        "B570F5BE6CF69221A011BFE79B4A1BB6",
+        "741AA9A6A7702F12047B5375E9E0B1DF",
+        "996D7D7E89EFCC1F8E6092E2851F2179",
+        "A05981FFF211EB5B30A4B819458A4DDA",
+        "A0A58AD5397AC0CE1CFA8F4C89E1405C",
+        "B76487F3C72B9F3161C78C19D6B3AC65",
+        "2D2F28098DCB9EB0AC4E49B0E5492C6A",
+        "A327913DC1F4C204D8D2DFDDDA725B5C",
+        "15E2EA2803A0E778480398839B00AFA8"
+      ],
+      "Base_WorkflowConnectors": [
+        "FA84A6559B478DD94A5F15414F86D745",
+        "AB8BBADA09EF87D31A9731506A40E10E",
+        "3F92E129D5FBE997FE2AF93FEE67EE0A"
+      ],
+      "Base_JsonData": [
+        "ED0ECA05895B43ABA66790EA383D194C",
+        "E83F72D5847C4AF59A27AC166BDFF5B5"
+      ],
+      "Base_DataModel_Relation": [
+        "B77145AA09A9D9C96DB60F1F4B31AF64"
+      ],
+      "OP_OUT_NODE_LOG": [
+        "2F67DFA0A1B7469AA4F462DCF2B55F03",
+        "EBD11DC9B20B495F8878EBCC7B6A189F",
+        "0E824206D2314D459B0A9E0F378FA7DC",
+        "14514B330DBF4721B59E9409BB7FEEB9",
+        "A5C99C13DDC24D6385F5622FD0D57E60",
+        "B0CB89C00FA94BE4A455AB8944D392F4"
+      ]
+    },
+    "readbacks": [
+      {
+        "runtimeNodes": 0,
+        "runtimeFlows": 0
+      },
+      {
+        "workflowDefinition": 0,
+        "parameters": 0,
+        "nodes": 0,
+        "connectors": 0,
+        "models": 0,
+        "fields": 0,
+        "relations": 0,
+        "business": 0,
+        "startup": 0
+      }
+    ],
+    "nativeReferences": {
+      "fieldIds": [
+        "A327913DC1F4C204D8D2DFDDDA725B5C",
+        "15E2EA2803A0E778480398839B00AFA8"
+      ],
+      "source": "WorkflowComputedFields.add + original saveWorkflowQueryFields; not a browser write"
+    },
+    "lastCaseResult": {
+      "name": "true",
+      "outcome": "success",
+      "completeness": "complete",
+      "responseHash": "aa870e873da4fcd3dfb31916bb0ef36183189be410d4b020ee5def23fbc9f8c2",
+      "nodeCount": 4,
+      "nodeIds": [
+        "1C97EFD7C482458292D90422EE190FEB",
+        "3198137DD8DE4AA5B7F716AED6AB9761",
+        "40F8995E1EB74BD2A72F997E93675A49",
+        "4F427C37FB77420DB0CE647B2DAC3B86"
+      ]
+    }
+  },
+  "nativeExit": 0,
+  "sourceSha256": "a2c1df25ad2ba58e8c93af187c6c712d1784f270d3b26dafa33cf797468f86bd",
+  "offlineGuardChecks": 16
+}

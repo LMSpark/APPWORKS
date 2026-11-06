@@ -1,0 +1,344 @@
+{
+  "scope": "Original standard EDIT condition UI cancel/save/new-runtime reopen, reconciled with the correct connector DataView and exact cleanup. Original native classifier failure retained.",
+  "original": {
+    "sourceSha256": "15865d3480d6bfddb3b3ce4bfd9739f17a5de3f0403d068d88c92c41f7ca7e6a",
+    "phase": "failed",
+    "error": "Original condition not unique",
+    "nativeExit": -1,
+    "exitReason": "Exact idle failed worker intentionally stopped after browser closed; original gate remains unaccepted",
+    "reads": 200,
+    "writes": 9,
+    "executions": 0,
+    "unknown": false,
+    "uiBeforeCounts": [
+      3,
+      2,
+      1,
+      20,
+      0
+    ]
+  },
+  "browser": {
+    "proof": {
+      "cursor": 4925,
+      "requests": [
+        {
+          "requestId": "14004.3499",
+          "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+          "method": "POST",
+          "appId": "D99A1DCE9894698799101EFD70F8FC76",
+          "formKey": "0DD8D28D462F51C5790AA6FBFAE39366",
+          "changes": [
+            {
+              "table": "Base_DataModel_Relation",
+              "kind": "Changed",
+              "rowid": "2BE9A815A377DA3DD3B7FAC8BCC3E94E",
+              "filter": "{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}",
+              "keys": [
+                "rowid",
+                "filter",
+                "lingma_sys_key"
+              ]
+            }
+          ]
+        }
+      ],
+      "responses": [
+        {
+          "requestId": "14004.3499",
+          "status": 200
+        }
+      ],
+      "issues": [],
+      "stages": [
+        {
+          "stage": "start",
+          "cursor": 4490,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "catalog-refresh",
+          "cursor": 4492,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "catalog-loaded",
+          "cursor": 4507,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "select-workflow",
+          "cursor": 4508,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "open-design",
+          "cursor": 4511,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "design-loaded",
+          "cursor": 4600,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "edge-click-not-completed",
+          "cursor": 4608,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "interaction-click-not-completed",
+          "cursor": 4619,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "native-visible-surface",
+          "cursor": 4628,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "native-edge-outside-visible-window",
+          "cursor": 4647,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "select-horizontal-edge",
+          "cursor": 4651,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "open-edge-condition",
+          "cursor": 4682,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "condition-editor-loaded",
+          "cursor": 4686,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "inline-edit-for-cancel",
+          "cursor": 4694,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cancel-condition-edit",
+          "cursor": 4694,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "increment-for-cancel",
+          "cursor": 4701,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "cancel-confirmed-one-to-zero",
+          "cursor": 4705,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "inline-edit-for-save",
+          "cursor": 4705,
+          "requests": 0,
+          "responses": 0
+        },
+        {
+          "stage": "save-condition",
+          "cursor": 4707,
+          "requests": 1,
+          "responses": 0
+        },
+        {
+          "stage": "condition-save-readback",
+          "cursor": 4717,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "close-condition-config",
+          "cursor": 4722,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "close-first-runtime",
+          "cursor": 4762,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "reopen-new-runtime",
+          "cursor": 4765,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "edge-visible-wait-tool-limit",
+          "cursor": 4858,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "reopened-select-edge",
+          "cursor": 4859,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "reopened-condition",
+          "cursor": 4862,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "reopened-value-loaded",
+          "cursor": 4873,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "close-reopened-condition",
+          "cursor": 4885,
+          "requests": 1,
+          "responses": 1
+        },
+        {
+          "stage": "close-reopened-runtime",
+          "cursor": 4925,
+          "requests": 1,
+          "responses": 1
+        }
+      ]
+    },
+    "browserClosed": true,
+    "browserUnknown": false,
+    "cancelRestored": true,
+    "reopened": true,
+    "dialogs": 0,
+    "screenshot": "ui-edit-standard-condition-reopened-20261106.jpg"
+  },
+  "independentReconciliation": {
+    "phase": "reconciliation-cleanup-confirmed",
+    "processId": 32108,
+    "workflowId": "0A64226925B9499BBC9B8280E9047D37",
+    "businessId": "7F169EB050FB4E5F89702080BD5005F7",
+    "startupId": "37B022D2886A403E8C104D721F3C69DF",
+    "marker": "SMOKE_OP_EDIT_CONDITION_UI_1793944437827",
+    "reads": 210,
+    "writes": 5,
+    "executions": 0,
+    "blockedRequests": 0,
+    "unknown": false,
+    "pending": null,
+    "fixtureRemaining": false,
+    "cleanedAt": "2026-11-06T06:10:04.838Z",
+    "originalProcessId": 2860,
+    "originalUi": {
+      "nonce": "76A701C69C924FA49CE82274008B8FFB",
+      "workflowId": "0A64226925B9499BBC9B8280E9047D37",
+      "phase": "condition",
+      "purpose": "EDIT standard inline cancel/save/reopen",
+      "closed": false,
+      "browserUnknown": null
+    },
+    "browserObservedClosed": true,
+    "browserNetworkComplete": true,
+    "originalOutcome": "Original UI completed but native classifier used model-relation view for node conditions; failed gate retained, idle process stopped. This independent reconciliation uses original condition view without repeating UI.",
+    "originalFiveGroupsUnchanged": true,
+    "originalStateIndependentlyConfirmed": true,
+    "reconciledCondition": {
+      "rowid": "2BE9A815A377DA3DD3B7FAC8BCC3E94E",
+      "dataSetId": "0A64226925B9499BBC9B8280E9047D37",
+      "parentModId": "0D23DB43DECF2664F7BBDF7052B6C811",
+      "childModId": "18B119A77A39F4F195FB680BAB0298A5",
+      "filter": "{\"Type\":\"cond\",\"Field\":\"flowstate\",\"Operator\":\"equal\",\"Value\":null,\"ValueFun\":{\"Type\":\"GetConstValue\",\"Value\":1}}",
+      "depType": "",
+      "cascadeDel": 0,
+      "parentTable": "SMOKE_OP_EDIT_CONDITION_UI_1793944437827_edit",
+      "childTable": "SMOKE_OP_EDIT_CONDITION_UI_1793944437827_END"
+    },
+    "conditionAbsentBeforeNodeRemoval": true,
+    "readbacks": [
+      {
+        "nodeConditionId": "2BE9A815A377DA3DD3B7FAC8BCC3E94E",
+        "count": 0
+      },
+      {
+        "workflowDefinition": 0,
+        "parameters": 0,
+        "nodes": 0,
+        "connectors": 0,
+        "models": 0,
+        "fields": 0,
+        "relations": 0,
+        "business": 0,
+        "startup": 0
+      }
+    ],
+    "ownedIds": {
+      "Base_WorkflowDefinition": [
+        "0A64226925B9499BBC9B8280E9047D37"
+      ],
+      "Base_DataSet": [
+        "0A64226925B9499BBC9B8280E9047D37"
+      ],
+      "Base_WorkflowNodeDefinition": [
+        "6C2E11F6D3E57B59E66E4055226A1642",
+        "18B119A77A39F4F195FB680BAB0298A5",
+        "0D23DB43DECF2664F7BBDF7052B6C811"
+      ],
+      "Base_DataModel": [
+        "C50A82D389469B63A57BE8A0242293B6"
+      ],
+      "Base_DataModel_Field": [
+        "99A941BE649720A57A38A6C98E277135",
+        "F8024F6D858F7B75C250F03D19A70842",
+        "2A179DE0B2A012A84C8C68A994E7FCDE",
+        "6D04E820D0DBEB14758BB2FB457FA532",
+        "25AEE63496904D99C446E4403E2ADE92",
+        "CFF5D1C67B8487F0D96F0566F9874890",
+        "B1C1ADC0CE4B3E2552C0BD7A1CF3BFC2",
+        "7551DD81C3FF91DF46C90F1B8FC7CEDD",
+        "D673BED4980A21B787F77BE1BB42D346",
+        "358A7FA4B50D48E1CB3F95541BE31A15",
+        "B7A66B0ED5CA99A63671A72F720D0D99",
+        "A31820E74535CA1734953261772C7ECB",
+        "0D66032BBDF444F0476111CA834F4870",
+        "9E453058322A4366EAC2496DE9EA946B",
+        "FB36E3E6EE0508C62B32958936DC7D5D",
+        "1C3297C8198FCE532614EF5A6785806E",
+        "36EC24D2AB8B39E1C830013AD3928E29",
+        "5120F59A7DDD04B2A5533F9660AFD889",
+        "AB7FAF8675CF6ED28149DBA82BE4470E",
+        "9530B36B01D4B9BDC4BBC928FE39C879"
+      ],
+      "Base_WorkflowConnectors": [
+        "4547C7C20AA438E97C4605C2BFF14D55",
+        "91BAA3304BD47673C0F1033C39DAB583"
+      ],
+      "Base_DataModel_Relation": [
+        "2BE9A815A377DA3DD3B7FAC8BCC3E94E"
+      ]
+    }
+  },
+  "reconciliationNativeExit": 0,
+  "reconciliationSourceSha256": "273bd62a51304a3db0b2e7783dcc7bc7e5b8fdb60f411870e5f86649c8813902",
+  "keyboardInputScope": "Acceptance used real number increment buttons. fill+Tab displayed zero; cause not classified and keyboard typing parity not claimed."
+}

@@ -3241,3 +3241,9 @@
 - 复杂度中：真实搜索写入自有静态DataView后销毁导致父级dirty缓存残留；先真实页面RED，公共releaseChoice/dispose取消自身编辑后释放，正式模型既有草稿保持。未建页面状态/全局结构事件/保存旁路或兼容分支。
 - 34文件1102项、ClassModel49项、typecheck/lint/build通过；公共ClassModel正式生成，150份等价编译噪声核定恢复。高阶最窄方案和差异复核；首假设无搜索未复现，补真实搜索RED，不将参数重复-t命令错误记产品缺陷。
 - 实服首轮UI第一循环正常、第二工具超时后观察截断，整卡保持未验收；精确idle进程停止后独立原始合同回读清理176读4删除exit0。新冻结v2同运行实例双循环（含一字段移除选择）0浏览器CRUD、完整增量观察；306读12原生CRUD（8夹具+4清理）、0执行、unknownfalse、全部自有scope清零，exit0。耗时跨压缩未完整计量，实际时间/SHA/进程/证据见唯一台账与正式JSON。30天存活待观察。
+
+### 2026-11-06 EDIT输出条件消费与标准UI
+
+- 生产复杂度低：唯一改变是原connector目录解除EDIT门，保留ADD/DELETE尚未实证范围；无页面查询/保存/权限/兼容分支。先公共目录RED，再原View保存取消重开及标准inline挂载GREEN；2文件103项、整workflow22文件510项、types/lint/build通过。正式生成ClassModel、4脚本27项通过，150份等价生成噪声核定恢复。
+- 实服高阶四节点两条件样本方案：724读31CRUD/2exec exit0、6日志分属两唯一实例；false2SUCCESS但公共unverified原样保留，true4SUCCESS/complete并下游消费marker/原生0，scope全清。探针复审修安全身份捕获/已ACK日志只读恢复、未知整output不落盘、六字段启动投影等预检问题，未算产品bug。
+- 标准UI原native8+条件1提交，浏览器1字段1CRUD/HTTP200，步进1取消0、保存1退出新实例重开1；原验收脚本asParent误作节点条件导致gate失败，200读9写0exec、权威停止idle原worker后实际exit-1保留。独立正确connector核验与清理210读5删除exit0，全scope0/unknownfalse，不重做UI、不伪造原pass。原UI首工具fill+Tab回0未判定，键盘路径不声称通过；水平SVG描边改用实际UI鼠标事件选择。当前生产差异复核无阻断，独立清理末审无阻断。跨压缩总墙钟未完整计量，真实时间/SHA/证据见唯一台账；30天存活待观察。

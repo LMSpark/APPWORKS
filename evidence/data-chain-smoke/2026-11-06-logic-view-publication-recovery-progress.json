@@ -1,0 +1,197 @@
+{
+  "status": "local-verification-passed-product-gaps-open",
+  "scope": "Original logic-view two-DataSet publication recovery",
+  "verified": [
+    "Busy preparation retains intent",
+    "Unsubmitted output retirement preserves confirmed file and parameter input",
+    "Late design input during native output apply stops persistence and permits output-only cancel",
+    "Each save part uses its actual DataSet scenarioId and formal modelBinding modelId",
+    "Verified not-applied output retirement uses original capture and preserves late inputs",
+    "Original page integrates two-source publication and independent runtime readback",
+    "Invalid receipt accept-current retires original capture without marking published",
+    "Query and asynchronous-validator acceptance both preserve formal identity/parent error priority and native inputs"
+  ],
+  "tests": {
+    "tests": 48,
+    "exitCode": 0,
+    "files": 4,
+    "log": "artifacts/data-chain-smoke/logic-view-publication-recovery-group-final.log"
+  },
+  "checks": {
+    "lint": "artifacts/data-chain-smoke/logic-view-publication-recovery-lint.log",
+    "exitCodes": [
+      0,
+      0,
+      0
+    ],
+    "types": "artifacts/data-chain-smoke/logic-view-publication-recovery-types-v2.log",
+    "classModel": "artifacts/data-chain-smoke/logic-view-publication-recovery-classmodel.log"
+  },
+  "pending": [
+    "Real service SaveView confirmation and subsequent CRUD smoke",
+    "Complex logic-view source/output shapes",
+    "Browser visual confirmation"
+  ],
+  "newServiceRequests": 0,
+  "latestRegression": {
+    "date": "2026-11-07",
+    "files": 4,
+    "tests": 128,
+    "exitCode": 0,
+    "log": "artifacts/data-chain-smoke/query-acceptance-parent-priority-green.log",
+    "lintExitCode": 0,
+    "fullRun": {
+      "log": "artifacts/data-chain-smoke/logic-view-publication-final-full-test.log",
+      "status": "stopped-after-confirmed-failure",
+      "completeStatistics": false,
+      "failure": "Parent query contract error was masked by the new query replacement guard",
+      "fix": "Validate original parent inputs before native replacement proof after async validator",
+      "postFixFullRun": "not-run",
+      "current": {
+        "log": "artifacts/data-chain-smoke/logic-view-publication-final-full-test-v4.log",
+        "sessionId": 40328,
+        "status": "passed",
+        "freeze": "artifacts/data-chain-smoke/logic-view-publication-final-source-hashes-v4.json"
+      }
+    }
+  },
+  "finalRepositoryVerification": {
+    "date": "2026-11-07",
+    "files": 477,
+    "tests": 8809,
+    "exitCode": 0,
+    "durationSeconds": 926.88,
+    "command": "pnpm exec vitest run --maxWorkers=2",
+    "testTimeoutMs": 15000,
+    "log": "artifacts/data-chain-smoke/logic-view-publication-final-full-test-v4.log",
+    "logSha256": "57147D0F4C14ED57EAEEC65712E2271D3DD60F0753F40045D5A1BD2A990F4316",
+    "frozenFiles": [
+      {
+        "path": "packages/spark-component/src/components/containers/filter/expression/FilterExpressionEditor/FilterExpressionEditor.vue",
+        "sha256": "257F607F26E03E0746388921D32D5886DAD2F8549D3169EC61F72E256740F9B2"
+      },
+      {
+        "path": "packages/spark-component/src/tests/filter/filter-expression-editor.test.ts",
+        "sha256": "8690F6EBEA370A058D0EA79C8C40C7906F261D2CC921C537162EE939DEA9456F"
+      },
+      {
+        "path": "packages/spark-component/src/tests/filter/filter-json-native-editor.test.ts",
+        "sha256": "E689A5401355142C1018EEDF89519D49DA3CA02EFAC8CA04EC9869B4ECA895FC"
+      },
+      {
+        "path": "packages/spark-component/src/tests/filter/renderer-filter-expression.test.ts",
+        "sha256": "E1EF3AEA758C953349BF36F66F02CFC8D7F93B6DE5897481EBA4AFA8641A1FB9"
+      },
+      {
+        "path": "packages/spark-component/src/tests/filter/spark-json-editor-native.test.ts",
+        "sha256": "0B4970E88EDAE8D2DB60EB6E300F2EFC4EA02381FA322FC21A0A35F400F4DD7F"
+      },
+      {
+        "path": "packages/spark-data/src/data-view.ts",
+        "sha256": "F3F0E64354E52D76747F129F002FD003F17C4410C13C8A5A4A0644D0DB8090C9"
+      },
+      {
+        "path": "packages/spark-data/src/tests/crud/query-result-replacement.test.ts",
+        "sha256": "72CD2E86CEAAE16E75D2E4BDF3C2A461F580F697FD82F96277367F505F0079B6"
+      },
+      {
+        "path": "packages/spark-lowcode-api/src/platform/data-space/runtime/tests/results/data-space-join-query.test.ts",
+        "sha256": "EE97B96CA52E3B5B3212E881CE2AE1D2635F3F6B88779D01A2CCFB121857A0CF"
+      },
+      {
+        "path": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+        "sha256": "442F46BB7FDE9B548309D78732E8EA7DD9DEF4FCAD124009ACF0A045228B8DD7"
+      },
+      {
+        "path": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
+        "sha256": "6E08CB09D44E535E20930F1F14D9538CB0446671D65CDED656184EBC23C48121"
+      },
+      {
+        "path": "src/lowcode/resources/structured-config/logic-view/resource.ts",
+        "sha256": "568EFDE2FC4102F09E28CB071A9CBC0C3DB4B117E4F030DE92D3F860ED555E8F"
+      },
+      {
+        "path": "src/lowcode/resources/structured-config/logic-view/source-views.ts",
+        "sha256": "A9EC74489DD3932746E30D3C90DFDB2FC9458B23178444606A6C29B17DE6589F"
+      },
+      {
+        "path": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
+        "sha256": "87DA2AD85DF53E3FF88AA08EAD1B2ACD702DA9BD093C1D1100AC178FC16331CF"
+      },
+      {
+        "path": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-design-page.vue",
+        "sha256": "E947387D05BEC5898712CD062DFBF13ED5D039BB1B694A8EB72E0006B9F250F2"
+      },
+      {
+        "path": "tests/runtime/page/design/native/data-space-design-page.test.ts",
+        "sha256": "01C029A7A9DE345DB6B980A3871A5E8C0DB9C8AB08C402E5BDD470C362065609"
+      },
+      {
+        "path": "tests/runtime/page/design/native/filter-system-binding.test.ts",
+        "sha256": "61F5E78542FA90F13F11DFF5CFE5BA3D9208BE3E53B1E64443FC7C473F8184CD"
+      },
+      {
+        "path": "tests/runtime/page/design/native/query-preview/data-space-query-plan.test.ts",
+        "sha256": "4E45AD8696B311DC34F4B9CB6C32AE4A925F4193B43D8E255716AA86AF5BC5AC"
+      },
+      {
+        "path": "tests/runtime/page/design/native/query-preview/data-space-query-preview.test.ts",
+        "sha256": "46F443E50E43D485CBE3FE54F1C223AE99E5D74BB91910D9907A4E7190A55EBD"
+      },
+      {
+        "path": "tests/runtime/page/design/native/relation/data-space-relation-editor.test.ts",
+        "sha256": "11B63D9C8B8E3958E05F5FE0AE169837909CD73DFD007A35BA11CC4ADF351DAA"
+      },
+      {
+        "path": "tests/runtime/page/structured-config/logic-view/logic-view-design.test.ts",
+        "sha256": "7223362E31A245AA404B35EB829177988D89F46C65B44E5F517B9E92ECBED6E8"
+      },
+      {
+        "path": "tests/runtime/page/structured-config/logic-view/logic-view-source-views.test.ts",
+        "sha256": "AF4950826EF89364073D6C475BC5349C6A1CAD411DEE9D2E55B88113CDB4EB25"
+      },
+      {
+        "path": "tests/runtime/page/structured-config/logic-view/output/publication-edit.test.ts",
+        "sha256": "7E86518DA782D1ACD0F840F0C4F9F0EB02B51247DFBCC74406BE0EE182CC6A22"
+      },
+      {
+        "path": "tests/runtime/page/structured-config/logic-view/output/publication.test.ts",
+        "sha256": "4B9CBAC6EA3D2D2ED4CB7DB603F92FF46868952E1E29CDFA6FBA5B7F145125C8"
+      },
+      {
+        "path": "tests/runtime/page/structured-config/logic-view/staged-design-page-scope.test.ts",
+        "sha256": "608F21421D0894B11E00E0239CDB3CAD68EB170CB45743D95CCA533C11E221CB"
+      },
+      {
+        "path": "tests/ui/renderer/data-table/renderer-table-filter.test.ts",
+        "sha256": "5C4560F8C452E1AC39EC307E25E8AA791DEEE9F7D44BD37929589F7B70344CC5"
+      },
+      {
+        "path": "tests/ui/renderer/filter-expression-inline.test.ts",
+        "sha256": "1A26C50024F9E39A564706512B0FC2690BA45D7602F3CAFB70113488A015426B"
+      }
+    ]
+  },
+  "finalGates": {
+    "typecheck": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/logic-view-publication-final-types-v4.log"
+    },
+    "lint": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/logic-view-publication-final-lint-v4.log"
+    },
+    "classModel": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/logic-view-publication-final-classmodel-v4.log"
+    },
+    "build": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/logic-view-publication-final-build-v4.log"
+    },
+    "rules": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/logic-view-publication-final-rules-v4.log"
+    }
+  }
+}

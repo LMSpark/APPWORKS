@@ -20,6 +20,8 @@ export type StagedDesignPageConfig = Readonly<{
   runtimeOptions: (input: Readonly<{scenarioId: string; scopeId: string}>) => PageRuntimeOptions
   /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */
   prepareRuntime?: (runtime: PageRuntime) => Promise<void>
+  /** 原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。 */
+  hasPendingIntent?: () => boolean
   missingScopeMessage: string
 }>
 
@@ -46,7 +48,7 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
 
   function hasPending(): boolean {
     const current = runtime.value
-    return !!current && (current.isDirty || current.call.scenarioIds.some(id => {
+    return !!current && (config.hasPendingIntent?.() === true || current.isDirty || current.call.scenarioIds.some(id => {
       const ds = current.getDataSet(id)
       return ds && Object.values(ds.tables).some(table => Object.values(table.views).some(view => view.hasUnconfirmedSave || view.mutating))
     }))
@@ -60,6 +62,7 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
       error.value = !scope ? config.missingScopeMessage : '设计目标已变化或操作尚未完成'
       return
     }
+    if (config.hasPendingIntent?.()) {error.value = '原发布意图尚未结束，请先处理原提交'; return}
     if (options.discardChanges) {
       try {
         const view = designView.value

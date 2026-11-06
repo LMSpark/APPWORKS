@@ -12,7 +12,7 @@ const wrappers: Array<ReturnType<typeof mount>> = []
 const host = vi.hoisted(() => ({dirty: [] as Array<{readonly isDirty: boolean}>}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {readonly isDirty: boolean}) => host.dirty.push(source)}))
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount())})
-async function setup(options: {companion?: boolean} = {}) {
+async function setup(options: {companion?: boolean;pendingIntent?:()=>boolean} = {}) {
   const scope = ref('A'), writes = vi.fn(), reads = vi.fn(async (id: string) => ({rowid: id, targetId: id, designJson: '[]'}))
   const http = new ApiBackend(); http.primaryKeys['Params'] = 'parid'
   http.records = {Params: [{parid: 'P1', pid: 'A', testvalue: 'original'}]}
@@ -43,7 +43,7 @@ async function setup(options: {companion?: boolean} = {}) {
           if(id==='PARAMETERS'&&options.companion)return companion(input.scopeId)
           throw Error('Unexpected synthetic workspace')
         }}
-      }, missingScopeMessage: 'Missing target'})
+      }, ...(options.pendingIntent?{hasPendingIntent:options.pendingIntent}:{}), missingScopeMessage: 'Missing target'})
     return () => h('div')
   }})
   wrappers.push(mount(component, {global: {plugins: [Spark.createPlugin()]}}))
@@ -53,6 +53,17 @@ async function setup(options: {companion?: boolean} = {}) {
 }
 
 describe('staged design current target', () => {
+  it('retains a clean original runtime while a domain publication is still unresolved',async()=>{
+    const pending=ref(false),{scope,page,dataSet,reads}=await setup({pendingIntent:()=>pending.value}),original=page.runtime.value
+    expect(original?.isDirty).toBe(false);pending.value=true
+    scope.value='B';await flushPromises()
+    expect(page.runtime.value).toBe(original);expect(dataSet.destroyed).toBe(false)
+    expect(reads.mock.calls.map(call=>call[0])).toEqual(['A'])
+    scope.value='A';await flushPromises();await page.refreshDesign({discardChanges:true})
+    expect(reads.mock.calls.map(call=>call[0])).toEqual(['A'])
+    pending.value=false;await page.refreshDesign()
+    expect(reads.mock.calls.map(call=>call[0])).toEqual(['A','A'])
+  })
   it('saves the companion view independently without including an edited design file', async () => {
     const {page, writes, http} = await setup({companion: true})
     const view = page.runtime.value!.getDataSet('PARAMETERS')!.getView('Params')!

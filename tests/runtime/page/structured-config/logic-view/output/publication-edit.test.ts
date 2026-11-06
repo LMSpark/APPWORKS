@@ -24,6 +24,65 @@ async function workspace(){
  return{page,dataSet,view:dataSet.getView('Base_TblField',LowcodeLogicView.outputFieldViewId)!}
 }
 describe('logical-view output original DataView staging',()=>{
+ it('accepts the same native diff when formal columns enumerate its fields in a different order',async()=>{
+  const {dataSet,view}=await workspace();view.dataTable!.columns.reverse()
+  const edit=new LogicViewOutputEdit({dataSet,viewId:'V1',fields:[field('id','编号'),field('obsolete')],assertCurrent:()=>{}})
+  await edit.stage();await edit.apply();edit.cancel()
+  expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  expect(view.getEditingRow('F1')?.['cnname']).toBe('id')
+ })
+ it('rejects direct changes to a pending-create row even though its native diff is empty',async()=>{
+  const {dataSet,view}=await workspace(),edit=new LogicViewOutputEdit({dataSet,viewId:'V1',fields:[field('id'),field('obsolete'),field('new')],assertCurrent:()=>{}})
+  await edit.stage();const id=[...view.dirtyTracking.pendingCreateIds][0]!,row=view.rows.find(row=>view.getPkKey(row)===id)!
+  row['cnname']='external direct change'
+  expect(view.dirtyTracking.getDiff(id,row)).toEqual({})
+  await expect(edit.apply()).rejects.toThrow('变化')
+  expect(()=>edit.cancel()).toThrow('变化');expect(row['cnname']).toBe('external direct change')
+ })
+ it('does not adopt input that changes away and back to the staged value while applying',async()=>{
+  const {dataSet,view}=await workspace(),edit=new LogicViewOutputEdit({dataSet,viewId:'V1',fields:[field('id','编号'),field('obsolete')],assertCurrent:()=>{}})
+  await edit.stage();let release=()=>{}
+  const gate=new Promise<void>(resolve=>{release=resolve}),native=view.editRowById.bind(view)
+  vi.spyOn(view,'editRowById').mockImplementation(async(...args)=>{await gate;return native(...args)})
+  const applying=edit.apply().then(()=>({ok:true,error:''}),cause=>({ok:false,error:String(cause)}))
+  view.updateEditingValue('F1','cnname','late');view.updateEditingValue('F1','cnname','编号');release()
+  expect((await applying).ok).toBe(false)
+  expect(()=>edit.cancel()).toThrow('变化');expect(view.getEditingRow('F1')?.['cnname']).toBe('编号')
+ })
+ it('retains successful native transitions and retries only the unapplied original row after a partial failure',async()=>{
+  const {dataSet,view}=await workspace(),edit=new LogicViewOutputEdit({dataSet,viewId:'V1',fields:[field('id','编号'),field('obsolete','保留')],assertCurrent:()=>{}})
+  await edit.stage();const native=view.editRowById.bind(view)
+  const call=vi.spyOn(view,'editRowById').mockImplementationOnce((...args)=>native(...args)).mockResolvedValueOnce(false)
+  await expect(edit.apply()).rejects.toThrow()
+  expect(view.hasEditingChanges('F1')).toBe(false);expect(view.hasEditingChanges('OLD')).toBe(true)
+  await edit.apply();expect(call.mock.calls.map(args=>args[0])).toEqual(['F1','OLD','OLD'])
+  expect(view.dirtyTracking.getOriginal('F1')?.['cnname']).toBe('id')
+  expect(view.dirtyTracking.getOriginal('OLD')?.['cnname']).toBe('obsolete')
+  edit.cancel();expect(view.dirtyTracking.hasPendingChanges()).toBe(false);expect(http.saves).toHaveLength(0)
+ })
+ it('preserves an already applied native draft on an untouched output identity',async()=>{
+  const {dataSet,view}=await workspace();view.updateEditingValue('OLD','cnname','outside native draft')
+  await view.applyEditingRows(['OLD'])
+  expect(view.dirtyTracking.getOriginal('OLD')?.['rowid']).toBeUndefined()
+  const edit=new LogicViewOutputEdit({dataSet,viewId:'V1',fields:[field('id','编号'),field('obsolete')],assertCurrent:()=>{}})
+  await edit.stage();expect(edit.ids).toEqual(['F1'])
+  edit.cancel();expect(view.getEditingRow('OLD')?.['cnname']).toBe('outside native draft')
+  expect(view.dirtyTracking.hasPendingChanges('OLD')).toBe(true)
+ })
+ it('applies only the original staged IDs and can cancel that applied delta without touching parameters',async()=>{
+  const {page,dataSet,view}=await workspace();await LowcodeLogicView.ensureParameters(page)
+  const params=dataSet.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!;params.updateEditingValue('P1','testvalue','keep')
+  const edit=new LogicViewOutputEdit({dataSet,viewId:'V1',fields:[field('id','编号'),field('new')],assertCurrent:()=>{}})
+  await edit.stage();const ids=[...edit.ids]
+  await edit.apply();await edit.verify()
+  expect(edit.ids).toEqual(ids);expect(view.hasEditingChanges('F1')).toBe(false)
+  expect(view.rows.find(row=>row['rowid']==='F1')?.['cnname']).toBe('编号')
+  expect(view.dirtyTracking.getDiff('F1',view.getEditingRow('F1')!)).toMatchObject({cnname:{from:'id',to:'编号'}})
+  expect(http.saves).toHaveLength(0);edit.cancel()
+  expect(view.rows.map(row=>row['rowid']).sort()).toEqual(['F1','OLD'])
+  expect(view.hasEditingChanges()).toBe(false);expect(view.dirtyTracking.hasPendingChanges()).toBe(false)
+  expect(params.getEditingRow('P1')?.['testvalue']).toBe('keep')
+ })
  it('keeps same-name row identity and cancels only its native updates, additions and deletions',async()=>{
   const {page,dataSet,view}=await workspace();await LowcodeLogicView.ensureParameters(page)
   const params=dataSet.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!;params.updateEditingValue('P1','testvalue','keep')

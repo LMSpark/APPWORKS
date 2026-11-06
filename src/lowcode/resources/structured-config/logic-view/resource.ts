@@ -10,6 +10,10 @@ import {lowcodeApi,lowcodeHttp} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {readStructuredConfigScope} from '../catalog'
 import {attachLogicViewDesignEdit} from './design-ops'
+import {isRecord} from '@spark-appworks/spark-utils'
+import {LogicViewSourceViews} from './source-views'
+import {LogicViewOutputEdit} from './output/publication-edit'
+import {compileLogicViewOutputFields} from './output/publication-plan'
 
 export class LowcodeLogicView {
  static readonly navigationScenarioId='EB720370EF06A5A656838F87E0716D6B'
@@ -63,6 +67,17 @@ export class LowcodeLogicView {
  /** 只完整读取本次逻辑视图的正式输出，不查询其他目标或覆盖参数草稿。 */
  static async ensureOutputFields(page:PageRuntime):Promise<DataSet>{
   return this.ensureMetadataView(page,{modelName:'Base_TblField',viewId:this.outputFieldViewId,primaryKey:'rowid',targetField:'tblid'})
+ }
+ /** 发布前重新核来源并编译输出；值只暂存在原输出DataView，参数不参加。 */
+ static async prepareOutputPublication(input:Readonly<{page:PageRuntime;design:unknown;assertCurrent:()=>void}>):Promise<LogicViewOutputEdit>{
+  input.assertCurrent();const {design,page}=input
+  const node:unknown=Array.isArray(design)&&design.length===1?design[0]:undefined
+  if(!isRecord(node)||node['Type']!=='数据库表'||typeof node['DbId']!=='string'||typeof node['MetaName']!=='string')throw Error('输出发布尚未确认该设计来源形态')
+  const dataSet=await this.ensureOutputFields(page);input.assertCurrent()
+  const source=await new LogicViewSourceViews(dataSet).prepareStoredTable({dbid:node['DbId'],name:node['MetaName']});input.assertCurrent()
+  const viewId=page.call.scenarioInputs?.[this.parameterScenarioId]?.['viewId']
+  if(typeof viewId!=='string'||!viewId)throw Error('输出发布缺少正式目标')
+  return new LogicViewOutputEdit({dataSet,viewId,fields:compileLogicViewOutputFields({design,source}),assertCurrent:input.assertCurrent})
  }
  private static async ensureMetadataView(page:PageRuntime,spec:Readonly<{modelName:string;viewId:string;primaryKey:string;targetField:string}>):Promise<DataSet>{
   const {assertCurrent}=readStructuredConfigScope('逻辑视图元数据'),dataSet=await page.ensureScenarioLoaded(this.parameterScenarioId)

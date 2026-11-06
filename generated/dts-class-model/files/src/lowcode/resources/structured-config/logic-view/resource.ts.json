@@ -122,11 +122,40 @@
         "method.ensureOutputFields.return": {
           "type": "object",
           "title": "Promise<DataSet>"
+        },
+        "method.prepareOutputPublication.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "page": {
+                  "$ref": "../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+                },
+                "design": true,
+                "assertCurrent": {
+                  "type": "object",
+                  "title": "() => void"
+                }
+              },
+              "required": [
+                "page",
+                "design",
+                "assertCurrent"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepareOutputPublication.return": {
+          "type": "object",
+          "title": "Promise<LogicViewOutputEdit>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-06T11:15:17.624Z",
+  "generatedAt": "2026-11-06T15:03:43.977Z",
   "models": {
     "LowcodeLogicView": {
       "name": "LowcodeLogicView",
@@ -307,6 +336,36 @@
                   {
                     "type": "reference",
                     "name": "DataSet"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "prepareOutputPublication",
+              "jsdoc": "发布前重新核来源并编译输出；值只暂存在原输出DataView，参数不参加。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        page: PageRuntime;\n        design: unknown;\n        assertCurrent: () => void;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "LogicViewOutputEdit",
+                    "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts"
                   }
                 ]
               }

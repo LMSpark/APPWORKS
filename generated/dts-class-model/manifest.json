@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1084,
+  "scannedFileCount": 1085,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14578,6 +14578,21 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/logic-view/output/publication.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/output/publication",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/output/publication",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication\n职责：按设计文件、正式输出两个独立提交边界编排一次逻辑视图发布。\n边界：仅持原运行实例、原捕获及只读证明；草稿、查询、提交与未知核验仍归SPARK data。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LogicViewPublication"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "file": "files/src/lowcode/resources/structured-config/logic-view/resource.ts.json",
       "module": {
@@ -21205,6 +21220,10 @@
     "LogicViewOutputField": {
       "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
       "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json"
+    },
+    "LogicViewPublication": {
+      "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication.ts",
+      "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication.ts.json"
     },
     "LogicViewSourceType": {
       "sourcePath": "src/lowcode/resources/structured-config/logic-view/source-views.ts",

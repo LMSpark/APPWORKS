@@ -27,6 +27,19 @@ async function metadata(){
 }
 
 describe('logic view lazy source views',()=>{
+  it('resolves a stored database and table name independently of the current source candidate selection',async()=>{
+    http.records['View_TblList']=[{rowid:'T',tblname:'Orders',tbldesc:'订单',dbid:'DB',DbName:'Business'},
+      {rowid:'OTHER',tblname:'Orders',tbldesc:'同名',dbid:'OTHER-DB',DbName:'Other'}]
+    http.records['Base_TblField']=[{rowid:'TF',tblid:'T',enname:'id',cnname:'编号',description:'编号',DataType:'int',IsPKey:1}]
+    const ds=await metadata(),sources=new LogicViewSourceViews(ds),candidate=await sources.candidate('table')
+    await candidate.refresh();candidate.setCurrentRowById('OTHER')
+    const params=ds.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!;params.updateEditingValue('P','testvalue','keep')
+    const prepared=await sources.prepareStoredTable({dbid:'DB',name:'Orders'})
+    expect(prepared.source).toMatchObject({id:'T',dbid:'DB',name:'Orders',databaseName:'Business'})
+    expect(prepared.fields[0]).toMatchObject({Name:'id',FieldType:'int',IsPKey:1})
+    expect(candidate.currentRow?.['rowid']).toBe('OTHER');expect(params.getEditingRow('P')?.['testvalue']).toBe('keep')
+    expect(http.saves).toHaveLength(0)
+  })
   it('adds a formal candidate table to the existing metadata instance without querying rows or losing parameter drafts',async()=>{
     const ds=await metadata(),params=ds.getView('_Base_ParamList',LowcodeLogicView.parameterViewId)!;params.updateEditingValue('P','testvalue','draft')
     const sources=new LogicViewSourceViews(ds),candidate=await sources.candidate('table')

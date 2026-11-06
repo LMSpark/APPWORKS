@@ -493,6 +493,17 @@ it('restores a configured parent-result DataSet before any view owner is bound',
 })
 
 
+it('preserves the parent query error when projection and native rows change before query acceptance', async () => {
+  const {view, child} = parentResultViews(false)
+  await view.loadFromServer()
+  const pending = child.loadFromServer()
+  child.fieldProjection = child.fieldProjection.slice(0, 1)
+  const nativeRow = {detailId: 'LOCAL', detailName: 'Unsent'}
+  child.rows.push(nativeRow)
+  await expect(pending).rejects.toThrow('PARENT_QUERY')
+  expect(child.rows[0]).toBe(nativeRow)
+})
+
 it('rejects child projection changes during asynchronous acceptance and after publication', async () => {
   const {view, child, http} = parentResultViews(false)
   await view.loadFromServer()

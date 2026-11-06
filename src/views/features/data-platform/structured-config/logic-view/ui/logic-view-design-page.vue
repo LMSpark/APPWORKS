@@ -20,12 +20,18 @@
         </RendererTabPane>
         <RendererTabPane :index="1" name="design" label="视图数据设计" :data-view-key="designKey">
           <template v-if="designView">
-      <LogicViewNodeEditor :view-key="designKey" :view="designView" :parameter-view-key="parameterKey" :metadata="metadataReady ? runtime?.getDataSet(LowcodeLogicView.parameterScenarioId) : undefined" :disabled="busy || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
+      <LogicViewNodeEditor :view-key="designKey" :view="designView" :parameter-view-key="parameterKey" :metadata="metadataReady ? runtime?.getDataSet(LowcodeLogicView.parameterScenarioId) : undefined" :disabled="busy || publicationState.pending || designView.hasUnconfirmedSave || completeEditing" @editing-change="nodeEditing=$event" />
       <details><summary>完整设计</summary><RendererForm :data-view-key="designKey" :auto-columns="false" :show-data-view-meta="false" :grid-columns="1">
-        <FieldJson field="designJson" label="完整设计" mode="tree" :height="360" :readonly="busy || nodeEditing" :on-editing-change="value=>completeEditing=value" />
+        <FieldJson field="designJson" label="完整设计" mode="tree" :height="360" :readonly="busy || publicationState.pending || nodeEditing" :on-editing-change="value=>completeEditing=value" />
       </RendererForm></details>
-      <RendererButton :data-view-key="designKey" :label="designView?.hasUnconfirmedSave ? '核验设计保存结果' : '保存设计'" button-type="primary" :disabled="busy || nodeEditing || completeEditing" @click="save" />
-      <RendererButton :data-view-key="designKey" label="放弃修改并重读" :disabled="busy || designView?.hasUnconfirmedSave === true" @click="reload" />
+      <p v-if="publicationState.pending && publicationState.fileConfirmed" role="status">设计已确认保存，输出尚未完成。</p>
+      <p v-else-if="publicationState.published" role="status">设计和输出已确认保存。</p>
+      <p v-else-if="publicationState.finished" role="status">本次发布已结束；已确认的设计不会回滚。</p>
+      <RendererButton :data-view-key="designKey" :label="publicationState.needsVerification ? '核验发布结果' : publicationState.pending && publicationState.fileConfirmed ? '继续保存输出' : '保存设计'" button-type="primary" :disabled="busy || nodeEditing || completeEditing || !publicationState.canSave && !publicationState.needsVerification" @click="save" />
+      <RendererButton v-if="publicationState.canAcceptCurrent" :data-view-key="designKey" label="采用当前正式结果并结束发布" :disabled="busy" @click="acceptCurrent" />
+      <RendererButton v-if="publicationState.canRetireNotAppliedOutputs" :data-view-key="designKey" label="放弃未生效的输出修改" :disabled="busy" @click="retireOutputs" />
+      <RendererButton v-if="publicationState.pending && publicationState.canCancelBeforeDispatch" :data-view-key="designKey" label="取消未提交输出" :disabled="busy" @click="cancelOutputs" />
+      <RendererButton :data-view-key="designKey" label="放弃修改并重读" :disabled="busy || designView?.hasUnconfirmedSave === true || publicationState.pending && !publicationState.canCancelBeforeDispatch" @click="reload" />
           </template>
           <template v-else><p role="alert">{{ designError }}</p><RendererButton :data-view-key="designKey" label="重试读取设计" :disabled="busy" @click="retryDesign" /></template>
         </RendererTabPane>
@@ -40,7 +46,7 @@
 </template>
 
 <script setup lang="ts">
-import {computed, ref, watch} from 'vue'
+import {computed, onBeforeUnmount, ref, shallowRef, triggerRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
@@ -48,6 +54,7 @@ import {FieldJson, RendererButton, RendererDialog, RendererForm, RendererTable, 
 import LogicViewNodeEditor from './logic-view-node-editor.vue'
 import {LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
+import {LogicViewPublication} from '@/lowcode/resources/structured-config/logic-view/output/publication'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
 
 const route = useRoute()
@@ -58,8 +65,16 @@ const catalogKey = computed(() => buildDataViewKey(LowcodeLogicView.catalogMetaN
 const parameterKey = buildDataViewKey(LowcodeLogicView.parameterModelName, LowcodeLogicView.parameterViewId, LowcodeLogicView.parameterScenarioId)
 const activeTab = ref('basic'), revision = ref(0), deleteId = ref<string | number>(), parameterBusy = ref(false)
 const nodeEditing=ref(false),completeEditing=ref(false)
-useSystemPageDirtySource({get isDirty(){return nodeEditing.value||completeEditing.value}})
-const retainInput=()=>!(nodeEditing.value||completeEditing.value)
+const publication=shallowRef<LogicViewPublication>()
+const publicationState=computed(()=>{
+ const command=publication.value
+ return{pending:command?.pending===true,finished:command?.finished===true,published:command?.published===true,
+  fileConfirmed:command?.fileConfirmed===true,needsVerification:command?.needsVerification===true,
+  canAcceptCurrent:command?.canAcceptCurrent===true,canRetireNotAppliedOutputs:command?.canRetireNotAppliedOutputs===true,
+  canCancelBeforeDispatch:command?.canCancelBeforeDispatch===true,canSave:!command?.pending||command.canSave}
+})
+useSystemPageDirtySource({get isDirty(){return nodeEditing.value||completeEditing.value||publication.value?.pending===true}})
+const retainInput=()=>!(nodeEditing.value||completeEditing.value||publication.value?.pending)
 onBeforeRouteUpdate(retainInput)
 onBeforeRouteLeave(retainInput)
 const {runtime, designView, designError, loading, ready, busy, error, saveChanges, refreshDesign} = useStagedDesignPage({
@@ -71,6 +86,7 @@ const {runtime, designView, designError, loading, ready, busy, error, saveChange
   designViewTable: LOGIC_VIEW_DESIGN_VIEW,
   runtimeOptions: input => LowcodeLogicView.editorRuntimeOptions({scenarioId: input.scenarioId, viewId: input.scopeId}),
   prepareRuntime: page => LowcodeLogicView.prepareEditor(page),
+  hasPendingIntent:()=>publication.value?.pending===true,
   missingScopeMessage: '缺少 viewId 参数',
 })
 const parametersReady=ref(false),metadataReady=ref(false)
@@ -89,7 +105,8 @@ watch([ready,runtime,activeTab],async()=>{
  finally{if(runtime.value===page)parameterBusy.value=false}
 },{immediate:true})
 const parameterView = computed(() => ready.value && parametersReady.value ? runtime.value?.resolveView(parameterKey) : undefined)
-watch(runtime, () => {deleteId.value = undefined})
+watch(runtime, () => {deleteId.value = undefined;publication.value?.dispose();publication.value=undefined})
+onBeforeUnmount(()=>publication.value?.dispose())
 watch(parameterView, (view, _, cleanup) => {
   if (!view) return
   const bump = () => {revision.value++}
@@ -113,8 +130,38 @@ const parameterToolbar = computed<RToolbarProps>(() => ({children: [
   {type: 'r-button', props: {label: '删除参数', permAction: 'delete', disabled: busy.value || parameterState.value.unknown || parameterState.value.mutating,
     onClick: () => {const view = parameterView.value, row = view?.currentRow; if (view && row) deleteId.value = view.getPkKey(row)}}},
 ]}))
-async function save(): Promise<void> {await saveChanges()}
-async function reload(): Promise<void> {await refreshDesign({discardChanges: true})}
+async function runPublication(action:()=>Promise<void>|void):Promise<void>{
+ if(busy.value||nodeEditing.value||completeEditing.value)return
+ busy.value=true;error.value=''
+ try{await action()}
+ catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{busy.value=false;triggerRef(publication)}
+}
+async function save(): Promise<void> {
+ await runPublication(async()=>{
+  if(!publication.value?.pending){
+   const page=runtime.value,id=viewId.value,view=designView.value,scenario=scenarioId.value
+   if(!page||!view)throw Error('原设计工作区尚未读取完成')
+   publication.value?.dispose()
+   publication.value=new LogicViewPublication({page,viewId:id,assertCurrent:()=>{
+    if(runtime.value!==page||viewId.value!==id||scenarioId.value!==scenario||designView.value!==view)throw Error('原设计发布目标已变化')
+   }})
+  }
+  if(publication.value.needsVerification)await publication.value.verify()
+  else await publication.value.save()
+ })
+}
+async function acceptCurrent():Promise<void>{await runPublication(()=>publication.value?.acceptCurrentAndRetire())}
+async function retireOutputs():Promise<void>{await runPublication(()=>publication.value?.retireNotAppliedOutputs())}
+async function cancelOutputs():Promise<void>{await runPublication(()=>publication.value?.cancelBeforeDispatch())}
+async function reload(): Promise<void> {
+ if(busy.value||nodeEditing.value||completeEditing.value)return
+ try{
+  if(publication.value&&!publication.value.finished)publication.value.cancelBeforeDispatch()
+  publication.value?.dispose();publication.value=undefined
+  await refreshDesign({discardChanges:true})
+ }catch(cause){error.value=cause instanceof Error?cause.message:String(cause);triggerRef(publication)}
+}
 async function retryDesign(): Promise<void> {await refreshDesign()}
 async function verifyParameters(): Promise<void> {await saveChanges({viewKey: parameterKey})}
 function cancelParameters(): void {

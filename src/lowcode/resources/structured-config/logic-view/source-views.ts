@@ -3,7 +3,7 @@
  * 职责：消费本次PageRuntime已装配的正式来源命名视图。
  * 边界：不读模型定义、不增表或复制配置；行查询和来源准备沿原DataView。
  */
-import type {DataSet,DataView} from '@spark-appworks/spark-data'
+import {DataViewFilter,RequestState,type DataSet,type DataView} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {lowcodeApi} from '../../../lowcode-runtime'
 import {LowcodeDataSpaceSourceCatalog,type PageDataSpaceModelSource} from '../../../data-space/model-source/lowcode-data-space-source-catalog'
@@ -36,5 +36,25 @@ export class LogicViewSourceViews {
     if(source.type==='interface')await this.details('_Base_ParamList')
     this.assertCurrent();const prepared=await this.#reader.prepare(source,this.dataSet,{missingInputType:'preserve'});this.assertCurrent()
     return prepared
+  }
+  /** 已存节点以数据库及表名精确定位正式来源，不借候选选择或旧字段缓存。 */
+  public async prepareStoredTable(input:Readonly<{dbid:string;name:string}>){
+    this.assertCurrent()
+    if(!input.dbid.trim()||!input.name.trim())throw Error('输出发布缺少已存来源身份')
+    const template=await this.details('View_TblList'),view=template.createQueryView(`logicOutputSource_${crypto.randomUUID().replaceAll('-','')}`)
+    try{
+      view.queryConfig={...view.queryConfig,allPages:true}
+      view.filterExpression=DataViewFilter.group({logic:'and',filters:[{field:'dbid',operator:'eq',value:input.dbid},{field:'tblname',operator:'eq',value:input.name}]}).toJSON()
+      const signature=JSON.stringify([view.filterExpression,view.queryConfig,view.queryContext])
+      const assertQuery=()=>{this.assertCurrent();if(view.destroyed||view.dataTable?.getView(view.viewId)!==view
+        ||JSON.stringify([view.filterExpression,view.queryConfig,view.queryContext])!==signature)throw Error('输出发布来源查询已变化')}
+      view.validateQueryResult=result=>{assertQuery();if(!result.countReported||result.rows.length!==1||result.total!==1)throw Error('输出发布来源不存在或不唯一')}
+      await view.refresh();assertQuery();if(view.loadingError)throw view.loadingError
+      const row=view.rows[0]
+      if(view.requestState!==RequestState.Loaded||!row||!view.countReported||view.total!==1||view.rows.length!==1)throw Error('输出发布来源尚未完整确认')
+      const source=LowcodeDataSpaceSourceCatalog.source('table',view,row)
+      if(source.dbid!==input.dbid||source.name!==input.name)throw Error('输出发布来源身份不一致')
+      return await this.prepare(source)
+    }finally{if(!this.dataSet.destroyed)view.dataTable?.destroyView(view.viewId)}
   }
 }

@@ -59,6 +59,29 @@ import { DirtyTrackingDelegate } from './strategies/crud/dirty-tracking-delegate
 import { AggregateDelegate } from './strategies/aggregate-delegate'
 import type { RowDiff, SaveChangesData } from './strategies/crud/dirty-tracking-delegate'
 
+/** Compare private structured-clone proofs without losing undefined, dates or nested input. */
+function sameQueryReplacementValue(current:unknown,original:unknown,seen=new WeakMap<object,object>()):boolean{
+  if(Object.is(current,original))return true
+  if(current===null||original===null||typeof current!=='object'||typeof original!=='object')return false
+  if(Object.prototype.toString.call(current)!==Object.prototype.toString.call(original))return false
+  if(seen.has(current))return seen.get(current)===original
+  seen.set(current,original)
+  if(current instanceof Date&&original instanceof Date)return Object.is(current.getTime(),original.getTime())
+  if(current instanceof RegExp&&original instanceof RegExp)return current.source===original.source&&current.flags===original.flags
+  if(current instanceof Map&&original instanceof Map)return sameQueryReplacementValue([...current],[...original],seen)
+  if(current instanceof Set&&original instanceof Set)return sameQueryReplacementValue([...current],[...original],seen)
+  if(current instanceof ArrayBuffer&&original instanceof ArrayBuffer)return sameQueryReplacementValue(new Uint8Array(current),new Uint8Array(original),seen)
+  if(ArrayBuffer.isView(current)&&ArrayBuffer.isView(original)){
+    if(current.byteLength!==original.byteLength)return false
+    const left=new Uint8Array(current.buffer,current.byteOffset,current.byteLength),right=new Uint8Array(original.buffer,original.byteOffset,original.byteLength)
+    return left.every((value,index)=>value===right[index])
+  }
+  if(Array.isArray(current)&&Array.isArray(original)&&current.length!==original.length)return false
+  const keys=Object.keys(current)
+  return keys.length===Object.keys(original).length&&keys.every(key=>Object.hasOwn(original,key)&&sameQueryReplacementValue(
+    Object.getOwnPropertyDescriptor(current,key)?.value,Object.getOwnPropertyDescriptor(original,key)?.value,seen))
+}
+
 
 // ─────────────────────────────────────────────
 // 事件类型映射
@@ -2029,12 +2052,15 @@ protected logger = Logger('DataView')
 
   /**
    * 从服务器拉取列表（带防重入 + 请求 ID 竞态保护）。
+   * 等待查询及异步结果校验期间，原展示的行身份、非派生字段和值必须保持不变；变化时保留原展示并拒绝覆盖。
+   * 计算列重算、选择、列顺序和标题变化不构成业务输入变化。
    *
    * @param params 查询参数；未提供的分页、排序、过滤及查询配置由当前视图生成，显式值只覆盖本次请求。
    */
   async loadFromServer(params?: QueryParams): Promise<CrudResult> {
     this.assertResultReplacementAllowed()
     if (this.requestState === RequestState.Loading) return { success: false, message: 'Already loading' }
+    const assertOriginalResult=this.captureQueryReplacementGuard()
 
     this.loadingError = null
     this.setRequestState(RequestState.Loading)
@@ -2091,16 +2117,21 @@ protected logger = Logger('DataView')
       if (result.success && result.data !== undefined) {
         if (queryResult !== undefined) {
           queryResult.assertIdentity(this.queryIdentity())
+          parentCapture?.assertCurrent()
+          assertParentInputs?.()
+          assertOriginalResult()
           if (this.validateQueryResult) await this.validateQueryResult(queryResult)
           if (requestId !== this.currentLoadRequestId) return this._createRequestSupersededResult()
           parentCapture?.assertCurrent()
           assertParentInputs?.()
+          assertOriginalResult()
           if (parentCapture && parentCapture.result !== queryResult) throw new Error('DATA_VIEW_PARENT_SOURCE: owner返回了不同父结果')
           const previousGuard = this.#parentResultGuard
           const captured = parentCapture
           this.#parentResultGuard = captured ? () => {assertParentInputs?.(); captured.assertCurrent()} : undefined
           try {this.ingestQueryResult(queryResult, resultRefreshIdentity)} catch (error) {this.#parentResultGuard = previousGuard; throw error}
         } else {
+          assertOriginalResult()
           this.updateFromServer(normalizeServerRowsData(result.data, `DataView.loadFromServer ${this.tableName}@${this.viewId}`))
         }
         // 确保树形数据的所有子节点计算列已求值，再触发 autoFirst（会级联到子视图）
@@ -2121,6 +2152,20 @@ protected logger = Logger('DataView')
       this.loadingError = toError(error)
       this.setRequestState(RequestState.Failed)
       throw error
+    }
+  }
+
+  /** Request-local proof only; does not create an editable row store or change dirty tracking. */
+  private captureQueryReplacementGuard():()=>void{
+    const currentFields=()=>this.columns.map(column=>column.name).filter(name=>name!=='_pk'&&!name.startsWith('lingma_sys_')&&!this.computedColumnNames.has(name))
+    const fields=currentFields()
+    const rows=this.rows.slice(),values=structuredClone(rows.map(row=>fields.map(field=>row[field])))
+    return()=>{
+      const current=new Set(currentFields())
+      if(current.size!==fields.length||fields.some(field=>!current.has(field))||this.rows.length!==rows.length||rows.some((row,index)=>this.rows[index]!==row
+        ||!sameQueryReplacementValue(fields.map(field=>row[field]),values[index]))){
+        throw new DataViewUnsavedChangesError(`DATA_VIEW_UNSAVED_CHANGES: ${this.tableName}@${this.viewId} 查询期间原数据已变化，保留修改并拒绝覆盖`)
+      }
     }
   }
 

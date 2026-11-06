@@ -84,6 +84,21 @@
           "type": "object",
           "title": "Promise<void>"
         },
+        "method.apply.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.apply.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.assertUnchanged.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertUnchanged.return": true,
         "method.cancel.params": {
           "type": "object",
           "properties": {},
@@ -93,7 +108,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T11:53:56.543Z",
+  "generatedAt": "2026-11-06T15:40:53.809Z",
   "models": {
     "Input": {
       "name": "Input",
@@ -199,6 +214,30 @@
                     "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "apply",
+              "jsdoc": "仅应用原暂存覆盖；原生合法转换更新归属签名，晚到编辑仍留在原视图并阻止继续。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "assertUnchanged",
+              "jsdoc": "只核本命令原生delta归属，不执行消费者检查或修改数据。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

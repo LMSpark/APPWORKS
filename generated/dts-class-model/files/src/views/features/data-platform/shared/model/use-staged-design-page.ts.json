@@ -82,22 +82,30 @@
         "method.prepareRuntime.return": {
           "type": "object",
           "title": "Promise<void>"
+        },
+        "method.hasPendingIntent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.hasPendingIntent.return": {
+          "type": "boolean"
         }
       }
     }
   },
-  "generatedAt": "2026-11-06T10:44:29.645Z",
+  "generatedAt": "2026-11-06T15:03:43.977Z",
   "models": {
     "StagedDesignPageConfig": {
       "name": "StagedDesignPageConfig",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    /** 本次正式场景、输入和装配回调；唯一PageRuntime由本helper创建并释放。 */\n    runtimeOptions: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => PageRuntimeOptions;\n    /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */\n    prepareRuntime?: (runtime: PageRuntime) => Promise<void>;\n    missingScopeMessage: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    /** 本次正式场景、输入和装配回调；唯一PageRuntime由本helper创建并释放。 */\n    runtimeOptions: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => PageRuntimeOptions;\n    /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */\n    prepareRuntime?: (runtime: PageRuntime) => Promise<void>;\n    /** 原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。 */\n    hasPendingIntent?: () => boolean;\n    missingScopeMessage: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    /** 本次正式场景、输入和装配回调；唯一PageRuntime由本helper创建并释放。 */\n    runtimeOptions: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => PageRuntimeOptions;\n    /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */\n    prepareRuntime?: (runtime: PageRuntime) => Promise<void>;\n    missingScopeMessage: string;\n}>",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioId: ComputedRef<string>;\n    scopeId: ComputedRef<string | undefined>;\n    scopeInputTable: string;\n    scopeField: string;\n    designViewTable: string;\n    /** 本次正式场景、输入和装配回调；唯一PageRuntime由本helper创建并释放。 */\n    runtimeOptions: (input: Readonly<{\n        scenarioId: string;\n        scopeId: string;\n    }>) => PageRuntimeOptions;\n    /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */\n    prepareRuntime?: (runtime: PageRuntime) => Promise<void>;\n    /** 原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。 */\n    hasPendingIntent?: () => boolean;\n    missingScopeMessage: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -184,6 +192,15 @@
                     "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "hasPendingIntent",
+              "jsdoc": "原视图已干净但领域提交意图尚未结束时，保留原运行实例及目标。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
               }
             }
           ]

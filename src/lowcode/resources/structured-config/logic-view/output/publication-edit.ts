@@ -3,7 +3,7 @@
  * 职责：按输出名称在原正式视图暂存变更，保留同名身份及可核验的取消范围。
  * 边界：不查询业务行、不保存文件或数据库；草稿只在原DataView，命令只持身份及只读签名。
  */
-import {DataViewFilter,RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
+import {DataViewFilter,RequestState,type DataSet,type DataView,type DataRow,type DataViewEditingFieldChangeEvent} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {definitionTargetDraftSignature} from '../../../../data-space/model-source/data-space-definition-save'
 import type {LogicViewOutputField} from './publication-plan'
@@ -20,6 +20,12 @@ type Input=Readonly<{
 type Change=Readonly<{row:DataRow;values:Partial<LogicViewOutputField>}>
 const members=['enname','cnname','description','DataType','IsPKey'] as const
 function value(row:DataRow,key:typeof members[number]):unknown{return key==='IsPKey'?Number(row[key]):row[key]}
+function sameValues(actual:Readonly<Record<string,unknown>>|undefined,expected:Readonly<Record<string,unknown>>):boolean{
+ return !!actual&&Object.keys(actual).length===Object.keys(expected).length&&Object.entries(expected).every(([key,next])=>Object.hasOwn(actual,key)&&Object.is(actual[key],next))
+}
+function sameDiff(actual:Record<string,{from:unknown;to:unknown}>,expected:Record<string,{from:unknown;to:unknown}>):boolean{
+ return Object.keys(actual).length===Object.keys(expected).length&&Object.entries(expected).every(([key,next])=>sameValues(actual[key],next))
+}
 
 /** 一次输出结构暂存；取消仅处理本次原生delta，不触碰文件或参数视图。 */
 export class LogicViewOutputEdit{
@@ -27,6 +33,7 @@ export class LogicViewOutputEdit{
  readonly #query:string
  readonly #plan:string
  readonly #owned=new Map<string,string>()
+ readonly #contents=new Map<string,string>()
  #attempted=false
  #busy=false
  #cancelled=false
@@ -51,12 +58,17 @@ export class LogicViewOutputEdit{
  }
  private guardOwned():void{
   this.scope()
-  for(const [id,signature] of this.#owned)if(definitionTargetDraftSignature(this.#view,[id])!==signature)throw Error('原输出暂存已变化，不能覆盖后续修改')
+  for(const [id,signature] of this.#owned)if(definitionTargetDraftSignature(this.#view,[id])!==signature||this.content(id)!==this.#contents.get(id))throw Error('原输出暂存已变化，不能覆盖后续修改')
+ }
+ private content(id:string):string{
+  const row=this.#view.dirtyTracking.getPendingDeleteSnapshot(id)??this.#view.getEditingRow(id)
+  return JSON.stringify(['rowid','tblid',...members].map(key=>row?.[key]))
  }
  private remember(id:string,expected:Readonly<Record<string,unknown>>):void{
   this.#owned.set(id,'OUTPUT_CHANGED_DURING_STAGE')
   if(!this.matches(id,expected))throw Error('输出暂存期间记录已变化')
   this.#owned.set(id,definitionTargetDraftSignature(this.#view,[id]))
+  this.#contents.set(id,this.content(id))
  }
  private matches(id:string,expected:Readonly<Record<string,unknown>>):boolean{
   const view=this.#view,row=view.dirtyTracking.getPendingDeleteSnapshot(id)??view.getEditingRow(id)
@@ -82,7 +94,7 @@ export class LogicViewOutputEdit{
  private baseline():DataRow[]{
   this.scope();const view=this.#view
   if(view.dirtyTracking.pendingDeleteIds.size)throw Error('原输出存在待删除草稿，请先处理')
-  const rows=view.rows.filter(row=>!view.dirtyTracking.isPendingCreate(this.id(row))).map(row=>view.dirtyTracking.getOriginal(this.id(row))??row)
+  const rows=view.rows.filter(row=>!view.dirtyTracking.isPendingCreate(this.id(row))).map(row=>({...row,...view.dirtyTracking.getOriginal(this.id(row))}))
   if(rows.length!==view.total)throw Error('原输出正式范围未完整读取')
   const ids=new Set<string>(),names=new Set<string>()
   for(const row of rows){
@@ -186,6 +198,52 @@ export class LogicViewOutputEdit{
   this.#busy=true
   try{if(this.#requiresReferences)await this.checkConsumers();this.guardOwned()}finally{this.#busy=false}
  }
+ /** 仅应用原暂存覆盖；原生合法转换更新归属签名，晚到编辑仍留在原视图并阻止继续。 */
+ async apply():Promise<void>{
+  this.guardOwned();if(this.#busy||!this.#staged)throw Error('原输出暂存尚未完成')
+  const view=this.#view
+  const ids=this.ids,unchanged=ids.filter(id=>!view.hasEditingChanges(id)).map(id=>({id,
+   row:view.dirtyTracking.getPendingDeleteSnapshot(id)??view.rows.find(candidate=>this.id(candidate)===id)}))
+  const captures=this.ids.flatMap(id=>{
+   const patch=view.getEditingPatch(id)
+   if(!patch||!Object.keys(patch).length)return[]
+   const row=view.rows.find(candidate=>this.id(candidate)===id)
+   if(!row)throw Error('原输出行已变化')
+   const expected={...row,...patch},original=view.dirtyTracking.getOriginal(id)
+   const diff=original?view.dirtyTracking.getDiff(id,expected):Object.fromEntries(Object.entries(patch)
+    .filter(([key,next])=>!Object.is(row[key],next)).map(([key,to])=>[key,{from:row[key],to}]))
+   return[{id,row,expected,diff,original:original?{...original}:undefined,
+    creating:view.dirtyTracking.isPendingCreate(id),deleting:view.dirtyTracking.isPendingDelete(id)}]
+  })
+  const late=new Set<string>()
+  const onInput=(event:DataViewEditingFieldChangeEvent):void=>{const id=String(event.rowId);if(ids.includes(id))late.add(id)}
+  this.#busy=true
+  view.events.on('editingFieldChanged',onInput)
+  try{
+   const result=await view.applyEditingRows(captures.map(capture=>capture.id))
+   this.scope()
+   for(const capture of unchanged)if((view.dirtyTracking.getPendingDeleteSnapshot(capture.id)??view.rows.find(candidate=>this.id(candidate)===capture.id))!==capture.row)late.add(capture.id)
+   for(const capture of captures){
+    const {id,row:before,expected}=capture,row=view.rows.find(candidate=>this.id(candidate)===id)
+    if(late.has(id))continue
+    if(definitionTargetDraftSignature(view,[id])===this.#owned.get(id))continue
+    const original=view.dirtyTracking.getOriginal(id)
+    if(!row||view.hasEditingChanges(id)||view.dirtyTracking.isPendingCreate(id)!==capture.creating
+     ||view.dirtyTracking.isPendingDelete(id)!==capture.deleting
+     ||!Object.entries(expected).every(([key,next])=>Object.is(row[key],next))
+     ||!sameDiff(view.dirtyTracking.getDiff(id,row),capture.diff)
+     ||(capture.original!==undefined?!sameValues(original,capture.original)
+      :!original||!Object.entries(original).every(([key,previous])=>Object.is(before[key],previous))))continue
+    this.#owned.set(id,definitionTargetDraftSignature(view,[id]))
+   }
+   for(const id of late)this.#owned.set(id,'OUTPUT_CHANGED_DURING_APPLY')
+   this.guardOwned()
+   if(!result.success)throw Error(result.message??'输出原生编辑应用失败')
+   if(this.ids.some(id=>view.hasEditingChanges(id)))throw Error('输出仍有未应用覆盖，不能继续保存')
+  }finally{view.events.off('editingFieldChanged',onInput);this.#busy=false}
+ }
+ /** 只核本命令原生delta归属，不执行消费者检查或修改数据。 */
+ assertUnchanged():void{this.guardOwned();if(this.#busy)throw Error('输出暂存正在处理')}
  /** 原签名仍一致时，仅撤回本命令的原生delta。 */
- cancel():void{this.guardOwned();if(this.#busy)throw Error('输出暂存正在处理');this.#view.discardPendingChanges(this.ids);this.#cancelled=true}
+ cancel():void{this.assertUnchanged();this.#view.discardPendingChanges(this.ids);this.#cancelled=true}
 }

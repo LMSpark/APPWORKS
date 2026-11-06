@@ -1,0 +1,218 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/logic-view/output/publication-edit",
+    "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/logic-view/output/publication-edit",
+    "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication-edit\n职责：按输出名称在原正式视图暂存变更，保留同名身份及可核验的取消范围。\n边界：不查询业务行、不保存文件或数据库；草稿只在原DataView，命令只持身份及只读签名。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "LogicViewOutputEdit"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "publication-plan.ts.json#/$defs/LogicViewOutputField"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "LogicViewOutputEdit": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LogicViewOutputEdit",
+      "properties": {
+        "ids": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.stage.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.stage.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.verify.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.verify.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.cancel.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.cancel.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-06T11:53:56.543Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次宿主的原元数据实例。 */\n    dataSet: DataSet;\n    /** 被设计逻辑视图的唯一正式身份。 */\n    viewId: string;\n    /** 当次来源已核实的只读输出计划，不是可编辑副本。 */\n    fields: readonly LogicViewOutputField[];\n    /** 调用方捕获的原页面、设计版本及来源身份守卫。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次宿主的原元数据实例。 */\n    dataSet: DataSet;\n    /** 被设计逻辑视图的唯一正式身份。 */\n    viewId: string;\n    /** 当次来源已核实的只读输出计划，不是可编辑副本。 */\n    fields: readonly LogicViewOutputField[];\n    /** 调用方捕获的原页面、设计版本及来源身份守卫。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "jsdoc": "本次宿主的原元数据实例。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "被设计逻辑视图的唯一正式身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "jsdoc": "当次来源已核实的只读输出计划，不是可编辑副本。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "调用方捕获的原页面、设计版本及来源身份守卫。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LogicViewOutputEdit": {
+      "name": "LogicViewOutputEdit",
+      "jsdoc": "一次输出结构暂存；取消仅处理本次原生delta，不触碰文件或参数视图。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Input)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Input",
+                "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "ids",
+              "jsdoc": "本次已捕获的原DataView操作身份；不含范围外草稿。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "stage",
+              "jsdoc": "全部预检完成后通过原API暂存；失败保留已登记身份，仍可明确取消。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "verify",
+              "jsdoc": "暂存后再次读取正式消费者；不能用暂存前的空查询结果授权实际提交。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "cancel",
+              "jsdoc": "原签名仍一致时，仅撤回本命令的原生delta。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

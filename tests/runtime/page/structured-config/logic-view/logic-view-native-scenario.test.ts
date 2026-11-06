@@ -3,6 +3,11 @@ import {expect,it} from 'vitest'
 import {resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 const scenarioId='EB720370EF06A5A656838F87E0716D6B'
+it('declares consumers by source identity across spaces without filtering away drifted model names',()=>{
+ const config=new ScenarioViewConfig('8D1AB14DD8277F3E7017CD38F77B09FD',readFileSync('config/pages/data-platform/data-space-design/pagedata.json','utf8')).toJSON()
+ const tables=config['tables'] as Record<string,{views:Record<string,Record<string,unknown>>}>
+ expect(tables['Base_DataModel']?.views['logicViewConsumers']).toMatchObject({autoLoad:false,queryContext:{viewId:''},queryConfig:{allPages:true,fields:['rowid','dataSetId','Type','DbId','MetaName']},filterExpression:{logic:'and',filters:[{field:'Type',operator:'eq',value:'视图'},{field:'DbId',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}}]}})
+})
 it('declares an independent staged output publication view scoped to the original viewId',()=>{
  const config=new ScenarioViewConfig('8D1AB14DD8277F3E7017CD38F77B09FD',readFileSync('config/pages/data-platform/data-space-design/pagedata.json','utf8')).toJSON()
  const tables=config['tables'] as Record<string,{modelBinding:{modelName:string};views:Record<string,Record<string,unknown>>}>

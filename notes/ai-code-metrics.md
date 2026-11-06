@@ -3281,3 +3281,10 @@
 - 纯投影核来源类型和真实PK，禁止不明层次/计算、重复别名、缺输出标记与空输出；17项边界测试通过。完整性检查在正式结果接纳前执行，不拿含新增草稿行数比较total。缓存scope验证复用正式query owner，新增真实LowcodeApi换app token变化4项。旧夹具过滤假设及不一致same-token mock失败均保留、更正依据明确。
 - 正式ClassModel刷新并恢复159份结构等价生成噪声，API消费者611/208不变。typecheck、eslint、完整verify:rules及build:fe4.28s已exit0，最后空输出修复后17项及lint通过，冻结全范围复核/最新build终态待追加。稳定暂存、引用保护、两侧保存、独立回读和清理尚待继续，不核销逻辑视图或20包目标。
 - 最终冻结18文件415项、包内真实scope4项均exit0；types/lint/generate/fullrules通过，最新build6.36s。只读18读25字段证据已入仓，未接发布写入。所有worker已终态，无新增夹具/unknown。
+
+### 2026-11-06 原输出视图稳定暂存、取消与消费者保护
+
+- 新领域命令仅通过原DataView updateEditingValue/addRow/removeRow/discardPendingChanges(ids)，同名保rowid，不造可编辑副本或批量提交器；异步原签名及预期成员阻止外部改动被纳入取消范围，触及ID草稿拒覆盖，其他ID/参数草稿保留。
+- 真实APIBackend回归覆盖部分行内失败、后续新增失败、同ID/新行介入、同合同消费者查询被替代，以及暂存后新正式消费者；高阶RED2与引用复查RED1均复现后修正。消费者按Type/DbId跨空间精确查，MetaName漂移也命中，标题/新增不查。
+- 最终19文件429项+ClassModel49，types/lint/generate/fullrules/build5.39s全部exit0；生成160份结构等价噪声恢复，原告警保留。实服18读0写，消费者5/5；输出旧基线拒绝发生在暂存前，保留正式失败证据，未自动修正数据。
+- 当前未接页面保存，尚未证明发布/运行消费。下一独占目录→SaveView→文件delete-only DataView→Missing→目录清理门，再继续两侧保存/unknown恢复与输出CRUD；不核销20包。

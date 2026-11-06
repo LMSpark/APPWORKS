@@ -767,6 +767,15 @@
         "modelName": "Base_DataModel"
       },
       "views": {
+        "logicViewConsumers": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "selectionDelimiter": "", "queryContext": {"viewId": ""},
+          "queryConfig": {"allPages": true, "maxRows": 50000, "fields": ["rowid", "dataSetId", "Type", "DbId", "MetaName"]},
+          "filterExpression": {"logic": "and", "filters": [
+            {"field": "Type", "operator": "eq", "value": "视图"},
+            {"field": "DbId", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "viewId"}}
+          ]}
+        },
         "modelOptions": {
           "autoLoad": false,
           "autoCurrentFirst": false,

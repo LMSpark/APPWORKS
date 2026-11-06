@@ -4336,10 +4336,15 @@
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json",
       "sourceModifiedAt": "2026-11-02T05:32:39.172Z"
     },
+    "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts.json",
+      "sourceModifiedAt": "2026-11-06T11:53:56.543Z"
+    },
     "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json",
-      "sourceModifiedAt": "2026-11-06T11:13:29.670Z"
+      "sourceModifiedAt": "2026-11-06T11:22:00.623Z"
     },
     "src/lowcode/resources/structured-config/logic-view/resource.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/logic-view/resource.ts",

@@ -78,7 +78,7 @@ function formalModel(metaName: string) {
     _Base_ParamList: ['parid', 'pid', 'parname', 'pardesc', 'parzdtype', 'testvalue'],
   }
   const fields = sourceFields[metaName] ?? ['rowid', ...(metaName === 'Base_DataSet' ? ['inputParams'] : ['dataSetId']),
-    ...(metaName === 'Base_DataModel' ? ['Name'] : []),
+    ...(metaName === 'Base_DataModel' ? ['Name','Type','DbId','MetaName'] : []),
     ...(metaName === 'Base_DataModel_Field' ? ['Name', 'dataModelId', 'type', 'ValueFun'] : [])]
   const primaryKey = metaName === '_Base_ParamList' ? 'parid' : 'rowid'
   return {id: modelId, name: metaName, metaName, sourceName: metaName,
@@ -1179,6 +1179,11 @@ describe('data-space metadata DataSet', () => {
       } else if(tableName==='_Base_ParamList')expect(table['columns']).toEqual([{name:'pid',immutable:true},{name:'parname',required:true,trim:'normalize',unique:true}])
       else expect(table).not.toHaveProperty('columns')
       for (const [viewId,view] of Object.entries(record(table['views']))) {
+        if(tableName==='Base_DataModel'&&viewId==='logicViewConsumers'){
+          expect(record(view)['filterExpression']).toEqual({logic:'and',filters:[{field:'Type',operator:'eq',value:'视图'},{field:'DbId',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}}]})
+          expect(record(record(view)['queryConfig'])['allPages']).toBe(true)
+          continue
+        }
         if (tables.some(name => name === tableName)) {
           const filter = record(record(view)['filterExpression'])
           if (Array.isArray(filter['filters'])) expect(filter['logic']).toBe('and')

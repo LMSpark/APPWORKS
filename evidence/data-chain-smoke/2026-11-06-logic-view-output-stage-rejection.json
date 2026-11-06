@@ -1,0 +1,110 @@
+{
+  "phase": "failed",
+  "processId": 11364,
+  "viewId": "1A927C754D924B218FCEA1A3B4AF97C6",
+  "readOnly": true,
+  "reads": 18,
+  "writes": 0,
+  "blockedWrites": 0,
+  "requests": [
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataViewList"
+    },
+    {
+      "path": "/api/ViewData/GetView",
+      "table": null
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataSet"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Relation"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel_Field"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "View_TblList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "_Base_ParamList"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_TblField"
+    },
+    {
+      "path": "/api/DataOperation/GetData",
+      "table": "Base_DataModel"
+    }
+  ],
+  "checks": [
+    "metadata-deferred-and-default-catalog-unqueried",
+    "one-exact-formal-editor-target",
+    "parameter-input-before-query-and-single-metadata-instance",
+    "exact-complete-output-view-in-original-metadata-instance"
+  ],
+  "design": {
+    "hash": "e7a3b98ce67d320642b63bc06765a7eb2655d4949d94bb32369bd7a922f5a299",
+    "nodes": 1
+  },
+  "outputFields": {
+    "count": 25,
+    "total": 25,
+    "primaryKey": "rowid",
+    "readableNames": true,
+    "dirty": false
+  },
+  "consumers": {
+    "count": 5,
+    "total": 5,
+    "exactScope": true
+  },
+  "error": "原输出身份、名称或归属不唯一",
+  "disposed": true,
+  "finishedAt": "2026-11-06T11:42:04.959Z",
+  "sourceSha256": "5f39452c8cd35180b700553a9c650aa25352c072b5a7c29f2dffca3d76bd9827",
+  "scope": "Read-only consumer query confirmed; existing output baseline rejected before local staging. No publication or CRUD proof."
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1083,
+  "scannedFileCount": 1084,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14548,6 +14548,21 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts": {
+      "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/logic-view/output/publication-edit",
+        "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/logic-view/output/publication-edit",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/output/publication-edit\n职责：按输出名称在原正式视图暂存变更，保留同名身份及可核验的取消范围。\n边界：不查询业务行、不保存文件或数据库；草稿只在原DataView，命令只持身份及只读签名。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "LogicViewOutputEdit"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts": {
       "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts.json",
       "module": {
@@ -21182,6 +21197,10 @@
     "LogicViewNodeCommands": {
       "sourcePath": "src/lowcode/resources/structured-config/logic-view/node-commands.ts",
       "file": "files/src/lowcode/resources/structured-config/logic-view/node-commands.ts.json"
+    },
+    "LogicViewOutputEdit": {
+      "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts",
+      "file": "files/src/lowcode/resources/structured-config/logic-view/output/publication-edit.ts.json"
     },
     "LogicViewOutputField": {
       "sourcePath": "src/lowcode/resources/structured-config/logic-view/output/publication-plan.ts",

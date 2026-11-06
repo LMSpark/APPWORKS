@@ -1,0 +1,80 @@
+{
+  "phase": "finished",
+  "reads": 13,
+  "businessWrites": 0,
+  "blocked": 0,
+  "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+  "interfaceId": "18CDFC0C583FB4D6D027A1A1E375FC62",
+  "formal": {
+    "id": "87821EED03E64B9F8530F255785924F7",
+    "name": "tblname",
+    "output": true,
+    "rawDefaults": {
+      "Value": {
+        "present": true,
+        "value": null
+      },
+      "ValueFun": {
+        "present": true,
+        "value": null
+      },
+      "Expression": {
+        "present": true,
+        "value": null
+      }
+    }
+  },
+  "runtimeColumn": {
+    "hasDefaultValue": false
+  },
+  "rows": [
+    {
+      "id": "13781442741B4909895D431C73DBB5EE",
+      "name": "Time",
+      "tblname": "根据键获取缓存中的值",
+      "matchesInterfaceName": true,
+      "matchesReferenceConstant": false,
+      "required": false
+    },
+    {
+      "id": "24E5C8F7AFF54206ADEA851F59D96A43",
+      "name": "Result",
+      "tblname": "根据键获取缓存中的值",
+      "matchesInterfaceName": true,
+      "matchesReferenceConstant": false,
+      "required": false
+    },
+    {
+      "id": "5EC7D93744CB413BBDD6756A85CEFB68",
+      "name": "Code",
+      "tblname": "根据键获取缓存中的值",
+      "matchesInterfaceName": true,
+      "matchesReferenceConstant": false,
+      "required": false
+    },
+    {
+      "id": "713F2D6336134C5581B7DE4D93B47BB6",
+      "name": "Type",
+      "tblname": "根据键获取缓存中的值",
+      "matchesInterfaceName": true,
+      "matchesReferenceConstant": false,
+      "required": false
+    },
+    {
+      "id": "C59D95740AF74E32A3A9B36D834FCA59",
+      "name": "Message",
+      "tblname": "根据键获取缓存中的值",
+      "matchesInterfaceName": true,
+      "matchesReferenceConstant": false,
+      "required": false
+    },
+    {
+      "id": "CF85985180634F1A91A24A0D07070677",
+      "name": "Extras",
+      "tblname": "根据键获取缓存中的值",
+      "matchesInterfaceName": true,
+      "matchesReferenceConstant": false,
+      "required": false
+    }
+  ]
+}

@@ -1,0 +1,870 @@
+{
+  "scope": "API output formal field qualification only; API output CRUD/public parameter binding not implemented",
+  "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+  "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p009",
+  "countedSdkReads": 75,
+  "metadataUpdateBatches": 1,
+  "apiOutputBusinessWrites": 0,
+  "blocked": 0,
+  "beforeFields": [
+    {
+      "id": "6B4095311E47496F873F89D6354C0068",
+      "name": "IsPKey",
+      "output": false
+    },
+    {
+      "id": "6D2C54C7C5DE472CB12F024EF381B9E5",
+      "name": "DataType",
+      "output": false
+    },
+    {
+      "id": "87821EED03E64B9F8530F255785924F7",
+      "name": "tblname",
+      "output": false
+    },
+    {
+      "id": "C33D7BA4EBAB40A892F911F2D4E37849",
+      "name": "Memo",
+      "output": false
+    }
+  ],
+  "repair": {
+    "phase": "requires-inspection",
+    "scenarioId": "EC84BD89BDBDF46B1FE5132DD53836E5",
+    "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p009",
+    "reads": 27,
+    "writes": 1,
+    "blocked": 0,
+    "fields": {
+      "IsPKey": "6B4095311E47496F873F89D6354C0068",
+      "DataType": "6D2C54C7C5DE472CB12F024EF381B9E5",
+      "tblname": "87821EED03E64B9F8530F255785924F7",
+      "Memo": "C33D7BA4EBAB40A892F911F2D4E37849"
+    },
+    "beforeHash": "c16baed3a74b93d8203be630318a31d93ccd70b506a6ff9f0648d46123024c6f",
+    "states": [
+      {
+        "status": "idle",
+        "pending": false
+      },
+      {
+        "status": "idle",
+        "pending": false
+      },
+      {
+        "status": "idle",
+        "pending": false
+      },
+      {
+        "status": "idle",
+        "pending": false
+      }
+    ],
+    "hasRecoveryCapture": false,
+    "testedAt": "2026-11-06T18:55:20.526Z",
+    "afterHash": "901dbbab120db3606c5b7db7a8b426c12a0a811f1160d7dcc57939fe838cf7fd",
+    "expectedHash": "7de484d50b6c9491fedb4690bf9c35b433310a7b0dd0097d0b8b363c22b71005",
+    "changedDefinitionPaths": [
+      ".fields.16.raw.updatetime",
+      ".fields.17.raw.updatetime",
+      ".fields.22.raw.updatetime",
+      ".fields.41.raw.updatetime"
+    ],
+    "error": "Fresh formal model differs from exact expected definition",
+    "closed": true
+  },
+  "independentFormal": [
+    {
+      "name": "IsPKey",
+      "id": "6B4095311E47496F873F89D6354C0068",
+      "sortedIndex": 16,
+      "output": true
+    },
+    {
+      "name": "DataType",
+      "id": "6D2C54C7C5DE472CB12F024EF381B9E5",
+      "sortedIndex": 17,
+      "output": true
+    },
+    {
+      "name": "tblname",
+      "id": "87821EED03E64B9F8530F255785924F7",
+      "sortedIndex": 22,
+      "output": true
+    },
+    {
+      "name": "Memo",
+      "id": "C33D7BA4EBAB40A892F911F2D4E37849",
+      "sortedIndex": 41,
+      "output": true
+    }
+  ],
+  "differenceReview": {
+    "classification": "Only four exact target raw.updatetime changed beyond intended IsOutput; strict original comparison retained as requires-inspection",
+    "identityMappedPaths": [
+      ".fields.16.raw.updatetime",
+      ".fields.17.raw.updatetime",
+      ".fields.22.raw.updatetime",
+      ".fields.41.raw.updatetime"
+    ],
+    "originalBaselineRetainedAs": "Full comparable model SHA256; original audit timestamp values not separately persisted",
+    "noReplay": true,
+    "noAcceptCurrent": true
+  },
+  "runtime": {
+    "count": 6,
+    "total": 6,
+    "projected": [
+      "rowid",
+      "tblid",
+      "tblname",
+      "enname",
+      "cnname",
+      "DataType",
+      "DataTypeName",
+      "IsPKey",
+      "Memo",
+      "description"
+    ],
+    "notOutput": [
+      "DataLen"
+    ],
+    "rows": [
+      {
+        "id": "13781442741B4909895D431C73DBB5EE",
+        "members": {
+          "IsPKey": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "number"
+          },
+          "DataType": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "tblname": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "Memo": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "null",
+            "valueType": "object"
+          }
+        },
+        "dataType": "string",
+        "primary": 0,
+        "tblnameMatchesReference": false
+      },
+      {
+        "id": "24E5C8F7AFF54206ADEA851F59D96A43",
+        "members": {
+          "IsPKey": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "number"
+          },
+          "DataType": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "tblname": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "Memo": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "null",
+            "valueType": "object"
+          }
+        },
+        "dataType": "string",
+        "primary": 0,
+        "tblnameMatchesReference": false
+      },
+      {
+        "id": "5EC7D93744CB413BBDD6756A85CEFB68",
+        "members": {
+          "IsPKey": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "number"
+          },
+          "DataType": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "tblname": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "Memo": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "null",
+            "valueType": "object"
+          }
+        },
+        "dataType": "int",
+        "primary": 0,
+        "tblnameMatchesReference": false
+      },
+      {
+        "id": "713F2D6336134C5581B7DE4D93B47BB6",
+        "members": {
+          "IsPKey": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "number"
+          },
+          "DataType": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "tblname": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "Memo": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "null",
+            "valueType": "object"
+          }
+        },
+        "dataType": "string",
+        "primary": 0,
+        "tblnameMatchesReference": false
+      },
+      {
+        "id": "C59D95740AF74E32A3A9B36D834FCA59",
+        "members": {
+          "IsPKey": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "number"
+          },
+          "DataType": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "tblname": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "Memo": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "null",
+            "valueType": "object"
+          }
+        },
+        "dataType": "string",
+        "primary": 0,
+        "tblnameMatchesReference": false
+      },
+      {
+        "id": "CF85985180634F1A91A24A0D07070677",
+        "members": {
+          "IsPKey": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "number"
+          },
+          "DataType": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "tblname": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "Memo": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "null",
+            "valueType": "object"
+          }
+        },
+        "dataType": "string",
+        "primary": 0,
+        "tblnameMatchesReference": false
+      }
+    ]
+  },
+  "publicParameterContract": {
+    "model": {
+      "modelId": "EC84BD89BDBDF46B1FE5132DD53836E5p005",
+      "modelName": "Base_Interface_PublicParam"
+    },
+    "projected": [
+      "rowid",
+      "providerId",
+      "paramName",
+      "desc",
+      "interfaceId",
+      "outputfield",
+      "interfaceName",
+      "accessPath"
+    ],
+    "missingOrNotOutput": [],
+    "count": 4,
+    "total": 4,
+    "addAction": "enabled",
+    "hasDomainRule": false,
+    "rows": [
+      {
+        "id": "11BF5585DD87D0A2F204D2130960237A",
+        "nameDigest": "db929fca86576dc8e1d2bbbfea5de15cd010d59d884f794bf0833bf305e14207",
+        "members": {
+          "rowid": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "providerId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "paramName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "desc": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "outputfield": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "accessPath": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          }
+        }
+      },
+      {
+        "id": "4558DE8710167865FB8817682F0B247E",
+        "nameDigest": "86b3901eea37a04e8547cd912225f548d2e0a92078887682ce831a433072f9d1",
+        "members": {
+          "rowid": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "providerId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "paramName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "desc": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "outputfield": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "accessPath": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          }
+        }
+      },
+      {
+        "id": "57F02A25E646F1786BE3E7E384C9194C",
+        "nameDigest": "cf7bcd36f0084f1afe168bf240b70c7af706e6dae85bc3913647093e9ab65248",
+        "members": {
+          "rowid": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "providerId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "paramName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "desc": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "outputfield": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "accessPath": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          }
+        }
+      },
+      {
+        "id": "F7C6E4F79CD3B2152C05CD0A9A39CB37",
+        "nameDigest": "6c8a7d4aa21708a432174e4cb5c6cfaf0218f5f3e52f9a76a7d95d2aaade2c83",
+        "members": {
+          "rowid": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "providerId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "paramName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "desc": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceId": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "outputfield": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "interfaceName": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          },
+          "accessPath": {
+            "read": "visible",
+            "write": "allowed",
+            "required": false,
+            "component": "editable",
+            "writeMode": "editable",
+            "own": true,
+            "kind": "value",
+            "valueType": "string"
+          }
+        }
+      }
+    ]
+  },
+  "typeOptions": {
+    "count": 13,
+    "total": 13,
+    "values": [
+      {
+        "value": "array",
+        "label": "数组"
+      },
+      {
+        "value": "object",
+        "label": "对象"
+      },
+      {
+        "value": "file",
+        "label": "文件"
+      },
+      {
+        "value": "decimal",
+        "label": "小数"
+      },
+      {
+        "value": "string",
+        "label": "字符串"
+      },
+      {
+        "value": "keyvalue",
+        "label": "键值对"
+      },
+      {
+        "value": "fileBinary",
+        "label": "文件编码字符串"
+      },
+      {
+        "value": "filePath",
+        "label": "服务器文件地址"
+      },
+      {
+        "value": "bool",
+        "label": "布尔值"
+      },
+      {
+        "value": "double",
+        "label": "浮点数"
+      },
+      {
+        "value": "datetime",
+        "label": "时间"
+      },
+      {
+        "value": "url",
+        "label": "网址"
+      },
+      {
+        "value": "int",
+        "label": "整数"
+      }
+    ]
+  },
+  "reports": [
+    {
+      "path": "artifacts/data-chain-smoke/api-output-contract-preflight.json",
+      "sha256": "58519348d2a8dc7a77c7f2501855b2241f2ecb065cc18cb648f6c9d1ca55d916"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-output-formal-repair-audit.json",
+      "sha256": "d67b99ad03b4a1d46a4547d825addbe68a0014ea7b10c9838eb3d76ae5132ded"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/api-output-postrepair-readonly.json",
+      "sha256": "bd7060dba9ccf4415a3ec8cebbceaabb4f29223cba1fb01d4ba7eddb7bd4d584"
+    }
+  ],
+  "tblnameFollowup": {
+    "evidence": "evidence/data-chain-smoke/2026-11-07-api-output-tblname-readonly.json",
+    "reads": 13,
+    "businessWrites": 0,
+    "phase": "finished",
+    "exitCode": 0,
+    "finding": "Six exact rows match formal interface Name; no formal default; current query required=false; no default inferred"
+  }
+}

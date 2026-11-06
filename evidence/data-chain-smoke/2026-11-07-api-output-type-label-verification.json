@@ -1,0 +1,65 @@
+{
+  "status": "verified",
+  "baselineCommit": "82535bdf6527caed5a0e8a7dc5f96d63365ba241",
+  "change": "Readonly output type cell uses DataType and the original ParamType option view; unused DataTypeName projection removed. No display-value copy or save-chain change.",
+  "sourceHashes": {
+    "config/pages/integration/api-interface/pagedata.json": "0de8af988dc5c3efc84d5e476bad58891d604a4a055779e86cb22bdae4bcd9a8",
+    "src/views/features/integration/api-management/ui/api-interface-list-page.vue": "f7991ffa48692435827b05067501bc86dd22b627c162b995775a13ef6301919f",
+    "tests/runtime/page/api-provider/api-pages.test.ts": "cc1c481170fa1501a4c2f892cd52bd40c61a0e585bee06be02c2b457d7d2c7ca"
+  },
+  "validation": {
+    "red": {
+      "failed": 1,
+      "passed": 9,
+      "reason": "Actual table showed stale DataTypeName instead of the formal type option label."
+    },
+    "impact": {
+      "files": 7,
+      "tests": 106,
+      "durationSeconds": 33.29,
+      "exitCode": 0
+    },
+    "types": {
+      "session": 1591,
+      "exitCode": 0
+    },
+    "lint": {
+      "session": 73013,
+      "exitCode": 0
+    },
+    "rules": {
+      "session": 67336,
+      "exitCode": 0
+    },
+    "buildFrontend": {
+      "session": 39156,
+      "exitCode": 0
+    },
+    "classModel": {
+      "session": 91001,
+      "exitCode": 0
+    },
+    "fullRepositoryBaseline": {
+      "commit": "82535bdf6527caed5a0e8a7dc5f96d63365ba241",
+      "files": 479,
+      "tests": 8890,
+      "scope": "Before this isolated display binding change; not claimed as a new full run."
+    }
+  },
+  "logHashes": {
+    "api-output-type-label-red.log": "dbc2352eee4b2f83112049520b763d548f87b9a2168ecad3e42b979c963830d9",
+    "api-output-type-label-green-v2.log": "6529ac1b8907d620538a74e96d938b9cac1ecc01a275ef53e8f5faa8efb1c3d3",
+    "api-output-type-label-types-v2.log": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962",
+    "api-output-type-label-lint-v2.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "api-output-type-label-rules.log": "d430d5ba2e9ba68a21057366bf35dbbe2470a69152f32abe46ff871610ad371a",
+    "api-output-type-label-build.log": "7784b60d3734874887a9e25614d5eda3718494a7d4b574c69e3b8a2f4a024342",
+    "api-output-type-label-class-model.log": "00432bafa54626f97563423ac01da785f098d2a319b1adb5c083fcefab7fd7ff",
+    "api-output-type-label-generated-audit.json": "65f497789fc90f113396b4e3fa09fa8441f5316d089f77732915a435bb60d318"
+  },
+  "liveServiceRequests": 0,
+  "openItems": [
+    "Public parameter original-ID rebinding UI.",
+    "Actual deployed output creation parent-type rejection.",
+    "20-package migration and browser visual acceptance."
+  ]
+}

@@ -322,7 +322,6 @@
               "tblid",
               "enname",
               "cnname",
-              "DataTypeName",
               "DataType",
               "IsPKey",
               "tblname",

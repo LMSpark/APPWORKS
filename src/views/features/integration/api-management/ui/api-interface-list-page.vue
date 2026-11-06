@@ -95,7 +95,7 @@ const hasLegacy = computed(() => !!selected.value?.['RequestType'] || !!selected
 const listFields: SparkNode[] = [{type: 'r-text', props: {field: 'Name', label: '接口名称'}}, {type: 'r-text', props: {field: 'LinkUrl', label: '路径'}}]
 const parameterList: SparkNode[] = [{type: 'r-text', props: {field: 'parname', label: '参数名称'}}, {type: 'r-text', props: {field: 'pardesc', label: '参数标题'}}, {type: 'r-select', props: {field: 'parzdtype', label: '参数类型', optionDataViewKey: key('ParamType')}}]
 const headerList: SparkNode[] = [{type: 'r-text', props: {field: 'ParamName', label: '头部名称'}}, {type: 'r-text', props: {field: 'ParamDesc', label: '头部说明'}}]
-const outputFields: SparkNode[] = [{type: 'r-text', props: {field: 'enname', label: '输出名称', readonly: true}}, {type: 'r-text', props: {field: 'cnname', label: '输出标题', readonly: true}}, {type: 'r-text', props: {field: 'DataTypeName', label: '数据类型', readonly: true}}]
+const outputFields: SparkNode[] = [{type: 'r-text', props: {field: 'enname', label: '输出名称', readonly: true}}, {type: 'r-text', props: {field: 'cnname', label: '输出标题', readonly: true}}, {type: 'r-select', props: {field: 'DataType', label: '数据类型', optionDataViewKey: key('ParamType'), readonly: true}}]
 const definitionFields: SparkNode[] = [
   ...[['Name', '接口名称'], ['LinkUrl', '接口路径'], ['resultPath', '结果路径'], ['Desc', '接口说明']].map(([field, label]) => ({type: 'r-text', props: {field, label}})),
   ...[['request', '请求方法', 'request'], ['paramType', '请求体类型', '接口参数类型'], ['ContentType', '内容类型', 'ContentType']].map(([field, label, table]) => ({type: 'r-select', props: {field, label, optionDataViewKey: key(table!)}})),

@@ -5,7 +5,7 @@ import {defineComponent, h, reactive, type Component} from 'vue'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import ElementPlus from 'element-plus'
 import VXETable from 'vxe-table'
-import {Spark, registerAllRenderers, RendererForm, RendererButton} from '@spark-appworks/spark-component'
+import {Spark, registerAllRenderers, RendererForm, RendererButton, RendererTable} from '@spark-appworks/spark-component'
 import {getVuePageEntry} from '@/registries/vue-page-registry'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
 import {createApiService, seed, NAV, API, CONFIG, META, pagedata} from './api-provider.fixture'
@@ -56,6 +56,24 @@ const button = (wrapper: VueWrapper, label: string) => wrapper.findAll('button')
 const records = (table: string) => api.current.state.http.records[table]!
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it('displays the actual output type option after cancel and save despite a stale display column',async()=>{
+    records('Base_TblField')[1]!['DataTypeName']='过时类型标签'
+    const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
+    vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})
+    const wrapper=await mountAt(InterfacePage,{providerId:'P1'}),ds=[...observed].find(p=>p.getDataSet(API))!.getDataSet(API)!,parent=ds.getView('Base_DataServiceInterface')!
+    parent.setCurrentRowById('I2');parent.setSelectedRows([parent.currentRow!]);await flushPromises()
+    await wrapper.findAll('.el-tabs__item').find(item=>item.text()==='输出定义')!.trigger('click');await flushPromises()
+    const outputs=ds.getView('Base_TblField')!;await vi.waitFor(()=>expect(outputs.rows).toHaveLength(1));outputs.setCurrentRowById('F2');await flushPromises()
+    const table=wrapper.findAllComponents(RendererTable).find(item=>item.props('dataViewKey')?.includes('@Base_TblField@'))!
+    await vi.waitFor(()=>expect(table.text()).toContain('文本'));expect(table.text()).not.toContain('过时类型标签')
+    await button(wrapper,'编辑当前输出')!.trigger('click');await flushPromises();outputs.updateEditingValue('F2','DataType','int')
+    wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='取消输出编辑')!.vm.$emit('click');await flushPromises()
+    expect(table.text()).toContain('文本');expect(api.current.state.http.saves).toHaveLength(0)
+    await button(wrapper,'编辑当前输出')!.trigger('click');await flushPromises();outputs.updateEditingValue('F2','DataType','int')
+    wrapper.findAllComponents(RendererButton).find(item=>item.props('label')==='保存输出定义')!.vm.$emit('click')
+    await vi.waitFor(()=>expect(records('Base_TblField')[1]?.['DataType']).toBe('int'))
+    await vi.waitFor(()=>expect(table.text()).toContain('整数'));expect(table.text()).not.toContain('过时类型标签')
+  })
   it('confirms an unreferenced output deletion through the original ID without replaying an unknown result',async()=>{
     const observed=new Set<PageRuntime>(),original=PageRuntime.prototype.load
     vi.spyOn(PageRuntime.prototype,'load').mockImplementation(function(this:PageRuntime){observed.add(this);return original.call(this)})

@@ -98,13 +98,24 @@
         "method.replace.params": {
           "type": "object",
           "properties": {
-            "raw": true,
-            "path": {
-              "$ref": "../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
-            },
-            "value": true,
-            "optionalLeaf": {
-              "type": "boolean"
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "raw": true,
+                "path": {
+                  "$ref": "../../../../../../spark-json-document/src/core/json-path.ts.json#/$defs/JsonPath"
+                },
+                "value": true,
+                "optionalLeaf": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "raw",
+                "path",
+                "value"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -131,7 +142,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T04:37:58.612Z",
+  "generatedAt": "2026-11-06T08:58:22.733Z",
   "models": {
     "JsonFieldPath": {
       "name": "JsonFieldPath",
@@ -272,34 +283,16 @@
               "jsdoc": "克隆最新原字段后修改一个叶值；undefined只移除对象成员。",
               "parameters": [
                 {
-                  "name": "raw",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "unknown"
-                  }
-                },
-                {
-                  "name": "path",
+                  "name": "parameters",
                   "type": {
                     "type": "reference",
-                    "name": "JsonPath"
-                  }
-                },
-                {
-                  "name": "value",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "unknown"
-                  }
-                },
-                {
-                  "name": "optionalLeaf",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "boolean"
-                  },
-                  "flags": {
-                    "isOptional": true
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        raw: unknown;\n        path: JsonPath;\n        value: unknown;\n        optionalLeaf?: boolean | undefined;\n    }"
+                      }
+                    ]
                   }
                 }
               ],

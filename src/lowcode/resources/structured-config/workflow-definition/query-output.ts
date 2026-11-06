@@ -40,7 +40,7 @@ export function buildWorkflowQueryOutput(input:Input):Row[]{
  for(const field of input.fields){
   if(field['dataSetId']!==input.workflowId||field['dataModelId']!==input.modelId)throw Error('查询字段不属于当前模型')
   const key=text(field['rowid']),kind=field['type'],flag=field['IsOutput'],name=text(field['Name'])
-  if(!key||key.startsWith('new:')||ids.has(key)||!['dataModel','inputParams'].includes(String(kind))||![0,1,'0','1'].includes(flag as string|number))throw Error('查询字段身份、用途或输出标志无效')
+  if(!key||key.startsWith('new:')||ids.has(key)||!['dataModel','inputParams'].includes(String(kind))||(flag!==0&&flag!==1&&flag!=='0'&&flag!=='1'))throw Error('查询字段身份、用途或输出标志无效')
   ids.add(key)
   if((field['IsPKey']===1||field['IsPKey']==='1')&&Number(flag)!==1)throw Error('查询模型主键必须参与输出')
   const names=kind==='inputParams'?parameterNames:fieldNames

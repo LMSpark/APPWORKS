@@ -11,7 +11,9 @@ import {LowcodeDataSpaceFilterMigration} from '../migration/lowcode-data-space-f
 /** 只消费当前元数据视图的可读定义，不建立引用或权限缓存。 */
 export class LowcodeDataSpaceModelRemoveReferences {
   /** 检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。 */
-  static validate(views: readonly DataView[], modelId: string, modelName: string, removedRelationIds: ReadonlySet<string> = new Set()): void {
+  static validate(parameters:Readonly<{views:readonly DataView[];modelId:string;modelName:string;removedRelationIds?:ReadonlySet<string>|undefined}>): void {
+ const {views,modelId,modelName,removedRelationIds=new Set()}=parameters
+
     const [models, fields, relations] = views
     if (!models || !fields || !relations) throw new Error('缺少删除引用检查视图')
     const read = (view: DataView, row: DataRow, key: string): unknown => {

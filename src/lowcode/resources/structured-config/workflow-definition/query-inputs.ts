@@ -41,8 +41,9 @@ function projectedViews(dataSet:DataSet,workflowId:string,projection:WorkflowQue
  }
 }
 /** 原查询输入与显式删除共用祖先合同；只投影捕获的删除ID，不改图、不自动补边。 */
-export function workflowQueryAncestors(nodes:DataView,edges:DataView,workflowId:string,nodeId:string,
- projection:Readonly<{nodes:readonly string[];edges:readonly string[]}>={nodes:[],edges:[]}):Readonly<{byId:ReadonlyMap<string,DataRow>;ancestors:ReadonlySet<string>}>{
+export function workflowQueryAncestors(parameters:Readonly<{nodes:DataView;edges:DataView;workflowId:string;nodeId:string;projection?:Readonly<{nodes:readonly string[];edges:readonly string[]}>|undefined}>):Readonly<{byId:ReadonlyMap<string,DataRow>;ancestors:ReadonlySet<string>}>{
+ const {nodes,edges,workflowId,nodeId,projection={nodes:[],edges:[]}}=parameters
+
  if(!workflowId.trim()||!nodes.dataSet||nodes.dataSet!==edges.dataSet||nodes.dataSet.destroyed)throw Error('查询输入图实例或目标已失效')
  for(const view of [nodes,edges])if(view.destroyed||view.loadingError||view.requestState!==RequestState.Loaded||view.queryContext['workflowId']!==workflowId
   ||view.rows.length+view.dirtyTracking.pendingDeleteIds.size-view.dirtyTracking.pendingCreateIds.size!==view.total)throw Error('查询输入图未完整读取或目标已变化')
@@ -63,15 +64,17 @@ export function workflowQueryAncestors(nodes:DataView,edges:DataView,workflowId:
  visit(nodeId);return{byId,ancestors}
 }
 /** 候选值遵循顶层GetInputParam两段合同；查询目录的items叶字段按实际平面行投影，合成根不作为运行参数。 */
-export function workflowQueryInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string,projection?:WorkflowQueryModelProjection):{
+export function workflowQueryInputPresentation(parameters:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;projection?:WorkflowQueryModelProjection|undefined}>):{
  inputs:Array<{value:string;label:string}>;columns:Array<DataView['columns'][number]>;diagnostics:string[]
 }{
+ const {dataSet,workflowId,nodeId,projection}=parameters
+
  if(dataSet.destroyed||!workflowId.trim()||!nodeId.trim())throw Error('查询输入目标已失效')
  const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId)
  if(projection)projectedViews(dataSet,workflowId,projection)
  const models=projection?.models??loaded(dataSet,'Base_DataModel',workflowId),fields=projection?.fields??loaded(dataSet,'Base_DataModel_Field',workflowId)
  if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId)throw Error('查询输入工作流身份不唯一')
- const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId)
+ const {byId,ancestors}=workflowQueryAncestors({nodes,edges,workflowId,nodeId})
  const target=byId.get(nodeId),selected=projection?models.rows.filter(row=>models.getPkKey(row)===projection.modelId):models.rows,model=selected[0]
  const targetType=target?String(read(nodes,target,'node_type')):'',operation=['add','edit','delete'].includes(targetType)
  if(!target||!['query','copy','add','edit','delete'].includes(targetType)||selected.length!==1||!model
@@ -105,7 +108,7 @@ function workflowAncestorInputRows(nodes:DataView,byId:ReadonlyMap<string,DataRo
   if(type==='copy')diagnostics.push(`迁移节点 ${typeof name==='string'?name:id} 的后续输入仅包含服务返回的首批行，不等于全部写入行`)
   if(query&&!output.length){diagnostics.push(`节点 ${typeof name==='string'?name:id} 缺少查询输出目录`);continue}
   for(const item of output){
-   const field=item['Name'] as string
+   const field=item['Name'];if(typeof field!=='string')throw Error('祖先输出字段名称格式无效')
    const value=`${id}.${field}`
    if(values.has(value))throw Error('开始输出参数名称重复')
    values.add(value);inputs.push({value,label:`${typeof name==='string'&&name?name:id} · ${typeof item['Description']==='string'&&item['Description']?item['Description']:field}`})
@@ -115,8 +118,10 @@ function workflowAncestorInputRows(nodes:DataView,byId:ReadonlyMap<string,DataRo
 }
 
 /** 来源入参和模型Filter由模型共享；新引用只可选择所有实际查询消费者共同拥有的已核定输入。 */
-export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:string,nodeId:string,projection?:WorkflowQueryModelProjection){
- const state=workflowQueryInputPresentation(dataSet,workflowId,nodeId,projection),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),model=projection?projection.models.rows.find(row=>projection.models.getPkKey(row)===projection.modelId):dataSet.getView('Base_DataModel')?.rows[0]
+export function workflowQuerySharedInputPresentation(parameters:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;projection?:WorkflowQueryModelProjection|undefined}>){
+ const {dataSet,workflowId,nodeId,projection}=parameters
+
+ const state=workflowQueryInputPresentation({dataSet,workflowId,nodeId,projection}),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),model=projection?projection.models.rows.find(row=>projection.models.getPkKey(row)===projection.modelId):dataSet.getView('Base_DataModel')?.rows[0]
  if(!model)throw Error('查询输入模型缺失')
  if(projection&&projection.modelId!==projection.fromModelId){
   if(nodes.rows.some(row=>identity(nodes,row)!==nodeId&&(read(nodes,row,'node_config')===projection.modelId||read(nodes,row,'dataOperateModId')===projection.modelId)))throw Error('隔离模型已有其他消费者，不能采用单节点祖先输入')
@@ -127,7 +132,7 @@ export function workflowQuerySharedInputPresentation(dataSet:DataSet,workflowId:
  const diagnostics=[...state.diagnostics]
  for(const row of consumers){
   const id=identity(nodes,row);if(id===nodeId)continue
-  const other=workflowQueryInputPresentation(dataSet,workflowId,id,projection),values=new Set(other.inputs.map(item=>item.value))
+  const other=workflowQueryInputPresentation({dataSet,workflowId,nodeId:id,projection}),values=new Set(other.inputs.map(item=>item.value))
   inputs=inputs.filter(item=>values.has(item.value));diagnostics.push(...other.diagnostics)
  }
  if(consumers.length>1)diagnostics.push('当前模型由多个节点共享，仅显示全部消费者共同可用的输入')
@@ -140,8 +145,10 @@ export function workflowOperationFunctionContext(input:DataViewFilterFunctionCon
  return {...context,definitions:(context.definitions??[]).map(definition=>['GetConstValue','GetInputParam'].includes(definition.type)?definition:{...definition,enabled:()=>false})}
 }
 /** 只校验实际修改的ValueFun及Filter，原未修改函数原文不参与重写；解析和候选校验复用正式数据层。 */
-export function validateWorkflowQueryInputChanges(dataSet:DataSet,workflowId:string,nodeId:string,input:Readonly<{values?:readonly unknown[];filter?:unknown}>,projection?:WorkflowQueryModelProjection):void{
- const state=workflowQuerySharedInputPresentation(dataSet,workflowId,nodeId,projection),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
+export function validateWorkflowQueryInputChanges(parameters:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;input:Readonly<{values?:readonly unknown[];filter?:unknown}>;projection?:WorkflowQueryModelProjection|undefined}>):void{
+ const {dataSet,workflowId,nodeId,input,projection}=parameters
+
+ const state=workflowQuerySharedInputPresentation({dataSet,workflowId,nodeId,projection}),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
  const operation=node&&['add','edit','delete'].includes(String(read(nodes,node,'node_type')))
  const context=operation?workflowOperationFunctionContext({inputParams:state.inputs}):DataViewFilter.editorContext({inputParams:state.inputs})
  validateWorkflowInputDefinitions(input,{context,columns:state.columns,operation:Boolean(operation)})
@@ -172,7 +179,7 @@ export function validateWorkflowOperationInputTarget(input:Readonly<{dataSet:Dat
  const {dataSet,workflowId,nodeId,target}=input
  const definition=loaded(dataSet,'Base_WorkflowDefinition',workflowId),nodes=loaded(dataSet,'Base_WorkflowNodeDefinition',workflowId),edges=loaded(dataSet,'Base_WorkflowConnectors',workflowId)
  if(definition.rows.length!==1||!definition.rows[0]||identity(definition,definition.rows[0])!==workflowId||target.after.model['rowid']!==target.modelId||target.after.model['dataSetId']!==workflowId)throw Error('操作目标候选身份不符')
- const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId),node=byId.get(nodeId)
+ const {byId,ancestors}=workflowQueryAncestors({nodes,edges,workflowId,nodeId}),node=byId.get(nodeId)
  const operation=node?read(nodes,node,'node_type'):undefined
  if(!['add','edit','delete'].includes(String(operation))||target.after.model['requestType']!==operation)throw Error('操作目标候选requestType不符')
  const inputs=workflowAncestorInputRows(nodes,byId,ancestors).inputs,columns:Array<DataView['columns'][number]>=[],values:unknown[]=[],names=new Set<string>()
@@ -198,7 +205,7 @@ export class WorkflowQueryInputs{
  /** 每次从原视图重算，失效时先清空候选；目录更新不回写业务定义或自动选择参数。 */
  refresh(){
   try{
-   const state=workflowQuerySharedInputPresentation(this.dataSet,this.workflowId,this.nodeId)
+   const state=workflowQuerySharedInputPresentation({dataSet:this.dataSet,workflowId:this.workflowId,nodeId:this.nodeId})
    this.#catalog.replace(state.inputs)
    return {...state,error:''}
   }catch(cause){

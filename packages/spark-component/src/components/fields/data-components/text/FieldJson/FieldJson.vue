@@ -90,7 +90,7 @@ function toSource(text: string): unknown {
   const raw = props.modelValue ?? props.value ?? permission.currentRow.value?.[permission.fieldName.value]
   // 合并最新原字段，保留未由当前子路径编辑的成员。
   const next: unknown = props.valueFormat === 'native' ? value : JSON.parse(text)
-  const root = JsonFieldPath.replace(pathRoot(raw), path, next)
+  const root = JsonFieldPath.replace({raw:pathRoot(raw),path:path,value:next})
   return props.valueFormat === 'native' ? root : serializeJsonDocument(root)
 }
 const {permission,fieldCtx,handleControlledChange}=useBasicFieldState<string>({props,fieldType:'r-json',fallbackValue:'',coerce:toText,toSourceValue:toSource,emitUpdate:value=>emit('update:modelValue',value)})

@@ -139,7 +139,7 @@ const applyForRevision = computed(() => {
         : props.format === 'spark-object' ? filter ? DataViewFilterCodec.encode(filter.value) : null : filter?.value.toJSON()
       let stored:unknown=value
       if(props.valuePath?.length){
-        const next=JsonFieldPath.replace(JsonFieldPath.root(rawRoot.value,props.valueFormat!=='text'),props.valuePath,value,true)
+        const next=JsonFieldPath.replace({raw:JsonFieldPath.root(rawRoot.value,props.valueFormat!=='text'),path:props.valuePath,value:value,optionalLeaf:true})
         stored=props.valueFormat==='text'?JSON.stringify(next):next
       }
       const target = resolvedView.value, original = row.value, key = identity.value, field = props.field,

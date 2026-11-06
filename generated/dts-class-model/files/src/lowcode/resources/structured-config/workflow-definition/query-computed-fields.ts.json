@@ -55,18 +55,30 @@
         "method.remove.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
+            "parameters": {
               "type": "object",
-              "title": "DataSet"
-            },
-            "workflowId": {
-              "type": "string"
-            },
-            "nodeId": {
-              "type": "string"
-            },
-            "fieldId": {
-              "type": "string"
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "workflowId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "fieldId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dataSet",
+                "workflowId",
+                "nodeId",
+                "fieldId"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -78,18 +90,30 @@
         "method.confirm.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
+            "parameters": {
               "type": "object",
-              "title": "DataSet"
-            },
-            "workflowId": {
-              "type": "string"
-            },
-            "nodeId": {
-              "type": "string"
-            },
-            "fieldId": {
-              "type": "string"
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "workflowId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "fieldId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "dataSet",
+                "workflowId",
+                "nodeId",
+                "fieldId"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -121,18 +145,30 @@
         "method.add.params": {
           "type": "object",
           "properties": {
-            "dataSet": {
+            "parameters": {
               "type": "object",
-              "title": "DataSet"
-            },
-            "workflowId": {
-              "type": "string"
-            },
-            "nodeId": {
-              "type": "string"
-            },
-            "input": {
-              "$ref": "#/$defs/Values"
+              "properties": {
+                "dataSet": {
+                  "type": "object",
+                  "title": "DataSet"
+                },
+                "workflowId": {
+                  "type": "string"
+                },
+                "nodeId": {
+                  "type": "string"
+                },
+                "input": {
+                  "$ref": "#/$defs/Values"
+                }
+              },
+              "required": [
+                "dataSet",
+                "workflowId",
+                "nodeId",
+                "input"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -144,7 +180,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T00:40:59.562Z",
+  "generatedAt": "2026-11-06T09:02:39.594Z",
   "models": {
     "Values": {
       "name": "Values",
@@ -201,31 +237,16 @@
               "jsdoc": "明确删除计算字段；未保存新增直接撤销，正式记录先检查本工作流引用，再由原视图跟踪删除。",
               "parameters": [
                 {
-                  "name": "dataSet",
+                  "name": "parameters",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
-                  }
-                },
-                {
-                  "name": "workflowId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "nodeId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "fieldId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dataSet: DataSet;\n        workflowId: string;\n        nodeId: string;\n        fieldId: string;\n    }"
+                      }
+                    ]
                   }
                 }
               ],
@@ -245,31 +266,16 @@
               "jsdoc": "确认原行编辑覆盖但不提交服务；所属查询配置仍由宿主统一保存。",
               "parameters": [
                 {
-                  "name": "dataSet",
+                  "name": "parameters",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
-                  }
-                },
-                {
-                  "name": "workflowId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "nodeId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "fieldId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dataSet: DataSet;\n        workflowId: string;\n        nodeId: string;\n        fieldId: string;\n    }"
+                      }
+                    ]
                   }
                 }
               ],
@@ -326,32 +332,16 @@
               "jsdoc": "新身份由原DataView生成；取消沿原视图丢弃，默认与参考一致不参与输出。",
               "parameters": [
                 {
-                  "name": "dataSet",
+                  "name": "parameters",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
-                  }
-                },
-                {
-                  "name": "workflowId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "nodeId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "input",
-                  "type": {
-                    "type": "reference",
-                    "name": "Values",
-                    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts"
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        dataSet: DataSet;\n        workflowId: string;\n        nodeId: string;\n        input: Values;\n    }"
+                      }
+                    ]
                   }
                 }
               ],

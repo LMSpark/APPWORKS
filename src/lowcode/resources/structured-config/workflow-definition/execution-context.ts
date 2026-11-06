@@ -128,7 +128,7 @@ export class WorkflowExecutionContext{
     if(value!==''&&value!==null&&value!==undefined)values.push(value)
    }
    const filter=read(models,model,'Filter')
-   validateWorkflowQueryInputChanges(this.ds,this.workflowId,nodeId,{values,filter},{fromModelId:modelId,modelId,models,fields})
+   validateWorkflowQueryInputChanges({dataSet:this.ds,workflowId:this.workflowId,nodeId,input:{values,filter},projection:{fromModelId:modelId,modelId,models,fields}})
    for(const value of values)if(typeof value==='string')checkActualWorkflowInput(input,DataSpaceDesignApi.parseValueFunction(value))
    if(typeof filter==='string'){
     const parsed=DataViewFilterCodec.parseStored(filter)
@@ -197,7 +197,7 @@ export class WorkflowExecutionContext{
    if(!values.length)throw Error('操作至少需要一个显式值函数')
    const filter=read(models,model,'Filter')
    if(filter!==null&&filter!==undefined&&typeof filter!=='string')throw Error('操作过滤条件必须是SPARK JSON文本')
-   validateWorkflowQueryInputChanges(this.ds,this.workflowId,nodeId,{values,...operation==='add'?{}:{filter}},{fromModelId:modelId,modelId,models,fields})
+   validateWorkflowQueryInputChanges({dataSet:this.ds,workflowId:this.workflowId,nodeId,input:{values,...operation==='add'?{}:{filter}},projection:{fromModelId:modelId,modelId,models,fields}})
    const dbid=read(models,model,'DbId')
    if(typeof dbid!=='string')throw Error('操作目标缺少数据库ID')
    const source=await LowcodeDataSpaceModelSourceReader.readTableTarget(this.ds,{dbid,name:String(read(models,model,'MetaName')),databaseName:String(read(models,model,'DbName'))},check)

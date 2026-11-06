@@ -24,8 +24,8 @@ describe('workflow query input definitions',()=>{
   const output=[{rowid:'OPF',pid:null,Name:'ReportID',Description:'正式字段',FieldType:'varchar',isParent:false}]
   nodes.appendRow({rowid:'OP',workflow_id:'W',position_type:1,node_type:operation,dataOperateModId:'TARGET',name:'操作',output_mapping:JSON.stringify(output)});nodes.total=nodes.rows.length
   edges.appendRow({rowid:'SO',workflow_id:'W',sourceID:'START',targetID:'OP'});edges.appendRow({rowid:'OQ',workflow_id:'W',sourceID:'OP',targetID:'QUERY'});edges.total=edges.rows.length
-  expect(workflowQueryInputPresentation(ds,'W','QUERY').inputs).toContainEqual({value:'OP.ReportID',label:'操作 · 正式字段'})
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:[JSON.stringify({Type:'GetInputParam',ParamName:'OP.ReportID'})]})).not.toThrow()
+  expect(workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'}).inputs).toContainEqual({value:'OP.ReportID',label:'操作 · 正式字段'})
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{values:[JSON.stringify({Type:'GetInputParam',ParamName:'OP.ReportID'})]}})).not.toThrow()
   expect(workflowExecutionInputs({dataSet:ds,workflowId:'W',nodeId:'QUERY',mode:'node'}).groups).toContainEqual(expect.objectContaining({id:'OP',path:['OP'],fields:[expect.objectContaining({name:'ReportID'})]}))
  })
  it.each(['query','copy'])('offers saved %s leaf names without items or synthetic Count roots',kind=>{
@@ -34,32 +34,32 @@ describe('workflow query input definitions',()=>{
    {rowid:'AF',pid:'ITEMS',Name:'actualAlias',Description:'真实字段',FieldType:'varchar',isParent:false}]
   nodes.appendRow({rowid:'A',workflow_id:'W',position_type:1,node_type:kind,node_config:'OTHER_MODEL',name:'上游查询',output_mapping:JSON.stringify(output)});nodes.total=nodes.rows.length
   edges.appendRow({rowid:'SA',workflow_id:'W',sourceID:'START',targetID:'A'});edges.appendRow({rowid:'AQ',workflow_id:'W',sourceID:'A',targetID:'QUERY'});edges.total=edges.rows.length
-  expect(workflowQueryInputPresentation(ds,'W','QUERY').inputs).toEqual([{value:'START.code',label:'开始 · 编码'},{value:'A.actualAlias',label:'上游查询 · 真实字段'}])
+  expect(workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'}).inputs).toEqual([{value:'START.code',label:'开始 · 编码'},{value:'A.actualAlias',label:'上游查询 · 真实字段'}])
   for(const patch of [{pid:'UNKNOWN'},{isParent:true},{Name:'items.actualAlias'},{FieldType:''},{rowid:'ITEMS'}]){
    nodes.updateRowById('A',{output_mapping:JSON.stringify([...output.slice(0,2),{...output[2],...patch}])})
-   expect(()=>workflowQueryInputPresentation(ds,'W','QUERY')).toThrow()
+   expect(()=>workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'})).toThrow()
   }
   nodes.updateRowById('A',{node_type:'merge',output_mapping:JSON.stringify(output)})
-  expect(workflowQueryInputPresentation(ds,'W','QUERY').inputs).toEqual([{value:'START.code',label:'开始 · 编码'}])
-  expect(workflowQueryInputPresentation(ds,'W','QUERY').diagnostics).not.toEqual([])
+  expect(workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'}).inputs).toEqual([{value:'START.code',label:'开始 · 编码'}])
+  expect(workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'}).diagnostics).not.toEqual([])
  })
  it('validates changed source functions and filters with the same formal model and ancestor catalog',()=>{
   const ds=fixture()
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:[JSON.stringify({Type:'GetConstValue',Value:0}),JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})]})).not.toThrow()
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:[JSON.stringify({Type:'GetInputParam',ParamName:'MISSING.code'})]})).toThrow()
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:['not json']})).toThrow()
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:{Type:'GetInputParam',ParamName:'START.code'}}))})).not.toThrow()
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'missing',operator:'eq',value:false}))})).toThrow()
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{values:[JSON.stringify({Type:'GetConstValue',Value:0}),JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})]}})).not.toThrow()
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{values:[JSON.stringify({Type:'GetInputParam',ParamName:'MISSING.code'})]}})).toThrow()
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{values:['not json']}})).toThrow()
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'code',operator:'eq',value:{Type:'GetInputParam',ParamName:'START.code'}}))}})).not.toThrow()
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'missing',operator:'eq',value:false}))}})).toThrow()
   const nodes=ds.getView('Base_WorkflowNodeDefinition')!
   nodes.appendRow({rowid:'SECOND',workflow_id:'W',position_type:1,node_type:'query',node_config:'MODEL'});nodes.total=nodes.rows.length
-  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:[JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})]})).toThrow()
+  expect(()=>validateWorkflowQueryInputChanges({dataSet:ds,workflowId:'W',nodeId:'QUERY',input:{values:[JSON.stringify({Type:'GetInputParam',ParamName:'START.code'})]}})).toThrow()
  })
  it('limits shared-model references to the intersection of each actual consumer ancestry',()=>{
   const ds=fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   nodes.appendRow({rowid:'SECOND',workflow_id:'W',position_type:1,node_type:'copy',node_config:'MODEL',output_mapping:'[]'});nodes.total=nodes.rows.length
-  expect(workflowQuerySharedInputPresentation(ds,'W','QUERY').inputs).toEqual([])
+  expect(workflowQuerySharedInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'}).inputs).toEqual([])
   edges.appendRow({rowid:'E2',workflow_id:'W',sourceID:'START',targetID:'SECOND'});edges.total=edges.rows.length
-  expect(workflowQuerySharedInputPresentation(ds,'W','QUERY').inputs).toEqual([{value:'START.code',label:'开始 · 编码'}])
+  expect(workflowQuerySharedInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'}).inputs).toEqual([{value:'START.code',label:'开始 · 编码'}])
  })
  it('binds the projected catalog to the same DataSet and clears it when original read permission is lost',()=>{
   const ds=fixture(),count=Object.keys(ds.tables).length,owner=new WorkflowQueryInputs(ds,'W','QUERY')
@@ -73,7 +73,7 @@ describe('workflow query input definitions',()=>{
   expect(ds.getView('Base_WorkflowNodeDefinition')).toBe(nodes)
  })
  it('offers only confirmed flat ancestor outputs and derives model filter columns from its original field view',()=>{
-  const ds=fixture(),state=workflowQueryInputPresentation(ds,'W','QUERY')
+  const ds=fixture(),state=workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'})
   expect(state.inputs).toEqual([{value:'START.code',label:'开始 · 编码'}])
   expect(state.columns).toEqual([{name:'code',label:'编码',type:'varchar'}])
   expect(state.diagnostics).toEqual([])
@@ -84,13 +84,13 @@ describe('workflow query input definitions',()=>{
   else if(kind==='missing')edges.replaceRows([{rowid:'E',workflow_id:'W',sourceID:'MISSING',targetID:'QUERY'}])
   else edges.replaceRows([{rowid:'E',workflow_id:'OTHER',sourceID:'START',targetID:'QUERY'}])
   edges.total=edges.rows.length
-  expect(()=>workflowQueryInputPresentation(ds,'W','QUERY')).toThrow(kind==='cycle'?'环':'归属')
+  expect(()=>workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'})).toThrow(kind==='cycle'?'环':'归属')
  })
  it('never reveals a masked ancestor output or accepts a dotted parameter name as a nested path',()=>{
   const ds=fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,access=nodes.fieldAccess.bind(nodes)
   vi.spyOn(nodes,'fieldAccess').mockImplementation((row,field)=>field==='output_mapping'?{...access(row,field),read:'masked'}:access(row,field))
-  expect(()=>workflowQueryInputPresentation(ds,'W','QUERY')).toThrow('不可读')
+  expect(()=>workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'})).toThrow('不可读')
   vi.restoreAllMocks();nodes.updateRowById('START',{output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'items.code',FieldType:'string',isParent:false}])})
-  expect(()=>workflowQueryInputPresentation(ds,'W','QUERY')).toThrow('点')
+  expect(()=>workflowQueryInputPresentation({dataSet:ds,workflowId:'W',nodeId:'QUERY'})).toThrow('点')
  })
 })

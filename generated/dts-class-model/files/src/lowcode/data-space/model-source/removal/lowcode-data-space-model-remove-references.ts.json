@@ -27,21 +27,32 @@
         "method.validate.params": {
           "type": "object",
           "properties": {
-            "views": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-              }
-            },
-            "modelId": {
-              "type": "string"
-            },
-            "modelName": {
-              "type": "string"
-            },
-            "removedRelationIds": {
+            "parameters": {
               "type": "object",
-              "title": "ReadonlySet<string>"
+              "properties": {
+                "views": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+                  }
+                },
+                "modelId": {
+                  "type": "string"
+                },
+                "modelName": {
+                  "type": "string"
+                },
+                "removedRelationIds": {
+                  "type": "object",
+                  "title": "ReadonlySet<string>"
+                }
+              },
+              "required": [
+                "views",
+                "modelId",
+                "modelName"
+              ],
+              "additionalProperties": false
             }
           },
           "additionalProperties": false
@@ -50,7 +61,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T05:13:22.107Z",
+  "generatedAt": "2026-11-06T08:58:21.616Z",
   "models": {
     "LowcodeDataSpaceModelRemoveReferences": {
       "name": "LowcodeDataSpaceModelRemoveReferences",
@@ -69,40 +80,16 @@
               "jsdoc": "检查注册模型引用；dataModel输出GetRefData引用物理资源，不随元模型删除。字段种类须可读，其他未知语义阻止自动删除，原定义不改动。",
               "parameters": [
                 {
-                  "name": "views",
-                  "type": {
-                    "type": "unknown",
-                    "name": "readonly DataView[]"
-                  }
-                },
-                {
-                  "name": "modelId",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "modelName",
-                  "type": {
-                    "type": "intrinsic",
-                    "name": "string"
-                  }
-                },
-                {
-                  "name": "removedRelationIds",
+                  "name": "parameters",
                   "type": {
                     "type": "reference",
-                    "name": "ReadonlySet",
+                    "name": "Readonly",
                     "typeArguments": [
                       {
-                        "type": "intrinsic",
-                        "name": "string"
+                        "type": "unknown",
+                        "name": "{\n        views: readonly DataView[];\n        modelId: string;\n        modelName: string;\n        removedRelationIds?: ReadonlySet<string> | undefined;\n    }"
                       }
                     ]
-                  },
-                  "flags": {
-                    "isOptional": true
                   }
                 }
               ],

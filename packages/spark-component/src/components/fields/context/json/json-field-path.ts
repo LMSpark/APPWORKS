@@ -43,7 +43,9 @@ export class JsonFieldPath {
   }
 
   /** 克隆最新原字段后修改一个叶值；undefined只移除对象成员。 */
-  static replace(raw: unknown, path: JsonPath, value: unknown, optionalLeaf = false) {
+  static replace(parameters:Readonly<{raw:unknown;path:JsonPath;value:unknown;optionalLeaf?:boolean|undefined}>) {
+ const {raw,path,value,optionalLeaf=false}=parameters
+
     const root = parseJsonDocument(JSON.stringify(this.root(raw))), parent = this.parent(root, path, optionalLeaf)
     const key = path.at(-1)
     if (key === undefined) throw new Error('JSON路径不能为空')

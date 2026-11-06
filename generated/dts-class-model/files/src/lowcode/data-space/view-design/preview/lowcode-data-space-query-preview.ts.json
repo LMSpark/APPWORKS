@@ -151,7 +151,7 @@
           "properties": {
             "dataSet": {
               "type": "object",
-              "title": "DataSet"
+              "title": "SparkData.DataSet"
             },
             "modelName": {
               "type": "string"
@@ -241,8 +241,7 @@
             "rows": {
               "type": "array",
               "items": {
-                "type": "object",
-                "title": "import(\"@spark-appworks/spark-data\").DataRow"
+                "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
               }
             }
           },
@@ -263,18 +262,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T05:09:16.153Z",
+  "generatedAt": "2026-11-06T08:58:51.589Z",
   "models": {
     "DataSpacePreviewQuery": {
       "name": "DataSpacePreviewQuery",
       "jsdoc": "一次预览调用的参数值；不修改参数声明或场景文件。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: SparkData.DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: SparkData.ViewMetadata['queryConfig'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: ViewMetadata['queryConfig'];\n}>",
+            "typeText": "Readonly<{\n    /** 本次调用参数值，按原类型叠加视图配置参数。 */\n    context: SparkData.DataViewQueryContext;\n    /** 显式覆盖本次请求的每页条数，按SPARK API合同范围1至1000。 */\n    pageSize?: number;\n    /** 替换本预览目标视图的查询配置；省略沿用，空对象恢复默认。不保存到场景文件。 */\n    queryConfig?: SparkData.ViewMetadata['queryConfig'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -309,13 +308,13 @@
       "classDecl": {
         "constructorMeta": {
           "jsdoc": "接管已装配的独立DataSet；文件通知或调用方关闭时释放。",
-          "signatureText": "constructor(dataSet: DataSet, modelName: string, viewId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        subscribe(listener: () => void): () => void;\n    }>)",
+          "signatureText": "constructor(dataSet: SparkData.DataSet, modelName: string, viewId: string, lifecycle: Readonly<{\n        assertCurrent(): void;\n        subscribe(listener: () => void): () => void;\n    }>)",
           "parameters": [
             {
               "name": "dataSet",
               "type": {
                 "type": "reference",
-                "name": "DataSet"
+                "name": "SparkData.DataSet"
               }
             },
             {
@@ -431,14 +430,14 @@
                   "name": "source",
                   "type": {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 },
                 {
                   "name": "bindings",
                   "type": {
                     "type": "unknown",
-                    "name": "readonly DataViewCascadeInputBinding[]"
+                    "name": "readonly SparkData.DataViewCascadeInputBinding[]"
                   }
                 }
               ],
@@ -492,7 +491,7 @@
               "parameters": [],
               "type": {
                 "type": "unknown",
-                "name": "{\n        total: number;\n        countReported: boolean | undefined;\n        fields: string[];\n        rows: import(\"@spark-appworks/spark-data\").DataRow[];\n    }"
+                "name": "{\n        total: number;\n        countReported: boolean | undefined;\n        fields: string[];\n        rows: SparkData.DataRow[];\n    }"
               }
             },
             {

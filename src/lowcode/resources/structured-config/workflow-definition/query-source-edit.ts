@@ -124,7 +124,7 @@ export class WorkflowModelSourceEdit{
    const name=(row:Readonly<DataRow>)=>typeof row['AsName']==='string'&&row['AsName'].length>0?row['AsName']:row['Name']
    return !after||Number(before['IsOutput'])===1&&(Number(after['IsOutput'])!==1||name(before)!==name(after)||before['FieldType']!==after['FieldType'])?[{before:{...before},...after?{after:{...after}}:{}}]:[]
   })
-  await assertWorkflowFieldStructureChanges(this.input.dataSet,this.input.workflowId,this.input.nodeId,changes,{scope:'node-output'});this.beforeNode()
+  await assertWorkflowFieldStructureChanges({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,changes,options:{scope:'node-output'}});this.beforeNode()
  }
  private async contract(change:SourceContractChange):Promise<SourceContractPlan>{
   await this.outputCheck(change)
@@ -169,8 +169,8 @@ export class WorkflowModelSourceEdit{
   const host=createModelSourceEditHost({dataSet:this.input.dataSet,targetId:this.input.workflowId,modelId:this.modelId,sources:this.input.sources,
    views:{models:this.#models.viewId,fields:this.#fields.viewId,fieldTemplate:this.#template.viewId,relations:this.#relations.viewId},
    lifecycle:{assertCurrent:()=>this.guard(),onDispatch(){},completed(){},validateConfiguration:()=>{this.beforeNode();return Promise.resolve(()=>this.beforeNode())},validateTransition:()=>{this.beforeNode();return Promise.resolve(()=>this.beforeNode())},
-    ...(this.#operation==='query'||this.#operation==='copy')?{inputParameters:{read:()=>workflowQuerySharedInputPresentation(this.input.dataSet,this.input.workflowId,this.input.nodeId,{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields}).inputs,
-     validate:input=>validateWorkflowQueryInputChanges(this.input.dataSet,this.input.workflowId,this.input.nodeId,{values:[input.value]},{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields})},
+    ...(this.#operation==='query'||this.#operation==='copy')?{inputParameters:{read:()=>workflowQuerySharedInputPresentation({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,projection:{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields}}).inputs,
+     validate:input=>validateWorkflowQueryInputChanges({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,input:{values:[input.value]},projection:{fromModelId:this.#fromModelId,modelId:this.modelId,models:this.#models,fields:this.#fields}})},
     prepareContract:change=>this.contract(change),validateRemovals:(ids,change)=>this.removals(ids,change)}:{inputTarget:{requestType:this.#operation,prepareContract:change=>this.inputContract(change),validateRemovals:(ids,change)=>this.removals(ids,change)}}}})
   this.#host=host;const source=createModelSourceEditHandle(host);this.#source=source
   this.#public={...source,getState:()=>{const state=source.getState(),pending=!!this.#node&&!this.#node.getState().complete;return{...state,...pending&&state.status==='idle'?{status:'configuration' as const,pending:true}:{},canAcceptCurrent:false}},

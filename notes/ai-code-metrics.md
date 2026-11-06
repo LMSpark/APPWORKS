@@ -3256,3 +3256,8 @@
 
 - 最小生产变更：删除共同条件目录的ADD/DELETE临时门，原公共DataView保存/权限不变。两个gate测试替换原视图新增取消保存重开，实际RED2→GREEN22，workflow510/types/lint通过。正式ClassModel刷新，150等价噪声恢复。首次build与生成并发读临时manifest失败，顺序重跑通过；全仓rules26项待收敛。
 - 实服v2因测试startup name过长500失败，exec0，原RAM精确清理1049读51CRUD/exit1，保留失败。高阶核v3短marker及冻结名称长度23/19；27离线门后一次执行1293读53CRUD/exit0，六SUCCESS/twofalseabsent、原生number0/DELETE仅PK、独立实例日志、startup不变及全scope0。所有结果保留unverified含义，不称全部组合或浏览器交互验收；下一步26规则具名参数/类型收窄，不加兼容层。
+
+### 2026-11-06 公共合同与调用收敛
+
+- 26codegen违规实消：17签名具名对象、4namespace导入、5真实类型收窄；28源码/测试文件同步，无兼容层/新owner。独立静态审查未见行为差异。551工作流JSON+144模型+139API包权限+49ClassModel共883项通过、types/lint/build通过；正式生成保留真实签名，154等价产物恢复。
+- 规则全链实际推进到9目录超限，独立page-thin另2快照点，均未称PASS；按真实职责拆目录、核执行首轮冻结/Excel取消语义后续，不改规则或机械删合同。API根配置遗漏单文件已发现并在包配置实跑139；初typecheck局部变量重名已修，eslint工具参数拼接错误与对象简写已纠正。未新增实服或夹具。

@@ -58,12 +58,12 @@ function cancel():void{
 }
 async function confirm():Promise<void>{
  busy.value=true;error.value=''
- try{guard();await WorkflowComputedFields.confirm(props.dataSet,props.workflowId,props.nodeId,fieldId.value);visible.value=false}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false}
+ try{guard();await WorkflowComputedFields.confirm({dataSet:props.dataSet,workflowId:props.workflowId,nodeId:props.nodeId,fieldId:fieldId.value});visible.value=false}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false}
 }
 async function remove():Promise<void>{
  if(props.disabled||busy.value||visible.value||!canDelete.value||!view.currentRow)return
  busy.value=true;error.value=''
- try{const id=view.getPkKey(view.currentRow);if(typeof id!=='string')throw Error('缺少原字段身份');await WorkflowComputedFields.remove(props.dataSet,props.workflowId,props.nodeId,id)}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false}
+ try{const id=view.getPkKey(view.currentRow);if(typeof id!=='string')throw Error('缺少原字段身份');await WorkflowComputedFields.remove({dataSet:props.dataSet,workflowId:props.workflowId,nodeId:props.nodeId,fieldId:id})}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}finally{busy.value=false}
 }
 onBeforeUnmount(()=>emit('pendingChange',false))
 </script>

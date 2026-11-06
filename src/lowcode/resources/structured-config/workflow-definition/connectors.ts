@@ -4,6 +4,7 @@
  * 边界：连线不是布局；不复制节点或草稿，未知提交仅沿原DataSet核验，不重复新增。
  */
 import {RequestState,type DataSet,type DataView,type DataRow} from '@spark-appworks/spark-data'
+import {isRecord} from '@spark-appworks/spark-utils'
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`连线定义字段不可读: ${field}`)
  return row[field]
@@ -17,7 +18,9 @@ function scope(ds:DataSet,workflowId:string){
  if(definition.rows.length!==1||!root||read(definition,root,'rowid')!==workflowId||definition.getPkKey(root)!==workflowId)throw Error('连线流程身份不唯一')
  return {nodes,edges}
 }
-function validate(ds:DataSet,workflowId:string,edge:Readonly<{source:string|number;target:string|number}>,existingId?:string){
+function validate(parameters:Readonly<{ds:DataSet;workflowId:string;edge:Readonly<{source:string|number;target:string|number}>;existingId?:string|undefined}>){
+ const {ds,workflowId,edge,existingId}=parameters
+
  const {nodes,edges}=scope(ds,workflowId),byId=new Map<string|number,DataRow>()
  for(const row of nodes.rows){
   const id=nodes.getPkKey(row)
@@ -51,11 +54,12 @@ function validate(ds:DataSet,workflowId:string,edge:Readonly<{source:string|numb
 /** 只编排当前正式连接器视图；新增先形成可取消草稿，保存由显式命令触发。 */
 export class WorkflowConnectors{
  static async add(ds:DataSet,workflowId:string,edge:Readonly<{source:string|number;target:string|number}>):Promise<string>{
-  const {edges}=validate(ds,workflowId,edge)
+  const {edges}=validate({ds,workflowId,edge})
   if(edges.hasUnconfirmedSave||edges.hasEditingChanges()||edges.dirtyTracking.hasPendingChanges())throw Error('请先处理原连线修改或未知提交')
   if(edges.addActionState()!=='enabled')throw Error('当前查询不允许新增连线')
   const result=await edges.addRow({sourceID:edge.source,targetID:edge.target,name:'',description:'',params:'[]'})
-  const row=edges.rows.find(candidate=>edges.getPkKey(candidate)===edges.getPkKey(result as DataRow)),id=row&&edges.getPkKey(row)
+  if(!isRecord(result))throw Error('连线新增未返回有效记录')
+  const row=edges.rows.find(candidate=>edges.getPkKey(candidate)===edges.getPkKey(result)),id=row&&edges.getPkKey(row)
   if(!row||typeof id!=='string'||read(edges,row,'workflow_id')!==workflowId)throw Error('新增连线未获得当前流程正式身份')
   scope(ds,workflowId);edges.setCurrentRow(row);return id
  }
@@ -67,7 +71,7 @@ export class WorkflowConnectors{
   const effective=edges.getEditingRow(edgeId)??row,source=read(edges,row,'sourceID'),target=read(edges,row,'targetID')
   if(effective['sourceID']!==source||effective['targetID']!==target||effective['workflow_id']!==workflowId)throw Error('请取消不支持的连线端点修改')
   if(typeof source!=='string'&&typeof source!=='number'||typeof target!=='string'&&typeof target!=='number')throw Error('连线端点无效')
-  if(edges.dirtyTracking.isPendingCreate(edgeId))validate(ds,workflowId,{source,target},edgeId)
+  if(edges.dirtyTracking.isPendingCreate(edgeId))validate({ds,workflowId,edge:{source,target},existingId:edgeId})
   return ds.saveChanges(options)
  }
 }

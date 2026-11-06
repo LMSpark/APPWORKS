@@ -26,7 +26,7 @@ export async function saveWorkflowOperationFields(dataSet:DataSet,workflowId:str
  for(const key of Object.keys(patch))if(!['Filter','description'].includes(key))throw Error(`操作模型不支持修改: ${key}`)
  if(Object.hasOwn(patch,'Filter')&&read(models,model,'requestType')==='add')throw Error('新增操作不使用过滤条件；不能保存无执行效果的条件修改')
  const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.value)
- if(values.length||Object.hasOwn(patch,'Filter'))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(patch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}:{}})
+ if(values.length||Object.hasOwn(patch,'Filter'))validateWorkflowQueryInputChanges({dataSet,workflowId,nodeId,input:{values,...Object.hasOwn(patch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}:{}}})
  return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:selected.map(item=>item.id)},
   {tableName:models.tableName,viewId:models.viewId,ids:Object.keys(patch).length?[modelId]:[]}]})
 }

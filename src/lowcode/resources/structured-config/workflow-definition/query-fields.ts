@@ -15,13 +15,15 @@ const allowed=new Set(['description','AsName','IsOutput','OrderType','Order','Gr
 const projectionFields=['rowid','dataSetId','dataModelId','type','Name','AsName','FieldType','description','IsOutput','IsPKey']
 /** 保存原字段编辑覆盖和同模型节点输出；未知批次只交原DataSet核验，其他节点草稿保持原位。 */
 export async function saveWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string){
- const result=await updateWorkflowQueryFields(dataSet,workflowId,nodeId,'save')
+ const result=await updateWorkflowQueryFields({dataSet,workflowId,nodeId,action:'save'})
  if(!result)throw Error('查询字段保存缺少原DataSet回执')
  return result
 }
 /** 取消本字段批次及可确认属于同一派生结果的节点输出；不撤销已确认提交，不丢弃其他节点编辑。 */
-export async function cancelWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string):Promise<void>{await updateWorkflowQueryFields(dataSet,workflowId,nodeId,'cancel')}
-async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string,action:'save'|'cancel'){
+export async function cancelWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeId:string):Promise<void>{await updateWorkflowQueryFields({dataSet,workflowId,nodeId,action:'cancel'})}
+async function updateWorkflowQueryFields(parameters:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;action:'save'|'cancel'}>){
+ const {dataSet,workflowId,nodeId,action}=parameters
+
  const {nodes,fields,models,edges,model,modelId}=workflowQueryFieldScope(dataSet,workflowId,nodeId)
  if([fields,nodes,models].some(view=>view.hasUnconfirmedSave)){
   if(action==='cancel')throw Error('请先核验查询配置原提交')
@@ -40,8 +42,8 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
   const deleting=fields.dirtyTracking.pendingDeleteIds.has(id)
   const computed=read(fields,row,'FieldType')==='计算字段'
   if(deleting&&!computed)throw Error('只能通过本命令删除计算字段')
-  if(action==='save'&&creating)validateWorkflowComputedField(dataSet,workflowId,nodeId,fields.getEditingRow(id)??row,id)
-  if(action==='save'&&!creating&&!deleting&&computed&&Object.keys(patch).length)validateWorkflowComputedField(dataSet,workflowId,nodeId,fields.getEditingRow(id)??row,id)
+  if(action==='save'&&creating)validateWorkflowComputedField({dataSet,workflowId,nodeId,row:fields.getEditingRow(id)??row,ownId:id})
+  if(action==='save'&&!creating&&!deleting&&computed&&Object.keys(patch).length)validateWorkflowComputedField({dataSet,workflowId,nodeId,row:fields.getEditingRow(id)??row,ownId:id})
   if(action==='save'&&!creating&&Object.keys(patch).some(key=>!allowed.has(key)&&!(key==='Name'&&computed)))throw Error('本次只维护字段说明、输出及排序分组；其他字段须使用相应配置命令')
   if(action==='save')for(const field of Object.keys(patch))if(fields.fieldAccess(row,field).write!=='allowed')throw Error(`查询字段不可修改: ${field}`)
   if(action==='save')for(const field of ['Order','Group'])if(Object.hasOwn(patch,field)&&(!Number.isSafeInteger(patch[field])||Number(patch[field])<0))throw Error('排序顺序和分组标记须为非负整数')
@@ -64,10 +66,10 @@ async function updateWorkflowQueryFields(dataSet:DataSet,workflowId:string,nodeI
  if(action==='cancel'&&!pendingOutputs){fields.discardPendingChanges(projected.map(item=>item.id));models.discardPendingChanges([modelId]);return}
  if(!selected.length&&!pendingOutputs&&!modelChanged)return dataSet.saveChanges({views:[{tableName:fields.tableName,viewId:fields.viewId,ids:[]}]})
  const values=selected.filter(item=>Object.hasOwn(item.patch,'ValueFun')).map(item=>item.effective['ValueFun'])
- if(action==='save'&&(values.length||Object.hasOwn(modelPatch,'Filter')))validateWorkflowQueryInputChanges(dataSet,workflowId,nodeId,{values,...Object.hasOwn(modelPatch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}: {}})
+ if(action==='save'&&(values.length||Object.hasOwn(modelPatch,'Filter')))validateWorkflowQueryInputChanges({dataSet,workflowId,nodeId,input:{values,...Object.hasOwn(modelPatch,'Filter')?{filter:models.getEditingRow(modelId)?.['Filter']}: {}}})
  const draft=workflowQueryDraftSignature([fields,nodes,models,edges])
- if(action==='save')await assertWorkflowFieldStructureChanges(dataSet,workflowId,nodeId,selected.filter(item=>!item.creating&&(item.deleting
-  ||['Name','AsName'].some(key=>Object.hasOwn(item.patch,key))||Number(item.row['IsOutput'])===1&&Number(item.effective['IsOutput'])!==1)).map(item=>({before:item.row,...item.deleting?{}:{after:item.effective}})))
+ if(action==='save')await assertWorkflowFieldStructureChanges({dataSet,workflowId,nodeId,changes:selected.filter(item=>!item.creating&&(item.deleting
+  ||['Name','AsName'].some(key=>Object.hasOwn(item.patch,key))||Number(item.row['IsOutput'])===1&&Number(item.effective['IsOutput'])!==1)).map(item=>({before:item.row,...item.deleting?{}:{after:item.effective}}))})
  if(action==='save'&&workflowQueryDraftSignature([fields,nodes,models,edges])!==draft)throw Error('查询配置草稿已变化；保留当前修改，未提交旧派生结果')
  const outputs=affected.flatMap(row=>{
   const id=String(nodes.getPkKey(row)),original=read(nodes,row,'output_mapping')

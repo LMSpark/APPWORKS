@@ -1059,7 +1059,7 @@
     "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/RendererFilterExpression.vue.json",
-      "sourceModifiedAt": "2026-11-06T03:44:14.575Z"
+      "sourceModifiedAt": "2026-11-06T08:58:22.954Z"
     },
     "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/useFilterColumnView.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/filter/expression/RendererFilterExpression/useFilterColumnView.ts",
@@ -1854,7 +1854,7 @@
     "packages/spark-component/src/components/fields/context/json/json-field-path.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/json/json-field-path.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/context/json/json-field-path.ts.json",
-      "sourceModifiedAt": "2026-11-04T04:37:58.612Z"
+      "sourceModifiedAt": "2026-11-06T08:58:22.733Z"
     },
     "packages/spark-component/src/components/fields/context/tableCellContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/context/tableCellContext.ts",
@@ -2184,7 +2184,7 @@
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/text/FieldJson/FieldJson.vue.json",
-      "sourceModifiedAt": "2026-11-06T08:31:35.238Z"
+      "sourceModifiedAt": "2026-11-06T08:58:22.988Z"
     },
     "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/text/FieldJson/JsonArrayOutline.vue",
@@ -3089,7 +3089,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-04T03:33:21.711Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3824,7 +3824,7 @@
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/model/lowcode-data-space-model-create-session.ts.json",
-      "sourceModifiedAt": "2026-11-03T10:51:02.477Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/model/lowcode-data-space-model-dependencies.ts",
@@ -3864,12 +3864,12 @@
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-references.ts.json",
-      "sourceModifiedAt": "2026-11-03T12:31:29.850Z"
+      "sourceModifiedAt": "2026-11-06T08:58:21.616Z"
     },
     "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/removal/lowcode-data-space-model-remove-session.ts.json",
-      "sourceModifiedAt": "2026-10-30T20:12:39.436Z"
+      "sourceModifiedAt": "2026-11-06T08:58:21.615Z"
     },
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-name-projection.ts",
@@ -3934,7 +3934,7 @@
     "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts.json",
-      "sourceModifiedAt": "2026-11-04T05:09:16.153Z"
+      "sourceModifiedAt": "2026-11-06T08:58:51.589Z"
     },
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
@@ -4354,12 +4354,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connector-condition.ts.json",
-      "sourceModifiedAt": "2026-11-06T08:53:45.414Z"
+      "sourceModifiedAt": "2026-11-06T08:59:20.322Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/connectors.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/connectors.ts.json",
-      "sourceModifiedAt": "2026-11-02T22:08:52.391Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/copy-target.ts",
@@ -4374,12 +4374,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-context.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution-context.ts.json",
-      "sourceModifiedAt": "2026-11-04T21:12:41.781Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-06T00:31:36.023Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/layout-document.ts",
@@ -4394,7 +4394,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/merge-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-05T00:06:50.372Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-definition.ts",
@@ -4409,12 +4409,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/node-removal.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/node-removal.ts.json",
-      "sourceModifiedAt": "2026-11-04T20:44:19.337Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/operation-fields.ts.json",
-      "sourceModifiedAt": "2026-11-04T11:00:34.665Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/operation-output-edit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-output-edit.ts",
@@ -4439,7 +4439,7 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-computed-fields.ts.json",
-      "sourceModifiedAt": "2026-11-03T00:40:59.562Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-context.ts",
@@ -4449,17 +4449,17 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-field-references.ts.json",
-      "sourceModifiedAt": "2026-11-04T19:40:44.097Z"
+      "sourceModifiedAt": "2026-11-06T08:58:21.356Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-fields.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-fields.ts.json",
-      "sourceModifiedAt": "2026-11-03T02:56:40.040Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-inputs.ts.json",
-      "sourceModifiedAt": "2026-11-06T00:11:13.511Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-model-create.ts",
@@ -4474,12 +4474,12 @@
     "src/lowcode/resources/structured-config/workflow-definition/query-output.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-output.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-output.ts.json",
-      "sourceModifiedAt": "2026-11-03T08:07:40.227Z"
+      "sourceModifiedAt": "2026-11-06T08:59:20.325Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/query-source-edit.ts.json",
-      "sourceModifiedAt": "2026-11-06T00:30:03.324Z"
+      "sourceModifiedAt": "2026-11-06T09:02:39.594Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/query-source-node-commit.ts",
@@ -5299,7 +5299,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-computed-field-editor.vue.json",
-      "sourceModifiedAt": "2026-11-03T00:12:00.482Z"
+      "sourceModifiedAt": "2026-11-06T08:58:21.721Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-copy-target.vue",
@@ -5344,7 +5344,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T18:12:36.455Z"
+      "sourceModifiedAt": "2026-11-06T08:58:51.605Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",
@@ -5354,7 +5354,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue.json",
-      "sourceModifiedAt": "2026-11-02T17:33:54.537Z"
+      "sourceModifiedAt": "2026-11-06T08:58:51.612Z"
     },
     "src/views/features/integration/api-management/ui/api-config-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.props.ts",

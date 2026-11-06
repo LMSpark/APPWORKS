@@ -3,31 +3,31 @@
 职责：绑定原目录DataSet的数据库、表视图，确认触发表选择，取消不写目标。
 -->
 <template>
-  <RendererDialog :model-value="true" title="触发表选择" :data-view-key="dataViewKey" width="920px" :append-to-body="true" :destroy-on-close="true" :close-disabled="busy" @update:model-value="close">
+  <SparkComponent.RendererDialog :model-value="true" title="触发表选择" :data-view-key="dataViewKey" width="920px" :append-to-body="true" :destroy-on-close="true" :close-disabled="busy" @update:model-value="close">
     <p v-if="busy" role="status">正在读取触发表目录…</p>
     <p v-if="error || queryError" role="alert">{{ error || queryError }}</p>
     <template v-if="ready">
-      <RendererForm :data-view-key="dbKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
-        <FieldSelect :data-view-key="dbKey" data-member="value" :option-data-view-key="dbKey" label="数据库" placeholder="请选择数据库" />
-      </RendererForm>
-      <RendererFilter ref="filterApi" :data-view-key="tableKey" :children="searchFields" :auto-query="false" :show-data-view-meta="false" />
-      <RendererTable :data-view-key="tableKey" :children="fields" :on-row-click="chooseTable" :highlight-current-row="true" :show-data-view-meta="false" />
+      <SparkComponent.RendererForm :data-view-key="dbKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
+        <SparkComponent.FieldSelect :data-view-key="dbKey" data-member="value" :option-data-view-key="dbKey" label="数据库" placeholder="请选择数据库" />
+      </SparkComponent.RendererForm>
+      <SparkComponent.RendererFilter ref="filterApi" :data-view-key="tableKey" :children="searchFields" :auto-query="false" :show-data-view-meta="false" />
+      <SparkComponent.RendererTable :data-view-key="tableKey" :children="fields" :on-row-click="chooseTable" :highlight-current-row="true" :show-data-view-meta="false" />
     </template>
     <template #footer>
-      <RendererButton label="确认触发表" :disabled="busy || !canConfirm" @click="confirm" />
-      <RendererButton label="取消选择" :disabled="busy" @click="close(false)" />
+      <SparkComponent.RendererButton label="确认触发表" :disabled="busy || !canConfirm" @click="confirm" />
+      <SparkComponent.RendererButton label="取消选择" :disabled="busy" @click="close(false)" />
     </template>
-  </RendererDialog>
+  </SparkComponent.RendererDialog>
 </template>
 <script setup lang="ts">
 import {computed,onBeforeUnmount,onMounted,ref} from 'vue'
 import {buildDataViewKey,RequestState,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
-import {PAGE_RUNTIME,FieldSelect,RendererButton,RendererDialog,RendererForm,RendererTable,RendererFilter,useSparkComponent,type RendererFilterApi} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import {applyWorkflowTriggerSelection,projectWorkflowTriggerSelection} from '@/lowcode/resources/structured-config/workflow-definition/trigger-selection'
 const props=defineProps<{workflowId:string;dataViewKey:string;validateTarget:()=>void}>()
 const emit=defineEmits<{close:[];applied:[]}>()
-const {sparkConsume}=useSparkComponent({type:'workflow-trigger-table-dialog'}),runtime=sparkConsume(PAGE_RUNTIME)
+const {sparkConsume}=SparkComponent.useSparkComponent({type:'workflow-trigger-table-dialog'}),runtime=sparkConsume(SparkComponent.PAGE_RUNTIME)
 const captured={id:props.workflowId,key:props.dataViewKey},scene=LowcodeWorkflowDefinition.navigationScenarioId
 const ds=runtime?.getDataSet(scene),target=runtime?.resolveView(captured.key),targetRow=target?.currentRow
 const db=ds?.getView('_base_dbInfo'),tables=ds?.getView('_Base_TblList')
@@ -35,7 +35,7 @@ const dbKey=buildDataViewKey('_base_dbInfo','default',scene),tableKey=buildDataV
 const fields:SparkNode[]=[{type:'r-text',props:{field:'tblname',label:'表名',readonly:true}},{type:'r-text',props:{field:'tbldesc',label:'中文名',readonly:true}}]
 const searchFields:SparkNode[]=[{type:'r-text',props:{field:'tblname',label:'表名'}},{type:'r-text',props:{field:'tbldesc',label:'中文名'}}]
 const ready=ref(false),loading=ref(true),error=ref(''),revision=ref(0)
-const filterApi=ref<RendererFilterApi>()
+const filterApi=ref<SparkComponent.RendererFilterApi>()
 let active=true,signature:string|undefined,off:(()=>void)|undefined,offDatabase:(()=>void)|undefined
 const busy=computed(()=>{revision.value;return loading.value||[db,tables].some(view=>view?.requestState===RequestState.Loading||view?.requestState===RequestState.Preparing)})
 const queryError=computed(()=>{revision.value;return db?.loadingError?.message||tables?.loadingError?.message||''})

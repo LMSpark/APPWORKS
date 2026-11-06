@@ -157,7 +157,7 @@ function modelRemovePrepare(host: ModelRemoveHost): void {
   for (const [view, keys] of [[fields, ['dataModelId']], [relations, ['parentModId', 'childModId']]] as const) {
     if (view.rows.some(item => keys.some(key => view.fieldAccess(item, key).read !== 'visible' || typeof item[key] !== 'string' || !item[key]))) throw new Error('字段或关系归属不可核验，不能删除')
   }
-  LowcodeDataSpaceModelRemoveReferences.validate(host.views, host.modelId, host.flow.name)
+  LowcodeDataSpaceModelRemoveReferences.validate({views:host.views,modelId:host.modelId,modelName:host.flow.name})
   host.flow.entries = host.views.flatMap(view => view.rows.filter(item => view === models ? item['rowid'] === host.modelId
     : view === fields ? item['dataModelId'] === host.modelId : item['parentModId'] === host.modelId || item['childModId'] === host.modelId)
     .map(item => ({view, id: String(item['rowid']), row: item, snapshot: JSON.stringify(item)})))

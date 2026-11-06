@@ -18,7 +18,9 @@ function filter(value:unknown){
  return DataViewFilterCodec.parseStored(value)
 }
 /** 只在删除、改名或撤销已有输出时调用；每次重新读取正式依赖，不保存权限或引用快照。 */
-export async function assertWorkflowFieldStructureChanges(dataSet:DataSet,workflowId:string,nodeId:string,changes:readonly Change[],options:Readonly<{scope?:'model'|'node-output'}>={}):Promise<void>{
+export async function assertWorkflowFieldStructureChanges(parameters:Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;changes:readonly Change[];options?:Readonly<{scope?:'model'|'node-output'}>|undefined}>):Promise<void>{
+ const {dataSet,workflowId,nodeId,changes,options={}}=parameters
+
  if(!changes.length)return
  const initial=workflowQueryFieldScope(dataSet,workflowId,nodeId),{nodes,fields,models,edges,modelId}=initial
  const contexts=JSON.stringify([nodes.queryContext,fields.queryContext,models.queryContext,edges.queryContext])

@@ -41,7 +41,7 @@ function fields(item:Record<string,unknown>):DataColumn[]{
 function scope(input:Target,formal=false){
  const {dataSet,workflowId,nodeId}=input,nodes=dataSet.getView('Base_WorkflowNodeDefinition'),edges=dataSet.getView('Base_WorkflowConnectors')
  if(!nodes||!edges||nodes.mutating||edges.mutating||nodes.hasUnconfirmedSave||edges.hasUnconfirmedSave||edges.hasEditingChanges()||edges.dirtyTracking.hasPendingChanges())throw Error('请先确认或取消合并图的变更')
- const {byId,ancestors}=workflowQueryAncestors(nodes,edges,workflowId,nodeId),node=byId.get(nodeId)
+ const {byId,ancestors}=workflowQueryAncestors({nodes,edges,workflowId,nodeId}),node=byId.get(nodeId)
  if(!node)throw Error('合并节点身份不符')
  read(nodes,node,'node_type');read(nodes,node,'position_type')
  const effective=formal?node:nodes.getEditingRow(nodeId)??node

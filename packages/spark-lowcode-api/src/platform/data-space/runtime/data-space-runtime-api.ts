@@ -479,7 +479,7 @@ export class DataSpaceRuntimeApi {
         if (origin) this.#queryOrigins.set(receipt.context, origin)
         if (receipt.added.length && receipt.context.hasPendingSavedRowPermissions) {
           try {
-            const context = await this.refreshSavedPermissions(receipt.context, change.identity, scope, new Set(keys), receipt.added.map(row => receipt.context.rowKey(row)))
+            const context = await this.refreshSavedPermissions({context:receipt.context,identity:change.identity,scope,heldMutationKeys:new Set(keys),targetIds:receipt.added.map(row => receipt.context.rowKey(row))})
             receipts[index] = {...receipt, context, added: receipt.added.map(row => context.rows.find(queried =>
               Object.is(context.rowKey(queried), receipt.context.rowKey(row))) ?? row)}
           }
@@ -585,8 +585,9 @@ export class DataSpaceRuntimeApi {
       deleted: [...(requested.deleted ?? [])]}}
   }
 
-  private async refreshSavedPermissions(context: DataSpaceQueryContext, identity: DataSpaceQueryIdentity, scope: string,
-    heldMutationKeys?: ReadonlySet<string>, targetIds?: readonly unknown[]): Promise<DataSpaceQueryContext> {
+  private async refreshSavedPermissions(parameters:Readonly<{context:DataSpaceQueryContext;identity:DataSpaceQueryIdentity;scope:string;heldMutationKeys?:ReadonlySet<string>|undefined;targetIds?:readonly unknown[]|undefined}>): Promise<DataSpaceQueryContext> {
+ const {context,identity,scope,heldMutationKeys,targetIds}=parameters
+
     this.assertContextOwner(scope, {identity, context, changes: {}})
     if (!context.hasPendingSavedRowPermissions) return context
     const ids = (targetIds ?? context.pendingSavedRowIds).map(id => {
@@ -618,7 +619,7 @@ export class DataSpaceRuntimeApi {
   public async refreshSavedRowPermissions(context: DataSpaceQueryContext): Promise<DataSpaceQueryContext> {
     const origin = this.#queryOrigins.get(context)
     if (!origin) throw new Error('SPARK_SAVED_ROW_OWNER: 新增行基线不属于当前运行owner')
-    return this.refreshSavedPermissions(context, origin.identity, this.currentScope())
+    return this.refreshSavedPermissions({context,identity:origin.identity,scope:this.currentScope()})
   }
 
   private assertContextOwner(scope: string, change: DataSpaceRuntimeSaveCommand['changes'][number]): void {

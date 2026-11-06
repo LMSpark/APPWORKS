@@ -237,12 +237,12 @@ export async function modelCreateSave(host: ModelCreateHost): Promise<string> {
   const candidate = host.flow.preview
   if (!candidate || host.flow.status !== 'ready') throw new Error('请先预览来源')
   host.flow.fork=null
-  return modelCreateSaveDefinition(host, candidate.name, async () => {
+  return modelCreateSaveDefinition({host,name:candidate.name,prepare:async () => {
     if (!host.sources) throw new Error('模型来源读取能力不可用')
     const prepared = await host.sources.prepare(candidate.prepared.source, host.dataSet)
     if (JSON.stringify(prepared) !== JSON.stringify(candidate.prepared)) throw new Error('来源已变化，请重新预览')
     return prepared
-  })
+  }})
 }
 
 export async function modelCreateCreateArray(host: ModelCreateHost, input: ArrayDefinition): Promise<string> {
@@ -250,7 +250,7 @@ export async function modelCreateCreateArray(host: ModelCreateHost, input: Array
   if (host.flow.preview || host.flow.status === 'previewing') throw new Error('请先取消当前来源预览')
   const prepared = LowcodeDataSpaceArrayDraft.prepare(input)
   host.flow.fork=null
-  return modelCreateSaveDefinition(host, input.name, () => Promise.resolve(prepared))
+  return modelCreateSaveDefinition({host,name:input.name,prepare:() => Promise.resolve(prepared)})
 }
 
 /** 从同实例正式定义隔离模型，不伪造来源reader；自引用迁移与原改名共用纯投影。 */
@@ -281,13 +281,13 @@ export async function modelCreateFork(host:ModelCreateHost,input:Readonly<{model
   const proof=JSON.stringify([catalogue,sourceFields])
   const assertPrepared=()=>{guard();const current=readable(host.models).filter(row=>row['rowid']!==host.flow.fork?.modelId);if(JSON.stringify([current,readable(fields)])!==proof)throw Error('原模型fork依赖已变化，未派发旧定义')}
   host.flow.fork={sourceModelId:input.modelId,modelId:null,fieldIds:[],confirmed:false}
-  return await modelCreateSaveDefinition(host,input.name,()=>Promise.resolve(prepared),{sourceFieldIds:prepared.sourceFieldIds,assertPrepared})
+  return await modelCreateSaveDefinition({host,name:input.name,prepare:()=>Promise.resolve(prepared),options:{sourceFieldIds:prepared.sourceFieldIds,assertPrepared}})
   }catch(cause){if(host.flow.generation===generation&&flowStatus(host)==='previewing'){host.flow.status='idle';host.flow.fork=null}throw cause}
 }
 
-async function modelCreateSaveDefinition(host: ModelCreateHost, name: string,
-  prepare: () => Promise<{model: Readonly<Record<string, unknown>>; fields: ReadonlyArray<Readonly<Record<string, unknown>>>}>,
-  options:Readonly<{sourceFieldIds?:readonly string[];assertPrepared?():void}>={}): Promise<string> {
+async function modelCreateSaveDefinition(parameters:Readonly<{host:ModelCreateHost;name:string;prepare:() => Promise<{model: Readonly<Record<string, unknown>>; fields: ReadonlyArray<Readonly<Record<string, unknown>>>}>;options?:Readonly<{sourceFieldIds?:readonly string[];assertPrepared?():void}>|undefined}>): Promise<string> {
+ const {host,name,prepare,options={}}=parameters
+
   validateName(host, name)
   host.flow.status = 'saving'; host.flow.staged = []; host.flow.captureSignatures = null
   host.flow.readbackSignatures = null; host.flow.unresolved = false

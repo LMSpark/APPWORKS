@@ -80,7 +80,7 @@ export function workflowExecutionInputs(input:Input):WorkflowTestInputPresentati
   return{groups,seed,signature:JSON.stringify(groups)}
  }
  const nodeId=input.nodeId;if(!nodeId)throw Error('缺少单节点测试目标')
- const nodes=complete(input,'Base_WorkflowNodeDefinition'),edges=complete(input,'Base_WorkflowConnectors'),graph=workflowQueryAncestors(nodes,edges,input.workflowId,nodeId),groups:WorkflowTestInputGroup[]=[]
+ const nodes=complete(input,'Base_WorkflowNodeDefinition'),edges=complete(input,'Base_WorkflowConnectors'),graph=workflowQueryAncestors({nodes,edges,workflowId:input.workflowId,nodeId}),groups:WorkflowTestInputGroup[]=[]
  for(const id of graph.ancestors){
   const row=graph.byId.get(id);if(!row)throw Error('祖先节点身份缺失')
   const position=read(nodes,row,'position_type'),nodeType=read(nodes,row,'node_type'),mapping=read(nodes,row,'output_mapping')

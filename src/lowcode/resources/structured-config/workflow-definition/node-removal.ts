@@ -115,20 +115,22 @@ export class WorkflowNodeRemoval{
   }
   const fieldIds=deleteModel?fields.rows.filter(row=>read(fields,row,'dataModelId')===modelId).map(row=>id(fields,row)):[]
   this.#selections=[{view:relations,ids:[...conditionIds,...modelRelationIds]},{view:edges,ids:edgeIds},{view:fields,ids:fieldIds},{view:models,ids:deleteModel?[modelId]:[]},{view:nodes,ids:[this.input.nodeId]}].filter(item=>item.ids.length>0)
-  this.references(modelId,deleteModel,edgeIds,new Set(conditionIds),new Set(fieldIds))
-  if(deleteModel&&model)LowcodeDataSpaceModelRemoveReferences.validate([models,fields,relations],modelId,String(read(models,model,'Name')),new Set([...conditionIds,...modelRelationIds]))
+  this.references({modelId,deleteModel,edgeIds,conditionIds:new Set(conditionIds),fieldIds:new Set(fieldIds)})
+  if(deleteModel&&model)LowcodeDataSpaceModelRemoveReferences.validate({views:[models,fields,relations],modelId,modelName:String(read(models,model,'Name')),removedRelationIds:new Set([...conditionIds,...modelRelationIds])})
   this.#layoutText=undefined;this.#layoutId=undefined
   const layout=this.#layout.rows[0]
   if(layout){const before=read(this.#layout,layout,'content');if(typeof before!=='string')throw Error('布局内容不是文本');const after=WorkflowLayoutDocument.remove(before,{nodes:[this.input.nodeId],edges:edgeIds});if(after!==before){if(this.#layout.fieldAccess(layout,'content').write!=='allowed')throw Error('当前查询不允许清理布局');this.#layoutText=after;this.#layoutId=id(this.#layout,layout)}}
   this.#summary={nodeId:this.input.nodeId,modelId,deleteModel,modelContractConfirmed,edgeCount:edgeIds.length,conditionCount:conditionIds.length,modelRelationCount:modelRelationIds.length,fieldCount:fieldIds.length,layoutChanges:this.#layoutText!==undefined}
   this.permissions()
  }
- private references(modelId:string,deleteModel:boolean,edgeIds:readonly string[],conditionIds:ReadonlySet<string>,fieldIds:ReadonlySet<string>):void{
+ private references(command:Readonly<{modelId:string;deleteModel:boolean;edgeIds:readonly string[];conditionIds:ReadonlySet<string>;fieldIds:ReadonlySet<string>}>):void{
+ const {modelId,deleteModel,edgeIds,conditionIds,fieldIds}=command
+
   const nodes=this.view('Base_WorkflowNodeDefinition'),edges=this.view('Base_WorkflowConnectors'),models=this.view('Base_DataModel'),fields=this.view('Base_DataModel_Field'),relations=this.view('Base_DataModel_Relation'),parameters=this.view('Base_DataSet')
   const model=models.rows.find(row=>id(models,row)===modelId);if(modelId&&!model)throw Error('删除模型原身份已变化')
   const modelName=model?String(read(models,model,'Name')):'',projection={nodes:[this.input.nodeId],edges:edgeIds}
   const lostByNode=new Map<string,ReadonlySet<string>>()
-  for(const row of nodes.rows){const key=id(nodes,row);if(key===this.input.nodeId)continue;const before=workflowQueryAncestors(nodes,edges,this.input.workflowId,key).ancestors,after=workflowQueryAncestors(nodes,edges,this.input.workflowId,key,projection).ancestors;lostByNode.set(key,new Set([...before].filter(ancestor=>!after.has(ancestor))))}
+  for(const row of nodes.rows){const key=id(nodes,row);if(key===this.input.nodeId)continue;const before=workflowQueryAncestors({nodes,edges,workflowId:this.input.workflowId,nodeId:key}).ancestors,after=workflowQueryAncestors({nodes,edges,workflowId:this.input.workflowId,nodeId:key,projection}).ancestors;lostByNode.set(key,new Set([...before].filter(ancestor=>!after.has(ancestor))))}
   function visit(value:unknown,path:string,consumers:readonly string[]):void{
    if(Array.isArray(value)){value.forEach((child,index)=>visit(child,`${path}[${index}]`,consumers));return}
    if(!isRecord(value)||value['Type']==='GetConstValue')return

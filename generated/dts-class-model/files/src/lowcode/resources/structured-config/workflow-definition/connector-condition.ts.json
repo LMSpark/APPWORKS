@@ -29,7 +29,7 @@
           "properties": {
             "dataSet": {
               "type": "object",
-              "title": "DataSet"
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -49,14 +49,14 @@
         },
         "method.load.return": {
           "type": "object",
-          "title": "Promise<DataView>"
+          "title": "Promise<SparkData.DataView>"
         },
         "method.columns.params": {
           "type": "object",
           "properties": {
             "dataSet": {
               "type": "object",
-              "title": "DataSet"
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -78,7 +78,7 @@
           "type": "array",
           "items": {
             "type": "object",
-            "title": "DataColumn"
+            "title": "SparkData.DataColumn"
           }
         },
         "method.presentation.params": {
@@ -86,7 +86,7 @@
           "properties": {
             "dataSet": {
               "type": "object",
-              "title": "DataSet"
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -114,7 +114,7 @@
               "type": "array",
               "items": {
                 "type": "object",
-                "title": "DataColumn"
+                "title": "SparkData.DataColumn"
               }
             },
             "outputError": {
@@ -141,13 +141,12 @@
                       "fields": {
                         "type": "array",
                         "items": {
-                          "type": "object",
-                          "title": "import(\"@spark-appworks/spark-data\").DataViewFilterFunctionField"
+                          "$ref": "../../../../../packages/spark-data/src/query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterFunctionField"
                         }
                       },
                       "validate": {
                         "type": "object",
-                        "title": "(value: import(\"@spark-appworks/spark-data\").DataViewFilterValueFunction, context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext) => string | null"
+                        "title": "(value: SparkData.DataViewFilterValueFunction, context: SparkData.DataViewFilterFunctionContext) => string | null"
                       }
                     },
                     "required": [
@@ -205,7 +204,7 @@
           "properties": {
             "dataSet": {
               "type": "object",
-              "title": "DataSet"
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -225,14 +224,14 @@
         },
         "method.add.return": {
           "type": "object",
-          "title": "Promise<DataRow>"
+          "title": "Promise<SparkData.DataRow>"
         },
         "method.save.params": {
           "type": "object",
           "properties": {
             "dataSet": {
               "type": "object",
-              "title": "DataSet"
+              "title": "SparkData.DataSet"
             },
             "workflowId": {
               "type": "string"
@@ -252,12 +251,12 @@
         },
         "method.save.return": {
           "type": "object",
-          "title": "Promise<import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>>"
+          "title": "Promise<SparkData.CrudResult<SparkData.DataSetSaveChangesResult>>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-03T02:37:10.545Z",
+  "generatedAt": "2026-11-06T08:59:20.322Z",
   "models": {
     "WorkflowConnectorCondition": {
       "name": "WorkflowConnectorCondition",
@@ -278,7 +277,7 @@
                   "name": "dataSet",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 },
                 {
@@ -311,7 +310,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataView"
+                    "name": "SparkData.DataView"
                   }
                 ]
               }
@@ -323,7 +322,7 @@
                   "name": "dataSet",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 },
                 {
@@ -354,7 +353,7 @@
                 "type": "array",
                 "elementType": {
                   "type": "reference",
-                  "name": "DataColumn"
+                  "name": "SparkData.DataColumn"
                 }
               }
             },
@@ -365,7 +364,7 @@
                   "name": "dataSet",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 },
                 {
@@ -394,7 +393,7 @@
               ],
               "type": {
                 "type": "unknown",
-                "name": "{\n        row: DataRow | undefined;\n        columns: DataColumn[];\n        outputError: string;\n        functionContext: {\n            definitions: {\n                enabled: () => false;\n                type: string;\n                label: string;\n                fields: readonly import(\"@spark-appworks/spark-data\").DataViewFilterFunctionField[];\n                validate?: (value: import(\"@spark-appworks/spark-data\").DataViewFilterValueFunction, context: import(\"@spark-appworks/spark-data\").DataViewFilterFunctionContext) => string | null;\n            }[];\n        };\n        allowedOperators: readonly (\"eq\" | \"ne\" | \"gt\" | \"gte\" | \"lt\" | \"lte\" | \"is-null\" | \"is-not-null\" | \"contains\" | \"not-contains\" | \"starts-with\" | \"not-starts-with\" | \"ends-with\" | \"not-ends-with\" | \"in\" | \"not-in\" | \"is-empty\" | \"is-not-empty\")[];\n    }"
+                "name": "{\n        row: SparkData.DataRow | undefined;\n        columns: SparkData.DataColumn[];\n        outputError: string;\n        functionContext: {\n            definitions: {\n                enabled: () => false;\n                type: string;\n                label: string;\n                fields: readonly SparkData.DataViewFilterFunctionField[];\n                validate?: (value: SparkData.DataViewFilterValueFunction, context: SparkData.DataViewFilterFunctionContext) => string | null;\n            }[];\n        };\n        allowedOperators: readonly (\"eq\" | \"ne\" | \"gt\" | \"gte\" | \"lt\" | \"lte\" | \"is-null\" | \"is-not-null\" | \"contains\" | \"not-contains\" | \"starts-with\" | \"not-starts-with\" | \"ends-with\" | \"not-ends-with\" | \"in\" | \"not-in\" | \"is-empty\" | \"is-not-empty\")[];\n    }"
               }
             },
             {
@@ -404,7 +403,7 @@
                   "name": "dataSet",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 },
                 {
@@ -437,7 +436,7 @@
                 "typeArguments": [
                   {
                     "type": "reference",
-                    "name": "DataRow"
+                    "name": "SparkData.DataRow"
                   }
                 ]
               }
@@ -449,7 +448,7 @@
                   "name": "dataSet",
                   "type": {
                     "type": "reference",
-                    "name": "DataSet"
+                    "name": "SparkData.DataSet"
                   }
                 },
                 {
@@ -481,8 +480,14 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "unknown",
-                    "name": "import(\"@spark-appworks/spark-data\").CrudResult<import(\"@spark-appworks/spark-data\").DataSetSaveChangesResult>"
+                    "type": "reference",
+                    "name": "SparkData.CrudResult",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "SparkData.DataSetSaveChangesResult"
+                      }
+                    ]
                   }
                 ]
               }

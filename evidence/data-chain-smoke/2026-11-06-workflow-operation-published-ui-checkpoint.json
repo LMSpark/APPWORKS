@@ -1,0 +1,391 @@
+{
+  "date": "2026-11-06",
+  "kind": "published-operation-normal-ui-checkpoint",
+  "sourceCommit": "6bb556095",
+  "sourceSha256": "D053C462E27407CBEE7F281822B4CF1152643C796AB976E92E30E077F3D06551",
+  "workflowId": "74D383FF28A640B3816A87B38824D8AF",
+  "nativeAttempt": {
+    "phase": "failed",
+    "crud": 24,
+    "error": "查询配置尚未完整读取",
+    "executions": 0,
+    "reads": 565,
+    "exit": 1,
+    "blocked": 0
+  },
+  "browser": {
+    "requests": [
+      {
+        "requestId": "5064.48685",
+        "groups": [
+          {
+            "table": "Base_WorkflowNodeDefinition",
+            "added": [],
+            "changed": [
+              {
+                "rowid": "FE66401C4EAA44C2CDFC5A3712EE81BB",
+                "keys": [
+                  "rowid",
+                  "output_mapping"
+                ],
+                "output": [
+                  {
+                    "rowid": "927DC5A487514F5EAFDDA941E83C1BEB",
+                    "pid": null,
+                    "Name": "items",
+                    "FieldType": "Array",
+                    "isParent": true
+                  },
+                  {
+                    "rowid": "9674CED6EAF74C0CA07AB1F4E2280197",
+                    "pid": null,
+                    "Name": "Count",
+                    "FieldType": "int",
+                    "isParent": false
+                  },
+                  {
+                    "rowid": "822359290F5AD55862E5D434840EBA15",
+                    "pid": "927DC5A487514F5EAFDDA941E83C1BEB",
+                    "Name": "rowid",
+                    "FieldType": "varchar",
+                    "isParent": false
+                  },
+                  {
+                    "rowid": "AB92D7F33EF79DC48C51ED8BAD985A7B",
+                    "pid": "927DC5A487514F5EAFDDA941E83C1BEB",
+                    "Name": "fromAddPath",
+                    "FieldType": "计算字段",
+                    "isParent": false
+                  },
+                  {
+                    "rowid": "B5BCE52167D60CE7ABBEFAA9A790A04E",
+                    "pid": "927DC5A487514F5EAFDDA941E83C1BEB",
+                    "Name": "fromEditPath",
+                    "FieldType": "计算字段",
+                    "isParent": false
+                  },
+                  {
+                    "rowid": "E3CD7D4399FE5E224D404FC72D9E5FDB",
+                    "pid": "927DC5A487514F5EAFDDA941E83C1BEB",
+                    "Name": "fromDeleteRowid",
+                    "FieldType": "计算字段",
+                    "isParent": false
+                  }
+                ]
+              }
+            ],
+            "deleted": []
+          },
+          {
+            "table": "Base_DataModel_Field",
+            "added": [
+              {
+                "rowid": "AB92D7F33EF79DC48C51ED8BAD985A7B",
+                "keys": [
+                  "dataSetId",
+                  "dataModelId",
+                  "type",
+                  "FieldType",
+                  "IsPKey",
+                  "Name",
+                  "AsName",
+                  "description",
+                  "ValueFun",
+                  "IsOutput",
+                  "Expression",
+                  "allowAIAdd",
+                  "OrderType",
+                  "Order",
+                  "Group",
+                  "rowid"
+                ],
+                "dataSetId": "74D383FF28A640B3816A87B38824D8AF",
+                "dataModelId": "B4496B288460B977F0AF5C48D0533794",
+                "Name": "fromAddPath",
+                "FieldType": "计算字段",
+                "ValueFun": "{\"Type\":\"GetInputParam\",\"ParamName\":\"E5E19E6514E3ADD8944D110E582103D9.path\"}",
+                "IsOutput": 1,
+                "IsPKey": 0,
+                "Expression": "",
+                "AsName": "",
+                "type": "dataModel"
+              },
+              {
+                "rowid": "B5BCE52167D60CE7ABBEFAA9A790A04E",
+                "keys": [
+                  "dataSetId",
+                  "dataModelId",
+                  "type",
+                  "FieldType",
+                  "IsPKey",
+                  "Name",
+                  "AsName",
+                  "description",
+                  "ValueFun",
+                  "IsOutput",
+                  "Expression",
+                  "allowAIAdd",
+                  "OrderType",
+                  "Order",
+                  "Group",
+                  "rowid"
+                ],
+                "dataSetId": "74D383FF28A640B3816A87B38824D8AF",
+                "dataModelId": "B4496B288460B977F0AF5C48D0533794",
+                "Name": "fromEditPath",
+                "FieldType": "计算字段",
+                "ValueFun": "{\"Type\":\"GetInputParam\",\"ParamName\":\"815DEC047EC64B40C108852BFFDD5592.path\"}",
+                "IsOutput": 1,
+                "IsPKey": 0,
+                "Expression": "",
+                "AsName": "",
+                "type": "dataModel"
+              },
+              {
+                "rowid": "E3CD7D4399FE5E224D404FC72D9E5FDB",
+                "keys": [
+                  "dataSetId",
+                  "dataModelId",
+                  "type",
+                  "FieldType",
+                  "IsPKey",
+                  "Name",
+                  "AsName",
+                  "description",
+                  "ValueFun",
+                  "IsOutput",
+                  "Expression",
+                  "allowAIAdd",
+                  "OrderType",
+                  "Order",
+                  "Group",
+                  "rowid"
+                ],
+                "dataSetId": "74D383FF28A640B3816A87B38824D8AF",
+                "dataModelId": "B4496B288460B977F0AF5C48D0533794",
+                "Name": "fromDeleteRowid",
+                "FieldType": "计算字段",
+                "ValueFun": "{\"Type\":\"GetInputParam\",\"ParamName\":\"821F25DBE3A6E0075EAB80968ADBE812.rowid\"}",
+                "IsOutput": 1,
+                "IsPKey": 0,
+                "Expression": "",
+                "AsName": "",
+                "type": "dataModel"
+              }
+            ],
+            "changed": [],
+            "deleted": []
+          }
+        ]
+      }
+    ],
+    "responses": [
+      {
+        "requestId": "5064.48685",
+        "status": 200
+      }
+    ],
+    "fieldIds": [
+      "AB92D7F33EF79DC48C51ED8BAD985A7B",
+      "B5BCE52167D60CE7ABBEFAA9A790A04E",
+      "E3CD7D4399FE5E224D404FC72D9E5FDB"
+    ],
+    "issues": [],
+    "readCount": 29,
+    "configured": [
+      {
+        "inputs": [
+          {
+            "value": ""
+          },
+          {
+            "checked": true,
+            "value": "on"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "{\"Type\":\"GetInputParam\",\"ParamName\":\"E5E19E6514E3ADD8944D110E582103D9.path\"}"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "0"
+          }
+        ],
+        "name": "fromAddPath"
+      },
+      {
+        "inputs": [
+          {
+            "value": ""
+          },
+          {
+            "checked": true,
+            "value": "on"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "{\"Type\":\"GetInputParam\",\"ParamName\":\"815DEC047EC64B40C108852BFFDD5592.path\"}"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "0"
+          }
+        ],
+        "name": "fromEditPath"
+      },
+      {
+        "inputs": [
+          {
+            "value": ""
+          },
+          {
+            "checked": true,
+            "value": "on"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "{\"Type\":\"GetInputParam\",\"ParamName\":\"821F25DBE3A6E0075EAB80968ADBE812.rowid\"}"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "0"
+          }
+        ],
+        "name": "fromDeleteRowid"
+      }
+    ],
+    "saveConfirmedInOriginalRuntime": true,
+    "outlineStructured": true,
+    "reopenedFields": [
+      {
+        "inputs": [
+          {
+            "value": ""
+          },
+          {
+            "checked": true,
+            "value": "on"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "{\"Type\":\"GetInputParam\",\"ParamName\":\"E5E19E6514E3ADD8944D110E582103D9.path\"}"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "0"
+          }
+        ],
+        "name": "fromAddPath"
+      },
+      {
+        "inputs": [
+          {
+            "value": ""
+          },
+          {
+            "checked": true,
+            "value": "on"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "{\"Type\":\"GetInputParam\",\"ParamName\":\"815DEC047EC64B40C108852BFFDD5592.path\"}"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "0"
+          }
+        ],
+        "name": "fromEditPath"
+      },
+      {
+        "inputs": [
+          {
+            "value": ""
+          },
+          {
+            "checked": true,
+            "value": "on"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "{\"Type\":\"GetInputParam\",\"ParamName\":\"821F25DBE3A6E0075EAB80968ADBE812.rowid\"}"
+          },
+          {
+            "value": ""
+          },
+          {
+            "value": "0"
+          },
+          {
+            "value": "0"
+          }
+        ],
+        "name": "fromDeleteRowid"
+      }
+    ],
+    "reopened": true,
+    "browserClosed": true,
+    "unknown": false
+  },
+  "cleanedAt": "2026-11-06T01:50:41.698Z",
+  "fixtureRemaining": false,
+  "unknown": false,
+  "readbacks": [
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "host": {
+    "processId": 28164,
+    "hostReads": 20,
+    "blockedFetches": 0
+  },
+  "screenshot": "artifacts/data-chain-smoke/ui-published-output-outline-reopened-20261106.jpg",
+  "screenshotSha256": "4CED368212F53F76E3E9545E9B5DF03ABFB1A68DF5783DF5CB3EB96F66B6BD31",
+  "scope": "Normal UI computed references cancel/save/complete close/new runtime reopen and structured readonly outline confirmed; native lifecycle stopped before target transition because the probe did not load original model/field views. All fixture records then cleaned in original RAM; does not establish source transition or shared deletion acceptance."
+}

@@ -1,0 +1,852 @@
+{
+  "date": "2026-11-06",
+  "kind": "published-operation-source-and-delete-runtime",
+  "sourceCommit": "29194e783b0039a892896207b50fc3a04102c1c1",
+  "sourceSha256": "3FDAA33B399A4F55C5B32DD6B1B03F0650033012A54E30F9C9371C2E81F7755E",
+  "nativeExit": 0,
+  "phase": "confirmed",
+  "workflowId": "8D9E920CC7F84BFD95D8685F01474684",
+  "reads": 1328,
+  "crud": 31,
+  "executions": 0,
+  "blocked": 0,
+  "unknown": false,
+  "fixtureRemaining": false,
+  "lifecycle": {
+    "cancelled": [
+      {
+        "operation": "add",
+        "writes": 0
+      },
+      {
+        "operation": "edit",
+        "writes": 0
+      },
+      {
+        "operation": "delete",
+        "writes": 0
+      }
+    ],
+    "swapped": [
+      {
+        "operation": "add",
+        "nodeId": "673871FA18EF96603A4DF06A3C9ECDA9",
+        "modelId": "9045DF2674218AF1A4542F8ABB3D7D89",
+        "fieldIds": [
+          "08177FAC2679C0E841E3ECCFC717A2FE",
+          "0E4CDC3F43E41E586B9EF586F90D6471",
+          "21FBBEFD2CDA0EB729A606A065DD7DF6",
+          "39E6C7FD0CA2321EB7022D2E8C107AF4",
+          "415ACFFCFDA5285900E76BB3670391A6",
+          "42DC62D9051B9812C999003E745FC4A0",
+          "43A411EE8A8DE1B13B87425558F1A319",
+          "5295122D12D7F4F9987E8D6AC1C72716",
+          "55864A296BD4D8F49DEB65E06BE651E8",
+          "5B8ACB841955C44598BA143F4A13335E",
+          "64B15E4DD67517C57B5F6E5FC07CA431",
+          "81B3CD610A7EB4AA3D37D1D790409699",
+          "84FE735670B10A61F845DA5B15093307",
+          "878449473675E86D6D00B7ECDE471E8A",
+          "BDE2FDD926944C74893E4E2967BF75F4",
+          "C96930F9C83EC6C1041C499A19EC9813",
+          "DE0BAA4B2A9305C087E34F56D1C672F2",
+          "E7D7EDBCD875ECE1B2CF93C4FAFCFBF8",
+          "EEA40EF00869B978C3F1AD351E3549E8",
+          "FDD12F1CAB3AB529FD9DF5F401738CDE"
+        ],
+        "output": [
+          {
+            "rowid": "08177FAC2679C0E841E3ECCFC717A2FE",
+            "pid": null,
+            "Name": "rowid",
+            "Description": "唯一值（ID）",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "21FBBEFD2CDA0EB729A606A065DD7DF6",
+            "pid": null,
+            "Name": "templatePath",
+            "Description": "模板路径",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "39E6C7FD0CA2321EB7022D2E8C107AF4",
+            "pid": null,
+            "Name": "transform_enabled",
+            "Description": "是否启用标准转换规则：0兼容旧导入；1启用",
+            "FieldType": "tinyint",
+            "isParent": false
+          },
+          {
+            "rowid": "415ACFFCFDA5285900E76BB3670391A6",
+            "pid": null,
+            "Name": "version",
+            "Description": "方案版本号",
+            "FieldType": "int",
+            "isParent": false
+          },
+          {
+            "rowid": "42DC62D9051B9812C999003E745FC4A0",
+            "pid": null,
+            "Name": "createtime",
+            "Description": "创建时间",
+            "FieldType": "datetime",
+            "isParent": false
+          },
+          {
+            "rowid": "43A411EE8A8DE1B13B87425558F1A319",
+            "pid": null,
+            "Name": "updateuser",
+            "Description": "修改人",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "5295122D12D7F4F9987E8D6AC1C72716",
+            "pid": null,
+            "Name": "updatetime",
+            "Description": "修改时间",
+            "FieldType": "datetime",
+            "isParent": false
+          },
+          {
+            "rowid": "55864A296BD4D8F49DEB65E06BE651E8",
+            "pid": null,
+            "Name": "config_hash",
+            "Description": "规则配置摘要，保留用于版本一致性校验",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "5B8ACB841955C44598BA143F4A13335E",
+            "pid": null,
+            "Name": "description",
+            "Description": "摘要",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "64B15E4DD67517C57B5F6E5FC07CA431",
+            "pid": null,
+            "Name": "status",
+            "Description": "规则方案状态：DRAFT草稿；PUBLISHED已启用",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "84FE735670B10A61F845DA5B15093307",
+            "pid": null,
+            "Name": "ReportID",
+            "Description": "报表id",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "878449473675E86D6D00B7ECDE471E8A",
+            "pid": null,
+            "Name": "solutionName",
+            "Description": "方案名称",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "BDE2FDD926944C74893E4E2967BF75F4",
+            "pid": null,
+            "Name": "dataSetId",
+            "Description": "数据空间id",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "C96930F9C83EC6C1041C499A19EC9813",
+            "pid": null,
+            "Name": "createuser",
+            "Description": "创建人",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "E7D7EDBCD875ECE1B2CF93C4FAFCFBF8",
+            "pid": null,
+            "Name": "coding",
+            "Description": "编码方案",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "EEA40EF00869B978C3F1AD351E3549E8",
+            "pid": null,
+            "Name": "flowstate",
+            "Description": "流程状态",
+            "FieldType": "int",
+            "isParent": false
+          },
+          {
+            "rowid": "FDD12F1CAB3AB529FD9DF5F401738CDE",
+            "pid": null,
+            "Name": "wfid",
+            "Description": "流程实例id",
+            "FieldType": "varchar",
+            "isParent": false
+          }
+        ],
+        "physicalHash": "9f03e957885219030c395374dfa72293734151c14cf1271381061bc39346686b"
+      },
+      {
+        "operation": "edit",
+        "nodeId": "04146957EE6DA0F78D458B37E92A6D73",
+        "modelId": "67C147B75C9CC0C90A138E0D4DA6C348",
+        "fieldIds": [
+          "2110DE7853C97AE0E633A38D375C1E58",
+          "25F312DBC214CDCA897AE0C11114EE62",
+          "340F11CD97C097D1EF8DF05D3878B0AB",
+          "5A9619C2851711306EC21C4546597BA1",
+          "698DD3A9FD539385CFA15EB4A633EF36",
+          "6C3CB1DA9E61C3492E13251090561AB2",
+          "6C899A6C841DF38F4263DDE64429F333",
+          "79439B901A24791D35263A97221B631F",
+          "7A9087452E9B8BDE60099F684819FBE8",
+          "96D71E1B27BCC4B095A5DCDA66EF9259",
+          "9DEC354E48D2111CC70EC6A7E5081F73",
+          "AB2E5D9F4679A7D2E80330D54F349660",
+          "AD03B3FE9F450B9A8C463FF45B8E8CEE",
+          "B1CC9608349C6975E5E3EFB169723FD5",
+          "B336D1E42360390E087BD1C179048469",
+          "B8FA62F9C24810FB57E84D8281CCA7B1",
+          "D8241B2172EDD1CA06013A2227326EEA",
+          "D962075A47DC3615012AEF4B020CA684",
+          "F85ED85BE3E03475B8B23F63FE48ACA7",
+          "FA1A2971DF373F2E2ECB16402A64833B"
+        ],
+        "output": [
+          {
+            "rowid": "2110DE7853C97AE0E633A38D375C1E58",
+            "pid": null,
+            "Name": "description",
+            "Description": "摘要",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "25F312DBC214CDCA897AE0C11114EE62",
+            "pid": null,
+            "Name": "status",
+            "Description": "规则方案状态：DRAFT草稿；PUBLISHED已启用",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "340F11CD97C097D1EF8DF05D3878B0AB",
+            "pid": null,
+            "Name": "flowstate",
+            "Description": "流程状态",
+            "FieldType": "int",
+            "isParent": false
+          },
+          {
+            "rowid": "698DD3A9FD539385CFA15EB4A633EF36",
+            "pid": null,
+            "Name": "config_hash",
+            "Description": "规则配置摘要，保留用于版本一致性校验",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "6C899A6C841DF38F4263DDE64429F333",
+            "pid": null,
+            "Name": "solutionName",
+            "Description": "方案名称",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "79439B901A24791D35263A97221B631F",
+            "pid": null,
+            "Name": "coding",
+            "Description": "编码方案",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "7A9087452E9B8BDE60099F684819FBE8",
+            "pid": null,
+            "Name": "version",
+            "Description": "方案版本号",
+            "FieldType": "int",
+            "isParent": false
+          },
+          {
+            "rowid": "96D71E1B27BCC4B095A5DCDA66EF9259",
+            "pid": null,
+            "Name": "rowid",
+            "Description": "唯一值（ID）",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "9DEC354E48D2111CC70EC6A7E5081F73",
+            "pid": null,
+            "Name": "createuser",
+            "Description": "创建人",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "AB2E5D9F4679A7D2E80330D54F349660",
+            "pid": null,
+            "Name": "templatePath",
+            "Description": "模板路径",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "AD03B3FE9F450B9A8C463FF45B8E8CEE",
+            "pid": null,
+            "Name": "updatetime",
+            "Description": "修改时间",
+            "FieldType": "datetime",
+            "isParent": false
+          },
+          {
+            "rowid": "B1CC9608349C6975E5E3EFB169723FD5",
+            "pid": null,
+            "Name": "transform_enabled",
+            "Description": "是否启用标准转换规则：0兼容旧导入；1启用",
+            "FieldType": "tinyint",
+            "isParent": false
+          },
+          {
+            "rowid": "B336D1E42360390E087BD1C179048469",
+            "pid": null,
+            "Name": "updateuser",
+            "Description": "修改人",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "B8FA62F9C24810FB57E84D8281CCA7B1",
+            "pid": null,
+            "Name": "createtime",
+            "Description": "创建时间",
+            "FieldType": "datetime",
+            "isParent": false
+          },
+          {
+            "rowid": "D962075A47DC3615012AEF4B020CA684",
+            "pid": null,
+            "Name": "dataSetId",
+            "Description": "数据空间id",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "F85ED85BE3E03475B8B23F63FE48ACA7",
+            "pid": null,
+            "Name": "ReportID",
+            "Description": "报表id",
+            "FieldType": "varchar",
+            "isParent": false
+          },
+          {
+            "rowid": "FA1A2971DF373F2E2ECB16402A64833B",
+            "pid": null,
+            "Name": "wfid",
+            "Description": "流程实例id",
+            "FieldType": "varchar",
+            "isParent": false
+          }
+        ],
+        "physicalHash": "9f03e957885219030c395374dfa72293734151c14cf1271381061bc39346686b"
+      },
+      {
+        "operation": "delete",
+        "nodeId": "733B27F904AD8E13E207031248AF544C",
+        "modelId": "2D571D1431AD7BB9C27F9CCB14E87F9E",
+        "fieldIds": [
+          "023322132211CB19B09AC24FA0000FF4",
+          "03BC8075D884B9B343F0DA0D5408EE75",
+          "1250C2D986118B55A38CC9E52C67887C",
+          "2415681769EECE9F101DA8E538B72562",
+          "30B60640F56AFB296749680FADB0CBBF",
+          "433CAA8E528A9D817ADBA877AB8E87A3",
+          "48601563C638CA23609DD22DC13A4D3E",
+          "4ADEAB9F029DD39335DC342CDB29D8D8",
+          "4C339CBCFCEEF345D62C9548251E2EAE",
+          "4FF4DFA9D2DAD99911B644A04D2FF731",
+          "53677BC386A5A3520A9BEECD04A1A378",
+          "56DAF6DC2A667D7C805B5BA2AB271106",
+          "65E2E559B184A72A9AB414134D17E003",
+          "74D1D8A19D480FD634C68585905CA362",
+          "9D39FD4E9D0D70A8E59290ADF774C927",
+          "A1BC3C9FFFB66BE638968293F1B65119",
+          "A382C6625B431248E72CF8E538F280A7",
+          "C39B888224E97BE1D980B00EC32F4A3A",
+          "D32BCBD64D15A08D207E87F9C663C114",
+          "FA53BB9421291C6A824E095E3D1A6A19"
+        ],
+        "output": [
+          {
+            "rowid": "30B60640F56AFB296749680FADB0CBBF",
+            "pid": null,
+            "Name": "rowid",
+            "Description": "唯一值（ID）",
+            "FieldType": "varchar",
+            "isParent": false
+          }
+        ],
+        "physicalHash": "9f03e957885219030c395374dfa72293734151c14cf1271381061bc39346686b"
+      }
+    ],
+    "deleteCancelled": [
+      {
+        "operation": "add",
+        "writes": 0
+      },
+      {
+        "operation": "edit",
+        "writes": 0
+      },
+      {
+        "operation": "delete",
+        "writes": 0
+      }
+    ],
+    "deleted": [
+      {
+        "operation": "add",
+        "nodeId": "673871FA18EF96603A4DF06A3C9ECDA9",
+        "modelPreserved": true
+      },
+      {
+        "operation": "edit",
+        "nodeId": "04146957EE6DA0F78D458B37E92A6D73",
+        "modelPreserved": false
+      },
+      {
+        "operation": "delete",
+        "nodeId": "733B27F904AD8E13E207031248AF544C",
+        "modelPreserved": false
+      }
+    ],
+    "priorReferenceEvidence": "evidence/data-chain-smoke/2026-11-06-workflow-operation-published-reference-guards.json"
+  },
+  "shared": {
+    "nodeId": "DE72263EE7DE1F9C2DCE06C4A081D8CC",
+    "modelId": "9045DF2674218AF1A4542F8ABB3D7D89",
+    "survivorPreserved": true,
+    "lastConsumerRemoved": true
+  },
+  "acks": [
+    {
+      "label": "create-definition",
+      "writes": 1,
+      "requestCount": 1
+    },
+    {
+      "label": "create-parameters",
+      "writes": 2,
+      "requestCount": 1
+    },
+    {
+      "label": "create-boundaries",
+      "writes": 3,
+      "requestCount": 1
+    },
+    {
+      "label": "bind-operation-add",
+      "writes": 5,
+      "requestCount": 2
+    },
+    {
+      "label": "bind-operation-edit",
+      "writes": 7,
+      "requestCount": 2
+    },
+    {
+      "label": "bind-operation-delete",
+      "writes": 9,
+      "requestCount": 2
+    },
+    {
+      "label": "bind-consumer",
+      "writes": 11,
+      "requestCount": 2
+    },
+    {
+      "label": "filter-consumer-startup-only",
+      "writes": 12,
+      "requestCount": 1
+    },
+    {
+      "label": "connect-0",
+      "writes": 13,
+      "requestCount": 1
+    },
+    {
+      "label": "connect-1",
+      "writes": 14,
+      "requestCount": 1
+    },
+    {
+      "label": "connect-2",
+      "writes": 15,
+      "requestCount": 1
+    },
+    {
+      "label": "connect-3",
+      "writes": 16,
+      "requestCount": 1
+    },
+    {
+      "label": "connect-4",
+      "writes": 17,
+      "requestCount": 1
+    },
+    {
+      "label": "change-published-source-add",
+      "writes": 19,
+      "requestCount": 2
+    },
+    {
+      "label": "change-published-source-edit",
+      "writes": 21,
+      "requestCount": 2
+    },
+    {
+      "label": "change-published-source-delete",
+      "writes": 22,
+      "requestCount": 1
+    },
+    {
+      "label": "create-native-shared-consumer",
+      "writes": 23,
+      "requestCount": 1
+    },
+    {
+      "label": "delete-published-add",
+      "writes": 24,
+      "requestCount": 1
+    },
+    {
+      "label": "delete-published-edit",
+      "writes": 25,
+      "requestCount": 1
+    },
+    {
+      "label": "delete-published-delete",
+      "writes": 26,
+      "requestCount": 1
+    },
+    {
+      "label": "delete-shared-last-consumer",
+      "writes": 27,
+      "requestCount": 1
+    },
+    {
+      "label": "cleanup-operation-query",
+      "writes": 28,
+      "requestCount": 1
+    },
+    {
+      "label": "cleanup-remaining-metadata",
+      "writes": 29,
+      "requestCount": 1
+    },
+    {
+      "label": "cleanup-parameters",
+      "writes": 30,
+      "requestCount": 1
+    },
+    {
+      "label": "cleanup-definition",
+      "writes": 31,
+      "requestCount": 1
+    }
+  ],
+  "readbacks": [
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "cleanedAt": "2026-11-06T02:42:14.361Z",
+  "wireBaselines": [
+    {
+      "operation": "add",
+      "modelId": "9045DF2674218AF1A4542F8ABB3D7D89",
+      "modelColumns": [
+        "DbId",
+        "dataSetId",
+        "parentField",
+        "createtime",
+        "requestType",
+        "Filter",
+        "items",
+        "deleteApi",
+        "updateApi",
+        "selfType",
+        "MetaName",
+        "flowstate",
+        "addApi",
+        "DISTINCT",
+        "Type",
+        "createuser",
+        "ShortName",
+        "Name",
+        "hasChildField",
+        "rowid",
+        "OutputType",
+        "ReportID",
+        "IsBusinessMain",
+        "JoinFilter",
+        "IsBusiness",
+        "ForeignKeyFields",
+        "PId",
+        "cacheType",
+        "wfid",
+        "updatetime",
+        "topValue",
+        "updateuser",
+        "DbName",
+        "JoinType",
+        "RequestComplete",
+        "PrimaryKeyFields",
+        "description"
+      ],
+      "fieldColumns": [
+        "createuser",
+        "dataModelId",
+        "FieldType",
+        "wfid",
+        "Value",
+        "aiSort",
+        "createtime",
+        "allowAIAdd",
+        "OrderType",
+        "DISTINCT",
+        "IsOutput",
+        "Group",
+        "Name",
+        "ReportID",
+        "rowid",
+        "AsName",
+        "description",
+        "updatetime",
+        "ValueFun",
+        "IsPKey",
+        "dataSetId",
+        "Expression",
+        "flowstate",
+        "updateuser",
+        "aiMemo",
+        "Order",
+        "type"
+      ],
+      "fieldIds": [
+        "08177FAC2679C0E841E3ECCFC717A2FE",
+        "0E4CDC3F43E41E586B9EF586F90D6471",
+        "2C5E97C87471E383DBFF0224D50B5717",
+        "30E3D6391F4D4318266E909E0324B80B",
+        "42DC62D9051B9812C999003E745FC4A0",
+        "43A411EE8A8DE1B13B87425558F1A319",
+        "5295122D12D7F4F9987E8D6AC1C72716",
+        "5B8ACB841955C44598BA143F4A13335E",
+        "84FE735670B10A61F845DA5B15093307",
+        "ABDB4062A625409C84F3F0205F1E23D8",
+        "C96930F9C83EC6C1041C499A19EC9813",
+        "DE0BAA4B2A9305C087E34F56D1C672F2",
+        "EEA40EF00869B978C3F1AD351E3549E8",
+        "FDD12F1CAB3AB529FD9DF5F401738CDE"
+      ],
+      "rawValuesPersisted": false
+    },
+    {
+      "operation": "edit",
+      "modelId": "67C147B75C9CC0C90A138E0D4DA6C348",
+      "modelColumns": [
+        "DbId",
+        "dataSetId",
+        "parentField",
+        "createtime",
+        "requestType",
+        "Filter",
+        "items",
+        "deleteApi",
+        "updateApi",
+        "selfType",
+        "MetaName",
+        "flowstate",
+        "addApi",
+        "DISTINCT",
+        "Type",
+        "createuser",
+        "ShortName",
+        "Name",
+        "hasChildField",
+        "rowid",
+        "OutputType",
+        "ReportID",
+        "IsBusinessMain",
+        "JoinFilter",
+        "IsBusiness",
+        "ForeignKeyFields",
+        "PId",
+        "cacheType",
+        "wfid",
+        "updatetime",
+        "topValue",
+        "updateuser",
+        "DbName",
+        "JoinType",
+        "RequestComplete",
+        "PrimaryKeyFields",
+        "description"
+      ],
+      "fieldColumns": [
+        "createuser",
+        "dataModelId",
+        "FieldType",
+        "wfid",
+        "Value",
+        "aiSort",
+        "createtime",
+        "allowAIAdd",
+        "OrderType",
+        "DISTINCT",
+        "IsOutput",
+        "Group",
+        "Name",
+        "ReportID",
+        "rowid",
+        "AsName",
+        "description",
+        "updatetime",
+        "ValueFun",
+        "IsPKey",
+        "dataSetId",
+        "Expression",
+        "flowstate",
+        "updateuser",
+        "aiMemo",
+        "Order",
+        "type"
+      ],
+      "fieldIds": [
+        "0DE01779C96BC1A98ED5B667DC5FF895",
+        "2110DE7853C97AE0E633A38D375C1E58",
+        "340F11CD97C097D1EF8DF05D3878B0AB",
+        "5A9619C2851711306EC21C4546597BA1",
+        "6C3CB1DA9E61C3492E13251090561AB2",
+        "96D71E1B27BCC4B095A5DCDA66EF9259",
+        "9DEC354E48D2111CC70EC6A7E5081F73",
+        "AD03B3FE9F450B9A8C463FF45B8E8CEE",
+        "B336D1E42360390E087BD1C179048469",
+        "B8FA62F9C24810FB57E84D8281CCA7B1",
+        "BF6F60E0D95B235392112E61FEC56961",
+        "DD28492431807A945E648A7935EE140C",
+        "F85ED85BE3E03475B8B23F63FE48ACA7",
+        "FA1A2971DF373F2E2ECB16402A64833B"
+      ],
+      "rawValuesPersisted": false
+    },
+    {
+      "operation": "delete",
+      "modelId": "2D571D1431AD7BB9C27F9CCB14E87F9E",
+      "modelColumns": [
+        "DbId",
+        "dataSetId",
+        "parentField",
+        "createtime",
+        "requestType",
+        "Filter",
+        "items",
+        "deleteApi",
+        "updateApi",
+        "selfType",
+        "MetaName",
+        "flowstate",
+        "addApi",
+        "DISTINCT",
+        "Type",
+        "createuser",
+        "ShortName",
+        "Name",
+        "hasChildField",
+        "rowid",
+        "OutputType",
+        "ReportID",
+        "IsBusinessMain",
+        "JoinFilter",
+        "IsBusiness",
+        "ForeignKeyFields",
+        "PId",
+        "cacheType",
+        "wfid",
+        "updatetime",
+        "topValue",
+        "updateuser",
+        "DbName",
+        "JoinType",
+        "RequestComplete",
+        "PrimaryKeyFields",
+        "description"
+      ],
+      "fieldColumns": [
+        "createuser",
+        "dataModelId",
+        "FieldType",
+        "wfid",
+        "Value",
+        "aiSort",
+        "createtime",
+        "allowAIAdd",
+        "OrderType",
+        "DISTINCT",
+        "IsOutput",
+        "Group",
+        "Name",
+        "ReportID",
+        "rowid",
+        "AsName",
+        "description",
+        "updatetime",
+        "ValueFun",
+        "IsPKey",
+        "dataSetId",
+        "Expression",
+        "flowstate",
+        "updateuser",
+        "aiMemo",
+        "Order",
+        "type"
+      ],
+      "fieldIds": [
+        "03BC8075D884B9B343F0DA0D5408EE75",
+        "1250C2D986118B55A38CC9E52C67887C",
+        "30B60640F56AFB296749680FADB0CBBF",
+        "433CAA8E528A9D817ADBA877AB8E87A3",
+        "53677BC386A5A3520A9BEECD04A1A378",
+        "65E2E559B184A72A9AB414134D17E003",
+        "9D39FD4E9D0D70A8E59290ADF774C927",
+        "A1BC3C9FFFB66BE638968293F1B65119",
+        "A382C6625B431248E72CF8E538F280A7",
+        "C39B888224E97BE1D980B00EC32F4A3A",
+        "D6913D0A32F05483338F1515206A5435",
+        "E79AE79C2A99A8CF8FA66F387A421DF4",
+        "F035DA1708F8532758069E97578A891A",
+        "FA53BB9421291C6A824E095E3D1A6A19"
+      ],
+      "rawValuesPersisted": false
+    }
+  ],
+  "scope": "Three native operation commands: preview cancel zero-write, persisted A-to-B source transition and independent model/field/flat-output readback, staged delete cancel zero-write, shared survivor preserved, final consumer removes model and fields. No workflow execution or source business writes. Prior reference and normal UI evidence are separate; full source-selection UI not established by this native probe."
+}

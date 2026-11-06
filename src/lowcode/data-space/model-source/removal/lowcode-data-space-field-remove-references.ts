@@ -101,22 +101,22 @@ export class LowcodeDataSpaceFieldRemoveReferences {
     if (typeof modelId !== 'string' || typeof modelName !== 'string' || !modelName
       || models.rows.filter(row => read(models, row, 'Name') === modelName).length !== 1) throw new Error('字段所属模型注册名不唯一')
     const updates: FieldReferenceUpdate[] = []
-    const eligible=(row:DataRow)=>read(fields,row,'type')===(read(fields,row,'dataModelId')===modelId?change.fieldPurpose??'dataModel':'dataModel')
+    const eligible=(row:DataRow,purpose?:'dataModel'|'inputParams')=>read(fields,row,'type')===(purpose??(read(fields,row,'dataModelId')===modelId?change.fieldPurpose??'dataModel':'dataModel'))
     const add = (entry: Readonly<{view: DataView; row: DataRow; property: string; before: string; after: string}>): void => {
       if (entry.before !== entry.after) updates.push({table: entry.view.tableName, id: String(entry.row['rowid']), property: entry.property, before: entry.before, after: entry.after})
     }
     const used = (path: string): never => {throw new Error(`字段仍有配置依赖，请先处理：${path}`)}
     type Qualifier = {name: unknown; id: unknown}
-    const reference = (entry: Readonly<{value: unknown; owner: unknown; path: string; qualifiers?: readonly Qualifier[]}>): string => {
+    const reference = (entry: Readonly<{value: unknown; owner: unknown; path: string; qualifiers?: readonly Qualifier[]; ownFieldPurpose?:'dataModel'|'inputParams'}>): string => {
       const {value, owner, path, qualifiers = []} = entry
       if (typeof value !== 'string' || !value) throw new Error(`${path}字段引用无法核验`)
-      const candidates = fieldRows.filter(row => eligible(row)
+      const candidates = fieldRows.filter(row => eligible(row,entry.ownFieldPurpose)
         && read(fields, row, 'dataModelId') === owner && read(fields, row, 'Name') === value)
       const direct=candidates.length>0
       if (!direct) for (const source of [...models.rows.map(row=>({name:read(models,row,'Name'),id:row['rowid']})),...qualifiers]) {
         const name = source.name
         if (typeof name !== 'string' || !value.startsWith(`${name}.`)) continue
-        candidates.push(...fieldRows.filter(row => eligible(row) && read(fields, row, 'dataModelId') === source.id
+        candidates.push(...fieldRows.filter(row => eligible(row,source.id===owner?entry.ownFieldPurpose:undefined) && read(fields, row, 'dataModelId') === source.id
           && read(fields, row, 'Name') === value.slice(name.length + 1)))
       }
       const unique=[...new Map(candidates.map(row=>[row['rowid'],row])).values()],resolved=unique[0]
@@ -156,8 +156,12 @@ export class LowcodeDataSpaceFieldRemoveReferences {
       }
       if (value === undefined || value === null || value === '') return
       if (typeof value !== 'string') throw new Error(`${path}过滤原文无法核验`)
+      const ownFieldPurpose=view===models&&property==='Filter'
+        ? row['rowid']===modelId?change.fieldPurpose??'dataModel'
+          :read(models,row,'Type')==='数据库表'&&['add','edit','delete'].includes(String(read(models,row,'requestType')))?'inputParams':'dataModel'
+        :undefined
       add({view, row, property, before: value, after: LowcodeDataSpaceFilterMigration.rewrite(value,
-        name => reference({value: name, owner: child, path: `${path}.Field`, ...(context.qualifiers ? {qualifiers: context.qualifiers} : {})}),
+        name => reference({value: name, owner: child, path: `${path}.Field`, ...(ownFieldPurpose?{ownFieldPurpose}:{}), ...(context.qualifiers ? {qualifiers: context.qualifiers} : {})}),
         valueFunction => fn({value: valueFunction, owner: parent, path: `${path}.ValueFun`, ...(context.qualifiers ? {qualifiers: context.qualifiers} : {})}))})
     }
     for (const row of models.rows) {

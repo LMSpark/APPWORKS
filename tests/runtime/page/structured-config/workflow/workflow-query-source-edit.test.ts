@@ -188,6 +188,51 @@ describe('workflow query source edit composition',()=>{
   expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({dataOperateModId:target,node_config:'',output_mapping:expect.stringContaining('"pid":null')})
   owner.close()
  })
+ it('keeps a shared operation filter resolvable while removing an obsolete field from its isolated target',async()=>{
+  const f=await fixture(true);f.owner.cancel()
+  for(const node of f.http.records['Base_WorkflowNodeDefinition']!)if(['QUERY','SECOND'].includes(String(node['rowid'])))Object.assign(node,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})
+  Object.assign(f.http.records['Base_DataModel']![0]!,{requestType:'edit',Filter:JSON.stringify({Type:'cond',Field:'code',Operator:'equal',ValueFun:{Type:'GetConstValue',Value:0}})})
+  Object.assign(f.http.records['Base_DataModel_Field']![0]!,{type:'inputParams',IsOutput:0,ValueFun:JSON.stringify({Type:'GetConstValue',Value:0})})
+  f.http.records['Base_DataModel_Field']!.push({rowid:'OLD_INPUT',dataSetId:'W',dataModelId:'MODEL',type:'inputParams',Name:'obsolete',FieldType:'varchar',IsPKey:0,IsOutput:0,ValueFun:''})
+  await Promise.all(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'].map(name=>f.ds.getView(name)!.refresh()))
+  const original=structuredClone(f.http.records['Base_DataModel']![0]),originalFields=structuredClone(f.http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']==='MODEL'))
+  const owner=await openWorkflowQuerySourceEdit({dataSet:f.ds,workflowId:'W',nodeId:'QUERY',operation:true,sources:f.reader,assertCurrent(){}})
+  const id=await owner.isolate('Operation Copy'),obsolete=f.http.records['Base_DataModel_Field']!.find(row=>row['dataModelId']===id&&row['Name']==='obsolete')!
+  await owner.source.preview(source);await owner.source.removeField({fieldId:String(obsolete['rowid']),removed:true})
+  await expect(owner.source.save()).resolves.toBe(id)
+  expect(owner.getState().complete).toBe(true)
+  expect(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='MODEL')).toEqual(original)
+  expect(f.http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']==='MODEL')).toEqual(originalFields)
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='SECOND')?.['dataOperateModId']).toBe('MODEL')
+  expect(f.http.records['Base_DataModel_Field']!.some(row=>row['rowid']===obsolete['rowid'])).toBe(false)
+  owner.close()
+ })
+ it.each(['own','qualified','query-input','cross-model','value-function','join','duplicate'] as const)('keeps field-purpose boundaries while checking a %s filter in another model',async kind=>{
+  const f=await fixture(false);f.owner.cancel()
+  const model=f.http.records['Base_DataModel']![0]!,field=f.http.records['Base_DataModel_Field']![0]!
+  model['requestType']=kind==='query-input'?'query':'edit';field['type']='inputParams'
+  model['Filter']=JSON.stringify({Type:'cond',Field:kind==='qualified'?'Orders.code':'code',Operator:'equal',ValueFun:kind==='value-function'?{Type:'GetTableField',Field:'code'}:{Type:'GetConstValue',Value:0}})
+  if(kind==='cross-model'){
+   model['Filter']=''
+   f.http.records['Base_DataModel']![1]!['Filter']=JSON.stringify({Type:'cond',Field:'Orders.code',Operator:'equal',ValueFun:{Type:'GetConstValue',Value:0}})
+  }
+  if(kind==='join'){model['JoinFilter']=model['Filter'];model['Filter']=''}
+  if(kind==='duplicate')f.http.records['Base_DataModel_Field']!.push({...field,rowid:'DUPLICATE'})
+  const models=f.ds.getView('Base_DataModel','modelCatalog')!,fields=f.ds.getView('Base_DataModel_Field','modelInputFields')!,relations=f.ds.getView('Base_DataModel_Relation','asParent')!
+  models.queryContext={dataSpaceId:'W'};fields.queryContext={dataSpaceId:'W',modelIds:['MODEL','FORK']};relations.queryContext={workflowId:'W'}
+  await Promise.all([models,fields,relations].map(view=>view.refresh()))
+  const target=fields.rows.find(row=>row['rowid']==='FF')!,views=[models,fields,relations]
+  const check=()=>LowcodeDataSpaceFieldRemoveReferences.validate(views,target)
+  const rename=()=>LowcodeDataSpaceFieldRemoveReferences.prepareRenames({views,modelId:'FORK',mappings:[{id:'FF',name:'renamed'}],primaryReplacement:''})
+  if(kind==='own'||kind==='qualified'){expect(check).not.toThrow();expect(rename).not.toThrow()}
+  else{expect(check).toThrow('字段引用无法核验');expect(rename).toThrow('字段引用无法核验')}
+  if(kind==='own'){
+   expect(()=>LowcodeDataSpaceFieldRemoveReferences.validate(views,fields.rows.find(row=>row['rowid']==='F')!,{fieldPurpose:'inputParams',primaryKeyReplacement:'nextPrimaryKey'})).toThrow('Filter.Field')
+   const access=models.fieldAccess.bind(models)
+   vi.spyOn(models,'fieldAccess').mockImplementation((row,key)=>key==='requestType'?{...access(row,key),read:'masked'}:access(row,key))
+   expect(check).toThrow('不可读')
+  }
+ })
  it('isolates a shared operation target through the existing fork and changes only the selected node target',async()=>{
   const f=await fixture(true);f.owner.cancel()
   for(const node of f.http.records['Base_WorkflowNodeDefinition']!)if(['QUERY','SECOND'].includes(String(node['rowid'])))Object.assign(node,{node_type:'edit',node_config:'',dataOperateModId:'MODEL',output_mapping:'[]'})

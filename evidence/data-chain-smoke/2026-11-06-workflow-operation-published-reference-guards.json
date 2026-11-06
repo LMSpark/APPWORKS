@@ -1,0 +1,93 @@
+{
+  "date": "2026-11-06",
+  "kind": "published-operation-reference-guards-checkpoint",
+  "sourceCommit": "f0e0081fe",
+  "sourceSha256": "91DC01F26496388591367106C72A75DF3E97F9179FF1EC6B3055185518D0BE08",
+  "nativeExit": 1,
+  "phase": "failed",
+  "error": "SPARK_SAVE_UNCONFIRMED: 保存请求已发出但未取得可确认的响应: Wire value differs from captured stage: createuser",
+  "workflowId": "68694E969FE74A84B809366E257264A8",
+  "reads": 962,
+  "crud": 26,
+  "executions": 0,
+  "blockedRequestCounter": 0,
+  "interceptorAssertionRefusal": "createuser compared against a narrow readable baseline; requestCount was zero",
+  "readOnlyOriginalVerification": {
+    "writesBefore": 19,
+    "replayed": false,
+    "readsBefore": 744,
+    "unknownAfter": false,
+    "writesAfter": 19,
+    "readsAfter": 746
+  },
+  "lifecycle": {
+    "blocked": [
+      {
+        "operation": "add",
+        "command": "change-source",
+        "error": "节点输出仍被引用，请先明确清除并保存引用：Base_DataModel_Field[[redacted]].ValueFun",
+        "writes": 0
+      },
+      {
+        "operation": "edit",
+        "command": "change-source",
+        "error": "节点输出仍被引用，请先明确清除并保存引用：Base_DataModel_Field[[redacted]].ValueFun",
+        "writes": 0
+      },
+      {
+        "operation": "add",
+        "command": "delete-node",
+        "error": "删除后输入失去祖先，请先重连或解除引用并保存: 字段[[redacted]].ValueFun ([redacted])",
+        "writes": 0
+      },
+      {
+        "operation": "edit",
+        "command": "delete-node",
+        "error": "删除后输入失去祖先，请先重连或解除引用并保存: 字段[[redacted]].ValueFun ([redacted])",
+        "writes": 0
+      },
+      {
+        "operation": "delete",
+        "command": "delete-node",
+        "error": "删除后输入失去祖先，请先重连或解除引用并保存: 字段[[redacted]].ValueFun ([redacted])",
+        "writes": 0
+      }
+    ],
+    "cancelled": [
+      {
+        "operation": "add",
+        "writes": 0
+      }
+    ],
+    "swapped": [],
+    "deleteCancelled": [],
+    "deleted": [],
+    "referencesRemoved": true
+  },
+  "nativeReferences": {
+    "fieldIds": [
+      "138480E747214F643E4D9A27A2412C82",
+      "A2335EB295532F4CAD9ADF516B1DB9BE",
+      "543DB6DF2C114A5E69D7A1EF90F9FE9B"
+    ],
+    "uiEvidence": "evidence/data-chain-smoke/2026-11-06-workflow-operation-published-ui-checkpoint.json",
+    "source": "WorkflowComputedFields.add + original saveWorkflowQueryFields; not a browser write"
+  },
+  "readbacks": [
+    {
+      "workflowDefinition": 0,
+      "parameters": 0,
+      "nodes": 0,
+      "connectors": 0,
+      "models": 0,
+      "fields": 0,
+      "relations": 0,
+      "business": 0,
+      "startup": 0
+    }
+  ],
+  "fixtureRemaining": false,
+  "unknown": false,
+  "cleanedAt": "2026-11-06T02:09:28.811Z",
+  "scope": "Five real reference refusals with zero writes and independent unchanged hashes; original query command removes three references; ADD source preview cancel is zero-write and unchanged. First source mutation did not pass the probe interceptor; target transition/shared deletion unverified. Original RAM verified and cleaned; failure retained."
+}

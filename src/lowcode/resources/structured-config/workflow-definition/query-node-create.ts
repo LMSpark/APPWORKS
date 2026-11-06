@@ -7,7 +7,9 @@ import {RequestState,type DataRow,type DataView} from '@spark-appworks/spark-dat
 import {openWorkflowQueryModelCreate,openWorkflowCopyModelCreate,openWorkflowOperationModelCreate,type WorkflowDataOperation} from './query-model-create'
 import {buildWorkflowQueryOutput} from './query-output'
 import {DataSpaceDefinitionSave,definitionTargetDraftSignature,verifyDataSpaceDefinitionCapture,verifyAndDiscardDataSpaceDefinitionCapture,type DataSpaceDefinitionCaptureBatch} from '@/lowcode/data-space/model-source/data-space-definition-save'
-import {assertUnpublishedWorkflowOperationOutput} from './output-fields'
+import {assertWorkflowOutputUnpublished} from './output-fields'
+import {loadWorkflowOperationOutput,resolveWorkflowOperationOutput} from './operation-output-source'
+import {workflowOperationOutputTarget} from './operation-output'
 import {assertOriginalWorkflowNodeEmpty,validateWorkflowNodeTypeChanges,type WorkflowNodeOriginal} from './node-definition'
 import {workflowFieldChanges} from './query-field-context'
 
@@ -51,7 +53,7 @@ export class WorkflowNodeModelBinding {
  const original:WorkflowNodeOriginal={pending,...!pending&&typeof formalKind==='string'?{kind:formalKind}:{}}
  const typeChanged=Object.hasOwn(workflowFieldChanges(nodes,node,input.nodeId),'node_type')
  if((pending?nodes.addActionState():nodes.editActionState(node))!=='enabled')throw Error('当前查询不允许绑定节点模型')
- assertUnpublishedWorkflowOperationOutput(read(nodes,node,'output_mapping'));assertUnpublishedWorkflowOperationOutput(effective['output_mapping'])
+ assertWorkflowOutputUnpublished(read(nodes,node,'output_mapping'));assertWorkflowOutputUnpublished(effective['output_mapping'])
  const signature=()=>{
   const current=nodes.rows.find(row=>nodes.getPkKey(row)===input.nodeId);if(!current)throw Error('原节点已不属于当前查询')
   return JSON.stringify([nodes.queryContext,nodes.queryConfig,nodes.filterExpression,nodeFields.map(field=>{read(nodes,current,field);return(nodes.getEditingRow(input.nodeId)??current)[field]}),definitionTargetDraftSignature(nodes,[input.nodeId])])
@@ -73,6 +75,7 @@ export class WorkflowNodeModelBinding {
  #nodeCapture:DataSpaceDefinitionCaptureBatch|undefined
  #nodeSaved=false
  #nodeNotApplied=false
+ #operationTarget:string|undefined
  #complete=false
  #saving=false
  readonly #nodeContext:string
@@ -138,7 +141,7 @@ export class WorkflowNodeModelBinding {
   if((pending?this.nodes.addActionState():this.nodes.editActionState(row))!=='enabled')throw Error('当前查询不允许绑定节点模型')
   const values=this.values()
   if(['node_config','dataOperateModId'].some(field=>values[field]!==undefined&&values[field]!==null&&values[field]!==''))throw Error('节点已有模型绑定，请使用原换源入口')
-  for(const field of pending?nodeFields:this.sourceModel?['node_config','output_mapping']:['dataOperateModId']){
+  for(const field of pending?nodeFields:this.sourceModel?['node_config','output_mapping']:['dataOperateModId','output_mapping']){
    if((pending?this.nodes.newRowFieldAccess(field):this.nodes.fieldAccess(row,field)).write!=='allowed')throw Error(`当前查询不允许写入节点字段: ${field}`)
   }
  }
@@ -155,12 +158,13 @@ export class WorkflowNodeModelBinding {
    fields.queryContext={...template.queryContext,dataSpaceId:workflowId,modelIds:[modelId]}
    await fields.refresh();this.guard()
    if(fields.loadingError||fields.requestState!==RequestState.Loaded||fields.rows.length!==fields.total)throw Error('查询模型字段未完整读取')
-   output=this.sourceModel?buildWorkflowQueryOutput({workflowId,modelId,fields:fields.rows.map(row=>Object.fromEntries(
-    ['rowid','dataSetId','dataModelId','type','IsOutput','IsPKey','AsName','Name','FieldType','description'].map(field=>[field,read(fields,row,field)])))}):[]
-   if(!this.sourceModel&&fields.rows.some(row=>read(fields,row,'type')!=='inputParams'))throw Error('操作目标字段必须属于输入参数')
+   const formalFields=fields.rows.map(row=>Object.fromEntries(['rowid','dataSetId','dataModelId','type','IsOutput','IsPKey','AsName','Name','FieldType','description'].map(field=>[field,read(fields,row,field)])))
+   const operation=this.operation
+   if(operation==='query'||operation==='copy')output=buildWorkflowQueryOutput({workflowId,modelId,fields:formalFields})
+   else{const formalModel=Object.fromEntries(['rowid','dataSetId','Type','requestType','DbId','DbName','MetaName'].map(key=>[key,read(models,model,key)])),target={workflowId,modelId,operation,model:formalModel};this.#operationTarget=JSON.stringify(workflowOperationOutputTarget(target));output=await resolveWorkflowOperationOutput({...target,dataSet,fields:formalFields,assertCurrent:()=>this.preflightNode()})}
   }finally{fields.dataTable?.destroyView(fields.viewId)}
   this.preflightNode()
-  const patch:Record<string,unknown>=this.sourceModel?{node_config:modelId,output_mapping:JSON.stringify(output)}:{dataOperateModId:modelId}
+  const patch:Record<string,unknown>=this.sourceModel?{node_config:modelId,output_mapping:JSON.stringify(output)}:{dataOperateModId:modelId,output_mapping:JSON.stringify(output)}
   for(const [field,value] of Object.entries(patch))this.nodes.updateEditingValue(this.#nodeId,field,value)
   this.#nodeValues={workflow_id:workflowId,position_type:this.values()['position_type'],node_type:this.operation,...patch}
   this.#nodeSignature=definitionTargetDraftSignature(this.nodes,[this.#nodeId])
@@ -216,7 +220,7 @@ export class WorkflowNodeModelBinding {
       if(outcome==='not-applied')throw Error('SPARK_SAVE_NOT_APPLIED：原节点绑定已确认未生效')
       this.#nodeSaved=true
      }else await DataSpaceDefinitionSave.run([{dataSet:this.input.dataSet,targetId:this.input.workflowId,modelId,
-      prepare:async()=>{this.assertNodeIntent();await assertOriginalWorkflowNodeEmpty({...this.input,original:this.original,desiredKind:this.operation,typeChanged:this.mode.typeChanged,assertCurrent:()=>{this.guard();this.assertNodeIntent()}})},
+      prepare:async()=>{this.assertNodeIntent();const assertCurrent=()=>{this.guard();this.assertNodeIntent()};await assertOriginalWorkflowNodeEmpty({...this.input,original:this.original,desiredKind:this.operation,typeChanged:this.mode.typeChanged,assertCurrent});const operation=this.operation;if(operation!=='query'&&operation!=='copy'){const contract=await loadWorkflowOperationOutput({dataSet:this.input.dataSet,workflowId:this.input.workflowId,modelId,operation,assertCurrent});if(JSON.stringify(contract.output)!==this.#nodeValues?.['output_mapping']||JSON.stringify(contract.target)!==this.#operationTarget)throw Error('操作输出正式目标在绑定意图捕获后变化')}},
       apply:async()=>{const intended=JSON.stringify(this.values()),applied=await this.nodes.applyEditingRows([nodeId]);if(!applied.success)throw Error(applied.message??'原节点绑定编辑未应用');this.guard(false);if(JSON.stringify(this.values())!==intended)throw Error('节点绑定应用期间出现后续修改；保留原草稿');this.#nodeSignature=definitionTargetDraftSignature(this.nodes,[nodeId])},
       check:()=>{this.guard();this.assertNodeIntent()},targets:()=>[{tableName:this.nodes.tableName,viewId:this.nodes.viewId,ids:[nodeId]}],dispatched:capture=>{this.#nodeCapture=capture},confirm:()=>{this.#nodeSaved=true;return Promise.resolve()},failed:()=>{},
      }])

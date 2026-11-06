@@ -15,7 +15,8 @@ import {workflowQuerySharedInputPresentation,validateWorkflowQueryInputChanges,v
 import {assertWorkflowFieldStructureChanges} from './query-field-references'
 import {openWorkflowQuerySourceNodeCommit,type WorkflowModelSourceNodeCommit,type WorkflowConfirmedSource} from './query-source-node-commit'
 import {buildWorkflowQueryOutput,assertWorkflowQueryOutputIdentity} from './query-output'
-import {assertUnpublishedWorkflowOperationOutput} from './output-fields'
+import {assertWorkflowOperationOutputIdentity,workflowOperationOutputFields} from './operation-output'
+import {assertWorkflowNodeOutputChanges} from './node-output-references'
 import type {WorkflowDataOperation} from './query-model-create'
 
 type Input=Readonly<{dataSet:DataSet;workflowId:string;nodeId:string;operation?:boolean;sources:PageDataSpaceModelSourceReader;assertCurrent():void}>
@@ -23,6 +24,10 @@ function read(view:DataView,row:DataRow,key:string):unknown{if(view.fieldAccess(
 function text(view:DataView,row:DataRow,key:string):string{const value=read(view,row,key);if(typeof value!=='string'||!value)throw Error(`来源定义身份缺失: ${view.tableName}.${key}`);return value}
 function clean(view:DataView):void{if(view.destroyed||view.mutating||view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('来源编辑存在未处理修改或原始捕获')}
 function full(view:DataView):void{if(view.loadingError||view.requestState!==RequestState.Loaded||view.rows.length!==view.total)throw Error('来源定义未完整读取')}
+function sourceProof(model:Readonly<DataRow>,fields:ReadonlyArray<Readonly<DataRow>>):string{
+ const row=(value:Readonly<DataRow>)=>JSON.stringify(Object.keys(value).filter(key=>key!=='_pk'&&!key.startsWith('lingma_sys_')).sort().map(key=>[key,value[key]]))
+ return JSON.stringify([row(model),fields.map(row).sort()])
+}
 /** 原模型创建是明确的持久操作；来源及节点分别确认，未知阶段只核验原owner。 */
 export class WorkflowModelSourceEdit{
  readonly #operation:WorkflowDataOperation|'query'|'copy'
@@ -36,6 +41,7 @@ export class WorkflowModelSourceEdit{
  readonly #fromModelId:string
  readonly #before:Readonly<DataRow>
  readonly #beforeFields:ReadonlyArray<Readonly<DataRow>>
+ readonly #initialSource:string
  readonly #graph:string
  readonly #contexts:string
  readonly shared:boolean
@@ -45,6 +51,7 @@ export class WorkflowModelSourceEdit{
  #public:ModelSourceEditHandle|undefined
  #node:WorkflowModelSourceNodeCommit|undefined
  #sourceConfirmed=false
+ #sourceUnchanged=false
  #confirmedSource:WorkflowConfirmedSource|undefined
  #closed=false
  #busy=false
@@ -54,8 +61,9 @@ export class WorkflowModelSourceEdit{
   this.#models=models;this.#fields=fields;this.#template=template;this.#relations=relations;this.#owned.push(models,fields,template,relations)
   this.#nodes=scope.nodes;this.#edges=scope.edges;this.#fromModelId=scope.modelId
   const before=scope.nodes.readSnapshot().rows.find(row=>row['rowid']===input.nodeId);if(!before)throw Error('原节点正式投影缺失');this.#before=before
-  if(input.operation){const type=read(scope.nodes,scope.node,'node_type');if(type!=='add'&&type!=='edit'&&type!=='delete')throw Error('当前不是可换目标的操作节点');this.#operation=type;assertUnpublishedWorkflowOperationOutput(this.#before['output_mapping'])}else this.#operation=read(scope.nodes,scope.node,'node_type')==='copy'?'copy':'query'
+  if(input.operation){const type=read(scope.nodes,scope.node,'node_type');if(type!=='add'&&type!=='edit'&&type!=='delete')throw Error('当前不是可换目标的操作节点');this.#operation=type;assertWorkflowOperationOutputIdentity({workflowId:input.workflowId,modelId:scope.modelId,fields:fields.readSnapshot().rows,original:this.#before['output_mapping']})}else this.#operation=read(scope.nodes,scope.node,'node_type')==='copy'?'copy':'query'
   this.#beforeFields=fields.readSnapshot().rows
+  const originalModel=models.readSnapshot().rows.find(row=>row['rowid']===scope.modelId);if(!originalModel)throw Error('原来源模型缺失');this.#initialSource=sourceProof(originalModel,this.#beforeFields)
   const columns=scope.nodes.queryConfig.fields??scope.nodes.columns.map(column=>column.name)
   for(const key of columns.filter(column=>column!=='_pk'&&!column.startsWith('lingma_sys_')))if(scope.nodes.fieldAccess(scope.node,key).read!=='visible'||!Object.hasOwn(this.#before,key))throw Error(`原节点定义投影不完整或不可读: ${key}`)
   this.#contexts=JSON.stringify([scope.nodes.queryContext,scope.nodes.filterExpression,scope.nodes.queryConfig,scope.edges.queryContext,scope.edges.filterExpression,scope.edges.queryConfig])
@@ -77,7 +85,7 @@ export class WorkflowModelSourceEdit{
  private assertBindingWritable():void{
   this.beforeNode()
   const node=this.#nodes.rows.find(row=>row['rowid']===this.input.nodeId)
-  const keys=(this.#operation==='query'||this.#operation==='copy')?['node_config','output_mapping']:['dataOperateModId']
+  const keys=(this.#operation==='query'||this.#operation==='copy')?['node_config','output_mapping']:['dataOperateModId','output_mapping']
   if(!node||this.#nodes.editActionState(node)!=='enabled'||keys.some(key=>this.#nodes.fieldAccess(node,key).write!=='allowed'))throw Error('当前查询不允许节点来源切换')
  }
  private async assertFormalConsumers():Promise<void>{
@@ -130,10 +138,25 @@ export class WorkflowModelSourceEdit{
   if(this.modelId!==this.#fromModelId)this.assertBindingWritable()
   if(change.modelId!==this.modelId)throw Error('操作来源候选目标已变化')
   validateWorkflowOperationInputTarget({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,target:change})
-  let choice=''
+  await this.operationOutputCheck(change)
+  let choice='',captured:SourceInputTargetChange|undefined
   return {viewChanges:[],check:()=>{this.beforeNode();if(this.modelId!==this.#fromModelId)this.assertBindingWritable();if(choice!==JSON.stringify(this.#host?.flow.preview))throw Error('操作目标候选在核验后变化')},
-   assertCurrent:async()=>{await this.assertFormalConsumers();if(this.modelId!==this.#fromModelId)this.assertBindingWritable();if(!this.#host)throw Error('操作来源已失效');if(!choice){const current=modelSourceEditCurrentInputTargetContract(this.#host);validateWorkflowOperationInputTarget({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,target:current});choice=JSON.stringify(this.#host.flow.preview)}else if(choice!==JSON.stringify(this.#host.flow.preview))throw Error('操作目标选择已变化')},
+   assertCurrent:async()=>{await this.assertFormalConsumers();if(this.modelId!==this.#fromModelId)this.assertBindingWritable();if(!this.#host)throw Error('操作来源已失效');if(!captured){captured=structuredClone(modelSourceEditCurrentInputTargetContract(this.#host));choice=JSON.stringify(this.#host.flow.preview)}else if(choice!==JSON.stringify(this.#host.flow.preview))throw Error('操作目标选择已变化');validateWorkflowOperationInputTarget({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,target:captured});await this.operationOutputCheck(captured)},
    complete:async()=>{this.confirmSource();await this.completeNode()}}
+ }
+ private async operationOutputCheck(change:SourceInputTargetChange):Promise<void>{
+  this.beforeNode();const before=workflowOperationOutputFields(this.#before['output_mapping']),ids=new Map(this.map.map(pair=>[pair.from,pair.to]))
+  if(this.modelId===this.#fromModelId&&sourceProof(change.before.model,change.before.fields)===sourceProof(change.after.model,change.after.fields.map(field=>field.values)))return
+  const after=before.flatMap(row=>{
+   const candidate=change.after.fields.find(field=>field.id===(ids.get(String(row['rowid']))??row['rowid']))
+   if(!candidate?.id||this.#operation==='delete'&&candidate.values['Name']!==change.sourcePrimaryKey)return []
+   return[{...row,rowid:candidate.id,Name:candidate.values['Name'],FieldType:candidate.values['FieldType']}]
+  })
+  const projected=change.after.fields.filter(field=>typeof field.values['Name']==='string'&&!field.values['Name'].startsWith('lingma_sys_')&&(this.#operation!=='delete'||field.values['Name']===change.sourcePrimaryKey))
+  const outputChanged=projected.length!==before.length||before.some(row=>{const candidate=projected.find(field=>field.id===(ids.get(String(row['rowid']))??row['rowid']));return !candidate||candidate.id!==row['rowid']||candidate.values['Name']!==row['Name']||candidate.values['FieldType']!==row['FieldType']||(typeof candidate.values['description']==='string'?candidate.values['description']:'')!==row['Description']})
+  const node=this.#nodes.rows.find(row=>row['rowid']===this.input.nodeId)
+  if(outputChanged&&(!node||this.#nodes.editActionState(node)!=='enabled'||this.#nodes.fieldAccess(node,'output_mapping').write!=='allowed'))throw Error('当前查询不允许来源切换所需的节点输出字段')
+  await assertWorkflowNodeOutputChanges({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,before,after,assertCurrent:()=>this.beforeNode()});this.beforeNode()
  }
  private async removals(ids:readonly string[],change?:SourceContractChange|SourceInputTargetChange):Promise<()=>void>{
   this.beforeNode();const suffix=`sourceRemove_${crypto.randomUUID().replaceAll('-','')}`,models=this.#models.createQueryView(suffix),fields=this.#template.createQueryView(suffix),relations=this.#relations.createQueryView(suffix),views=[models,fields,relations];this.#owned.push(...views)
@@ -189,7 +212,9 @@ export class WorkflowModelSourceEdit{
   this.#sourceConfirmed=true
  }
  private async completeNode():Promise<void>{
-  this.guard();if(!this.#sourceConfirmed)throw Error('来源尚未正式确认');if(!this.#node){
+  this.guard();if(!this.#sourceConfirmed)throw Error('来源尚未正式确认')
+  if(this.#operation!=='query'&&this.#operation!=='copy'&&this.modelId===this.#fromModelId&&this.#confirmedSource&&sourceProof(this.#confirmedSource.model,this.#confirmedSource.fields)===this.#initialSource){this.beforeNode();await this.assertFormalConsumers();this.#sourceUnchanged=true;return}
+  if(!this.#node){
    await this.readTargetFields();const actual=new Set(this.#fields.rows.map(row=>text(this.#fields,row,'rowid'))),map=new Map(this.map.map(item=>[item.from,item.to]))
    if(!this.#confirmedSource)throw Error('缺少已确认目标合同')
    this.#node=openWorkflowQuerySourceNodeCommit({dataSet:this.input.dataSet,workflowId:this.input.workflowId,nodeId:this.input.nodeId,expectedSource:this.#confirmedSource,...this.#operation==='query'?{}:{operation:this.#operation},fromModelId:this.#fromModelId,modelId:this.modelId,nodeBefore:this.#before,fieldsBefore:this.#beforeFields,
@@ -215,7 +240,7 @@ export class WorkflowModelSourceEdit{
    if(result.confirmed){this.confirmSource();await this.completeNode()}return result
   }finally{this.#busy=false}
  }
- getState(){return{shared:this.shared,modelId:this.modelId,isolation:this.#fork?.getState(),source:this.#public?.getState(),node:this.#node?.getState(),complete:this.#node?.getState().complete===true,pending:!this.#closed&&this.#node?.getState().complete!==true}}
+ getState(){const complete=this.#sourceUnchanged||this.#node?.getState().complete===true;return{shared:this.shared,modelId:this.modelId,isolation:this.#fork?.getState(),source:this.#public?.getState(),node:this.#node?.getState(),complete,pending:!this.#closed&&!complete}}
  /** 未派发预览可以取消；已创建隔离模型或已确认来源须保留后续收口入口。 */
  cancel():void{this.guard();if(this.#busy||this.#fork||this.#sourceConfirmed)throw Error('已创建隔离定义或来源阶段已确认，须继续核验');this.#source?.discard();this.release();this.#closed=true}
  /** 已完成后释放本工位视图；未确认阶段必须保留原捕获。 */

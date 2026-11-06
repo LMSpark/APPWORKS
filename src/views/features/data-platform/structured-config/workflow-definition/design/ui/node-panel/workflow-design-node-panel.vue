@@ -79,6 +79,7 @@ AI用途：节点对话框承接同一节点身份，来源和字段操作不因
    <RendererTabPane v-else name="model" :label="isOperationNode ? '数据处理' : '模型参数'" :index="0" :data-view-key="nodesKey"><p>请选择模型后配置字段及参数。</p></RendererTabPane>
    <RendererTabPane name="output" label="节点输出模型" :index="2" :data-view-key="nodesKey">
     <RendererButton v-if="isMergeNode" label="生成输出模型" :data-view-key="nodesKey" perm-action="edit" :disabled="locked || pendingPart('nodes')" @click="generateMergeOutput" />
+    <RendererButton v-else-if="isOperationNode && validModel" label="生成输出模型" :data-view-key="nodesKey" perm-action="edit" :disabled="locked || hasPending" @click="generateOperationOutput" />
     <FieldJson field="output_mapping" :label="isMergeNode ? '合并输出模型' : '节点输出模型'" mode="outline" outline-id-field="rowid" outline-parent-field="pid" :children="mergeOutputFields" :readonly="true" />
    </RendererTabPane>
   </RendererTabs>
@@ -99,6 +100,7 @@ import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resou
 import {workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/copy-target'
 import {workflowMergeInputPresentation,generateWorkflowMergeOutput,validateWorkflowMergeNodeChanges} from '@/lowcode/resources/structured-config/workflow-definition/merge-inputs'
 import {workflowNodeTypeEditable,validateWorkflowNodeTypeChanges} from '@/lowcode/resources/structured-config/workflow-definition/node-definition'
+import {generateWorkflowOperationOutput,validateWorkflowOperationOutputChanges} from '@/lowcode/resources/structured-config/workflow-definition/operation-output-edit'
 import WorkflowQueryNodeCreate from '../workflow-query-node-create.vue'
 import WorkflowCopyTarget from '../workflow-copy-target.vue'
 import WorkflowMergeSources from '../workflow-merge-sources.vue'
@@ -276,6 +278,14 @@ async function generateMergeOutput():Promise<void>{
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;emit('changed')}}
 }
+async function generateOperationOutput():Promise<void>{
+ const ds=dataSet.value,id=selectedQueryId.value,own=generation
+ if(locked.value||hasPending.value||!ds||!isOperationNode.value||!id||loadedTarget.value!==workflowId.value)return
+ acting.value=true;error.value=''
+ try{await generateWorkflowOperationOutput({dataSet:ds,workflowId:workflowId.value,nodeId:id,assertCurrent:()=>{assertScope();if(!props.visible||props.nodeId!==id||selectedQueryId.value!==id||generation!==own)throw Error('原操作输出窗口已变化')}})}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;emit('changed')}}
+}
 async function saveFields():Promise<void>{
  if(!isQueryNode.value&&!isCopyNode.value&&!isOperationNode.value){await save(fieldsTable);return}
  const ds=dataSet.value,id=selectedNode.value&&view(nodesTable)?.getPkKey(selectedNode.value),own=generation
@@ -299,7 +309,7 @@ async function save(table:string):Promise<void>{
  const ds=dataSet.value,target=view(table),own=generation,id=target?.currentRow&&target.getPkKey(target.currentRow)
  if(!target||typeof id!=='string')return
  acting.value=true;error.value=''
- try{assertScope();if(table===nodesTable){if(props.boundaryPending)throw Error('请先保存或取消边界补齐');await validateWorkflowNodeTypeChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]});await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]})}
+ try{assertScope();if(table===nodesTable){if(props.boundaryPending)throw Error('请先保存或取消边界补齐');await validateWorkflowNodeTypeChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]});await validateWorkflowMergeNodeChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]});await validateWorkflowOperationOutputChanges({dataSet:ds,workflowId:workflowId.value,nodeIds:[id]})}
   assertScope();const result=await ds.saveChanges({views:[{tableName:table,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'保存未完整确认')
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;emit('changed')}}

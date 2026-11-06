@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/operation-output",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/operation-output.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/operation-output.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/operation-output",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/operation-output\n职责：按正式SQL目标字段与物理来源核定操作节点的平面输出目录。\n边界：纯定义投影，不执行节点、不分配字段身份、不保存或改动输入字段用途。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Row": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Row",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "Operation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Operation",
+      "enum": [
+        "delete",
+        "add",
+        "edit"
+      ]
+    },
+    "Transition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Transition",
+      "properties": {
+        "fromModelId": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "fieldIds": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "from": {
+                "type": "string"
+              },
+              "to": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "from",
+              "to"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "removedIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "fromModelId",
+        "fields",
+        "fieldIds",
+        "removedIds"
+      ],
+      "additionalProperties": false
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "operation": {
+          "$ref": "#/$defs/Operation"
+        },
+        "model": {
+          "$ref": "#/$defs/Row"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "physical": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Row"
+          }
+        },
+        "original": true,
+        "transition": {
+          "$ref": "#/$defs/Transition"
+        }
+      },
+      "required": [
+        "workflowId",
+        "modelId",
+        "operation",
+        "model",
+        "fields",
+        "physical"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-06T00:30:03.322Z",
+  "models": {
+    "Row": {
+      "name": "Row",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<string, unknown>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<string, unknown>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Operation": {
+      "name": "Operation",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'add' | 'edit' | 'delete'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'add'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'edit'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'delete'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Transition": {
+      "name": "Transition",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    fromModelId: string;\n    fields: readonly Row[];\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    fromModelId: string;\n    fields: readonly Row[];\n    fieldIds: ReadonlyArray<Readonly<{\n        from: string;\n        to: string;\n    }>>;\n    removedIds: readonly string[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "fromModelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fieldIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "removedIds",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    operation: Operation;\n    model: Row;\n    fields: readonly Row[];\n    physical: readonly Row[];\n    original?: unknown;\n    transition?: Transition;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    modelId: string;\n    operation: Operation;\n    model: Row;\n    fields: readonly Row[];\n    physical: readonly Row[];\n    original?: unknown;\n    transition?: Transition;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "operation",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "model",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fields",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "physical",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "original",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "transition",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

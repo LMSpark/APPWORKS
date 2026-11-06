@@ -56,6 +56,7 @@ export class WorkflowConnectorCondition{
  }
  static columns(dataSet:DataSet,workflowId:string,edgeId:string|number):DataColumn[]{
   const {nodes,source}=scope(dataSet,workflowId,edgeId),raw=read(nodes,source,'output_mapping')
+  if(['add','edit','delete'].includes(String(read(nodes,source,'node_type'))))throw Error('操作节点输出的连线条件消费尚待实服验证')
   const entries=workflowOutputFields({nodeId:String(nodes.getPkKey(source)),position:read(nodes,source,'position_type'),nodeType:read(nodes,source,'node_type'),mapping:raw})
   return entries.map(value=>{
    const name=value['Name'] as string

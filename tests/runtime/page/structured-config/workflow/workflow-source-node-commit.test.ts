@@ -2,6 +2,7 @@ import {afterEach,describe,expect,it,vi} from 'vitest'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {openWorkflowQuerySourceNodeCommit} from '@/lowcode/resources/structured-config/workflow-definition/query-source-node-commit'
 import {workflowSourceEditFixture} from './workflow-source-edit.fixture'
+import {LowcodeDataSpaceModelSourceReader} from '@/lowcode/data-space/model-source/lowcode-data-space-model-source-reader'
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 const output=[{rowid:'ITEMS',pid:null,Name:'items',FieldType:'Array',isParent:true,keep:{future:true}},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},
@@ -29,17 +30,18 @@ describe('workflow source confirmed node commit',()=>{
   const owner=openWorkflowQuerySourceNodeCommit({...f.input,expectedSource})
   await owner.complete();expect(owner.getState().complete).toBe(true);expect(f.http.saves).toHaveLength(1)
  })
- it.each(['add','edit','delete'] as const)('commits only the %s operation target and preserves unrelated node fields without manufacturing query outputs',async operation=>{
+ it.each(['add','edit','delete'] as const)('commits the %s target and formal flat output together while preserving unrelated fields',async operation=>{
   const f=await fixture(),node=f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')!
   Object.assign(node,{node_type:operation,dataOperateModId:'MODEL',node_config:'keep-unrelated-config',output_mapping:'[]'})
-  f.http.records['Base_DataModel']!.find(row=>row['rowid']==='FORK')!['requestType']=operation
-  f.http.records['Base_DataModel_Field']!.find(row=>row['rowid']==='FF')!['type']='inputParams'
+  Object.assign(f.http.records['Base_DataModel']!.find(row=>row['rowid']==='FORK')!,{requestType:operation,DbId:'DB',DbName:'database',MetaName:'Target'})
+  for(const field of f.http.records['Base_DataModel_Field']!)Object.assign(field,{type:'inputParams',IsOutput:0,IsPKey:1})
+  vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockResolvedValue({source:{type:'table',id:'TABLE',dbid:'DB',databaseName:'database',name:'Target',description:'',providerId:''},fields:[{type:'dataModel',Name:'isolated',FieldType:'varchar',IsPKey:1,IsOutput:1,AsName:'',ValueFun:'',description:'',Expression:'',allowAIAdd:0,OrderType:'',Order:0,Group:0}]})
   await Promise.all([f.nodes.refresh(),f.projection.models.refresh(),f.projection.fields.refresh()]);const before=f.nodes.readSnapshot().rows.find(row=>row['rowid']==='QUERY')!
   const expectedSource={model:f.projection.models.readSnapshot().rows.find(row=>row['rowid']==='FORK')!,fields:f.projection.fields.readSnapshot().rows}
-  const owner=openWorkflowQuerySourceNodeCommit({...f.input,operation,nodeBefore:before,expectedSource})
+  const owner=openWorkflowQuerySourceNodeCommit({...f.input,operation,nodeBefore:before,expectedSource,fieldsBefore:f.input.fieldsBefore.map(row=>({...row,type:'inputParams',IsOutput:0,IsPKey:1}))})
   await owner.complete();await owner.complete()
   expect(owner.getState().complete).toBe(true)
-  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({node_type:operation,dataOperateModId:'FORK',node_config:'keep-unrelated-config',output_mapping:'[]',name:'keep-name',config:'{"PageParam":{"index":1,"size":1}}'})
+  expect(f.http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']==='QUERY')).toMatchObject({node_type:operation,dataOperateModId:'FORK',node_config:'keep-unrelated-config',output_mapping:JSON.stringify([{rowid:'FF',pid:null,Name:'isolated',Description:'隔离字段',FieldType:'varchar',isParent:false}]),name:'keep-name',config:'{"PageParam":{"index":1,"size":1}}'})
   expect(f.http.saves.map(save=>save.table)).toEqual(['Base_WorkflowNodeDefinition'])
  })
  it('performs no write when the confirmed source and existing output need no node delta',async()=>{

@@ -1,6 +1,7 @@
 import {afterEach,describe,expect,it,vi} from 'vitest'
 import {SparkData,RequestState,DataViewFilter,DataViewFilterCodec,type DataSet} from '@spark-appworks/spark-data'
 import {workflowQueryInputPresentation,workflowQuerySharedInputPresentation,validateWorkflowQueryInputChanges,WorkflowQueryInputs} from '@/lowcode/resources/structured-config/workflow-definition/query-inputs'
+import {workflowExecutionInputs} from '@/lowcode/resources/structured-config/workflow-definition/execution-inputs'
 
 const sets:DataSet[]=[]
 afterEach(()=>{sets.splice(0).forEach(ds=>ds.destroy());vi.restoreAllMocks()})
@@ -8,7 +9,7 @@ function fixture(){
  const records={
   Base_WorkflowDefinition:[{rowid:'W',name:'workflow'}],
   Base_WorkflowNodeDefinition:[{rowid:'START',workflow_id:'W',position_type:0,name:'开始',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'code',Description:'编码',FieldType:'string',isParent:false}])},
-   {rowid:'QUERY',workflow_id:'W',position_type:1,node_type:'query',node_config:'MODEL',output_mapping:'[]'}],
+   {rowid:'QUERY',workflow_id:'W',position_type:1,node_type:'query',node_config:'MODEL',dataOperateModId:'',output_mapping:'[]'}],
   Base_WorkflowConnectors:[{rowid:'E',workflow_id:'W',sourceID:'START',targetID:'QUERY'}],
   Base_DataModel:[{rowid:'MODEL',dataSetId:'W',Name:'Orders',Type:'数据库表'}],
   Base_DataModel_Field:[{rowid:'F',dataSetId:'W',dataModelId:'MODEL',type:'dataModel',Name:'code',FieldType:'varchar',description:'编码'}],
@@ -18,6 +19,15 @@ function fixture(){
  return ds
 }
 describe('workflow query input definitions',()=>{
+ it.each(['add','edit','delete'])('offers %s flat output through the same query and single-node input catalog',operation=>{
+  const ds=fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
+  const output=[{rowid:'OPF',pid:null,Name:'ReportID',Description:'正式字段',FieldType:'varchar',isParent:false}]
+  nodes.appendRow({rowid:'OP',workflow_id:'W',position_type:1,node_type:operation,dataOperateModId:'TARGET',name:'操作',output_mapping:JSON.stringify(output)});nodes.total=nodes.rows.length
+  edges.appendRow({rowid:'SO',workflow_id:'W',sourceID:'START',targetID:'OP'});edges.appendRow({rowid:'OQ',workflow_id:'W',sourceID:'OP',targetID:'QUERY'});edges.total=edges.rows.length
+  expect(workflowQueryInputPresentation(ds,'W','QUERY').inputs).toContainEqual({value:'OP.ReportID',label:'操作 · 正式字段'})
+  expect(()=>validateWorkflowQueryInputChanges(ds,'W','QUERY',{values:[JSON.stringify({Type:'GetInputParam',ParamName:'OP.ReportID'})]})).not.toThrow()
+  expect(workflowExecutionInputs({dataSet:ds,workflowId:'W',nodeId:'QUERY',mode:'node'}).groups).toContainEqual(expect.objectContaining({id:'OP',path:['OP'],fields:[expect.objectContaining({name:'ReportID'})]}))
+ })
  it.each(['query','copy'])('offers saved %s leaf names without items or synthetic Count roots',kind=>{
   const ds=fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!,edges=ds.getView('Base_WorkflowConnectors')!
   const output=[{rowid:'ITEMS',pid:null,Name:'items',FieldType:'Array',isParent:true},{rowid:'COUNT',pid:null,Name:'Count',FieldType:'int',isParent:false},

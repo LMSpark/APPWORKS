@@ -8,7 +8,7 @@ import {RequestState,type DataSet,type DataRow,type DataView} from '@spark-appwo
 import {parseJsonDocument,type JsonPath} from '@spark-appworks/spark-json-document'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {workflowQueryAncestors} from './query-inputs'
-import {workflowOutputFields,assertUnpublishedWorkflowOperationOutput} from './output-fields'
+import {workflowOutputFields,assertWorkflowOutputUnpublished} from './output-fields'
 /** 输入字段描述；不持有可编辑测试值。 */
 export type WorkflowTestField=Readonly<{
  /** 正式参数或发布字段的身份。 */
@@ -84,7 +84,7 @@ export function workflowExecutionInputs(input:Input):WorkflowTestInputPresentati
  for(const id of graph.ancestors){
   const row=graph.byId.get(id);if(!row)throw Error('祖先节点身份缺失')
   const position=read(nodes,row,'position_type'),nodeType=read(nodes,row,'node_type'),mapping=read(nodes,row,'output_mapping')
-  if(['add','edit','delete','merge'].includes(String(nodeType))){assertUnpublishedWorkflowOperationOutput(mapping);continue}
+  if(nodeType==='merge'){assertWorkflowOutputUnpublished(mapping);continue}
   const columns=fields(workflowOutputFields({nodeId:id,position,nodeType,mapping}))
   if(!columns.length)continue
   const label=nodes.fieldAccess(row,'name').read==='visible'&&typeof row['name']==='string'&&row['name']?row['name']:id

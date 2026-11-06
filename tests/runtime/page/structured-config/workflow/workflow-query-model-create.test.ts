@@ -6,6 +6,7 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout-resource'
 import {openWorkflowQueryModelCreate} from '@/lowcode/resources/structured-config/workflow-definition/query-model-create'
 import {openWorkflowNodeModelBinding} from '@/lowcode/resources/structured-config/workflow-definition/query-node-create'
+import {generateWorkflowOperationOutput,validateWorkflowOperationOutputChanges} from '@/lowcode/resources/structured-config/workflow-definition/operation-output-edit'
 import {saveWorkflowOperationFields,cancelWorkflowOperationFields} from '@/lowcode/resources/structured-config/workflow-definition/operation-fields'
 import {saveWorkflowQueryFields,cancelWorkflowQueryFields} from '@/lowcode/resources/structured-config/workflow-definition/query-fields'
 import {WorkflowConnectors} from '@/lowcode/resources/structured-config/workflow-definition/connectors'
@@ -740,19 +741,62 @@ describe('workflow query model creation in the original DataSet',()=>{
 
 
 describe('workflow data operation node creation',()=>{
+ async function stored(){
+  const f=await fixture();Object.assign(f.http.records['Base_DataModel']![0]!,{Type:'数据库表',requestType:'edit',DbId:'DB',DbName:'TestDB',MetaName:'Disposable'})
+  f.http.records['Base_DataModel_Field']=[{rowid:'PF',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'rowid',FieldType:'varchar',IsPKey:1,IsOutput:0,AsName:'',description:'ID'}, {rowid:'NF',dataSetId:'W1',dataModelId:'M1',type:'inputParams',Name:'name',FieldType:'varchar',IsPKey:0,IsOutput:0,AsName:'',description:'名称'}]
+  f.http.records['Base_WorkflowNodeDefinition']=[{rowid:'OP',workflow_id:'W1',position_type:1,node_type:'edit',dataOperateModId:'M1',node_config:'',input_mapping:'[]',output_mapping:'[]',config:''}]
+  const nodes=f.ds.getView('Base_WorkflowNodeDefinition')!;await nodes.refresh();return{...f,nodes,input:{dataSet:f.ds,workflowId:'W1',nodeId:'OP'}}
+ }
+ it('explicitly generates an existing operation output in the original draft, cancels and saves/reopens only that field',async()=>{
+  const f=await stored();await generateWorkflowOperationOutput(f.input)
+  expect(f.http.saves).toHaveLength(0);expect(f.nodes.rows[0]?.['output_mapping']).toBe('[]')
+  expect(JSON.parse(String(f.nodes.getEditingRow('OP')?.['output_mapping']))).toMatchObject([{rowid:'PF',Name:'rowid',pid:null},{rowid:'NF',Name:'name',pid:null}])
+  await validateWorkflowOperationOutputChanges({...f.input,nodeIds:['OP']});f.nodes.discardPendingChanges(['OP']);expect(f.nodes.getEditingRow('OP')?.['output_mapping']).toBe('[]')
+  await generateWorkflowOperationOutput(f.input);await validateWorkflowOperationOutputChanges({...f.input,nodeIds:['OP']})
+  expect((await f.ds.saveChanges({views:[{tableName:f.nodes.tableName,viewId:f.nodes.viewId,ids:['OP']}]})).success).toBe(true)
+  await f.nodes.refresh();expect(JSON.parse(String(f.nodes.rows[0]?.['output_mapping']))).toHaveLength(2)
+  expect(f.http.saves).toHaveLength(1);expect(f.http.saves[0]?.changed).toEqual([{rowid:'OP',output_mapping:expect.any(String)}])
+ })
+ it('rejects the original generated output after a remote target refresh instead of resetting its baseline',async()=>{
+  const f=await stored();await generateWorkflowOperationOutput(f.input)
+  f.http.records['Base_WorkflowNodeDefinition']![0]!['dataOperateModId']='M2';await expect(f.nodes.refresh()).rejects.toThrow('UNSAVED_CHANGES')
+  await expect(validateWorkflowOperationOutputChanges({...f.input,nodeIds:['OP']})).rejects.toThrow('原正式节点已变化')
+  expect(f.http.saves).toHaveLength(0)
+ })
+ it('preserves a later binding edit and refuses a late physical-directory generation callback',async()=>{
+  const f=await stored(),readTarget=LowcodeDataSpaceModelSourceReader.readTableTarget
+  vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockImplementationOnce(async(...args)=>{const result=await readTarget(...args);f.nodes.updateEditingValue('OP','dataOperateModId','M2');return result})
+  await expect(generateWorkflowOperationOutput(f.input)).rejects.toThrow()
+  expect(f.nodes.getEditingRow('OP')).toMatchObject({dataOperateModId:'M2',output_mapping:'[]'});expect(f.http.saves).toHaveLength(0)
+ })
+ it('rejects a same-schema physical source switch under the same model identity after generation',async()=>{
+  const f=await stored();await generateWorkflowOperationOutput(f.input)
+  Object.assign(f.http.records['Base_DataModel']![0]!,{MetaName:'OtherTarget',DbId:'DB2',DbName:'other-db'})
+  f.http.records['View_TblList']!.push({rowid:'OTHER_TABLE',dbid:'DB2',DbName:'other-db',tblname:'OtherTarget',tbldesc:''})
+  f.http.records['Base_TblField']!.push({rowid:'OTHER_PK',tblid:'OTHER_TABLE',enname:'rowid',DataType:'varchar',IsPKey:1},{rowid:'OTHER_NAME',tblid:'OTHER_TABLE',enname:'name',DataType:'varchar',IsPKey:0})
+  await expect(validateWorkflowOperationOutputChanges({...f.input,nodeIds:['OP']})).rejects.toThrow('来源已变化');expect(f.http.saves).toHaveLength(0)
+ })
+ it('rejects a directory callback after a same-ID same-value node refresh before any draft existed',async()=>{
+  const f=await stored(),readTarget=LowcodeDataSpaceModelSourceReader.readTableTarget
+  vi.spyOn(LowcodeDataSpaceModelSourceReader,'readTableTarget').mockImplementationOnce(async(...args)=>{const result=await readTarget(...args);await f.nodes.refresh();return result})
+  await expect(generateWorkflowOperationOutput(f.input)).rejects.toThrow('原目标或草稿已变化')
+  expect(f.nodes.getEditingRow('OP')?.['output_mapping']).toBe('[]');expect(f.http.saves).toHaveLength(0)
+ })
  it.each(['add','edit','delete'] as const)('creates %s with its own input model and exact node target through the original staged owners',async operation=>{
   const {ds,http,reader}=await fixture(),nodes=ds.getView('Base_WorkflowNodeDefinition')!
   await nodes.refresh()
   const target={...source,type:'table' as const,id:'TABLE',dbid:'DB',databaseName:'TestDB'}
-  reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'},fields:[{...prepared.fields[0]!,ValueFun:'source value is not an operation input'}]})
+  reader.prepare.mockResolvedValue({...structuredClone(prepared),source:target,model:{...prepared.model,Type:'数据库表',MetaName:'Disposable',DbId:'DB',DbName:'TestDB'},fields:[{...prepared.fields[0]!,Name:'rowid',IsPKey:1,ValueFun:'source value is not an operation input'},{...prepared.fields[0]!,Name:'name',IsPKey:0}]})
   const owner=await newNodeBinding(operation,{dataSet:ds,workflowId:'W1',sources:reader,assertCurrent(){}})
   await owner.model.preview(target)
   expect(http.saves).toHaveLength(0)
   const id=await owner.save(),node=http.records['Base_WorkflowNodeDefinition']!.find(row=>row['rowid']===id)!
-  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:owner.modelId,node_config:'',input_mapping:'[]',output_mapping:'[]',config:''})
+  expect(node).toMatchObject({workflow_id:'W1',position_type:1,node_type:operation,dataOperateModId:owner.modelId,node_config:'',input_mapping:'[]',config:''})
+  const formal=http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']===owner.modelId)
+  expect(JSON.parse(String(node['output_mapping']))).toEqual(formal.filter(row=>operation!=='delete'||row['Name']==='rowid').map(row=>({rowid:row['rowid'],pid:null,Name:row['Name'],Description:row['description'],FieldType:row['FieldType'],isParent:false})))
   expect(http.records['Base_DataModel']!.find(row=>row['rowid']===owner.modelId)).toMatchObject({dataSetId:'W1',requestType:operation,MetaName:'Disposable',DbId:'DB',DbName:'TestDB'})
   expect(http.records['Base_DataModel_Field']!.filter(row=>row['dataModelId']===owner.modelId).every(row=>row['IsOutput']===0)).toBe(true)
-  expect(http.records['Base_DataModel_Field']).toEqual([expect.objectContaining({dataSetId:'W1',dataModelId:owner.modelId,type:'inputParams',Name:'value',ValueFun:''})])
+  expect(formal).toEqual([expect.objectContaining({dataSetId:'W1',dataModelId:owner.modelId,type:'inputParams',Name:'rowid',ValueFun:''}),expect.objectContaining({Name:'name',ValueFun:''})])
   expect(http.saves.map(save=>save.table)).toEqual(['Base_DataModel','Base_DataModel_Field','Base_WorkflowNodeDefinition'])
   expect(owner.pending).toBe(false)
   await owner.save();expect(http.saves).toHaveLength(3)

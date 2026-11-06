@@ -99,7 +99,7 @@ function workflowAncestorInputRows(nodes:DataView,byId:ReadonlyMap<string,DataRo
   const node=byId.get(id);if(!node)throw Error('祖先节点身份缺失')
   if(nodes.hasEditingChanges(id)||nodes.dirtyTracking.hasPendingChanges(id))throw Error('祖先节点仍有未保存修改')
   const position=read(nodes,node,'position_type'),name=read(nodes,node,'name'),raw=read(nodes,node,'output_mapping')
-  const start=String(position)==='0',type=read(nodes,node,'node_type'),query=String(position)==='1'&&['query','copy'].includes(String(type))
+  const start=String(position)==='0',type=read(nodes,node,'node_type'),query=String(position)==='1'&&['query','copy','add','edit','delete'].includes(String(type))
   if(!start&&!query){diagnostics.push(`节点 ${typeof name==='string'?name:id} 的输出尚待执行合同验证`);continue}
   const output=workflowOutputFields({nodeId:id,position,nodeType:start?'query':read(nodes,node,'node_type'),mapping:raw})
   if(type==='copy')diagnostics.push(`迁移节点 ${typeof name==='string'?name:id} 的后续输入仅包含服务返回的首批行，不等于全部写入行`)

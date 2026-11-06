@@ -85,7 +85,7 @@ export async function assertOriginalWorkflowNodeEmpty(input:OriginalInput):Promi
   const kind=read(view,row,'node_type');if(typeof kind!=='string'||!kinds.includes(kind)||input.original?.kind!==undefined&&input.original.kind!==kind)throw Error('正式节点类型已变化')
   if(input.purpose==='type-change'||input.desiredKind!==undefined&&input.desiredKind!==kind){if(!blank(view,row))throw Error('正式节点已有配置，不能切换原类型');await assertNoFormalEdges(input)}
   if(view.editActionState(row)!=='enabled')throw Error('当前正式查询不允许绑定节点')
-  const fields=input.purpose==='type-change'?['node_type']:['add','edit','delete'].includes(input.desiredKind??kind)?['dataOperateModId']:['node_config','output_mapping']
+  const fields=input.purpose==='type-change'?['node_type']:['add','edit','delete'].includes(input.desiredKind??kind)?['dataOperateModId','output_mapping']:['node_config','output_mapping']
   for(const field of fields)if(view.fieldAccess(row,field).write!=='allowed')throw Error(`当前正式查询不允许节点绑定字段: ${field}`)
   return{pending:false,kind}
  }finally{view.dataTable?.destroyView(view.viewId)}

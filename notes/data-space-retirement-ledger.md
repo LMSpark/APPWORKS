@@ -8078,3 +8078,5 @@ server submit只接纳数字Code200、Result原rowid及无冲突成功类型/回
 **后续paired预检研究（尚未实现）。**高阶只读定位attachCatalogCommandViews真实一次装配含多个结果；建议先以末结果声明匹配但foreign owner、前结果未绑定/input缺失为反例，拒绝后input无占名、前结果仍未绑定、HTTP0。现bindQueryExecutor会emit/recompute，不可当无副作用探针；现assertResultReplacementAllowed不核owner/load序号。须复用同一权威绑定校验，先纯预检全部已有端，再提交装配；不公开owner getter或save口，不为预检临时改resourceIdentity。输入/多结果表名别名冲突也须创建前拒；重复装配更换commandInput不得仍沿旧loadRows闭包却声称新输入已绑定。先确认最小公共合同和所有实际消费者，再按RED推进，未把研究当已支持，不另建并行计划。后续仍同一S1责任层，不提前用页面补丁绕行。
 
 **Z检查点终验。**最终根verify81726自然exit0（根类型/lint、ClassModel49项及正式工程规则），既有2模型警告/84薄页诊断仍保留。全部本批验证handle已终态，diff --check通过；高阶末态窄审无阻断，非独立实服执行。准备提交本批S1资源/查询配置与回归、正式派生及唯一台账，不修改页面/组件/Java、不新增后端协议或兼容ACK、不把缺证当未写。只推origin同codex分支、不merge/force/部署；用户原组件未跟踪RED不stage，只有主worktree。U实服隔离对象清理终态沿用，Z无新写入或清理遗留。下一仍S1 catalog多结果预检及paired/I3余项，合同未冻结、20包完整目标active。
+
+**Z已提交推送并独立核实。**代码a67efa7630e97ba6538fa7ecd8b28d173aabc710（fix(database): verify server registrations independently），22文件288增122删；origin同codex分支push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，唯一主worktree，只保原S2未跟踪RED。事实补记docs跟随同步，不改变已验代码；恢复点为S1 catalog多结果预检，未冻结/未进S2，服务器实服注册与下游筛选展示证据仍各自待验。

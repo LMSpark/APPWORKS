@@ -8056,3 +8056,5 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **Y末态门禁进度。**命名参数修正后93116自然exit0：数据库15文件259测试；公共末态81811的55文件1238测试含新增两项helper回归。最终生成50733自然exit0：1108/1744/3764，最终lowcode生成自然exit0：611端点216消费者。最终根verify42997仍运行，类型/lint/架构已通过，待全部正式规则终态；当前无本批待清理测试对象、无新工作树/临时源，用户原组件RED不动。
 
 **Y检查点终验与提交边界。**最终根verify42997自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留。所有本批handle终态，diff --check通过，高阶窄审无剩余Y阻断。另精确删除3份已被末态替代的生成/合同/失败门禁日志，本批合计10份过程日志清理，首次失败事实在本台账保留，不删正式测试/有效证据。准备提交三个注册短路删除、字段创建/幂等修正及回归、正式派生与本台账，仅同一codex分支推origin，不merge/force/部署。未执行实服注册，无凭据/运行数据入提交；原S2未跟踪测试不stage，只有主worktree。下一仍S1服务器回执/精确独立核验及paired装配/I3剩余组，数据合同未冻结、无兼容层、全20包目标仍active。
+
+**Y已提交推送并独立核实。**代码9bda8f4d6bd31eb19dfd7dcc53362bb591ab4955（fix(database): validate registration command assembly），23文件753增173删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote精确同本地SHA。跟踪工作树清洁，只保原S2未跟踪RED，无额外worktree。事实补记docs跟随同步，不改已验代码。后续恢复S1服务器回执/精确核验反例，不进S2，不把本批局部通过当整体冻结。

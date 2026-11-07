@@ -8156,3 +8156,5 @@ bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应
 **AD首根门禁终态。**97560自然exit1，根type/lint及前置规则通过，AI codegen指出inline参数对象内JSDoc禁止；已将初始queryContext说明移至函数JSDoc，不改行为/不豁免规则。刷新官方ClassModel后重跑最终根门禁，未提交/推送，源码仍限S1。
 
 **AD最终检查点验收。**32505官方重生成自然exit0，最新完整根verify75492自然exit0，含类型/lint、ClassModel49项与正式规则；既有2模型警告/84薄页诊断保留。数据57文件1261项、末态定向3文件62项、包type/lint证据有效，高阶已声明范围静态复审无阻断，不冒全20包或全部S1验收。追加精确删除3份已被末态覆盖日志（本批共30份），保最终test/type/lint/gen/gates；反例事实仅本台账，不另建过程方案。所有handle终态，diff检查通过，唯一主worktree；原S2未跟踪RED不stage。准备同codex分支推origin，不merge/force/部署。只S1公共文件适配及测试/文档/官方产物，无实服写入、无组件/宿主/页面/Java改动，无兼容层。S1合同仍未冻结，下一真实验证命令clone未知防重放及辅助查询用途边界；历史数据转换尚未宣称完成。
+
+**AD已提交推送并独立核实。**代码80e44035d7f6a3e02cb1fc91e49e606166118743（fix(data): validate file resource assembly before binding），18文件400增101删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地同精确SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。此事实补记docs跟随同步。恢复点仍S1：先真实sync-attachment命名clone未知防重放及连接queryOptionRows用途反例，再据公共合同解决；不以文件装配局部通过冒整体冻结，20包目标active。

@@ -8120,3 +8120,5 @@ DataView.assertCanBindQueryExecutor提取原同owner/候选资源、已有查询
 下一预览还有真实页参数路径：页面每次同时传pageIndex/pageSize，当前Refresh依次await setPageSize/setPage/refresh，两个setter本身均reload，可能3次GetData；交叉调用旧wrapper await后还可能改回页码追加请求。V单次公开拒绝证据仅默认不传页参数，不外推真实分页路径。下一须按正式页参数补次数/PageParam及交叉旧调用反例，以原合同一次配置/一次查询表达（先查既有API，不造另一套分页器），保合法bare data{Items,Count}形态同时拒畸形total；仍S1数据适配，不改页迁就。
 
 **AB检查点终验。**最终根verify65600自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留。所有本批handle终态，source两处正式attempt递增仍在，diff --check通过，高阶末态源码复核无AB阻断；新增组合实测由主控331项覆盖，不冒实服测连。准备同一codex分支推origin：删除两组同名短路与裸bool伪回执、补纯预检/原pair/请求与输入身份/有限清密及释放重建、替换错误fixture并保32项正式回归，官方派生与唯一台账同步。无组件/页面/Java修改，无兼容层，无新实服对象或临时worktree，原S2未跟踪RED不stage。下一仍S1预览组与I3余矩阵，合同未冻结，原20包整体目标active。
+
+**AB已提交推送并独立核实。**代码e26230bbe167a4bd948a09e2cd8071d4e0296687（fix(database): guard connection probe assembly and lifecycle），21文件646增192删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，只保原S2未跟踪RED，唯一主worktree。事实补记docs跟随同步，不改已验代码；下一恢复S1预览paired/分页/迟到动态列反例及I3余项，未冻结/未进S2，不把夹具测连当实服证据。

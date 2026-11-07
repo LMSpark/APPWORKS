@@ -1,5 +1,5 @@
 {
-  "gapCount": 3769,
+  "gapCount": 3768,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -6765,18 +6765,6 @@
       "declarationLine": 242,
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "DataView",
-      "memberName": "hasUnconfirmedSave",
-      "reason": "missing-jsdoc",
-      "chainBreak": "DataView.hasUnconfirmedSave 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/data-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/data-view.ts",
-      "declarationLine": 986,
-      "sourceFile": "packages/spark-data/src/data-view.ts",
-      "declarationKind": "class"
     },
     {
       "kind": "model",

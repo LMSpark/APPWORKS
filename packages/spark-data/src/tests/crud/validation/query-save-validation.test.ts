@@ -54,7 +54,374 @@ async function resourceOwners(beforeDatabaseSave: () => Promise<void> = async ()
   return {dataSet, items, orders, file, stored, batches, database, orderOwner, fileOwner}
 }
 
+describe('formal query-save receipt identity', () => {
+  type Save = NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>
+  type Receipt = Awaited<ReturnType<Save>>[number]
+
+  async function open() {
+    const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {Items: {
+      modelBinding: {modelId: 'I', modelName: 'Items'},
+      crudConfig: {timeout: 1000},
+      columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string'}, {name: 'payload', type: 'json'}],
+      views: {default: {commitMode: 'staged'}},
+    }}})
+    const view = dataSet.getView('Items')!
+    const initial = [{id: 'A', title: 'Before A', payload: {value: 'original'}}, {id: 'B', title: 'Before B', payload: {value: 'original'}}]
+    let sequence = 0
+    let transform = (receipt: Receipt): Receipt => receipt
+    const save = vi.fn(async (command: Parameters<Save>[0]): Promise<Receipt[]> => command.changes.map(change => {
+      const changed = change.changes.changed ?? [], deleted = change.changes.deleted ?? []
+      const added = (change.changes.added ?? []).map((row, index) => ({...row, id: `CREATED${index + 1}`}))
+      const stored = initial.filter(row => !deleted.some(item => item['id'] === row.id))
+        .map(row => changed.find(item => item['id'] === row.id) ?? row)
+      return transform({metaName: 'Items', added, changed, deleted, changedFields: changed.map(() => ['title']),
+        context: query('Items', [...stored, ...added])})
+    }))
+    const executor = {save, executeQuery: async () => ({...query('Items', structuredClone(initial)),
+      prepareNewRow: (row: Readonly<DataRow>) => ({...row, id: `TEMP${++sequence}`})})}
+    view.bindQueryExecutor(executor)
+    await view.refresh()
+    return {dataSet, view, save, executor, transform: (next: typeof transform) => {transform = next}}
+  }
+
+  it.each(['absent', 'false'] as const)('blocks replay after an invalid receipt when source verification is %s', async mode => {
+    const f = await open(), abandon = vi.fn()
+    let writes = 0
+    try {
+      if (mode === 'false') Object.assign(f.executor, {hasUnconfirmedSave: () => false, abandonUnconfirmedSave: abandon})
+      f.transform(receipt => {writes++; return {...receipt, changed: [{id: 'WRONG', title: 'Invalid'}]}})
+      f.view.updateEditingValue('A', 'title', 'Submitted')
+      const failure: unknown = await f.dataSet.saveChanges().catch((error: unknown) => error)
+      if (!(failure instanceof Error)) throw new Error('invalid receipt must fail')
+      f.view.updateEditingValue('B', 'title', 'Later input')
+      await f.dataSet.saveChanges().catch(() => undefined)
+      expect(writes).toBe(1)
+      expect(f.save).toHaveBeenCalledOnce()
+      expect(f.view.hasUnconfirmedSaveFor(['A'], failure)).toBe(true)
+      expect(f.view.abandonUnconfirmedSave()).toBe(false)
+      expect(abandon).not.toHaveBeenCalled()
+      await expect(f.dataSet.resolveUnconfirmedSaves()).rejects.toBe(failure)
+      await expect(f.view.discardAndReload()).rejects.toThrow()
+      expect(f.view.hasUnconfirmedSaveFor(['A'])).toBe(true)
+      expect(f.view.getEditingRow('B')?.['title']).toBe('Later input')
+      expect(writes).toBe(1)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it.each(['length', 'identity'] as const)('protects every unaccepted view in the dispatched batch after a bad %s receipt', async fault => {
+    const f = await resourceOwners(), persist = f.database.save.getMockImplementation()!
+    f.database.save.mockImplementation(async command => {
+      const receipts = await persist(command)
+      return fault === 'length' ? receipts.slice(0, 1)
+        : receipts.map((receipt, index) => index === 0 ? {...receipt, changed: [{id: 'WRONG', title: 'Invalid'}]} : receipt)
+    })
+    try {
+      for (const view of [f.items, f.orders, f.file]) view.updateEditingValue('1', 'title', 'Submitted')
+      const failure: unknown = await f.dataSet.saveChanges().catch((error: unknown) => error)
+      if (!(failure instanceof Error)) throw new Error('invalid receipt must fail')
+      expect(f.items.hasUnconfirmedSaveFor(['1'], failure)).toBe(true)
+      expect(f.orders.hasUnconfirmedSaveFor(['1'], failure)).toBe(true)
+      expect(f.file.hasUnconfirmedSave).toBe(false)
+      expect(f.fileOwner.save).not.toHaveBeenCalled()
+      await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+      expect(f.database.save).toHaveBeenCalledOnce()
+      expect((await f.dataSet.saveChanges({views: [{tableName: 'File', viewId: 'default'}]})).success).toBe(true)
+      expect(f.fileOwner.save).toHaveBeenCalledOnce()
+      expect(f.items.dirtyTracking.hasPendingChanges()).toBe(true)
+      expect(f.orders.dirtyTracking.hasPendingChanges()).toBe(true)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('uses the original capture for source verification and preserves later input', async () => {
+    const f = await open(), persist = f.save.getMockImplementation()!
+    let pending = false, originalContext: unknown
+    let receipts: Awaited<ReturnType<Save>> = [], writes = 0, verifies = 0
+    Object.assign(f.executor, {hasUnconfirmedSave: () => pending})
+    f.save.mockImplementation(async command => {
+      if (!pending) {
+        writes++; originalContext = command.changes[0]!.context
+        receipts = await persist(command); pending = true
+        return receipts.map(receipt => ({...receipt, changed: [{id: 'WRONG', title: 'Invalid'}]}))
+      }
+      verifies++
+      expect(command.changes[0]!.context).toBe(originalContext)
+      expect(command.changes[0]!.changes.changed).toMatchObject([{id: 'A', title: 'Submitted'}])
+      expect(command.changes[0]!.changes.changed).toHaveLength(1)
+      pending = false
+      return receipts
+    })
+    try {
+      f.view.updateEditingValue('A', 'title', 'Submitted')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      f.view.updateEditingValue('A', 'title', 'Later A'); f.view.updateEditingValue('B', 'title', 'Later B')
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(writes).toBe(1); expect(verifies).toBe(1)
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect(f.view.getEditingRow('A')?.['title']).toBe('Later A')
+      expect(f.view.getEditingRow('B')?.['title']).toBe('Later B')
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('allows a new attempt after an explicit source refusal without a returned receipt', async () => {
+    const f = await open()
+    try {
+      f.save.mockRejectedValueOnce(new Error('explicit business refusal'))
+      f.view.updateEditingValue('A', 'title', 'Submitted')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('explicit business refusal')
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.save).toHaveBeenCalledTimes(2)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('keeps the original capture independent from a JavaScript source mutating submitted keys and nested values', async () => {
+    const f = await open()
+    let pending = false, originalContext: unknown, writes = 0, verifies = 0
+    let accepted: Awaited<ReturnType<Save>> = []
+    Object.assign(f.executor, {hasUnconfirmedSave: () => pending})
+    f.save.mockImplementation(async command => {
+      const change = command.changes[0]!, row = change.changes.changed![0]!
+      if (!pending) {
+        writes++; originalContext = change.context
+        const applied = structuredClone(row)
+        accepted = [{metaName: 'Items', added: [], deleted: [], changed: [applied], changedFields: [['title']],
+          context: query('Items', [applied, {id: 'B', title: 'Before B'}])}]
+        Reflect.set(change.identity, 'metaName', 'Other')
+        if (!change.tableConfig?.crudConfig) throw new Error('table config fixture missing')
+        Reflect.set(change.tableConfig.crudConfig, 'timeout', 999)
+        Reflect.set(row, 'id', 'B')
+        const payload = row['payload']
+        if (typeof payload !== 'object' || payload === null) throw new Error('nested fixture value missing')
+        Reflect.set(payload, 'value', 'mutated by source')
+        pending = true
+        return accepted.map(receipt => ({...receipt, changed: [row]}))
+      }
+      verifies++
+      expect(change.context).toBe(originalContext)
+      expect(change.identity.metaName).toBe('Items')
+      expect(change.tableConfig?.crudConfig?.timeout).toBe(1000)
+      expect(row).toMatchObject({id: 'A', title: 'Submitted', payload: {value: 'original'}})
+      pending = false
+      return accepted
+    })
+    try {
+      f.view.updateEditingValue('A', 'title', 'Submitted')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      f.view.updateEditingValue('A', 'payload', {value: 'later input'})
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(writes).toBe(1); expect(verifies).toBe(1)
+      expect(f.view.getEditingRow('A')?.['payload']).toEqual({value: 'later input'})
+    } finally {f.dataSet.destroy()}
+  })
+
+  it.each(['changed', 'deleted'] as const)('rejects duplicate %s identities before accepting either submitted row', async action => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, [action]: [receipt[action][0]!, receipt[action][0]!]}))
+      if (action === 'changed') {
+        f.view.updateEditingValue('A', 'title', 'Edited A'); f.view.updateEditingValue('B', 'title', 'Edited B')
+      } else {
+        await f.view.removeRow('A'); await f.view.removeRow('B')
+      }
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      const pending = action === 'changed' ? f.view.dirtyTracking.dirtyRowIds : f.view.dirtyTracking.pendingDeleteIds
+      expect([...pending].sort()).toEqual(['A', 'B'])
+      expect(f.save).toHaveBeenCalledOnce()
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('rejects duplicate allocated primary keys without replacing local added identities', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, added: receipt.added.map(row => ({...row, id: 'SAME'}))}))
+      await f.view.addRow({title: 'New A'}); await f.view.addRow({title: 'New B'})
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect([...f.view.dirtyTracking.pendingCreateIds].sort()).toEqual(['TEMP1', 'TEMP2'])
+      expect(f.view.rows.some(row => row['id'] === 'SAME')).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('rejects an unrelated single-row update receipt while retaining the original edit', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, changed: [{id: 'OTHER', title: 'Wrong'}]}))
+      f.view.updateEditingValue('A', 'title', 'Edited A')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect(f.view.dirtyTracking.dirtyRowIds.has('A')).toBe(true)
+      expect(f.view.rows.find(row => row['id'] === 'A')?.['title']).toBe('Edited A')
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('rejects an allocated key already held by a retained formal row without accepting an earlier update', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, added: receipt.added.map(row => ({...row, id: 'A'}))}))
+      f.view.updateEditingValue('A', 'title', 'Edited A')
+      await f.view.addRow({title: 'New'})
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect(f.view.rows.map(row => row['id'])).toEqual(['A', 'B', 'TEMP1'])
+      expect(f.view.dirtyTracking.dirtyRowIds.has('A')).toBe(true)
+      expect(f.view.dirtyTracking.pendingCreateIds.has('TEMP1')).toBe(true)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('does not replace another unsaved added row or its selection when saving only one target', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, added: receipt.added.map(row => ({...row, id: 'TEMP2'}))}))
+      await f.view.addRow({title: 'First'}); const second = await f.view.addRow({title: 'Second'})
+      if (!('id' in second)) throw new Error('second added row missing')
+      f.view.setCurrentRow(second); f.view.setSelectedRows([second])
+      await expect(f.dataSet.saveChanges({views: [{tableName: 'Items', viewId: 'default', ids: ['TEMP1']}]}))
+        .rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect(f.view.rows.map(row => row['id'])).toEqual(['A', 'B', 'TEMP1', 'TEMP2'])
+      expect(f.view.currentRow?.['id']).toBe('TEMP2')
+      expect(f.view.selectedRows.map(row => row['id'])).toEqual(['TEMP2'])
+      expect([...f.view.dirtyTracking.pendingCreateIds].sort()).toEqual(['TEMP1', 'TEMP2'])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('can accept a new row using a formal key explicitly deleted by the same batch', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, added: receipt.added.map(row => ({...row, id: 'A'}))}))
+      await f.view.removeRow('A'); await f.view.addRow({title: 'Replacement'})
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.view.rows.map(row => row['id'])).toEqual(['B', 'A'])
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('rejects an allocation that steals another added identity in the same submitted group', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, added: receipt.added.map((row, index) => ({...row, id: index === 0 ? 'TEMP2' : 'CREATED2'}))}))
+      await f.view.addRow({title: 'First'}); await f.view.addRow({title: 'Second'})
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect(f.view.rows.map(row => row['id'])).toEqual(['A', 'B', 'TEMP1', 'TEMP2'])
+      expect([...f.view.dirtyTracking.pendingCreateIds].sort()).toEqual(['TEMP1', 'TEMP2'])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('accepts an added row whose original unique identity is retained by the service', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, added: receipt.added.map(row => ({...row, id: 'TEMP1'}))}))
+      await f.view.addRow({title: 'New'})
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.view.rows.map(row => row['id'])).toEqual(['A', 'B', 'TEMP1'])
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('accepts a complete update receipt in a different order', async () => {
+    const f = await open()
+    try {
+      f.transform(receipt => ({...receipt, changed: [...receipt.changed].reverse(), changedFields: [...receipt.changedFields].reverse()}))
+      f.view.updateEditingValue('A', 'title', 'Edited A'); f.view.updateEditingValue('B', 'title', 'Edited B')
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.view.rows.map(row => row['title'])).toEqual(['Edited A', 'Edited B'])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('accepts distinct allocated primary keys for ordinary added rows', async () => {
+    const f = await open()
+    try {
+      await f.view.addRow({title: 'New A'}); await f.view.addRow({title: 'New B'})
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.view.rows.map(row => row['id'])).toEqual(['A', 'B', 'CREATED1', 'CREATED2'])
+    } finally {f.dataSet.destroy()}
+  })
+})
+
 describe('formal query-save column validation', () => {
+  it('preserves absent request policies so sources can apply their defaults', async () => {
+    const f = await resourceOwners()
+    try {
+      f.items.updateEditingValue('1', 'title', 'Submitted')
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      const config = f.database.save.mock.calls[0]?.[0].changes[0]?.tableConfig
+      expect(config).toBeDefined()
+      expect(Object.hasOwn(config!, 'api')).toBe(false)
+      expect(Object.hasOwn(config!, 'crudConfig')).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it.each(['not-array', 'not-string', 'sparse-outer', 'sparse-inner'] as const)('rejects malformed changedFields (%s) before accepting any sibling context', async fault => {
+    const f = await resourceOwners(), persist = f.database.save.getMockImplementation()!
+    let pending = false, verifies = 0
+    let contexts: unknown[] = [], accepted: Awaited<ReturnType<typeof persist>> = []
+    f.database.hasUnconfirmedSave.mockImplementation(() => pending)
+    f.database.save.mockImplementation(async command => {
+      if (!pending) {
+        contexts = command.changes.map(change => change.context)
+        accepted = await persist(command); pending = true
+        const invalid = accepted.map(receipt => ({...receipt}))
+        Reflect.set(invalid[1]!, 'changedFields', fault === 'not-array' ? [42] : fault === 'not-string' ? [['title', 42]]
+          : fault === 'sparse-outer' ? new Array<string[]>(1) : [new Array<string>(1)])
+        return invalid
+      }
+      verifies++
+      command.changes.forEach((change, index) => expect(change.context).toBe(contexts[index]))
+      pending = false
+      return accepted
+    })
+    try {
+      f.items.updateEditingValue('1', 'title', 'Item submitted'); f.orders.updateEditingValue('1', 'title', 'Order submitted')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect(f.items.dirtyTracking.hasPendingChanges()).toBe(true)
+      expect(f.orders.dirtyTracking.hasPendingChanges()).toBe(true)
+      expect(f.items.hasUnconfirmedSave).toBe(true); expect(f.orders.hasUnconfirmedSave).toBe(true)
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(verifies).toBe(1)
+      expect(f.batches).toEqual([['Items', 'Orders']])
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('does not probe a released source after successful acceptance or leave sibling views mutating', async () => {
+    const f = await resourceOwners()
+    let released = false, releasedProbes = 0
+    Object.assign(f.database, {acknowledgeSave: () => {released = true; return undefined}})
+    f.database.hasUnconfirmedSave.mockImplementation(() => {
+      if (released) { releasedProbes++; throw new Error('accepted context released') }
+      return false
+    })
+    try {
+      f.items.updateEditingValue('1', 'title', 'Item submitted'); f.orders.updateEditingValue('1', 'title', 'Order submitted')
+      expect((await f.dataSet.saveChanges()).success).toBe(true)
+      expect(releasedProbes).toBe(0)
+      expect(f.items.mutating).toBe(false); expect(f.orders.mutating).toBe(false)
+      expect(f.items.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.orders.dirtyTracking.hasPendingChanges()).toBe(false)
+    } finally {f.dataSet.destroy()}
+  })
+
+  it('retains each failed batch capture and ends mutating even when the source pending probe throws', async () => {
+    const f = await resourceOwners(), persist = f.database.save.getMockImplementation()!
+    let probeBroken = false
+    f.database.hasUnconfirmedSave.mockImplementation(() => {
+      if (probeBroken) throw new Error('pending probe failed')
+      return false
+    })
+    f.database.save.mockImplementation(async command => {
+      const receipts = await persist(command); probeBroken = true
+      return receipts.slice(0, 1)
+    })
+    try {
+      f.items.updateEditingValue('1', 'title', 'Item submitted'); f.orders.updateEditingValue('1', 'title', 'Order submitted')
+      const failure: unknown = await f.dataSet.saveChanges().catch((error: unknown) => error)
+      if (!(failure instanceof Error)) throw new Error('invalid receipt must fail')
+      expect(failure.message).toContain('DATA_VIEW_SAVE_RECEIPT')
+      expect(f.items.mutating).toBe(false); expect(f.orders.mutating).toBe(false)
+      expect(f.items.hasUnconfirmedSaveFor(['1'], failure)).toBe(true)
+      expect(f.orders.hasUnconfirmedSaveFor(['1'], failure)).toBe(true)
+      await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+      expect(f.database.save).toHaveBeenCalledOnce()
+    } finally {f.dataSet.destroy()}
+  })
+
   it('does not certify an existing unknown batch as not dispatched when recovery options fail preflight', async () => {
     const f = await resourceOwners(undefined, true)
     f.orderOwner.save.mockImplementation(async () => {throw new Error('receipt lost')})

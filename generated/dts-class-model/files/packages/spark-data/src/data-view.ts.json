@@ -3067,7 +3067,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T18:56:48.464Z",
+  "generatedAt": "2026-11-07T19:56:57.186Z",
   "models": {
     "DataViewEventMap": {
       "name": "DataViewEventMap",
@@ -4967,6 +4967,7 @@
             },
             {
               "name": "hasUnconfirmedSave",
+              "jsdoc": "原来源待核验，或已返回回执未接纳且无核验入口；保留原捕获，不代表来源必然支持恢复。",
               "readable": true,
               "writable": false
             },

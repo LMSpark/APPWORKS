@@ -500,6 +500,8 @@ rows: DataRow[] = []
   #unconfirmedQuerySave: DataViewQuerySaveCapture | undefined
   /** 仅关联原失败对象与当前未知捕获，不序列化或暴露捕获内容。 */
   #unconfirmedQuerySaveFailure: Error | undefined
+  /** 已返回回执但未接纳，且来源未提供原提交核验；只阻止重放，不推断远端未应用。 */
+  #unconfirmedQuerySaveUnverifiable = false
   /**
    * 本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。
    * 抛错使本次请求失败并保留旧结果；校验期间若被新查询替代，旧结果及错误均不接纳。
@@ -3248,7 +3250,6 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     return this.dirtyTrackingDelegate.executeChanges(this, this.crudDelegate, ids)
   }
 
-  /** 原查询owner仍保留的未确认提交；下一次保存先核验原捕获，新编辑和其他未派发视图留待随后显式保存。 */
   /**
    * 明确放弃本视图未确认提交的核验，之后可重新读取实际结果；本地草稿保留，由调用方决定丢弃或重新提交。
    * 不撤销服务端可能已生效的写入。执行器未提供放弃能力时保持待核验并返回 false，仍须经原保存入口核验。
@@ -3256,17 +3257,28 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
   abandonUnconfirmedSave(): boolean {
     const capture = this.#unconfirmedQuerySave
     if (!capture) return true
+    if (this.#unconfirmedQuerySaveUnverifiable) return false
     if (!capture.executor.abandonUnconfirmedSave) return false
     capture.executor.abandonUnconfirmedSave(capture.context)
-    if (capture.executor.hasUnconfirmedSave?.(capture.context) === true) return false
+    if (this.querySavePendingState(capture) !== false) return false
     this.#unconfirmedQuerySave = undefined
     this.#unconfirmedQuerySaveFailure = undefined
+    this.#unconfirmedQuerySaveUnverifiable = false
     return true
   }
 
+  /** 原来源待核验，或已返回回执未接纳且无核验入口；保留原捕获，不代表来源必然支持恢复。 */
   get hasUnconfirmedSave(): boolean {
     const capture = this.#unconfirmedQuerySave
-    return capture !== undefined && capture.executor.hasUnconfirmedSave?.(capture.context) === true
+    return capture !== undefined && (this.#unconfirmedQuerySaveUnverifiable || this.querySavePendingState(capture) !== false)
+  }
+
+  private querySavePendingState(capture: DataViewQuerySaveCapture): boolean | undefined {
+    try {return capture.executor.hasUnconfirmedSave?.(capture.context) ?? false}
+    catch {
+      this.logger.error('DATA_VIEW_SAVE_PENDING: 原来源待核验状态无法读取')
+      return undefined
+    }
   }
 
   /**
@@ -3433,6 +3445,9 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const captures = selected.map(target => {
       const capture = recovering ? target.view.#unconfirmedQuerySave : target.view.captureQuerySave(target.ids)
       if (!capture) throw new Error('DATA_VIEW_SAVE_RECOVERY: 原提交捕获已失效')
+      if (recovering && target.view.#unconfirmedQuerySaveUnverifiable && target.view.querySavePendingState(capture) !== true) {
+        throw target.view.#unconfirmedQuerySaveFailure ?? new Error('DATA_VIEW_SAVE_RECOVERY: 原回执未接纳且来源没有核验入口，不能重新派发')
+      }
       const ids = target.ids
       if (recovering && ids !== undefined && [...capture.added, ...capture.changed, ...capture.deleted].some(row => !ids.includes(row.id))) {
         throw new Error('DATA_VIEW_SAVE_RECOVERY: 核验须包含原提交的全部记录')
@@ -3466,6 +3481,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     active.forEach(({ view }) => view._trackMutating(1))
     const results = new Map<DataView, CrudResult<SaveChangesData>>()
     const dispatched = new Set<DataView>()
+    const returned = new Set<DataView>()
     let failure: Error | null = null
     try {
       for (const batch of batches) {
@@ -3475,17 +3491,21 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         if (save === undefined) throw new Error('DATA_VIEW_SAVE_OWNER: 保存需要原查询 owner')
           if(!recovering)checkDomain?.(batch)
           for (const {view, capture} of batch) {
-            if(recovering&&(view.#unconfirmedQuerySave!==capture||capture.executor.hasUnconfirmedSave?.(capture.context)!==true))throw new Error('DATA_VIEW_SAVE_RECOVERY: 原未确认提交已结束，停止本次核验')
+            if(recovering&&(view.#unconfirmedQuerySave!==capture||view.querySavePendingState(capture)!==true))throw new Error('DATA_VIEW_SAVE_RECOVERY: 原未确认提交已结束，停止本次核验')
             view.assertResultWritable()
             if (view.currentQueryResult() !== capture.context || view.#queryExecutor !== capture.executor) {
               throw new Error('DATA_VIEW_SAVE_OWNER: 保存期间查询身份已变化')
             }
           }
           batch.forEach(({view})=>dispatched.add(view))
-          const receipts = await save.call(executor, { changes: batch.map(({ capture }) => ({ identity: capture.identity,
-            ...(capture.tableConfig === undefined ? {} : {tableConfig: capture.tableConfig}),
-            context: capture.context, changes: { added: capture.added.map(item => item.row),
-              changed: capture.changed.map(item => item.row), deleted: capture.deleted.map(item => item.row) } })) })
+          const receipts = await save.call(executor, { changes: batch.map(({ capture }) => ({ identity: structuredClone(capture.identity),
+            ...(capture.tableConfig === undefined ? {} : {tableConfig: {
+              ...(capture.tableConfig.api === undefined ? {} : {api: structuredClone(capture.tableConfig.api)}),
+              ...(capture.tableConfig.crudConfig === undefined ? {} : {crudConfig: { ...capture.tableConfig.crudConfig }}),
+            }}),
+            context: capture.context, changes: { added: capture.added.map(item => structuredClone(item.row)),
+              changed: capture.changed.map(item => structuredClone(item.row)), deleted: capture.deleted.map(item => structuredClone(item.row)) } })) })
+          batch.forEach(({view})=>returned.add(view))
           if (receipts.length !== batch.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
           const acceptances = batch.map(({ view, capture }, index) => {
             view.assertResultWritable()
@@ -3512,6 +3532,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             }
             view.#unconfirmedQuerySave = undefined
             view.#unconfirmedQuerySaveFailure = undefined
+            view.#unconfirmedQuerySaveUnverifiable = false
           }
       }
       return targets.map(({ view }) => results.get(view) ?? { success: true, message: recovering ? '本轮仅核验原提交，此视图未派发' : '没有待提交的变更',
@@ -3522,8 +3543,10 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     } finally {
       active.forEach(({ view, capture }) => {
         if (view.destroyed) return
-        if(dispatched.has(view)){
-          view.#unconfirmedQuerySave = !results.has(view) && capture.executor.hasUnconfirmedSave?.(capture.context) === true ? capture : undefined
+        if(dispatched.has(view) && !results.has(view)){
+          const sourcePending = view.querySavePendingState(capture)
+          view.#unconfirmedQuerySave = sourcePending !== false || returned.has(view) ? capture : undefined
+          view.#unconfirmedQuerySaveUnverifiable = view.#unconfirmedQuerySave !== undefined && sourcePending !== true
           view.#unconfirmedQuerySaveFailure=view.#unconfirmedQuerySave===undefined?undefined:failure??undefined
         }
         view._trackMutating(-1,results.has(view)?null:recovering&&!dispatched.has(view)?previousErrors.get(view):failure)
@@ -3868,20 +3891,41 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const { identity, context, added, changed, deleted, receipt } = command
     receipt.context.assertIdentity(identity)
     if (receipt.added.length !== added.length || receipt.changed.length !== changed.length
-      || receipt.deleted.length !== deleted.length || receipt.changedFields.length !== changed.length) {
+      || receipt.deleted.length !== deleted.length || !Array.isArray(receipt.changedFields)
+      || receipt.changedFields.length !== changed.length
+      || Array.from(receipt.changedFields).some(fields => !Array.isArray(fields)
+        || Array.from(fields).some(field => typeof field !== 'string'))) {
       throw new Error('DATA_VIEW_SAVE_RECEIPT: 动作回执不完整')
     }
     for (const [rows, submitted] of [[receipt.changed, changed], [receipt.deleted, deleted]] as const) {
-      if (rows.some(row => !submitted.some(item => this.querySaveKey(context, item.row) === this.querySaveKey(context, row)))) {
-        throw new Error('DATA_VIEW_SAVE_RECEIPT: 行身份不属于提交')
+      const expected = new Set(submitted.map(item => this.querySaveKey(context, item.row)))
+      const accepted = new Set<string>()
+      for (const row of rows) {
+        const key = this.querySaveKey(context, row)
+        if (!key || !expected.has(key) || accepted.has(key)) {
+          throw new Error('DATA_VIEW_SAVE_RECEIPT: 行身份重复或不属于提交')
+        }
+        accepted.add(key)
+      }
+      if (expected.size !== submitted.length || accepted.size !== expected.size) {
+        throw new Error('DATA_VIEW_SAVE_RECEIPT: 行身份未完整覆盖提交')
       }
     }
+    const addedIds = new Set<string | number>()
+    const deletedKeys = new Set(deleted.map(item => this.querySaveKey(context, item.row)))
+    const retainedKeys = new Set(context.rows.map(row => this.querySaveKey(context, row)).filter(key => !deletedKeys.has(key)))
     for (const [index, accepted] of receipt.added.entries()) {
       const row = dataRowFromRecord(structuredClone(accepted))
       this._applyComputedColumns([row])
       const acceptedId = this.getPkKey(row)
       if (acceptedId === undefined) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执缺少本地可定位的正式主键')
+      if (addedIds.has(acceptedId)) throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执正式主键重复')
+      addedIds.add(acceptedId)
       const submitted = added[index]
+      if (retainedKeys.has(this.querySaveKey(context, row)) || this.rows.some(current =>
+        this.getPkKey(current) === acceptedId && this.getPkKey(current) !== submitted?.id)) {
+        throw new Error('DATA_VIEW_SAVE_RECEIPT: 新增回执正式主键与保留行或其他本地行冲突')
+      }
       if (submitted !== undefined && this.#explicitNewRowIds.has(submitted.id) && acceptedId !== submitted.id) {
         throw new Error('DATA_VIEW_SAVE_RECEIPT_IDENTITY: 显式正式身份不能被保存回执改写')
       }
@@ -4319,6 +4363,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     this.#queryExecutor = undefined
     this.#unconfirmedQuerySave = undefined
     this.#unconfirmedQuerySaveFailure = undefined
+    this.#unconfirmedQuerySaveUnverifiable = false
     this.#resourceIdentity = undefined
 
     this.logger.debug(`销毁 DataView: ${this.tableName}:${this.viewId}`)

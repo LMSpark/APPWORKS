@@ -7870,3 +7870,35 @@ gpt-6-astra/high继续只读核固定1147b00，未改文件/发服务请求。�
 **S1局部检查点已提交推送并独立核实。**代码提交38fdaf0dcabab18fbef0a0542b3a7dbefc60de7f（fix(spark-data): preserve command identity and confirmed receipts），207文件1689增444删；精确白名单外0、未暂存tracked变化0，原组件RED未包含。git push --set-upstream origin HEAD:refs/heads/codex/spark-data-s1-command-safety自然exit0，新建远端分支；随后git ls-remote独立读回SHA与本地上述SHA完全一致。此检查点包含9179拟提交范围测试通过、根verify通过及最终ClassModel49测试证据，不包含实服写入、合并或部署；整个工作树仍保留未跟踪组件RED，不称其全绿。
 
 **当前恢复位置。**用户适时提交推送要求本批已落实；这条事实补记单独作为docs提交同步，不改已测代码。S1仍未冻结，下一实施批先用通用模型多行回执重复/覆盖反例RED开展，随后独立处理文件接纳窗口与多来源混合核验，余下I3按集中阶段完成后再验收冻结。不会因已推送局部检查点进入S2或把20包范围缩小。目标继续active，不标complete/blocked；没有活跃测试/生成句柄待收，无需重跑既有全套直到新的改动或具体失败使其必要。
+
+#### Q. S1通用模型回执身份集中校验批
+
+当前基线e985d41e11a526b9f09f3ef7496b0b00f72117cc，工作树仅原组件未跟踪RED；前轮真实提交推送为有效进展。本批先处理高阶已定位的validateQuerySaveReceipt数组长度/逐项归属不足：仅改spark-data data-view.ts及query-save-validation测试、正式派生和本台账，不进S2。用真实DataSet从公开saveChanges验证重复更新/删除/新增正式键、错单行拒绝且本地原变更不被部分接纳；合法乱序更新、服务分配不同唯一新增键及后来编辑须保持。先完整核各动作回执身份，再改变任何视图行/权限/基线，不仅验返回条数；不改普通模型新增为原临时ID必须相等，也不修页面。错误回执与来源unknown/核验能力的边界继续单列，不把抛错冒称远端未应用或自动安全重发。
+
+**Q身份校验实施证据。**新增真实DataSet用例先复现重复changed/deleted/allocated-added三个错误success RED，再将各更新/删除回执对原querySaveKey校验唯一及完整覆盖，新增正式主键同批唯一。高阶补已保留正式行/同批更新行碰撞、仅保存TEMP1却占TEMP2两条，均先RED（错误success），后在接纳前对原context.rows减本批deleted及本次当前rows核碰撞，保两行身份/草稿/选择，不查未加载记录、不增加保存前全量依赖扫描。SDK acceptSaveReceipt原有同类retained保护已读，公共层补的是其他合法owner的安全边界；不是新增页面或业务第二状态。
+
+**正例及当前工程结果。**合法乱序更新、不同唯一服务正式键、沿原新增自身唯一ID接纳、同批明确删A后再新增A均通过；同组新增不可偷另一行临时身份也有回归。当前新增11例，直接套件42测试通过，全数据包55文件1208测试自然exit0（session11292）；package typecheck session33193、改动源/测试eslint session99558均自然exit0，diff --check通过。未刷新本批正式派生、未重新全仓验证或提交推送；本批源只data-view.ts及其验证测试，最新已推远端仍e985d41e1检查点，不把这些未提交改动算已远端交付。
+
+**必须接续的S1派发后失败合同。**这些用例的受控owner不提供hasUnconfirmedSave/权威verify，身份拒收只证明零本地部分接纳，不证明远端未应用，也未证明再次save安全。高阶明确坏回执后现有finally仍可能清原capture、二次派发；下一独立数据批应先“服务计数已增加→坏ACK→再save”的RED，不按错误文本猜失败、不无合同调用save冒充verify、不恢复错误成功。将复用现有capture/Failure/unknown生命周期核最小修复，高阶正在只读评估具体落点。故Q身份部分并未核销unknown、文件接纳窗口、多来源混合结果及I3余项，S1未冻结，后续不进S2。当前没有运行测试句柄待收；原组件未跟踪RED不动，无实服/合并/部署。
+
+#### R. S1已返回回执未接纳时的防重放
+
+高阶建议及主控源码确认：在实际executor.save正常返回后、读取/校验receipt前为该batch所有视图记returned；仅该批已派发未接纳者保原capture+failure。新增私有‘本地无核验入口’判别，不建新owner/全局日志。原来源hasUnconfirmed=true继续沿原context及全部原ID核验；来源无能力时getter仍待核验，后续save/resolve重抛原错误零派发，abandon/discard拒绝。前置零派发、来源明确reject、未派发后续batch不误锁；成功或销毁清本实例标记，不承诺跨进程恢复。
+
+本批先在Q真实DataSet受控来源增加absent/false两例：已写计数增加后回错键，原save再次写计数2（期望1），两个RED均成立。实现范围仍data-view.ts及原query-save-validation测试/本台账，保后来编辑及原failure身份，不用异常文案猜未应用；同批全视图、原来源可验证/明确未应用路径随后补验，不顺修宿主或领域页面。
+
+**R实现及直接验明。**原capture旁只加私有unverifiable判别，await save正常返回后立即标该实际batch returned；未接纳者按来源pending优先或本地returned保原capture+failure。无核验能力时hasUnconfirmedSave/For保持true，恢复在捕获映射阶段原错误拒绝，未派发、未应用后来输入；abandon直接false，discardAndReload/resolve不能抹成未应用。source.hasUnconfirmed=true仍沿原executor/context/原完整IDs调用其核验，不掺新编辑，成功/正式not-applied或destroy沿各自合同结束。getter JSDoc同步说明有待核验不等于来源必有恢复能力，私有标记不序列化。
+
+absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity全部已发未接纳视图均锁、未发File不锁且可单独保存；原来源可核验时写1/verify1、原context及A原值不变、后来A/B输入保留；来源明确业务拒绝未返回回执则无本地锁、后续正常尝试仍可执行。当前直接48测试、全包55文件1214测试（session4410）、package typecheck91605及定向eslint61813均自然exit0。都是受控来源/内存验证，不是实服写入或全包冻结。高阶正在只读复核控制流，正式生成新句柄本批已启动待收；当前仅源/测试/本台账变化，尚未提交推送R/Q，原组件RED不动。
+
+**R复审修订与真实反例。**高阶指出finally在成功接纳后仍探来源pending可抛错反转已成功结果，且影响兄弟mutating释放。两例先RED后修：成功接纳不再探来源状态；失败状态探测throw记DATA_VIEW_SAVE_PENDING并按indeterminate保原capture，不覆盖原回执错误，全部未销毁视图释放mutating。未把探测异常当未应用。通用executor还能修改收到的row/嵌套值/identity/crudConfig，污染原捕获身份；另changedFields中非数组/非字符串可导致兄弟部分接纳。新增三例真实RED（3失败/50通过）后，派发逐行深克隆与identity隔离，API深克隆、扁平crudConfig复制保函数合同，原context引用保持；回执字段清单在任何兄弟接纳前逐项验证数组及字符串，三例GREEN。未给领域层增加副本真源。
+
+**R本轮验证结果。**直接53测试自然exit0；全数据包55文件1219测试（session19668）自然exit0，package typecheck57252、定向eslint9078均自然exit0。正式ClassModel生成98345及根verify79235仍在执行，不能提前称完整门禁通过；高阶正只读复核本次修订。Q/R尚未提交推送，远端仍为e985d41e检查点；原组件未跟踪RED不动，无实服写入，S1未冻结。下一步收原进程及复审结果，核精确白名单并安全提交推送；之后才继续文件接纳窗口、多来源混合核验及I3余项，不进入S2。
+
+**R最终窄遗漏补验。**高阶复审指出复制时强加空crudConfig会改变缺省策略语义，以及Array.some跳过稀疏槽。主控增加缺省策略/稀疏外层/稀疏内层三例先RED（3失败53通过），再按捕获端条件展开api/crudConfig，并以两层Array.from校验每个位置；56直接测试GREEN。成功接纳测试追加释放后探测次数必须0，避免被探测异常捕获机制掩盖。高阶最终只读复核确认无阻碍Q/R局部checkpoint的问题，未独立运行测试，不作S1冻结背书。
+
+最终全数据包55文件1222测试session80355自然exit0，package typecheck44573及定向eslint82910自然exit0。前轮根verify79235自然exit0，但末轮窄修发生在其期间，故最终根verify65043另跑核末态；最终官方生成90864待收。仅复用前检查点9179测试证据于其原范围，本批未重跑完整根测试、不称本次全仓测试全绿。所有新增测试是受控源，无实服写入。继续收原handle及派生diff，提交范围仅data-view、对应测试、唯一台账及正式生成物。
+
+**Q/R安全检查点最终门禁。**最终官方生成90864自然exit0：1108分片/1741索引/3768 gaps。15派生文件只读逐项对照后，剔除明确时间和编译符号ID，只有data-view getter说明与对应missing-jsdoc gap消除为语义差异；未手改派生产物。最终根verify65043自然exit0，包括根类型/lint/规则/ClassModel49测试/611端点217消费者校验；既有2模型警告及84薄页诊断仍保留。全数据包1222、package类型及定向lint通过；diff --check通过。所有handle已终态，无实服写入、合并或部署。
+
+拟提交仅2份数据源/测试+唯一台账+15正式派生，共18文件，原组件未跟踪RED不提交。目标仍origin的codex/spark-data-s1-command-safety，不force；提交推送后独立读远端SHA。此为Q/R局部检查点，S1仍未冻结，文件接纳窗口、多来源混合核验和I3余项继续原阶段，不自动进S2。

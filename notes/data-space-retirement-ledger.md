@@ -8137,3 +8137,22 @@ DataView.assertCanBindQueryExecutor提取原同owner/候选资源、已有查询
 **AC最终检查点验收。**最终完整根verify16545自然exit0，包含类型/lint、ClassModel49项与正式工程规则，既有2模型警告/84薄页诊断保留；最新定向82项和数据库族401项有效。所有本批handle已终态，高阶窄批静态复审无剩余阻断，diff检查通过。追加删除6份被最终证据替代的终态日志，本批共清20份中间日志；保数据库/最终定向/正式生成及最终门禁记录，无新增worktree。准备提交S1 preview适配与对应回归、正式派生和本台账，仅推origin同codex分支。未做新实服写入，不把夹具当服务能力证明；原S2未跟踪测试不stage。S1余资源与查询矩阵继续，数据合同未冻结、不进S2、原20包范围不缩减。
 
 **AC已提交推送并独立核实。**代码9d010d47d568e4a3509b1f8b35c7160d031dea0e（fix(database): unify preview binding and query lifecycle），21文件581增290删，origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。本事实补记docs跟随同步；下一恢复仍S1资源适配分类及I3剩余查询/提交/取消/生命周期矩阵，不据AC局部通过宣称整体完成或历史数据已转换，不进入标准组件阶段。
+
+
+**AD文件适配装配身份集中批（S1，未冻结）。**主控核getOrCreateFileResourceView及唯一生产调用page-tool-file-dataview:125：旧helper先覆盖resourceId/上下文再拒target或foreign owner，字段缺失/正文版本PK重名仍装配。首测试fixture漏views.default的4失败不算产品反例；纠正后4项真实RED，扩大10项均真实RED。高阶只读确认现有consumer按pageId+basename定位，显式四身份键重复相同但target/transport闭包重建；初始scope只能核显式键，不重写或禁止其它独立context键。新增首次target回调拒绝要恢复原context并撤本次新注册视图的反例。
+
+已在公共file adapter预检正式file身份/必要字段及唯一PK互斥；同目标重复装配先核原owner/目标/字段与新守卫，再更新回调，保原context/结果。首次用同一executor纯预检及正式绑定，目标回调失败恢复上下文和本次注册。删除helper额外boundViews重复身份Map，复用实际engine绑定。两文件42项初GREEN；定向lint1项optional-chain样式已修，数据全包4852 live，待终态/consumer/正式生成/根门禁/复审。不改组件/宿主/业务调用/Java，不写实服；原S2未跟踪RED不动。
+
+**下一命令分类反例（高阶只读，尚待主控RED）。**连接探测result.queryOptionRows可能进入带凭据POST并清密，因为readonly helper忽略query用途；SyncMetaData未知命令的createQueryView克隆复用save executor但新context不在pending WeakMap中，可能绕原view禁重放。必须以真实装配fixture验证，不按file字面类型统一封禁纯目录/AC预览或合法正式声明实例；此批不混入未证方案，下一独立S1命令能力批处理。
+
+**AD复审反例与测试纠正。**高阶复核提有效PK/正文覆盖、数值PK无法保string目标、回调释放同名替代后回滚误删、正常返回的替代实例仍被装配成功。主控数值PK/回滚3项及重复guard正常返回替代均已真实RED，已补字符串唯一PK/字段互斥、回滚引用精确核对、外部回调后纯实例/字段/同executor复核。首次监听测试误用view.on导致TypeError，不计产品反例，改为正式view.events.on后通过；临时移除helper最后一处复核的对照仍通过，表明既有更早校验已能拒该次事件窗口，不冒新增缺陷已复现。
+
+bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应拒”的期待不成立，已改clearAll后暴露实际覆盖；只关闭新增effective guard的对照仍通过（表字段校验已保护），不冒独立guard必要性证明。临时反事实均try/finally恢复原源字节，先前全包原handle已终态后执行，未并发改受测源。最新3文件61项通过；原数据全包1251/后1258证据为此前快照，不替末态。包typecheck曾因测试直接写readonly queryContext失败，已改正式整体赋值，无类型断言。待末态全包/类型/lint/正式生成及根门禁。
+
+**AD末态绑定前后界限。**最终纯复核覆盖同步回调正常释放替代（真实RED后修复）。直接binder新增坏contentField拒绝后同实例纠正仍被owner占用，1项真实RED19通过，已在engine目标锁定后、正式bind之前复用纯字段/实例/owner校验，helper同理；postcheck仍保。三文件62项通过。同步configChanged监听器主动改坏原活实例元数据时仅保证诊断拒绝，依不可改绑合同重装运行实例，不承诺任意外部元数据突变后的原实例无条件重绑；不加解除owner/兼容入口。数据62061末态1260项自然0、类型通过而包lint1处无必要optional-chain失败已按已窄化primary[0].name纠正。当前重新收data32069及type/lint/正式生成43099，未根验/提交。无实服写入。
+
+**AD末态扩大及清理检查点。**data32069自然exit0：57文件1261项；43099链包typecheck/lint与官方ClassModel生成均自然exit0（1108/1745/3764），44328定向3文件62项自然0。高阶末态在已声明范围无剩余阻断，仅静态；真实服务本批零写入。精确清理27份已被末态替代的中间日志，反例纠正/失败事实保本台账，正式测试保留；无额外worktree，原S2未跟踪RED不动。根verify97560 live，未重启/未提交；收终态后才安全checkpoint。下一S1独立命令能力反例路径为tests/runtime/page/database/sync-attachment.test.ts（非catalog子目录），再核unknown命令克隆与辅助选项请求。S1未冻结，原20包整体目标active。
+
+**AD首根门禁终态。**97560自然exit1，根type/lint及前置规则通过，AI codegen指出inline参数对象内JSDoc禁止；已将初始queryContext说明移至函数JSDoc，不改行为/不豁免规则。刷新官方ClassModel后重跑最终根门禁，未提交/推送，源码仍限S1。
+
+**AD最终检查点验收。**32505官方重生成自然exit0，最新完整根verify75492自然exit0，含类型/lint、ClassModel49项与正式规则；既有2模型警告/84薄页诊断保留。数据57文件1261项、末态定向3文件62项、包type/lint证据有效，高阶已声明范围静态复审无阻断，不冒全20包或全部S1验收。追加精确删除3份已被末态覆盖日志（本批共30份），保最终test/type/lint/gen/gates；反例事实仅本台账，不另建过程方案。所有handle终态，diff检查通过，唯一主worktree；原S2未跟踪RED不stage。准备同codex分支推origin，不merge/force/部署。只S1公共文件适配及测试/文档/官方产物，无实服写入、无组件/宿主/页面/Java改动，无兼容层。S1合同仍未冻结，下一真实验证命令clone未知防重放及辅助查询用途边界；历史数据转换尚未宣称完成。

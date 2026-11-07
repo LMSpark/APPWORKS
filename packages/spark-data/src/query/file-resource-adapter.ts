@@ -56,11 +56,13 @@ type PendingResourceChange=PendingWrite|PendingDelete
 type HistoryAttempt=Readonly<{target:FileResourceTarget;attempt:FileResourceHistoryAttempt;text:string;state:'pending'|'unknown'|'confirmed'|'not-applied';message:string|null;deliveryPending:boolean}>
 type SharedFileResourceState=Readonly<{pending:Map<string,PendingResourceChange>;owners:Map<string,Readonly<{view:DataView;context:SaveCommand['changes'][number]['context']}>>;historyAttempts:Map<string,HistoryAttempt>;saving:Set<string>}>
 const sharedStates=new WeakMap<object,Map<string,SharedFileResourceState>>()
-const boundViews=new WeakMap<DataView,string>()
-const fileResourceBindings=new WeakMap<DataView,(options:BindFileResourceAdapterOptions)=>void>()
+const fileResourceBindings=new WeakMap<DataView,FileResourceEngine>()
 const fileDirectoryBindings=new WeakMap<DataView,(options:BindFileDirectoryQueryAdapterOptions)=>void>()
 
-/** Get a named file-resource view from its DataSet, creating its table and binding once. */
+/**
+ * Get a named file-resource view from its DataSet, creating its table and binding once.
+ * queryContext supplies initial query inputs; reassembly checks explicit keys without replacing the existing context.
+ */
 export function getOrCreateFileResourceView(input:Readonly<{
   dataSet:DataSet
   tableName:string
@@ -78,20 +80,74 @@ export function getOrCreateFileResourceView(input:Readonly<{
   assertCurrent?:(target?:FileResourceTarget)=>void
 }>):DataView{
   if(input.dataSet.destroyed)throw new Error('FILE_RESOURCE_DATASET: 资源视图未绑定存活DataSet')
-  const table=input.dataSet.getTable(input.tableName)??input.dataSet.addTable(input.tableName,[...input.columns])
-  if(table.modelBinding!==undefined||(table.resourceType!==undefined&&table.resourceType!=='file'))throw new Error('FILE_RESOURCE_IDENTITY: 表不是文件资源')
-  table.resourceType='file';table.resourceId=input.resourceId
-  const view=table.getOrCreateView(input.viewId),boundResource=boundViews.get(view)
-  if(boundResource!==undefined&&boundResource!==input.resourceId)throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源')
-  if(input.queryContext)view.queryContext={...view.queryContext,...input.queryContext}
-  bindFileResourceAdapter(view,{resourceId:input.resourceId,contentField:input.contentField,
+  if(!input.resourceId.trim())throw new Error('FILE_RESOURCE_IDENTITY: 文件资源身份不能为空')
+  const originalTable=input.dataSet.getTable(input.tableName)
+  if(originalTable&&(originalTable.modelBinding!==undefined||originalTable.resourceType!=='file'||originalTable.resourceId!==input.resourceId)){
+    throw new Error('FILE_RESOURCE_IDENTITY: 表已绑定其他语义资源')
+  }
+  const columns=originalTable?.columns??input.columns
+  const primary=columns.filter(column=>column.isPrimaryKey===true)
+  if(new Set(columns.map(column=>column.name)).size!==columns.length||primary.length!==1||(primary[0]?.type??'string')!=='string'
+    ||!columns.some(column=>column.name===input.contentField)||input.contentField===primary[0]?.name
+    ||input.revisionField!==undefined&&(!columns.some(column=>column.name===input.revisionField)
+      ||input.revisionField===input.contentField||input.revisionField===primary[0]?.name)){
+    throw new Error('FILE_RESOURCE_COLUMNS: 文件正文、版本及唯一主键字段必须存在且互不重叠')
+  }
+  for(const expected of input.columns){
+    const actual=columns.find(column=>column.name===expected.name)
+    if(actual?.name!==expected.name||actual.type!==expected.type||Boolean(actual.isPrimaryKey)!==Boolean(expected.isPrimaryKey)){
+      throw new Error('FILE_RESOURCE_COLUMNS: 文件字段声明与原表不一致')
+    }
+  }
+  const table=originalTable??input.dataSet.addTable(input.tableName,[...input.columns])
+  if(!originalTable){table.resourceType='file';table.resourceId=input.resourceId}
+  const originalView=table.getView(input.viewId)
+  const view=originalView??table.getOrCreateView(input.viewId),originalContext=view.queryContext
+  const options:BindFileResourceAdapterOptions={resourceId:input.resourceId,contentField:input.contentField,
     ...(input.revisionField?{revisionField:input.revisionField}:{}),target:input.target,transport:input.transport,
-    ...(input.canWrite?{canWrite:input.canWrite}:{}),
-    ...(input.canCreate?{canCreate:input.canCreate}:{}),
-    ...(input.canDelete?{canDelete:input.canDelete}:{}),
-    ...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})})
-  boundViews.set(view,input.resourceId)
-  return view
+    ...(input.canWrite?{canWrite:input.canWrite}:{}),...(input.canCreate?{canCreate:input.canCreate}:{}),
+    ...(input.canDelete?{canDelete:input.canDelete}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})}
+  const existing=fileResourceBindings.get(view)
+  try{
+    if(view.primaryKey!==primary[0]?.name)throw new Error('FILE_RESOURCE_COLUMNS: 视图主键与文件目标键不一致')
+    if(existing){
+      if(input.queryContext&&Object.entries(input.queryContext).some(([name,value])=>
+        !Object.hasOwn(originalContext,name)||JSON.stringify(originalContext[name])!==JSON.stringify(value))){
+        throw new Error('FILE_RESOURCE_IDENTITY: 初始查询输入不可改绑')
+      }
+      existing.update(options,view)
+      return view
+    }
+    const engine=createFileResourceEngine(options)
+    view.assertCanBindQueryExecutor(engine.executor,{resource:{resourceType:'file',resourceId:input.resourceId}})
+    if(input.queryContext)view.queryContext={...originalContext,...input.queryContext}
+    engine.lockTarget(view)
+    assertFileViewBinding(view,engine.executor,options)
+    view.bindQueryExecutor(engine.executor,{resource:{resourceType:'file',resourceId:input.resourceId}})
+    assertFileViewBinding(view,engine.executor,options)
+    fileResourceBindings.set(view,engine)
+    return view
+  }catch(error){
+    view.queryContext=originalContext
+    if(!originalTable&&input.dataSet.getTable(input.tableName)===table)input.dataSet.removeTable(input.tableName)
+    else if(originalTable&&!originalView&&table.getView(input.viewId)===view)table.destroyView(input.viewId)
+    throw error
+  }
+}
+
+/** 外部同步回调返回后的纯实例/字段/owner复核，不执行用户回调。 */
+function assertFileViewBinding(view:DataView,executor:Executor,options:BindFileResourceAdapterOptions):void{
+  const table=view.dataTable,dataSet=table?.dataSet,primary=table?.columns.filter(column=>column.isPrimaryKey===true)??[]
+  if(view.destroyed||!table||!dataSet||dataSet.destroyed||dataSet.getTable(table.tableName)!==table||table.getView(view.viewId)!==view){
+    throw new Error('FILE_RESOURCE_VIEW_STALE: 原文件DataView已释放或解绑')
+  }
+  if(primary.length!==1||primary[0]?.type!=='string'||view.primaryKey!==primary[0].name
+    ||!table.columns.some(column=>column.name===options.contentField)
+    ||options.revisionField!==undefined&&!table.columns.some(column=>column.name===options.revisionField)
+    ||view.primaryKey===options.contentField||options.revisionField!==undefined&&(options.revisionField===view.primaryKey||options.revisionField===options.contentField)){
+    throw new Error('FILE_RESOURCE_COLUMNS: 文件视图主键或字段合同已变化')
+  }
+  view.assertCanBindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:options.resourceId}})
 }
 
 function sharedState(view:DataView,resourceId:string):SharedFileResourceState{
@@ -105,7 +161,7 @@ function sharedState(view:DataView,resourceId:string):SharedFileResourceState{
 }
 
 type FileResourceQueryContext=Readonly<{view:DataView;rows:readonly DataRow[];target:FileResourceTarget}>
-type FileResourceEngine=Readonly<{executor:Executor;update(options:BindFileResourceAdapterOptions):void}>
+type FileResourceEngine=Readonly<{executor:Executor;lockTarget(view:DataView):void;update(options:BindFileResourceAdapterOptions,view:DataView):void}>
 
 /** Builds the single FileResource query/save engine; each view locks its target on first query. */
 function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,eagerView?:DataView):FileResourceEngine{
@@ -401,12 +457,18 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
       if(owner&&!owner.view.destroyed&&owner.context!==context)throw new Error('FILE_RESOURCE_SAVE_OWNER: 不能放弃其他查询上下文的文件提交')
       if(state.pending.get(captured.target.key)?.state!=='confirmed'){state.pending.delete(captured.target.key);state.owners.delete(captured.target.key)}}},
   }
-  const update=(next:BindFileResourceAdapterOptions)=>{
-    if(next.resourceId!==currentOptions.resourceId)throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源')
-    if(eagerView&&targetIdentity(next.target(eagerView))!==targetSignatures.get(eagerView))throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一文件目标')
+  const update=(next:BindFileResourceAdapterOptions,view:DataView)=>{
+    view.assertCanBindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:currentOptions.resourceId}})
+    if(next.resourceId!==currentOptions.resourceId||next.contentField!==currentOptions.contentField||next.revisionField!==currentOptions.revisionField){
+      throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源或字段合同')
+    }
+    assertCurrent(view)
+    if(targetIdentity(next.target(view))!==targetSignatures.get(view))throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一文件目标')
+    next.assertCurrent?.(targetFor(view))
+    assertFileViewBinding(view,executor,next)
     currentOptions=next
   }
-  return {executor,update}
+  return {executor,update,lockTarget:view=>{targetFor(view);assertCurrent(view)}}
 }
 
 /** Creates the shared DataView executor for a declared file resource table, including named query clones. */
@@ -417,10 +479,12 @@ export function createFileResourceAdapterExecutor(options:BindFileResourceAdapte
 /** Binds an already identified DataView immediately; a different target requires a new DataView. */
 export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAdapterOptions):void{
   const existing=fileResourceBindings.get(view)
-  if(existing){existing(options);return}
+  if(existing){existing.update(options,view);return}
   const engine=createFileResourceEngine(options,view)
+  assertFileViewBinding(view,engine.executor,options)
   view.bindQueryExecutor(engine.executor,{resource:{resourceType:'file',resourceId:options.resourceId}})
-  fileResourceBindings.set(view,engine.update)
+  assertFileViewBinding(view,engine.executor,options)
+  fileResourceBindings.set(view,engine)
 }
 
 /** Binds a complete, read-only file directory listing to one DataView query. */

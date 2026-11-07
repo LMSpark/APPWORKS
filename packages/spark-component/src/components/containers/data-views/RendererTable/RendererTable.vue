@@ -62,7 +62,7 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
         >
           <template #default="scope">
             <div class="renderer-table-row-actions">
-              <RendererHostScope :row="toScopeRow(scope.row)" :children="actionScopeChildren" />
+              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="actionScopeChildren" />
             </div>
           </template>
         </el-table-column>
@@ -83,7 +83,7 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
             :class-name="rowFragmentStringProp(child, 'class')"
           >
             <template #default="scope">
-              <RendererHostScope :row="toScopeRow(scope.row)" :children="rowFragmentChildren(child)" />
+              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="rowFragmentChildren(child)" />
             </template>
           </el-table-column>
 
@@ -106,24 +106,18 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
         >
           <template #default="scope">
             <div class="renderer-table-row-actions">
-              <RendererHostScope :row="toScopeRow(scope.row)" :children="actionScopeChildren" />
+              <RendererHostScope row-item :row="toScopeRow(scope.row)" :children="actionScopeChildren" />
             </div>
           </template>
         </el-table-column>
     </el-table>
 
-    <el-pagination
+    <DisplayPagination
       v-if="showPagination"
       class="renderer-table-pagination"
       background
       :layout="props.pagination?.showJumper === false ? 'total, sizes, prev, pager, next' : 'total, sizes, prev, pager, next, jumper'"
-      :total="dataState.total.value"
-      :current-page="dataState.page.value"
-      :page-size="dataState.pageSize.value"
       :page-sizes="props.pagination?.pageSizes ?? [10, 20, 50, 100]"
-        :disabled="paginationDisabled"
-      @current-change="handlePageChange"
-      @size-change="handlePageSizeChange"
     />
   </div>
 </template>
@@ -154,7 +148,9 @@ import { buildTreeTableRows, isAlreadyNested } from '../view-tree-state'
 import { useContainerToolbar } from '../../runtime/container-ui'
 import { sparkColumnToAutoFieldNode } from '../../runtime/column-auto-field.js'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
+import {resolveDataViewRow} from '../../support/scope/row-mirror-sync'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
+import DisplayPagination from '../../../display/data-components/DisplayPagination/DisplayPagination.vue'
 import { TABLE_COLUMN_RESIZABLE_KEY, TABLE_COLUMN_SORTING_KEY } from '../../../fields/context/tableColumnContext'
 import { toDataRecord } from '../data-row-utils'
 import {resolveDataViewEditingRow} from '../../../fields/context/dataViewEditing'
@@ -279,7 +275,7 @@ function rowFragmentChildren(node: SparkNode): SparkNode[] {
 }
 
 function toScopeRow(value: unknown): DataRow | undefined {
-  return toDataRecord(value) ?? undefined
+  return resolveDataViewRow(dataState.resolvedView.value, toDataRecord(value)) ?? undefined
 }
 
 // ── 基础 el-table props：resizable 默认 true，且与 border 联动 ──────────────────────────
@@ -351,19 +347,8 @@ const rows = computed(() => buildTreeTableRows({
   primaryKey: dataState.primaryKey.value,
 }))
 const isLoading = computed(() => dataState.requestState.value === RequestState.Loading)
-const showPagination = computed(() => props.showPagination !== false && dataState.paginated.value && dataState.total.value > 0)
-const paginationDisabled = computed(() => dataState.resultReplacementBlocked.value || dataState.mutating.value
-  || dataState.requestState.value === RequestState.Preparing || isLoading.value)
-
-function handlePageChange(page: number) {
-  if (paginationDisabled.value) return
-  dataState.resolvedView.value?.setPage(page)
-}
-
-function handlePageSizeChange(size: number) {
-  if (paginationDisabled.value) return
-  dataState.resolvedView.value?.setPageSize(size)
-}
+const showPagination = computed(() => props.showPagination !== false && dataState.paginated.value
+  && (dataState.countReported.value === false || dataState.total.value > 0))
 const { currentRow, isMultiSelect, selectedRows } = dataState
 
 const tableRowKeyValue = computed(() =>
@@ -653,4 +638,3 @@ async function handleSortChange({ prop, order }: { prop: string | null, order: E
 }
 
 </style>
-

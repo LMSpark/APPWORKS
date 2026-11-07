@@ -176,6 +176,8 @@ export function useFormDetailContainer(
 
   const contextData = shallowReactive<DataRow>({})
   let prevRow: unknown = Symbol('initial')
+  let prevSourceRow: unknown = Symbol('initial-source')
+  type ContextRow = {display: DataRow | null; sourceRow: DataRow | null}
 
   function aggregateToDataRow(row: Readonly<Record<string, unknown>>): DataRow {
     return { ...row }
@@ -189,22 +191,21 @@ export function useFormDetailContainer(
    * 2) contextDataMember 已解析到的行（resolvedDataRow）
    * 3) 回落到 DataView.currentRow
    */
-  function resolveContextRow(): DataRow | null {
+  function resolveContextRow(): ContextRow {
     const view = dataState.resolvedView.value
     if (dataState.aggregateError.value && (props.contextDataMember === DataMember.AggregateResult
-      || props.contextDataMember === DataMember.SelectionAggregateResult)) return null
+      || props.contextDataMember === DataMember.SelectionAggregateResult)) return {display: null, sourceRow: null}
     // 选中行汇总：仅统计 selectedRows 的聚合输出。
     if (props.contextDataMember === DataMember.SelectionAggregateResult) {
-      return aggregateToDataRow(view?.selectionAggregateResult ?? dataState.selectionAggregateResult.value)
+      return {display: aggregateToDataRow(view?.selectionAggregateResult ?? dataState.selectionAggregateResult.value), sourceRow: null}
     }
     // 全量汇总：统计当前视图 rows 的聚合输出。
     if (props.contextDataMember === DataMember.AggregateResult) {
-      return aggregateToDataRow(view?.aggregateResult ?? dataState.aggregateResult.value)
+      return {display: aggregateToDataRow(view?.aggregateResult ?? dataState.aggregateResult.value), sourceRow: null}
     }
     const scopedRow = resolvePinnedRow(view)
-    if (scopedRow !== undefined) return resolveDataViewEditingRow(view, scopedRow) ?? scopedRow
-    const row = dataState.resolvedDataRow.value ?? dataState.currentRow.value
-    return resolveDataViewEditingRow(view, row) ?? row
+    const row = scopedRow !== undefined ? scopedRow : dataState.resolvedDataRow.value ?? dataState.currentRow.value
+    return {display: resolveDataViewEditingRow(view, row) ?? row, sourceRow: row}
   }
 
   /**
@@ -212,10 +213,11 @@ export function useFormDetailContainer(
    *
    * `skipSameRef=true` 跳过同引用重复写入，避免无意义的浅层同步。
    */
-  function syncContextDataFromCurrentRow(row: DataRow | null, options?: { skipSameRef?: boolean }): void {
-    if (options?.skipSameRef === true && row === prevRow) return
-    prevRow = row
-    syncReactiveRow(contextData, row, true)
+  function syncContextDataFromCurrentRow(row: ContextRow, options?: { skipSameRef?: boolean }): void {
+    if (options?.skipSameRef === true && row.display === prevRow && row.sourceRow === prevSourceRow) return
+    prevRow = row.display
+    prevSourceRow = row.sourceRow
+    syncReactiveRow(contextData, row.display, {sourceRow: row.sourceRow})
   }
 
   function syncResolvedContextRow(): void {

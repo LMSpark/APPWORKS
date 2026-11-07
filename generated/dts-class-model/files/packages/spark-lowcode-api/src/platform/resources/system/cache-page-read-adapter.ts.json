@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/cache-page-read-adapter",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/system/cache-page-read-adapter",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/cache-page-read-adapter\n职责：将缓存来源分页映射到原正式读取，并实际探测下一页。\n边界：不读取角色、不保存缓存值、不持有页面行数组或权限副本；只返回原查询结果。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CachePageReadAdapter"
+    ]
+  },
+  "$defs": {
+    "CachePageIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CachePageIdentity",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "modelId": {
+          "type": "string"
+        },
+        "modelName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "scenarioId",
+        "modelId",
+        "modelName"
+      ],
+      "additionalProperties": false
+    },
+    "CachePageReadAdapter": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CachePageReadAdapter",
+      "properties": {
+        "kind": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "identity": {
+              "$ref": "#/$defs/CachePageIdentity"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.execute.params": {
+          "type": "object",
+          "properties": {
+            "input": true
+          },
+          "additionalProperties": false
+        },
+        "method.execute.return": {
+          "type": "object",
+          "title": "ReturnType<DataSpaceModelReadAdapter['execute']>"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T00:30:07.851Z",
+  "models": {
+    "CachePageIdentity": {
+      "name": "CachePageIdentity",
+      "jsdoc": "正式场景、模型ID与查询名称共同定位一个缓存列表来源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    modelId: string;\n    modelName: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelName",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "CachePageReadAdapter": {
+      "name": "CachePageReadAdapter",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(identity: CachePageIdentity)",
+          "parameters": [
+            {
+              "name": "identity",
+              "type": {
+                "type": "reference",
+                "name": "CachePageIdentity",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "implements",
+            "typeText": "DataSpaceModelReadAdapter",
+            "targetName": "DataSpaceModelReadAdapter"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "execute",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "unknown",
+                    "name": "Parameters<DataSpaceModelReadAdapter['execute']>[0]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "ReturnType",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "DataSpaceModelReadAdapter['execute']"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -55,7 +55,7 @@ AI用途：需要理解 renderer tree 的实际渲染结构、slot/toolbar/状�
       >
         <template #default="slotProps">
           <span class="custom-tree-node">
-            <RendererHostScope :row="toScopeRow(slotProps?.data)">
+            <RendererHostScope row-item :row="toScopeRow(slotProps?.data)">
               <template v-if="nodeContentChildren.length > 0">
                 <SparkComponentRenderer
                   v-for="(child, index) in nodeContentChildren"
@@ -121,6 +121,7 @@ import {
 import { useRendererTreeInput } from './input'
 import { useContainerDataSource } from '../view-data-source'
 import { useRendererTreeViewState } from '../view-tree-state'
+import {resolveDataViewRow} from '../../support/scope/row-mirror-sync'
 import { resolveTreeNodeText, toDataRecord } from '../data-row-utils'
 import RendererHostScope from '../../support/scope/RendererHostScope.vue'
 import DataViewMetaBar from '../DataViewMetaBar.vue'
@@ -169,21 +170,18 @@ const dataState = useContainerDataSource({
 })
 // -- DataView 投影（SSOT）----------------------------------------------------------
 
-const {
-  treeData,
-  treeIdField,
-  currentRow,
-  refreshTreeData,
-} = useRendererTreeViewState({
-  dataState,
-})
-
 const nodeKeyField = computed<string>(() =>
   props.nodeKey
   ?? dataState.primaryKey.value
   ?? dataState.treeConfig.value?.idField
   ?? 'id'
 )
+const {
+  treeData,
+  treeIdField,
+  currentRow,
+  refreshTreeData,
+} = useRendererTreeViewState({dataState})
 
 const labelField = computed(() => dataState.treeConfig.value?.textField ?? 'label')
 
@@ -196,10 +194,7 @@ function getNodeLabel(data: unknown): string {
 function toScopeRow(data: unknown): DataRow | undefined {
   const view = dataState.resolvedView.value
   if (!view || data === null || typeof data !== 'object' || Array.isArray(data)) return undefined
-  const key = Reflect.get(data, nodeKeyField.value)
-  if (typeof key !== 'string' && typeof key !== 'number') return undefined
-  const matches = view.rows.filter(row => Object.is(row[nodeKeyField.value], key))
-  return matches.length === 1 ? matches[0] : undefined
+  return resolveDataViewRow(view, toDataRecord(data)) ?? undefined
 }
 
 const elTreeFieldProps = computed(() => ({

@@ -1,0 +1,127 @@
+{
+  "date": "2026-11-07",
+  "status": "actual-readonly-verified",
+  "scope": "Original PageRuntime -> registered repository scenario -> formal model bindings -> native category cascade and paged source adapter",
+  "result": {
+    "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+    "phase": "finished",
+    "businessWrites": 0,
+    "cacheDeletes": 0,
+    "steps": [
+      {
+        "stage": "category-cascade",
+        "categoryCount": 8,
+        "page": 1,
+        "pageSize": 1,
+        "count": 1,
+        "countReported": false,
+        "nextPageAvailable": true,
+        "primaryKey": "",
+        "keyDigests": [
+          "a070c673dc948d05e500de38a8ca0b336909c256c8b18686b6563ac274ecdad4"
+        ]
+      },
+      {
+        "stage": "definition-refresh-denied",
+        "serviceRequests": 0
+      },
+      {
+        "stage": "stage-cancel",
+        "serviceRequests": 0,
+        "pending": false
+      },
+      {
+        "stage": "native-page-two",
+        "serviceRequests": 2,
+        "page": 2,
+        "pageSize": 1,
+        "count": 1,
+        "countReported": false,
+        "nextPageAvailable": true,
+        "primaryKey": "",
+        "keyDigests": [
+          "fa325bb63e8704c7d2ab0a201d07a65879362dd3ad415d1593f1a1a31767304e"
+        ]
+      }
+    ],
+    "sdkRequests": 11,
+    "blocked": 0,
+    "dispatches": [
+      {
+        "ordinal": 2,
+        "modelName": "Base_DataSet"
+      },
+      {
+        "ordinal": 3,
+        "modelName": "Base_DataModel"
+      },
+      {
+        "ordinal": 4,
+        "modelName": "Base_DataModel_Field"
+      },
+      {
+        "ordinal": 5,
+        "modelName": "Base_DataModel_Field"
+      },
+      {
+        "ordinal": 6,
+        "modelName": "Base_DataModel_Field"
+      },
+      {
+        "ordinal": 7,
+        "modelName": "缓存过滤条件"
+      },
+      {
+        "ordinal": 8,
+        "modelName": "获取缓存信息"
+      },
+      {
+        "ordinal": 9,
+        "modelName": "获取缓存信息"
+      },
+      {
+        "ordinal": 10,
+        "modelName": "获取缓存信息"
+      },
+      {
+        "ordinal": 11,
+        "modelName": "获取缓存信息"
+      }
+    ]
+  },
+  "host": {
+    "repositoryReads": 1,
+    "blockedFetches": 0,
+    "naturalExitCode": 0,
+    "ownedProxyStopped": true
+  },
+  "limitations": [
+    "No browser visual acceptance",
+    "No actual delete dispatched; owned key creation and exact cleanup contract remains unavailable",
+    "Stage/cancel was local through the configured command DataView and produced zero source requests",
+    "Unknown-total pages do not establish an authoritative total",
+    "This is not acceptance of the complete cache business package or the 20-package migration"
+  ],
+  "sources": [
+    {
+      "path": "artifacts/data-chain-smoke/cache-native-runtime-readonly.json",
+      "sha256": "2a97413de1c04efea6b589c8b2eeb1fb48aaa5d635f69c8f599f94cc24354f8a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-native-runtime-readonly.mts",
+      "sha256": "199a2b72bd45f0493a99d9f7f189b2108425472e85882ef03f2328a4f6dc77fa"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-native-runtime-readonly-run.mts",
+      "sha256": "f8071548de5380eb9615ca928ba1772d503e5a7446028fd6cf6449d8a785b80f"
+    },
+    {
+      "path": "config/pages/system/cache-management/pagedata.json",
+      "sha256": "609d3a1757d6fca9b01b421ee9f79da1d0d0f19a8d27c4489be869ca8fbb1a72"
+    },
+    {
+      "path": "src/lowcode/resources/system/cache-management/runtime-bindings.ts",
+      "sha256": "52a17983e2ff8cce640f644314fa1ad34472151514558536eb37a90c677f15f6"
+    }
+  ]
+}

@@ -85,7 +85,7 @@ AI用途：需要理解 renderer virtual card 的实际渲染结构、slot/toolb
                     :style="props.itemStyle"
                     @click="handleItemClick(row, absoluteIndex(page, index), $event)"
                   >
-                    <RendererHostScope :row="row">
+                    <RendererHostScope row-item :row="row">
                       <div v-if="itemContentChildren.length > 0" class="renderer-virtual-card-item-body" :style="itemContentGridStyle">
                         <div
                           v-for="(child, childIndex) in itemContentChildren"

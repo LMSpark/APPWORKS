@@ -16,6 +16,7 @@ import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-f
 import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
+import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -26,6 +27,10 @@ export type LoadScenarioDataSetInput = Readonly<{
  modelScope?: string
  /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */
  fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors']
+ /** 已声明命令的宿主绑定，不由页面构造提交owner。 */
+ commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings']
+ /** 按正式modelId选择首次绑定适配模式。 */
+ modelAdapters?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['modelAdapters']
  /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */
  metadataDataSet?: DataSet
  assertCurrent?: () => void
@@ -60,7 +65,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
    input.assertCurrent?.()
    const bindings = new Map<string, {id: string; name: string}>()
    for (const [key, table] of Object.entries(configuredTables)) {
-    if (isRecord(table) && table['resourceType'] === 'file') continue
+    if (isRecord(table) && (table['resourceType'] === 'file'||table['resourceType'] === 'command')) continue
     const binding = isRecord(table) ? table['modelBinding'] : undefined
     if (!isRecord(binding) || typeof binding['modelId'] !== 'string' || typeof binding['modelName'] !== 'string') throw new Error('场景模型绑定不完整')
     bindings.set(key, {id: binding['modelId'], name: binding['modelName']})
@@ -72,6 +77,10 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  if (!isRecord(tables)) throw new Error('场景视图缺少 tables')
  const names = new Set<string>()
  for (const [tableName, table] of Object.entries(tables)) {
+  if(isRecord(table)&&table['resourceType']==='command'){
+   if(!input.commandBindings?.[tableName])throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
+   continue
+  }
   if (isRecord(table) && table['resourceType'] === 'file') {
    const executor = input.fileExecutors && Object.hasOwn(input.fileExecutors, tableName) ? input.fileExecutors[tableName] : undefined
    if (!executor || typeof executor.executeQuery !== 'function') throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
@@ -87,7 +96,9 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  ])
  input.assertCurrent?.()
  const result=new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,
-  ...(input.fileExecutors ? {fileExecutors: input.fileExecutors} : {})})
+  ...(input.fileExecutors ? {fileExecutors: input.fileExecutors} : {}),
+  ...(input.commandBindings?{commandBindings:input.commandBindings}:{}),
+  ...(input.modelAdapters?{modelAdapters:input.modelAdapters}:{})})
  try{registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})});return result}
  catch(error){result.dataSet.destroy();throw error}
 }
@@ -111,18 +122,16 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  if (isBuiltinApplication(projectId) && !resolveBuiltinScenarioResource(scenarioId)) {
   throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
  }
- const scope = lowcodeApi.readRequestScope()
- const assertCurrent = (): void => {
-  if (lowcodeApi.readRequestScope().token !== scope.token || scope.headers['X-AppId'] !== projectId) {
-   throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
-  }
- }
+ const execution = readLowcodeExecutionProject()
+ if (execution.projectId !== projectId) throw new Error('SPARK_EXECUTION_SCOPE_STALE: 场景请求所属应用已失效')
+ const assertCurrent = execution.assertCurrent
  assertCurrent()
  const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
  assertCurrent()
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
  const config = new ScenarioViewConfig(scenarioId, text)
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
+  ...createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent}),
   ...(command.getPage?{getPage:command.getPage}:{}),
   fileExecutors: definitionExecutors({projectId, scenarioId, config, assertCurrent})})
  try {

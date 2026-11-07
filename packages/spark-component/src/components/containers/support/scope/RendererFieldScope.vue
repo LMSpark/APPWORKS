@@ -121,7 +121,8 @@ watch(
     if (syncingFromMirror) return
     syncingFromSource = true
     try {
-      syncReactiveRow(rowMirror, incoming, resolveDataViewRow(inheritedView, incoming) !== null)
+      const sourceRow = resolveDataViewRow(inheritedView, incoming)
+      syncReactiveRow(rowMirror, incoming, sourceRow ? {sourceRow} : {})
     } finally {
       syncingFromSource = false
     }
@@ -137,7 +138,7 @@ watch(
     syncingFromMirror = true
     try {
       const modelRow = resolveDataViewRow(inheritedView, props.model)
-      syncReactiveRow(props.model, incoming, modelRow !== null && toRaw(props.model) !== toRaw(modelRow))
+      syncReactiveRow(props.model, incoming, modelRow !== null && toRaw(props.model) !== toRaw(modelRow) ? {sourceRow: modelRow} : {})
     } finally {
       syncingFromMirror = false
     }
@@ -176,4 +177,3 @@ const { gridChildren, gridStyle, getChildGridStyle } = useContainerGrid({
   line-height: 28px;
 }
 </style>
-

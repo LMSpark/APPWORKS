@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1094,
+  "scannedFileCount": 1102,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -5122,6 +5122,19 @@
         "componentLevel": "row-level",
         "componentLayer": "row-scope",
         "componentDirectory": "containers/support"
+      }
+    },
+    "packages/spark-component/src/components/containers/support/scope/row-item-context.ts": {
+      "file": "files/packages/spark-component/src/components/containers/support/scope/row-item-context.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/support/scope/row-item-context",
+        "sourcePath": "packages/spark-component/src/components/containers/support/scope/row-item-context.ts",
+        "sourceFile": "packages/spark-component/src/components/containers/support/scope/row-item-context.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/support/scope/row-item-context",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/support/scope/row-item-context\n职责：标识集合行项的自定义动作参数，区别普通表单和弹窗命令事件。\n边界：只携带所属视图和原行定位函数，不授予权限，不按主键认领替换记录。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "packages/spark-component/src/components/containers/support/scope/row-mirror-sync.ts": {
@@ -10685,6 +10698,37 @@
         ]
       }
     },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-model-binding",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/runtime/data-space-model-binding",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-model-binding\n职责：正式模型首次绑定时选择来源分页读取或服务命令模式。\n边界：读取适配只消费原正式读取结果，不提供保存能力或权限构造入口。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataSpaceModelReadAdapter",
+          "DataSpaceModelBindingOptions"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-model-command-error",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/data-space/runtime/data-space-model-command-error",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-model-command-error\n职责：标识正式模型命令进入一次执行能力之前的明确拒绝。\n边界：不用于传输、回执或派发后的身份失效，不能证明已进入执行能力的请求未生效。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "DataSpaceModelCommandNotDispatchedError"
+        ]
+      }
+    },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
       "module": {
@@ -11422,6 +11466,36 @@
         "symbols": [
           "WorkflowExecutionGraph",
           "WorkflowExecutionResource"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/cache-delete-command-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/system/cache-delete-command-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/cache-delete-command-resource\n职责：捕获原缓存行的单键删除意图，沿原命令DataView提交和保留未知结果。\n边界：不改列表权限、不构造缓存主键、不重放未知命令；校验快照不是可编辑数据真源。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "CacheDeleteCommandResource"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/cache-page-read-adapter",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/system/cache-page-read-adapter",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/cache-page-read-adapter\n职责：将缓存来源分页映射到原正式读取，并实际探测下一页。\n边界：不读取角色、不保存缓存值、不持有页面行数组或权限副本；只返回原查询结果。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "CachePageReadAdapter"
         ]
       }
     },
@@ -15140,6 +15214,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/system/cache-management/runtime-bindings.ts": {
+      "file": "files/src/lowcode/resources/system/cache-management/runtime-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/system/cache-management/runtime-bindings",
+        "sourcePath": "src/lowcode/resources/system/cache-management/runtime-bindings.ts",
+        "sourceFile": "src/lowcode/resources/system/cache-management/runtime-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/system/cache-management/runtime-bindings",
+        "jsdoc": "@module app:lowcode/resources/system/cache-management/runtime-bindings\n职责：为正式缓存场景的首次装配选择来源分页适配与原生命令绑定。\n边界：只解析本次配置和同一DataSet视图，不创建表、查询、草稿或页面owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
     "src/main.ts": {
       "file": "files/src/main.ts.json",
       "module": {
@@ -17702,6 +17789,32 @@
         "symbols": []
       }
     },
+    "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue": {
+      "file": "files/src/views/features/system/cache-management/ui/cache-delete-confirmation.vue.json",
+      "module": {
+        "name": "app:views/features/system/cache-management/ui/cache-delete-confirmation",
+        "sourcePath": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",
+        "sourceFile": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",
+        "packageName": "app",
+        "modulePath": "views/features/system/cache-management/ui/cache-delete-confirmation",
+        "jsdoc": "@module app:views/features/system/cache-management/ui/cache-delete-confirmation\n职责：确认原命令视图中已暂存的单键删除，取消及提交复用公共单记录生命周期。\n边界：不查询、不复制键值、不创建owner；未知仅核验原捕获。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/system/cache-management/ui/cache-management-page.vue": {
+      "file": "files/src/views/features/system/cache-management/ui/cache-management-page.vue.json",
+      "module": {
+        "name": "app:views/features/system/cache-management/ui/cache-management-page",
+        "sourcePath": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+        "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/system/cache-management/ui/cache-management-page",
+        "jsdoc": "@module app:views/features/system/cache-management/ui/cache-management-page\n职责：恢复缓存类型、缓存信息、当前页搜索、来源分页及单键删除确认。\n边界：绑定同一PageRuntime的正式DataView；来源分页和命令提交由数据层适配，不引入原CacheManager或页面草稿。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/platform/About.vue": {
       "file": "files/src/views/platform/About.vue.json",
       "module": {
@@ -19042,6 +19155,10 @@
       "sourcePath": "packages/spark-component/src/page/actions/button-templates.ts",
       "file": "files/packages/spark-component/src/page/actions/button-templates.ts.json"
     },
+    "CacheDeleteCommandResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts.json"
+    },
     "CacheEntry": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
@@ -19049,6 +19166,10 @@
     "CacheExpirationTier": {
       "sourcePath": "packages/spark-utils/src/http/types.ts",
       "file": "files/packages/spark-utils/src/http/types.ts.json"
+    },
+    "CachePageReadAdapter": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts.json"
     },
     "CancelableHandler": {
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
@@ -19858,6 +19979,14 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-permission.ts.json"
     },
+    "DataSpaceModelBindingOptions": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts.json"
+    },
+    "DataSpaceModelCommandNotDispatchedError": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts.json"
+    },
     "DataSpaceModelEditorProps": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.props.ts",
       "file": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/data-set-design-node-panel.props.ts.json"
@@ -19865,6 +19994,10 @@
     "DataSpaceModelFieldsProps": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts",
       "file": "files/src/views/features/data-platform/data-set-management/design/ui/node-panel/fields/DataSpaceModelFields.props.ts.json"
+    },
+    "DataSpaceModelReadAdapter": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts.json"
     },
     "DataSpaceModelRemovalProps": {
       "sourcePath": "src/views/features/data-platform/data-set-management/design/model/removal/DataSpaceModelRemoval.props.ts",

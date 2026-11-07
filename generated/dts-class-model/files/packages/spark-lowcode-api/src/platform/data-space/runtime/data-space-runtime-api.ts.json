@@ -257,11 +257,8 @@
               "type": "object",
               "title": "Awaited<ReturnType<DataSpaceDesignApi['readModel']>>"
             },
-            "arrayRows": {
-              "type": "array",
-              "items": {
-                "$ref": "../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
-              }
+            "options": {
+              "$ref": "data-space-model-binding.ts.json#/$defs/DataSpaceModelBindingOptions"
             }
           },
           "additionalProperties": false
@@ -314,6 +311,23 @@
           "additionalProperties": false
         },
         "method.executeQuery.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
+        },
+        "method.executeModelCommand.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "sourceInputs": {
+              "type": "object",
+              "title": "Record<string, unknown>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeModelCommand.return": {
           "type": "object",
           "title": "Promise<DataSpaceQueryContext>"
         },
@@ -379,7 +393,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T03:33:21.711Z",
+  "generatedAt": "2026-11-07T03:17:08.010Z",
   "models": {
     "DataSpaceRuntimeApiOptions": {
       "name": "DataSpaceRuntimeApiOptions",
@@ -702,10 +716,11 @@
                   }
                 },
                 {
-                  "name": "arrayRows",
+                  "name": "options",
                   "type": {
-                    "type": "unknown",
-                    "name": "readonly SparkData.DataRow[]"
+                    "type": "reference",
+                    "name": "DataSpaceModelBindingOptions",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts"
                   },
                   "flags": {
                     "isOptional": true
@@ -796,6 +811,53 @@
                   "type": {
                     "type": "reference",
                     "name": "SparkData.QueryParams"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeModelCommand",
+              "jsdoc": "正式接口命令的一次执行能力；供命令提交适配消费，不经读缓存/合并，不登记CRUD核验基线。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "SparkData.DataView"
+                  }
+                },
+                {
+                  "name": "sourceInputs",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "Record",
+                        "typeArguments": [
+                          {
+                            "type": "intrinsic",
+                            "name": "string"
+                          },
+                          {
+                            "type": "intrinsic",
+                            "name": "unknown"
+                          }
+                        ]
+                      }
+                    ]
                   }
                 }
               ],

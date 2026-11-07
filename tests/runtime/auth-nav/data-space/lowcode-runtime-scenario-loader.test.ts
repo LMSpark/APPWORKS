@@ -7,6 +7,7 @@ import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/repository/builtin-system-navigation'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
+import {cacheScenarioModels} from './cache/cache-scenario.fixture'
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),
@@ -76,6 +77,22 @@ function relationFixture(field = 'missing', childModelId = 'CHILD') {
 describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.restoreAllMocks() })
+
+  it('loads the registered cache scenario through original model bindings and the configured command factory', async () => {
+    const scene=getBuiltinScenarioResource('cacheManagement'),app=getBuiltinApplicationDescriptor()
+    mocks.readRequestScope.mockReturnValue(scope('cache-token',app.id))
+    mocks.readText.mockResolvedValue(readFileSync(scene.path,'utf8'))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:scene.scenarioId,name:'缓存管理'})
+    mocks.readModelBatch.mockResolvedValue(cacheScenarioModels())
+    const ds=await loadLowcodeRuntimeScenario({projectId:app.id,scenarioId:scene.scenarioId})
+    try{
+      expect(mocks.readModelBatch.mock.calls[0]?.[0]).toMatchObject({metaNames:expect.arrayContaining(['缓存过滤条件','获取缓存信息','根据键删除缓存中的值'])})
+      expect(ds.getTable('CacheDeleteRequest')?.modelBinding).toBeUndefined()
+      await ds.getView('CacheDeleteRequest')!.refresh()
+      await expect(ds.getView('CacheDeleteDefinition')!.loadFromServer()).rejects.toThrow('SPARK_MODEL_COMMAND')
+      expect(mocks.request).not.toHaveBeenCalled()
+    }finally{ds.destroy()}
+  })
 
   it('rejects an undeclared builtin program scene before invoking the dynamic file owner', async () => {
     await expect(loadLowcodeRuntimeScenario({projectId: getBuiltinApplicationDescriptor().id, scenarioId: 'UNREGISTERED'}))
@@ -414,6 +431,20 @@ describe('loadLowcodeRuntimeScenario', () => {
     mocks.readText.mockResolvedValue(null)
     await expect(loadLowcodeRuntimeScenario({ projectId: 'APP', scenarioId: 'SCENE' })).rejects.toThrow('SCENARIO_VIEW_FILE_MISSING')
     expect(mocks.readModelBatch).not.toHaveBeenCalled()
+  })
+
+  it('rejects a same-token application switch while reading the scenario before metadata access', async () => {
+    mocks.readRequestScope.mockReturnValue(scope('t1', 'APP'))
+    mocks.readText.mockImplementationOnce(async () => {
+      mocks.readRequestScope.mockReturnValue(scope('t1', 'OTHER'))
+      return JSON.stringify({scenarioId: 'SCENE', resourceRelations: [], tables: {}})
+    })
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'SCENE', name: 'Original'})
+    mocks.readRelations.mockResolvedValue([])
+    await expect(loadLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE'}).then(dataSet => dataSet.destroy())).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
+    expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+    expect(mocks.readModelBatch).not.toHaveBeenCalled()
+    expect(mocks.request).not.toHaveBeenCalled()
   })
 
   it('reads formal space even when no tables are configured, keeping scenario identity separate from Name', async () => {

@@ -72,7 +72,7 @@
       "title": "缓存管理",
       "icon": "Coin",
       "scope": "app",
-      "source": "src/views/app/CacheManager.vue",
+      "source": "src/views/features/system/cache-management/ui/cache-management-page.vue",
       "description": "AppWorks 系统导航登记的原生缓存管理页面",
       "hidden": true,
       "shellTool": false

@@ -28,6 +28,12 @@
             true
           ]
         },
+        "nextPageAvailable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "hasPendingSavedRowPermissions": {
           "enum": [
             false,
@@ -62,7 +68,7 @@
         },
         "childResult": {
           "type": "object",
-          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
         },
         "rows": {
           "type": "array",

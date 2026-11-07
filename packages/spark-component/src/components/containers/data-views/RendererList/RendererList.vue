@@ -47,7 +47,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
                 v-if="showItemActionsLeft"
                 :class="['renderer-list-item-actions', itemActionsClassValue]"
               >
-                <RendererHostScope :row="row">
+                <RendererHostScope row-item :row="row">
                   <SparkComponentRenderer v-if="rawItemActionsToolbarConfig" :config="rawItemActionsToolbarConfig" />
                 </RendererHostScope>
               </div>
@@ -55,7 +55,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
               <div :class="['renderer-list-item-content', itemClass]" :style="itemStyle">
                 <component :is="itemBodyWrapperTag" v-bind="itemBodyWrapperAttrs">
                   <div class="renderer-list-item-body" :style="itemContentGridStyle">
-                    <RendererHostScope :row="row">
+                    <RendererHostScope row-item :row="row">
                       <div
                         v-for="(child, childIndex) in itemContentChildren"
                         :key="nodeId(child) ?? `r-list-item-child-${childIndex}`"
@@ -77,7 +77,7 @@ AI用途：需要理解 renderer list 的实际渲染结构、slot/toolbar/状�
                 v-if="showItemActionsRight"
                 :class="['renderer-list-item-actions', itemActionsClassValue]"
               >
-                <RendererHostScope :row="row">
+                <RendererHostScope row-item :row="row">
                   <SparkComponentRenderer v-if="rawItemActionsToolbarConfig" :config="rawItemActionsToolbarConfig" />
                 </RendererHostScope>
               </div>

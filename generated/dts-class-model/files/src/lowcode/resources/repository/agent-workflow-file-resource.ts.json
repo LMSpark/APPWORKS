@@ -213,7 +213,7 @@
         },
         "executeQuery": {
           "type": "object",
-          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
         },
         "save": {
           "type": "object",
@@ -221,15 +221,15 @@
         },
         "hasUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultKind?: \"entity\" | \"join\" | \"navigation\" | \"hierarchy\" | \"aggregate\"; ... 17 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewAction..."
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
         },
         "refreshSavedRowPermissions": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultKind?: \"entity\" | \"join\" | \"navigation\" | \"hierarchy\" | \"aggregate\"; ... 17 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewAction..."
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
         },
         "abandonUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; resultKind?: \"entity\" | \"join\" | \"navigation\" | \"hierarchy\" | \"aggregate\"; ... 17 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewAction..."
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
         },
         "source": {
           "$ref": "../../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
@@ -320,6 +320,12 @@
             true
           ]
         },
+        "nextPageAvailable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "hasPendingSavedRowPermissions": {
           "enum": [
             false,
@@ -354,7 +360,7 @@
         },
         "childResult": {
           "type": "object",
-          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
         },
         "rows": {
           "type": "array",
@@ -505,7 +511,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T00:54:29.324Z",
+  "generatedAt": "2026-11-06T09:09:33.442Z",
   "models": {
     "LowcodeFileResourceApi": {
       "name": "LowcodeFileResourceApi",

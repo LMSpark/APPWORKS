@@ -1,6 +1,6 @@
 import appworks from '../../config/applications/appworks.json'
 
-export type BuiltinScenarioName = 'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint'
+export type BuiltinScenarioName = 'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement'
   | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector'
 export type BuiltinScenarioResource = Readonly<{name: BuiltinScenarioName; scenarioId: string; resourceId: string; path: string}>
 export type BuiltinNavigationResource = Readonly<{resourceId: string; path: string}>
@@ -12,7 +12,7 @@ const applicationDescriptor: BuiltinApplicationDescriptor = Object.freeze({id: a
 const scenarios = new Map<string, BuiltinScenarioResource>()
 const scenariosByName = new Map<BuiltinScenarioName, BuiltinScenarioResource>()
 const paths = new Set<string>()
-const requiredScenarioNames = new Set<BuiltinScenarioName>(['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint',
+const requiredScenarioNames = new Set<BuiltinScenarioName>(['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint', 'cacheManagement',
   'logicViewCatalog', 'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor', 'workflowCatalog', 'excelImportCatalog', 'pdfInspectCatalog', 'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector'])
 for (const resource of appworks.scenarioResources) {
   if (!isBuiltinScenarioName(resource.name)
@@ -32,7 +32,7 @@ if (scenariosByName.size !== requiredScenarioNames.size
 }
 
 function isBuiltinScenarioName(value: string): value is BuiltinScenarioName {
-  return value === 'dataSpaceDesign' || value === 'dataSpaceCatalog' || value === 'dataDictionary' || value === 'projectBlueprint'
+  return value === 'dataSpaceDesign' || value === 'dataSpaceCatalog' || value === 'dataDictionary' || value === 'projectBlueprint' || value === 'cacheManagement'
     || value === 'logicViewCatalog' || value === 'apiProvider' || value === 'apiConfig' || value === 'apiInterface' || value === 'dataCodeCatalog' || value === 'dataCodeEditor'
     || value === 'workflowCatalog' || value === 'excelImportCatalog' || value === 'pdfInspectCatalog' || value === 'excelImportEditor' || value === 'workflowEditor' || value === 'jsonDataCatalog' || value === 'businessTableSelector'
 }

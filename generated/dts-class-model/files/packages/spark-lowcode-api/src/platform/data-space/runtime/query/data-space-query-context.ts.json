@@ -225,6 +225,9 @@
       "type": "object",
       "title": "DataSpaceQueryContextOptions",
       "properties": {
+        "nextPageAvailable": {
+          "type": "boolean"
+        },
         "identity": {
           "$ref": "../data-space-runtime-contract.ts.json#/$defs/DataSpaceQueryIdentity"
         },
@@ -294,6 +297,9 @@
       "title": "DataSpaceQueryContext",
       "properties": {
         "hasPendingSavedRowPermissions": {
+          "type": "boolean"
+        },
+        "nextPageAvailable": {
           "type": "boolean"
         },
         "pendingSavedRowIds": {
@@ -391,6 +397,18 @@
           "additionalProperties": false
         },
         "method.bindFormalModel.return": true,
+        "method.withNextPageAvailable.params": {
+          "type": "object",
+          "properties": {
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.withNextPageAvailable.return": {
+          "$ref": "#/$defs/DataSpaceQueryContext"
+        },
         "method.withSavedRowPermissions.params": {
           "type": "object",
           "properties": {
@@ -618,7 +636,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-03T19:19:33.636Z",
+  "generatedAt": "2026-11-07T00:03:25.070Z",
   "models": {
     "DataSpaceActionState": {
       "name": "DataSpaceActionState",
@@ -836,16 +854,22 @@
       "jsdoc": "原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 原来源探测已确认的下一页状态；不从本页长度推算。 */\n    nextPageAvailable?: boolean;\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
+            "typeText": "Readonly<{\n    /** 原来源探测已确认的下一页状态；不从本页长度推算。 */\n    nextPageAvailable?: boolean;\n    identity: DataSpaceQueryIdentity;\n    snapshot: ReturnType<DataSpaceQueryTable['applyResult']>;\n    scope: string;\n    readScope: () => string;\n    missingAuthPolicy?: DataSpaceMissingAuthPolicy;\n    /** 显式连接、导航和层级结果是只读投影，不把重复根键当成实体身份。 */\n    resultKind?: 'entity' | 'join' | 'navigation' | 'hierarchy';\n    /** 原层级owner按精确公开父行引用读取直接子结果；不接纳同键副本。 */\n    readChild?: (parent: DataSpaceRow | null, modelName: string) => DataSpaceQueryContext;\n    /** 本次正式输出列；不修改共享模型字段。 */\n    columns?: readonly DataColumn[];\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "nextPageAvailable",
+              "jsdoc": "原来源探测已确认的下一页状态；不从本页长度推算。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "identity",
               "readable": true,
@@ -951,6 +975,12 @@
             {
               "name": "hasPendingSavedRowPermissions",
               "jsdoc": "已确认新增但尚未获得正式行查询权限；不是写入结果未知。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nextPageAvailable",
+              "jsdoc": "本次只读页已确认的下一页状态；读取仍核原查询scope。",
               "readable": true,
               "writable": false
             },
@@ -1083,6 +1113,24 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            },
+            {
+              "name": "withNextPageAvailable",
+              "jsdoc": "从原私有冻结结果派生独立分页元数据，不修改共享读结果或重建页面权限。仅用于未知总数的无键平面只读页。",
+              "parameters": [
+                {
+                  "name": "value",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceQueryContext",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
               }
             },
             {

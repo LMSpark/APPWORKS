@@ -148,11 +148,25 @@
         "method.query.return": {
           "type": "object",
           "title": "Promise<DataSpaceQueryContext>"
+        },
+        "method.executeOnce.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "title": "Omit<DataSpaceQueryCacheQueryInput, 'cache'>"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.executeOnce.return": {
+          "type": "object",
+          "title": "Promise<DataSpaceQueryContext>"
         }
       }
     }
   },
-  "generatedAt": "2026-11-03T15:48:16.141Z",
+  "generatedAt": "2026-11-07T00:08:43.831Z",
   "models": {
     "ResultCacheRequest": {
       "name": "ResultCacheRequest",
@@ -340,6 +354,41 @@
                     "type": "reference",
                     "name": "DataSpaceQueryCacheQueryInput",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSpaceQueryContext",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "executeOnce",
+              "jsdoc": "服务命令沿原封包/作用域执行一次，明确绕过读取结果与在途请求复用。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Omit",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataSpaceQueryCacheQueryInput",
+                        "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-cache.ts"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "cache"
+                      }
+                    ]
                   }
                 }
               ],

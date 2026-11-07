@@ -5,8 +5,9 @@
 AI用途：需要理解 display pagination 的实际渲染结构、slot/toolbar/状态呈现或事件触发点时，优先查看本模块。
 -->
 <template>
+  <div v-if="isVisible">
   <el-pagination
-    v-if="isVisible"
+    v-if="!unknownTotal"
     :total="resolvedTotal"
     :page-size="resolvedPageSize"
     :current-page="resolvedCurrentPage"
@@ -15,11 +16,21 @@ AI用途：需要理解 display pagination 的实际渲染结构、slot/toolbar/
     :layout="layout"
     :background="background"
     :small="small"
-    :disabled="isDisabled"
+    :disabled="navigationDisabled"
     :hide-on-single-page="hideOnSinglePage"
     @update:current-page="handleCurrentChange"
     @update:page-size="handleSizeChange"
   />
+  <div v-else class="spark-pagination-unknown">
+    <span>第 {{ resolvedCurrentPage }} 页</span>
+    <el-select :model-value="resolvedPageSize" aria-label="每页条数" :disabled="navigationDisabled" style="width: 110px" @change="handleSizeChange">
+      <el-option v-for="size in pageSizes" :key="size" :value="size" :label="`${size} 条/页`" />
+    </el-select>
+    <el-button data-action="previous-page" :disabled="navigationDisabled || resolvedCurrentPage <= 1" @click="handleCurrentChange(resolvedCurrentPage - 1)">上一页</el-button>
+    <el-button data-action="next-page" :disabled="navigationDisabled || dataState.nextPageAvailable.value !== true" @click="handleCurrentChange(resolvedCurrentPage + 1)">下一页</el-button>
+    <span v-if="dataState.nextPageAvailable.value === undefined" role="status">下一页尚未确认</span>
+  </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +38,7 @@ AI用途：需要理解 display pagination 的实际渲染结构、slot/toolbar/
  * @description 分页控制组件；绑定 DataView（dataViewKey 或继承的数据上下文）时读取其 total/page/pageSize 并调用 setPage/setPageSize 翻页，未绑定时按 props 呈现并只触发事件。
  */
 import { computed, toRef } from 'vue'
+import {RequestState} from '@spark-appworks/spark-data'
 import { useSparkPageComponent, DATA_SOURCE } from '../../../internal'
 import { useContainerDataSource } from '../../../containers/data-views/view-data-source'
 import type { RPaginationProps } from './DisplayPagination.props'
@@ -56,16 +68,26 @@ const view = dataState.resolvedView
 const resolvedTotal = computed(() => view.value ? dataState.total.value : props.total ?? 0)
 const resolvedPageSize = computed(() => view.value ? dataState.pageSize.value : props.pageSize)
 const resolvedCurrentPage = computed(() => view.value ? dataState.page.value : props.currentPage)
+const unknownTotal = computed(() => !!view.value && dataState.countReported.value === false)
+const navigationDisabled = computed(() => isDisabled.value || !!view.value && (dataState.resultReplacementBlocked.value
+  || dataState.mutating.value || dataState.requestState.value === RequestState.Preparing
+  || dataState.requestState.value === RequestState.Loading || dataState.loadingError.value !== null))
 
 function handleCurrentChange(page: number) {
+  if (navigationDisabled.value || !Number.isSafeInteger(page) || page < 1) return
+  if (unknownTotal.value && (page !== resolvedCurrentPage.value - 1 && page !== resolvedCurrentPage.value + 1
+    || page > resolvedCurrentPage.value && dataState.nextPageAvailable.value !== true)) return
   emit('update:currentPage', page)
   view.value?.setPage(page).catch((error: unknown) => logger.error('DisplayPagination: setPage() 失败', error))
 }
 
 function handleSizeChange(size: number) {
+  if (navigationDisabled.value || !Number.isSafeInteger(size) || size < 1) return
   emit('update:pageSize', size)
   view.value?.setPageSize(size).catch((error: unknown) => logger.error('DisplayPagination: setPageSize() 失败', error))
 }
 </script>
 
-
+<style scoped>
+.spark-pagination-unknown { display: flex; align-items: center; gap: 8px; }
+</style>

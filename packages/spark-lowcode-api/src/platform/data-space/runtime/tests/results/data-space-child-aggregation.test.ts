@@ -41,8 +41,8 @@ function setup(expression: string, local = false, remoteChild = false, unboundPa
       const formal = DataSpaceDesignApi.projectModel({rowid: modelId, Name: tableName, MetaName: tableName, Type: isLocal ? '数组' : '数据库表'},
         fields.map(name => ({rowid: `${modelId}-${name}`, dataModelId: modelId, Name: name, FieldType: 'number', IsOutput: 1, IsPKey: name === 'id' ? 1 : 0})), 'id')
       runtime.bindModelView(set.getView(tableName)!, formal, isLocal
-        ? tableName === 'Orders' ? [{id: 1, price: 3}] : [{id: 10, orderId: 1, amount: 5}, {id: 11, orderId: 1, amount: 7}]
-        : undefined)
+        ? {arrayRows: tableName === 'Orders' ? [{id: 1, price: 3}] : [{id: 10, orderId: 1, amount: 5}, {id: 11, orderId: 1, amount: 7}]}
+        : {})
     }
   }
   return {dataSet, orders: dataSet.getView('Orders')!, items: dataSet.getView('Items')!, bind, http}

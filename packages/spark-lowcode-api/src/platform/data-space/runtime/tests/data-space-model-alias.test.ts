@@ -56,7 +56,7 @@ describe('formal model alias query ownership', () => {
       const view = ds.getView('Orders')!
       view.primaryKey = 'orderId'
       new DataSpaceRuntimeApi({http: new NoQuery(), readScope: () => ({token: scope, headers: {}})})
-        .bindModelView(view, formal, sourceType === '数组' ? [{orderId: 'A', caption: 'value'}] : undefined)
+        .bindModelView(view, formal, sourceType === '数组' ? {arrayRows:[{orderId: 'A', caption: 'value'}]} : {})
       view.fieldProjection = view.fieldProjection.filter(field => field.viewField === 'orderId')
       const derived = view.createQueryView('derived')
       for (const current of [view, derived]) expect(current.queryColumns.map(column => column.name)).toEqual(['orderId', 'caption'])

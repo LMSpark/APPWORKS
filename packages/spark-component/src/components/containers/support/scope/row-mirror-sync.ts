@@ -23,24 +23,27 @@ export function resolveDataViewRow(view: DataView | null | undefined, row: DataR
   if (!view || !row) return null
   const candidate = resolveReactiveRow(row)
   if (!candidate) return null
-  return view.rows.find(item => toRaw(item) === toRaw(candidate)) ?? null
+  let resolved: DataRow | null = null
+  view.visitRowsDeep(item => {if (toRaw(item) === toRaw(candidate)) resolved = item})
+  return resolved
 }
 
+/** 同步展示成员；sourceRow独立指定原实体，null表示无实体，空options强制局部model。未传options时只继承已标记镜像，不按字段或主键推断来源。 */
 export function syncReactiveRow(
   target: DataRow,
   source: DataRow | null | undefined,
-  preserveIdentity?: boolean,
+  options?: {sourceRow?: DataRow | null},
 ): void {
   // 仅为标准容器的现有渲染镜像保留对象引用，不复制权限、值或草稿；Symbol不进入业务序列化。
-  const shouldPreserveIdentity = preserveIdentity === true
-    || preserveIdentity === undefined && source !== null && source !== undefined
+  const shouldPreserveIdentity = options !== undefined && Object.hasOwn(options, 'sourceRow')
+    || options === undefined && source !== null && source !== undefined
       && Object.hasOwn(toRaw(source), ROW_SOURCE)
   if (shouldPreserveIdentity) {
     if (!Object.hasOwn(toRaw(target), ROW_SOURCE)) {
       Object.defineProperty(toRaw(target), ROW_SOURCE, {value: undefined, configurable: true, writable: true})
     }
     // 属性保持非枚举，但身份读写必须经过Vue代理；相同字段值也可能属于新查询返回的另一行。
-    Reflect.set(target, ROW_SOURCE, resolveReactiveRow(source))
+    Reflect.set(target, ROW_SOURCE, resolveReactiveRow(options === undefined ? source : options.sourceRow))
   } else Reflect.deleteProperty(target, ROW_SOURCE)
   const incoming = source ?? {}
   const incomingKeys = new Set(Object.keys(incoming))

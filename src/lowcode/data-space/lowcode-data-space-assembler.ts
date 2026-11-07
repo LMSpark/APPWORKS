@@ -3,7 +3,7 @@
  * 职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。
  */
 import { DataSpaceDesignApi, type DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
-import { DataSet, DataViewQuery, type DataResourceRelation, type DataView, type DataViewFilterTree } from '@spark-appworks/spark-data'
+import { DataSet, DataViewQuery, bindDataSetCommandSubmit, type BindCommandSubmitOptions, type DataResourceRelation, type DataView, type DataViewFilterTree } from '@spark-appworks/spark-data'
 import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { LowcodeModelRelationAdapter } from './lowcode-model-relation-adapter'
@@ -21,6 +21,10 @@ export type LowcodeDataSpaceAssemblerInput = Readonly<{
  relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>
  /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */
  fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>
+ /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */
+ commandBindings?: Readonly<Record<string,(view:DataView)=>BindCommandSubmitOptions>>
+ /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */
+ modelAdapters?: Readonly<Record<string,NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>
 }>
 /** 独立场景运行空间及无法解析结构关系的诊断；空间生命周期归调用方。 */
 export type LowcodeDataSpaceAssembly = Readonly<{ dataSet: DataSet; diagnostics: readonly string[] }>
@@ -97,6 +101,10 @@ export class LowcodeDataSpaceAssembler {
   const bindings = new Map<string, FormalModel>()
   for (const [tableName, value] of Object.entries(record(config['tables'], 'tables'))) {
    const table = record(value, tableName)
+   if(table['resourceType']==='command'){
+    if(!input.commandBindings?.[tableName])throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
+    tables[tableName]={tableName,...structuredClone(table)};continue
+   }
    if (table['resourceType'] === 'file') {
     const executor = input.fileExecutors && Object.hasOwn(input.fileExecutors, tableName) ? input.fileExecutors[tableName] : undefined
     if (!executor || typeof executor.executeQuery !== 'function') throw new Error(`SCENARIO_FILE_OWNER: ${tableName} 缺少文件查询owner`)
@@ -172,7 +180,19 @@ export class LowcodeDataSpaceAssembler {
       new Set(table.columns.filter(column => Boolean(column.computeExpression) && column.name !== '_pk').map(column => column.name)))
      LowcodeDataSpaceViewFields.validateSelection({...view.toJson()},
       new Set(LowcodeDataSpaceViewFields.selectionColumns(view, outputNames).map(column => column.name)))
-     this.runtime.bindModelView(view, model, arrayRows)
+     const adapter=input.modelAdapters?.[model.id]
+     this.runtime.bindModelView(view, model, {...(arrayRows===undefined?{}:{arrayRows}),...(adapter===undefined?{}:{adapter})})
+    })
+   }
+   for(const table of Object.values(dataSet.tables)){
+    if(table.resourceType!=='command')continue
+    const factory=input.commandBindings?.[table.tableName]
+    if(!factory)throw new Error(`SCENARIO_COMMAND_BINDING: ${table.tableName} 缺少命令资源绑定`)
+    table.forEachView(view=>{
+     const options=factory(view)
+     if(options.resource.resourceType!=='command'||options.resource.resourceId!==table.resourceId)throw new Error(`SCENARIO_COMMAND_RESOURCE: ${table.tableName} 命令资源身份不符`)
+     if(options.inputFields.some(field=>field===view.primaryKey||!view.columns.some(column=>column.name===field)))throw new Error(`SCENARIO_COMMAND_INPUT: ${table.tableName} 命令输入字段未声明或是命令键`)
+     bindDataSetCommandSubmit(view,options)
     })
    }
    this.runtime.validateQueryDefinitions(dataSet)

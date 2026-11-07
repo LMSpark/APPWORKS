@@ -123,7 +123,7 @@ describe('DataView server query aggregation', () => {
     }}})
     sets.push(dataSet)
     const view = dataSet.getView('Items')!
-    runtime.bindModelView(view, formal, [{id: 'ONE', amount: 3}, {id: 'TWO', amount: 4}])
+    runtime.bindModelView(view, formal, {arrayRows:[{id: 'ONE', amount: 3}, {id: 'TWO', amount: 4}]})
     expect((await view.loadFromServer()).success).toBe(true)
     expect(view.aggregateError).toBeNull()
     expect(view.aggregateResult).toEqual({totalAmount: 7})

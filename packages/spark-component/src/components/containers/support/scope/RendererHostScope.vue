@@ -30,20 +30,31 @@ import {
 } from '../../../internal'
 import { resolveDataViewRow, resolveReactiveRow, syncReactiveRow } from './row-mirror-sync'
 import {FIELD_ROW_CONTEXT} from '../../../fields/context/row/fieldRowContext'
+import {ROW_ITEM_CONTEXT} from './row-item-context'
 
 const props = withDefaults(defineProps<{
   type?: string
   row?: DataRow | undefined
+  /** 集合行项的动作边界；表单/详情展示宿主不新建该边界。 */
+  rowItem?: boolean
   children?: SparkNode[]
 }>(), {
   type: 'r-host-data-scope',
   children: () => [],
+  rowItem: false,
 })
 
 const { sparkProvide, sparkRemove } = useSparkComponent({ type: props.type })
 const {sparkConsume} = useSparkConsume()
 const inheritedView = sparkConsume(DATA_SOURCE)
 const inheritedRowContext = inject(FIELD_ROW_CONTEXT, undefined)
+if (props.rowItem) {
+  const view = () => sparkConsume(DATA_SOURCE)
+  provide(ROW_ITEM_CONTEXT, {view, row: () => {
+    const source = view()
+    return source ? resolveDataViewRow(source, props.row) : resolveReactiveRow(props.row)
+  }})
+}
 let ownsFormalRow = false
 // 正式逐行宿主优先于外层表单固定行；表单镜像/局部JSON模型不冒充原记录。
 provide(FIELD_ROW_CONTEXT, {row: source => {
@@ -64,8 +75,8 @@ function resolveInputRow(): DataRow | undefined {
 }
 
 watch(
-  resolveInputRow,
-  (newRow) => {
+  [resolveInputRow, () => resolveReactiveRow(props.row)],
+  ([newRow]) => {
     if (newRow === undefined) {
       if (hasProvidedRow) {
         sparkRemove(DATA_ROW)
@@ -77,7 +88,8 @@ watch(
       sparkProvide(DATA_ROW, rowMirror)
       hasProvidedRow = true
     }
-    syncReactiveRow(rowMirror, newRow, resolveDataViewRow(inheritedView, newRow) !== null)
+    const sourceRow = resolveDataViewRow(inheritedView, newRow)
+    syncReactiveRow(rowMirror, newRow, sourceRow ? {sourceRow} : undefined)
   },
   { immediate: true, deep: true },
 )

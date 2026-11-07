@@ -25,6 +25,7 @@
         "dataSpaceCatalog",
         "dataDictionary",
         "projectBlueprint",
+        "cacheManagement",
         "logicViewCatalog",
         "apiProvider",
         "apiConfig",
@@ -107,14 +108,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-06T09:49:58.041Z",
+  "generatedAt": "2026-11-07T00:59:24.371Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -131,6 +132,10 @@
           {
             "kind": "union",
             "typeText": "'projectBlueprint'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'cacheManagement'"
           },
           {
             "kind": "union",

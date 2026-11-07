@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/system/cache-management/ui/cache-management-page",
+    "sourcePath": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+    "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/system/cache-management/ui/cache-management-page",
+    "jsdoc": "@module app:views/features/system/cache-management/ui/cache-management-page\n职责：恢复缓存类型、缓存信息、当前页搜索、来源分页及单键删除确认。\n边界：绑定同一PageRuntime的正式DataView；来源分页和命令提交由数据层适配，不引入原CacheManager或页面草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-07T01:10:29.222Z",
+  "models": {}
+}

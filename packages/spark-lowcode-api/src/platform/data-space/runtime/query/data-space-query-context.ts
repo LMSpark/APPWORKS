@@ -47,6 +47,8 @@ type DataSpaceSaveAcceptedReceipt = DataSpaceSaveReceipt & Readonly<{
 }>
 /** 原结果快照及执行域读取器；scope 非空且后续访问必须仍然匹配。 */
 type DataSpaceQueryContextOptions = Readonly<{
+  /** 原来源探测已确认的下一页状态；不从本页长度推算。 */
+  nextPageAvailable?: boolean
   identity: DataSpaceQueryIdentity
   snapshot: ReturnType<DataSpaceQueryTable['applyResult']>
   scope: string
@@ -88,6 +90,7 @@ const denied = Object.freeze({ read: 'invisible', write: 'denied', component: 'h
 
 /** 持有本次查询的实体键或只读投影及逐行读取语义；消费者不得取得签名或替换基线。 */
 export class DataSpaceQueryContext {
+  readonly #nextPageAvailable: boolean | undefined
   readonly #readChild: DataSpaceQueryContextOptions['readChild']
   readonly #identity: DataSpaceQueryIdentity
   readonly #snapshot: DataSpaceQueryContextOptions['snapshot']
@@ -107,6 +110,8 @@ export class DataSpaceQueryContext {
 
   /** 保留原快照并登记行权限；剔除根凭据，拒收尚无路径owner的后代授权行，重复身份不授予权限。 */
   public constructor(options: DataSpaceQueryContextOptions) {
+    if (options.nextPageAvailable !== undefined && typeof options.nextPageAvailable !== 'boolean') throw new Error('SPARK_NEXT_PAGE_RESULT: 下一页状态必须是布尔值')
+    this.#nextPageAvailable = options.nextPageAvailable
     if (!options.scope.trim()) throw new Error('SPARK_QUERY_CONTEXT_STALE: scope 不能为空')
     this.#readChild = options.readChild
     this.#identity = Object.freeze({ ...options.identity })
@@ -176,6 +181,22 @@ export class DataSpaceQueryContext {
 
   /** 已确认新增但尚未获得正式行查询权限；不是写入结果未知。 */
   public get hasPendingSavedRowPermissions(): boolean {this.assertCurrent(); return this.#pendingSavedRowKeys.size > 0}
+
+  /** 本次只读页已确认的下一页状态；读取仍核原查询scope。 */
+  public get nextPageAvailable(): boolean | undefined {this.assertCurrent(); return this.#nextPageAvailable}
+
+  /** 从原私有冻结结果派生独立分页元数据，不修改共享读结果或重建页面权限。仅用于未知总数的无键平面只读页。 */
+  public withNextPageAvailable(value: boolean): DataSpaceQueryContext {
+    this.assertCurrent()
+    if (typeof value !== 'boolean' || this.#snapshot.countReported || this.keyField !== '' || this.#readonlyKind
+      || this.#aggregateResult || this.#readChild || this.hasPendingSavedRowPermissions) throw new Error('SPARK_NEXT_PAGE_RESULT: 仅支持未知总数、无键的平面只读结果')
+    const next = new DataSpaceQueryContext({identity: this.#identity, snapshot: this.#snapshot, scope: this.#scope,
+      readScope: () => {this.assertCurrent(); return this.#readScope()}, nextPageAvailable: value,
+      ...(this.#columns === undefined ? {} : {columns: this.#columns}),
+      ...(this.#missingAuthPolicy === undefined ? {} : {missingAuthPolicy: this.#missingAuthPolicy})})
+    if (this.#model) next.bindFormalModel(this.#model)
+    return next
+  }
 
   /** 仅用于同一运行owner的精确回读，保留正式主键值类型。 */
   public get pendingSavedRowIds(): readonly unknown[] {

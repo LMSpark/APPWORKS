@@ -94,7 +94,7 @@ describe('Vue page registry', () => {
     expect(options.some(option => option.path === '/dev' && option.scope === 'app')).toBe(true)
     expect(options.some(option => option.path === '/workflow-designs' && option.source === 'src/views/app/WorkflowDesigns.vue')).toBe(true)
     expect(getVuePageEntry('/features/system/cache-management/ui/cache-management-page')?.source)
-      .toBe('src/views/app/CacheManager.vue')
+      .toBe('src/views/features/system/cache-management/ui/cache-management-page.vue')
     expect(options.find(option => option.path === '/features/system/cache-management/ui/cache-management-page')?.shellTool)
       .toBe(false)
     expect(getVuePageEntry('/features/data-platform/database-management/ui/service-management-page')?.source)

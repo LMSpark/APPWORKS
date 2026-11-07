@@ -54,6 +54,12 @@
             true
           ]
         },
+        "nextPageAvailable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
         "hasPendingSavedRowPermissions": {
           "enum": [
             false,
@@ -87,7 +93,7 @@
         },
         "childResult": {
           "type": "object",
-          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; hasPendingSavedRowPermissions?: boolean; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
         },
         "rows": {
           "type": "array",
@@ -274,6 +280,16 @@
         "method.createKey.return": {
           "type": "string"
         },
+        "method.onPrepareInput.params": {
+          "type": "object",
+          "properties": {
+            "row": {
+              "$ref": "../types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.onPrepareInput.return": true,
         "method.submit.params": {
           "type": "object",
           "properties": {
@@ -313,7 +329,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T21:50:49.945Z",
+  "generatedAt": "2026-11-07T00:53:25.652Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -504,11 +520,11 @@
       "jsdoc": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。\ninputFields — 可录入的命令参数，其余列只读\ncreateKey — 新增行的前端主键，命令须携带它以便结果未知时按主键核验\nsubmit — 执行命令并返回后端接纳行；明确失败直接抛错\nisUnconfirmed — 判定抛错属于结果未知（如网络中断、超时）；缺省全部视为明确失败\nverify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */\n    onPrepareInput?: (row: Readonly<DataRow>) => void;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
+            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */\n    onPrepareInput?: (row: Readonly<DataRow>) => void;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -537,6 +553,30 @@
               "type": {
                 "type": "intrinsic",
                 "name": "string"
+              }
+            },
+            {
+              "name": "onPrepareInput",
+              "jsdoc": "生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。",
+              "parameters": [
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             },
             {

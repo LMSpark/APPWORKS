@@ -39,7 +39,7 @@ AI用途：需要理解 renderer button 的实际渲染结构、slot/toolbar/状
  * @binding action
  * @notes 常用 action: append-row, refresh, patch-row, delete-row, delete-selected, message-row
  */
-import { computed, markRaw, toRef, type Component } from 'vue'
+import { computed, inject, markRaw, toRaw, toRef, type Component } from 'vue'
 import * as ElIcons from '@element-plus/icons-vue'
 import {
   DATA_ROW,
@@ -56,6 +56,7 @@ import { type SparkNode, type DataView, type DataRow, getSparkNodeChildren, node
 import { isRecord } from '@spark-appworks/spark-utils'
 import { useActionButtonRuntime } from './useActionButtonRuntime'
 import {useContainerDataSource} from '../../../data-views/view-data-source'
+import {ROW_ITEM_CONTEXT} from '../../../support/scope/row-item-context'
 
 type ClickHandler = {
   (...args: unknown[]): unknown}
@@ -75,6 +76,7 @@ function isClickHandler(value: unknown): value is ClickHandler {
 // ── 一、基础能力与上下文 ─────────────────────────────────────────────────
 // useSparkPageComponent 负责接入可见性、禁用态、规范化 props 以及 capability 消费入口。
 const { isVisible, isDisabled, resolvedProps, sparkConsume, logger } = useSparkPageComponent(props)
+const rowItemContext = inject(ROW_ITEM_CONTEXT, undefined)
 const dataState = useContainerDataSource({dataViewKey: toRef(props, 'dataViewKey'), sparkConsume,
   inheritedDataSource: () => sparkConsume(DATA_SOURCE), skipAutoLoadEffect: true, logger, logPrefix: 'RendererButton'})
 // 权限能力用于模型级与行级动作授权判断。
@@ -209,7 +211,13 @@ async function handleClick(event: MouseEvent): Promise<void> {
 
   const onClick = resolvedOnClick.value
   if (!onClick) return
-  const scopedRow = resolveScopedRow()
-  await (scopedRow !== undefined ? onClick(scopedRow, event) : onClick(event))
+  const view = resolveActionView()
+  if (rowItemContext && toRaw(rowItemContext.view()) === toRaw(view)) {
+    const row = rowItemContext.row()
+    if (!row) {logger.warn('自定义行项动作的原DataView行已失效'); return}
+    await onClick(row, event)
+    return
+  }
+  await onClick(event)
 }
 </script>

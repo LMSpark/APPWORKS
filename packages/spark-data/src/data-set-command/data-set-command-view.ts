@@ -122,6 +122,8 @@ export type BindCommandSubmitOptions = Readonly<{
   guard: DataSetCommandScopeGuard
   inputFields: readonly string[]
   createKey: () => string
+  /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */
+  onPrepareInput?: (row: Readonly<DataRow>) => void
   submit: (row: DataRow) => Promise<DataRow>
   verify: (row: DataRow) => Promise<DataRow | undefined>
   isUnconfirmed?: (error: unknown) => boolean
@@ -142,7 +144,14 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
       options.guard()
       const defaults = Object.fromEntries(options.inputFields.filter(field => columns.has(field)).map(field => [field, '']))
       const key = data[pk]
-      return {...defaults, ...data, [pk]: typeof key === 'string' && key !== '' ? key : options.createKey()}
+      const row={...defaults, ...data, [pk]: typeof key === 'string' && key !== '' ? key : options.createKey()}
+      if(options.onPrepareInput){
+        const prepare:(input:Readonly<DataRow>)=>unknown=options.onPrepareInput
+        const outcome=prepare(Object.freeze(structuredClone(row)))
+        if(outcome!==undefined){void Promise.resolve(outcome).catch(()=>undefined);throw new Error('DATA_SET_COMMAND_PREPARE_SYNC: 准备回调须同步完成且不能返回替代行')}
+        options.guard()
+      }
+      return row
     },
     isFieldReadOnly: field => !options.inputFields.includes(field),
     fieldAccess: (key, field) => {

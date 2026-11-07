@@ -11,6 +11,10 @@
   },
   "scenarioResources": [
     {
+      "name": "cacheManagement", "scenarioId": "348D1C50B204C779AABBE2489C5E2FDF",
+      "resourceId": "repository:scenario-view:348D1C50B204C779AABBE2489C5E2FDF", "path": "config/pages/system/cache-management/pagedata.json"
+    },
+    {
       "name": "businessTableSelector", "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
       "resourceId": "repository:scenario-view:34BDBE645F461A3D83282A941D6037F4", "path": "config/pages/shared/business-table-selector/pagedata.json"
     },

@@ -43,6 +43,10 @@ function record(value: unknown, path: string): Record<string, unknown> {
   return value
 }
 
+function isNonModelResource(table: ScenarioConfigObject): boolean {
+  return table['resourceType'] === 'file' || table['resourceType'] === 'command'
+}
+
 function name(value: unknown, path: string): string {
   if (typeof value !== 'string' || !value.trim()) throw new Error(`${path} 必须是非空字符串`)
   return value.trim()
@@ -153,14 +157,14 @@ export class ScenarioViewConfig {
     for (const [tableName, inputTable] of Object.entries(tables)) {
       name(tableName, 'tableName')
       const table = record(inputTable, `tables.${tableName}`)
-      const file = table['resourceType'] === 'file'
-      keys(table, ['businessCategory', 'columns', 'views', ...(file ? ['resourceType', 'resourceId'] : ['modelBinding', 'api', 'crudConfig'])], `tables.${tableName}`)
+      const nonModel = isNonModelResource(table)
+      keys(table, ['businessCategory', 'columns', 'views', ...(nonModel ? ['resourceType', 'resourceId'] : ['modelBinding', 'api', 'crudConfig'])], `tables.${tableName}`)
       this.validateRequests(table, `tables.${tableName}`)
       if ('businessCategory' in table && (typeof table['businessCategory'] !== 'string'
         || !table['businessCategory'].trim())) {
         throw new Error(`tables.${tableName}.businessCategory 必须是非空字符串`)
       }
-      if (file) {
+      if (nonModel) {
         if (name(table['resourceId'], `${tableName}.resourceId`) !== table['resourceId']) throw new Error(`${tableName}.resourceId 不能含首尾空白`)
         this.validateColumns(table['columns'], `tables.${tableName}.columns`, true)
       } else {
@@ -175,6 +179,15 @@ export class ScenarioViewConfig {
       for (const [viewId, view] of Object.entries(views)) {
         name(viewId, 'viewId')
         this.validateView(record(view, `${tableName}@${viewId}`), `${tableName}@${viewId}`)
+      }
+      if (table['resourceType'] === 'command') {
+        const columns = configObjects(table['columns']), primary = columns.filter(column => column['isPrimaryKey'] === true)
+        if (primary.length !== 1 || primary[0]?.['type'] !== 'string' || columns.some(column => column['autoIncrement'] === true || column['computeExpression'] !== undefined)) throw new Error(`${tableName} 命令须声明唯一字符串命令键，不支持自动增量或计算列`)
+        for (const [viewId, inputView] of Object.entries(views)) {
+          const view = record(inputView, `${tableName}@${viewId}`), query = record(view['queryConfig'], `${tableName}@${viewId}.queryConfig`)
+          if (view['autoLoad'] !== false || view['commitMode'] !== 'staged' || query['pagination'] !== 'none'
+            || Object.keys(query).some(key => key !== 'pagination') || ['filterExpression', 'sortExpression', 'treeConfig'].some(key => Object.hasOwn(view, key))) throw new Error(`${tableName}@${viewId} 命令只接受显式暂存、禁止自动加载且无分页的本地参数/回执视图`)
+        }
       }
     }
     if ('viewCascades' in config) {
@@ -207,7 +220,7 @@ export class ScenarioViewConfig {
    */
   public getTableRemovalReferences(tableName: string): readonly string[] {
     const tables = record(this.#config['tables'], 'tables'), target = record(tables[tableName], tableName)
-    const modelName = target['resourceType'] === 'file' ? tableName : record(target['modelBinding'], 'modelBinding')['modelName']
+    const modelName = isNonModelResource(target) ? tableName : record(target['modelBinding'], 'modelBinding')['modelName']
     const references = new Set<string>()
     const filter = (value: unknown, path: string): void => {
       if (value === undefined) return
@@ -231,7 +244,7 @@ export class ScenarioViewConfig {
         const view = record(inputView, `${owner}@${id}`), path = `tables.${owner}.views.${id}`
         filter(view['filterExpression'], `${path}.filterExpression`)
         for (const dependency of this.queryModelDependencies(view['queryConfig'])) {
-          if (!(dependency.formalModelOnly && target['resourceType'] === 'file')
+          if (!(dependency.formalModelOnly && isNonModelResource(target))
             && (dependency.scope === undefined || dependency.scope === this.scenarioId) && dependency.modelName === modelName) {
             references.add(`${path}.queryConfig.${dependency.path}`)
           }
@@ -314,7 +327,7 @@ export class ScenarioViewConfig {
    */
   public getLayoutNodeKey(tableName: string): string {
     const table = record(record(this.#config['tables'], 'tables')[tableName], tableName)
-    return table['resourceType'] === 'file' ? [this.scenarioId, tableName].join('+')
+    return isNonModelResource(table) ? [this.scenarioId, tableName].join('+')
       : name(record(table['modelBinding'], `${tableName}.modelBinding`)['modelId'], `${tableName}.modelId`)
   }
 
@@ -373,7 +386,7 @@ export class ScenarioViewConfig {
     if (this.scenarioId !== previous.scenarioId) throw new Error('模型校验不能跨空间提交结构变更')
     const native = this.#usesNativeResourceRelations && previous.#usesNativeResourceRelations
     const removed = Object.keys(record(previous.#config['tables'], 'tables')).filter(key => !Object.hasOwn(record(this.#config['tables'], 'tables'), key))
-    if (removed.length && removed.every(key => native || record(record(previous.#config['tables'], 'tables')[key], key)['resourceType'] === 'file')) {
+    if (removed.length && removed.every(key => native || isNonModelResource(record(record(previous.#config['tables'], 'tables')[key], key)))) {
       const expected = structuredClone(previous.toJSON()), expectedTables = record(expected['tables'], 'tables')
       for (const key of removed) {
         const references = previous.getTableRemovalReferences(key)
@@ -416,7 +429,7 @@ export class ScenarioViewConfig {
       const next = tables[key], prior = before[key]
       if (isRecord(next) && !Object.hasOwn(before, key)) return false
       if (!isRecord(next) || !isRecord(prior)) return true
-      if (next['resourceType'] === 'file' && prior['resourceType'] === 'file' && next['resourceId'] === prior['resourceId']
+      if (isNonModelResource(next) && next['resourceType'] === prior['resourceType'] && next['resourceId'] === prior['resourceId']
         && next['modelBinding'] === undefined && prior['modelBinding'] === undefined) return false
       const identity = (table: ScenarioConfigObject) => Object.fromEntries(Object.entries(table)
         .filter(([property]) => !['columns', 'views', 'api', 'crudConfig'].includes(property)))
@@ -523,8 +536,8 @@ export class ScenarioViewConfig {
           for (const dependency of this.queryModelDependencies(config)) {
             const matches = Object.entries(tables).filter(([key, value]) => {
               const table = record(value, 'table')
-              if (dependency.formalModelOnly && table['resourceType'] === 'file') return false
-              return (table['resourceType'] === 'file' ? key : record(table['modelBinding'], 'modelBinding')['modelName']) === dependency.modelName
+              if (dependency.formalModelOnly && isNonModelResource(table)) return false
+              return (isNonModelResource(table) ? key : record(table['modelBinding'], 'modelBinding')['modelName']) === dependency.modelName
             })
             const source = matches[0]
             // Changed sources also affect consumers; unrelated broken references stay outside this operation.
@@ -535,7 +548,7 @@ export class ScenarioViewConfig {
             }
             if (dependency.childModelName !== undefined) {
               const owner = record(tables[includedTable], includedTable)
-              const ownerName = owner['resourceType'] === 'file' ? includedTable : record(owner['modelBinding'], 'modelBinding')['modelName']
+              const ownerName = isNonModelResource(owner) ? includedTable : record(owner['modelBinding'], 'modelBinding')['modelName']
               if (dependency.childModelName !== ownerName) throw new Error('父结果子模型身份不一致')
             }
             included.add(source[0])

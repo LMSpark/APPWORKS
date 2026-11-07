@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Breaking changes
+
+- `DataSpaceRuntimeApi.bindModelView(view, model, options)` 的第三个参数统一为具名绑定选项；数组来源改用 `{arrayRows}`。首次绑定确定读取或命令模式，不保留旧数组参数签名，也不允许重绑切换模式。
+
+
 ### feat
 
 - [AI-FE-20260420] DevSystem 数据设计器新增“多模态细粒编辑”能力：聊天模式可复用细粒度编辑执行链路，支持文本/附件/语音输入后直接驱动 FC 工具修改 DataSet 模型，并在界面中增加新功能标识与说明。

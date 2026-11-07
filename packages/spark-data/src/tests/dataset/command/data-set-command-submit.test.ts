@@ -1,14 +1,11 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../../dataset'
 import type {DataRow} from '../../../types'
-import {bindDataSetCommandSubmit, ensureDataSetFileCommandView} from '../../../data-set-command/data-set-command-view'
+import {bindDataSetCommandSubmit, ensureDataSetFileCommandView,type BindCommandSubmitOptions} from '../../../data-set-command/data-set-command-view'
 
 class TransportFailure extends Error {}
 
-function setup(overrides: Partial<{
-  submit: (row: DataRow) => Promise<DataRow>
-  verify: (row: DataRow) => Promise<DataRow | undefined>
-}> = {}) {
+function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify'|'onPrepareInput'>> = {}) {
   const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
   const view = ensureDataSetFileCommandView({
     dataSet,
@@ -28,6 +25,7 @@ function setup(overrides: Partial<{
     submit,
     verify,
     isUnconfirmed: error => error instanceof TransportFailure,
+    ...(overrides.onPrepareInput?{onPrepareInput:overrides.onPrepareInput}:{}),
   })
   const save = () => dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
   return {dataSet, view, submit, verify, guard, save}
@@ -41,6 +39,28 @@ async function addInput(view: ReturnType<typeof setup>['view'], values: Record<s
 }
 
 describe('DataSet command submit helper', () => {
+  it('captures a readonly independent input after generating its local command id',async()=>{
+    const capture=vi.fn((row:Readonly<DataRow>)=>{expect(row['rowid']).toBe('K1');expect(Reflect.set(row,'ServerName','changed')).toBe(false)})
+    const {view,submit}=setup({onPrepareInput:capture})
+    const row=await addInput(view,{ServerName:'S'})
+    expect(capture).toHaveBeenCalledOnce();expect(row['ServerName']).toBe('S');expect(submit).not.toHaveBeenCalled()
+  })
+  it('rejects preparation before accepting any row or dispatching a command',async()=>{
+    const {view,submit}=setup({onPrepareInput:()=>{throw Error('invalid intent')}});await view.refresh()
+    await expect(view.addRow({ServerName:'S'})).rejects.toThrow('invalid intent')
+    expect(view.rows).toEqual([]);expect(view.dirtyTracking.hasPendingChanges()).toBe(false);expect(submit).not.toHaveBeenCalled()
+  })
+  it('rejects asynchronous preparation instead of accepting a late capture',async()=>{
+    const {view,submit}=setup({onPrepareInput:async()=>undefined});await view.refresh()
+    await expect(view.addRow({ServerName:'S'})).rejects.toThrow('DATA_SET_COMMAND_PREPARE_SYNC')
+    expect(view.rows).toEqual([]);expect(submit).not.toHaveBeenCalled()
+  })
+  it('checks the original lifecycle guard again after preparation',async()=>{
+    let invalidate=()=>undefined
+    const f=setup({onPrepareInput:()=>invalidate()});await f.view.refresh()
+    invalidate=()=>{f.guard.mockImplementation(()=>{throw Error('expired scope')})}
+    await expect(f.view.addRow({ServerName:'S'})).rejects.toThrow('expired scope');expect(f.view.rows).toEqual([])
+  })
   it('submits one added input row and accepts the command receipt', async () => {
     const {view, submit, guard, save} = setup()
     await view.refresh()

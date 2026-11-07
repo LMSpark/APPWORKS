@@ -1,0 +1,168 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/system/cache-delete-command-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/system/cache-delete-command-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/system/cache-delete-command-resource\n职责：捕获原缓存行的单键删除意图，沿原命令DataView提交和保留未知结果。\n边界：不改列表权限、不构造缓存主键、不重放未知命令；校验快照不是可编辑数据真源。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "CacheDeleteCommandResource"
+    ]
+  },
+  "$defs": {
+    "Options": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Options",
+      "properties": {
+        "list": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "definition": {
+          "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "runtime": {
+          "type": "object",
+          "title": "Pick<DataSpaceRuntimeApi, 'executeModelCommand'>"
+        },
+        "resourceId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "CacheDeleteCommandResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "CacheDeleteCommandResource",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Options"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "command": {
+              "$ref": "../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T03:19:05.655Z",
+  "models": {
+    "Options": {
+      "name": "Options",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    list: DataView;\n    definition: DataView;\n    runtime: Pick<DataSpaceRuntimeApi, 'executeModelCommand'>;\n    resourceId: string;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    list: DataView;\n    definition: DataView;\n    runtime: Pick<DataSpaceRuntimeApi, 'executeModelCommand'>;\n    resourceId: string;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "list",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definition",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtime",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "CacheDeleteCommandResource": {
+      "name": "CacheDeleteCommandResource",
+      "jsdoc": "",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Options)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Options",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "绑定已经由pagedata装配的命令视图，不创建表、查询或第二保存入口。",
+              "parameters": [
+                {
+                  "name": "command",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

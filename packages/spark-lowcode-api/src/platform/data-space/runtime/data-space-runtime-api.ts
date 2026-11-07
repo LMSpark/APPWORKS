@@ -9,6 +9,8 @@ import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import type { DataSpaceQueryIdentity, DataSpaceQueryOptions, DataSpaceRequestScope, DataSpaceQueryProjection } from './data-space-runtime-contract.js'
 import { DataSpaceQueryCache } from './query/data-space-query-cache.js'
+import type {DataSpaceModelBindingOptions} from './data-space-model-binding'
+import {DataSpaceModelCommandNotDispatchedError} from './data-space-model-command-error'
 import { DataSpaceRequest, DataSpaceSaveUnconfirmedError } from './protocol/data-space-request.js'
 import { DataSpaceQueryTable } from './protocol/data-space-query-table.js'
 import { captureDataSpaceViewQuery } from './query/data-space-query-options.js'
@@ -78,7 +80,7 @@ export class DataSpaceRuntimeApi {
   readonly #readScope: DataSpaceRuntimeApiOptions['readScope']
   readonly #contexts = new WeakMap<DataSpaceQueryContext, string>()
   readonly #mutationFlights = new Map<string, Promise<void>>()
-  readonly #models = new WeakMap<SparkData.DataTable, Readonly<{model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>; scope: string}>>()
+  readonly #models = new WeakMap<SparkData.DataTable, Readonly<{model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>; scope: string;adapter?:DataSpaceModelBindingOptions['adapter']}>>()
   readonly #queryFlights = new Map<string, DataSpaceRuntimeQueryFlights>()
   /** 结果未确认的保存批次：同批原查询上下文共享一条记录，再次保存只核验、不重放。 */
   readonly #unconfirmed = new Map<DataSpaceQueryContext, DataSpaceRuntimeUnconfirmed>()
@@ -165,7 +167,11 @@ export class DataSpaceRuntimeApi {
    * 将正式模型及当前请求scope绑定到SparkData.DataTable，所属派生视图复用同一身份；scope失效须重新装配。
    * 正式数组可提供已解析且投影的items；仅本地读取，元数据保存仍走正式模型查询。
    */
-  public bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, arrayRows?: readonly SparkData.DataRow[]): void {
+  public bindModelView(view: SparkData.DataView, model: Awaited<ReturnType<DataSpaceDesignApi['readModel']>>, options: DataSpaceModelBindingOptions = {}): void {
+    if (Array.isArray(options)) throw new Error('SPARK_MODEL_BINDING_OPTIONS: 绑定必须使用具名选项')
+    const {arrayRows,adapter}=options
+    if(adapter&&(arrayRows!==undefined||DataSpaceDesignApi.resolveTableResource(model).resourceType!=='third-party-api'
+      ||!['command','paged-read'].includes(adapter.kind)||adapter.kind!=='command'&&typeof adapter.execute!=='function'))throw new Error('SPARK_MODEL_BINDING_OPTIONS: 来源适配只支持正式接口模型且不能同时绑定数组')
     const table = view.dataTable
     if (table?.modelBinding?.modelId !== model.id || table.modelBinding.modelName !== model.metaName) {
       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 视图与正式模型身份不一致')
@@ -182,12 +188,13 @@ export class DataSpaceRuntimeApi {
     if (previous && previous.model !== model && JSON.stringify(previous.model) !== JSON.stringify(model)) {
       throw new Error('SPARK_VIEW_MODEL_IDENTITY: 同一SparkData.DataTable不能绑定不同正式定义，请重新装配')
     }
+    if(previous&&(previous.adapter?.kind!==adapter?.kind||adapter?.kind==='paged-read'&&previous.adapter!==adapter))throw new Error('SPARK_MODEL_BINDING_OPTIONS: 同一正式模型不能改变执行模式')
     const scope = this.currentScope()
     if (view.fieldProjection.length === 0) {
       view.configure({fieldProjection: DataSpaceDesignApi.createFieldProjection(model)
         .filter(field => table.columns.some(column => column.name === field.resourceField))})
     }
-    this.#models.set(table, {model, scope})
+    this.#models.set(table, {model, scope,...(adapter===undefined?{}:{adapter})})
     if (model.sourceType === '数组') {
       if (arrayRows === undefined) throw new Error('正式数组缺少已读取的items')
       view.bindQueryExecutor(new SparkData.DataViewArrayQuery(view, arrayRows, () => this.assertScope(scope)))
@@ -245,19 +252,56 @@ export class DataSpaceRuntimeApi {
 
   /** 命名视图选择正式输出，安全聚合及显式分组由GetData执行；不改模型永久定义。 */
   public async executeQuery(view: SparkData.DataView, params: SparkData.QueryParams): Promise<DataSpaceQueryContext> {
-    if (params.parentResult) {
-      const binding = this.prepareParentQuery(view, params)
-      await SparkData.DataViewParentResult.request(view)
+    const binding=view.dataTable?this.#models.get(view.dataTable):undefined
+    if(binding?.adapter){
       this.assertScope(binding.scope)
+      if(binding.adapter.kind==='command')throw new Error('SPARK_MODEL_COMMAND: 服务命令不能通过普通查询执行')
+      if(params.parentResult)throw new Error('SPARK_MODEL_BINDING_OPTIONS: 来源分页适配不支持父结果读取')
+      const originals=new Set<DataSpaceQueryContext>()
+      const guard=()=>{this.assertScope(binding.scope);if(view.destroyed||view.dataSet?.destroyed||!view.dataTable||this.#models.get(view.dataTable)!==binding)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 来源分页绑定已失效')}
+      const result=await binding.adapter.execute({view,params,read:async captured=>{
+        guard();const context=await this.queryWithConfig(this.prepareQuery(view,captured));guard();originals.add(context);return context
+      }})
+      guard()
+      if(!originals.has(result.result))throw new Error('SPARK_MODEL_ADAPTER_RESULT: 分页结果不是本次正式读取结果')
+      return result.result.withNextPageAvailable(result.nextPageAvailable)
+    }
+    if (params.parentResult) {
+      const parentBinding = this.prepareParentQuery(view, params)
+      await SparkData.DataViewParentResult.request(view)
+      this.assertScope(parentBinding.scope)
       const source = SparkData.DataViewParentResult.resolve(view)
       if (!source) throw new Error('SPARK_PARENT_MODEL: 父来源不存在')
       const result = source.readChildResult(params.parentResult.childModelName)
       if (!(result instanceof DataSpaceQueryContext)) throw new Error('SPARK_PARENT_OWNER: 父结果不属于正式查询owner')
-      result.assertIdentity({scenarioId: view.dataSet?.scenarioId ?? '', metaName: binding.model.metaName})
-      result.bindFormalModel(binding.model)
+      result.assertIdentity({scenarioId: view.dataSet?.scenarioId ?? '', metaName: parentBinding.model.metaName})
+      result.bindFormalModel(parentBinding.model)
       return result
     }
     return this.queryWithConfig(this.prepareQuery(view, params))
+  }
+
+  /** 正式接口命令的一次执行能力；供命令提交适配消费，不经读缓存/合并，不登记CRUD核验基线。 */
+  public async executeModelCommand(view: SparkData.DataView, sourceInputs: Readonly<Record<string, unknown>>): Promise<DataSpaceQueryContext> {
+    const {input,guard}=this.prepareModelCommand(view,sourceInputs)
+    const result=await this.queryCache.executeOnce({identity:input.identity,options:input.options,config:input.config,
+      ...(input.projection===undefined?{}:{projection:input.projection})})
+    guard();input.accept?.(result);return result
+  }
+
+  /** 这里只做同步准备；抛错可证明尚未进入一次执行能力。 */
+  private prepareModelCommand(view:SparkData.DataView,sourceInputs:Readonly<Record<string,unknown>>){
+    try{
+    const binding=view.dataTable?this.#models.get(view.dataTable):undefined
+    if(binding?.adapter?.kind!=='command')throw new Error('SPARK_MODEL_COMMAND: 未登记正式命令执行模式')
+    this.assertScope(binding.scope)
+    const guard=()=>{this.assertScope(binding.scope);if(view.destroyed||view.dataSet?.destroyed||!view.dataTable||this.#models.get(view.dataTable)!==binding)throw new Error('SPARK_EXECUTION_SCOPE_STALE: 命令模型绑定已失效')}
+    guard()
+    const config=view.queryConfig
+    if(config.parentResult||config.tree||config.children||config.allPages||view.treeConfig)throw new Error('SPARK_MODEL_COMMAND: 命令不支持分页集合、树或子查询')
+    const input=this.prepareQuery(view,{...SparkData.DataViewQuery.capture(config),pagination:'none',sourceInputMode:'direct',context:structuredClone(sourceInputs)})
+      return {input,guard}
+    }catch(cause){throw new DataSpaceModelCommandNotDispatchedError(cause)}
   }
 
   private prepareParentQuery(view: SparkData.DataView, params: SparkData.QueryParams) {

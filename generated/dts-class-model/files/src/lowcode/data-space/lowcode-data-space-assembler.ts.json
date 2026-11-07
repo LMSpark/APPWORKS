@@ -127,6 +127,37 @@
             "type": "object",
             "title": "Executor"
           }
+        },
+        "commandBindings": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "object",
+            "title": "(view: DataView) => BindCommandSubmitOptions"
+          }
+        },
+        "modelAdapters": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "anyOf": [
+              {
+                "$ref": "../../../packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-binding.ts.json#/$defs/DataSpaceModelReadAdapter"
+              },
+              {
+                "type": "object",
+                "properties": {
+                  "kind": {
+                    "const": "command"
+                  }
+                },
+                "required": [
+                  "kind"
+                ],
+                "additionalProperties": false
+              }
+            ]
+          }
         }
       },
       "required": [
@@ -191,7 +222,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-18T12:18:49.492Z",
+  "generatedAt": "2026-11-07T00:20:04.978Z",
   "models": {
     "FormalModel": {
       "name": "FormalModel",
@@ -243,11 +274,11 @@
       "jsdoc": "装配输入：同场景视图配置与后端正式模型、关系，不从物理资源猜定义。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n}>",
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: DataView) => BindCommandSubmitOptions>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n}>",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    space: FormalSpace;\n    models: readonly FormalModel[];\n    relations: Awaited<ReturnType<DataSpaceDesignApi['readRelations']>>;\n    /** 显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。 */\n    fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>;\n    /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */\n    commandBindings?: Readonly<Record<string, (view: DataView) => BindCommandSubmitOptions>>;\n    /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */\n    modelAdapters?: Readonly<Record<string, NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -276,6 +307,18 @@
             {
               "name": "fileExecutors",
               "jsdoc": "显式文件表的既有资源owner，按配置表键注入；缺失即拒绝装配，不生成权限或另选HTTP接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "commandBindings",
+              "jsdoc": "显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "modelAdapters",
+              "jsdoc": "正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。",
               "readable": true,
               "writable": false
             }

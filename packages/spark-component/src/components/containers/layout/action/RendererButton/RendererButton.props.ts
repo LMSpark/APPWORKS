@@ -9,7 +9,7 @@ import type { ActionDescriptor, BuiltinActionName } from '../../../../../page/ac
 
 /** RButton Props 的属性契约。 */
 export type RButtonProps = SparkNodeProps & {
-  /** 自定义业务点击回调；列表项动作在同一 RendererList DataView 行作用域中收到当前行作为首参。 */
+  /** 自定义业务点击回调；普通命令接收点击事件，集合行项动作在匹配所属DataView时接收原行作为首参，失效行不调用回调。显式绑定其它视图不采用外层行；无DataView的局部行项保留原行。 */
   onClick?: (...args: unknown[]) => unknown
 
   /**
@@ -247,4 +247,3 @@ export type RButtonProps = SparkNodeProps & {
    */
   dark?: boolean
 }
-

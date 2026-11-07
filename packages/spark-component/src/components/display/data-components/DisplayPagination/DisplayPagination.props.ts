@@ -8,7 +8,7 @@ import type { SparkNodeProps } from '../../../shared-types'
 
 /** RPagination Props 的属性契约。 */
 export type RPaginationProps = SparkNodeProps & {
-  /** 分页所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。绑定后 total/pageSize/currentPage 以视图为准。 */
+  /** 分页所属视图，完整键为数据空间ID@模型名称@视图名称；省略时继承父数据上下文，显式键不存在则报错。绑定后 total/pageSize/currentPage 以视图为准；countReported=false时只显示当前页、页大小及前后翻页，不用已加载行数伪造总数。下一页须nextPageAvailable明确为true；加载、编辑、待提交、未知提交及查询错误期间禁止派发翻页。 */
   dataViewKey?: string
   /** 总条数；仅未绑定视图时生效 */
   total?: number

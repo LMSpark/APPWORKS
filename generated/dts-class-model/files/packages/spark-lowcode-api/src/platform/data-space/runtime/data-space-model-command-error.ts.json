@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-model-command-error",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-model-command-error.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/data-space/runtime/data-space-model-command-error",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/data-space/runtime/data-space-model-command-error\n职责：标识正式模型命令进入一次执行能力之前的明确拒绝。\n边界：不用于传输、回执或派发后的身份失效，不能证明已进入执行能力的请求未生效。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "DataSpaceModelCommandNotDispatchedError"
+    ]
+  },
+  "$defs": {
+    "DataSpaceModelCommandNotDispatchedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSpaceModelCommandNotDispatchedError",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "cause": true
+          },
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T03:17:08.009Z",
+  "models": {
+    "DataSpaceModelCommandNotDispatchedError": {
+      "name": "DataSpaceModelCommandNotDispatchedError",
+      "jsdoc": "@module\n@spark-appworks /spark-lowcode-api:platform/data-space/runtime/data-space-model-command-error\n职责：标识正式模型命令进入一次执行能力之前的明确拒绝。\n边界：不用于传输、回执或派发后的身份失效，不能证明已进入执行能力的请求未生效。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(cause: unknown)",
+          "parameters": [
+            {
+              "name": "cause",
+              "type": {
+                "type": "intrinsic",
+                "name": "unknown"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

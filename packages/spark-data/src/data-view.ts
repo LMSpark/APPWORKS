@@ -203,6 +203,8 @@ type DataViewQueryResult = Readonly<{
   undefinedChanges?: 'clear'
   /** 来源是否明确返回总数；未提供不等于总数为零。 */
   countReported?: boolean
+  /** 来源已实际确认下一页存在与否；undefined表示尚未确认，不从当前行数推算。 */
+  nextPageAvailable?: boolean | undefined
   /** 保存已确认，但新增行尚待原查询返回正式行权限。 */
   hasPendingSavedRowPermissions?: boolean
   pendingSavedRowIds?: readonly unknown[]
@@ -929,15 +931,47 @@ rows: DataRow[] = []
   get resultKind(): DataViewQueryResult['resultKind'] { return this.currentQueryResult()?.resultKind }
   /** 来源是否明确报告总数；false表示未知，undefined表示结果未声明此能力。 */
   get countReported(): boolean | undefined { return this.currentQueryResult()?.countReported }
+  /** 当次原查询结果已确认的下一页状态，不另外维护分页真源。 */
+  get nextPageAvailable(): boolean | undefined { return this.currentQueryResult()?.nextPageAvailable }
   /** 来源报告的实际键，仅作结果信息，不授予实体操作身份。 */
   get reportedPrimaryKey(): string | undefined { return this.currentQueryResult()?.reportedPrimaryKey }
+
+  /**
+   * 捕获已加载原查询行的指定正式可读字段证明；不公开权限凭据或复制整页。
+   * @param row 本视图rows中的原生行；不接纳同值副本、编辑覆盖或外部行。
+   * @param fields 非空且不重复的字段名；不接受隐藏、脱敏、框架控制或本地计算字段。
+   * @returns 同步复核原查询/行/字段的函数，查询、作用域或原值变化时拒绝。
+   */
+  captureReadRow(row: DataRow, fields: readonly string[]): () => void {
+    const context=this.currentQueryResult(),original=this.#queryOriginalRows.get(row),table=this._dataTable,dataSet=this.dataSet
+    const requested=[...fields],identity=this.refreshIdentity()
+    if(!context||!original||!requested.length||new Set(requested).size!==requested.length)throw new Error('DATA_VIEW_READ_ROW: 缺少唯一原查询行或字段')
+    const assertScope=()=>{
+      this.checkDestroyed()
+      if(this._resultStale||this.requestState!==RequestState.Loaded||this.currentQueryResult()!==context
+        ||this.#queryResultRefreshIdentity!==identity||this.refreshIdentity()!==identity||this._dataTable!==table||this.dataSet!==dataSet
+        ||!this.rows.includes(row)||this.#queryOriginalRows.get(row)!==original)throw new Error('DATA_VIEW_READ_ROW: 原查询身份或行已变化')
+    }
+    const assertFields=()=>{
+      if(requested.some(field=>field==='_pk'||field.startsWith('lingma_sys_')||!this.getColumn(field)||this.computedColumnNames.has(field)
+        ||this.fieldAccess(row,field).read!=='visible'))throw new Error('DATA_VIEW_READ_ROW: 原正式字段不可读')
+    }
+    assertScope();assertFields()
+    const values=structuredClone(requested.map(field=>original[field])),presence=requested.map(field=>Object.hasOwn(original,field))
+    const assertCurrent=()=>{
+      assertScope();assertFields()
+      if(requested.some((field,index)=>Object.hasOwn(row,field)!==presence[index]||Object.hasOwn(original,field)!==presence[index]
+        ||!sameQueryReplacementValue(row[field],values[index])||!sameQueryReplacementValue(original[field],values[index])))throw new Error('DATA_VIEW_READ_ROW: 原正式字段已变化')
+    }
+    assertCurrent();return assertCurrent
+  }
 
   /**
    * 读取当前结果的独立展示快照。仅输出已声明字段，隐藏值省略、脱敏值替换为掩码，排除内部主键与查询凭据。
    * 不包含未提交编辑；分页信息来自同一视图。正式查询未完成、失败或已被查询链标记失效时拒绝读取旧结果。
    * 本地配置视图可以直接读取；此方法不授予保存权限，也不执行查询或序列化设计配置。
    */
-  readSnapshot(): {fields: string[]; rows: DataRow[]; total: number; page: number; pageSize: number; countReported?: boolean} {
+  readSnapshot(): {fields: string[]; rows: DataRow[]; total: number; page: number; pageSize: number; countReported?: boolean; nextPageAvailable?: boolean} {
     this.checkDestroyed()
     if (this._resultStale || (!this._isLocalConfiguration() && this.requestState !== RequestState.Loaded)) {
       throw new Error('DATA_VIEW_READ_RESULT: 尚未取得有效查询结果')
@@ -948,7 +982,8 @@ rows: DataRow[] = []
       return access.read === 'visible' ? [[field, row[field]]] : access.read === 'masked' ? [[field, '••••']] : []
     })))
     return structuredClone({fields, rows, total: this.total, page: this.page, pageSize: this.pageSize,
-      ...(this.countReported === undefined ? {} : {countReported: this.countReported})})
+      ...(this.countReported === undefined ? {} : {countReported: this.countReported}),
+      ...(this.nextPageAvailable === undefined ? {} : {nextPageAvailable: this.nextPageAvailable})})
   }
 
   // ─────────────────────────────────────────────
@@ -1599,8 +1634,11 @@ treeManager?: TreeManager | undefined
     }
   }
 
-  /** 深度遍历整棵 rows 树（含 nested children） */
-  private visitRowsDeep(visitor: (row: DataRow) => void): void {
+  /**
+   * 遍历当前已加载的原行及标准children，不发查询，也不按主键认领其它对象。
+   * @param visitor 接收原生行的同步只读访问函数；读取字段仍须消费fieldAccess，本方法不授予写权限。
+   */
+  visitRowsDeep(visitor: (row: DataRow) => void): void {
     const stack = [...this.rows]
     while (stack.length > 0) {
       const row = stack.shift()
@@ -2172,6 +2210,7 @@ protected logger = Logger('DataView')
   private ingestQueryResult(context: DataViewQueryResult, refreshIdentity: string): void {
     context.assertIdentity(this.queryIdentity())
     this.assertResultReplacementAllowed()
+    if (context.nextPageAvailable !== undefined && typeof context.nextPageAvailable !== 'boolean') throw new Error('DATA_VIEW_NEXT_PAGE: 下一页状态必须是布尔值或未确认')
     if (context.resultKind === 'join' && context.resultPrimaryKey !== '') throw new Error('DATA_VIEW_JOIN_IDENTITY: 连接投影不能声明可写实体键')
     if (context.columns !== undefined) {
       const names = new Set<string>()

@@ -1,0 +1,244 @@
+{
+  "date": "2026-11-07",
+  "status": "engineering-verification-passed-runtime-acceptance-open",
+  "baseCommit": "8da3a90b6f3266cfe31ecd3d80205ea8561f4287",
+  "scope": [
+    "Shared unknown-total pagination",
+    "Formal first model binding and non-replayed command execution",
+    "Configured native command assembly and synchronous input capture",
+    "Native original-row read proof",
+    "Cache formal scenario and original route business page",
+    "Canonical native row identity through explicit row-item boundaries; ordinary commands retain event callbacks",
+    "Form display/source separation and tree projections keep native object identity, mutable tree identity blocks actions/sorting until resolved"
+  ],
+  "frozen": {
+    "path": "artifacts/data-chain-smoke/cache-frozen-sources-v5.json",
+    "sha256": "b1c942808d97d6069d208c611b0f9f12b8007191a7243ae73ed8380b0aa029c7",
+    "sourceFiles": 63,
+    "allHashesMatch": true
+  },
+  "gates": {
+    "classModel": {
+      "path": "artifacts/data-chain-smoke/cache-final-class-model-v10.log",
+      "sha256": "3fe7d4cf66738dddb4e27a7d76ed21e4278c6c39c9f3406bc935b7f53c8cb5bb",
+      "exitCode": 0
+    },
+    "guides": {
+      "path": "artifacts/data-chain-smoke/cache-final-contracts-v10.log",
+      "sha256": "fb9d02630193c81e9563f6a502b69aa51b2598d363878d8d06e776c426b10b24",
+      "exitCode": 0
+    },
+    "types": {
+      "path": "artifacts/data-chain-smoke/cache-final-types-v10.log",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962",
+      "exitCode": 0
+    },
+    "lint": {
+      "path": "artifacts/data-chain-smoke/cache-final-lint-v11.log",
+      "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d",
+      "exitCode": 0
+    },
+    "rules": {
+      "path": "artifacts/data-chain-smoke/cache-final-rules-v10.log",
+      "sha256": "85796562d1a500f14767082a9f8a13f7968973a0a7bf4b55eb3bd3cf4e85a942",
+      "exitCode": 0
+    },
+    "build": {
+      "path": "artifacts/data-chain-smoke/cache-final-build-v10.log",
+      "sha256": "96e55e8eb76b4f98225a3794ced2cec48c9b3ebe519cf162aca6656355efa7b5",
+      "exitCode": 0
+    },
+    "changelogDocs": {
+      "path": "artifacts/data-chain-smoke/cache-final-changelog-docs.log",
+      "sha256": "654e34c9e51a15e54f6fb7da309456c8be84eeff72b5d2d16d923b64a0d469da",
+      "exitCode": 0
+    }
+  },
+  "targeted": {
+    "path": "artifacts/data-chain-smoke/cache-button-empty-layout-green.log",
+    "sha256": "eeb8e20f5309f91699102fc7b267dd57afea0bdbd603aed7de716d1aa7d204e5",
+    "files": 5,
+    "tests": 161,
+    "exitCode": 0
+  },
+  "fullRepository": {
+    "session": 76017,
+    "log": "artifacts/data-chain-smoke/cache-full-repository-v5.log",
+    "exitFile": "artifacts/data-chain-smoke/cache-full-repository-v5.exit",
+    "timeout": "original 15000ms configuration, not overridden",
+    "maxWorkers": 2,
+    "terminalObserved": true,
+    "exitCode": 0,
+    "files": 496,
+    "tests": 9036,
+    "filesPassed": 496,
+    "testsPassed": 9036,
+    "filesFailed": 0,
+    "testsFailed": 0,
+    "unhandledErrors": 0,
+    "durationSeconds": 1161.94,
+    "logSha256": "19001c3bd84ccb86acbe426fe992fa5c67d82d7822f174ff0ef699d9e83a28cf"
+  },
+  "negativeEvidence": [
+    {
+      "path": "artifacts/data-chain-smoke/cache-full-repository.log",
+      "sha256": "e14d1446adda5b9cf4809e45f74f17d81b246cb2b2e4e18163e9f643f9da6d5b",
+      "status": "intentionally-stopped-after-observed-failures",
+      "reason": "Empty layout placeholder was incorrectly treated as a stale formal row; catalog reported 26 failures. Not a natural full-suite completion."
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-button-empty-layout-red.log",
+      "sha256": "b5453e3f71cd9f629a47440b661d6314e3c46c4a54596d34f9556490e51f2831"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-native-real-row-red.log",
+      "sha256": "fdbd24dadc05e374cc070b15199ab541a81030ea2c4f9fbc1ce9947c809ed85f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-native-page-route-red.log",
+      "sha256": "477f3c3a83ac90b5b971cfed5a699230aebce664981e41398938ee7e2259843d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-tree-mutable-key-red.log",
+      "sha256": "5ed2a4e0f81e07e0cbfbae5ccf69eda187e08972460fb275a1c2f8f8b06db7b4"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-keyless-tree-red.log",
+      "sha256": "16b3e46cfc103b462b76f3edd946ce44aa2253c5468d4f18d37a217b40138f82"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-dictionary-rejection-focused.log",
+      "sha256": "118404f491f1d5e9714b3388d63fee060b99b86c91ddad03f6d4c17b55e17cb2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-form-apply-source-red.log",
+      "sha256": "fc4d619ea4730c3fc0094590e21abbec82b7f7321724564b79510b0d9644b6d8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-delete-sibling-red.log",
+      "sha256": "767f7c9ad240ef448c2cc64afa971c3cfabdf114f0abde944020289e6be7f025"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-delete-preflight-red.log",
+      "sha256": "eedb1270b0d7f1e3ec9e80cb6e2a86d684cdf5ace63be64881cc0145acdb3b3b"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-delete-preflight-red-v2.log",
+      "sha256": "60995cb999fa12a56bd2a330c746dd8c4445a59bcd8abf2013ed01f8705867f9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-delete-sibling-capture-red.log",
+      "sha256": "78645cede44954fbce729240aa8f7496a8f70a5bb254790fa1028fc75265e6ba"
+    }
+  ],
+  "actualReadonly": {
+    "path": "evidence/data-chain-smoke/2026-11-07-cache-native-runtime-readonly.json",
+    "sha256": "2dc7f83de2e61473caa3ddc9e0b0a9157a58a9a87a64919696a733a664029d35"
+  },
+  "open": [
+    "Actual cache deletion needs an owned key creation and exact cleanup contract; existing cache keys were not deleted",
+    "Browser visual acceptance remains unverified",
+    "The 20-package migration and its existing deployed-service gaps remain open",
+    "No checkpoint commit or push for this card yet"
+  ],
+  "targetedTreeIdentity": {
+    "path": "artifacts/data-chain-smoke/cache-tree-identity-final-v2.log",
+    "sha256": "e6f71d22aebee8638afec40c1abf9b83901eb20454a5ec4d930c6bbbd4aa7c3d",
+    "files": 1,
+    "tests": 5,
+    "exitCode": 0
+  },
+  "hostIdentityRepair": {
+    "path": "artifacts/data-chain-smoke/cache-host-source-identity-green.log",
+    "sha256": "38be4126cc47590f11342b05094afbe39df02b82cf37fc533710cf65adea0f5f",
+    "files": 5,
+    "tests": 57,
+    "exitCode": 0
+  },
+  "previousFullRepositories": [
+    {
+      "session": 32602,
+      "log": "artifacts/data-chain-smoke/cache-full-repository-v2.log",
+      "exitFile": "artifacts/data-chain-smoke/cache-full-repository-v2.exit",
+      "timeout": "original 15000ms configuration, not overridden",
+      "maxWorkers": 2,
+      "terminalObserved": true,
+      "exitCode": 1,
+      "files": 493,
+      "filesPassed": 481,
+      "filesFailed": 12,
+      "tests": 9019,
+      "testsPassed": 8940,
+      "testsFailed": 79,
+      "unhandledErrors": 89,
+      "durationSeconds": 908.78,
+      "logSha256": "2f0a179688efb4b36dd42a6ef3b6e0bcc8d099c7a10d4d4001e7d0e19de1b9be"
+    },
+    {
+      "session": 12041,
+      "log": "artifacts/data-chain-smoke/cache-full-repository-v3.log",
+      "exitFile": "artifacts/data-chain-smoke/cache-full-repository-v3.exit",
+      "timeout": "original 15000ms configuration, not overridden",
+      "maxWorkers": 2,
+      "terminalObserved": true,
+      "observedFailure": "Dictionary design formal rejection retains native draft but shows stale field text; original test assertion preserved",
+      "exitCode": 1,
+      "files": 496,
+      "filesPassed": 495,
+      "filesFailed": 1,
+      "tests": 9033,
+      "testsPassed": 9032,
+      "testsFailed": 1,
+      "unhandledErrors": 0,
+      "durationSeconds": 1057.87,
+      "logSha256": "121c4e00c4577ae2f7d748fdd8c1b375c474ac97345c84907561304b5f88a06f"
+    },
+    {
+      "log": "artifacts/data-chain-smoke/cache-full-repository-v4.log",
+      "exitFile": "artifacts/data-chain-smoke/cache-full-repository-v4.exit",
+      "timeout": "original 15000ms configuration, not overridden",
+      "maxWorkers": 2,
+      "terminalObserved": true,
+      "session": 58181,
+      "exitCode": 1,
+      "completed": false,
+      "status": "intentionally-stopped-for-confirmed-native-api-review-findings",
+      "reason": "Native sibling command could replay a cache deletion after abandonment; confirmed by an isolated zero-service test before stopping v4",
+      "logSha256": "674f9fe51dcfab2bcb75c4a2ababf6af36eba705d609f37590cd821eeffe6c76"
+    }
+  ],
+  "previousFrozenSnapshots": [
+    {
+      "path": "artifacts/data-chain-smoke/cache-frozen-sources-v2.json",
+      "sha256": "e5d2c6ccc60750e9082dd9a5f1794c257ab4632583ac22a385df3821b0a41686",
+      "sourceFiles": 45,
+      "allHashesMatch": true
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-frozen-sources-v3.json",
+      "sha256": "4217bbb5bdf80ac544c60b54a83fe7ff6cbdb507769e033227740b103fb6ce65",
+      "sourceFiles": 62,
+      "allHashesMatch": false,
+      "note": "Frozen hashes matched throughout v3; HostScope and its regression test changed only after the natural failed terminal"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/cache-frozen-sources-v4.json",
+      "sha256": "4359c05330d2c8336c04585c51500f1f5985575ef65ac97f78498899b77a791c",
+      "sourceFiles": 62,
+      "allHashesMatch": false,
+      "note": "All 62 hashes matched until v4 was intentionally stopped; reviewed command fixes followed the stop"
+    }
+  ],
+  "reviewRepairs": {
+    "path": "artifacts/data-chain-smoke/cache-delete-review-green-v2.log",
+    "sha256": "fc325c73c6ae523c105eb3f8d4a6a52f25fa512fe23fc1a1ef779d1748c093f4",
+    "files": 3,
+    "tests": 29,
+    "exitCode": 0,
+    "scope": [
+      "No sibling dispatch while the original command is dispatched or unknown",
+      "A blocked unsent sibling remains cancellable and never owns unknown capture",
+      "Typed synchronous model preparation rejection is not a dispatched unknown"
+    ]
+  }
+}

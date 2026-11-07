@@ -149,4 +149,6 @@ export type {
   LowcodeSessionStoreOptions,
 } from './platform/lowcode-session-store.js'
 export {WorkflowExecutionResource} from './platform/resources/structured-config/workflow/workflow-execution-resource'
+export {CachePageReadAdapter} from './platform/resources/system/cache-page-read-adapter'
+export {CacheDeleteCommandResource} from './platform/resources/system/cache-delete-command-resource'
 export type {WorkflowExecutionGraph} from './platform/resources/structured-config/workflow/workflow-execution-resource'

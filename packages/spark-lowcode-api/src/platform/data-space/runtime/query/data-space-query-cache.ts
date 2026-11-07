@@ -98,6 +98,17 @@ export class DataSpaceQueryCache {
     return context
   }
 
+  /** 服务命令沿原封包/作用域执行一次，明确绕过读取结果与在途请求复用。 */
+  public async executeOnce(input: Omit<DataSpaceQueryCacheQueryInput,'cache'>): Promise<DataSpaceQueryContext> {
+    this.currentScope();input.projection?.assertCurrent()
+    const identity=new DataSpaceQueryTable(input.identity).identity
+    let resource=this.#resources.get(identity.scenarioId)
+    if(!resource){resource=new DataSpaceQueryResource(this.#options);this.#resources.set(identity.scenarioId,resource)}
+    const config=input.config??DataSpaceRequestConfig.resolveQuery()
+    const context=await resource.query(identity,input.options??{},input.projection?{config,projection:input.projection}:config)
+    context.assertIdentity(identity);input.projection?.assertCurrent();return context
+  }
+
   private async load(input: DataSpaceQueryCacheLoadInput): Promise<DataSpaceQueryContext> {
     const {key, normalized, executionOptions, config, accept} = input
     const existing = this.#flights.get(key)

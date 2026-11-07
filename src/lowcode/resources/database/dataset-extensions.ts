@@ -158,10 +158,6 @@ function requireRegistrationReceipt(options: RegistrationReceiptOptions): 'creat
     : `${fallback}：缺少精确对象成功回执，结果仍未知`)
 }
 
-function registerResult(response: unknown): unknown {
-  return commandAjaxResult(response, '注册服务器失败')
-}
-
 /** 命令完成证据不足、连接中断、超时或服务端5xx均不能据此判定原提交未生效。 */
 function isDatabaseCommandUnconfirmed(error: unknown): boolean {
   if (error instanceof DatabaseCommandCompletionUnknown) return true
@@ -190,14 +186,27 @@ type VerifyRegisteredObjectOptions = Readonly<{
 
 async function verifyRegisteredObject(options: VerifyRegisteredObjectOptions): Promise<void> {
   const {dataSet, modelName, nameField, dbid, objectName, assertScope} = options
-  const view = dataSet.getView(modelName, 'registrationVerify')
-  if (!view) throw new Error(`核验注册结果缺少正式视图 ${modelName}@registrationVerify`)
-  const originalValidator = view.validateQueryResult
   const filter = SparkData.DataViewFilter.group({logic: 'and', filters: [
     SparkData.DataViewFilter.condition({field: 'dbid', operator: 'eq', value: dbid}).toJSON(),
     SparkData.DataViewFilter.condition({field: nameField, operator: 'eq', value: objectName}).toJSON(),
   ]}).toJSON()
+  await verifyRegistrationQuery({dataSet, modelName, filter, values: {dbid, [nameField]: objectName}, assertScope})
+}
+
+async function verifyRegistrationQuery(options: Readonly<{
+  dataSet: DataSet
+  modelName: string
+  filter: Parameters<SparkData.DataView['executeFilter']>[0]
+  values: Readonly<Record<string, string>>
+  expectedKey?: string
+  assertScope: DataSetCommandScopeGuard
+}>): Promise<DataRow> {
+  const {dataSet, modelName, filter, values, expectedKey, assertScope} = options
+  const view = dataSet.getView(modelName, 'registrationVerify')
+  if (!view) throw new Error(`核验注册结果缺少正式视图 ${modelName}@registrationVerify`)
+  const originalValidator = view.validateQueryResult
   let validationCount = 0
+  let verifiedRow: DataRow | undefined
   const validateCurrent = async (result: Parameters<NonNullable<typeof view.validateQueryResult>>[0]): Promise<void> => {
     await originalValidator?.(result)
     assertScope()
@@ -211,11 +220,13 @@ async function verifyRegisteredObject(options: VerifyRegisteredObjectOptions): P
     const row = result.rows[0]
     if (!row) throw new DatabaseCommandCompletionUnknown('精确登记核验结果为空，状态仍未知')
     const key = result.rowKey(row)
-    if (typeof key !== 'string' || !key.trim() || result.fieldAccess(key, 'dbid').read !== 'visible'
-      || result.fieldAccess(key, nameField).read !== 'visible'
-      || scalar(row['dbid']) !== dbid || scalar(row[nameField]) !== objectName) {
+    if (typeof key !== 'string' || !key.trim() || (expectedKey !== undefined && key !== expectedKey)
+      || Object.entries(values).some(([field, value]) => !Object.hasOwn(row, field)
+        || (typeof row[field] !== 'string' && typeof row[field] !== 'number')
+        || result.fieldAccess(key, field).read !== 'visible' || scalar(row[field]) !== value)) {
       throw new DatabaseCommandCompletionUnknown('精确登记核验字段不可读或身份不匹配，状态仍未知')
     }
+    verifiedRow = Object.fromEntries(Object.keys(values).map(field => [field, scalar(row[field])]))
     validationCount += 1
   }
   const validator = (result: Parameters<NonNullable<typeof view.validateQueryResult>>[0]): void | Promise<void> => validateCurrent(result)
@@ -229,7 +240,8 @@ async function verifyRegisteredObject(options: VerifyRegisteredObjectOptions): P
       || validationCount === 0 || JSON.stringify(view.filterExpression) !== JSON.stringify(filter)) {
       throw new DatabaseCommandCompletionUnknown('精确登记核验未完成当前查询，状态仍未知')
     }
-    if (view.rows.length !== 1) throw new DatabaseCommandCompletionUnknown('精确登记核验没有唯一正式记录，状态仍未知')
+    if (view.rows.length !== 1 || !verifiedRow) throw new DatabaseCommandCompletionUnknown('精确登记核验没有唯一正式记录，状态仍未知')
+    return verifiedRow
   } catch (error) {
     if (error instanceof DatabaseCommandCompletionUnknown) throw error
     throw new DatabaseCommandCompletionUnknown(`精确登记核验失败，状态仍未知：${error instanceof Error ? error.message : String(error)}`)
@@ -261,27 +273,36 @@ export function attachServerRegisterView(input: AttachServerRegisterViewInput): 
     inputFields: fields,
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
     isUnconfirmed: isDatabaseCommandUnconfirmed,
+    allowAbandonUnconfirmed: false,
     submit: async row => {
       const payload: Record<string, string> = {rowid: scalar(row['rowid'])}
       for (const field of fields) payload[field] = field === 'Type' ? scalar(row[field]).toUpperCase() : scalar(row[field])
-      const result = registerResult(await http.post<unknown>('/api/Db/registerServer', payload))
-      const returned = isRecord(result) ? result : {}
-      const rowid = scalar(returned['rowid']) || scalar(returned['serverId']) || payload['rowid']
-      const accepted: DataRow = {rowid}
-      for (const field of fields) if (field !== 'Password') accepted[field] = Object.hasOwn(returned, field) ? scalar(returned[field]) : payload[field]
+      let response: unknown
+      try {
+        response = await http.post<unknown>('/api/Db/registerServer', payload)
+      } catch (error) {
+        throw new DatabaseCommandCompletionUnknown(`注册服务器未取得完成回执，结果仍未知：${error instanceof Error ? error.message : String(error)}`)
+      }
+      if (!isRecord(response) || response['Code'] !== 200 || response['Type'] !== 'success'
+        || !isRecord(response['Result']) || response['Result']['rowid'] !== payload['rowid']) {
+        throw new DatabaseCommandCompletionUnknown('DATABASE_SERVER_ACK_UNCONFIRMED: 注册服务器回执缺少原身份或成功证明，结果仍未知')
+      }
+      const returned = response['Result']
+      if (fields.some(field => field !== 'Password' && Object.hasOwn(returned, field)
+        && (typeof returned[field] !== 'string' || scalar(returned[field]) !== payload[field]))) {
+        throw new DatabaseCommandCompletionUnknown('DATABASE_SERVER_ACK_UNCONFIRMED: 注册服务器回执与原提交冲突，结果仍未知')
+      }
+      const accepted: DataRow = {rowid: payload['rowid']}
+      for (const field of fields) if (field !== 'Password' && Object.hasOwn(returned, field)) accepted[field] = scalar(returned[field])
       return accepted
     },
     verify: async row => {
-      const catalogView = dataSet.getView(options.catalog, 'default')
-      if (!catalogView) throw new Error('核验注册结果缺少服务器目录视图')
-      await catalogView.refresh()
-      if (catalogView.loadingError) throw catalogView.loadingError
       const rowid = scalar(row['rowid'])
-      const found = catalogView.rows.find(item => catalogView.getPkKey(item) === rowid)
-      if (!found) return undefined
-      const accepted: DataRow = {rowid}
-      for (const field of fields) if (field !== 'Password') accepted[field] = scalar(found[field])
-      return accepted
+      const values = {rowid, ...Object.fromEntries(fields.filter(field => field !== 'Password')
+        .map(field => [field, field === 'Type' ? scalar(row[field]).toUpperCase() : scalar(row[field])]))}
+      const filter = SparkData.DataViewFilter.condition({field: 'rowid', operator: 'eq', value: rowid}).toJSON()
+      const found = await verifyRegistrationQuery({dataSet, modelName: options.catalog, filter, values, expectedKey: rowid, assertScope})
+      return Object.fromEntries(Object.keys(values).map(field => [field, scalar(found[field])]))
     },
   })
   view.commitMode = 'staged'

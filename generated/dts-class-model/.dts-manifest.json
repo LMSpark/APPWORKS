@@ -4084,7 +4084,7 @@
     "src/lowcode/resources/database/dataset-extensions.ts": {
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "shardFile": "files/src/lowcode/resources/database/dataset-extensions.ts.json",
-      "sourceModifiedAt": "2026-11-07T21:45:46.346Z"
+      "sourceModifiedAt": "2026-11-07T21:57:09.359Z"
     },
     "src/lowcode/resources/database/directory.ts": {
       "sourceFile": "src/lowcode/resources/database/directory.ts",
@@ -4099,7 +4099,7 @@
     "src/lowcode/resources/database/server/resource.ts": {
       "sourceFile": "src/lowcode/resources/database/server/resource.ts",
       "shardFile": "files/src/lowcode/resources/database/server/resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.781Z"
+      "sourceModifiedAt": "2026-11-07T21:53:33.014Z"
     },
     "src/lowcode/resources/database/server/view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/server/view-ops.ts",

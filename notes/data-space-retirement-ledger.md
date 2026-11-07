@@ -8058,3 +8058,23 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **Y检查点终验与提交边界。**最终根verify42997自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留。所有本批handle终态，diff --check通过，高阶窄审无剩余Y阻断。另精确删除3份已被末态替代的生成/合同/失败门禁日志，本批合计10份过程日志清理，首次失败事实在本台账保留，不删正式测试/有效证据。准备提交三个注册短路删除、字段创建/幂等修正及回归、正式派生与本台账，仅同一codex分支推origin，不merge/force/部署。未执行实服注册，无凭据/运行数据入提交；原S2未跟踪测试不stage，只有主worktree。下一仍S1服务器回执/精确独立核验及paired装配/I3剩余组，数据合同未冻结、无兼容层、全20包目标仍active。
 
 **Y已提交推送并独立核实。**代码9bda8f4d6bd31eb19dfd7dcc53362bb591ab4955（fix(database): validate registration command assembly），23文件753增173删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote精确同本地SHA。跟踪工作树清洁，只保原S2未跟踪RED，无额外worktree。事实补记docs跟随同步，不改已验代码。后续恢复S1服务器回执/精确核验反例，不进S2，不把本批局部通过当整体冻结。
+
+#### Z. S1服务器注册回执与独立精确核验
+
+基线5f18c0599ad17de41c82fc252d3026ec670e4656，上一批为已推送进展；本批仅资源适配、正式查询配置与测试/文档/派生，不改组件/宿主/页面。固定Java参考HEAD仍e1eccc1：控制器实际AjaxResult.success返回数字200，服务保客户端rowid、清Password后返回ServerInfo；文档serverId示例与实现不一致，不能凭示例补ACK。SYSTEM_ERROR/异常转换不能区分写前测连拒绝与持久化后错误。共享查询可将非owner UserName/IP/Port等抹空，前端只消费权限及真实值，不据此发明身份放行。全部为只读源码合同，不是新实服测试或部署支持证明。
+
+修正fixture原先忽略Filter和剔除UserName却宣称可读的问题：正式GetData过滤按DataViewFilterCodec+本地后端夹具匹配，正样保存账号值，隐藏/缺数/重复/冲突分别注入。改旧错误期望“dropped查无行即未注册”和“Code500文案证明写前拒绝”为未知。实际先RED16失败6通过：已写丢回执但default被ORACLE过滤、缺损/错身份ACK、不可读/缺count/重复/冲突精确读取等；初8失败范围与扩展16失败分别运行，非服务故障实测。
+
+server资源装配同模型registrationVerify独立视图，复用正式runtime查询。复用原表/视图注册的当前响应校验流程为private verifyRegistrationQuery；服务器按原rowid独立过滤，要求本次countReported/total1/rows1、原rowKey及每个非Password原输入值存在/可读/相等（含UserName）。零行不产未生效证明，保unknown且禁止abandon，不刷新/覆盖default的筛选/选择。原后续输入later-host仍保编辑覆盖，恢复核验只用原捕获。
+
+server submit只接纳数字Code200、Result原rowid及无冲突成功类型/回显；删除serverId/payload补键、字段补值及唯一旧registerResult通用coercion入口。调用http.post后SDK错误一律本命令typed unknown，覆盖HTTP200内v4失败信封；POST前scope拒绝仍0写无unknown，不改公共错误分类。密码不回读比对或存接纳行。本次64定向测试及lint自然exit0，待高阶实际diff复审与扩大门禁/正式生成；尚未提交、未实服注册。
+
+下游边界：页面原saveRegister仍会刷新当前过滤目录并在不见新行时报“已接纳但未见”，本批不跨层改页面，也不把filtered精确恢复说成整页UI已完成。后续S5按冻结数据合同处理展示；若再证实数据层缺陷仍退S1。S1未冻结，paired装配、语义资源分类及I3其它组继续，不缩减原20包或伪称历史转换完成。
+
+**Z复审反例与重验。**首轮数据库79473为15文件275测试自然0、生成72808为1108/1744/3764自然0，但不覆盖后续补项。高阶核到成功Type只排error/warn会放行failed/false/null；另validator读result行，返回时却取DataView克隆运行行，requestCompleted可在期间修改其IP，造成把运行修改当正式回执。4Type（含缺省）+完成回调共5例先RED；再补description null/对象/数组可被scalar误转空串，合计8失败24通过先RED。按固定factory仅认Type严格success，不保无Type兼容；显式回显须string且与原payload相等。验证器内捕获已核字段标量快照，完成后仅在原view/Loaded/filter/count等守卫仍成立时返回快照，不从可变运行行重造。读取required值拒null/对象等，允许正式标量string/number。修后72定向测试与lint自然0，等待末态扩大/生成/门禁；不把首轮生成或275测试冒末态。SDK v4 HTTP200失败信封保unknown，真实scope在POST前失效0写无pending两个正反界限也已覆盖。
+
+**Z末态扩大与清理进度。**43829自然exit0：数据库15文件283测试；75034最终正式生成自然exit0：1108/1744/3764；lowcode生成自然0：611端点216消费者。ClassModel派生剔除generatedAt/sourceModifiedAt与编译symbol后语义差异0（私有helper/配置不新增公开模型），消费者仅源定位变化。高阶末态窄审无剩余Z阻断，限源码静态复核。根verify81726 live，所有其它handle终态，待其最终退出再提交。精确清理9份被末态替代的过程日志，保正式回归、末态日志与台账失败事实；无新临时工作树或实服对象，原S2未跟踪RED不动。本次没有可用的隔离服务器连接配置，因此不以任意连接参数执行实服register；不阻止同阶段其它工作，也不把源码/夹具当服务写入证据。
+
+**后续paired预检研究（尚未实现）。**高阶只读定位attachCatalogCommandViews真实一次装配含多个结果；建议先以末结果声明匹配但foreign owner、前结果未绑定/input缺失为反例，拒绝后input无占名、前结果仍未绑定、HTTP0。现bindQueryExecutor会emit/recompute，不可当无副作用探针；现assertResultReplacementAllowed不核owner/load序号。须复用同一权威绑定校验，先纯预检全部已有端，再提交装配；不公开owner getter或save口，不为预检临时改resourceIdentity。输入/多结果表名别名冲突也须创建前拒；重复装配更换commandInput不得仍沿旧loadRows闭包却声称新输入已绑定。先确认最小公共合同和所有实际消费者，再按RED推进，未把研究当已支持，不另建并行计划。后续仍同一S1责任层，不提前用页面补丁绕行。
+
+**Z检查点终验。**最终根verify81726自然exit0（根类型/lint、ClassModel49项及正式工程规则），既有2模型警告/84薄页诊断仍保留。全部本批验证handle已终态，diff --check通过；高阶末态窄审无阻断，非独立实服执行。准备提交本批S1资源/查询配置与回归、正式派生及唯一台账，不修改页面/组件/Java、不新增后端协议或兼容ACK、不把缺证当未写。只推origin同codex分支、不merge/force/部署；用户原组件未跟踪RED不stage，只有主worktree。U实服隔离对象清理终态沿用，Z无新写入或清理遗留。下一仍S1 catalog多结果预检及paired/I3余项，合同未冻结、20包完整目标active。

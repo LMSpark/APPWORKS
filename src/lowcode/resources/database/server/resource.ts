@@ -46,6 +46,13 @@ export class LowcodeDatabaseServer {
             commitMode: 'staged',
             queryConfig: {allPages: true},
             sortExpression: [{field: model.primaryKey, direction: 'asc'}],
+          }, registrationVerify: {
+            autoLoad: false,
+            autoCurrentFirst: false,
+            autoSelectFirst: false,
+            commitMode: 'staged',
+            queryConfig: {allPages: true},
+            sortExpression: [{field: model.primaryKey, direction: 'asc'}],
           }},
         },
       },

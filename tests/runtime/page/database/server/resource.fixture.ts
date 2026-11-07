@@ -1,5 +1,7 @@
 import {vi, type Mock} from 'vitest'
 import {DataSpaceRuntimeApi, type DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
+import {DataViewFilterCodec} from '@spark-appworks/spark-data'
+import {DataViewFilterLocal} from '../../../../../packages/spark-data/src/query/filter/data-view-filter-local'
 import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 
 export type DatabaseServerDesignMocks = {
@@ -61,6 +63,10 @@ export class DatabaseServerHttp extends HttpClientBase {
   hideAddedOnRead = false
   /** ok：后端测连通过并写入；rejected：AjaxResult 业务拒绝；lost：写入后连接中断（结果未知）；dropped：请求未到达即中断。 */
   registerMode: 'ok' | 'rejected' | 'lost' | 'dropped' = 'ok'
+  registerResponseOverride: unknown = undefined
+  omitCount = false
+  hiddenReadFields: string[] = []
+  duplicateReadRows = false
 
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
@@ -73,9 +79,10 @@ export class DatabaseServerHttp extends HttpClientBase {
         return {data: {Code: 500, Message: '数据库连接失败', Result: null, Type: 'error'}, status: 200, statusText: 'OK', headers: {}}
       }
       if (this.registerMode === 'dropped') throw new Error('socket hang up')
-      const {Password: _password, UserName: _user, ...stored} = body
+      const {Password: _password, ...stored} = body
       if (!this.hideAddedOnRead) this.rows.push({...stored, rowid: body['rowid'] ?? 'S-GEN'} as typeof this.rows[number])
       if (this.registerMode === 'lost') throw new Error('socket hang up')
+      if (this.registerResponseOverride !== undefined) return {data: this.registerResponseOverride, status: 200, statusText: 'OK', headers: {}}
       return {data: {Code: 200, Message: 'OK', Result: {...stored, Password: ''}, Type: 'success'}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
@@ -102,20 +109,27 @@ export class DatabaseServerHttp extends HttpClientBase {
     if (config.url !== '/api/DataOperation/GetData') {
       throw new Error(`unexpected request ${config.url ?? ''}`)
     }
-    const table = (config.data as {Table: Array<{Name: string}>}).Table[0]!
+    const table = (config.data as {Table: Array<{Name: string; Filter?: unknown}>}).Table[0]!
     if (table.Name !== 'Base_serverInfo') throw new Error(`unexpected table ${table.Name}`)
+    let rows = [...this.rows]
+    if (table.Filter) {
+      const filter = new DataViewFilterLocal(DataViewFilterCodec.decode(table.Filter))
+      rows = rows.filter(row => filter.matches(row))
+    }
+    if (this.duplicateReadRows) rows = rows.flatMap(row => [row, {...row}])
+    const readable = databaseServerReadableFields.filter(field => !this.hiddenReadFields.includes(field))
     return {data: {Code: 200, Result: {primaryKeyField: 'rowid', allowAdd: this.allowAdd, lingma_sys_key: 'table-key',
-      data: {Items: this.rows.map(row => ({
+      data: {Items: rows.map(row => ({
         ...row,
         lingma_sys_key: 'row-key',
         lingma_sys_params: {
-          r: databaseServerReadableFields,
+          r: readable,
           e: databaseServerReadableFields,
-          h: ['Password'],
+          h: ['Password', ...this.hiddenReadFields],
           m: [],
           d: true,
         },
-      })), Count: this.rows.length}}},
+      })), ...(this.omitCount ? {} : {Count: rows.length})}}},
       status: 200, statusText: 'OK', headers: {}}
   }
 }

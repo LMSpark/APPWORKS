@@ -8032,3 +8032,5 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **X末态验证与清理进度。**数据库/common36504自然exit0：16文件280测试（实际装配12）；data包53417自然exit0：55文件1236测试，公共binder此后未变。正式生成1373自然exit0：1108/1744/3765，lowcode生成611端点216消费者。生成JSON剔除generatedAt/sourceModifiedAt及编译符号ID后无语义差异，本次独立函数返回闭包不冒充ClassModel新增模型；源码JSDoc与实际返回已经一致。消费者派生仅后续源码行号变动。原根verify86373自然exit0但开始早于PK补正，最终verify82885独立重验中，不提前提交。高阶最终窄复审无剩余X阻断，仅静态复核不冒执行测试。精确删除8份已终态中间日志，不删末态日志或回归测试；无临时工作树/新实服对象，原S2未跟踪测试保留。
 
 **X检查点终验。**最终根verify82885自然exit0（根类型/lint、ClassModel及正式工程规则通过），所有本批进程均终态；保留既有模型警告/薄页差距，不称全仓测试或全20包通过。diff --check通过，准备将同步装配短路删除、公共绑定校验闭包、12项正式回归测试及官方派生/唯一台账提交同一codex分支，仅推origin/APPWORKS，不merge/force/部署。仍S1：后续真实register/catalog/connection/preview身份与多表预检、I3剩余矩阵及资源语义分类待完成；数据合同未冻结，不进入S2。U烟测对象清理终态沿用，X未写实服或更改存量，未伪称历史数据已转换。
+
+**X已提交推送并核实。**代码50695eafc32853b2d79ef309a0f28f196e1dc9a9（fix(database): validate sync command assembly identity），20文件261增94删；origin同分支push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，只主worktree，原S2未跟踪RED不动。事实补记docs跟随同步；下一恢复点仍S1其余实际装配入口与I3，不进组件，整体goal active。

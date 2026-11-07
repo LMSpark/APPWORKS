@@ -8135,3 +8135,5 @@ DataView.assertCanBindQueryExecutor提取原同owner/候选资源、已有查询
 **AC目录门禁纠正。**69307最终运行自然exit1：此前type/lint、ClassModel49项及其它规则通过，最后测试目录11/10超限。将新增preview-binding回归正式归入catalog/preview子目录，修相对fixture引用；不删回归、不豁免规则。重新定向和完整门禁，尚未提交。
 
 **AC最终检查点验收。**最终完整根verify16545自然exit0，包含类型/lint、ClassModel49项与正式工程规则，既有2模型警告/84薄页诊断保留；最新定向82项和数据库族401项有效。所有本批handle已终态，高阶窄批静态复审无剩余阻断，diff检查通过。追加删除6份被最终证据替代的终态日志，本批共清20份中间日志；保数据库/最终定向/正式生成及最终门禁记录，无新增worktree。准备提交S1 preview适配与对应回归、正式派生和本台账，仅推origin同codex分支。未做新实服写入，不把夹具当服务能力证明；原S2未跟踪测试不stage。S1余资源与查询矩阵继续，数据合同未冻结、不进S2、原20包范围不缩减。
+
+**AC已提交推送并独立核实。**代码9d010d47d568e4a3509b1f8b35c7160d031dea0e（fix(database): unify preview binding and query lifecycle），21文件581增290删，origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。本事实补记docs跟随同步；下一恢复仍S1资源适配分类及I3剩余查询/提交/取消/生命周期矩阵，不据AC局部通过宣称整体完成或历史数据已转换，不进入标准组件阶段。

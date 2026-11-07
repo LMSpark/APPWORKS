@@ -1,0 +1,263 @@
+{
+  "status": "verified-owned-json-lifecycle-and-specific-file-manager-gap",
+  "sourceCheckpoint": "39cdba3dc5cb24006b2bea14c78c078c72393eb6",
+  "sourceSha256Unchanged": {
+    "config/pages/semi-structured/json-data/pagedata.json": "0423b79b3666f0a2206b0f3c83e0ae78723c882a3870182ce41a945b389d2ca7",
+    "src/lowcode/resources/repository/agent-workflow-file-resource.ts": "c40801fac66eabc384620788040006cd7c481bf6c8b37224010b37939d8613b0",
+    "src/lowcode/resources/semi-structured/json-data/document-resource.ts": "5918a1b2f09f8bf44e7e3e00182156e81905b735561c6066003526e47bdb27ec",
+    "src/lowcode/resources/semi-structured/json-data/resource.ts": "07ff81e8a2424437fc6ccb2d8dae7f8349c03e5559b2993d82cd155a72ca99cd",
+    "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": "10ccd84451f0cac1a5c9b620028532f0c3fb2aa6af8ed2d62455b1f00fba7344",
+    "tests/runtime/page/semi-structured/json-data-page.test.ts": "a1d95499d680805f0c6d13041b0064e418b4e690d15f4a88079772de5ada66db",
+    "tests/runtime/page/semi-structured/json-document-file.test.ts": "924042d0fa14ee75aa63535a677bdc85179b83ba28b26b9a3b56a92ebffb80a2",
+    "tests/runtime/page/structured-config/catalog/formal-topic.fixture.ts": "6b9c8c8e6e56830ba9d3d8292e4f49313e1842d2e1ec2a5711a6269d48383d43"
+  },
+  "ownedJson": {
+    "phase": "confirmed",
+    "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+    "marker": "SMOKE_JSON_DECLARED_1794043362320",
+    "id": "518DDCDFB395BE55F1B102C329204C3F",
+    "cancelId": "28FB5DBB51299CA71A8C94EE1B6F6390",
+    "fileName": "518DDCDFB395BE55F1B102C329204C3F.json",
+    "reads": 61,
+    "writes": 6,
+    "blocked": 0,
+    "unknown": false,
+    "cleanupConfirmed": true,
+    "checks": {
+      "newCancelNoWrites": true,
+      "fileFirstCatalogStillPending": true,
+      "freshRuntimeInitial": {
+        "catalog": {
+          "table": "Base_JsonData",
+          "fields": [
+            "createtime",
+            "createuser",
+            "description",
+            "name",
+            "path",
+            "rowid"
+          ],
+          "rows": [
+            {
+              "id": "518DDCDFB395BE55F1B102C329204C3F",
+              "values": [
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:24:34"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "description",
+                  true,
+                  "owned declared JSON fixture"
+                ],
+                [
+                  "name",
+                  true,
+                  "SMOKE_JSON_DECLARED_1794043362320"
+                ],
+                [
+                  "path",
+                  true,
+                  ""
+                ],
+                [
+                  "rowid",
+                  true,
+                  "518DDCDFB395BE55F1B102C329204C3F"
+                ]
+              ]
+            }
+          ]
+        },
+        "content": {
+          "marker": "SMOKE_JSON_DECLARED_1794043362320",
+          "version": 1,
+          "empty": "",
+          "zero": 0,
+          "flag": false,
+          "nil": null,
+          "nested": [
+            [],
+            [
+              false,
+              0,
+              null
+            ],
+            {
+              "label": "中文烟测"
+            }
+          ]
+        },
+        "bytes": 156
+      },
+      "editCancelNoWrites": true,
+      "freshRuntimeUpdated": {
+        "catalog": {
+          "table": "Base_JsonData",
+          "fields": [
+            "createtime",
+            "createuser",
+            "description",
+            "name",
+            "path",
+            "rowid"
+          ],
+          "rows": [
+            {
+              "id": "518DDCDFB395BE55F1B102C329204C3F",
+              "values": [
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:24:34"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "description",
+                  true,
+                  "owned declared JSON updated"
+                ],
+                [
+                  "name",
+                  true,
+                  "SMOKE_JSON_DECLARED_1794043362320"
+                ],
+                [
+                  "path",
+                  true,
+                  ""
+                ],
+                [
+                  "rowid",
+                  true,
+                  "518DDCDFB395BE55F1B102C329204C3F"
+                ]
+              ]
+            }
+          ]
+        },
+        "content": {
+          "marker": "SMOKE_JSON_DECLARED_1794043362320",
+          "version": 2,
+          "empty": "",
+          "zero": 0,
+          "flag": false,
+          "nil": null,
+          "nested": [
+            [
+              0
+            ],
+            [],
+            {
+              "label": "保存后重开"
+            }
+          ]
+        },
+        "bytes": 148
+      },
+      "ordinaryFileDeleteRemainsBlocked": true,
+      "ownedCleanupCancelNoWrites": true,
+      "fileAbsentBeforeCatalogDelete": true,
+      "finalAbsence": {
+        "id": true,
+        "marker": true,
+        "file404": true,
+        "fileList": true
+      }
+    },
+    "wire": [
+      {
+        "phase": "file-create",
+        "path": "/api/File/UploadFile",
+        "operation": "file-create",
+        "id": "518DDCDFB395BE55F1B102C329204C3F"
+      },
+      {
+        "phase": "catalog-create",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "operation": "catalog-create",
+        "id": "518DDCDFB395BE55F1B102C329204C3F"
+      },
+      {
+        "phase": "file-update",
+        "path": "/api/File/UploadFile",
+        "operation": "file-update",
+        "id": "518DDCDFB395BE55F1B102C329204C3F"
+      },
+      {
+        "phase": "catalog-update",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "operation": "catalog-update",
+        "id": "518DDCDFB395BE55F1B102C329204C3F"
+      },
+      {
+        "phase": "file-delete",
+        "path": "/api/File/RemoveFile",
+        "operation": "file-delete",
+        "id": "518DDCDFB395BE55F1B102C329204C3F"
+      },
+      {
+        "phase": "catalog-delete",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "operation": "catalog-delete",
+        "id": "518DDCDFB395BE55F1B102C329204C3F"
+      }
+    ],
+    "testedAt": "2026-11-07T09:28:18.549Z"
+  },
+  "ownedProcess": {
+    "pid": 29140,
+    "exitCode": 0,
+    "signalCode": null,
+    "killed": false
+  },
+  "fileManagerReferenceQuery": {
+    "kind": "readonly-reference-contract-probe",
+    "endpoint": "/infra/file/page",
+    "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+    "businessWrites": 0,
+    "transport": "rejected",
+    "statusCode": 404,
+    "responseCode": null,
+    "status": "reference-query-not-confirmed",
+    "errorName": "RequestError",
+    "error": "Request failed with status code 404",
+    "queries": 1,
+    "authRefreshes": 1,
+    "blocked": 0,
+    "testedAt": "2026-11-07T09:24:51.272Z"
+  },
+  "fileManagerProcess": {
+    "pid": 11056,
+    "exitCode": 0,
+    "signalCode": null,
+    "killed": false
+  },
+  "artifactSha256": {
+    "json-declared-owned-lifecycle.mts": "4ddb62f2eaf72ab16d1842b39e922fe5120f837de4fef5140437476d18ae3c19",
+    "json-declared-owned-lifecycle-run.mts": "160c96a8ca681583dfc58b257686374e8d4fb997d8c0b786f41e5fe042ff7e2f",
+    "json-declared-owned-intent.json": "f842045b6fe2d261376d75795635ad8fe3c0519dd1a5762084a1c7f6f88dce65",
+    "json-declared-owned-lifecycle.json": "65b3c53a61d4934112c09777c429f17e20dce0ccb6249ae7e13509a59425da48",
+    "file-manager-reference-contract-readonly.mts": "6faad0ca4bf289324154624b7ec6c11d24d54113a512cca149be422c634c178a",
+    "file-manager-reference-contract-readonly-v3.json": "7e5b8565da11548706d058ec88034d41d28b2e6283e2fc9c8938bbbffa3cbd67"
+  },
+  "limits": [
+    "The six writes belong only to the new owned fixture; ordinary product deletion stays disabled",
+    "The directory and file commit separately; no cross-source transaction is claimed",
+    "The 404 establishes only the fixed reference route under the current configured gateway/application",
+    "No numeric-ID delete or binary FileManager upload was attempted",
+    "Formal JSON source-model consumption and reference-specific deletion rejection remain open",
+    "FileManager published host and formal registration model remain unverified",
+    "Browser visual acceptance and the remaining 20-package goal remain open"
+  ]
+}

@@ -53,7 +53,7 @@ type PendingWrite=Readonly<{target:FileResourceTarget;operation:'write';baseline
 type PendingDelete=Readonly<{target:FileResourceTarget;operation:'delete';baseline:FileResourceSnapshot;state:'unknown'|'confirmed'|'not-applied';message:string|null}>
 type PendingResourceChange=PendingWrite|PendingDelete
 type HistoryAttempt=Readonly<{target:FileResourceTarget;attempt:FileResourceHistoryAttempt;text:string;state:'pending'|'unknown'|'confirmed'|'not-applied';message:string|null;deliveryPending:boolean}>
-type SharedFileResourceState=Readonly<{pending:Map<string,PendingResourceChange>;historyAttempts:Map<string,HistoryAttempt>;saving:Set<string>}>
+type SharedFileResourceState=Readonly<{pending:Map<string,PendingResourceChange>;owners:Map<string,Readonly<{view:DataView;context:SaveCommand['changes'][number]['context']}>>;historyAttempts:Map<string,HistoryAttempt>;saving:Set<string>}>
 const sharedStates=new WeakMap<object,Map<string,SharedFileResourceState>>()
 const boundViews=new WeakMap<DataView,string>()
 const fileResourceBindings=new WeakMap<DataView,(options:BindFileResourceAdapterOptions)=>void>()
@@ -99,7 +99,7 @@ function sharedState(view:DataView,resourceId:string):SharedFileResourceState{
   let resources=sharedStates.get(dataSet)
   if(!resources){resources=new Map();sharedStates.set(dataSet,resources)}
   let state=resources.get(resourceId)
-  if(!state){state={pending:new Map(),historyAttempts:new Map(),saving:new Set()};resources.set(resourceId,state)}
+  if(!state){state={pending:new Map(),owners:new Map(),historyAttempts:new Map(),saving:new Set()};resources.set(resourceId,state)}
   return state
 }
 
@@ -227,6 +227,10 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
       if(!attempt)return {state:'idle',text:null,message:null}
       hooks.assertCurrent();assertCurrent(current,target)
       const remote=await currentOptions.transport.read(attempt.target);hooks.assertCurrent();assertCurrent(current,target)
+      if(state.pending.get(target.key)!==attempt)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交已接纳或替换')
+      if(attempt.state==='confirmed'&&(attempt.operation==='delete'?remote!==null:remote?.text!==attempt.text)){
+        return {state:'unknown',text:attempt.operation==='write'?attempt.text:null,message:'原提交已确认，但来源随后变化'}
+      }
       if(attempt.operation==='delete'){
         if(remote===null){state.pending.set(target.key,{...attempt,state:'confirmed',message:null});return {state:'confirmed',text:null,message:null}}
         if(remote.text===attempt.baseline.text&&remote.revision===attempt.baseline.revision){state.pending.set(target.key,{...attempt,state:'not-applied',message:null});return {state:'not-applied',text:null,message:null}}
@@ -240,7 +244,10 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
     },
     acknowledgeWriteAttempt:current=>{
       const target=targetFor(current),state=stateFor(current),attempt=state.pending.get(target.key)
-      if(attempt?.state==='confirmed'||attempt?.state==='not-applied')state.pending.delete(target.key)
+      const owner=state.owners.get(target.key)
+      if(attempt?.state==='not-applied'||attempt?.state==='confirmed'&&(!owner||owner.view.destroyed)){
+        state.pending.delete(target.key);state.owners.delete(target.key)
+      }
     },
   }
   const executor:Executor={localAggregates:false,saveIndependently:true,source,
@@ -267,6 +274,9 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         assertCurrent(view,target)
         if(!deleted.length)assertWritable(target)
         if(state.saving.has(target.key))throw new Error('FILE_RESOURCE_SAVE_PENDING: 文件目标正在提交')
+        const owner=state.owners.get(target.key)
+        if(state.pending.has(target.key)&&owner&&!owner.view.destroyed&&owner.context!==change.context)throw new Error('FILE_RESOURCE_SAVE_OWNER: 原文件提交须由原查询上下文接纳')
+        if(!state.pending.has(target.key))state.owners.set(target.key,{view,context:change.context})
         state.saving.add(target.key)
         try{
         const prior=state.pending.get(target.key)
@@ -280,11 +290,13 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前新增操作不一致')
             const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
+            if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
             if(remote?.text===prior.text){
               confirmWriteProjection(view,prior)
               if(prior.text!==writeText)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
               confirmedSnapshot=remote
             }
+            else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原新增已确认，但来源随后变化')
             else if(remote===null){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 原文件新增未确认生效')}
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及空基线均不一致')
           }else{
@@ -301,8 +313,8 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
           const accepted={...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
+          state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],context:result(view,[accepted],target)})
-          state.pending.delete(target.key)
           continue
         }
         if(changed.length){
@@ -312,11 +324,13 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前更新操作不一致')
             const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
+            if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
             if(remote?.text===prior.text){
               confirmWriteProjection(view,prior)
               if(prior.text!==writeText)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
               confirmedSnapshot=remote
             }
+            else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原更新已确认，但来源随后变化')
             else if(prior.baseline!==null&&remote?.text===prior.baseline.text&&remote.revision===prior.baseline.revision){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 原文件提交确认未生效')}
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致')
           }else{
@@ -334,10 +348,10 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
           const accepted={...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
+          state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[],changed:[accepted],deleted:[],
             changedFields:[[currentOptions.contentField,...(currentOptions.revisionField?[currentOptions.revisionField]:[]),...Object.keys(snapshotFields)]
               .filter(field=>view.columns.some(column=>column.name===field))],context:result(view,[accepted],target)})
-          state.pending.delete(target.key)
           continue
         }
         const submitted=deleted[0]
@@ -346,7 +360,9 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         if(prior){
           if(prior.operation!=='delete')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前删除操作不一致')
           const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
+            if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
           if(remote===null){state.pending.set(target.key,{...prior,state:'confirmed',message:null})}
+          else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原删除已确认，但来源随后变化')
           else if(remote.text===prior.baseline.text&&remote.revision===prior.baseline.revision){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 文件删除未确认生效')}
           else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与删除前来源均不一致')
         }else{
@@ -360,14 +376,25 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           }catch(error){state.pending.set(target.key,{target,operation:'delete',baseline,state:'unknown',message:error instanceof Error?error.message:String(error)});throw error}
           state.pending.set(target.key,{target,operation:'delete',baseline,state:'confirmed',message:null})
         }
+        state.owners.set(target.key,{view,context:change.context})
         receipts.push({metaName:change.identity.metaName,added:[],changed:[],deleted:[submitted],changedFields:[],context:result(view,[],target)})
-        state.pending.delete(target.key)
-        }finally{state.saving.delete(target.key)}
+        }finally{state.saving.delete(target.key);if(!state.pending.has(target.key))state.owners.delete(target.key)}
       }
       return receipts
     },
-    hasUnconfirmedSave:context=>{const captured=contexts.get(context);return captured!==undefined&&stateFor(captured.view).pending.has(captured.target.key)},
-    abandonUnconfirmedSave:context=>{const captured=contexts.get(context);if(captured)stateFor(captured.view).pending.delete(captured.target.key)},
+    hasUnconfirmedSave:context=>{const captured=contexts.get(context);if(!captured)return false
+      const state=stateFor(captured.view),owner=state.owners.get(captured.target.key)
+      return state.pending.has(captured.target.key)&&(!owner||owner.view.destroyed||owner.context===context)},
+    acknowledgeSave:context=>{
+      const captured=contexts.get(context)
+      if(captured){const state=stateFor(captured.view),owner=state.owners.get(captured.target.key)
+        if(state.pending.get(captured.target.key)?.state==='confirmed'&&owner?.context===context){state.pending.delete(captured.target.key);state.owners.delete(captured.target.key)}}
+      return undefined
+    },
+    abandonUnconfirmedSave:context=>{const captured=contexts.get(context);if(captured){const state=stateFor(captured.view)
+      const owner=state.owners.get(captured.target.key)
+      if(owner&&!owner.view.destroyed&&owner.context!==context)throw new Error('FILE_RESOURCE_SAVE_OWNER: 不能放弃其他查询上下文的文件提交')
+      if(state.pending.get(captured.target.key)?.state!=='confirmed'){state.pending.delete(captured.target.key);state.owners.delete(captured.target.key)}}},
   }
   const update=(next:BindFileResourceAdapterOptions)=>{
     if(next.resourceId!==currentOptions.resourceId)throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源')

@@ -29,6 +29,96 @@ function fixture(rejectHistoryBeforeWrite=false) {
 }
 
 describe('DataView file resource adapter',()=>{
+  it('does not downgrade a concurrent confirmed write with a stale recovery read',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh()
+      const peer=f.view.createQueryView('peer');peer.queryContext={pageId:'PAGE',fileName:'rule.json'};await peer.refresh()
+      await f.view.editRowById(f.view.getPkKey(f.view.rows[0]!)!,{text:'submitted'})
+      f.write.mockImplementationOnce(async({text})=>{f.current.text=text;f.current.revision='v2';throw new Error('timeout')})
+      const input={views:[{tableName:'Files',viewId:'default'}]}
+      await expect(f.dataSet.saveChanges(input)).rejects.toThrow('timeout')
+      let release:((value:{text:string;revision:string})=>void)|undefined
+      f.read.mockImplementationOnce(()=>new Promise(resolve=>{release=resolve}))
+      const recovery=f.dataSet.saveChanges(input)
+      await vi.waitFor(()=>expect(release).toBeDefined())
+      expect((await peer.verifySourceWriteAttempt()).state).toBe('confirmed')
+      release?.({text:'baseline',revision:'v1'})
+      await expect(recovery).rejects.toThrow('FILE_RESOURCE_VERIFY_STALE')
+      expect(f.view.abandonUnconfirmedSave()).toBe(false)
+      expect((await f.dataSet.saveChanges(input)).success).toBe(true)
+      expect(f.write).toHaveBeenCalledOnce()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not let an old cleared capture abandon another view newer unknown write',async()=>{
+    const f=fixture()
+    try{
+      await f.view.refresh()
+      const peer=f.view.createQueryView('peer');peer.queryContext={pageId:'PAGE',fileName:'rule.json'};await peer.refresh()
+      f.write.mockRejectedValue(new Error('timeout'))
+      await f.view.editRowById(f.view.getPkKey(f.view.rows[0]!)!,{text:'A'})
+      await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default'}]})).rejects.toThrow('timeout')
+      expect((await f.view.verifySourceWriteAttempt()).state).toBe('not-applied')
+      f.view.acknowledgeSourceWriteAttempt()
+      await peer.editRowById(peer.getPkKey(peer.rows[0]!)!,{text:'B'})
+      await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'peer'}]})).rejects.toThrow('timeout')
+      expect(()=>f.view.abandonUnconfirmedSave()).toThrow('FILE_RESOURCE_SAVE_OWNER')
+      expect(peer.hasUnconfirmedSave).toBe(true)
+      expect(peer.abandonUnconfirmedSave()).toBe(true)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it.each(['create','update','delete'] as const)('retains confirmed %s until DataView acceptance across a late scope expiry',async operation=>{
+    const f=fixture()
+    let expired=false,armed=true
+    bindFileResourceAdapter(f.view,{resourceId:'page-files',contentField:'text',revisionField:'revision',
+      target:()=>({key:JSON.stringify(['PAGE','rule.json']),fields:{pageId:'PAGE',fileName:'rule.json'}}),transport:f.transport,
+      assertCurrent:()=>{
+        if(expired)throw new Error('late file scope expiry')
+        if(armed&&f.read.mock.calls.length>=3&&f.write.mock.calls.length+f.remove.mock.calls.length>0){armed=false;queueMicrotask(()=>{expired=true})}
+      }})
+    try{
+      if(operation==='create')f.current.text=null
+      await f.view.refresh()
+      const peer=f.view.createQueryView('peer')
+      peer.queryContext={pageId:'PAGE',fileName:'rule.json'}
+      await peer.refresh()
+      if(operation==='create')await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'submitted'})
+      else {
+        const id=f.view.getPkKey(f.view.rows[0]!)!
+        if(operation==='delete')await f.view.removeRow(id)
+        else await f.view.editRowById(id,{text:'submitted'})
+      }
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('late file scope expiry')
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      expired=false
+      if(operation==='create'){
+        f.current.text=null
+        expect((await f.view.verifySourceWriteAttempt()).state).toBe('unknown')
+        expect(f.view.hasUnconfirmedSave).toBe(true)
+        f.current.text='submitted'
+      }
+      expect(f.view.abandonUnconfirmedSave()).toBe(false)
+      f.view.acknowledgeSourceWriteAttempt()
+      peer.acknowledgeSourceWriteAttempt()
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      if(operation==='create')await peer.addRow({pageId:'PAGE',fileName:'rule.json',text:'submitted'})
+      else if(operation==='delete')await peer.removeRow(peer.getPkKey(peer.rows[0]!)!)
+      else await peer.editRowById(peer.getPkKey(peer.rows[0]!)!,{text:'submitted'})
+      await expect(f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'peer'}]})).rejects.toThrow('FILE_RESOURCE_SAVE_OWNER')
+      expect(peer.hasUnconfirmedSave).toBe(false)
+      expect(f.view.hasUnconfirmedSave).toBe(true)
+      let release:((value:{text:string;revision:string|null})=>void)|undefined
+      const stale=operation==='update'?(f.read.mockImplementationOnce(()=>new Promise(resolve=>{release=resolve})),peer.verifySourceWriteAttempt()):undefined
+      expect((await f.dataSet.saveChanges({views:[{tableName:'Files',viewId:'default'}]})).success).toBe(true)
+      if(stale){release?.({text:'submitted',revision:'v2'});await expect(stale).rejects.toThrow('FILE_RESOURCE_VERIFY_STALE')}
+      expect(f.write).toHaveBeenCalledTimes(operation==='delete'?0:1)
+      expect(f.remove).toHaveBeenCalledTimes(operation==='delete'?1:0)
+      expect(f.view.hasUnconfirmedSave).toBe(false)
+    }finally{f.dataSet.destroy()}
+  })
+
   it('rejects rebinding a file DataView to another target of the same resource',()=>{
     const f=fixture()
     try{

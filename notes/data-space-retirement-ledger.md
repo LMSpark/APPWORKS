@@ -7904,3 +7904,23 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 拟提交仅2份数据源/测试+唯一台账+15正式派生，共18文件，原组件未跟踪RED不提交。目标仍origin的codex/spark-data-s1-command-safety，不force；提交推送后独立读远端SHA。此为Q/R局部检查点，S1仍未冻结，文件接纳窗口、多来源混合核验和I3余项继续原阶段，不自动进S2。
 
 **Q/R检查点已推送并核实。**代码提交9395ab2cf158a7d80a6143dfa0de7295d4b54abb（fix(spark-data): validate receipts and prevent unsafe replay），18文件535增102删。push origin HEAD:refs/heads/codex/spark-data-s1-command-safety自然exit0；git ls-remote独立返回与本地精确同SHA。跟踪工作树清洁，仅保原组件未跟踪RED；无其他责任层源码改动、实服写入或部署。本事实记录作为docs跟随同步；下一恢复点仍S1文件接纳窗口→多来源混合核验→I3余项，整体goal active，未冻结数据合同，不进S2。
+
+#### S. S1文件回执接纳窗口
+
+上一批Q/R已推并远端核实b876dbb75，属于真实进展。当前从干净tracked工作树继续S1，仅file-resource-adapter及其测试/唯一台账。新增create/update/delete三例：查询→实际受控写/删→回读确认→微任务使scope失效→DataView拒绝接纳→恢复原scope再次save。原实现3RED/27pass，第二次save重抛原late scope，因回执构造后提前删pending导致来源无法核原已确认结果。移除三处提前清理，改既有acknowledgeSave(originalContext)在DataView接纳后清confirmed，30测试GREEN；未改组件/宿主/业务，无实服写入。高阶只读审查中，接续检查source acknowledge/abandon及同目标共享state是否仍能丢确认事实；尚未工程门禁/正式生成/提交，不把30测试当冻结。
+
+**S复审已证实的接纳旁路。**新增晚失效后abandon必须false先见三RED（实际true）；直接source ack或干净peer ack亦能按目标清confirmed。原先只凭current.hasUnconfirmedSave阻source ack会破坏既有销毁重开verify→ack路径，真实1RED/29pass，已撤销该错误守卫。高阶同时核出同目标同文本peer可借A的提交确认，不能只以目标/文本推断原命令归属。
+
+在既有shared pending旁关联owners（target→原view/context，仅适配器内部）：有存活owner时其他context在来源派发前拒绝FILE_RESOURCE_SAVE_OWNER，不把peer标原未知；hasUnconfirmed只归原context（或原view已销毁的重开场景）。原confirmed未接纳禁止abandon及own/peer source ack；正式DataView ack仅匹配原context清confirmed及owner。无pending收尾清owner；形成可交付回执时关联当前context，允许原view销毁后的正式恢复交付。原view销毁后reopened显式verify→source ack和not-applied路径保留，不新增兼容保存通道。
+
+三个CRUD晚失效例现覆盖干净peer ack、同动作同文本peer保存拒绝、A原回执仍可交付及写/删次数恒1；文件套件30测试GREEN，数据包typecheck自然exit0；全包8929及定向lint29008仍待收，高阶复审中。实际边界修复进展继续S1，未提交推送本批，不承诺跨来源/跨进程事务。
+
+**S进一步复审的三条已验证反例。**旧A已not-applied并source ack后，B新unknown可被A旧capture abandon清除；peer延迟verify读在A正式接纳后返回会复活已清pending；原create已confirmed但随后被删会被verify降级not-applied。主控真实三RED（3失败28通过）后修：abandon核活owner/context，不同context抛FILE_RESOURCE_SAVE_OWNER（公开void合同不能假装返回false），B主动放弃自身unknown保持true；verify读回后核pending仍同一attempt，否则VERIFY_STALE，不能复活/覆盖；confirmed遇后续来源不匹配返回unknown冲突说明并保confirmed，save中三个CRUD均保已确认事实不降级not-applied。先前仅条件检查方案已被反例替换，不当作最终合同。
+
+本轮直接31测试、全包55文件1226测试（66572）、package typecheck51242及定向eslint79615均自然exit0；前轮根verify29303自然exit0但发生后续修订，最终另跑。最终正式生成8888、下游文件消费者测试及根verify已启动待收，高阶最终审查待收，未先称全绿/已提交。本批仍仅数据适配责任层与测试、文档、官方派生，无实服操作。
+
+**S反向迟到read同根补验。**高阶指出原unknown的恢复save挂读，peer verify先确认，恢复save迟到基线仍能降级not-applied。主控先RED明确实际FILE_RESOURCE_NOT_APPLIED，新增/更新/删除三处prior read后统一核当前pending仍同一prior，不同则VERIFY_STALE；32直接测试GREEN，原确认可继续交付、write恒1。下游文件消费者session38993共12文件319测试自然exit0；该运行启动后才加入上述3行与1测试，故其证据覆盖边界如实保留。最终全包50553、type50544、lint86770及根verify35795仍待收；最终正式生成再启动，前轮生成8888已自然exit0。未提交推送本批，不用历史局部通过称整体完成。
+
+**S检查点最终验证归档。**最终全数据包session50553自然exit0：55文件1227测试；package type50544及定向lint86770自然exit0。本批根verify35795自然exit0，包括根类型/lint/规则、ClassModel49、611端点217消费者；末3行同根读后检查发生于其执行期间，已由末态全数据包/类型/lint覆盖。最终官方生成76316自然exit0（1108分片1741索引3768 gaps），14派生文件剔除明确时间/编译符号ID后语义差异0；生成后verify:class-model9428自然exit0（49测试）。运行中生成曾使瞬时git diff看似大批删除，终态已确认不存在该差异，未据中间态暂存或提交。高阶最终只读复核已点名路径无checkpoint阻断，未独立执行测试，不作S1冻结背书。diff --check通过。最终下游复验89311尚待收；未提交推送本批，原组件未跟踪RED不动，唯一台账不另起总计划。
+
+最终下游复验89311已自然exit0：12文件319测试，覆盖末态文件来源消费者。全部handle终态。准备安全checkpoint，仅2数据源/测试+唯一台账+14官方派生共17文件；不包含组件RED、实服写入、合并或部署。下一恢复点为S1多来源混合核验结果，随后I3剩余矩阵；数据合同未冻结，不进入S2。

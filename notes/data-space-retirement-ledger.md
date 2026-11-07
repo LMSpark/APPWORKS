@@ -7866,3 +7866,7 @@ gpt-6-astra/high继续只读核固定1147b00，未改文件/发服务请求。�
 **S1命令检查点提交前验证结论。**session59536自然exit0：拟提交范围501文件9179测试通过，949.13s；仅排除明确未跟踪且不提交的组件RED，整工作树首轮失败记录不删除。session60608根verify全链自然exit0（包括真实类型/lint/架构/各规则），package typecheck/lint及1197测试结果沿上述有效范围。最终再正式generate:class-model-surface session1413自然exit0，1108分片/1741索引/3769 gaps；相对已测索引16份刷新均仅明确时间、符号ID或无语义排序差异（读原JSON对照，未手改）；生成后verify:class-model session60140四文件49测试及verify:lowcode-contracts均自然exit0。高阶当前批审查已吸收，现可提交本批局部检查点，但I3余项及三项新反例仍未核销，绝非S1冻结/全迁移完成。
 
 **提交与推送限定。**目标origin的codex/spark-data-s1-command-safety在预检时不存在，不覆盖1031/其他分支，不force、不合并/部署。仅数据层源/测试、S1数据库回执适配、唯一台账与官方ClassModel/消费者派生；遗留组件测试不动不提交。下一步提交此已验快照、push该独立分支并独立核远端SHA，结果在后续台账/最终消息如实补记；不提前写已推送。全部运行handle已收终态，无需重启完整测试；后续实现从通用多行回执反例继续S1，不进入S2。
+
+**S1局部检查点已提交推送并独立核实。**代码提交38fdaf0dcabab18fbef0a0542b3a7dbefc60de7f（fix(spark-data): preserve command identity and confirmed receipts），207文件1689增444删；精确白名单外0、未暂存tracked变化0，原组件RED未包含。git push --set-upstream origin HEAD:refs/heads/codex/spark-data-s1-command-safety自然exit0，新建远端分支；随后git ls-remote独立读回SHA与本地上述SHA完全一致。此检查点包含9179拟提交范围测试通过、根verify通过及最终ClassModel49测试证据，不包含实服写入、合并或部署；整个工作树仍保留未跟踪组件RED，不称其全绿。
+
+**当前恢复位置。**用户适时提交推送要求本批已落实；这条事实补记单独作为docs提交同步，不改已测代码。S1仍未冻结，下一实施批先用通用模型多行回执重复/覆盖反例RED开展，随后独立处理文件接纳窗口与多来源混合核验，余下I3按集中阶段完成后再验收冻结。不会因已推送局部检查点进入S2或把20包范围缩小。目标继续active，不标complete/blocked；没有活跃测试/生成句柄待收，无需重跑既有全套直到新的改动或具体失败使其必要。

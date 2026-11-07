@@ -7998,3 +7998,5 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **U/V检查点门禁终态。**根verify65737自然exit0，含根类型/lint、ClassModel49、611端点216消费者及其它正式规则；既有2模型警告/84薄页诊断仍在，不称零差距。数据库族13文件208测试、定向lint均通过。14份正式ClassModel派生剔除明确时间/编译符号ID后语义差异0；消费者派生仅去Sys错误引用、更新GetData源定位（unmatched127→126），端点总数不变。git diff --check通过，所有验证/烟测handle已终态。未重跑完整全仓，不沿用T首次完整失败为本批通过。
 
 本批可安全提交：一个预览数据适配的删除式修正、替代旧错误测试/夹具、正式派生/契约README纠偏、U实服有界CRUD及跨会话清理证据、唯一台账。只改S1责任层及测试文档产物，无组件/页面/Java修改、无角色或兼容层；无测试对象待清，用户凭据未入证据/提交。只主worktree，原组件RED不动。下一仍S1数据库SyncMetaData未知结果弱核验与真实attach身份绕过，先RED再方案/实现/重验；未冻结数据合同、不进S2，历史一次性转换尚待所涉存量结构映射核定，不把本烟测当历史迁移。
+
+**U/V已提交推送并独立核实。**代码0f92524b2cc9e011c1c1b6f60c08e19e9c0d5d36（fix(database): preserve public preview query rejection），21文件188增113删；push origin同一codex/spark-data-s1-command-safety自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，仅保原S2组件未跟踪RED；U实服对象已清，密码/token未入提交。事实补记docs跟随同步。恢复位置为S1 SyncMetaData的非空/空目录不等于本次结果及真实attach同名短路，不提前进入组件；整体goal active，仍需I3全组证据与其余20包阶段工作。

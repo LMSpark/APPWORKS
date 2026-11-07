@@ -20,7 +20,7 @@ class Service extends ApiBackend{
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 async function fixture(existing?:Service){
- const http=existing??new Service(),scope={token:'scope',headers:{'X-AppId':'APP'}},config=new ScenarioViewConfig(EXCEL,topicTexts[EXCEL]!)
+ const http=existing??new Service(),scope={token:'scope',headers:{'X-AppId':'APP','tenant-id':'tenant'}},config=new ScenarioViewConfig(EXCEL,topicTexts[EXCEL]!)
  if(!existing)http.records={Base_Import_solution:[{rowid:'OLD',solutionName:'原方案',coding:''}],Base_DataSet:[{rowid:'SPACE',Name:'目标空间'}],Base_UserInfo:[]}
  const runtime=new DataSpaceRuntimeApi({http,readScope:()=>scope}),bindings=createExcelCatalogBindings({config,http,readScope:()=>scope,assertCurrent:()=>undefined})
  const {dataSet:ds}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:EXCEL,name:'Excel'},models:topicModels(EXCEL),relations:[],...bindings});sets.push(ds)

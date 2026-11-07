@@ -19,6 +19,7 @@ export type {
 } from './catalog/lowcode-catalog-api.js'
 export { LowcodeDesignApi } from './design/lowcode-design-api.js'
 export { LowcodeDesignFileUpload } from './design/lowcode-design-file-upload.js'
+export {ExcelTemplateUploadResource,type PreparedExcelTemplateUpload,type ExcelTemplateUploadResourceInput} from './platform/resources/semi-structured/excel-import/template-upload-resource.js'
 export type {
   LowcodeFileDirectory,
   LowcodeFileEntry,
@@ -28,6 +29,8 @@ export type {
 export type {
   LowcodeDesignFileUploadCommand,
   LowcodeDesignFileUploadResult,
+  LowcodeBinaryFileUploadCommand,
+  LowcodeBinaryFileUploadReceipt,
 } from './design/lowcode-design-file-upload.js'
 export { DataSpaceApi } from './platform/data-space/data-space-api.js'
 export { DataSpaceDesignApi, DATA_SPACE_DESIGN_FORM_KEY } from './platform/data-space/design/data-space-design-api.js'

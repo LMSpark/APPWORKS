@@ -1,4 +1,4 @@
-import {describe, expect, it, vi} from 'vitest'
+import {describe, expect, it} from 'vitest'
 import {RequestState} from '@spark-appworks/spark-data'
 import {DictionarySchema} from './schema'
 import {DictionaryHttp, fixture, initialDefinition, initialEntry} from './tests/workspace.fixture'
@@ -190,7 +190,7 @@ describe('Dictionary resource through formal DataViews', () => {
       {...initialEntry, rowid: 'B', ordIdx: 20, val: 'B'},
       {...initialEntry, rowid: 'C', ordIdx: 30, val: 'C'},
     ]
-    http.deniedByRow.C = ['ordIdx']
+    http.deniedByRow['C'] = ['ordIdx']
     const {workspace, dataSet} = fixture(http)
     try {
       await workspace.load()
@@ -355,7 +355,7 @@ describe('Dictionary resource through formal DataViews', () => {
     const waiting = new Promise<void>(resolve => {started = resolve})
     const gate = new Promise<void>(resolve => {release = resolve})
     http.beforeRead = async config => {
-      if (config.url === '/api/DataOperation/GetData') {http.beforeRead = undefined; started(); await gate}
+      if (config.url === '/api/DataOperation/GetData') {delete http.beforeRead; started(); await gate}
     }
     try {
       const loading = workspace.load()
@@ -375,7 +375,7 @@ describe('Dictionary resource through formal DataViews', () => {
     const gate = new Promise<void>(resolve => {release = resolve})
     http.afterResponse = async config => {
       if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {
-        http.afterResponse = undefined
+        delete http.afterResponse
         started()
         await gate
       }
@@ -678,7 +678,7 @@ describe('Dictionary resource through formal DataViews', () => {
     expect.soft(workspace.entries.getEditingRow('E1')?.['exVal_4']).toBe('被拒后保留的草稿')
     expect.soft(workspace.pending).toBe(true)
     expect.soft(http.saves).toHaveLength(1)
-    http.rejectWrite = undefined
+    delete http.rejectWrite
 
     await expect.soft(workspace.saveData()).resolves.toBeUndefined()
 

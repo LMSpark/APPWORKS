@@ -3064,12 +3064,12 @@
     "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json",
-      "sourceModifiedAt": "2026-11-01T21:12:14.714Z"
+      "sourceModifiedAt": "2026-11-07T14:35:21.548Z"
     },
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-07T10:41:39.947Z"
+      "sourceModifiedAt": "2026-11-07T13:16:28.653Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3295,6 +3295,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint.ts.json",
       "sourceModifiedAt": "2026-10-06T20:57:27.510Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json",
+      "sourceModifiedAt": "2026-11-07T14:35:21.550Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
@@ -4169,7 +4174,12 @@
     "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts.json",
-      "sourceModifiedAt": "2026-11-07T11:28:33.609Z"
+      "sourceModifiedAt": "2026-11-07T13:44:53.423Z"
+    },
+    "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/catalog/template.ts.json",
+      "sourceModifiedAt": "2026-11-07T14:50:36.794Z"
     },
     "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
@@ -5229,7 +5239,7 @@
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-07T11:25:45.045Z"
+      "sourceModifiedAt": "2026-11-07T14:28:36.641Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue",

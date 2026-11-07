@@ -73,7 +73,7 @@ function authenticatedFileApi(http: FixtureHttpClient): TestLowcodeApi {
   const reader = vi.fn<TestApplicationReader>(async (applicationId, assertCurrent) => {
     assertCurrent()
     const current = apiReference.value?.application.get()
-    if (current === null) throw new Error('application fixture missing')
+    if (!current) throw new Error('application fixture missing')
     return {...current.application, id: applicationId}
   })
   const rootReader = vi.fn<TestNavigationRootReader>(async (systemId, assertCurrent) => {
@@ -317,7 +317,7 @@ describe('LowcodePlatformApi', () => {
 
   it('does not commit a directory reader result after cancellation during its wait', async () => {
     const pending = deferred<{id: string; name: string}>()
-    const reader = vi.fn(async (id: string, assertCurrent: () => void) => {
+    const reader = vi.fn(async (_id: string, assertCurrent: () => void) => {
       assertCurrent()
       const application = await pending.promise
       assertCurrent()

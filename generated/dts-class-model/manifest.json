@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1106,
+  "scannedFileCount": 1108,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10582,11 +10582,13 @@
         "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "design/lowcode-design-file-upload",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:design/lowcode-design-file-upload\n职责：经既有 multipart 端点上传工作文本或禁止覆盖的文件名快照。\n边界：保留 UTF-8 原字节，核对 scope 和字节回读；快照确认不等于发布或 CAS。\nAI用途：上传后核对实际 filePath 最终名与原字节，再接纳文件写入结果。",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:design/lowcode-design-file-upload\n职责：经既有 multipart 端点上传工作文本、文件名快照或原生二进制模板。\n边界：文本保留UTF-8，二进制保留原File；二进制ACK与字节核验分开，不等于业务路径已保存。\nAI用途：上传后核对实际 filePath 最终名与原字节，再接纳文件写入结果。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDesignFileUploadCommand",
           "LowcodeDesignFileUploadResult",
+          "LowcodeBinaryFileUploadCommand",
+          "LowcodeBinaryFileUploadReceipt",
           "LowcodeDesignFileUpload"
         ]
       }
@@ -11312,6 +11314,23 @@
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeProjectBlueprintRecord"
+        ]
+      }
+    },
+    "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts": {
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/template-upload-resource",
+        "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "platform/resources/semi-structured/excel-import/template-upload-resource",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/template-upload-resource\n职责：将本次原File的上传/原ACK字节核验接入声明命令DataView。\n边界：不建表、不保存方案、不删除共享文件；未知只核原ACK，原File在取消或正式路径发布后释放。\nAI用途：首次装配声明命令时绑定原File与正式方案证明，按原回执核验后交还可信路径。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "PreparedExcelTemplateUpload",
+          "ExcelTemplateUploadResourceInput",
+          "ExcelTemplateUploadResource"
         ]
       }
     },
@@ -14065,6 +14084,19 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/semi-structured/excel-import/catalog/creation",
         "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/catalog/creation\n职责：编排本次方案Added确认、一次领码和原行coding回写。\n边界：字段与回执仅保存在原DataView；此处只持身份、阶段及校验证据，不创建查询或保存owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/catalog/template.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/catalog/template",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/catalog/template",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/catalog/template\n职责：原File选择、声明模板命令及原方案templatePath写回编排。\n边界：业务值只在DataView；RAM只持File、身份、阶段和原查询证明，不建立查询/保存owner。\nAI用途：沿选取、原命令确认和原方案路径发布编排页面交互，未知只恢复首轮提交。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -20988,6 +21020,14 @@
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/target-selection.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/target-selection.ts.json"
     },
+    "ExcelTemplateUploadResource": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json"
+    },
+    "ExcelTemplateUploadResourceInput": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json"
+    },
     "ExcelTransformExportProjection": {
       "sourcePath": "src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts",
       "file": "files/src/lowcode/resources/semi-structured/excel-import/transform/export-fields.ts.json"
@@ -21643,6 +21683,14 @@
     "LowcodeApplicationStoreOptions": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-application-store.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/lowcode-application-store.ts.json"
+    },
+    "LowcodeBinaryFileUploadCommand": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json"
+    },
+    "LowcodeBinaryFileUploadReceipt": {
+      "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json"
     },
     "LowcodeBlueprintFileName": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
@@ -22815,6 +22863,10 @@
     "PreparedBusinessCodeAssignment": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts.json"
+    },
+    "PreparedExcelTemplateUpload": {
+      "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+      "file": "files/packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts.json"
     },
     "PrimaryKeyDelegate": {
       "sourcePath": "packages/spark-data/src/strategies/primary-key-delegate.ts",

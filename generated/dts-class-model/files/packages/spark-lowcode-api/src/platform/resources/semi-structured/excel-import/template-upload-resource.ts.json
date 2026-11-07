@@ -1,0 +1,487 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/template-upload-resource",
+    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+    "sourceFile": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+    "packageName": "@spark-appworks/spark-lowcode-api",
+    "modulePath": "platform/resources/semi-structured/excel-import/template-upload-resource",
+    "jsdoc": "@module @spark-appworks/spark-lowcode-api:platform/resources/semi-structured/excel-import/template-upload-resource\n职责：将本次原File的上传/原ACK字节核验接入声明命令DataView。\n边界：不建表、不保存方案、不删除共享文件；未知只核原ACK，原File在取消或正式路径发布后释放。\nAI用途：首次装配声明命令时绑定原File与正式方案证明，按原回执核验后交还可信路径。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "PreparedExcelTemplateUpload",
+      "ExcelTemplateUploadResourceInput",
+      "ExcelTemplateUploadResource"
+    ]
+  },
+  "$defs": {
+    "PreparedExcelTemplateUpload": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreparedExcelTemplateUpload",
+      "properties": {
+        "scenarioId": {
+          "type": "string"
+        },
+        "schemeId": {
+          "type": "string"
+        },
+        "file": {
+          "type": "object",
+          "title": "File"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertReady.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertReady.return": true,
+        "method.assertPublished.params": {
+          "type": "object",
+          "properties": {
+            "templatePath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertPublished.return": true,
+        "method.assertUnpublished.params": {
+          "type": "object",
+          "properties": {
+            "templatePath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertUnpublished.return": true
+      }
+    },
+    "ExcelTemplateUploadResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTemplateUploadResourceInput",
+      "properties": {
+        "upload": {
+          "$ref": "../../../../design/lowcode-design-file-upload.ts.json#/$defs/LowcodeDesignFileUpload"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "../../../data-space/runtime/data-space-runtime-contract.ts.json#/$defs/DataSpaceRequestScope"
+        },
+        "method.prepare.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "row": {
+              "$ref": "../../../../../../spark-data/src/types.ts.json#/$defs/DataRow"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.prepare.return": {
+          "$ref": "#/$defs/PreparedExcelTemplateUpload"
+        }
+      }
+    },
+    "ExcelTemplateUploadResource": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ExcelTemplateUploadResource",
+      "properties": {
+        "resourceId": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/ExcelTemplateUploadResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
+        },
+        "method.releaseCancelled.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseCancelled.return": true,
+        "method.assertConfirmed.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertConfirmed.return": {
+          "type": "string"
+        },
+        "method.releaseUnpublished.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releaseUnpublished.return": true,
+        "method.releasePublished.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            },
+            "id": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.releasePublished.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T14:35:21.550Z",
+  "models": {
+    "PreparedExcelTemplateUpload": {
+      "name": "PreparedExcelTemplateUpload",
+      "jsdoc": "宿主基于原正式方案DataView提供的输入与同步证明；回调不返回替代数据或重新查询。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本次原方案所属的数据空间身份。 */\n    scenarioId: string;\n    /** 独立查询及路径写回唯一使用的原方案主键。 */\n    schemeId: string;\n    /** 用户选择的原生File，仅留本次RAM。 */\n    file: File;\n    /** 同步重核原正式方案、查询范围及当前路径写权限；不查询、不派发。 */\n    assertReady(): void;\n    /** 同步核已独立回读的正式方案采用此路径，不能以本地草稿作证明。 */\n    assertPublished(templatePath: string): void;\n    /** 同步核已独立回读的原方案尚未采用此路径，供明确保留未发布文件。 */\n    assertUnpublished(templatePath: string): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本次原方案所属的数据空间身份。 */\n    scenarioId: string;\n    /** 独立查询及路径写回唯一使用的原方案主键。 */\n    schemeId: string;\n    /** 用户选择的原生File，仅留本次RAM。 */\n    file: File;\n    /** 同步重核原正式方案、查询范围及当前路径写权限；不查询、不派发。 */\n    assertReady(): void;\n    /** 同步核已独立回读的正式方案采用此路径，不能以本地草稿作证明。 */\n    assertPublished(templatePath: string): void;\n    /** 同步核已独立回读的原方案尚未采用此路径，供明确保留未发布文件。 */\n    assertUnpublished(templatePath: string): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "scenarioId",
+              "jsdoc": "本次原方案所属的数据空间身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "schemeId",
+              "jsdoc": "独立查询及路径写回唯一使用的原方案主键。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "file",
+              "jsdoc": "用户选择的原生File，仅留本次RAM。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertReady",
+              "jsdoc": "同步重核原正式方案、查询范围及当前路径写权限；不查询、不派发。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertPublished",
+              "jsdoc": "同步核已独立回读的正式方案采用此路径，不能以本地草稿作证明。",
+              "parameters": [
+                {
+                  "name": "templatePath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertUnpublished",
+              "jsdoc": "同步核已独立回读的原方案尚未采用此路径，供明确保留未发布文件。",
+              "parameters": [
+                {
+                  "name": "templatePath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExcelTemplateUploadResourceInput": {
+      "name": "ExcelTemplateUploadResourceInput",
+      "jsdoc": "声明模板命令的存储适配输入；SDK负责文件I/O，宿主只提供原方案同步证明。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 同一请求身份下的原File上传与字节核验能力。 */\n    upload: LowcodeDesignFileUpload;\n    /** 读取本次真实执行域，用于切换后拒绝旧意图。 */\n    readScope: () => DataSpaceRequestScope;\n    /** 从当前命令标量身份定位本次RAM File及原正式方案证明，不返回另一份业务草稿。 */\n    prepare(view: DataView, row: Readonly<DataRow>): PreparedExcelTemplateUpload;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 同一请求身份下的原File上传与字节核验能力。 */\n    upload: LowcodeDesignFileUpload;\n    /** 读取本次真实执行域，用于切换后拒绝旧意图。 */\n    readScope: () => DataSpaceRequestScope;\n    /** 从当前命令标量身份定位本次RAM File及原正式方案证明，不返回另一份业务草稿。 */\n    prepare(view: DataView, row: Readonly<DataRow>): PreparedExcelTemplateUpload;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "upload",
+              "jsdoc": "同一请求身份下的原File上传与字节核验能力。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "jsdoc": "读取本次真实执行域，用于切换后拒绝旧意图。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "DataSpaceRequestScope",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts"
+              }
+            },
+            {
+              "name": "prepare",
+              "jsdoc": "从当前命令标量身份定位本次RAM File及原正式方案证明，不返回另一份业务草稿。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "row",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "DataRow"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PreparedExcelTemplateUpload",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "ExcelTemplateUploadResource": {
+      "name": "ExcelTemplateUploadResource",
+      "jsdoc": "一DataSet一资源；同方案只有一个活动上传，File及ACK不进入JSON命令行。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "捕获本次原执行域；同DataSet首次绑定后，不允许第二个资源实例重置上传责任。",
+          "signatureText": "constructor(input: ExcelTemplateUploadResourceInput)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "ExcelTemplateUploadResourceInput",
+                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "resourceId",
+              "jsdoc": "正式pagedata声明使用的命令资源身份，不充当后端模型ID。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "首次装配只绑定声明命令；refresh保留已确认只读回执，不再次上传。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
+            },
+            {
+              "name": "releaseCancelled",
+              "jsdoc": "仅释放已由原DataView取消的未派发File输入；本方法不取消数据，不删除文件。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "assertConfirmed",
+              "jsdoc": "在业务暂存与公共保存捕获前核原私有ACK及当前只读行，返回可信路径，不信任可直接变动的展示行。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "releaseUnpublished",
+              "jsdoc": "显式保留已确认但未发布的文件；宿主须独立回读证明原方案未采用，保留只读定位且不物理删除。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "releasePublished",
+              "jsdoc": "宿主已独立确认正式templatePath后释放原File及ACK证据；保留命令只读结果，不改业务或物理文件。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                },
+                {
+                  "name": "id",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

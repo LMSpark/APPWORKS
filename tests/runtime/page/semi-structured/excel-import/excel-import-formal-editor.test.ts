@@ -22,7 +22,7 @@ vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === EXCEL_DESIGN ? designText : id === SOURCE_SCENE ? sourceText : id===EXCEL_DICTIONARY?dictionaryText:topicTexts[id] ?? null}}),
-  lowcodeApi: {readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}}), dataSpace: {
+  lowcodeApi: {readRequestScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76','tenant-id':'tenant'}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'Excel'}),
       readModelBatch: async ({dataSpaceId, metaNames}: {dataSpaceId: string; metaNames: string[]}) => (dataSpaceId === EXCEL_DESIGN ? excelDesignModels() : dataSpaceId === SOURCE_SCENE ? await sourceModels() : dataSpaceId===EXCEL_DICTIONARY?excelDictionaryReferenceModels():topicModels(dataSpaceId)).filter(model => metaNames.includes(model.metaName)),
@@ -44,7 +44,7 @@ beforeEach(() => {
     Base_Import_Transform_Rule: [{id: 'R1', scheme_id: 'E1', config_id: 'C1', rule_name: '去空格', rule_type:'TRIM', source_field:'code', target_field:'code', sort_order:10, enabled:1, on_error:'FAIL_ROW', condition_json:'', config_json: '{"keep":true}'}],
     ImportExportMethods: [{rowid: 'M1', val: 'tree', txt: '树形导入', ordIdx: 1}],
   }
-  state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76'}})})
+  state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: 'scope', headers: {'X-AppId': 'D99A1DCE9894698799101EFD70F8FC76','tenant-id':'tenant'}})})
   registerAllRenderers()
   const stubs = {...original}; for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column', 'el-tree']) delete stubs[key]
   config.global.stubs = stubs

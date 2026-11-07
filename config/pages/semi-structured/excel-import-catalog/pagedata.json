@@ -19,6 +19,17 @@
         "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}}
       }}
     },
+    "TemplateUpload": {
+      "resourceType": "command", "resourceId": "excel:template-upload",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "schemeId", "type": "string"},
+        {"name": "originalName", "type": "string"},
+        {"name": "size", "type": "number"},
+        {"name": "templatePath", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
+    },
     "BusinessCodeAssignment": {
       "resourceType": "command", "resourceId": "business-code:assignment",
       "columns": [

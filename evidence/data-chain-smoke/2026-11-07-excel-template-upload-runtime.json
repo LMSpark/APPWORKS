@@ -1,0 +1,455 @@
+{
+  "status": "verified-checkpoint-runtime-cleaned",
+  "scope": "owned Excel template upload, DataView path publication, replacement and exact cleanup; not full Excel or twenty-package acceptance",
+  "testedAt": "2026-11-07",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "source": [
+    {
+      "path": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "sha256": "7cb26c6f8a828408a67c5169fecb7a96f65beb682f3ec86e77803631a34c2780"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+      "sha256": "6d46d7f0fbfc91cdb6bae2401c9fa111d515fcab23217917e89f123911289ad5"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/index.ts",
+      "sha256": "7fbe2c272af515ec625f6893d27e12677aeb27fbe1d67e7b8b93f32f99c7cb4c"
+    },
+    {
+      "path": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+      "sha256": "5edd6311d68945ccd50d6ace0e9a27daf9530615cd23cad35e130d6d333d5975"
+    },
+    {
+      "path": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "sha256": "3713000f3d715d883fe576912ca2ce3396a6952a9c87e005157d0d388e9e10e0"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "sha256": "f103b68aa8a2ac264a599102c8583fa450600c2fa623bc7967bc3247c16270e8"
+    },
+    {
+      "path": "config/pages/semi-structured/excel-import-catalog/pagedata.json",
+      "sha256": "606aaa5988b63e18f6b7272d3fee020c88e9696c077b74abe571c5c68e643467"
+    }
+  ],
+  "runtime": {
+    "firstActor": {
+      "pid": 5548,
+      "exitCode": 1,
+      "stage": "preflight",
+      "ownedFixtureCreated": false,
+      "identityFailureCause": "unproven; frozen second actor succeeded without production auth changes"
+    },
+    "uploadActor": {
+      "pid": 13764,
+      "exitCode": 1,
+      "businessWrites": 4,
+      "uploads": 2,
+      "reads": 58,
+      "deletedFiles": 0,
+      "failure": "test cleanup command omitted mandatory guard; failed before any file deletion",
+      "id": "B6856AC05E56295368C3A74E3599DDD7",
+      "marker": "SMOKE_TEMPLATE_1794060908025",
+      "bytes": 1402,
+      "sha256": "e27cb5e3accb665e313f78cf2ed3bb892f80b330e6d4e09428d912bcf2beb0a3",
+      "proofs": [
+        "native Added independently read",
+        "File selection/cancel zero requests",
+        "A uploaded and original scheme templatePath independently read",
+        "B uploaded and original scheme templatePath independently read",
+        "A and B remain exact SHA",
+        "scheme deleted and independently absent"
+      ]
+    },
+    "firstCleanup": {
+      "pid": 25460,
+      "terminalSignal": "SIGTERM",
+      "sdkUnknownPreserved": true,
+      "knownNotDispatched": true,
+      "deletions": 0,
+      "reason": "projection excluded inherited createtime sort; local rejection before unique removeFile; misclassified by test adapter",
+      "highReview": "migration_architecture_plan read-only reviewed exact script and audit before stopping only local checkpoint timer"
+    },
+    "finalCleanup": {
+      "pid": 3904,
+      "exitCode": 0,
+      "reads": 14,
+      "deletions": 2,
+      "businessWrites": 0,
+      "uploads": 0,
+      "schemeAbsent": true,
+      "bothOriginalShaMatched": true,
+      "formalReferencesPerFile": 0,
+      "bothFilesIndependentlyAbsent": true,
+      "unknown": false
+    },
+    "importPosts": 0,
+    "allocations": 0,
+    "exportPosts": 0,
+    "addedBeforeSaveActor": {
+      "pid": 11472,
+      "exitCode": 0,
+      "id": "DC4BFA9E3ACF3D784A6B709624EABF49",
+      "marker": "SMOKE_TEMPLATE_1794063303931",
+      "selectedDuringNativeAdded": true,
+      "formalOriginalPath": null,
+      "uploads": 1,
+      "businessWrites": 3,
+      "deletions": 1,
+      "reads": 48,
+      "templatePathOnlyChanged": true,
+      "independentPathAndShaConfirmed": true,
+      "schemeIndependentAbsence": true,
+      "ownedFileIndependentAbsence": true,
+      "unknown": false,
+      "lifecycle": "cleaned",
+      "scope": "native Added data contract fixture; no production coding allocation or import/export consumer claimed"
+    },
+    "allOwnedFixturesCleaned": true
+  },
+  "finalGates": {
+    "state": "passed-standard-gates-original-two-worker-baseline",
+    "originalRootRun": {
+      "exitCode": 1,
+      "files": 501,
+      "tests": 9133,
+      "failed": 49,
+      "passed": 9084,
+      "durationSeconds": 670.43,
+      "causes": [
+        "47 old Excel editor fixtures missing formal tenant-id; repaired and whole 47-test file passed",
+        "2 15000ms timeouts during concurrent heavy generation/smoke; isolated originals passed without timeout change"
+      ]
+    },
+    "fullRootRerunRequired": false,
+    "previousFullRootPass": {
+      "exitCode": 0,
+      "files": 501,
+      "tests": 9133,
+      "durationSeconds": 654.76,
+      "log": "artifacts/data-chain-smoke/excel-template-root-tests-v7.log",
+      "beforeFinalAddedNullFix": true
+    },
+    "semanticBaseline": {
+      "baselineTotal": 3769,
+      "baselineGate": 747,
+      "newGaps": 0,
+      "strictZeroGapCheck": "not passing due existing 747 gate gaps; no standard gate weakened",
+      "proof": "artifacts/data-chain-smoke/excel-template-final-semantic-gap-baseline-v9.json"
+    },
+    "addedNullRootRun": {
+      "exitCode": 1,
+      "files": 501,
+      "tests": 9134,
+      "passed": 9133,
+      "failed": 1,
+      "durationSeconds": 709.01,
+      "failure": "existing complete operation-target UI journey exceeded 15000ms; same test isolated passed, previous full root run passed",
+      "log": "artifacts/data-chain-smoke/excel-template-root-tests-v10.log"
+    },
+    "workflowHarness": {
+      "change": "scoped locator experiment was reverted; original full cancel/reselect/save/reopen test and all assertions restored",
+      "isolatedSeconds": 5.47,
+      "wholeWorkflowFile": {
+        "passed": 88,
+        "exitCode": 0
+      },
+      "rootRerun": "passed original full test under original explicit two-worker baseline",
+      "profiling": "temporary Node inspector body-only CPU sampling; profiling changes restored; no production or timeout modifications",
+      "committedChange": false
+    },
+    "latestStandardVerify": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/excel-template-final-verify-v10.log"
+    },
+    "latestBuild": {
+      "exitCode": 0,
+      "log": "artifacts/data-chain-smoke/excel-template-final-build-v10.log"
+    },
+    "workerConfigurationCorrection": {
+      "originalCheckpointCommand": "pnpm exec vitest run --maxWorkers=2",
+      "mistake": "v5/v7/v10/v11 commands omitted explicit cap and used automatic pool; prior narration that worker count stayed two was incorrect",
+      "machineAvailableParallelism": 12,
+      "liveWorkersAtStoppedV11Snapshot": 11,
+      "v11Root": 30048,
+      "v11Terminal": "stopped only verified wrong-configuration non-production test pool; preserved stop proof",
+      "correctedRun": {
+        "command": "pnpm exec vitest run --maxWorkers=2",
+        "session": 21311,
+        "rootPid": 19452,
+        "observedWorkers": 2,
+        "state": "passed",
+        "log": "artifacts/data-chain-smoke/excel-template-root-tests-v12-two-workers.log",
+        "exitCode": 0,
+        "files": 501,
+        "tests": 9134,
+        "durationSeconds": 1230.0
+      }
+    },
+    "finalRoot": {
+      "command": "pnpm exec vitest run --maxWorkers=2",
+      "exitCode": 0,
+      "files": 501,
+      "tests": 9134,
+      "durationSeconds": 1230.0,
+      "timeoutMs": 15000,
+      "log": "artifacts/data-chain-smoke/excel-template-root-tests-v12-two-workers.log",
+      "originalWorkflowTestRestored": true
+    }
+  },
+  "open": [
+    "ExportExcel actual template consumption including sentinel/output not tested",
+    "real import remains gated on owned target/task ledger/archive cleanup contracts",
+    "whole-scheme cascade deletion and KEY command still require their own acceptance",
+    "browser visual acceptance not performed",
+    "full twenty-package migration not complete"
+  ],
+  "artifacts": [
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-runtime.mts",
+      "sha256": "91abc29c950439b81fde97186697b4a023251f10eaf4392dd989ade1c5ee98db"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-runtime-audit.json",
+      "sha256": "5ec405640c3a52c22e9e0f42b63db4cb84ba583c0b64a3786f29c7e4d78d70f1"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-runtime-v2.mts",
+      "sha256": "863fecbd49858c1725aae7f0fb4d294278528617e34ce9a9a018fbe230836fc9"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-runtime-v2-run.mts",
+      "sha256": "56fc465673c21dea4cf59c2326a9252aedf441a52b2deacd29cf7909b20d1615"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-runtime-v2-audit.json",
+      "sha256": "346eebafa26b5c5dcef493d4f958019fd094609e61d53856302902fb8a9dbcdc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-cleanup.mts",
+      "sha256": "5a2ba2f4c355aa27c4b6015f427bba0864f4809fd6954551351d58e589a86f9f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-cleanup-prestop.json",
+      "sha256": "708c2a7488eae4e68388dfe8236ad89ae4bcd1055acc67f39c611da09e3075e7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-cleanup-stop-proof.json",
+      "sha256": "f3dc061d66adffbdc8d19618e6a8c9e977c74ce02698f194e19a0ee5375f5136"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-cleanup-v2.mts",
+      "sha256": "e446079a391cbc61dcc8e8da533f3f224d680a504249ce43024877677ebe11ea"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-cleanup-v2-run.mts",
+      "sha256": "b67309b3f5baed661627fa7ca51583fbb879eaa57054338948fbf6cec989b064"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-cleanup-v2-audit.json",
+      "sha256": "a905144df4afb5e3e82cc88a3455ea360dc899a64f5fd60bfa85c75165501a71"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned.xlsx",
+      "sha256": "e27cb5e3accb665e313f78cf2ed3bb892f80b330e6d4e09428d912bcf2beb0a3"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-review-red.log",
+      "sha256": "48c3e2a59582724dc2d180ce774c4f563f5448c75f359c88214de557f742bded"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-review-green-v1.log",
+      "sha256": "bb040774f3f6d50503c3c8f58eee0852a0da083e7f9ac422f2e8cf423db1c67d"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-local-cancel-red.log",
+      "sha256": "ec4a57741b0e1679041ffe262da55082fa40c2705b8ab00f1d9427ec72dd9bf6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-local-cancel-green.log",
+      "sha256": "5dc3dd8c42c6b06cf99f531335863f4ed365e49ec2234b9d7ee55e982a57e691"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-page-confirm-v1.log",
+      "sha256": "77e4547bb6ac899b25c9956910a0d8ab36c89fefddfb385974b0727ba43f6e47"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-root-tests-v5.log",
+      "sha256": "c319f2256429c32db952b5b65299d09a54a0994269535098f149db3b5d1128f6"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-formal-editor-repair-v1.log",
+      "sha256": "d3c44aeef7f6597ecb786af7c285584b7685b01563575e33442cdc09ac9c328e"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-timeout-chain-isolated-v1.log",
+      "sha256": "68b56effafefb60c1f0d467a0c50c02493e98ae61889bb8d3fb7070fb72efe83"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-timeout-workflow-isolated-v1.log",
+      "sha256": "c491525669a0031e1472a0a34a7b5dad94cdcb9a9f1d55231c5be7e9dc23d2be"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-generated-audit.json",
+      "sha256": "7096c6ce97656ebf134c797c8c133e4e2fd11bff101ce903f4799805154af355"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-root-tests-v7.log",
+      "sha256": "3119c98bca52388a32d3760076de41e410d626478b53ec47571cefcfadb03d50"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-class-model-v9.log",
+      "sha256": "fb262f6b2e73785b979e19661410e49354e496afb46ac404efac6b7d0d00ce75"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-guides-v9.mts",
+      "sha256": "b229549f9707569fa7a37aac5d8050d89f1531e3e8f287edfee936b816a2bd8c"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-guides-v9.log",
+      "sha256": "a940407eeb95d1cdbbe74b78205c0188441664d2aed529915a07a6c839e8c839"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-semantic-gap-baseline.json",
+      "sha256": "93b9d1d4a0285597f096c3ef158dbeaa71d47e5644dbbf0e1d72ed19931596f8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-added-null-red.log",
+      "sha256": "b4371cc076bf4d56ea37a2bb52942a8e5d9c26679fae3f160a7c50027417b3db"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-added-null-green.log",
+      "sha256": "bf67923412649d14189b6a5074871bef0b0ebc51ad9d2994492962c010ba6991"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-added-first.mts",
+      "sha256": "237a4a4b14753db232288d8a6efd51d655a6891608d4406ee084c9924521460f"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-added-first-run.mts",
+      "sha256": "eb33be55b08903f236eff95fee31d6b3b0ce492b1e2aa0ad97d6215463f2e7c0"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-owned-added-first-audit.json",
+      "sha256": "6db0f720d1efc5818662467c9800912b21cc9b23c453ec93bd903d79f51d2bf2"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-verify-v10.log",
+      "sha256": "ed8633f82bf8247c0a5f2ac0ed79565ba3352400cb5e68ec501472cc0ec57a71"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-build-v10.log",
+      "sha256": "83380b46087b431130e8cc5fe5d75e765e26beb68a2d93ceb9aac57045041cf7"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-root-tests-v10.log",
+      "sha256": "393eefd13fa13f1f39b63eb02b6acea49f7a815467594b8a6b5ce9a43ed3c459"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-semantic-gap-baseline-v9.json",
+      "sha256": "93b9d1d4a0285597f096c3ef158dbeaa71d47e5644dbbf0e1d72ed19931596f8"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-guide-schema-v9.log",
+      "sha256": "5580fa45616b8c6551f120eb3c0da514e9c5898b73ecd8f51c0a563b432d2afc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-workflow-timeout-profile-v2.log",
+      "sha256": "d503a2c08428f8a20b21e872e3f1a136ee6b405f768eff4598b1a1b9e096fcfc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-workflow-body-profile.log",
+      "sha256": "d02eb3f736bae3d64c918d8ed1981a12f368ab1f2c96b0d9ac533905dc52841a"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-operation-target.cpuprofile",
+      "sha256": "dd78ee927c152ac682834efb640bf5861263f4fbf725f4328a90e0685a519ba5"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-workflow-scoped-selectors-v1.log",
+      "sha256": "dec7a2be30620bb983aa6b3ce1dac18388e77f3db326f7ce368c3e0960c71c78"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-workflow-scoped-suite-v1.log",
+      "sha256": "fe370c7dddc8f13d1e3ece376bfe8805fd00f3a2c14945469ced6651cc211997"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-workflow-scoped-lint-v1.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-wrong-pool-stop-proof.json",
+      "sha256": "e10eb0144eb4549f5d77dfc1b9841e351f388581a6a1d07cc6e0f4d7b9ae3142"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/workflow-design-profile-original.txt",
+      "sha256": "3dead90b1f88956bb6a3aa49f127ff8175f8ef0904132fbcb5b9c3444a8d1233"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-root-tests-v12-two-workers.log",
+      "sha256": "6050dd7f50db85f3e67194c4b9de8f9e24a2852dc6436856c90ed8634143a1fc"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-source-freeze.json",
+      "sha256": "00671e055a0a281c87214895583338a83632b90a420776a8b340f10cff107d82"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-types-v11.log",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-sdk-full-v5.log",
+      "sha256": "570071b14b5c40e4fba447c05b1813d12662538cb186497acd05ad3b60333627"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-sdk-types-v5.log",
+      "sha256": "d66548006c5c7c54f315f252a8864713f539323f6c6187c23bb7db83274361fa"
+    },
+    {
+      "path": "artifacts/data-chain-smoke/excel-template-final-contracts-v9.log",
+      "sha256": "fb47869e3bc6f70ded31e46a96c2e11b33c55570add0568c5500302cd664acc3"
+    }
+  ],
+  "sourceAtFirstRuntime": [
+    {
+      "path": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
+      "sha256": "ac38d58c8952f22397b6ab0d682f570b60a569303791006faa353b9d7d651cc9"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/platform/resources/semi-structured/excel-import/template-upload-resource.ts",
+      "sha256": "94a80926ed6a29bb8feb8ca9adfe13f0f2471b17f5eba1125fa2a0e4b2b795a5"
+    },
+    {
+      "path": "packages/spark-lowcode-api/src/index.ts",
+      "sha256": "7fbe2c272af515ec625f6893d27e12677aeb27fbe1d67e7b8b93f32f99c7cb4c"
+    },
+    {
+      "path": "src/lowcode/resources/semi-structured/excel-import/catalog/template.ts",
+      "sha256": "d55c7217742f555fa7c798006aaf6bbaaadb05f42e52c0a028830cb88da427d2"
+    },
+    {
+      "path": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "sha256": "3713000f3d715d883fe576912ca2ce3396a6952a9c87e005157d0d388e9e10e0"
+    },
+    {
+      "path": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
+      "sha256": "6239a2495ad2f557dc21430c5a245c194811b46703cacb728697974661e658e5"
+    },
+    {
+      "path": "config/pages/semi-structured/excel-import-catalog/pagedata.json",
+      "sha256": "606aaa5988b63e18f6b7272d3fee020c88e9696c077b74abe571c5c68e643467"
+    }
+  ],
+  "reviews": {
+    "highModel": "migration_architecture_plan",
+    "initialIssuesFixed": [
+      "freeze selection baseline",
+      "verify private ACK before path staging and public capture",
+      "recheck readiness after async File read before dispatch",
+      "do not cancel released completed resource",
+      "explicitly retain confirmed unpublished file"
+    ],
+    "finalIssue": "Added undefined vs formal SQL NULL used inconsistent comparison; observed RED then fixed by adopting independently proven formal old value before dispatch; GREEN and live owned proof"
+  }
+}

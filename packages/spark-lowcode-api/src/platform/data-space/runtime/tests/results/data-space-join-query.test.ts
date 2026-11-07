@@ -528,7 +528,7 @@ it('rejects child projection changes during asynchronous acceptance and after pu
 it('rejects independent child sort and filter commands before changing accepted state', async () => {
   const {child, http} = parentResultViews(false)
   await child.requestData()
-  const result = child.currentQueryResult, before = JSON.stringify(child.toJson())
+  const assertOriginal = child.captureReadRow(child.rows[0]!,['detailId','detailName']), before = JSON.stringify(child.toJson())
   for (const run of [
     () => child.setSort([{field: 'detailName', direction: 'asc'}]),
     () => child.setSort(undefined),
@@ -537,7 +537,7 @@ it('rejects independent child sort and filter commands before changing accepted 
   ]) {
     await expect(run()).rejects.toThrow('DATA_VIEW_PARENT_QUERY')
     expect(JSON.stringify(child.toJson())).toBe(before)
-    expect(child.currentQueryResult).toBe(result)
+    expect(assertOriginal).not.toThrow()
     expect(child.rows[0]?.['detailId']).toBe('FIRST')
     expect(http.calls).toHaveLength(1)
   }
@@ -572,7 +572,7 @@ it.each(['scope', 'missing', 'identity', 'cycle'] as const)('still rejects inval
       queryConfig: {...saved.queryConfig, parentResult: {...saved.queryConfig.parentResult, dataViewKey: 'SPACE@Orders@smoke'}},
     } : {})}}
   }
-  const child = json.tables.DetailConfig!.views.smoke!, parent = json.tables.RootConfig!.views.smoke!
+  const child = json.tables['DetailConfig']!.views['smoke']!, parent = json.tables['RootConfig']!.views['smoke']!
   const source = child.queryConfig!.parentResult!
   if (kind === 'scope') child.queryConfig = {...child.queryConfig, parentResult: {...source, dataViewKey: 'OTHER@Orders@smoke'}}
   if (kind === 'missing') child.queryConfig = {...child.queryConfig, parentResult: {...source, dataViewKey: 'SPACE@Orders@missing'}}

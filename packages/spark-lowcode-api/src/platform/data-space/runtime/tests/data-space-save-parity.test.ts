@@ -5,7 +5,6 @@ import { requireDataSpaceMutationInput, failDataSpaceMutationWithoutEffect } fro
 import { DataSpaceQueryContext } from '../query/data-space-query-context'
 import { DataSpaceQueryTable } from '../protocol/data-space-query-table'
 import { DataSpaceRequest } from '../protocol/data-space-request'
-import { LowcodeApiError } from '../../../../core/lowcode-api-error'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 
@@ -484,7 +483,7 @@ describe('SPARK save private query baseline', () => {
     expect(enriched.fieldAccess(3,'name').write).toBe('denied');expect(enriched.deleteActionState(3)).not.toBe('enabled')
   })
 
-  it.each([[{id:3}], [{id:3},{id:3}], [{id:4}]])('rejects incomplete, duplicate or unrelated saved-row permission queries %j',rows=>{
+  it.each([{rows:[{id:3}]}, {rows:[{id:3},{id:3}]}, {rows:[{id:4}]}, {rows:[{id:9}]}])('rejects incomplete, duplicate or unrelated saved-row permission queries %j',({rows})=>{
     const {context}=fixture()
     const accepted=context.acceptSaveReceipt({requested:{added:[{id:3},{id:4}]},receipt:{metaName:'Orders',added:[{id:3},{id:4}],changed:[],deleted:[]}}).context
     const table=new DataSpaceQueryTable({scenarioId:'SCENE',metaName:'Orders'})

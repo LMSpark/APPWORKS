@@ -3,7 +3,7 @@ import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
 import ElementPlus from 'element-plus'
-import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, registerAllRenderers} from '@spark-appworks/spark-component'
+import {RendererTable, RendererDialog, RendererButton, RendererForm, RendererFilter, RendererFilterExpression, FieldText, FieldSelect, FieldRadio, FieldCheckboxGroup, Spark, registerAllRenderers,PAGE_SERVICE,useSparkComponent,type PageServiceCapability} from '@spark-appworks/spark-component'
 import {DataViewFilter,DataViewFilterCodec} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
@@ -21,7 +21,7 @@ const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runti
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => topicTexts[id] ?? null}}),
-  lowcodeApi: {readRequestScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId}}), dataSpace: {
+  lowcodeApi: {readRequestScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId,'tenant-id':'tenant'}}), dataSpace: {
     get runtime() {return state.runtime}, design: {
       readSpaceDefinition: async ({dataSpaceId}: {dataSpaceId: string}) => ({dataSpaceId, name: 'formal topic'}),
       readModelBatch: async ({dataSpaceId, metaNames}: {dataSpaceId: string; metaNames: string[]}) => topicModels(dataSpaceId).filter(model => metaNames.includes(model.metaName)),
@@ -32,9 +32,12 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 const original = {...config.global.stubs}, wrappers: VueWrapper[] = []
 class TopicBackend extends ApiBackend{
  allocations=0
+ templateRequests:RequestConfig[]=[]
  allocationBody:unknown={Code:200,Result:'EXCEL-NEW'}
  conflictCode=false
  protected override async executeRequest(request:RequestConfig):Promise<HttpResponse<unknown>>{
+  if(request.url==='/api/File/UploadFile'){this.templateRequests.push(request);return{data:{Code:200,Result:[{state:'success',filePath:'/tenant/xlsxtemp/actual.xlsx'}]},status:200,statusText:'OK',headers:{}}}
+  if(request.url==='/api/File/DownFile'){this.templateRequests.push(request);return{data:new Uint8Array([0,255]).buffer,status:200,statusText:'OK',headers:{}}}
   if(request.url.startsWith('/api/Codeing/GetCodeString/')){this.allocations++;if(this.conflictCode){const id=request.url.split('/').at(-2),row=this.records['Base_Import_solution']?.find(row=>row['rowid']===id);if(row)row['coding']='EXTERNAL'}return{data:this.allocationBody,status:200,statusText:'OK',headers:{}}}
   return super.executeRequest(request)
  }
@@ -50,13 +53,23 @@ beforeEach(() => {
     Base_DataSet: [{rowid: 'S1', Name: '订单空间'}], Base_UserInfo: [{ID: 'USER1', ROWID: 'U1', UserName: '张三'}],
     Base_FileInspectConfig: [{id: 'P1', name: '发票规则', description: '正式PDF规则', enabled: 1}],
   }
-  state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId}})})
+  state.runtime = new DataSpaceRuntimeApi({http: state.http, readScope: () => ({token: `scope:${state.appId}`, headers: {'X-AppId': state.appId,'tenant-id':'tenant'}})})
   registerAllRenderers()
   const stubs = {...original}; for (const key of ['SparkComponentRenderer', 'spark-component-renderer', 'el-table', 'el-table-column']) delete stubs[key]
   config.global.stubs = stubs
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['cancel','upload'] as const)('uses standard Excel template buttons through %s',async mode=>{
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}}]});await router.push('/catalog');await router.isReady()
+    const file=new File([new Uint8Array([0,255])],'chosen.xlsx'),browse=vi.fn(async()=>[{name:file.name,size:file.size,type:file.type,lastModified:file.lastModified,file}]),upload=vi.fn(async()=>{throw Error('page upload forbidden')})
+    const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'excel-template-host'});const service:PageServiceCapability={copyText:async()=>{},showMessage:()=>{},showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=>'cancel',selectEntities:async()=>[],browseFiles:browse,uploadFiles:upload,showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
+    const click=async(label:string)=>{const button=wrapper.findAll('button').find(item=>item.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+    await click('编辑');await click('选择模板');expect(browse).toHaveBeenCalledWith({title:'选择Excel模板',accept:'.xls,.xlsx',multiple:false});expect(wrapper.text()).toContain('chosen.xlsx');expect(upload).not.toHaveBeenCalled();expect(state.http.saves).toEqual([])
+    if(mode==='cancel'){await click('取消选择');expect(wrapper.text()).not.toContain('chosen.xlsx');expect(state.http.saves).toEqual([]);await click('取消修改');expect((state.http as TopicBackend).templateRequests).toEqual([])}
+    else{await click('确认上传模板');await vi.waitFor(()=>expect(wrapper.text()).toContain('已保存'));expect(state.http.saves).toHaveLength(1);expect(state.http.saves[0]).toMatchObject({changed:[{rowid:'E1',templatePath:'/tenant/xlsxtemp/actual.xlsx'}]});await click('关闭');expect((state.http as TopicBackend).templateRequests).toHaveLength(2)}
+    expect(wrapper.findComponent(RendererForm).exists()).toBe(false);await click('编辑');expect(wrapper.getComponent(RendererForm).props('contextRowId')).toBe('E1');expect(wrapper.text()).not.toContain('chosen.xlsx')
+  })
   it.each(['cancel','save','unknown-code','conflict-end','read-failure-end'] as const)('creates an Excel scheme through the standard pinned form with %s',async outcome=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/catalog');await router.isReady()
     const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))

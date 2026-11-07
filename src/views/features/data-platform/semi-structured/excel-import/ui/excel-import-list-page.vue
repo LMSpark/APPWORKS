@@ -11,14 +11,21 @@
       <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :actions="actions" :filter="filter" :stripe="true"
         :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
       <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" :title="creating ? '新增方案' : '编辑方案'"
-        :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved" @update:model-value="closeEdit">
+        :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved || templatePending" @update:model-value="closeEdit">
         <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验原保存；不会重复提交。</p>
         <p v-else-if="creationSaved" role="status">方案已保存，请继续完成原方案的编码处理。</p>
         <RendererForm :key="editingId" :context-row-id="editingId" :data-view-key="catalogKey" :children="editorFields"
           :grid-columns="1" label-width="88px" :show-data-view-meta="false" />
+        <RendererButton label="选择模板" :data-view-key="catalogKey" :disabled="acting || unconfirmed || templateDispatched || !pageService?.browseFiles" @click="chooseTemplate" />
+        <p v-if="templateUpload" role="status">模板：{{ templateUpload.name }}；{{ templateUpload.phase === 'retained' ? '文件已保留，尚未发布' : templateUpload.phase === 'complete' ? '已保存' : templateDispatched ? '正在确认文件及方案路径' : '已选择，尚未上传' }}</p>
+        <RendererButton v-if="templateUpload?.phase === 'selected'" label="取消选择" :data-view-key="catalogKey" :disabled="acting" @click="cancelTemplate" />
+        <p v-if="templateUpload?.phase === 'retained'" role="status">未发布文件：{{ templateUpload.retainedPath }}</p>
+        <RendererButton v-if="templateUpload?.phase === 'publication' && !templateUpload.unconfirmed" label="保留文件并结束" :data-view-key="catalogKey" :disabled="acting" @click="retainTemplate" />
+        <RendererButton v-if="templateUpload && templateUpload.phase !== 'complete' && templateUpload.phase !== 'retained'" :label="templateUpload.unconfirmed ? '核验原模板结果' : '确认上传模板'" :data-view-key="catalogKey"
+          :disabled="acting || pending || creationSaved || creating || (!templateUpload.unconfirmed && unconfirmed)" @click="uploadTemplate" />
         <template #footer>
-          <RendererButton :label="unconfirmed ? '核验保存结果' : creationSaved ? '继续完成新增' : '保存方案'" :disabled="acting" @click="saveEdit" />
-          <RendererButton label="取消修改" :disabled="acting || unconfirmed || creationSaved" @click="cancelEdit" />
+          <RendererButton :label="unconfirmed ? '核验保存结果' : creationSaved ? '继续完成新增' : '保存方案'" :disabled="acting || templateDispatched" @click="saveEdit" />
+          <RendererButton :label="templateUpload?.phase === 'complete' || templateUpload?.phase === 'retained' ? '关闭' : '取消修改'" :disabled="acting || unconfirmed || creationSaved || (templateDispatched && templateUpload?.phase !== 'upload')" @click="cancelEdit" />
           <RendererButton v-if="creationSaved" label="保留方案并结束" :disabled="acting || unconfirmed" @click="endCreation" />
         </template>
       </RendererDialog>
@@ -39,29 +46,36 @@ import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,type RToolbarProps,type RFilterProps} from '@spark-appworks/spark-component'
+import * as SparkComponent from '@spark-appworks/spark-component'
+import type {RToolbarProps,RFilterProps} from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/lowcode/resources/semi-structured/excel-import/catalog/creation'
+import {selectExcelTemplate,cancelExcelTemplate,saveExcelTemplate,readExcelTemplate,retainExcelTemplate} from '@/lowcode/resources/semi-structured/excel-import/catalog/template'
 import ExcelEditor from './excel-import-editor-page.vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
+const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent}=SparkComponent
 const route = useRoute()
 const designTarget = ref('')
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
 const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
-const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-list-page'})
+const {sparkProvide, sparkRemove,sparkConsume} = useSparkComponent({type: 'excel-import-list-page'})
+const pageService=sparkConsume(PAGE_SERVICE)
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId=ref<string|number>(),acting=ref(false)
 const creation=computed(()=>{revision.value;const ds=view.value?.dataSet;return ds?readExcelSchemeCreation(ds):undefined})
+const templateUpload=computed(()=>{revision.value;const ds=view.value?.dataSet;return ds?readExcelTemplate(ds):undefined})
+const templateDispatched=computed(()=>!!templateUpload.value&&templateUpload.value.phase!=='selected'&&templateUpload.value.phase!=='complete'&&templateUpload.value.phase!=='retained')
+const templatePending=computed(()=>!!templateUpload.value&&templateUpload.value.phase!=='complete'&&templateUpload.value.phase!=='retained')
 const creating=computed(()=>creation.value!==undefined&&creation.value.phase!=='complete'&&creation.value.phase!=='retained')
 const creationSaved=computed(()=>creating.value&&creation.value?.phase!=='input')
 const pending=computed(()=>{revision.value;return view.value?.hasEditingChanges()===true||view.value?.dirtyTracking.hasPendingChanges()===true})
-const unconfirmed=computed(()=>{revision.value;return view.value?.hasUnconfirmedSave===true||creation.value?.unconfirmed===true})
+const unconfirmed=computed(()=>{revision.value;return view.value?.hasUnconfirmedSave===true||creation.value?.unconfirmed===true||templateUpload.value?.unconfirmed===true})
 const querying=computed(()=>{revision.value;return loading.value||view.value?.requestState===RequestState.Loading||view.value?.requestState===RequestState.Preparing})
 const locked=computed(()=>querying.value||acting.value||editingId.value!==undefined||pending.value||unconfirmed.value||!!designTarget.value)
-useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unconfirmed.value||designPending.value||creating.value}})
-onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value)
-onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value)
+useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unconfirmed.value||designPending.value||creating.value||templatePending.value}})
+onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value&&!templatePending.value)
+onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value&&!templatePending.value)
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
@@ -95,10 +109,10 @@ const fields = computed<SparkNode[]>(() => [
   {type:'r-text',props:{field:'createtime',label:'创建时间',width:140}},
 ])
 const editorFields=computed<SparkNode[]>(()=>[
-  {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value||creationSaved.value}},
-  {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value||creationSaved.value}},
+  {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
+  {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
   {type:'r-text',props:{field:'templatePath',label:'文件路径',readonly:true}},
-  {type:'r-textarea',props:{field:'description',label:'备注',maxlength:500,showWordLimit:true,readonly:acting.value||unconfirmed.value||creationSaved.value}},
+  {type:'r-textarea',props:{field:'description',label:'备注',maxlength:500,showWordLimit:true,readonly:acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value}},
 ])
 async function createScheme():Promise<void>{
  const ds=view.value?.dataSet,own=generation;if(!ds||locked.value)return
@@ -120,20 +134,43 @@ async function saveEdit():Promise<void>{
   try{
    if(creating.value){await saveExcelSchemeCreation(current);if(readExcelSchemeCreation(current)?.phase!=='complete')return;await target.refresh();if(target.loadingError)throw target.loadingError}
    else{const result=await current.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'方案保存未完整确认')}
-   if(active&&own===generation)editingId.value=undefined
+   if(active&&own===generation&&!templatePending.value){cancelExcelTemplate(current);editingId.value=undefined}
   }
   catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
   finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
-function cancelEdit():void{if(acting.value||unconfirmed.value||creationSaved.value||editingId.value===undefined)return;try{const ds=view.value?.dataSet;if(creating.value&&ds)cancelExcelSchemeCreation(ds);else view.value?.discardPendingChanges([editingId.value]);editingId.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-async function endCreation():Promise<void>{
- const ds=view.value?.dataSet,own=generation;if(!ds||acting.value||unconfirmed.value)return
+function cancelEdit():void{if(acting.value||unconfirmed.value||creationSaved.value||templateDispatched.value&&templateUpload.value?.phase!=='upload'||editingId.value===undefined)return;try{const ds=view.value?.dataSet;if(ds)cancelExcelTemplate(ds);if(creating.value&&ds)cancelExcelSchemeCreation(ds);else view.value?.discardPendingChanges([editingId.value]);editingId.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+async function chooseTemplate():Promise<void>{
+ const ds=view.value?.dataSet,id=editingId.value,own=generation
+ if(!ds||typeof id!=='string'||acting.value||unconfirmed.value||templateDispatched.value||!pageService?.browseFiles)return
  acting.value=true;error.value=''
- try{await endExcelSchemeCreation(ds);if(active&&own===generation)editingId.value=undefined}
+ try{const files=await pageService.browseFiles({title:'选择Excel模板',accept:'.xls,.xlsx',multiple:false});if(active&&own===generation&&editingId.value===id&&files[0])selectExcelTemplate(ds,id,files[0].file)}
  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
-function closeEdit(open:boolean):void{if(!open&&!acting.value&&!pending.value&&!unconfirmed.value&&!creating.value)editingId.value=undefined}
+function cancelTemplate():void{const ds=view.value?.dataSet;if(!ds||acting.value)return;try{cancelExcelTemplate(ds);revision.value++;error.value=''}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+async function uploadTemplate():Promise<void>{
+ const ds=view.value?.dataSet,own=generation;if(!ds||acting.value||pending.value||creating.value)return
+ acting.value=true;error.value=''
+ try{await saveExcelTemplate(ds);if(readExcelTemplate(ds)?.phase==='complete'){await view.value?.refresh();if(view.value?.loadingError)throw view.value.loadingError}}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+async function retainTemplate():Promise<void>{
+ const ds=view.value?.dataSet,own=generation;if(!ds||acting.value||unconfirmed.value)return
+ acting.value=true;error.value=''
+ try{await retainExcelTemplate(ds)}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+async function endCreation():Promise<void>{
+ const ds=view.value?.dataSet,own=generation;if(!ds||acting.value||unconfirmed.value)return
+ acting.value=true;error.value=''
+ try{await endExcelSchemeCreation(ds);if(active&&own===generation&&!templatePending.value){const ds=view.value?.dataSet;if(ds)cancelExcelTemplate(ds);editingId.value=undefined}}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function closeEdit(open:boolean):void{if(!open&&!acting.value&&!pending.value&&!unconfirmed.value&&!creating.value&&!templatePending.value){const ds=view.value?.dataSet;if(ds)cancelExcelTemplate(ds);editingId.value=undefined}}
 function openEditor(row?:DataRow):void {
   if(locked.value)return
   const id=row&&view.value?view.value.getPkKey(row):selected.value

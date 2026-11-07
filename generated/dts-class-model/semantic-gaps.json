@@ -10994,7 +10994,7 @@
       "chainBreak": "LowcodeDesignFileUploadOptions.http 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -11006,7 +11006,7 @@
       "chainBreak": "LowcodeDesignFileUploadOptions.readScope 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "typeAlias"
     },
@@ -11018,7 +11018,7 @@
       "chainBreak": "LowcodeDesignFileUploadCommand.customPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 18,
+      "declarationLine": 19,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -11030,7 +11030,7 @@
       "chainBreak": "LowcodeDesignFileUploadCommand.fileName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -11042,7 +11042,7 @@
       "chainBreak": "LowcodeDesignFileUploadCommand.text 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 20,
+      "declarationLine": 21,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "interface"
     },
@@ -11054,7 +11054,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadWorkingText 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 31,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },
@@ -11066,7 +11066,7 @@
       "chainBreak": "LowcodeDesignFileUpload.uploadTextVersion 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "declarationLine": 32,
+      "declarationLine": 56,
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "declarationKind": "class"
     },

@@ -9,6 +9,8 @@ import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {isRecord,type HttpClientBase} from '@spark-appworks/spark-utils'
 import type {LowcodeDataSpaceAssemblerInput} from '../../../../data-space/lowcode-data-space-assembler'
 
+import {bindExcelTemplate} from './template'
+
 const scene='36B01771C627B9BF5CD493DC75B996A1',model='Base_Import_solution',commandTable='BusinessCodeAssignment',rule='A3A38857F7584319844A826EF9AAA881'
 const fields=['solutionName','description','dataSetId','templatePath'] as const
 type Phase='input'|'created'|'allocation'|'writeback'|'complete'|'retained'
@@ -58,14 +60,14 @@ export function createExcelCatalogBindings(input:Input):Pick<LowcodeDataSpaceAss
  input.assertCurrent()
  const tables=input.config.toJSON()['tables'],table=isRecord(tables)?tables[commandTable]:undefined,definition=isRecord(tables)?tables[model]:undefined,binding=isRecord(definition)?definition['modelBinding']:undefined
  if(!isRecord(table)||table['resourceType']!=='command'||table['resourceId']!==BusinessCodeAssignmentResource.resourceId||!isRecord(binding)||binding['modelId']!==`${scene}p000`||binding['modelName']!==model)throw Error('EXCEL_CREATION_BINDING: 正式方案或领码声明不符')
- return{commandBindings:{[commandTable]:command=>{
+ return{commandBindings:{TemplateUpload:command=>bindExcelTemplate(command,{...input,creationReady:()=>{const ds=command.dataSet;if(!ds)return false;const phase=readExcelSchemeCreation(ds)?.phase;return phase===undefined||phase==='complete'||phase==='retained'}}),[commandTable]:command=>{
   const ds=command.dataSet,catalog=ds?.getView(model),target=ds?.getView(model,'editorTarget')
   if(ds?.scenarioId !== scene||!catalog||!target||command.viewId!=='default'||states.has(ds)||catalog.dataTable?.modelBinding?.modelId!==`${scene}p000`||catalog.dataTable.modelBinding.modelName!==model)throw Error('EXCEL_CREATION_BINDING: 首次实例或原视图不符')
   const context=JSON.stringify(catalog.queryContext),execution=scopeSignature(input),declaration=()=>JSON.stringify([target.queryConfig,target.filterExpression,target.sortExpression]),targetDefinition=declaration()
   const scope=()=>{input.assertCurrent();if(ds.destroyed||[catalog,target,command].some(view=>view.destroyed||ds.getView(view.tableName,view.viewId)!==view)||JSON.stringify(catalog.queryContext)!==context||scopeSignature(input)!==execution||declaration()!==targetDefinition)throw Error('Excel新增原实例或查询范围已变化')}
   const state:State={ds,catalog,target,command,scope,intent:undefined,busy:false,permit:false};states.set(ds,state)
   // 同一模型的公共保存捕获重核真实差异，防止暂存通知和异步预检期间夹入其他列。
-  catalog.dataTable.setQuerySaveRule({groups:[{fields:['coding'],validate:()=>{
+  catalog.dataTable.setQuerySaveRule({groups:[...(catalog.dataTable.querySaveRule?.groups??[]),{fields:['coding'],validate:()=>{
    const intent=state.intent
    if(intent?.phase==='writeback'&&(target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges()))assertOnlyCoding(state,intent,assignedCode(state,intent))
   }}]})

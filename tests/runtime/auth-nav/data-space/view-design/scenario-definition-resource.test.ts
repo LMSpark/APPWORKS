@@ -52,6 +52,21 @@ function fixture(text: string | null = JSON.stringify(initial)) {
 const target = (view: DataView) => view.rows.find(row => row['tableName'] === 'Parents' && row['viewId'] === 'one')!
 
 describe('formal definition resources through SPARK data', () => {
+  it('does not let a sibling query context consume an original pending file submission',async()=>{
+    const storage=fixture(),{dataSet}=storage.open()
+    try{
+      const layout=dataSet.getView('DataSpaceLayoutDefinition')!,peer=layout.createQueryView('peer')
+      await layout.refresh();await peer.refresh()
+      for(const view of [layout,peer])view.updateEditingValue(view.getPkKey(view.rows[0]!)!,'modelPositions',{P:{x:1,y:2}})
+      storage.loseResponse()
+      await expect(dataSet.saveChanges({views:[{tableName:layout.tableName,viewId:layout.viewId}]})).rejects.toThrow('response lost')
+      await expect(dataSet.saveChanges({views:[{tableName:peer.tableName,viewId:peer.viewId}]})).rejects.toThrow('SCENARIO_DEFINITION_PENDING')
+      expect(layout.hasUnconfirmedSave).toBe(true);expect(peer.hasUnconfirmedSave).toBe(false)
+      expect((await dataSet.saveChanges({views:[{tableName:layout.tableName,viewId:layout.viewId}]})).success).toBe(true)
+      expect(storage.writes).toHaveLength(1)
+    }finally{dataSet.destroy()}
+  })
+
   it('keeps the original DataView dirty after an explicit not-applied write and allows retry', async () => {
     const storage = fixture(), {dataSet, view, workspace} = storage.open()
     try {

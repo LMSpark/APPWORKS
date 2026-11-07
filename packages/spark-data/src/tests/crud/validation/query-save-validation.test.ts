@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DataSet, DataSetSavePreflightError } from '../../../dataset'
-import { DataView } from '../../../data-view'
+import { DataView, DataViewSaveNotAppliedError } from '../../../data-view'
 import type { DataRow } from '../../../types'
 import { DataValidator } from '../../../validation/validation'
 
@@ -32,7 +32,7 @@ async function resourceOwners(beforeDatabaseSave: () => Promise<void> = async ()
   const batches: string[][] = []
   type SaveCommand = Parameters<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>>[0]
   const owner = (database: boolean) => ({
-    hasUnconfirmedSave: vi.fn(() => false),
+    hasUnconfirmedSave: vi.fn((_context: unknown) => false),
     executeQuery: async (view: DataView) => query(view.tableName, structuredClone(stored.get(view.tableName)!)),
     save: vi.fn(async (command: SaveCommand) => {
       if (database) await beforeDatabaseSave()
@@ -55,6 +55,177 @@ async function resourceOwners(beforeDatabaseSave: () => Promise<void> = async ()
 }
 
 describe('formal query-save receipt identity', () => {
+  it('does not cascade a recovered receipt into an unsubmitted child view',async()=>{
+    const f=await resourceOwners(),persist=f.database.save.getMockImplementation()!
+    let pending=false
+    f.database.hasUnconfirmedSave.mockImplementation(()=>pending)
+    f.database.save.mockImplementation(async command=>{
+      if(!pending){pending=true;throw new Error('lost')}
+      const receipts=await persist(command);pending=false
+      return receipts.map(receipt=>({...receipt,changed:receipt.changed.map(row=>({...row,title:'Formal title'})),
+        context:query('Items',[{id:'1',title:'Formal title'}])}))
+    })
+    try{
+      f.items.setCurrentRow(f.items.rows[0]!)
+      f.items.updateEditingValue('1','title','Submitted')
+      await expect(f.dataSet.saveChanges()).rejects.toThrow('lost')
+      f.dataSet.addCascade({parentTable:'Items',parentViewId:'default',childTable:'File',childViewId:'default',
+        filterBindings:[{sourceField:'title',targetField:'title'}]})
+      await Promise.resolve()
+      const childRows=[...f.file.rows],read=vi.spyOn(f.fileOwner,'executeQuery')
+      expect((await f.dataSet.resolveUnconfirmedSaves()).state).toBe('confirmed')
+      await Promise.resolve()
+      expect(read).not.toHaveBeenCalled()
+      expect(f.file.rows).toEqual(childRows)
+      expect(f.fileOwner.save).not.toHaveBeenCalled()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('recovers independent original batches of the same model row without cross-batch conflict',async()=>{
+    const f=await resourceOwners(),persist=f.database.save.getMockImplementation()!,pending=new Set<unknown>()
+    f.database.hasUnconfirmedSave.mockImplementation(context=>pending.has(context))
+    f.database.save.mockImplementation(async command=>{
+      const context=command.changes[0]!.context
+      if(!pending.has(context)){pending.add(context);throw new Error('lost')}
+      expect(command.changes).toHaveLength(1)
+      const receipts=await persist(command);pending.delete(context);return receipts
+    })
+    try{
+      const peer=f.items.createQueryView('peer');await peer.refresh()
+      for(const view of [f.items,peer]){
+        view.updateEditingValue('1','title',view.viewId)
+        await expect(f.dataSet.saveChanges({views:[{tableName:'Items',viewId:view.viewId}]})).rejects.toThrow('lost')
+      }
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'confirmed',views:[{viewId:'default',state:'confirmed'},
+        {viewId:'peer',state:'confirmed'}]})
+      expect(f.database.save).toHaveBeenCalledTimes(4)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not use a stale not-applied proof for a new capture on the same query context',async()=>{
+    const f=await resourceOwners(),lost=new Error('lost')
+    let pending=false,proof:DataViewSaveNotAppliedError|undefined
+    f.database.hasUnconfirmedSave.mockImplementation(()=>pending)
+    f.database.save.mockImplementation(async command=>{
+      if(proof){pending=true;throw proof}
+      if(!pending){pending=true;throw lost}
+      pending=false;proof=new DataViewSaveNotAppliedError(command.changes,'not applied');throw proof
+    })
+    try{
+      f.items.updateEditingValue('1','title','First')
+      await expect(f.dataSet.saveChanges()).rejects.toBe(lost)
+      expect((await f.dataSet.resolveUnconfirmedSaves()).state).toBe('not-applied')
+      f.items.updateEditingValue('1','title','New intent')
+      await expect(f.dataSet.saveChanges()).rejects.toBe(proof)
+      expect(f.items.hasUnconfirmedSave).toBe(true)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('accepts the first recoverable original batch before a later unverifiable batch stops recovery',async()=>{
+    const f=await resourceOwners(undefined,true),persist=f.database.save.getMockImplementation()!
+    let pending=false
+    f.database.hasUnconfirmedSave.mockImplementation(()=>pending)
+    f.database.save.mockImplementation(async command=>{
+      if(!pending){pending=true;throw new Error('item lost')}
+      const receipts=await persist(command);pending=false;return receipts
+    })
+    const saveOrders=f.orderOwner.save.getMockImplementation()!
+    f.orderOwner.save.mockImplementation(async command=>(await saveOrders(command)).map(receipt=>({...receipt,changed:[]})))
+    try{
+      f.items.updateEditingValue('1','title','Item')
+      await expect(f.dataSet.saveChanges({views:[{tableName:'Items',viewId:'default'}]})).rejects.toThrow('item lost')
+      f.orders.updateEditingValue('1','title','Order')
+      await expect(f.dataSet.saveChanges({views:[{tableName:'Orders',viewId:'default'}]})).rejects.toThrow('DATA_VIEW_SAVE_RECEIPT')
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'partial',views:[{tableName:'Items',state:'confirmed'},
+        {tableName:'Orders',state:'unknown'}]})
+      expect(f.database.save).toHaveBeenCalledTimes(2);expect(f.orderOwner.save).toHaveBeenCalledOnce()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it.each(['shared','independent'] as const)('recovers the original %s batches without writing a new file draft',async mode=>{
+    const f=await resourceOwners(),persist=f.database.save.getMockImplementation()!,pending=new Set<unknown>()
+    const originalBatches:unknown[][]=[],failure=new Error('same reusable transport error')
+    f.database.hasUnconfirmedSave.mockImplementation(context=>pending.has(context))
+    f.database.save.mockImplementation(async command=>{
+      const contexts=command.changes.map(change=>change.context)
+      if(!contexts.some(context=>pending.has(context))){originalBatches.push(contexts);contexts.forEach(context=>pending.add(context));throw failure}
+      const original=originalBatches.shift()
+      expect(contexts).toEqual(original)
+      contexts.forEach((context,index)=>expect(context).toBe(original?.[index]))
+      const receipts=await persist(command);contexts.forEach(context=>pending.delete(context));return receipts
+    })
+    try{
+      f.items.updateEditingValue('1','title','Item original');f.orders.updateEditingValue('1','title','Order original')
+      if(mode==='shared')await expect(f.dataSet.saveChanges()).rejects.toBe(failure)
+      else for(const name of ['Items','Orders'])await expect(f.dataSet.saveChanges({views:[{tableName:name,viewId:'default'}]})).rejects.toBe(failure)
+      f.file.updateEditingValue('1','title','New file draft')
+      f.items.updateEditingValue('1','title','Later item input')
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'confirmed',views:[{tableName:'Items',state:'confirmed'},
+        {tableName:'Orders',state:'confirmed'}]})
+      expect(f.database.save).toHaveBeenCalledTimes(mode==='shared'?2:4)
+      expect(f.fileOwner.save).not.toHaveBeenCalled()
+      expect(f.file.getEditingRow('1')?.['title']).toBe('New file draft')
+      expect(f.items.getEditingRow('1')?.['title']).toBe('Later item input')
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toEqual({state:'none',views:[]})
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('keeps a source without not-applied proof and a later unverified source unknown',async()=>{
+    const f=await resourceOwners(undefined,true),persist=f.database.save.getMockImplementation()!
+    const pending=new Set<unknown>(),failures=[new Error('item lost'),new Error('order lost'),new Error('file lost')]
+    const refusal=new Error('pending cleared without authoritative proof')
+    for(const [index,owner] of [f.database,f.orderOwner,f.fileOwner].entries()){
+      owner.hasUnconfirmedSave.mockImplementation(context=>pending.has(context))
+      owner.save.mockImplementation(async command=>{
+        const context=command.changes[0]!.context
+        if(!pending.has(context)){pending.add(context);throw failures[index]}
+        pending.delete(context)
+        if(index===0)return persist(command)
+        throw refusal
+      })
+    }
+    try{
+      for(const [name,view] of [['Items',f.items],['Orders',f.orders],['File',f.file]] as const){
+        view.updateEditingValue('1','title','Original')
+        await expect(f.dataSet.saveChanges({views:[{tableName:name,viewId:'default'}]})).rejects.toBe(failures[['Items','Orders','File'].indexOf(name)])
+      }
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'partial',views:[{tableName:'Items',state:'confirmed'},
+        {tableName:'Orders',state:'unknown',error:refusal},{tableName:'File',state:'unknown',error:failures[2]}]})
+      expect(f.orders.hasUnconfirmedSave).toBe(true)
+      expect(f.fileOwner.save).toHaveBeenCalledOnce()
+      await f.dataSet.resolveUnconfirmedSaves()
+      expect(f.orderOwner.save).toHaveBeenCalledTimes(2)
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not collapse confirmed and not-applied sources into an entirely not-applied recovery',async()=>{
+    const f=await resourceOwners(undefined,true),timeout=new Error('receipt unavailable')
+    const persist=f.database.save.getMockImplementation()!
+    let itemPending=false,orderPending=false
+    f.database.hasUnconfirmedSave.mockImplementation(()=>itemPending)
+    f.orderOwner.hasUnconfirmedSave.mockImplementation(()=>orderPending)
+    f.database.save.mockImplementation(async command=>{
+      if(!itemPending){itemPending=true;throw timeout}
+      const receipts=await persist(command);itemPending=false;return receipts
+    })
+    f.orderOwner.save.mockImplementation(async command=>{
+      if(!orderPending){orderPending=true;throw timeout}
+      orderPending=false;throw new DataViewSaveNotAppliedError(command.changes,'source verified not applied')
+    })
+    try{
+      for(const [name,view] of [['Items',f.items],['Orders',f.orders]] as const){
+        view.updateEditingValue('1','title','Submitted')
+        await expect(f.dataSet.saveChanges({views:[{tableName:name,viewId:'default'}]})).rejects.toBe(timeout)
+      }
+      const result=await f.dataSet.resolveUnconfirmedSaves()
+      expect(result).toMatchObject({state:'partial',views:[{tableName:'Items',viewId:'default',state:'confirmed'},
+        {tableName:'Orders',viewId:'default',state:'not-applied'}]})
+      expect(f.database.save).toHaveBeenCalledTimes(2);expect(f.orderOwner.save).toHaveBeenCalledTimes(2)
+      expect(f.items.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.orders.dirtyTracking.hasPendingChanges()).toBe(true)
+    }finally{f.dataSet.destroy()}
+  })
+
   type Save = NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['save']>
   type Receipt = Awaited<ReturnType<Save>>[number]
 
@@ -100,7 +271,7 @@ describe('formal query-save receipt identity', () => {
       expect(f.view.hasUnconfirmedSaveFor(['A'], failure)).toBe(true)
       expect(f.view.abandonUnconfirmedSave()).toBe(false)
       expect(abandon).not.toHaveBeenCalled()
-      await expect(f.dataSet.resolveUnconfirmedSaves()).rejects.toBe(failure)
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'unknown',views:[{state:'unknown',error:failure}]})
       await expect(f.view.discardAndReload()).rejects.toThrow()
       expect(f.view.hasUnconfirmedSaveFor(['A'])).toBe(true)
       expect(f.view.getEditingRow('B')?.['title']).toBe('Later input')

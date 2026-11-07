@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T18:57:01.119Z"
+      "sourceModifiedAt": "2026-11-07T20:18:15.534Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2664,7 +2664,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T19:56:57.186Z"
+      "sourceModifiedAt": "2026-11-07T20:38:59.187Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2679,12 +2679,12 @@
     "packages/spark-data/src/dataset.ts": {
       "sourceFile": "packages/spark-data/src/dataset.ts",
       "shardFile": "files/packages/spark-data/src/dataset.ts.json",
-      "sourceModifiedAt": "2026-11-05T16:24:34.890Z"
+      "sourceModifiedAt": "2026-11-07T20:19:32.631Z"
     },
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-05T21:24:15.374Z"
+      "sourceModifiedAt": "2026-11-07T20:13:09.272Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -2749,7 +2749,7 @@
     "packages/spark-data/src/query/file-resource-adapter.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "shardFile": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
-      "sourceModifiedAt": "2026-11-07T20:06:37.406Z"
+      "sourceModifiedAt": "2026-11-07T20:20:21.722Z"
     },
     "packages/spark-data/src/query/filter/data-view-filter-catalog.ts": {
       "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-catalog.ts",
@@ -3114,7 +3114,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts.json",
-      "sourceModifiedAt": "2026-11-07T03:17:08.010Z"
+      "sourceModifiedAt": "2026-11-07T20:20:21.732Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-contract.ts",
@@ -3334,7 +3334,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/initialization-resource.ts.json",
-      "sourceModifiedAt": "2026-11-02T12:12:37.227Z"
+      "sourceModifiedAt": "2026-11-07T20:21:16.988Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/dictionary/schema.ts",
@@ -3509,7 +3509,7 @@
     "packages/spark-project-model/src/scenario/scenario-definition-resource.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-definition-resource.ts",
       "shardFile": "files/packages/spark-project-model/src/scenario/scenario-definition-resource.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.638Z"
+      "sourceModifiedAt": "2026-11-07T20:42:11.784Z"
     },
     "packages/spark-project-model/src/scenario/scenario-view-config.ts": {
       "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
@@ -4164,7 +4164,7 @@
     "src/lowcode/resources/repository/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "shardFile": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json",
-      "sourceModifiedAt": "2026-11-06T12:43:10.561Z"
+      "sourceModifiedAt": "2026-11-07T20:38:59.160Z"
     },
     "src/lowcode/resources/semi-structured/excel-import/association-fields.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",

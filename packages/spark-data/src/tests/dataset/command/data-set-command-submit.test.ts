@@ -352,6 +352,17 @@ describe('DataSet command submit helper', () => {
     expect(submit).toHaveBeenCalledTimes(2)
   })
 
+  it('reports source-proven not-applied through structured DataSet recovery without resubmitting',async()=>{
+    const f=setup({submit:async()=>{throw new TransportFailure('lost')}})
+    try{
+      await addInput(f.view,{ServerName:'S'})
+      await expect(f.save()).rejects.toThrow('lost')
+      expect(await f.dataSet.resolveUnconfirmedSaves()).toMatchObject({state:'not-applied',views:[{tableName:'Register',state:'not-applied'}]})
+      expect(f.submit).toHaveBeenCalledOnce();expect(f.verify).toHaveBeenCalledOnce()
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(true)
+    }finally{f.dataSet.destroy()}
+  })
+
   it('rejects submitting more than one command row at once', async () => {
     const {view, submit, save} = setup()
     await addInput(view, {ServerName: 'A'})

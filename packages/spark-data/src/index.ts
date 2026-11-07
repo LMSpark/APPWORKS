@@ -26,7 +26,8 @@ export { SparkData } from './spark-data'
 
 export { DataSet, DataSetSavePreflightError } from './dataset'
 export { DataTable, type DataTableQuerySaveRule, type DataTableQuerySaveRuleGroup, type DataTableQuerySaveRuleInput, type DataTableQueryReferenceChange, type DataTableQuerySaveReferences } from './data-table'
-export { DataView, type DataViewNewRowIdentity, type DataViewChildRowInput } from './data-view'
+export { DataView, DataViewSaveNotAppliedError, type DataViewNewRowIdentity, type DataViewChildRowInput,
+  type DataViewSaveResolution, type DataSetSaveResolution } from './data-view'
 export type {DataViewSourceHistoryStatus, DataViewSourceHistoryAttempt, DataViewSourceVersion, DataViewSourceWriteAttemptStatus} from './query/data-view-source'
 export {bindFileDirectoryQueryAdapter, bindFileResourceAdapter, createFileResourceAdapterExecutor, getOrCreateFileResourceView} from './query/file-resource-adapter'
 export type {BindFileDirectoryQueryAdapterOptions, BindFileResourceAdapterOptions, FileResourceHistoryAttempt, FileResourceSnapshot, FileResourceTarget, FileResourceTransport} from './query/file-resource-adapter'

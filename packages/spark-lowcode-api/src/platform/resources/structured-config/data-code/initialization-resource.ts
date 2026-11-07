@@ -4,7 +4,7 @@
  * 边界：仅持查询/提交基线；不创建第二草稿、不补历史节点归属、不重放未知写入。
  * AI用途：宿主传当前DataSet、正式runtime和目标读取器，标准组件绑定返回视图。
  */
-import {DataViewFilter,DataViewLocalQuery,type DataRow,type DataSet,type DataView,type QueryParams} from '@spark-appworks/spark-data'
+import {DataViewFilter,DataViewLocalQuery,DataViewSaveNotAppliedError,type DataRow,type DataSet,type DataView,type QueryParams} from '@spark-appworks/spark-data'
 import type {DataSpaceRuntimeApi} from '../../../data-space/runtime/data-space-runtime-api.js'
 import type {DataSpaceQueryContext} from '../../../data-space/runtime/query/data-space-query-context.js'
 import type {CodeInitializationClient} from './initialization-client.js'
@@ -103,7 +103,11 @@ export function createCodeInitializationView(options:Options):DataView {
         if(!attempt){attempt=capture(snapshot,change);attempts.set(change.context,attempt)}
         if(!attempt.written){
           try{await runtime.save({changes:[attempt.physical]});attempt.written=true}
-          catch(error){if(!runtime.hasUnconfirmedSave(snapshot.context))attempts.delete(change.context);throw error}
+          catch(error){
+            if(!runtime.hasUnconfirmedSave(snapshot.context))attempts.delete(change.context)
+            if(error instanceof DataViewSaveNotAppliedError&&error.appliesTo(attempt.physical))throw new DataViewSaveNotAppliedError([change],error.message)
+            throw error
+          }
         }
         assertCurrent(snapshot.target)
         let next:Snapshot

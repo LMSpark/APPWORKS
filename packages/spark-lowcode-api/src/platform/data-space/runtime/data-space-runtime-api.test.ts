@@ -1,6 +1,6 @@
 import type { HttpResponse, RequestConfig } from '@spark-appworks/spark-utils'
 import { HttpClientBase } from '@spark-appworks/spark-utils'
-import { DataViewFilter, SparkData } from '@spark-appworks/spark-data'
+import { DataViewFilter, DataViewSaveNotAppliedError, SparkData } from '@spark-appworks/spark-data'
 import type { DataView } from '@spark-appworks/spark-data'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -523,7 +523,12 @@ describe('DataSpace runtime save owner', () => {
     http.saveResult = {}
     await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_UNCONFIRMED')
     expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
-    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('SPARK_SAVE_NOT_APPLIED')
+    const failure:unknown=await api.dataSpace.runtime.save(command).catch((error:unknown)=>error)
+    expect(failure).toBeInstanceOf(DataViewSaveNotAppliedError)
+    if(!(failure instanceof DataViewSaveNotAppliedError))throw new Error('expected bound not-applied proof')
+    expect(failure.appliesTo(command.changes[0]!)).toBe(true)
+    expect(failure.appliesTo(context)).toBe(false)
+    expect(failure.appliesTo({})).toBe(false)
     expect(http.saveRequests).toHaveLength(1)
     expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(false)
     http.saveResult = { maplistedit: [{ physical: [{ rowid: 'ROW-1', salary: 120 }] }] }
@@ -548,6 +553,24 @@ describe('DataSpace runtime save owner', () => {
     expect(receipts[0]?.context.rows).toEqual([{ rowid: 'ROW-1', salary: 120 }])
     await expect(api.dataSpace.runtime.save({ changes: [{ identity, context: receipts[0]!.context,
       changes: { changed: [{ rowid: 'ROW-1', salary: 130 }] } }] })).resolves.toHaveLength(1)
+  })
+
+  it('retains original ownership and pending proof when constructing a verified receipt fails',async()=>{
+    const http=new DataSpaceFixtureHttpClient(),api=activeApi(http)
+    const context=await api.dataSpace.runtime.query(identity)
+    const command={changes:[{identity,context,changes:{changed:[{rowid:'ROW-1',salary:120}]}}]}
+    http.saveError=new Error('socket closed')
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('socket closed')
+    http.saveError=undefined
+    const snapshot={...http.result as Record<string,unknown>,data:{Items:[{rowid:'ROW-1',salary:120,
+      lingma_sys_key:'ROW-KEY',lingma_sys_params:{r:['salary'],e:['salary'],h:[],m:[],d:true}}],Count:1}}
+    http.queryResults.push(snapshot)
+    vi.spyOn(context,'acceptSaveReceipt').mockImplementationOnce(()=>{throw new Error('receipt construction failed')})
+    await expect(api.dataSpace.runtime.save(command)).rejects.toThrow('receipt construction failed')
+    expect(api.dataSpace.runtime.hasUnconfirmedSave(context)).toBe(true)
+    http.queryResults.push(snapshot)
+    await expect(api.dataSpace.runtime.save(command)).resolves.toHaveLength(1)
+    expect(http.saveRequests).toHaveLength(1)
   })
 
   it('confirms a root create lost in transport by its owner-prepared primary key without replay', async () => {

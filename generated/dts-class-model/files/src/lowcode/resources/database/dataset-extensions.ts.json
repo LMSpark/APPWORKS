@@ -429,7 +429,7 @@
         },
         "resolveUnconfirmedSaves": {
           "type": "object",
-          "title": "() => Promise<\"none\" | \"confirmed\" | \"not-applied\">"
+          "title": "() => Promise<SparkData.DataSetSaveResolution>"
         },
         "abandonUnconfirmedSaves": {
           "type": "object",

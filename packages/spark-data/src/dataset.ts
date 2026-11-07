@@ -17,7 +17,7 @@ import type {
 } from './types'
 import { RequestState } from './types'
 import type { DataSetAppServices } from './types'
-import { DataView } from './data-view'
+import { DataView, type DataSetSaveResolution } from './data-view'
 import type { HttpClientBase } from '@spark-appworks/spark-utils'
 import { deepClone, Logger, isRecord, SparkAIModel } from '@spark-appworks/spark-utils'
 
@@ -1631,20 +1631,13 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
 
   /**
    * 经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。
-   * 返回 none（没有待核验）、confirmed（原提交已生效）或 not-applied（原提交未生效，草稿保留）；仍无法确认时抛出原错误。
+   * 按视图报告已接纳、来源证实未生效或仍未知，保留原批次；partial不能解释为整体未生效。
+   * 未知结果携带原错误并保留捕获，新编辑和未派发来源不参与本次核验。
    */
-  async resolveUnconfirmedSaves(): Promise<'none' | 'confirmed' | 'not-applied'> {
+  async resolveUnconfirmedSaves(): Promise<DataSetSaveResolution> {
     const views: DataView[] = []
     for (const table of Object.values(this.tables)) table.forEachView(view => {if (view.hasUnconfirmedSave) views.push(view)})
-    if (views.length === 0) return 'none'
-    try {
-      const result = await this.saveChanges({applyEditingRows: false, views: views.map(view => ({tableName: view.tableName, viewId: view.viewId}))})
-      if (result.success && !views.some(view => view.hasUnconfirmedSave)) return 'confirmed'
-      throw new Error(result.message ?? 'DATA_SET_UNCONFIRMED_SAVE: 未确认提交仍无法核验')
-    } catch (error) {
-      if (views.some(view => view.hasUnconfirmedSave)) throw error
-      return 'not-applied'
-    }
+    return views.length===0?{state:'none',views:[]}:this.withCascadeSuspended(()=>DataView.resolveQuerySaves(views))
   }
 
   /**

@@ -4,7 +4,7 @@
  * 边界：不创建DataTable、不维护编辑副本；只转换原DataView捕获的变更并返回存储回执。
  * AI用途：由正式元数据空间装配文件资源，组件和业务只调用DataView/DataSet。
  */
-import {DataViewLocalQuery, type DataColumn, type DataRow, type DataView, type QueryParams, type DataResourceRelation} from '@spark-appworks/spark-data'
+import {DataViewLocalQuery, DataViewSaveNotAppliedError, type DataColumn, type DataRow, type DataView, type QueryParams, type DataResourceRelation} from '@spark-appworks/spark-data'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {ProjectWorkspace} from '../project/project-workspace'
 import type {ScenarioViewFile} from './scenario-view-file'
@@ -351,7 +351,11 @@ export class ScenarioDefinitionResource {
       Object.entries(change.changes).map(([operation, rows]) => [operation, rows.map(row => Object.entries(row)
         .map(([field, value]) => [field, value === undefined ? [] : [value]]))])})))
     if (this.#pending) {
-      if (signature !== this.#pending.command) throw new Error('SCENARIO_DEFINITION_PENDING: 先核验原提交，不能夹带另一批修改')
+      const contexts=[...this.#pending.contexts]
+      if (signature !== this.#pending.command || command.changes.length!==contexts.length
+        || command.changes.some((change,index)=>change.context!==contexts[index])) {
+        throw new Error('SCENARIO_DEFINITION_PENDING: 先核验原提交，保持原查询上下文及顺序，不能夹带另一批修改')
+      }
       for (const change of command.changes) change.context.assertIdentity(change.identity)
       const pending = this.#pending
       const outcome = await this.options.workspace.verifyScenarioViews({scenarioId: this.options.targetScenarioId, assertCurrent})
@@ -359,7 +363,7 @@ export class ScenarioDefinitionResource {
       this.#pending = undefined
       if (outcome === 'confirmed') return pending.receipts
       pending.file.setText(pending.file.savedText)
-      throw new Error('SCENARIO_DEFINITION_NOT_APPLIED: 原提交未应用，草稿保留；请显式重试保存')
+      throw new DataViewSaveNotAppliedError(command.changes, 'SCENARIO_DEFINITION_NOT_APPLIED: 原提交未应用，草稿保留；请显式重试保存')
     }
     let file = this.options.workspace.getScenarioViews(this.options.targetScenarioId)
     if (file && (file.saveStatus !== 'idle' || file.isDirty && !(this.ownsCreatedFile(file) && !file.isPersisted))) throw new Error('SCENARIO_DEFINITION_FILE_STATE: 文件仍有另一项未提交操作')

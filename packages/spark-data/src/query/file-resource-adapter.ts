@@ -1,4 +1,5 @@
 import type {DataView} from '../data-view'
+import {DataViewSaveNotAppliedError} from '../data-view'
 import type {DataSet} from '../dataset'
 import type {DataColumn} from '../types'
 import {DataViewLocalQuery} from './data-view-local-query'
@@ -271,6 +272,10 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         const operationCount=Number(added.length>0)+Number(changed.length>0)+Number(deleted.length>0)
         if(!context||operationCount!==1||added.length+changed.length+deleted.length!==1){throw new Error('FILE_RESOURCE_CHANGE: 每次文件资源保存只允许一个新增、更新或删除行')}
         const {view,target}=context,state=stateFor(view)
+        const rejectNotApplied=(message:string):never=>{
+          state.pending.delete(target.key);state.owners.delete(target.key)
+          throw new DataViewSaveNotAppliedError([change],message)
+        }
         assertCurrent(view,target)
         if(!deleted.length)assertWritable(target)
         if(state.saving.has(target.key))throw new Error('FILE_RESOURCE_SAVE_PENDING: 文件目标正在提交')
@@ -297,7 +302,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
               confirmedSnapshot=remote
             }
             else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原新增已确认，但来源随后变化')
-            else if(remote===null){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 原文件新增未确认生效')}
+            else if(remote===null)rejectNotApplied('FILE_RESOURCE_NOT_APPLIED: 原文件新增未确认生效')
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及空基线均不一致')
           }else{
               const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
@@ -310,7 +315,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             confirmWriteProjection(view,{target,operation:'write',baseline:null,text:writeText,state:'confirmed',message:null,projectionNotified:false})
           }
           const saved=confirmedSnapshot
-          if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
+          if(saved?.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
           const accepted={...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
           state.owners.set(target.key,{view,context:change.context})
@@ -331,7 +336,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
               confirmedSnapshot=remote
             }
             else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原更新已确认，但来源随后变化')
-            else if(prior.baseline!==null&&remote?.text===prior.baseline.text&&remote.revision===prior.baseline.revision){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 原文件提交确认未生效')}
+            else if(prior.baseline!==null&&remote?.text===prior.baseline.text&&remote.revision===prior.baseline.revision)rejectNotApplied('FILE_RESOURCE_NOT_APPLIED: 原文件提交确认未生效')
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致')
           }else{
             const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
@@ -345,7 +350,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             confirmWriteProjection(view,{target,operation:'write',baseline,text:writeText,state:'confirmed',message:null,projectionNotified:false})
           }
           const saved=confirmedSnapshot
-          if(saved.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
+          if(saved?.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
           const accepted={...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
           state.owners.set(target.key,{view,context:change.context})
@@ -363,7 +368,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
           if(remote===null){state.pending.set(target.key,{...prior,state:'confirmed',message:null})}
           else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原删除已确认，但来源随后变化')
-          else if(remote.text===prior.baseline.text&&remote.revision===prior.baseline.revision){state.pending.set(target.key,{...prior,state:'not-applied',message:null});throw new Error('FILE_RESOURCE_NOT_APPLIED: 文件删除未确认生效')}
+          else if(remote.text===prior.baseline.text&&remote.revision===prior.baseline.revision)rejectNotApplied('FILE_RESOURCE_NOT_APPLIED: 文件删除未确认生效')
           else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与删除前来源均不一致')
         }else{
           const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)

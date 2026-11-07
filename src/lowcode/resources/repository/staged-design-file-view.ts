@@ -6,6 +6,7 @@ import {
   dataSetCommandQueryResultFromLocalRows,
   ensureDataSetFileCommandView,
   ensureDataSetStaticInputTable,
+  DataViewSaveNotAppliedError,
   type DataRow,
   type DataSet,
   type DataView,
@@ -159,7 +160,7 @@ export function attachStagedDesignView(
         if (!options.columns.every(column => matches(column.name, captured.row[column.name], read[column.name]))) {
           if (recovering && options.columns.every(column => matches(column.name, captured.baseline[column.name], read[column.name]))) {
             pending.delete(change.context)
-            throw new Error('SPARK_SAVE_NOT_APPLIED: 原设计核验仍为原查询基线；草稿保留，未重新提交')
+            throw new DataViewSaveNotAppliedError([change], 'SPARK_SAVE_NOT_APPLIED: 原设计核验仍为原查询基线；草稿保留，未重新提交')
           }
           throw new Error('DESIGN_SAVE_UNCONFIRMED: 设计回读与原提交不一致，请核验或明确放弃后重读')
         }

@@ -48,7 +48,7 @@ type DataSpaceQueryWithConfigInput = Readonly<{
 }>
 /** 未确认批次的核验输入：当前 scope、本次再提交的批次及其签名。 */
 type DataSpaceRuntimeVerifyCommand = Readonly<{scope: string; changes: readonly DataSpaceRuntimeSaveChange[]
-  pending: DataSpaceRuntimeUnconfirmed; signature: string}>
+  pending: DataSpaceRuntimeUnconfirmed; signature: string; proofChanges: readonly DataSpaceRuntimeSaveChange[]}>
 /** 单模型核验结论；applied 时 receipt 为回读行，可交原上下文接纳。 */
 type DataSpaceRuntimeVerifyOutcome = Readonly<{state: 'applied' | 'absent' | 'unknown'
   requested: ReturnType<DataSpaceQueryContext['prepareSaveChanges']>
@@ -488,7 +488,7 @@ export class DataSpaceRuntimeApi {
       identity: new DataSpaceQueryTable(change.identity).identity, changes: structuredClone(change.changes) }))
     const signature = JSON.stringify(changes.map(change => ({identity: change.identity, changes: change.changes})))
     const pending = changes.map(change => this.#unconfirmed.get(change.context)).find(item => item !== undefined)
-    if (pending) return this.verifyUnconfirmed({scope, changes, pending, signature})
+    if (pending) return this.verifyUnconfirmed({scope, changes, pending, signature,proofChanges:command.changes})
     const keys = [...new Set(changes.map(change => this.resourceKey(scope, change.identity)))].sort()
     changes.forEach(change => this.assertContextOwner(scope, change))
     const config = DataSpaceRequestConfig.resolveSave(changes)
@@ -554,30 +554,33 @@ export class DataSpaceRuntimeApi {
     const outcomes = await Promise.all(changes.map(change => this.verifyChange(change)))
     this.assertScope(scope)
     if (outcomes.every(outcome => outcome.state === 'applied')) {
-      for (const context of pending.contexts) this.#unconfirmed.delete(context)
       this.invalidateQueryCache()
-      return changes.map((change, index) => {
+      const receipts = changes.map((change, index) => {
         const outcome = outcomes[index]
         if (!outcome) throw new Error('save outcome missing for change')
         let receipt = change.context.acceptSaveReceipt({requested: outcome.requested, receipt: outcome.receipt})
-        this.#contexts.delete(change.context)
-        this.#contexts.set(receipt.context, this.resourceKey(scope, change.identity))
-        const origin = this.#queryOrigins.get(change.context)
-        if (origin) this.#queryOrigins.set(receipt.context, origin)
         if (outcome.queried && receipt.added.length) {
           try {
             const context = receipt.context.withSavedRowPermissions(outcome.queried, receipt.added.map(row => receipt.context.rowKey(row)))
-            this.#contexts.delete(receipt.context); this.#contexts.set(context, this.resourceKey(scope, change.identity))
-            if (origin) this.#queryOrigins.set(context, origin)
             receipt = {...receipt, context}
           } catch {this.assertScope(scope)}
         }
         return receipt
       })
+      receipts.forEach((receipt,index)=>{
+        const change=changes[index]
+        if(!change)throw new Error('save outcome missing original change')
+        this.#contexts.delete(change.context)
+        this.#contexts.set(receipt.context,this.resourceKey(scope,change.identity))
+        const origin=this.#queryOrigins.get(change.context)
+        if(origin)this.#queryOrigins.set(receipt.context,origin)
+      })
+      for (const context of pending.contexts) this.#unconfirmed.delete(context)
+      return receipts
     }
     if (outcomes.every(outcome => outcome.state === 'absent')) {
       for (const context of pending.contexts) this.#unconfirmed.delete(context)
-      throw new Error('SPARK_SAVE_NOT_APPLIED: 原提交未生效，草稿已保留；可显式重新保存')
+      throw new SparkData.DataViewSaveNotAppliedError(command.proofChanges, 'SPARK_SAVE_NOT_APPLIED: 原提交未生效，草稿已保留；可显式重新保存')
     }
     throw new Error('SPARK_SAVE_UNVERIFIABLE: 原提交部分生效或无法按主键核验，不能重新提交；请重新打开页面后查询实际结果')
   }

@@ -1076,7 +1076,7 @@ describe('data-space metadata DataSet', () => {
     expect(view.getEditingRow('SPACE')?.['inputParams']).toBe('[]')
     expect(view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()).toBe(true)
     expect(view.hasUnconfirmedSave).toBe(true)
-    await expect(session.metadataDataSet.resolveUnconfirmedSaves()).resolves.toBe('confirmed')
+    await expect(session.metadataDataSet.resolveUnconfirmedSaves()).resolves.toMatchObject({state:'confirmed',views:[{tableName:'Base_DataSet',viewId:'default',state:'confirmed'}]})
     expect(view.hasUnconfirmedSave).toBe(false)
     expect(view.dirtyTracking.hasPendingChanges() || view.hasEditingChanges()).toBe(false)
     await view.loadFromServer({allPages: true})

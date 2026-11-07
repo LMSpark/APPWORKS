@@ -7,7 +7,7 @@ import {DataViewLocalQuery} from '../query/data-view-local-query'
 import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataSet} from '../dataset'
 import type {DataTable} from '../data-table'
-import type {DataView} from '../data-view'
+import {DataViewSaveNotAppliedError, type DataView} from '../data-view'
 import type {DataColumn, DataRow} from '../types'
 
 export type DataSetCommandColumnSpec = Readonly<{name: string; primary?: boolean}>
@@ -238,7 +238,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
         options.guard()
         if (accepted === undefined) {
           pending.delete(change.context)
-          throw new Error(`DATA_SET_COMMAND_NOT_APPLIED: ${view.tableName} 核验确认命令未生效，可修改后重新提交`)
+          throw new DataViewSaveNotAppliedError([change], `DATA_SET_COMMAND_NOT_APPLIED: ${view.tableName} 核验确认命令未生效，可修改后重新提交`)
         }
       } else {
         try {

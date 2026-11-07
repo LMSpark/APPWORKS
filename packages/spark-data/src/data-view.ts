@@ -59,6 +59,38 @@ import { DirtyTrackingDelegate } from './strategies/crud/dirty-tracking-delegate
 import { AggregateDelegate } from './strategies/aggregate-delegate'
 import type { RowDiff, SaveChangesData } from './strategies/crud/dirty-tracking-delegate'
 
+/** 来源已核验本次派发全部未生效；证明只绑定收到的change对象，不暴露内容或跨意图复用。 */
+export class DataViewSaveNotAppliedError extends Error {
+  #changes: ReadonlySet<object>
+  /** @param changes 本次save实际收到的change对象，不能用克隆或旧请求代替。 @param message 来源明确核验未生效的说明。 */
+  constructor(changes: readonly object[], message: string) {
+    super(message)
+    this.name = 'DataViewSaveNotAppliedError'
+    this.#changes = new Set(changes)
+  }
+  /** @internal 仅供原保存链核对来源证明，不按异常文案或pending状态推断。 */
+  appliesTo(change: object): boolean {return this.#changes.has(change)}
+}
+
+/** 一个原视图提交的核验结果；unknown保留原捕获，error为本次或原核验失败。 */
+export type DataViewSaveResolution = Readonly<{
+  /** 本DataSet内原视图所属表键，用于定位，不冒充正式模型名称。 */
+  tableName: string
+  /** 原捕获所属视图身份。 */
+  viewId: string
+  /** 仅表示原捕获的结果，不包含后来编辑；未生效必须有本次派发的来源证明。 */
+  state: 'confirmed' | 'not-applied' | 'unknown'
+  /** 本次核验失败或尚未核验的原错误，保留实际Error对象。 */
+  error?: Error
+}>
+/** 仅汇总入口时已有的未确认提交；partial保留逐视图结果，不表示跨来源事务。 */
+export type DataSetSaveResolution = Readonly<{
+  /** 所有原视图同结果时取该状态，混合取partial；none表示入口时没有未确认提交。 */
+  state: 'none' | 'confirmed' | 'not-applied' | 'partial' | 'unknown'
+  /** 仅包含入口已有未确认捕获，按入口视图次序报告，不包含新草稿。 */
+  views: readonly DataViewSaveResolution[]
+}>
+
 /** Compare private structured-clone proofs without losing undefined, dates or nested input. */
 function sameQueryReplacementValue(current:unknown,original:unknown,seen=new WeakMap<object,object>()):boolean{
   if(Object.is(current,original))return true
@@ -502,6 +534,8 @@ rows: DataRow[] = []
   #unconfirmedQuerySaveFailure: Error | undefined
   /** 已返回回执但未接纳，且来源未提供原提交核验；只阻止重放，不推断远端未应用。 */
   #unconfirmedQuerySaveUnverifiable = false
+  /** 原始实际派发批，保留上下文集合及次序；不同调用即使共用错误对象也不合批。 */
+  #unconfirmedQuerySaveBatch: ReadonlyArray<{view: DataView; capture: DataViewQuerySaveCapture}> | undefined
   /**
    * 本次查询结果接纳前的业务校验，可异步补查必要关联；不替换查询owner、结果或权限。
    * 抛错使本次请求失败并保留旧结果；校验期间若被新查询替代，旧结果及错误均不接纳。
@@ -3264,6 +3298,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     this.#unconfirmedQuerySave = undefined
     this.#unconfirmedQuerySaveFailure = undefined
     this.#unconfirmedQuerySaveUnverifiable = false
+    this.#unconfirmedQuerySaveBatch = undefined
     return true
   }
 
@@ -3348,6 +3383,28 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     const checking=DataView.prepareQuerySaveDomainReferences({targets:captured,includeEditingRows:false})
     if(checking!==undefined)return (await checking).save(captured)
     return DataView.savePreparedQueryViews(captured)
+  }
+
+  /** @internal 按原派发批核验已有捕获；不提交后来编辑，不将来源失去pending当作未生效证明。 */
+  static async resolveQuerySaves(views: readonly DataView[]): Promise<DataSetSaveResolution> {
+    const expected = new Map(views.flatMap(view => view.hasUnconfirmedSave && view.#unconfirmedQuerySave
+      ? [[view, view.#unconfirmedQuerySave] as const] : []))
+    const settled = new Map<DataView, DataViewSaveResolution>()
+    let failure: Error | undefined
+    try {
+      const batches=[...new Set([...expected.keys()].map(view=>view.#unconfirmedQuerySaveBatch))]
+      for(const batch of batches){
+        if(!batch||batch.some(({view,capture})=>expected.get(view)!==capture))throw new Error('DATA_VIEW_SAVE_RECOVERY: 缺少原批次完整捕获')
+        await DataView.savePreparedQueryViews(batch.map(({view})=>({view})),undefined,
+          {expected,settle:(view,outcome)=>{settled.set(view,outcome)}})
+      }
+    } catch (error) {failure = toError(error)}
+    const outcomes = [...expected.keys()].map(view => {
+      const error=view.#unconfirmedQuerySaveFailure??failure
+      return settled.get(view)??{tableName:view.tableName,viewId:view.viewId,state:'unknown' as const,...(error?{error}:{})}
+    })
+    const states = new Set(outcomes.map(outcome => outcome.state))
+    return {state: states.size > 1 ? 'partial' : outcomes[0]?.state ?? 'none', views: outcomes}
   }
 
   /** @internal 在首次应用编辑之前按DataTable合并只读引用预检；恢复原捕获不重跑。 */
@@ -3437,8 +3494,12 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
     }
   }
 
-  private static async savePreparedQueryViews(targets: readonly DataViewQuerySaveTarget[], checkDomain?: DataViewDomainDispatchCheck): Promise<Array<CrudResult<SaveChangesData>>> {
-    const recovering = targets.some(target => target.view.hasUnconfirmedSave)
+  private static async savePreparedQueryViews(targets: readonly DataViewQuerySaveTarget[], checkDomain?: DataViewDomainDispatchCheck,
+    resolution?: {expected: ReadonlyMap<DataView, DataViewQuerySaveCapture>; settle(view: DataView, outcome: DataViewSaveResolution): void}): Promise<Array<CrudResult<SaveChangesData>>> {
+    if (resolution && targets.some(({view}) => !view.hasUnconfirmedSave || view.#unconfirmedQuerySave !== resolution.expected.get(view))) {
+      throw new Error('DATA_VIEW_SAVE_RECOVERY: 入口原提交捕获已接纳或替换，不能派发新提交')
+    }
+    const recovering = resolution !== undefined || targets.some(target => target.view.hasUnconfirmedSave)
     const selected = recovering ? targets.filter(target => target.view.hasUnconfirmedSave) : targets
     for (const target of selected) if (!recovering) target.view.assertQuerySaveColumns({ ...(target.ids === undefined ? {} : { ids: target.ids }),
       includeEditingRows: false })
@@ -3476,12 +3537,21 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       }
       models.set(capture.identity.metaName, {table: view.dataTable, keys: new Set([...previous?.keys ?? [], ...keys])})
     }
-    const batches=DataView.querySaveDispatchBatches(active.map(item=>({...item,executor:item.capture.executor})))
+    const dispatchItems=active.map(item=>({...item,executor:item.capture.executor}))
+    const batches=recovering ? [...new Set(active.map(({view})=>view.#unconfirmedQuerySaveBatch))].map(original=>{
+      if(!original)throw new Error('DATA_VIEW_SAVE_RECOVERY: 缺少原派发批次')
+      return original.map(({view,capture})=>{
+        const item=dispatchItems.find(candidate=>candidate.view===view&&candidate.capture===capture)
+        if(!item)throw new Error('DATA_VIEW_SAVE_RECOVERY: 核验必须保留原批次全部上下文及顺序')
+        return item
+      })
+    }) : DataView.querySaveDispatchBatches(dispatchItems)
     const previousErrors=new Map(active.map(({view})=>[view,view.mutatingError]))
     active.forEach(({ view }) => view._trackMutating(1))
     const results = new Map<DataView, CrudResult<SaveChangesData>>()
     const dispatched = new Set<DataView>()
     const returned = new Set<DataView>()
+    const dispatchedChanges = new Map<DataView,DataViewQuerySaveChange>()
     let failure: Error | null = null
     try {
       for (const batch of batches) {
@@ -3498,13 +3568,20 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             }
           }
           batch.forEach(({view})=>dispatched.add(view))
-          const receipts = await save.call(executor, { changes: batch.map(({ capture }) => ({ identity: structuredClone(capture.identity),
+          if(!recovering)batch.forEach(({view})=>{view.#unconfirmedQuerySaveBatch=batch})
+          const changes = batch.map(({ capture }) => ({ identity: structuredClone(capture.identity),
             ...(capture.tableConfig === undefined ? {} : {tableConfig: {
               ...(capture.tableConfig.api === undefined ? {} : {api: structuredClone(capture.tableConfig.api)}),
               ...(capture.tableConfig.crudConfig === undefined ? {} : {crudConfig: { ...capture.tableConfig.crudConfig }}),
             }}),
             context: capture.context, changes: { added: capture.added.map(item => structuredClone(item.row)),
-              changed: capture.changed.map(item => structuredClone(item.row)), deleted: capture.deleted.map(item => structuredClone(item.row)) } })) })
+              changed: capture.changed.map(item => structuredClone(item.row)), deleted: capture.deleted.map(item => structuredClone(item.row)) } }))
+          batch.forEach(({view},index)=>{
+            const change=changes[index]
+            if(!change)throw new Error('DATA_VIEW_SAVE_CAPTURE: 缺少本次派发输入')
+            dispatchedChanges.set(view,change)
+          })
+          const receipts = await save.call(executor,{changes})
           batch.forEach(({view})=>returned.add(view))
           if (receipts.length !== batch.length) throw new Error('DATA_VIEW_SAVE_RECEIPT: 模型回执不完整')
           const acceptances = batch.map(({ view, capture }, index) => {
@@ -3520,6 +3597,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
           })
           for (const {view, command} of acceptances) {
             results.set(view, view.acceptQuerySaveReceipt(command))
+            resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'confirmed'})
             try {
               const notify: ((context: DataViewQueryResult) => unknown) | undefined = command.executor.acknowledgeSave
               const notification = notify?.call(command.executor, command.context)
@@ -3533,6 +3611,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
             view.#unconfirmedQuerySave = undefined
             view.#unconfirmedQuerySaveFailure = undefined
             view.#unconfirmedQuerySaveUnverifiable = false
+            view.#unconfirmedQuerySaveBatch = undefined
           }
       }
       return targets.map(({ view }) => results.get(view) ?? { success: true, message: recovering ? '本轮仅核验原提交，此视图未派发' : '没有待提交的变更',
@@ -3545,9 +3624,13 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
         if (view.destroyed) return
         if(dispatched.has(view) && !results.has(view)){
           const sourcePending = view.querySavePendingState(capture)
-          view.#unconfirmedQuerySave = sourcePending !== false || returned.has(view) ? capture : undefined
+          const change=dispatchedChanges.get(view)
+          const notApplied = failure instanceof DataViewSaveNotAppliedError && change!==undefined && failure.appliesTo(change) ? failure : undefined
+          view.#unconfirmedQuerySave = !notApplied && (sourcePending !== false || returned.has(view) || recovering) ? capture : undefined
           view.#unconfirmedQuerySaveUnverifiable = view.#unconfirmedQuerySave !== undefined && sourcePending !== true
           view.#unconfirmedQuerySaveFailure=view.#unconfirmedQuerySave===undefined?undefined:failure??undefined
+          if(notApplied){view.#unconfirmedQuerySaveBatch=undefined
+            resolution?.settle(view,{tableName:view.tableName,viewId:view.viewId,state:'not-applied',error:notApplied})}
         }
         view._trackMutating(-1,results.has(view)?null:recovering&&!dispatched.has(view)?previousErrors.get(view):failure)
       })
@@ -4364,6 +4447,7 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
     this.#unconfirmedQuerySave = undefined
     this.#unconfirmedQuerySaveFailure = undefined
     this.#unconfirmedQuerySaveUnverifiable = false
+    this.#unconfirmedQuerySaveBatch = undefined
     this.#resourceIdentity = undefined
 
     this.logger.debug(`销毁 DataView: ${this.tableName}:${this.viewId}`)

@@ -41,6 +41,19 @@ async function fixture(policy:Readonly<{denyAdd?:boolean;denyCode?:boolean;maskC
   return {service,ds,view,save,setTarget:(value:typeof target)=>{target=value},setResponse:(rows:Array<Record<string,unknown>>)=>{responseOverride=rows}}
 }
 describe('code initialization semantic view and formal persistence',()=>{
+  it('translates a physical not-applied proof to the original semantic change and permits a fresh explicit save',async()=>{
+    const f=await fixture(),key=f.view.getPkKey(f.view.rows[0]!)!
+    f.view.updateEditingValue(key,'InitVal','007');f.service.http.failAfterWrite=true
+    await expect(f.save()).rejects.toThrow()
+    f.service.http.records['Base_CodeSerialPerform']![0]!['Code']='003'
+    expect(await f.ds.resolveUnconfirmedSaves()).toMatchObject({state:'not-applied',views:[{tableName:'CodeInitialization',state:'not-applied'}]})
+    expect(f.service.http.saves).toHaveLength(1)
+    f.view.updateEditingValue(key,'InitVal','009')
+    expect((await f.save()).success).toBe(true)
+    expect(f.service.http.saves).toHaveLength(2)
+    expect(f.service.http.records['Base_CodeSerialPerform']![0]?.['Code']).toBe('007')
+  })
+
   it('edits a legacy function-selected row using its original permission and preserves its null node owner',async()=>{
     const {service,ds,view,save}=await fixture()
     expect(view.loadingError).toBeFalsy();expect(view.rows).toHaveLength(2)

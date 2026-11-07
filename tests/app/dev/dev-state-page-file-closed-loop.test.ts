@@ -6,7 +6,7 @@ import ElementPlus from 'element-plus'
 import { FieldSelect, FieldText, PAGE_RUNTIME, RendererButton, Spark, useSparkComponent } from '@spark-appworks/spark-component'
 import NodeTargetConfig from '@/views/app/dev-system/components/NodeTargetConfig.vue'
 import {getVuePageOptions} from '@/registries/vue-page-registry'
-import { DataSet, type DataRow } from '@spark-appworks/spark-data'
+import { DataSet, DataViewSaveNotAppliedError, type DataRow } from '@spark-appworks/spark-data'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { useDevState } from '@/views/app/dev-system/useDevState'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
@@ -258,7 +258,7 @@ function createBlueprintRuntimeDataSet(projectId:string,root:ProjectBlueprintTre
         return Object.entries(item.row).every(([field,value])=>existing[field]===value)?'applied':'unknown'
       })
       if(outcomes.every(outcome=>outcome==='applied'))unknownReceipt=false
-      else if(outcomes.every(outcome=>outcome==='absent')){unknownReceipt=false;throw new Error('SPARK_SAVE_NOT_APPLIED: verified absent')}
+      else if(outcomes.every(outcome=>outcome==='absent')){unknownReceipt=false;throw new DataViewSaveNotAppliedError(command.changes,'SPARK_SAVE_NOT_APPLIED: verified absent')}
       else throw new Error('SPARK_SAVE_UNVERIFIABLE: partial save remains unknown')
     }
     if(knownFailurePending){knownFailurePending=false;throw new Error('explicit save rejection')}

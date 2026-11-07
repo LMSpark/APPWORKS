@@ -10,6 +10,9 @@
     "jsdoc": "@module @spark-appworks/spark-data:data-view\n职责：提供 spark-data 数据管线中的 data view 能力，支撑 DataSet、DataTable、DataView、树或 CRUD 状态协作。\n边界：保持框架无关，只维护数据模型和操作协议，不导入 Vue、Element Plus 或应用路由。\nAI用途：处理页面数据绑定、DataViewKey、行状态、树结构或 CRUD 行为时，用本模块确认数据层语义。\n\nDataView — 数据视图，SPARK 数据层的统一交互枢纽。\n引用链：DataView → DataTable → DataSet。\n级联加载：子订阅父，父不知子。\n请求编排：requestData(上行) / refresh(下行) / requestState(唯一状态源)。\n委托分工：CrudDelegate / CascadeDelegate / SelectionDelegate / etc.",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
+      "DataViewSaveNotAppliedError",
+      "DataViewSaveResolution",
+      "DataSetSaveResolution",
       "DataViewRecomputeColumnsOptions",
       "DataViewServerRowsPayload",
       "DataViewNewRowIdentity",
@@ -18,6 +21,99 @@
     ]
   },
   "$defs": {
+    "DataViewSaveNotAppliedError": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSaveNotAppliedError",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "changes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": true
+              }
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appliesTo.params": {
+          "type": "object",
+          "properties": {
+            "change": {
+              "type": "object",
+              "additionalProperties": true
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.appliesTo.return": {
+          "type": "boolean"
+        }
+      }
+    },
+    "DataViewSaveResolution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataViewSaveResolution",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "viewId": {
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "unknown",
+            "not-applied",
+            "confirmed"
+          ]
+        },
+        "error": {
+          "type": "object",
+          "title": "ErrorDefault"
+        }
+      },
+      "required": [
+        "tableName",
+        "viewId",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "DataSetSaveResolution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetSaveResolution",
+      "properties": {
+        "state": {
+          "enum": [
+            "none",
+            "unknown",
+            "not-applied",
+            "confirmed",
+            "partial"
+          ]
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DataViewSaveResolution"
+          }
+        }
+      },
+      "required": [
+        "state",
+        "views"
+      ],
+      "additionalProperties": false
+    },
     "DataViewEventMap": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -2703,6 +2799,22 @@
           "type": "object",
           "title": "Promise<Array<CrudResult<SaveChangesData>>>"
         },
+        "method.resolveQuerySaves.params": {
+          "type": "object",
+          "properties": {
+            "views": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/DataView"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.resolveQuerySaves.return": {
+          "type": "object",
+          "title": "Promise<DataSetSaveResolution>"
+        },
         "method.prepareQuerySaveDomainReferences.params": {
           "type": "object",
           "properties": {
@@ -3067,8 +3179,137 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T19:56:57.186Z",
+  "generatedAt": "2026-11-07T20:38:59.187Z",
   "models": {
+    "DataViewSaveNotAppliedError": {
+      "name": "DataViewSaveNotAppliedError",
+      "jsdoc": "来源已核验本次派发全部未生效；证明只绑定收到的change对象，不暴露内容或跨意图复用。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "jsdoc": "@param changes 本次save实际收到的change对象，不能用克隆或旧请求代替。\n@param message 来源明确核验未生效的说明。",
+          "signatureText": "constructor(changes: readonly object[], message: string)",
+          "parameters": [
+            {
+              "name": "changes",
+              "type": {
+                "type": "unknown",
+                "name": "readonly object[]"
+              }
+            },
+            {
+              "name": "message",
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            }
+          ]
+        },
+        "declarationRelations": [
+          {
+            "kind": "extends",
+            "typeText": "Error",
+            "targetName": "Error"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "appliesTo",
+              "jsdoc": "@internal 仅供原保存链核对来源证明，不按异常文案或pending状态推断。",
+              "parameters": [
+                {
+                  "name": "change",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "object"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataViewSaveResolution": {
+      "name": "DataViewSaveResolution",
+      "jsdoc": "一个原视图提交的核验结果；unknown保留原捕获，error为本次或原核验失败。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 本DataSet内原视图所属表键，用于定位，不冒充正式模型名称。 */\n    tableName: string;\n    /** 原捕获所属视图身份。 */\n    viewId: string;\n    /** 仅表示原捕获的结果，不包含后来编辑；未生效必须有本次派发的来源证明。 */\n    state: 'confirmed' | 'not-applied' | 'unknown';\n    /** 本次核验失败或尚未核验的原错误，保留实际Error对象。 */\n    error?: Error;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 本DataSet内原视图所属表键，用于定位，不冒充正式模型名称。 */\n    tableName: string;\n    /** 原捕获所属视图身份。 */\n    viewId: string;\n    /** 仅表示原捕获的结果，不包含后来编辑；未生效必须有本次派发的来源证明。 */\n    state: 'confirmed' | 'not-applied' | 'unknown';\n    /** 本次核验失败或尚未核验的原错误，保留实际Error对象。 */\n    error?: Error;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "本DataSet内原视图所属表键，用于定位，不冒充正式模型名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "viewId",
+              "jsdoc": "原捕获所属视图身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "state",
+              "jsdoc": "仅表示原捕获的结果，不包含后来编辑；未生效必须有本次派发的来源证明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "error",
+              "jsdoc": "本次核验失败或尚未核验的原错误，保留实际Error对象。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "DataSetSaveResolution": {
+      "name": "DataSetSaveResolution",
+      "jsdoc": "仅汇总入口时已有的未确认提交；partial保留逐视图结果，不表示跨来源事务。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 所有原视图同结果时取该状态，混合取partial；none表示入口时没有未确认提交。 */\n    state: 'none' | 'confirmed' | 'not-applied' | 'partial' | 'unknown';\n    /** 仅包含入口已有未确认捕获，按入口视图次序报告，不包含新草稿。 */\n    views: readonly DataViewSaveResolution[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 所有原视图同结果时取该状态，混合取partial；none表示入口时没有未确认提交。 */\n    state: 'none' | 'confirmed' | 'not-applied' | 'partial' | 'unknown';\n    /** 仅包含入口已有未确认捕获，按入口视图次序报告，不包含新草稿。 */\n    views: readonly DataViewSaveResolution[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "state",
+              "jsdoc": "所有原视图同结果时取该状态，混合取partial；none表示入口时没有未确认提交。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "仅包含入口已有未确认捕获，按入口视图次序报告，不包含新草稿。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DataViewEventMap": {
       "name": "DataViewEventMap",
       "jsdoc": "DataView 事件映射",
@@ -7215,6 +7456,30 @@
                         }
                       ]
                     }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "resolveQuerySaves",
+              "jsdoc": "@internal 按原派发批核验已有捕获；不提交后来编辑，不将来源失去pending当作未生效证明。",
+              "parameters": [
+                {
+                  "name": "views",
+                  "type": {
+                    "type": "unknown",
+                    "name": "readonly DataView[]"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSetSaveResolution",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
                   }
                 ]
               }

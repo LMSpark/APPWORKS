@@ -1,6 +1,10 @@
 # 数据空间旧方案删除记录
 
-> **当前入口（2026-11-08 用户要求停止实施、重新整体规划）：** [SPARK data 与标准组件分阶段收口](#spark-data-component-replan-20261108)。当前仅分析和规划，旧自动目标保持暂停；禁止依据历史“下一步”自行恢复编码或实服写入。下文2026-11-02的20业务包继续作为完整范围目录，历史事实和证据保留，不另起总计划，不沿旧 E62 编号自动续做。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **T** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+>
+> **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
+>
+> **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -7926,3 +7930,51 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 最终下游复验89311已自然exit0：12文件319测试，覆盖末态文件来源消费者。全部handle终态。准备安全checkpoint，仅2数据源/测试+唯一台账+14官方派生共17文件；不包含组件RED、实服写入、合并或部署。下一恢复点为S1多来源混合核验结果，随后I3剩余矩阵；数据合同未冻结，不进入S2。
 
 **S已提交推送并独立核实。**代码e3e5ccb72cdcdf4c63fab0dfc5ba9b510de7271c（fix(spark-data): retain file receipts until original view acceptance），17文件222增85删；push origin同一codex/spark-data-s1-command-safety分支自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，仅原组件未跟踪RED。此事实补记docs跟随同步；整体目标active，下一S1多来源混合核验及I3余项，不以文件窗口局部通过冻结数据合同。
+
+#### T. S1多来源混合核验及原批保真
+
+从已推e8fe75aee干净tracked基线继续，原组件未跟踪RED不动。主控先复现独立A已接纳、B源核验失败且清pending，resolveUnconfirmedSaves实际返回整体not-applied（1RED/56pass）。高阶确认原错误对象不能当批身份，同executor独立请求不能合并、原共享DB批不能拆分；pending=false/catch均不是未生效证明。此次范围仅SPARK data、实际DB/file/command资源适配、相应测试及本台账/官方派生，不跨组件/宿主/页面。
+
+方案按原capture保初次实际派发批（上下文集合及顺序）；恢复核对入口capture仍有效，按原批派发，拒绝缺项，不合并共用Error的独立批。已接纳结果在accept位置记录confirmed；来源明确核验未生效使用DataViewSaveNotAppliedError私有上下文集合证明，不按文案或删除pending猜测。无证明恢复失败保原capture与unknown防重发。DataSet.resolveUnconfirmedSaves直接替换旧标量为{state,views}逐视图结果，汇总none/confirmed/not-applied/unknown/partial；unknown携原错误，首失败停止后的原批明示unknown，新编辑/未派发来源不进入本次核验，不保兼容标量或第二套保存入口。生产调用搜索仅方法定义（另一个metadata消费者测试按新合同改），无组件/页面消费代码接线。
+
+初版实现60直接测试通过：混合Aconfirmed+B具来源证明notapplied；共享A+B一次原批恢复；同executor独立A/B且共用同Error仍两次原批；新File草稿与后来A输入不派发；Aconfirmed+B清pending但无证明+C未核保unknown/C原错。命令verifyundefined、文件三CRUD原absent分支、DB全部absent按正式原来源核验点出绑定证明。DB验证已应用回执先完整构造，全部成功后转上下文owner及清pending，构造异常仍保原核验，不称pending消失即未生效。新增实际command结构化notapplied、DB证明绑定及回执构造失败恢复测试。全包30647、package类型54848、DB+metadata82150在跑，高阶只读复审中；未生成/提交本批，不宣称S1冻结或实服验证。
+
+**T关键复审修订。**高阶指出全恢复预检会因后批B无法核验阻断前批A、不同原批同表同row不该互判冲突；旧未生效证明仅绑context可误用到下一新capture；直调DataView绕过原级联暂停。主控前两条实测2RED（A错误unknown、新capture错误解锁）后，resolve按入口快照原batch顺序逐批运行预检及派发，仍首失败停止，缺项共享批拒绝；同表同row独立原批正例通过。证明改绑定来源本次收到的实际change对象，DataView比本次派发引用，不暴露原上下文、不跨请求复用；DB内部clone显式传proofChanges保持收到的输入引用，file/command使用同一change，不保context型兼容。旧proof对新capture无效，维持unknown。
+
+级联暂停复用DataSet.withCascadeSuspended；主控临时撤该wrapper独立跑真实child级联测试RED（未派发File executeQuery1次），恢复wrapper后直接64测试GREEN，子视图不清空/重查/保存。前轮数据包1232、DB包140、metadata81测试及数据包类型通过，最后修订仍需末态重验；根路径vitest只跑到metadata81不能冒称包含DB140，DB已从其package目录独立验证。当前正式生成61157为早期源快照（待收），不可当末态生成；定向lint11584待收。高阶复审继续，未提交本批，无实服。
+
+**T真实下游适配断点及收口范围。**高阶沿新证明发现编码初始化会把外层change映射为attempt.physical后原抛DB错误，证明不匹配外层。主控在实际初始化资源测试先RED（unknown而非not-applied，1失败12通过）；只在该既有1:1映射处核error类型及appliesTo(attempt.physical)，匹配才为本次外层[change]给等价证明，其他原抛；13测试GREEN。受控服务初物理写1次、核验not-applied不重写、后续显式新输入可写第2次，不是实服写入。此为数据资源适配责任，不改领域页面。
+
+末批修订前的全数据包1236及DB140通过；数据包类型27908通过。此前定向lint11584有5条真实失败（ReadonlyArray/非空断言/optional-chain），已按合同修正无禁用规则；修后lint66317自然exit0。早期生成61157终态为1108分片1744索引3775gaps，尚不代表末态，最终需刷新。T公开合同直接移除标量返回，保原批次、单次派发change证明与级联暂停，当前未生成最终/提交，准备最终相关工程门禁及高阶窄复审，S1未冻结。
+
+**T末态包门禁与扩大验证。**最终全数据包50973自然exit0：55文件1236测试；完整lowcode-api30736自然exit0：44文件1463测试。正式生成25399自然exit0：1108分片1744索引3775gaps；较原+3公开类型/类派生，待核其实际指南语义，不手改产物。根verify13302继续运行。高阶最终窄复核未见T收口阻断，未独立跑测/实服。
+
+因T直接改变公共恢复合同和来源失败语义，本批另启完整拟提交快照测试60232：vitest全范围仅排除既有未跟踪、不提交的组件json-tree-value-root.test.ts，maxWorkers2；不是整工作树全绿，不删断言/缩工程配置。被测源冻结，等待原handle，不因观察超时重启。当前未提交/推送T；全测/verify自然终态前不称安全。此等待期间只读核下一I3缺口，不跨层修改。目标active，S1未冻结。
+
+**等待期间的下一S1只读核对。**高阶按I3建议并由主控读实际源确认：①preview-view-ops PUBLIC_QUERY_BASELINE按错误文案把GetData拒绝改SysGetData，缺显式授权合同，测试竟固化改道；②dataset-extensions sync verify只按fieldView非空认成功、空返回undefined，不能归因本次同步，也不能给T权威未生效证明；③多个attach先getTable同名即return绕公共ensure身份校验。均登记待RED，不在冻结被测源期间实施；系统预览授权/同步可归因核验分别缺正式服务证据，不把历史夹具通过当服务授权。下一按①②③集中数据适配批推进，不先改页面。全测60232仍原活句柄，最近输出出现失败标记但未终态明细；不能称本批安全或已推送。根verify13302仍收尾，未重启任何原进程。
+
+**T根门禁与派生核对。**根verify13302已自然exit0（49项ClassModel测试、611端点217消费者及其它正式门禁通过；既有2模型警告/84薄页诊断仍保留）。23份派生剔除明确时间/编译符号ID后剩5份：DataView新类/结果类型、DataSet返回合同、database extensions中派生签名、manifest索引及semantic gaps；无业务/组件源码改动。新增7条missing-jsdoc为本批公开结果字段/构造指南缺注释，待全测终态后只补源JSDoc并正式刷新，不手改产物、不可冒称零差距。初步白名单已暂存36文件，cached diff --check通过，不包含组件RED；台账后补事实尚未暂存。全测60232仍在原进程推进，已见一个失败标记，未终态，未提交推送T。
+
+**T当前可恢复断点（核验等待）。**UTC 2026-11-07 20:27:55实际轮询60232仍活跃并持续输出，尚无终态明细；它从未重启。下一轮只续收该handle，已有一个失败标记须等终态按源归因，不提前提交/推送。根verify13302自然exit0、数据1236/lowcode1463通过均有效限定范围；源码自完整回归启动后未修改，仅补台账与暂存白名单。新公开字段/构造JSDoc待终态后补源并正式刷新，随后相应检查。暂存36文件为T源/测试/台账/23正式派生，后补台账未全暂存；组件未跟踪RED原样。没有实服写入/合并/部署。整体goal保持active，S1未冻结，不能将此等待标完成或blocked。
+
+**用户恢复实服烟测授权及迁移方式（2026-11-08）。**用户明确要求“烟测验证→评审查断链→研究方案→代码实现→再烟测”迭代、不向后兼容、历史数据一次性转换，并提供企业领码科技测试账号。凭据仅本次进程内使用，不写台账/证据/提交；此授权恢复后续实服精确隔离CRUD及清理，不解禁跨S1责任层批次或Java后端改动。历史转换先核全量范围、旧新映射和实际消费者，校验后一次性执行，不用兼容读取或猜测回填掩盖旧结构。
+
+当前完整快照全测60232仍活跃，已有多个失败标记但未终态；代码被测源仍冻结。原localhost5273烟测服务未运行；只读预检14622复用当前SDK/DataSet装配器，经已配置正式gateway登录并核正式模型/绑定DataView，严格请求白名单（公共企业目录、登录/刷新、正式GetData），禁止业务写/SysGetData改道，会话仅RAM；尚待结果，未跑旧写意图/旧清理脚本。实服缺证、服务阻塞及用户暂缓仍分列。
+
+**本轮实服只读烟测。**14622自然exit1：登录成功、4次正式GetData读已返回，脚本构造ScenarioViewConfig漏scenarioId导致本地校验失败，非服务能力缺陷。修脚本后13080自然exit0：企业目录1、登录1、正式GetData5，当前正式Base_DataSet模型→当前装配器DataSet→绑定DataView查询返回1行，hasUnconfirmed=false，结构化resolve为{state:none,views:[]}。业务写0、凭据落盘0、会话RAM后清理；不打印token/密码，不沿旧脚本RAM_SESSION输出。此仅当前真实读链/账号可用证据，不核销CRUD、20包或组件/宿主验收。接续只读核正式新增字段与当次权限，CRUD写入须在完整回归具体失败归因后才发；用户已明确授权，不另走反复确认流程。
+
+**当次CRUD可行性只读确认。**34527自然exit0，仍1企业目录/1登录/5正式GetData、业务写0。正式Base_DataSet视图addAction=enabled；Name/Type/description/sysid等新增字段当次write=allowed，正式rowid及_pk为denied由原查询prepare生成，不能手工伪造身份/权限。准备隔离CRUD使用原prepare生成唯一ID及唯一Name/description标记、每次仅显式该ID提交，独立DataView精确按ID及标记回读并删除清理，未知结果先核验不重放。尚未派发该CRUD，当前完整回归未终态；历史数据转换不借烟测批量改旧记录。用户提供的密码未写任何文件/台账/证据。
+
+**实服烟测当前断点。**只读预检14622脚本错误已纠正，13080及34527均自然exit0；无活跃烟测句柄、无隔离业务对象待清理，因为当前业务写始终0。用户授权的后续隔离CRUD/评审/修复/再烟测与一次性历史转换要求持续有效，不再索取重复许可。完整回归60232最近一次60秒原句柄轮询仍活跃、有推进及多个失败标记，必须收终态明细归因；尚未重启、提交或推送T。下一先该handle→修真实断链或独立复核超时→补新公开JSDoc并正式生成→工程安全checkpoint；然后精确隔离实服CRUD及清理、数据库三项I3缺口，保持S1边界。密码/token从未写入脚本、证据或台账，脚本仅从stdin接收并RAM消费。
+
+**T完整回归终态及断链修复。**原60232自然exit1：501文件494通过/7失败，9219测试9209通过/10失败，890.38s；不是超时或环境归因。实际断点：ScenarioDefinitionResource workspace核验未应用后普通Error；staged-design-file-view精确回读原JSON基线后普通Error；blueprint测试来源夹具allabsent亦普通Error。新公共链不接受它们冒充权威负证，故旧期望不能通过。仅在两实际数据资源适配的原核验分支给本次command.changes/[change]证明，蓝图夹具按真实runtime已改合同同步，不改页面流程/断言、不恢复pending消失即未生效。7个原失败文件全范围复验83864进行中。
+
+**用户清理要求已开始落实。**台账首页原“仅规划/暂停”已改当前S1恢复授权及历史段非活动指令，避免旧下一步重新生效；新公开结果/构造源JSDoc已补，待正式生成，不手改产物。实际git worktree仅D:/SPARK_AppWorks一个，无废弃worktree可删。已核无生产消费者并精确删除ignored artifacts下workflow-workspace-live-auth-run.mts与workflow-workspace-live-account-auth.mts：旧临时脚本会打印RAM_SESSION，不应再作为有效认证入口。当前RAM只读烟测脚本保留，历史证据指针只表当时事实；未删有效回归、不清空artifacts、不git clean、不删用户遗留组件RED、不改其它责任层源码。T仍未提交推送，待真实修复验证。
+
+**Pagedata原批身份补验。**高阶读出ScenarioDefinitionResource虽保存pending.contexts，却只比较内容签名，两个命名视图同目标同文本时兄弟B可核验并领取A原回执。主控新增真实兄弟例先RED（B错误success），恢复前复用已有contexts比完整集合长度与插入顺序/引用，工作区verify前拒绝不匹配。74个场景资源测试GREEN，写入仍仅1次，A可恢复；错误提示保原“先核验原提交”主意并明确上下文顺序。仅数据适配，不页面补丁。源码与新公开JSDoc最终生成需覆盖此补项，83864原失败7文件复验及18604根verify继续收终态。
+
+**清理复核补记。**旧8份plan-data-space-*与plan-appworks-integration均已有撤回/归档及唯一台账指向，不能为清理再次删除有效证据或制造第二计划。本轮只纠正真正错误的台账当前入口、补公开源指南及删除已证无消费者的两临时认证脚本。用户遗留json-tree-value-root RED属S2待验，不是已证过时测试，故不移动/删除/暂存，不能声称整工作树零变化。高阶已最终核原上下文守卫与两资源负证无T检查点阻断（只读未跑测）。正式末态生成38113自然exit0：1108/1744/3768；根verify18604自然exit0，补原context守卫后74场景资源测试通过，另补末态根类型/定向lint/生成后ClassModel检查。本批不恢复旧标量API、弱pending推断或页面补丁，未提交推送。
+
+**T最终检查点验证结论。**原失败7文件复验83864自然exit0：7文件859测试，319.54s，原10失败对应断链均通过；新增原context反例与末态守卫另外74测试通过。不是重跑整仓9219全绿，不覆盖已保留的首次10失败事实。根verify18604自然exit0；末态补验根type81689、定向lint84359均自然exit0，生成后ClassModel77842为49测试自然exit0。数据包1236、lowcode1463及当时根完整494文件通过保其实际范围。末态正式生成38113自然exit0，1108分片/1744索引/3768gaps，新公开结果字段及构造JSDoc已补，不再新增7条指南缺口；25派生文件剔除明确时间/编译符号后剩5份为DataView/DataSet恢复合同、database扩展派生签名、manifest索引与行号变化gaps，未手改产物。
+
+全部验证/烟测句柄终态，无活跃长测等待。当前可安全提交T局部检查点：公共恢复原批及逐视图结果、实际DB/file/pagedata/命令/初始化适配证明、真实正反例/旧夹具合同纠正、唯一台账入口清理及官方派生。原组件未跟踪RED不提交；删除两旧认证助手属ignored临时文件清理，不计Git源码变更。无Java变更、业务页面补丁、实服业务写入、兼容层、合并或部署。下一S1继续精确隔离CRUD烟测及清理、数据库I3三项和其余矩阵；历史数据转换按已定映射一次性执行，不用兼容读分支。S1仍未冻结，目标active。

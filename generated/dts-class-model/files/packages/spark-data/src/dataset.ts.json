@@ -779,7 +779,7 @@
         },
         "method.resolveUnconfirmedSaves.return": {
           "type": "object",
-          "title": "Promise<'none' | 'confirmed' | 'not-applied'>"
+          "title": "Promise<DataSetSaveResolution>"
         },
         "method.abandonUnconfirmedSaves.params": {
           "type": "object",
@@ -834,7 +834,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T16:24:34.890Z",
+  "generatedAt": "2026-11-07T20:19:32.631Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -2054,28 +2054,16 @@
             },
             {
               "name": "resolveUnconfirmedSaves",
-              "jsdoc": "经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。\n返回 none（没有待核验）、confirmed（原提交已生效）或 not-applied（原提交未生效，草稿保留）；仍无法确认时抛出原错误。",
+              "jsdoc": "经原保存入口核验本实例所有未确认提交（执行器只回读、不重放）。\n按视图报告已接纳、来源证实未生效或仍未知，保留原批次；partial不能解释为整体未生效。\n未知结果携带原错误并保留捕获，新编辑和未派发来源不参与本次核验。",
               "parameters": [],
               "type": {
                 "type": "reference",
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "union",
-                    "types": [
-                      {
-                        "type": "literal",
-                        "value": "none"
-                      },
-                      {
-                        "type": "literal",
-                        "value": "confirmed"
-                      },
-                      {
-                        "type": "literal",
-                        "value": "not-applied"
-                      }
-                    ]
+                    "type": "reference",
+                    "name": "DataSetSaveResolution",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
                   }
                 ]
               }

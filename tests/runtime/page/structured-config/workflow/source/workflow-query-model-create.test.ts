@@ -17,7 +17,7 @@ import {WorkflowComputedFields} from '@/lowcode/resources/structured-config/work
 import {workflowQueryAncestors} from '@/lowcode/resources/structured-config/workflow-definition/fields/query-inputs'
 import {stageWorkflowCopyTarget,workflowCopyTargetConfig} from '@/lowcode/resources/structured-config/workflow-definition/source/copy-target'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
-import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from '../workflow-native-design.fixture'
+import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText,workflowDesignCommandBindings} from '../workflow-native-design.fixture'
 
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
@@ -31,7 +31,7 @@ async function fixture(){
   View_TblList:[{rowid:'TABLE',dbid:'DB',DbName:'TestDB',tblname:'Disposable',tbldesc:''}],Base_TblField:[{rowid:'PK',tblid:'TABLE',enname:'rowid',DataType:'varchar',cnname:'ID',IsPKey:1},{rowid:'NAME',tblid:'TABLE',enname:'name',DataType:'varchar',cnname:'名称',IsPKey:0}],
   Base_DataModel:[{rowid:'M1',dataSetId:'W1',Name:'Orders'},{rowid:'M2',dataSetId:'W2',Name:'Other'}],Base_DataModel_Field:[]}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
- const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
+ const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),...workflowDesignCommandBindings(workflowDesignText,http),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
   fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent(){}})}}).dataSet
  const page=new PageRuntime({pageId:'query-create',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W1'}},loadScenario:async()=>ds})
  pages.push(page);await page.load();await ds.getView('Base_WorkflowDefinition')!.refresh()

@@ -127,6 +127,8 @@ export type BindCommandSubmitOptions = Readonly<{
   submit: (row: DataRow) => Promise<DataRow>
   verify: (row: DataRow) => Promise<DataRow | undefined>
   isUnconfirmed?: (error: unknown) => boolean
+  /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */
+  allowAbandonUnconfirmed?: boolean
 }>
 
 function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], options: BindCommandSubmitOptions): QueryResult {
@@ -211,7 +213,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
     },
     save,
     hasUnconfirmedSave: context => pending.has(context),
-    abandonUnconfirmedSave: context => { pending.delete(context) },
+    ...(options.allowAbandonUnconfirmed === false ? {} : {abandonUnconfirmedSave: (context: object) => { pending.delete(context) }}),
   }, {resource: options.resource})
 }
 

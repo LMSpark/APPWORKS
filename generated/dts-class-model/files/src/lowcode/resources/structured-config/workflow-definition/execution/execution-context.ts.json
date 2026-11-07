@@ -29,9 +29,12 @@
             "workflowId": {
               "type": "string"
             },
-            "guard": {
+            "scopeGuard": {
               "type": "object",
               "title": "() => void"
+            },
+            "sourcePass": {
+              "$ref": "execution-contract.ts.json#/$defs/WorkflowExecutionPass"
             }
           },
           "additionalProperties": false
@@ -78,7 +81,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T09:09:33.470Z",
+  "generatedAt": "2026-11-07T04:54:00.259Z",
   "models": {
     "WorkflowExecutionContext": {
       "name": "WorkflowExecutionContext",
@@ -86,7 +89,7 @@
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {
-          "signatureText": "constructor(ds: DataSet, workflowId: string, guard: () => void)",
+          "signatureText": "constructor(ds: DataSet, workflowId: string, scopeGuard: () => void, sourcePass?: WorkflowExecutionPass | undefined)",
           "parameters": [
             {
               "name": "ds",
@@ -103,7 +106,7 @@
               }
             },
             {
-              "name": "guard",
+              "name": "scopeGuard",
               "type": {
                 "type": "reflection",
                 "declaration": {
@@ -117,6 +120,20 @@
                     }
                   ]
                 }
+              }
+            },
+            {
+              "name": "sourcePass",
+              "type": {
+                "type": "optional",
+                "elementType": {
+                  "type": "reference",
+                  "name": "WorkflowExecutionPass",
+                  "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts"
+                }
+              },
+              "flags": {
+                "isOptional": true
               }
             }
           ]

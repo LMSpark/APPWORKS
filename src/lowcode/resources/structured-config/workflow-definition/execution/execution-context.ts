@@ -11,6 +11,9 @@ import {validateWorkflowConditionFilter} from '../connector-condition'
 import {validateWorkflowQueryInputChanges} from '../fields/query-inputs'
 import {readWorkflowCopyTarget} from '../source/copy-target'
 import {workflowMergeFormalInputs} from '../fields/merge-inputs'
+import {WorkflowExecutionContract,type WorkflowExecutionPass} from './execution-contract'
+type PhysicalSource=Awaited<ReturnType<typeof LowcodeDataSpaceModelSourceReader.readTableTarget>>
+function physicalSignature(source:PhysicalSource):string{return JSON.stringify({...source,fields:[...source.fields].sort((a,b)=>a.Name.localeCompare(b.Name))})}
 function read(view:DataView,row:DataRow,field:string):unknown{
  if(view.fieldAccess(row,field).read!=='visible')throw Error(`执行图字段不可读: ${field}`)
  return row[field]
@@ -19,10 +22,6 @@ function complete(view:DataView|undefined,workflowId:string):DataView{
  if(!view||view.destroyed||view.loadingError||view.requestState!==RequestState.Loaded||view.queryContext['workflowId']!==workflowId
   ||view.rows.length!==view.total||view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('执行图尚未完整读取或仍有定义修改')
  return view
-}
-function formalSignature(view:DataView,nodeId?:string):string{
- const columns=view.queryConfig.fields??view.columns.map(column=>column.name)
- return JSON.stringify(view.rows.filter(row=>nodeId===undefined||view.getPkKey(row)===nodeId).map(row=>columns.map(field=>[field,read(view,row,field)])).sort((a,b)=>JSON.stringify(a).localeCompare(JSON.stringify(b))))
 }
 function validWorkflowKey(value:unknown):boolean{return typeof value==='number'&&Number.isFinite(value)||typeof value==='string'&&Boolean(value.trim())}
 /** 单节点实际输入须含所引用祖先行；整流在服务端产生中间输入，未提供时只核正式定义。 */
@@ -35,10 +34,17 @@ function checkActualWorkflowInput(input:unknown,expression:unknown,key=false):vo
 /** 执行专用条件查询由原关系视图派生；不替换页面正在维护的连线条件或模型关系。 */
 export class WorkflowExecutionContext{
  readonly #conditions:DataView
- constructor(private readonly ds:DataSet,private readonly workflowId:string,private readonly guard:()=>void){
+ constructor(private readonly ds:DataSet,private readonly workflowId:string,private readonly scopeGuard:()=>void,private readonly sourcePass?:WorkflowExecutionPass){
+  this.guard()
   const source=ds.getView('Base_DataModel_Relation','asParent')
   if(!source)throw Error('执行图缺少正式关系视图')
   this.#conditions=source.createQueryView(`workflowExecution_${crypto.randomUUID().replaceAll('-','')}`)
+ }
+ private guard():void{this.scopeGuard();this.sourcePass?.assertCurrent()}
+ private node(nodes:DataView,nodeId:string):DataRow{
+  const row=nodes.rows.find(candidate=>nodes.getPkKey(candidate)===nodeId)
+  if(!row||read(nodes,row,'workflow_id')!==this.workflowId)throw Error('执行节点身份或归属不符')
+  return row
  }
  private structure(){
   this.guard()
@@ -74,32 +80,24 @@ export class WorkflowExecutionContext{
  }
  /** 本次显示的正式投影须仍与服务端一致；私有查询不替换页面结果或草稿。 */
  private async checkFormal(source:DataView,nodeId?:string):Promise<void>{
-  const signature=(view:DataView)=>formalSignature(view,nodeId)
-  const before=signature(source),context=JSON.stringify(source.queryContext),current=source.createQueryView(`executionFormal_${crypto.randomUUID().replaceAll('-','')}`)
-  try{
-   current.queryConfig={...current.queryConfig,allPages:true}
-   if(nodeId!==undefined)current.filterExpression={logic:'and',filters:[{field:'workflow_id',operator:'eq',value:this.workflowId},{field:'rowid',operator:'eq',value:nodeId}]}
-   await current.refresh();this.guard();complete(source,this.workflowId)
-   if(current.loadingError||current.requestState!==RequestState.Loaded||current.rows.length!==current.total||JSON.stringify(source.queryContext)!==context||signature(source)!==before||signature(current)!==before)throw Error(`正式执行定义已变化，请刷新后重新测试: ${source.tableName}`)
-  }finally{current.dataTable?.destroyView(current.viewId)}
+  const contract=new WorkflowExecutionContract({dataSet:this.ds,workflowId:this.workflowId,guard:()=>this.guard(),views:[source],...(nodeId===undefined?{}:{nodeId})})
+  await contract.refresh()
  }
- /** 所有后续查询始终对照同一首轮合同；页面同步刷新不能重置本命令基线。 */
+ /** 独立使用时固定本次校验；正式命令同时沿sourcePass核对打开时合同。 */
  private executionContract(){
-  const contract=['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'].map(name=>{const view=complete(this.ds.getView(name),this.workflowId);return{view,signature:formalSignature(view),context:JSON.stringify([view.queryContext,view.queryConfig,view.filterExpression])}})
-  const check=()=>{for(const item of contract)if(formalSignature(complete(item.view,this.workflowId))!==item.signature||JSON.stringify([item.view.queryContext,item.view.queryConfig,item.view.filterExpression])!==item.context)throw Error(`正式执行定义已变化，请刷新后重新测试: ${item.view.tableName}`)}
-  return {check,refresh:async()=>{check();for(const item of contract){await this.checkFormal(item.view);check()}}}
+  const contract=new WorkflowExecutionContract({dataSet:this.ds,workflowId:this.workflowId,guard:()=>this.guard()})
+  return{check:()=>contract.assertCurrent(),refresh:()=>contract.refresh()}
  }
  /** copy沿正式来源模型及目标表查询预检；不在浏览器复制行，不猜测字段转换或执行结果。 */
  private async validateCopyNode(nodeId:string,input?:unknown):Promise<void>{
   const contract=this.executionContract(),nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId)
-  const node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
-  if(!node)throw Error('迁移节点不存在')
-  const modelId=read(nodes,node,'node_config'),modelSource=this.ds.getView('Base_DataModel','modelCatalog'),fieldSource=this.ds.getView('Base_DataModel_Field','modelInputFields')
+  this.node(nodes,nodeId)
+  const modelId=read(nodes,this.node(nodes,nodeId),'node_config'),modelSource=this.ds.getView('Base_DataModel','modelCatalog'),fieldSource=this.ds.getView('Base_DataModel_Field','modelInputFields')
   if(typeof modelId!=='string'||!modelId||!modelSource||!fieldSource)throw Error('迁移来源模型或字段视图缺失')
   const owned:DataView[]=[],suffix=crypto.randomUUID().replaceAll('-','')
   const check=()=>{
    this.guard();contract.check()
-   if(nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)!==node||read(nodes,node,'node_type')!=='copy'||read(nodes,node,'node_config')!==modelId)throw Error('迁移执行目标已变化')
+   if(read(nodes,this.node(nodes,nodeId),'node_type')!=='copy'||read(nodes,this.node(nodes,nodeId),'node_config')!==modelId)throw Error('迁移执行目标已变化')
    for(const source of [modelSource,fieldSource])for(const view of source.dataTable?.viewList??[])
     if(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('迁移来源定义仍有未处理修改')
   }
@@ -112,12 +110,15 @@ export class WorkflowExecutionContext{
    const results=await Promise.allSettled([models.refresh(),fields.refresh()]);check()
    for(const result of results)if(result.status==='rejected')throw result.reason
    complete(models,this.workflowId);complete(fields,this.workflowId)
+   this.sourcePass?.acceptSource(`model:${nodeId}:${modelId}`,WorkflowExecutionContract.sourceSignature(models))
+   this.sourcePass?.acceptSource(`fields:${nodeId}:${modelId}`,WorkflowExecutionContract.sourceSignature(fields))
    const model=models.rows[0]
    if(models.rows.length!==1||!model||models.getPkKey(model)!==modelId||read(models,model,'dataSetId')!==this.workflowId||read(models,model,'requestType')!=='copy')throw Error('迁移来源模型身份、归属或requestType不符')
    if(read(models,model,'Type')!=='数据库表')throw Error('当前迁移来源执行合同尚未核定')
    const dbid=read(models,model,'DbId'),tableName=read(models,model,'MetaName'),databaseName=read(models,model,'DbName')
    if(typeof dbid!=='string'||typeof tableName!=='string'||typeof databaseName!=='string')throw Error('迁移来源物理表身份缺失')
    const source=await LowcodeDataSpaceModelSourceReader.readTableTarget(this.ds,{dbid,name:tableName,databaseName},check)
+   this.sourcePass?.acceptSource(`physical-source:${nodeId}:${modelId}`,physicalSignature(source))
    const actual=new Map(source.fields.map(field=>[field.Name,field])),ids=new Set<string>(),names=new Set<string>(),values:unknown[]=[]
    for(const row of fields.rows){
     const id=read(fields,row,'rowid'),kind=read(fields,row,'type'),name=read(fields,row,'Name'),fieldType=read(fields,row,'FieldType'),value=read(fields,row,'ValueFun')
@@ -135,38 +136,38 @@ export class WorkflowExecutionContext{
     const visit=(tree:DataViewFilterTree):void=>{if('logic'in tree)tree.filters.forEach(visit);else checkActualWorkflowInput(input,tree.value)}
     if(parsed)visit(parsed.toJSON())
    }
-   await readWorkflowCopyTarget(this.ds,read(nodes,node,'config'),check);check()
+   const target=await readWorkflowCopyTarget(this.ds,read(nodes,this.node(nodes,nodeId),'config'),check);check()
+   this.sourcePass?.acceptSource(`copy-target:${nodeId}`,physicalSignature(target))
    await this.checkFormal(models);check();await this.checkFormal(fields);check();await contract.refresh();check()
   }finally{for(const view of owned)if(!this.ds.destroyed)view.dataTable?.destroyView(view.viewId)}
  }
  /** 显式执行前按需核对节点的正式操作定义。 */
  async validateNode(nodeId:string,input?:unknown):Promise<void>{
   this.guard()
-  const nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId),node=nodes.rows.find(row=>nodes.getPkKey(row)===nodeId)
-  if(!node||read(nodes,node,'workflow_id')!==this.workflowId)throw Error('执行节点身份或归属不符')
+  const nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId)
+  this.node(nodes,nodeId)
   await this.checkFormal(nodes,nodeId)
-  const operation=read(nodes,node,'node_type')
+  const operation=read(nodes,this.node(nodes,nodeId),'node_type')
   if(operation==='merge'){
    if(workflowMergeFormalInputs({dataSet:this.ds,workflowId:this.workflowId,nodeId}).length===0)throw Error('合并输入尚未配置，不能执行未完成节点')
    return
   }
-  if(operation==='query'&&String(read(nodes,node,'position_type'))==='1'){
-   const source=read(nodes,node,'node_config')
+  if(operation==='query'&&String(read(nodes,this.node(nodes,nodeId),'position_type'))==='1'){
+   const source=read(nodes,this.node(nodes,nodeId),'node_config')
    if(typeof source!=='string'||!source.trim())throw Error('查询来源模型尚未配置，不能执行未完成节点')
   }
   if(operation==='copy'){await this.validateCopyNode(nodeId,input);return}
   if(!['add','edit','delete'].includes(String(operation)))return
   const contract=this.executionContract(),checkInputContract=()=>contract.refresh()
   await checkInputContract()
-  const modelId=read(nodes,node,'dataOperateModId')
+  const modelId=read(nodes,this.node(nodes,nodeId),'dataOperateModId')
   if(typeof modelId!=='string'||!modelId.trim())throw Error('操作目标模型缺失')
   const modelSource=this.ds.getView('Base_DataModel','modelCatalog'),fieldSource=this.ds.getView('Base_DataModel_Field','modelInputFields')
   if(!modelSource||!fieldSource)throw Error('操作执行缺少正式模型或字段视图')
   const owned:DataView[]=[]
   const check=()=>{
-   this.guard()
-   if(complete(nodes,this.workflowId).rows.find(row=>nodes.getPkKey(row)===nodeId)!==node
-    ||read(nodes,node,'dataOperateModId')!==modelId||read(nodes,node,'node_type')!==operation)throw Error('操作执行目标已变化')
+   this.guard();contract.check()
+   if(read(nodes,this.node(nodes,nodeId),'dataOperateModId')!==modelId||read(nodes,this.node(nodes,nodeId),'node_type')!==operation)throw Error('操作执行目标已变化')
    for(const source of [modelSource,fieldSource])for(const view of source.dataTable?.viewList??[])
     if(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('操作定义仍有未处理修改')
   }
@@ -180,6 +181,8 @@ export class WorkflowExecutionContext{
    const results=await Promise.allSettled([models.refresh(),fields.refresh()]);check()
    for(const result of results)if(result.status==='rejected')throw result.reason
    complete(models,this.workflowId);complete(fields,this.workflowId)
+   this.sourcePass?.acceptSource(`model:${nodeId}:${modelId}`,WorkflowExecutionContract.sourceSignature(models))
+   this.sourcePass?.acceptSource(`fields:${nodeId}:${modelId}`,WorkflowExecutionContract.sourceSignature(fields))
    const model=models.rows[0]
    if(models.rows.length!==1||!model||models.getPkKey(model)!==modelId||read(models,model,'dataSetId')!==this.workflowId)throw Error('操作目标模型身份或归属不符')
    if(read(models,model,'requestType')!==operation)throw Error('操作节点与模型requestType不符')
@@ -201,6 +204,7 @@ export class WorkflowExecutionContext{
    const dbid=read(models,model,'DbId')
    if(typeof dbid!=='string')throw Error('操作目标缺少数据库ID')
    const source=await LowcodeDataSpaceModelSourceReader.readTableTarget(this.ds,{dbid,name:String(read(models,model,'MetaName')),databaseName:String(read(models,model,'DbName'))},check)
+   this.sourcePass?.acceptSource(`physical-source:${nodeId}:${modelId}`,physicalSignature(source))
    const sourceNames=source.fields.map(field=>field.Name.toLowerCase().replace(/^row_id$/u,'rowid'))
    if(new Set(sourceNames).size!==sourceNames.length)throw Error('操作来源存在服务字段别名歧义')
    const actual=new Map(source.fields.map(field=>[field.Name.toLowerCase(),field]))
@@ -237,17 +241,19 @@ export class WorkflowExecutionContext{
     }
    }
   }
-  const nodes=complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId),original=[...nodes.rows]
+  complete(this.ds.getView('Base_WorkflowNodeDefinition'),this.workflowId)
+  const original=this.executionContract()
   for(const id of graph.nodeIds)await this.validateNode(id)
-  if(nodes.rows.length!==original.length||nodes.rows.some((row,index)=>row!==original[index]))throw Error('执行图节点在操作校验期间已变化')
+  original.check()
   if(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())throw Error('执行条件查询仍有修改')
   view.queryContext={...view.queryContext,workflowId:this.workflowId}
   const pairs:DataViewFilterTree[]=graph.links.map(({source,target})=>({logic:'and',filters:[{field:'parentModId',operator:'eq',value:source},{field:'childModId',operator:'eq',value:target}]}))
   view.filterExpression={logic:'and',filters:[{field:'dataSetId',operator:'eq',value:this.workflowId},{logic:'or',filters:pairs}]}
   await view.refresh()
-  if(nodes.rows.length!==original.length||nodes.rows.some((row,index)=>row!==original[index]))throw Error('执行图节点在条件读取期间已变化')
+  original.check()
   for(const name of ['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'])await this.checkFormal(complete(this.ds.getView(name),this.workflowId))
   this.capture()
+  this.sourcePass?.acceptSource('workflow:conditions',WorkflowExecutionContract.sourceSignature(view))
  }
  /** 图完整性与分支可证性分别表达；不在前端求值服务端条件。 */
  capture():WorkflowExecutionGraph{

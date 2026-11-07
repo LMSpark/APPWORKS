@@ -1,0 +1,220 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings\n职责：在正式工作流场景首次装配时绑定原执行命令，并保留首轮定义及来源合同。\n边界：命令输入和回执只有原DataView一份；此处只持校验证据，不创建表或面板owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowExecutionPresentation"
+    ]
+  },
+  "$defs": {
+    "Mode": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Mode",
+      "enum": [
+        "node",
+        "workflow"
+      ]
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "config": {
+          "$ref": "../../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "http": {
+          "$ref": "../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "readScope": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "OpenInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OpenInput",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "mode": {
+          "$ref": "#/$defs/Mode"
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "workflowId",
+        "mode"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowExecutionPresentation": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionPresentation",
+      "properties": {
+        "groups": {
+          "type": "array",
+          "items": {
+            "$ref": "execution-inputs.ts.json#/$defs/WorkflowTestInputGroup"
+          }
+        },
+        "blockedReason": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "groups",
+        "blockedReason"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-07T04:58:41.275Z",
+  "models": {
+    "Mode": {
+      "name": "Mode",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'node' | 'workflow'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'node'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'workflow'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    http: HttpClientBase;\n    readScope: ConstructorParameters<typeof WorkflowExecutionResource>[0]['readScope'];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    http: HttpClientBase;\n    readScope: ConstructorParameters<typeof WorkflowExecutionResource>[0]['readScope'];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readScope",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "OpenInput": {
+      "name": "OpenInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    mode: Mode;\n    nodeId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    mode: Mode;\n    nodeId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mode",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionPresentation": {
+      "name": "WorkflowExecutionPresentation",
+      "jsdoc": "原命令的结构化输入呈现，不携带可编辑输入副本。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    groups: readonly WorkflowTestInputGroup[];\n    blockedReason: string | undefined;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    groups: readonly WorkflowTestInputGroup[];\n    blockedReason: string | undefined;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "groups",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "blockedReason",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

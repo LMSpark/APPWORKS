@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1102,
+  "scannedFileCount": 1104,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14833,6 +14833,22 @@
         ]
       }
     },
+    "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/execution/execution-contract",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/execution/execution-contract",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution/execution-contract\n职责：保持一次工作流命令打开时的正式定义与执行来源合同。\n边界：只保留不可编辑的校验签名，所有正式读取仍由原DataView完成；不执行命令或重建输入。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowExecutionPass",
+          "WorkflowExecutionContract"
+        ]
+      }
+    },
     "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts": {
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json",
       "module": {
@@ -14847,6 +14863,21 @@
           "WorkflowTestField",
           "WorkflowTestInputGroup",
           "WorkflowTestInputPresentation"
+        ]
+      }
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts": {
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings",
+        "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts",
+        "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings",
+        "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings\n职责：在正式工作流场景首次装配时绑定原执行命令，并保留首轮定义及来源合同。\n边界：命令输入和回执只有原DataView一份；此处只持校验证据，不创建表或面板owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowExecutionPresentation"
         ]
       }
     },
@@ -24723,9 +24754,21 @@
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts.json"
     },
+    "WorkflowExecutionContract": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts.json"
+    },
     "WorkflowExecutionGraph": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts.json"
+    },
+    "WorkflowExecutionPass": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts.json"
+    },
+    "WorkflowExecutionPresentation": {
+      "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts",
+      "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts.json"
     },
     "WorkflowExecutionResource": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",

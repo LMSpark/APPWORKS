@@ -30,7 +30,7 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
         <RendererButton v-if="boundaryCompletion?.canDiscardNotApplied" label="放弃未生效的边界补齐" :disabled="busy" @click="changeBoundaries('discard')" />
         <RendererButton label="取消边界补齐" :disabled="!boundaryCompletion?.canCancel" @click="changeBoundaries('cancel')" />
       </template>
-      <RendererButton label="测试" :disabled="locked || hasPending" @click="executionApi?.open('workflow')" />
+      <RendererButton label="测试" :disabled="(locked || hasPending) && !executionExisting" @click="executionApi?.open('workflow')" />
       <WorkflowExecutionPanel v-if="dataSet" ref="executionApi" :key="loadedTarget" :data-set="dataSet" :workflow-id="workflowId" :node-id="selectedKind === 'node' ? selectedQueryId : ''"
         :revision="revision" :disabled="locked" @pending-change="(key,value)=>pending('execution.'+key,value)" />
       <RendererButton label="新增节点" :data-view-key="nodesKey" action="append-row" :set-current-row-on-success="true"
@@ -102,7 +102,8 @@ const views=computed(()=>{revision.value;return Object.values(dataSet.value?.tab
 const validTarget=computed(()=>{revision.value;return view('Base_WorkflowDefinition')?.rows.length===1})
 const missing=computed(()=>ready.value&&!validTarget.value)
 const loading=computed(()=>{revision.value;return opening.value||views.value.some(v=>v.requestState===RequestState.Preparing||v.requestState===RequestState.Loading)})
-const busy=computed(()=>acting.value||loading.value||(inputs.value.has('execution.running')||inputs.value.has('object.running')))
+const executionExisting=computed(()=>{revision.value;const target=view('WorkflowExecution');return !!target&&(target.rows.length>0||target.hasUnconfirmedSave)})
+const busy=computed(()=>acting.value||loading.value||views.value.some(view=>view.mutating)||(inputs.value.has('execution.running')||inputs.value.has('object.running')))
 const unconfirmed=computed(()=>{revision.value;return views.value.some(v=>v.hasUnconfirmedSave)})
 const locked=computed(()=>busy.value||unconfirmed.value||inputs.value.has('remove.node')||inputs.value.has('source.query')||loadedTarget.value!==workflowId.value)
 const hasPending=computed(()=>{revision.value;return boundaryActive.value||acting.value||inputs.value.size>0||views.value.some(v=>v.hasUnconfirmedSave||v.hasEditingChanges()||v.dirtyTracking.hasPendingChanges())})

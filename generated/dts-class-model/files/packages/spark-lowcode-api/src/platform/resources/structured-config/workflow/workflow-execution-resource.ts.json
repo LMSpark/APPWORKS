@@ -50,62 +50,82 @@
       ],
       "additionalProperties": false
     },
+    "WorkflowExecutionCommandInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionCommandInput",
+      "properties": {
+        "commandId": {
+          "type": "string"
+        },
+        "mode": {
+          "enum": [
+            "node",
+            "workflow"
+          ]
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "input": true
+      },
+      "required": [
+        "commandId",
+        "mode",
+        "nodeId",
+        "input"
+      ],
+      "additionalProperties": false
+    },
+    "PreparedWorkflowExecution": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "PreparedWorkflowExecution",
+      "properties": {
+        "workflowId": {
+          "type": "string"
+        },
+        "graph": {
+          "$ref": "#/$defs/WorkflowExecutionGraph"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
     "WorkflowExecutionResourceInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
       "title": "WorkflowExecutionResourceInput",
       "properties": {
-        "dataSet": {
-          "type": "object",
-          "title": "DataSet"
-        },
         "http": {
           "$ref": "../../../../../../spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
         },
-        "workflowId": {
-          "type": "string"
+        "onPrepareInput": {
+          "type": "object",
+          "title": "NonNullable<BindCommandSubmitOptions['onPrepareInput']>"
         }
       },
       "additionalProperties": false,
       "$defs": {
-        "method.graph.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.graph.return": {
-          "$ref": "#/$defs/WorkflowExecutionGraph"
-        },
         "method.prepare.params": {
           "type": "object",
           "properties": {
             "input": {
-              "type": "object",
-              "properties": {
-                "mode": {
-                  "enum": [
-                    "node",
-                    "workflow"
-                  ]
-                },
-                "nodeId": {
-                  "type": "string"
-                },
-                "input": true
-              },
-              "required": [
-                "mode",
-                "nodeId",
-                "input"
-              ],
-              "additionalProperties": false
+              "$ref": "#/$defs/WorkflowExecutionCommandInput"
             }
           },
           "additionalProperties": false
         },
         "method.prepare.return": {
           "type": "object",
-          "title": "Promise<void>"
+          "title": "Promise<PreparedWorkflowExecution>"
         },
         "method.readScope.params": {
           "type": "object",
@@ -142,9 +162,7 @@
       "type": "object",
       "title": "WorkflowExecutionResource",
       "properties": {
-        "requests": {
-          "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
-        }
+        "resourceId": true
       },
       "additionalProperties": false,
       "$defs": {
@@ -156,11 +174,23 @@
             }
           },
           "additionalProperties": false
+        },
+        "method.binding.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.binding.return": {
+          "$ref": "../../../../../../spark-data/src/data-set-command/data-set-command-view.ts.json#/$defs/BindCommandSubmitOptions"
         }
       }
     }
   },
-  "generatedAt": "2026-11-04T08:34:32.454Z",
+  "generatedAt": "2026-11-07T04:57:42.636Z",
   "models": {
     "WorkflowExecutionGraph": {
       "name": "WorkflowExecutionGraph",
@@ -201,62 +231,122 @@
         }
       }
     },
-    "WorkflowExecutionResourceInput": {
-      "name": "WorkflowExecutionResourceInput",
-      "jsdoc": "",
+    "WorkflowExecutionCommandInput": {
+      "name": "WorkflowExecutionCommandInput",
+      "jsdoc": "原命令行的身份及解析后输入；执行目标由本次首轮合同返回。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    /** 解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。 */\n    prepare(input: Readonly<{\n        mode: 'node' | 'workflow';\n        nodeId: string;\n        input: unknown;\n    }>): Promise<void>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    commandId: string;\n    mode: 'node' | 'workflow';\n    nodeId: string;\n    input: unknown;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    http: HttpClientBase;\n    workflowId: string;\n    graph?: () => WorkflowExecutionGraph;\n    /** 解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。 */\n    prepare(input: Readonly<{\n        mode: 'node' | 'workflow';\n        nodeId: string;\n        input: unknown;\n    }>): Promise<void>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。 */\n    guard(): void;\n}>",
+            "typeText": "Readonly<{\n    commandId: string;\n    mode: 'node' | 'workflow';\n    nodeId: string;\n    input: unknown;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
             {
-              "name": "dataSet",
+              "name": "commandId",
               "readable": true,
               "writable": false
             },
             {
-              "name": "http",
+              "name": "mode",
               "readable": true,
               "writable": false
             },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "input",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "PreparedWorkflowExecution": {
+      "name": "PreparedWorkflowExecution",
+      "jsdoc": "异步准备后仍须在派发前及回执接纳前复核的原执行合同。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    workflowId: string;\n    graph?: WorkflowExecutionGraph;\n    assertCurrent(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    workflowId: string;\n    graph?: WorkflowExecutionGraph;\n    assertCurrent(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
             {
               "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "graph",
               "readable": true,
               "writable": false
             }
           ],
           "methods": [
             {
-              "name": "graph",
+              "name": "assertCurrent",
               "parameters": [],
               "type": {
-                "type": "reference",
-                "name": "WorkflowExecutionGraph",
-                "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
+                "type": "intrinsic",
+                "name": "void"
               }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionResourceInput": {
+      "name": "WorkflowExecutionResourceInput",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    http: HttpClientBase;\n    /** 同步固定已准备的首轮合同；不接收替代命令行。 */\n    onPrepareInput: NonNullable<BindCommandSubmitOptions['onPrepareInput']>;\n    /** 校验原命令、目标及正式定义，返回本次捕获的目标与执行图。 */\n    prepare(input: WorkflowExecutionCommandInput): Promise<PreparedWorkflowExecution>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 只核本次装配及请求scope；不要求装配时已注入工作流ID或读取定义。 */\n    guard(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    http: HttpClientBase;\n    /** 同步固定已准备的首轮合同；不接收替代命令行。 */\n    onPrepareInput: NonNullable<BindCommandSubmitOptions['onPrepareInput']>;\n    /** 校验原命令、目标及正式定义，返回本次捕获的目标与执行图。 */\n    prepare(input: WorkflowExecutionCommandInput): Promise<PreparedWorkflowExecution>;\n    readScope: () => Readonly<{\n        token: string;\n        headers: Readonly<Record<string, string>>;\n    }>;\n    /** 只核本次装配及请求scope；不要求装配时已注入工作流ID或读取定义。 */\n    guard(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
             },
             {
+              "name": "onPrepareInput",
+              "jsdoc": "同步固定已准备的首轮合同；不接收替代命令行。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
               "name": "prepare",
-              "jsdoc": "解析后的本次命令在派发前核验正式定义；DataSet直接保存同样必须经过。",
+              "jsdoc": "校验原命令、目标及正式定义，返回本次捕获的目标与执行图。",
               "parameters": [
                 {
                   "name": "input",
                   "type": {
                     "type": "reference",
-                    "name": "Readonly",
-                    "typeArguments": [
-                      {
-                        "type": "unknown",
-                        "name": "{\n        mode: 'node' | 'workflow';\n        nodeId: string;\n        input: unknown;\n    }"
-                      }
-                    ]
+                    "name": "WorkflowExecutionCommandInput",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
                   }
                 }
               ],
@@ -265,8 +355,9 @@
                 "name": "Promise",
                 "typeArguments": [
                   {
-                    "type": "intrinsic",
-                    "name": "void"
+                    "type": "reference",
+                    "name": "PreparedWorkflowExecution",
+                    "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts"
                   }
                 ]
               }
@@ -287,7 +378,7 @@
             },
             {
               "name": "guard",
-              "jsdoc": "当前工作区身份和已保存定义前置核验；不在前端授予服务执行权限。",
+              "jsdoc": "只核本次装配及请求scope；不要求装配时已注入工作流ID或读取定义。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",
@@ -319,9 +410,28 @@
         "members": {
           "attributes": [
             {
-              "name": "requests",
+              "name": "resourceId",
               "readable": true,
               "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "binding",
+              "jsdoc": "为场景已装配的原命令视图提供绑定，不创建表或视图；未知执行不提供放弃后重发能力。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "BindCommandSubmitOptions"
+              }
             }
           ]
         }

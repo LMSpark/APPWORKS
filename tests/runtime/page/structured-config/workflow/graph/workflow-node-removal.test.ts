@@ -6,7 +6,7 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
 import {openWorkflowNodeRemoval} from '@/lowcode/resources/structured-config/workflow-definition/node-removal'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
-import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from '../workflow-native-design.fixture'
+import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText,workflowDesignCommandBindings} from '../workflow-native-design.fixture'
 
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
@@ -25,7 +25,7 @@ async function fixture(shared=true,layout:string|null=null){
   Base_DataModel_Relation:[{rowid:'CONDITION',dataSetId:'W1',parentModId:'A',childModId:'B',filter:DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'value',operator:'eq',value:1}))}]}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const file={text:layout,loseReceipt:false,rejectBeforeWrite:false}
- const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
+ const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),...workflowDesignCommandBindings(workflowDesignText,http),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],
   fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{if(file.text===null)throw new LowcodeApiError(404,'missing');return file.text}},fileUpload:{uploadWorkingText:async input=>{if(file.rejectBeforeWrite){file.rejectBeforeWrite=false;throw Error('layout unavailable')}file.text=input.text;uploads.push(input.text);if(file.loseReceipt){file.loseReceipt=false;throw Error('layout response lost')}return{}}},assertCurrent(){}})}}).dataSet
  const page=new PageRuntime({pageId:'workflow-remove',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W1'}},loadScenario:async()=>ds});pages.push(page);await page.load()
  await Promise.all(['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'].map(name=>ds.getView(name)!.refresh()))

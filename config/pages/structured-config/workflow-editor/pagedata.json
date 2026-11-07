@@ -1158,6 +1158,53 @@
           }
         }
       }
+    },
+    "WorkflowExecution": {
+      "resourceType": "command",
+      "resourceId": "workflow:execution-test",
+      "columns": [
+        {
+          "name": "commandId",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "mode",
+          "type": "string"
+        },
+        {
+          "name": "nodeId",
+          "type": "string"
+        },
+        {
+          "name": "input",
+          "type": "string"
+        },
+        {
+          "name": "outcome",
+          "type": "string"
+        },
+        {
+          "name": "completeness",
+          "type": "string"
+        },
+        {
+          "name": "result",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "commitMode": "staged",
+          "queryContext": {
+            "workflowId": ""
+          },
+          "queryConfig": {
+            "pagination": "none"
+          }
+        }
+      }
     }
   },
   "resourceRelations": [],

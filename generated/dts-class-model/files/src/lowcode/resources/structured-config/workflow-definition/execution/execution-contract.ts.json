@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/structured-config/workflow-definition/execution/execution-contract",
+    "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+    "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/structured-config/workflow-definition/execution/execution-contract",
+    "jsdoc": "@module app:lowcode/resources/structured-config/workflow-definition/execution/execution-contract\n职责：保持一次工作流命令打开时的正式定义与执行来源合同。\n边界：只保留不可编辑的校验签名，所有正式读取仍由原DataView完成；不执行命令或重建输入。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "WorkflowExecutionPass",
+      "WorkflowExecutionContract"
+    ]
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "workflowId": {
+          "type": "string"
+        },
+        "views": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+          }
+        },
+        "nodeId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.guard.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.guard.return": true
+      }
+    },
+    "WorkflowExecutionPass": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionPass",
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.acceptSource.params": {
+          "type": "object",
+          "properties": {
+            "key": {
+              "type": "string"
+            },
+            "signature": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acceptSource.return": true,
+        "method.finish.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.finish.return": true
+      }
+    },
+    "WorkflowExecutionContract": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowExecutionContract",
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/Input"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sourceSignature.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.sourceSignature.return": {
+          "type": "string"
+        },
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.refresh.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refresh.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.begin.params": {
+          "type": "object",
+          "properties": {
+            "mode": {
+              "enum": [
+                "capture",
+                "verify"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.begin.return": {
+          "$ref": "#/$defs/WorkflowExecutionPass"
+        }
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T04:54:00.260Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    guard: () => void;\n    views?: readonly DataView[];\n    nodeId?: string;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    workflowId: string;\n    guard: () => void;\n    views?: readonly DataView[];\n    nodeId?: string;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "dataSet",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "workflowId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "guard",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionPass": {
+      "name": "WorkflowExecutionPass",
+      "jsdoc": "一次打开或提交准备的读取核对；失败的pass不封存、替换或扩大首轮来源。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    assertCurrent(): void;\n    acceptSource(key: string, signature: string): void;\n    finish(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    assertCurrent(): void;\n    acceptSource(key: string, signature: string): void;\n    finish(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "acceptSource",
+              "parameters": [
+                {
+                  "name": "key",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "signature",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "finish",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "WorkflowExecutionContract": {
+      "name": "WorkflowExecutionContract",
+      "jsdoc": "一次原命令的定义与来源证据，生命周期由命令绑定持有，独立于面板挂载。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(input: Input)",
+          "parameters": [
+            {
+              "name": "input",
+              "type": {
+                "type": "reference",
+                "name": "Input",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts"
+              }
+            }
+          ]
+        },
+        "members": {
+          "methods": [
+            {
+              "name": "sourceSignature",
+              "jsdoc": "对本次正式来源结果按身份与声明字段生成不可编辑的比较证据。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "string"
+              }
+            },
+            {
+              "name": "assertCurrent",
+              "jsdoc": "同值刷新可继续；原视图、范围、可读性、投影及正式值变化均拒绝。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "refresh",
+              "jsdoc": "独立正式回读与打开时基线比较，不接纳为新基线，不替换宿主结果。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "begin",
+              "jsdoc": "打开阶段仅成功完成后封存；提交阶段只能完整比较原来源键和值。",
+              "parameters": [
+                {
+                  "name": "mode",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "capture"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "verify"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "WorkflowExecutionPass",
+                "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

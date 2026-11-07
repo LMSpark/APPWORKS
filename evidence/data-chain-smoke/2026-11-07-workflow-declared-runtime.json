@@ -1,0 +1,133 @@
+{
+  "status": "engineering-verified-live-acceptance-open",
+  "scope": "Declared workflow execution command, immutable first-opening contracts, remount recovery and unknown-result retention",
+  "baseline": "755b3873e525f42c57c35243202b65da8c1d5393",
+  "fullRepository": {
+    "files": 498,
+    "tests": 9072,
+    "seconds": 1347.18,
+    "exitCode": 0,
+    "maxWorkers": 2,
+    "timeout": "Original configuration; no override"
+  },
+  "additionalVerification": {
+    "workflowAndSharedCommands": 555,
+    "sdk": 16,
+    "finalFocusedReview": 9,
+    "typecheck": "passed",
+    "lint": "passed",
+    "build": "passed",
+    "rules": "passed"
+  },
+  "frozenSources": {
+    "path": "artifacts\\data-chain-smoke\\workflow-declared-frozen-sources-v1.json",
+    "count": 23,
+    "allHashesMatch": true
+  },
+  "verificationReferences": {
+    "fullRepository": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-full-repository-v1.log",
+      "sha256": "cbf0fc4ff140b6e285fda811477a82126a556509d15c8a902d09372874e5441e"
+    },
+    "workflowAndSharedCommands": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-all-v5.log",
+      "sha256": "8b17b1b08f5357bb43aed8f3583213d0bb3614235dd5b5a38893e5748714521f"
+    },
+    "sdk": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-sdk-v3.log",
+      "sha256": "9d23d279fa2f4ec58c09ae4b54783fd23de300403e7560d9f50868f84a9632bc"
+    },
+    "finalFocusedReview": {
+      "path": "artifacts\\data-chain-smoke\\workflow-review-final-focus.log",
+      "sha256": "2fc46b7e9d9603a23f3a12b607511c98fd36d10937df7a1c0593a73d62351fd5"
+    },
+    "typecheck": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-types-v5.log",
+      "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+    },
+    "lint": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-lint-v3.log",
+      "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+    },
+    "build": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-build-v1.log",
+      "sha256": "de069f95cc19c71274fc221b8bf7ea9a3b473c09b3255ec5dfd28cb53d0e6df5"
+    },
+    "rules": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-rules-v2.log",
+      "sha256": "d5da601e8433e86f2e5640c3a79cd5d003324184510b4f92024a263ea5bc3b52"
+    },
+    "classModelCompile": {
+      "path": "artifacts\\data-chain-smoke\\workflow-declared-class-model-v4.log",
+      "sha256": "7cad3b9867d146d533e64b4fef4731b85c9985c67e137a02cf61e483536672b8"
+    },
+    "classModelGuides": {
+      "path": "artifacts\\data-chain-smoke\\workflow-execution-contracts-after-v2.log",
+      "sha256": "9f31e96e2a806234ec2be0a19c2a0fde43834798fce223d635b81fd29de6600a"
+    }
+  },
+  "classModel": {
+    "compile": "formal compile/generate chain",
+    "guideRoots": [
+      "WorkflowExecutionResource",
+      "BindCommandSubmitOptions",
+      "DataSet",
+      "DataView"
+    ],
+    "generatedNoiseAudit": "artifacts\\data-chain-smoke\\workflow-declared-generated-audit-v2.json"
+  },
+  "live": {
+    "readonlyDeclaredLoader": {
+      "phase": "confirmed",
+      "scenarioId": "0DD8D28D462F51C5790AA6FBFAE39366",
+      "businessWrites": 0,
+      "executionPosts": 0,
+      "command": {
+        "tableName": "WorkflowExecution",
+        "viewId": "default",
+        "resourceType": "command",
+        "resourceId": "workflow:execution-test",
+        "primaryKey": "commandId",
+        "rows": 0,
+        "unpreparedRejected": true
+      },
+      "reads": 7,
+      "blocked": 0,
+      "testedAt": "2026-11-07T05:14:32.466Z"
+    },
+    "ownedFixture": {
+      "testAccount": "领码科技/wangtao",
+      "phase": "created-confirmed",
+      "error": "",
+      "reads": 40,
+      "writes": 3,
+      "unknown": false,
+      "workflowId": "85178488C512406CB38DD9C800B53966",
+      "marker": "SMOKE_DECLARED_1794028641238",
+      "testedAt": "2026-11-07T05:19:58.893Z"
+    },
+    "configuration": {
+      "phase": "confirmed",
+      "reads": 50,
+      "writes": 2,
+      "unknown": false,
+      "audit": "artifacts\\data-chain-smoke\\workflow-declared-fixture-finalize-v3-audit.json",
+      "frozenContract": "artifacts\\data-chain-smoke\\workflow-declared-fixture-contract.json",
+      "frozenContractSha256": "9b8d91e650731244cdff6524a4563c45d592fd5d193a4ed0d3a5fa140422ccdb",
+      "nodeCount": 6,
+      "edgeCount": 5,
+      "models": 4,
+      "fields": 56,
+      "beforeToFinalDefinitionDelta": "Only inputParams and START output_mapping changed; independently verified"
+    },
+    "crud": "original guarded worker running; acceptance not yet confirmed",
+    "wholeFlow": "not yet confirmed",
+    "cleanup": "not executed"
+  },
+  "limitations": [
+    "Browser visual acceptance remains open",
+    "No backend version-condition submit contract; preflight is not an atomic check-and-execute guarantee",
+    "Engineering success does not complete the 20 business packages"
+  ],
+  "recordedAt": "2026-11-07T05:31:58.547766+00:00"
+}

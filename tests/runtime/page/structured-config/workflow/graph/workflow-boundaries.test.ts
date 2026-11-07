@@ -5,14 +5,14 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {WorkflowBoundaryCompletion,workflowBoundaryState} from '@/lowcode/resources/structured-config/workflow-definition/boundaries'
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
-import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from '../workflow-native-design.fixture'
+import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText,workflowDesignCommandBindings} from '../workflow-native-design.fixture'
 const pages:PageRuntime[]=[]
 afterEach(()=>{pages.splice(0).forEach(page=>page.dispose());vi.restoreAllMocks()})
 async function fixture(positions:number[]=[]){
  const http=new ApiBackend()
  http.records={Base_WorkflowDefinition:[{rowid:'W1',name:'Current'}],Base_DataSet:[{rowid:'W1',Type:'workflow',inputParams:'[]'}],Base_WorkflowNodeDefinition:positions.map((position,index)=>({rowid:`N${index}`,workflow_id:'W1',position_type:position,node_type:'API_CALL',name:position===0?'开始':'结束',node_config:'',dataOperateModId:'',input_mapping:'[]',output_mapping:'[]',config:''})),Base_WorkflowConnectors:[]}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
- const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>({})},assertCurrent(){}})}}).dataSet
+ const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),...workflowDesignCommandBindings(workflowDesignText,http),space:{dataSpaceId:WORKFLOW_DESIGN,name:'Design'},models:workflowDesignModels(),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>({})},assertCurrent(){}})}}).dataSet
  const page=new PageRuntime({pageId:'boundaries',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W1'}},loadScenario:async()=>ds});pages.push(page);await page.load()
  await Promise.all(['Base_WorkflowDefinition','Base_WorkflowNodeDefinition'].map(name=>ds.getView(name)!.refresh()))
  let command:WorkflowBoundaryCompletion|undefined;const input={dataSet:ds,workflowId:'W1'}

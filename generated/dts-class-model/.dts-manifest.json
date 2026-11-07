@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T00:53:25.652Z"
+      "sourceModifiedAt": "2026-11-07T04:06:16.111Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -3344,7 +3344,7 @@
     "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts.json",
-      "sourceModifiedAt": "2026-11-04T08:34:32.454Z"
+      "sourceModifiedAt": "2026-11-07T04:57:42.636Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/system/cache-delete-command-resource.ts",
@@ -3769,7 +3769,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-07T00:58:53.922Z"
+      "sourceModifiedAt": "2026-11-07T04:26:46.230Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4429,12 +4429,22 @@
     "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts.json",
-      "sourceModifiedAt": "2026-11-06T09:09:33.470Z"
+      "sourceModifiedAt": "2026-11-07T04:54:00.259Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-contract.ts.json",
+      "sourceModifiedAt": "2026-11-07T04:54:00.260Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
       "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json",
       "sourceModifiedAt": "2026-11-06T09:09:33.472Z"
+    },
+    "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts": {
+      "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts",
+      "shardFile": "files/src/lowcode/resources/structured-config/workflow-definition/execution/runtime-bindings.ts.json",
+      "sourceModifiedAt": "2026-11-07T04:58:41.275Z"
     },
     "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts": {
       "sourceFile": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
@@ -5379,12 +5389,12 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T09:09:33.569Z"
+      "sourceModifiedAt": "2026-11-07T04:31:33.732Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue.json",
-      "sourceModifiedAt": "2026-11-06T09:09:33.570Z"
+      "sourceModifiedAt": "2026-11-07T05:00:54.981Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-merge-sources.vue",

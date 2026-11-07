@@ -1,3 +1,5 @@
+import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {PAGE_RUNTIME,useSparkComponent} from '@spark-appworks/spark-component'
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
 import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
@@ -18,6 +20,7 @@ import WorkflowDesignEdgePanel from '@/views/features/data-platform/structured-c
 import WorkflowSourceEdit from '@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-query-source-edit.vue'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
+import {workflowExecutionFixture} from './execution/workflow-execution.fixture'
 const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,dirty:[] as Array<{isDirty:boolean}>,layoutText:null as string|null,uploads:[] as string[],denyLayout:false,loseLayoutReceipt:false}))
 vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}))
 vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{text:string})=>{state.uploads.push(input.text);state.layoutText=input.text;if(state.loseLayoutReceipt){state.loseLayoutReceipt=false;throw new Error("layout response lost")}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===WORKFLOW_DESIGN?workflowDesignText:null}}),lowcodeApi:{design:{readTextFile:async()=>{if(state.denyLayout)throw new LowcodeApiError(403,'布局读取被拒绝');if(state.layoutText===null)throw new LowcodeApiError(404,'missing');return state.layoutText}},readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'工作流设计'}),readModelBatch:async()=>workflowDesignModels(),readRelations:async()=>[]}}}}))
@@ -66,6 +69,8 @@ describe('workflow formal design page',()=>{
  it('rejects changed parameter query context while retaining the original field declaration',async()=>{
   const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend;state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
   backend.records['Base_DataSet']=[{rowid:'W1',Type:'workflow',inputParams:JSON.stringify([{rowid:'P',Name:'title',FieldType:'string',Value:'original'}])}]
+  backend.records['Base_WorkflowNodeDefinition']=[{rowid:'START',workflow_id:'W1',position_type:0,node_type:'API_CALL',output_mapping:'[]'},{rowid:'N1',workflow_id:'W1',position_type:1,node_type:'query',node_config:'M1',dataOperateModId:'',output_mapping:'[]'},{rowid:'END',workflow_id:'W1',position_type:2,node_type:'API_CALL',output_mapping:'[]'}]
+  backend.records['Base_WorkflowConnectors']=[{rowid:'SN',workflow_id:'W1',sourceID:'START',targetID:'N1',params:'[]'},{rowid:'NE',workflow_id:'W1',sourceID:'N1',targetID:'END',params:'[]'}]
   const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));await f.click('测试')
   const ds=f.wrapper.getComponent(WorkflowExecutionPanel).props('dataSet'),params=ds.getView('Base_DataSet')!;params.queryContext={...params.queryContext,contractVersion:'changed'}
   await f.click('执行测试');expect(backend.executions).toHaveLength(0);expect(document.body.textContent).toContain('测试参数查询上下文已变化');await f.click('取消测试输入')
@@ -77,10 +82,10 @@ describe('workflow formal design page',()=>{
   const ds=f.wrapper.getComponent(WorkflowExecutionPanel).props('dataSet'),view=ds.getView('WorkflowExecution')!,id=String(view.getPkKey(view.currentRow!));view.updateEditingValue(id,'nodeId','N2_VALID')
   await expect(ds.saveChanges({views:[{tableName:'WorkflowExecution',viewId:'default'}]})).rejects.toThrow('测试命令身份与首轮输入不符');expect(backend.executions).toHaveLength(0);await f.click('取消测试输入')
  })
- it('rejects directly saving an execution request without an opened input contract',async()=>{
+ it('rejects staging an execution request without an opened input contract',async()=>{
   const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend;state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
-  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));const ds=f.wrapper.getComponent(WorkflowExecutionPanel).props('dataSet'),view=ds.getView('WorkflowExecution')!;await view.refresh();await view.addRow({mode:'node',nodeId:'N1',input:'{}'})
-  await expect(ds.saveChanges({views:[{tableName:'WorkflowExecution',viewId:'default'}]})).rejects.toThrow('测试命令身份与首轮输入不符');expect(backend.executions).toHaveLength(0);view.discardPendingChanges()
+  const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true));const ds=f.wrapper.getComponent(WorkflowExecutionPanel).props('dataSet'),view=ds.getView('WorkflowExecution')!;await view.refresh();await expect(view.addRow({mode:'node',nodeId:'N1',input:'{}'})).rejects.toThrow('测试命令身份与首轮输入不符')
+  expect(view.rows).toEqual([]);expect(view.dirtyTracking.hasPendingChanges()).toBe(false);expect((await ds.saveChanges({views:[{tableName:'WorkflowExecution',viewId:'default'}]})).success).toBe(true);expect(backend.executions).toHaveLength(0)
  })
  it('isolates current node saves from unfinished merge input drafts outside its id scope',async()=>{
   state.http.records['Base_WorkflowNodeDefinition']!.push({rowid:'FOREIGN',workflow_id:'W1',position_type:1,node_type:'merge',name:'其他合并',node_config:'',dataOperateModId:'',input_mapping:'[]',output_mapping:'[]',config:''})
@@ -868,4 +873,66 @@ describe('workflow formal design page',()=>{
   const f=await open('MISSING');await vi.waitFor(()=>expect(f.text()).toContain('当前工作流不存在'))
   expect(state.http.reads.map(r=>r.table)).toEqual(['Base_WorkflowDefinition']);expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(false)
  })
+})
+
+it('declares the execution command in its formal scenario before panels mount',()=>{
+ const definition=JSON.parse(workflowDesignText)
+ expect(definition.tables.WorkflowExecution).toMatchObject({resourceType:'command',views:{default:{autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}}}})
+})
+it('reuses the same command view when another panel mounts on the same DataSet',async()=>{
+ const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend;state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
+ const f=await open();await vi.waitFor(()=>expect(f.wrapper.findComponent(RendererGraph).exists()).toBe(true))
+ const first=f.wrapper.getComponent(WorkflowExecutionPanel),ds=first.props('dataSet'),view=ds.getView('WorkflowExecution')
+ const runtime=new PageRuntime({pageId:'same-workflow-execution',scenarioIds:[WORKFLOW_DESIGN],loadScenario:async()=>ds});await runtime.load()
+ const host=defineComponent({setup(){useSparkComponent({type:'same-execution-host'}).sparkProvide(PAGE_RUNTIME,runtime);return()=>h(WorkflowExecutionPanel,{...first.props()})}})
+ let second:VueWrapper|undefined
+ try{expect(()=>{second=mount(host,{global:{plugins:[ElementPlus,Spark.createPlugin()]}})}).not.toThrow();expect(ds.getView('WorkflowExecution')).toBe(view);expect(backend.executions).toHaveLength(0)}
+ finally{second?.unmount();runtime.dispose()}
+})
+it.each(['pending','receipt','unknown','changed-declaration','inflight'] as const)('preserves the original %s execution across panel remounts',async kind=>{
+ const pages:PageRuntime[]=[],f=await workflowExecutionFixture(pages)
+ if(kind==='pending'||kind==='changed-declaration')f.http.records['Base_DataSet']![0]!['inputParams']=JSON.stringify([{rowid:'P',Name:'quantity',FieldType:'int',Value:0}])
+ await f.ds.getView('Base_DataSet')!.refresh()
+ const {id,presentation}=await f.stage('workflow');expect(presentation.blockedReason).toBeUndefined()
+ const input=String(f.view.getEditingRow(id)?.['input'])
+ let release:()=>void=()=>undefined,saving:Promise<unknown>|undefined
+ if(kind==='inflight'){
+  f.http.hold=new Promise<void>(resolve=>{release=resolve});saving=f.save(id).catch(cause=>cause)
+  await vi.waitFor(()=>expect(f.http.executions).toHaveLength(1))
+ }
+ if(kind==='receipt')expect((await f.save(id)).success).toBe(true)
+ if(kind==='unknown'){f.http.loseReceipt=true;await expect(f.save(id)).rejects.toThrow('未知')}
+ if(kind==='changed-declaration'){
+  f.http.records['Base_DataSet']![0]!['inputParams']=JSON.stringify([{rowid:'REPLACED',Name:'quantity',FieldType:'int',Value:0}])
+  await f.ds.getView('Base_DataSet')!.refresh()
+ }
+ const reads=f.http.reads.length,posts=f.http.executions.length
+ f.view.setCurrentRow(null)
+ const host=defineComponent({setup(){useSparkComponent({type:'execution-remount-host'}).sparkProvide(PAGE_RUNTIME,f.page);return()=>h(WorkflowExecutionPanel,{dataSet:f.ds,workflowId:'W1',nodeId:'N1',revision:0,disabled:false})}})
+ let wrapper:VueWrapper|undefined
+ try{
+  for(let i=0;i<2;i++){
+   wrapper=mount(host,{global:{plugins:[ElementPlus,Spark.createPlugin()]}})
+   await wrapper.getComponent(WorkflowExecutionPanel).vm.open('workflow');await flushPromises()
+   expect(wrapper.findAllComponents(FieldText).find(field=>field.props('field')==='mode')!.get('input').element.value).toBe('workflow')
+   expect(f.view.rows).toHaveLength(1);expect(f.view.getPkKey(f.view.rows[0]!)).toBe(id)
+   expect(String((f.view.getEditingRow(id)??f.view.rows[0])?.['input'])).toBe(input)
+   expect(f.http.reads).toHaveLength(reads);expect(f.http.executions).toHaveLength(posts)
+   if(kind==='changed-declaration'){
+    expect(document.body.textContent).toContain('测试参数声明已变化')
+    expect(wrapper.findAllComponents(FieldJson).filter(field=>field.props('field')==='input').every(field=>field.props('readonly'))).toBe(true)
+   }
+   if(kind==='unknown')expect(document.body.textContent).toContain('执行结果未知')
+   if(kind==='inflight'){
+    expect(f.view.mutating).toBe(true)
+    expect(wrapper.findAllComponents(RendererButton).filter(button=>['执行测试','取消测试输入','关闭测试'].includes(button.props('label')??'')).every(button=>button.props('disabled'))).toBe(true)
+   }
+   if(kind==='receipt'){
+    const result=wrapper.findAllComponents(FieldJson).find(field=>field.props('field')==='result')!
+    expect(result.props('readonly')).toBe(true)
+    expect(result.getComponent({name:'JsonTreeEditor'}).props('modelValue')).toContain('SUCCESS')
+   }
+   wrapper.unmount();wrapper=undefined
+  }
+ }finally{release();await saving;wrapper?.unmount();pages.forEach(page=>page.dispose())}
 })

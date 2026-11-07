@@ -5,7 +5,7 @@ import {bindDataSetCommandSubmit, ensureDataSetFileCommandView,type BindCommandS
 
 class TransportFailure extends Error {}
 
-function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify'|'onPrepareInput'>> = {}) {
+function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify'|'onPrepareInput'|'allowAbandonUnconfirmed'>> = {}) {
   const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
   const view = ensureDataSetFileCommandView({
     dataSet,
@@ -25,6 +25,7 @@ function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify
     submit,
     verify,
     isUnconfirmed: error => error instanceof TransportFailure,
+    ...(overrides.allowAbandonUnconfirmed===undefined?{}:{allowAbandonUnconfirmed:overrides.allowAbandonUnconfirmed}),
     ...(overrides.onPrepareInput?{onPrepareInput:overrides.onPrepareInput}:{}),
   })
   const save = () => dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
@@ -137,4 +138,22 @@ describe('DataSet command submit helper', () => {
     await expect(save()).rejects.toThrow('DATA_SET_COMMAND_SINGLE_ROW')
     expect(submit).not.toHaveBeenCalled()
   })
+  it('preserves an unconfirmable original command when abandonment is disabled',async()=>{
+    const f=setup({allowAbandonUnconfirmed:false,submit:async()=>{throw new TransportFailure('lost')},verify:async()=>{throw new TransportFailure('still unknown')}})
+    const row=await addInput(f.view,{ServerName:'S'})
+    await expect(f.save()).rejects.toThrow('lost')
+    expect(f.view.abandonUnconfirmedSave()).toBe(false)
+    await expect(f.view.discardAndReload()).rejects.toThrow()
+    expect(f.view.hasUnconfirmedSaveFor([String(row['rowid'])])).toBe(true)
+    expect(f.view.dirtyTracking.pendingCreateIds.has(String(row['rowid']))).toBe(true)
+    await expect(f.save()).rejects.toThrow('still unknown')
+    expect(f.submit).toHaveBeenCalledTimes(1);expect(f.verify).toHaveBeenCalledTimes(1)
+  })
+  it('retains explicit abandonment for resources that provide that recovery contract',async()=>{
+    const f=setup({submit:async()=>{throw new TransportFailure('lost')}})
+    await addInput(f.view,{ServerName:'S'});await expect(f.save()).rejects.toThrow('lost')
+    expect(f.view.abandonUnconfirmedSave()).toBe(true);expect(f.view.hasUnconfirmedSave).toBe(false)
+    expect(f.submit).toHaveBeenCalledTimes(1)
+  })
+
 })

@@ -6,7 +6,7 @@ import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space
 import {createWorkflowLayoutExecutor} from '@/lowcode/resources/structured-config/workflow-definition/layout/layout-resource'
 import {WorkflowConnectorCondition} from '@/lowcode/resources/structured-config/workflow-definition/connector-condition'
 import {ApiBackend} from '../../../api-provider/api-provider.fixture'
-import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from '../workflow-native-design.fixture'
+import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText,workflowDesignCommandBindings} from '../workflow-native-design.fixture'
 const pages:PageRuntime[]=[]
 afterEach(()=>pages.splice(0).forEach(page=>page.dispose()))
 const filter=DataViewFilterCodec.serializeStored(DataViewFilter.group({logic:'or',filters:[{field:'Count',operator:'eq',value:0},{field:'Count',operator:'eq',value:false},{field:'Count',operator:'eq',value:''}]}))
@@ -14,7 +14,7 @@ async function fixture(){
  const http=new ApiBackend()
  http.records={Base_WorkflowDefinition:[{rowid:'W1'}],Base_WorkflowNodeDefinition:[{rowid:'N1',workflow_id:'W1',position_type:0,node_type:'query',name:'来源',output_mapping:JSON.stringify([{rowid:'P1',Name:'Count',Description:'数量',FieldType:'int'}])},{rowid:'N2',workflow_id:'W1',name:'目标'},{rowid:'NX',workflow_id:'W2',name:'其他'}],Base_WorkflowConnectors:[{rowid:'E1',workflow_id:'W1',sourceID:'N1',targetID:'N2'},{rowid:'E2',workflow_id:'W2',sourceID:'NX',targetID:'NX'}],Base_DataModel_Relation:[{rowid:'RM',dataSetId:'W1',parentModId:'M1',childModId:'M2',filter:'原模型关系'},{rowid:'RO',dataSetId:'W1',parentModId:'N2',childModId:'N1',filter:'反向条件'},{rowid:'RW2',dataSetId:'W2',parentModId:'N1',childModId:'N2',filter:'其他流程旧条件'}]}
  const api=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
- const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),space:{dataSpaceId:WORKFLOW_DESIGN,name:'工作流设计'},models:workflowDesignModels(),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent:()=>{}})}}).dataSet
+ const ds=new LowcodeDataSpaceAssembler(api,http).assemble({config:new ScenarioViewConfig(WORKFLOW_DESIGN,workflowDesignText),...workflowDesignCommandBindings(workflowDesignText,http),space:{dataSpaceId:WORKFLOW_DESIGN,name:'工作流设计'},models:workflowDesignModels(),relations:[],fileExecutors:{WorkflowLayout:createWorkflowLayoutExecutor({api:{removeFile:async()=>{throw Error('unexpected layout delete')},readTextFile:async()=>{throw new LowcodeApiError(404,'missing')}},fileUpload:{uploadWorkingText:async()=>{throw Error('unexpected upload')}},assertCurrent:()=>{}})}}).dataSet
  const page=new PageRuntime({pageId:'condition-test',scenarioIds:[WORKFLOW_DESIGN],scenarioInputs:{[WORKFLOW_DESIGN]:{workflowId:'W1'}},loadScenario:async()=>ds});pages.push(page);await page.load()
  for(const name of ['Base_WorkflowDefinition','Base_WorkflowNodeDefinition','Base_WorkflowConnectors'])await ds.getView(name)!.refresh()
  return{http,ds}

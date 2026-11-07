@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it} from 'vitest'
-import {DataSet} from '@spark-appworks/spark-data'
+import {DataSet,bindDataSetCommandSubmit} from '@spark-appworks/spark-data'
 import {HttpClientBase,type HttpResponse,type RequestConfig} from '@spark-appworks/spark-utils'
 import {WorkflowExecutionResource} from './workflow-execution-resource'
 
@@ -16,14 +16,20 @@ class Http extends HttpClientBase{
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 async function fixture(graph?:()=>Readonly<{workflowId:string;nodeIds:readonly string[];requiredNodeIds:readonly string[];conditional:boolean}>,prepare=async(_input:Readonly<{mode:'node'|'workflow';nodeId:string}>)=>{}){
- const ds=DataSet.fromJson({scenarioId:'S',tables:{}});sets.push(ds)
+ const ds=DataSet.fromJson({scenarioId:'S',tables:{WorkflowExecution:{resourceType:'command',resourceId:'workflow:execution-test',columns:['commandId','mode','nodeId','input','outcome','completeness','result'].map(name=>({name,type:'string',isPrimaryKey:name==='commandId'})),views:{default:{autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}}}}}});sets.push(ds)
  const http=new Http();let scope='current'
- const resource=new WorkflowExecutionResource({dataSet:ds,http,workflowId:'W',prepare,...(graph?{graph}:{}),readScope:()=>({token:scope,headers:{'X-AppId':'APP'}}),guard(){if(scope!=='current')throw Error('stale')}})
- const view=resource.requests;await view.refresh()
+ const guard=()=>{if(scope!=='current')throw Error('stale')}
+ const resource=new WorkflowExecutionResource({http,prepare:async input=>{await prepare(input);return{workflowId:'W',...(graph?{graph:graph()}:{}),assertCurrent:guard}},onPrepareInput:()=>undefined,readScope:()=>({token:scope,headers:{'X-AppId':'APP'}}),guard})
+ const view=ds.getView('WorkflowExecution')!;bindDataSetCommandSubmit(view,resource.binding(view));await view.refresh()
  const save=()=>ds.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]})
  return {ds,http,resource,view,save,invalidate:()=>{scope='other'}}
 }
 describe('native data workflow execution resource',()=>{
+ it('binds the already declared command view without constructing a table or requiring a target during assembly',async()=>{
+  const f=await fixture();expect(Object.keys(f.ds.tables)).toEqual(['WorkflowExecution'])
+  expect(f.ds.getView('WorkflowExecution')).toBe(f.view);expect(f.view.dataTable?.resourceId).toBe('workflow:execution-test')
+  expect(f.http.requests).toEqual([])
+ })
  it('passes the captured parsed command input to the pre-dispatch validator',async()=>{
   let captured:unknown
   const {view,save}=await fixture(undefined,async input=>{captured=input})
@@ -35,7 +41,7 @@ describe('native data workflow execution resource',()=>{
   const {ds,http,view}=await fixture(undefined,async input=>{calls.push(input);throw Error('invalid saved operation')})
   await view.addRow({mode,nodeId:mode==='node'?'N':'',input:mode==='node'?'{}':'[]'})
   await expect(ds.saveChanges()).rejects.toThrow('invalid saved operation')
-  expect(calls).toEqual([{mode,nodeId:mode==='node'?'N':'',input:mode==='node'?{}:[]}]);expect(http.requests).toHaveLength(0);expect(view.hasUnconfirmedSave).toBe(false)
+  expect(calls).toEqual([{commandId:expect.any(String),mode,nodeId:mode==='node'?'N':'',input:mode==='node'?{}:[]}]);expect(http.requests).toHaveLength(0);expect(view.hasUnconfirmedSave).toBe(false)
  })
  it('confirms a complete unconditional workflow only when every captured required node reports success',async()=>{
   const {http,view,save}=await fixture(()=>({workflowId:'W',nodeIds:['START','N','END'],requiredNodeIds:['START','N','END'],conditional:false}))
@@ -74,7 +80,7 @@ describe('native data workflow execution resource',()=>{
   expect((await save()).success).toBe(true)
   expect(http.requests).toHaveLength(1)
   expect(http.requests[0]).toMatchObject({url:'/api/Workflow/runSingleNodeTest',method:'POST',retry:0,data:{workflowId:'W',nodeId:'N',inputParams:{START:[{value:0,enabled:false,text:'',nullable:null}]}}})
-  expect(view.dataTable?.resourceType).toBe('workflow-execution')
+  expect(view.dataTable?.resourceType).toBe('command')
   expect(view.rows[0]).toMatchObject({outcome:'success'})
   expect(JSON.parse(String(view.rows[0]?.['result']))).toMatchObject({output:[{value:0}]})
  })
@@ -82,6 +88,7 @@ describe('native data workflow execution resource',()=>{
   const {http,view,save}=await fixture();http.fail=true
   await view.addRow({mode:'node',nodeId:'N',input:'{}'})
   await expect(save()).rejects.toThrow('结果未知');expect(view.hasUnconfirmedSave).toBe(true)
+  expect(view.abandonUnconfirmedSave()).toBe(false);await expect(view.discardAndReload()).rejects.toThrow('DATA_VIEW_DISCARD_UNCONFIRMED')
   await expect(save()).rejects.toThrow('服务未提供');await expect(save()).rejects.toThrow('服务未提供')
   expect(http.requests).toHaveLength(1);expect(view.hasUnconfirmedSave).toBe(true)
  })

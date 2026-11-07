@@ -1,0 +1,1692 @@
+{
+  "status": "owned-json-model-definition-crud-confirmed-runtime-denied",
+  "sourceCheckpoint": "06fa224f565990260b4cc7470fe647b1c28b43c4",
+  "productionSourceSha256Unchanged": {
+    "config/pages/semi-structured/json-data/pagedata.json": "0423b79b3666f0a2206b0f3c83e0ae78723c882a3870182ce41a945b389d2ca7",
+    "src/lowcode/resources/repository/agent-workflow-file-resource.ts": "c40801fac66eabc384620788040006cd7c481bf6c8b37224010b37939d8613b0",
+    "src/lowcode/resources/semi-structured/json-data/document-resource.ts": "5918a1b2f09f8bf44e7e3e00182156e81905b735561c6066003526e47bdb27ec",
+    "src/lowcode/resources/semi-structured/json-data/resource.ts": "07ff81e8a2424437fc6ccb2d8dae7f8349c03e5559b2993d82cd155a72ca99cd",
+    "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": "10ccd84451f0cac1a5c9b620028532f0c3fb2aa6af8ed2d62455b1f00fba7344",
+    "tests/runtime/page/semi-structured/json-data-page.test.ts": "a1d95499d680805f0c6d13041b0064e418b4e690d15f4a88079772de5ada66db",
+    "tests/runtime/page/semi-structured/json-document-file.test.ts": "924042d0fa14ee75aa63535a677bdc85179b83ba28b26b9a3b56a92ebffb80a2",
+    "tests/runtime/page/structured-config/catalog/formal-topic.fixture.ts": "6b9c8c8e6e56830ba9d3d8292e4f49313e1842d2e1ec2a5711a6269d48383d43"
+  },
+  "ownedJsonModel": {
+    "marker": "SMOKE_JSON_CONSUMER_1794044712407",
+    "docName": "SMOKE_JSON_CONSUMER_1794044712407_DOC",
+    "modelName": "SMOKE_JSON_CONSUMER_1794044712407_MODEL",
+    "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+    "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+    "fileName": "F87D8276BF1A8BCAC0491DAE7D52C111.json",
+    "modelId": "6B0A57C7D261761DEFEB2E9FA99D9BC3",
+    "fieldIds": [
+      "0758B20AF3422497FEAEBB58A005CE38",
+      "2C2402D1AA18F86A9260773EB8A72457",
+      "5C10073E42606A3D3C47464A7E8FB37B",
+      "EDBCCF8667987F778A4B8D6210F0057C",
+      "F0354F631A7A5A3FBD27758B81375DCF",
+      "F3DDB87F3AE6A3A4B3E4F024D69DD2FA"
+    ],
+    "fields": [
+      {
+        "id": "0758B20AF3422497FEAEBB58A005CE38",
+        "name": "id",
+        "type": "varchar",
+        "output": 1,
+        "primaryKey": 0
+      },
+      {
+        "id": "2C2402D1AA18F86A9260773EB8A72457",
+        "name": "pid",
+        "type": "varchar",
+        "output": 1,
+        "primaryKey": 0
+      },
+      {
+        "id": "5C10073E42606A3D3C47464A7E8FB37B",
+        "name": "name",
+        "type": "varchar",
+        "output": 1,
+        "primaryKey": 0
+      },
+      {
+        "id": "EDBCCF8667987F778A4B8D6210F0057C",
+        "name": "type",
+        "type": "varchar",
+        "output": 1,
+        "primaryKey": 0
+      },
+      {
+        "id": "F0354F631A7A5A3FBD27758B81375DCF",
+        "name": "haschild",
+        "type": "bool",
+        "output": 1,
+        "primaryKey": 0
+      },
+      {
+        "id": "F3DDB87F3AE6A3A4B3E4F024D69DD2FA",
+        "name": "value",
+        "type": "varchar",
+        "output": 1,
+        "primaryKey": 0
+      }
+    ],
+    "phase": "finished",
+    "pending": "",
+    "lifecycle": "cleaned",
+    "reads": 161,
+    "writes": 8,
+    "blocked": 0,
+    "unknown": false,
+    "checks": {
+      "sourcePreview": {
+        "name": "SMOKE_JSON_CONSUMER_1794044712407_DOC",
+        "prepared": {
+          "source": {
+            "type": "json",
+            "id": "F87D8276BF1A8BCAC0491DAE7D52C111",
+            "name": "SMOKE_JSON_CONSUMER_1794044712407_DOC",
+            "description": "",
+            "dbid": "",
+            "databaseName": "",
+            "providerId": ""
+          },
+          "model": {
+            "Type": "JSON",
+            "MetaName": "SMOKE_JSON_CONSUMER_1794044712407_DOC",
+            "description": "",
+            "DbId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+            "DbName": "",
+            "JoinType": "",
+            "ForeignKeyFields": "",
+            "JoinFilter": "",
+            "PId": ""
+          },
+          "fields": [
+            {
+              "type": "dataModel",
+              "IsPKey": 0,
+              "IsOutput": 1,
+              "AsName": "",
+              "ValueFun": "",
+              "Expression": "",
+              "allowAIAdd": 0,
+              "OrderType": "",
+              "Order": 0,
+              "Group": 0,
+              "Name": "id",
+              "description": "主键（记录路径）",
+              "FieldType": "varchar"
+            },
+            {
+              "type": "dataModel",
+              "IsPKey": 0,
+              "IsOutput": 1,
+              "AsName": "",
+              "ValueFun": "",
+              "Expression": "",
+              "allowAIAdd": 0,
+              "OrderType": "",
+              "Order": 0,
+              "Group": 0,
+              "Name": "pid",
+              "description": "记录父级id",
+              "FieldType": "varchar"
+            },
+            {
+              "type": "dataModel",
+              "IsPKey": 0,
+              "IsOutput": 1,
+              "AsName": "",
+              "ValueFun": "",
+              "Expression": "",
+              "allowAIAdd": 0,
+              "OrderType": "",
+              "Order": 0,
+              "Group": 0,
+              "Name": "name",
+              "description": "属性名称",
+              "FieldType": "varchar"
+            },
+            {
+              "type": "dataModel",
+              "IsPKey": 0,
+              "IsOutput": 1,
+              "AsName": "",
+              "ValueFun": "",
+              "Expression": "",
+              "allowAIAdd": 0,
+              "OrderType": "",
+              "Order": 0,
+              "Group": 0,
+              "Name": "type",
+              "description": "属性类型",
+              "FieldType": "varchar"
+            },
+            {
+              "type": "dataModel",
+              "IsPKey": 0,
+              "IsOutput": 1,
+              "AsName": "",
+              "ValueFun": "",
+              "Expression": "",
+              "allowAIAdd": 0,
+              "OrderType": "",
+              "Order": 0,
+              "Group": 0,
+              "Name": "haschild",
+              "description": "是否包含子项",
+              "FieldType": "bool"
+            },
+            {
+              "type": "dataModel",
+              "IsPKey": 0,
+              "IsOutput": 1,
+              "AsName": "",
+              "ValueFun": "",
+              "Expression": "",
+              "allowAIAdd": 0,
+              "OrderType": "",
+              "Order": 0,
+              "Group": 0,
+              "Name": "value",
+              "description": "属性值（值函数）",
+              "FieldType": "varchar"
+            }
+          ]
+        }
+      },
+      "modelPreviewCancelNoWrites": true,
+      "savedModel": {
+        "models": {
+          "table": "Base_DataModel",
+          "fields": [
+            "DISTINCT",
+            "DbId",
+            "DbName",
+            "Filter",
+            "ForeignKeyFields",
+            "IsBusiness",
+            "IsBusinessMain",
+            "JoinFilter",
+            "JoinType",
+            "MetaName",
+            "Name",
+            "OutputType",
+            "PId",
+            "PrimaryKeyFields",
+            "ReportID",
+            "RequestComplete",
+            "ShortName",
+            "Type",
+            "addApi",
+            "cacheType",
+            "createtime",
+            "createuser",
+            "dataSetId",
+            "deleteApi",
+            "description",
+            "flowstate",
+            "hasChildField",
+            "items",
+            "lingma_sys_ent",
+            "lingma_sys_is_delete",
+            "parentField",
+            "requestType",
+            "rowid",
+            "selfType",
+            "topValue",
+            "updateApi",
+            "updatetime",
+            "updateuser",
+            "wfid"
+          ],
+          "rows": [
+            {
+              "id": "6B0A57C7D261761DEFEB2E9FA99D9BC3",
+              "values": [
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "DbId",
+                  true,
+                  "F87D8276BF1A8BCAC0491DAE7D52C111"
+                ],
+                [
+                  "DbName",
+                  true,
+                  ""
+                ],
+                [
+                  "Filter",
+                  true,
+                  null
+                ],
+                [
+                  "ForeignKeyFields",
+                  true,
+                  ""
+                ],
+                [
+                  "IsBusiness",
+                  true,
+                  0
+                ],
+                [
+                  "IsBusinessMain",
+                  true,
+                  0
+                ],
+                [
+                  "JoinFilter",
+                  true,
+                  ""
+                ],
+                [
+                  "JoinType",
+                  true,
+                  ""
+                ],
+                [
+                  "MetaName",
+                  true,
+                  "SMOKE_JSON_CONSUMER_1794044712407_DOC"
+                ],
+                [
+                  "Name",
+                  true,
+                  "SMOKE_JSON_CONSUMER_1794044712407_MODEL"
+                ],
+                [
+                  "OutputType",
+                  true,
+                  "Table"
+                ],
+                [
+                  "PId",
+                  true,
+                  ""
+                ],
+                [
+                  "PrimaryKeyFields",
+                  true,
+                  null
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "RequestComplete",
+                  true,
+                  null
+                ],
+                [
+                  "ShortName",
+                  true,
+                  null
+                ],
+                [
+                  "Type",
+                  true,
+                  "JSON"
+                ],
+                [
+                  "addApi",
+                  true,
+                  null
+                ],
+                [
+                  "cacheType",
+                  true,
+                  null
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "deleteApi",
+                  true,
+                  null
+                ],
+                [
+                  "description",
+                  true,
+                  ""
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "hasChildField",
+                  true,
+                  null
+                ],
+                [
+                  "items",
+                  true,
+                  null
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "parentField",
+                  true,
+                  null
+                ],
+                [
+                  "requestType",
+                  true,
+                  null
+                ],
+                [
+                  "rowid",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "selfType",
+                  true,
+                  "child"
+                ],
+                [
+                  "topValue",
+                  true,
+                  null
+                ],
+                [
+                  "updateApi",
+                  true,
+                  null
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            }
+          ]
+        },
+        "fields": {
+          "table": "Base_DataModel_Field",
+          "fields": [
+            "AsName",
+            "DISTINCT",
+            "Expression",
+            "FieldType",
+            "Group",
+            "IsOutput",
+            "IsPKey",
+            "Name",
+            "Order",
+            "OrderType",
+            "ReportID",
+            "Value",
+            "ValueFun",
+            "aiMemo",
+            "aiSort",
+            "allowAIAdd",
+            "createtime",
+            "createuser",
+            "dataModelId",
+            "dataSetId",
+            "description",
+            "flowstate",
+            "lingma_sys_ent",
+            "lingma_sys_is_delete",
+            "rowid",
+            "type",
+            "updatetime",
+            "updateuser",
+            "wfid"
+          ],
+          "rows": [
+            {
+              "id": "0758B20AF3422497FEAEBB58A005CE38",
+              "values": [
+                [
+                  "AsName",
+                  true,
+                  ""
+                ],
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "Expression",
+                  true,
+                  ""
+                ],
+                [
+                  "FieldType",
+                  true,
+                  "varchar"
+                ],
+                [
+                  "Group",
+                  true,
+                  0
+                ],
+                [
+                  "IsOutput",
+                  true,
+                  1
+                ],
+                [
+                  "IsPKey",
+                  true,
+                  0
+                ],
+                [
+                  "Name",
+                  true,
+                  "id"
+                ],
+                [
+                  "Order",
+                  true,
+                  0
+                ],
+                [
+                  "OrderType",
+                  true,
+                  ""
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "Value",
+                  true,
+                  null
+                ],
+                [
+                  "ValueFun",
+                  true,
+                  ""
+                ],
+                [
+                  "aiMemo",
+                  true,
+                  null
+                ],
+                [
+                  "aiSort",
+                  true,
+                  0
+                ],
+                [
+                  "allowAIAdd",
+                  true,
+                  0
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataModelId",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "description",
+                  true,
+                  "主键（记录路径）"
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "rowid",
+                  true,
+                  "0758B20AF3422497FEAEBB58A005CE38"
+                ],
+                [
+                  "type",
+                  true,
+                  "dataModel"
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            },
+            {
+              "id": "2C2402D1AA18F86A9260773EB8A72457",
+              "values": [
+                [
+                  "AsName",
+                  true,
+                  ""
+                ],
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "Expression",
+                  true,
+                  ""
+                ],
+                [
+                  "FieldType",
+                  true,
+                  "varchar"
+                ],
+                [
+                  "Group",
+                  true,
+                  0
+                ],
+                [
+                  "IsOutput",
+                  true,
+                  1
+                ],
+                [
+                  "IsPKey",
+                  true,
+                  0
+                ],
+                [
+                  "Name",
+                  true,
+                  "pid"
+                ],
+                [
+                  "Order",
+                  true,
+                  0
+                ],
+                [
+                  "OrderType",
+                  true,
+                  ""
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "Value",
+                  true,
+                  null
+                ],
+                [
+                  "ValueFun",
+                  true,
+                  ""
+                ],
+                [
+                  "aiMemo",
+                  true,
+                  null
+                ],
+                [
+                  "aiSort",
+                  true,
+                  0
+                ],
+                [
+                  "allowAIAdd",
+                  true,
+                  0
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataModelId",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "description",
+                  true,
+                  "记录父级id"
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "rowid",
+                  true,
+                  "2C2402D1AA18F86A9260773EB8A72457"
+                ],
+                [
+                  "type",
+                  true,
+                  "dataModel"
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            },
+            {
+              "id": "5C10073E42606A3D3C47464A7E8FB37B",
+              "values": [
+                [
+                  "AsName",
+                  true,
+                  ""
+                ],
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "Expression",
+                  true,
+                  ""
+                ],
+                [
+                  "FieldType",
+                  true,
+                  "varchar"
+                ],
+                [
+                  "Group",
+                  true,
+                  0
+                ],
+                [
+                  "IsOutput",
+                  true,
+                  1
+                ],
+                [
+                  "IsPKey",
+                  true,
+                  0
+                ],
+                [
+                  "Name",
+                  true,
+                  "name"
+                ],
+                [
+                  "Order",
+                  true,
+                  0
+                ],
+                [
+                  "OrderType",
+                  true,
+                  ""
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "Value",
+                  true,
+                  null
+                ],
+                [
+                  "ValueFun",
+                  true,
+                  ""
+                ],
+                [
+                  "aiMemo",
+                  true,
+                  null
+                ],
+                [
+                  "aiSort",
+                  true,
+                  0
+                ],
+                [
+                  "allowAIAdd",
+                  true,
+                  0
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataModelId",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "description",
+                  true,
+                  "属性名称"
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "rowid",
+                  true,
+                  "5C10073E42606A3D3C47464A7E8FB37B"
+                ],
+                [
+                  "type",
+                  true,
+                  "dataModel"
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            },
+            {
+              "id": "EDBCCF8667987F778A4B8D6210F0057C",
+              "values": [
+                [
+                  "AsName",
+                  true,
+                  ""
+                ],
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "Expression",
+                  true,
+                  ""
+                ],
+                [
+                  "FieldType",
+                  true,
+                  "varchar"
+                ],
+                [
+                  "Group",
+                  true,
+                  0
+                ],
+                [
+                  "IsOutput",
+                  true,
+                  1
+                ],
+                [
+                  "IsPKey",
+                  true,
+                  0
+                ],
+                [
+                  "Name",
+                  true,
+                  "type"
+                ],
+                [
+                  "Order",
+                  true,
+                  0
+                ],
+                [
+                  "OrderType",
+                  true,
+                  ""
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "Value",
+                  true,
+                  null
+                ],
+                [
+                  "ValueFun",
+                  true,
+                  ""
+                ],
+                [
+                  "aiMemo",
+                  true,
+                  null
+                ],
+                [
+                  "aiSort",
+                  true,
+                  0
+                ],
+                [
+                  "allowAIAdd",
+                  true,
+                  0
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataModelId",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "description",
+                  true,
+                  "属性类型"
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "rowid",
+                  true,
+                  "EDBCCF8667987F778A4B8D6210F0057C"
+                ],
+                [
+                  "type",
+                  true,
+                  "dataModel"
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            },
+            {
+              "id": "F0354F631A7A5A3FBD27758B81375DCF",
+              "values": [
+                [
+                  "AsName",
+                  true,
+                  ""
+                ],
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "Expression",
+                  true,
+                  ""
+                ],
+                [
+                  "FieldType",
+                  true,
+                  "bool"
+                ],
+                [
+                  "Group",
+                  true,
+                  0
+                ],
+                [
+                  "IsOutput",
+                  true,
+                  1
+                ],
+                [
+                  "IsPKey",
+                  true,
+                  0
+                ],
+                [
+                  "Name",
+                  true,
+                  "haschild"
+                ],
+                [
+                  "Order",
+                  true,
+                  0
+                ],
+                [
+                  "OrderType",
+                  true,
+                  ""
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "Value",
+                  true,
+                  null
+                ],
+                [
+                  "ValueFun",
+                  true,
+                  ""
+                ],
+                [
+                  "aiMemo",
+                  true,
+                  null
+                ],
+                [
+                  "aiSort",
+                  true,
+                  0
+                ],
+                [
+                  "allowAIAdd",
+                  true,
+                  0
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataModelId",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "description",
+                  true,
+                  "是否包含子项"
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "rowid",
+                  true,
+                  "F0354F631A7A5A3FBD27758B81375DCF"
+                ],
+                [
+                  "type",
+                  true,
+                  "dataModel"
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            },
+            {
+              "id": "F3DDB87F3AE6A3A4B3E4F024D69DD2FA",
+              "values": [
+                [
+                  "AsName",
+                  true,
+                  ""
+                ],
+                [
+                  "DISTINCT",
+                  true,
+                  0
+                ],
+                [
+                  "Expression",
+                  true,
+                  ""
+                ],
+                [
+                  "FieldType",
+                  true,
+                  "varchar"
+                ],
+                [
+                  "Group",
+                  true,
+                  0
+                ],
+                [
+                  "IsOutput",
+                  true,
+                  1
+                ],
+                [
+                  "IsPKey",
+                  true,
+                  0
+                ],
+                [
+                  "Name",
+                  true,
+                  "value"
+                ],
+                [
+                  "Order",
+                  true,
+                  0
+                ],
+                [
+                  "OrderType",
+                  true,
+                  ""
+                ],
+                [
+                  "ReportID",
+                  true,
+                  null
+                ],
+                [
+                  "Value",
+                  true,
+                  null
+                ],
+                [
+                  "ValueFun",
+                  true,
+                  ""
+                ],
+                [
+                  "aiMemo",
+                  true,
+                  null
+                ],
+                [
+                  "aiSort",
+                  true,
+                  0
+                ],
+                [
+                  "allowAIAdd",
+                  true,
+                  0
+                ],
+                [
+                  "createtime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "createuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "dataModelId",
+                  true,
+                  "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+                ],
+                [
+                  "dataSetId",
+                  true,
+                  "B8A685CAE17EEEC47A97E3DBA9847069"
+                ],
+                [
+                  "description",
+                  true,
+                  "属性值（值函数）"
+                ],
+                [
+                  "flowstate",
+                  true,
+                  0
+                ],
+                [
+                  "lingma_sys_ent",
+                  true,
+                  "NewApp"
+                ],
+                [
+                  "lingma_sys_is_delete",
+                  true,
+                  0
+                ],
+                [
+                  "rowid",
+                  true,
+                  "F3DDB87F3AE6A3A4B3E4F024D69DD2FA"
+                ],
+                [
+                  "type",
+                  true,
+                  "dataModel"
+                ],
+                [
+                  "updatetime",
+                  true,
+                  "2026-11-07T17:51:39"
+                ],
+                [
+                  "updateuser",
+                  true,
+                  "U00031"
+                ],
+                [
+                  "wfid",
+                  true,
+                  null
+                ]
+              ]
+            }
+          ]
+        }
+      },
+      "formalModel": {
+        "id": "6B0A57C7D261761DEFEB2E9FA99D9BC3",
+        "metaName": "SMOKE_JSON_CONSUMER_1794044712407_MODEL",
+        "primaryKey": "",
+        "fields": [
+          {
+            "name": "id",
+            "output": true,
+            "primaryKey": false
+          },
+          {
+            "name": "pid",
+            "output": true,
+            "primaryKey": false
+          },
+          {
+            "name": "name",
+            "output": true,
+            "primaryKey": false
+          },
+          {
+            "name": "type",
+            "output": true,
+            "primaryKey": false
+          },
+          {
+            "name": "haschild",
+            "output": true,
+            "primaryKey": false
+          },
+          {
+            "name": "value",
+            "output": true,
+            "primaryKey": false
+          }
+        ]
+      },
+      "consumer": {
+        "status": "blocked",
+        "error": "[500] 权限不足，当前用户未获得资源 Base_JsonData 的查询权限；数据空间基线：未配置（按 none 处理）；操作码权限：不适用；元数据公开查询基线：IsVisible=0（未开放）。"
+      },
+      "consumerDidNotWriteFile": true,
+      "knownModelReference": true,
+      "ordinaryDocumentDeleteDisabled": true,
+      "modelRemovalPreview": {
+        "name": "SMOKE_JSON_CONSUMER_1794044712407_MODEL",
+        "layout": false,
+        "records": [
+          {
+            "table": "Base_DataModel",
+            "ids": [
+              "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+            ]
+          },
+          {
+            "table": "Base_DataModel_Field",
+            "ids": [
+              "0758B20AF3422497FEAEBB58A005CE38",
+              "2C2402D1AA18F86A9260773EB8A72457",
+              "5C10073E42606A3D3C47464A7E8FB37B",
+              "EDBCCF8667987F778A4B8D6210F0057C",
+              "F0354F631A7A5A3FBD27758B81375DCF",
+              "F3DDB87F3AE6A3A4B3E4F024D69DD2FA"
+            ]
+          }
+        ]
+      },
+      "modelRemoveCancelNoWrites": true,
+      "authorizedReferenceQueryEmpty": true,
+      "modelsAndWholeSpaceFieldsAbsent": true,
+      "documentBothEndsAbsent": true,
+      "spaceAbsent": true
+    },
+    "wire": [
+      {
+        "step": "create-space",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "",
+        "modelId": ""
+      },
+      {
+        "step": "create-json-file",
+        "path": "/api/File/UploadFile",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": ""
+      },
+      {
+        "step": "create-json-catalog",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": ""
+      },
+      {
+        "step": "create-model",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+      },
+      {
+        "step": "cleanup-model",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+      },
+      {
+        "step": "cleanup-json-file",
+        "path": "/api/File/RemoveFile",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+      },
+      {
+        "step": "cleanup-json-catalog",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+      },
+      {
+        "step": "cleanup-space",
+        "path": "/api/DataOperation/BatchTableOperateRequestByCRUD",
+        "spaceId": "B8A685CAE17EEEC47A97E3DBA9847069",
+        "docId": "F87D8276BF1A8BCAC0491DAE7D52C111",
+        "modelId": "6B0A57C7D261761DEFEB2E9FA99D9BC3"
+      }
+    ],
+    "errors": []
+  },
+  "actorProcess": {
+    "pid": 17632,
+    "exitCode": 0,
+    "signalCode": null,
+    "killed": false
+  },
+  "fileManager": {
+    "registeredModel": {
+      "table": "Base_DataModel",
+      "fields": [
+        "DbId",
+        "MetaName",
+        "Name",
+        "Type",
+        "dataSetId",
+        "rowid"
+      ],
+      "rows": [
+        {
+          "id": "8D1190A660800CF7D90477C99AD8C783",
+          "values": [
+            [
+              "DbId",
+              true,
+              "EBEFF17BBB6443B185D6FB32FF69F0BB"
+            ],
+            [
+              "MetaName",
+              true,
+              "Base_FileManager"
+            ],
+            [
+              "Name",
+              true,
+              "Base_FileManager"
+            ],
+            [
+              "Type",
+              true,
+              "数据库表"
+            ],
+            [
+              "dataSetId",
+              true,
+              "23F469CC96AC4B73BA5AE593C0002BD4"
+            ],
+            [
+              "rowid",
+              true,
+              "8D1190A660800CF7D90477C99AD8C783"
+            ]
+          ]
+        }
+      ]
+    },
+    "formalReadFailure": "数据库表来源不唯一或归属不一致，无法读取正式主键",
+    "physicalSourceQuery": {
+      "status": "confirmed-query-range",
+      "spaceId": "8D1AB14DD8277F3E7017CD38F77B09FD",
+      "modelId": "8D1AB14DD8277F3E7017CD38F77B09FDp004",
+      "modelName": "View_TblList",
+      "primaryKey": "",
+      "fields": [
+        "rowid",
+        "tblname",
+        "dbid",
+        "DbName"
+      ],
+      "unexposed": [],
+      "count": 0,
+      "countReported": true,
+      "rows": []
+    },
+    "physicalProbe": {
+      "pid": 3428,
+      "exitCode": 0,
+      "reads": 10,
+      "businessWrites": 0
+    },
+    "navigation": {
+      "status": "confirmed-query-range",
+      "spaceId": "7AB874097A1E8711A42FD845939A6E05",
+      "modelId": "7AB874097A1E8711A42FD845939A6E05p000",
+      "modelName": "Base_NavigationInfo",
+      "primaryKey": "rowid",
+      "fields": [
+        "rowid",
+        "SysId",
+        "name",
+        "NavigationUrl",
+        "status",
+        "conid",
+        "funCode",
+        "prowid"
+      ],
+      "unexposed": [],
+      "count": 1,
+      "countReported": true,
+      "rows": [
+        {
+          "rowid": {
+            "read": "visible",
+            "present": true,
+            "value": "EDF7DE3E5723E127F98B2A119BE81BF9"
+          },
+          "SysId": {
+            "read": "visible",
+            "present": true,
+            "value": "D99A1DCE9894698799101EFD70F8FC76"
+          },
+          "name": {
+            "read": "visible",
+            "present": true,
+            "value": "FileManager"
+          },
+          "NavigationUrl": {
+            "read": "visible",
+            "present": true,
+            "value": "vue:/FileDataManager/FileManager/index"
+          },
+          "status": {
+            "read": "visible",
+            "present": true,
+            "value": "plan"
+          },
+          "conid": {
+            "read": "visible",
+            "present": true,
+            "value": null
+          },
+          "funCode": {
+            "read": "visible",
+            "present": true,
+            "value": ""
+          },
+          "prowid": {
+            "read": "visible",
+            "present": true,
+            "value": "9EFFD97B4156A0D81C5CEAFFCC75381E"
+          }
+        }
+      ]
+    },
+    "navigationProbe": {
+      "pid": 30404,
+      "exitCode": 0,
+      "reads": 7,
+      "businessWrites": 0
+    }
+  },
+  "artifactSha256": {
+    "json-model-owned-actor.mts": "0dd0b72ddaf0c85a021127938b08a11d452fae8e695f85234ae991c47a8f2715",
+    "json-model-owned-actor-run.mts": "323fc64daba011a77ea16958962e404565cef4ba5697ce286bf19d71980a87fa",
+    "json-model-owned-checkpoint.json": "c5fb4276d66ae824bc8a026edae1c6388da8933d48b3115dc54a97b0a718dcb6",
+    "json-model-owned-model-intent.json": "578c2073dac68316ac7574b4e19184b3be96eb431d673e44e9930e5107458d5b",
+    "json-model-consumer-contracts.json": "0bbaaf238fd41bc0c02447372e05eac71eef6f176be2402fa17abdca6fb87fa1",
+    "json-model-native-preflight.json": "dec49bf77e60af9a285635e5e329588c74ba37ccc8ee963cff0a1f2549df0fbc",
+    "json-model-native-preflight-v2.json": "2416026a4e3f517a5f3fa682d56915cd5d776eb22881b21e5cf2c4741f92ab2d",
+    "json-model-native-preflight-v3.json": "1f0fcc36f72c4ec72d337997ea54a20f66acb1563fda5a72e37489b4f1d590dd",
+    "file-manager-native-source-readonly.json": "4b6176c4a77f5a2c573f064d368c40a6f86f7072335745e437d251b56714c583",
+    "file-manager-native-scope-final.mts": "84de8229ee35d58018ec21e1e3d0c8ca1b5e8895fcecf644215bd748aacf9732",
+    "file-manager-native-scope-final.json": "b4e04b1252a0e2f6776729d7d5c64da89bb929120ff491fd0b0d713f3b3f4078",
+    "file-manager-native-navigation-final.mts": "5972983806a9873e734990f8cc77dca5d652f78de6e9fde8b9b3b91d47e40845",
+    "file-manager-native-navigation-final.json": "bbaa308cc67aa00ded602906a965c12ffaf0dfcaeb9a52ef57cd73482c6ddd00"
+  },
+  "scopeLimits": [
+    "The JSON model and six output fields were persisted and independently reopened with an empty primary key; no key was invented",
+    "A new PageRuntime/DataView used a transient declared SelfRefData view referencing the real registered model; the actual service denied consumption",
+    "No permission baseline, IsVisible flag or role rule was changed",
+    "Known-reference presence plus an unconditionally disabled delete action does not prove reference-specific product rejection",
+    "The empty View_TblList result covers the current authorized query, not global physical table absence",
+    "FileManager registration alone does not establish a valid source, upload host, numeric delete ID or physical deletion contract",
+    "Earlier projection/case errors and timeouts remain failed diagnostics, not service success",
+    "Browser acceptance and the remaining 20-package goal remain open"
+  ]
+}

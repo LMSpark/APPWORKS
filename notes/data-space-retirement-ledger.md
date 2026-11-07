@@ -5089,7 +5089,7 @@ flowchart LR
 | 编码 | structured-config/data-code；已有18文件相关测试组 | 五类现已核类型：分类/固定/日期/顺序/父级；成组核选择器、分类、分段、示例、初始化及实际使用。已验CRUD/示例落库/五条清理/日期wire/有效目标不重做 |
 | 逻辑视图 | structured-config/logic-view及logic-view资源 | 原画布、来源、字段、函数、参数、输出、预览、保存重开与运行模型消费；SaveView未知保持开放 |
 | 数据工作流 | structured-config/workflow-definition，Base_WorkflowDefinition，5E967目录/0DD8设计 | 查询/操作/API等节点、输入输出、连线、布局、取消、分阶段保存、单节点/整流测试；原节点首次绑定、操作CRUD及声明命令已有分项证据；目录领码与剩余整页验收仍开放 |
-| JSON与文件管理 | semi-structured/json-data；参考views/FileDataManager及本仓文件资源 | 文件/文档身份、格式、读取/编辑/取消/保存/冲突和下游；读取JSON与正式业务数据权限分别核定 |
+| JSON与文件管理 | semi-structured/json-data；参考views/FileDataManager及本仓文件资源 | 目录/原文实服两端已分项闭环，JSON来源模型1+6定义已验、运行被Base_JsonData权限拒绝；FileManager已定位登记，正式来源查询0条、原导航plan/conid空；引用特定拒删/运行消费及完整包仍开放 |
 | Excel导入 | semi-structured/excel-import；Base_Import_solution；0F93设计 | 目标表与字段、父子节点/替换、过滤排序、Sheet布局、转换规则、保存重开→真实导入/导出消费；不能以JSON文本框代替完整业务交互 |
 | PDF专题 | 本仓semi-structured/pdf-inspect；Base_FileInspectConfig | 本仓既有专题的规则、目标、保存及实际识别消费者；参考来源待逐项核，不发明不存在的参考原生PDF页 |
 | 外部服务/API | integration/api-management及api-provider/config/interface资源 | 服务商→请求方案→接口/输入输出→保存重开→模型/页面调用；数据维护与真实外部副作用分别核定 |
@@ -6945,3 +6945,24 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 高阶只读复核裁决：FileManager保留“真实发布宿主/scenarioId”和“文件登记/数字ID及联动物理文件合同”两项明确gap。Java租户复制清单InitEntTable.java:58出现Base_FileManager，:17出现_Base_File，目录DTO.Id却为String；这些不证明正式SPARK绑定或数字主键。本仓未见对应正式模型绑定。下一只读核验只限原导航EDF7DE3E5723E127F98B2A119BE81BF9的实际宿主，及原元数据按MetaName=Base_FileManager精确核正式模型/所属空间/PK/字段/作用域，不扫全库文件、不重复404、不把物理注册当运行模型。Java getAppPathByType识别filedata而非参考FileDataPath，也不构成可自动改写的部署依据。
 - 高阶确定下一JSON来源闭环：以新的wx意图创建独占doc与独占空间，先确认正式新增/清理权限；通过openLowcodeDataSpaceDesignSession(newSpaceId).getModelCreate()已有宿主和SourceReader创建，核Type=JSON/DbId=docId/MetaName及实际1模型6字段/空PK；需要六输出时沿原字段编辑命令配置，不伪造PK。现正式SDK支持outputType SelfRefData完整节点集，新runtime须查真实唯一叶值/父子关系且文件字节不变，不能用prepare或读文件代替。绑定存在时须显示确切模型引用且0写，不能拿无条件disabled冒充；清理先冻结模型/6字段/零外部关系并核引用，再各自清doc两端与空间。历史97DC拒权不绕过，不调整IsVisible/权限基线。
 - 正式实服证据evidence/data-chain-smoke/2026-11-07-json-declared-lifecycle.json已落，包含原审计与脚本/意图SHA、原进程终态及两份新runtime回读；8冻结源SHA不变。当前包剩余JSON模型正向消费/引用特定拒删、FileManager两gap、视觉及20包仍开放；本次只完成上述实际生命周期，不核销整个业务包。
+
+### JSON来源模型实服定义与运行拒权、FileManager来源和宿主终验（同包续做）
+
+- 沿高阶方案及正式ClassModel目录/概要/指南核LowcodeDataSpaceCatalog、LowcodeDataSpaceDesignSession、ModelCreateHandle、ModelRemoveHandle、DataSpaceQueryOptions.outputType、PageRuntime，原23571自然exit0。生成来源仍为39cdba源码正式编译产物，生产代码无变化；不是另建SPARK data或业务提交器。
+- 新原生actor17632自然exitCode0/signalCode null/killed false，最终phase finished/lifecycle cleaned，161读/8写/blocked0/unknown false/errors空。独占空间B8A685CAE17EEEC47A97E3DBA9847069、doc F87D8276BF1A8BCAC0491DAE7D52C111、模型6B0A57C7D261761DEFEB2E9FA99D9BC3及精确六字段见json-model-owned-model-intent.json。actor checkpoint和源码SHA已冻结，禁止重建或重放这些ID。8写顺序严格为空间新增、JSON文件新增、目录新增、模型+六字段新增一批、模型+六字段删除一批、JSON文件删、目录删、空间删；没有业务来源表导入或其他文件写入。
+- 正式getModelCreate来源预览→取消0写→重新预览/命名→原元数据DataSet保存；新设计会话独立读取1模型6字段，Type JSON/DbId原doc/MetaName原doc名/注册Name原模型名完整一致。正式readModel确认六字段全部output true、全部primaryKey false、模型primaryKey空，没有虚构PK。原文件字节在消费后独立核原样。
+- 新PageRuntime以只引用实际模型ID/注册名的临时声明视图，沿公开DataView查询outputType SelfRefData，实际服务返回[500]权限不足：Base_JsonData数据空间基线未配置（none）、操作码不适用、元数据公开基线IsVisible=0。没有取得叶值/父子节点集合，JSON模型运行正向消费仍未完成；没有调整IsVisible/权限基线、角色或借97DC身份。文件API可读写与正式模型查询授权是两条已分别验证的权限面。临时消费视图也不冒充已持久化的页面配置。
+- 清理按已冻结原ID：ModelRemoval预览scope恰好1模型+6字段、layout false，取消0写，再独立新会话重新核同一scope后原命令保存。独立核空间模型0、按整个空间过滤字段0（非modelIds空数组），目录原正式模型DataView按Type JSON+DbId doc查询在当前授权范围0；不能据此保证不可见的全局引用不存在。然后自有文档原文基线/定位核定，文件先删并独立缺失，再目录删除，最后原目录deleteSelected核空模型后删独占空间。三端均核空后才finish。普通文档删除仍无条件disabled，只证明当前不放行，不能当作已实现显示具体引用的产品拒删。
+- FileManager登记精确查询：原13820预检10读0写，MetaName Base_FileManager返回唯一模型8D1190A660800CF7D90477C99AD8C783，所属空间23F469CC96AC4B73BA5AE593C0002BD4，Type数据库表，DbId EBEFF17BBB6443B185D6FB32FF69F0BB/DbName QYVirtualPlat。原24264的正式readModel13读0写在来源主键守卫失败，未取得可用于列表的正式结构。不能因有登记行就绕过来源守卫、填PK或换成物理路径身份。
+- 进一步原3428独立自然exit0，10读0写/blocked0，沿实际View_TblList模型8D1…p004及原DataView，以dbid+tblname Base_FileManager精确过滤，得到countReported true/total0/rows0。仅证明当前授权来源查询没有唯一目标，不声称全局物理表不存在，不猜重挂或删除历史模型。该进程末步Nav sysid大小写与正式字段SysId不符而失败，负例保留；未把它计为导航实服通过。
+- 原30404独立自然exit0，7读0写/blocked0，使用原7AB…p000正式蓝图模型/原DataView及模型canonicalName，按当前SysId+原EDF7DE3E5723E127F98B2A119BE81BF9精确查询，返回一条且全字段visible：原vue URL、status plan、conid null、funCode空。源码project-blueprint-wire.ts:108/128由conid产生dataSpace.scenarioId，lowcode-runtime.ts:242再提供blueprintScenarioId；当前节点未提供上传宿主。模型所属空间23F…不代替它，原/infra GET404不重复、未试删除或上传。
+- 预检1/2的可选字段投影错误、原13692辅助探针的未暴露dataModelId/请求取消/30秒超时及3428的字段大小写错误均保留；它们不是来源/导航成功。最终来源0与导航plan/空conid分别使用独立成功的精确查询作证。正式证据evidence/data-chain-smoke/2026-11-07-json-model-definition-runtime.json包含原actor/六字段/运行拒权/清理、FileManager登记/来源/导航及脚本审计SHA，8个生产源SHA再次一致。本包保留JSON运行权限、权威引用特定拒删、FileManager有效来源/上传登记与物理删除合同及视觉缺口，20包目标仍active，不核销本包。
+
+### 下一连续完整包：Excel导入目录→模板/设计→真实一次导入（高阶只读实施卡）
+
+- 当前目录src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue只有打开设计/刷新；正式36B01771C627B9BF5CD493DC75B996A1已有方案、数据空间、创建人视图，已有字段映射/13类转换/排序/单组版式导出的分项证据保留，不为换页重建SPARK data或重复这些已验编辑细节。固定参考仍1147b00ee；原路径、原URL及0F93设计输入schemeId保持，不搬参考数组、formData或独立提交器。
+- 完整目录语义范围：按编码/名称搜索、分页、新增/编辑、数据空间选择、模板、复制方案键、进入设计、删除及重开。原PageRuntime、标准表格/固定行表单绑定DataView，单ID编辑检查点；目录保存只提交本方案行，设计器按同一rowid直接消费。删除先按schemeId精确核子配置/字段/规则，显示实际依赖后走既有configuration-removal命令，不静默清关联。取消/已知部分成功/未知回执分别保留原捕获。
+- 固定参考ExcelImportConfig.create:206–226是先Added正式rowid、再按已存在行及A3A38857F7584319844A826EF9AAA881规则领码、再同ID写coding；每步独立确认，新增已成功但领码失败保留原行，领码未知禁止再次领号。不能套用工作流先领码的历史失败结论，也不回退/删除共享流水来伪造清理。先核本仓正式领码合同及取消/已知/未知语义。模板用原二进制File，确认取消前0上传，回执与templatePath及独占文件清理分别核定。
+- 真实导入首写硬门槛：Java仅作参考，SheetDataServiceImpl.initConfig:405–419在读工作簿前ensureTaskIdFieldAsync；缺lingma_sys_task_id时FieldEnsureAsyncService:34–67会metaDataService.addField且初始化可先提交。坏文件/失败POST也可能改表，不能当安全探针。只用已注册且既有task列的获准目标表，一个预生成且独立确认不存在的业务PK、一行、无子表/默认业务触发器/跨租户；importData:1661–1701按已有PK会更新，禁止覆盖已有记录。
+- 导入前只读核三方定位/清理：业务行按新PK+lingma_sys_task_id；主账按唯一上传原名取得rowid/batch_id/import_filename，明细按log_id取得精确rowid/db_name/table_name/row_count；归档必须用服务随机名和服务端日期的正式文件合同。参考ImportLedgerWriter.record:36–78有这些字段，但须先原元数据按两账本MetaName精确核正式ID/空间/主键/查询和删除作用域，不能把Java当已部署能力。
+- 归档参考FileUtils.saveFile:90–108位于user.dir/data/work/adminnet/uploadfile/{ent}/ImportFile/{server-local-yyyy-MM-dd}/{log.import_filename}，与当前LowcodeDesignApi.appType映射等价未证。不能借本机日期、fallback appType或主机文件系统猜目录/清理。/api/import/void会保留账本及附件；“导入成功”也不能证明归档已保存。三方合同均已证且可精确清理后，新wx意图才允许一次POST /api/File/importExcel（upCtrl_Input/encodingId/params/values），独立核一行业务数据、账本、实际文件字节并按捕获身份清理，新实例核空。任一缺口时保持0导入POST，继续已授权目录/设计闭环，不伪造整包完成。

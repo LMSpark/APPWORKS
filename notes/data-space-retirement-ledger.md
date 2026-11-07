@@ -6966,3 +6966,12 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 真实导入首写硬门槛：Java仅作参考，SheetDataServiceImpl.initConfig:405–419在读工作簿前ensureTaskIdFieldAsync；缺lingma_sys_task_id时FieldEnsureAsyncService:34–67会metaDataService.addField且初始化可先提交。坏文件/失败POST也可能改表，不能当安全探针。只用已注册且既有task列的获准目标表，一个预生成且独立确认不存在的业务PK、一行、无子表/默认业务触发器/跨租户；importData:1661–1701按已有PK会更新，禁止覆盖已有记录。
 - 导入前只读核三方定位/清理：业务行按新PK+lingma_sys_task_id；主账按唯一上传原名取得rowid/batch_id/import_filename，明细按log_id取得精确rowid/db_name/table_name/row_count；归档必须用服务随机名和服务端日期的正式文件合同。参考ImportLedgerWriter.record:36–78有这些字段，但须先原元数据按两账本MetaName精确核正式ID/空间/主键/查询和删除作用域，不能把Java当已部署能力。
 - 归档参考FileUtils.saveFile:90–108位于user.dir/data/work/adminnet/uploadfile/{ent}/ImportFile/{server-local-yyyy-MM-dd}/{log.import_filename}，与当前LowcodeDesignApi.appType映射等价未证。不能借本机日期、fallback appType或主机文件系统猜目录/清理。/api/import/void会保留账本及附件；“导入成功”也不能证明归档已保存。三方合同均已证且可精确清理后，新wx意图才允许一次POST /api/File/importExcel（upCtrl_Input/encodingId/params/values），独立核一行业务数据、账本、实际文件字节并按捕获身份清理，新实例核空。任一缺口时保持0导入POST，继续已授权目录/设计闭环，不伪造整包完成。
+
+### 2026-11-07 Excel目录编辑与领码公共命令检查点（未完成整包）
+
+- 目录新增编码/名称标准过滤、创建时间及原行设计/编辑操作；编辑由RendererForm.contextRowId固定首开rowid，字段直接绑定原DataView，名称trim/必填/长度及空间optionsView校验归DataColumn。保存只指定原ID，取消走discardPendingChanges；未知只核验原保存，不重新提交。模板路径仅显示原值，本轮未冒充已恢复上传。
+- formal-topic-pages新增取消/保存/写入后失联三反例：外部切换currentRow仍编辑E1，不误写E2；原coding/templatePath保持，未知核验仅一次写请求。首次全目录回归还复现全局“打开设计”把MouseEvent误当业务行，改为无参闭包后24目录+13公共命令测试共37项通过（excel-catalog-regression-v2.log，原进程自然exit0）。
+- 公共命令增加可选retainConfirmedOnRefresh，默认原行为不变；仅本次实例保留只读已确认回执，不发请求、不持久化、不把新实例空结果解释为未执行。SDK BusinessCodeAssignmentResource要求声明命令及宿主本次Added已确认凭据，固定首轮目标/执行域，同目标跨视图/新命令ID/第二资源实例不得重领；GET派发后坏回执/执行域变化一律未知，缺权威查询时verify保留未知、禁止用再次GET核验或放弃。13项SDK夹具通过，eslint修正后通过；没有真实领码GET。
+- 本轮生产改动typecheck自然exit0、目标eslint自然exit0，正式generate:class-model-surface自然exit0；最终构建及生成合同核对仍在收取。本轮没有真实导入POST、模板上传或业务数据写入；不将响应夹具包装成实服结果。
+- 后续仍须首次装配声明/绑定命令与原Added确认编排、已知编码写回失败的原行恢复测试、模板原File及实际清理、复制KEY、完整方案删除及一次导入三方清理。前述实施卡把configuration-removal用于方案整体删除的表述须收窄：当前仅证实叶配置删除，不能据此宣称已有整方案级联命令；须按schemeId核完整实际归属后补齐。20包目标继续，JSON既有外部缺口不核销。
+- 最终收取：build:fe自然exit0（现有CodeMirror动态/静态混用提示保留）；正式生成后8类目录/概要/指南核对自然exit0。生成审计只还原176份规范化等价噪声，保留command声明、manifest/semantic-gaps及新增SDK声明的实质变更；git diff --check通过。构建/类型/50项针对测试通过只覆盖本检查点，不代表新增领码已接通或整包完成。

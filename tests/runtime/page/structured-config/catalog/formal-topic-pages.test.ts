@@ -11,6 +11,7 @@ import Workflow from '@/views/features/data-platform/structured-config/workflow-
 import WorkflowTrigger from '@/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-table-dialog.vue'
 vi.mock('@/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue',()=>({default:{name:'WorkflowEditorStub',props:['rowid'],data:()=>({hasPending:false,busy:false,unconfirmed:false}),methods:{discardChanges(this:{hasPending:boolean}){this.hasPending=false;return true}},template:'<div>workflow-editor</div>'}}))
 import Excel from '@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue'
+import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
@@ -46,6 +47,19 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['cancel','save','unknown'] as const)('edits the original Excel scheme through its native row with %s',async outcome=>{
+    state.http.records['Base_Import_solution']!.push({rowid:'E2',coding:'KEEP2',solutionName:'另一个方案',description:'keep',dataSetId:'S1'})
+    state.http.records['Base_Import_solution']![0]!['templatePath']='keep-template.xlsx'
+    const loading=vi.spyOn(LowcodeExcelImport,'loadCatalog'),router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/catalog');await router.isReady()
+    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'));const loaded=loading.mock.results[0];loading.mockRestore();if(loaded?.type!=='return')throw Error('Catalog load missing');const ds=await loaded.value
+    const row=wrapper.getComponent(RendererTable).findAll('tbody tr')[0]!;const edit=row.findAll('button').find(button=>button.text()==='编辑');expect(edit,'row edit action').toBeDefined();await edit!.trigger('click');await flushPromises()
+    const form=wrapper.getComponent(RendererForm);expect(form.props('contextRowId')).toBe('E1');ds.getView('Base_Import_solution')!.setCurrentRowById('E2');await flushPromises()
+    const name=form.findAllComponents(FieldText).find(field=>field.props('field')==='solutionName')!;await name.get('input').setValue('  修改后的方案  ');await flushPromises();await router.push('/other');expect(router.currentRoute.value.path).toBe('/catalog')
+    const click=async(label:string)=>{const button=wrapper.findAll('button').find(item=>item.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+    if(outcome==='cancel'){await click('取消修改');expect(state.http.saves).toEqual([]);expect(state.http.records['Base_Import_solution']![0]?.['solutionName']).toBe('订单导入')}
+    else{if(outcome==='unknown')state.http.failAfterWrite=true;await click('保存方案');expect(state.http.saves).toHaveLength(1);if(outcome==='unknown'){expect(wrapper.findAll('button').find(button=>button.text()==='取消修改')?.attributes('disabled')).toBeDefined();await click('核验保存结果');expect(state.http.saves).toHaveLength(1)}expect(state.http.records['Base_Import_solution']![0]).toMatchObject({rowid:'E1',solutionName:'修改后的方案',coding:'EXCEL1',templatePath:'keep-template.xlsx'});expect(state.http.records['Base_Import_solution']![1]?.['solutionName']).toBe('另一个方案')}
+    expect(wrapper.findComponent(RendererForm).exists()).toBe(false)
+  })
   it.each(['cancel','save'])('binds trigger conditions to the original definition and guards unapplied input before %s',async outcome=>{
     const originalFilter=DataViewFilterCodec.serializeStored(DataViewFilter.condition({field:'Count',operator:'eq',value:0}))
     Object.assign(state.http.records['Base_WorkflowDefinition']![0]!,{version:'1',tblid:'T1',tblName:'Orders',filter:originalFilter})

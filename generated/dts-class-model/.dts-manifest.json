@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T04:06:16.111Z"
+      "sourceModifiedAt": "2026-11-07T10:25:09.632Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -3069,7 +3069,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-07T00:37:58.631Z"
+      "sourceModifiedAt": "2026-11-07T10:41:39.947Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3300,6 +3300,11 @@
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts.json",
       "sourceModifiedAt": "2026-10-25T07:53:43.531Z"
+    },
+    "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts.json",
+      "sourceModifiedAt": "2026-11-07T10:54:16.775Z"
     },
     "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/code-sequence-range.ts",
@@ -5219,7 +5224,7 @@
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T19:39:48.653Z"
+      "sourceModifiedAt": "2026-11-07T10:54:27.350Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue",

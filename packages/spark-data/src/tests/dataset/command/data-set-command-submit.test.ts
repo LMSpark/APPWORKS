@@ -5,7 +5,7 @@ import {bindDataSetCommandSubmit, ensureDataSetFileCommandView,type BindCommandS
 
 class TransportFailure extends Error {}
 
-function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify'|'onPrepareInput'|'allowAbandonUnconfirmed'>> = {}) {
+function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify'|'onPrepareInput'|'allowAbandonUnconfirmed'>> & {retainConfirmedOnRefresh?:boolean} = {}) {
   const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
   const view = ensureDataSetFileCommandView({
     dataSet,
@@ -26,6 +26,7 @@ function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify
     verify,
     isUnconfirmed: error => error instanceof TransportFailure,
     ...(overrides.allowAbandonUnconfirmed===undefined?{}:{allowAbandonUnconfirmed:overrides.allowAbandonUnconfirmed}),
+    ...(overrides.retainConfirmedOnRefresh===undefined?{}:{retainConfirmedOnRefresh:overrides.retainConfirmedOnRefresh}),
     ...(overrides.onPrepareInput?{onPrepareInput:overrides.onPrepareInput}:{}),
   })
   const save = () => dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
@@ -40,6 +41,15 @@ async function addInput(view: ReturnType<typeof setup>['view'], values: Record<s
 }
 
 describe('DataSet command submit helper', () => {
+  it('retains an acknowledged readonly receipt across refresh without submitting again when requested',async()=>{
+    const f=setup({retainConfirmedOnRefresh:true});await addInput(f.view,{ServerName:'allocated-code'});await f.save();await f.view.refresh()
+    expect(f.view.rows).toHaveLength(1);expect(f.view.rows[0]).toMatchObject({rowid:'K1',ServerName:'allocated-code'});expect(f.view.fieldAccess(f.view.rows[0]!,'ServerName').write).toBe('denied')
+    await f.save();expect(f.submit).toHaveBeenCalledTimes(1);expect(f.verify).not.toHaveBeenCalled();expect(f.view.hasEditingChanges()).toBe(false)
+    f.dataSet.destroy()
+  })
+  it('keeps explicit reset-on-refresh semantics for commands without retained receipts',async()=>{
+    const f=setup();await addInput(f.view,{ServerName:'one-run'});await f.save();await f.view.refresh();expect(f.view.rows).toEqual([]);expect(f.submit).toHaveBeenCalledTimes(1);f.dataSet.destroy()
+  })
   it('captures a readonly independent input after generating its local command id',async()=>{
     const capture=vi.fn((row:Readonly<DataRow>)=>{expect(row['rowid']).toBe('K1');expect(Reflect.set(row,'ServerName','changed')).toBe(false)})
     const {view,submit}=setup({onPrepareInput:capture})

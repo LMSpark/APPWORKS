@@ -1,5 +1,5 @@
 {
-  "gapCount": 3754,
+  "gapCount": 3762,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -17028,6 +17028,101 @@
       "declarationFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts",
       "declarationLine": 1,
       "sourceFile": "packages/spark-lowcode-api/src/platform/resources/shared/http-record-guards.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreparedBusinessCodeAssignment",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreparedBusinessCodeAssignment.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 12,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreparedBusinessCodeAssignment",
+      "memberName": "rowId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreparedBusinessCodeAssignment.rowId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 13,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "PreparedBusinessCodeAssignment",
+      "memberName": "ruleId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "PreparedBusinessCodeAssignment.ruleId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 14,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "model",
+      "className": "BusinessCodeAssignmentResourceInput",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BusinessCodeAssignmentResourceInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 18,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "BusinessCodeAssignmentResourceInput",
+      "memberName": "http",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BusinessCodeAssignmentResourceInput.http 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 19,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "BusinessCodeAssignmentResourceInput",
+      "memberName": "readScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BusinessCodeAssignmentResourceInput.readScope 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 20,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "BusinessCodeAssignmentResource",
+      "memberName": "resourceId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BusinessCodeAssignmentResource.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 28,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "class"
+    },
+    {
+      "kind": "constructor",
+      "className": "BusinessCodeAssignmentResource",
+      "memberName": "constructor",
+      "reason": "missing-jsdoc",
+      "chainBreak": "BusinessCodeAssignmentResource.constructor 的构造语义链断开：构造签名没有 JSDoc。",
+      "fixHint": "在 packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationLine": 29,
+      "sourceFile": "packages/spark-lowcode-api/src/platform/resources/structured-config/data-code/assignment-resource.ts",
+      "declarationKind": "class"
     },
     {
       "kind": "constructor",

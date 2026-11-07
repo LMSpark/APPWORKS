@@ -129,6 +129,8 @@ export type BindCommandSubmitOptions = Readonly<{
   isUnconfirmed?: (error: unknown) => boolean
   /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */
   allowAbandonUnconfirmed?: boolean
+  /** true时refresh继续呈现本实例已确认的只读回执，不再次派发或查询后端。用于分配结果尚待其他资源写回的命令；省略时refresh清空回执。实例释放后不提供持久核验，空视图不代表命令未执行。 */
+  retainConfirmedOnRefresh?: boolean
 }>
 
 function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], options: BindCommandSubmitOptions): QueryResult {
@@ -171,7 +173,8 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
 }
 
 /**
- * 绑定写命令：refresh 得到空结果后 addRow 录入参数，DataSet.saveChanges 一次提交一行并接纳回执。
+ * 绑定写命令：首次refresh初始化本地结果后addRow录入参数，DataSet.saveChanges一次提交一行并接纳回执。
+ * 后续refresh按retainConfirmedOnRefresh保留或清空本实例已确认回执，不派发命令。
  * 已接纳行只读；修改或删除已接纳行不是本命令语义，直接拒绝。
  */
 export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSubmitOptions): void {
@@ -208,7 +211,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
     localAggregates: false,
     executeQuery: target => {
       options.guard()
-      confirmed = []
+      if(options.retainConfirmedOnRefresh!==true)confirmed = []
       return Promise.resolve(commandSubmitResult(target, confirmed, options))
     },
     save,

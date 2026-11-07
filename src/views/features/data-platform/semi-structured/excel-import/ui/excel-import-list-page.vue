@@ -3,12 +3,22 @@
 -->
 <template>
   <section class="structured-catalog-page">
-    <header><h1>Excel 导入</h1><p>导入方案目录；Sheet 布局与转换规则在编辑器中维护。</p></header>
+    <header><h1>Excel 导入配置</h1><p>导入方案目录；Sheet 布局与转换规则在编辑器中维护。</p></header>
     <p v-if="loading" role="status">正在读取导入目录…</p>
     <p v-if="error" role="alert">{{ error }}</p>
     <template v-if="ready">
-      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :stripe="true"
+      <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :actions="actions" :filter="filter" :stripe="true"
         :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
+      <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" title="编辑方案"
+        :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed" @update:model-value="closeEdit">
+        <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验原保存；不会重复提交。</p>
+        <RendererForm :key="editingId" :context-row-id="editingId" :data-view-key="catalogKey" :children="editorFields"
+          :grid-columns="1" label-width="88px" :show-data-view-meta="false" />
+        <template #footer>
+          <RendererButton :label="unconfirmed ? '核验保存结果' : '保存方案'" :disabled="acting" @click="saveEdit" />
+          <RendererButton label="取消修改" :disabled="acting || unconfirmed" @click="cancelEdit" />
+        </template>
+      </RendererDialog>
       <RendererDialog v-if="designTarget" :model-value="true" title="Excel 导入方案设计" :data-view-key="catalogKey"
         :width="1560" :destroy-on-close="true" :close-disabled="designPending" @update:model-value="closeDesign">
         <ExcelEditor ref="designPage" :scheme-rowid="designTarget" />
@@ -23,10 +33,10 @@
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
-import {useRoute} from 'vue-router'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
+import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
+import {PAGE_RUNTIME,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,type RToolbarProps,type RFilterProps} from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import ExcelEditor from './excel-import-editor-page.vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
@@ -35,9 +45,16 @@ const route = useRoute()
 const designTarget = ref('')
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
 const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
-useSystemPageDirtySource({get isDirty() {return designPending.value}})
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-list-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
+const editingId=ref<string|number>(),acting=ref(false)
+const pending=computed(()=>{revision.value;return view.value?.hasEditingChanges()===true||view.value?.dirtyTracking.hasPendingChanges()===true})
+const unconfirmed=computed(()=>{revision.value;return view.value?.hasUnconfirmedSave===true})
+const querying=computed(()=>{revision.value;return loading.value||view.value?.requestState===RequestState.Loading||view.value?.requestState===RequestState.Preparing})
+const locked=computed(()=>querying.value||acting.value||editingId.value!==undefined||pending.value||unconfirmed.value||!!designTarget.value)
+useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unconfirmed.value||designPending.value}})
+onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value)
+onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value)
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
@@ -48,8 +65,16 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
-  {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || loading.value, onClick: openEditor}},
-  {type: 'r-button', props: {label: '刷新', action: 'refresh'}},
+  {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || locked.value, onClick: () => openEditor()}},
+  {type: 'r-button', props: {label: '刷新', action: 'refresh',disabled:locked.value}},
+]}))
+const actions=computed<RToolbarProps>(()=>({children:[
+  {type:'r-button',props:{label:'设计',permAction:'edit',disabled:locked.value,onClick:(row:DataRow)=>openEditor(row)}},
+  {type:'r-button',props:{label:'编辑',permAction:'edit',disabled:locked.value,onClick:editRow}},
+]}))
+const filter=computed<RFilterProps>(()=>({autoQuery:false,children:[
+  {type:'r-text',props:{field:'coding',label:'方案编码',placeholder:'按编码搜索'}},
+  {type:'r-text',props:{field:'solutionName',label:'方案名称',placeholder:'按名称搜索'}},
 ]}))
 const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'coding', label: '方案编码', width: 180}},
@@ -59,10 +84,34 @@ const fields = computed<SparkNode[]>(() => [
   {type: 'r-text', props: {field: 'description', label: '描述', width: 300}},
   {type: 'r-select', props: {field: 'createuser', label: '创建人', width: 150,
     optionDataViewKey: buildDataViewKey('Base_UserInfo', 'default', scenarioId.value)}},
+  {type:'r-text',props:{field:'createtime',label:'创建时间',width:140}},
 ])
-function choose(row: DataRow): void {view.value?.setSelectedRows([row])}
-function openEditor(): void {
-  if (selected.value && !designTarget.value) designTarget.value = selected.value
+const editorFields=computed<SparkNode[]>(()=>[
+  {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value}},
+  {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value}},
+  {type:'r-text',props:{field:'templatePath',label:'文件路径',readonly:true}},
+  {type:'r-textarea',props:{field:'description',label:'备注',maxlength:500,showWordLimit:true,readonly:acting.value||unconfirmed.value}},
+])
+function choose(row:DataRow):void{if(!locked.value)view.value?.setSelectedRows([row])}
+function editRow(row:DataRow):void{
+  const target=view.value,id=target?.getPkKey(row)
+  if(!target||id===undefined||locked.value||target.editActionState(row)!=='enabled')return
+  editingId.value=id;error.value=''
+}
+async function saveEdit():Promise<void>{
+  const target=view.value,id=editingId.value,current=runtime?.getDataSet(scenarioId.value),own=generation
+  if(!target||id===undefined||!current||acting.value)return
+  acting.value=true;error.value=''
+  try{const result=await current.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'方案保存未完整确认');if(active&&own===generation)editingId.value=undefined}
+  catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+  finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function cancelEdit():void{if(acting.value||unconfirmed.value||editingId.value===undefined)return;try{view.value?.discardPendingChanges([editingId.value]);editingId.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+function closeEdit(open:boolean):void{if(!open&&!acting.value&&!pending.value&&!unconfirmed.value)editingId.value=undefined}
+function openEditor(row?:DataRow):void {
+  if(locked.value)return
+  const id=row&&view.value?view.value.getPkKey(row):selected.value
+  if(typeof id==='string'&&id)designTarget.value=id
 }
 function closeDesign(open: boolean): void {
   if (!open && !designPending.value) designTarget.value = ''
@@ -74,6 +123,7 @@ function discardDesign(): void {
 watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
+  editingId.value=undefined;acting.value=false;designTarget.value=''
   unsubscribe?.(); view.value = undefined
   sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
   try {
@@ -84,7 +134,8 @@ watch(scenarioId, async id => {
     await runtime.load()
     if (!active || own !== generation) {runtime.dispose(); return}
     view.value = dataSet.getView(LowcodeExcelImport.catalogMetaName, 'default')
-    unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++})
+    const changed=()=>revision.value++
+    unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged:changed,rowsChanged:changed,editingChanged:changed,mutatingChanged:changed,requestStateChanged:changed})
     sparkProvide(PAGE_RUNTIME, runtime); ready.value = true; dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}

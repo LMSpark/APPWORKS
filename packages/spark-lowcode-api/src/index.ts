@@ -115,6 +115,7 @@ export { DesignResourceRejection } from './platform/resources/shared/http-record
 export { LogicViewDesignClient } from './platform/resources/structured-config/logic-view/design-client.js'
 export { CodeInitializationClient } from './platform/resources/structured-config/data-code/initialization-client.js'
 export { CodeExampleClient, type CodeExampleInput, type CodeExampleNode } from './platform/resources/structured-config/data-code/example-client.js'
+export {BusinessCodeAssignmentResource,type PreparedBusinessCodeAssignment,type BusinessCodeAssignmentResourceInput} from './platform/resources/structured-config/data-code/assignment-resource.js'
 export { createCodeInitializationView } from './platform/resources/structured-config/data-code/initialization-resource.js'
 export type { CodeInitializationTarget } from './platform/resources/structured-config/data-code/initialization-projection.js'
 export type { LogicViewDesignPayload } from './platform/resources/structured-config/logic-view/design-client.js'

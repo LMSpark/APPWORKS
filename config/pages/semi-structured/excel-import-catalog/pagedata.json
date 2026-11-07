@@ -3,6 +3,11 @@
   "tables": {
     "Base_Import_solution": {
       "modelBinding": {"modelId": "36B01771C627B9BF5CD493DC75B996A1p000", "modelName": "Base_Import_solution"},
+      "columns": [
+        {"name": "solutionName", "required": true, "trim": "normalize", "maxLength": 200},
+        {"name": "description", "maxLength": 500},
+        {"name": "dataSetId", "optionsView": {"tableName": "Base_DataSet", "viewId": "default", "valueField": "rowid"}}
+      ],
       "views": {"default": {
         "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
         "queryConfig": {"fields": ["rowid", "coding", "solutionName", "templatePath", "description", "dataSetId", "createuser", "createtime"]},

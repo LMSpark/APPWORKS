@@ -7980,3 +7980,21 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 全部验证/烟测句柄终态，无活跃长测等待。当前可安全提交T局部检查点：公共恢复原批及逐视图结果、实际DB/file/pagedata/命令/初始化适配证明、真实正反例/旧夹具合同纠正、唯一台账入口清理及官方派生。原组件未跟踪RED不提交；删除两旧认证助手属ignored临时文件清理，不计Git源码变更。无Java变更、业务页面补丁、实服业务写入、兼容层、合并或部署。下一S1继续精确隔离CRUD烟测及清理、数据库I3三项和其余矩阵；历史数据转换按已定映射一次性执行，不用兼容读分支。S1仍未冻结，目标active。
 
 **T检查点已提交推送并独立核实。**代码28f984781f21b1bea9451ded8e177ee6e576e7f7（fix(spark-data): preserve per-source recovery outcomes），42文件851增203删；push origin HEAD:refs/heads/codex/spark-data-s1-command-safety自然exit0，独立git ls-remote与本地精确同SHA。cached白名单/秘密新增扫描及diff --check通过，跟踪工作树清洁；只余原有S2组件未跟踪RED，未擅删用户工作。只一个主worktree，旧临时认证脚本两份已精确移除，台账过时活动入口已纠正，新公开JSDoc及生成物一致；不是清空历史验收证据或掩盖首次完整测试10失败。此事实补记以docs跟随同步，不改已测代码。后续仍S1隔离CRUD/清理→数据库I3三项→余矩阵，不进入S2，不把局部checkpoint说成数据合同冻结或全迁移完成。
+
+#### U. S1精确隔离数据库实服CRUD烟测（已清理）
+
+基线b2d3cc67446a2fbdf0e2ed9f5d92d5ddb691040c，产品源无变化，仍仅原S2未跟踪RED。按用户授权用原SDK正式登录、正式Base_DataSet模型及当前装配器DataSet→DataView执行一个标记对象，原查询报告主键字段后由SDK prepareNewRow生成主键（非后端分配）。独占runId=s1_owned_crud_20261108_01，PK=2E421295C650DD38886EBF456D8ECE48，marker=SPARK_S1_s1_owned_crud_20261108_01；意图文件wx锁，不得重跑原CRUD脚本。88785自然exit0：3业务写（新增/修改/删除各1）、10正式GetData；新增取消时累计0写，编辑取消不增写；新增/修改以新DataSet按精确PK回读，删除前核标记、删除后精确查询0行，confirmed-cleaned。
+
+新进程/新登录26934自然exit0：同PK正式查询0行、pending=false、resolve={state:none,views:[]}，业务写0。此与CRUD内共用SDK会话的新DataSet回读分别记录。正式证据evidence/data-chain-smoke/2026-11-08-s1-owned-crud.json含当前commit/源与脚本SHA、意图结果及限制，不存凭据；会话RAM清理，无隔离对象待清。只证明该正式查询范围缺席，不证明物理硬删；正常路径未发生unknown/partial/故障注入，脚本retry0及未知停止为已读防护，不冒称实服故障分支通过。写guard上限4、实际3，失败清理分支未触发；不宣称全业务Name唯一、整包、文件/pagedata或组件/宿主通过。高阶只读复核支持上述有限结论，未再写实服。
+
+#### V. S1数据库预览查询边界纠正
+
+先研究合同再改代码：本仓正式endpoints/lowcode-endpoint-ledger/api-metadata只登记GetData等，SysGetData唯一消费者记录不能证明HTTP授权；只读Java参考e1eccc1b56c225212481ba276302d5e6b288e883中SysGetData为关闭字段权限的内部方法，无已查HTTP路由注解。固定前端参考1147b00的公开基线拒绝亦要求零系统改道。以上不是当前部署不存在该路由的实服结论，未试打SysGetData、未改Java、未新增权限接线。
+
+现有PUBLIC_QUERY_BASELINE按错误文案改道SysGetData无可靠授权合同。先替换固化错误行为的旧测试：真实GetData基线拒绝必须仅1次公开请求、系统/写请求0，保原Error/Failed状态、空预览且不改IsVisible。原源RED明确实际发SysGetData（并被动态列变化误报UNSAVED遮掉原错误）；删除正则和catch改道，只消费GetData。同步删除fixture对SysGetData的伪授权支持及旧注释，12项预览测试GREEN。不恢复兼容分支、不改页面，授权系统预览若有正式部署/调用及字段范围合同另按语义接入。当前仅该适配/测试、U证据与本台账改动，尚未工程门禁/提交。
+
+**U/V门禁与清理进度。**数据库族15632自然exit0：13文件208测试；定向eslint自然exit0。V高阶窄复审无阻断，限定默认刷新1公开请求，不将显式分页原流程也称1请求；未试打实服SysGetData。正式ClassModel64547自然exit0：1108/1744/3768，lowcode生成自然0：611端点216消费者，删除错误Sys调用消费者不是删除后端正式合同。根verify65737仍运行，未重启、未提前提交。补正backend-api-contracts README过时apps/metadata目标，明确Java源码参考不等于实际部署或本次授权，不新增端点。U正式JSON保限界及清理终态，源SHA固定为改V前b2d3cc674；V仅数据适配与测试，不冒称U执行过新预览分支。整个S1仍未冻结，下一同步命令弱核验/装配身份差距继续按I3，历史转换不从本次烟测推断已完成。
+
+**U/V检查点门禁终态。**根verify65737自然exit0，含根类型/lint、ClassModel49、611端点216消费者及其它正式规则；既有2模型警告/84薄页诊断仍在，不称零差距。数据库族13文件208测试、定向lint均通过。14份正式ClassModel派生剔除明确时间/编译符号ID后语义差异0；消费者派生仅去Sys错误引用、更新GetData源定位（unmatched127→126），端点总数不变。git diff --check通过，所有验证/烟测handle已终态。未重跑完整全仓，不沿用T首次完整失败为本批通过。
+
+本批可安全提交：一个预览数据适配的删除式修正、替代旧错误测试/夹具、正式派生/契约README纠偏、U实服有界CRUD及跨会话清理证据、唯一台账。只改S1责任层及测试文档产物，无组件/页面/Java修改、无角色或兼容层；无测试对象待清，用户凭据未入证据/提交。只主worktree，原组件RED不动。下一仍S1数据库SyncMetaData未知结果弱核验与真实attach身份绕过，先RED再方案/实现/重验；未冻结数据合同、不进S2，历史一次性转换尚待所涉存量结构映射核定，不把本烟测当历史迁移。

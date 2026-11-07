@@ -1,0 +1,70 @@
+{
+  "status": "owned-database-crud-confirmed-formal-query-absence",
+  "sourceCommit": "b2d3cc67446a2fbdf0e2ed9f5d92d5ddb691040c",
+  "sourceHashes": {
+    "packages/spark-data/src/data-view.ts": "e982b6a16219b851d01c6ef6dd20247fe51001d85c02f953c1e1c1565d9d4725",
+    "packages/spark-data/src/dataset.ts": "5ec357a5919208ccf02f3a5f6cbb4c636a700a7bb162d031f550e14e725d0c06",
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/data-space-runtime-api.ts": "0dfea589b9fb2f30dd68e82a2c488eb3cba6a5231506768606fbe548a2ba16b2",
+    "packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context.ts": "995ed4cd8d0ba2b98b06b13bb39970840c14576dc8d4bfa9cb1c721b0a7602d7",
+    "src/lowcode/data-space/lowcode-data-space-assembler.ts": "3ff08e4aeffdf37cdc84f2bce36def0d4b7fe6710d69a062e975eaa7edd861d8",
+    "artifacts/data-chain-smoke/s1-owned-crud.mts": "9ba07de39edc62495e6203ab88653e6cd03bfca7074998c842a2bc85ccfd0ff5",
+    "artifacts/data-chain-smoke/s1-owned-crud-run.mts": "2204755e1df124c3bf28e2ea53046eb7fcb91c59eb1427e43d30e799abdde919",
+    "artifacts/data-chain-smoke/s1-live-preflight.mts": "3525858ca6a3cca51eb90a3249902b3ef7f7fe1337d24eede55846155efe07b2",
+    "artifacts/data-chain-smoke/s1-live-preflight-run.mts": "2add14cf3cf63590269e540009cdcfc2a7b7b234952923dc13755c83e5d66438"
+  },
+  "gateway": "https://spark.lingmacn.com",
+  "principal": {
+    "userProvidedTestCredentials": true,
+    "authenticated": true,
+    "credentialsPersisted": false
+  },
+  "run": {
+    "runId": "s1_owned_crud_20261108_01",
+    "marker": "SPARK_S1_s1_owned_crud_20261108_01",
+    "phase": "confirmed-cleaned",
+    "businessWrites": 3,
+    "cleanupConfirmed": true,
+    "checks": [
+      "cancel-new-zero-write",
+      "create-independent-readback",
+      "cancel-edit-zero-write",
+      "update-independent-readback",
+      "delete-independent-absence"
+    ],
+    "requests": {
+      "/api/DataOperation/GetBaseData": 1,
+      "/api/LoginAuthority/UserLoginByEnt": 1,
+      "/api/DataOperation/GetData": 10,
+      "/api/DataOperation/BatchTableOperateRequestByCRUD": 3
+    },
+    "credentialsPersisted": false,
+    "rowId": "2E421295C650DD38886EBF456D8ECE48",
+    "updatedAt": "2026-11-07T20:49:41.403Z"
+  },
+  "independentNewSession": {
+    "naturalExitCode": 0,
+    "testedAt": "2026-11-07T20:51:04.326Z",
+    "businessWrites": 0,
+    "formalModel": "Base_DataSet",
+    "targetId": "2E421295C650DD38886EBF456D8ECE48",
+    "rowsReturned": 0,
+    "requests": {
+      "enterpriseDirectory": 1,
+      "login": 1,
+      "formalGetData": 5
+    },
+    "unconfirmed": false,
+    "recovery": {
+      "state": "none",
+      "views": []
+    }
+  },
+  "limits": [
+    "Primary key prepared by the SDK from the original formal query contract; not a server-assigned-key claim.",
+    "New DataSets within the CRUD worker share one SDK/session; the final absence check used a separate process and new login.",
+    "Formal-query absence is verified; physical hard deletion is not verified.",
+    "No real unknown result, partial success, or network fault was injected; retry/stop safeguards were inspected, not exercised by this normal-path run.",
+    "Maximum write guard was four; actual writes were three. Cleanup failure paths were not exercised.",
+    "No component, host UI, file/pagedata CRUD, historical-data migration, or entire 20-package acceptance is claimed."
+  ]
+}

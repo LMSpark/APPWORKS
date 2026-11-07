@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 217,
-  "directUnmatchedCount": 127,
+  "consumerCount": 216,
+  "directUnmatchedCount": 126,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -1267,19 +1267,13 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 234,
-      "scope": "app-composition"
-    },
-    {
-      "expression": "/api/DataOperation/SysGetData",
-      "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 238,
+      "sourceLine": 231,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 339,
+      "sourceLine": 331,
       "scope": "app-composition"
     },
     {

@@ -88,7 +88,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   onPhysicalPreviewResponse?: () => void
   physicalPreviewRowsOverride?: Array<Record<string, unknown>>
   physicalPreviewResponseOverride: unknown = undefined
-  /** GetData 返回公开查询基线错误，SysGetData 仍返回预览行。 */
+  /** 正式GetData拒绝无公开查询基线的物理预览，不提供另一种查询授权。 */
   physicalPreviewPublicBaseline = false
   connectionTestMode: 'ok' | 'throw' | 'false' | 'rejected' = 'ok'
   connectionTestGate?: Promise<void>
@@ -313,7 +313,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
         ...(deletedBuckets.length ? {maplistdelete: deletedBuckets} : {}),
       }}, status: 200, statusText: 'OK', headers: {}}
     }
-    const isCatalogRead = config.url === '/api/DataOperation/GetData' || config.url === '/api/DataOperation/SysGetData'
+    const isCatalogRead = config.url === '/api/DataOperation/GetData'
     if (!isCatalogRead) throw new Error(`unexpected request ${config.url ?? ''}`)
     if (this.failNextCatalogRead && config.url === '/api/DataOperation/GetData') {
       this.failNextCatalogRead = false

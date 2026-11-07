@@ -4054,7 +4054,7 @@
     "src/lowcode/resources/database/catalog/table/preview-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table/preview-view-ops.ts.json",
-      "sourceModifiedAt": "2026-11-01T14:30:47.403Z"
+      "sourceModifiedAt": "2026-11-07T20:54:53.631Z"
     },
     "src/lowcode/resources/database/catalog/table/register-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",

@@ -1,8 +1,8 @@
 # lowcode-jdk17 后端 API 契约
 
 本目录根据 `E:\lowcode-jdk17` 的 Controller、请求 DTO、枚举和 Jackson
-字段定义整理，目标是让 `apps/metadata` 能直接消费可靠的 TypeScript
-出入参契约。
+字段定义整理，为本仓 `packages/spark-lowcode-api` 等消费者提供 TypeScript
+出入参参考。源码合同不证明当前部署已支持该能力或授权本次调用；实际查询、提交与结果仍须分别验证。
 
 ## 文件
 

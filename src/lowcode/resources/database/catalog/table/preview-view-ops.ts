@@ -226,17 +226,9 @@ type PhysicalPreviewRequest = Readonly<{
   PageParam: Readonly<{index: number; size: number}>
 }>
 
-const PUBLIC_QUERY_BASELINE = /公开查询基线|IsVisible\s*=\s*1/
-
-/** 公开查询基线不足时，同一请求体改打系统查询；其它错误保持原样。 */
+/** 消费正式公开查询结果；拒绝保持原错误，不从文案推导另一种查询授权。 */
 async function postPhysicalPreview(http: HttpClientBase, payload: PhysicalPreviewRequest): Promise<{items: DataRow[]; total: number}> {
-  try {
-    return parseGetDataPage(await http.post<unknown>('/api/DataOperation/GetData', payload))
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error)
-    if (!PUBLIC_QUERY_BASELINE.test(message)) throw error
-    return parseGetDataPage(await http.post<unknown>('/api/DataOperation/SysGetData', payload))
-  }
+  return parseGetDataPage(await http.post<unknown>('/api/DataOperation/GetData', payload))
 }
 
 export function databaseCatalogHasTablePreview(dataSet: DataSet): boolean {

@@ -97,7 +97,7 @@ describe('database/catalog/table/preview-view-ops', () => {
     expect(preview.rows.some(row => row['Name'] === '预览行一')).toBe(true)
   })
 
-  it('retries the same physical preview body on SysGetData only for a public baseline rejection', async () => {
+  it('preserves a public baseline rejection without changing query authority or metadata', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const databases = ds.getView(DATABASE_CATALOG_DB_MODEL, 'default')!
@@ -111,23 +111,24 @@ describe('database/catalog/table/preview-view-ops', () => {
     http.physicalPreviewPublicBaseline = true
     const before = http.requests.length
 
-    await databaseCatalogPreviewRefresh(ds, preview, {
-      dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
-    })
+    const failure:unknown=await databaseCatalogPreviewRefresh(ds, preview, {
+      dbId: 'DB1', tableName: 'Orders', tblid: 'T1',
+    }).catch((error:unknown)=>error)
 
-    const later = http.requests.slice(before).filter(request => request.url === '/api/DataOperation/GetData' || request.url === '/api/DataOperation/SysGetData')
-    expect(later.length).toBeGreaterThan(0)
-    expect(later.length % 2).toBe(0)
-    for (let index = 0; index < later.length; index += 2) {
-      expect(later[index]?.url).toBe('/api/DataOperation/GetData')
-      expect(later[index + 1]?.url).toBe('/api/DataOperation/SysGetData')
-      expect(later[index + 1]?.data).toEqual(later[index]?.data)
-    }
+    const later = http.requests.slice(before)
+    expect(later.filter(request => request.url === '/api/DataOperation/GetData')).toHaveLength(1)
+    expect(later.some(request => request.url === '/api/DataOperation/SysGetData')).toBe(false)
+    expect(failure).toBe(preview.loadingError)
+    expect(failure).toHaveProperty('message',expect.stringContaining('公开查询基线'))
+    expect(later.some(request => request.url === '/api/DataOperation/BatchTableOperateRequestByCRUD')).toBe(false)
     const descriptor = (later[0]?.data as {Table?: Array<Record<string, unknown>>}).Table?.[0]
     expect(descriptor?.['Fields']).toEqual(expect.arrayContaining([
       expect.objectContaining({Name: 'Id', IsPKey: true, IsOutput: true}),
     ]))
-    expect(preview.rows.some(row => row['Name'] === '预览行一')).toBe(true)
+    expect(preview.rows).toEqual([])
+    expect(preview.requestState).toBe(RequestState.Failed)
+    expect(preview.loadingError?.message).toContain('公开查询基线')
+    expect(http.rows[DATABASE_CATALOG_TABLE_MODEL]?.find(row => row['rowid'] === 'T1')).not.toHaveProperty('IsVisible')
   })
 
   it('sends an empty Fields array when the catalog has no fields for the table', async () => {

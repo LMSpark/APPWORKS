@@ -8034,3 +8034,25 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **X检查点终验。**最终根verify82885自然exit0（根类型/lint、ClassModel及正式工程规则通过），所有本批进程均终态；保留既有模型警告/薄页差距，不称全仓测试或全20包通过。diff --check通过，准备将同步装配短路删除、公共绑定校验闭包、12项正式回归测试及官方派生/唯一台账提交同一codex分支，仅推origin/APPWORKS，不merge/force/部署。仍S1：后续真实register/catalog/connection/preview身份与多表预检、I3剩余矩阵及资源语义分类待完成；数据合同未冻结，不进入S2。U烟测对象清理终态沿用，X未写实服或更改存量，未伪称历史数据已转换。
 
 **X已提交推送并核实。**代码50695eafc32853b2d79ef309a0f28f196e1dc9a9（fix(database): validate sync command assembly identity），20文件261增94删；origin同分支push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，只主worktree，原S2未跟踪RED不动。事实补记docs跟随同步；下一恢复点仍S1其余实际装配入口与I3，不进组件，整体goal active。
+
+#### Y. S1服务器、表、视图注册命令真实装配收口
+
+基线165037656bccafd49c18536a9a32b4cd3a9200eb。上一批为实际进展且已核远端，本批仅S1资源适配/common命令、测试文档及派生。三个注册入口同名return仍绕声明和实际owner；新增真实入口22项先RED全失败（资源/type/列PK/有效view键、foreign owner、未绑定声明、缺default及server enum差异）。空声明序列化仅构造未绑定测试对象，不作为未知恢复迁移。公共helper把所有字段写成string，新增enum/required/label保留反例先RED（1失败19通过）。
+
+公共列spec允许原DataColumn元数据（以primary声明主键），创建保类型及元数据、复制enumOptions数组与成员；重复ensure核资源/model、type/PK以及明确的required/options，允许额外非PK列，不宣称所有列属性深相等。三个注册入口使用公共ensure，domain先核唯一string rowid，按实际DataView共用原绑定校验closure；首次绑定成功后设staged/缓存，重复不替换原callback/pending/defaultFieldsAcknowledged。X同步沿同一私有map复用，原错误码/行为不变，不造新owner。删除注册类型前误称Sync字段目录verify的过时注释，避免AI再沿已撤回逻辑恢复。
+
+首实现82项GREEN。高阶方案评审追加创建边界：共享server枚举成员须复制（新增正例通过），缺rowid/rowid非PK/重复列首次抛错前不能占名，3例实际先RED；已将创建统一交公共ensure预检，不先addTable。已在真实DefaultFieldsAcked回读失败恢复前插入repeat attach，替换guard若误接管将throw，核保原ACKmap与pending且不增POST。当前定向测试/定向lint运行中，尚未门禁/生成/提交，无实服写入，paired catalog/connection/preview多表预检及I3其它差距仍待完成；不冻结、不跨S2，原20包范围保留。
+
+**Y迭代反例。**定向63724为5文件126测试自然exit0，首次lint12286两处多余optional chain失败，已改为明确候选判定。高阶实际diff再核到结构类型变量DataColumn[]可夹带isPrimaryKey：创建spread若沿用它，首次成功、同输入重挂却按primary缺省拒绝。新增实际先RED（1失败20通过），创建末尾只按公开primary设置isPrimaryKey，使创建与重复校验一致，不按结构类型多余属性暗中改主键。公共spec保元数据不等于接受第二主键声明。末态数据库族/common及lint重验、正式生成进行中；仍未提交。输入非法时表不存在且修正后可挂载的3例已GREEN，不把首次实现的占名问题留给下游。
+
+**Y扩大验证进度。**29381自然exit0：数据库/common17文件308测试，含实际注册装配26项、新公共字段2项与既有Sync12项。第二轮lint15030 prefer-optional-chain指出候选式，按同语义改candidate?.value并保第二分支已收窄label，修后定向lint自然0；公共源末态data包81811自然exit0：55文件1238测试。首次生成84382自然exit0为1108/1744/3764，最终生成38657跟进源码mtime运行中；不以旧生成冒新快照。高阶最终窄审未发现Y阻断，仅静态复核。下一仍须根工程门禁/lowcode派生和提交远端核实，未实服注册或改变存量；服务完成核验与装配身份是独立验收，不因本批通过替代I3其它证据。
+
+**Y派生/过程清理。**最终生成38657自然exit0，1108/1744/3764；lowcode生成自然0，611端点216消费者。正式派生语义为公共列spec扩展、注册合同注释修正、该spec补JSDoc减少1个gap，其余时间/编译符号/声明行号漂移；不手改产物。精确删除7份已终态中间日志，保留末态测试/生成/门禁日志及全部正式回归；只有主worktree，原S2未跟踪RED不动。根verify1339仍live，待其终态后提交，不重启。
+
+**下一核验反例（只读定位，尚未修复/实测）。**高阶研究服务器注册verify：server/resource.ts默认allPages=true，因此不是仅当前页，但仍只遍历目录default当前过滤/授权结果；service-management-page的名称/IP/Type过滤会用于refresh。dataset-extensions的server verify只按原rowid find，未找到return undefined，common会将其当正式未生效解除unknown。下一应以目录Type=ORACLE、提交MYSQL且已写丢回执的正式查询夹具先RED，再沿原rowid独立核验、不污染目录filter/selection；查无记录不能凭过滤/可见范围当未提交。当前fixture未真实消费所有过滤，必须修夹具而非伪造证明。另server submit缺少返回身份时兜回payload作成功亦需单列核对正式ACK。以上不是实服故障结论；Java仅只读参考，源码显示保客户端rowid但无请求状态接口，不新增后端协议。Y只验装配，S1未冻结，继续此回执链及paired装配/I3剩余矩阵。
+
+**Y工程门禁拦截及修正。**根verify1339自然exit1：类型/lint通过后，AI规则指出新private ensureDatabaseWriteCommandView四位置参数超3限制。未提交绕门禁；改为单一命名options对象及三个调用，verify:ai-codegen自然exit0（1706文件）。改后数据库93116及正式生成50733重验中，随后重跑根门禁，不把首次失败删成通过。公共算法未再变，1238包测试仍为对应公共末态证据；源责任层未跨越。
+
+**Y末态门禁进度。**命名参数修正后93116自然exit0：数据库15文件259测试；公共末态81811的55文件1238测试含新增两项helper回归。最终生成50733自然exit0：1108/1744/3764，最终lowcode生成自然exit0：611端点216消费者。最终根verify42997仍运行，类型/lint/架构已通过，待全部正式规则终态；当前无本批待清理测试对象、无新工作树/临时源，用户原组件RED不动。
+
+**Y检查点终验与提交边界。**最终根verify42997自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留。所有本批handle终态，diff --check通过，高阶窄审无剩余Y阻断。另精确删除3份已被末态替代的生成/合同/失败门禁日志，本批合计10份过程日志清理，首次失败事实在本台账保留，不删正式测试/有效证据。准备提交三个注册短路删除、字段创建/幂等修正及回归、正式派生与本台账，仅同一codex分支推origin，不merge/force/部署。未执行实服注册，无凭据/运行数据入提交；原S2未跟踪测试不stage，只有主worktree。下一仍S1服务器回执/精确独立核验及paired装配/I3剩余组，数据合同未冻结、无兼容层、全20包目标仍active。

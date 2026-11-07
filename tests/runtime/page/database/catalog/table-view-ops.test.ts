@@ -2,6 +2,7 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDatabaseTableView} from '@/lowcode/resources/database/catalog/table-view'
+import {attachTableRegisterCommandView} from '@/lowcode/resources/database/dataset-extensions'
 import {
   databaseCatalogDbSelectedId,
   databaseCatalogQueryUnregisteredTableNames,
@@ -35,6 +36,7 @@ import {
   DATABASE_CATALOG_VIEW_MODEL,
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_VIEW_REGISTER_TABLE,
+  DATABASE_TABLE_REGISTER_TABLE,
   DATABASE_TABLE_SYNC_META_TABLE,
 } from '@/lowcode/resources/database/catalog/table-view'
 import {
@@ -299,6 +301,8 @@ describe('database/catalog/table/view-ops', () => {
     expect(commandView.hasUnconfirmedSave).toBe(true)
     const posts = http.requests.filter(request => request.url === '/api/Table/registerTable/DB1').length
 
+    attachTableRegisterCommandView({dataSet: ds, http, register: DATABASE_TABLE_REGISTER_TABLE,
+      catalogModel: DATABASE_CATALOG_TABLE_MODEL, assertScope: () => {throw new Error('replacement guard must not take over')}})
     await databaseCatalogVerifyTableRegistration(ds)
 
     expect(commandView.hasUnconfirmedSave).toBe(false)

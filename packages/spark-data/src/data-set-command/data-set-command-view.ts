@@ -10,7 +10,9 @@ import type {DataTable} from '../data-table'
 import {DataViewSaveNotAppliedError, type DataView} from '../data-view'
 import type {DataColumn, DataRow} from '../types'
 
-export type DataSetCommandColumnSpec = Readonly<{name: string; primary?: boolean}>
+/** 创建时保留字段元数据；重复装配核资源、类型、主键及显式必填/枚举声明。 */
+export type DataSetCommandColumnSpec = Readonly<Partial<Omit<DataColumn, 'name' | 'isPrimaryKey'>>
+  & {name: string; primary?: boolean}>
 
 export type DataSetCommandScopeGuard = () => void
 
@@ -29,10 +31,11 @@ export type BindReadonlyCommandQueryOptions = Readonly<{
 }>
 
 function columnDefs(columns: readonly DataSetCommandColumnSpec[]) {
-  return columns.map(column => ({
-    name: column.name,
-    type: 'string' as const,
-    ...(column.primary ? {isPrimaryKey: true} : {}),
+  return columns.map(({primary, ...column}) => ({
+    ...column,
+    type: column.type ?? 'string',
+    ...(column.enumOptions ? {enumOptions: column.enumOptions.map(option => ({...option}))} : {}),
+    isPrimaryKey: primary === true,
   }))
 }
 
@@ -54,8 +57,14 @@ function assertCommandTable(
   for (const expected of columns) {
     const matches = table.columns.filter(column => column.name === expected.name)
     const actual = matches[0]
-    if (matches.length !== 1 || actual?.type !== 'string'
-      || (expected.primary === true) !== (actual.isPrimaryKey === true)) {
+    if (matches.length !== 1 || actual?.type !== (expected.type ?? 'string')
+      || (expected.primary === true) !== (actual.isPrimaryKey === true)
+      || (expected.required !== undefined && actual.required !== expected.required)
+      || (expected.enumOptions !== undefined && (actual.enumOptions?.length !== expected.enumOptions.length
+        || expected.enumOptions.some((option, index) => {
+          const candidate = actual.enumOptions?.[index]
+          return option.value !== candidate?.value || option.label !== candidate.label
+        })))) {
       throw new Error(`DATA_SET_COMMAND_COLUMNS_CONFLICT: ${table.tableName}.${expected.name} 字段或主键不匹配`)
     }
   }

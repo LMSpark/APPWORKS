@@ -1,5 +1,6 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../../dataset'
+import type {DataColumn} from '../../../types'
 import {
   bindDataSetReadonlyCommandQuery,
   dataSetCommandQueryResultFromLocalRows,
@@ -8,6 +9,32 @@ import {
 } from '../../../data-set-command/data-set-command-view'
 
 describe('DataSet command view helper', () => {
+  it('uses only the command primary declaration when structural metadata contains isPrimaryKey', () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    const columns: DataColumn[] = [{name: 'id', type: 'string', isPrimaryKey: true}]
+    try {
+      const input = {dataSet, tableName: 'Typed', resourceId: 'typed', columns}
+      const view = ensureDataSetFileCommandView(input)
+      expect(() => ensureDataSetFileCommandView(input)).not.toThrow()
+      expect(view.columns.find(column => column.name === 'id')?.isPrimaryKey).not.toBe(true)
+    } finally {dataSet.destroy()}
+  })
+
+  it('preserves declared enum and validation metadata without string coercion', () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    const columns = [{name: 'id', primary: true}, {name: 'kind', type: 'enum', required: true,
+      label: 'Kind', enumOptions: [{value: 'A', label: 'Option A'}]}]
+    try {
+      const view = ensureDataSetFileCommandView({dataSet, tableName: 'Typed', resourceId: 'typed', columns})
+      expect(view.columns.find(column => column.name === 'kind')).toMatchObject({type: 'enum', required: true,
+        label: 'Kind', enumOptions: [{value: 'A', label: 'Option A'}]})
+      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Typed', resourceId: 'typed', columns})).not.toThrow()
+      dataSet.getTable('Typed')!.columns.find(column => column.name === 'kind')!.required = false
+      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Typed', resourceId: 'typed', columns}))
+        .toThrow('DATA_SET_COMMAND_COLUMNS_CONFLICT')
+    } finally {dataSet.destroy()}
+  })
+
   it.each(['', '   '])('rejects an empty file resource identity before registering a table: %j', resourceId => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     try {

@@ -838,7 +838,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-07T21:30:58.453Z",
+  "generatedAt": "2026-11-07T21:45:46.346Z",
   "models": {
     "DataColumn": {
       "name": "DataColumn",
@@ -1019,7 +1019,7 @@
     },
     "AttachTableRegisterCommandViewInput": {
       "name": "AttachTableRegisterCommandViewInput",
-      "jsdoc": "同步表元数据写命令：`POST /Table/SyncMetaData/{dbid}/{tableid}`。\nverify 通过刷新字段目录确认同步已反映到 Base_TblField。",
+      "jsdoc": "注册物理表写命令；默认字段完成须精确成功回执，正式目录回读不能代替默认字段执行证据。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "DatabaseCommandAttachInput & Readonly<{\n    register: string;\n    catalogModel: string;\n}>",

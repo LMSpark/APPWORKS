@@ -25,6 +25,416 @@
       "type": "object",
       "title": "DataSetCommandColumnSpec",
       "properties": {
+        "type": {
+          "anyOf": [
+            {
+              "const": "string"
+            },
+            {
+              "const": "number"
+            },
+            {
+              "const": "boolean"
+            },
+            {
+              "const": "object"
+            },
+            {
+              "const": "array"
+            },
+            {
+              "const": "integer"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "toString": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "charAt": {
+                  "type": "object",
+                  "title": "(pos: number) => string"
+                },
+                "charCodeAt": {
+                  "type": "object",
+                  "title": "(index: number) => number"
+                },
+                "concat": {
+                  "type": "object",
+                  "title": "(...strings: string[]) => string"
+                },
+                "indexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "lastIndexOf": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => number"
+                },
+                "localeCompare": {
+                  "type": "object",
+                  "title": "{ (that: string): number; (that: string, locales?: string | string[], options?: Intl.CollatorOptions): number; (that: string, locales?: Intl.LocalesArgument, options?: Intl.CollatorOptions): number; }"
+                },
+                "match": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): RegExpMatchArray | null; (matcher: { [Symbol.match](string: string): RegExpMatchArray | null; }): RegExpMatchArray | null; }"
+                },
+                "replace": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; (searchValue: { [Symbol.replace](string: string, replaceValue: string): string; }, replaceValue: string): string; (searchValue: { [Symbol.replace](string: s..."
+                },
+                "search": {
+                  "type": "object",
+                  "title": "{ (regexp: string | RegExp): number; (searcher: { [Symbol.search](string: string): number; }): number; }"
+                },
+                "slice": {
+                  "type": "object",
+                  "title": "(start?: number, end?: number) => string"
+                },
+                "split": {
+                  "type": "object",
+                  "title": "{ (separator: string | RegExp, limit?: number): string[]; (splitter: { [Symbol.split](string: string, limit?: number): string[]; }, limit?: number): string[]; }"
+                },
+                "substring": {
+                  "type": "object",
+                  "title": "(start: number, end?: number) => string"
+                },
+                "toLowerCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleLowerCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "toUpperCase": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "toLocaleUpperCase": {
+                  "type": "object",
+                  "title": "{ (locales?: string | string[]): string; (locales?: Intl.LocalesArgument): string; }"
+                },
+                "trim": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "length": {
+                  "type": "number"
+                },
+                "substr": {
+                  "type": "object",
+                  "title": "(from: number, length?: number) => string"
+                },
+                "valueOf": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "codePointAt": {
+                  "type": "object",
+                  "title": "(pos: number) => number | undefined"
+                },
+                "includes": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "endsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, endPosition?: number) => boolean"
+                },
+                "normalize": {
+                  "type": "object",
+                  "title": "{ (form: \"NFC\" | \"NFD\" | \"NFKC\" | \"NFKD\"): string; (form?: string): string; }"
+                },
+                "repeat": {
+                  "type": "object",
+                  "title": "(count: number) => string"
+                },
+                "startsWith": {
+                  "type": "object",
+                  "title": "(searchString: string, position?: number) => boolean"
+                },
+                "anchor": {
+                  "type": "object",
+                  "title": "(name: string) => string"
+                },
+                "big": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "blink": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "bold": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fixed": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "fontcolor": {
+                  "type": "object",
+                  "title": "(color: string) => string"
+                },
+                "fontsize": {
+                  "type": "object",
+                  "title": "{ (size: number): string; (size: string): string; }"
+                },
+                "italics": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "link": {
+                  "type": "object",
+                  "title": "(url: string) => string"
+                },
+                "small": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "strike": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sub": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "sup": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "padStart": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "padEnd": {
+                  "type": "object",
+                  "title": "(maxLength: number, fillString?: string) => string"
+                },
+                "trimEnd": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimStart": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimLeft": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "trimRight": {
+                  "type": "object",
+                  "title": "() => string"
+                },
+                "matchAll": {
+                  "type": "object",
+                  "title": "(regexp: RegExp) => RegExpStringIterator<RegExpExecArray>"
+                },
+                "replaceAll": {
+                  "type": "object",
+                  "title": "{ (searchValue: string | RegExp, replaceValue: string): string; (searchValue: string | RegExp, replacer: (substring: string, ...args: any[]) => string): string; }"
+                },
+                "at": {
+                  "type": "object",
+                  "title": "(index: number) => string | undefined"
+                },
+                "__@iterator@252999": {
+                  "type": "object",
+                  "title": "() => StringIterator<string>"
+                }
+              },
+              "required": [
+                "toString",
+                "charAt",
+                "charCodeAt",
+                "concat",
+                "indexOf",
+                "lastIndexOf",
+                "localeCompare",
+                "match",
+                "replace",
+                "search",
+                "slice",
+                "split",
+                "substring",
+                "toLowerCase",
+                "toLocaleLowerCase",
+                "toUpperCase",
+                "toLocaleUpperCase",
+                "trim",
+                "length",
+                "substr",
+                "valueOf",
+                "codePointAt",
+                "includes",
+                "endsWith",
+                "normalize",
+                "repeat",
+                "startsWith",
+                "anchor",
+                "big",
+                "blink",
+                "bold",
+                "fixed",
+                "fontcolor",
+                "fontsize",
+                "italics",
+                "link",
+                "small",
+                "strike",
+                "sub",
+                "sup",
+                "padStart",
+                "padEnd",
+                "trimEnd",
+                "trimStart",
+                "trimLeft",
+                "trimRight",
+                "matchAll",
+                "replaceAll",
+                "at",
+                "__@iterator@252999"
+              ],
+              "additionalProperties": false
+            },
+            {
+              "const": "enum"
+            },
+            {
+              "const": "decimal"
+            },
+            {
+              "const": "date"
+            },
+            {
+              "const": "text"
+            },
+            {
+              "const": "time"
+            },
+            {
+              "const": "int"
+            },
+            {
+              "const": "bool"
+            },
+            {
+              "const": "float"
+            },
+            {
+              "const": "double"
+            },
+            {
+              "const": "varchar"
+            },
+            {
+              "const": "datetime"
+            }
+          ]
+        },
+        "trim": {
+          "enum": [
+            "reject",
+            "normalize"
+          ]
+        },
+        "label": {
+          "type": "string"
+        },
+        "pattern": {
+          "type": "string"
+        },
+        "min": {
+          "type": "number"
+        },
+        "max": {
+          "type": "number"
+        },
+        "required": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "minLength": {
+          "type": "number"
+        },
+        "maxLength": {
+          "type": "number"
+        },
+        "allowDBNull": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "defaultValue": true,
+        "autoIncrement": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "allowAIAdd": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "isComputed": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "patternMessage": {
+          "type": "string"
+        },
+        "unique": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "immutable": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "optionsView": {
+          "$ref": "../types.ts.json#/$defs/DataColumnOptionsView"
+        },
+        "valueFunction": {
+          "$ref": "../types.ts.json#/$defs/DataColumnValueFunction"
+        },
+        "computeExpression": {
+          "type": "string"
+        },
+        "enumOptions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "string"
+              },
+              "label": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "value",
+              "label"
+            ],
+            "additionalProperties": false
+          }
+        },
         "name": {
           "type": "string"
         },
@@ -335,18 +745,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T21:26:54.695Z",
+  "generatedAt": "2026-11-07T21:42:17.597Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
-      "jsdoc": "",
+      "jsdoc": "创建时保留字段元数据；重复装配核资源、类型、主键及显式必填/枚举声明。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    name: string;\n    primary?: boolean;\n}>",
+        "declarationTypeText": "Readonly<Partial<Omit<DataColumn, 'name' | 'isPrimaryKey'>> & {\n    name: string;\n    primary?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    name: string;\n    primary?: boolean;\n}>",
+            "typeText": "Readonly<Partial<Omit<DataColumn, 'name' | 'isPrimaryKey'>> & {\n    name: string;\n    primary?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],

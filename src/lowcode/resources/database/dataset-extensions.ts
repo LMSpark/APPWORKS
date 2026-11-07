@@ -251,15 +251,11 @@ export type AttachServerRegisterViewInput = DatabaseCommandAttachInput & Readonl
 export function attachServerRegisterView(input: AttachServerRegisterViewInput): void {
   const {dataSet, http, assertScope, register, catalog, columns} = input
   const options = {register, catalog, columns}
-  if (dataSet.getTable(options.register)) return
-  const table = dataSet.addTable(options.register, options.columns.map(column => ({...column})))
-  table.resourceType = 'file'
-  table.resourceId = 'database-server-register'
-  const view = dataSet.getView(options.register, 'default')
-  if (!view) throw new Error('注册服务器命令视图缺失')
-  view.commitMode = 'staged'
+  const view = ensureDatabaseWriteCommandView({dataSet, tableName: options.register,
+    resourceId: 'database-server-register', columns: options.columns})
+  if (revalidateDatabaseCommandBinding(view)) return
   const fields = options.columns.filter(column => !column.isPrimaryKey).map(column => column.name)
-  SparkData.bindDataSetCommandSubmit(view, {
+  const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
     resource: {resourceType: 'file', resourceId: 'database-server-register'},
     guard: assertScope,
     inputFields: fields,
@@ -288,11 +284,12 @@ export function attachServerRegisterView(input: AttachServerRegisterViewInput): 
       return accepted
     },
   })
+  view.commitMode = 'staged'
+  databaseWriteCommandBindings.set(view, assertBinding)
 }
 
 /**
- * 同步表元数据写命令：`POST /Table/SyncMetaData/{dbid}/{tableid}`。
- * verify 通过刷新字段目录确认同步已反映到 Base_TblField。
+ * 注册物理表写命令；默认字段完成须精确成功回执，正式目录回读不能代替默认字段执行证据。
  */
 export type AttachTableRegisterCommandViewInput = DatabaseCommandAttachInput & Readonly<{
   register: string
@@ -302,8 +299,7 @@ export type AttachTableRegisterCommandViewInput = DatabaseCommandAttachInput & R
 export function attachTableRegisterCommandView(input: AttachTableRegisterCommandViewInput): void {
   const {dataSet, http, assertScope, register, catalogModel} = input
   const options = {register, catalogModel}
-  if (dataSet.getTable(options.register)) return
-  const table = dataSet.addTable(options.register, [
+  const view = ensureDatabaseWriteCommandView({dataSet, tableName: options.register, resourceId: 'database-table-register', columns: [
     {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},
     {name: 'dbid', type: 'string', label: '数据库', required: true},
     {name: 'tableName', type: 'string', label: '表名', required: true},
@@ -312,14 +308,10 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
     {name: 'batchKey', type: 'string', label: '批次'},
     {name: 'registrationDisposition', type: 'string', label: '命令处理状态'},
     {name: 'registrationStatus', type: 'string', label: '状态'},
-  ])
-  table.resourceType = 'file'
-  table.resourceId = 'database-table-register'
-  const view = dataSet.getView(options.register, 'default')
-  if (!view) throw new Error('注册数据表命令视图缺失')
-  view.commitMode = 'staged'
+  ]})
+  if (revalidateDatabaseCommandBinding(view)) return
   const defaultFieldsAcknowledged = new Map<string, Readonly<{dbid: string; tableName: string}>>()
-  SparkData.bindDataSetCommandSubmit(view, {
+  const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
     resource: {resourceType: 'file', resourceId: 'database-table-register'},
     guard: assertScope,
     inputFields: ['dbid', 'tableName', 'tableComment', 'addDefaultFields', 'batchKey', 'registrationDisposition', 'registrationStatus'],
@@ -370,6 +362,8 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
       return {...row, registrationStatus: '已确认'}
     },
   })
+  view.commitMode = 'staged'
+  databaseWriteCommandBindings.set(view, assertBinding)
 }
 
 export type AttachViewRegisterCommandViewInput = DatabaseCommandAttachInput & Readonly<{
@@ -380,8 +374,7 @@ export type AttachViewRegisterCommandViewInput = DatabaseCommandAttachInput & Re
 export function attachViewRegisterCommandView(input: AttachViewRegisterCommandViewInput): void {
   const {dataSet, http, assertScope, register, catalogModel} = input
   const options = {register, catalogModel}
-  if (dataSet.getTable(options.register)) return
-  const table = dataSet.addTable(options.register, [
+  const view = ensureDatabaseWriteCommandView({dataSet, tableName: options.register, resourceId: 'database-view-register', columns: [
     {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},
     {name: 'dbid', type: 'string', label: '数据库', required: true},
     {name: 'viewName', type: 'string', label: '视图名', required: true},
@@ -389,13 +382,9 @@ export function attachViewRegisterCommandView(input: AttachViewRegisterCommandVi
     {name: 'batchKey', type: 'string', label: '批次'},
     {name: 'registrationDisposition', type: 'string', label: '命令处理状态'},
     {name: 'registrationStatus', type: 'string', label: '状态'},
-  ])
-  table.resourceType = 'file'
-  table.resourceId = 'database-view-register'
-  const view = dataSet.getView(options.register, 'default')
-  if (!view) throw new Error('注册视图命令视图缺失')
-  view.commitMode = 'staged'
-  SparkData.bindDataSetCommandSubmit(view, {
+  ]})
+  if (revalidateDatabaseCommandBinding(view)) return
+  const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
     resource: {resourceType: 'file', resourceId: 'database-view-register'},
     guard: assertScope,
     inputFields: ['dbid', 'viewName', 'viewComment', 'batchKey', 'registrationDisposition', 'registrationStatus'],
@@ -419,13 +408,36 @@ export function attachViewRegisterCommandView(input: AttachViewRegisterCommandVi
       return {...row, registrationStatus: '已确认'}
     },
   })
+  view.commitMode = 'staged'
+  databaseWriteCommandBindings.set(view, assertBinding)
 }
 
 export type AttachTableSyncMetaDataViewInput = DatabaseCommandAttachInput & Readonly<{
   sync: string
 }>
 
-const syncMetaDataBindings = new WeakMap<SparkData.DataView, () => void>()
+const databaseWriteCommandBindings = new WeakMap<SparkData.DataView, () => void>()
+
+function revalidateDatabaseCommandBinding(view: SparkData.DataView): boolean {
+  const assertBinding = databaseWriteCommandBindings.get(view)
+  if (!assertBinding) return false
+  assertBinding()
+  return true
+}
+
+function ensureDatabaseWriteCommandView(input: Readonly<{
+  dataSet: DataSet; tableName: string; resourceId: string; columns: readonly DataColumn[]
+}>): SparkData.DataView {
+  const {dataSet, tableName, resourceId, columns} = input
+  const primaryColumns = columns.filter(column => column.isPrimaryKey === true)
+  if (primaryColumns.length !== 1 || primaryColumns[0]?.name !== 'rowid' || primaryColumns[0].type !== 'string') {
+    throw new Error('DATABASE_COMMAND_PRIMARY_KEY_CONFLICT: 数据库写命令声明必须包含唯一字符串主键 rowid')
+  }
+  const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName, resourceId,
+    columns: columns.map(({isPrimaryKey, ...column}) => ({...column, primary: isPrimaryKey === true}))})
+  if (view.primaryKey !== 'rowid') throw new Error('DATABASE_COMMAND_PRIMARY_KEY_CONFLICT: 数据库写命令视图必须以 rowid 标识本次命令')
+  return view
+}
 
 export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewInput): void {
   const {dataSet, http, assertScope, sync} = input
@@ -441,11 +453,7 @@ export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewIn
   const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName: sync,
     resourceId: 'database-table-sync-metadata', columns: [{name: 'rowid', primary: true}, {name: 'dbid'}, {name: 'tableid'}]})
   if (view.primaryKey !== 'rowid') throw new Error('DATABASE_SYNC_PRIMARY_KEY_CONFLICT: 同步命令视图必须以 rowid 标识本次命令')
-  const existingBinding = syncMetaDataBindings.get(view)
-  if (existingBinding) {
-    existingBinding()
-    return
-  }
+  if (revalidateDatabaseCommandBinding(view)) return
   const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
     resource: {resourceType: 'file', resourceId: 'database-table-sync-metadata'},
     guard: assertScope,
@@ -469,7 +477,7 @@ export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewIn
     },
   })
   view.commitMode = 'staged'
-  syncMetaDataBindings.set(view, assertBinding)
+  databaseWriteCommandBindings.set(view, assertBinding)
 }
 
 export type AttachServerConnectionTestViewsInput = DatabaseCommandAttachInput & Readonly<{

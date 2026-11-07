@@ -7074,3 +7074,4 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 本续轮收21311仍live，root19452 CPU已从63.38增至107.88秒，stdout仍无失败；未启动第二轮、未改生产源、未重放实服。下一卡高阶细化已落本台账，仅作后续实施输入；当前唯一执行前置仍为原2-worker全仓自然终态。待成功后更新证据/提交推送，整体20包目标保持active。
 - 最终原2-worker21311已自然exit0：501文件9134项全部通过，1230.00秒；原工作流完整测试未改、15000ms不变、显式maxWorkers2与原b9基线相同。所有7生产源SHA逐项仍与Added-first实服版本一致。正式证据状态更新verified-checkpoint-runtime-cleaned，保留所有失败、错误并发配置、临时实验还原、最终成功及实服清理的准确历史；严格semantic gaps既有747基线未新增，未假称该额外零门禁通过。
 - 本检查点标准verify-v10、build:fe-v10、包SDK44文件1462项与包typecheck、正式ClassModel v9及指南/JSON schema均已验；最后全仓补齐9134。准备提交推送当前模板数据链检查点，保持整体20包active；KEY/整方案删除、ExportExcel真实模板消费、真实导入与其任务/归档清理合同仍按原开放项，不核销。
+- 代码检查点dd5aef6f436d19e0f6f3b0fb85de757268b4c81b（feat(spark-app): publish Excel templates through native data commands）已提交并成功推送1031；随后通过git ls-remote独立核实远端1031正为该代码提交。26文件2029增57删，原2-worker全仓501文件9134项自然0、实服原方案及3份自有文件均清净、源SHA一致。此为模板数据链检查点，不是完整Excel/20包验收；开放项按上文保留。随后仅提交本交付记录，不改代码或重复实服。下一实施入口为已细化的KEY与整方案删除，继续统一SPARK data/标准组件绑定，不恢复参考owner。

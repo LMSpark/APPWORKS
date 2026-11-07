@@ -3774,7 +3774,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-07T04:26:46.230Z"
+      "sourceModifiedAt": "2026-11-07T11:25:45.044Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4165,6 +4165,11 @@
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/association-fields.ts.json",
       "sourceModifiedAt": "2026-11-05T05:06:56.710Z"
+    },
+    "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts": {
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "shardFile": "files/src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts.json",
+      "sourceModifiedAt": "2026-11-07T11:28:33.609Z"
     },
     "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts",
@@ -5224,7 +5229,7 @@
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-07T10:54:27.350Z"
+      "sourceModifiedAt": "2026-11-07T11:25:45.045Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue",

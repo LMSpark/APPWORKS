@@ -15,9 +15,19 @@
       }, "editorTarget": {
         "autoLoad": false, "autoCurrentFirst": true, "autoSelectFirst": false, "selectionDelimiter": "", "commitMode": "staged",
         "queryContext": {"importConfigId": ""},
-        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "dataSetId", "templatePath", "transform_enabled"]},
+        "queryConfig": {"fields": ["rowid", "coding", "solutionName", "description", "dataSetId", "templatePath", "transform_enabled"]},
         "filterExpression": {"field": "rowid", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "importConfigId"}}
       }}
+    },
+    "BusinessCodeAssignment": {
+      "resourceType": "command", "resourceId": "business-code:assignment",
+      "columns": [
+        {"name": "commandId", "type": "string", "isPrimaryKey": true},
+        {"name": "rowId", "type": "string"},
+        {"name": "ruleId", "type": "string"},
+        {"name": "code", "type": "string"}
+      ],
+      "views": {"default": {"autoLoad": false, "commitMode": "staged", "queryConfig": {"pagination": "none"}}}
     },
     "Base_DataSet": {
       "modelBinding": {"modelId": "c2f87e1b-09d8-4770-a93a-a21696bd5dc3", "modelName": "Base_DataSet"},

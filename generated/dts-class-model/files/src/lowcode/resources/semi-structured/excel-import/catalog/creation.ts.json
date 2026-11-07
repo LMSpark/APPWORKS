@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/semi-structured/excel-import/catalog/creation",
+    "sourcePath": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+    "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/semi-structured/excel-import/catalog/creation",
+    "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/catalog/creation\n职责：编排本次方案Added确认、一次领码和原行coding回写。\n边界：字段与回执仅保存在原DataView；此处只持身份、阶段及校验证据，不创建查询或保存owner。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Phase": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "Phase",
+      "enum": [
+        "complete",
+        "input",
+        "created",
+        "allocation",
+        "writeback",
+        "retained"
+      ]
+    },
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "config": {
+          "$ref": "../../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "http": {
+          "$ref": "../../../../../../packages/spark-utils/src/http/HttpClientBase.ts.json#/$defs/HttpClientBase"
+        },
+        "readScope": true
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-07T11:28:33.609Z",
+  "models": {
+    "Phase": {
+      "name": "Phase",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "'input' | 'created' | 'allocation' | 'writeback' | 'complete' | 'retained'",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "'input'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'created'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'allocation'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'writeback'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'complete'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'retained'"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    http: HttpClientBase;\n    readScope: ConstructorParameters<typeof BusinessCodeAssignmentResource>[0]['readScope'];\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    http: HttpClientBase;\n    readScope: ConstructorParameters<typeof BusinessCodeAssignmentResource>[0]['readScope'];\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "http",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "readScope",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

@@ -6,17 +6,20 @@
     <header><h1>Excel 导入配置</h1><p>导入方案目录；Sheet 布局与转换规则在编辑器中维护。</p></header>
     <p v-if="loading" role="status">正在读取导入目录…</p>
     <p v-if="error" role="alert">{{ error }}</p>
+    <p v-if="creation?.phase === 'retained'" role="status">方案已保留；编码处理未标记完成，请核查正式结果。</p>
     <template v-if="ready">
       <RendererTable :data-view-key="catalogKey" :children="fields" :toolbar="toolbar" :actions="actions" :filter="filter" :stripe="true"
         :highlight-current-row="true" :on-row-click="choose" :show-data-view-meta="false" />
-      <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" title="编辑方案"
-        :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed" @update:model-value="closeEdit">
+      <RendererDialog v-if="editingId !== undefined" :data-view-key="catalogKey" :model-value="true" :title="creating ? '新增方案' : '编辑方案'"
+        :width="760" :destroy-on-close="true" :close-disabled="acting || pending || unconfirmed || creationSaved" @update:model-value="closeEdit">
         <p v-if="unconfirmed" role="status">保存结果尚未确认，请核验原保存；不会重复提交。</p>
+        <p v-else-if="creationSaved" role="status">方案已保存，请继续完成原方案的编码处理。</p>
         <RendererForm :key="editingId" :context-row-id="editingId" :data-view-key="catalogKey" :children="editorFields"
           :grid-columns="1" label-width="88px" :show-data-view-meta="false" />
         <template #footer>
-          <RendererButton :label="unconfirmed ? '核验保存结果' : '保存方案'" :disabled="acting" @click="saveEdit" />
-          <RendererButton label="取消修改" :disabled="acting || unconfirmed" @click="cancelEdit" />
+          <RendererButton :label="unconfirmed ? '核验保存结果' : creationSaved ? '继续完成新增' : '保存方案'" :disabled="acting" @click="saveEdit" />
+          <RendererButton label="取消修改" :disabled="acting || unconfirmed || creationSaved" @click="cancelEdit" />
+          <RendererButton v-if="creationSaved" label="保留方案并结束" :disabled="acting || unconfirmed" @click="endCreation" />
         </template>
       </RendererDialog>
       <RendererDialog v-if="designTarget" :model-value="true" title="Excel 导入方案设计" :data-view-key="catalogKey"
@@ -38,6 +41,7 @@ import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode}
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent,type RToolbarProps,type RFilterProps} from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
+import {startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/lowcode/resources/semi-structured/excel-import/catalog/creation'
 import ExcelEditor from './excel-import-editor-page.vue'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
@@ -48,13 +52,16 @@ const designPending = computed(() => designPage.value?.hasPending === true || de
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-list-page'})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId=ref<string|number>(),acting=ref(false)
+const creation=computed(()=>{revision.value;const ds=view.value?.dataSet;return ds?readExcelSchemeCreation(ds):undefined})
+const creating=computed(()=>creation.value!==undefined&&creation.value.phase!=='complete'&&creation.value.phase!=='retained')
+const creationSaved=computed(()=>creating.value&&creation.value?.phase!=='input')
 const pending=computed(()=>{revision.value;return view.value?.hasEditingChanges()===true||view.value?.dirtyTracking.hasPendingChanges()===true})
-const unconfirmed=computed(()=>{revision.value;return view.value?.hasUnconfirmedSave===true})
+const unconfirmed=computed(()=>{revision.value;return view.value?.hasUnconfirmedSave===true||creation.value?.unconfirmed===true})
 const querying=computed(()=>{revision.value;return loading.value||view.value?.requestState===RequestState.Loading||view.value?.requestState===RequestState.Preparing})
 const locked=computed(()=>querying.value||acting.value||editingId.value!==undefined||pending.value||unconfirmed.value||!!designTarget.value)
-useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unconfirmed.value||designPending.value}})
-onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value)
-onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value)
+useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unconfirmed.value||designPending.value||creating.value}})
+onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value)
+onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value)
 let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
@@ -65,6 +72,7 @@ const selected = computed(() => {
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const catalogKey = computed(() => buildDataViewKey(LowcodeExcelImport.catalogMetaName, 'default', scenarioId.value))
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
+  {type:'r-button',props:{label:'新增方案',permAction:'create',disabled:locked.value,onClick:createScheme}},
   {type: 'r-button', props: {label: '打开设计', disabled: !selected.value || locked.value, onClick: () => openEditor()}},
   {type: 'r-button', props: {label: '刷新', action: 'refresh',disabled:locked.value}},
 ]}))
@@ -87,11 +95,18 @@ const fields = computed<SparkNode[]>(() => [
   {type:'r-text',props:{field:'createtime',label:'创建时间',width:140}},
 ])
 const editorFields=computed<SparkNode[]>(()=>[
-  {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value}},
-  {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value}},
+  {type:'r-text',props:{field:'solutionName',label:'方案名称',maxlength:200,readonly:acting.value||unconfirmed.value||creationSaved.value}},
+  {type:'r-select',props:{field:'dataSetId',label:'数据空间',optionDataViewKey:buildDataViewKey('Base_DataSet','default',scenarioId.value),readonly:acting.value||unconfirmed.value||creationSaved.value}},
   {type:'r-text',props:{field:'templatePath',label:'文件路径',readonly:true}},
-  {type:'r-textarea',props:{field:'description',label:'备注',maxlength:500,showWordLimit:true,readonly:acting.value||unconfirmed.value}},
+  {type:'r-textarea',props:{field:'description',label:'备注',maxlength:500,showWordLimit:true,readonly:acting.value||unconfirmed.value||creationSaved.value}},
 ])
+async function createScheme():Promise<void>{
+ const ds=view.value?.dataSet,own=generation;if(!ds||locked.value)return
+ acting.value=true;error.value=''
+ try{const id=await startExcelSchemeCreation(ds);if(active&&own===generation)editingId.value=id}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
 function choose(row:DataRow):void{if(!locked.value)view.value?.setSelectedRows([row])}
 function editRow(row:DataRow):void{
   const target=view.value,id=target?.getPkKey(row)
@@ -102,12 +117,23 @@ async function saveEdit():Promise<void>{
   const target=view.value,id=editingId.value,current=runtime?.getDataSet(scenarioId.value),own=generation
   if(!target||id===undefined||!current||acting.value)return
   acting.value=true;error.value=''
-  try{const result=await current.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'方案保存未完整确认');if(active&&own===generation)editingId.value=undefined}
+  try{
+   if(creating.value){await saveExcelSchemeCreation(current);if(readExcelSchemeCreation(current)?.phase!=='complete')return;await target.refresh();if(target.loadingError)throw target.loadingError}
+   else{const result=await current.saveChanges({views:[{tableName:target.tableName,viewId:target.viewId,ids:[id]}]});if(!result.success)throw Error(result.message??'方案保存未完整确认')}
+   if(active&&own===generation)editingId.value=undefined
+  }
   catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
   finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
-function cancelEdit():void{if(acting.value||unconfirmed.value||editingId.value===undefined)return;try{view.value?.discardPendingChanges([editingId.value]);editingId.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
-function closeEdit(open:boolean):void{if(!open&&!acting.value&&!pending.value&&!unconfirmed.value)editingId.value=undefined}
+function cancelEdit():void{if(acting.value||unconfirmed.value||creationSaved.value||editingId.value===undefined)return;try{const ds=view.value?.dataSet;if(creating.value&&ds)cancelExcelSchemeCreation(ds);else view.value?.discardPendingChanges([editingId.value]);editingId.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+async function endCreation():Promise<void>{
+ const ds=view.value?.dataSet,own=generation;if(!ds||acting.value||unconfirmed.value)return
+ acting.value=true;error.value=''
+ try{await endExcelSchemeCreation(ds);if(active&&own===generation)editingId.value=undefined}
+ catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+ finally{if(active&&own===generation){acting.value=false;revision.value++}}
+}
+function closeEdit(open:boolean):void{if(!open&&!acting.value&&!pending.value&&!unconfirmed.value&&!creating.value)editingId.value=undefined}
 function openEditor(row?:DataRow):void {
   if(locked.value)return
   const id=row&&view.value?view.value.getPkKey(row):selected.value

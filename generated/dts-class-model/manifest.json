@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1105,
+  "scannedFileCount": 1106,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14054,6 +14054,19 @@
         "symbols": [
           "ExcelAssociationFields"
         ]
+      }
+    },
+    "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts": {
+      "file": "files/src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/semi-structured/excel-import/catalog/creation",
+        "sourcePath": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+        "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/semi-structured/excel-import/catalog/creation",
+        "jsdoc": "@module app:lowcode/resources/semi-structured/excel-import/catalog/creation\n职责：编排本次方案Added确认、一次领码和原行coding回写。\n边界：字段与回执仅保存在原DataView；此处只持身份、阶段及校验证据，不创建查询或保存owner。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/semi-structured/excel-import/configuration-edit.ts": {

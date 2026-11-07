@@ -18,6 +18,7 @@ import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, B
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
+import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
 export type LoadScenarioDataSetInput = Readonly<{
@@ -134,6 +135,7 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
   ...createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent}),
   ...createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
+  ...createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
   ...(command.getPage?{getPage:command.getPage}:{}),
   fileExecutors: definitionExecutors({projectId, scenarioId, config, assertCurrent})})
  try {

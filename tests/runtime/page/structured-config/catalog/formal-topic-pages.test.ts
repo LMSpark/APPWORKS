@@ -14,6 +14,7 @@ import Excel from '@/views/features/data-platform/semi-structured/excel-import/u
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
+import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
 vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: () => {}}))
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,appId:'D99A1DCE9894698799101EFD70F8FC76'}))
@@ -29,9 +30,18 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
   }},
 }))
 const original = {...config.global.stubs}, wrappers: VueWrapper[] = []
+class TopicBackend extends ApiBackend{
+ allocations=0
+ allocationBody:unknown={Code:200,Result:'EXCEL-NEW'}
+ conflictCode=false
+ protected override async executeRequest(request:RequestConfig):Promise<HttpResponse<unknown>>{
+  if(request.url.startsWith('/api/Codeing/GetCodeString/')){this.allocations++;if(this.conflictCode){const id=request.url.split('/').at(-2),row=this.records['Base_Import_solution']?.find(row=>row['rowid']===id);if(row)row['coding']='EXTERNAL'}return{data:this.allocationBody,status:200,statusText:'OK',headers:{}}}
+  return super.executeRequest(request)
+ }
+}
 beforeEach(() => {
   state.appId='D99A1DCE9894698799101EFD70F8FC76'
-  state.http = new ApiBackend(); state.http.primaryKeys['Base_FileInspectConfig'] = 'id'
+  state.http = new TopicBackend(); state.http.primaryKeys['Base_FileInspectConfig'] = 'id'
   state.http.primaryKeys['_base_dbInfo']='Id'
   state.http.records = {
     Base_WorkflowDefinition: [{rowid: 'W1', name: '入库流程', workflow_key: 'INBOUND', description: '正式流程', status: '1'}],
@@ -47,6 +57,21 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['cancel','save','unknown-code','conflict-end','read-failure-end'] as const)('creates an Excel scheme through the standard pinned form with %s',async outcome=>{
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}},{path:'/other',component:{template:'<div>other</div>'}}]});await router.push('/catalog');await router.isReady()
+    const wrapper=mount(defineComponent({setup:()=>()=>h(RouterView)}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await vi.waitFor(()=>expect(wrapper.text()).toContain('订单导入'))
+    const click=async(label:string)=>{const button=wrapper.findAll('button').find(item=>item.text()===label);expect(button,label).toBeDefined();await button!.trigger('click');await flushPromises()}
+    await click('新增方案');const form=wrapper.getComponent(RendererForm),id=form.props('contextRowId');expect(id).toBeTruthy();expect(id).not.toBe('E1')
+    const name=form.findAllComponents(FieldText).find(field=>field.props('field')==='solutionName')!;await name.get('input').setValue('新增目录方案');await flushPromises()
+    if(outcome==='cancel'){await click('取消修改');expect(state.http.saves).toHaveLength(0);expect((state.http as TopicBackend).allocations).toBe(0);expect(wrapper.findComponent(RendererForm).exists()).toBe(false)}
+    else{if(outcome==='unknown-code')(state.http as TopicBackend).allocationBody={Code:500,Message:'unknown'};if(outcome==='conflict-end')(state.http as TopicBackend).conflictCode=true;if(outcome==='read-failure-end')state.http.beforeDefinitionRead=async table=>{if(table==='Base_Import_solution'&&state.http.saves.length)throw Error('offline')};await click('保存方案')
+      if(outcome==='unknown-code'){expect(wrapper.findComponent(RendererForm).exists()).toBe(true);expect(wrapper.findAll('button').find(button=>button.text()==='取消修改')?.attributes('disabled')).toBeDefined();await click('核验保存结果');expect(state.http.saves).toHaveLength(1);await router.push('/other');expect(router.currentRoute.value.path).toBe('/catalog')}
+      else if(outcome==='conflict-end'){expect(wrapper.text()).toContain('冲突');await click('保留方案并结束');expect(wrapper.findComponent(RendererForm).exists()).toBe(false);expect(state.http.saves).toHaveLength(1);expect(state.http.records['Base_Import_solution']!.find(row=>row['rowid']===id)?.['coding']).toBe('EXTERNAL');await router.push('/other');expect(router.currentRoute.value.path).toBe('/other')}
+      else if(outcome==='read-failure-end'){const reads=state.http.reads.length;await click('保留方案并结束');expect(wrapper.findComponent(RendererForm).exists()).toBe(false);expect(state.http.reads).toHaveLength(reads);expect(state.http.saves).toHaveLength(1);expect((state.http as TopicBackend).allocations).toBe(0);await router.push('/other');expect(router.currentRoute.value.path).toBe('/other')}
+      else{expect(wrapper.findComponent(RendererForm).exists()).toBe(false);expect(state.http.saves).toHaveLength(2);expect(state.http.records['Base_Import_solution']!.find(row=>row['rowid']===id)).toMatchObject({solutionName:'新增目录方案',coding:'EXCEL-NEW'})}
+      expect((state.http as TopicBackend).allocations).toBe(outcome==='read-failure-end'?0:1)
+    }
+  })
   it.each(['cancel','save','unknown'] as const)('edits the original Excel scheme through its native row with %s',async outcome=>{
     state.http.records['Base_Import_solution']!.push({rowid:'E2',coding:'KEEP2',solutionName:'另一个方案',description:'keep',dataSetId:'S1'})
     state.http.records['Base_Import_solution']![0]!['templatePath']='keep-template.xlsx'

@@ -1,0 +1,199 @@
+{
+  "status": "verified-checkpoint-runtime-cleaned",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "scope": "Excel catalog native creation, one-shot code orchestration, original-row writeback and recovery; not entire migration acceptance",
+  "sourceSha256": {
+    "config/pages/semi-structured/excel-import-catalog/pagedata.json": "ce69dc88e1fc319613991bfcf2edeec273af4a4ad06fde28c83364382b91f71c",
+    "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts": "0f0424b50840f9d71c46146d8668152b9bd0e5b2fa591dbe593b05dfe8b7ef26",
+    "src/lowcode/data-space/lowcode-data-space-runtime.ts": "3bb9f803ead654601e074e0e00d33f3d4e0519b20e85f370280c3a6b7a3cfc37",
+    "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": "55f6e30b30f87fa36708a3619921bc43ddbee7e24e734e67fda2430bea5cdfd9",
+    "tests/runtime/page/structured-config/catalog/excel-creation.test.ts": "63d86f3ecb76cd468337d17af30c434513edd034d1c09f1f93e59880251f20ee",
+    "tests/runtime/page/structured-config/catalog/formal-topic-pages.test.ts": "a2ea827b73fc9c05e0938e258f5387df2cdc57faf63012de5b0a6bdafe5a4a94"
+  },
+  "preflight": {
+    "actor": 20880,
+    "naturalExitCode": 0,
+    "reads": 67,
+    "writes": 0,
+    "allocations": 0,
+    "nativeCancel": {
+      "before": 0,
+      "id": "9B908BEAFD9D366CE99ED948B7658CB2",
+      "phase": "input",
+      "pending": true,
+      "after": 0,
+      "intentCleared": true
+    },
+    "registrationRows": 13,
+    "allocationModelInAuthorizedRegistration": false,
+    "formalModelErrors": [
+      {
+        "id": "6EA5D0F28DE104171645A7EB2A895672",
+        "error": "数据空间模型 Base_CodeDesign 的正式主键无法映射到唯一有效输出字段"
+      }
+    ]
+  },
+  "runtime": {
+    "ownedId": "500379AE15677CE84D076BD5C2A75C53",
+    "marker": "SMOKE_EXCEL_CREATE_1794050546265",
+    "initialActor": {
+      "pid": 16808,
+      "naturalExitCode": 1,
+      "reads": 16,
+      "acceptedCrudDispatches": 1,
+      "phase": "failed",
+      "error": "This operation was aborted",
+      "realAddedAckLost": true,
+      "originalRecoveryPhase": "created",
+      "unknownAtExit": false
+    },
+    "recoveryActor": {
+      "pid": 20720,
+      "terminalSignal": "SIGTERM",
+      "reads": 16,
+      "acceptedCrudDispatches": 1,
+      "proofs": [
+        {
+          "case": "independent-original-added-read",
+          "id": "500379AE15677CE84D076BD5C2A75C53",
+          "name": "SMOKE_EXCEL_CREATE_1794050546265",
+          "description": "before-edit"
+        },
+        {
+          "case": "native-edit-cancel-save-independent-read",
+          "description": "after-edit"
+        }
+      ],
+      "originalDelete": "rejected by exact-field interceptor before executeRequest; not sent to network",
+      "sdkVerificationTerminal": "not recorded; timer replaced recoveryError with ENOENT; historical unknown sample is not current SDK terminal evidence"
+    },
+    "cleanupActor": {
+      "pid": 15192,
+      "naturalExitCode": 0,
+      "reads": 15,
+      "acceptedCrudDispatches": 1,
+      "unknown": false,
+      "lifecycle": "cleaned",
+      "independentAbsence": {
+        "countReported": true,
+        "total": 0,
+        "rows": 0
+      }
+    },
+    "finalIndependentActor": {
+      "pid": 11840,
+      "naturalExitCode": 0,
+      "reads": 9,
+      "writes": 0,
+      "scopes": [
+        {
+          "field": "rowid",
+          "value": "500379AE15677CE84D076BD5C2A75C53",
+          "countReported": true,
+          "total": 0,
+          "rows": 0
+        },
+        {
+          "field": "solutionName",
+          "value": "SMOKE_EXCEL_CREATE_1794050546265",
+          "countReported": true,
+          "total": 0,
+          "rows": 0
+        }
+      ]
+    },
+    "totalAcceptedCrudDispatches": 3,
+    "operations": [
+      "Added same owned scheme",
+      "Changed description on original owned scheme",
+      "Deleted same owned scheme"
+    ],
+    "businessCodeAllocationGets": 0,
+    "templateUploads": 0,
+    "importPosts": 0,
+    "lifecycle": "cleaned"
+  },
+  "validation": {
+    "focusedFinal": {
+      "files": 2,
+      "tests": 46,
+      "exitCode": 0,
+      "log": "excel-creation-final-targets-v2.log"
+    },
+    "broaderEarlier": {
+      "files": 29,
+      "tests": 351,
+      "exitCode": 0,
+      "log": "excel-creation-broad-final.log",
+      "boundary": "before final end-retry and local-retain cases; final focused run proves those changes"
+    },
+    "fullRepository": {
+      "status": "passed",
+      "sessionId": 43896,
+      "exitCode": 0,
+      "files": 500,
+      "tests": 9115,
+      "durationSeconds": 1433.6,
+      "command": "pnpm exec vitest run --maxWorkers=2",
+      "log": "artifacts\\data-chain-smoke\\excel-creation-full-repository.log",
+      "sha256": "24912722246e3e30efd2ea46882063dabdbc7b49fc9966c8284fb463340dd57f",
+      "timeoutUnchanged": true,
+      "sourceShaVerifiedAfterRun": true
+    },
+    "releaseGates": {
+      "typecheck": {
+        "exitCode": 0,
+        "log": "excel-creation-types-release.log",
+        "sha256": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962"
+      },
+      "fullLint": {
+        "exitCode": 0,
+        "log": "excel-creation-lint-release.log",
+        "sha256": "b29bf1de63ca215b2fed34fe496b382b0a95b77e2bda51d7c957bbecee0d572d"
+      },
+      "buildFeAndFormalClassModel": {
+        "exitCode": 0,
+        "log": "excel-creation-build-release.log",
+        "sha256": "62635deb6b6f626d953bb06a59dd576fec324a8ff6de2eb24ad697dd95d0d0db"
+      },
+      "rules": {
+        "exitCode": 0,
+        "log": "excel-creation-rules-release.log",
+        "sha256": "0ac40a4b60ef27e2c3a6833811285eddbc07db6a6dcd539978b4bf28a1d52b54"
+      },
+      "classModelGuides": {
+        "exitCode": 0,
+        "log": "excel-creation-contracts-release.log",
+        "sha256": "245172fec36db4ed02a50a4e8e98801a78da5808636fdbd8f6be394a027780a1"
+      }
+    }
+  },
+  "artifactSha256": {
+    "artifacts\\data-chain-smoke\\excel-creation-native-preflight.mts": "2d6c8d90c45b6dce3d81ecd29757c9ab748953e06bbc1f7dd0ff80d43427e74a",
+    "artifacts\\data-chain-smoke\\excel-creation-native-preflight.json": "9a1949bcc8f275a5a2bebed4874ffbd14243f94966db0c0b6b7bcbd498265c6b",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-actor.mts": "eed4a6ccf9c855ab43b04dc6fd2a46a634d556867a7f0bc918e7a4eab985f3b3",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-audit.json": "d6ec330cbdd7ffb8a9d06b0fe9ea4c4d763e79ebd46e69655a0d362f9ac9433c",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-intent.json": "c04481097192bc9550afda6fad54880b17357eb2cf1c4f0b33abd07588f11425",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-recovery.mts": "a0dba8e56a3481977f59dcf777705a1f6e4b8e15ee34b1cb2e3a62452e02e3f4",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-recovery-before-stop.json": "7a3fc24026f54b2c191393343e9b6ef3c39643a6ac9d3539fe449439143c9b7f",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-recovery-final-frozen.json": "c4f644ffcb27f5ee82e7153e4f5c5b232b68ae96d6268cfa20da5b93938a122c",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-cleanup.mts": "571818624b3129305aa3d524cffa453b046fc61e0ef51b71a3723becf334e4db",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-cleanup-intent.json": "318d0de49eab1b47385b94e0cbb598f1b1a3dabb1c057414d7b0faf7c4ead6f6",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-cleanup-audit.json": "44c15e035f14104614f07f7c14e0a49cf7761abb183102b37e1b109b63f14bd3",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-final-absence.mts": "64df1e208836e311796cda326ff6c8089baa5e3d9f2a7ccb18eef71f2ced4b86",
+    "artifacts\\data-chain-smoke\\excel-creation-owned-final-absence.json": "d5914953591bb223e3fc05a3c461d79a80df6fbc9f18c9f5b6d0ad2c491d03ac"
+  },
+  "openGaps": [
+    "Actual allocation, authoritative verification and exact allocation-record cleanup contract",
+    "Template binary file path ACK, byte readback and exact cleanup",
+    "Copy KEY and complete scheme deletion product flows",
+    "One real import after business row, ledger and archive cleanup contracts",
+    "Browser visual acceptance",
+    "Remaining 20 business-package acceptance; JSON earlier external gaps remain"
+  ],
+  "knowledgeCandidatesUnconfirmed": [
+    "Read-only pending status must remain readable after write scope becomes stale",
+    "Known Added with no allocation dispatch may retire locally without further reads; never retire unknown dispatch"
+  ],
+  "updatedAt": "2026-11-07T12:12:09.478336+00:00"
+}

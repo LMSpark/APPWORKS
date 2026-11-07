@@ -1,5 +1,5 @@
 {
-  "gapCount": 3762,
+  "gapCount": 3769,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -35320,6 +35320,87 @@
       "declarationLine": 30,
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/semi-structured/excel-import/catalog/creation",
+      "moduleName": "app:lowcode/resources/semi-structured/excel-import/catalog/creation",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/semi-structured/excel-import/catalog/creation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts"
+    },
+    {
+      "kind": "model",
+      "className": "Phase",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Phase 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "Input",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "config",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.config 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "http",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.http 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 14,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "readScope",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.readScope 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 15,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "Input",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationLine": 16,
+      "sourceFile": "src/lowcode/resources/semi-structured/excel-import/catalog/creation.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",

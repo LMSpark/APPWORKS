@@ -1,5 +1,5 @@
 {
-  "gapCount": 3752,
+  "gapCount": 3754,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -35499,13 +35499,71 @@
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/transform/validation.ts"
     },
     {
+      "kind": "module",
+      "className": "app:lowcode/resources/semi-structured/json-data/document-resource",
+      "moduleName": "app:lowcode/resources/semi-structured/json-data/document-resource",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/semi-structured/json-data/document-resource 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts"
+    },
+    {
+      "kind": "model",
+      "className": "DocumentTransport",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DocumentTransport 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 35,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "DocumentTransport",
+      "memberName": "api",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DocumentTransport.api 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 36,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DocumentTransport",
+      "memberName": "fileUpload",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DocumentTransport.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 37,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "DocumentTransport",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DocumentTransport.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
+      "declarationKind": "interface"
+    },
+    {
       "kind": "model",
       "className": "OpenOptions",
       "reason": "missing-jsdoc",
       "chainBreak": "OpenOptions 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 11,
+      "declarationLine": 40,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
       "declarationKind": "typeAlias"
     },
@@ -35517,7 +35575,7 @@
       "chainBreak": "OpenOptions.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 12,
+      "declarationLine": 41,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
       "declarationKind": "interface"
     },
@@ -35529,7 +35587,7 @@
       "chainBreak": "OpenOptions.catalog 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 13,
+      "declarationLine": 42,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
       "declarationKind": "interface"
     },
@@ -35541,31 +35599,7 @@
       "chainBreak": "OpenOptions.jsonId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 14,
-      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "OpenOptions",
-      "memberName": "api",
-      "reason": "missing-jsdoc",
-      "chainBreak": "OpenOptions.api 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 15,
-      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "OpenOptions",
-      "memberName": "fileUpload",
-      "reason": "missing-jsdoc",
-      "chainBreak": "OpenOptions.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 16,
+      "declarationLine": 43,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
       "declarationKind": "interface"
     },
@@ -35577,19 +35611,7 @@
       "chainBreak": "OpenOptions.create 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 17,
-      "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "method",
-      "className": "OpenOptions",
-      "memberName": "assertCurrent",
-      "reason": "missing-jsdoc",
-      "chainBreak": "OpenOptions.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/semi-structured/json-data/document-resource.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
-      "declarationLine": 18,
+      "declarationLine": 44,
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
       "declarationKind": "interface"
     },

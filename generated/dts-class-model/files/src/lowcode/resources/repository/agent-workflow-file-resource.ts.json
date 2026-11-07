@@ -95,7 +95,8 @@
                   "$ref": "#/$defs/LowcodeFileResourceApi"
                 },
                 "fileUpload": {
-                  "$ref": "#/$defs/WorkflowFileUpload"
+                  "type": "object",
+                  "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>"
                 },
                 "assertCurrent": {
                   "type": "object",
@@ -511,7 +512,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T09:09:33.442Z",
+  "generatedAt": "2026-11-07T09:04:32.156Z",
   "models": {
     "LowcodeFileResourceApi": {
       "name": "LowcodeFileResourceApi",
@@ -534,11 +535,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    tableName: string;\n    resourceId: string;\n    label: string;\n    columns: readonly DataColumn[];\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    createExecutor(input: Readonly<{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        fileUpload?: WorkflowFileUpload;\n        assertCurrent: () => void;\n    }>): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
+        "declarationTypeText": "Readonly<{\n    tableName: string;\n    resourceId: string;\n    label: string;\n    columns: readonly DataColumn[];\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    createExecutor(input: Readonly<{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n        assertCurrent: () => void;\n    }>): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    tableName: string;\n    resourceId: string;\n    label: string;\n    columns: readonly DataColumn[];\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    createExecutor(input: Readonly<{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        fileUpload?: WorkflowFileUpload;\n        assertCurrent: () => void;\n    }>): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
+            "typeText": "Readonly<{\n    tableName: string;\n    resourceId: string;\n    label: string;\n    columns: readonly DataColumn[];\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    createExecutor(input: Readonly<{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n        assertCurrent: () => void;\n    }>): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -587,7 +588,7 @@
                     "typeArguments": [
                       {
                         "type": "unknown",
-                        "name": "{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        fileUpload?: WorkflowFileUpload;\n        assertCurrent: () => void;\n    }"
+                        "name": "{\n        applicationId: string;\n        api: LowcodeFileResourceApi;\n        fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n        assertCurrent: () => void;\n    }"
                       }
                     ]
                   }

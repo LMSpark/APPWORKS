@@ -4114,7 +4114,7 @@
     "src/lowcode/resources/repository/agent-workflow-file-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
       "shardFile": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json",
-      "sourceModifiedAt": "2026-11-06T09:09:33.442Z"
+      "sourceModifiedAt": "2026-11-07T09:04:32.156Z"
     },
     "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
@@ -4279,12 +4279,12 @@
     "src/lowcode/resources/semi-structured/json-data/document-resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/document-resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/json-data/document-resource.ts.json",
-      "sourceModifiedAt": "2026-11-01T21:49:27.437Z"
+      "sourceModifiedAt": "2026-11-07T09:10:45.808Z"
     },
     "src/lowcode/resources/semi-structured/json-data/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/json-data/resource.ts",
       "shardFile": "files/src/lowcode/resources/semi-structured/json-data/resource.ts.json",
-      "sourceModifiedAt": "2026-11-01T21:58:56.454Z"
+      "sourceModifiedAt": "2026-11-07T09:04:32.158Z"
     },
     "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/pdf-inspect/resource.ts",
@@ -5254,7 +5254,7 @@
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T23:03:47.035Z"
+      "sourceModifiedAt": "2026-11-07T09:08:05.024Z"
     },
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",

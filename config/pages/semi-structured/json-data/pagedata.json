@@ -1,6 +1,18 @@
 {
   "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
   "tables": {
+    "JsonDocumentFile": {
+      "resourceType": "file",
+      "resourceId": "json-data:document-file",
+      "columns": [
+        {"name": "jsonId", "type": "string", "isPrimaryKey": true},
+        {"name": "fileName", "type": "string"},
+        {"name": "content", "type": "string"}
+      ],
+      "views": {
+        "default": {"autoLoad": false, "autoCurrentFirst": true, "commitMode": "staged", "queryContext": {"jsonId": "", "create": false}}
+      }
+    },
     "Base_JsonData": {
       "modelBinding": {
         "modelId": "FFDEF2AED3E19A38C0FCDDC748CF939Bp000",

@@ -1,0 +1,84 @@
+{
+  "status": "verified-engineering-and-readonly-scope",
+  "testedAt": "2026-11-07T09:16:58.997267+00:00",
+  "scope": [
+    "Declared JSON document file resource at first scenario assembly",
+    "Native target views and existing file adapter",
+    "Pinned catalog/document form sessions"
+  ],
+  "sourceSha256": {
+    "config/pages/semi-structured/json-data/pagedata.json": "0423b79b3666f0a2206b0f3c83e0ae78723c882a3870182ce41a945b389d2ca7",
+    "src/lowcode/resources/repository/agent-workflow-file-resource.ts": "c40801fac66eabc384620788040006cd7c481bf6c8b37224010b37939d8613b0",
+    "src/lowcode/resources/semi-structured/json-data/document-resource.ts": "5918a1b2f09f8bf44e7e3e00182156e81905b735561c6066003526e47bdb27ec",
+    "src/lowcode/resources/semi-structured/json-data/resource.ts": "07ff81e8a2424437fc6ccb2d8dae7f8349c03e5559b2993d82cd155a72ca99cd",
+    "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": "10ccd84451f0cac1a5c9b620028532f0c3fb2aa6af8ed2d62455b1f00fba7344",
+    "tests/runtime/page/semi-structured/json-data-page.test.ts": "a1d95499d680805f0c6d13041b0064e418b4e690d15f4a88079772de5ada66db",
+    "tests/runtime/page/semi-structured/json-document-file.test.ts": "924042d0fa14ee75aa63535a677bdc85179b83ba28b26b9a3b56a92ebffb80a2",
+    "tests/runtime/page/structured-config/catalog/formal-topic.fixture.ts": "6b9c8c8e6e56830ba9d3d8292e4f49313e1842d2e1ec2a5711a6269d48383d43"
+  },
+  "checks": {
+    "regression": {
+      "files": 34,
+      "tests": 478
+    },
+    "finalFocused": {
+      "files": 3,
+      "tests": 40
+    },
+    "typecheck": true,
+    "lint": true,
+    "frontendBuild": true,
+    "classModelCompiled": true,
+    "classModelGuides": [
+      "RFormProps.contextRowId",
+      "LowcodeJsonData",
+      "BindFileResourceAdapterOptions",
+      "FileResourceTransport",
+      "LowcodeDesignApi",
+      "DataView"
+    ],
+    "rulesFiles": 1694,
+    "docsFiles": 564
+  },
+  "logSha256": {
+    "json-file-regression-v3.log": "45126f639dce76858b1fc5ca0343b44775facb8a285814fffdb50ac4630aeb18",
+    "json-file-final-focused.log": "45f5876cdd9e54269fa19f6e48f151c9398ed095b670156c7ad81b0f761849fb",
+    "json-file-types-v3.log": "0957e79cea7d86c0786f8634257dce4e3d92024c31a4a40a82155fd1be380962",
+    "json-file-lint-v3.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "json-file-build-v1.log": "bce08a12638501e3a542e42bf1c173068e5fc78bf9a0e45cce3c08a622be9a24",
+    "json-file-class-model-v3.log": "f57fab69222ddf5d9e7bcbe5cc3436b6e8158ec2708e99f70847cc2d4661c012",
+    "json-file-contracts-final.log": "9024f33886b50b465679fbbd9828497e8f7171b9bbc81c29a772555b8475747a",
+    "json-file-rules-v1.log": "dc0bd05b14a6b98669cda3dca87a7f78435e7005c35558ec0f45e8d56d6303b1",
+    "json-file-docs-v2.log": "654e34c9e51a15e54f6fb7da309456c8be84eeff72b5d2d16d923b64a0d469da"
+  },
+  "readonlyRuntime": {
+    "phase": "confirmed",
+    "scenarioId": "FFDEF2AED3E19A38C0FCDDC748CF939B",
+    "businessWrites": 0,
+    "fileWrites": 0,
+    "fileReads": 0,
+    "catalog": {
+      "returned": 11,
+      "total": 11,
+      "countReported": true
+    },
+    "document": {
+      "resourceId": "json-data:document-file",
+      "rows": 0
+    },
+    "reads": 8,
+    "blocked": 0,
+    "testedAt": "2026-11-07T09:13:14.543Z"
+  },
+  "readonlyReceiptSha256": "8d384b0856c980f8113b7de08f09367d4a745fbd1c90e6debafe45c6ebc02e04",
+  "runtimeProcessNaturalExitConfirmed": true,
+  "runtimeProcessExit": {"exitCode": 0, "signalCode": null, "killed": false},
+  "open": [
+    "New owned JSON catalog/file CRUD, independent reopen and cleanup",
+    "Formal JSON model consumption",
+    "Authoritative reference and same-file alias deletion protection",
+    "FileManager real host and deployed numeric-ID contract",
+    "Browser visual acceptance",
+    "Remaining 20-package goal"
+  ]
+}

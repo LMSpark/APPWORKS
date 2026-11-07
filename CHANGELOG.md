@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ### Breaking changes
 
+- JSON文档文件资源必须由正式场景声明并在首次装配绑定；打开文档仅派生目标视图，不再临时建表或从打开参数注入文件提交器。
 - `WorkflowExecutionResource` 改为绑定正式场景声明的命令视图，不再动态创建表或公开 `requests`；执行目标及首轮定义由宿主准备并固定，未知执行保留原命令且禁止放弃后重跑。
 - `DataSpaceRuntimeApi.bindModelView(view, model, options)` 的第三个参数统一为具名绑定选项；数组来源改用 `{arrayRows}`。首次绑定确定读取或命令模式，不保留旧数组参数签名，也不允许重绑切换模式。
 

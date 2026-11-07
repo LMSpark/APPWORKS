@@ -4,8 +4,7 @@
  * 边界：页面只消费同一DataSet，文件传输及定位留在数据层。
  */
 import type {DataSet,DataView} from '@spark-appworks/spark-data'
-import {lowcodeApi,lowcodeDesignFileUpload} from '../../../lowcode-runtime'
-import {readStructuredConfigScope} from '../../structured-config/catalog'
+import {lowcodeApi} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {openJsonDocumentView} from './document-resource'
 export class LowcodeJsonData{
@@ -18,6 +17,6 @@ export class LowcodeJsonData{
  }
  static openDocument(dataSet:DataSet,jsonId:string,options:Readonly<{create?:boolean}>={}):DataView{
   const catalog=dataSet.getView(this.catalogMetaName);if(!catalog)throw new Error('JSON正式目录视图缺失')
-  return openJsonDocumentView({dataSet,catalog,jsonId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,...options,...readStructuredConfigScope('JSON文档')})
+  return openJsonDocumentView({dataSet,catalog,jsonId,...options})
  }
 }

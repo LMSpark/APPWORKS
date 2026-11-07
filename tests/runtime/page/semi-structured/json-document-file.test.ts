@@ -3,7 +3,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {LowcodeApiError,DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {LowcodeDataSpaceAssembler} from '@/lowcode/data-space/lowcode-data-space-assembler'
-import {openJsonDocumentView} from '@/lowcode/resources/semi-structured/json-data/document-resource'
+import {openJsonDocumentView,createJsonDocumentExecutor,JSON_DOCUMENT_COLUMNS,JSON_DOCUMENT_RESOURCE_ID} from '@/lowcode/resources/semi-structured/json-data/document-resource'
 import {ApiBackend} from '../api-provider/api-provider.fixture'
 import {buildFormalModels} from '../structured-config/catalog/structured-config-catalog.fixture'
 const sets:DataSet[]=[]
@@ -12,15 +12,15 @@ async function fixture(){
  const http=new ApiBackend();http.records={Base_JsonData:[{rowid:'J1',name:'数据',path:'/NewApp/data.json'},{rowid:'J2',name:'另一个',path:null}]}
  const runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
  const models=buildFormalModels({Base_JsonData:['rowid','name','path']})
- const config=new ScenarioViewConfig('JSON',JSON.stringify({scenarioId:'JSON',tables:{Base_JsonData:{modelBinding:{modelId:'Base_JsonData-model',modelName:'Base_JsonData'},views:{default:{queryConfig:{fields:['rowid','name','path']}}}}}}))
- const ds=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:'JSON',name:'JSON'},models,relations:[]}).dataSet;sets.push(ds)
- const catalog=ds.getView('Base_JsonData')!;await catalog.refresh()
+ const config=new ScenarioViewConfig('JSON',JSON.stringify({scenarioId:'JSON',tables:{JsonDocumentFile:{resourceType:'file',resourceId:JSON_DOCUMENT_RESOURCE_ID,columns:JSON_DOCUMENT_COLUMNS,views:{default:{autoLoad:false,autoCurrentFirst:true,commitMode:'staged',queryContext:{jsonId:''}}}},Base_JsonData:{modelBinding:{modelId:'Base_JsonData-model',modelName:'Base_JsonData'},views:{default:{queryConfig:{fields:['rowid','name','path']}}}}}}))
  const files=new Map<string,string>([['data.json','{"flag":false,"nested":[[1,null],{}]}']])
  let lose=false,current=true
  const read=vi.fn(async({fileName}:{fileName:string})=>{const text=files.get(fileName);if(text===undefined)throw new LowcodeApiError(404,'文件不存在');return text})
  const upload=vi.fn(async(input:{fileName:string;text:string})=>{files.set(input.fileName,input.text);if(lose){lose=false;throw new Error('lost response')}return {}})
  const createUpload=vi.fn(upload)
  const options={api:{readTextFile:read},fileUpload:{uploadWorkingText:upload,uploadTextVersion:createUpload},assertCurrent:()=>{if(!current)throw new Error('STALE')}}
+ const ds=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space:{dataSpaceId:'JSON',name:'JSON'},models,relations:[],fileExecutors:{JsonDocumentFile:createJsonDocumentExecutor(options)}}).dataSet;sets.push(ds)
+ const catalog=ds.getView('Base_JsonData')!;await catalog.refresh()
  return {ds,catalog,read,upload,createUpload,files,lose:()=>{lose=true},stale:()=>{current=false},open:(id='J1',create=false)=>openJsonDocumentView({dataSet:ds,catalog,jsonId:id,...options,...(create?{create:true}:{})})}
 }
 describe('raw JSON document file through SPARK data',()=>{

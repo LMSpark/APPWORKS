@@ -32,6 +32,15 @@ async function open(){
  return {wrapper,router,click,choose,edit}
 }
 function documentValue(wrapper:VueWrapper):unknown{const value=wrapper.getComponent(FieldJson).getComponent(JsonTreeEditor).props('modelValue');if(typeof value!=='string')throw new Error('JSON editor text is absent');return JSON.parse(value)}
+it('pins document editing across cursor changes and renews the form only after confirmed saves',async()=>{
+ const opening=vi.spyOn(LowcodeJsonData,'openDocument');const f=await open();await f.choose();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Document open missing');loaded.value.setCurrentRow(null);await flushPromises()
+ await f.edit('{"pinned":false}');await f.click('保存内容');expect(state.files.get('data.json')).toBe('{"pinned":false}')
+ await f.edit('{"pinned":0}');await f.click('保存内容');expect(state.files.get('data.json')).toBe('{"pinned":0}');expect(state.uploads).toHaveLength(2)
+})
+it('assembles the declared document resource before opening any JSON file',async()=>{
+ const opening=vi.spyOn(LowcodeJsonData,'loadCatalog');await open();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Catalog load missing');const instance=await loaded.value
+ expect(instance.getTable('JsonDocumentFile')?.resourceId).toBe('json-data:document-file');expect(instance.getView('JsonDocumentFile','default')).toBeDefined();expect(state.reads).toEqual([])
+})
 it('displays a failed catalog query once through the standard table with metadata hidden',async()=>{
  state.http.interceptors.request.use({onRequest:request=>{const body=request.data as {Table?:Array<{Name?:string}>}|undefined;if(request.url==='/api/DataOperation/GetData'&&body?.Table?.[0]?.Name==='Base_JsonData')throw new Error('catalog query denied');return request}})
  const f=await open();const errors=f.wrapper.findAll('[role="alert"]').filter(item=>item.text().includes('catalog query denied'));expect(errors).toHaveLength(1);expect(f.wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
@@ -82,6 +91,12 @@ it('verifies an unknown catalog save without replaying the database write or tou
 })
 
 async function setNewName(wrapper:VueWrapper,name:string){const field=wrapper.findAllComponents(FieldText).find(item=>item.props('field')==='name'&&item.props('dataViewKey')===`${SCENE}@Base_JsonData@default`);expect(field,'new catalog name field').toBeDefined();await field!.get('input').setValue(name);await flushPromises()}
+it('keeps the new catalog form on its original row when the shared view cursor changes',async()=>{
+ const opening=vi.spyOn(LowcodeJsonData,'loadCatalog');const f=await open();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Catalog load missing');const instance=await loaded.value
+ await f.click('新增');const catalog=instance.getView('Base_JsonData')!;const id=catalog.getPkKey(catalog.dirtyTracking.pendingCreateRows[0]!)
+ catalog.setCurrentRowById('J1');await flushPromises();await setNewName(f.wrapper,'固定新增目标');await f.click('创建JSON')
+ expect(state.http.saves).toHaveLength(1);expect(state.http.saves[0]?.added[0]).toMatchObject({rowid:id,name:'固定新增目标'});expect(state.http.records['Base_JsonData']?.find(row=>row['rowid']==='J1')?.['name']).toBe('样例JSON')
+})
 it('creates JSON through native file and catalog views, file first, with both records readable afterwards',async()=>{
  const opening=vi.spyOn(LowcodeJsonData,'loadCatalog');const f=await open();const loaded=opening.mock.results[0];opening.mockRestore();if(loaded?.type!=='return')throw new Error('Formal catalog load did not return');const instance=await loaded.value;await f.click('新增');await setNewName(f.wrapper,'  新增JSON  ');await f.edit('{"new":[false,null,[]]}');state.http.beforeSave=async()=>{expect(state.uploads).toHaveLength(1)};await f.click('创建JSON')
  expect(state.http.saves).toHaveLength(1);const added=state.http.saves[0]!.added[0];expect(added?.['name']).toBe('新增JSON');expect(state.files.get(`${String(added?.['rowid'])}.json`)).toBe('{"new":[false,null,[]]}');expect(state.dirty[0]?.isDirty).toBe(false)

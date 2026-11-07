@@ -12,11 +12,11 @@
    <p v-if="documentError" role="alert">{{ documentError }}</p>
    <p v-if="unconfirmed" role="status">保存结果尚未确认，请通过原保存入口核验。</p>
    <p v-if="creating && creationFileCommitted && !unconfirmed" role="status">文件已确认，目录尚未确认，请继续保存或核验。</p>
-   <RendererForm v-if="creating" :data-view-key="catalogKey" :auto-columns="false" :show-data-view-meta="false">
+   <RendererForm v-if="creating" :key="creating" :context-row-id="creating" :data-view-key="catalogKey" :auto-columns="false" :show-data-view-meta="false">
     <FieldText :data-view-key="catalogKey" field="name" label="名称" :readonly="busy || catalogUnconfirmed" />
     <FieldText :data-view-key="catalogKey" field="description" label="描述" :readonly="busy || catalogUnconfirmed" />
    </RendererForm>
-   <RendererForm v-if="documentReady" :data-view-key="contentKey" :auto-columns="false" :show-data-view-meta="false">
+   <RendererForm v-if="documentReady" :key="`${contentKey}:${contentSession}`" v-bind="contentRowBinding" :data-view-key="contentKey" :auto-columns="false" :show-data-view-meta="false">
     <FieldJson :data-view-key="contentKey" field="content" label="JSON 内容" mode="tree" :readonly="busy || unconfirmed || creationFileCommitted" :on-editing-change="value => inputPending=value" />
    </RendererForm>
    <template #footer>
@@ -45,9 +45,11 @@ const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'
 const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shallowRef<DataView>(),opening=ref(false),openingDocument=ref(false),ready=ref(false),acting=ref(false),inputPending=ref(false),error=ref(''),revision=ref(0)
 const creating=ref('')
 const importing=ref(false)
+const contentSession=ref(0)
 let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,documentGeneration=0,active=true
 const selected=computed(()=>{revision.value;const rows=catalog.value?.selectedRows??[],row=rows[0];return rows.length===1&&row?String(catalog.value?.getPkKey(row)??''):''})
 const contentKey=computed(()=>document.value?buildDataViewKey(document.value.tableName,document.value.viewId,scenarioId.value):'')
+const contentRowBinding=computed(()=>{const id=document.value?.queryContext['jsonId'];return typeof id==='string'?{contextRowId:id}:{}})
 const requestPending=(view:DataView|undefined)=>view?.requestState===RequestState.Preparing||view?.requestState===RequestState.Loading
 const loading=computed(()=>{revision.value;return opening.value||requestPending(catalog.value)})
 const documentLoading=computed(()=>{revision.value;return openingDocument.value||requestPending(document.value)})
@@ -136,12 +138,13 @@ async function saveContent():Promise<void>{
   if(creatingId&&!catalogUnconfirmed.value){const definition=catalog.value,draft=definition?.getEditingRow(creatingId);if(!definition||!draft)throw new Error('JSON目录新增草稿缺失');const invalid=definition.validator?.validate(draft).errors[0];if(invalid)throw new Error(invalid.message)}
   const result=await current.saveChanges({views:[{tableName:view.tableName,viewId:view.viewId}]});if(!result.success)throw new Error(result.message??'保存未完整确认')
   if(!active||own!==documentGeneration||dataSet.value!==current)throw new Error('JSON创建所属页面实例已变化')
+  contentSession.value++
   if(creatingId){const saved=await current.saveChanges({views:[{tableName:LowcodeJsonData.catalogMetaName,viewId:'default',ids:[creatingId]}]});if(!saved.success)throw new Error(saved.message??'目录保存未完整确认');if(active&&own===documentGeneration)creating.value=''}
  }
  catch(cause){if(active&&own===documentGeneration)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===documentGeneration){acting.value=false;revision.value++}}
 }
-function cancelContent():void{if(busy.value||unconfirmed.value||creationFileCommitted.value||(!creating.value&&!documentReady.value))return;try{document.value?.discardPendingChanges();if(creating.value){catalog.value?.discardPendingChanges([creating.value]);creating.value='';inputPending.value=false;closeDocument(false)}error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
+function cancelContent():void{if(busy.value||unconfirmed.value||creationFileCommitted.value||(!creating.value&&!documentReady.value))return;try{document.value?.discardPendingChanges();contentSession.value++;if(creating.value){catalog.value?.discardPendingChanges([creating.value]);creating.value='';inputPending.value=false;closeDocument(false)}error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function discardAndClose():void{cancelContent();if(!hasPending.value)closeDocument(false)}
 async function refreshCatalog():Promise<void>{if(busy.value||hasPending.value)return;closeDocument(false);try{await catalog.value?.refresh()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 watch(scenarioId,async id=>{

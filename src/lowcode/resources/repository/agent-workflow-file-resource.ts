@@ -1,4 +1,5 @@
 import {WORKFLOW_LAYOUT_TABLE,WORKFLOW_LAYOUT_RESOURCE_ID,WORKFLOW_LAYOUT_COLUMNS,WORKFLOW_LAYOUT_VIEWS,WORKFLOW_LAYOUT_QUERY_PARAMETERS,createWorkflowLayoutExecutor} from '../structured-config/workflow-definition/layout/layout-resource'
+import {JSON_DOCUMENT_TABLE,JSON_DOCUMENT_RESOURCE_ID,JSON_DOCUMENT_COLUMNS,JSON_DOCUMENT_VIEWS,JSON_DOCUMENT_QUERY_PARAMETERS,createJsonDocumentExecutor} from '../semi-structured/json-data/document-resource'
 import {RequestState, type DataColumn, type DataRow, type DataView} from '@spark-appworks/spark-data'
 import type {LowcodeDesignApi, LowcodeDesignFileUpload, LowcodeFileDirectory, LowcodeFileEntry, LowcodeFileLocator} from '@spark-appworks/spark-lowcode-api'
 import {PROJECT_TOOL_VERSION_COLUMNS, PROJECT_TOOL_VERSION_QUERY_PARAMETERS, PROJECT_TOOL_VERSION_RESOURCE_ID, PROJECT_TOOL_VERSION_TABLE,
@@ -24,11 +25,16 @@ export type LowcodeFileResourceDefinition = Readonly<{
   columns: readonly DataColumn[]
   views: Readonly<Record<string, Readonly<Record<string, unknown>>>>
   queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{name: string; type: string; label?: string; required?: boolean}>>>>
-  createExecutor(input: Readonly<{applicationId: string; api: LowcodeFileResourceApi; fileUpload?: WorkflowFileUpload; assertCurrent: () => void}>): Parameters<DataView['bindQueryExecutor']>[0]
+  createExecutor(input: Readonly<{applicationId: string; api: LowcodeFileResourceApi; fileUpload?: Pick<LowcodeDesignFileUpload,'uploadWorkingText'|'uploadTextVersion'>; assertCurrent: () => void}>): Parameters<DataView['bindQueryExecutor']>[0]
 }>
 
 /** Only file resources with a concrete query executor are offered by the data-space designer. */
 export const LOWCODE_FILE_RESOURCE_REGISTRY: readonly LowcodeFileResourceDefinition[] = Object.freeze([
+  Object.freeze({tableName:JSON_DOCUMENT_TABLE,resourceId:JSON_DOCUMENT_RESOURCE_ID,label:'JSON文档原文件',columns:JSON_DOCUMENT_COLUMNS,
+    views:JSON_DOCUMENT_VIEWS,queryParameters:JSON_DOCUMENT_QUERY_PARAMETERS,
+    createExecutor:(input:Parameters<LowcodeFileResourceDefinition['createExecutor']>[0])=>createJsonDocumentExecutor({api:input.api,assertCurrent:input.assertCurrent,
+      fileUpload:input.fileUpload??{uploadWorkingText:()=>Promise.reject(new Error('JSON_DOCUMENT_SAVE_OWNER: 未注入文件上传适配器')),uploadTextVersion:()=>Promise.reject(new Error('JSON_DOCUMENT_SAVE_OWNER: 未注入文件上传适配器'))}}),
+  }),
   Object.freeze({
     tableName:WORKFLOW_LAYOUT_TABLE,resourceId:WORKFLOW_LAYOUT_RESOURCE_ID,label:'数据工作流布局',columns:WORKFLOW_LAYOUT_COLUMNS,
     views:WORKFLOW_LAYOUT_VIEWS,queryParameters:WORKFLOW_LAYOUT_QUERY_PARAMETERS,

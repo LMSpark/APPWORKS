@@ -35,6 +35,14 @@ async function actionViewFixture(allowAdd = false, allowChild = false) {
 }
 
 describe('declarative actions consume DataView query permissions', () => {
+  it('disables presentation actions when original query permissions become unavailable while strict data actions still reject',async()=>{
+    const {dataSet,view,invalidate}=await actionViewFixture(true,true),row=view.rows[0]!
+    invalidate()
+    expect(isModelActionAllowed({type:'r-button',props:{permAction:'create'}},view)).toBe(false)
+    for(const action of ['edit','delete','create-child'])expect(isRowActionAllowed({type:'r-button',props:{permAction:action}},row,view)).toBe(false)
+    expect(()=>view.addActionState()).toThrow('STALE');expect(()=>view.deleteActionState(row)).toThrow('STALE')
+    dataSet.destroy()
+  })
   it('does not expose retired row-snapshot permission helpers', () => {
     for (const name of ['isPermittedAction', 'resolveFieldPermissionState', 'computeFieldState',
       'filterDisplayableFields', 'filterFields', 'filterDeletableRows', 'filterEditableRows',

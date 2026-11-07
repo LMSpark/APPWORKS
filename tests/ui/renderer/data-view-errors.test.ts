@@ -11,6 +11,33 @@ import DataViewMetaBar from '../../../packages/spark-component/src/components/co
 const wrappers:VueWrapper[]=[]
 afterEach(()=>wrappers.splice(0).forEach(wrapper=>wrapper.unmount()))
 
+it('shows an expired query once without presenting fallback counts or loaded state',async()=>{
+ const wrapper=mount(DataViewMetaBar,{props:{queryUnavailable:true,loadingError:Error('Original query expired'),requestState:RequestState.Loaded,total:0}});wrappers.push(wrapper)
+ expect(wrapper.findAll('[role="alert"]')).toHaveLength(1)
+ expect(wrapper.text()).toBe('Original query expired')
+ expect(wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
+ await wrapper.setProps({queryUnavailable:false,loadingError:null,countReported:false})
+ expect(wrapper.find('[role="alert"]').exists()).toBe(false)
+ expect(wrapper.text()).toContain('未报告总数')
+})
+
+it('does not clear the original selection or draft when an unavailable table emits empty selection',async()=>{
+ const ds=DataSet.fromJson({scenarioId:'EXPIRED',tables:{Records:{resourceType:'static-data',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'name',type:'string'}],views:{default:{rows:[{id:'a',name:'original'}]}}}}})
+ const view=ds.getView('Records')!,row=view.rows[0]!
+ view.setCurrentRow(row);view.setSelectedRows([row]);view.updateEditingValue('a','name','draft')
+ const reported=vi.spyOn(view,'countReported','get').mockReturnValue(true)
+ const runtime=new PageRuntime({pageId:'expired-table',scenarioIds:['EXPIRED'],loadScenario:async()=>ds});await runtime.load()
+ const Host=defineComponent({setup(){useSparkComponent({type:'expired-table-host'}).sparkProvide(PAGE_RUNTIME,runtime);onBeforeUnmount(()=>runtime.dispose());return()=>h(RendererTable,{dataViewKey:'EXPIRED@Records@default',autoColumns:false,showPagination:false})}})
+ const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin()],stubs:{'el-table':false,'el-table-column':false}}});wrappers.push(wrapper);await flushPromises()
+ reported.mockImplementation(()=>{throw Error('Original query expired')});view.events.emit('requestStateChanged',RequestState.Loaded);await flushPromises()
+ const table=wrapper.getComponent({name:'ElTable'})
+ table.vm.$emit('selection-change',[]);table.vm.$emit('current-change',null);await flushPromises()
+ expect(view.selectedRows.map(item=>item['id'])).toEqual(['a'])
+ expect(view.currentRow?.['id']).toBe('a');expect(view.getEditingRow('a')?.['name']).toBe('draft')
+ expect(wrapper.findAll('[data-view-error]')).toHaveLength(1)
+ reported.mockRestore()
+})
+
 describe('data errors without diagnostic metadata',()=>{
  it('shows a failed native DataView query in the bound standard table without enabling operations or showing metadata',async()=>{
   const dataSet=DataSet.fromJson({scenarioId:'ERRORS',tables:{Records:{modelBinding:{modelId:'records-model',modelName:'Records'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}}}}})
@@ -19,14 +46,14 @@ describe('data errors without diagnostic metadata',()=>{
   await view.refresh();expect(view.requestState).toBe(RequestState.Failed)
   const runtime=new PageRuntime({pageId:'error-table',scenarioIds:['ERRORS'],loadScenario:async()=>dataSet});await runtime.load()
   const Host=defineComponent({setup(){useSparkComponent({type:'error-table-host'}).sparkProvide(PAGE_RUNTIME,runtime);onBeforeUnmount(()=>runtime.dispose());return()=>h(RendererTable,{dataViewKey:'ERRORS@Records@default',autoColumns:false,showPagination:false,showDataViewMeta:false})}})
-  const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper);await flushPromises()
+  const wrapper=mount(Host,{global:{plugins:[ElementPlus,Spark.createPlugin()],stubs:{'el-table':false,'el-table-column':false}}});wrappers.push(wrapper);await flushPromises()
   expect(wrapper.get('[role="alert"]').text()).toBe(message)
   expect(wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
   expect(view.rows).toEqual([]);expect(view.addActionState()).not.toBe('enabled')
  })
 
  it.each(['loadingError','mutatingError'] as const)('keeps %s visible once across metadata toggles and removes it on recovery',async field=>{
-  const wrapper=mount(DataViewMetaBar,{props:{showDataViewMeta:false,[field]:new Error('正式数据操作失败')}});wrappers.push(wrapper)
+  const wrapper=mount(DataViewMetaBar,{props:{queryUnavailable:false,showDataViewMeta:false,[field]:new Error('正式数据操作失败')}});wrappers.push(wrapper)
   expect(wrapper.get('[role="alert"]').text()).toBe('正式数据操作失败')
   expect(wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
   await wrapper.setProps({showDataViewMeta:true})
@@ -38,7 +65,7 @@ describe('data errors without diagnostic metadata',()=>{
 
 
 it.each([0, 3])('does not present fallback total %s as a reported count in the shared metadata bar', async total => {
- const wrapper=mount(DataViewMetaBar,{props:{total,countReported:false,requestState:RequestState.Loaded}});wrappers.push(wrapper)
+ const wrapper=mount(DataViewMetaBar,{props:{queryUnavailable:false,total,countReported:false,requestState:RequestState.Loaded}});wrappers.push(wrapper)
  expect(wrapper.text()).toContain('未报告总数')
  expect(wrapper.text()).not.toContain(`总数 ${total}`)
  await wrapper.setProps({countReported:true})
@@ -50,7 +77,7 @@ it.each([0, 3])('does not present fallback total %s as a reported count in the s
 
 
 it('keeps undeclared count capability distinct from an explicitly unknown count', async () => {
- const wrapper=mount(DataViewMetaBar,{props:{total:7}});wrappers.push(wrapper)
+ const wrapper=mount(DataViewMetaBar,{props:{queryUnavailable:false,total:7}});wrappers.push(wrapper)
  expect(wrapper.text()).toContain('总数 7')
  expect(wrapper.text()).not.toContain('未报告总数')
  await wrapper.setProps({countReported:false})

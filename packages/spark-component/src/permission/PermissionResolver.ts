@@ -71,7 +71,8 @@ function isRowScopedPermAction(action: PermissionAction | undefined): boolean {
 export function isModelActionAllowed(action: SparkNode, view: DataView | null | undefined): boolean {
   const permAction = resolveNodePermAction(action).action
   if (permAction === undefined || isRowScopedPermAction(permAction)) return true
-  return permAction === 'create' && view?.addActionState() === 'enabled'
+  try{return permAction === 'create' && view?.addActionState() === 'enabled'}
+  catch{return false}
 }
 
 /** 判断 SparkNode 的行级动作（edit/delete/create-child）是否被权限允许 */
@@ -79,7 +80,10 @@ export function isRowActionAllowed(action: SparkNode, row: DataRow | undefined, 
   const permAction = resolveNodePermAction(action).action
   if (!isRowScopedPermAction(permAction)) return true
   if (!view || !row) return false
-  if (permAction === 'edit') return view.editActionState(row) === 'enabled'
-  if (permAction === 'delete') return view.deleteActionState(row) === 'enabled'
-  return permAction === 'create-child' && view.createChildActionState(row) === 'enabled'
+  // 当前查询不可授权时只禁用展示动作；原DataView/执行器仍保留严格拒绝，查询异常由状态链呈现。
+  try{
+    if (permAction === 'edit') return view.editActionState(row) === 'enabled'
+    if (permAction === 'delete') return view.deleteActionState(row) === 'enabled'
+    return permAction === 'create-child' && view.createChildActionState(row) === 'enabled'
+  }catch{return false}
 }

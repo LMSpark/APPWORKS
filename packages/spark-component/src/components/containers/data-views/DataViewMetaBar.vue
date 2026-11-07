@@ -47,6 +47,8 @@ const props = withDefaults(defineProps<{
   total?: number
   /** 原DataView总数能力；false明确未知，省略或undefined保持未声明语义。 */
   countReported?: boolean | undefined
+  /** 原结果身份失效时不展示权威计数、选区或摘要；原请求状态不改写。 */
+  queryUnavailable: boolean
   page?: number
   pageSize?: number
   paginated?: boolean
@@ -126,7 +128,7 @@ const selectionAggregateEntries = computed(() =>
   !props.aggregateError && props.showSelectionSummary === true ? toEntries(props.selectionAggregateResult) : [],
 )
 
-const visible = computed(() => props.showDataViewMeta === true)
+const visible = computed(() => props.showDataViewMeta === true&&!props.queryUnavailable)
 </script>
 
 <style scoped>

@@ -100,7 +100,8 @@ export function usePermission(binding?: UsePermissionBinding): UsePermissionRetu
       permissionRevision.value
       if (!field || !row) return null
       const localInput = fieldPolicy() === 'unrestricted'
-      const access = localInput ? null : source()?.fieldAccess(toRaw(row), field)
+      let access:ReturnType<DataView['fieldAccess']>|null|undefined
+      try{access=localInput?null:source()?.fieldAccess(toRaw(row),field)}catch{access=undefined}
       const visibility = localInput || access?.read === 'visible' ? FieldVisibility.Visible
         : access?.read === 'masked' ? FieldVisibility.Masked : FieldVisibility.Hidden
       const readable = visibility !== FieldVisibility.Hidden && config?.visible !== false

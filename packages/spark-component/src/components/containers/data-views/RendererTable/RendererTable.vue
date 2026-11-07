@@ -17,6 +17,7 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
       :count-reported="dataState.countReported.value"
+      :query-unavailable="dataState.queryUnavailable.value"
       :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"
@@ -467,7 +468,7 @@ function tableRowClassName(context: TableRowClassContext) {
 
 /** 当前行变化事件桥接。 */
 async function handleCurrentChange(currentRow: DataRow | null, oldCurrentRow?: DataRow | null) {
-  if (_isRestoringCurrentRow) return
+  if (_isRestoringCurrentRow||dataState.queryUnavailable.value) return
   // el-table 在 :data 替换行对象后以 null 报告失去旧引用；DataView 仍持有有效指针时由 currentRow watch 反写，不清空 DataView。
   const view = dataState.resolvedView.value, held = view?.currentRow
   if (!currentRow && held && view.rows.includes(held)) return
@@ -495,7 +496,7 @@ async function handleRowClick(row: DataRow, column?: unknown, event?: Event) {
 
 /** 多选变更事件桥接。 */
 async function handleSelectionChange(selection: DataRow[]) {
-  if (_isSyncingSelection) return
+  if (_isSyncingSelection||dataState.queryUnavailable.value) return
   const selected = Array.isArray(selection) ? selection : []
   if (props.currentPageSearch && pageSearch.value.trim() && isMultiSelect.value) {
     const visible = new Set(rows.value.map(row => toRaw(row)))

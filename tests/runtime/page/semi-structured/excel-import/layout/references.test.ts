@@ -16,6 +16,29 @@ async function fixture(persisted=false){
  return {...f,httpSource:http,text,save:(id='C1')=>f.ds.saveChanges({views:[{tableName:'Base_ImportData_Config',viewId:'default',ids:[id]}]}),dispose:()=>{page.dispose();f.runtime.dispose()}}
 }
 describe('layout validation along the original model save capture',()=>{
+ it('allows an internal layout reference only when its original ancestor is deleted in the same captured batch',async()=>{const f=await fixture(true);try{
+  await f.nodes.removeRow('C2');await f.nodes.removeRow('C1')
+  const result=await f.ds.saveChanges({views:[{tableName:f.nodes.tableName,viewId:f.nodes.viewId,ids:['C2','C1']}]})
+  expect(result.success).toBe(true);expect(f.http.records['Base_ImportData_Config']).toEqual([]);expect(f.http.saves).toHaveLength(1)
+ }finally{f.dispose()}})
+ it('does not treat an ancestor staged outside the submitted IDs as a deleted layout reference',async()=>{const f=await fixture(true);try{
+  await f.nodes.removeRow('C2');await f.nodes.removeRow('C1');await expect(f.save('C2')).rejects.toThrow(/版式/);expect(f.http.saves).toEqual([])
+ }finally{f.dispose()}})
+ it('does not require reading the layout or sorting of ancestors deleted in the same batch',async()=>{const f=await fixture(true);try{
+  f.http.maskedFields['Base_ImportData_Config']=['sheet_layout_json','sorted'];await f.nodes.refresh();await f.nodes.removeRow('C2');await f.nodes.removeRow('C1')
+  expect((await f.ds.saveChanges({views:[{tableName:f.nodes.tableName,viewId:f.nodes.viewId,ids:['C2','C1']}]})).success).toBe(true);expect(f.http.records['Base_ImportData_Config']).toEqual([])
+ }finally{f.dispose()}})
+ it('rejects a formally moved ancestor even if it was included in the original delete batch',async()=>{const f=await fixture(true);try{
+  await f.nodes.removeRow('C2');await f.nodes.removeRow('C1');f.http.records['Base_ImportData_Config']![0]!['pid']='OTHER'
+  await expect(f.ds.saveChanges({views:[{tableName:f.nodes.tableName,viewId:f.nodes.viewId,ids:['C2','C1']}]})).rejects.toThrow(/归属已变化|父身份已变化/);expect(f.http.saves).toEqual([])
+ }finally{f.dispose()}})
+ it('rejects a parent-only native delete while an unsubmitted child survives',async()=>{const f=await fixture();try{
+  await f.nodes.removeRow('C1');await expect(f.save('C1')).rejects.toThrow(/子配置/);expect(f.http.saves).toEqual([])
+ }finally{f.dispose()}})
+ it('rejects a foreign-scheme child through the same native model delete guard',async()=>{const f=await fixture();try{
+  f.http.records['Base_ImportData_Config']!.push({rowid:'FOREIGN',schemeid:'OTHER',pid:'C2',sheetName:'外部配置'});await f.nodes.removeRow('C2')
+  await expect(f.save('C2')).rejects.toThrow(/跨方案/);expect(f.http.saves).toEqual([])
+ }finally{f.dispose()}})
  it('rejects a nested route that would shadow the direct layout detail',async()=>{const f=await fixture(true);try{
   f.http.records['Base_ImportData_Config']!.push({rowid:'P',schemeid:'E1',pid:'C1',sorted:'',table:'数据库一@other',relatedappid:'A1',exportType:'default',sheet_layout_json:''},{rowid:'G',schemeid:'E1',pid:'P',sorted:'',table:'数据库一@other_detail',relatedappid:'A1',exportType:'default',sheet_layout_json:''})
   await f.nodes.refresh();f.nodes.updateEditingValue('G','table','数据库一@table_three')

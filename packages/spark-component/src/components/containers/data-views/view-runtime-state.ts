@@ -65,6 +65,8 @@ export type DataViewPermissionState = {
 
 /** DataView 请求与聚合态：分页、加载状态、聚合结果等运行时动态信息。 */
 export type DataViewRequestAndAggregateState = {
+  /** 当前结果身份校验失败；仅影响展示，不清除原DataView数据、草稿或未确认提交。 */
+  queryUnavailable: ComputedRef<boolean>
   /** 当前数据请求状态，用于 loading/empty/error 渲染。 */
   requestState: ComputedRef<RequestState>
   /** 旧视图汇总或子表公式无法执行的原DataView诊断；与明细请求错误分别呈现。 */
@@ -93,7 +95,7 @@ export type DataViewRequestAndAggregateState = {
   mutating: ComputedRef<boolean>
   /** 最近一次写操作错误。 */
   mutatingError: ComputedRef<Error | null>
-  /** 最近一次加载数据错误。 */
+  /** 原加载错误或当前结果身份校验错误；不写回原DataView请求状态。 */
   loadingError: ComputedRef<Error | null>
   /** 原DataView存在编辑覆盖、待提交变更或未确认提交，不能替换查询结果。 */
   resultReplacementBlocked: ComputedRef<boolean>
@@ -206,6 +208,12 @@ export function useDataViewState(
   resolvedView: ResolvedViewRef,
 ): DataViewRuntimeState & DataViewPermissionState {
   const revisions = useDataViewRuntimeRevisions(resolvedView)
+  const queryMetadata = computed<{countReported:boolean|undefined;nextPageAvailable:boolean|undefined;error:Error|null}>(()=>{
+    revisions.rowsRevision.value;revisions.requestRevision.value;revisions.configRevision.value;revisions.selectionRevision.value
+    try{return{countReported:resolvedView.value?.countReported,nextPageAvailable:resolvedView.value?.nextPageAvailable,error:null}}
+    catch(cause){return{countReported:undefined,nextPageAvailable:undefined,error:cause instanceof Error?cause:new Error(String(cause))}}
+  })
+  const queryUnavailable=computed(()=>queryMetadata.value.error!==null)
 
   const tableName = computed<string>(() => {
     revisions.configRevision.value
@@ -228,7 +236,7 @@ export function useDataViewState(
 
   const rows = computed<readonly DataRow[]>(() => {
     revisions.rowsRevision.value
-    return resolvedView.value?.rows ?? EMPTY_ROWS
+    return queryUnavailable.value?EMPTY_ROWS:resolvedView.value?.rows ?? EMPTY_ROWS
   })
   const columns = computed<readonly DataColumn[]>(() => {
     revisions.configRevision.value
@@ -237,17 +245,17 @@ export function useDataViewState(
   const currentRow = computed<DataRow | null>(() => {
     revisions.selectionRevision.value
     revisions.rowsRevision.value
-    return resolvedView.value?.currentRow ?? null
+    return queryUnavailable.value?null:resolvedView.value?.currentRow ?? null
   })
   const selectedRows = computed<readonly DataRow[]>(() => {
     revisions.selectionRevision.value
     revisions.rowsRevision.value
-    return resolvedView.value?.selectedRows ?? EMPTY_ROWS
+    return queryUnavailable.value?EMPTY_ROWS:resolvedView.value?.selectedRows ?? EMPTY_ROWS
   })
   const editingRows = computed<readonly DataRow[]>(() => {
     revisions.editingRevision.value
     revisions.rowsRevision.value
-    return resolvedView.value?.editingRows ?? EMPTY_ROWS
+    return queryUnavailable.value?EMPTY_ROWS:resolvedView.value?.editingRows ?? EMPTY_ROWS
   })
   const isMultiSelect = computed<boolean>(() => {
     revisions.configRevision.value
@@ -258,19 +266,19 @@ export function useDataViewState(
     revisions.selectionRevision.value
     revisions.rowsRevision.value
     revisions.configRevision.value
-    return resolvedView.value?.value ?? ''
+    return queryUnavailable.value?'':resolvedView.value?.value ?? ''
   })
   const label = computed<string | null>(() => {
     revisions.selectionRevision.value
     revisions.rowsRevision.value
     revisions.configRevision.value
-    return resolvedView.value?.label ?? null
+    return queryUnavailable.value?null:resolvedView.value?.label ?? null
   })
   const labels = computed<readonly string[]>(() => {
     revisions.selectionRevision.value
     revisions.rowsRevision.value
     revisions.configRevision.value
-    return resolvedView.value?.labels ?? EMPTY_LABELS
+    return queryUnavailable.value?EMPTY_LABELS:resolvedView.value?.labels ?? EMPTY_LABELS
   })
 
   const requestState = computed<RequestState>(() => {
@@ -288,33 +296,33 @@ export function useDataViewState(
   const aggregateResult = computed<AggregateResultState>(() => {
     revisions.aggregateRevision.value
     revisions.configRevision.value
-    if (aggregateError.value) return EMPTY_AGGREGATE_RESULT
+    if (queryUnavailable.value||aggregateError.value) return EMPTY_AGGREGATE_RESULT
     return normalizeAggregateResult(resolvedView.value?.aggregateResult, EMPTY_AGGREGATE_RESULT)
   })
 
   const selectionAggregateResult = computed<AggregateResultState>(() => {
     revisions.aggregateRevision.value
     revisions.configRevision.value
-    if (aggregateError.value) return EMPTY_SELECTION_AGGREGATE_RESULT
+    if (queryUnavailable.value||aggregateError.value) return EMPTY_SELECTION_AGGREGATE_RESULT
     return normalizeAggregateResult(resolvedView.value?.selectionAggregateResult, EMPTY_SELECTION_AGGREGATE_RESULT)
   })
 
   const total = computed<number>(() => {
     revisions.rowsRevision.value
     revisions.configRevision.value
-    return resolvedView.value?.total ?? 0
+    return queryUnavailable.value?0:resolvedView.value?.total ?? 0
   })
   const countReported = computed<boolean | undefined>(() => {
     revisions.rowsRevision.value
     revisions.requestRevision.value
     revisions.configRevision.value
-    return resolvedView.value?.countReported
+    return queryMetadata.value.countReported
   })
   const nextPageAvailable = computed<boolean | undefined>(() => {
     revisions.rowsRevision.value
     revisions.requestRevision.value
     revisions.configRevision.value
-    return resolvedView.value?.nextPageAvailable
+    return queryMetadata.value.nextPageAvailable
   })
   const page = computed<number>(() => {
     revisions.rowsRevision.value
@@ -350,7 +358,7 @@ export function useDataViewState(
   })
   const loadingError = computed<Error | null>(() => {
     revisions.requestRevision.value
-    return resolvedView.value?.loadingError ?? null
+    return queryMetadata.value.error??resolvedView.value?.loadingError ?? null
   })
   const resultReplacementBlocked = computed(() => {
     revisions.rowsRevision.value
@@ -365,7 +373,7 @@ export function useDataViewState(
     tableName, viewId, primaryKey, treeConfig,
     rows, columns, currentRow, selectedRows, editingRows, isMultiSelect,
     value, label, labels,
-    requestState, aggregateError, aggregateResult, selectionAggregateResult,
+    requestState, queryUnavailable, aggregateError, aggregateResult, selectionAggregateResult,
     total, countReported, nextPageAvailable, page, pageSize, paginated, supportsQuerySorting, supportsQueryFiltering,
     mutating, mutatingError, loadingError, resultReplacementBlocked,
   }

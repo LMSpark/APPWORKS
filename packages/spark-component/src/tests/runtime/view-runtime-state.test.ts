@@ -38,6 +38,22 @@ describe('useDataViewState', () => {
     for (const scope of scopes.splice(0)) scope.stop()
   })
 
+  it.each(['countReported','nextPageAvailable'] as const)('projects an unavailable query when %s throws without clearing the original draft',member=>{
+    const view=createView(),other=createView(),resolvedView=shallowRef<DataView|null>(view),failure=Error('Original query identity expired')
+    let invalid=false
+    const getter=vi.spyOn(view,member,'get').mockImplementation(()=>{if(invalid)throw failure;return true})
+    const scope=effectScope();scopes.push(scope);const state=scope.run(()=>useDataViewState(resolvedView))!
+    view.setCurrentRow(view.rows[0]!);view.setSelectedRows([view.rows[0]!]);view.updateEditingValue(1,'name','original draft')
+    expect(state.rows.value).toHaveLength(2);expect(state.editingRows.value).toHaveLength(1)
+    invalid=true;resolvedView.value=null;resolvedView.value=view
+    expect(state.loadingError.value).toBe(failure);expect(state.aggregateError.value).toBeNull()
+    expect(state.rows.value).toEqual([]);expect(state.currentRow.value).toBeNull();expect(state.selectedRows.value).toEqual([]);expect(state.editingRows.value).toEqual([])
+    expect(state.total.value).toBe(0);expect(state.countReported.value).toBeUndefined();expect(state.nextPageAvailable.value).toBeUndefined();expect(state.resultReplacementBlocked.value).toBe(true)
+    expect(()=>view[member]).toThrow(failure);expect(view.rows).toHaveLength(2);expect(view.getEditingRow(1)?.['name']).toBe('original draft')
+    resolvedView.value=other;expect(state.loadingError.value).toBeNull();expect(state.rows.value).toHaveLength(2)
+    getter.mockRestore();view.dataSet?.destroy();other.dataSet?.destroy()
+  })
+
   it('projects pagination across query configuration and binding changes', () => {
     const view = createView(), other = createView(), resolvedView = shallowRef<DataView | null>(view)
     const scope = effectScope(); scopes.push(scope)

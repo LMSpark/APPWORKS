@@ -16,6 +16,7 @@ AI用途：需要理解 renderer virtual card 的实际渲染结构、slot/toolb
       :selected-rows="dataState.selectedRows.value"
       :total="dataState.total.value"
       :count-reported="dataState.countReported.value"
+      :query-unavailable="dataState.queryUnavailable.value"
       :paginated="dataState.paginated.value"
       :page="dataState.page.value"
       :page-size="dataState.pageSize.value"

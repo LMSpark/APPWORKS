@@ -7075,3 +7075,14 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 最终原2-worker21311已自然exit0：501文件9134项全部通过，1230.00秒；原工作流完整测试未改、15000ms不变、显式maxWorkers2与原b9基线相同。所有7生产源SHA逐项仍与Added-first实服版本一致。正式证据状态更新verified-checkpoint-runtime-cleaned，保留所有失败、错误并发配置、临时实验还原、最终成功及实服清理的准确历史；严格semantic gaps既有747基线未新增，未假称该额外零门禁通过。
 - 本检查点标准verify-v10、build:fe-v10、包SDK44文件1462项与包typecheck、正式ClassModel v9及指南/JSON schema均已验；最后全仓补齐9134。准备提交推送当前模板数据链检查点，保持整体20包active；KEY/整方案删除、ExportExcel真实模板消费、真实导入与其任务/归档清理合同仍按原开放项，不核销。
 - 代码检查点dd5aef6f436d19e0f6f3b0fb85de757268b4c81b（feat(spark-app): publish Excel templates through native data commands）已提交并成功推送1031；随后通过git ls-remote独立核实远端1031正为该代码提交。26文件2029增57删，原2-worker全仓501文件9134项自然0、实服原方案及3份自有文件均清净、源SHA一致。此为模板数据链检查点，不是完整Excel/20包验收；开放项按上文保留。随后仅提交本交付记录，不改代码或重复实服。下一实施入口为已细化的KEY与整方案删除，继续统一SPARK data/标准组件绑定，不恢复参考owner。
+
+### 2026-11-08 续轮：KEY、同批删除引用与过期查询公共呈现（未交付整方案删除）
+- 当前模板检查点仍为 f8566ddf0bde0cd47e7075d7cc3cf35538efe35f；本轮未重放历史实服夹具、未操作正式业务数据。整20包目标保持active。
+- Excel目录新增绑定行“复制KEY”，从实际点击行捕获rowid及原查询可读身份，经宿主copyText/showMessage；不取当前游标、不用coding替代、不查询或保存。覆盖另一行、剪贴板失败、隐藏rowid及切换应用原查询失效。
+- 原生配置删除引用核对补充直接子节点；未提交删除的子节点、跨方案子节点拒删。只有本次真实捕获的matchesKey删除祖先才可跳过其版式引用；单叶保护不放宽，祖先正式归属变化仍拒删。相关布局/叶删除26项已通过。本轮尚未实现整方案删除控制器/入口、外部JSON引用覆盖只读预检、双阶段提交或实服整删，不核销这些开放项。
+- KEY过期查询测试暴露标准组件无保护读取countReported/nextPageAvailable、权限/必填呈现导致渲染抛错。按既有高阶只读评审，在useDataViewState统一只读投影queryUnavailable，沿loadingError显示原错误并隐藏权威计数/旧选区；不改DataView严格身份守卫、requestState、原数据、草稿和未知回执。表格清空UI反馈不再反向清空原选区/当前行；动作/字段呈现失效时收紧，正式执行API继续抛错。RendererFilter与六容器消费同一合同。
+- 通过：excel-key-regression-v6.log，显式maxWorkers2、原15000ms，7文件81项自然exit0，包含真实JsonTree/VXE整体表达式编辑和表格原草稿/选区反馈；先前v5为5文件72项0。类型检查v2自然0；正式ClassModel生成v2自然0及JSON schema门禁0；生成语义等价噪声已归一，仅保留真实view-runtime-state合同变化与增量hash。当前verify-v1仍执行中，未声称全仓根回归或新实服通过。
+- 过滤表达式复核：整体JSON模式已经使用仓内JsonTreeEditor；条件值JSON仍为SparkJsonEditor。直接替换的RED两例与试验GREEN仅证明stub接线，源码核实JsonDocument根仅对象/数组，条件值允许标量，故撤回该不完整替换与相应测试修改。后续先补通用值编辑合同并验证原生编辑器标量、无效原文、取消/只读/过期回调，不以直接更名或丢失标量能力宣称完成统一。当前仍保留此实现差距，未提交错误替换。
+- 新知识候选仅登记本台账，未写knowledge/。本轮尚未提交/推送，继续标准验收与下一卡。
+- 高阶migration_architecture_plan追加只读方案：同一JsonTreeEditor新增rootKind=document|value明确合同；buildTreeModel入参可放宽JsonValue，新增exportJsonValue，exportJsonDocument仍拒标量；value模式解析/修复/发布同一JSON值，不向documentValue事件伪送标量，空输入与null/false/0/空字符串区分。value模式允许根六类型转换、不可删除/改key，内部根策略不能误关原文修复。Group子树须按节点与代次汇总editing-change并递归上报，兄弟节点切换不可重挂丢另一pending；外层检查/apply/inlineChange不能在未blur时提交旧值。测试必须真实VXE/ElInput/类型转换/修复，并覆盖多节点pending、取消只读、reset换field和迟到回调；该方案尚未实施，不算组件能力已存在。
+- 最终补验：verify-v1因layout/references.ts:110 optional-chain lint失败，已用正式eslint规则修正；对应布局15项自然0。ClassModel v3重生自然0、schema-v2自然0、语义等价生成噪声再次归一。标准pnpm run verify v2自然exit0，含typecheck/lint/verify:rules及ClassModel四文件测试；现有page-thin诊断仍为报告，不冒称历史差距清零。本轮没有跑新的全仓根测试，也没有新增实服或浏览器视觉验收。准备将KEY/原生引用守卫/公共过期呈现作为局部检查点提交推送，JsonTree值模式和整方案删除保持开放。

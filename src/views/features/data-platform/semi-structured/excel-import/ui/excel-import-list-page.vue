@@ -91,6 +91,7 @@ const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
   {type: 'r-button', props: {label: '刷新', action: 'refresh',disabled:locked.value}},
 ]}))
 const actions=computed<RToolbarProps>(()=>({children:[
+  {type:'r-button',props:{label:'复制KEY',disabled:locked.value||!pageService?.copyText,onClick:copyKey}},
   {type:'r-button',props:{label:'设计',permAction:'edit',disabled:locked.value,onClick:(row:DataRow)=>openEditor(row)}},
   {type:'r-button',props:{label:'编辑',permAction:'edit',disabled:locked.value,onClick:editRow}},
 ]}))
@@ -122,6 +123,18 @@ async function createScheme():Promise<void>{
  finally{if(active&&own===generation){acting.value=false;revision.value++}}
 }
 function choose(row:DataRow):void{if(!locked.value)view.value?.setSelectedRows([row])}
+async function copyKey(row:DataRow):Promise<void>{
+ const target=view.value,own=generation;if(!target||locked.value||!pageService?.copyText)return
+ acting.value=true;error.value=''
+ let requested=false
+ try{
+  if(target.fieldAccess(row,'rowid').read!=='visible'||typeof row['rowid']!=='string'||!row['rowid'])throw Error('方案KEY不可读')
+  const check=target.captureReadRow(row,['rowid']),id=row['rowid'];check()
+  requested=true;await pageService.copyText(id)
+  if(active&&own===generation)pageService.showMessage(`已复制 KEY：${id}`,'success')
+ }catch{if(active&&own===generation)error.value=requested?'复制失败，请手动复制':'方案KEY不可读或原查询已失效'}
+ finally{if(active&&own===generation)acting.value=false}
+}
 function editRow(row:DataRow):void{
   const target=view.value,id=target?.getPkKey(row)
   if(!target||id===undefined||locked.value||target.editActionState(row)!=='enabled')return

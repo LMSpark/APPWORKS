@@ -60,6 +60,19 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it.each(['copy','failure','hidden','stale'] as const)('copies the clicked formal Excel row key through the page service: %s',async mode=>{
+    state.http.records['Base_Import_solution']!.push({rowid:'E2',coding:'OTHER-CODE',solutionName:'另一个方案'})
+    if(mode==='hidden')state.http.hiddenFields['Base_Import_solution']=['rowid']
+    const copy=vi.fn(async(_value:string)=>{if(mode==='failure')throw Error('clipboard rejected')}),message=vi.fn()
+    const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}}]});await router.push('/catalog');await router.isReady()
+    const wrapper=mount(defineComponent({setup(){const {sparkProvide}=useSparkComponent({type:'excel-key-host'});const service:PageServiceCapability={copyText:copy,showMessage:message,showConfirm:async()=>true,showPrompt:async()=>null,showAlert:async()=>{},showDialog:async()=>'cancel',selectEntities:async()=>[],browseFiles:async()=>[],uploadFiles:async()=>{throw Error('unexpected upload')},showLoading:()=>{},navigate:()=>{}};sparkProvide(PAGE_SERVICE,service);return()=>h(RouterView)}}),{attachTo:document.body,global:{plugins:[router,ElementPlus,Spark.createPlugin()]}});wrappers.push(wrapper)
+    await vi.waitFor(()=>expect(wrapper.text()).toContain('另一个方案'));const table=wrapper.getComponent(RendererTable),rows=table.findAll('tbody tr');await rows[0]!.trigger('click');await flushPromises()
+    const reads=state.http.reads.length,button=rows[1]!.findAll('button').find(item=>item.text()==='复制KEY');expect(button).toBeDefined();if(mode==='stale')state.appId='SWITCHED';await button!.trigger('click');await flushPromises()
+    if(mode==='hidden'){expect(copy).not.toHaveBeenCalled();expect(wrapper.text()).toContain('方案KEY不可读')}
+    else if(mode==='stale'){expect(copy).not.toHaveBeenCalled();expect(message).not.toHaveBeenCalled();expect(wrapper.findAll('[data-view-error]')).toHaveLength(2);expect(wrapper.findAll('[data-aggregate-error]')).toHaveLength(0)}
+    else{expect(copy).toHaveBeenCalledWith('E2');if(mode==='failure'){expect(wrapper.text()).toContain('复制失败');expect(message).not.toHaveBeenCalled()}else expect(message).toHaveBeenCalledWith('已复制 KEY：E2','success')}
+    expect(state.http.saves).toEqual([]);expect(state.http.reads).toHaveLength(reads);expect((state.http as TopicBackend).templateRequests).toEqual([])
+  })
   it.each(['cancel','upload'] as const)('uses standard Excel template buttons through %s',async mode=>{
     const router=createRouter({history:createMemoryHistory(),routes:[{path:'/catalog',component:Excel,meta:{blueprintScenarioId:EXCEL}}]});await router.push('/catalog');await router.isReady()
     const file=new File([new Uint8Array([0,255])],'chosen.xlsx'),browse=vi.fn(async()=>[{name:file.name,size:file.size,type:file.type,lastModified:file.lastModified,file}]),upload=vi.fn(async()=>{throw Error('page upload forbidden')})

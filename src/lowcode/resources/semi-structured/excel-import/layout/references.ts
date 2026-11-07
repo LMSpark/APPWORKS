@@ -94,19 +94,31 @@ export function createExcelLayoutReferences(context:ExcelLayoutContext):DataTabl
   }
  }}
 }
-/** 删除仅读取层级身份及正式祖先版式；不要求读取被删行的布局或排序。 */
+/** 删除核对直接子引用和存活祖先版式；同批删除对象不要求读取其布局或排序。 */
 export function createExcelLayoutDeleteReferences(context:ExcelLayoutContext):DataTableQuerySaveReferences{
  return {fields:['schemeid','pid'],triggerFields:[],operations:['delete'],validate:async({changes})=>{
-  const {scheme,exact,identify,check}=scope(context)
+  const {scheme,exact,identify,check,read}=scope(context)
   for(const change of changes){
    if(change.values['schemeid']!==scheme)throw Error('删除版式节点不属于当前方案')
    const targetParent=change.values['pid'];if(typeof targetParent!=='string'||!targetParent)throw Error('删除版式节点缺少父身份')
    const id=identify(change),fresh=await exact(id,['rowid','schemeid','pid'])
    if(fresh['pid']!==targetParent)throw Error('删除版式节点正式父身份已变化')
+   const children=await read({field:'pid',operator:'eq',value:id},['rowid','schemeid','pid'])
+   for(const child of children){
+    if(child['schemeid']!==scheme)throw Error('存在跨方案子配置引用，不能删除')
+    const removing=changes.find(item=>item.kind==='delete'&&item.matchesKey(child['rowid']))
+    if(child['pid']!==id||removing?.values['schemeid'] !== scheme||removing.values['pid']!==id)throw Error('仍有未提交删除的子配置，不能删除父配置')
+   }
    let parent:unknown=targetParent;const visited=new Set<string>()
    while(parent!==scheme){
     check();if(typeof parent!=='string'||!parent||visited.has(parent)||visited.size>=64)throw Error('删除版式节点的父链无法核定');visited.add(parent)
-    const ancestor=await exact(parent,['rowid','schemeid','pid','sheet_layout_json']),raw=ancestor['sheet_layout_json']
+    const deleting=changes.find(item=>item.kind==='delete'&&item.matchesKey(parent))
+    const ancestor=await exact(parent,deleting?['rowid','schemeid','pid']:['rowid','schemeid','pid','sheet_layout_json'])
+    if(deleting){
+     if(deleting.values['schemeid']!==scheme||deleting.values['pid']!==ancestor['pid'])throw Error('同批删除的版式祖先正式归属已变化')
+     parent=ancestor['pid'];continue
+    }
+    const raw=ancestor['sheet_layout_json']
     if(configured(raw)){
      if(typeof raw!=='string')throw Error('版式删除引用无法核定');const layout=parseJsonDocument(raw)
      if(!isJsonObject(layout)||layout['version']!==3||!Array.isArray(layout['tables'])||layout['tables'].some(value=>!isJsonObject(value)||typeof value['table']!=='string'||!value['table']))throw Error('版式删除引用无法核定')

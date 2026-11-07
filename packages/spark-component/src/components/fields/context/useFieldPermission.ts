@@ -75,8 +75,13 @@ export function useFieldPermission<TValue>(options: UseFieldPermissionOptions<TV
     const column = boundColumn.value
     if (!column) return []
     const rules = columnToFormRules(column)
+    let required=false
+    if (perm.subtreeFieldPolicy !== 'unrestricted') {
+      try { required = dataSource.value?.fieldAccess(currentRow.value, fieldName.value).required === true }
+      catch { required = false }
+    }
     if (perm.subtreeFieldPolicy !== 'unrestricted'
-      && dataSource.value?.fieldAccess(currentRow.value, fieldName.value).required === true
+      && required
       && !rules.some(rule => rule.required === true)) {
       rules.push({ required: true, message: `${displayLabel.value}为必填字段`, trigger: 'blur' })
     }

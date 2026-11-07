@@ -133,6 +133,10 @@
       "type": "object",
       "title": "DataViewRequestAndAggregateState",
       "properties": {
+        "queryUnavailable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
         "requestState": {
           "type": "object",
           "title": "ComputedRef<RequestState>"
@@ -199,6 +203,7 @@
         }
       },
       "required": [
+        "queryUnavailable",
         "requestState",
         "aggregateError",
         "aggregateResult",
@@ -274,6 +279,10 @@
         "labels": {
           "type": "object",
           "title": "ComputedRef<readonly string[]>"
+        },
+        "queryUnavailable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
         },
         "requestState": {
           "type": "object",
@@ -354,6 +363,7 @@
         "value",
         "label",
         "labels",
+        "queryUnavailable",
         "requestState",
         "aggregateError",
         "aggregateResult",
@@ -450,6 +460,10 @@
           "type": "object",
           "title": "ComputedRef<readonly string[]>"
         },
+        "queryUnavailable": {
+          "type": "object",
+          "title": "ComputedRef<boolean>"
+        },
         "requestState": {
           "type": "object",
           "title": "ComputedRef<RequestState>"
@@ -537,6 +551,7 @@
         "value",
         "label",
         "labels",
+        "queryUnavailable",
         "requestState",
         "aggregateError",
         "aggregateResult",
@@ -584,7 +599,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-06T23:48:40.104Z",
+  "generatedAt": "2026-11-07T17:06:56.009Z",
   "models": {
     "DataViewIdentityState": {
       "name": "DataViewIdentityState",
@@ -739,9 +754,15 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 当前数据请求状态，用于 loading/empty/error 渲染。 */\n    requestState: ComputedRef<RequestState>;\n    /** 旧视图汇总或子表公式无法执行的原DataView诊断；与明细请求错误分别呈现。 */\n    aggregateError: ComputedRef<Error | null>;\n    /** 全量或当前查询条件下的聚合结果。 */\n    aggregateResult: ComputedRef<AggregateResultState>;\n    /** 已选择行集合的聚合结果。 */\n    selectionAggregateResult: ComputedRef<AggregateResultState>;\n    /** 原DataView.total读值；来源是否明确报告须同时核对countReported。 */\n    total: ComputedRef<number>;\n    /** 原来源是否明确报告总数；false为未知，undefined为结果未声明此能力。 */\n    countReported: ComputedRef<boolean | undefined>;\n    /** 原查询已确认的下一页状态；undefined不表示末页。 */\n    nextPageAvailable: ComputedRef<boolean | undefined>;\n    /** 当前页码，从 1 开始。 */\n    page: ComputedRef<number>;\n    /** 当前分页大小。 */\n    pageSize: ComputedRef<number>;\n    /** 当前查询是否按页消费；完整集合不显示分页入口。 */\n    paginated: ComputedRef<boolean>;\n    /** 绑定视图允许独立查询排序；配置或绑定切换时更新。 */\n    supportsQuerySorting: ComputedRef<boolean>;\n    /** 绑定视图允许独立查询过滤；不从写权限推导。 */\n    supportsQueryFiltering: ComputedRef<boolean>;\n    /** 当前是否存在本地或远端变更中的写操作。 */\n    mutating: ComputedRef<boolean>;\n    /** 最近一次写操作错误。 */\n    mutatingError: ComputedRef<Error | null>;\n    /** 最近一次加载数据错误。 */\n    loadingError: ComputedRef<Error | null>;\n    /** 原DataView存在编辑覆盖、待提交变更或未确认提交，不能替换查询结果。 */\n    resultReplacementBlocked: ComputedRef<boolean>;\n}",
+        "declarationTypeText": "{\n    /** 当前结果身份校验失败；仅影响展示，不清除原DataView数据、草稿或未确认提交。 */\n    queryUnavailable: ComputedRef<boolean>;\n    /** 当前数据请求状态，用于 loading/empty/error 渲染。 */\n    requestState: ComputedRef<RequestState>;\n    /** 旧视图汇总或子表公式无法执行的原DataView诊断；与明细请求错误分别呈现。 */\n    aggregateError: ComputedRef<Error | null>;\n    /** 全量或当前查询条件下的聚合结果。 */\n    aggregateResult: ComputedRef<AggregateResultState>;\n    /** 已选择行集合的聚合结果。 */\n    selectionAggregateResult: ComputedRef<AggregateResultState>;\n    /** 原DataView.total读值；来源是否明确报告须同时核对countReported。 */\n    total: ComputedRef<number>;\n    /** 原来源是否明确报告总数；false为未知，undefined为结果未声明此能力。 */\n    countReported: ComputedRef<boolean | undefined>;\n    /** 原查询已确认的下一页状态；undefined不表示末页。 */\n    nextPageAvailable: ComputedRef<boolean | undefined>;\n    /** 当前页码，从 1 开始。 */\n    page: ComputedRef<number>;\n    /** 当前分页大小。 */\n    pageSize: ComputedRef<number>;\n    /** 当前查询是否按页消费；完整集合不显示分页入口。 */\n    paginated: ComputedRef<boolean>;\n    /** 绑定视图允许独立查询排序；配置或绑定切换时更新。 */\n    supportsQuerySorting: ComputedRef<boolean>;\n    /** 绑定视图允许独立查询过滤；不从写权限推导。 */\n    supportsQueryFiltering: ComputedRef<boolean>;\n    /** 当前是否存在本地或远端变更中的写操作。 */\n    mutating: ComputedRef<boolean>;\n    /** 最近一次写操作错误。 */\n    mutatingError: ComputedRef<Error | null>;\n    /** 原加载错误或当前结果身份校验错误；不写回原DataView请求状态。 */\n    loadingError: ComputedRef<Error | null>;\n    /** 原DataView存在编辑覆盖、待提交变更或未确认提交，不能替换查询结果。 */\n    resultReplacementBlocked: ComputedRef<boolean>;\n}",
         "members": {
           "attributes": [
+            {
+              "name": "queryUnavailable",
+              "jsdoc": "当前结果身份校验失败；仅影响展示，不清除原DataView数据、草稿或未确认提交。",
+              "readable": true,
+              "writable": true
+            },
             {
               "name": "requestState",
               "jsdoc": "当前数据请求状态，用于 loading/empty/error 渲染。",
@@ -828,7 +849,7 @@
             },
             {
               "name": "loadingError",
-              "jsdoc": "最近一次加载数据错误。",
+              "jsdoc": "原加载错误或当前结果身份校验错误；不写回原DataView请求状态。",
               "readable": true,
               "writable": true
             },

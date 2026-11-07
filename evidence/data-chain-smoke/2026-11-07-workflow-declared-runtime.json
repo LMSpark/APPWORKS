@@ -1,5 +1,5 @@
 {
-  "status": "engineering-verified-live-acceptance-open",
+  "status": "verified-engineering-and-owned-runtime-scope",
   "scope": "Declared workflow execution command, immutable first-opening contracts, remount recovery and unknown-result retention",
   "baseline": "755b3873e525f42c57c35243202b65da8c1d5393",
   "fullRepository": {
@@ -120,14 +120,195 @@
       "fields": 56,
       "beforeToFinalDefinitionDelta": "Only inputParams and START output_mapping changed; independently verified"
     },
-    "crud": "original guarded worker running; acceptance not yet confirmed",
-    "wholeFlow": "not yet confirmed",
-    "cleanup": "not executed"
+    "crud": {
+      "phase": "confirmed",
+      "singlePosts": 4,
+      "steps": [
+        {
+          "operation": "add",
+          "before": [],
+          "after": [
+            {
+              "rowid": "AB8E396FCCBF4710BCA600D9E916BCC3",
+              "flowstate": 0,
+              "description": "",
+              "name": "SMOKE_DECLARED_1794028641238_中文",
+              "path": "SMOKE_DECLARED_1794028641238.json"
+            }
+          ]
+        },
+        {
+          "operation": "edit",
+          "before": [
+            {
+              "rowid": "AB8E396FCCBF4710BCA600D9E916BCC3",
+              "flowstate": 0,
+              "description": "",
+              "name": "SMOKE_DECLARED_1794028641238_中文",
+              "path": "SMOKE_DECLARED_1794028641238.json"
+            }
+          ],
+          "after": [
+            {
+              "rowid": "AB8E396FCCBF4710BCA600D9E916BCC3",
+              "flowstate": 0,
+              "description": "edited",
+              "name": "SMOKE_DECLARED_1794028641238_中文",
+              "path": "SMOKE_DECLARED_1794028641238.json"
+            }
+          ]
+        },
+        {
+          "operation": "delete",
+          "before": [
+            {
+              "rowid": "AB8E396FCCBF4710BCA600D9E916BCC3",
+              "flowstate": 0,
+              "description": "edited",
+              "name": "SMOKE_DECLARED_1794028641238_中文",
+              "path": "SMOKE_DECLARED_1794028641238.json"
+            }
+          ],
+          "after": []
+        },
+        {
+          "operation": "query",
+          "before": [],
+          "after": []
+        }
+      ],
+      "nativeValuesVerified": [
+        "rowid",
+        "name",
+        "description",
+        "path",
+        "flowstate"
+      ]
+    },
+    "wholeFlow": {
+      "phase": "confirmed",
+      "posts": 1,
+      "nodes": [
+        {
+          "nodeId": "FA766A14098BEA8DD7236DD2B381D508",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "nodeId": "BCBEAEC148E7C8BFB13C58658A4D5C27",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "nodeId": "059232D526E0EF858EDD544EE2AA36BC",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "nodeId": "60D913F23A3152E6AA5E8065D30F69BC",
+          "status": "SUCCESS",
+          "count": 1
+        },
+        {
+          "nodeId": "1319BEA533840BFDA37A6F8D2177B120",
+          "status": "SUCCESS",
+          "count": 0
+        },
+        {
+          "nodeId": "9DDF003B0756553D369C0AE0AED82A83",
+          "status": "SUCCESS",
+          "count": 0
+        }
+      ],
+      "independentNodeLogs": [
+        {
+          "rowid": "3D4D65E29FBA43B9B84172578C1F9C2A",
+          "node_id": "059232D526E0EF858EDD544EE2AA36BC",
+          "workflow_instance_id": "4837B1B102864C28840DE3086EEF34A9",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "7F93ACBE235B431FA3F2DE599AB2D6F2",
+          "node_id": "9DDF003B0756553D369C0AE0AED82A83",
+          "workflow_instance_id": "4837B1B102864C28840DE3086EEF34A9",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "903A8253C48D41CA868D4FF1424A575C",
+          "node_id": "60D913F23A3152E6AA5E8065D30F69BC",
+          "workflow_instance_id": "4837B1B102864C28840DE3086EEF34A9",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "9BA66DBEA0F34D9D999C38CB484BD6D8",
+          "node_id": "FA766A14098BEA8DD7236DD2B381D508",
+          "workflow_instance_id": "4837B1B102864C28840DE3086EEF34A9",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "9C78499E5640418590CF1E36374C37C2",
+          "node_id": "BCBEAEC148E7C8BFB13C58658A4D5C27",
+          "workflow_instance_id": "4837B1B102864C28840DE3086EEF34A9",
+          "status": "SUCCESS",
+          "error_message": null
+        },
+        {
+          "rowid": "CD3B254FBAE14F119B7C4B917C44E413",
+          "node_id": "1319BEA533840BFDA37A6F8D2177B120",
+          "workflow_instance_id": "4837B1B102864C28840DE3086EEF34A9",
+          "status": "SUCCESS",
+          "error_message": null
+        }
+      ],
+      "finalBusinessRows": [],
+      "startupComparedFields": [
+        "rowid",
+        "name",
+        "description",
+        "path",
+        "flowstate"
+      ],
+      "startupUnchanged": true,
+      "reads": 403,
+      "observerMetadataWrites": 4,
+      "unknown": false,
+      "audit": "artifacts\\data-chain-smoke\\workflow-declared-execution-audit.json",
+      "auditSha256": "0b5854740bae83c951946d2692b8fd2bedfdde25a92231c9caf2a3d5772d0801"
+    },
+    "cleanup": {
+      "phase": "confirmed",
+      "reads": 335,
+      "writes": 10,
+      "executionPosts": 0,
+      "unknown": false,
+      "publicNodeRemovalCount": 4,
+      "publicRemovalCancellationWrites": 0,
+      "frozenOwnedFieldCount": 87,
+      "frozenOwnedModels": 6,
+      "nodes": 6,
+      "connectors": 5,
+      "nodeLogs": 6,
+      "startupRows": 1,
+      "parameters": 1,
+      "definition": 1,
+      "finalIndependentAbsence": true,
+      "audit": "artifacts\\data-chain-smoke\\workflow-declared-cleanup-audit.json",
+      "auditSha256": "a18539ab6057612bf5255a1e476c9f397c60520976211186f01fb4f1c05873b2",
+      "checkpoint": "artifacts\\data-chain-smoke\\workflow-declared-fixture-checkpoint.json",
+      "cleanedAt": "2026-11-07T08:38:01.899Z"
+    }
   },
   "limitations": [
     "Browser visual acceptance remains open",
     "No backend version-condition submit contract; preflight is not an atomic check-and-execute guarantee",
-    "Engineering success does not complete the 20 business packages"
+    "Engineering success does not complete the 20 business packages",
+    "This closes only the declared execution and owned fixture lifecycle scope; workflow code allocation, remaining workflow scenarios and full-page visual comparison stay open."
   ],
-  "recordedAt": "2026-11-07T05:31:58.547766+00:00"
+  "recordedAt": "2026-11-07T05:31:58.547766+00:00",
+  "engineeringCommit": "f3fdeef83c00e5bfef013dfe74892b008cae6027",
+  "engineeringPushReceipt": "artifacts\\data-chain-smoke\\workflow-declared-checkpoint-push-receipt.json"
 }

@@ -3356,3 +3356,4 @@
 - 工作流正式命令卡在途：共享未知保留11项、SDK包内绑定16项、Context/原来源117项、初原生运行10项过；正式场景/loader/面板已成组接线，原整页82过/1新增fixture错误后3焦点过，待完整最终复验。已保留所有真实RED与配置/路径/fixture错误，不将未匹配SDK根测试称通过；未做新实服请求/全仓/提交。
 - 工作流整卡高阶复核4个具体缺口均按真实RED修复，最新工作流+shared command 25文件555项、SDK16项、加严query/重挂9焦点、types/lint/build/rules通过；正式ClassModel-v4刷新/等价噪声173文件审计保留实变。23源SHA冻结/full3332在途。实服只读探针Vite启动超时与错误resource归属断言分别保留，不包装成产品缺陷或成功；改正断言的v2在途，HTTP读取7/业务写0/执行0。本卡新CRUD+整流/清理/提交推送仍开放。
 - 工作流本卡最终全仓自然完成498文件9072项/1347.18s/原timeout/maxWorkers2，23源SHA一致，正式工程证据已落但runtime仍开放。实服只读正式loader-v2 confirmed7读取0写0执行；全新停用fixture创建/独立重开40读取3写unknown false。新4节点/模型/配置+5边处于原worker4444，当前补trigger/startup/params与最终回读；执行与清理脚本已准备，尚无Workflow POST、尚未提交推送。所有历史probe/错误断言保留，未复用旧写意图。
+- 工作流声明命令实服完整本轮：403读/4观察元数据写/5执行（4single+1whole）/unknown false，typed中文空串整数0与PK独立回读、6成功日志及最终业务缺失；cleanup335读/10删除写/0执行，4个public stage-cancel-save无取消写，6模型87字段6节点5边及自有日志/startup/参数/定义独立全空。fixture已cleaned不重放。工程36文件f3fdeef83实际push远端SHA一致，正式JSON更新待文档检查点，不核销20包/视觉/领码等。

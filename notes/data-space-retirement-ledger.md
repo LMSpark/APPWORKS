@@ -5088,7 +5088,7 @@ flowchart LR
 | 维度设计 | structured-config/dimension-definition/ui/dimension-design-page.vue及dimension-rule-editor.vue | 补完整原业务语义与消费者，不能以蓝图中的维度编辑片段当原页面已迁移 |
 | 编码 | structured-config/data-code；已有18文件相关测试组 | 五类现已核类型：分类/固定/日期/顺序/父级；成组核选择器、分类、分段、示例、初始化及实际使用。已验CRUD/示例落库/五条清理/日期wire/有效目标不重做 |
 | 逻辑视图 | structured-config/logic-view及logic-view资源 | 原画布、来源、字段、函数、参数、输出、预览、保存重开与运行模型消费；SaveView未知保持开放 |
-| 数据工作流 | structured-config/workflow-definition，Base_WorkflowDefinition，5E967目录/0DD8设计 | 查询/操作/API等节点、输入输出、连线、布局、取消、分阶段保存、单节点/整流测试；当前明确缺节点新增归属合同 |
+| 数据工作流 | structured-config/workflow-definition，Base_WorkflowDefinition，5E967目录/0DD8设计 | 查询/操作/API等节点、输入输出、连线、布局、取消、分阶段保存、单节点/整流测试；原节点首次绑定、操作CRUD及声明命令已有分项证据；目录领码与剩余整页验收仍开放 |
 | JSON与文件管理 | semi-structured/json-data；参考views/FileDataManager及本仓文件资源 | 文件/文档身份、格式、读取/编辑/取消/保存/冲突和下游；读取JSON与正式业务数据权限分别核定 |
 | Excel导入 | semi-structured/excel-import；Base_Import_solution；0F93设计 | 目标表与字段、父子节点/替换、过滤排序、Sheet布局、转换规则、保存重开→真实导入/导出消费；不能以JSON文本框代替完整业务交互 |
 | PDF专题 | 本仓semi-structured/pdf-inspect；Base_FileInspectConfig | 本仓既有专题的规则、目标、保存及实际识别消费者；参考来源待逐项核，不发明不存在的参考原生PDF页 |
@@ -6910,3 +6910,17 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - execution/cleanup脚本已按高阶复核补5独立派发slot/actual payload、prepare前后冻结全语义比较、观察器actual Added路由/全部原字段ID映射捕获及发布后逐项核准、whole四类count与平面原生值、6个唯一非空日志rowid/非空同instance、原字段ID清理/第二次public removal summary/实际CRUD Deleted ID守卫、whole-workflow孤字段核空与失败非零。纯离线request guard14反例过，0网络。高阶又指出2个首次采纳窗口，已关闭：首HTTP前用v3.beforeProof仅替换精确inputParams/START.output_mapping核完整frozen；观察器最终冻结核actual Added字段Name/type/PK/output/alias/expr/group/sort和model DB/物理表/空Filter/Join，不只查ID集合。高阶最后只读确认无本轮剩余派发阻断。
 - fixture-finalize原worker13400自然exit1，0写停于ADD Filter SQLNULL与''的断言；保留失败。v2 worker5916经正式Codec空语义进入后仅1原批次确认清两Filter，随后空值回读为NULL而脚本误按''停止，35reads/1write/unknown false，intent已ack且无pending。v3 worker32340仅接受该精确已有确认，不重发Filter，按官方parseStored(null/undefined/空白)未配置合同独立proof证明只两Filter变化；再补原startup和params，最终自然exit0/50 reads/2 writes/0 execution/unknown false。新的workflow-declared-fixture-contract.json冻结4模型各14原字段、6节点5边；独立Python再次验证before→final只两处精确声明变化。旧node-config失败audit不改；新合同比旧preparing intent优先作为后续验收输入。
 - 当前正式execution原worker24804已启动，独立4single+1whole槽、未知禁止重发，尚未据audit称成功；cleanup尚未启动。冻结23生产/配置/测试源SHA再次全部一致，root全仓498/9072与types/lint/build/rules证据有效。准备仅保存工程检查点（实服验收开放），不把提交当本卡实服CRUD/整流/清理或20包完成。
+
+### 2026-11-07 声明工作流命令：实服消费、清理与工程推送收口
+
+- 工程提交f3fdeef83c00e5bfef013dfe74892b008cae6027（36文件）已实际推送origin/1031，原push session56557自然exit0；两次ls-remote精确相同，push receipt记录提交后worktree clean。冻结23源SHA一致，498文件9072项全过、SDK16、workflow/shared555、聚焦9及types/lint/build/rules/正式ClassModel均已有自然终态。此是本卡工程检查点，不是20包完成。
+- 正式execution原worker24804自然exit0/phase confirmed：403 SDK reads、4次观察模型元数据写、恰好4 single+1 whole POST、unknown false。ADD独立0→1，EDIT独立1→1，原生中文/空字符串/路径/flowstate整数0及自有PK精确相符；DELETE独立1→0，QUERY0→0。whole六节点SUCCESS，START/ADD/EDIT/DELETE count均1、QUERY/END count0，增改删的平面输出精确原行/值；独立6个非空唯一节点日志ID，同一非空实例ID、每个原节点一次；业务行最终不存在，startup仅在明确查询的rowid/name/description/path/flowstate投影上原值未变。没有承诺未读列、后端条件版本提交或跨来源事务。
+- cleanup原worker28464自然exit0/phase confirmed：335 reads/10原生删除写/0执行POST/unknown false。实际CRUD边界仅允许冻结自有IDs；4普通节点逐个公共NodeRemoval.stage→cancel（0写）→新原命令scope复核→stage/save，均complete。先清6日志、1startup、5连线，后清4模型/56字段/4节点，再清2观察模型/31字段/2边界、同ID参数及停用定义，终验包括workspace整范围字段而非空modelIds，独立所有原ID/metadata关系核空。fixture85178488C512406CB38DD9C800B53966 lifecycle=cleaned，禁止重放；总6模型87字段6节点5连线全清，系统服务自身审计不作自有夹具删除目标。
+- 正式证据更新evidence/data-chain-smoke/2026-11-07-workflow-declared-runtime.json，含原审计SHA、独立before/after、六节点/日志身份及清理终态；前面的19写配置失败、0写排序失败、Filter空值NULL断言失败均保留为历史，不抹掉或包装成产品缺陷。浏览器URL-confidence停轮仍未绕过，不宣称视觉验收。
+
+### 下一连续完整包：JSON与文件管理（高阶只读方案，尚未实施）
+
+- 按20包矩阵5092核当前src/lowcode/resources/semi-structured/json-data/document-resource.ts及固定参考1147b00；FFDEF目录rowid为文档身份，name是标题，非空path末段定位jsondatapath根文件、空path才用id.json。原标准RTable/RDialog/固定行RForm/FieldJson和catalog DataView继续复用；文件视图须进入正式pagedata并首次装配，按jsonId延迟读取，不能继续动态挂另一表/owner。当前canDelete=false不简单解锁；普通删除的引用/同址/冲突/未知结果合同先核。
+- 两端生命周期完整范围：目录新增/取消、原文件读取编辑/取消/版本保存、完整卸载新runtime重开原生false/0/null/嵌套和字节、正式模型消费，引用拒删0写、解除自有引用后取消删除0写/确认删除。先冻结两端定位和原文本/版本，确认可删后先物理文件并独立缺失，再原目录行并独立ID核空；第二端失败仅续未派发端，未知只核原capture，不重传。API实现留数据层原文件适配，页面只DataView/DataSet，不重造草稿或提交器。
+- 破坏性动作前先只读核权威反向索引/服务端限制：跨场景Type=JSON且DbId=docId的正式模型、path basename同址及空path ID规则、逻辑视图文件直接JSON来源；不可见引用或并发覆盖无法证明则保留普通拒删并明确服务gap，不扫全库文件/借权限。原97DC模型运行拒绝与原文件可读属于两个权限面，不能合并假通过；只给新自有合法来源取正向证据。
+- 同包FileManager独立核真实导航EDF7…/原URL vue:/FileDataManager/FileManager/index，当前本仓status=plan，未证正式场景。固定参考views/FileDataManager/FileManager/index及packages/data/spark-api/src/files/runtime-api.ts：getFilePage、按正整数id删除、上传原始File并保留scenarioId/appType/FileDataPath/customPath/field合同。只读先核部署列表/返回身份和宿主；缺登记保留该支受阻，不借FFDEF或用按路径RemoveFile冒充数字ID删除。可执行时仅新nonce极小文件上传一次，按返回ID/路径/大小独立回读、精确删除并分别核登记/物理终态。保护六条不可读存量文件、21历史列表及全部旧intent，不触发工作流/API/领码。包级结论分别记录JSON目录+文件、正式模型消费、FileManager，未验分支不核销。

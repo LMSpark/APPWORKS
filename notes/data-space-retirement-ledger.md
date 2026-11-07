@@ -7902,3 +7902,5 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **Q/R安全检查点最终门禁。**最终官方生成90864自然exit0：1108分片/1741索引/3768 gaps。15派生文件只读逐项对照后，剔除明确时间和编译符号ID，只有data-view getter说明与对应missing-jsdoc gap消除为语义差异；未手改派生产物。最终根verify65043自然exit0，包括根类型/lint/规则/ClassModel49测试/611端点217消费者校验；既有2模型警告及84薄页诊断仍保留。全数据包1222、package类型及定向lint通过；diff --check通过。所有handle已终态，无实服写入、合并或部署。
 
 拟提交仅2份数据源/测试+唯一台账+15正式派生，共18文件，原组件未跟踪RED不提交。目标仍origin的codex/spark-data-s1-command-safety，不force；提交推送后独立读远端SHA。此为Q/R局部检查点，S1仍未冻结，文件接纳窗口、多来源混合核验和I3余项继续原阶段，不自动进S2。
+
+**Q/R检查点已推送并核实。**代码提交9395ab2cf158a7d80a6143dfa0de7295d4b54abb（fix(spark-data): validate receipts and prevent unsafe replay），18文件535增102删。push origin HEAD:refs/heads/codex/spark-data-s1-command-safety自然exit0；git ls-remote独立返回与本地精确同SHA。跟踪工作树清洁，仅保原组件未跟踪RED；无其他责任层源码改动、实服写入或部署。本事实记录作为docs跟随同步；下一恢复点仍S1文件接纳窗口→多来源混合核验→I3余项，整体goal active，未冻结数据合同，不进S2。

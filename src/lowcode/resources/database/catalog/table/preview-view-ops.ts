@@ -1,16 +1,8 @@
 /**
  * @module app:lowcode/resources/database/catalog/table/preview-view-ops
- * 职责：物理表数据预览（builtin tableData 语义 → GetData 物理表描述 + 只读命令 DataView）。
+ * 职责：物理表数据预览（builtin tableData 语义 → GetData 物理表描述 + 只读命令 SparkData.DataView）。
  */
-import {
-  DataViewLocalQuery,
-  ensureDataSetFileCommandView,
-  ensureDataSetStaticInputTable,
-  type DataRow,
-  type DataSet,
-  type DataView,
-  type DataSetCommandScopeGuard,
-} from '@spark-appworks/spark-data'
+import * as SparkData from '@spark-appworks/spark-data'
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {
@@ -58,34 +50,32 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function parseGetDataPage(response: unknown): {items: DataRow[]; total: number} {
+type PreviewPage = Readonly<{items: SparkData.DataRow[]; total: number; primaryKey: string | null; columns?: readonly SparkData.DataColumn[] }>
+
+function parseGetDataPage(response: unknown): PreviewPage {
   if (!isRecord(response)) throw new Error('物理表预览响应格式无效')
-  if ('Code' in response) {
-    const code = response['Code']
-    if (typeof code !== 'number') throw new LowcodeApiError(0, 'lowcode 响应缺少数字 Code')
-    if (code !== 200) {
-      const message = response['Message']
-      throw new LowcodeApiError(code,
-        typeof message === 'string' && message.trim() !== '' ? message : 'lowcode 请求失败')
-    }
+  const code = response['Code']
+  if (typeof code !== 'number') throw new LowcodeApiError(0, 'lowcode 响应缺少数字 Code')
+  if (code !== 200) {
+    const message = response['Message']
+    throw new LowcodeApiError(code, typeof message === 'string' && message.trim() !== '' ? message : 'lowcode 请求失败')
   }
-  const envelope = 'Code' in response ? response['Result'] : response
+  const envelope = response['Result']
   if (!isRecord(envelope)) throw new Error('物理表预览结果无效')
   const data = envelope['data']
   if (!isRecord(data)) throw new Error('物理表预览数据块无效')
-  const itemsRaw = data['Items']
-  const items = Array.isArray(itemsRaw)
-    ? itemsRaw.filter(isRecord).map(row => ({...row}))
-    : []
-  const total = Number(data['Count'])
-  return {items, total: Number.isFinite(total) ? total : items.length}
+  const items = data['Items'], total = data['Count'], primaryKey = envelope['primaryKeyField']
+  if (!Array.isArray(items) || !items.every(isRecord)) throw new Error('预览 Items 必须是记录数组')
+  if (typeof total !== 'number' || !Number.isSafeInteger(total) || total < 0 || total < items.length) throw new Error('预览缺少有效的服务端总数')
+  if (primaryKey !== null && (typeof primaryKey !== 'string' || !primaryKey.trim())) throw new Error('预览缺少正式来源键声明')
+  return {items: items.map(row => ({...row})), total, primaryKey}
 }
 
 function isPrimaryKey(value: unknown): boolean {
   return value === 1 || value === '1' || value === true
 }
 
-function previewFieldsFromCatalog(dataSet: DataSet, tblid: string): PreviewFieldWire[] {
+function previewFieldsFromCatalog(dataSet: SparkData.DataSet, tblid: string): PreviewFieldWire[] {
   if (!tblid) return []
   const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
   if (!fieldView) return []
@@ -108,7 +98,7 @@ function previewFieldsFromCatalog(dataSet: DataSet, tblid: string): PreviewField
 export type DatabaseCatalogPreviewColumn = Readonly<{name: string; label: string}>
 
 /** 数据页列跟字段目录：字段名是 enname，标题是 cnname。 */
-export function databaseCatalogPreviewColumns(dataSet: DataSet, tblid: string): DatabaseCatalogPreviewColumn[] {
+export function databaseCatalogPreviewColumns(dataSet: SparkData.DataSet, tblid: string): DatabaseCatalogPreviewColumn[] {
   const id = tblid.trim()
   if (!id) return []
   const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
@@ -121,71 +111,65 @@ export function databaseCatalogPreviewColumns(dataSet: DataSet, tblid: string): 
   })
 }
 
-export function applyDatabaseCatalogPreviewColumns(view: DataView, columns: readonly DatabaseCatalogPreviewColumn[]): void {
+export function applyDatabaseCatalogPreviewColumns(view: SparkData.DataView, columns: readonly DatabaseCatalogPreviewColumn[]): void {
+  const dataSet = view.dataSet
+  if (!dataSet) throw new Error('PREVIEW_BINDING_IDENTITY: 预览实例已释放')
+  const binding = [...(previewBindings.get(dataSet)?.values() ?? [])].find(item => item.view === view)
+  if (!binding) throw new Error('PREVIEW_BINDING_IDENTITY: 字段定义不属于本次预览')
+  assertPreviewBinding(binding)
   const table = view.dataTable
   if (!table || columns.length === 0) return
   table.addColumns(columns.map(column => ({name: column.name, type: 'string' as const, label: column.label})))
 }
 
-function resolvePrimaryKey(dataSet: DataSet, tblid: string): string {
+function resolvePrimaryKey(dataSet: SparkData.DataSet, tblid: string): string {
   const fieldView = dataSet.getView(DATABASE_CATALOG_FIELD_MODEL, DATABASE_CATALOG_FIELD_TABLE_VIEW)
   const primary = fieldView?.rows.find(row => scalar(row['tblid']) === tblid && scalar(row['enname']) !== '' && isPrimaryKey(row['IsPKey']))
   return primary ? scalar(primary['enname']) : 'rowid'
 }
 
-function syncPreviewColumns(view: DataView, rows: readonly DataRow[]): void {
-  const table = view.dataTable
-  if (!table || rows.length === 0) return
-  const sample = rows[0]
-  if (!sample) return
-  const names = Object.keys(sample).filter(key => !key.startsWith('lingma_'))
-  table.addColumns(names.map(name => ({name, type: 'string' as const})))
-}
-
-type ReadonlyQueryResultInput = Readonly<{view: DataView; rows: readonly DataRow[]; total: number; guard: DataSetCommandScopeGuard}>
+type ReadonlyQueryResultInput = Readonly<{view: SparkData.DataView; page: PreviewPage; guard: SparkData.DataSetCommandScopeGuard}>
 
 function readonlyQueryResult(input: ReadonlyQueryResultInput) {
   input.guard()
-  const fields = new Set(input.view.columns.filter(column => column.name !== '_pk' && !column.computeExpression).map(column => column.name))
-  const {rows: outputRows, output} = DataViewLocalQuery.select({
-    rows: [...input.rows],
-    fields,
-    primaryKeys: input.view.primaryKey ? [input.view.primaryKey] : [],
-    params: {page: 1, allPages: true, treeMode: 'flat'},
-  })
-  const rowKey = (row: Readonly<DataRow>) => (input.view.primaryKey ? row[input.view.primaryKey] : undefined)
-  const keys = new Set(outputRows.map(rowKey))
-  const allowed = (key: unknown, field: string) => key !== undefined && keys.has(key) && output.has(field)
+  const {items, total, primaryKey} = input.page
+  const values = primaryKey === null ? [] : items.map(row => row[primaryKey])
+  const validKeys = values.every(value => (typeof value === 'string' || typeof value === 'number') && String(value).trim() !== '')
+  const key = primaryKey !== null && validKeys && new Set(values.map(String)).size === items.length ? primaryKey : ''
+  const metadata = [...(input.page.columns ?? []), ...(input.view.dataTable?.columns ?? [])]
+  const names = new Set(items.flatMap(row => Object.keys(row).filter(name => name !== '_pk' && !name.startsWith('lingma_'))))
+  const columns: SparkData.DataColumn[] = [...names].map(name => ({name, type: 'string', label: metadata.find(column => column.name === name)?.label ?? name}))
+  const fields = new Set(columns.map(column => column.name))
+  const {rows: outputRows, output} = SparkData.DataViewLocalQuery.select({rows: [...items], fields,
+    primaryKeys: key ? [key] : [], params: {page: 1, allPages: true, treeMode: 'flat'}})
+  const rowKey = (row: Readonly<SparkData.DataRow>) => {
+    const value = key ? row[key] : undefined
+    return (typeof value === 'string' || typeof value === 'number') && String(value).trim() !== '' ? String(value) : undefined
+  }
+  const keys = new Set(outputRows.map(rowKey).filter(value => value !== undefined))
+  const allowed = (value: unknown, field: string) => typeof value === 'string' && keys.has(value) && output.has(field)
   return {
-    rows: outputRows,
-    total: input.total,
-    rowKey,
-    assertIdentity: () => input.guard(),
-    fieldAccess: (key: unknown, field: string) => ({
-      read: allowed(key, field) ? 'visible' as const : 'invisible' as const,
-      write: 'denied' as const,
-      component: allowed(key, field) ? 'readonly' as const : 'hidden' as const,
-      required: false,
-      writeMode: 'readonly' as const,
-    }),
-    readFieldAccess: (row: DataRow, field: string) => (outputRows.includes(row) && output.has(field) ? 'visible' as const : 'invisible' as const),
-    addActionState: () => 'hidden' as const,
-    editActionState: () => 'hidden' as const,
-    deleteActionState: () => 'hidden' as const,
+    rows: outputRows, total, countReported: true, columns, resultPrimaryKey: key, reportedPrimaryKey: primaryKey ?? undefined,
+    rowKey, assertIdentity: () => input.guard(),
+    fieldAccess: (value: unknown, field: string) => ({read: allowed(value, field) ? 'visible' as const : 'invisible' as const,
+      write: 'denied' as const, component: allowed(value, field) ? 'readonly' as const : 'hidden' as const,
+      required: false, writeMode: 'readonly' as const}),
+    readFieldAccess: (row: SparkData.DataRow, field: string) => outputRows.includes(row) && output.has(field) ? 'visible' as const : 'invisible' as const,
+    addActionState: () => 'hidden' as const, editActionState: () => 'hidden' as const, deleteActionState: () => 'hidden' as const,
     createChildActionState: () => 'hidden' as const,
-    viewActionState: (key: unknown, available = true) => (keys.has(key) ? (available ? 'enabled' as const : 'disabled' as const) : 'hidden' as const),
+    viewActionState: (value: unknown, available = true) => typeof value === 'string' && keys.has(value) ? available ? 'enabled' as const : 'disabled' as const : 'hidden' as const,
   }
 }
 
 type FetchPhysicalPreviewPageInput = Readonly<{
   http: HttpClientBase
-  dataSet: DataSet
+  dataSet: SparkData.DataSet
   input: DatabaseCatalogPreviewParams
   pageIndex: number
   pageSize: number
 }>
 
-async function fetchPhysicalPreviewPage(fetch: FetchPhysicalPreviewPageInput): Promise<{items: DataRow[]; total: number}> {
+async function fetchPhysicalPreviewPage(fetch: FetchPhysicalPreviewPageInput): Promise<PreviewPage> {
   const {http, dataSet, input, pageIndex, pageSize} = fetch
   const dbId = input.dbId.trim()
   const tableName = input.tableName.trim()
@@ -207,7 +191,8 @@ async function fetchPhysicalPreviewPage(fetch: FetchPhysicalPreviewPageInput): P
     }],
     PageParam: {index: pageIndex, size: pageSize},
   }
-  return postPhysicalPreview(http, payload)
+  const page = await postPhysicalPreview(http, payload)
+  return {...page, columns: fields.map(field => ({name: field.AsName, label: field.Description || field.AsName, type: 'string'}))}
 }
 
 type PhysicalPreviewDescriptor = Readonly<{
@@ -227,92 +212,19 @@ type PhysicalPreviewRequest = Readonly<{
 }>
 
 /** 消费正式公开查询结果；拒绝保持原错误，不从文案推导另一种查询授权。 */
-async function postPhysicalPreview(http: HttpClientBase, payload: PhysicalPreviewRequest): Promise<{items: DataRow[]; total: number}> {
+async function postPhysicalPreview(http: HttpClientBase, payload: PhysicalPreviewRequest): Promise<PreviewPage> {
   return parseGetDataPage(await http.post<unknown>('/api/DataOperation/GetData', payload))
-}
-
-export function databaseCatalogHasTablePreview(dataSet: DataSet): boolean {
-  return Boolean(dataSet.getView(DATABASE_TABLE_PREVIEW_RESULT_TABLE, 'default'))
-}
-
-export function requireDatabaseCatalogPreviewView(dataSet: DataSet): DataView {
-  const view = dataSet.getView(DATABASE_TABLE_PREVIEW_RESULT_TABLE, 'default')
-  if (!view) throw new Error('物理表预览未装配')
-  return view
-}
-
-export function databaseCatalogPreviewWriteInput(dataSet: DataSet, params: DatabaseCatalogPreviewParams): void {
-  const table = dataSet.getTable(DATABASE_TABLE_PREVIEW_INPUT_TABLE)
-  const row = table?.rows[0]
-  if (!row) throw new Error('预览命令输入未就绪')
-  row['dbId'] = params.dbId.trim()
-  row['tableName'] = params.tableName.trim()
-  row['tblid'] = params.tblid.trim()
-  if (params.pageIndex !== undefined) row['pageIndex'] = String(params.pageIndex)
-  if (params.pageSize !== undefined) row['pageSize'] = String(params.pageSize)
-}
-
-export async function databaseCatalogPreviewRefresh(
-  dataSet: DataSet,
-  view: DataView,
-  params: DatabaseCatalogPreviewParams,
-): Promise<void> {
-  databaseCatalogPreviewWriteInput(dataSet, params)
-  if (params.pageSize !== undefined) await view.setPageSize(params.pageSize)
-  if (params.pageIndex !== undefined) await view.setPage(params.pageIndex)
-  await view.refresh()
-  if (view.loadingError) throw view.loadingError
-}
-
-/** 幂等装配物理表预览只读 DataView（同 FormKey，不另建服务器选择）。 */
-export function attachDatabaseCatalogTablePreviewView(
-  dataSet: DataSet,
-  http: HttpClientBase,
-  guard: DataSetCommandScopeGuard,
-): void {
-  if (dataSet.getTable(DATABASE_TABLE_PREVIEW_RESULT_TABLE)) return
-  ensureDataSetStaticInputTable(dataSet, DATABASE_TABLE_PREVIEW_INPUT_TABLE, [
-    {name: 'commandId', primary: true}, {name: 'dbId'}, {name: 'tableName'}, {name: 'tblid'}, {name: 'pageIndex'}, {name: 'pageSize'},
-  ])
-  const inputTable = dataSet.getTable(DATABASE_TABLE_PREVIEW_INPUT_TABLE)
-  if (!inputTable) throw new Error('预览命令输入表未装配')
-  if (inputTable.rows.length === 0) {
-    inputTable.addRows([{commandId: 'default', dbId: '', tableName: '', tblid: '', pageIndex: '1', pageSize: '10'}])
-  }
-  const view = ensureDataSetFileCommandView({dataSet, tableName: DATABASE_TABLE_PREVIEW_RESULT_TABLE, resourceId: 'database-table-preview', columns: [{name: 'rowid', primary: true}]})
-  view.bindQueryExecutor({
-    localAggregates: false,
-    queryColumns: target => target.dataTable?.columns ?? [],
-    executeQuery: async (target, params) => {
-      guard()
-      const inputRow = dataSet.getTable(DATABASE_TABLE_PREVIEW_INPUT_TABLE)?.rows[0]
-      if (!inputRow) throw new Error('预览命令输入未就绪')
-      const pageIndex = params.page ?? (Number(scalar(inputRow['pageIndex'])) || 1)
-      const pageSize = params.pageSize ?? (Number(scalar(inputRow['pageSize'])) || 10)
-      const previewParams: DatabaseCatalogPreviewParams = {
-        dbId: scalar(inputRow['dbId']),
-        tableName: scalar(inputRow['tableName']),
-        tblid: scalar(inputRow['tblid']),
-        pageIndex,
-        pageSize,
-      }
-      const {items, total} = await fetchPhysicalPreviewPage({http, dataSet, input: previewParams, pageIndex, pageSize})
-      guard()
-      syncPreviewColumns(target, items)
-      return readonlyQueryResult({view: target, rows: items, total, guard})
-    },
-  }, {resource: {resourceType: 'file', resourceId: 'database-table-preview'}})
 }
 
 type FetchViewPreviewPageInput = Readonly<{
   http: HttpClientBase
-  dataSet: DataSet
+  dataSet: SparkData.DataSet
   input: DatabaseCatalogViewPreviewParams
   pageIndex: number
   pageSize: number
 }>
 
-async function fetchViewPreviewPage(fetch: FetchViewPreviewPageInput): Promise<{items: DataRow[]; total: number}> {
+async function fetchViewPreviewPage(fetch: FetchViewPreviewPageInput): Promise<PreviewPage> {
   const {http, dataSet, input, pageIndex, pageSize} = fetch
   const dbId = input.dbId.trim()
   const viewName = input.viewName.trim()
@@ -335,72 +247,162 @@ async function fetchViewPreviewPage(fetch: FetchViewPreviewPageInput): Promise<{
   return parseGetDataPage(response)
 }
 
-export function databaseCatalogHasViewPreview(dataSet: DataSet): boolean {
-  return Boolean(dataSet.getView(DATABASE_VIEW_PREVIEW_RESULT_TABLE, 'default'))
+type PreviewKind = 'table' | 'view'
+type PreviewBinding = {
+  dataSet: SparkData.DataSet; kind: PreviewKind; scenarioId: string; guard: SparkData.DataSetCommandScopeGuard
+  inputName: string; resultName: string; resourceId: string
+  inputTable: NonNullable<ReturnType<SparkData.DataSet['getTable']>>; inputView: SparkData.DataView; inputRow: SparkData.DataRow
+  resultTable: NonNullable<ReturnType<SparkData.DataSet['getTable']>>; view: SparkData.DataView
+  operation: number
+  assertOwner: (view: SparkData.DataView) => void
+}
+const previewBindings = new WeakMap<SparkData.DataSet, Map<PreviewKind, PreviewBinding>>()
+
+function previewSpec(kind: PreviewKind) {
+  return kind === 'table'
+    ? {inputName: DATABASE_TABLE_PREVIEW_INPUT_TABLE, resultName: DATABASE_TABLE_PREVIEW_RESULT_TABLE, resourceId: 'database-table-preview', fields: ['dbId', 'tableName', 'tblid']}
+    : {inputName: DATABASE_VIEW_PREVIEW_INPUT_TABLE, resultName: DATABASE_VIEW_PREVIEW_RESULT_TABLE, resourceId: 'database-view-preview', fields: ['dbId', 'viewName']}
 }
 
-export function requireDatabaseCatalogViewPreviewView(dataSet: DataSet): DataView {
-  const view = dataSet.getView(DATABASE_VIEW_PREVIEW_RESULT_TABLE, 'default')
-  if (!view) throw new Error('数据库视图预览未装配')
-  return view
-}
-
-export function databaseCatalogViewPreviewWriteInput(dataSet: DataSet, params: DatabaseCatalogViewPreviewParams): void {
-  const table = dataSet.getTable(DATABASE_VIEW_PREVIEW_INPUT_TABLE)
-  const row = table?.rows[0]
-  if (!row) throw new Error('视图预览命令输入未就绪')
-  row['dbId'] = params.dbId.trim()
-  row['viewName'] = params.viewName.trim()
-  if (params.pageIndex !== undefined) row['pageIndex'] = String(params.pageIndex)
-  if (params.pageSize !== undefined) row['pageSize'] = String(params.pageSize)
-}
-
-export async function databaseCatalogViewPreviewRefresh(
-  dataSet: DataSet,
-  view: DataView,
-  params: DatabaseCatalogViewPreviewParams,
-): Promise<void> {
-  databaseCatalogViewPreviewWriteInput(dataSet, params)
-  if (params.pageSize !== undefined) await view.setPageSize(params.pageSize)
-  if (params.pageIndex !== undefined) await view.setPage(params.pageIndex)
-  await view.refresh()
-  if (view.loadingError) throw view.loadingError
-}
-
-export function attachDatabaseCatalogViewPreviewView(
-  dataSet: DataSet,
-  http: HttpClientBase,
-  guard: DataSetCommandScopeGuard,
-): void {
-  if (dataSet.getTable(DATABASE_VIEW_PREVIEW_RESULT_TABLE)) return
-  ensureDataSetStaticInputTable(dataSet, DATABASE_VIEW_PREVIEW_INPUT_TABLE, [
-    {name: 'commandId', primary: true}, {name: 'dbId'}, {name: 'viewName'}, {name: 'pageIndex'}, {name: 'pageSize'},
-  ])
-  const inputTable = dataSet.getTable(DATABASE_VIEW_PREVIEW_INPUT_TABLE)
-  if (!inputTable) throw new Error('视图预览命令输入表未装配')
-  if (inputTable.rows.length === 0) {
-    inputTable.addRows([{commandId: 'default', dbId: '', viewName: '', pageIndex: '1', pageSize: '10'}])
+function assertPreviewBinding(binding: PreviewBinding, target: SparkData.DataView = binding.view): void {
+  const {dataSet, inputName, resultName, inputTable, inputView, resultTable, view} = binding
+  binding.guard()
+  if (dataSet.destroyed || dataSet.scenarioId !== binding.scenarioId || inputView.destroyed || view.destroyed || target.destroyed
+    || dataSet.getTable(inputName) !== inputTable || dataSet.getView(inputName, 'default') !== inputView
+    || inputTable.rows[0] !== binding.inputRow || inputView.primaryKey !== 'commandId'
+    || dataSet.getTable(resultName) !== resultTable || dataSet.getView(resultName, 'default') !== view
+    || target.dataTable !== resultTable || dataSet.getView(resultName, target.viewId) !== target) {
+    throw new Error('PREVIEW_BINDING_IDENTITY: 原预览输入或结果实例已失效')
   }
-  const view = ensureDataSetFileCommandView({dataSet, tableName: DATABASE_VIEW_PREVIEW_RESULT_TABLE, resourceId: 'database-view-preview', columns: [{name: 'rowid', primary: true}]})
-  view.bindQueryExecutor({
-    localAggregates: false,
-    queryColumns: target => target.dataTable?.columns ?? [],
-    executeQuery: async (target, params) => {
-      guard()
-      const inputRow = dataSet.getTable(DATABASE_VIEW_PREVIEW_INPUT_TABLE)?.rows[0]
-      if (!inputRow) throw new Error('视图预览命令输入未就绪')
-      const pageIndex = params.page ?? (Number(scalar(inputRow['pageIndex'])) || 1)
-      const pageSize = params.pageSize ?? (Number(scalar(inputRow['pageSize'])) || 10)
-      const previewParams: DatabaseCatalogViewPreviewParams = {
-        dbId: scalar(inputRow['dbId']),
-        viewName: scalar(inputRow['viewName']),
-        pageIndex,
-        pageSize,
-      }
-      const {items, total} = await fetchViewPreviewPage({http, dataSet, input: previewParams, pageIndex, pageSize})
-      guard()
-      syncPreviewColumns(target, items)
-      return readonlyQueryResult({view: target, rows: items, total, guard})
-    },
-  }, {resource: {resourceType: 'file', resourceId: 'database-view-preview'}})
+  SparkData.ensureDataSetStaticInputTable(dataSet, inputName, [{name: 'commandId', primary: true}, ...previewSpec(binding.kind).fields.map(name => ({name}))])
+  SparkData.ensureDataSetFileCommandView({dataSet, tableName: resultName, resourceId: binding.resourceId, columns: [{name: 'rowid', primary: true}]})
+  binding.assertOwner(target)
 }
+
+function requirePreviewBinding(dataSet: SparkData.DataSet, kind: PreviewKind, target?: SparkData.DataView): PreviewBinding {
+  const binding = previewBindings.get(dataSet)?.get(kind)
+  if (!binding || target && target !== binding.view) throw new Error('PREVIEW_BINDING_IDENTITY: 预览未装配或结果属于其他实例')
+  assertPreviewBinding(binding)
+  return binding
+}
+
+function pageValue(value: number, label: string): number {
+  if (!Number.isSafeInteger(value) || value < 1) throw new Error(`预览${label}须为正整数`)
+  return value
+}
+
+function writePreviewInput(options: Readonly<{dataSet: SparkData.DataSet; kind: PreviewKind; params: DatabaseCatalogPreviewParams | DatabaseCatalogViewPreviewParams}>): PreviewBinding {
+  const {dataSet, kind, params} = options, binding = requirePreviewBinding(dataSet, kind)
+  binding.view.assertResultReplacementAllowed()
+  binding.inputView.assertResultReplacementAllowed()
+  const name = kind === 'table' ? 'tableName' in params ? params.tableName.trim() : '' : 'viewName' in params ? params.viewName.trim() : ''
+  const dbId = params.dbId.trim()
+  if (!dbId || !name) throw new Error('缺少数据库或对象名称，无法预览数据')
+  const pageSize = pageValue(params.pageSize ?? binding.view.pageSize, '页大小')
+  const page = pageValue(params.pageIndex ?? (params.pageSize !== undefined ? 1 : binding.view.page), '页码')
+  const targetField = kind === 'table' ? 'tableName' : 'viewName'
+  const tblid = kind === 'table' && 'tblid' in params ? params.tblid.trim() : ''
+  if (scalar(binding.inputRow['dbId']) !== dbId || scalar(binding.inputRow[targetField]) !== name
+    || kind === 'table' && scalar(binding.inputRow['tblid']) !== tblid) binding.operation++
+  binding.inputRow['dbId'] = dbId
+  binding.inputRow[kind === 'table' ? 'tableName' : 'viewName'] = name
+  if (kind === 'table' && 'tblid' in params) binding.inputRow['tblid'] = params.tblid.trim()
+  binding.view.configure({page, pageSize})
+  return binding
+}
+
+async function refreshPreview(options: Readonly<{dataSet: SparkData.DataSet; view: SparkData.DataView; kind: PreviewKind; params: DatabaseCatalogPreviewParams | DatabaseCatalogViewPreviewParams}>): Promise<void> {
+  const {dataSet, view, kind, params} = options
+  requirePreviewBinding(dataSet, kind, view)
+  const binding = writePreviewInput({dataSet, kind, params}), operation = binding.operation
+  const page = view.page, pageSize = view.pageSize
+  await view.refresh()
+  if (operation !== binding.operation || view.page !== page || view.pageSize !== pageSize || view.requestState === SparkData.RequestState.Loading) throw new Error('PREVIEW_REQUEST_SUPERSEDED: 预览请求已被替代')
+  if (view.loadingError) throw view.loadingError
+  if (view.requestState !== SparkData.RequestState.Loaded) throw new Error('PREVIEW_REQUEST_SUPERSEDED: 预览请求已被替代')
+  assertPreviewBinding(binding)
+}
+
+async function queryPreview(options: Readonly<{
+  binding: PreviewBinding; target: SparkData.DataView; http: HttpClientBase; params: Parameters<Parameters<SparkData.DataView['bindQueryExecutor']>[0]['executeQuery']>[1]
+}>) {
+  const {binding, target, http, params} = options
+  assertPreviewBinding(binding, target)
+  const operation = binding.operation, row = binding.inputRow, id = row['commandId']
+  const fields = previewSpec(binding.kind).fields
+  const values = fields.map(field => scalar(row[field]))
+  const configuredPage = target.page, configuredSize = target.pageSize
+  const pageIndex = pageValue(params.page ?? configuredPage, '页码'), pageSize = pageValue(params.pageSize ?? configuredSize, '页大小')
+  const assertCurrent = (): void => {
+    assertPreviewBinding(binding, target)
+    if (binding.operation !== operation || row['commandId'] !== id
+      || target.page !== configuredPage || target.pageSize !== configuredSize || fields.some((field, index) => scalar(row[field]) !== values[index])) {
+      throw new Error('PREVIEW_REQUEST_SUPERSEDED: 预览查询输入或页码已变化')
+    }
+  }
+  const page = binding.kind === 'table'
+    ? await fetchPhysicalPreviewPage({http, dataSet: binding.dataSet, input: {dbId: scalar(row['dbId']), tableName: scalar(row['tableName']), tblid: scalar(row['tblid'])}, pageIndex, pageSize})
+    : await fetchViewPreviewPage({http, dataSet: binding.dataSet, input: {dbId: scalar(row['dbId']), viewName: scalar(row['viewName'])}, pageIndex, pageSize})
+  assertCurrent()
+  return readonlyQueryResult({view: target, page, guard: assertCurrent})
+}
+
+function attachPreview(options: Readonly<{dataSet: SparkData.DataSet; http: HttpClientBase; guard: SparkData.DataSetCommandScopeGuard; kind: PreviewKind}>): void {
+  const {dataSet, http, guard, kind} = options, spec = previewSpec(kind)
+  const previous = previewBindings.get(dataSet)?.get(kind)
+  const released = previous?.inputView.destroyed === true && previous.view.destroyed
+    && dataSet.getTable(previous.inputName) !== previous.inputTable && dataSet.getTable(previous.resultName) !== previous.resultTable
+  if (previous && !released) {assertPreviewBinding(previous); return}
+  if (dataSet.destroyed || !dataSet.scenarioId?.trim()) throw new Error('PREVIEW_BINDING_IDENTITY: 预览需要存活的明确数据空间')
+  guard()
+  const columns = [{name: 'commandId', primary: true}, ...spec.fields.map(name => ({name}))]
+  const existingInput = dataSet.getTable(spec.inputName)
+  if (existingInput) {
+    SparkData.ensureDataSetStaticInputTable(dataSet, spec.inputName, columns)
+    const current = dataSet.getView(spec.inputName, 'default'), row = existingInput.rows[0]
+    if (current?.destroyed !== false || current.primaryKey !== 'commandId' || existingInput.rows.length > 1
+      || row && (typeof row['commandId'] !== 'string' || !row['commandId'].trim())) throw new Error('PREVIEW_BINDING_IDENTITY: 预览输入无效')
+  }
+  const resource = {resourceType: 'file', resourceId: spec.resourceId}
+  const executor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {
+    localAggregates: false, queryColumns: target => target.dataTable?.columns ?? [],
+    executeQuery: (target, params) => queryPreview({binding, target, http, params}),
+  }
+  const existing = dataSet.getTable(spec.resultName) ? SparkData.ensureDataSetFileCommandView({dataSet, tableName: spec.resultName,
+    resourceId: spec.resourceId, columns: [{name: 'rowid', primary: true}]}) : undefined
+  if (existing) {
+    if (existing.destroyed || existing.primaryKey !== 'rowid') throw new Error('PREVIEW_BINDING_IDENTITY: 预览结果定义无效')
+    existing.assertCanBindQueryExecutor(executor, {resource})
+  }
+  SparkData.ensureDataSetStaticInputTable(dataSet, spec.inputName, columns)
+  const inputTable = dataSet.getTable(spec.inputName), inputView = dataSet.getView(spec.inputName, 'default')
+  if (!inputTable || !inputView) throw new Error('预览输入装配失败')
+  const view = existing ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: spec.resultName,
+    resourceId: spec.resourceId, columns: [{name: 'rowid', primary: true}]})
+  const resultTable = dataSet.getTable(spec.resultName)
+  if (!resultTable) throw new Error('预览结果装配失败')
+  if (!inputTable.rows.length) inputTable.addRows([Object.fromEntries(columns.map(column => [column.name, column.name === 'commandId' ? 'default' : '']))])
+  const inputRow = inputTable.rows[0]
+  if (!inputRow) throw new Error('预览输入行缺失')
+  inputView.commitMode = 'staged'
+  const binding: PreviewBinding = {dataSet, kind, scenarioId: dataSet.scenarioId, guard, ...spec, inputTable, inputView, inputRow,
+    resultTable, view, operation: 0, assertOwner: target => target.assertCanBindQueryExecutor(executor, {resource})}
+  view.bindQueryExecutor(executor, {resource})
+  const registry = previewBindings.get(dataSet) ?? new Map<PreviewKind, PreviewBinding>()
+  registry.set(kind, binding); previewBindings.set(dataSet, registry)
+}
+
+function hasPreview(dataSet: SparkData.DataSet, kind: PreviewKind): boolean {
+  try {requirePreviewBinding(dataSet, kind); return true} catch {return false}
+}
+export function databaseCatalogHasTablePreview(dataSet: SparkData.DataSet): boolean {return hasPreview(dataSet, 'table')}
+export function databaseCatalogHasViewPreview(dataSet: SparkData.DataSet): boolean {return hasPreview(dataSet, 'view')}
+export function requireDatabaseCatalogPreviewView(dataSet: SparkData.DataSet): SparkData.DataView {return requirePreviewBinding(dataSet, 'table').view}
+export function requireDatabaseCatalogViewPreviewView(dataSet: SparkData.DataSet): SparkData.DataView {return requirePreviewBinding(dataSet, 'view').view}
+export function databaseCatalogPreviewWriteInput(dataSet: SparkData.DataSet, params: DatabaseCatalogPreviewParams): void {writePreviewInput({dataSet, kind: 'table', params})}
+export function databaseCatalogViewPreviewWriteInput(dataSet: SparkData.DataSet, params: DatabaseCatalogViewPreviewParams): void {writePreviewInput({dataSet, kind: 'view', params})}
+export function databaseCatalogPreviewRefresh(dataSet: SparkData.DataSet, view: SparkData.DataView, params: DatabaseCatalogPreviewParams): Promise<void> {return refreshPreview({dataSet, view, kind: 'table', params})}
+export function databaseCatalogViewPreviewRefresh(dataSet: SparkData.DataSet, view: SparkData.DataView, params: DatabaseCatalogViewPreviewParams): Promise<void> {return refreshPreview({dataSet, view, kind: 'view', params})}
+/** 幂等装配公开分页预览；无查询旁路，运行实例释放后才可重新装配。 */
+export function attachDatabaseCatalogTablePreviewView(dataSet: SparkData.DataSet, http: HttpClientBase, guard: SparkData.DataSetCommandScopeGuard): void {attachPreview({dataSet, http, guard, kind: 'table'})}
+export function attachDatabaseCatalogViewPreviewView(dataSet: SparkData.DataSet, http: HttpClientBase, guard: SparkData.DataSetCommandScopeGuard): void {attachPreview({dataSet, http, guard, kind: 'view'})}

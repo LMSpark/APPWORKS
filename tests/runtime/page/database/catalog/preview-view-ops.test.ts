@@ -259,17 +259,15 @@ describe('database/catalog/table/preview-view-ops', () => {
     await expect(refresh).rejects.toThrow('lowcode 请求失败')
   })
 
-  it('keeps accepting the legacy GetData payload without an AjaxResult Code', async () => {
+  it('rejects a bare payload without the formal GetData AjaxResult', async () => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const preview = requireDatabaseCatalogPreviewView(ds)
     http.physicalPreviewResponseOverride = {data: {Items: [{rowid: 'LEGACY', Name: 'Legacy'}], Count: 1}}
 
-    await databaseCatalogPreviewRefresh(ds, preview, {
+    await expect(databaseCatalogPreviewRefresh(ds, preview, {
       dbId: 'DB1', tableName: 'Orders', tblid: 'T1', pageIndex: 1, pageSize: 10,
-    })
-
-    expect(preview.rows[0]).toMatchObject({rowid: 'LEGACY', Name: 'Legacy'})
-    expect(preview.total).toBe(1)
+    })).rejects.toThrow()
+    expect(preview.rows).toEqual([])
   })
 })

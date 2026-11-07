@@ -8122,3 +8122,16 @@ DataView.assertCanBindQueryExecutor提取原同owner/候选资源、已有查询
 **AB检查点终验。**最终根verify65600自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留。所有本批handle终态，source两处正式attempt递增仍在，diff --check通过，高阶末态源码复核无AB阻断；新增组合实测由主控331项覆盖，不冒实服测连。准备同一codex分支推origin：删除两组同名短路与裸bool伪回执、补纯预检/原pair/请求与输入身份/有限清密及释放重建、替换错误fixture并保32项正式回归，官方派生与唯一台账同步。无组件/页面/Java修改，无兼容层，无新实服对象或临时worktree，原S2未跟踪RED不stage。下一仍S1预览组与I3余矩阵，合同未冻结，原20包整体目标active。
 
 **AB已提交推送并独立核实。**代码e26230bbe167a4bd948a09e2cd8071d4e0296687（fix(database): guard connection probe assembly and lifecycle），21文件646增192删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，只保原S2未跟踪RED，唯一主worktree。事实补记docs跟随同步，不改已验代码；下一恢复S1预览paired/分页/迟到动态列反例及I3余项，未冻结/未进S2，不把夹具测连当实服证据。
+
+
+**AC预览适配实施检查点（S1，未冻结）。**原同名attach短路、dsA+viewB先写输入、分页setter三次查询与旧响应先污染模型列均已建立反例；按现有DataView纯预检、configure及查询结果columns合同集中修复，不改组件/页面。两组preview采用原pair/场景/输入行/目标字段/页码身份，同目标重复装配不重置，释放后可干净重建。分页仅DataView状态，一次configure一次refresh；动态结果列随查询返回，不在HTTP完成时修改共享模型。固定Java正式GetData AjaxResult及PageResult核定后，撤回AB研究段“保合法bare”的未证假设：裸data、畸形Items/Count及缺正式来源键声明明确拒绝，不保兼容解析。正式来源键支持别名/无键；重复、空白及string语义碰撞键保留reportedPrimaryKey但按无键只读结果展示，不伪造身份。
+
+高阶复核新增16项真实RED：辅助选项查询误使主结果权限失效/取消在途主查询、重复键以及原wrapper在直接新refresh尚Loading时提前成功。已删除preview自造attempt WeakMap，交回DataView正式请求接纳；guard只核目标输入/页码身份，operation只因目标变化推进。外层refresh核请求状态及请求页，错误原样传播。定向最新2文件80项通过，尚待扩大、生成、根门禁及末态复审，不冒实服证据。页面按enname而非AsName渲染的差距保留S5，不跨层补丁；筛选/排序等I3矩阵及原20包范围仍开放。原S2用户未跟踪RED不动，无新实服写入/Java修改/临时worktree。
+
+**AC扩大与复审边界。**数据库18文件399项自然exit0。首次根门禁仅类型检查2处unknown传Set<string>失败，已显式窄化；后二次门禁61655运行中遇后续复审修正，不能作末态完整验收。高阶追加缺主键String(undefined/null)碰撞正式字面键，2项实际RED68通过，已在rowKey先核原值类型和非空。刷新合同只保证完成时当前目标/页已有有效正式结果：同目标同页B先成功后A失败，A可按B当前结果完成；不承诺被替代调用各自HTTP回执，不另建请求owner。待最新扩大/正式生成/最终门禁终态。
+
+**AC末态证据与清理。**最新数据库族46275自然exit0：18文件401项；键碰撞正反例覆盖两种preview。高阶末态只读复审无AC剩余阻断。61655自然exit1在AI生成规则的9命名导入超限，已按已有SparkData模块门面改写，未改行为；9365最终定向82项自然exit0，1408正式重新生成自然exit0，lowcode正式611端点216消费者。根最终69307 live，仍原handle，尚不提交。精确删除14份已被末态替代的AC日志，反例/失败及修正事实留此台账；保正式回归，不删除用户S2测试/有效实服证据。无临时worktree，只有主分支。
+
+**AC目录门禁纠正。**69307最终运行自然exit1：此前type/lint、ClassModel49项及其它规则通过，最后测试目录11/10超限。将新增preview-binding回归正式归入catalog/preview子目录，修相对fixture引用；不删回归、不豁免规则。重新定向和完整门禁，尚未提交。
+
+**AC最终检查点验收。**最终完整根verify16545自然exit0，包含类型/lint、ClassModel49项与正式工程规则，既有2模型警告/84薄页诊断保留；最新定向82项和数据库族401项有效。所有本批handle已终态，高阶窄批静态复审无剩余阻断，diff检查通过。追加删除6份被最终证据替代的终态日志，本批共清20份中间日志；保数据库/最终定向/正式生成及最终门禁记录，无新增worktree。准备提交S1 preview适配与对应回归、正式派生和本台账，仅推origin同codex分支。未做新实服写入，不把夹具当服务能力证明；原S2未跟踪测试不stage。S1余资源与查询矩阵继续，数据合同未冻结、不进S2、原20包范围不缩减。

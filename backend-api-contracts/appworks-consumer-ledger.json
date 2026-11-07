@@ -1267,13 +1267,13 @@
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 231,
+      "sourceLine": 216,
       "scope": "app-composition"
     },
     {
       "expression": "/api/DataOperation/GetData",
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
-      "sourceLine": 331,
+      "sourceLine": 243,
       "scope": "app-composition"
     },
     {

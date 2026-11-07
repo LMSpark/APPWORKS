@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { DataView, SparkData } from '@spark-appworks/spark-data'
+import type { DataViewFieldProjection } from '../../../types'
 
 function staticView() {
   return SparkData.createDataSet({
@@ -68,7 +69,7 @@ describe('DataView SPARK public filter', () => {
   })
 
   it('lets a remote filter reference a non-output resource field but not a renamed or unknown one', () => {
-    const projected = (field: string, output: boolean, resourceField = field) => ({
+    const projected = (field: string, output: boolean, resourceField = field): DataViewFieldProjection => ({
       fieldId: field.toUpperCase(), source: 'resource', resourceFieldId: resourceField.toUpperCase(), resourceField, viewField: field,
       type: 'string', label: field, output, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
       primaryKey: field === 'rowid', value: '', valueFunction: '', expression: '',

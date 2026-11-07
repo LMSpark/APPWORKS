@@ -360,7 +360,8 @@ describe('SPARK public filter value object', () => {
     const legacy = {Type: 'GetUserMasterId', refType: 'role', roleClassId: 'legacy'}
     expect(validate(legacy)[0]).toMatchObject({path: '$.value', code: 'invalid-value-function',
       message: expect.stringContaining('已停用的角色分类分支')})
-    expect(DataViewFilter.condition({field: 'result', operator: 'eq', value: legacy}).toJSON().value).toEqual(legacy)
+    const serialized = DataViewFilter.condition({field: 'result', operator: 'eq', value: legacy}).toJSON()
+    expect('value' in serialized ? serialized.value : undefined).toEqual(legacy)
   })
 
   it('does not substitute defaults for explicitly empty choices or reset disabled selections', () => {

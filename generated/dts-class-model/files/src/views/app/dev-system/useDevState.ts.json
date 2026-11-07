@@ -246,27 +246,6 @@
         "blueprintDraft": {
           "type": "object",
           "properties": {
-            "source": {
-              "type": "object",
-              "properties": {},
-              "additionalProperties": true
-            },
-            "kind": {
-              "enum": [
-                "module",
-                "page",
-                "embedded",
-                "service",
-                "content",
-                "unknown"
-              ]
-            },
-            "nodeId": {
-              "type": "string"
-            },
-            "projectId": {
-              "type": "string"
-            },
             "children": {
               "type": "array",
               "items": {
@@ -443,6 +422,27 @@
                 ],
                 "additionalProperties": false
               }
+            },
+            "source": {
+              "type": "object",
+              "properties": {},
+              "additionalProperties": true
+            },
+            "kind": {
+              "enum": [
+                "module",
+                "page",
+                "embedded",
+                "service",
+                "content",
+                "unknown"
+              ]
+            },
+            "nodeId": {
+              "type": "string"
+            },
+            "projectId": {
+              "type": "string"
             },
             "parentNodeId": {
               "type": "string"
@@ -693,7 +693,7 @@
         },
         "autoSaveStatus": {
           "type": "object",
-          "title": "import(\"vue\").Ref<\"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\", \"error\" | \"idle\" | \"pending\" | \"saving\" | \"saved\">"
+          "title": "import(\"vue\").Ref<\"error\" | \"saved\" | \"idle\" | \"pending\" | \"saving\", \"error\" | \"saved\" | \"idle\" | \"pending\" | \"saving\">"
         },
         "pageDesignAiRunning": {
           "type": "object",

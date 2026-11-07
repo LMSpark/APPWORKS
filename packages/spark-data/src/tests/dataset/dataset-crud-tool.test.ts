@@ -23,6 +23,7 @@ describe('DataSetCrudTool', () => {
         views: {default: {commitMode: 'staged'}}},
     }})
     const view = tool.getView({tableName: 'Users', viewId: 'default'})
+    if (!view) throw new Error('Users default view missing')
     view.bindQueryExecutor({executeQuery: async () => ({
       rows: [{id: 'EXISTING', name: 'Existing'}], total: 1, resultPrimaryKey: 'id',
       assertIdentity: identity => {

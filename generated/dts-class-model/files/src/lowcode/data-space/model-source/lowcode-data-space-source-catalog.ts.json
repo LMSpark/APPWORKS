@@ -106,8 +106,8 @@
       "properties": {
         "type": {
           "enum": [
-            "dataModel",
-            "inputParams"
+            "inputParams",
+            "dataModel"
           ]
         },
         "Name": {

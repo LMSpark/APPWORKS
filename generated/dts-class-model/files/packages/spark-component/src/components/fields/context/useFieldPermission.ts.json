@@ -34,11 +34,11 @@
         "dataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -134,7 +134,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-02T02:44:28.579Z",
+  "generatedAt": "2026-11-07T17:19:21.528Z",
   "models": {
     "FieldPermissionProps": {
       "name": "FieldPermissionProps",

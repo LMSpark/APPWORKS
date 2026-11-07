@@ -37,7 +37,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.600Z",
+  "generatedAt": "2026-11-04T03:25:41.842Z",
   "models": {
     "DataSpaceViewQueryCommand": {
       "name": "DataSpaceViewQueryCommand",

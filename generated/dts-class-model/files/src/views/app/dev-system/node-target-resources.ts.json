@@ -53,12 +53,12 @@
           "type": "object",
           "title": "(field: string) => unknown"
         },
-        "nodeId": {
-          "type": "string"
-        },
         "dataSet": {
           "type": "object",
           "title": "DataSet"
+        },
+        "nodeId": {
+          "type": "string"
         },
         "hasTreeProjection": {
           "enum": [
@@ -78,8 +78,8 @@
       "required": [
         "projectId",
         "value",
-        "nodeId",
         "dataSet",
+        "nodeId",
         "hasTreeProjection",
         "treeProjection",
         "canRead"

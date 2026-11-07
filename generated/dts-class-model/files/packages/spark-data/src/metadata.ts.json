@@ -17,6 +17,13 @@
       "type": "object",
       "title": "TableMetadataLike",
       "properties": {
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
         "views": {
           "type": "object",
           "properties": {
@@ -231,7 +238,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@227480": {
+                "__@iterator@252789": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -286,7 +293,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@227480"
+                "__@iterator@252789"
               ],
               "additionalProperties": false
             },
@@ -516,7 +523,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@227480": {
+                "__@iterator@252789": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -571,7 +578,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@227480"
+                "__@iterator@252789"
               ],
               "additionalProperties": false
             },
@@ -585,13 +592,6 @@
               "const": "reference"
             }
           ]
-        },
-        "columns": {
-          "type": "array",
-          "items": {
-            "type": "object",
-            "title": "DataColumn"
-          }
         },
         "api": {
           "anyOf": [
@@ -614,8 +614,8 @@
         }
       },
       "required": [
-        "views",
-        "columns"
+        "columns",
+        "views"
       ],
       "additionalProperties": false
     }

@@ -61,11 +61,11 @@
         "dataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -208,11 +208,11 @@
         "optionDataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -271,9 +271,9 @@
         },
         "targetOrder": {
           "enum": [
+            "original",
             "push",
-            "unshift",
-            "original"
+            "unshift"
           ]
         }
       },

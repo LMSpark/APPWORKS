@@ -49,11 +49,11 @@
         "dataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -157,11 +157,11 @@
         "optionDataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",
@@ -178,6 +178,13 @@
         "valueSeparator": {
           "type": "string"
         },
+        "valueMode": {
+          "enum": [
+            "array",
+            "auto",
+            "separated-string"
+          ]
+        },
         "onChange": {
           "type": "object",
           "title": "(...args: unknown[]) => void | Promise<void>"
@@ -185,13 +192,6 @@
         "dataSource": {
           "type": "object",
           "title": "import(\"@spark-appworks/spark-data\").DataView"
-        },
-        "valueMode": {
-          "enum": [
-            "array",
-            "auto",
-            "separated-string"
-          ]
         },
         "textSeparator": {
           "type": "string"
@@ -282,7 +282,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-10T11:03:19.955Z",
+  "generatedAt": "2026-11-05T13:40:16.080Z",
   "models": {
     "OptionFieldStateProps": {
       "name": "OptionFieldStateProps",

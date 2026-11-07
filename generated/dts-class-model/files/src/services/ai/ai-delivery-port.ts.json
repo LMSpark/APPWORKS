@@ -43,9 +43,9 @@
         },
         "status": {
           "enum": [
+            "saved",
             "skipped",
             "dirty",
-            "saved",
             "rolledBack"
           ]
         }
@@ -77,8 +77,8 @@
         "status": {
           "enum": [
             "failed",
-            "skipped",
             "saved",
+            "skipped",
             "rolledBack"
           ]
         },

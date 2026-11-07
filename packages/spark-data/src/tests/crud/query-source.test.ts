@@ -131,13 +131,27 @@ describe('requested refresh lifecycle', () => {
 
   it('waits for a submission to finish before refreshing the original view', async () => {
     const f = fixture()
+    let release!: () => void
+    const gate = new Promise<void>(resolve => {release = resolve})
     try {
-      await f.view.refresh(); f.view._trackMutating(1); f.stored('persisted')
+      await f.view.refresh()
+      const context = await f.executor.executeQuery.mock.results[0]!.value
+      const submit = vi.fn(async () => {
+        await gate
+        return [{metaName: 'File', added: [], deleted: [], changed: [{id: '1', text: 'persisted'}],
+          changedFields: [['text']], context: {...context, rows: [{id: '1', text: 'persisted'}]}}]
+      })
+      Object.assign(f.executor, {save: submit})
+      f.view.updateEditingValue('1', 'text', 'persisted')
+      const saving = f.ds.saveChanges()
+      await vi.waitFor(() => expect(submit).toHaveBeenCalledOnce())
+      f.stored('persisted')
       await f.view.requestRefresh()
       expect(f.executor.executeQuery).toHaveBeenCalledTimes(1)
-      f.view._trackMutating(-1)
+      release()
+      expect((await saving).success).toBe(true)
       await vi.waitFor(() => expect(f.view.rows[0]?.['text']).toBe('persisted'))
-    } finally {f.ds.destroy()}
+    } finally {release(); f.ds.destroy()}
   })
 
   it('queues one fresh query after an in-flight query instead of restarting it', async () => {
@@ -221,7 +235,7 @@ describe('requested refresh lifecycle', () => {
 describe('DataView source lifecycle', () => {
   it('reads source history without changing edits and rejects snapshots while any same-source view is dirty', async () => {
     const f = fixture()
-    let status = {state: 'idle' as const, version: null as number | null, fileName: null as string | null, message: null as string | null}
+    let status: DataViewSourceHistoryStatus = {state: 'idle', version: null as number | null, fileName: null as string | null, message: null as string | null}
     const create = vi.fn(async (_view: DataView, hooks: {assertCurrent(): void; onAttempt(attempt: {version: number; fileName: string}): void}) => {
       hooks.assertCurrent(); hooks.onAttempt({version: 2, fileName: '2__pagedata.json'})
       status = {state: 'confirmed', version: 2, fileName: '2__pagedata.json', message: 'confirmed'}
@@ -273,7 +287,7 @@ describe('DataView source lifecycle', () => {
     const f = fixture(); let release!: () => void
     const pending = new Promise<void>(resolve => {release = resolve})
     const written = vi.fn()
-    let status = {state: 'idle' as const, version: null as number | null, fileName: null as string | null, message: null as string | null}
+    let status: DataViewSourceHistoryStatus = {state: 'idle', version: null as number | null, fileName: null as string | null, message: null as string | null}
     Object.assign(f.source, {history: {list: async () => [], preview: async () => '', status: () => status,
       verify: async () => status,
       create: async (_view: DataView, hooks: {assertCurrent(): void; onAttempt(attempt: {version: number; fileName: string}): void}) => {

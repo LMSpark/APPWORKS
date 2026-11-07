@@ -1494,8 +1494,8 @@
                 "link",
                 "copy",
                 "move",
-                "popup",
-                "execute"
+                "execute",
+                "popup"
               ]
             },
             "aria-errormessage": {

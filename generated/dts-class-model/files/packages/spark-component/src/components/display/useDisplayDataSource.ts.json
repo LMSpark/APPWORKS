@@ -23,11 +23,11 @@
         "dataMember": {
           "enum": [
             "page",
+            "columns",
             "rows",
             "total",
             "requestState",
             "value",
-            "columns",
             "currentRow",
             "selectedRows",
             "aggregateResult",

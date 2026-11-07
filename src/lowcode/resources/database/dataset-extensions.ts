@@ -318,7 +318,7 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
   const view = dataSet.getView(options.register, 'default')
   if (!view) throw new Error('注册数据表命令视图缺失')
   view.commitMode = 'staged'
-  const defaultFieldsAcknowledged = new WeakSet<DataRow>()
+  const defaultFieldsAcknowledged = new Map<string, Readonly<{dbid: string; tableName: string}>>()
   SparkData.bindDataSetCommandSubmit(view, {
     resource: {resourceType: 'file', resourceId: 'database-table-register'},
     guard: assertScope,
@@ -326,6 +326,8 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
     isUnconfirmed: registerUnconfirmed,
     submit: async row => {
+      const commandId = scalar(row['rowid'])
+      defaultFieldsAcknowledged.delete(commandId)
       const dbid = scalar(row['dbid'])
       const tableName = scalar(row['tableName'])
       if (!dbid || !tableName) throw new Error('注册表缺少数据库或表名')
@@ -345,7 +347,7 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
         }
         throw new RegistrationDefaultFieldsNotAppliedError('服务明确返回表已注册，本次默认字段补齐未执行')
       }
-      if (addDefault && receipt === 'created') defaultFieldsAcknowledged.add(row)
+      if (addDefault && receipt === 'created') defaultFieldsAcknowledged.set(commandId, {dbid, tableName})
       await verifyRegisteredObject({dataSet, modelName: options.catalogModel, nameField: 'tblname', dbid, objectName: tableName, assertScope})
       return {
         rowid: scalar(row['rowid']),
@@ -360,7 +362,8 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
     verify: async row => {
       const dbid = scalar(row['dbid'])
       const tableName = scalar(row['tableName'])
-      if (scalar(row['addDefaultFields']) === '1' && !defaultFieldsAcknowledged.has(row)) {
+      const acknowledged = defaultFieldsAcknowledged.get(scalar(row['rowid']))
+      if (scalar(row['addDefaultFields']) === '1' && (acknowledged?.dbid !== dbid || acknowledged.tableName !== tableName)) {
         throw new RegistrationCompletionUnknown('默认字段补齐尚无正式完成回执，登记状态仍未知')
       }
       await verifyRegisteredObject({dataSet, modelName: options.catalogModel, nameField: 'tblname', dbid, objectName: tableName, assertScope})

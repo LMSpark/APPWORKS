@@ -46,7 +46,7 @@ describe('query cascade native values', () => {
   it('clears the previous parent result before an automatic query and keeps it empty when that query fails', async () => {
     const ds = await values()
     const child = ds.getView('Child', 'default')!, source = ds.getView('Parent', 'default')!
-    const list = vi.spyOn(child.crud, 'list').mockResolvedValueOnce({success: true, data: [{id: 10, region: 'A'}], total: 1})
+    const list = vi.spyOn(child.crud, 'list').mockResolvedValueOnce({success: true, data: {rows: [{id: 10, region: 'A'}], total: 1}})
     try {
       ds.addCascade(fieldCascade)
       await child.requestData()
@@ -61,7 +61,7 @@ describe('query cascade native values', () => {
       expect(pending).toEqual({rows: [], total: 0, current: null, selected: []})
       expect(child.rows).toEqual([])
       expect(child.loadingError?.message).toBe('upstream unavailable')
-      list.mockResolvedValueOnce({success: true, data: [{id: 20, region: 'B'}], total: 1})
+      list.mockResolvedValueOnce({success: true, data: {rows: [{id: 20, region: 'B'}], total: 1}})
       await child.refresh()
       expect(child.rows.map(row => row['region'])).toEqual(['B'])
       expect(child.loadingError).toBeNull()

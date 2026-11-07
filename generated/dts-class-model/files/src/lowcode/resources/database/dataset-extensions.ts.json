@@ -850,7 +850,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:40:46.294Z",
+  "generatedAt": "2026-11-07T19:09:36.551Z",
   "models": {
     "DataColumn": {
       "name": "DataColumn",

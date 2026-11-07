@@ -98,7 +98,7 @@ describe('DataTable instance query save rule',()=>{
    const active=field==='layout'?0:1,inactive=1-active
    expect(checks[active]).toHaveBeenCalled();expect(checks[inactive]).not.toHaveBeenCalled()
    expect(references[active]).toHaveBeenCalledOnce();expect(references[inactive]).not.toHaveBeenCalled()
-   expect(Object.keys(references[active]!.mock.calls[0]![0].changes[0].values)).toEqual([field])
+   expect(Object.keys(references[active]!.mock.calls[0]![0].changes[0]!.values)).toEqual([field])
    expect(f.writes()).toBe(1)
   }finally{f.ds.destroy()}
  })

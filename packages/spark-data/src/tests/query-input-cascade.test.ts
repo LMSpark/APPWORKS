@@ -20,7 +20,7 @@ function fixture() {
   source.replaceRows([{id: 'input', context: '{"flag":false,"ids":[0,"A"]}', mode: 'Table', key: 'id', parent: 'parent', node: 'root', size: 2}])
   source.setCurrentRowById('input')
   range.replaceRows([{id: 'range', all: false, limit: 50}]); range.setCurrentRowById('range')
-  const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: [{id: 'one', parent: ''}], total: 5})
+  const list = vi.spyOn(child.crud, 'list').mockResolvedValue({success: true, data: {rows: [{id: 'one', parent: ''}], total: 5}})
   return {ds, source, range, child, list}
 }
 const cascade: DataViewQueryCascade = {parentTable: 'Inputs', parentViewId: 'default', childTable: 'Result', childViewId: 'default',

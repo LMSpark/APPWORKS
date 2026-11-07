@@ -253,6 +253,8 @@ type DataViewQueryExecutor = Readonly<{
   save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>
   /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */
   hasUnconfirmedSave?(context: DataViewQueryResult): boolean
+  /** 同步通知原来源完成接纳，必须返回undefined；通知异常仅记录诊断，不反转已确认结果。此前来源须保留原提交事实。 */
+  acknowledgeSave?(context: DataViewQueryResult): undefined
   /** 仅重读已确认新增行的权限，不重新提交保存。 */
   refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>
   /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */
@@ -3498,6 +3500,16 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
           })
           for (const {view, command} of acceptances) {
             results.set(view, view.acceptQuerySaveReceipt(command))
+            try {
+              const notify: ((context: DataViewQueryResult) => unknown) | undefined = command.executor.acknowledgeSave
+              const notification = notify?.call(command.executor, command.context)
+              if (notification !== undefined) {
+                view.logger.error('DATA_VIEW_SAVE_ACK: 接纳通知必须同步返回undefined')
+                void Promise.resolve(notification).catch(error => view.logger.error(`DATA_VIEW_SAVE_ACK: ${toErrorMessage(error)}`))
+              }
+            } catch (error) {
+              view.logger.error(`DATA_VIEW_SAVE_ACK: ${toErrorMessage(error)}`)
+            }
             view.#unconfirmedQuerySave = undefined
             view.#unconfirmedQuerySaveFailure = undefined
           }
@@ -3509,6 +3521,7 @@ async loadTreeNested(rootId?: string | number | null, limit?: number, depthLimit
       throw failure
     } finally {
       active.forEach(({ view, capture }) => {
+        if (view.destroyed) return
         if(dispatched.has(view)){
           view.#unconfirmedQuerySave = !results.has(view) && capture.executor.hasUnconfirmedSave?.(capture.context) === true ? capture : undefined
           view.#unconfirmedQuerySaveFailure=view.#unconfirmedQuerySave===undefined?undefined:failure??undefined

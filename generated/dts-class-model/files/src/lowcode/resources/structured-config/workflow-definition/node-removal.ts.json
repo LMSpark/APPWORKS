@@ -46,10 +46,10 @@
       "enum": [
         "complete",
         "staged",
+        "cancelled",
         "ready",
         "database",
         "layout",
-        "cancelled",
         "not-applied"
       ]
     },
@@ -207,7 +207,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-04T08:38:42.895Z",
+  "generatedAt": "2026-11-06T09:09:33.482Z",
   "models": {
     "Input": {
       "name": "Input",

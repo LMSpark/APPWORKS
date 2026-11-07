@@ -291,6 +291,9 @@
         "source": {
           "$ref": "#/$defs/BlueprintSource"
         },
+        "navigation": {
+          "$ref": "#/$defs/BlueprintNavigation"
+        },
         "kind": {
           "enum": [
             "module",
@@ -303,9 +306,6 @@
         },
         "capability": {
           "$ref": "#/$defs/BlueprintCapability"
-        },
-        "navigation": {
-          "$ref": "#/$defs/BlueprintNavigation"
         },
         "dataSpace": {
           "$ref": "#/$defs/BlueprintDataSpace"

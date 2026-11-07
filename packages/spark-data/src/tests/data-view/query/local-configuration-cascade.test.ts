@@ -54,11 +54,11 @@ describe('native local configuration cascades', () => {
       expect(options.fieldAccess(options.rows[0]!, 'name').write).toBe('denied')
       definition.dataTable!.crudConfig = {timeout: 2000}
       expect(definition.fieldAccess(definition.rows[0]!, 'label').write).toBe('denied')
-      definition.dataTable!.crudConfig = undefined
+      delete definition.dataTable!.crudConfig
       expect(definition.fieldAccess(definition.rows[0]!, 'unknown').read).toBe('invisible')
       expect(await options.queryOptionRows({fields: ['name'], context: {model: 'A', view: 'detail'}})).toEqual([{name: 'private'}])
       await expect(options.queryOptionRows({fields: ['unknown']})).rejects.toThrow('DATA_VIEW_OPTIONS_FIELD')
-      options.dataTable!.api = {list: '/api/example'}
+      options.dataTable!.api = {list: {url: '/api/example'}}
       await expect(options.queryOptionRows({fields: ['name']})).rejects.toThrow('DATA_VIEW_OPTIONS_UNBOUND')
       dataSet.destroy()
       await expect(options.queryOptionRows({fields: ['name']})).rejects.toThrow()
@@ -67,7 +67,7 @@ describe('native local configuration cascades', () => {
   it.each(['api', 'model', 'query'] as const)('does not expose local editing for a staged view with a %s owner', kind => {
     const {dataSet, definition} = fixture(kind !== 'api')
     try {
-      if (kind === 'api') definition.dataTable!.api = {update: '/api/example'}
+      if (kind === 'api') definition.dataTable!.api = {update: {url: '/api/example'}}
       if (kind === 'query') definition.bindQueryExecutor({executeQuery: async () => {throw new Error('must not query')}})
       expect(definition.fieldAccess(definition.rows[0]!, 'label')).toMatchObject({read: 'invisible', write: 'denied'})
     } finally {dataSet.destroy()}

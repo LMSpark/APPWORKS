@@ -82,8 +82,8 @@
         },
         "resolution": {
           "enum": [
-            "confirmed",
             "not-applied",
+            "confirmed",
             "accepted-current"
           ]
         },
@@ -284,7 +284,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T20:12:39.401Z",
+  "generatedAt": "2026-11-03T08:27:34.193Z",
   "models": {
     "DataSpaceDefinitionCapture": {
       "name": "DataSpaceDefinitionCapture",

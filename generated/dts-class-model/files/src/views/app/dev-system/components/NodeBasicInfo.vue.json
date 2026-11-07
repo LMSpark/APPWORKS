@@ -16,8 +16,8 @@
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "title": "Section",
       "enum": [
-        "capability",
         "navigation",
+        "capability",
         "prototype",
         "navigation-target",
         "data-space"

@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **当前执行入口（2026-11-02 用户更新目标）：** [APPWorks 全量迁移方案与 AI 工艺/工位执行总表](#appworks-ai-production-plan-20261102)。固定参考 `1147b00ee53a1476d4ee715c61368b453a215192`，当前实施基线 `59d849f84`。本表更新既有全架构目标的执行顺序；历史删除事实和证据保留，不另起总计划，不沿旧 E62 编号自动续做。
+> **当前入口（2026-11-08 用户要求停止实施、重新整体规划）：** [SPARK data 与标准组件分阶段收口](#spark-data-component-replan-20261108)。当前仅分析和规划，旧自动目标保持暂停；禁止依据历史“下一步”自行恢复编码或实服写入。下文2026-11-02的20业务包继续作为完整范围目录，历史事实和证据保留，不另起总计划，不沿旧 E62 编号自动续做。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -7087,3 +7087,782 @@ Ruling: 共享模型含模型关系时暂不执行fork — 原fork只确认模�
 - 高阶migration_architecture_plan追加只读方案：同一JsonTreeEditor新增rootKind=document|value明确合同；buildTreeModel入参可放宽JsonValue，新增exportJsonValue，exportJsonDocument仍拒标量；value模式解析/修复/发布同一JSON值，不向documentValue事件伪送标量，空输入与null/false/0/空字符串区分。value模式允许根六类型转换、不可删除/改key，内部根策略不能误关原文修复。Group子树须按节点与代次汇总editing-change并递归上报，兄弟节点切换不可重挂丢另一pending；外层检查/apply/inlineChange不能在未blur时提交旧值。测试必须真实VXE/ElInput/类型转换/修复，并覆盖多节点pending、取消只读、reset换field和迟到回调；该方案尚未实施，不算组件能力已存在。
 - 最终补验：verify-v1因layout/references.ts:110 optional-chain lint失败，已用正式eslint规则修正；对应布局15项自然0。ClassModel v3重生自然0、schema-v2自然0、语义等价生成噪声再次归一。标准pnpm run verify v2自然exit0，含typecheck/lint/verify:rules及ClassModel四文件测试；现有page-thin诊断仍为报告，不冒称历史差距清零。本轮没有跑新的全仓根测试，也没有新增实服或浏览器视觉验收。准备将KEY/原生引用守卫/公共过期呈现作为局部检查点提交推送，JsonTree值模式和整方案删除保持开放。
 - 代码检查点f0460c7e1bef210d97f5f94046c81426b2e0a24c已提交并推送origin/1031，git ls-remote独立核实远端一致，随后工作区干净。下一断点优先执行上文高阶JsonTreeEditor值模式及真实交互测试；整方案删除、实服引用覆盖预检及20包其余开放项继续保留，不把此次检查点当整体完成。
+
+<a id="spark-data-component-replan-20261108"></a>
+### 2026-11-08 用户纠偏：SPARK data 与标准组件分阶段收口（仅分析规划）
+
+**最新裁决。**停止按页面问题交替修改spark-data、标准组件、页面。此前JsonTree值模式、Excel整方案删除等“下一步”全部降为历史断点，不再自动续做。20业务包的完整交付范围保留，但执行次序由本节取代；当前只分析、规划，不实施生产代码、不运行新烟测、不提交推送。该节是赋能层方案，产品事实仍以源码/JSDoc/正式服务合同为准。
+
+**重新定义当前目标。**在本唯一台账中，以固定参考、当前源码及已有证据建立“20包业务用例 → 公共能力 → 责任层 → 验收”映射，形成SPARK data与标准组件各自可独立验收、冻结的合同和交付次序。随后实施必须遵循“数据层集中收口 → 标准组件集中收口 → 宿主配置接入 → 业务页集中迁移 → 整体验收”，不再按页面小补丁循环。当前没有授权自动跨入实施。
+
+#### A. 当前状态与证据边界
+
+| 对象 | 本轮只读核实 | 判断与后续责任 |
+| --- | --- | --- |
+| 代码与工作区 | HEAD 1336399f50fb339d9134dae93233184997f1bc81；唯一未提交文件packages/spark-component/src/tests/filter/json-tree-value-root.test.ts | 该文件是暂停后误执行留下的RED测试，尚无实现，不代表组件能力；保留原样，不继续跑、不删除、不提交 |
+| 数据层已有主链 | packages/spark-data/src/dataset.ts保存编排、data-table.ts模型、data-view.ts查询/权限/读行捕获/保存；core/data-view-key.ts绑定身份；模型关系和视图级联在DataSet内 | 已有可复用实现，不能重新造DataSet或用页面包装另建查询/草稿/保存；仍须按20包消费者核覆盖，不能以API存在宣布所有语义齐全 |
+| 组件已有公共链 | useActiveFieldRow.ts解析显式DataViewKey、成员与字段、编辑覆盖、事件订阅/释放；layout-data-context.ts、view-runtime-state.ts及PermissionResolver/usePermission消费同一视图 | 标准绑定和投影已存在；后续集中检查所有组件声明与实际消费，不逐页面复制 |
+| 最近已证缺陷 | KEY用例触发过期查询计数/权限呈现异常，已在f0460c7e1修复公共投影；JsonTreeEditor整体表达式已树形，Group条件值仍SparkJsonEditor，JsonDocument/树构建根合同只对象数组 | 前者是公共呈现缺陷；后者归JSON通用组件及其引擎，不是spark-data缺口，也不能直接更名导致标量丢失 |
+| 领域规则 | Excel资源层在原DataTable注册转换/排序/布局和删除引用规则 | 具体模型引用、删除前置与跨来源命令留领域责任层；spark-data提供通用捕获/验证/提交机制，不能吸收Excel模型名或业务算法 |
+| 验证 | 上个代码检查点记录定向7文件81项、标准verify通过；更早模板检查点记录全仓501文件9134项及自有实服清理 | 本轮没有重跑这些门禁/实服/浏览器。历史局部通过不证明20包完成，更不能证明所有公共合同冻结 |
+| 全范围 | 2026-11-02完整20包表及其inventory附件仍是范围入口 | 当时文件/注册/场景数量是历史快照，不冒称本轮新清点；S0须刷新每包的能力和证据映射，不以文件数当完成率 |
+
+**当前问题。**已有逐包总表，但实施没有形成“先盘点公共合同、集中补齐并验收、再由下游消费”的有效交接；一个页面触发一个底层补丁，局部门禁重复运行却缺少整体验收收敛。需调整的是执行依赖和验收责任，不能推翻已经成立的统一数据结构，也不能把历史通过全部清零。
+
+#### B. 层次责任与修改边界
+
+| 责任层 | 负责 | 不负责 |
+| --- | --- | --- |
+| spark-data | DataSet/DataTable/columns/DataView唯一结构；绑定定位与数据成员；查询参数/过滤排序分页/树及状态；编辑与取消/选择；通用级联/校验；已有权限结果消费；变更捕获/提交/部分成功/未知核验及生命周期 | Vue控件、JSON树交互、页面布局、特定业务模型/引用算法、后端聚合替代计算 |
+| SDK与资源适配 | 正式服务请求/响应和各来源持久化接入同一数据API；文件/pagedata owner仅在适配内部；确认实际提交结果 | 向业务页提供第二套查询/编辑/保存入口，伪造跨来源事务或新服务协议 |
+| 标准组件与通用编辑引擎 | dataViewKey/成员/字段/上下文继承；值/选择/编辑覆盖；输入pending、失焦提交、取消、只读/禁用；权限与异常呈现；标准子组件及事件生命周期；JSON值/文档等通用交互 | 重建查询权限算法，另存业务草稿，直接HTTP保存，业务级删除/注册规则 |
+| PageRuntime与宿主 | 本次实例/应用/导航/场景身份；配置加载、视图定位、动作能力和释放；同一数据实例所有权 | 重新解释权限、复制模型真源、接管第二份编辑数据或存储owner |
+| 业务配置/领域/页面 | 正式DataTable定义、按消费创建DataView、显式级联、领域规则与命令、原路径布局和必要流程编排 | 重写公共查询/分页/编辑/保存/生命周期；在业务Vue临时拼标准能力缺口 |
+
+#### C. 固定阶段与验收关口
+
+| 阶段 | 工作与产物 | 允许修改范围（恢复实施后） | 转入下一阶段的条件 |
+| --- | --- | --- | --- |
+| S0 当前分析规划 | 刷新既有20包用例/下游索引；汇总唯一公共能力清单；每项标已有、已证缺陷、真实缺口、缺证、服务阻塞或用户暂缓；标原owner/替代点及证据 | 当前仅本台账及只读研读；不改产品代码 | 每包需求落到能力与责任层，关键疑点列清；数据与组件合同、测试矩阵、依赖和实施批次可审查 |
+| S1 数据层集中收口 | 按S0清单统一身份/定位、查询/级联、编辑取消/选择、通用校验/权限、变更提交与回执、来源适配和生命周期；删除已替代数据层旁路 | spark-data及必要SDK/资源适配、其合同和测试；不改组件/业务Vue | 公共API及边界可查，所有纳入合同有直接证据；跨空间、迟到响应、未加载不删除、按变更保存、部分成功/unknown不重发、释放等反例通过；服务未支持项明确阻塞，不伪造支持；生成合同与代码一致后冻结 |
+| S2 标准组件集中收口 | 按冻结数据API统一容器/布局/字段/选项/动作绑定、值与选择、权限/异常投影、输入pending及释放；完成JSON值/文档编辑合同；标准子组件协议；同步ClassModel目录/概要/指南 | spark-component、确有依赖的通用编辑引擎及测试/生成产物；spark-data合同与业务页面冻结 | 真实挂载组件验证读写/取消/readonly/disabled/字段权限/切绑定/释放/迟到事件，多节点pending不提交旧值；声明、ClassModel和运行行为一致，组件清单逐项验收；不以stub或换组件名通过 |
+| S3 宿主及配置接入 | 沿PageRuntime统一导航/调用身份、场景加载/共享配置、标准动作与数据上下文；证明原生Vue与四文件消费同一冻结合同 | 宿主、注册/配置和相关集成测试；不新增底层API | 多空间完整绑定、目标切换、隐藏编辑入口、实例所有权和释放正确；规则配置按正式ClassModel执行，无数据/草稿第二真源 |
+| S4 业务页集中迁移 | 依原20包依赖逐包恢复完整语义与参考原路径；设计/数据维护分离；领域命令/规则；同步删除旧owner及手工公共接线 | 业务定义、配置、领域及页面；已冻结数据/组件层不顺手修改 | 每包读/增/改/删/取消/保存重开、异常与下游有证据；DB与文件各自确认；未完/暂缓分开，不以部分页面核销整包 |
+| S5 整体验收 | 从实际导航跑端到端，真实CRUD、独立回读、重开/下游消费、精确清理；完整需求矩阵复核、合适全仓门禁、提交推送及远端核实 | 原则上验收；失败转对应责任阶段处理 | 原20包每项有当前有效证据；明确用户暂缓与真实服务阻塞，不以测试绿或历史证据替代完整范围验收 |
+
+**禁止交替修改的执行规则。**同一实施批只在当前责任阶段修改。下游发现上游真实缺陷时，先停止下游批，将复现、受影响用例/消费者及改动范围记入本节；明确退回S1或S2集中修复并重新通过其验收，冻结新合同后再继续。冻结是通过验证的交接点，不能用来维护错误合同，也不是保留兼容入口的借口。每次集中批次完成再做对应门禁；不在生产源仍变化时重复全仓测试，不并发重型生成与完整根回归。沿用原测试超时和已核maxWorkers2基线，不通过放宽门禁获得绿灯。
+
+**S0清单必须覆盖的公共项。**数据层：身份与完整视图键、配置/运行状态、查询及结果身份、参数/过滤/排序/分页/树、值/当前/选择、编辑覆盖与取消、显式级联、字段元信息/通用校验、权限消费、变更范围/级联顺序、捕获/部分成功/unknown核验、资源适配和实例释放。组件层：容器与布局上下文、标准字段子组件、选项视图/级联、动作及真实行、值/选择双向消费、只读/禁用/隐藏/脱敏差异、输入中状态与提交时机、查询失效/错误呈现、绑定切换/释放、复杂编辑器与ClassModel一致性。这是盘点范围，不宣称所有项都需要重写。
+
+**20包保持原分母。**宿主与系统入口；应用/菜单/蓝图；企业与应用申请；数据空间；数据库与表视图；字典；维度；编码；逻辑视图；数据工作流；JSON/文件；Excel；PDF；外部服务/API；报表；业务审批流程；组织/岗位/用户；系统运维；治理授权；工作台与四文件推广。具体以原完整工作包表为准，不用此摘要改动其边界或悄悄漏包。新授权接线仍按用户原指令暂缓，既有守卫保持；后端Java仅只读参考，聚合由正式服务执行，不在本次规划扩权限或造后端。
+
+#### D. 当前交接与目标状态
+
+- 已按用户要求停止实施。新测试文件保持未提交原状；本轮仅源码核对及台账规划，没有修复、测试运行、实服写入或提交推送。
+- 高阶migration_architecture_plan已只读复核，认可S0→S5顺序；提示旧台账“下一步”不得自动恢复，S0应输出20包的能力/缺陷/缺证/部署阻塞/授权暂缓与owner替代映射。该评审不替代产品事实，也没有实施代码。
+- 目标工具create_goal按用户“重新设置目标”尝试一次，返回cannot create a new goal because this thread has an unfinished goal。没有将旧未完成目标标complete，也没有恢复其自动执行；旧目标仍paused。当前新工作目标以本节为准，系统目标字段尚未覆盖成功；不声称已成功重设自动goal。
+- 本轮完成当前状态初核、分层责任及阶段方案；尚未逐包刷新全部20包能力矩阵，因此S0不能标全部完成。下一项仅是补齐S0映射，不继续JsonTree或Excel编码。恢复实施须遵守本节新的用户裁决。
+
+#### E. 2026-11-08 /goal 接续核对（S0进行中）
+
+**当前目标状态纠正。**本次 `get_goal` 已返回用户本次完整六阶段目标，状态 active；上节“系统目标字段尚未覆盖成功/旧目标paused”仅描述此前尝试，不再代表当前目标状态。不重复创建目标，不将整体迁移标完成。当前授权只覆盖S0分析与总体规划；S1以后仍须用户明确恢复。
+
+**本轮证据基线。**主仓HEAD仍为1336399f50fb339d9134dae93233184997f1bc81。工作区已有本台账修改和未跟踪 `packages/spark-component/src/tests/filter/json-tree-value-root.test.ts`，保留原状。固定参考为 `E:/r/sparkproject` 的 `1147b00ee53a1476d4ee715c61368b453a215192`，已用git对象查询确认该提交存在，不用参考仓当前HEAD替换固定版本。复用 `evidence/data-chain-smoke/2026-11-02-appworks-migration-inventory.json` 的逐路径范围，并重新用当前文件存在性与当前vue-pages注册清点：120个本仓Vue、37个注册项。以下数字只证明路径存在，均不证明业务完成。
+
+**范围附件缺口。**旧inventory的workPackageSummaries只有19项，遗漏本仓独有PDF专题；原完整人工表仍有20包。本轮在下表显式保留PDF，不能把机器摘要当总范围。历史附件保留其时点，不改写为新证据。
+
+| 原20包（沿原表顺序） | 固定参考Vue/当前同路径数 | 必须保留的用例与下游 | 现有依据及S0待补项（不宣称已验） |
+| --- | --- | --- | --- |
+| 宿主与系统入口 | 18/0 | 登录与应用/导航/工具/场景身份、隐藏设计入口、多空间、切换失效、实例释放→所有页 | 当前vue-page-registry与37注册项；宿主不机械搬18文件。须逐入口核PageRuntime所有权、调用参数、别名是否仍有业务价值及消费者 |
+| 应用、菜单与蓝图 | 13/0 | 应用/来源关系、菜单/功能标签/工具定义、发布与导航→目录和页面运行 | 历史目录DataView切片不能代替原生业务页面；须核project-blueprint/AppList与原页完整状态流、保存重开及发布消费者；仅新增授权接线暂缓 |
+| 企业与应用申请 | 13/0 | 企业登记、申请、处理、状态结果→企业/应用目录与后续办理 | 目标路径未恢复；待逐状态核输入、动作、不可逆副作用及正式服务；不能把整包当权限暂缓 |
+| 数据空间目录与设计 | 5/4 | 单目标、模型/字段/视图、参数/关系/级联、布局→已保存场景装配及运行查询 | 元数据主链与设计session存在；待逐命令分清通用捕获和领域引用、pagedata适配边界、未加载不参与保存、缺视图空间进入与运行消费 |
+| 数据库与表视图 | 7/6 | 连接/服务器/库/表视图/字段、注册同步、复制及DDL→来源模型与查询 | database资源目录现存；读取、设计CRUD与DDL是不同合同，须逐项核实际副作用、正式回执及精确清理，不能以列表覆盖整个包 |
+| 字典 | 2/2 | 标题/类型设计与六字段条目独立维护、引用与删除→选项/来源/工作流 | dictionary/resource现存；原32修复不重做，余98历史未核销不猜修；须核设计/数据提交隔离及消费者有效快照 |
+| 维度设计 | 2/0 | 完整设计、规则、取消/保存重开→实际维度消费者 | 原维度页及rule-editor尚无同路径；蓝图片段不足；消费者、正式模型及服务均待逐链确认 |
+| 编码 | 8/8 | 五类分段、分类/选择、示例、初始化及领码→业务创建与实际编号 | data-code资源及历史证据可复用；须区分示例写入、初始化、业务领码与目录CRUD，保留工作流先有行服务冲突，不以路径齐全核销 |
+| 逻辑视图 | 2/2 | 四类来源、画布/字段/函数/参数、输出发布/预览→正式字段、来源reader和查询 | logic-view资源/输出publication存在；历史SaveView成功但回读旧值、层次/聚合和完整消费分别保留；普通文件保存与DB输出发布不合成事务 |
+| 数据工作流 | 5/5 | 创建、节点/输入输出/边/布局、单节点与整流执行→业务行与下游输出 | workflow-definition领域命令现存，copy/操作/布局等历史分项不清零；领码、merge语义、布局1:1及执行分支逐项保留，不用CRUD代替执行 |
+| JSON与文件管理 | 2/1 | JSON目录/正文、创建/取消/保存/引用删除→模型来源查询；FileManager登记/上传/数字ID删除 | document-resource沿原文件DataView；canDelete=false不能直接解锁。FileManager历史GET404属当时网关/应用证据，不能推断所有文件API不可用；需核正式宿主及精确双端清理 |
+| Excel导入 | 6/5 | 目录/KEY/模板、树/字段映射/父子关联、过滤排序/布局/转换、整方案删除→真实导入/ExportExcel | 当前resource、template、configuration-removal等存在；模板历史清理可复用，整方案删除、消费及导入任务/归档清理仍未完整；JSON值编辑缺口归组件阶段 |
+| PDF专题 | 本仓独有，当前2Vue | 规则/目标/保存重开→真实识别及结果消费 | pdf-inspect/resource与2页存在；不发明参考原页。须核识别动作、副作用、文件/DB目标与实际消费者，不能从目录存在推通过 |
+| 外部服务/API | 3/3 | 提供方/请求/接口/参数/公共参数与输出→模型/页面及外部调用 | api-management资源现存；已有参数重绑证据分项复用，配置CRUD和真实外部调用分开，未知副作用不能自动重发 |
+| 报表 | 7/0 | 目录/模板/数据源/设计/预览→真实报表消费与导出 | 无参考同路径；模板/服务加载及正式产物待核，不以空导出或附件元数据当完成 |
+| 业务审批流程 | 8/0 | 模型设计、启动、任务办理/追加人、详情/移动入口→任务/状态推进 | 无参考同路径；独立于数据工作流。需核实际引擎、消息/账号等副作用、取消含义及每次状态转移证据 |
+| 组织、岗位与用户 | 4/0 | 当前租户机构/岗位/人员只读筛选分页；独立组织树/选人→审批/授权等消费者 | 固定参考三入口共用tenant-governance-list，无CRUD；按F4纠正此前笼统“维护”表述，正式投影与选人消费待验，不建立前端角色映射 |
+| 系统运维 | 4/1 | 缓存/缺陷/恢复/流程监控→真实命令与服务状态 | cache-management已有同路径及资源绑定，其他三支未由该证据覆盖；缓存删除、数据恢复和监控读取分别核适用操作 |
+| 治理与授权裁决 | 6/0 | 功能标签/授权配置、正式服务结果→数据权限消费 | 新接线/扩展及其专题验收用户暂缓；既有守卫保持，角色逻辑不照搬；逐分支保留范围与恢复条件 |
+| 工作台与四文件推广 | 1/0 | 三文件/共享pagedata生成编辑、保存/重开/发布→PageRuntime、多页复用及正文附件 | 参考公共组件不要求整件搬入；PageTool/ProjectWorkspace和场景文件适配须逐入口审计，原生/四文件/下游三列分别给证据 |
+
+**公共能力盘点与冻结方案（拟验收合同，不是已冻结事实）。**
+
+| 能力组 | 本轮核到的源码与可复用事实 | 必须补齐的反例/证据及阶段 |
+| --- | --- | --- |
+| 身份与视图定位 | spark-data/core/data-view-key.ts:230解析2段/3段及旧#前缀；256显式核scenarioId、正式modelName唯一性、destroyed | S1列清每类键的真实消费者；旧前缀是否有必要语义须核，不新增兼容。跨空间同名、内部表键冒充正式名、重复名、非法键、失效实例不能回退；S3再核宿主补全与主场景 |
+| 变更保存与部分成功 | dataset.ts:1486沿目标视图准备、应用编辑、分组保存；recovering只取原unknown；1612分阶段保存显式视图、不提供事务 | S1证明未加载/未修改不提交；按字段/行捕获、派发中新增编辑、某来源失败、已确认不重发、原unknown核验及缺回执；领域跨来源先后规则由S4指定 |
+| 取消与未知 | dataset.ts:1636 resolveUnconfirmedSaves、discardAndReload及DataView取消原API已存在 | S1逐项核取消本地与撤销服务端的差异，unknown/not-applied/回读失败不混同；释放或切换不能悄悄丢原意图。不能凭方法存在判覆盖全部来源 |
+| 文件与pagedata | query/file-resource-adapter.ts维护按DataSet/资源的pending及history捕获；JSON document-resource用同executor；repository/scenarios/resource.ts只读DataView查询后destroy | S1逐源核冲突/缺失/损坏/权限/回读及适配内owner；只读仓内配置不等于pagedata全部可写。文本文件适配不冒充二进制模板或数字ID文件服务；pagedata持久化还须追至真实入口 |
+| 查询/选择/级联/校验/权限/生命周期 | 已有DataView、查询模块、save-rule-validator及级联实现与测试目录 | S0还需逐公共方法/真实消费者/反例关联，特别是过滤排序分页树、当前与多选、编辑覆盖、显式输入级联、表行字段权限和迟到响应；不依据测试文件名升格通过 |
+| 组件绑定与输入 | useActiveFieldRow、layout-data-context、view-runtime-state、FieldJson、JsonTreeEditor现存 | S2按完整组件清单核dataViewKey/成员/字段/继承、选项视图、行身份动作、pending输入/提交取消、只读/禁用/隐藏脱敏及绑定切换释放；JSON任意值与完整文档分清，遗留RED不算已修 |
+| 组件子节点与ClassModel | 目标要求标准字段子组件，同一合同由正式编译生成 | S2以源码→公开声明→正式生成→目录/概要/指南→真实挂载消费逐项核；不能以props声明或stub证明运行能力；当前不改源码，不为盘点重生全部产物 |
+| 宿主与配置 | vue-page-registry解析既有注册配置；use-staged-design-page持有运行实例并在原DataView refresh/discard | S3区分宿主交互状态与业务数据真源；主场景、调用身份、延迟加载、规则动作、样式隔离、dispose及跨工具/空间消费均要集成证据 |
+| 后端聚合 | 目标要求后端执行，现有本地或拒绝聚合的分支均需核实际语义 | S1记录实际正式查询可承接范围与明确缺口；不能前端拉全补SUM/COUNT等，也不永久改共享ValueFun；夹具/Java/部署证据分列 |
+
+**旧入口处置必须按调用链判定。**本轮检索到agent-workflow-file-owner.ts及其WorkflowDesigns.vue、services/workflow-designs.ts消费者。其readDocument实际通过原DataView.requestRefresh并核字段可读、当前行和请求scope，dispose释放PageRuntime；这段不是直接文件查询旁路的证据。它与loadDocument存在重复读取编排，但是否替换须核完整UI/服务消费，不按owner后缀批删。use-staged-design-page.ts当前refresh/discard仍沿原DataView，pending/目标代次属于实例保护；不能未经分析将全部状态当第二草稿。S0后续须逐入口记录“调用方→公共API→适配→正式IO→回执/独立回读”，分别决定保留领域流程、收归公共层及删除被替代代码，不用移文件代替删除旁路。
+
+**阶段退回规则补全。**前文只例举S1/S2，不排除其他责任层。S5发现导航/实例/场景装配缺陷退S3，领域引用/副作用/流程规则缺陷退S4；每次先锁定反例与消费影响，停止当前批，明确唯一责任层和允许文件，修复后重验该层及受影响消费并重冻结，再恢复原批。服务缺约只阻其依赖分支，不能以此允许下游发明协议或绕过公共合同。同阶段中的公共data API与具体资源适配亦分别署责，不能借S1名义混入页面改动。
+
+**适用操作的验收。**“每包CRUD”指该包合同中适用操作；只读监控、详情、执行命令等须记录不适用原因和替代的结果证据，不能强造CRUD，也不能免验执行/导入/审批/消息等副作用。所有包保留原生闭环、四文件闭环、下游消费三个独立状态。
+
+**高阶复核。**本轮由gpt-6-astra/high只读复核总体顺序与关键边界，接受六阶段次序；要求补齐以上退S3/S4、按链处置owner、PDF/非features/未发布入口完整范围、适用操作与聚合证据边界，已采纳。评审不替代主控验证，没有改代码/测试或调用实服。
+
+**S0未完成与下一断点。**上表完成20包范围和消费者方向映射、当前路径复查及首批公共责任审计，但不是完整逐用例调查。仍须按固定参考逐页及配套TS/API读取，补每项输入/前置/校验/取消/失败/持久结果/消费者；把正式服务及历史证据关联到适用源码快照，列公共API/组件的实际调用者和可删除入口，完成可审查的S1/S2合同及验证矩阵。下一轮只推进这些S0事项；不自动进入S1，不跑遗留RED，不发新实服写入，不提交推送。本轮仅更新本台账。
+
+**本轮文档核验。**pnpm run verify:docs自然exit0（564文件）；git diff --check通过。当前差异仅本台账，遗留未跟踪测试保持原样。未运行产品测试/生成器/构建或新实服请求，未提交推送；这些文档检查不证明S0完整或迁移通过。
+
+#### F. S0固定参考逐用例补核：企业、维度、报表（2026-11-08）
+
+**读取范围与证据等级。**以下均从固定git对象1147b00读取，不取参考仓工作文件；语义来自页面及配套API，不证明参考逻辑正确，也不证明实际服务已部署。主控读取enterprise-regist-manager-page.vue、apply-app-auth-content.vue、申请审核对话框、两个申请列表主页面调用段及EnterpriseAppAuthApplication.ts；EnterpriseRegistManager.ts读取类型、动作和配置相关段。维度读取dimension-design-page.vue主逻辑、dimension-rule-editor.vue字段/动作和DimensionDesign.ts数据合同、查询、保存回读及引用删除/规则相关段。报表读取report-management-page.vue、report-management-service.ts、ReportManage.ts保存/版本/上传相关段和model/version-dialog调用段。未完整读取的布局/配套深链继续列缺证，不以本节宣布三包全分析完成。
+
+##### F1. 企业与应用申请：把登记治理和授权状态机分开
+
+固定参考路径前缀：`apps/appworks/src/ui/features/application/`；数据API前缀：`apps/appworks/src/data/api/ApplicationManager/`。
+
+| 用例 | 输入/前置与校验（固定参考事实） | 输出、继续消费者与取消/失败 | 目标归属与缺口 |
+| --- | --- | --- | --- |
+| 企业列表、筛选/分页/审核详情 | 当前宿主scenarioId；中文名/CheckState筛选，20条初始页；Base_Enterprise_Info与审核状态字典 | 列表→审核/密码/配置/应用授权弹窗；查询失败原页清rows与queryContext并提示 | 查询/分页/权限及失效归S1/S2；当前本仓平台租户页不是该列表替身；空数据与读取失败须区别 |
+| 审核通过/拒绝 | 目标rowid；通过还要求ShortName；原页以CheckState字段可改限制审核，终态由字典与-1判断 | 通过调用application.lifecycle/initialize-enterprise，拒绝修改CheckState=-1；确认取消不提交，成功关闭并刷新列表 | 初始化是领域命令，不能用普通字段更新冒充；实际初始化、副作用、正式服务/结果与unknown核验缺证；字典标题推状态不是已确认目标规则 |
+| 修改企业密码 | 原企业rowid、密码弹窗输入，API校验非空 | 修改super_admin_pwd；取消关闭不写，失败保留弹窗；后续影响账号认证 | S4账号领域与正式命令/字段授权；不能回读或记录密码作证，验收使用获准隔离账号与服务结果；本轮无调用 |
+| 登录策略与企业配置 | 唯一企业rowid、loginPolicy、ent_config及读取的loginToken；参考弹窗fillConfig | 保存企业配置→后续登录/注册策略；错误保留提示 | 配置未知成员/敏感token边界须核正式合同；参考normalizeEnterpriseConfig对坏JSON退默认是原实现风险，不照搬成“空配置可覆盖” |
+| 企业应用目录与授权详情 | 当前目标企业ID+ShortName，应用列表与enterprise_app_auth；字典app_auth_status/app_request_type | 无授权、等待、初始化、有效、失败、拒绝、撤销等状态；展开展示模块树 | 新授权接线用户暂缓；仍保留范围和状态读取需求，不能把初始化与授权记录CRUD等同 |
+| 直授、批准、拒绝、重试、撤销、重新授权 | 企业/应用ID；已有记录操作必须eaa_rowid；拒绝/撤销可填意见；确认取消不发请求 | 状态机action approve/reject/retry/revoke/reauthorize，初始化结果供目录消费 | 领域动作通过同SPARK data语义资源；不让页面手改authorized/auth_status；服务命令、状态转移、重试幂等与unknown缺证，暂缓不核销 |
+| 模块展开与授权/取消 | enterpriseId/appId查询导航与enterprise_module_auth；授权nav_id/parent_nav_id，取消需ema_rowid | 模块树刷新→后续模块访问结果；参考按appId缓存树 | 新接线暂缓；目标上下文/迟到与缓存失效归公共生命周期，模块规则与服务授权归领域/后端；不引入前端角色 |
+| 发布应用查询→申请 | 参考局部硬编码申请scenarioId；app_id非空，review_comment可选；分页10 | AUTH_TABLE创建申请→我的申请/审批列表；取消弹窗不写，applied通知刷新 | 硬编码场景不是本仓宿主合同；参考publishedApps带publisher_ent等于当前企业，能否正确表达可申请范围待核，不能擅自改或直接照抄 |
+| 我的申请、取消、重新申请 | enterprise_app_auth/id、状态筛选、REQUEST类型；cancel/reapply action | 同一申请状态变化→审批与授权结果；确认取消不派发 | API myRequests未显式按企业过滤，可能依赖服务授权；不能前端补角色或认定已隔离；正式范围与状态前置缺证；新接线暂缓 |
+| 申请审核 | source_ent=当前企业、REQUEST、默认PENDING查询；id及approve/reject，拒绝意见可选 | 原记录动作→初始化/拒绝状态；详情关闭不写，失败提示 | 身份显示补查与实际数据授权分离；服务验证、部分成功与独立回读缺证；新接线暂缓 |
+
+**当前本仓差距。**`packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts`只提供公开目录查询体/会话企业归一化；`lowcode-platform-api.ts:314 getEnterpriseInfo`读取当前session.enterprise.raw，不发正式刷新查询。`src/views/platform/PlatformTenantManagement.vue`把会话企业投影成一条租户行；`TenantConfigPanel.vue`亦消费会话快照。这些可作登录/宿主显示依据，不能证明企业审核列表、密码更新、策略持久化或授权状态机已迁移。`rg`在src/config/pages/spark-data/spark-project-model所检范围未命中enterprise_app_auth/Base_Enterprise_Info正式业务定义；这只是受检范围的缺证，不据此断言实际服务无模型。
+
+**旧链与替代责任。**不迁入参考AppWorksEnterpriseRegistrationManager/ApplicationAuthorization的页面私有rows/分页、补查Map、原始queryContext和直接api.create/update组合。S1提供正式查询与原捕获提交，S2容器/字段/选项直接绑定；S4保留审核初始化、账号与授权状态机领域命令及必要流程；身份来自真实宿主。若本仓没有对应链则属于待恢复能力，不能虚称“删除了旧owner”。
+
+##### F2. 维度设计：六工作区、十正式模型与蓝图/运行消费者
+
+固定参考：`apps/appworks/src/ui/features/data-platform/structured-config/dimension-definition/ui/`的两Vue，配套`apps/appworks/src/data/api/DimensionDesign.ts`。该API的META明确十模型：Bil_Dimension_Biz_Category、Definition、Dict_Item、Dict_Type、Rule_Template、Rule、Rule_Condition、Rule_Result、Source_Binding、Source_Mapping（各自均带Bil_Dimension_前缀）。维度定义使用id，其他表按其实际id/rowid，不能统一改成rowid；来源/事件并非独立于蓝图任意新增。
+
+| 用例 | 输入/前置、读取与变化 | 输出/取消/失败与下游 | 归属和未证项 |
+| --- | --- | --- | --- |
+| 六区读取/搜索、字典类型选择 | 宿主唯一scenarioId；来源/事件/规则/定义/字典/分类；参考loadAll并查六集合、再查选中类型条目，搜索当前已加载值 | 当前工作区与类型条目；异步代次/执行scope拒迟到，加载失败ready=false | 目标分层按需查询DataView，不照搬全装载和前端数组；搜索范围和排序按正式查询合同核；本仓尚无原路径 |
+| 来源锚点治理与回到蓝图 | source_application_id/node_id/kind/reference_id、event_code、载荷/绑定版本/映射数 | 定位原应用蓝图节点；modelEvent/saveModelEvent由蓝图及正式模型合同约束→运行维度事件 | 蓝图、模型与事件绑定归领域；页面导航归S3；sourceContracts及实际运行执行缺证，不造事件协议 |
+| 定义新增/修改/删除 | 编码/名称/类型/基数/空策略/版本/生效期/状态；编码唯一；删除检查Source_Mapping的definition id/code和Rule_Result.dim_code | 按同id精确回读字段；被引用拒删；关闭本地编辑不应提交→来源映射/规则结果 | 必填/数值等通用校验归S1，引用/版本语义归领域；参考必填不代表类型枚举/时间有效性已完整验证，不能靠UI默认宣称正确 |
+| 业务分类新增/修改/删除 | biz_category_code唯一、名称/状态/排序；删除核Rule和Rule_Template引用 | 分类列表→事件/规则；确认取消不删，写成功但刷新失败独立提示 | 普通保存不扩大成全维度依赖扫描；分类删除引用检查属该命令；实际后端引用完整性缺证 |
+| 字典类型/条目与规则选项 | 参考API含类型/条目保存删除，类型列表排DIM_CODE；类型删除有条目则阻断；条目编码在类型内唯一 | 类型→条目→运行取值/规则候选；原页当前只见类型选择和条目展示，不能把API方法当页面已有入口 | 要分别核“原页面可达”与“下游调用API”，不能凭API补造按钮；不与普通字典包六字段条目混用；设计/数据分离按实际资源语义确认 |
+| 规则包新增/编辑/取消/保存 | 主规则+conditions/results，account_set_id+rule_code唯一、事件/分类、优先级/状态；condition.result_id必须属于本规则结果；启用需唯一启用事件及有效来源锚点 | 原规则及子项差量，按rule_id精确回读一致；取消本地bundle，保存回读失败不能报完成→维度运行/凭证需求 | 规则、归属/启用/事件校验属领域；编辑草稿、变化捕获、回执属公共链；auto_voucher_write不证明实际制证执行 |
+| 条件/结果编辑与规则删除 | 根/结果条件、equal/contains/notnull/notzero；CONST/FIELD及受控表达式；集合路径必须显式数组、集合结果稳定来源ID；删除结果有条件引用则阻断 | 保存规则/条件/结果；删规则核三类正式记录均无活动项；失败留原意图，不重复删已确认项 | 领域表达式不搬入通用spark-data算法；选项/结构编辑需标准子组件；服务真实计算、制证及跨记录提交边界缺证 |
+
+**目标边界。**参考API的#queryAll、#save/#saveAndVerify、#verifyDeleted、collectSparkQueryPages及手造changes不能另迁为第二套数据链；可复用的是字段/领域校验语义，最终须由正式DataTable/View、领域命令和资源适配承接。参考persistAndRefresh已区分“已写但刷新失败”，这条语义应保留；但没有原unknown捕获及无重放证据，不能称完整未知结果合同。参考eventBindingCount用已加载数组计数，目标如属业务统计需后端按正式范围执行，不能沿数组汇总。当前受检src/config未检到Bil_Dimension定义，维度服务/正式场景/运行消费者均标缺证，不标“服务不支持”。
+
+##### F3. 报表：目录、版本、模型绑定、模板及运行四类身份
+
+固定参考：`apps/appworks/src/ui/features/integration/report/`与`apps/appworks/src/data/api/ReportManage/ReportManage.ts`；设计/预览原入口另有`apps/appworks/src/ui/views/ReportManage/ReportDesign/index.vue`和`ReportViewer/index.vue`，后两者深层运行链本轮仍未完整读取。
+
+| 用例 | 输入/前置及变化 | 正式输出/下游与取消/失败 | 责任与证据缺口 |
+| --- | --- | --- | --- |
+| 目录筛选/分页/当前行/CRUD | Base_ReportInfo.rowid，名称/描述、应用modid/modname、状态；新增isMerg/isDashboards、参考编辑时锁两标志 | 新建还创建Base_Report.ROWID初始版本；目录→版本/模型/设计/预览；弹窗取消不写 | 查询/当前/选择/编辑/校验/权限归S1/S2；创建组合与两记录关系属领域，实际两表回执/失败/清理缺证 |
+| 模型选择与绑定 | 当前报表信息rowid+当前version_id+选择Base_DataSet.rowid；两正式记录分别改version_dataid/DataFormID | 设计运行消费已绑定场景；取消选择不变原值，绑定失败不报成功 | 名称叫“模型绑定”但参数是空间ID，不偷换成DataTable模型ID；宿主工具、报表、版本、数据空间身份各自核定；不宣称跨来源事务 |
+| 历史版本CRUD与启用 | Base_Report.ROWID、Version；启用所选版State=1、旧版State=0并同步信息表version_id/version_dataid | 当前版切换→后续设计/预览；确认取消不提交；部分更新不得伪装全回滚 | 参考versionPage只分页未显式传当前reportId，createVersion只写ROWID/Version；是否依赖模型过滤或遗漏归属待核正式合同，不复制成全局版本列表，也不猜补新字段 |
+| DOCX模板上传 | isMerg报表、当前version_id、原生File，参考限制.docx且≤20MiB，newName=版本ID.docx | designfile/Report文件→真实报表合并；上传失败回调提示 | 字节资源不能套JSON文本适配；参考isCrossEnt=true等参数不是本仓已确认协议；覆盖冲突/unknown/独立字节回读与精确清理均缺证 |
+| 设计入口与实际设计保存 | 当前版ID、已绑定version_dataid；导航/ReportManage/ReportDesign，query reportid=版本ID/mode=design | 真正设计文档、保存重开→预览/导出 | 参考报表目录canDesign要求可编辑，非目标新增权限规则；真实设计器与存储、宿主生命周期须继续核，不用目录可跳转证明设计完成 |
+| 预览与导出/消费 | version_id，reportName，mode=preview；原URL/ReportManage/ReportViewer | 正式数据、模板和当前版共同生成可见结果/文件 | 参考把preview也限制canEdit是原事实，须核业务与数据权限，不能推“读=写”；渲染/导出服务及参数/分页/空结果/错误缺证 |
+| 删除目录或历史版 | 信息rowid或版本ROWID、原查询对应动作允许 | 删除后重开、其他版本/当前指针/模型/模板引用仍一致 | 参考remove注释明确关联版本由后端合同决定，不能当已证明级联；必须核引用/在用版/文件清理，不能删除共享模型或其他报表资产 |
+
+**现状与迁移裁决。**当前受检src/config没有报表正式业务定义命中，尚无参考同路径；不能把已有Excel模板或PDF配置当报表服务。参考AppWorksReportManager的手工补用户名/版本/空间/状态Map、复制表单及直接api.save需要由正式视图查询/公共绑定替代；报表版本激活、模型绑定、模板语义留领域。报表信息rowid、版本ROWID、数据空间ID和文件名都保原真实身份；源字段大小写不能靠通用归一化猜同一个主键。正式服务尚未取到部署证据时仅记缺证，不为了交付先造API。
+
+**本批处置状态。**只读语义补核，未执行任何参考API、实际服务请求、产品测试或代码修改；未新增凭据/线上对象。仍需补齐本节明确未读的深链、现有证据快照关联和剩余包逐用例；S0保持进行中，S1以后未获恢复。
+
+##### F4. 高阶关键边界复核：审批、组织与治理
+
+gpt-6-astra/high继续只读核固定1147b00，未改文件/发服务请求。以下来源均是固定参考路径；主控另核job入口、tenant-governance-list完整逻辑、FlowRunPage发起/办理/已读段及本仓权限API和DesenID消费。未由主控完整复读的深层分支标为高阶源码评审依据，不能冒称运行验收。
+
+| 包/用例 | 输入、前置、结果与失败/取消 | 固定来源/本仓消费者、责任及缺证 |
+| --- | --- | --- |
+| 审批模型列表、图设计与表单关联 | 模型身份、节点/连线、业务表单关联；保存前图校验；图/模型/表单配置须保存重开再给启动入口消费 | ui/features/workflow/flow-model/design/ui/use-flow-design-page.ts:1041/1177/1392；data/api/FlowManage/FlowModel.ts、FlowDesign.ts；领域图合法性归S4，通用编辑/保存与组件画布归S1/S2；正式运行装配和当前版消费未证 |
+| 审批发起与PC/移动业务页 | flowid/workFormId/业务行→实例/当前步骤；读服务允许动作后选择nextNode/意见/通知类型；submit-or-start输出流程推进结果 | data/api/FlowManage/FlowRunPage.ts:384/409/465；ui/features/workflow/flow-runtime/run-page/application/flow-run-page-service.ts共享runPageOperations；启动与办理不能仅保存业务行就称完成。业务/表单提交与审批推进先后、部分成功及待办/历史/通知需正式合同 |
+| 已读、办理、退回、强退及历史 | 实例/当前步骤/目标节点、服务允许动作；打开未读步骤也会将StepState从0改1；取消办理零推进，但已读不是可自动撤销的本地状态 | FlowRunPage.ts:434/491、FlowRunDetail.ts:228/275/291；unknown核原命令不能重发。新实服“只读浏览”须先辨明该副作用，当前仅静态研读，未打开运行页 |
+| 追加/撤销处理人 | 步骤/人员身份及人员限额；撤销参考条件STATUS=0且StepState∈{0,1}，不是任意人随时可撤销 | FlowAppendUser.ts:108/141/161/185及ui/features/workflow/flow-append-user/model/flow-append-user-model.ts:26/31；人员候选来自独立选人链；规则及真实步骤权限归领域/服务，不造前端角色 |
+| 机构、岗位、人员三只读页 | 当前登录租户、宿主scenarioId、keyword/departmentId/页码大小；结果list+total；岗位/人员需机构选项。重置/筛选回首页，刷新不应写数据 | ui/features/organization/{organization-structure,job-management,user-management}/ui对应入口均挂tenant-governance-list.vue；data/api/organization/TenantOrganization.ts:117/141/162读取Base_DepartInfo、Base_JobInfo、View_UserDJAndDepCSR。S1查询分页、S2字段/选项/列表复用，S4只保真实投影差异；没有参考CRUD/跨租户/账号通知，不应强造写烟测 |
+| 组织树和人员选择 | 懒树节点、组织解析、人员/部门身份，保留已有选择且不能把部门当人；数据交给审批追加与授权选人 | ui/features/organization/person-selector/ui/person-data-source.ts:82/102/113是独立消费者，不能用三列表通过核销。切换/迟到/多选去重与释放归公共链，组织投影身份归领域；本轮未证部署数据范围/总数 |
+| 脱敏规则维护与样例 | 类型/名称/regex/template/原文/global选项，样例计算后新增/编辑，原行删除确认；取消无规则写入，非法正则须可见错误 | ui/features/governance/desensitization-rule/ui/desensitization-rule-page.vue:368/381；data/api/SafetyProtectionManager/DesensitizationRuleConfig.ts:113/145/154/163。本仓database/catalog/table/field-metadata.ts:81明确字段DesenID选项以规则rowid为值，Excel等引用仍按其真实链核；样例正确不证明服务运行脱敏正确 |
+| 空间默认、功能标签及模型字段授权明细 | 配置维护与运行权限是两层；不得从标签或视图结构推导可读写；身份按真实空间/模型/字段核 | data/api/data-set/auth.ts:13及SafetyProtectionManager/NavigationPermissionConfig.ts:393/406/579；新接线专题暂缓，已有守卫不变；不能机械迁入参考角色分类/人员映射 |
+| 导航功能授予、用户应用权限查看 | 导航/应用/对象身份、配置查询与维护；用户应用权限原参考含只读视图；企业申请/处理归F1交叉消费 | SafetyProtectionManager/UserAppAuth.ts:161/179；新授权接线暂缓但范围保留。前端只呈正式服务结果，不按用户名/admin放行 |
+
+**当前源码与正式服务分别判定。**本仓蓝图保留组织三入口及审批模型列表，当前未注册原页；审批详情/追加节点还有无URL情形，需在S3明确真实调用身份，不猜导航URL。受检SDK/src未检出专用FlowRun/FlowAppend服务原语；现有数据工作流执行资源和Agent文件工作流不能核销审批引擎。权限侧 `PermissionDesignApi.read`可读设计，`prepareMutation`只校验前像并组装命令（明确不发HTTP写入），`PermissionRuntimeApi.read`取GetFormUserFunction结果；三者存在不能证明授权保存/正式生效。它们当前直接读取及调用者仍须按统一SPARK data链审计，不能将SDK有方法当页面迁移完成。
+
+**纠偏结论。**前文及历史总表笼统“组织/岗位/用户维护、账号副作用”仅是待核方向，现已由固定参考明确收窄为原有只读业务，而不是缩减已证业务。独立person-selector和全部三个入口仍保留，不删包；审批/治理内真实写命令保留完整验收。治理暂缓仅约束新授权接线及相关专题，不自动暂停脱敏规则分析，也不允许在S0实施脱敏页。
+
+**F3预览深链补读。**随后已完整读取固定参考ReportDesign/index.vue与ReportViewer/index.vue。设计页把版本reportid、mode、refreshKey交ReportHost，KeepAlive副本仅接自己route-record；仍硬编码设计scenarioId。预览页先designSnapshot(版本ID)取得dataSourceId，再读输入参数定义，调用AppWorksDataSpacePreview.queryDataSpace(inputParams,500)，结果传ReportHost；切路由/重查abort旧请求并重置本次预览，空/错与真实数据标志分开。当前证明的是参考前端行为，不是500条覆盖完整报表或运行服务已支持。参数弹窗直接编辑inputParamValues，取消只关弹窗，值是否保留应按产品语义明确；不能未经核定照搬为DataView编辑取消合同。默认“无参数返回所有数据”文案不能取代正式查询授权/过滤范围。已加载行/字段数是预览诊断计数，不可用其替代后端业务汇总。ReportHost/runtime/report/ReportComp与正式预览服务的深层执行、设计保存、导出/打印仍需继续读取；不导入参考报告宿主或手传业务数组绕开本仓DataView。
+
+**本批证据与交接。**主控实际只读固定git源码并补本台账，另由高阶模型复核三个关键包；本轮未调用实际服务、运行产品测试、生成ClassModel、构建或提交推送。`pnpm run verify:docs`自然exit0（564文件），`git diff --check`通过。S0此次新增企业10项、维度7项、报表7项及审批/组织/治理边界卡，均为语义分析或明确待核，不填本地/实服通过。剩余S0继续：补其余包逐用例和真实消费者，核上述未读深链；汇总公共API/组件清单、旧入口处置与证据适用快照，形成可审查冻结/验收矩阵。整体目标active，仅S0获当前授权。
+
+#### G. S0逐用例补核：系统运维与PDF（2026-11-08，只读）
+
+##### G1. 系统运维四支独立验收
+
+固定参考1147b00的`apps/appworks/src/data/api/SystemSupportManager/{BugManage,DataRecover,FlowMonitor,CacheManager}.ts`本轮完整读取；对应`apps/appworks/src/ui/features/system/`四Vue读取主要动作、调用、错误和身份相关段。页面布局细节尚须在S4按固定参考整页核；以下不把参考直接api调用和私有状态迁为目标实现。
+
+| 用例 | 输入/前置、读取与变化 | 可见/持久结果、取消/失败及下游 | 公共/领域责任、缺证 |
+| --- | --- | --- | --- |
+| BUG查询与详情 | 宿主scenarioId、Title关键词、页码大小（参考初始15）；Base_Bug_Info.rowid；应用/反馈类型/状态/处理人候选 | 列表→详情弹窗；读取失败与合法空列表分别呈现；取消详情不写 | S1查询/分页/权限，S2容器/字段/选项；本仓未见原页/资源接入，不能用问题日志替代业务页 |
+| BUG处理保存 | 原rowid、Title/SystemID/FkType/checkName/CompleteUserID/Name/State/FormPath/Content；参考仅changed保存，未见新增/删除入口 | 保存后列表刷新，错误保留弹窗；处理人与状态成为后续跟踪事实 | 业务可改字段与状态流须核正式模型，不能原样回写整行；参考Content接口注明纯文本而UI用RichTextEditor，需明确存储语义而非盲搬富文本。正文编辑器通用交互归S2，领域状态归S4；部分成功/unknown/独立回读缺证 |
+| 恢复左区应用→库→表及字段 | Base_AppSystemList→Base_AppAndSource_Relation(sysid)→_Base_TblList(dbid)→Base_TblField(tblid)；原queryContext.rowKey稳定选中 | 切上级清下级/分页/结果/权限并拒迟到→右区数据；字段决定可见字段子组件 | S1显式级联/查询身份、S2动态标准子组件；不能把cnname/enname直接另建列体系或将conName猜为任意库连接；来源正式合同待核 |
+| 待恢复/已恢复/全部数据三页签 | “获取软删除的数据”入参table/Filter/dbname/dbid/pageParam；Base_TableData_Recovery按table_id/status=0；“获取表数据”按TbName/DbId | 各自分页、total、字段/创建人显示；读取错误不可当无记录；当前页签按需查 | 语义资源需同DataView查询，不能浏览器拼物理表HTTP；恢复记录data_id与其rowid不是同一身份，所有动态资源查询/权限须真实证明 |
+| 执行恢复 | 捕获原删除数据稳定键、sys/db/table身份；原恢复记录资源可新增，确认后再核当次allowAdd | 新增Base_TableData_Recovery(data_id,table_id,db_id,sys_id)，参考认为后端恢复源数据；取消确认零写；刷新待恢复/恢复记录 | 领域命令及服务副作用，不能把新增日志成功当源数据恢复成功；需源行独立回读、恢复记录及其他消费者结果；权限按原正式查询消费，不前端扩大 |
+| 撤销恢复 | 原恢复记录rowid、当前选择；原行可编辑且status可写；确认后重核权限 | status=1，参考说明使原数据重回回收站；取消零写，失败提示 | 这是再次修改正式业务数据的领域动作，不等于discardPendingChanges；unknown不重复撤销。需精确源行/记录两端回读及清理合同，当前无部署证据 |
+| 流程监控查询 | View_FlowObjList按AppDesc/TITLE/status过滤分页，Dict_state与创建人显示 | 列表/总数→嵌入FlowRunDetail(wfid,flowid)；缺实例拒打开，查询/字典错误分别呈现 | 监控自身不强造CRUD；详情强退等后续动作属于审批包F4，不能因“监控”二字认整个链只读；本仓未接原页，正式投影/详情范围缺证 |
+| 缓存分类/当前页搜索/分页 | 参考“缓存过滤条件”→“获取缓存信息”prefix/page/size；前后页探测而非权威total | 类型及缓存信息、hasNext；切分类重置分页与搜索并清旧错误→按原键删除 | 当前已有CachePageReadAdapter和原路径页。受限源分页不支持filter/sort/tree/allPages/cache，必须呈现实际能力，不能强套普通DB全量/总数或把页内搜索当全库过滤 |
+| 缓存单键删除/取消/unknown | 当前同实例可读cacheKey、正式删除定义及命令资源，捕获原读取；确认取消仅丢本地待提交输入 | 原命令通过DataSet/View提交，正式Code200/Type success才确认；unknown保留意图不重发 | 查询形状的“根据键删除缓存中的值”实为副作用命令；不能自动refresh该定义。SDK verify明确服务无本次命令核验合同时维持unknown，键缺席不证明原删除；真实自有键创建/精确清理合同未有，故不操作存量键 |
+
+**当前缓存可复用证据。**`src/lowcode/resources/system/cache-management/runtime-bindings.ts`按348D1C50…与三个正式modelId/name核身份，CacheDeleteRequest绑定同DataSet列表及删除定义；`packages/spark-lowcode-api/src/platform/resources/system/cache-page-read-adapter.ts`读取当页+下一页并拒不支持查询；`cache-delete-command-resource.ts`持原行读取证明与prepared/dispatched/unknown/confirmed阶段，只让命令视图持输入/回执，不能据Map存在就说第二业务真源。历史`evidence/data-chain-smoke/2026-11-07-cache-native-runtime-readonly.json`实际11 SDK请求、0写/0删除，验证分类/来源第二页、定义refresh不发服务及暂存取消零请求。`2026-11-07-cache-runtime-verification.json`状态明确engineering-verification-passed-runtime-acceptance-open；本轮复读该证据，不重新请求，不将历史“未提交”当当前工作区结论。真实删除、unknown权威核验和浏览器视觉仍开放。其他运维三支不能由缓存证据核销。
+
+**旧链候选与目标。**参考四API中的normalize/map补查、手造changes/allowAdd读取和页面rows/分页/权限缓存不另迁；目标查询/编辑/取消/提交通过公共DataView，字段和选项由标准组件消费。BUG状态处理、恢复/反恢复、审批详情动作、缓存来源限制/删除回执是专有领域/资源语义，不塞进通用DataSet。不存在对应本仓旧链时只记缺口，不虚报删除。恢复记录级联服务尚未验证，不复制参考成功提示当业务事实。
+
+##### G2. PDF本仓专题：配置能力与实际文件校验分开
+
+**当前事实源已读。**`src/lowcode/resources/semi-structured/pdf-inspect/resource.ts`、两Vue、`config/pages/semi-structured/pdf-inspect-catalog/pagedata.json`及`tests/runtime/page/semi-structured/pdf-inspect-formal-editor.test.ts`。目录场景A2D63AB2AAEF156E7727094A23AEA433只引用正式Base_FileInspectConfig模型6d177477…；正式主键由模型承接，配置definition按`id=GetInputParam(ruleId)`过滤，不造第二份模型字段定义。
+
+| 用例 | 当前实现、输入与结果 | 责任及尚缺证据 |
+| --- | --- | --- |
+| 目录查询/选择/打开设计 | 导航meta.blueprintScenarioId，resource严格核目录场景与X-AppId；default摘要字段按createtime/id排序，标准RendererTable选原记录并传ruleId | 完整键和原DataView选择已用；目录没有新增/删除入口，不把“可见2页”当CRUD齐备；后续实际需求依据正式模型/消费确认 |
+| 单规则读取与修改 | 唯一ruleId，definition延迟读单id；RendererForm/FieldText/FieldJson绑定name/description/rule_config；缺目标不暴露表单 | JSON校验当前仅语法parseJsonDocument，不能证明PDF规则领域结构或执行有效；enabled在查询但未编辑，不能擅自补默认值/视为废字段 |
+| 保存/取消/无效输入 | DataSet.saveChanges只definition；未提交输入禁止保存；cancel沿discardPendingChanges；名称单改不覆盖历史坏JSON | 目标行为已有夹具测试内容，尚非本轮运行结果；通用pending与取消应S2集中核，领域仅补实际规则语义 |
+| unknown与目标切换 | hasUnconfirmedSave时按钮转核验，禁止取消；在途/未提交/未知阻路由切换；同保存入口核原捕获 | 测试覆盖failAfterWrite仅一次写后核验、取消后才能换ruleId；实例代次/切导航/unmount/失权还须公共合同矩阵，不按页面复制保护逻辑 |
+| 保存重开/实际文件校验与结果消费 | 当前页面只保存规则，无文件输入、执行或结果消费入口；resource.loadEditor只是loadCatalog同场景 | 不发明ReadRule/WriteRule或校验端点，不据rule_config保存宣称识别/校验可用。配置重开实服写证据和真实文件/校验服务/结果消费者均需核正式合同 |
+
+**已有验证的有效范围。**测试六项实际检查内容：只改名称保留旧坏JSON、待保存拦换目标及取消零写、按正式id精确提交且其他规则不变、无效输入取消、缺目标不开放编辑、已写unknown只回读不重放。它们使用ApiBackend/HTTP夹具，不能升格实服；本轮只读测试未运行。历史本台账4377–4380记目录实服0条、6项页面夹具及原PDF假端点/专用design-ops删除，可复用删除事实但须按当前源码确认消费者；本轮检索未见PDF执行API原语，不断言实际后端无此能力。图文/页面及真实文件验收仍未完成。
+
+**宿主候选反例，待S3验证。**目录watch内共享runtime跨await使用，编辑器则捕获局部page后检查代次；应把A/B场景迟到装配与销毁正确实例列入S3验证，不能只凭源码形态宣布已复现缺陷。本轮不加测试/修复，以单阶段约束保留该待核项。
+
+##### G3. 应用、菜单与蓝图：完整包保留，不用当前应用目录核销
+
+**高阶复核范围。**gpt-6-astra/high以固定1147b00读取应用管理、独立库关联、data-menu、application-function及三来源编辑器与API，结果经主控核ApplicationManager创建/关联/删除、DataMenu查询保存、当前AppList/应用目录投影及开发工作台相关源码后归档如下。以下参考路径省略`apps/appworks/src/`；关键段号固定在该提交，不等于本仓同号或部署服务。
+
+| 用例族 | 输入/前置、结果、取消与失败 | 固定参考与当前消费者/责任 |
+| --- | --- | --- |
+| 应用目录/详情/打开应用/蓝图 | 宿主场景、应用rowid、名称/负责人等筛选；打开应用与打开蓝图分别使用同一真实应用身份，不拿默认应用替代 | ui/features/application/application-manager/ui/application-manager-page.vue:281/448；data/api/ApplicationManager/ApplicationManager.ts:662等。当前原URL落src/views/app/AppList.vue，数据目录/切换已用DataView及PageRuntime，但非完整管理页 |
+| 应用新增 | 默认数据库必选；应用字段和负责人；一次参考api.save创建应用、默认库关系isRef=0、同ID蓝图结构根及旧角色负责人关系 | ApplicationManager.ts:662–739；目标保应用/库/根业务语义，旧DEFAULT_ROLE_ID/CategoryID不能迁为前端角色合同；多记录回执分别核，不能承诺原子成功，不自动生成页面/空间 |
+| 应用修改/门户切换/仅网址修改 | 原sysId、负责人、应用字段；门户要求当前租户已有授权，不能直接取消唯一当前门户；网址独立改前值检查 | page.vue:489/521、API update；新授权接线暂缓，门户既有授权结果如何消费仍须核；不能用当前会话/admin推可改；修改及回读失败/partial/unknown须原捕获 |
+| 应用停用与删除 | 参考先停用再确认删除；API remove实际只删Base_AppSystemList主记录 | page.vue:611、ApplicationManager.ts:910；这不是完整级联证据。须核蓝图/工具/场景/来源/授权/文档引用，保共享资源，不照搬孤立记录；普通保存不因此扫全依赖 |
+| 微信图/其他文件与文档导出 | 图片可能先上传后确认表单；普通导出参考明确未交付；SRS/SDD为export-srs/export-sdd两个命令 | page.vue:658/666、ApplicationManager.ts:924；取消表单不撤回已传文件，需精确文件结果/清理和实际文档下载证据，不用成功提示或空文件交付 |
+| 应用关联库（独立页与目录弹窗） | 目标sysid、正式候选数据库Id；新增Base_AppAndSource_Relation isRef=1，解除按关系rowid且非默认库；取消选择零写 | ui/features/application/application-context/ui/application-database-relations-page.vue:104/124/163/180；API databaseCandidates/addDatabaseRelation/removeDatabaseRelation。源查询上限1000不证明全目录；同一业务两入口共用正式视图及领域规则，不各造owner |
+| 导航宿主定义目录/CRUD | Base_DataMenu名称/用途、应用→空间→模型→显示/值字段；选定后可进空间设计或授权 | ui/features/application/data-menu/ui/data-menu-page.vue:158/233/275/298；ApplicationManager/DataMenu.ts:146/171/214/241/251。Base_DataMenu定义、Base_Navigation_DataRelation节点实例和运行候选是三种对象；参考DataId写空间ID、ShowType固定ChildItem及DatabaseName未完整透传，须核真实归属/历史值，不能猜补/丢值 |
+| 蓝图树增删/拖序与节点切换 | 应用/节点/父节点身份，原树结构与顺序；换节点提供保存后切/放弃后切/取消留当前，保存失败不切 | ui/features/application/application-function-management/ui/use-application-function-page.ts:1476/1629/1660/1909；本仓BlueprintWorkspaceDataView已有DataSet节点操作，叶删除/移动/回读语义须按当前源码保留，不能整体删除数据链消费者 |
+| 节点属性/阶段/导航桌面/原型及历史 | 同节点字段/数据空间/导航宿主、原型图/版本、AI预览确认；保存后才供导航与运行消费 | use-application-function-page.ts:2078/2144/2321/2465/2684/2921/3131；能力标签/业务描述不解释成权限。当前BlueprintWorkspace原型历史和宿主区为只读投影，不能认已恢复所有编辑；原路径/参考布局仍待S4 |
+| 蓝图维度来源绑定 | 原应用+节点+正式空间，选择数据模型或平台注册事件；公开字段→维度定义/成员、子集合；启用须有效映射，凭证投影须账套字段 | blueprint-dimension-source.vue:319/437/767，saveBundle后按同目标回读；包2持节点来源上下文，包7持定义/规则/事件，不建两个真源；未见本仓等价原页，正式保存/版本/消费缺证 |
+| 蓝图模型事件与取消 | 原模型PK、业务编号/日期字段、事件编码；编辑器暂存/取消与事件正式创建更新分开；已发后回读失败为未知 | blueprint-dimension-event-editor.vue及父source.vue:524/578；不把关闭弹窗当服务撤销，领域事件校验留领域，原数据编辑/捕获走公共链 |
+| 来源提交协议草稿 | 已保存来源绑定+正式模型、版本和字段路径；createDraft只建草稿，不是启用/发布/执行 | blueprint-source-commit-editor.vue:86/105/138；固定packages/data/spark-api/src/dimension/source-commit-save.ts:172–205/317–341及runtime-api.ts:1020核同应用、启用协议、绑定版本/现行指针与事实。该链仅参考消费者证据，不据此新建本仓存储或命令协议；真实服务与运行消费缺证 |
+
+**本仓能力与旧入口处置。**`src/lowcode/lowcode-application-catalog.ts`从登记pagedata装配、按正式modelName唯一定位目录DataView并依字段可见性投影；`AppList.vue`loadScenarioProjects/handleSwitch验证实例代次、当前应用和切换回执。`src/services/project/blueprint-workspace-dataview.ts`有原DataSet节点操作及unknown回读，属于已有数据链消费者，不能因专用class名就整件删。`src/views/app/dev-system/blueprint-workspace/BlueprintWorkspace.vue`的原型历史/导航宿主只读区、`nav-host-project-picker/NavHostProjectPicker.vue`及`nav-host-project-relation-command.ts`的特定宿主关系是实际下游，须验证完整引用后再删替代部分。参考AppWorksApplicationManager/NavigationHostManager/ProjectBlueprint的直query/save和弹窗私有rows/分页/草稿不能搬入。本仓服务/组件实际重复项仍须逐入口追链，不能把新增包装称删除旧逻辑。
+
+**包级证据状态。**四个对应蓝图URL仅应用管理发布注册，另数据库关系、导航宿主、应用功能入口未发布/未注册（具体原记录以当前appworks-system/vue-pages为准）；未发布不移出范围。当前应用目录/开发工作台历史局部通过只覆盖其真实消费者，原路径全页、领域多目标写回、图片取消/残留、关联删除、文档下载、蓝图发布/导航及维度来源执行均未由此核销。新授权接线继续暂缓，其他用例继续分析；本轮零实服请求。
+
+**G节本批交接。**已补系统运维9组、PDF5组及应用/菜单/蓝图12组语义卡与当前消费者；高阶关键边界评审已收齐。pnpm run verify:docs自然exit0（564文件），git diff --check通过。仅本台账变化，遗留未跟踪测试不动；没有产品实施、测试运行、实服请求、提交或推送。S0仍须补数据空间、数据库、字典、编码、逻辑、数据工作流、JSON/文件、Excel、外部API、宿主及四文件深链的用例/证据对应，并集中完成公共合同/组件清单及旧入口处置矩阵。历史有效证据按源码快照复用，不机械重读或重跑已证分支。当前继续S0，后续阶段不自动恢复。
+
+#### H. S0字典、JSON/文件、外部API及编码用例/证据接续（2026-11-08）
+
+##### H1. 字典：六字段、设计/数据分开、AI候选与原视图
+
+本轮读取当前dictionary/resource.ts、DictionaryWorkspace的身份/装载/保存/取消/排序/候选校验/拒删段、DictionarySchema、use-dictionary-workspace及设计/数据页绑定调用；固定1147b00读取`apps/appworks/src/data/api/StructuredConfig/DataDictionary.ts`主要合同及调用，布局细节不以这些读段代替原页全核。
+
+| 用例 | 本次核到的输入、边界与结果 | 公共/领域责任与未证项 |
+| --- | --- | --- |
+| 目录筛选/选中/新建与应用选项 | 导航场景与正式_Base_DictType，目录视图配置来自catalog-views；新定义查询唯一dictionaryId空结果后核新增权，所属AppId必须选择且保存后不可改 | 公共查询/分页/选择/绑定归S1/S2；当前loadCatalog与loadApplicationOptions仍各自读元模型并拼ScenarioViewConfig后装配，须核和统一装配链是否重复，不机械另造DataSet |
+| 设计标题/编码类型与描述保存 | definition仅保存定义，TypeName/val/txt/functiondesc及dictionaryType按本次变更校验；编码类型0字符/1数字；数据条目编辑不得夹入saveDesign | DictionarySchema保领域语义；通用字段元信息/变更校验沿S1。更改编码类型需核已有条目val，不能通过未加载就当可改；当前装载全条目不是所有资源普通保存的模板 |
+| 六字段条目读取/新增/编辑/删除 | val/txt/exVal_1…4，rowid身份/typeid归属/ordIdx顺序；字段标题映射secondValue/thirdValue/fourthvalue/fiveValue，不因无标题隐藏扩展数据 | entries按typeid过滤，同DataSet独立saveData；先保存设计再维护数据；未改历史值不全量规范化。标准表格/表单直接绑定，不能退成两字段手传选项 |
+| 按显示顺序暂存排序 | 对当前显示条目各原PK、原字段ordIdx可读写及校验逐项检查，updateEditingValue只暂存index+1 | 这是明确领域命令，不暗改未加载记录；权限/编辑覆盖/批量原子预检机制应复用公共链，实际持久化仍用户saveData；不是自动排序即保存 |
+| AI批量候选→正式草稿 | 绑定精确entries/_Base_DictData/default，读已保存编码类型/字段标题；排身份/非输出/不可写字段，批量检查当前编码及候选重复后append原视图 | AiDataEntryHost与通用轮次/附件/候选机制归既有公共宿主，字典类型/字段限制归适配；候选确认不是落库。活动轮次/候选/输入须阻关闭，不能删AI分支来缩范围 |
+| 取消/保存回读/unknown/切换 | 原DataView丢本地，unknown先经原saveQueryViews核捕获；原提交确认后若有后来编辑不得刷新覆盖；设计/数据另一类有修改则拒混存 | Workspace当前有busy/uncertain/captureLost及恢复编排，可复用语义但须S1审计哪些属公共重复状态；不按class名整体删。useDictionaryWorkspace在route/嵌入两生命周期分支须S3统一核，强制卸载边界不能当正常安全关闭 |
+| 整字典删除及下游来源 | 当前canRemoveDefinition=false，removeDefinition零暂存直接拒绝；原因是DB/配置/代码全引用覆盖尚不可证明 | 是明确领域完整性缺口，不是已完成删除；禁用分支中仍有#deleting/删除恢复代码，须列可达性与废逻辑候选，不能为保兼容继续保留错误入口；普通保存不扩大成全局引用扫描 |
+| 字典模型/选项/工作流消费 | 以同字典ID和六字段给正式模型、选项和工作流查询；标题/数字类型影响模型输出 | 定义/数据/消费者三证据分别核，不能metadata保存成功即判运行通。822模型历史扫读只抽一页，不当完整页面/写入证据 |
+
+**复用证据与限制。**`2026-11-02-dictionary-audit.json`是当时可见范围只读/部分消费者，无浏览器、写入或删除。`2026-11-02-dictionary-runtime-full-audit.json`822模型692查询成功/130失败，每模型一页且含历史/其他应用；该文件“32待确认”已被后续`2026-11-02-dictionary-repair-audit.json`替代为获准32项32写/32确认/32回读/32消费者通过、0失败，其余98未核销。修复仅Base_DataModel.DbId，不授权重挂同名来源或自动修其他记录；本轮不重放这32写入。工作流字典来源另有`2026-11-05-workflow-dictionary-source-readonly.json`/`workflow-dictionary-runtime.json`定位待关联，不能只凭文件名计通过。本批没有新测试/服务请求。
+
+##### H2. JSON与FileManager：目录、原文件、来源模型及登记服务分别闭环
+
+当前已读json-data-page.vue创建/导入/保存/取消段、resource/document-resource及正式pagedata；固定1147b00复核`SemiStructuredDataManager/JsonDataManager.ts`的目录/上传/tree读写合同和`FileDataManager/FileManager.ts`完整API。参考树数组转换不等于本仓原文合同，不迁入第二文本/树真源。
+
+| 用例 | 输入/变化/持久与取消结果 | 当前边界、消费者与未证项 |
+| --- | --- | --- |
+| JSON目录读/改名与选中 | FFDEF…/Base_JsonData正式rowid；default只读摘要，creator由正式用户选项；name为标题，path非空末段才定位文件，空path用id.json | 原DataView变更saveCatalog，文档打开时不混存目录；path不能猜为name.json或把同名当同文件；正式查询身份与字段权限继续消费 |
+| 打开/修改正文/取消 | 同DataSet已声明JsonDocumentFile.default派生锁目标视图，fileName来自原可读目录，content原JSON文本 | 标准FieldJson直接绑定；无效输入/未知成员及false/0/null/空容器需保留；取消只丢本地，缺失/坏文件/无权不生成空内容覆盖；不能复用参考ArrayToJson丢结构 |
+| 新建JSON | 目录先暂存新增原ID→原文件查询确认目标不存在→正文Added；保存先文件确认、再目录指定ID提交 | 文件成功目录未确认时保留已提交事实，不能cancel伪撤销文件；两次DataSet.saveChanges不是跨源事务；目标阶段顺序/引用属领域，通用捕获/部分成功属S1 |
+| 导入JSON文件 | browseFiles一次单文件，读取原File.text并parse后，复用createDocument→saveContent两阶段 | 浏览取消零新增；导入不是独立上传旁路，不直接改已有目录。输入文件/读解析错误与提交失败分开，不能将“导入”按钮当全部文件格式消费 |
+| 正文unknown/目录unknown与切换 | 两来源各自hasUnconfirmedSave，原保存入口核验；在途/草稿/已写待目录确认阻关闭/选中切换 | 捕获/真实回读交资源适配；文档派生视图关闭destroyView。页面creationFileCommitted等阶段状态是领域提交事实，须核是否可由公共分阶段回执替代，不能盲删或保第二草稿 |
+| JSON目录/文件删除 | 当前document executor.canDelete=false，引用/同址/代码消费者全覆盖未证 | 不直接解锁或仅删目录留文件，不因已有烟测清理脚本会删就说产品删除可用；共享正文引用/冲突/部分成功/unknown需领域合同 |
+| JSON来源模型定义→运行查询 | JSON模型引用目录ID，正式字段/结构需原模型读取及DataView消费者 | `2026-11-07-json-model-definition-runtime.json`明确owned定义CRUD确认但runtime-denied；不能将定义可保存等同查询授权已通，也不能前端放宽权限 |
+| FileManager列表/上传/数字ID删除 | 固定参考当前应用文件投影，queryCatalog(path)；upload需真实scenarioId、File、files/FileDataPath/FileDataManager；remove正整数id | 与JSON按path原文件删除是不同合同，不能用RemoveFile冒充登记ID删除；本仓导航plan且正式宿主/部署路由缺证，历史GET404只界定当时网关/应用；未试破坏性请求 |
+
+**证据适用快照已实际核。**本轮计算`2026-11-07-json-file-declared-checkpoint.json`所列8个源/测试/配置SHA256，当前全部一致。可复用其34文件478项/最终3文件40项历史工程范围，不称本轮重跑；其readonlyRuntime为0文件读写，不替代后续写烟测。`2026-11-07-json-declared-lifecycle.json`记录同8哈希不变、精确自有JSON61读6写、unknown=false/cleanupConfirmed=true，含取消零写、file-first目录仍待保存及新runtime重开；保留来源/清理证据，不把该专用隔离清理当产品删除用例已通过。FileManager与JSON模型来源仍按各自明确缺口保留；不触碰21历史目录/不可读存量文件。
+
+##### H3. 外部API：配置维护与外部执行分开，公共参数按原记录重绑
+
+当前读取三原路径页的绑定/保存/取消动作、integration/api-management/model-rules.ts与queries.ts、正式配置与公共参数编辑分支；固定1147b00复核APIManageInterfaceList.savePublicParam/invoke相关段。完整服务商/请求配置与真实invoke服务深链仍需继续关联，不把“配置页可见”当外部调用验收。
+
+| 用例 | 输入/前置及结果/失败 | 当前公共/领域分界与证据 |
+| --- | --- | --- |
+| 服务商基础信息目录/创建/修改 | 当前应用/导航场景，Base_InterfaceProvider目录与create/edit命名视图，原rowid，标准表单字段 | 当前DataSet.saveChanges按单目标视图，取消discardPendingChanges；重读用DataSet.discardAndReload。数据查询/权限/生命周期公共，地址/鉴权等实际业务校验归领域；完整删除/真实调用缺证 |
+| 请求方案公共参数/请求头/令牌前缀 | 精确providerId，公共参数、Provider_Headers、Provider.authentication分别绑定/保存；请求方案与实际业务数据不能混存 | 每项原DataView编辑/取消；PageRuntime注入providerId，不页面另造请求上下文。令牌/敏感信息按原权限，不能把明文凭据写台账 |
+| 接口定义/输入参数/接口头部 | Base_DataServiceInterface及_Base_ParamList/Base_InterfaceApi_Headers按provider/接口身份级联，request/paramType/ContentType选正式视图 | 创建/选中/保存输入与头部沿原DataSet；配置完成不意味着外部请求可成功或无副作用；执行须核真实服务、输入输出/回执及授权隔离目标 |
+| 输出新增/编辑/暂存处理/删除 | Base_TblField.tblid属于接口、enname/DataType显式、IsPKey只能0/1；同接口名称不区分大小写唯一 | 标准record editing/pending helper复用，领域规则注册原DataTable后适用于所有命名视图/保存入口；不能按场景绕过或直接保存破坏引用 |
+| 输出破坏性修改的引用核验 | 原API场景+同PageRuntime按需元数据场景；查同接口公共参数及Type=接口/DbId=服务商/MetaName=接口名正式模型 | 被公共参数/模型引用时拒改/删；只读临时createQueryView必须total完整且字段可见后释放，不复制授权或业务草稿；这是明确领域命令范围，不扩所有保存扫描 |
+| 公共参数原ID重绑 | 原rowid、provider/name保留；interfaceId/outputfield/interfaceName/accessPath四字段来自当前唯一正式接口及输出 | 同服务paramName唯一且既有名称/所属不可改；配置场景仅选择输出不可新造类型；不按接口+输出猜匹配新建替身。公共参数删除当前规则明确拒绝，保留边界不冒充CRUD齐全 |
+| 外部接口执行与响应消费 | 参考invoke按paramType组请求，输入/响应过滤→输出定义/公共参数/模型消费者 | 保存定义与调用分开，不把API查询名/GET当无副作用；自动重放、付款/通知等未知外部结果须正式核验合同。当前输出CRUD实服未执行外部接口，不能据此宣称运行消费通过 |
+
+**证据顺序及哈希核对。**`2026-11-07-api-output-owned-crud.json`实际89次SDK读、3批提交：接口新建/回读/删除确认，输出新增1批被部署拒绝，输出行写0、外部执行false、所有自有ID清理确认；experimentConfirmed=false，不计输出CRUD通过。后续`api-output-record-operations-verification.json`是UI/公共生命周期工程检查点，13个源哈希本轮10一致、3变化（api-interface/pagedata.json、api-interface-list-page.vue、api-pages.test.ts），故不能整体直接当当前UI证据。再后`api-parameter-binding-verification.json`8个sourceHashes当前全部一致，已替代前件“重绑未实现”结论，但其openItems仍明确实际公共参数写回未验、部署输出父类型校验失败、浏览器/20包未完成。`api-output-formal-repair.json`只证明字段资格修复，不覆盖后续CRUD。以上历史服务证据不能宣布现在部署未变，本轮不重试已知失败/不改存量参数，只分列服务历史阻塞与当前缺证。
+
+**旧入口裁决。**参考savePublicParam按interface/output重新匹配的逻辑已被原rowid正式视图替代，不为兼容恢复。当前queries.ts返回必要公开定义的快照供领域引用核验，不是第二业务编辑真源；须保其完整范围/释放而非机械删除。三页仍有busy/dirty/重读/关闭订阅编排，后续S1–S3分别审计公共责任重复并成组替换；S0不跨层修页面。
+
+##### H4. 编码：五类分段、目录、示例、初始化和正式领码
+
+**研读与评审。**gpt-6-astra/high继续只读固定1147b00的`apps/appworks/src/ui/features/data-platform/structured-config/data-code/ui/use-data-code-editor-page.ts:216/431/574/616/657`、`apps/appworks/src/data/api/StructuredConfig/DataCodeEdit.ts:267/360/428/484/518/539/554`和business-code/runtime-api，以及当前领域/SDK与历史证据。主控复核当前resource、design-ops、example-plan/example-workspace、initialization-plan/workspace及assignment-resource完整关键链；初始化存储适配读保存/回读相关段。没有执行任何示例/初始化/领码请求。
+
+| 用例 | 输入/前置、可见及持久结果、取消/失败 | 领域/公共责任、证据与未证项 |
+| --- | --- | --- |
+| 编码目录/主设计/业务表与字段 | 应用ID、正式设计ID、BusTableRowid、业务主键字段；当前目录/编辑原路径均已注册；主/节点在868E…同DataSet | 主定义/类型/业务字段按正式视图；选择业务来源不得用表名/同名候选替代ID；`code-rule-business-target-audit`是暂存切换/18字段/取消/独立读未变及挂载夹具，不是新持久写入证据 |
+| 段顺序/新增/删除/类型切换 | Base_CodeNodeDesign原PK、CodeDesignID、NodeNo、NodeType、ParameterName、CodeNodeDesignJson；改类型清旧类型规则，段号归当前设计 | segment-ops.ts维护领域语义，DataView编辑/待删/取消原链；重复序号、失权、错父、迟到候选须公共/领域反例分别验；不能把页面数组与原视图双存 |
+| 固定/分类/日期/顺序/父编码五类 | 固定ParameterName编译ConstString；分类为业务过滤字段+引用表/显示值/过滤字段；日期来源/格式；顺序Format/StartNo/EndNo/Incre；父编码为正式父方案/字段 | 字典类型值/规则JSON与真实模型合同核；领域编译及父链校验不塞通用data层；标准选项/级联/结构编辑归S2，不能以一份JSON框代替完整交互 |
+| 分类/顺序目录独立维护与选择 | 独立目录DataView保存；选已保存目录写当前节点草稿，不夹带保存目录和主设计；需要当前节点类型/归属/可写字段一致 | design-ops.ts:30/52/99/114/146；分类7条/暂存删除取消历史0写不能当删除实服通过；目录全量或引用删除完整性仍按实际合同证据 |
+| 引用表/字段选择器与保存重开 | 应用/库/表/显示值/过滤字段四区标准绑定，沿真实来源DataView选择；关闭取消不写主设计 | current code-reference-table-dialog.vue确有标准字段/选项绑定；四区布局、筛选与旧值重开回显仍缺完整视觉/真实交互，不重复宣称“没有选择器”或“已完整还原” |
+| 刷新示例→保存示例 | 当前可读主/节点草稿按NodeNo编译TestGetCodeString输入，异步签名与原CodeExample基线相同且可写才updateEditingValue；刷新本身不save | example-workspace用只读语义视图读结果，原主DataView持唯一业务草稿；取消恢复，保存设计才Changed落库。样本分配未变不证明所有来源永久无副作用；不当作领码 |
+| 打开初始化/日期/组合/修改待用值 | 已存唯一主与无草稿无unknown节点，首个顺序号及循环前段/父链日期→CodeInitDataList候选和原Base_CodeSerialPerform基线；仅InitVal可编辑 | getCodeInitializationPlan/currentPlan阻目标变化；日期控件改前拒替换脏结果，候选刷新不提交设计。领域格式/增量/循环规则保留，查询捕获/校验/回执公用 |
+| 初始化保存/取消/unknown | 有原分配记录则Changed，无则Added；存按格式/步长换算的前驱Code；save经原DataSet，精确回读InitVal/recordId/NodeDesignId/Code | 实服样本待用005→存003，007→存005（步长2，同ID），暂存009取消回007，换日零写；5个自有对象已清。已提交不能用弹窗取消撤销；不重置共享流水；最小值null/其他格式/父链/多顺序实写仍开放 |
+| 正式领码→业务行编码回写 | PreparedBusinessCodeAssignment必须持本次正式Added已确认事实、同业务行/规则及当前coding写权；一次GetCodeString派发，retry0/cache false；可信回执后再原业务行写编码 | GET有分配副作用；命令ID不是后端幂等键，不拿空coding推可重领。派发后无可信回执即unknown、禁止放弃或另领；服务无原分配权威查询合同是明确缺口，不能GetCodeString重试核验 |
+| 创建消费者（工作流/Excel） | 各领域明确新增/领码/编码回写顺序及各阶段真实事实，不把一般Code工具当业务创建命令 | 工作流历史先领后建被拒“业务表数据为空”、0分配/流水未改；Excel creation.ts三阶段领域规则已有，但2026-11-07目录CRUD实服领码0，不能推领码/完整消费已通 |
+
+**可复用证据的精确边界。**`2026-11-02-code-example-workspace-audit.json`覆盖原三段刷新/取消且64条同设计分配未变；`2026-11-02-code-initialization-live-lifecycle-audit.json`覆盖同一自有设计示例落库、初始化更新/回读与清理，不扩到全部格式/多顺序。`2026-11-02-code-class-delete-audit.json`0写，只是暂存取消；`2026-11-02-code-rule-business-target-audit.json`实际业务来源切换0写，不冒充完整保存。`2026-11-04-workflow-code-allocation-contract.json`明确部署调用前置冲突；`2026-11-07-excel-catalog-creation-runtime.json`目录新增/回读/删清理不含领码。上述为其历史快照，本轮没有重跑或重放。
+
+**声明与公共边界待收口。**当前CodeExampleWorkspace构造时addTable/bindQueryExecutor，初始化workspace用ensureDataSetStaticInputTable并创建适配视图；WeakMap按DataSet复用资源。它们已消费同DataView，不可直接定为HTTP旁路，但S0须区分正式语义资源声明、按需实例化和静态交互输入，核哪些应由pagedata/首次装配声明，哪些确属合法运行局部结构，不能用“最终是DataView”免除配置驱动核验。初始化/示例SDK transport在资源适配内可保，旧参考manager.save及双份sourceRows/tableData不迁；领域plan签名/已派发事实不能误删为业务草稿。通用unknown/生命周期的重复部分须在S1/S3集中替代，不在编码页临时补底层。
+
+**H节本批结论。**当前只增加语义/消费者及证据适用性，保留20包完整分母。发现明确拒绝能力、历史服务阻塞、缺证与用户暂缓分别登记，不标整包通过。下一S0重点为数据空间/数据库、逻辑视图/数据工作流/Excel与宿主四文件的同一矩阵，随后汇总冻结合同及阶段测试清单；不得自动恢复此前JsonTree/Excel实施断点。
+
+**H节验证。**pnpm run verify:docs自然exit0（564文件），git diff --check通过；工作区仍仅本台账修改及原未跟踪测试。产品代码/测试/配置未改，未运行产品测试/生成/构建或实服，未提交推送。S0进行中，整体目标未完成。
+
+#### I. S0数据空间与数据库责任审计（2026-11-08）
+
+##### I1. 数据库与表视图：登记、物理效果、元数据及预览分别验
+
+本轮读取当前database/server/resource、catalog/table-view与scenario身份装配，dataset-extensions注册/同步/连接相关段，server/view-ops创建编辑取消/保存/删除段，catalog/db-view-ops删除段、object-view-ops、table/copy-view-ops、field-view-ops及registration批次编排。固定1147b00核`apps/appworks/src/data/api/DataBaseManage/TableAndView.ts`的查询/复制/删除及配套API文件索引；原页完整布局和DDL触发深链仍需按原路径继续核，不把函数清单当完整研读。
+
+| 用例 | 真实输入、前置、变更与结果/取消 | 责任、实际消费者与验收缺口 |
+| --- | --- | --- |
+| 服务器/库/表/视图目录与筛选 | 导航正式Base_DataSet.rowid=scenarioId=FormKey；无目标直接拒绝，不搜索候选空间；Base_serverInfo、_base_dbInfo、_Base_TblList、_Base_ViewList、Base_TblField按模型核唯一身份 | 已有DataSet/View及标准子组件可复用；server/table-view各自动态配置/元数据装配仍需S1/S3统一，不能因数据链末端一致免除重复装配；目录支持DM/KINGBASE过滤不等于注册/连接支持 |
+| 服务器注册/编辑/取消/删除 | 注册命令原输入行、Type/连接参数；连接测试读原编辑覆盖；编辑原目录行；取消仅discard原ID，unknown先核验 | 目录CRUD与registerServer领域命令不同；登录/连接凭据不写证据。删除服务器登记后真实关联/物理效果待核，不能由目录消失推断库已删除 |
+| 数据库登记/编辑/删除、级联到表视图 | 原服务器ID/库Id与相应目录字段，选择级联当前表/视图；数据库删除函数明确只删登记记录、不删物理库/扫引用 | 明确产品命令语义，不能反向把物理删除加入普通目录删除；需要真实登记、重开/来源消费者及历史引用完整性；取消不撤销已发命令 |
+| 未登记库/表/视图候选与连接测试 | 原serverId或dbId，getUnregisteredDb/Table/View及连接测试结果；读取错误保留正式服务诊断 | 只读语义资源，参数捕获/迟到/生命周期归S1；引用读取与连接测试不作为普通保存前置。当前放file类型须核语义资源分类，不代表真文件 |
+| 批量注册表/视图 | 原db、候选名/说明/defaultFields、固定batchId及完整选择签名；每项单次派发，已完成项不再提交；取消只有已知未派发/明确未生效本地行 | 领域注册及物理默认字段需精确回执；table已注册+默认字段true明确报补齐未执行，不能自动再POST；刷新失败不能重发已成功项；分项成功、尾部失败、unknown各有状态 |
+| 注册核验与默认字段物理结果 | 精确对象名逐项回执+正式catalog唯一记录；默认字段须原created确认事实，无回执不得仅凭表存在核销 | 原命令保存/verify统一链，批次/默认字段属于领域；目录存在不证明物理字段已补。要实际独立物理读回、登记/字段回读及精确清理；当前无可连接安全测试库证据 |
+| 新建表/视图及修改物理设计 | 当前库、对象ID/名称/描述、字段类型/长度/主键/必填/默认/加密脱敏等；DataSet变更保存目录及相关字段 | 元数据存储与物理DDL需正式合同分别证明，不能“saveChanges成功”就报物理新表可查询；通用字段校验归S1，物理结构约束和命令顺序归领域 |
+| 复制表 | 原sourceTableId/dbId、新名/描述；读字段，预检新行字段权，显式新表ID及复制字段同DataSet保存，再读目录 | 当前copy-view-ops只在已加载tableView.rows判重；默认目录分页，不能证明全库唯一。源字段是否完整另核；SchemaName缺省dbo/status缺省1与字段列表收窄须核正式跨DB/历史字段语义，不以已有实现当正确；复制记录不证明物理表/数据复制完成 |
+| 字段/对象联合设计保存及取消 | tableFields/viewFields、对象视图与实际extraViews，只提交有修改目标；unknown先原视图commit，成功后刷新所选视图 | field-view-ops已走DataSet，重复保存/回读/错误呈现可归公共能力，不能重写owner；字段关联、修改类型/主键影响归领域，普通属性保存不读全库依赖 |
+| 目录表/视图删除与下游 | 当前原ID、正式deleteActionState，removeRow→DataSet指定ID保存→refresh | object-view-ops仅证明本次目录删除接线；物理DROP、Base_TblField/关系/工作流/来源模型级联未由此证明。删除完整性与孤立历史分别核，不能先藏孤立数据 |
+| 表关系编辑 | Base_TblRln/forTable、relationPeers/Endpoints/EndpointFields；真实当前表及另一端/字段、主从角色，改端点重选字段 | 是数据库专题关系，不等同数据空间resourceRelations或viewCascades；角色在此指关系主从，不是权限角色。取消原定义视图/释放候选，存储与运行引用须单独验 |
+| 表关联工作流 | Base_WorkflowDefinition/forTable及状态字典，目标表→相应数据工作流 | 属数据工作流交叉消费，不用列表可见核销节点/执行；来源记录/所属空间与当前表身份均需验证 |
+| 表/物理视图数据预览 | 目标DbId/Name/Fields/PK/PageParam，字段目录生成标准字段子组件；按源返回数据/总数/权限投影 | 当前preview-view-ops持GetData及SysGetData请求适配；本轮发现按错误消息/IsVisible基线正则从公开查询改系统查询的分支，须S1核正式服务与授权边界，不按“最后进DataView”免审，不将错误文字当切换授权依据 |
+
+**已定位的源码反例与待核状态。**`dataset-extensions.ts::attachTableSyncMetaDataView.verify`刷新字段后只用`fieldView.rows.length>0`返回原命令行；反例：字段同步前已非空，本次命令未执行或执行效果未知，仍满足该谓词。该谓词不能证明本次元数据同步，属于源码层核验合同不足（尚未新增运行复现），S1须明确权威目标/预期变化或保留unknown，不能靠重复同步求证。注册/defaultFields已有更严分项核验，不能因为此缺口将两者混为一谈。服务命令表被标resourceType=file且通过ensureDataSetFileCommandView创建是现存语义偏差候选；公共BindCommandSubmitOptions已允许resourceType:string且装配已有command分支，优先核实际声明/调用范围再统一，不为保旧名另建兼容。
+
+**证据复用与限制。**本台账2026-10-25注册批次审计已有重复POST、尾刷新失败、默认字段unknown、不透明回执及错误遮蔽等反例/修复记录；实际PX/sync_test未登记列表返回Unknown database，12个已见物理库均业务/备份，不是写烟测对象。真实注册成功、默认字段物理完成、现有库登记/库级连接、目录删除完整性仍缺部署/精确隔离对象证据。2026-10-28数据库域13文件199项是当时夹具工程验证，不能当本轮执行或物理DDL验收；该历史证据按其原文件留存。当前存在server/catalog/registration/relation测试源，只能作后续验证入口，本轮未运行。S5须用精确隔离对象证明目录、物理结果、来源模型与真实查询，并分别清理，不操作现有业务库。
+
+**处置归属。**数据库连接/命令transport留资源适配；字段/DDL/登记默认字段/主从关系规则留数据库领域；公共身份、按变更提交、分项回执、unknown、原读取权限和生命周期归S1；标准字段/选项/表格子组件归S2；宿主装配/导航归S3；上述页面/配套TS通用编排在S4同批删除替代部分。当前只审计，未进入任一实现批。
+
+##### I2. 数据空间目录与设计：原生结构、分层读取、定义资源与真实消费
+
+高阶gpt-6-astra/high只读复核固定1147b00的设计页use-data-set-design-page.ts:847/974/1022/1288/1462及node-panel相关来源/字段/请求段，并核当前链；主控复读当前catalog删除/导航绑定、runtime元数据加载、assembler原生关系/级联/资源绑定、ScenarioDefinitionRecords/Resource保存关键段、DataSpaceDefinitionSave与直接消费者，以及关系/级联metadata、设计组合根与聚合协议。以下源码依据与运行证据分别记；没有执行产品或实服。
+
+| 用例 | 输入、前置、变化及结果/取消 | 责任与实际缺口/证据 |
+| --- | --- | --- |
+| 目录查询/筛选/新增修改取消 | 当前应用、正式空间行身份，原DataView查询/编辑；设计目标取原rowid，不因空视图配置拒进入 | catalog使用正式DataSet，通用分页/当前/权限归S1/S2；空间ID、工具ID、元数据宿主空间三者分开，调用者只传一个targetId |
+| 目录绑定查询/路径及说明复制 | 目标空间所属sysid→导航conid绑定及同应用祖先，完整字段/权限/总数；缺祖先或循环明确失败 | catalog.queryBindings派生两个查询视图、closeBindings释放，不存页面数组；只显示公开字段，不复制权限凭据。复制说明沿已有正式模型生成链，不能把调用可达当文档完整 |
+| 空间目录删除 | 原选中同一行、正式delete允许；先查目标Base_DataModel，有模型拒删，未引用目标暂存Deleted并DataSet指定ID提交 | 当前check只用total>0拒绝，须核countReported/完整范围，且未覆盖pagedata/文件/导航/授权引用。这是源码证据不足项，不当“空空间删除已完整”；不自动级联删历史对象 |
+| 单目标设计进入、分层装配 | props.targetId，loadLowcodeDataSpaceMetadata先读元空间8D1的Base_DataSet/Base_DataModel并注入目标T，字段/来源后按需加载；不要求T先装配运行DataView | PageRuntime持实际元数据DataSet；缺失/重复/非法目标拒绝，切目标保持旧意图保护。当前运行装配/导航/释放归S3，不另收设计器scene/additionalScenarioIds |
+| 来源选择/同步/替换/差异 | table/dict/interface/json/logicView/databaseView六来源，数组另走本地输入；正式来源ID与字段映射/别名/输出/PK及主业务模型标记 | 参考元模型/前端模型合一本仓DataTable，不新造两套字段真源。来源替换是结构命令需完整本模型及实际引用，不扩普通属性保存读全空间；各来源服务能力单列 |
+| 模型新增/改名/复制/移除 | targetId/modelId/注册名、来源与正式字段；改名涉及原生视图/关系/级联/布局等实际引用；删除核模型自身及下游消费者 | 领域归属/引用/部分阶段保留，DB和pagedata独立确认；不得猜同名重挂或自动清孤立。默认值与参考AI缺陷须核，不机械照搬 |
+| 普通字段/来源入参及计算字段 | 原模型/字段身份，description/表达式/allowAIAdd/ValueFun等普通改动按实际字段集；计算列定义、改类型/输出/PK属结构命令 | 普通编辑/取消只需本模型已读身份，不要求无关模型加载；正式DB→columns，不能模型删除后遗留字段靠隐藏闭环。前端本行计算与后端聚合严格区分 |
+| 数组items/表头/主键 | 原数组模型items与表头/字段映射、空容器/真实类型、正式主键及复杂引用 | array-draft局部输入DataView不是第二正式模型，但其确认写回/取消/持久重开与复杂引用须逐证；不能套参考数组长度当全量目录或把对象数组当所有JSON值 |
+| 命名DataView与请求配置 | 所属模型多视图，查询过滤/排序/分页/树/输出/父结果/选择/编辑；共享操作资源/crudConfig归DataTable，不在视图重造模型 | 显示投影queryColumns与完整columns分开；旧本地聚合、任意JS转SQL不能作为目标；标准配置按实际ClassModel生成，不先固定所有页面区域视图 |
+| 默认模型预览与命名视图实际预览 | 默认模型独立预览与当前命名视图请求两条消费含义；输入/输出kind、子结果路径、过滤/权限/分页均按原配置 | view-design.ts:2403/2423/2846；成功拿到数据不证明所有输出形态/范围正确。Foreign/LEFT/聚合服务差距见下，不加前端join或虚构Count |
+| 三层输入参数 | 空间inputParams声明、所属模型来源入参映射、本次PageRuntime.scenarioInputs调用值各有归属 | input-parameter-session:118/125/200及source-input-session:102/162/202；声明修改引用核验属领域，级联传值/迟到公共；不能一组临时参数覆盖三种合同 |
+| 原生resourceRelations与显式viewCascades | 两端DataTable稳定身份、完整filterExpression及声明属性；query/field级联及多父、参数/字段路径分别定义 | Base_DataModel_Relation只为历史读取单向适配来源，不能当原生v2真源或自动depType推级联；模型关系不等于数据库Base_TblRln。关系定义DataView与graph只读端点投影不同 |
+| 布局/旧图读取/预览采用 | 坐标/待配置图元/图重建，拖动不改模型关系；旧SysForm图仅参考布局，坏/缺/无权/冲突不当空配置 | 原DataSpaceLayoutDefinition及DataSpaceReferenceLayout资源，显式previewSource/adoptSource；旧reader位于资源接入，不因有底层IO就认页面旁路，但须核同应用/目标/代次及释放 |
+| DB+五类pagedata定义变更 | DB正式空间/模型/字段；文件DataSpaceLayoutDefinition、DataTableBindingDefinition、DataViewDefinition、DataResourceRelationDefinition、DataViewCascadeDefinition | ScenarioDefinitionRecords.resources在源码具名；ScenarioDefinitionResource仅收原查询context与捕获变更，局部合并保存保未改部分，未知signature匹配只核原捕获；ProjectWorkspace/ScenarioViewFile只在适配内存储，不能页面再save file |
+| 保存/取消/失效/重开及下游 | DataSet按改动范围提交，DataView取消；正式保存后运行定义失效，独立新PageRuntime装配T按完整键消费 | DB/文件分项回执与unknown、confirmed/not-applied/accepted-current区分；采用现状不是原提交成功，取消本地不回滚服务。下游组件绑定和真实查询是闭环，不以定义能存即判完成 |
+
+**协调器拆分的具体边界。**`DataSpaceDefinitionSave.run`核同dataSet/targetId/modelId，领域parts.prepare/apply/check/confirm和settled/failed；本轮核到source-input、source-edit、rename、array、workflow boundaries等实际调用，Excel/逻辑发布亦有原调用。领域引用、结构变更后核验与分阶段确认保原责任；原视图/ids/queryContext捕获、回执数量比对、未知恢复及编辑监听是S1集中审计的公共候选。不能把该文件整体搬入spark-data使其依赖页面/特定模型，也不能整体删除让各页另写。verifyDataSpaceDefinitionCapture明确“捕获消失无有效回执”仍未知，accepted-current需显式采用且保期间新编辑，保留该语义后再删重复实现。
+
+**可达旧表达与重复入口清单。**正式原URL在vue-pages.json落data-set-list-page.vue；旧`config/pages/data-platform/data-space-catalog/script.js`仍含catalogSaveUncertain、绑定行投影、三处DataSet保存和手绘动作/分页，appworks应用登记其pagedata不证明运行其script。须核动态工具真实消费者与四文件目标后删除被替代逻辑，保共用pagedata；不能标“当前Vue正在走旧script”。设计Vue:821–853手工组合文件binding/definition、:1250文件模型保存、:1390后输入参数/切换编排及view-design:1687/1724/1740/1756的file基线/状态检查列为逐调用审计点，未证明的旁路不凭名称删除。当前源码已显示资源适配内调用workspace.saveScenarioViews，不能外移成页面第二保存入口。
+
+**服务/历史证据边界。**`2026-11-04-parent-result-pagedata.json`明确实服具名parentResult视图CRUD、独立重开、标准表消费及精确恢复，且limits明确未验缺失文件新建/移除、完整多层权限与输出kind等，不能核销整页；本轮已读取scope/limits。`2026-11-04-foreign-runtime-protocol-live.json`高阶复核同子行3+4，Foreign-only空JoinFilter缺子集，真实JoinFilter后两模式正确但无权威Count；`2026-11-04-join-public-live.json`保LEFT纯ON无匹配差距。`2026-11-07-json-model-definition-runtime.json`定义存在但运行拒权。它们均是对应时点服务证据，不意味着现在已修或部署未变。当前DataSpaceQueryAggregation只允许同一正式字段Sum/Count/Avg/Min/Max等规范化，拒计算/引用字段及跨表任意表达式；是请求构造约束，非部署支持证明。旧$list/$join/selectionAggregate等配置逐项保迁移处置，不在浏览器重算补服务。
+
+**本包分析结论。**主链与五类文件资源已有可复用成果，完整1:1布局、所有来源消费、跨来源部分确认、旧关系/数组复杂引用与服务缺口仍分列。S0不是重建元数据或重新造DataSet；下一公共验收矩阵围绕原数据API的直接证据及真实消费者集中收口。本轮未运行产品测试、ClassModel或新实服。
+
+##### I3. S1公共数据合同验收矩阵草案（待S0收齐，不是冻结声明）
+
+下表约束恢复实施后的集中批次。已有API优先复用；测试路径是当前代码的核验入口，标“已有测试”只表示源码可查，本轮未运行、不将文件名当通过。直接反例应从真实资源/调用链构造，不能导入未实现API或让stub预先实现结果；正式服务支持仍单独列证据。
+
+| 合同组/已有责任方 | 不可妥协的验收结果 | 当前证据起点、补项及下游 |
+| --- | --- | --- |
+| DataSet/Table身份与完整视图定位 | 场景/正式modelName/view唯一；内部tableKey显式映射；跨空间同名不串、重名/非法键拒绝、destroyed不可用；局部键只由明确宿主上下文补全 | core/data-view-key.ts及identity/scenario-model-identity.test.ts；本轮读测试的不可改身份/往返与save冲突断言，完整键运行消费还须组件/S3；所有20包 |
+| 配置/元信息/运行状态分离 | columns字段真源不混页面列；DB正式定义与pagedata引用不双存；DataView请求配置/运行rows/权限凭据各自归属 | dataset/data-table/data-view、ScenarioViewConfig/DefinitionResource；所有元数据/文件模型及四文件消费者；静态输入/临时查询/派生视图分清合法用途 |
+| 查询输入/过滤排序分页/树/输出 | 查询身份含当次输入与范围；受限源明确拒不支持项；权威countReported、nextPageAvailable及reportedPrimaryKey按真实来源，空与失败/无权/未完整不同 | data-view-query、query-config/request-options、pagination/next-page-result；DB、缓存、Foreign/parentResult及服务聚合各自适配，不伪造分页/总数 |
+| 读取捕获与迟到/原生输入 | 原结果/字段可读证明随查询、值、身份、失权、销毁变化失效；未发输入/嵌套原生值不可被迟到结果或异步validator覆盖；纯计算/选择变化不误判业务修改 | read-row-proof.test.ts与query-result-replacement.test.ts本轮已读真实断言（含undefined属性存在性、同值替换、嵌套输入、异步期间保护）；按钮KEY/资源命令/所有编辑器 |
+| 编辑覆盖/新增/删除/取消 | 唯一DataView草稿；当前/选中/目标PK分开；显式新增身份只用正式支持；取消恢复本次范围、不撤已提交；新增后未发删除无正式写 | addRow/addRowWithIdentity/removeRow/getEditingRow/discardPendingChanges；正式query/runtime与file/command分别验。字段/模型/目录/候选批量及所有页 |
+| 同模型多视图冲突与变更范围 | 同记录冲突在apply/派发前拒绝；只提交已加载已修改且本次指定目标，未加载不删除；后来编辑不夹入原capture或被接纳清掉 | dataset.saveChanges、identity测试后半save preflight、query-save-domain-rule；定义联合保存/目录与正文/原多视图消费者；不靠全量依赖扫描补范围 |
+| 当前/选择/值/标签 | 单选/多选/对象成员/字段值按正式DataMember；值类型与序列化分开；选项未加载不清合法已存值；当前行变化不偷换操作行 | selectionDelegate/data-view-key DataMember、选项queryOptionRows；列表/树、层次选择器、API参数/编码引用/字典等；绑定组件反向写入在S2验 |
+| 显式query/field级联与释放 | 以配置的父视图/成员/字段触发，不由模型关系或控件提示推导；多父、空值、错顺序、迟到、循环/重复订阅及销毁可检验 | query-input-cascade、dataset/field-cascade、cascade-event-filter等测试源；模型关系另作稳定结构；数据库层级、动态选项、工作流/Excel输入 |
+| 通用校验与领域钩子 | 字段必填/类型/immutable/pattern/trim等按修改字段执行；错误保草稿；领域钩子精确触发变更操作、原值和引用完整性，不扩大普通保存 | validation/save-rule-validator、crud/save-rules及DataTable.setQuerySaveRule；API输出、Excel、结构删除。领域算法/模型名不得进通用包 |
+| 权限消费 | 表级新增/行操作/字段可见隐藏脱敏/可写必填独立；当前查询scope及目标/字段提交再核；失权/换应用/空间拒旧授权，服务仍独立校验 | 原DataSpaceQueryContext与DataView.fieldAccess/action/newRowFieldAccess；只能延续既有守卫，本阶段新增授权接线暂缓；资源本地编辑权不伪造业务服务授权 |
+| 数据提交与部分成功 | 预检失败零派发；每来源/视图回执对应原ID/字段及实际结果；前项成功后项失败保已确认；无跨DB/文件/命令事务假承诺 | DataSet.saveChanges/saveChangesInPhases及原runtime save；DataSpaceDefinitionSave通用部分逐项对照；DB+pagedata、JSON、布局、发布、模板及初始化 |
+| unknown/not-applied/无效回执 | 原capture核验、不重发、不加后来编辑；not-applied与失败/回读失败分开；accepted-current仅表示显式采用，不冒称原操作成功；无法权威核验时保unknown并锁重放 | resolveUnconfirmedSaves/hasUnconfirmedSave、BindCommandSubmitOptions.verify、ScenarioDefinitionResource；命令submit测试已核有无放弃两分支。缓存/领码无核验合同保持缺口，数据库sync弱谓词需修正 |
+| 文件/pagedata适配 | 冲突基线、缺/坏/无权、局部变更保未改内容、字节/文本分别语义；同资源多视图共capture；写/版本/删各自独立回读；owner只在适配内 | file-resource-adapter及ScenarioDefinitionResource现有接口；JSON/工具/场景/布局/模板；不手传正文第二草稿或为xlsx伪文本 |
+| 语义命令与只读查询 | readonly refresh不能派发写命令；命令输入/原读取证明/本次新增事实、单次派发/confirmed回执/unknown/禁止放弃可验证；本地commandId不是服务幂等键 | data-set-command-view.ts及dataset/command两测试；现有allowAbandonUnconfirmed/retainConfirmedOnRefresh正式合同保其差异；DB命令伪file与动态声明集中核，不建兼容分支 |
+| 后端聚合与旧配置处置 | 业务SUM/COUNT/AVG/MIN/MAX按正式范围/授权由服务返回；本行计算可前端；旧$list/$join/前端子表聚合/selectionAggregate逐配置标迁移或明确拒绝，不猜SQL | DataSpaceQueryAggregation只支持本字段安全范围，DataView.aggregateError及computedAggregateError；已读行计数可作诊断不得冒业务统计。服务缺约/旧配置实际调用者待列 |
+| 生命周期/订阅/实例所有权 | 同一DataSet/资源实例首次装配及派生视图销毁、在途代次、dispose幂等；切换不借旧权限；未决命令不得因UI重开解除未知；无跨页全局业务真源 | DataView.destroy/DataSet.destroy及PageRuntime（S3集成）；所有资源宿主，项目缓存/WeakMap/订阅须按实际使用审计，非一概删除 |
+
+**冻结证据格式。**每组需列当前公开声明/源码真源、实际消费者、有效反例与正例、受测来源及能力限制、工程结果及源码快照、替代/保留/删除入口、遗留服务阻塞/缺证/用户暂缓。API存在或测试绿不自动冻结；不得将当前S0列表写入产品文档称已实现。S1修改只限责任层及测试/文档/派生物；完成后才进入组件，不逐页面触发跨层补丁。
+
+**高阶阶段交接裁决（S0方案，不是实施授权）。**用户同时要求单层批次与不留兼容层，因此不能在S1因新合同破坏旧组件/脚本时顺手改下游，也不能加旧API包装求整仓绿。高阶复核有条件接受以下交接规则：S0先逐项列破坏性差异、真实旧调用者（含四文件/脚本/已存配置）、旧→新语义、责任阶段与最迟复验点；恢复实施先取根typecheck基线。只有精确归因到已登记旧调用的诊断可作为内部交接，未归因/新增错误回责任阶段；不得运行旧数据静默错绑、错写或丢值。已存正式配置需要迁移时必须显式转换或可诊断拒绝，不为删接口截断数据。S1本层类型/直接正反例/真实导出及正式ClassModel生成一致性是冻结硬条件；下游编译若阻断正式生成或本层核验，则仅标“接口草案可接线、冻结待验”，不能用旧产物/stub称冻结，不缩tsconfig/门禁。S2/S3/S4接手即验本层真实消费及类型，根类型/生成/集成在最早可运行点补回，不全部推至S5。整仓仍红的快照只能内部交接，不能标阶段整体通过、可合入或发布；S5按原完整影响面及真实下游验收交付。
+
+**I节本批交接。**新增数据库13组、数据空间15组语义卡及S1公共数据16组验收矩阵草案；高阶包4/阶段边界复核已收齐。`pnpm run verify:docs`自然exit0（564文件），`git diff --check`通过。只修改本台账，原未跟踪JsonTree测试保持；无产品代码/配置改动、产品测试、生成/构建、新实服请求或提交推送。S0仍需收齐逻辑视图、数据工作流、Excel、宿主与工作台四文件的逐用例/深层消费者，完成组件清单和旧入口/破坏性差异矩阵后再总体审查；现有服务阻塞不妨碍这些只读工作。整体目标active，未自动进入S1。
+
+#### J. S0逻辑视图、数据工作流与Excel消费边界（2026-11-08）
+
+##### J1. 逻辑视图：完整设计范围与当前单根发布能力分列
+
+本轮读取当前logic-view/resource、design-ops、source-views、output/publication-plan、publication保存/恢复证明段及设计页绑定/事件，固定1147b00对照原logic-view-design-page.vue基本信息/参数/四来源/字段/输出等入口。现有文件/元数据两实例归同PageRuntime，不能为省事合成一个假事务；完整原页深层运行/函数/层次行为还须其合同，不以源码存在判服务支持。
+
+| 用例 | 输入/前置、可见/持久及取消/失败 | 公共/领域责任与当前差距 |
+| --- | --- | --- |
+| 目录与单目标编辑 | EB720…正式Base_DataViewList，viewId进入editorTarget唯一行；设计文件与元空间参数/来源分开，后者deferred按需加载 | prepareEditor核真实rowid/可读，PageRuntime注入目标再查询；目录增删/命名与文件引用完整性还需按真实消费者核，不用文件不存在生成空设计 |
+| 基本信息及参数增改删 | _Base_ParamList/logicViewParameters，parid身份、pid=viewId；参数名/描述/testvalue；单元格暂存、删除确认、单独保存/取消 | 原参数DataView与来源接口参数命名视图分开；自动失焦应用与未提交输入由S2统一，不能把testvalue误当正式运行输入；unknown沿原捕获 |
+| 表/字典/接口/JSON四来源候选与恢复 | 当前已装元DataSet的sourceCandidates/sourceDetails，正式DbId/MetaName/字段/输入；prepareStored精确唯一来源并按scope核异步 | LowcodeDataSpaceModelSourceReader共用，选择/过滤/候选公共；来源身份/类型映射领域。不能回退同名首个来源；选择不执行外部接口，不把definition可读当运行已通 |
+| 节点添加/删/层级/选择与字段 | 原designJson对应节点集合、ChildTables/Type/DbId/MetaName等；字段Name/Description/IsOutput/AsName/PK、系统字段不输出/反选、字段新增编辑删除 | LogicViewNodeCommands只改原DataView路径，窄编辑器按原字段写回；不能持第二nodes数组草稿。参考完整节点层次与字段选项仍要保留，不能因当前发布受限删除入口 |
+| 过滤/排序/去重/函数/计算 | 单项/层级请求配置、字段计算与输出选择、值函数/参数引用；原顺序/未知成员保留，非法输入可取消 | 领域表达式与正式服务执行分开；通用JSON/条件/函数编辑器归S2。JS不猜SQL、前端不算业务汇总，不用当前单根类型检查削减原功能 |
+| 输出模式/子表/导航/多根及预览 | 当前设计的输出kind/父子关系/主键/别名/筛选/参数→真实查询结果与下游结构 | 源码publication-plan仅支持单根OutputType=Table、无ChildTables、无Group/DISTINCT/ValueFun/Expression/Value、四来源且非空输出；其他形态为待承接范围，不是已完成的安全拒绝即可核销 |
+| 保存设计与正式输出发布 | 当前设计原文件DataView与Base_TblField/logicViewOutputFields分别捕获；同viewId/tblid、类型/输出别名来自当次正式来源 | 先预检输出→文件确认→输出确认，文件成功输出失败保file-confirmed；下游reader依正式Base_TblField，不从设计JSON猜字段。不能照搬参考全删全增/PK全0/类型全string |
+| 取消未发输出、unknown、无效回执采用 | 原设计签名/原视图/原query/原ids及后续编辑证明；未发可取消，已确认文件不回滚；原unknown仅verify，accepted-current显式结束不是成功 | LogicViewPublication持不可编辑原捕获和阶段，不是第二设计草稿；通用捕获/恢复对照S1协调器归并，设计与输出语义/先后归领域，禁止S0拆移实现 |
+| 重开/参数/字段/模型运行消费 | 新PageRuntime读已保存设计与正式字段/参数，模型来源再经同DataView查询 | 保存文件、发布字段、运行查询三证据独立；接口无正式输出字段/JSON拒权/表DbName不完整不得前端补猜；普通参数保存不夹发布 |
+
+**源码层完整范围反例。**设计页save统一进入LogicViewPublication.save→LowcodeLogicView.prepareOutputPublication→compileLogicViewOutputFields；合法原业务设计如ChildTables非空或多根，在该编译器前置即拒绝，尚不能沿当前普通保存发布链完成。这里并未证明服务支持这些形态，亦不要求绕过校验先写坏输出；S0必须规划“完整设计保存合同、各输出形态发布/消费能力及明确服务缺口”，不能把当前受限compiler当完整目标合同，不恢复第二文件save旁路。
+
+**证据快照与未决原意图。**本轮计算`2026-11-07-logic-view-four-source-progress.json`的8个frozenFiles，全部与当前源码一致；其状态local-verification-passed-partial-live-source-confirmation，pending原列DbName精确诊断、接口正式输出样本、SaveView持久确认及浏览器。较新`2026-11-07-logic-view-source-exact-diagnosis.json`状态已完成只读定位但持久/主键缺口开放，不能沿旧pending重复调查已定位问题，具体结论还须结合该证据下游。`2026-11-06-logic-view-publication-recovery-progress.json`为两DataSet恢复本地证据，不替代服务。`2026-11-06-logic-view-owned-file-save-unconfirmed.json`明确目录创建确认、SaveView已派发但无匹配回读、unknown=true、fixtureRemaining=true、初始2写/核验额外写0，禁止重放或删除该原目录。originalRuntimeRetained是记录当时状态，不据此声称该进程现在存活或开启等待；本轮不请求/清理。sys_edit历史同类成功提示但回读旧值也不重复写。两类原意图各自独立，不能用另一样本成功解除未知。
+
+##### J2. 数据工作流：定义、布局、模型、节点命令与整流输出
+
+读取当前workflow/resource、node-definition类型/空绑定检查、node-removal预览/快照/分项提交相关段、layout-resource、execution-contract完整原合同及runtime-bindings准备/执行相关段；固定1147b00核use-workflow-design-page的来源选择、普通节点、边、AI草案、保存与测试入口。原5E967目录/0DD8设计身份与业务审批引擎、Agent文件工作流严格分开，不互相核销。
+
+| 用例 | 输入/前置、结果及取消/失败 | 责任与真实消费者/缺口 |
+| --- | --- | --- |
+| 目录新增/编辑/删除/设计打开 | Base_WorkflowDefinition原ID、定义/启用/定时/触发表等字段；目录场景与设计场景不同但同workflowId | 目录领码前置仍阻塞部分创建，不造空编码定义或跳过服务；已有目录CRUD样本不证明启用调度/生产执行；整方案删除不能以节点删除核销 |
+| 工作区完整读取/原布局/选择 | 主定义/节点/边、同ID参数空间、布局文件各按实际工作区读取；选节点/边与双击打开按参考流程 | 模型/字段/输入/输出属于原DataSet；原图布局文件只存坐标/折线/历史，不伪造数据库节点；完整参考画布/1280配置弹窗/执行输入输出布局与细节仍要S4核 |
+| 开始/结束API_CALL边界 | 正式position_type 0/2、声明输入/输出；默认边界不是外部API调用节点 | boundaries领域命令新增/保存同参数定义；不以普通query节点替代正式边界；声明→实际整流输出独立验证 |
+| 新增普通节点/类型首次绑定与切换 | position_type=1、未绑定原节点；query/copy/add/edit/delete/merge各归属；已存/待新增原类型与空输入/输出/边分别核 | node-definition核正式未绑定、当前字段权与精确连线，类型选择不是换按钮即可完整；错归属/已绑定/存在连线拒绝；普通保存不全图扫引用 |
+| query来源/模型/字段及参数映射 | 正式来源→同workflowId模型/字段，输出别名/选择/主键、参数引用/祖先输出、过滤排序分页/计算 | 参考元模型与前端模型合一，query-node-create/query-model-create/source-edit复用原data链；缺模型不猜绑定。查询/校验公用，来源/输出可达性领域，服务层次/分页需真实结果 |
+| copy来源与目标 | 原已存来源节点/模型、目标dbId/name及参数；目标配置真实协议（历史targetDbName冲突） | 前端不复制业务数组伪完成；真实服务应创建/写目标与精确读回/清理；已有物理表copy证据不扩非数据库来源 |
+| add/edit/delete节点 | 原dataOperateModId目标与源模型，字段/输入/条件/输出配对、原查询权限、明确业务前置 | 真实执行改变业务行，配置保存不同于执行。选择新源/共享源隔离、源已发布删除/换型、原字段引用保护保领域，不使页面直接发批量SPARK请求 |
+| merge根/子输入与输出生成 | rowid/pid层级、Fields别名/IsOutput/Description、JoinType/JoinFilter、根与子来源；生成命令用正式后端结果 | 不能前端join/截_1后缀/无父回根伪造服务合同；仅生成配置不证明INNER/RIGHT/FULL及输出投影满足，服务差距保留 |
+| 连线/条件/删除与模型引用 | 精确sourceID/targetID、条件/引用字段、祖先与可达输出；删节点涉及边/条件/模型/字段/关系/布局 | WorkflowNodeRemoval预览独立查询视图，捕获范围后再查当前依赖，DB确认后布局确认，不自动重连/删共享模型。已有节点删除样本不核销整流定义删除 |
+| 布局编辑/取消/保存与文件缺失 | workflowId固定SysForm/id.json，原文/WorkflowLayoutDocument、坐标折线/未知成员；缺失null不同于坏/无权 | file adapter独立写/删确认，布局失败不重放DB；新建缺失文件与更新/删除分别核。不能把既有文件路径与其他同ID空间布局自动等同 |
+| 单节点/整流测试参数准备 | 本次已存唯一定义/节点/边及声明，prepareWorkflowExecutionInput只读封存首轮contract/source签名；重挂只读原输入不重建 | 当前WorkflowExecution.command首次声明，同DataView保存一次执行；提交前再次正式读比原基线，失败不替换为新基线。共享输入/祖先输出/分支必经结果属于领域，不浏览器执行节点/条件 |
+| 正式执行/unknown/结果消费 | 模式node/workflow、原commandId/输入、正式workflowId/nodeId；执行输出/业务行/日志/实例分别观察 | 原命令回执、unknown不可用再次执行核验，前置重读不保证服务版本条件原子性；数据工作流测试可能写DB/外部服务，不能当纯预览；每类型结果与真实消费者分别验 |
+| AI草案预览/确认 | 固定参考有OpenAiDesigner/applyWorkflowAiNodeSpec/applyAiDraft等真实入口，草案来源/节点/边按正式身份确认 | 本轮未证明本仓已有完整对应能力；保完整范围，不移出为“后续可选”；通用AI轮次与候选引用现有能力，不为本包另造AI平台或第二业务草稿 |
+
+**实服差距已核证据，不重试。**本轮读取`2026-11-04-workflow-merge-service-contract.json`的findings：根输出忽略Fields/别名/IsOutput；INNER无匹配仍返父；RIGHT/FULL缺未匹配子；重复来源_1不自动对应原输入；缺pid父回根而非拒绝。均为当时部署反例，不把参考选项可选等同服务支持，也不前端重写结果。领码先有业务行的历史冲突沿H4；copy已有物理来源闭环、其他来源和整页1:1分别保留。
+
+**已成事实的有效范围。**`2026-11-07-workflow-declared-runtime.json`状态verified-engineering-and-owned-runtime-scope：正式声明loader只读7请求/0执行，精确自有6节点/5边样本单节点add/edit/delete/query各一、整流一次及独立业务值/日志观察；清理335读/10写/0执行，公开节点删除4次、取消0写，最终独立缺席确认。limits仍明确无后端版本条件提交合同、浏览器未验、领码/剩余场景/整页开放，不按节点SUCCESS数量核销全部包。其frozenSources指向23源哈希文件，本轮已定位该文件，尚未逐个重新比对，不冒称当前全部一致。其他布局/操作/条件/共享源证据按各用例关联，不能重复计完成量或因另一路服务失败清零有效结果。
+
+**待集中消除的重复责任。**WorkflowExecutionContract首轮只读来源签名、node-removal依赖/状态/已确认事实是领域证明；DataSpaceDefinitionSave通用捕获/恢复、scope和视图完整性检查、页面busy/pending/订阅等须对照I3/S2/S3抽取实际重复，不整体搬进spark-data。layout已经createFileResourceAdapterExecutor，无理由恢复旧文件owner公开入口；声明命令/readonly输入不因参数在内存而当业务第二草稿。配置驱动、ClassModel实际绑定和AI候选/正常导航完整消费仍须补证。
+
+**工作流证据快照补核。**随后已计算workflow-declared-frozen-sources-v1.json的23项当前哈希：20一致，3变化为packages/spark-data/src/data-set-command/data-set-command-view.ts、其data-set-command-submit.test.ts、src/lowcode/data-space/lowcode-data-space-runtime.ts。故保留原实服样本事实，但该23项工程检查点不能整体当当前快照通过；S1命令公共合同及S3装配必须覆盖这些变化，不能因包内领域文件未变省掉受影响消费。没有重跑实服/测试。
+
+##### J3. Excel整包：定义、模板、数据处理与归档结果保持独立
+
+高阶gpt-6-astra/high核固定1147b00原Excel列表/编辑器/Sheet布局与查找对话框/API，结合当前实现和既有实服记录给出完整边界；主控复读当前resource、creation、template关键段、configuration-edit/removal、layout/definition、transform/definition/validation/pipeline和原列表KEY，读取已有证据scope/限制并重新比对模板源码哈希。本轮没有调用任何导出/导入/领码/上传/删除服务。
+
+| 用例 | 输入、前置、持久/可见结果与取消/失败 | 公共/领域归属及未证项 |
+| --- | --- | --- |
+| 方案目录筛选/编辑/开设计/KEY | 36B…Base_Import_solution原rowid、coding/名称、正式dataSetId选择/清除；设计输入schemeId到0F93…；KEY取实际点击行rowid且原读证明仍有效 | 当前列表key通过captureReadRow+pageService.copyText，不偷用当前游标/coding；读操作不需赋edit权。KEY本地检查点已实现，不再沿旧模板证据说“未实现”，真实完整浏览器矩阵仍未验 |
+| 新增方案→领码→回写 | 本次Added确认→同原行及固定规则A3A388…一次领码→Changed仅coding；原业务/命令/回写视图各持本次身份 | ExcelCreation阶段是领域，通用单次派发/unknown属S1；已领成功只补写原号、未知不重领；旧空coding不构成本次新增事实。实服目录CRUD领码0，不能推完整新建领码闭环 |
+| 模板选原File/取消/上传/替换/发布路径 | 用户选.xls/.xlsx，确认前仅RAM原File，命令提交字节→独立确认上传→editorTarget仅templatePath写回；其他字段不夹入 | 模板命令首次声明，文件传输/回读在SDK资源内，不把xlsx当UTF-8文本。取消选取零网，已上传后结束是retained不伪撤销；清空路径不顺删共享文件；.xls与ExportExcel模板哨兵消费缺证 |
+| 方案树新增根/同级/子级/改名/改源 | 原schemeid/rowid/pid、同方案节点及真实目标表；引用源应用→库→实表/物理视图→字段，来源切换预览差异后原视图暂存 | configuration-edit捕获原节点+本次字段范围，方案/节点/物理表路由分开；来源替换/结构改动核映射/父子/排序/布局/转换引用，未知旧引用保留并拒，不猜默认重挂 |
+| 字段映射/索引/脱敏/引用与父子键 | 来源字段真实name/type只读，标题/大写Excel列index/DesenID、Table/View/Dict引用；parentField来自直接父已保存映射，foreignKeyField来自当前配置映射并配描述 | metadata/physical-fields及association-fields/field-reference/stored-reference保持领域；候选/值/编辑取消标准组件复用。空白新增字段不得伪造成物理来源列，普通标题改动不扩结构全检 |
+| 过滤条件与多键排序 | 原结构过滤表达式及常量/字段/函数参数；sorted=[{Field,Type:ascending/descending}]优先级按顺序，物理字段候选 | 领域协议/字段引用与正式服务执行分开；通用条件/JSON值编辑器归S2（当前组值仍SparkJsonEditor/标量边界待收口）；未知方向不规范为升序，最后删除按原空值合同，未改历史配置不自动升级 |
+| Sheet布局完整范围 | 固定参考ExcelImportSheetLayout及lookup-dialog含固定格/锚点/列表列/列表尾、分组重复/脚注/字典查找；原版式版本/未知成员保留 | 当前结构编辑器仅v3单组2表3区域FORM/LIST/BLOCK、sheet0、明确主外键及坐标；旧v1/v2/v3不自动互转、不加双写兼容。动态锚点、多组/多Sheet、查找/聚合/掩码不能因当前明确只读就从包范围删除 |
+| 布局保存/引用检查/真实导出 | 原sheet_layout_json绑定、物理route/tableId/regionId、实际字段/来源主外键；保存前精确引用，取消恢复原文 | validateSingleExportLayout纯结构与createExcelLayoutReferences实际引用分开；当前模型规则挂原DataTable，命名视图/直接保存同样受约束；布局可存不等于工作簿定位/关联正确，需读取导出单元格验证 |
+| 13类转换及顺序/开关/条件/错误策略 | TRIM/REPLACE/CONVERT/EXPLODE/LOOKUP/COMPUTE/DEFAULT/OVERRIDE/VALIDATE/FILTER/DEDUPLICATE/UNPIVOT/PIVOT，原rule id、scheme/config归属与IMPORT/EXPORT/BOTH | structure validation不执行Java正则/日期或业务转换；pipeline检查本批引入下游断链，不无故阻断独立历史错误。参考/源码注释“服务支持13类”不替代逐类实服执行；error policy预览不推导正式导入逐行继续 |
+| 叶配置删除/映射规则清理 | 原schemeId+nodeId，精确原节点/子项、父布局/外部引用，节点/字段/规则原回执，保兄弟与业务表 | ExcelConfigurationRemoval明确只叶配置，不删方案/模板/来源表；祖先布局还引用则拒；DataSpaceDefinitionSave通用捕获复用。未知不重新删除已确认阶段 |
+| 整方案删除 | 本方案完整树/字段/转换规则与外部JSON configId引用覆盖，最后确认父方案；模板/历史任务各自独立归属 | 当前列表尚无完整删除入口，不能用参考只删父API或叶删除补齐。S4需正式子项捕获→独立核空→父原授权/原值/无新增依赖→父Deleted，不能证明覆盖则阻；跨来源无回滚假承诺，不先清布局绕引用 |
+| 普通/版式导出及模板实际消费 | 正式encodingId/fileName/params→Blob并核错误Blob，规则开关、排序、选定业务ID/已保存布局/模板参与 | 固定参考packages/data/spark-api/src/protocol/executor.ts:654为独立ExportExcel；本轮检索本仓src及SDK无对应端点/普通产品方法命中，诊断actor能调用不证明产品入口已接，需同data语义资源/宿主下载合同。导出行/单元格/模板哨兵与源数据不改分别证明 |
+| 真实导入/回读/任务账本/归档清理 | 原File/upCtrl_Input、encodingId/params/values；独占不存在业务PK与已具lingma_sys_task_id目标；服务可能先建任务列且同PK会更新 | 固定executor.ts:679与只读Java线索不证明部署，坏文件不能作零写探针。业务PK+任务列、主账rowid/batch_id/import_filename、明细log_id/表/计数、随机命名归档附件实际字节三方需权威查询/清理；void仅作废/删匹配业务仍留账本/附件，unknown先核原提交不重导 |
+| 完整关闭/切换/保存重开 | 原方案/原配置/派生查询与命令实例，pending输入/草稿/unknown/已派发未完都阻正常关闭；确认结果保后来编辑 | 页面逐视图discardAll、scope/状态/订阅及配置编辑协调器的通用部分按S1/S2/S3集中替代，领域引用/文件发布阶段保留；未提交输入锁/查询投影不一概当第二真源 |
+
+**有效证据分层复用。**2026-11-05 configuration/field-reference/stored-reference-runtime各覆盖相应来源/映射/引用保存、取消重开样本。transform-preflight只17内存反例，transform-rules-partial明确未完整；较新`2026-11-06-excel-transform-rules-crud-runtime.json`才是13不同IMPORT规则元数据CRUD、controlledRecoveryProven/independentCleanupConfirmed/sourcesUnchanged均true，仍0Import/Export业务执行，不互相混称。`2026-11-06-excel-sort-runtime.json`四工作簿排序及export-offon经典开关、layout-export/layout-ui单组FORM/LIST/BLOCK实际导出各有范围；本轮读取layout-export scope/limits和phase=confirmed/unknown=false/fixtureRemaining=false、源哈希前后一致，limits明确未验多组、聚合、查找、掩码/导入及空外键隔离。11-05 layout-version-gate多组2/1实样失败作为历史差距，不能本地换解析器宣称服务支持。
+
+**模板快照与剩余项。**本轮重算`2026-11-07-excel-template-upload-runtime.json`7项source哈希，6一致，变化为excel-import-list-page.vue；保其独占.xlsx上传/替换/字节回读与清理事实，但不能整份当当前列表工程验证。runtime.allOwnedFixturesCleaned=true、importPosts=0/exportPosts=0/allocations=0；open里的“KEY尚需验”已由11-08源码/局部工程检查点部分推进，整删/模板真实消费/导入清理/浏览器仍开放。当前没有授权补跑这些服务。模板删除清理仅精确自有文件，不自动清共享模板或历史ImportFile；所有旧unknown意图保零重放。
+
+**本包阶段裁决。**公共数据API/组件合同集中验明后，S4按完整Excel依赖恢复原页及窄交互；不能把13规则定义、上传模板和目录CRUD当Excel整体完成。当前现有资源适配/领域规则可保，专用TS中实际重复的编辑/取消/回执/请求状态接线同批删除，不恢复旧ExcelImportConfig owner或先造兼容层。
+
+##### K1. 标准组件集中收口的责任面与验收草案（未冻结）
+
+本轮静态复读spark-component的view-data-source、layout-data-context、dataViewEditing、useResolvedFieldContext、SparkJsonEditor及shared-types/useFieldPermission定位。下表是S2需要集中验明的合同，不是已通过清单；没有修改组件、运行测试或刷新ClassModel。组件注册表registry.ts仅保存type→已解析组件，明确拒绝字符串/裸函数注册；注册成功不证明数据绑定、子节点或公开合同成立。
+
+| 责任面 | 当前源码事实/不得误判 | S2集中验收与下游消费者 |
+| --- | --- | --- |
+| 容器定位与外部源 | view-data-source先runtime.resolveView显式键，再决议externalDataSource优先、绑定视图、成员能力、继承；外部源类型为DataView，不是可随意传业务数组的许可。显式键即使存在外部源仍先解析，缺runtime/视图会报错 | 同实例/跨空间同名模型、错误空间、显式源与键冲突、无键继承、空键/无视图；明确两种输入能否共存，按实际调用者删冗余入口，不先加兼容优先级。表/树/表单/列表/详情共用 |
+| 成员与字段定位 | dataMember/dataField与view定位不同；布局默认CurrentRow，集合/值成员不能退取当前行。layout-data-context用空行阻断错误fallback，rowMirror仅渲染投影 | currentRow/rows/selectedRows/值成员、嵌套字段、空指针、显式成员切换；投影不可独立编辑/保存/授权，不能机械删除所有镜像。布局/字段/工具栏/聚合显示共同验 |
+| 字段编辑覆盖 | dataViewEditing通过getPkKey及getEditingRow/updateEditingValue写原视图；useFieldPermission定位原字段并检查当前可编辑/只读/disabled、required | 输入必须落原行原字段、未提交输入与正式编辑覆盖分别计；编辑中异步查询/切行/取消/保存回执不能覆盖后来输入；双击编辑和表格cell复用同链 |
+| 权限与只读 | useFieldPermission消费原DataView.fieldAccess及统一permission，不证明每种字段都正确消费；界面readonly/disabled只能进一步限制 | 原权限可读/隐藏/脱敏/可写/必填、无当前行、选择成员、只读布局及动作；暂缓新增授权专题不等于删既有守卫或用UI锁代替权限 |
+| 行宿主与子组件 | useResolvedFieldContext沿父上下文type推table/form/tree/detail，field-scope继续找父，cell不重造列 | 标准字段子节点在各容器共享取值/权限；嵌套宿主、显式视图覆盖、详情不写、树单元格。不得在业务rule/Vue新增独立列定义或手传列数组补缺 |
+| 选项与级联 | 已有useFieldOptions/useFieldCascadeOptions及useOptionFieldState入口，本轮仅定位，未据名称宣称完整 | S2逐项查选项DataView、值/标题/身份、分页/异步晚到、父值切换与失效选择、清空/取消、只读展示；规则中的领域可达性仍留业务包，公共级联不能逐页复制 |
+| 通用编辑器 | SparkJsonEditor当前是modelValue/readOnly基础编辑器，有editing-change及pending通知，并不直接声明dataViewKey；FieldJson已有标准字段层入口 | 区分基础内核与正式标准组件暴露面：JSON对象/数组/标量/null/错误文本、树根原值、代码/条件/表达式/文件选择及未提交输入应由正式绑定层接纳；基础编辑器存在不等于每个业务可直接手工绑定。保留未完成RED文件，不在S0实施修补 |
+| 查询与错误呈现 | view-data-source按autoLoad配置、非static-data且有api.list决定requestData；失败日志不等于用户可见错误。事件桥订阅current/selected/rows/summary/config/editing/clear | 首次/重查/错误/空结果、自动与显式查询去重、未加载区域不抢查全量；请求状态、错误、重试与unknown不可混称；公共查询策略归S1，组件消费归S2 |
+| 绑定切换与释放 | layout-data-context按视图实例递增scopeKey、移除失效DATA_SOURCE，切行不销毁子草稿；共享事件桥存在不证明所有组件释放正确 | A→B→A、相同键新实例、异步晚到、取消订阅/监听/底层editor.destroy、已销毁回调不可回写；运行实例所有权归S3，组件不得擅自dispose共享DataSet |
+| 声明与ClassModel | shared-types已有dataViewKey和DataView类型dataSource声明，不能据此推全部组件运行消费一致 | S2完整列出注册组件及继承成员，对照源码→正式生成→目录/概要/指南→实际行为；缺项先判过期/投影遗漏/真缺能力，不手改产物。S0此矩阵不构成冻结凭据 |
+
+**交接与剩余分析。**J1—J3已补逻辑视图、工作流和Excel完整用例族及旧证据适用范围；工作流23源20同3变、Excel模板7源6同1变分别保留原实服事实并登记快照差异。K1仅建立组件集中责任面；尚须补完整组件目录、真实调用/旁路替代表及宿主/工作台深链，高阶评审已继续只读核宿主。S0尚未整体完成，不能自动进入S1。此次文档门禁沿本批最后运行结果更新；唯一工作修改仍为本台账，原未跟踪json-tree-value-root.test.ts保持原样，不运行/删除/纳入实施结论。当前目标继续有效，代码、实服写入、提交推送仍待用户明确恢复授权。
+
+##### K2. 内置注册面完整清单及已证实的布局缺口
+
+本轮以register-renderers.ts两份显式tuple清单提取112项注册类型，而不是用Vue文件数量推标准能力数量。下列分组覆盖全部112项；这是当前内置注册范围，不包含virtual:spark-components业务扩展或运行期额外注册，不声称扩展面已核全。
+
+| 类别 | 完整注册类型（相同前缀仅为排版，无新增别名） |
+| --- | --- |
+| 数据容器7 | r-table、r-form、r-detail、r-tree、r-graph、r-list、r-virtual-card |
+| 区域7 | r-field-scope、r-filter、r-filter-expression、r-editor、r-header、r-footer、r-tail |
+| 专用布局/操作23 | r-section、r-toolbar、r-tabs、r-tab-pane、r-collapse、r-collapse-item、r-dialog、r-drawer、r-steps、r-step、r-button、r-link、r-card、r-space、r-divider、r-dropdown、r-tooltip、r-popover、r-popconfirm、r-page-header、r-tour、r-anchor、r-anchor-link |
+| 透传布局14 | r-button-group、r-container、r-main、r-aside、r-layout-header、r-layout-footer、r-row、r-col、r-affix、r-backtop、r-scrollbar、r-carousel、r-carousel-item、r-watermark |
+| 标准数据字段35 | r-text、r-textarea、r-code-editor、r-number、r-date、r-select、r-value-function、r-json、r-multi-select、r-radio、r-checkbox、r-checkbox-group、r-switch、r-html-editor、r-slider、r-rate、r-color、r-icon、r-image、r-file-path、r-file-browser、r-upload、r-entity-picker、r-user-picker、r-dept-picker、r-product-picker、r-cascader、r-tree-select、r-transfer、r-segmented、r-check-tag、r-mention、r-time-picker、r-time-select、r-autocomplete |
+| 非数据字段2 | r-column-group、r-tree-node-summary |
+| 展示21 | r-text-display、r-tag、r-pagination、r-statistic、r-alert、display-image、display-calendar、display-countdown、display-icon、r-progress、r-badge、r-avatar、r-descriptions、r-descriptions-item、r-timeline、r-timeline-item、r-empty、r-result、r-breadcrumb、r-breadcrumb-item、r-skeleton |
+| 基础编辑器2/AI1 | code-editor、json-editor；ai-data-entry |
+
+**计数核对。**标准数据字段为35项，全部分组7+7+23+14+35+2+21+2+1=112；不因分类名称多算组件或凭标签声称统一完成。
+
+**已证实上游缺口：透传布局没有消费标准绑定。**containers/layout/index.ts:60—73的14个createPassthrough实例，实际create-passthrough.ts仅声明type/children；setup只以type/children构造SparkNodeInput交useSparkPageComponent，attrs原样传el-*，没有useLayoutDataContext，也没有解析/提供dataViewKey/dataMember/dataField。故给r-row等传完整键不能据“属性可传”认定绑定生效。S2应在标准布局公共责任方补齐并核显式绑定、继承、错误键、视图切换/清除/释放，同时收窄传底层attrs；S0不修改它，S4不得逐页嵌额外上下文壳修补。普通无绑定的布局仍有真实渲染用途，不能把所有实例当死代码删除。
+
+**选项已有链的精确范围。**useFieldOptions已解析optionDataViewKey/optionDataMember/optionDataField，默认Rows；已声明field cascade时，组件显式视图/成员/值标题字段/分隔符与DataSet定义冲突会拒绝，复合值复用DataViewSelectionValue，不另建序列化协议。useFieldCascadeOptions在原DataSet找目标字段定义，通过refreshFieldCascade/getFieldCascadeState消费；原当前行/主键与上下文相符才bound，换DataSet注销订阅、generation及disposed阻过期错误回写。静态options回退是现有常量枚举能力，不能与从业务查询手传候选数组混同；动态来源应接正式选项视图。optionsReady/captureOptionsGuard存在不替代逐控件值写回和绑定切换验收；候选查询/值策略在S1，组件消费/呈现在S2，领域候选可达性在S4。
+
+**JSON与动作的现有责任。**FieldJson实际封装SparkJsonEditor/JsonTreeEditor及对象/数组窄编辑器，使用useFieldPermission、captureWriteGuard、revision、rowsChanged/editingDiscarded重置与事件清理；基础编辑器的内部输入不是可另行保存的业务真源。它已存在并不核销树根标量等未验反例。useActionButtonRuntime已有统一descriptor→isActionDescriptorDisabled→executeActionDescriptor，按scope.row或currentRow取上下文；下一步需沿executor核实际身份/权限/取消/提交，不能只因内置动作名称存在宣布完成。领域命令阶段保留，不用公共动作重新写一套业务流程。
+
+**本批断点。**上轮有效进展为J/K1用例和验收责任落账；本轮新增112注册面及14透传布局的静态反例，改变S2集中收口范围。宿主高阶只读评审仍在运行，后续先吸收并主控核关键源，再补扩展注册及动作executor、旧调用替代表和阶段整体审查。当前只有台账修改与原未跟踪RED文件；未实施、未跑产品测试/服务，文档门禁与diff检查以本批末尾实际结果为准。
+
+##### K3. 统一动作链：已有数据入口与成功/取消传播缺口
+
+本轮复读action-types、action-executor、action-data及executor-helpers的真实实现。动作联合实际15种：show-message/confirm/alert/navigate/open/set-field/append-row/delete/patch/move/message-row/refresh/clear-rows/submit-current-form/save-dataset；文件头仍写14，不以注释计数定合同。内置按钮、on事件与区域子节点已有共同descriptor入口，S2应复用，不能逐页另造动作执行器。
+
+**已经存在的正向链。**resolveActionDataCapabilities无键用作用域原DataView，有键调用ctx.resolveView，不自行拆键退首空间；执行入口再次isActionExecutionPermitted，不只依赖按钮disabled。数据动作调用原view.removeRow/editRowById等，save-dataset调用原dataSet.saveChanges并捕获原目标实例/ids；回执success后仍查hasUnconfirmedSave和后来pending/editing，不能把“本轮成功”显示为所有后来输入已保存。scope/current/selected分开，selected逐个原目标操作，未证明全批原子性。navigate插值事件行/作用域行/currentRow，open通过document事件触发容器，这两项的跨实例目标隔离须归S2/S3核，不凭名称认定安全完整。
+
+**已证实的成功传播静态反例。**ActionDescriptorBase.then注明“当前动作成功后”才继续，但executeActionDescriptor仅await dispatchAction后无结果判别即递归then。executeDelete在用户取消确认时正常return；删除CrudResult失败也通知后正常return；executeSaveDataSet在unknown、后来仍有修改、失败时同样仅通知return。因此“delete用户取消→then刷新/提示成功/下一业务命令”或“save失败→then关闭”在此调用结构仍会继续；这里是源码反例，未运行测试/浏览器复现，不冒称发生过真实误删。S2应把已冻结S1结果语义传播为明确成功/取消/拒绝/部分成功/unknown，then仅按正式成功合同执行；不在每页补if，也不能把silent或一条成功toast当真实提交确认。若S1回执不足以表达所需结果，先退S1补齐再恢复S2。
+
+**验收范围。**除单动作，还须覆盖confirm.onConfirm/onCancel与顶层then的组合、权限拒绝/无目标/校验false/用户取消/CrudResult失败/部分成功/unknown/异常、确认弹窗期间绑定或行身份变更、原保存成功但保留后来编辑。selected当前只汇总成功数量，须明确失败目标及继续/停止合同，不宣称批量全成功。submit-current-form还要核原表单行与目标视图一致及getFormData仅为输入投影；不将它当另一份草稿。动作只编排公共数据API，复杂删除依赖、领码、导入、文件发布等业务阶段仍在领域责任方。
+
+**额外注册与原URL跟踪。**src/main.ts:467—468显式注册r-module-context-badge；SparkApp.start自动导入virtual:spark-components，vite.config.ts:137配置扫描插件，故112项不是全运行注册面，尚需沿实际patterns/exclude及插件产出规则清点，不能运行构建来越过本阶段授权。主控另读vue-page-registry的buildComponentMap/getVuePageRouteAliases及lowcode-runtime正式导航装配：导航筛选依据授权树与publishInMenu，数据权限仍来自原DataView查询；config/navigation/vue-pages.json:172保有/DataBaseManage/TableAndView别名，目标canonical原参考路径已存在。按“不做向后兼容层”要求，该别名及直接URL/脚本/存量导航消费者需在S3明确删除迁移，不再新增兼容映射；不能擅改后端蓝图URL迁就自建落点。
+
+**本轮交接。**上一轮新增组件清单和布局反例为有效进展；本轮新增动作取消/失败仍继续then的源码证据，并定位额外注册和唯一URL别名。产品源码、服务、测试、生成物均未修改/执行；现阶段仍S0，后续补宿主/工作台高阶报告与扩展扫描清单、整体依赖/删除对应表。结束前文档治理和diff检查记录实际结果，不以其代替产品验收。
+
+##### L1. 宿主与系统入口完整责任链（高阶评审＋主控关键源复核）
+
+高阶gpt-6-astra/high以固定1147b00核原入口/共享组件/工作台消费者并回报；主控复读当前PageRuntimePool、PageRuntime、SystemPageIdentityPool、use-staged-design-page及正式场景装配。固定参考包1的18文件并非18个已完成业务页：6个共享交互件、3个router-view、6个“功能开发中”占位、3个图演示/面板；schema/design/index.vue:97—117仅JSON.stringify供本页预览。占位不产生真实CRUD/前端角色迁移需求，共享件须按真实领域消费者承接，不能按文件计数宣布18页均迁移或一概删除。
+
+| 用例/下游 | 当前实现及边界 | 归属与必须验明的结果 |
+| --- | --- | --- |
+| 登录前公开页/目录/选应用/刷新导航/直达 | main.ts与vue-page-registry装页面，lowcode-runtime:386起以正式授权树+publishInMenu组导航，保原URL；固定auth/navigation-host/design-target区分导航应用、被设计目标、可选维度值/显示名 | S3核缺/多/冲突/失效身份拒绝、URL重开、应用切换及请求失效；显示名不是ID。导航可达不证明字段写权；不从占位角色页造角色体系 |
+| 原生系统页实例 | system-page-identity-resolver沿nodeId/明确query或唯一特异性归属，歧义拒绝；pool提供路由快照与dirty sources，正常close/assertClean拒脏，reconcile/reset直接清实例 | S3统一唯一运行实例所有权；强制撤权须停旧写并保存原unknown核验身份，不为保草稿允许越权。删除pool条目不单独证明组件资源已释放 |
+| 原生页DataSet宿主 | use-staged-design-page:95—138目前按scenario/scope自建PageRuntime、provide并卸载dispose；目录/设计页另有创建链 | 已有局部同data链可复用，但宿主仍分散；S3接管公共创建/加载/所有权/销毁，同批删除被替代页级接线，S4保业务scope与目录对话框单目标。隐藏设计路径不虚构导航节点 |
+| 配置页调用身份/同调复用 | page-runtime-pool:43—105以project/node/tool/规范场景query/hash组实例，主/附加空间拒重复，输入JSON校验；原导航工具改变会拒加载 | S3同调复用、异调/跨项目/同工具多空间隔离、冻结route快照、旧响应拒回写；工具ID和目标空间ID不能互换，保通用多空间但设计器只单目标 |
+| 工具三文件/发布指针 | pool读取PAGE_TOOL_FILE_NAMES，导航VersionId决定各文件；lowcode-runtime:105—120对仓内系统工具远端来源明确拒绝，缺发布文件指针明确失败 | S3分别核动态项目来源/仓内来源/发布历史；拒绝仅是当前本地边界，不证明实服不存在接口。不能伪造三文件+共享场景原子版本 |
+| 运行空间装配/按需 | runtime-page有独占DataSet、声明延后空间ensureScenarioLoaded、同场景输入覆盖、局部键明确主空间、正式模型唯一定位、迟到销毁 | 普通route pool构造尚未传deferredScenarioIds，不能用类已有ensure宣称整条普通路由按需；S3接消费，S1担查询/配置合同，不以保存前全量查询补缺 |
+| 脏/unknown/配置刷新/关闭 | runtime.isDirty检查外部dirty、content、原view pending/editing；pool正常reload/close拒脏，dispose清独占数据集 | 需按原unknown/未提交输入真实链验脏源完整，不能只看editingRows；S1提供原结果状态，S2提供输入状态，S3消费与释放；不删有业务事实的阶段证明冒充去重复 |
+| 脚本/样式/组件挂载 | SparkPageRenderer按实例装脚本、作用域CSS、回调与订阅清理，动作沿统一executor | S3核原生/四文件/多页同场景分别端到端；S2核组件切换与内部释放，不能让页脚本重建数据权限/保存链 |
+
+##### L2. 工作台与共享AI：保留范围、领域顺序及预览反例
+
+固定包20唯一AppWorksAiAssistant.vue已由主控git show核原文：正式LLM transport、open清本轮结果、每次result emit、close汇集，错误console分支；真实消费者含应用功能、表/视图设计和工作流，不仅一个工作台按钮。其结果集合是会话候选，不是业务数据第二真源；确认写入必须回原DataView。四文件开发工作台为本仓独有，按当前源码独立分析，不能由参考唯一文件推断完整能力。
+
+| 工作台用例 | 输入/结果/失败边界与下游 |
+| --- | --- |
+| 项目/蓝图目标/创建绑定/移删 | useDevState选择项目/节点及目标，树增移删、跨项目引用、工具/场景创建或卸挂影响正式导航；旧应用lease和半完成建挂保原身份核验，不自动换当前目标。领域依赖/确认留S4，公共视图编辑/请求/回执归S1—S3 |
+| 三文件手工/AI编辑 | DevFileEditor与useDevState消费原pageId/fileName DataView，保存/取消/冲突/unknown按文件确认，不另造编辑真源；AI候选接受/拒绝与正式保存分开，源码可编辑不证明ClassModel生成流程和业务效果已验 |
+| 共享pagedata设计/历史 | 以targetScenarioId打开正式元数据DataSet，历史预览/快照/恢复与基线核验独立；ScenarioDefinitionResource内部调用ProjectWorkspace.load/saveScenarioViews是存储适配，不是应删的业务二写入口。保冲突/原回执语义，删除外部绕路而非删除存储能力 |
+| 预览原工具与场景 | DevPreviewTab:230起读原文件DataView编辑覆盖并拒unknown，构独立PageRuntime，按引用空间装场景，换项目/节点拒迟到，释放预览不影响编辑实例；dirty预览拒配置替换。预览可能写业务数据，不能当纯静态无副作用浏览 |
+| 保存全部 | useDevState:1687—1723依次外部DataView→蓝图属性→捕获原文本工具文件→场景定义，途中核原workspace/scope。已确认保留、后来修改保留、失败后续不提交；不伪跨来源回滚/原子保存。公共状态重复须核后删除，领域顺序不能整体搬进spark-data |
+| 发布/独立重新进入 | blueprint-workspace/BlueprintWorkspace.vue:253—294逐文件createSourceVersion确认→写VersionId→current.save→回读，每步保文本/目标；部分成功有已确认快照/指针记录。正式runtime读指针，须验中途失败下实际可见版本、重新进入与原未知确认，不能用预览成功代替发布验收 |
+| 策划Word与AI落地 | project-planning-attachments.ts:26实际无条件Promise.reject，useDevState绑定另拒绝；已有ref可传AI且binding把ref写说明，但正文真实进LLM/生成蓝图确认中止保存缺证。源码注释“后端解析”不当服务事实，本地拒绝不证明后端无接口；保范围登记服务待核，S0不上传 |
+
+**已证实S3装配差异。**DevPreviewTab:251—264用原定义文本构ScenarioViewConfig后仅loadScenarioDataSet({scenarioId,config,assertCurrent})返回dataSet；正式lowcode-data-space-runtime:122—147还注入cache/workflow/Excel绑定、getPage/fileExecutors，并在diagnostics非空销毁拒绝。因此同配置在预览/正式运行的资源命令能力和关系错误处理未由同一装配合同保证。S3应统一公共装配能力并允许传入本次未保存定义；不能简单改预览只读远端已保存文件丢失合法预览语义，也不能因使用同DataSet类宣称等价。验收包括错误关系两端一致拒绝、合法资源动作可用、请求令牌变化、未知保存文件不预览及独立释放。
+
+**扩展扫描范围补明。**正式scan-config.ts四个patterns覆盖features、src/components、src/views、packages/*/src/components，排App/test/spec/dist/node_modules并排整个dev-system；插件按文件basename转kebab注册，src/views按需加载。故整业务页可能进入注册候选，注册不能成为允许包住原整页Vue的理由；须继续核实际匹配/命名冲突与消费者后定S2标准面或S3注册职责，不直接删所有非内置候选。112内置类型、显式r-module-context-badge与扫描候选分别记录，不能重复计数。
+
+**本轮状态与断点。**上一轮动作反例落账为有效进展；本轮主控复核高阶宿主/工作台关键源并补L1/L2，20包的宿主/工作台不再仅有路径计数。S0还须汇总真实旧调用→替代→删除层及工程验收/服务阻塞/缺证/暂缓清单，做总体评审；不将这些静态卡片称全部用例已实测。仅台账修改，原未跟踪测试保留；无产品代码/测试/生成/实服写入/提交推送。文档治理、diff检查以本轮末尾结果为准。
+
+##### M1. 已定位旧责任→目标责任→删除批次（实施前再查全调用）
+
+下表以本轮rg真实import/call及E—L源审计为依据，不按owner/workspace类名批量删除。替代合同必须先在对应上游阶段验明；下游调用替换及旧逻辑删除在该调用所属阶段同批完成，不为让旧调用暂过编译新增兼容层。S1/S2不提前改业务调用，过渡工程门槛仍受I3约束。
+
+| 已定位入口/消费者 | 保留的真实责任 | 待替代/删除及阶段 |
+| --- | --- | --- |
+| data-space-definition-save.ts；space source/model/field/rename/removal/array、logic-view output/publication、workflow boundaries/query-create/removal、Excel configuration-edit/removal实际import | 精确业务目标、引用依赖、领域preflight、分阶段持久顺序、原捕获与已确认结果 | 通用捕获/编辑应用/变更校验/提交与unknown恢复重复先S1提供公共能力；S4将各领域调用切到冻结API并删重复通用算法，保领域命令。signature只作原意图比较不当第二份可编辑真源；不能整文件移数据包带业务模型 |
+| ProjectWorkspace.loadScenarioViews/saveScenarioViews→ScenarioDefinitionResource；本轮生产调用命中内部236/468行 | 文件读取、冲突、回读与未知核验的存储适配，保留未修改段 | S1把现存公开业务旁路收窄至资源适配内部；S3工作台/宿主、S4设计器只走同DataSet/DataView。不能为删除owner把底层文件IO删掉，也不建新公开saveConfig入口 |
+| agent-workflow-file-owner.ts→WorkflowDesigns.vue、services/workflow-designs.ts | 已有PageRuntime/DataView文件读取/提交与原资源身份 | S3/S4按真实重复生命周期/读取编排收敛；名称包含owner不构成查询保存旁路证据。先核两消费者再删替代段，不丢AI工作流独立业务范围 |
+| use-staged-design-page及目录/设计页自己的PageRuntime | 原业务scope/目标校验、领域加载需要 | S3宿主接管统一运行实例创建/provide/释放和失效，删除页/钩子重复所有权；S4仅消费真实runtime，不加隐藏路径假导航身份 |
+| use-dictionary-workspace→dictionary-setting/data-page；JSON、API、code、Excel各页状态/取消接线 | 设计与业务数据独立提交范围、AI候选、领域引用和发布阶段 | S1编辑/取消/回执、S2未提交输入、S3生命周期先验明；S4逐页删除被公共能力接管的busy/uncertain/captureLost及手工控件候选/值接线。逐项判状态是否记录未确认事实，不能只因布尔多就删 |
+| createPassthrough→14布局；统一action-executor→按钮/事件/区域 | 原布局渲染/子节点、统一动作descriptor与原DataView调用 | S2集中补标准数据上下文，删除属性仅透传底层的错误路径；动作结果向then传播，删除取消/失败也继续的错误逻辑。下游不得加局部wrapper或每按钮补丁 |
+| DevPreviewTab直接loadScenarioDataSet vs正式loadLowcodeRuntimeScenario | 未保存定义预览及独立runtime、正式资源装配和诊断 | S3共用装配责任、显式输入本次配置；删除分叉遗漏的绑定/诊断逻辑，不恢复只读远端覆盖草稿的旁路 |
+| vue-pages.json表视图旧alias→registry→DynamicRouter | canonical原参考URL及正式导航身份 | S3清点直接URL/脚本/存量导航消费者后移除alias；不新增重定向兼容，不修改正式蓝图URL迁就文件。当前仅定位单别名，不宣称所有历史路径搜索已穷尽 |
+| database preview public→错误文本触发SysGetData、sync metadata未知verify非空判断 | 正式授权查询、明确业务sync命令与原结果核验 | S1核SDK/资源适配的服务合同及查询身份，删除未经确认的错误文本权限推导和弱成功证据；S4仅消费冻结接口。若正式服务不足登记阻塞，不在浏览器join/聚合或造服务协议 |
+| 仓内四文件旧script与正式Vue并存/扫描整页注册候选 | 同场景正式pagedata、仍有真实消费者的配置及原生页 | S3核注册/宿主与动态调用；S4按正式入口切换删除已替代脚本与业务Vue公共逻辑。引用不明先查，不一刀切删共享pagedata，不包整页旧Vue宣称四文件完成 |
+
+**删除验明方法。**每项记录具体符号/路径、直接及动态消费者（rule/script/导航/正式配置）、原语义、替代API、当批删除diff、正反例与独立回读。rg无命中仅证明所搜范围，不证明服务存量无引用；涉及存量正式配置缺证时登记缺证并保明确迁移入口，不能偷加兼容分支。完成删除不以新包装类/换名/搬文件或末端调用DataSet计量。
+
+##### M2. 工程门禁与业务证据：执行时机和证明范围
+
+本轮只读取根package.json和spark-data/component包scripts、verify-architecture源码入口，未执行下表产品命令。根verify串typecheck/lint/verify:rules；test:all还含包测试；build与build:check生成/构建有派生产物，不能在S0以“只验证”名义运行。实际脚本改变须恢复实施前再核，不预先写绿。
+
+| 阶段 | 执行后应留下的工程证据 | 不能替代的业务证明 |
+| --- | --- | --- |
+| S0本批 | pnpm run verify:docs、git diff --check；改动范围核对 | 文档门禁不证明数据合同、页面或实服已完成；不运行产品测试/生成/写服务 |
+| S1 | 恢复前根pnpm run typecheck基线；spark-data包typecheck/lint及影响范围test:run，真实导出/声明检查；公开声明变更正式generate:class-model-surface并核指南 | 直接正反例覆盖I3，不只快照或mock success；文件/DB/pagedata分别真实结果，unknown不重放；若旧下游阻正式生成或本层验证则不能冻结 |
+| S2 | component包typecheck/lint及绑定/子组件/选项/动作/编辑器/释放实测；正式生成并verify:class-model:full；受影响根检查尽早恢复 | 112注册名和ClassModel属性存在不等于实际消费；本轮14布局和then反例均要回归。跨空间/原行写回/取消/权限/晚到/释放按矩阵验 |
+| S3 | app/project-model及宿主相关定向测试、根typecheck；verify:pages-config、相关架构/依赖/蓝图与低代码合同检查 | 正常原URL、原生/四文件/预览/发布重进、多实例和共享空间端到端，不以工具文件可读替代正式持久结果 |
+| S4每包 | 按实际改动跑定向领域/页面测试和相应verify:*，每批检查源码/声明/正式生成一致及已替代调用缺席；根门禁受影响项必须及时恢复 | E—L全部用例保范围，布局/弹窗/异常与领域下游都验，不以CRUD目录烟测核销整包；依赖服务阻塞独立列项，不缩范围 |
+| S5 | pnpm run verify、test:all、必要build:check/发布前构建与全链验收；检查脚本实际覆盖，提交后核远端commit/branch与干净状态 | 精确隔离对象正常入口CRUD/取消/重开/独立回读/消费者/切换/部分/unknown，清理只删除自有已确认对象；工程全绿不证明实服或浏览器全验，未知残留禁止冒称已清 |
+
+**断点与授权。**上一轮宿主/工作台源审计有效推进；本轮补实际旧调用映射与真实scripts门槛，并请既有高阶评审审查E—L总体边界。还须吸收其意见、形成20包依赖顺序与服务阻塞/缺证/暂缓的最终索引，随后才能交付S0可评审规划；不自动进入S1。唯一台账修改、原未跟踪RED文件不变，当前无代码/服务/产品测试/生成/提交推送。
+
+##### N1. 20包交叉索引与集中迁移依赖顺序
+
+高阶总体复审确认原20行均已有深核章节，无整包遗漏。机器摘要19项不改变20包分母；PDF本仓独有仍在范围。以下为S0策划状态而非验收通过：原生指业务布局/入口/完整用例，四文件指正式配置/标准绑定/运行消费，下游指真实后续使用与持久结果；“待验”含局部历史证据但无整包结论，“不适用”仅限本行明确只读或基础宿主责任，不豁免其可达性/释放。
+
+| 原序/包 | 深核索引 | S4依赖顺序及下游 | 原生 / 四文件 / 下游整体状态 |
+| --- | --- | --- | --- |
+| 1 宿主与系统入口 | L1/K | S3先完成公共宿主；业务共享窄交互随S4消费者接入 | 宿主待验 / 配置宿主待验 / 全页集成待验；占位CRUD不适用 |
+| 2 应用、菜单与蓝图 | G3/L2 | 第一组：建立正式目标、来源关系和导航，供全部后续入口 | 待恢复验 / 待编排验 / 导航发布待验 |
+| 3 企业与应用申请 | F1 | 第一组：企业/申请真实状态→目录/办理；授权新增分支暂缓 | 待恢复验 / 待编排验 / 状态及后续待验 |
+| 4 数据空间目录与设计 | I2 | 第二组：与DB/基础资源形成配置闭环，供所有数据消费 | 局部实现整体验 / 待编排验 / 装配查询待验 |
+| 5 数据库与表视图 | I1 | 第二组：来源与字段→空间/逻辑/工作流/Excel | 局部实现整体验 / 待编排验 / 物理与正式读回待验 |
+| 6 字典 | H1 | 第二组：设计/条目分离→选项、源、工作流 | 局部实现整体验 / 待编排验 / 引用消费待验 |
+| 7 维度设计 | F2 | 第三组：依赖蓝图与来源→事件/规则/版本投影 | 待恢复验 / 待编排验 / 六工作区下游待验 |
+| 8 编码 | H4 | 第二组定义；第三组与实际业务创建联合验收 | 局部实现整体验 / 待编排验 / 实际编号分支待验 |
+| 9 逻辑视图 | J1 | 第三组：依赖基础来源/空间→输出字段及查询 | 局部实现整体验 / 待编排验 / 复杂发布与查询待验 |
+| 10 数据工作流 | J2 | 第四组：依赖来源/逻辑/编码→业务行/日志/输出 | 局部实现整体验 / 待编排验 / 剩余类型及merge待验 |
+| 11 JSON与文件管理 | H2 | 第二组：正文/登记/上传→源查询/模板/附件 | 局部实现整体验 / 待编排验 / 来源和双端持久待验 |
+| 12 Excel导入 | J3 | 第四组：依赖数据库/字段/字典/编码/脱敏→工作簿及导入任务 | 局部实现整体验 / 待编排验 / 导入导出与归档待验 |
+| 13 PDF专题 | G2 | 第四组：依赖目标模型/文件→识别与业务结果 | 本仓页待验 / 待编排验 / 真实识别待验，无参考布局不作缺失 |
+| 14 外部服务/API | H3 | 第二组：提供方/接口/参数→空间来源及实际调用 | 局部实现整体验 / 待编排验 / 输出写与实际调用待验 |
+| 15 报表 | F3/F4 | 第四组：依赖正式空间/文件→版本设计/预览/导出 | 待恢复验 / 待编排验 / 渲染产物待验 |
+| 16 业务审批流程 | F4 | 第四组：依赖组织选人/空间/定义→任务状态推进 | 待恢复验 / 待编排验 / 引擎与办理待验 |
+| 17 组织、岗位与用户 | F4 | 第一组只读投影/选人供审批等；维护CRUD不适用 | 待恢复验 / 待编排验 / 正式投影/选人待验 |
+| 18 系统运维 | G1 | 查询支可在基础资源后；恢复/缓存/监控命令按独立服务依赖 | 局部实现整体验 / 待编排验 / 命令及嵌套审批待验 |
+| 19 治理与授权裁决 | F4 | 第二组保脱敏及现有消费；新增功能授权接线专题暂缓 | 脱敏待恢复验 / 待编排验 / 既有守卫待回归；暂缓支不删 |
+| 20 工作台与四文件推广 | L2 | 第五组在真实业务闭环后推广同流程；其公共宿主先归S3 | 本仓工作台待验 / 编辑预览发布待验 / 多工具共享空间待验 |
+
+此顺序是领域依赖而非改变责任层：先S1全部公共数据，再S2全部标准组件，再S3全部公共宿主，之后才按上述组序S4迁移。第二组有互依时先已有正式记录和最小已保存配置，显式打开所需工作区；不能用“依赖”恢复普通保存全量核查，也不能先做一页再跨层补组件。每组均保原路径和布局，遇服务阻塞可做独立用例但该包仍未完成。
+
+##### N2. 总体复审收束与边界修订（优先于前文歧义）
+
+1. **S3/S4删除职责纠偏。**L1/M1所述宿主接管与“同批删除页级接线”按具体符号解释：S3只处理共同宿主责任及其测试/派生，S4才逐页换接并同批删除该页自建实例和手工公共接线。混合文件按本批变更责任判断，禁止S3顺修领域，也禁止两个owner同时拥有同一实例。隐藏设计弹窗的单目标仍是S4领域输入。
+2. **冻结待验不能解锁。**I3所谓可交接草案/冻结待验仅可交诊断与接口设计，不能开始下游产品实施。真实本层冻结但已登记旧下游类型红，与生成/本层反例被阻根本未冻结必须分列；后者无单层合法修法则登记阻塞，不用兼容壳、缩tsconfig或换阶段顺序。前者也不称整仓可发布。
+3. **未知与强制撤权的联合反例。**runtime-page.ts的isDirty未直接读取hasUnconfirmedSave；不能据此断言数据层必丢未知，因为pending可能间接承载，但须构造“无local dirty仍有unknown”检验。system pool强制reconcile/reset可清实例；S1确认命令事实保留与禁止重放，S2动作/输入取消结果，S3停旧写及原结果核验分别验。两者为静态待验证反例，不是已观察实服故障。
+4. **旧配置不只TS import。**M1删除清单追加#键/局部键、旧前端聚合、DB命令伪file类型、URL alias及rule/script/正式存量配置；S1定完整身份/统计/资源类别，S3清宿主配置和路由，S4换业务调用，最晚各自入口验收前明确转换或显式拒绝。局部键在正式明确主空间上下文的合法合同与无身份fallback必须区别，不能把所有局部绑定机械当错误。
+
+##### N3. 服务反例、缺证、前端缺口与暂缓分别处理
+
+| 分类 | 已有事实及关联范围 | 后续行动与不能推论 |
+| --- | --- | --- |
+| 已部署样本失败 | J2 merge输出/INNER/RIGHT/FULL等；H3输出父类型校验拒绝；J3多组布局样本失败；H4工作流先无业务行领码冲突 | 保原请求/响应/对象范围，服务合同待核/外部修正后最小重验；不发明前端执行/改Java/盲重试，也不扩大成整包所有操作不可用 |
+| 历史未知原提交 | J1 owned SaveView与sys_edit独立未知记录；其他文件/命令按原capture | 恢复前按原身份核验，禁止重放/猜清理；独占对象历史存在不等于当前仍存在，也不据别的样本成功结清 |
+| 正式服务缺证 | 报表版本归属/产物，审批引擎/状态副作用，维度完整消费者，PDF识别，FileManager双端，Excel导入/账本/归档及模板真实消费 | 未来只在授权恢复后用精确隔离对象核合同与CRUD/消费者；源码/API声明/Java线索不当部署事实；缺证不阻S0交付 |
+| 前端确有缺口 | 14透传布局、then结果传播、预览装配差异、复杂逻辑普通保存受当前编译器限制、整Excel方案删除未接、策划附件本地reject | 按S1/S2/S3/S4责任解决；本地拒绝不证明服务没能力，明确拒绝不算目标完整实现；不以其缩减20包范围 |
+| 历史有效但快照有变 | workflow冻结23源3变、Excel模板7源1变、API旧13源3变而较新参数绑定8源一致 | 保已证命令/来源/结果范围，只对影响链做必要重验；不全部清零重跑，更不跨版本宣称当前整体通过 |
+| 用户明确暂缓 | 新增/扩展数据权限、功能授权接线及其专题验收 | 既有守卫不变，功能标签/治理完整范围保留；非权限的脱敏/企业申请/普通设计和保存继续，不将暂缓扩成整包删除 |
+| 当前授权门槛 | 仅S0现状/总体规划获准；实施、实服写入和最终提交推送待明确恢复 | 不把自动goal续跑当授权；S0分析可继续，完成后给可评审结果并等待明确恢复，不假称整体迁移完成 |
+
+**本批交接。**已吸收高阶总体审查：20包无整包遗漏，分层总体成立；增加N1三状态索引/组序、N2阶段与冻结纠偏、N3分类。仍须补扩展扫描静态匹配及归一重名/消费者范围，汇总S0最终可评审交付边界，不把缺证转为未来需求缩水。源基线再次核为1336399f50fb339d9134dae93233184997f1bc81，仅台账变化和原未跟踪测试；无代码实施、产品测试/生成/服务/提交推送。
+
+##### O1. 扩展注册静态匹配与消费者缺证收束
+
+本轮读取正式scan-config、插件scan/命名/排序/注册实现和共享toKebabCase，然后以现有glob库作一次只读文件枚举，未调用Vite插件生成器/构建、未输出派生产物。四patterns按正式ignore得到220文件/220归一类型：features 0、src/components 5、src/views 101、packages/*/src/components 114；候选间同名组0。与112内置类型重合4个：display-countdown、display-calendar、display-icon、display-image，均来自对应Display*.vue。生成注册语句为if(!registry.has(name))才注册；不能把重合4个再计新能力，也不能把未冲突推成每组件合同已正确。若112内置及220候选和显式r-module-context-badge均在预期启动路径执行，且badge扫描名module-context-badge与显式r-名分开，理论键集合329；这是静态集合推算，未观测实际运行registry，不作为验收数量。
+
+**候选消费者调查范围与限制。**只读枚举config/src/features下JSON/JS且排generated/node_modules共35文件，逐候选查完整引号字面量。仅命中excel-import-editor/pagedata.json的index字符串，实际是字段名，不证明使用type=index；未确认其他候选在该范围的rule/script类型消费。此查询不是AST全量调用图，不覆盖TS/Vue动态构造、远端已存配置、运行期脚本或外部工具，故登记为明确缺证，不能据“本地无字面量”删除220候选。S2明确正式标准暴露面与ClassModel的一致性，S3核注册与页面宿主边界，S4迁移对应业务配置并删已证被替代的整页包装；S0不扩大成另建组件目录系统。
+
+##### O2. 存量配置破坏性差异的处置与最晚复验点
+
+| 旧合同/来源 | 目标及处理策略 | 删除/拒绝与最晚复验 |
+| --- | --- | --- |
+| #键、无空间fallback、内部tableKey冒模型名 | S1统一完整键解析及显式正式名称映射；宿主有明确主空间的合法局部键单独保留合同 | S3配置加载明确校验，S4逐实际保存配置改正式键；无法唯一解释即明确拒绝，不猜首空间/首同名表，不加旧键适配层；入口切换前跨空间读写验 |
+| view.aggregates/selectionAggregateResult及前端跨行公式 | 单行已返值计算与后端正式范围聚合分开；S1只消费已确认服务查询协议 | S3/S4处理原配置，未知JS公式拒绝/登记服务缺口，不猜SQL、不浏览器拉全补统计；最晚该统计消费验收前独立核范围/过滤/授权 |
+| DB服务命令resourceType=file | S1按真实语义资源身份/提交与verify统一，不以“同一提交API”保伪类别 | S3改装配声明，S4改相应消费，既有file存储适配内部保留；最晚命令正反例与unknown验收前清除伪类别，不能只换字符串无执行合同 |
+| /DataBaseManage/TableAndView alias、旧目录/整页包装 | canonical原参考路径，正式导航node身份不变；已有alias消费者本地/远端分别核 | S3移除兼容路由，S4改调用并删除被替代页/脚本；最晚正常入口与直达验收前确认；不改后端导航URL适应错误文件落点 |
+| ProjectWorkspace公开存储方法与业务直接owner | 场景/文件经DataView提交，IO与冲突确认只在资源适配内部 | S1收窄公开责任，S3宿主/S4业务换接后删旁路，保原unknown事实；最晚该消费页保存重开前核直接/动态调用，不整删适配 |
+| 历史整空间JSON/第二模型字段真源/旧模型关系depType转换 | DB空间模型字段保正式真源，pagedata引用定义；native资源关系与输入级联分开 | S1装配/适配合同明确，S3/S4停旧写并删除替代逻辑；历史DB关系记录保留，不自动抹/重挂/迁移。不能证明含义时明确拒绝/缺证，最晚配置发布消费前验 |
+
+上述为有代表性的实际差异清单与转换/拒绝责任，不声称已取得实服全部存量配置。实施批开始须按真实目标读取本次配置与消费者，必要迁移仅在用户恢复后沿同一data链提交；不做后台批量修复，不把未加载记录视作删除。不足以确定语义的旧配置作为明确缺证和拒绝路径保留，不能增加兼容层掩盖。
+
+##### O3. 当前授权范围内的S0交付结论与恢复入口
+
+**S0现状与总体规划已形成可评审交付。**原20包范围不变，E/N1为范围和交叉索引，F—J/L为逐用例/下游/持久边界，I3为公共数据验收草案，K为组件及反例，L为宿主/工作台，M/O为旧入口处置和工程门禁，N3为服务反例/缺证/前端差距/暂缓分类。高阶总体评审已确认无整包遗漏、责任分层总体成立，七项收尾意见由N/O明确处置。该结论只表示分析规划交付，不表示源码、配置、服务或完整页面已验，不把用户暂缓和服务缺证移出20包。
+
+**尚未冻结任何新公共合同，未进入S1。**后续只有用户明确恢复，才从当前源码及本台账重核差异、原unknown意图和工程基线，先做S1集中数据收口；不从遗留JsonTree/Excel局部断点续写，不交替跨层。S1完成并真冻结后再S2，随后S3、S4依赖组序、S5整验与提交推送。任一下游发现上游反例按N2退回责任阶段，不维护错误合同。后续正式服务/布局/清理矩阵仍按各包原范围逐项实施验明，不要求在S0越权提前执行。
+
+**授权等待与目标状态。**当前明确限制是用户要求“先完成现状分析与总体规划，不自动进入代码实施或实服写入，待明确恢复”。已可交付上述S0；整体迁移仍未完成，不能mark complete。此后若没有新的只读规划问题、用户补充或外部状态变化，下一步为等待明确恢复，不通过无限扩写同一分析或重复旧测试制造进展。自动goal续跑不构成恢复授权。当前首次登记此收束后的授权门槛，不提前将目标标blocked/paused；按连续阻塞审计规则处理后续。
+
+**本轮验证与工作树。**本轮仅静态读取与台账整理，无产品测试/构建/生成/服务/实服写入。结束前运行verify:docs与diff检查，实际结果见本批工具；HEAD仍1336399f50fb339d9134dae93233184997f1bc81，唯一tracked修改本台账，原未跟踪json-tree-value-root.test.ts保留不执行、不删除、不提交。
+
+**S0交付后的授权审计，第2次。**自动续跑再次携带同一“待明确恢复”限制，无新增实施授权。已回读O3及git status：交付状态和工作树范围未变；get_goal仍active，整体未完成。上一轮完成O1—O3属于进展，本轮状态复核不算实施进展，也不是某个运行任务的verified wait。没有尚待运行的S0评审或必要分析阻止交付；下一合法动作须用户明确恢复实施。不再追加假想规划或重跑历史检查，继续保留目标完整范围；本轮不标complete/paused，尚未达到三次阻塞登记阈值。
+
+**S0交付后的授权审计，第3次。**再次核当前工作树与上一审计，自动续跑仍原文保留“不自动进入代码实施或实服写入，待用户明确恢复”，没有恢复指令。上一轮为授权阻塞复核、无实质进展；本轮同一条件继续，没有可独立推进的必要S0工作或活跃评审。达到连续三次同一阻塞阈值，整体目标应标blocked（不是complete，也不是用户请求pause）。恢复点为S1数据层集中收口及基线重核；保20包与所有未验范围，不再无限追加分析。未改产品源码、未执行实服/测试/生成/提交推送，原未跟踪RED文件保持原样。
+
+#### P. S1恢复实施：数据链集中收口（2026-11-08）
+
+用户明确恢复实施，撤销O3/N3的当前等待门槛；总体范围与阶段边界不变，S1真验收冻结前不进入S2。goal工具读回仍blocked是原状态，工具不提供主动resume参数，不创建重复目标、不伪标complete；本次用户恢复按新阻塞审计起点处理。
+
+**恢复基线。**当前HEAD与工作树沿O3；根pnpm run typecheck自然exit0（已等待session3612结束）。只修改本台账与后续spark-data责任源/测试/正式生成物；组件未跟踪json-tree-value-root.test.ts不动不运行。已读当前命令helper、实际调用及I3矩阵，读取knowledge/page-design和TDD/系统调试技能；高阶评审只读核首批边界，主控实施。
+
+**S1首批计划：幂等装配不得吞掉资源身份冲突。**data-set-command-view.ts两个ensure函数在同名表存在时直接返回，未核static-data/file类别、file资源ID及必要字段/主键。先用真实DataSet验证同名不相干资源/缺字段/错主键拒绝且不修改原表，匹配声明含额外字段仍幂等；随后最小公共校验，不新增模型/业务命令或兼容分支。修改范围仅该helper及data-set-command-view.test.ts/台账；主键/字段规则以实际DataTable合同核定，不强制全列数组完全相等。验证RED→GREEN，命令helper两套测试、数据包typecheck/lint与必要回归；涉及公开声明/行为指南的变更按正式生成链刷新并核一致，不把此小批等同I3全部冻结。其它S1身份/编辑/提交/unknown/生命周期合同仍按矩阵集中推进。
+
+**首批实施与验证。**真实DataSet新增测试先复现5个未拒绝反例；最初3例夹具漏views.default已纠正后重跑，5例均以未抛错RED成立。高阶补充已命名static、string类型、完整主键角色及modelBinding边界，分两次再见3例/2例RED后修复。当前公共assertCommandTable在任何复用前校验资源类别/精确resourceId（无名static不能吞命名源）、无正式modelBinding、要求列唯一/string/主键角色，拒额外主键；允许额外非主键列。原default视图、原行和合法扩展列不重建，不新增兼容API，未动下游。命令view/submit、file-resource-adapter与scenario-model-identity四文件76测试通过；修改两文件定向eslint通过。
+
+**类型门禁真实状态。**恢复前根typecheck通过；spark-data包typecheck失败。为判断归因，用现有TypeScript compiler API和同一完整tsconfig，对当前程序和仅内存读取HEAD两份修改文件的基线分别诊断，均52条且added/removed为空；未改磁盘源码、未缩配置/门禁。诊断主要既有测试CrudResult.total、缺node类型、私有_trackMutating、状态字面量/HttpEndpoint及可能undefined等；这是S1本层遗留门禁，不能当可忽略下游红，也不能冻结。后续集中修正实际测试合同/类型问题，不为过类型恢复旧协议。修改后根typecheck正在session94850复核，不能提前写通过；正式ClassModel生成/全包lint测试尚未完成，不宣称本批或S1全验。
+
+**下一数据层批与未核销项。**高阶发现submit缺键被补、错键接纳、verify先清pending的回执身份反例，下一独立S1批须用正常addRow而非显式新行验证原命令键、坏回执unknown、只核验不重放及不污染confirmed。普通模型服务分配主键不改，业务实体ID与命令ID分开；数据库注册returned.rowid/serverId适配差异留实际责任批，不跨改页面。部分database调用在ensure前已if(table)return，首批不能核销外围绕路；新建file空resourceId尚待验证。用户随后将goal设active，恢复状态已明确，无授权阻塞。结束/压缩断点保S1，组件未跟踪RED不变，无实服写入/提交推送。
+
+**本批末结果补记。**session94850根typecheck自然exit0；verify:docs通过564文件，git diff --check通过。数据包52条类型诊断仍未解决，正式生成及冻结仍未完成；仅数据helper、其测试和本台账变化，原组件未跟踪文件未动。
+
+**S1第二批：原命令回执与输入隔离。**按高阶已定位反例在data-set-command-submit.test.ts增加正常addRow提交/核验缺键及K2错键四例，RED均是错误成功；修改helper不再补键、不先清pending，回执必须以原键同一身份确认。已派发但回执不合格保原unknown，后续只verify，明确verify undefined仍沿原not-applied合同。补scope在回执等待期间失效仍保unknown测试通过。随后高阶发现回调参数和嵌套回执共享引用，新增两个真实反例RED（submit/verify改原输入后下次核验已污染，外部改回执后refresh被污染），再以私有canonical输入、每次独立structuredClone参数、回执先克隆再核ownPK修复；不改通用DataView正式模型新增分配主键。四套定向回归83测试通过，修改源/submit测试eslint通过。
+
+**正式生成已执行但不等于冻结。**pnpm run generate:class-model-surface自然exit0：1038 root/263 Vue，1108 DTS/JSON、2222符号、1741索引、3769 semantic gaps；生成器自身明确跳过pre-emit diagnostics而强制emit diagnostics，故不能代替根/包typecheck。生成后181个派生产物变化（总diff185文件含台账和3源测试）；示例组件变化仅generatedAt，但剔除generatedAt/sourceModifiedAt后仍有其他产物差异，不能冒称全部时间戳或手改产物；这是正式生成暴露的原有派生落后，当前保留完整生成结果，未改组件/宿主业务源码。需后续核派生语义差异与归属，不用恢复旧产物假称一致。本轮随后仅改内部回执实现、未改公开签名；后续验收前再正式生成并检查稳定性。
+
+**下一断点与未完成门禁。**高阶提出适配回执已返回但DataView外层accept前scope失效的微任务窗口，当前scope测试只覆盖helper内失效，尚未证明外层失败后原已派发事实仍保留；下一批先真实测试，不以再加guard假修。装配新分支空白resourceId、重复列声明也未先拒，会留下占名表，应补零注册反例。数据包52条既有类型诊断、全包测试/lint、正式ClassModel语义检查、I3其它合同均仍待办。没有进入S2、实服写入或提交推送；原组件未跟踪RED保持。上一轮首批数据修正为有效进展，本轮第二批亦有真实RED→GREEN，不把83测试称S1冻结。
+
+**S1第三批计划修订：回执返回不等于视图接纳。**已以queueMicrotask在submit后helper guard通过、外层DataView校验前撤销scope复现RED：外层拒绝但hasUnconfirmedSaveFor(K1)已false。根因是命令helper先清pending/记confirmed，DataView外层尚未接纳；再加guard不能消除await窗口。本批扩至同层data-view.ts查询executor合同，增加同步接纳通知acknowledgeSave(context)，仅在原回执确被DataView接纳后通知原executor；helper保私有已返回回执及原pending，失败后重接纳同一已返回回执，不二次submit/verify，接纳后才转confirmed。该回执暂存是原提交事实而非可编辑草稿，不新增业务owner或兼容层。范围限spark-data实现/测试/正式生成及本台账；将新增合同正式生成/类型/直接反例验证后才可能冻结，当前仍未冻结。
+
+**第三批实现/验明。**新增acknowledgeSave同步通知由DataView接纳原回执后调用capture.executor；命令来源received/pending保原回执和输入，重接纳不重发/不重核验，只有ack进入confirmed。微任务失效反例已GREEN，原submit次数1、verify0，恢复后refresh原回执不重复。另新建空/空白resourceId两例、重复列static/file两例均先见RED，再在addTable前统一拒绝，断言getTable未注册。当前四套定向88测试通过；涉及核心接纳，扩大到crud/dataset/file-resource-adapter共27文件543测试全通过。数据源实现及两测试、data-view.ts定向eslint通过；根typecheck session51253自然exit0；正式生成session75970自然exit0，仍1108分片/1741索引/3769 gaps。未进入标准组件或业务修改，也未访问正式服务。
+
+**数据包类型门禁定位。**再用完整package tsconfig诊断仍52条，无本批data-view/command源测试诊断；11个既有测试文件：cascade-event-filter2、dirty-baseline-lifetime4、query-source4、query-save-domain-rule1、save-rule-validation22、query-save-validation1、data-view-filter-expression4、local-configuration-cascade3、dataset-crud-tool9、query-input-cascade1、filter-contract1。下一批只在数据责任层核真实测试夹具/可访问合同及node测试类型需求，逐项修正，不as-any压诊断、不缩包含范围。高阶正在只读审查接纳通知与缓存/生命周期边界，须吸收具体反例；当前S1未冻结，正式生成语义差异与全包工程门禁仍需收束。上一轮回执与别名隔离是真实进展，本轮外层窗口和零注册反例亦完成RED→GREEN；目标active，原组件未跟踪RED不动，不提交推送。
+
+**第三批高阶P1补验。**已可信回执尚未本地接纳时，默认abandon原先会清received/pending、保新增草稿而允许二次submit。沿微任务测试加入abandon必须false先见RED（实际true），再修为有received不能放弃，只允许原save接纳；真正unknown且明确允许放弃仍原行为。该套21测试通过，原submit1/verify0最终单回执，不能以“允许放弃未知”抹掉已知生效事实。此小修在上述543回归后发生，仅重新运行其直接套件；后续生成/工程收口仍按实际差异处理。
+
+**S1第四批：独立命令边界与接纳后记账。**高阶P1指出同一executor被createQueryView复用，默认批内Promise.all先失败可使另一命令仍在途但视图mutating已结束。主控真实两个命名视图测试先见两RED：首项明确失败仍submit2次；首项成功、后项unknown时首项未接纳。命令executor复用既有saveIndependently:true，按每视图真实边界顺序派发/接纳，不造事务；两例GREEN，前项失败后项0派发，前项已确认、后项仅verify原K2。不是把普通正式模型所有保存强制串行，也不改页面。
+
+**同层生命周期反例。**延迟submit→destroy DataSet→放行回执，旧view.hasUnconfirmedSave被finally回填true已复现RED。savePreparedQueryViews收尾对destroyed视图不再重挂capture或更新mutating，GREEN；销毁对象不接受晚到结果。它不证明跨销毁/进程原命令已结清，不添加全局凭据缓存；正常关闭仍应阻未决，强制撤权后原意图核验归既定S1/S3合同继续验，不以此测试豁免。
+
+**接纳通知失败语义固定。**高阶P2补真实来源ack throw反例，原save报错但新增已清；主控先见RED，再将acknowledgeSave签名收紧同步返回undefined，DataView接纳后的通知异常仅记录DATA_VIEW_SAVE_ACK诊断，不反转业务结果或中断后续已获回执。JavaScript误返Promise也显式记录误用并观察rejection，避免unhandled；新增运行测试实际通过。生产helper通知只操作私有回执/WeakMap且显式返回undefined，通知不派发业务。没有将该P2和未知命令混为一谈。
+
+**第四批工程与断点。**上述变更扩大crud/dataset/file-adapter27文件548测试全通过（session42677自然exit0），改动源/submit测试上一轮lint通过，本批补JS误用例后再跑session待收；正式生成session78189、根typecheck session76047仍在跑，未提前写绿。下一继续收回真实结果并处理数据包52条既有测试诊断、正式生成语义变化和I3未核合同；S1未冻结，不跨组件/宿主/业务。原组件未跟踪RED不动，无实服写入/提交推送；前轮第三批及本轮均实际RED→GREEN。
+
+**第四批末补记。**定向eslint自然exit0；session78189正式生成与session76047根typecheck均自然exit0；verify:docs564文件通过，git diff --check通过。没有活跃遗留命令等待；数据包自身类型/全包工程及完整S1冻结仍未完成，恢复断点为这些门禁与I3未验项。
+
+**S1第五批：类型门禁及安全checkpoint准备。**用户明确要求适时提交推送、确定安全；本批已确认origin指APPWORKS仓、原1031跟踪origin/1031，创建codex/spark-data-s1-command-safety隔离交付分支，不推旧github/gitlab远端。待完整门禁与评审结果后才提交本批，S1仍未冻结；原组件未跟踪测试不纳入commit。
+
+11文件52条既有数据包类型错误已逐项按源码合同修正：规范TableMetadata夹具补真实tableName及DataColumn类型，按公开rows查行不调用私有getRowById；生命周期测试以真实绑定save/延迟回执驱动mutating而非私有_trackMutating；状态采用DataViewSourceHistoryStatus；只读行参数、过滤联合类型/投影类型、端点对象和可选属性删除均符合正式签名；CrudResult分页放data.rows/total；GC测试明确node类型。无as-any、类型忽略、缩tsconfig/包含面、降低断言或扩大公开权限。数据包typecheck从52→2→0自然exit0，全包55文件1196测试通过；新增通知接收方修正后全包1197测试通过，package lint自然exit0。
+
+**提交前复审补项。**高阶最终审查指出ack取出后丢this。首个把expect放通知内部的测试会被诊断隔离误吞，主控改为外部断言captured receiver，明确RED实际undefined，随后notify.call(originalExecutor,context)修复GREEN；定向套件27测试通过。cascade-event-filter原文件混合行尾，已从HEAD字节仅替换两处data envelope，diff归为2/2而非252/252。根verify首轮失败于本批assertCommandTable四位置参数，已改三参数+命名resource对象，不改门禁；第二轮verify运行中。
+
+**正在收回的真实进程。**根完整测试session46462（包含原未跟踪组件RED，作为整工作树结果而非提交范围）、第二轮根verify session64132、派生产物语义/时间戳对照session26187均有活跃handle，尚未结论，不能称提交安全/已推送。根verify已通过root类型/lint、arch/deps/pages-config/ai-codegen/docs，ClassModel子链仍在执行。扩展检查用于提交风险核验，未因此跨改组件/页面；失败须按证据归因，不顺手跨层修。待结果后列准确提交白名单并核远端一致，不将checkpoint称S1冻结。
+
+**第五批门禁结果补收。**第二轮根pnpm run verify（session64132）已自然exit0，全链包括ClassModel49测试、低代码611端点/217消费者、蓝图/parity/目录/薄页检查通过；AI模型2警告和薄页84诊断为脚本报告的非阻断结果，不称零差距。完整package typecheck/lint及55文件1197测试通过。派生188文件中107仅时间字段差异；其余81原始结构差异进一步剔除明确的时间、declarationLine、编译器iterator符号ID和enum/required排序后剩8文件，包含新acknowledgeSave向DataView及资源executor类型投影的传播；另useDevState/useDevSystem仍有排列/展开差异，未修改其业务源码，未据此将188文件称188项功能变更。原始正式生成结果保留，不手改派生消差。根全测试session46462仍在自然推进，尚未出终态，不重复启动，不因观察超时重启；仍未提交/推送。
+
+**整工作树全测终态与S1适配修订。**session46462自然exit1，502文件499通过/3失败，9190测试9178通过/12失败，594.83s。10例来自预留未跟踪组件JsonTree RED（不在提交范围、不修组件）；1例workflow-design操作目标15秒超时需独立复核；1例数据库登记默认字段已获确认但回读失败后的恢复为本批回调隔离暴露的真实适配问题，不能标全绿或推送。根因dataset-extensions.ts:321以WeakSet<DataRow>依赖submit/verify对象引用相同，公共层必须隔离原输入，不能为兼容该旁路恢复共享可变对象。
+
+**当前批范围明确扩至S1资源适配。**仅修数据库资源适配器的原命令回执关联：WeakSet改按原命令rowid及dbid/tableName关联确认事实，正式回读后结束该证明；保默认字段实际created/already/unknown业务判断和HTTP顺序，不改页面或领域编辑/流程，不造兼容层。该变更属于用户明确要求的数据库资源接入与提交结果确认责任；不是逐页S4补丁。已有真实根测试RED，定向重现后GREEN及正常/unknown/原字段回读矩阵重验；由高阶审查此边界。提交索引仅白名单，暂存换行放大误差已撤回自身暂存并按原配置/精确文件重建，额外10源文件均未纳入；当前204文件为188派生+15数据源测试+台账，未提交/推送。
+
+**资源适配修复已验及计划纠偏。**上述“正式回读后结束证明”经高阶指出会误伤回读→公共接纳之间失权窗口，实际实现保留本次attach/view闭包内Map证明至新同键意图或实例释放；fresh submit先清同键旧proof，仅created含默认字段才写{dbid,tableName}，verify原键及两端资源均匹配才消费，already/无正式ACK不能伪证。既有恢复测试定向再现RED后，表/视图资源操作整套27测试GREEN、适配器eslint通过，未恢复共享可变输入。workflow单项独立重验通过（测试执行3.99s，导入另计），不改测试超时或页面。
+
+**拟提交范围全验。**git ls-files已确认遗留json-tree-value-root.test.ts未跟踪，完整工作树10个该组件RED保留记录，不删除/修改。再次运行root完整测试仅排除这一不入commit的未跟踪文件，--maxWorkers=2降低并发干扰，root既有全部已跟踪测试仍在范围；不缩tsconfig/删除失败断言，不把工作树失败称通过。此命令检验拟提交快照的测试范围，非整工作树全绿；同时再次pnpm run verify覆盖修复后的真实源及派生。两进程本批刚启动，待收终态后才决定安全checkpoint提交推送；S1未冻结。数据资源适配为新增白名单文件，须补入索引并刷新台账；暂无提交/推送。
+
+**安全checkpoint交接断点。**当前分支codex/spark-data-s1-command-safety，已精确暂存数据源/测试、适配器、唯一台账及生成物；cached diff --check通过，白名单外路径0，原未跟踪组件测试未暂存。拟提交范围全测session59536、修复后根verify session61939最近轮询均仍运行并有推进，下一轮只等原handle不重复启动；此前整工作树session46462已失败终态不能当运行。高阶同时只读审余下I3优先反例，不编辑当前被测源。尚未commit/push，用户安全要求继续执行，不以暂停/缺授权作为阻塞；整体goal active，S1未冻结，下一合法步骤是收门禁终态→处理真实失败或安全提交→push origin该分支→核远端精确SHA，禁止推其他远端/标整仓已完成。
+
+**等待检查点期间的下一S1审查（只读，未实施）。**高阶按I3提出三项直接源码反例，仍须主控RED确认：①data-view.ts validateQuerySaveReceipt仅长度与归属可能允许[A,B]回[A,A]，新增也可能两个本地ID收同一正式键；应先整批核唯一/覆盖再接纳，保合法乱序与正式分配键，测试落query-save-validation。②file-resource-adapter已回读后在外层接纳前清pending，作用域窗口可能把原成功更新误报冲突，需沿新ack核原文件新增/改/删不重放；测试落file-resource-adapter。③dataset.resolveUnconfirmedSaves可能把A confirmed+B not-applied压成整体not-applied，缺少逐来源结果，不能诱导重放A。以上为旧现状待验证、并非当前检查点新引入回归，未因推送要求删范围或称数据合同已冻结；当前只交付S1局部改进分支，不合入/部署，验证进程继续原handle。
+
+**修复后门禁真实收尾。**session61939自然exit1，仅verify:lowcode-contracts发现appworks-consumer-ledger过期（适配器源码定位变化），此前类型/lint/架构/配置/ClassModel49测试等通过；已运行正式generate:lowcode-contracts自然exit0，611端点/217消费者不变，backend-api-contracts/appworks-consumer-ledger.json仅一处定位字段变化。它加入当前数据层派生白名单，非修改后端服务合同或手工产物。修复后根verify新session60608运行中；拟提交范围全测仍原session59536，未重启、未改被测源。上一轮是真实数据包门禁修复及已验证适配回归进展，本轮为收回活跃验证、修正正式生成滞后并等原全测，尚未提交推送。
+
+**S1命令检查点提交前验证结论。**session59536自然exit0：拟提交范围501文件9179测试通过，949.13s；仅排除明确未跟踪且不提交的组件RED，整工作树首轮失败记录不删除。session60608根verify全链自然exit0（包括真实类型/lint/架构/各规则），package typecheck/lint及1197测试结果沿上述有效范围。最终再正式generate:class-model-surface session1413自然exit0，1108分片/1741索引/3769 gaps；相对已测索引16份刷新均仅明确时间、符号ID或无语义排序差异（读原JSON对照，未手改）；生成后verify:class-model session60140四文件49测试及verify:lowcode-contracts均自然exit0。高阶当前批审查已吸收，现可提交本批局部检查点，但I3余项及三项新反例仍未核销，绝非S1冻结/全迁移完成。
+
+**提交与推送限定。**目标origin的codex/spark-data-s1-command-safety在预检时不存在，不覆盖1031/其他分支，不force、不合并/部署。仅数据层源/测试、S1数据库回执适配、唯一台账与官方ClassModel/消费者派生；遗留组件测试不动不提交。下一步提交此已验快照、push该独立分支并独立核远端SHA，结果在后续台账/最终消息如实补记；不提前写已推送。全部运行handle已收终态，无需重启完整测试；后续实现从通用多行回执反例继续S1，不进入S2。

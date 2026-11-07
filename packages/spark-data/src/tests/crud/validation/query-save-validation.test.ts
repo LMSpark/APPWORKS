@@ -4,7 +4,7 @@ import { DataView } from '../../../data-view'
 import type { DataRow } from '../../../types'
 import { DataValidator } from '../../../validation/validation'
 
-function query(tableName: string, rows: DataRow[]) {
+function query(tableName: string, rows: readonly DataRow[]) {
   return {
     rows, total: rows.length,
     assertIdentity(identity: { scenarioId: string; metaName: string }) {

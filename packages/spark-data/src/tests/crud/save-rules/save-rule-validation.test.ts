@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 import { DataSet } from '../../../dataset'
-import type { DataRow, DataSetMetadata } from '../../../types'
+import type { DataRow, DataSetMetadata, DataColumn } from '../../../types'
 
 type Command = { changes: ReadonlyArray<{ identity: { metaName: string }; changes: { added?: readonly DataRow[]; changed?: readonly DataRow[] } }> }
 
@@ -41,12 +41,12 @@ async function open(tables: DataSetMetadata['tables'], sources: Record<string, S
   return { dataSet, save }
 }
 
-const id = { name: 'id', type: 'string', isPrimaryKey: true }
+const id: DataColumn = { name: 'id', type: 'string', isPrimaryKey: true }
 const model = (name: string) => ({ modelId: name, modelName: name })
 
 describe('declared save rules', () => {
   it('rejects or normalizes surrounding whitespace and treats blank text as empty', async () => {
-    const { dataSet, save } = await open({ Items: { modelBinding: model('Items'), columns: [id,
+    const { dataSet, save } = await open({ Items: { tableName: 'Items', modelBinding: model('Items'), columns: [id,
       { name: 'code', type: 'string', trim: 'reject' }, { name: 'title', type: 'string', required: true, trim: 'normalize' }],
     views: { default: { commitMode: 'staged' } } } }, { Items: { rows: [{ id: '1', code: 'A', title: 'T' }] } })
     try {
@@ -64,14 +64,14 @@ describe('declared save rules', () => {
   })
 
   it('checks uniqueness across retained rows, immutability after creation and the declared field range', async () => {
-    const { dataSet, save } = await open({ Items: { modelBinding: model('Items'), columns: [id,
+    const { dataSet, save } = await open({ Items: { tableName: 'Items', modelBinding: model('Items'), columns: [id,
       { name: 'name', type: 'string', unique: true, immutable: true }, { name: 'desc', type: 'string' }, { name: 'secret', type: 'string' }],
     views: { default: { commitMode: 'staged', queryConfig: { fields: ['id', 'name', 'desc'] } } } } },
     { Items: { rows: [{ id: '1', name: 'a', desc: '', secret: '' }, { id: '2', name: 'b', desc: '', secret: '' }] } })
     try {
       const view = dataSet.getView('Items')!
       await view.loadFromServer()
-      expect(view.fieldAccess(view.getRowById('1'), 'name').write).toBe('denied')
+      expect(view.fieldAccess(view.rows.find(row => row['id'] === '1') ?? null, 'name').write).toBe('denied')
       const created = await view.addRow({ name: 'a' })
       expect(view.fieldAccess(created, 'name').write).toBe('allowed')
       await expect(dataSet.saveChanges()).rejects.toThrow('Items@default.name: name 重复：a')
@@ -87,12 +87,12 @@ describe('declared save rules', () => {
   })
 
   it('disables deletion of existing rows while still allowing a local draft to be withdrawn', async () => {
-    const { dataSet } = await open({ Items: { modelBinding: model('Items'), columns: [id],
+    const { dataSet } = await open({ Items: { tableName: 'Items', modelBinding: model('Items'), columns: [id],
       views: { default: { commitMode: 'staged', allowDelete: false } } } }, { Items: { rows: [{ id: '1' }] } })
     try {
       const view = dataSet.getView('Items')!
       await view.loadFromServer()
-      expect(view.deleteActionState(view.getRowById('1'))).toBe('disabled')
+      expect(view.deleteActionState(view.rows.find(row => row['id'] === '1') ?? null)).toBe('disabled')
       await expect(view.removeRow('1')).rejects.toThrow('DATA_VIEW_DELETE_DISABLED')
       const draft = await view.addRow({})
       await expect(view.removeRow(view.getPkKey(draft)!)).resolves.toBe(true)
@@ -102,12 +102,12 @@ describe('declared save rules', () => {
 
   it('validates option references with row context and fills matched option fields before capture', async () => {
     const { dataSet, save } = await open({
-      Params: { modelBinding: model('Params'), columns: [id, { name: 'interfaceId', type: 'string', required: true,
+      Params: { tableName: 'Params', modelBinding: model('Params'), columns: [id, { name: 'interfaceId', type: 'string', required: true,
         optionsView: { tableName: 'Apis', valueField: 'rowid', fill: { interfaceName: 'Name' } } },
       { name: 'output', type: 'string', optionsView: { tableName: 'Fields', valueField: 'enname', context: { interfaceId: 'interfaceId' } } },
       { name: 'interfaceName', type: 'string' }], views: { default: { commitMode: 'staged' } } },
-      Apis: { modelBinding: model('Apis'), columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'Name', type: 'string' }], views: { default: {} } },
-      Fields: { modelBinding: model('Fields'), columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'tblid', type: 'string' }, { name: 'enname', type: 'string' }], views: { default: {} } },
+      Apis: { tableName: 'Apis', modelBinding: model('Apis'), columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'Name', type: 'string' }], views: { default: {} } },
+      Fields: { tableName: 'Fields', modelBinding: model('Fields'), columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true }, { name: 'tblid', type: 'string' }, { name: 'enname', type: 'string' }], views: { default: {} } },
     }, {
       Params: { rows: [] },
       Apis: { rows: [{ rowid: 'A1', Name: 'Api one' }] },
@@ -130,10 +130,10 @@ describe('declared save rules', () => {
 
   it('preserves edits made while option fill is awaiting its source', async () => {
     const {dataSet, save} = await open({
-      Params: {modelBinding: model('Params'), columns: [id,
+      Params: { tableName: 'Params', modelBinding: model('Params'), columns: [id,
         {name: 'source', type: 'string', optionsView: {tableName: 'Apis', valueField: 'id', fill: {title: 'title'}}},
         {name: 'title', type: 'string'}], views: {default: {commitMode: 'staged'}}},
-      Apis: {modelBinding: model('Apis'), columns: [id, {name: 'title', type: 'string'}], views: {default: {}}},
+      Apis: { tableName: 'Apis', modelBinding: model('Apis'), columns: [id, {name: 'title', type: 'string'}], views: {default: {}}},
     }, {Params: {rows: [{id: '1', source: '', title: ''}]}})
     try {
       const view = dataSet.getView('Params')!
@@ -160,10 +160,10 @@ describe('declared save rules', () => {
   })
 
   it('rechecks an earlier prepared view when a later view awaits options', async () => {
-    const params = (name: string) => ({modelBinding: model(name), columns: [id,
+    const params = (name: string) => ({tableName: name, modelBinding: model(name), columns: [id,
       {name: 'source', type: 'string' as const, optionsView: {tableName: `${name}Options`, valueField: 'id', fill: {title: 'title'}}},
       {name: 'title', type: 'string' as const}], views: {default: {commitMode: 'staged' as const}}})
-    const options = (name: string) => ({modelBinding: model(name), columns: [id, {name: 'title', type: 'string' as const}], views: {default: {}}})
+    const options = (name: string) => ({tableName: name, modelBinding: model(name), columns: [id, {name: 'title', type: 'string' as const}], views: {default: {}}})
     const {dataSet, save} = await open({A: params('A'), B: params('B'), AOptions: options('AOptions'), BOptions: options('BOptions')},
       {A: {rows: [{id: '1', source: '', title: ''}]}, B: {rows: [{id: '2', source: '', title: ''}]}})
     try {
@@ -189,12 +189,12 @@ describe('declared save rules', () => {
 
   it('validates value functions against declared candidate sources', async () => {
     const { dataSet, save } = await open({
-      Headers: { modelBinding: model('Headers'), columns: [id,
+      Headers: { tableName: 'Headers', modelBinding: model('Headers'), columns: [id,
         { name: 'value', type: 'string', valueFunction: { format: 'text', capabilities: ['huoshan'],
           sources: { apiPublicParams: { tableName: 'Publics', valueField: 'paramName', labelField: 'desc' } } } },
         { name: 'body', type: 'string', valueFunction: { format: 'json-object' } }],
       views: { default: { commitMode: 'staged' } } },
-      Publics: { modelBinding: model('Publics'), columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true },
+      Publics: { tableName: 'Publics', modelBinding: model('Publics'), columns: [{ name: 'rowid', type: 'string', isPrimaryKey: true },
         { name: 'paramName', type: 'string' }, { name: 'desc', type: 'string' }], views: { default: {} } },
     }, { Headers: { rows: [{ id: '1', value: 'plain', body: '' }] }, Publics: { rows: [{ rowid: 'P', paramName: 'token', desc: 'Token' }] } })
     try {
@@ -213,11 +213,11 @@ describe('declared save rules', () => {
 })
 
 describe('declared view operations', () => {
-  const tables = {
-    Apis: { modelBinding: model('Apis'), columns: [id, { name: 'ProviderID', type: 'string' }, { name: 'Name', type: 'string' }],
+  const tables: DataSetMetadata['tables'] = {
+    Apis: { tableName: 'Apis', modelBinding: model('Apis'), columns: [id, { name: 'ProviderID', type: 'string' }, { name: 'Name', type: 'string' }],
       views: { default: { commitMode: 'staged' as const, lockCurrentWhilePending: true, queryContext: { providerId: 'P1' },
         filterExpression: { field: 'ProviderID', operator: 'eq' as const, value: { Type: 'GetInputParam', ParamName: 'providerId' } } } } },
-    Params: { modelBinding: model('Params'), columns: [id, { name: 'pid', type: 'string' }, { name: 'parname', type: 'string' }],
+    Params: { tableName: 'Params', modelBinding: model('Params'), columns: [id, { name: 'pid', type: 'string' }, { name: 'parname', type: 'string' }],
       views: { default: { commitMode: 'staged' as const } } },
   }
   const sources: Record<string, Source> = {
@@ -232,7 +232,7 @@ describe('declared view operations', () => {
     try {
       const apis = dataSet.getView('Apis')!, params = dataSet.getView('Params')!
       await apis.loadFromServer(); await params.loadFromServer()
-      apis.setCurrentRowById('A1'); apis.setSelectedRows([apis.getRowById('A1')!])
+      apis.setCurrentRowById('A1'); apis.setSelectedRows([apis.rows.find(row => row['id'] === 'A1')!])
       expect((await params.addRow({}))).toMatchObject({ pid: 'A1' })
       params.discardPendingChanges()
       const draft = await apis.addRow({})
@@ -255,7 +255,7 @@ describe('declared view operations', () => {
       expect(reads).not.toHaveBeenCalled()
       expect(params.rows).toEqual([])
       expect(params.addActionState()).toBe('hidden')
-      apis.setSelectedRows([apis.getRowById('A1')!])
+      apis.setSelectedRows([apis.rows.find(row => row['id'] === 'A1')!])
       await params.refresh()
       expect(params.rows.map(row => row['id'])).toEqual(['X'])
     } finally { dataSet.destroy() }
@@ -276,7 +276,7 @@ describe('declared view operations', () => {
       expect(apis.currentRow?.['id']).toBe('A2')
       await apis.editRowById('A2', { Name: 'renamed' })
       await apis.discardAndReload()
-      expect(apis.getRowById('A2')?.['Name']).toBe('two')
+      expect(apis.rows.find(row => row['id'] === 'A2')?.['Name']).toBe('two')
     } finally { dataSet.destroy() }
   })
 })

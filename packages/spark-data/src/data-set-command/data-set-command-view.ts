@@ -4,7 +4,9 @@
  * 边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。
  */
 import {DataViewLocalQuery} from '../query/data-view-local-query'
+import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataSet} from '../dataset'
+import type {DataTable} from '../data-table'
 import type {DataView} from '../data-view'
 import type {DataColumn, DataRow} from '../types'
 
@@ -34,13 +36,47 @@ function columnDefs(columns: readonly DataSetCommandColumnSpec[]) {
   }))
 }
 
+function assertCommandColumns(columns: readonly DataSetCommandColumnSpec[]): void {
+  if (new Set(columns.map(column => column.name)).size !== columns.length) {
+    throw new Error('DATA_SET_COMMAND_COLUMNS_CONFLICT: 命令字段声明重复')
+  }
+}
+
+function assertCommandTable(
+  table: DataTable,
+  columns: readonly DataSetCommandColumnSpec[],
+  resource: Readonly<{resourceType: string; resourceId?: string}>,
+): void {
+  const {resourceType, resourceId} = resource
+  if (table.modelBinding || table.resourceType !== resourceType || table.resourceId !== resourceId) {
+    throw new Error(`DATA_SET_COMMAND_RESOURCE_CONFLICT: ${table.tableName} 已绑定其他语义资源`)
+  }
+  for (const expected of columns) {
+    const matches = table.columns.filter(column => column.name === expected.name)
+    const actual = matches[0]
+    if (matches.length !== 1 || actual?.type !== 'string'
+      || (expected.primary === true) !== (actual.isPrimaryKey === true)) {
+      throw new Error(`DATA_SET_COMMAND_COLUMNS_CONFLICT: ${table.tableName}.${expected.name} 字段或主键不匹配`)
+    }
+  }
+  const primaryNames = new Set(columns.filter(column => column.primary === true).map(column => column.name))
+  if (table.columns.some(column => column.isPrimaryKey === true && !primaryNames.has(column.name))) {
+    throw new Error(`DATA_SET_COMMAND_COLUMNS_CONFLICT: ${table.tableName} 存在其他主键字段`)
+  }
+}
+
 /** 幂等创建 static-data 输入表（命令参数行，不参与正式 saveChanges 资源）。 */
 export function ensureDataSetStaticInputTable(
   dataSet: DataSet,
   tableName: string,
   columns: readonly DataSetCommandColumnSpec[],
 ): void {
-  if (dataSet.getTable(tableName)) return
+  assertCommandColumns(columns)
+  const existing = dataSet.getTable(tableName)
+  if (existing) {
+    assertCommandTable(existing, columns, {resourceType: 'static-data'})
+    return
+  }
   const table = dataSet.addTable(tableName, columnDefs(columns))
   table.resourceType = 'static-data'
 }
@@ -54,14 +90,18 @@ export type EnsureDataSetFileCommandViewInput = Readonly<{
 
 /** 幂等创建 file 资源命令结果表并返回 default DataView。 */
 export function ensureDataSetFileCommandView(input: EnsureDataSetFileCommandViewInput): DataView {
-  if (input.dataSet.getTable(input.tableName)) {
+  if (!input.resourceId.trim()) throw new Error('DATA_SET_COMMAND_RESOURCE_ID: 命令资源身份不能为空')
+  assertCommandColumns(input.columns)
+  const table = input.dataSet.getTable(input.tableName)
+  if (table) {
+    assertCommandTable(table, input.columns, {resourceType: 'file', resourceId: input.resourceId})
     const existing = input.dataSet.getView(input.tableName, 'default')
     if (!existing) throw new Error(`命令视图缺失: ${input.tableName}`)
     return existing
   }
-  const table = input.dataSet.addTable(input.tableName, columnDefs(input.columns))
-  table.resourceType = 'file'
-  table.resourceId = input.resourceId
+  const created = input.dataSet.addTable(input.tableName, columnDefs(input.columns))
+  created.resourceType = 'file'
+  created.resourceId = input.resourceId
   const view = input.dataSet.getView(input.tableName, 'default')
   if (!view) throw new Error(`命令视图缺失: ${input.tableName}`)
   return view
@@ -180,6 +220,7 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
 export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSubmitOptions): void {
   let confirmed: DataRow[] = []
   const pending = new WeakMap<object, DataRow>()
+  const received = new WeakMap<object, DataRow>()
   const save = async (command: SaveCommand): Promise<SaveReceipt[]> => {
     options.guard()
     return Promise.all(command.changes.map(async change => {
@@ -187,28 +228,47 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
       if (changed.length > 0 || deleted.length > 0) throw new Error(`DATA_SET_COMMAND_ADD_ONLY: ${view.tableName} 命令只接受新增提交`)
       const submitted = added[0]
       if (added.length !== 1 || submitted === undefined) throw new Error(`DATA_SET_COMMAND_SINGLE_ROW: ${view.tableName} 每次提交一行命令`)
-      const key = submitted[view.primaryKey]
+      const original = pending.get(change.context) ?? structuredClone(submitted)
+      const key = original[view.primaryKey]
       let accepted: DataRow | undefined
-      if (pending.has(change.context)) {
-        accepted = await options.verify(pending.get(change.context) ?? submitted)
-        pending.delete(change.context)
-        if (accepted === undefined) throw new Error(`DATA_SET_COMMAND_NOT_APPLIED: ${view.tableName} 核验确认命令未生效，可修改后重新提交`)
+      if (received.has(change.context)) {
+        accepted = received.get(change.context)
+      } else if (pending.has(change.context)) {
+        accepted = await options.verify(structuredClone(original))
+        options.guard()
+        if (accepted === undefined) {
+          pending.delete(change.context)
+          throw new Error(`DATA_SET_COMMAND_NOT_APPLIED: ${view.tableName} 核验确认命令未生效，可修改后重新提交`)
+        }
       } else {
         try {
-          accepted = await options.submit(submitted)
+          accepted = await options.submit(structuredClone(original))
         } catch (error) {
-          if (options.isUnconfirmed?.(error) === true) pending.set(change.context, submitted)
+          if (options.isUnconfirmed?.(error) === true) pending.set(change.context, original)
           throw error
         }
       }
-      const row: DataRow = {...accepted, [view.primaryKey]: accepted[view.primaryKey] ?? key}
-      confirmed = [...confirmed, row]
+      let row: DataRow
+      try {
+        options.guard()
+        const snapshot: unknown = structuredClone(accepted)
+        if (!isRecord(snapshot) || !Object.hasOwn(snapshot, view.primaryKey) || snapshot[view.primaryKey] !== key) {
+          throw new Error(`DATA_SET_COMMAND_RECEIPT_IDENTITY: ${view.tableName} 回执缺少原命令键或身份不一致`)
+        }
+        row = snapshot
+      } catch (error) {
+        pending.set(change.context, original)
+        throw error
+      }
+      pending.set(change.context, original)
+      received.set(change.context, row)
       return {metaName: change.identity.metaName, added: [row], changed: [], deleted: [], changedFields: [],
-        context: commandSubmitResult(view, confirmed, options)}
+        context: commandSubmitResult(view, [...confirmed, row], options)}
     }))
   }
   view.bindQueryExecutor({
     localAggregates: false,
+    saveIndependently: true,
     executeQuery: target => {
       options.guard()
       if(options.retainConfirmedOnRefresh!==true)confirmed = []
@@ -216,7 +276,16 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
     },
     save,
     hasUnconfirmedSave: context => pending.has(context),
-    ...(options.allowAbandonUnconfirmed === false ? {} : {abandonUnconfirmedSave: (context: object) => { pending.delete(context) }}),
+    acknowledgeSave: context => {
+      const row = received.get(context)
+      if (row) confirmed = [...confirmed, row]
+      received.delete(context)
+      pending.delete(context)
+      return undefined
+    },
+    ...(options.allowAbandonUnconfirmed === false ? {} : {abandonUnconfirmedSave: (context: object) => {
+      if (!received.has(context)) pending.delete(context)
+    }}),
   }, {resource: options.resource})
 }
 

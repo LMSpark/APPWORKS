@@ -71,7 +71,7 @@ export class DatabaseServerHttp extends HttpClientBase {
   protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
     this.requests.push(config)
     if (config.url === '/api/Db/testConnection') {
-      return {data: true, status: 200, statusText: 'OK', headers: {}}
+      return {data: {Code: 200, Type: 'success', Result: true}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url === '/api/Db/registerServer') {
       const body = config.data as Record<string, string>

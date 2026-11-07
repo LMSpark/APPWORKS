@@ -174,7 +174,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       await this.connectionTestGate
       if (this.connectionTestMode === 'throw') throw new Error('connection test transport failed')
       if (this.connectionTestMode === 'rejected') return {data: {Code: 500, Message: '数据库连接失败', Result: false}, status: 200, statusText: 'OK', headers: {}}
-      return {data: {Code: 200, Message: 'OK', Result: this.connectionTestMode === 'ok'}, status: 200, statusText: 'OK', headers: {}}
+      return {data: {Code: 200, Type: 'success', Message: 'OK', Result: this.connectionTestMode === 'ok'}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/Db/getUnregisteredDb/')) {
       const serverId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredDb/'.length))

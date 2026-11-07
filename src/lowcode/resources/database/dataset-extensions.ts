@@ -530,9 +530,125 @@ export type AttachDatabaseDirectoryConnectionTestViewsInput = DatabaseCommandAtt
 
 const connectionTargetFields = ['Name', 'serverId'] as const
 const connectionServerFields = ['Type', 'ServerName', 'ip_address', 'Port'] as const
+const connectionInputFields = ['Type', 'ServerName', 'ip_address', 'UserName', 'Password', 'Port'] as const
+
+type ConnectionPair = Readonly<{
+  ctx: DatabaseCommandAttachInput; inputName: string; resultName: string; resourceId: string
+  columns: readonly SparkData.DataSetCommandColumnSpec[]
+  command: SparkData.DataTable; commandView: SparkData.DataView; result: SparkData.DataView; resultTable: SparkData.DataTable
+}>
+type ConnectionBinding = Readonly<{pair: ConnectionPair; binding: SparkData.DataSetReadonlyCommandBinding}>
+const connectionInputs = new WeakMap<SparkData.DataTable, ConnectionBinding>()
+const connectionResults = new WeakMap<SparkData.DataView, ConnectionBinding>()
+
+function inspectConnectionPair(options: Readonly<{
+  ctx: DatabaseCommandAttachInput; tables: Readonly<{commandInput: string; testResult: string}>
+  resourceId: string; columns: readonly SparkData.DataSetCommandColumnSpec[]
+}>) {
+  const {ctx, tables, resourceId, columns} = options, {dataSet} = ctx
+  if (dataSet.destroyed || !dataSet.scenarioId?.trim()) throw new Error('CONNECTION_PAIR_IDENTITY: 连接测试需要存活的明确场景')
+  ctx.assertScope()
+  if ([tables.commandInput, tables.testResult].some(name => !name.trim() || name.includes('@')) || tables.commandInput === tables.testResult) {
+    throw new Error('CONNECTION_PAIR_IDENTITY: 输入和结果表名须合法且不同')
+  }
+  const command = dataSet.getTable(tables.commandInput), commandView = dataSet.getView(tables.commandInput, 'default')
+  if (command) {
+    SparkData.ensureDataSetStaticInputTable(dataSet, tables.commandInput, columns)
+    if (commandView?.destroyed !== false || commandView.primaryKey !== 'commandId') throw new Error('CONNECTION_PAIR_IDENTITY: 输入视图已失效或主键错误')
+    const row = command.rows[0]
+    if (command.rows.length > 1 || row && (typeof row['commandId'] !== 'string' || !row['commandId'].trim())) throw new Error('CONNECTION_PAIR_IDENTITY: 输入须为唯一有效命令行')
+  }
+  const result = dataSet.getTable(tables.testResult) ? SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.testResult,
+    resourceId, columns: [{name: 'ok', primary: true}]}) : undefined
+  if (result && (result.destroyed || result.primaryKey !== 'ok')) throw new Error('CONNECTION_PAIR_IDENTITY: 结果视图已失效或主键错误')
+  const original = (result ? connectionResults.get(result) : undefined) ?? (command ? connectionInputs.get(command) : undefined)
+  if (original) {
+    if (original.pair.inputName !== tables.commandInput || original.pair.resultName !== tables.testResult
+      || original.pair.resourceId !== resourceId || original.pair.command !== command || original.pair.commandView !== commandView || original.pair.result !== result) {
+      throw new Error('CONNECTION_PAIR_IDENTITY: 连接测试不能改绑输入或结果实例')
+    }
+    assertConnectionPair(original.pair)
+    original.binding.assertCanBind()
+  }
+  return {...options, command, commandView, result, original}
+}
+
+function materializeConnectionPair(plan: ReturnType<typeof inspectConnectionPair>): ConnectionPair {
+  const {ctx, tables, resourceId, columns} = plan, {dataSet} = ctx
+  SparkData.ensureDataSetStaticInputTable(dataSet, tables.commandInput, columns)
+  const command = dataSet.getTable(tables.commandInput), commandView = dataSet.getView(tables.commandInput, 'default')
+  if (!command || !commandView) throw new Error('连接测试输入装配失败')
+  const result = plan.result ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.testResult,
+    resourceId, columns: [{name: 'ok', primary: true}]})
+  const resultTable = dataSet.getTable(tables.testResult)
+  if (!resultTable) throw new Error('连接测试结果表缺失')
+  if (!command.rows.length) command.addRows([Object.fromEntries(columns.map(column => [column.name, column.primary ? 'default' : '']))])
+  commandView.commitMode = 'staged'
+  const row = command.rows[0]
+  if (!row) throw new Error('连接测试输入行缺失')
+  commandView.setCurrentRow(row)
+  return {ctx, inputName: tables.commandInput, resultName: tables.testResult, resourceId, columns, command, commandView, result, resultTable}
+}
+
+function assertConnectionPair(pair: ConnectionPair): void {
+  const {dataSet} = pair.ctx
+  pair.ctx.assertScope()
+  if (dataSet.destroyed || pair.commandView.destroyed || pair.result.destroyed || dataSet.getTable(pair.inputName) !== pair.command
+    || dataSet.getView(pair.inputName, 'default') !== pair.commandView || dataSet.getView(pair.resultName, 'default') !== pair.result
+    || pair.commandView.primaryKey !== 'commandId' || pair.result.primaryKey !== 'ok') throw new Error('CONNECTION_PAIR_IDENTITY: 原连接测试实例已失效')
+  SparkData.ensureDataSetStaticInputTable(dataSet, pair.inputName, pair.columns)
+  SparkData.ensureDataSetFileCommandView({dataSet, tableName: pair.resultName, resourceId: pair.resourceId, columns: [{name: 'ok', primary: true}]})
+}
+
+type ConnectionInputIdentity = Readonly<{row: DataRow; id: string}>
+
+function connectionInputIdentity(pair: ConnectionPair): ConnectionInputIdentity {
+  const row = pair.commandView.rows[0] ?? pair.command.rows[0]
+  if (!row || typeof row['commandId'] !== 'string' || !row['commandId'].trim()) throw new Error('连接测试缺少有效输入行')
+  return {row, id: row['commandId']}
+}
+
+function connectionInput(pair: ConnectionPair): DataRow {
+  const {row, id} = connectionInputIdentity(pair)
+  return pair.commandView.getEditingRow(id) ?? row
+}
+
+function connectionPayload(value: DataRow): Record<typeof connectionInputFields[number], string> {
+  return {Type: scalar(value['Type']).toUpperCase(), ServerName: scalar(value['ServerName']), ip_address: scalar(value['ip_address']),
+    UserName: scalar(value['UserName']), Password: scalar(value['Password']), Port: scalar(value['Port'])}
+}
+
+function sameConnectionInput(pair: ConnectionPair, payload: Readonly<Record<string, string>>, identity: ConnectionInputIdentity): boolean {
+  if (pair.commandView.destroyed || pair.ctx.dataSet.getView(pair.inputName, 'default') !== pair.commandView) return false
+  const currentIdentity = connectionInputIdentity(pair)
+  if (currentIdentity.row !== identity.row || currentIdentity.id !== identity.id) return false
+  const current = connectionPayload(connectionInput(pair))
+  return connectionInputFields.every(field => current[field] === payload[field])
+}
+
+function clearConnectionSecrets(pair: ConnectionPair): void {
+  if (pair.commandView.destroyed || pair.ctx.dataSet.getTable(pair.inputName) !== pair.command
+    || pair.ctx.dataSet.getView(pair.inputName, 'default') !== pair.commandView) return
+  const row = pair.commandView.rows[0] ?? pair.command.rows[0]
+  if (!row) return
+  const id = pair.commandView.getPkKey(row)
+  row['UserName'] = ''; row['Password'] = ''
+  if (typeof id === 'string' || typeof id === 'number') {
+    pair.commandView.updateEditingValue(id, 'UserName', '')
+    pair.commandView.updateEditingValue(id, 'Password', '')
+  }
+}
+
+function connectionTestResult(response: unknown): boolean {
+  if (!isRecord(response) || response['Code'] !== 200 || response['Type'] !== 'success' || typeof response['Result'] !== 'boolean') {
+    throw new Error(isRecord(response) && scalar(response['Message']) || '连接测试回执格式无效')
+  }
+  return response['Result']
+}
+
 type DirectoryConnectionTarget = {databaseId: string | number; serverId: string; dbName: string; database: DataRow;
   server: DataRow; serverValues: Readonly<Record<string, string>>}
-type DirectoryConnectionController = {capture: (databaseId: string | number) => string; clear: (clearResult?: boolean) => void}
+type DirectoryConnectionController = {capture: (databaseId: string | number) => string; clear: (clearResult?: boolean) => void; assertCurrent: () => void; pair: ConnectionPair}
 const directoryConnectionControllers = new WeakMap<DataSet, DirectoryConnectionController>()
 
 export function captureDatabaseDirectoryConnectionTestTarget(dataSet: DataSet, databaseId: string | number): string {
@@ -549,139 +665,170 @@ function readable(view: SparkData.DataView, row: DataRow, fields: readonly strin
   for (const field of fields) if (view.fieldAccess(row, field).read !== 'visible') throw new Error(`连接测试缺少字段读取权限: ${field}`)
 }
 
-export function attachDatabaseDirectoryConnectionTestViews(input: AttachDatabaseDirectoryConnectionTestViewsInput): void {
-  const {dataSet, http, assertScope, tables} = input
-  if (dataSet.getTable(tables.testResult)) return
-  SparkData.ensureDataSetStaticInputTable(dataSet, tables.commandInput, [
-    {name: 'commandId', primary: true}, {name: 'Type'}, {name: 'ServerName'}, {name: 'ip_address'},
-    {name: 'Port'}, {name: 'dbName'}, {name: 'UserName'}, {name: 'Password'},
-  ])
-  const command = dataSet.getTable(tables.commandInput)
-  if (!command) throw new Error('数据库连接测试命令输入表未装配')
-  if (!command.rows.length) command.addRows([{commandId: 'default', Type: '', ServerName: '', ip_address: '', Port: '', dbName: '', UserName: '', Password: ''}])
-  const commandView = dataSet.getView(tables.commandInput, 'default')
-  if (!commandView) throw new Error('数据库连接测试输入视图缺失')
-  const commandRow = command.rows[0]
-  if (!commandRow) throw new Error('数据库连接测试命令输入未就绪')
-  commandView.commitMode = 'staged'
-  commandView.setCurrentRow(commandRow)
-  const result = SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.testResult,
-    resourceId: 'database-directory-connection-test', columns: [{name: 'ok', primary: true}]})
-  let target: DirectoryConnectionTarget | undefined
-  let targetGeneration = 0
-  const clearSecrets = (): void => {
-    const row = commandView.rows[0] ?? command.rows[0]
-    if (row) {
-      const id = commandView.getPkKey(row)
-      if (typeof id === 'string' || typeof id === 'number') commandView.discardEditingRows([id])
-      row['UserName'] = ''; row['Password'] = ''
-    }
+function directoryConnectionViews(dataSet: DataSet) {
+  const dbView = dataSet.getView('_base_dbInfo', 'default'), serverView = dataSet.getView('Base_serverInfo', 'default')
+  const dbTable = dbView?.dataTable, serverTable = serverView?.dataTable
+  if (dbView?.destroyed !== false || serverView?.destroyed !== false || !dbTable || !serverTable
+    || dbTable.modelBinding?.modelName !== '_base_dbInfo' || serverTable.modelBinding?.modelName !== 'Base_serverInfo'
+    || [...connectionTargetFields, dbView.primaryKey].some(field => !field || !dbTable.columns.some(column => column.name === field))
+    || [...connectionServerFields, serverView.primaryKey].some(field => !field || !serverTable.columns.some(column => column.name === field))) {
+    throw new Error('数据库目录缺少正式数据库或服务器视图及必要字段')
   }
-  const resetTarget = (clearRows: boolean): void => {targetGeneration++; target = undefined; if (clearRows) result.replaceRows([]); clearSecrets()}
-  const dbView = dataSet.getView('_base_dbInfo', 'default')
-  const serverView = dataSet.getView('Base_serverInfo', 'default')
-  if (!dbView || !serverView) throw new Error('数据库目录缺少正式数据库或服务器视图')
-  SparkData.bindDataSetReadonlyCommandQuery(result, {
-    resource: {resourceType: 'file', resourceId: 'database-directory-connection-test'}, guard: () => {
-      try {assertScope()} catch (error) {clearSecrets(); throw error}
-    },
-    loadRows: async () => {
-      const capturedTarget = target
-      const capturedGeneration = targetGeneration
-      try {
-      const inputRow = commandView.rows[0] ?? command.rows[0]
-        if (!inputRow || !capturedTarget) throw new Error('请先选择数据库目录记录')
-        const dbRows = dbView.rows.filter(row => dbView.getPkKey(row) === capturedTarget.databaseId)
-        const serverRows = serverView.rows.filter(row => serverView.getPkKey(row) === capturedTarget.serverId)
-        if (dbRows.length !== 1 || serverRows.length !== 1 || dbView.getSelectedValues().length !== 1
-          || dbView.getSelectedValues()[0] !== capturedTarget.databaseId || serverRows[0] !== capturedTarget.server) throw new Error('数据库或服务器目录身份已变化')
-        const dbRow = dbRows.at(0), serverRow = serverRows.at(0)
-        if (!dbRow || !serverRow) throw new Error('数据库或服务器目录身份已变化')
-        readable(dbView, dbRow, [...connectionTargetFields, dbView.primaryKey])
-        readable(serverView, serverRow, [...connectionServerFields, serverView.primaryKey])
-        if (scalar(dbRow['Name']) !== capturedTarget.dbName || scalar(dbRow['serverId']) !== capturedTarget.serverId) throw new Error('所选数据库身份已变化')
-        const inputId = commandView.getPkKey(inputRow)
-        const effectiveInput = (typeof inputId === 'string' || typeof inputId === 'number' ? commandView.getEditingRow(inputId) : null) ?? inputRow
-        const payload = {Type: scalar(effectiveInput['Type']).toUpperCase(), ServerName: scalar(effectiveInput['ServerName']),
-          ip_address: scalar(effectiveInput['ip_address']), UserName: scalar(effectiveInput['UserName']),
-          Password: scalar(effectiveInput['Password']), Port: scalar(effectiveInput['Port'])}
-        if (!payload.UserName || !payload.Password) throw new Error('请输入本次连接测试的账号和密码')
-        const serverValues = {Type: payload.Type, ServerName: payload.ServerName, ip_address: payload.ip_address, Port: payload.Port}
-        if (connectionServerFields.some(field => serverValues[field] !== capturedTarget.serverValues[field])) {
-          throw new Error('服务器连接参数已变化，请重新选择数据库')
+  return {dbView, serverView}
+}
+
+export function attachDatabaseDirectoryConnectionTestViews(input: AttachDatabaseDirectoryConnectionTestViewsInput): void {
+  const {dataSet, http, tables} = input
+  const {dbView, serverView} = directoryConnectionViews(dataSet)
+  const plan = inspectConnectionPair({ctx: input, tables, resourceId: 'database-directory-connection-test',
+    columns: [{name: 'commandId', primary: true}, ...connectionInputFields.map(name => ({name})), {name: 'dbName'}]})
+  const previous = directoryConnectionControllers.get(dataSet)
+  const released = previous?.pair.commandView.destroyed === true && previous.pair.result.destroyed
+    && dataSet.getTable(previous.pair.inputName) !== previous.pair.command && dataSet.getTable(previous.pair.resultName) !== previous.pair.resultTable
+  if (previous && !released) {
+    previous.assertCurrent()
+    if (previous.pair !== plan.original?.pair) throw new Error('CONNECTION_PAIR_IDENTITY: 原数据库连接控制器不能替换')
+    return
+  }
+  if (plan.original) throw new Error('CONNECTION_PAIR_IDENTITY: 原数据库连接控制器缺失')
+  const requirePair = (): ConnectionPair => pair
+  const assertDependencies = (): void => {
+    assertConnectionPair(requirePair())
+    const current = directoryConnectionViews(dataSet)
+    if (current.dbView !== dbView || current.serverView !== serverView) throw new Error('连接测试目录视图已替换')
+  }
+  let target: DirectoryConnectionTarget | undefined, targetGeneration = 0, scrubbing = false, attempt = 0
+  const clearSecrets = (): void => {scrubbing = true; try {clearConnectionSecrets(requirePair())} finally {scrubbing = false}}
+  const resetTarget = (clearRows: boolean): void => {
+    targetGeneration++; target = undefined
+    const current = requirePair()
+    if (clearRows && !current.result.destroyed && dataSet.getView(current.resultName, 'default') === current.result) current.result.replaceRows([])
+    clearSecrets()
+    if (!current.commandView.destroyed && dataSet.getView(current.inputName, 'default') === current.commandView) current.commandView.discardEditingRows()
+  }
+  const assertTarget = (captured: DirectoryConnectionTarget, generation: number): void => {
+    assertDependencies()
+    if (target !== captured || targetGeneration !== generation || dbView.getSelectedValues().length !== 1
+      || dbView.getSelectedValues()[0] !== captured.databaseId) throw new Error('连接测试目标已变化，已丢弃旧结果')
+    const dbRows = dbView.rows.filter(row => dbView.getPkKey(row) === captured.databaseId)
+    const serverRows = serverView.rows.filter(row => serverView.getPkKey(row) === captured.serverId)
+    const dbRow = dbRows[0], serverRow = serverRows[0]
+    if (dbRows.length !== 1 || serverRows.length !== 1 || dbRow !== captured.database || serverRow !== captured.server) throw new Error('数据库或服务器目录身份已变化')
+    readable(dbView, dbRow, [...connectionTargetFields, dbView.primaryKey])
+    readable(serverView, serverRow, [...connectionServerFields, serverView.primaryKey])
+    if (scalar(dbRow['Name']) !== captured.dbName || scalar(dbRow['serverId']) !== captured.serverId
+      || connectionServerFields.some(field => scalar(serverRow[field]) !== captured.serverValues[field])) throw new Error('数据库或服务器目录参数已变化')
+  }
+  const options: SparkData.BindReadonlyCommandQueryOptions = {
+    resource: {resourceType: 'file', resourceId: plan.resourceId},
+    guard: () => {try {assertDependencies()} catch (error) {clearSecrets(); throw error}},
+    captureQueryInputs: () => {
+      const captured = target, generation = targetGeneration, currentAttempt = ++attempt
+      const identity = connectionInputIdentity(requirePair())
+      if (!captured) {clearSecrets(); throw new Error('请先选择数据库目录记录')}
+      return () => {
+        if (attempt !== currentAttempt) throw new Error('连接测试已被新请求替代')
+        try {assertTarget(captured, generation)} catch (error) {
+          if (target === captured && targetGeneration === generation) clearSecrets()
+          throw error
         }
-        const response = commandAjaxResult(await http.post<unknown>(`/api/Db/testConnection?db=${encodeURIComponent(capturedTarget.dbName)}`, payload), '数据库连接测试失败')
-        if (response !== true && response !== false) throw new Error('数据库连接测试回执格式无效')
-        if (target !== capturedTarget || targetGeneration !== capturedGeneration || dbView.getSelectedValues()[0] !== capturedTarget.databaseId
-          || dbRow !== capturedTarget.database || dbView.rows.find(row => dbView.getPkKey(row) === capturedTarget.databaseId) !== dbRow
-          || serverView.rows.find(row => serverView.getPkKey(row) === capturedTarget.serverId) !== serverRow) {
-          throw new Error('连接测试目标已变化，已丢弃旧结果')
-        }
-        return [{ok: response === true ? 'true' : 'false'}]
-      } finally {
-        if (target === capturedTarget && targetGeneration === capturedGeneration) clearSecrets()
+        const current = connectionInputIdentity(requirePair())
+        if (current.row !== identity.row || current.id !== identity.id) throw new Error('连接测试输入行已变化')
       }
     },
-  })
+    loadRows: async () => {
+      const current = requirePair(), captured = target, generation = targetGeneration, currentAttempt = attempt
+      if (!captured) throw new Error('请先选择数据库目录记录')
+      const payload = connectionPayload(connectionInput(current))
+      const identity = connectionInputIdentity(current)
+      try {
+        assertTarget(captured, generation)
+        if (!payload.UserName || !payload.Password) throw new Error('请输入本次连接测试的账号和密码')
+        if (connectionServerFields.some(field => payload[field] !== captured.serverValues[field])) throw new Error('服务器连接参数已变化，请重新选择数据库')
+        const response = await http.post<unknown>(`/api/Db/testConnection?db=${encodeURIComponent(captured.dbName)}`, payload)
+        if (attempt !== currentAttempt) throw new Error('连接测试已被新请求替代')
+        assertTarget(captured, generation)
+        if (!sameConnectionInput(current, payload, identity)) throw new Error('连接测试输入已变化，已丢弃旧结果')
+        return [{ok: connectionTestResult(response) ? 'true' : 'false'}]
+      } finally {
+        if (attempt === currentAttempt && target === captured && targetGeneration === generation && sameConnectionInput(current, payload, identity)) clearSecrets()
+      }
+    },
+  }
+  const binding = plan.result ? SparkData.prepareDataSetReadonlyCommandQuery(plan.result, options) : undefined
+  binding?.assertCanBind()
+  const pair = materializeConnectionPair(plan)
+  const attached = binding ?? SparkData.prepareDataSetReadonlyCommandQuery(pair.result, options)
+  attached.bind()
+  pair.commandView.events.on('editingChanged', () => {if (!scrubbing) targetGeneration++})
+  const record = {pair, binding: attached}
+  connectionInputs.set(pair.command, record); connectionResults.set(pair.result, record)
   const capture = (databaseId: string | number): string => {
+    try {assertDependencies()} catch (error) {clearSecrets(); throw error}
     resetTarget(true)
-    const selected = dbView.getSelectedValues()
-    if (selected.length !== 1 || selected[0] !== databaseId) throw new Error('请先明确选择数据库目录记录')
-    const match = dbView.rows.filter(row => dbView.getPkKey(row) === databaseId)
-    if (match.length !== 1) throw new Error('请明确选择一条数据库目录记录')
-    const dbRow = match[0]
-    if (!dbRow) throw new Error('请明确选择一条数据库目录记录')
+    const matches = dbView.rows.filter(row => dbView.getPkKey(row) === databaseId)
+    if (dbView.getSelectedValues().length !== 1 || dbView.getSelectedValues()[0] !== databaseId || matches.length !== 1) throw new Error('请明确选择一条数据库目录记录')
+    const dbRow = matches[0]
+    if (!dbRow) throw new Error('数据库目录记录缺失')
     readable(dbView, dbRow, [...connectionTargetFields, dbView.primaryKey])
-    const serverId = scalar(dbRow['serverId'])
-    const servers = serverView.rows.filter(row => serverView.getPkKey(row) === serverId)
+    const serverId = scalar(dbRow['serverId']), servers = serverView.rows.filter(row => serverView.getPkKey(row) === serverId)
     if (!serverId || servers.length !== 1) throw new Error('所选数据库未匹配到唯一服务器')
     const serverRow = servers[0]
-    if (!serverRow) throw new Error('所选数据库未匹配到唯一服务器')
+    if (!serverRow) throw new Error('服务器目录记录缺失')
     readable(serverView, serverRow, [...connectionServerFields, serverView.primaryKey])
     target = {databaseId, serverId, dbName: scalar(dbRow['Name']), database: dbRow, server: serverRow,
       serverValues: Object.fromEntries(connectionServerFields.map(field => [field, scalar(serverRow[field])]))}
     targetGeneration++
-    const inputRow = commandView.rows[0] ?? command.rows[0]
-    if (!inputRow) throw new Error('数据库连接测试命令输入未就绪')
-    for (const [key, field] of [['Type','Type'], ['ServerName','ServerName'], ['ip_address','ip_address'], ['Port','Port']] as const) inputRow[key] = scalar(serverRow[field])
-    inputRow['dbName'] = target.dbName
-    inputRow['UserName'] = ''; inputRow['Password'] = ''
+    const row = requirePair().command.rows[0]
+    if (!row) throw new Error('连接测试输入行缺失')
+    for (const field of connectionServerFields) row[field] = scalar(serverRow[field])
+    row['dbName'] = target.dbName
     return target.dbName
   }
-  directoryConnectionControllers.set(dataSet, {capture, clear: (clearRows = true) => resetTarget(clearRows)})
+  directoryConnectionControllers.set(dataSet, {pair, assertCurrent: assertDependencies, capture, clear: (clearRows = true) => resetTarget(clearRows)})
 }
 
 export function attachServerConnectionTestViews(input: AttachServerConnectionTestViewsInput): void {
-  const {dataSet, http, assertScope, tables} = input
-  if (dataSet.getTable(tables.testResult)) return
-  SparkData.ensureDataSetStaticInputTable(dataSet, tables.commandInput, [
-    {name: 'commandId', primary: true},
-    {name: 'Type'}, {name: 'ServerName'}, {name: 'ip_address'}, {name: 'UserName'}, {name: 'Password'}, {name: 'Port'},
-  ])
-  const commandInputTable = dataSet.getTable(tables.commandInput)
-  if (!commandInputTable) throw new Error('连接测试命令输入表未装配')
-  if (commandInputTable.rows.length === 0) {
-    commandInputTable.addRows([{commandId: 'default', Type: '', ServerName: '', ip_address: '', UserName: '', Password: '', Port: ''}])
-  }
-  const resultView = SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.testResult, resourceId: 'database-connection-test', columns: [{name: 'ok', primary: true}]})
-  SparkData.bindDataSetReadonlyCommandQuery(resultView, {
-    resource: {resourceType: 'file', resourceId: 'database-connection-test'},
-    guard: assertScope,
-    loadRows: async () => {
-      const value = dataSet.getTable(tables.commandInput)?.rows[0]
-      if (!value) throw new Error('连接测试缺少输入行')
-      const payload = {
-        Type: scalar(value['Type']).toUpperCase(),
-        ServerName: scalar(value['ServerName']),
-        ip_address: scalar(value['ip_address']),
-        UserName: scalar(value['UserName']),
-        Password: scalar(value['Password']),
-        Port: scalar(value['Port']),
+  const {http, tables} = input
+  const plan = inspectConnectionPair({ctx: input, tables, resourceId: 'database-connection-test',
+    columns: [{name: 'commandId', primary: true}, ...connectionInputFields.map(name => ({name}))]})
+  if (plan.original) return
+  let revision = 0, scrubbing = false, attempt = 0
+  const requirePair = (): ConnectionPair => pair
+  const clearSecrets = (): void => {scrubbing = true; try {clearConnectionSecrets(requirePair())} finally {scrubbing = false}}
+  const options: SparkData.BindReadonlyCommandQueryOptions = {
+    resource: {resourceType: 'file', resourceId: plan.resourceId}, guard: () => assertConnectionPair(requirePair()),
+    captureQueryInputs: () => {
+      const capturedRevision = revision, current = requirePair(), currentAttempt = ++attempt
+      const identity = connectionInputIdentity(current)
+      const values = Object.fromEntries(connectionServerFields.map(field => [field, scalar(connectionInput(current)[field])]))
+      return () => {
+        const live = connectionInputIdentity(current)
+        if (attempt !== currentAttempt || revision !== capturedRevision || live.row !== identity.row || live.id !== identity.id
+          || connectionServerFields.some(field => scalar(connectionInput(current)[field]) !== values[field])) {
+          throw new Error('连接测试输入已变化，已丢弃旧结果')
+        }
       }
-      if (!payload.Type) throw new Error('请选择数据库类型')
-      if (!payload.ServerName || !payload.ip_address) throw new Error('请填写服务器名称与主机地址')
-      const response = await http.post<boolean>('/api/Db/testConnection', payload)
-      return [{ok: response === true ? 'true' : 'false'}]
     },
-  })
+    loadRows: async () => {
+      const current = requirePair(), payload = connectionPayload(connectionInput(current)), currentAttempt = attempt, capturedRevision = revision
+      const identity = connectionInputIdentity(current)
+      try {
+        if (!payload.Type) throw new Error('请选择数据库类型')
+        if (!payload.ServerName || !payload.ip_address) throw new Error('请填写服务器名称与主机地址')
+        const response = await http.post<unknown>('/api/Db/testConnection', payload)
+        assertConnectionPair(current)
+        if (attempt !== currentAttempt || revision !== capturedRevision || !sameConnectionInput(current, payload, identity)) throw new Error('连接测试输入已变化，已丢弃旧结果')
+        return [{ok: connectionTestResult(response) ? 'true' : 'false'}]
+      } finally {if (attempt === currentAttempt && revision === capturedRevision && sameConnectionInput(current, payload, identity)) clearSecrets()}
+    },
+  }
+  const binding = plan.result ? SparkData.prepareDataSetReadonlyCommandQuery(plan.result, options) : undefined
+  binding?.assertCanBind()
+  const pair = materializeConnectionPair(plan)
+  const attached = binding ?? SparkData.prepareDataSetReadonlyCommandQuery(pair.result, options)
+  attached.bind()
+  pair.commandView.events.on('editingChanged', () => {if (!scrubbing) revision++})
+  const record = {pair, binding: attached}
+  connectionInputs.set(pair.command, record); connectionResults.set(pair.result, record)
 }

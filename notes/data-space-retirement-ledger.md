@@ -8098,3 +8098,25 @@ DataView.assertCanBindQueryExecutor提取原同owner/候选资源、已有查询
 **AA检查点终验及清理。**最终根verify45148自然exit0，含类型/lint、ClassModel49项及正式规则；保留既有2模型警告/84薄页诊断。全部本批handle终态，diff --check通过，高阶末态窄审无阻断。正式ClassModel语义差异仅DataView新增纯预检、readonly prepare/binding/capture输入合同及其索引/对应声明行号；其余时间/编译symbol漂移未手改。精确删除8份已被末态替代的过程日志/中间烟测输出，失败事实与有界成功证据保本台账/正式JSON，原CRUD意图文件不动。无新临时工作树或清理遗留对象，原S2用户未跟踪RED不stage。准备同一codex分支推origin，不merge/force/部署；不改组件/宿主/业务页/Java，无兼容层。下一仍S1连接/预览组与I3余项，目录预检不能冒整体数据合同已冻结；原20包目标active。
 
 **AA已提交推送并独立核实。**代码fcaacbad7d61a66e4554574859119b307bbfdcb9（fix(data): preflight catalog command bindings），28文件662增194删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，只有主worktree，原S2未跟踪RED保留不动。事实补记docs跟随同步，不改已验代码；恢复位置仍S1连接/预览paired装配与I3余项，未冻结/未进S2。
+
+#### AB. S1连接测试成对装配、在途输入及清密
+
+基线601533bf31f2ed7bfeecf1665a8f38cfe0435644，上一批实际进展已推送核实。仍仅S1数据库资源适配与测试/文档/派生，不改组件/宿主/页面/Java。原两组连接以结果同名直接return，目录缺依赖还先占input/result并种行，controller可被旧入口覆盖；服务器把一切非裸true当false。固定Java e1的testConnection控制器实际AjaxResult.success(boolean)，不是裸bool。无新实服测连输入，不向任意主机试连。
+
+实际入口先RED：初16例13失败3通过；加缺损回执及服务器在途B输入后22例19失败3通过。共用私有inspect/materialize/assert pair，只登记同一输入/结果/原binding引用；已有两端元数据/PK/存活/命名、scope及目录正式model依赖先验，foreign owner用AA纯预检拒绝后才初始化。正常repeat保原controller/target/编辑值与原scope，不重挂新输入；原controller存活时另一pair拒绝。统一strict Code200/Type success/boolean Result，删除裸bool假合同，两个fixture改为固定服务成功形态；false是正常测试失败，缺损/错误信封进入query error，不伪造false。
+
+单次loadRows暂持原payload核HTTP前后输入，不将账号/密码副本留在QueryResult长期guard；长期guard仅原pair/目录对象/选择/公开值与非敏感epoch。目录编辑事件推进targetGeneration，服务器推进revision；自己清密不推进。结算字段级清UserName/Password，显式重新选择/取消才丢旧target整行覆盖。新Password B/Port4444在途保留，正常清密后fieldAccess仍可用。首修1例因框架_pk严格全对象比较误断，改按业务字段匹配；首扩大85例中1个目标在loader前失效未清编辑密码，已在capture guard失败且仍同代时清密。随后87定向及lint/AI规则通过，均非实服结果。
+
+追加正式依赖缺Port先RED（1失败24通过）；原input/result均显式remove销毁后旧controller还占名，补干净重建先RED。高阶另核到同参数A/B重复派发，旧A finally可能提前清B；两条并发用例最初误用loadFromServer，其Loading防重入使第二POST未派发，4失败24通过中的这2条不能当产品反例。已改走真正可替换查询的refresh。现每次实际capture递增attempt，loader/长期guard及finally核当前attempt；再核原输入行引用/commandId与revision/targetGeneration，旧请求不清新请求/新行。只有两端明确移除且销毁才让新pair/controller在同DataSet干净重建，单端失效仍拒绝，不修活捕获。初扩大93120为2并发入口测试失败89通过，非末态；未生成/门禁/提交，S1未冻结，预览/I3及20包后续范围完整保留。
+
+**AB并发反例纠正与扩验。**修正refresh后28实际用例GREEN。为确认防护必要，未有其它活验证时只临时关闭两处attempt递增，使用try/finally恢复源文件同字节；正确refresh两例实际RED（2失败26跳过），明确旧A返回后B密码/账号被清空。该次终态打印因GBK不能输出测试分隔符失败，源恢复已在finally完成；随后读原测试日志确认真实失败，不把打印错误当产品反例。补服务器同参数新input行不被旧请求清除、目录单端释放仍拒但可清自己的剩余输入；22327定向及末态lint收集后再扩大。所有载入/回执均为测试夹具，未执行新实服测连或修改Java。
+
+**AB末态扩大。**22327定向3文件93测试自然exit0，末态定向lint自然0；高阶末态静态复核无剩余AB阻断，指出双端重建后旧在途组合仅源码证明，故再为server/directory各补组合用例。16043数据库族自然exit0：17文件331测试（新增连接32项），两组旧响应晚于新pair重建均不清新B，最新B回执成功后才清密。20666正式生成自然exit0：1108/1745/3764；90173 lint自然0；lowcode生成611端点216消费者。spark-data公共源码本批未变，AA 1241项包测/实服只读证据复用，不冒本批测连实服结果。最终根verify进行中，待全部终态后提交；无真实服务器连接写入、无临时工作树、原S2未跟踪RED保留。
+
+**AB清理及派生核对。**最终根verify65600 live，仍原进程未重启。ClassModel JSON剔除时间/编译symbol后语义差异0；公共输入shape未改，私有连接adapter行为不冒新增公开模型。消费者派生仅源定位变化。精确删除11份已由末态替代的日志，先前失败/测试纠正事实保本台账，不删正式回归或末态证据。唯一主worktree，用户原S2未跟踪测试不动。
+
+**后续预览组只读定位（未实现）。**table/preview-view-ops两组表名为固定常量，不新增可配表名；先RED现有foreign owner/default生命周期/PK及同名替换。用同exact paged executor纯预检/正式绑定，不能套本地rows loader丢实际total/paging。真实Refresh可传dsA+viewB，当前先写A输入再调用B，应在任何输入/分页/HTTP前拒；WriteInput同样须核原实例。另旧响应可能在DataView拒收前通过syncPreviewColumns修改动态字段，须在发布列之前重核本次request及input/result/场景/目标/page上下文，并保护Count/Items合法解析，旧GetData拒绝仍零Sys改道/零写。本批只研究，不把未实现项当既成合同，不另起计划，恢复点仍S1。
+
+下一预览还有真实页参数路径：页面每次同时传pageIndex/pageSize，当前Refresh依次await setPageSize/setPage/refresh，两个setter本身均reload，可能3次GetData；交叉调用旧wrapper await后还可能改回页码追加请求。V单次公开拒绝证据仅默认不传页参数，不外推真实分页路径。下一须按正式页参数补次数/PageParam及交叉旧调用反例，以原合同一次配置/一次查询表达（先查既有API，不造另一套分页器），保合法bare data{Items,Count}形态同时拒畸形total；仍S1数据适配，不改页迁就。
+
+**AB检查点终验。**最终根verify65600自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留。所有本批handle终态，source两处正式attempt递增仍在，diff --check通过，高阶末态源码复核无AB阻断；新增组合实测由主控331项覆盖，不冒实服测连。准备同一codex分支推origin：删除两组同名短路与裸bool伪回执、补纯预检/原pair/请求与输入身份/有限清密及释放重建、替换错误fixture并保32项正式回归，官方派生与唯一台账同步。无组件/页面/Java修改，无兼容层，无新实服对象或临时worktree，原S2未跟踪RED不stage。下一仍S1预览组与I3余矩阵，合同未冻结，原20包整体目标active。

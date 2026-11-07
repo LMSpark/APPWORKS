@@ -1,0 +1,119 @@
+{
+  "status": "readonly-template-download-contract-verified",
+  "parentProductionCommit": "b9d88342dd519e1d1ea87b82647669c2de17670b",
+  "referenceCommit": "1147b00ee53a1476d4ee715c61368b453a215192",
+  "firstSample": {
+    "actor": 5020,
+    "naturalExitCode": 1,
+    "evidence": {
+      "actor": 5020,
+      "phase": "failed",
+      "reads": 9,
+      "uploads": 0,
+      "deletions": 0,
+      "businessWrites": 0,
+      "importPosts": 0,
+      "sample": {
+        "rowId": "014FF0030A017C3F13C7159802C6100C",
+        "templatePath": "/NewApp/xlsxtemp/销售出库_模板.xlsx",
+        "fileName": "销售出库_模板.xlsx",
+        "kind": "xlsx",
+        "templatePathWrite": "allowed"
+      },
+      "sampleQuery": {
+        "countReported": true,
+        "total": 47,
+        "returnedRows": 1,
+        "pageSize": 1
+      },
+      "error": "Request failed with status code 404",
+      "testedAt": "2026-11-07T12:17:45.952Z"
+    },
+    "boundary": "One currently unreadable stored reference; not proof all templates or endpoint are unavailable"
+  },
+  "directory": {
+    "actor": 22168,
+    "naturalExitCode": 0,
+    "evidence": {
+      "actor": 22168,
+      "phase": "confirmed-readonly",
+      "reads": 2,
+      "uploads": 0,
+      "deletes": 0,
+      "businessWrites": 0,
+      "importPosts": 0,
+      "directory": {
+        "count": 97,
+        "excelNames": 97,
+        "originalSampleListed": false
+      },
+      "testedAt": "2026-11-07T12:21:08.718Z"
+    }
+  },
+  "positiveSample": {
+    "actor": 28008,
+    "naturalExitCode": 0,
+    "evidence": {
+      "actor": 28008,
+      "phase": "confirmed-readonly",
+      "reads": 10,
+      "uploads": 0,
+      "deletions": 0,
+      "businessWrites": 0,
+      "importPosts": 0,
+      "sample": {
+        "rowId": "886605B64E4DF99F477C9EC99F73A921",
+        "templatePath": "/NewApp/xlsxtemp/CRM机会列表模版_20260721_175618560_2090.xlsx",
+        "fileName": "CRM机会列表模版_20260721_175618560_2090.xlsx",
+        "kind": "xlsx",
+        "templatePathWrite": "allowed",
+        "byteLength": 10058,
+        "sha256": "730263fa2d87b2819d7013b85139805c91c92e7e073f06a56035500e2b0e3958",
+        "containerMagicConfirmed": true
+      },
+      "directory": {
+        "count": 97,
+        "excelNames": 97,
+        "sampleListed": true
+      },
+      "sampleQuery": {
+        "countReported": true,
+        "total": 3,
+        "returnedRows": 1,
+        "pageSize": 1
+      },
+      "testedAt": "2026-11-07T12:23:25.658Z"
+    },
+    "locator": {
+      "appType": "xlsxtemp",
+      "customPath": "xlsxtemp",
+      "fileName": "CRM机会列表模版_20260721_175618560_2090.xlsx",
+      "isCrossEnterprise": false
+    },
+    "boundary": "Actual bytes and container magic only; workbook semantics, upload, delete and export consumption not yet verified"
+  },
+  "scopeBoundary": "47 non-empty references were counted; 3 exact paths matched current authorized directory names; no conclusion that all other references are missing",
+  "mutations": {
+    "uploads": 0,
+    "deletions": 0,
+    "businessWrites": 0,
+    "importPosts": 0
+  },
+  "nextImplementation": {
+    "sdk": "Extend existing LowcodeDesignFileUpload with separate uploadBinaryVersion ACK and verifyBinaryVersion byte readback; retain raw File; reuse multipart and design.readFileBytes",
+    "declaration": "36B TemplateUpload local command bound at first assembly; source File only in original intent RAM",
+    "recovery": "Store validated ACK synchronously before byte readback; verify downloads only. Missing ACK stays unknown; never re-upload, guess rename or delete unknown",
+    "business": "Keep selected File out of creation.signature; finish/explicitly retain original Added/code phase, then separately save original templatePath only",
+    "acceptance": "Owned template unique sentinel plus real export output and exact independent file/scheme cleanup"
+  },
+  "artifactSha256": {
+    "artifacts\\data-chain-smoke\\excel-template-native-preflight.mts": "a039ab2ed69e17e3c4c77e0d2f764b2f37fb10f7d0d4c675c595c5a5c45de6bb",
+    "artifacts\\data-chain-smoke\\excel-template-native-preflight.json": "3c38c586a47a6bf2a2475be44c91c6491ca8bd493ada35151b1c5386fae12cb7",
+    "artifacts\\data-chain-smoke\\excel-template-directory-readonly.mts": "bdec2dcca483eb75274db553b3cbe234b81713874424a9e9b0cf2ebe9921fb10",
+    "artifacts\\data-chain-smoke\\excel-template-directory-readonly.json": "1e99dc95e6fc19058c79e1c30be96dadcb1c8b853118a9493f90be2683ea9941",
+    "artifacts\\data-chain-smoke\\excel-template-native-preflight-v2.mts": "1ac554fb28750aea2db7848e4aea66610719b6245af89754daac4b37a1dba2f7",
+    "artifacts\\data-chain-smoke\\excel-template-native-preflight-v2.json": "8087e713e6e50ade802464d86aad665b81b2d385364a676c1044306bff3fe494",
+    "artifacts\\data-chain-smoke\\excel-template-native-contracts-before.json": "5830b79de298a74b5b5b618e9cb2e6eaab745a5d3e5f6cbd11e718b1e1bafca3"
+  },
+  "testedAt": "2026-11-07T12:30:11.579062+00:00"
+}

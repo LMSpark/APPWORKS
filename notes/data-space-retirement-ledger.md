@@ -7978,3 +7978,5 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **T最终检查点验证结论。**原失败7文件复验83864自然exit0：7文件859测试，319.54s，原10失败对应断链均通过；新增原context反例与末态守卫另外74测试通过。不是重跑整仓9219全绿，不覆盖已保留的首次10失败事实。根verify18604自然exit0；末态补验根type81689、定向lint84359均自然exit0，生成后ClassModel77842为49测试自然exit0。数据包1236、lowcode1463及当时根完整494文件通过保其实际范围。末态正式生成38113自然exit0，1108分片/1744索引/3768gaps，新公开结果字段及构造JSDoc已补，不再新增7条指南缺口；25派生文件剔除明确时间/编译符号后剩5份为DataView/DataSet恢复合同、database扩展派生签名、manifest索引与行号变化gaps，未手改产物。
 
 全部验证/烟测句柄终态，无活跃长测等待。当前可安全提交T局部检查点：公共恢复原批及逐视图结果、实际DB/file/pagedata/命令/初始化适配证明、真实正反例/旧夹具合同纠正、唯一台账入口清理及官方派生。原组件未跟踪RED不提交；删除两旧认证助手属ignored临时文件清理，不计Git源码变更。无Java变更、业务页面补丁、实服业务写入、兼容层、合并或部署。下一S1继续精确隔离CRUD烟测及清理、数据库I3三项和其余矩阵；历史数据转换按已定映射一次性执行，不用兼容读分支。S1仍未冻结，目标active。
+
+**T检查点已提交推送并独立核实。**代码28f984781f21b1bea9451ded8e177ee6e576e7f7（fix(spark-data): preserve per-source recovery outcomes），42文件851增203删；push origin HEAD:refs/heads/codex/spark-data-s1-command-safety自然exit0，独立git ls-remote与本地精确同SHA。cached白名单/秘密新增扫描及diff --check通过，跟踪工作树清洁；只余原有S2组件未跟踪RED，未擅删用户工作。只一个主worktree，旧临时认证脚本两份已精确移除，台账过时活动入口已纠正，新公开JSDoc及生成物一致；不是清空历史验收证据或掩盖首次完整测试10失败。此事实补记以docs跟随同步，不改已测代码。后续仍S1隔离CRUD/清理→数据库I3三项→余矩阵，不进入S2，不把局部checkpoint说成数据合同冻结或全迁移完成。

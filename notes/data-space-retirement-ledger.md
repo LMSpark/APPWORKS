@@ -8016,3 +8016,5 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 **W检查点终验与清理。**末态数据库族47745自然exit0：13文件221测试；定向lint自然0。最终根verify17271自然exit0，含根类型/lint、ClassModel49测试、611端点216消费者及全部正式规则（既有2模型警告/84薄页诊断不抹除）。正式生成51890自然exit0：1108分片1744索引3765gaps；16份派生剔除时间/编译符号ID后仅AttachTableSyncMetaDataViewInput三个过时输入删除及对应gaps/行号变化，消费者派生仅源行号变更。全部handle已终态，diff --check通过，高阶最终窄复审无W检查点阻断，未独立执行测试或实服Sync。
 
 准备提交本批S1数据适配与测试/台账/正式派生，无Java/组件/业务页面修改，无实服Sync写入、无清理遗留对象、无兼容参数或按字段非空猜回执的旧分支。写前拒绝仍0POST可修本地输入；已派发缺损/系统错误保持unknown，缺原请求权威核验接口的能力边界继续明确登记，不造后端协议。正常ACK保原领域目录刷新，字段查询不再冒提交核验证据。下一恢复点为真实attach同名短路绕身份/绑定验证，及I3其余组验收；S1未冻结、原20包范围不变，历史数据转换不在本次编译期参数删除中伪称完成。仅原S2未跟踪RED保留，不删有效用户工作。
+
+**W已提交推送并独立核实。**代码15dfb5c6d11c580378dfa9509a8a0bd72e2adbaf（fix(database): retain uncertain metadata sync outcomes），22文件206增194删；push origin同一codex/spark-data-s1-command-safety自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，仅原S2未跟踪RED。事实补记docs同步，不改已测代码。S1继续真实装配身份/绑定短路及I3剩余组；未冻结、未跨层、未把服务核验缺约说成前端解决，目标active。

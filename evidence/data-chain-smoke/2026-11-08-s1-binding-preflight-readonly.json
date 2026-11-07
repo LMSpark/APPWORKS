@@ -1,0 +1,43 @@
+{
+  "schemaVersion": 1,
+  "kind": "s1-binding-preflight-readonly-regression",
+  "sourceBaseCommit": "52b863671b5fe67370dd9fc9bacd4766e58ca541",
+  "sourceWorktreeSha256": {
+    "packages/spark-data/src/data-view.ts": "148a8eb1256a69621e1241ce6034c0b76dad59e656398536ecbcdb68dadeb33d",
+    "packages/spark-data/src/data-set-command/data-set-command-view.ts": "f7fb4b8908f1e21837417b056b5479aafbf6a87f2c14cc45feb7dcef5f842018",
+    "packages/spark-data/src/index.ts": "72dba3deb2df1f4c97db2db9d2a692e0931b88c8c6c38aef55c06b678cd80eb4",
+    "src/lowcode/resources/database/dataset-extensions.ts": "bd4f12a4d0b8716cb876af218efa30fe64eb6ac8c378a5f9fb07edc7ff78ab48"
+  },
+  "scriptSha256": {
+    "artifacts/data-chain-smoke/s1-live-preflight-run.mts": "2add14cf3cf63590269e540009cdcfc2a7b7b234952923dc13755c83e5d66438",
+    "artifacts/data-chain-smoke/s1-live-preflight.mts": "3525858ca6a3cca51eb90a3249902b3ef7f7fe1337d24eede55846155efe07b2"
+  },
+  "observation": {
+    "phase": "readonly-confirmed",
+    "authenticated": true,
+    "businessWrites": 0,
+    "requests": {
+      "/api/DataOperation/GetBaseData": 1,
+      "/api/LoginAuthority/UserLoginByEnt": 1,
+      "/api/DataOperation/GetData": 5
+    },
+    "rowsReturned": 0,
+    "formalModel": "Base_DataSet",
+    "verifiedRowId": "2E421295C650DD38886EBF456D8ECE48",
+    "independentTargetAbsent": true,
+    "unconfirmed": false,
+    "recovery": {
+      "state": "none",
+      "views": []
+    },
+    "credentialsPersisted": false,
+    "testedAt": "2026-11-07T22:13:53.322Z"
+  },
+  "limits": [
+    "Fresh login and RAM session; credentials and tokens are not recorded.",
+    "Exact original U object queried through current SDK, assembler and DataView; no original CRUD intent replayed.",
+    "Zero rows proves absence in this formal authorized query only, not physical hard deletion.",
+    "Read-only endpoint allowlist; business CRUD writes zero.",
+    "Does not prove catalog command endpoints, file/pagedata persistence, partial success, unknown recovery or component/page behavior on the live service."
+  ]
+}

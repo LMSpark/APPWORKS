@@ -23,82 +23,35 @@ function scalar(value: unknown): string {
   return ''
 }
 
-function ensureCatalogCommandInputTable(dataSet: DataSet, commandInput: string): void {
-  SparkData.ensureDataSetStaticInputTable(dataSet, commandInput, [
-    {name: 'commandId', primary: true}, {name: 'serverId'}, {name: 'dbId'}, {name: 'addDefaultFields'}, {name: 'batchId'},
-  ])
-  const input = dataSet.getTable(commandInput)
-  if (!input) throw new Error('目录命令输入表未装配')
-  if (input.rows.length === 0) input.addRows([{commandId: 'default', serverId: '', dbId: '', addDefaultFields: '1', batchId: crypto.randomUUID()}])
-  else if (input.rows[0] && !scalar(input.rows[0]['batchId'])) input.rows[0]['batchId'] = crypto.randomUUID()
-  const view = dataSet.getView(commandInput, 'default')
-  if (view) {
-    view.commitMode = 'staged'
-    if (input.rows[0]) view.setCurrentRow(input.rows[0])
+const catalogInputColumns = [
+  {name: 'commandId', primary: true}, {name: 'serverId'}, {name: 'dbId'}, {name: 'addDefaultFields'}, {name: 'batchId'},
+] as const
+
+type CatalogInputIdentity = Readonly<{name: string; table: SparkData.DataTable; view: SparkData.DataView}>
+type CatalogResultKind = 'databases' | 'tables' | 'views'
+const catalogResultResources: Readonly<Record<CatalogResultKind, string>> = {
+  databases: 'database-unregistered-names', tables: 'database-unregistered-tables', views: 'database-unregistered-views',
+}
+const catalogInputInstances = new WeakMap<SparkData.DataTable, SparkData.DataView>()
+const catalogResultBindings = new WeakMap<SparkData.DataView, Readonly<{
+  input: CatalogInputIdentity; binding: SparkData.DataSetReadonlyCommandBinding
+}>>()
+
+function captureCatalogInput(dataSet: DataSet, name: string): CatalogInputIdentity {
+  SparkData.ensureDataSetStaticInputTable(dataSet, name, catalogInputColumns)
+  const table = dataSet.getTable(name), view = dataSet.getView(name, 'default')
+  if (!table || view?.destroyed !== false || view.primaryKey !== 'commandId') throw new Error('CATALOG_COMMAND_INPUT_IDENTITY: 目录命令输入视图或主键无效')
+  const initialized = catalogInputInstances.get(table)
+  if (initialized !== undefined && initialized !== view) throw new Error('CATALOG_COMMAND_INPUT_IDENTITY: 原目录命令输入视图已被替换')
+  return {name, table, view}
+}
+
+function assertCatalogInput(dataSet: DataSet, identity: CatalogInputIdentity): void {
+  if (dataSet.destroyed || dataSet.getTable(identity.name) !== identity.table
+    || dataSet.getView(identity.name, 'default') !== identity.view || identity.view.destroyed) {
+    throw new Error('CATALOG_COMMAND_INPUT_IDENTITY: 原目录命令输入已失效')
   }
-}
-
-function attachUnregisteredDbNamesView(
-  ctx: DatabaseCommandAttachInput,
-  tables: Readonly<{commandInput: string; unregisteredDbNames: string}>,
-): void {
-  const {dataSet, http, assertScope} = ctx
-  if (dataSet.getTable(tables.unregisteredDbNames)) return
-  const namesView = SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.unregisteredDbNames, resourceId: 'database-unregistered-names', columns: [{name: 'name', primary: true}]})
-  SparkData.bindDataSetReadonlyCommandQuery(namesView, {
-    resource: {resourceType: 'file', resourceId: 'database-unregistered-names'},
-    guard: assertScope,
-    queryColumns: view => view.dataTable?.columns.filter(column => column.name === 'name') ?? [],
-    loadRows: async () => {
-      const serverId = scalar(dataSet.getTable(tables.commandInput)?.rows[0]?.['serverId'])
-      if (!serverId) throw new Error('查询未登记数据库缺少服务器 ID')
-      const response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredDb/${encodeURIComponent(serverId)}`), '查询未登记数据库失败')
-      if (!Array.isArray(response)) throw new Error('未登记数据库列表响应格式无效')
-      return response.filter((name: unknown): name is string => typeof name === 'string' && name.trim() !== '').map(name => ({name: name.trim()}))
-    },
-  })
-}
-
-function attachUnregisteredTableNamesView(
-  ctx: DatabaseCommandAttachInput,
-  tables: Readonly<{commandInput: string; unregisteredTableNames: string}>,
-): void {
-  const {dataSet, http, assertScope} = ctx
-  if (dataSet.getTable(tables.unregisteredTableNames)) return
-  const tableNamesView = SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.unregisteredTableNames, resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}]})
-  SparkData.bindDataSetReadonlyCommandQuery(tableNamesView, {
-    resource: {resourceType: 'file', resourceId: 'database-unregistered-tables'},
-    guard: assertScope,
-    queryColumns: view => view.dataTable?.columns.filter(column => column.name === 'name') ?? [],
-    loadRows: async () => {
-      const dbId = scalar(dataSet.getTable(tables.commandInput)?.rows[0]?.['dbId'])
-      if (!dbId) throw new Error('查询未登记数据表缺少数据库 ID')
-      const response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredTable/${encodeURIComponent(dbId)}`), '查询未登记数据表失败')
-      if (!Array.isArray(response)) throw new Error('未登记数据表列表响应格式无效')
-      return response.filter((name: unknown): name is string => typeof name === 'string' && name.trim() !== '').map(name => ({name: name.trim()}))
-    },
-  })
-}
-
-function attachUnregisteredViewNamesView(
-  ctx: DatabaseCommandAttachInput,
-  tables: Readonly<{commandInput: string; unregisteredViewNames: string}>,
-): void {
-  const {dataSet, http, assertScope} = ctx
-  if (dataSet.getTable(tables.unregisteredViewNames)) return
-  const viewNamesView = SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.unregisteredViewNames, resourceId: 'database-unregistered-views', columns: [{name: 'name', primary: true}]})
-  SparkData.bindDataSetReadonlyCommandQuery(viewNamesView, {
-    resource: {resourceType: 'file', resourceId: 'database-unregistered-views'},
-    guard: assertScope,
-    queryColumns: view => view.dataTable?.columns.filter(column => column.name === 'name') ?? [],
-    loadRows: async () => {
-      const dbId = scalar(dataSet.getTable(tables.commandInput)?.rows[0]?.['dbId'])
-      if (!dbId) throw new Error('查询未登记视图缺少数据库 ID')
-      const response = await http.get<string[]>(`/api/View/getUnregisteredView/${encodeURIComponent(dbId)}`)
-      if (!Array.isArray(response)) throw new Error('未登记视图列表响应格式无效')
-      return response.filter(name => typeof name === 'string' && name.trim() !== '').map(name => ({name: name.trim()}))
-    },
-  })
+  captureCatalogInput(dataSet, identity.name)
 }
 
 export type AttachCatalogCommandViewsInput = DatabaseCommandAttachInput & Readonly<{
@@ -106,15 +59,81 @@ export type AttachCatalogCommandViewsInput = DatabaseCommandAttachInput & Readon
 }>
 
 export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput): void {
-  const {dataSet, tables} = input
-  const ctx: DatabaseCommandAttachInput = input
-  ensureCatalogCommandInputTable(dataSet, tables.commandInput)
-  if (tables.unregisteredDbNames) attachUnregisteredDbNamesView(ctx, {commandInput: tables.commandInput, unregisteredDbNames: tables.unregisteredDbNames})
-  if (tables.unregisteredTableNames) {
-    attachUnregisteredTableNamesView(ctx, {commandInput: tables.commandInput, unregisteredTableNames: tables.unregisteredTableNames})
+  const {dataSet, http, assertScope, tables} = input
+  if (dataSet.destroyed || !dataSet.scenarioId?.trim()) throw new Error('CATALOG_COMMAND_IDENTITY: 目录命令需要存活且有明确场景的 DataSet')
+  assertScope()
+  const descriptors = ([
+    {name: tables.unregisteredDbNames, kind: 'databases'},
+    {name: tables.unregisteredTableNames, kind: 'tables'},
+    {name: tables.unregisteredViewNames, kind: 'views'},
+  ] as const).flatMap(item => item.name === undefined ? [] : [{name: item.name, kind: item.kind}])
+  const names = [tables.commandInput, ...descriptors.map(item => item.name)]
+  if (names.some(name => !name.trim() || name.includes('@')) || new Set(names).size !== names.length) {
+    throw new Error('CATALOG_COMMAND_TABLE_NAMES: 输入及结果表名须非空、无 @ 且互不相同')
   }
-  if (tables.unregisteredViewNames) {
-    attachUnregisteredViewNamesView(ctx, {commandInput: tables.commandInput, unregisteredViewNames: tables.unregisteredViewNames})
+  let capturedInput = dataSet.getTable(tables.commandInput) ? captureCatalogInput(dataSet, tables.commandInput) : undefined
+  const requireInput = (): CatalogInputIdentity => {
+    if (!capturedInput) throw new Error('CATALOG_COMMAND_INPUT_IDENTITY: 目录命令输入尚未装配')
+    return capturedInput
+  }
+  const prepare = (view: SparkData.DataView, kind: CatalogResultKind): SparkData.DataSetReadonlyCommandBinding =>
+    SparkData.prepareDataSetReadonlyCommandQuery(view, {
+      resource: {resourceType: 'file', resourceId: catalogResultResources[kind]},
+      guard: () => {assertScope(); assertCatalogInput(dataSet, requireInput())},
+      captureQueryInputs: () => {
+        const identity = requireInput(), row = identity.table.rows[0], field = kind === 'databases' ? 'serverId' : 'dbId'
+        const id = scalar(row?.[field])
+        return () => {
+          if (identity.table.rows[0] !== row || scalar(row?.[field]) !== id) {
+            throw new Error('CATALOG_COMMAND_INPUT_CHANGED: 本次目录查询目标已切换')
+          }
+        }
+      },
+      queryColumns: target => target.dataTable?.columns.filter(column => column.name === 'name') ?? [],
+      loadRows: async () => {
+        const row = requireInput().table.rows[0]
+        const id = scalar(row?.[kind === 'databases' ? 'serverId' : 'dbId'])
+        if (!id) throw new Error(kind === 'databases' ? '查询未登记数据库缺少服务器 ID' : '查询未登记对象缺少数据库 ID')
+        let response: unknown
+        if (kind === 'databases') response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredDb/${encodeURIComponent(id)}`), '查询未登记数据库失败')
+        else if (kind === 'tables') response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredTable/${encodeURIComponent(id)}`), '查询未登记数据表失败')
+        else response = await http.get<unknown>(`/api/View/getUnregisteredView/${encodeURIComponent(id)}`)
+        if (!Array.isArray(response)) throw new Error('未登记对象列表响应格式无效')
+        return response.filter((name: unknown): name is string => typeof name === 'string' && name.trim() !== '').map(name => ({name: name.trim()}))
+      },
+    })
+  const plans = descriptors.map(descriptor => {
+    if (!dataSet.getTable(descriptor.name)) return {...descriptor, view: undefined, binding: undefined}
+    const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName: descriptor.name,
+      resourceId: catalogResultResources[descriptor.kind], columns: [{name: 'name', primary: true}]})
+    if (view.primaryKey !== 'name') throw new Error('CATALOG_COMMAND_RESULT_IDENTITY: 目录命令结果必须以 name 为主键')
+    const original = catalogResultBindings.get(view)
+    if (original !== undefined) {
+      if (capturedInput === undefined) throw new Error('CATALOG_COMMAND_INPUT_IDENTITY: 原目录命令输入已缺失')
+      if (original.input.name !== capturedInput.name || original.input.table !== capturedInput.table || original.input.view !== capturedInput.view) {
+        throw new Error('CATALOG_COMMAND_INPUT_IDENTITY: 结果视图不能改绑目录命令输入')
+      }
+    }
+    const binding = original?.binding ?? prepare(view, descriptor.kind)
+    binding.assertCanBind()
+    return {...descriptor, view, binding}
+  })
+  // 所有调用前可判定的冲突已预检；不承诺回调异常的跨表回滚。
+  capturedInput ??= captureCatalogInput(dataSet, tables.commandInput)
+  const identity = capturedInput
+  if (!catalogInputInstances.has(identity.table)) {
+    if (identity.table.rows.length === 0) identity.table.addRows([{commandId: 'default', serverId: '', dbId: '', addDefaultFields: '1', batchId: crypto.randomUUID()}])
+    else if (identity.table.rows[0] && !scalar(identity.table.rows[0]['batchId'])) identity.table.rows[0]['batchId'] = crypto.randomUUID()
+    identity.view.commitMode = 'staged'
+    if (identity.table.rows[0]) identity.view.setCurrentRow(identity.table.rows[0])
+    catalogInputInstances.set(identity.table, identity.view)
+  }
+  for (const plan of plans) {
+    const view = plan.view ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: plan.name,
+      resourceId: catalogResultResources[plan.kind], columns: [{name: 'name', primary: true}]})
+    const binding = plan.binding ?? prepare(view, plan.kind)
+    binding.bind()
+    catalogResultBindings.set(view, {input: identity, binding})
   }
 }
 

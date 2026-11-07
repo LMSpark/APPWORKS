@@ -1533,6 +1533,19 @@
           },
           "additionalProperties": false
         },
+        "method.assertCanBindQueryExecutor.params": {
+          "type": "object",
+          "properties": {
+            "executor": {
+              "$ref": "#/$defs/DataViewQueryExecutor"
+            },
+            "options": {
+              "$ref": "#/$defs/DataViewQueryBindingOptions"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.assertCanBindQueryExecutor.return": true,
         "method.bindQueryExecutor.params": {
           "type": "object",
           "properties": {
@@ -3179,7 +3192,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T20:38:59.187Z",
+  "generatedAt": "2026-11-07T22:05:48.996Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -5226,6 +5239,35 @@
             }
           ],
           "methods": [
+            {
+              "name": "assertCanBindQueryExecutor",
+              "jsdoc": "仅预检当前实例能否绑定此查询/保存责任方及候选资源身份，不绑定、不查询、不改状态或发事件。\n初始结果的内容、接纳回调及计算仍在正式绑定执行；预检通过不保留位置，正式绑定会重验。",
+              "parameters": [
+                {
+                  "name": "executor",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryExecutor",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "options",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataViewQueryBindingOptions",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  },
+                  "flags": {
+                    "isOptional": true
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
             {
               "name": "bindQueryExecutor",
               "jsdoc": "一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。",

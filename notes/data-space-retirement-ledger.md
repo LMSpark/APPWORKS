@@ -8080,3 +8080,19 @@ server submit只接纳数字Code200、Result原rowid及无冲突成功类型/回
 **Z检查点终验。**最终根verify81726自然exit0（根类型/lint、ClassModel49项及正式工程规则），既有2模型警告/84薄页诊断仍保留。全部本批验证handle已终态，diff --check通过；高阶末态窄审无阻断，非独立实服执行。准备提交本批S1资源/查询配置与回归、正式派生及唯一台账，不修改页面/组件/Java、不新增后端协议或兼容ACK、不把缺证当未写。只推origin同codex分支、不merge/force/部署；用户原组件未跟踪RED不stage，只有主worktree。U实服隔离对象清理终态沿用，Z无新写入或清理遗留。下一仍S1 catalog多结果预检及paired/I3余项，合同未冻结、20包完整目标active。
 
 **Z已提交推送并独立核实。**代码a67efa7630e97ba6538fa7ecd8b28d173aabc710（fix(database): verify server registrations independently），22文件288增122删；origin同codex分支push自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，唯一主worktree，只保原S2未跟踪RED。事实补记docs跟随同步，不改变已验代码；恢复点为S1 catalog多结果预检，未冻结/未进S2，服务器实服注册与下游筛选展示证据仍各自待验。
+
+#### AA. S1目录多结果装配纯预检与输入生命周期
+
+基线52b863671b5fe67370dd9fc9bacd4766e58ca541；上一批已完成代码/文档提交并核远端，为实际进展。仍S1，仅spark-data绑定/只读命令公共能力与数据库资源适配、测试文档/正式派生，不进S2。真实目录组一次含多个结果，旧实现先建输入/种行/设置mode，再逐结果按同名return，无法识别末结果foreign owner或输入重配。新增实际8例先RED全失败；加入末名bad@name/destroyed DataSet与两项新公共预检后，2文件12例RED。初修后12 GREEN，随后纯prepare资源快照、增量补装、输入同名替换/HTTP在途default替换等补验，65定向GREEN。
+
+DataView.assertCanBindQueryExecutor提取原同owner/候选资源、已有查询和编辑保护的同一校验；queryIdentity纯传候选resource，不临时赋私有身份。正式bind重验并保持原接纳/回调流程。预检不执行initialResult内容、查询/重算/事件，不保留绑定名额；不承诺回调异常的跨表事务。common prepareDataSetReadonlyCommandQuery返回捕获同executor/资源快照的窄assertCanBind/bind闭包，不暴露owner/save；旧仍有消费者的bind函数沿同一prepare正式绑定，不保第二实现。
+
+目录3个旧私有attach及同名短路删除，统一按实际描述预检完整组。前置存活场景/scope、表名非空/无@/互斥；已有input/result核资源/字段/default/有效PK，已有结果重核原input表/default对象与名字，全部pureassert通过后才初始化输入、创建缺失结果、正式bind。input WeakMap仅登记已初始化的存活实例，防重复修batchId/currentRow/草稿；result WeakMap只保原绑定/输入引用，非第二数据/owner真源。更换input名字、丢失/替换捕获对象拒绝，不顺手重建旧捕获；HTTP前及结果验收均核输入identity。初lint两处prefer-optional-chain失败已按明确undefined/存活判断修正，不绕lint。
+
+高阶实际diff发现两处真实边界：direct view.destroy仍被DataTable引用；兄弟表/视图查询共改同一dbId，身份引用不变仍可能接纳旧目标响应。新增3例实际先RED（3失败13通过）。capture前置destroyed拒绝；common只读查询新增每次实际派发captureQueryInputs，返回guard贯穿派发、结果接纳与QueryResult后续身份使用；纯prepare/assert不触发。目录按本次row引用与本kind id捕获，不存全局last-target或额外数据副本；DB1挂起→兄弟视图切DB2→DB1迟到拒收。当前定向98944/lint10650运行，未扩大门禁/生成/提交，无实服写入；其余paired连接/预览与I3仍待完成，S1未冻结，20包范围不变。
+
+**AA扩大验证及只读实服回读。**98944自然exit0：4文件68测试；10650 lint自然0。31103 data包自然exit0：56文件1241测试；72610数据库族自然exit0：16文件299测试。28706正式生成自然exit0：1108分片1745索引3764gaps（新增窄绑定类型），lowcode生成611端点216消费者；AI规则85122自然0。高阶末态静态复核无AA阻断，限目录组与在途输入守卫，不冒连接/预览通过。根verify45148 live，待完整终态。
+
+65839新进程/RAM新登录按用户授权复用已有只读preflight，原CRUD脚本未重放。当前源正式SDK→装配器→DataView按U精确PK 2E421295C650DD38886EBF456D8ECE48查询0行，businessWrites=0、unconfirmed=false、recovery=none；GetBaseData1/Login1/GetData5，readonly-confirmed，自然exit0。命令末尾解析完整stdout因SDK导入前导行失败，不是网络/绑定失败；随后只选择唯一结构化结果校验并生成证据evidence/data-chain-smoke/2026-11-08-s1-binding-preflight-readonly.json，含本次未提交源/原脚本SHA及限制，不保存密码/token。只证正式授权查询缺席，不证物理删除或catalog命令实服/故障分支通过。会话清理，未新增对象待清；已有U清理事实再获独立回读支持。仍不冻结S1，不进入组件。
+
+**AA检查点终验及清理。**最终根verify45148自然exit0，含类型/lint、ClassModel49项及正式规则；保留既有2模型警告/84薄页诊断。全部本批handle终态，diff --check通过，高阶末态窄审无阻断。正式ClassModel语义差异仅DataView新增纯预检、readonly prepare/binding/capture输入合同及其索引/对应声明行号；其余时间/编译symbol漂移未手改。精确删除8份已被末态替代的过程日志/中间烟测输出，失败事实与有界成功证据保本台账/正式JSON，原CRUD意图文件不动。无新临时工作树或清理遗留对象，原S2用户未跟踪RED不stage。准备同一codex分支推origin，不merge/force/部署；不改组件/宿主/业务页/Java，无兼容层。下一仍S1连接/预览组与I3余项，目录预检不能冒整体数据合同已冻结；原20包目标active。

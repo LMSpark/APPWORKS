@@ -16,7 +16,8 @@
       "DataSetCommandResourceIdentity",
       "BindReadonlyCommandQueryOptions",
       "EnsureDataSetFileCommandViewInput",
-      "BindCommandSubmitOptions"
+      "BindCommandSubmitOptions",
+      "DataSetReadonlyCommandBinding"
     ]
   },
   "$defs": {
@@ -243,7 +244,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@253040": {
+                "__@iterator@253062": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -298,7 +299,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@253040"
+                "__@iterator@253062"
               ],
               "additionalProperties": false
             },
@@ -615,6 +616,19 @@
       },
       "additionalProperties": false,
       "$defs": {
+        "method.captureQueryInputs.params": {
+          "type": "object",
+          "properties": {
+            "view": {
+              "$ref": "../data-view.ts.json#/$defs/DataView"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureQueryInputs.return": {
+          "type": "object",
+          "title": "DataSetCommandScopeGuard"
+        },
         "method.queryColumns.params": {
           "type": "object",
           "properties": {
@@ -743,9 +757,28 @@
           "type": "boolean"
         }
       }
+    },
+    "DataSetReadonlyCommandBinding": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DataSetReadonlyCommandBinding",
+      "$defs": {
+        "method.assertCanBind.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCanBind.return": true,
+        "method.bind.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.bind.return": true
+      }
     }
   },
-  "generatedAt": "2026-11-07T21:42:17.597Z",
+  "generatedAt": "2026-11-07T22:09:53.799Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -844,11 +877,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */\n    captureQueryInputs?: (view: DataView) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */\n    captureQueryInputs?: (view: DataView) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -871,6 +904,25 @@
             }
           ],
           "methods": [
+            {
+              "name": "captureQueryInputs",
+              "jsdoc": "每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。",
+              "parameters": [
+                {
+                  "name": "view",
+                  "type": {
+                    "type": "reference",
+                    "name": "DataView",
+                    "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "DataSetCommandScopeGuard",
+                "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts"
+              }
+            },
             {
               "name": "queryColumns",
               "parameters": [
@@ -1072,6 +1124,43 @@
               "type": {
                 "type": "intrinsic",
                 "name": "boolean"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "DataSetReadonlyCommandBinding": {
+      "name": "DataSetReadonlyCommandBinding",
+      "jsdoc": "同一查询责任方的纯预检与正式绑定能力，不公开 executor 或保存入口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 不查询、不接纳结果、不绑定；检查当前可绑定性。 */\n    assertCanBind: () => void;\n    /** 使用同一 executor 正式绑定，并重新执行当前校验。 */\n    bind: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 不查询、不接纳结果、不绑定；检查当前可绑定性。 */\n    assertCanBind: () => void;\n    /** 使用同一 executor 正式绑定，并重新执行当前校验。 */\n    bind: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "assertCanBind",
+              "jsdoc": "不查询、不接纳结果、不绑定；检查当前可绑定性。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "bind",
+              "jsdoc": "使用同一 executor 正式绑定，并重新执行当前校验。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
               }
             }
           ]

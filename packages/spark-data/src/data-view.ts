@@ -553,8 +553,11 @@ rows: DataRow[] = []
   readonly #explicitNewRowIds = new Set<string | number>()
   #ingestingQueryResult = false
 
-  /** 一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。 */
-  bindQueryExecutor(executor: DataViewQueryExecutor, options?: DataViewQueryBindingOptions): void {
+  /**
+   * 仅预检当前实例能否绑定此查询/保存责任方及候选资源身份，不绑定、不查询、不改状态或发事件。
+   * 初始结果的内容、接纳回调及计算仍在正式绑定执行；预检通过不保留位置，正式绑定会重验。
+   */
+  assertCanBindQueryExecutor(executor: DataViewQueryExecutor, options?: DataViewQueryBindingOptions): void {
     this.checkDestroyed()
     if (this.#queryExecutor === executor) {
       if (options?.resource.resourceType !== this.#resourceIdentity?.resourceType
@@ -568,6 +571,13 @@ rows: DataRow[] = []
       throw new Error('DATA_VIEW_QUERY_IDENTITY: 查询 owner 不可改绑，请重新装配运行 DataSet')
     }
     this.assertResultReplacementAllowed()
+    this.queryIdentity(options?.resource)
+  }
+
+  /** 一次运行只绑定一个查询/保存 owner；非后端资源须显式绑定资源身份，初始结果由同一 owner 提供。改绑须重新装配。 */
+  bindQueryExecutor(executor: DataViewQueryExecutor, options?: DataViewQueryBindingOptions): void {
+    this.assertCanBindQueryExecutor(executor, options)
+    if (this.#queryExecutor === executor) return
     this.#resourceIdentity = options ? {...options.resource} : undefined
     try {
       this.queryIdentity()
@@ -913,9 +923,9 @@ rows: DataRow[] = []
     return context && row ? context.viewActionState(context.rowKey(row), available) : 'disabled'
   }
 
-  private queryIdentity(): DataViewQueryIdentity {
+  private queryIdentity(resource: DataViewResourceIdentity | undefined = this.#resourceIdentity): DataViewQueryIdentity {
     const scenarioId = this.dataSet?.scenarioId
-    const table = this._dataTable, resource = this.#resourceIdentity
+    const table = this._dataTable
     if (resource) {
       if (!scenarioId || !table || table.modelBinding || !resource.resourceId.trim() || !resource.resourceType.trim()
         || table.resourceId !== resource.resourceId || table.resourceType !== resource.resourceType) {

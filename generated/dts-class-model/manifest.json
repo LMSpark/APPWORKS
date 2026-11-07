@@ -9183,7 +9183,8 @@
           "DataSetCommandResourceIdentity",
           "BindReadonlyCommandQueryOptions",
           "EnsureDataSetFileCommandViewInput",
-          "BindCommandSubmitOptions"
+          "BindCommandSubmitOptions",
+          "DataSetReadonlyCommandBinding"
         ]
       }
     },
@@ -19946,6 +19947,10 @@
     "DataSetPhasedSaveResult": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
+    },
+    "DataSetReadonlyCommandBinding": {
+      "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
+      "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },
     "DataSetSaveChangesConfig": {
       "sourcePath": "packages/spark-data/src/types.ts",

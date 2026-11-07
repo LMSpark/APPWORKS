@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T21:42:17.597Z"
+      "sourceModifiedAt": "2026-11-07T22:09:53.799Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2664,7 +2664,7 @@
     "packages/spark-data/src/data-view.ts": {
       "sourceFile": "packages/spark-data/src/data-view.ts",
       "shardFile": "files/packages/spark-data/src/data-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T20:38:59.187Z"
+      "sourceModifiedAt": "2026-11-07T22:05:48.996Z"
     },
     "packages/spark-data/src/dataset-crud-tool.ts": {
       "sourceFile": "packages/spark-data/src/dataset-crud-tool.ts",
@@ -2684,7 +2684,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-07T20:13:09.272Z"
+      "sourceModifiedAt": "2026-11-07T22:05:49.016Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -4084,7 +4084,7 @@
     "src/lowcode/resources/database/dataset-extensions.ts": {
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "shardFile": "files/src/lowcode/resources/database/dataset-extensions.ts.json",
-      "sourceModifiedAt": "2026-11-07T21:57:09.359Z"
+      "sourceModifiedAt": "2026-11-07T22:10:14.872Z"
     },
     "src/lowcode/resources/database/directory.ts": {
       "sourceFile": "src/lowcode/resources/database/directory.ts",

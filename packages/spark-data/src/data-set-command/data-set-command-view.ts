@@ -26,6 +26,8 @@ export type DataSetCommandResourceIdentity = Readonly<{resourceType: string; res
 export type BindReadonlyCommandQueryOptions = Readonly<{
   resource: DataSetCommandResourceIdentity
   guard: DataSetCommandScopeGuard
+  /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */
+  captureQueryInputs?: (view: DataView) => DataSetCommandScopeGuard
   loadRows: DataSetCommandRowsLoader
   queryColumns?: (view: DataView) => readonly DataColumn[]
 }>
@@ -303,16 +305,37 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
   return assertBinding
 }
 
-/** 绑定只读命令查询：页面通过 DataView.refresh() 触发 loadRows。 */
-export function bindDataSetReadonlyCommandQuery(view: DataView, options: BindReadonlyCommandQueryOptions): void {
+/** 同一查询责任方的纯预检与正式绑定能力，不公开 executor 或保存入口。 */
+export type DataSetReadonlyCommandBinding = Readonly<{
+  /** 不查询、不接纳结果、不绑定；检查当前可绑定性。 */
+  assertCanBind: () => void
+  /** 使用同一 executor 正式绑定，并重新执行当前校验。 */
+  bind: () => void
+}>
+
+/** 为实际多视图装配准备同一只读查询责任方；调用本函数不查询、不绑定。 */
+export function prepareDataSetReadonlyCommandQuery(view: DataView, options: BindReadonlyCommandQueryOptions): DataSetReadonlyCommandBinding {
   const queryColumns = options.queryColumns ?? (target => target.dataTable?.columns ?? [])
-  view.bindQueryExecutor({
+  const executor: QueryExecutor = {
     localAggregates: false,
     queryColumns,
     executeQuery: async (target, _params) => {
       options.guard()
+      const assertInputs = options.captureQueryInputs?.(target)
+      const assertCurrent = () => {options.guard(); assertInputs?.()}
+      assertCurrent()
       const rows = await options.loadRows(target)
-      return dataSetCommandQueryResultFromLocalRows(target, rows, options.guard)
+      return dataSetCommandQueryResultFromLocalRows(target, rows, assertCurrent)
     },
-  }, {resource: options.resource})
+  }
+  const resource = {...options.resource}
+  return {
+    assertCanBind: () => view.assertCanBindQueryExecutor(executor, {resource}),
+    bind: () => view.bindQueryExecutor(executor, {resource}),
+  }
+}
+
+/** 绑定只读命令查询：页面通过 DataView.refresh() 触发 loadRows。 */
+export function bindDataSetReadonlyCommandQuery(view: DataView, options: BindReadonlyCommandQueryOptions): void {
+  prepareDataSetReadonlyCommandQuery(view, options).bind()
 }

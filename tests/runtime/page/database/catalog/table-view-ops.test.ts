@@ -35,6 +35,7 @@ import {
   DATABASE_CATALOG_VIEW_MODEL,
   DATABASE_CATALOG_COMMAND_INPUT_TABLE,
   DATABASE_VIEW_REGISTER_TABLE,
+  DATABASE_TABLE_SYNC_META_TABLE,
 } from '@/lowcode/resources/database/catalog/table-view'
 import {
   DATABASE_TABLE_VIEW_SCENARIO_ID,
@@ -440,7 +441,7 @@ describe('database/catalog/table/view-ops', () => {
     expect(defaultView.filterExpression).toBeUndefined()
   })
 
-  it('syncs table metadata through write command and refreshes fields', async () => {
+  it.each([undefined,true])('syncs table metadata through an explicit successful acknowledgement (%j) and refreshes fields', async response => {
     const ds = await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     sets.push(ds)
     const dbView = requireDatabaseCatalogDbViewForTable(ds)
@@ -454,9 +455,71 @@ describe('database/catalog/table/view-ops', () => {
     if (fieldView.loadingError) throw fieldView.loadingError
     const dbId = databaseCatalogDbSelectedId(dbView)
     const tableId = tableView.getSelectedValues()[0] as string
+    http.syncMetadataResponseOverride=response
     await databaseCatalogSyncTableMetadata({dataSet: ds, dbId, tableId, fieldView})
     expect(http.requests.some(request => request.url === `/api/Table/SyncMetaData/${dbId}/${tableId}`)).toBe(true)
     expect(fieldView.rows.some(row => row['enname'] === 'SyncedCol')).toBe(true)
+  })
+
+  it.each([
+    {mode:'timeout-before' as const,empty:false},
+    {mode:'timeout-before' as const,empty:true},
+    {mode:'timeout-after' as const,empty:false},
+  ])('keeps an unconfirmed sync unknown without inferring from the field directory ($mode, empty=$empty)',async({mode,empty})=>{
+    const ds=await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID);sets.push(ds)
+    const databases=requireDatabaseCatalogDbViewForTable(ds),tables=requireDatabaseCatalogTableView(ds)
+    databases.setSelectedRows([databases.rows[0]!]);await tables.refresh()
+    const table=tables.rows.find(row=>row['rowid']==='T1')!;tables.setSelectedRows([table])
+    if(empty)http.rows[DATABASE_CATALOG_FIELD_MODEL]=[]
+    const fields=ds.getView(DATABASE_CATALOG_FIELD_MODEL,DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    await fields.refresh();const before=structuredClone(fields.rows)
+    http.syncMetadataMode=mode
+    const failure:unknown=await databaseCatalogSyncTableMetadata({dataSet:ds,dbId:'DB1',tableId:'T1',fieldView:fields}).catch((error:unknown)=>error)
+    const sync=ds.getView(DATABASE_TABLE_SYNC_META_TABLE)!
+    expect(sync.hasUnconfirmedSave).toBe(true)
+    expect(failure).toHaveProperty('message',expect.stringContaining('DATABASE_SYNC_UNVERIFIABLE'))
+    const ids=[...sync.dirtyTracking.pendingCreateIds]
+    expect(ids).toHaveLength(1)
+    sync.updateEditingValue(ids[0]!,'tableid','T3')
+    const count=http.requests.length
+    expect(await ds.resolveUnconfirmedSaves()).toMatchObject({state:'unknown',views:[{tableName:DATABASE_TABLE_SYNC_META_TABLE,state:'unknown'}]})
+    expect(http.requests).toHaveLength(count)
+    expect(sync.hasUnconfirmedSaveFor(ids)).toBe(true)
+    expect(sync.getEditingRow(ids[0]!)?.['tableid']).toBe('T3')
+    expect(fields.rows).toEqual(before)
+    await expect(databaseCatalogSyncTableMetadata({dataSet:ds,dbId:'DB1',tableId:'T3',fieldView:fields})).rejects.toThrow('上次同步结果尚未确认')
+    expect(http.requests.filter(request=>request.url==='/api/Table/SyncMetaData/DB1/T1')).toHaveLength(1)
+    expect(sync.abandonUnconfirmedSave()).toBe(false)
+  })
+
+  it.each([{Code:200,Result:false},{Code:200},{},false,{Code:null,Result:true},{Code:false,Result:true},
+    {Code:'bad',Result:true},{Code:500,Message:'internal failure'}])('does not infer a sync acknowledgement from %j',async response=>{
+    const ds=await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID);sets.push(ds)
+    const databases=requireDatabaseCatalogDbViewForTable(ds),tables=requireDatabaseCatalogTableView(ds)
+    databases.setSelectedRows([databases.rows[0]!]);await tables.refresh()
+    tables.setSelectedRows([tables.rows.find(row=>row['rowid']==='T1')!])
+    const fields=ds.getView(DATABASE_CATALOG_FIELD_MODEL,DATABASE_CATALOG_FIELD_TABLE_VIEW)!
+    await fields.refresh();http.syncMetadataResponseOverride=response
+    await databaseCatalogSyncTableMetadata({dataSet:ds,dbId:'DB1',tableId:'T1',fieldView:fields}).catch(()=>undefined)
+    const sync=ds.getView(DATABASE_TABLE_SYNC_META_TABLE)!
+    expect(sync.hasUnconfirmedSave).toBe(true)
+    expect((await ds.resolveUnconfirmedSaves()).state).toBe('unknown')
+    expect(sync.abandonUnconfirmedSave()).toBe(false)
+    expect(http.requests.filter(request=>request.url==='/api/Table/SyncMetaData/DB1/T1')).toHaveLength(1)
+  })
+
+  it('preserves a proven pre-dispatch sync rejection and allows correcting that local input',async()=>{
+    const ds=await LowcodeDatabaseTableView.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID);sets.push(ds)
+    const sync=ds.getView(DATABASE_TABLE_SYNC_META_TABLE)!
+    await sync.refresh()
+    const created=await sync.addRow({dbid:'',tableid:'T1'}),id=sync.getPkKey(created)!
+    const save=()=>ds.saveChanges({views:[{tableName:sync.tableName,viewId:sync.viewId,ids:[id]}]})
+    await expect(save()).rejects.toThrow('同步元数据缺少数据库或表 ID')
+    expect(sync.hasUnconfirmedSave).toBe(false)
+    expect(http.requests.some(request=>request.url?.startsWith('/api/Table/SyncMetaData/'))).toBe(false)
+    sync.updateEditingValue(id,'dbid','DB1')
+    expect((await save()).success).toBe(true)
+    expect(http.requests.filter(request=>request.url==='/api/Table/SyncMetaData/DB1/T1')).toHaveLength(1)
   })
 
   it('copies a table with fields through one saveChanges', async () => {

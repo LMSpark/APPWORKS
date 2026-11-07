@@ -8000,3 +8000,19 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 本批可安全提交：一个预览数据适配的删除式修正、替代旧错误测试/夹具、正式派生/契约README纠偏、U实服有界CRUD及跨会话清理证据、唯一台账。只改S1责任层及测试文档产物，无组件/页面/Java修改、无角色或兼容层；无测试对象待清，用户凭据未入证据/提交。只主worktree，原组件RED不动。下一仍S1数据库SyncMetaData未知结果弱核验与真实attach身份绕过，先RED再方案/实现/重验；未冻结数据合同、不进S2，历史一次性转换尚待所涉存量结构映射核定，不把本烟测当历史迁移。
 
 **U/V已提交推送并独立核实。**代码0f92524b2cc9e011c1c1b6f60c08e19e9c0d5d36（fix(database): preserve public preview query rejection），21文件188增113删；push origin同一codex/spark-data-s1-command-safety自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，仅保原S2组件未跟踪RED；U实服对象已清，密码/token未入提交。事实补记docs跟随同步。恢复位置为S1 SyncMetaData的非空/空目录不等于本次结果及真实attach同名短路，不提前进入组件；整体goal active，仍需I3全组证据与其余20包阶段工作。
+
+#### W. S1同步元数据未知结果与回执收口
+
+基线4a55c15f4b97eeaaa2caa72276c22b907562379c，上一U/V真实烟测/清理与推送为有效进展；当前仅数据库资源适配及测试/文档/派生。先查实际源码而非注释：固定Java e1eccc1的SyncMetaData控制器返回true，表定位实际支持同库(rowId OR tblName)，因此保当前POST dbid/tableid，不猜改物理名或改GET；无版本/请求关联状态，空物理字段也可正常返回true。Java仅只读参考，非本次部署实测。
+
+主控用现有真实装配路径三例先RED：写前丢回执且字段原非空、写前丢回执且目录空、写后丢回执；旧源分别误报成功/未生效，hasUnconfirmed都错误false。再补成功码Result=false、缺Result、空对象、裸false四例先RED，旧源无条件造成功行。只接受原解码明确true；丢失/缺损回执保原pending，verify缺权威关联时明确DATABASE_SYNC_UNVERIFIABLE，不刷字段/改选择当提交证明、不return undefined、不重发、不允许abandon解锁。正常明确ACK后原展示字段刷新保留，AjaxResult true及HTTP已解包true两个正例通过。
+
+删除仅服务于旧弱核验的fieldModel/fieldTableView/tableCatalogModel三个公共附加输入及唯一数据装配调用实参，不留兼容参数；私有未知完成标记/判别器泛化为数据库命令责任，源码内统一typed判断，不按旧名字字符串判断。新输入T3保编辑覆盖、恢复仍仅原ID/T1、一POST，无额外读，无本地目录变化。直接35测试GREEN，含7个反例；尚未扩展门禁/正式生成/提交。本命令失去ACK后的权威结果合同缺失单列为服务能力缺约，不把夹具或Java当实服支持，不冒成功或未生效，不为解除未知伪造证明；其它I3项目继续，不转成整个目标blocked。
+
+**W复审的严格解码补验。**高阶核到common commandAjaxResult会Number(Code)，null/false可被当0；Java普通异常可经HTTP200+Code500返回，不能据此证明写前拒绝。新增null/false/'bad'/500四ACK先RED，旧实现要么假成功要么可重发；同步submit不再调用通用coercion decoder，只认裸true或数值0/200且Result===true，其他已返回体保unknown，不修改其它资源通用解码器。另有真实源提交前空dbid拒绝正例：原错误可见、0POST、无pending、修本地输入后同ID可正常提交，不能把所有失败都锁未知。40直接测试GREEN。
+
+先前数据库族33595为13文件216测试通过，lint首轮require-await失败已以Promise.reject真实同步拒绝修正，修后lint自然0；根verify52964自然0但在本次严格解码补项前/期间执行，不能称最终快照全部门禁。下一末态数据库族/根门禁/正式生成及高阶复核；已生成32531为1108/1744/3765gaps，减少3个旧弱核验输入的缺注释投影，不手改产物。原dbid/tableid输入正常合同保留，无Java或实服Sync写入。
+
+**W检查点终验与清理。**末态数据库族47745自然exit0：13文件221测试；定向lint自然0。最终根verify17271自然exit0，含根类型/lint、ClassModel49测试、611端点216消费者及全部正式规则（既有2模型警告/84薄页诊断不抹除）。正式生成51890自然exit0：1108分片1744索引3765gaps；16份派生剔除时间/编译符号ID后仅AttachTableSyncMetaDataViewInput三个过时输入删除及对应gaps/行号变化，消费者派生仅源行号变更。全部handle已终态，diff --check通过，高阶最终窄复审无W检查点阻断，未独立执行测试或实服Sync。
+
+准备提交本批S1数据适配与测试/台账/正式派生，无Java/组件/业务页面修改，无实服Sync写入、无清理遗留对象、无兼容参数或按字段非空猜回执的旧分支。写前拒绝仍0POST可修本地输入；已派发缺损/系统错误保持unknown，缺原请求权威核验接口的能力边界继续明确登记，不造后端协议。正常ACK保原领域目录刷新，字段查询不再冒提交核验证据。下一恢复点为真实attach同名短路绕身份/绑定验证，及I3其余组验收；S1未冻结、原20包范围不变，历史数据转换不在本次编译期参数删除中伪称完成。仅原S2未跟踪RED保留，不删有效用户工作。

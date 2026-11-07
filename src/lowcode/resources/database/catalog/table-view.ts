@@ -277,9 +277,6 @@ export class LowcodeDatabaseTableView {
         http: lowcodeHttp,
         assertScope: assertCurrent,
         sync: DATABASE_TABLE_SYNC_META_TABLE,
-        fieldModel: DATABASE_CATALOG_FIELD_MODEL,
-        fieldTableView: DATABASE_CATALOG_FIELD_TABLE_VIEW,
-        tableCatalogModel: DATABASE_CATALOG_TABLE_MODEL,
       })
       attachTableRegisterCommandView({
         dataSet,

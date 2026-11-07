@@ -142,18 +142,18 @@ type RegistrationReceiptOptions = Readonly<{
 function requireRegistrationReceipt(options: RegistrationReceiptOptions): 'created' | 'already' {
   const {response, objectName, fallback, alreadyValue, missingValue} = options
   if (!isRecord(response) || !('Code' in response)) {
-    throw new RegistrationCompletionUnknown(`${fallback}：服务未返回可核验的逐项回执`)
+    throw new DatabaseCommandCompletionUnknown(`${fallback}：服务未返回可核验的逐项回执`)
   }
   const code = Number(response['Code'])
   if (code !== 0 && code !== 200) {
-    throw new RegistrationCompletionUnknown(scalar(response['Message']) || scalar(response['Msg']) || `${fallback}（${scalar(response['Code'])}），结果仍未知`)
+    throw new DatabaseCommandCompletionUnknown(scalar(response['Message']) || scalar(response['Msg']) || `${fallback}（${scalar(response['Code'])}），结果仍未知`)
   }
   const result = response['Result']
   if (isRecord(result) && result[objectName] === '注册成功') return 'created'
   if (isRecord(result) && result[objectName] === alreadyValue) return 'already'
   const diagnostic = isRecord(result) ? scalar(result[objectName]) : ''
   if (diagnostic === missingValue) throw new Error(`${fallback}：${missingValue}`)
-  throw new RegistrationCompletionUnknown(diagnostic
+  throw new DatabaseCommandCompletionUnknown(diagnostic
     ? `${fallback}：${diagnostic}；未取得精确成功回执，结果仍未知`
     : `${fallback}：缺少精确对象成功回执，结果仍未知`)
 }
@@ -162,16 +162,16 @@ function registerResult(response: unknown): unknown {
   return commandAjaxResult(response, '注册服务器失败')
 }
 
-/** 连接中断、超时或服务端 5xx 时不能断定注册是否已生效。 */
-function registerUnconfirmed(error: unknown): boolean {
-  if (error instanceof Error && error.name === 'RegistrationCompletionUnknown') return true
+/** 命令完成证据不足、连接中断、超时或服务端5xx均不能据此判定原提交未生效。 */
+function isDatabaseCommandUnconfirmed(error: unknown): boolean {
+  if (error instanceof DatabaseCommandCompletionUnknown) return true
   if (!(error instanceof Error) || error.name !== 'RequestError' || !('status' in error)) return false
   const status = Number(error.status)
   return status === 0 || status >= 500
 }
 
-class RegistrationCompletionUnknown extends Error {
-  constructor(message: string) {super(message); this.name = 'RegistrationCompletionUnknown'}
+class DatabaseCommandCompletionUnknown extends Error {
+  constructor(message: string) {super(message); this.name = 'DatabaseCommandCompletionUnknown'}
 }
 
 /** A precise already-registered receipt proves this true option was refused before field completion. */
@@ -203,18 +203,18 @@ async function verifyRegisteredObject(options: VerifyRegisteredObjectOptions): P
     assertScope()
     if (dataSet.getView(modelName, 'registrationVerify') !== view
       || JSON.stringify(view.filterExpression) !== JSON.stringify(filter)) {
-      throw new RegistrationCompletionUnknown('精确登记核验已过期，状态仍未知')
+      throw new DatabaseCommandCompletionUnknown('精确登记核验已过期，状态仍未知')
     }
     if (!result.countReported || result.total !== 1 || result.rows.length !== 1) {
-      throw new RegistrationCompletionUnknown(`精确登记核验未返回唯一且完整的服务端结果，状态仍未知（countReported=${String(result.countReported)}, total=${result.total}, rows=${result.rows.length}）`)
+      throw new DatabaseCommandCompletionUnknown(`精确登记核验未返回唯一且完整的服务端结果，状态仍未知（countReported=${String(result.countReported)}, total=${result.total}, rows=${result.rows.length}）`)
     }
     const row = result.rows[0]
-    if (!row) throw new RegistrationCompletionUnknown('精确登记核验结果为空，状态仍未知')
+    if (!row) throw new DatabaseCommandCompletionUnknown('精确登记核验结果为空，状态仍未知')
     const key = result.rowKey(row)
     if (typeof key !== 'string' || !key.trim() || result.fieldAccess(key, 'dbid').read !== 'visible'
       || result.fieldAccess(key, nameField).read !== 'visible'
       || scalar(row['dbid']) !== dbid || scalar(row[nameField]) !== objectName) {
-      throw new RegistrationCompletionUnknown('精确登记核验字段不可读或身份不匹配，状态仍未知')
+      throw new DatabaseCommandCompletionUnknown('精确登记核验字段不可读或身份不匹配，状态仍未知')
     }
     validationCount += 1
   }
@@ -227,12 +227,12 @@ async function verifyRegisteredObject(options: VerifyRegisteredObjectOptions): P
     if (queryError instanceof Error) throw queryError
     if (dataSet.getView(modelName, 'registrationVerify') !== view || view.requestState !== SparkData.RequestState.Loaded
       || validationCount === 0 || JSON.stringify(view.filterExpression) !== JSON.stringify(filter)) {
-      throw new RegistrationCompletionUnknown('精确登记核验未完成当前查询，状态仍未知')
+      throw new DatabaseCommandCompletionUnknown('精确登记核验未完成当前查询，状态仍未知')
     }
-    if (view.rows.length !== 1) throw new RegistrationCompletionUnknown('精确登记核验没有唯一正式记录，状态仍未知')
+    if (view.rows.length !== 1) throw new DatabaseCommandCompletionUnknown('精确登记核验没有唯一正式记录，状态仍未知')
   } catch (error) {
-    if (error instanceof RegistrationCompletionUnknown) throw error
-    throw new RegistrationCompletionUnknown(`精确登记核验失败，状态仍未知：${error instanceof Error ? error.message : String(error)}`)
+    if (error instanceof DatabaseCommandCompletionUnknown) throw error
+    throw new DatabaseCommandCompletionUnknown(`精确登记核验失败，状态仍未知：${error instanceof Error ? error.message : String(error)}`)
   } finally {
     if (view.validateQueryResult === validator) view.validateQueryResult = originalValidator
   }
@@ -264,7 +264,7 @@ export function attachServerRegisterView(input: AttachServerRegisterViewInput): 
     guard: assertScope,
     inputFields: fields,
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
-    isUnconfirmed: registerUnconfirmed,
+    isUnconfirmed: isDatabaseCommandUnconfirmed,
     submit: async row => {
       const payload: Record<string, string> = {rowid: scalar(row['rowid'])}
       for (const field of fields) payload[field] = field === 'Type' ? scalar(row[field]).toUpperCase() : scalar(row[field])
@@ -324,7 +324,7 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
     guard: assertScope,
     inputFields: ['dbid', 'tableName', 'tableComment', 'addDefaultFields', 'batchKey', 'registrationDisposition', 'registrationStatus'],
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
-    isUnconfirmed: registerUnconfirmed,
+    isUnconfirmed: isDatabaseCommandUnconfirmed,
     submit: async row => {
       const commandId = scalar(row['rowid'])
       defaultFieldsAcknowledged.delete(commandId)
@@ -364,7 +364,7 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
       const tableName = scalar(row['tableName'])
       const acknowledged = defaultFieldsAcknowledged.get(scalar(row['rowid']))
       if (scalar(row['addDefaultFields']) === '1' && (acknowledged?.dbid !== dbid || acknowledged.tableName !== tableName)) {
-        throw new RegistrationCompletionUnknown('默认字段补齐尚无正式完成回执，登记状态仍未知')
+        throw new DatabaseCommandCompletionUnknown('默认字段补齐尚无正式完成回执，登记状态仍未知')
       }
       await verifyRegisteredObject({dataSet, modelName: options.catalogModel, nameField: 'tblname', dbid, objectName: tableName, assertScope})
       return {...row, registrationStatus: '已确认'}
@@ -400,7 +400,7 @@ export function attachViewRegisterCommandView(input: AttachViewRegisterCommandVi
     guard: assertScope,
     inputFields: ['dbid', 'viewName', 'viewComment', 'batchKey', 'registrationDisposition', 'registrationStatus'],
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
-    isUnconfirmed: registerUnconfirmed,
+    isUnconfirmed: isDatabaseCommandUnconfirmed,
     submit: async row => {
       const dbid = scalar(row['dbid'])
       const viewName = scalar(row['viewName'])
@@ -423,23 +423,19 @@ export function attachViewRegisterCommandView(input: AttachViewRegisterCommandVi
 
 export type AttachTableSyncMetaDataViewInput = DatabaseCommandAttachInput & Readonly<{
   sync: string
-  fieldTableView: string
-  fieldModel: string
-  tableCatalogModel: string
 }>
 
 export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewInput): void {
-  const {dataSet, http, assertScope, sync, fieldTableView, fieldModel, tableCatalogModel} = input
-  const options = {sync, fieldTableView, fieldModel, tableCatalogModel}
-  if (dataSet.getTable(options.sync)) return
-  const table = dataSet.addTable(options.sync, [
+  const {dataSet, http, assertScope, sync} = input
+  if (dataSet.getTable(sync)) return
+  const table = dataSet.addTable(sync, [
     {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},
     {name: 'dbid', type: 'string', label: '数据库'},
     {name: 'tableid', type: 'string', label: '表'},
   ])
   table.resourceType = 'file'
   table.resourceId = 'database-table-sync-metadata'
-  const view = dataSet.getView(options.sync, 'default')
+  const view = dataSet.getView(sync, 'default')
   if (!view) throw new Error('同步元数据命令视图缺失')
   view.commitMode = 'staged'
   SparkData.bindDataSetCommandSubmit(view, {
@@ -447,24 +443,21 @@ export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewIn
     guard: assertScope,
     inputFields: ['dbid', 'tableid'],
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
-    isUnconfirmed: registerUnconfirmed,
+    isUnconfirmed: isDatabaseCommandUnconfirmed,
+    allowAbandonUnconfirmed: false,
     submit: async row => {
       const dbid = scalar(row['dbid'])
       const tableid = scalar(row['tableid'])
       if (!dbid || !tableid) throw new Error('同步元数据缺少数据库或表 ID')
-      commandAjaxResult(await http.post<unknown>(`/api/Table/SyncMetaData/${encodeURIComponent(dbid)}/${encodeURIComponent(tableid)}`, {}), '同步元数据失败')
+      const response=await http.post<unknown>(`/api/Table/SyncMetaData/${encodeURIComponent(dbid)}/${encodeURIComponent(tableid)}`, {})
+      const confirmed=response===true||isRecord(response)&&typeof response['Code']==='number'
+        &&(response['Code']===0||response['Code']===200)&&response['Result']===true
+      if(!confirmed)throw new DatabaseCommandCompletionUnknown('DATABASE_SYNC_ACK_UNCONFIRMED: 未取得本次同步的明确成功回执，结果仍未知')
       return {rowid: scalar(row['rowid']), dbid, tableid}
     },
-    verify: async row => {
-      const fieldView = dataSet.getView(options.fieldModel, options.fieldTableView)
-      if (!fieldView) throw new Error('核验同步结果缺少字段目录视图')
-      const tableList = dataSet.getView(options.tableCatalogModel, 'default')
-      const tblid = scalar(row['tableid'])
-      const parentRow = tableList?.rows.find(item => tableList.getPkKey(item) === tblid)
-      if (tableList && parentRow) tableList.setSelectedRows([parentRow])
-      await fieldView.refresh()
-      if (fieldView.loadingError) throw fieldView.loadingError
-      return fieldView.rows.length > 0 ? row : undefined
+    verify: () => {
+      // 现有接口没有原请求标识或版本核验合同；字段目录的当前状态不能证明本次同步结果。
+      return Promise.reject(new Error('DATABASE_SYNC_UNVERIFIABLE: 同步接口缺少本次提交的权威核验能力，保留原提交且不能重发'))
     },
   })
 }

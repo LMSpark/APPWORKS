@@ -1,5 +1,5 @@
 {
-  "gapCount": 3768,
+  "gapCount": 3765,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -33658,49 +33658,13 @@
       "declarationKind": "interface"
     },
     {
-      "kind": "attribute",
-      "className": "AttachTableSyncMetaDataViewInput",
-      "memberName": "fieldTableView",
-      "reason": "missing-jsdoc",
-      "chainBreak": "AttachTableSyncMetaDataViewInput.fieldTableView 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 55,
-      "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "AttachTableSyncMetaDataViewInput",
-      "memberName": "fieldModel",
-      "reason": "missing-jsdoc",
-      "chainBreak": "AttachTableSyncMetaDataViewInput.fieldModel 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 56,
-      "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "AttachTableSyncMetaDataViewInput",
-      "memberName": "tableCatalogModel",
-      "reason": "missing-jsdoc",
-      "chainBreak": "AttachTableSyncMetaDataViewInput.tableCatalogModel 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 57,
-      "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationKind": "interface"
-    },
-    {
       "kind": "model",
       "className": "AttachServerConnectionTestViewsInput",
       "reason": "missing-jsdoc",
       "chainBreak": "AttachServerConnectionTestViewsInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 60,
+      "declarationLine": 57,
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "declarationKind": "typeAlias"
     },
@@ -33712,7 +33676,7 @@
       "chainBreak": "AttachServerConnectionTestViewsInput.tables 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 61,
+      "declarationLine": 58,
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "declarationKind": "interface"
     },
@@ -33723,7 +33687,7 @@
       "chainBreak": "AttachDatabaseDirectoryConnectionTestViewsInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 66,
+      "declarationLine": 63,
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "declarationKind": "typeAlias"
     },
@@ -33735,7 +33699,7 @@
       "chainBreak": "AttachDatabaseDirectoryConnectionTestViewsInput.tables 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/lowcode/resources/database/dataset-extensions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "declarationLine": 67,
+      "declarationLine": 64,
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "declarationKind": "interface"
     },

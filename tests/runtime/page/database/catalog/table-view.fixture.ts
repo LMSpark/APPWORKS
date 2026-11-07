@@ -90,6 +90,8 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   physicalPreviewResponseOverride: unknown = undefined
   /** 正式GetData拒绝无公开查询基线的物理预览，不提供另一种查询授权。 */
   physicalPreviewPublicBaseline = false
+  syncMetadataMode: 'ok' | 'timeout-before' | 'timeout-after' = 'ok'
+  syncMetadataResponseOverride: unknown = undefined
   connectionTestMode: 'ok' | 'throw' | 'false' | 'rejected' = 'ok'
   connectionTestGate?: Promise<void>
   deniedFieldsByModel: Record<string, readonly string[]> = {}
@@ -237,12 +239,16 @@ export class DatabaseTableViewHttp extends HttpClientBase {
       return {data: {Code: 200, Result: result, Message: 'OK'}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/Table/SyncMetaData/')) {
+      const fail=()=>{const error=new Error('同步回执中断');error.name='RequestError';Object.assign(error,{status:503});throw error}
+      if(this.syncMetadataMode==='timeout-before')fail()
       const parts = config.url.slice('/api/Table/SyncMetaData/'.length).split('/')
       const tableId = decodeURIComponent(parts[1] ?? '')
       const fieldRows = this.rows[DATABASE_CATALOG_FIELD_MODEL]!
       if (!fieldRows.some(row => row['tblid'] === tableId && row['enname'] === 'SyncedCol')) {
         fieldRows.push({rowid: 'F-SYNC', tblid: tableId, enname: 'SyncedCol', cnname: '同步列', DataTypeName: 'string', DataLen: '50', IsPKey: 0, ordIdx: 99})
       }
+      if(this.syncMetadataMode==='timeout-after')fail()
+      if(this.syncMetadataResponseOverride!==undefined)return {data:this.syncMetadataResponseOverride,status:200,statusText:'OK',headers:{}}
       return {data: {Code: 200, Result: true, Message: 'OK'}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url === '/api/DataOperation/BatchTableOperateRequestByCRUD') {

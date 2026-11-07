@@ -8018,3 +8018,17 @@ absent/false两原RED已GREEN、写计数恒1；追加同batch坏length/identity
 准备提交本批S1数据适配与测试/台账/正式派生，无Java/组件/业务页面修改，无实服Sync写入、无清理遗留对象、无兼容参数或按字段非空猜回执的旧分支。写前拒绝仍0POST可修本地输入；已派发缺损/系统错误保持unknown，缺原请求权威核验接口的能力边界继续明确登记，不造后端协议。正常ACK保原领域目录刷新，字段查询不再冒提交核验证据。下一恢复点为真实attach同名短路绕身份/绑定验证，及I3其余组验收；S1未冻结、原20包范围不变，历史数据转换不在本次编译期参数删除中伪称完成。仅原S2未跟踪RED保留，不删有效用户工作。
 
 **W已提交推送并独立核实。**代码15dfb5c6d11c580378dfa9509a8a0bd72e2adbaf（fix(database): retain uncertain metadata sync outcomes），22文件206增194删；push origin同一codex/spark-data-s1-command-safety自然exit0，独立ls-remote与本地精确同SHA。跟踪工作树清洁，仅原S2未跟踪RED。事实补记docs同步，不改已测代码。S1继续真实装配身份/绑定短路及I3剩余组；未冻结、未跨层、未把服务核验缺约说成前端解决，目标active。
+
+#### X. S1真实同步命令装配身份与绑定
+
+基线b208022d5da9ac5dc2074e46b38085d836fbd835，继续同一S1，不进入组件/页面。真实attachTableSyncMetaDataView以同名表直接return，实际跳过资源/模型/字段/主键以及执行绑定核验。先新增真实入口反例；测试补齐scenario后，旧源运行6失败1通过，其中共享columns污染在首次修源重验时发现并以clone修正，不能把污染引起的报错算产品证据。实际独立反例覆盖资源/type/额外PK/foreign owner不报错、匹配未绑定表及重建default无执行能力；原pending重复装配保留为正例。测试自身构造错误不是产品缺陷。
+
+本批先完成该独立写命令的闭环。common bindDataSetCommandSubmit只返回捕获同一executor及复制资源身份的同步校验闭包，复用DataView.bindQueryExecutor已有exact-reference幂等规则；不返回owner或save入口、不刷新/重置confirmed/pending。适配以实际DataView为WeakMap键记录校验闭包，先由已有ensure核资源/model/字段/主键/default，再重复核原绑定；声明匹配未绑定表实际装配，foreign owner拒绝且不先改commitMode，新的default对象须重新绑定。新建字段label保留，无enum降级。本次不解决其它register/catalog/connection/preview的同名短路及多表预检原子性；后续仍S1逐组处理，不宣称整个I3通过或冻结。
+
+7项初步GREEN；补formal model、缺default、绑定后资源变化及原guard保留测试。扩展期间formal model夹具缺views.default已纠正，不能把fixture失败算实现回退；当前数据库族/common命令测试及lint运行中，未提交、未实服Sync写入。用户要求的清理只删被替代短路与真实无用过程产物，保唯一台账及正式回归证据；原S2未跟踪RED仍不动，历史一次性转换尚待真实映射，不作兼容。
+
+**X复审反例与补正。**首轮数据库/common16文件278测试、data包55文件1236测试及定向lint自然exit0，正式生成1108/1744/3765、服务合同611端点216消费者。高阶静态评审核到DataView有效primaryKey可覆盖表列主键：首次/已绑定各补1例，实际先RED（2失败10通过）；在ensure后、首次绑定/重复closure前明确有效键须rowid，否则零请求且不改mode/覆盖值。避免把dbid业务输入当命令身份。此后数据库/common与生成重验中，原verify86373仍运行不重启，后续按末态重验。干净default销毁重建测试不证明未知提交销毁后可恢复或安全重提；不作此承诺。
+
+**X末态验证与清理进度。**数据库/common36504自然exit0：16文件280测试（实际装配12）；data包53417自然exit0：55文件1236测试，公共binder此后未变。正式生成1373自然exit0：1108/1744/3765，lowcode生成611端点216消费者。生成JSON剔除generatedAt/sourceModifiedAt及编译符号ID后无语义差异，本次独立函数返回闭包不冒充ClassModel新增模型；源码JSDoc与实际返回已经一致。消费者派生仅后续源码行号变动。原根verify86373自然exit0但开始早于PK补正，最终verify82885独立重验中，不提前提交。高阶最终窄复审无剩余X阻断，仅静态复核不冒执行测试。精确删除8份已终态中间日志，不删末态日志或回归测试；无临时工作树/新实服对象，原S2未跟踪测试保留。
+
+**X检查点终验。**最终根verify82885自然exit0（根类型/lint、ClassModel及正式工程规则通过），所有本批进程均终态；保留既有模型警告/薄页差距，不称全仓测试或全20包通过。diff --check通过，准备将同步装配短路删除、公共绑定校验闭包、12项正式回归测试及官方派生/唯一台账提交同一codex分支，仅推origin/APPWORKS，不merge/force/部署。仍S1：后续真实register/catalog/connection/preview身份与多表预检、I3剩余矩阵及资源语义分类待完成；数据合同未冻结，不进入S2。U烟测对象清理终态沿用，X未写实服或更改存量，未伪称历史数据已转换。

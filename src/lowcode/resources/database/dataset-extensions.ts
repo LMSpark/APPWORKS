@@ -425,20 +425,28 @@ export type AttachTableSyncMetaDataViewInput = DatabaseCommandAttachInput & Read
   sync: string
 }>
 
+const syncMetaDataBindings = new WeakMap<SparkData.DataView, () => void>()
+
 export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewInput): void {
   const {dataSet, http, assertScope, sync} = input
-  if (dataSet.getTable(sync)) return
-  const table = dataSet.addTable(sync, [
-    {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},
-    {name: 'dbid', type: 'string', label: '数据库'},
-    {name: 'tableid', type: 'string', label: '表'},
-  ])
-  table.resourceType = 'file'
-  table.resourceId = 'database-table-sync-metadata'
-  const view = dataSet.getView(sync, 'default')
-  if (!view) throw new Error('同步元数据命令视图缺失')
-  view.commitMode = 'staged'
-  SparkData.bindDataSetCommandSubmit(view, {
+  if (!dataSet.getTable(sync)) {
+    const table = dataSet.addTable(sync, [
+      {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},
+      {name: 'dbid', type: 'string', label: '数据库'},
+      {name: 'tableid', type: 'string', label: '表'},
+    ])
+    table.resourceType = 'file'
+    table.resourceId = 'database-table-sync-metadata'
+  }
+  const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName: sync,
+    resourceId: 'database-table-sync-metadata', columns: [{name: 'rowid', primary: true}, {name: 'dbid'}, {name: 'tableid'}]})
+  if (view.primaryKey !== 'rowid') throw new Error('DATABASE_SYNC_PRIMARY_KEY_CONFLICT: 同步命令视图必须以 rowid 标识本次命令')
+  const existingBinding = syncMetaDataBindings.get(view)
+  if (existingBinding) {
+    existingBinding()
+    return
+  }
+  const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
     resource: {resourceType: 'file', resourceId: 'database-table-sync-metadata'},
     guard: assertScope,
     inputFields: ['dbid', 'tableid'],
@@ -460,6 +468,8 @@ export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewIn
       return Promise.reject(new Error('DATABASE_SYNC_UNVERIFIABLE: 同步接口缺少本次提交的权威核验能力，保留原提交且不能重发'))
     },
   })
+  view.commitMode = 'staged'
+  syncMetaDataBindings.set(view, assertBinding)
 }
 
 export type AttachServerConnectionTestViewsInput = DatabaseCommandAttachInput & Readonly<{

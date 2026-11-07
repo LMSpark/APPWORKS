@@ -216,8 +216,9 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
  * 绑定写命令：首次refresh初始化本地结果后addRow录入参数，DataSet.saveChanges一次提交一行并接纳回执。
  * 后续refresh按retainConfirmedOnRefresh保留或清空本实例已确认回执，不派发命令。
  * 已接纳行只读；修改或删除已接纳行不是本命令语义，直接拒绝。
+ * @returns 重复装配时校验本视图仍绑定原查询/保存责任方的同步函数；不刷新、不提交、不替换状态。
  */
-export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSubmitOptions): void {
+export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSubmitOptions): () => void {
   let confirmed: DataRow[] = []
   const pending = new WeakMap<object, DataRow>()
   const received = new WeakMap<object, DataRow>()
@@ -266,7 +267,7 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
         context: commandSubmitResult(view, [...confirmed, row], options)}
     }))
   }
-  view.bindQueryExecutor({
+  const executor: QueryExecutor = {
     localAggregates: false,
     saveIndependently: true,
     executeQuery: target => {
@@ -286,7 +287,11 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
     ...(options.allowAbandonUnconfirmed === false ? {} : {abandonUnconfirmedSave: (context: object) => {
       if (!received.has(context)) pending.delete(context)
     }}),
-  }, {resource: options.resource})
+  }
+  const resource = {...options.resource}
+  const assertBinding = () => view.bindQueryExecutor(executor, {resource})
+  assertBinding()
+  return assertBinding
 }
 
 /** 绑定只读命令查询：页面通过 DataView.refresh() 触发 loadRows。 */

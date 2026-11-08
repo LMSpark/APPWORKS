@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
@@ -43,6 +45,14 @@ async function open(query: Record<string, string> = {codeDesignId: 'C1', applica
 }
 
 describe('code editor formal main and node views', () => {
+  it('hosts the code design runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).toContain('deferredScenarioIds: [LowcodeDataCode.referenceScenarioId]')
+    expect(source).toContain('scenarioInputs: {[scene]: {applicationId: app, codeDesignId: code}}')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it.each([['time',3,'时间字符串'],['parent',5,'父编码串']] as const)('opens %s fields from the unsaved business table mapping',async(kind,type,label)=>{
     state.current.http.records['Base_CodeNodeDesign']![0]={rowid:'N1',CodeDesignID:'C1',NodeNo:1,NodeType:type,ParameterName:'规则',CodeNodeDesignJson:kind==='time'?'{"DateFormat":"yyyyMMdd"}':'{}'}
     state.current.http.records['Dict_CodeNodeType']!.push({rowid:'RULE',val:String(type),txt:label})

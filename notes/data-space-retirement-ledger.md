@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见文末 BH。未冻结 S4。续做顺序写在文末，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见文末 BI。未冻结 S4。续做顺序写在文末，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8672,26 +8672,32 @@ pnpm run verify
 
 **测试。**`data-code-list.test.ts` 11 项通过，含会话源码约束。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
 
+<a id="bi-s4-data-code-editor-host"></a>
+#### BI. S4第十一页：编码设计换接到公共宿主（未冻结）
+
+`data-code-editor-page.vue` 不再自建 `PageRuntime`。设计 DataSet 仍先由 `LowcodeDataCode.loadEditor` 读出，再交给 `NativePageRuntimeSession`。场景仍是设计场景加延后装载的引用来源，调用参数仍是 `applicationId` 与 `codeDesignId`。目标身份是这两个领域 ID，不造导航身份。主定义接入后才提供给页面。换代、卸载和加载失败都释放当前实例，迟到加载不提供运行时。目录页仍只传这两个 ID。
+
+**测试。**`data-code-editor.test.ts` 与 `data-code-dialogs.test.ts` 共 29 项通过，含会话源码约束、延后引用来源和原调用参数。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
+
 #### 当前续做顺序（未冻结）
 
 每波只换一页或一个共享 helper，保留原身份和拒绝，通过该页测试、根 typecheck 和改动文件 eslint 后写入本台账，提交并推 `origin/codex/spark-data-s1-command-safety`，然后立即做下一波。不另起总计划。
 
-1. 编码设计 `data-code-editor-page.vue`
-2. 逻辑视图目录 `logic-view-list-page.vue`
-3. 工作流目录 `workflow-definition-page.vue`
-4. 工作流设计 `workflow-design-page.vue`
-5. JSON 目录 `json-data-page.vue`
-6. Excel 目录 `excel-import-list-page.vue`
-7. Excel 设计 `excel-import-editor-page.vue`
-8. PDF 目录 `pdf-inspect-list-page.vue`
-9. PDF 设计 `pdf-inspect-editor-page.vue`
-10. 外部 API 目录 `api-management-page.vue`
-11. API 配置 `api-config-page.vue`
-12. API 接口目录 `api-interface-list-page.vue`
-13. 缓存管理 `cache-management-page.vue`
-14. `use-staged-design-page.ts`，仅当仍有页面经它自建
-15. 设计查询预览 `lowcode-data-space-query-preview.ts`
-16. `agent-workflow-file-owner.ts` 属数据层预检，页面换完后再核，不提前改 `spark-data`
-17. 工作台放在业务页之后：`DevPreviewTab.vue`、`useDevState.ts`、`NavHostProjectPicker.vue`
+1. 逻辑视图目录 `logic-view-list-page.vue`
+2. 工作流目录 `workflow-definition-page.vue`
+3. 工作流设计 `workflow-design-page.vue`
+4. JSON 目录 `json-data-page.vue`
+5. Excel 目录 `excel-import-list-page.vue`
+6. Excel 设计 `excel-import-editor-page.vue`
+7. PDF 目录 `pdf-inspect-list-page.vue`
+8. PDF 设计 `pdf-inspect-editor-page.vue`
+9. 外部 API 目录 `api-management-page.vue`
+10. API 配置 `api-config-page.vue`
+11. API 接口目录 `api-interface-list-page.vue`
+12. 缓存管理 `cache-management-page.vue`
+13. `use-staged-design-page.ts`，仅当仍有页面经它自建
+14. 设计查询预览 `lowcode-data-space-query-preview.ts`
+15. `agent-workflow-file-owner.ts` 属数据层预检，页面换完后再核，不提前改 `spark-data`
+16. 工作台放在业务页之后：`DevPreviewTab.vue`、`useDevState.ts`、`NavHostProjectPicker.vue`
 
 `/DataBaseManage/TableAndView` 旧 alias 仍保留。隐藏设计不造导航身份。S4 未冻结。

@@ -37,7 +37,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataSet} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, FieldText, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 import {codeNodeTypeLabel, saveDataCodeDesign} from '@/lowcode/resources/structured-config/data-code/design-ops'
@@ -64,11 +64,15 @@ const ruleTarget = shallowRef<{nodeId: string | number; busTableRowid: string}>(
 const businessTarget = shallowRef<{id: string | number; row: DataRow; generation: number; tableId: unknown; create: boolean}>()
 function closeRule(): void {openDialog.value = ''; ruleTarget.value = undefined}
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-code-editor-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const scene = LowcodeDataCode.designScenarioId
 const dataSet = shallowRef<DataSet>()
 const segmentEditor = ref<InstanceType<typeof CodeSegmentEditor>>()
 const opening = ref(false)
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const hostTarget = computed(() => props.applicationId !== undefined || props.codeDesignId !== undefined)
 const applicationId = computed(() => hostTarget.value ? props.applicationId ?? '' : (typeof route.query['applicationId'] === 'string' ? route.query['applicationId'] : ''))
 const codeDesignId = computed(() => hostTarget.value ? props.codeDesignId ?? '' : (typeof route.query['codeDesignId'] === 'string' ? route.query['codeDesignId'] : ''))
@@ -104,7 +108,7 @@ function openBusinessTable(): void {
 function validateBusinessTarget(): void {
   const target = businessTarget.value, view = main.value, row = view?.currentRow
   if (!active || !target || target.generation !== generation || target.create !== (props.create === true) || !view || !row
-    || runtime?.resolveView(mainKey) !== view || row !== target.row || view.getPkKey(row) !== target.id
+    || session.runtime?.resolveView(mainKey) !== view || row !== target.row || view.getPkKey(row) !== target.id
     || view.queryContext['applicationId'] !== applicationId.value || view.queryContext['codeDesignId'] !== codeDesignId.value
     || view.hasUnconfirmedSave || view.mutating || view.fieldAccess(row, 'AppID').read !== 'visible'
     || (view.getEditingRow(target.id) ?? row)['AppID'] !== applicationId.value
@@ -136,27 +140,33 @@ function openRule(row: DataRow): void {
 }
 watch([applicationId, codeDesignId, () => props.create], async ([app, code, create]) => {
   const own = ++generation
-  unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet.value = undefined
+  unsubscribe?.(); dataSet.value = undefined; session.dispose()
   error.value = ''; openDialog.value = ''; businessTarget.value = undefined; opening.value = true; saving.value = false
   try {
     if (!app.trim() || !code.trim()) throw new Error('缺少唯一 applicationId 或 codeDesignId 参数')
     if (create && !hostTarget.value) throw new Error('新增编码必须由目录宿主提供完整目标')
     const loaded = await LowcodeDataCode.loadEditor(scene)
     if (!active || own !== generation) {loaded.destroy(); return}
-    const page = new PageRuntime({pageId: 'data-code-editor-page', scenarioIds: [scene, LowcodeDataCode.referenceScenarioId],
-      deferredScenarioIds: [LowcodeDataCode.referenceScenarioId], scenarioInputs: {[scene]: {applicationId: app, codeDesignId: code}},
-      loadScenario: async id => {
-        if (id === scene) return loaded
-        if (id === LowcodeDataCode.referenceScenarioId) return LowcodeDataCode.loadReferenceSources()
-        throw new Error('引用来源空间未声明')
-      }})
-    runtime = page
-    await page.load()
-    if (!active || own !== generation) {page.dispose(); return}
+    let current: ReturnType<NativePageRuntimeSession['acquire']>
+    try {
+      current = session.acquire({pageId: 'data-code-editor-page', scenarioIds: [scene, LowcodeDataCode.referenceScenarioId],
+        deferredScenarioIds: [LowcodeDataCode.referenceScenarioId], targetId: `${app}:${code}`,
+        scenarioInputs: {[scene]: {applicationId: app, codeDesignId: code}},
+        loadScenario: async id => {
+          if (id === scene) return loaded
+          if (id === LowcodeDataCode.referenceScenarioId) return LowcodeDataCode.loadReferenceSources()
+          throw new Error('引用来源空间未声明')
+        }})
+    } catch (cause) {
+      if (!loaded.destroyed) loaded.destroy()
+      throw cause
+    }
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     dataSet.value = loaded
     const changed = () => revision.value++
     unsubscribe = loaded.onAnyViewChange({rowsChanged: changed, editingChanged: changed, requestStateChanged: changed, selectedRowsChanged: changed})
-    sparkProvide(PAGE_RUNTIME, page)
+    if (active && own === generation && session.isCurrent(current)) sparkProvide(PAGE_RUNTIME, current)
     if (create) {
       const view = loaded.getView('Base_CodeDesign')
       if (!view || view.primaryKey !== 'rowid') throw new Error('新增编码缺少正式主记录视图')
@@ -195,7 +205,7 @@ function cancel(): boolean {
   try {nodes.value?.discardPendingChanges(); main.value?.discardPendingChanges(); error.value = ''; return !hasPending.value}
   catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause); return false}
 }
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 <style scoped>
 .structured-editor-page {display:grid; gap:16px; padding:24px;}

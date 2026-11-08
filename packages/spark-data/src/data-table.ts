@@ -331,11 +331,13 @@ export class DataTable {
 
   /**
    * 获取或创建视图
+   * @throws 所属 DataSet 已释放时拒绝创建或重用视图；读取旧引用使用 getView。
    * @param viewId - 视图 ID（'default' 为主视图）
    * @returns 对应的 DataView 实例
    * @behavior 若表已关联 DataSet，会为新视图设置 dataTable 引用并触发 setupCascade
    */
   getOrCreateView(viewId: string): DataView {
+    if (this.dataSet?.destroyed) throw new Error(`DataSet "${this.dataSet.dataSetName}" has been destroyed`)
     if (!this.views[viewId]) {
       const view = new DataView(this.tableName, viewId)
       // 始终设置 dataTable 引用（使 view.primaryKey getter 可访问列定义）

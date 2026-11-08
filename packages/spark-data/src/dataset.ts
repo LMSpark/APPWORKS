@@ -947,6 +947,7 @@ getRequestTemplateParams(): Record<string, unknown> {
 
     /** 执行 replace From Json 操作。 */
 replaceFromJson(json: DataSetMetadata | Record<string, unknown> | string): void {
+    this._assertNotDestroyed()
     const candidate = DataSet.fromJson(json)
     let normalized: DataSetMetadata
     try { normalized = normalizeDataSetMetadata(candidate.toJson()) } finally { candidate.destroy() }
@@ -1026,9 +1027,10 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
   /**
    * 动态添加一张表（含 default 视图）。
    * @returns 新建的 DataTable 实例
-   * @throws 表名已存在时抛 Error
+   * @throws 空间已释放或表名已存在时抛 Error
    */
   addTable(tableName: string, columns: DataColumn[]): DataTable {
+    this._assertNotDestroyed()
     if (this.tables[tableName]) {
       throw new Error(`Table "${tableName}" already exists in DataSet "${this.dataSetName}"`)
     }
@@ -1043,10 +1045,14 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * 新视图进入当前DataSet的订阅和释放链；重复表名、无效定义或已释放空间明确报错。
    */
   addTableFromJson(metadata: TableMetadata | Record<string, unknown>): DataTable {
-    if (this.destroyed) throw new Error(`DataSet "${this.dataSetName}" has been destroyed`)
+    this._assertNotDestroyed()
     const table = DataTable.fromJson(metadata)
     try {return this._attachNewTable(table)}
     catch (cause) {table.destroy();throw cause}
+  }
+
+  private _assertNotDestroyed(): void {
+    if (this.destroyed) throw new Error(`DataSet "${this.dataSetName}" has been destroyed`)
   }
 
   private _attachNewTable(table: DataTable): DataTable {
@@ -1071,6 +1077,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * fail-fast：若仍被 resourceRelations / viewCascades 引用，则拒绝删除。
    */
   removeTable(tableName: string): void {
+    this._assertNotDestroyed()
     const table = this.assertRemovableTable(tableName)
 
     table.destroy()
@@ -1174,6 +1181,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * @throws 引用的表/字段不存在或关系已重复时抛 Error
    */
   addResourceRelation(params: DataResourceRelationInput): DataResourceRelation {
+    this._assertNotDestroyed()
     const relation = ResourceRelationDefinition.normalize(params, this.tables)
     const parentTable = this.getTable(relation.parentTable)
     const childTable = this.getTable(relation.childTable)
@@ -1203,6 +1211,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     },
     updates: Partial<DataResourceRelation>,
   ): DataResourceRelation {
+    this._assertNotDestroyed()
     const idx = this._resolveResourceRelationIndex(selector)
     const current = this.resourceRelations?.[idx]
     if (!current) {
@@ -1244,6 +1253,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     parentField?: string
     childField?: string
   }): void {
+    this._assertNotDestroyed()
     const idx = this._resolveResourceRelationIndex(selector)
     const relation = this.resourceRelations?.[idx]
     if (!relation) {
@@ -1301,6 +1311,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * @throws 级联引用非法或重复时抛 Error
    */
   addCascade(cascade: DataViewCascade): DataViewCascade {
+    this._assertNotDestroyed()
     if (cascade.kind === 'field') {
       const next = DataViewFieldCascadeDefinition.parse(cascade)
       DataViewFieldCascadeDefinition.validateAll([...(this.viewCascades ?? []), next])
@@ -1342,6 +1353,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
     selector: DataViewCascadeSelector,
     updates: Partial<DataViewCascade>,
   ): DataViewCascade {
+    this._assertNotDestroyed()
     const idx = this._resolveCascadeIndex(selector)
     const current = this.viewCascades?.[idx]
     if (!current) throw new Error('Cascade not found')
@@ -1380,6 +1392,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * @throws 级联不存在时抛 Error
    */
   removeCascade(selector: DataViewCascadeSelector): void {
+    this._assertNotDestroyed()
     const idx = this._resolveCascadeIndex(selector)
     this.viewCascades = (this.viewCascades ?? []).filter((_item, index) => index !== idx)
     this._rebuildDataLinks()
@@ -1414,7 +1427,7 @@ restoreSnapshot(selector: DataSetSnapshotSelector, options?: DataSetHistoryListO
    * - 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理
    * - 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）
    * - 共享 HTTP 客户端引用被释放
-   * - 标记为已销毁，后续操作静默忽略
+   * - 标记为已销毁；结构注册和替换拒绝，重复释放不执行
    *
    * 使用场景：页面调用 dispose 时释放其拥有的 DataSet。
    */

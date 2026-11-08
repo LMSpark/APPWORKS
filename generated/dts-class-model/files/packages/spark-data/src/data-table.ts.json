@@ -514,7 +514,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T21:29:53.808Z",
+  "generatedAt": "2026-11-08T01:33:33.553Z",
   "models": {
     "DataTableAddColumnsResult": {
       "name": "DataTableAddColumnsResult",
@@ -980,7 +980,7 @@
             },
             {
               "name": "getOrCreateView",
-              "jsdoc": "获取或创建视图\n@param viewId - 视图 ID（'default' 为主视图）\n@returns 对应的 DataView 实例\n@behavior 若表已关联 DataSet，会为新视图设置 dataTable 引用并触发 setupCascade",
+              "jsdoc": "获取或创建视图\n@throws 所属 DataSet 已释放时拒绝创建或重用视图；读取旧引用使用 getView。\n@param viewId - 视图 ID（'default' 为主视图）\n@returns 对应的 DataView 实例\n@behavior 若表已关联 DataSet，会为新视图设置 dataTable 引用并触发 setupCascade",
               "parameters": [
                 {
                   "name": "viewId",

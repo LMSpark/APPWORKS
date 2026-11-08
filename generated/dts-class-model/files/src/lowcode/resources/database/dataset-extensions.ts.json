@@ -345,6 +345,7 @@
           "type": "object",
           "title": "(metadata: SparkData.TableMetadata | Record<string, unknown>) => SparkData.DataTable"
         },
+        "_assertNotDestroyed": true,
         "_attachNewTable": true,
         "assertCanRemoveTable": {
           "type": "object",
@@ -503,6 +504,7 @@
         "restoreSnapshot",
         "addTable",
         "addTableFromJson",
+        "_assertNotDestroyed",
         "_attachNewTable",
         "assertCanRemoveTable",
         "removeTable",

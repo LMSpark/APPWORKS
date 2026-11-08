@@ -1,12 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AH** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AI** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AH当前恢复点：** 18类动态资源已按真实语义直接转换，旧File helper及导出已删除，不能再调用或复刻；真正文件资源仍用原文件适配。两项释放反例、第二file owner反例已修。正式ProjectToolCatalog持久投影及远端历史数据未转换；不得把动态声明调整冒作历史数据迁移完成。本批完整门禁与提交状态仅看末尾最终检查点，未冻结S1。
+> **AI当前恢复点：** AH的18类动态资源显式分类已推，旧File helper及导出已删除，不能再调用或复刻。AI补结构入口释放拒绝；末态门禁/提交以末尾记录为准。ProjectToolCatalog持久伪file仍开放：只读评审已定位S1数据合同与S3/S4消费切换依赖，尚未实施projectionBindings或改正式JSON。不得将其描述为已修或将动态声明调整冒作远端历史转换完成。S1未冻结。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8234,3 +8234,15 @@ AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor
 恢复仍S1：显式运行资源分类局部已收口，不再恢复旧File helper；正式ProjectToolCatalog持久投影的真实owner/合同转换及远端历史一次性转换仍需独立证据与阶段边界评审，不能只改JSON标签或接旧fileExecutor兼容。数据合同尚未整体冻结，原20包完整范围保留，不进入S2。
 
 **AH已提交推送并独立核实。**代码56e8d9b2cad315d6a330fecad49a58de8bfe8910（fix(data): require explicit semantic resource identities），43文件435增306删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留；唯一主worktree。此事实补记docs跟随同步。恢复按上一最终检查点仍S1，不恢复旧helper/伪file、不开兼容，不把本批离线通过当正式持久转换/实服证明，不进入组件阶段。
+
+**AI正式投影边界研读与生命周期批（S1，未冻结）。**前批b056d7628为已推有效进展。主控与原高阶只读复核当前ProjectToolCatalog：catalog()仅按正式蓝图树去重pageId/versions，ProjectToolFile才是文件；config/applications/appworks.json:25登记8D1仓内pagedata，repository/scenarios/resource读pagedata原文自身仍真file。仓内已核唯一固定投影转换目标，不冒远端全量扫描/存量已转。当前ScenarioViewConfig仅file/command非模型；runtime/assembler通过fileExecutors注入，ProjectToolResource与rename-tools:90硬file，file-resource-query-parameters:7也错把两ID均当文件参数入口。
+
+高阶方案：S1可为无modelBinding且显式logical-view的投影声明建立确定身份/工厂的只读绑定合同，复用公共参数/权限/生命周期，不将后端逻辑视图正式modelBinding改走本地投影。queryColumns只许pageId/versions、PK须pageId，实际派生视图也核身份；保模型改名createQueryView，缺蓝图tree仍在按需消费时拒，不提前拒不消费目录的整个空间。原投影写动作disabled与公共hidden存在显式行为差异，须核真正消费而非径改断言。S3核蓝图PageRuntime归属/切换/释放；S4恢复设计selection/fileModels/字段参数/预览及rename身份消费；S5真改名/重开/版本征引/目录零写与ProjectToolFile实际保存。此跨阶段依赖尚未实施，禁止S1仅改正式JSON破坏当前改名，也禁止file||logical放宽/读时纠正/双kind兼容掩盖。正式转换须待配套消费切换，当前伪file问题仍开放，不冻结错误合同，不将只读方案冒产品能力。
+
+**AI实际生命周期RED。**主控使用AH编译包复现ds.destroy后ensureDataSetStaticInputTable仍创建LateInput且default.destroyed=false；原DataSet.addTable缺失addTableFromJson已有的destroyed守卫，replaceFromJson也能重建已释放对象。新增原生addTable/addTableFromJson/replaceFromJson及静态new/existing回归，实际4RED/2PASS（含AH既有释放用例）；修复addTable/replaceFromJson在构造候选/表前拒、静态helper查existing前拒。错误复用原生has been destroyed/公共DATA_SET_RESOURCE_DESTROYED，不自动重建、不改全局销毁结构，不加兼容。两文件45项GREEN；扩大data6615/API88509/DB+command96456、包检查10365、官方生成2003在途，待原handle终态。仅S1源/测试/派生/本台账，无实服写入或组件/宿主/页面/Java实施，原S2未跟踪RED不动。
+
+**AI同源结构路径复审。**高阶指出原table引用的getOrCreateView/addView可绕过DataSet入口；主控3项实际RED（新建两入口及重用destroyed default），现共用getOrCreateView在查existing前核父空间，getView仍只读旧引用，独立DataTable不猜生命周期。另关系/级联6个mutation与无依赖removeTable能先改数组/表再重建运行链；初7项中addCascade重复端点/removeTable有依赖两反例无效，已改合法next命名view/无依赖Unrelated后再次7项真实RED。现所有7入口统一原生_assertNotDestroyed于任何变更前拒，原addTable/addTableFromJson/replace同用，数组与表原引用不变，onFieldCascadeChange仍FIELD_CASCADE_RUNTIME，不自动恢复。末态2文件55项自然0。此前6615/88509/96456/10365/2003均自然0但被本轮源码取代，不冒最终；末态data93883/API61912/consumer72471/package20644/generation27411原handle运行中，不重启。
+
+**AI末态扩大与编译烟测。**data93883最终57文件1307项/API61912最终44文件1474项自然0；消费者72471日志最终19文件440项（DB438+正式command2），待原handle终态确认。包20644 type/lint及真实build自然0；compiled smoke自然0，独立DataTable正常、释放后nativeAdd/staticInput/tableView/replace四入口均拒且无Late表/视图。官方ClassModel/lowcode27411自然0（611端点218消费者），生成器连带符号ID变动保原产物、不手改。高阶末态只读评审无阻断；根verify13045运行中。真实服务路径未改，本批仅编译/离线烟测，无实服写入，既有实服证据按原范围复用。
+
+**AI最终检查点验收。**完整根verify13045自然exit0，含类型/lint、ClassModel49项及正式规则；既有2模型警告/84薄页诊断保留，不冒整仓所有测试全绿。data1307/API1474/消费者19文件440项、定向55项及编译smoke均自然0，包type/lint/build与官方生成通过；全部原handle终态。高阶末态无阻断，精确清理10份AI中间日志保正式末态，唯一主worktree，无过程脚本/并行总计划，原S2未跟踪RED不stage。本批S1仅原生结构生命周期，真实file/DB适配未换协议，无实服写入/Java/组件/宿主/页面实施。只推origin既定codex分支、不force/merge/部署。S1尚未冻结，ProjectToolCatalog正式投影转换及远端历史核验仍开放，按本批研读的阶段依赖继续，不恢复旧file helper、不用局部门禁核销20包整体目标。

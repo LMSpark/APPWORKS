@@ -834,7 +834,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T20:19:32.631Z",
+  "generatedAt": "2026-11-08T01:33:33.511Z",
   "models": {
     "DataSetSavePreflightError": {
       "name": "DataSetSavePreflightError",
@@ -1578,7 +1578,7 @@
             },
             {
               "name": "addTable",
-              "jsdoc": "动态添加一张表（含 default 视图）。\n@returns 新建的 DataTable 实例\n@throws 表名已存在时抛 Error",
+              "jsdoc": "动态添加一张表（含 default 视图）。\n@returns 新建的 DataTable 实例\n@throws 空间已释放或表名已存在时抛 Error",
               "parameters": [
                 {
                   "name": "tableName",
@@ -1934,7 +1934,7 @@
             },
             {
               "name": "destroy",
-              "jsdoc": "销毁 DataSet 及其所有 DataTable/DataView 的资源。\n调用后：\n- 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n- 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n- 共享 HTTP 客户端引用被释放\n- 标记为已销毁，后续操作静默忽略\n使用场景：页面调用 dispose 时释放其拥有的 DataSet。",
+              "jsdoc": "销毁 DataSet 及其所有 DataTable/DataView 的资源。\n调用后：\n- 所有 `onAnyViewChange` / `on('loadSuccess'|'loadError')` 订阅被清理\n- 所有 DataView 的 destroy() 被调用（清理级联、CRUD、计算列、脏追踪等委托）\n- 共享 HTTP 客户端引用被释放\n- 标记为已销毁；结构注册和替换拒绝，重复释放不执行\n使用场景：页面调用 dispose 时释放其拥有的 DataSet。",
               "parameters": [],
               "type": {
                 "type": "intrinsic",

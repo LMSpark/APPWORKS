@@ -9,6 +9,66 @@ const configuration = {dataSetName: 'Lifecycle', tables: {
 }}
 
 describe('DataSet subscription lifecycle', () => {
+
+  it.each(['addRelation', 'updateRelation', 'removeRelation', 'addCascade', 'updateCascade', 'removeCascade', 'removeTable'] as const)(
+    'rejects %s after release before mutating configuration or rebuilding the cascade runtime', mode => {
+      const dataSet = DataSet.fromJson(configuration)
+      const relation = {relationId: 'R', parentTable: 'Models', childTable: 'Choices', parentField: 'id', childField: 'id'}
+      const cascade = {cascadeId: 'C', parentTable: 'Models', parentViewId: 'default', childTable: 'Choices', childViewId: 'default', filterBindings: [{sourceField: 'id', targetField: 'id'}]}
+      dataSet.addResourceRelation(relation); dataSet.addCascade(cascade)
+      dataSet.getTable('Choices')!.getOrCreateView('next')
+      const unrelated = dataSet.addTable('Unrelated', columns)
+      const relations = dataSet.resourceRelations, cascades = dataSet.viewCascades, table = dataSet.getTable('Models')
+      dataSet.destroy()
+      try {
+        expect(() => {
+          if (mode === 'addRelation') dataSet.addResourceRelation({...relation, relationId: 'Next'})
+          else if (mode === 'updateRelation') dataSet.updateResourceRelation(relation, {relationName: 'changed'})
+          else if (mode === 'removeRelation') dataSet.removeResourceRelation(relation)
+          else if (mode === 'addCascade') dataSet.addCascade({...cascade, cascadeId: 'Next', childViewId: 'next'})
+          else if (mode === 'updateCascade') dataSet.updateCascade({cascadeId: 'C'}, {autoLoad: true})
+          else if (mode === 'removeCascade') dataSet.removeCascade({cascadeId: 'C'})
+          else dataSet.removeTable('Unrelated')
+        }).toThrow('has been destroyed')
+        expect(dataSet.resourceRelations).toBe(relations)
+        expect(dataSet.viewCascades).toBe(cascades)
+        expect(dataSet.getTable('Models')).toBe(table)
+        expect(dataSet.getTable('Unrelated')).toBe(unrelated)
+        expect(() => dataSet.onFieldCascadeChange(() => {})).toThrow('FIELD_CASCADE_RUNTIME')
+      } finally {for (const item of Object.values(dataSet.tables)) item.destroy()}
+    },
+  )
+
+
+  it.each(['addView', 'getOrCreateView', 'existing'] as const)('rejects table %s after its DataSet release without reviving views', mode => {
+    const dataSet = DataSet.fromJson(configuration), table = dataSet.getTable('Models')!, original = table.getView('default')!
+    dataSet.destroy()
+    try {
+      expect(() => mode === 'addView' ? table.addView('Late') : table.getOrCreateView(mode === 'existing' ? 'default' : 'Late'))
+        .toThrow('has been destroyed')
+      expect(dataSet.getView('Models', 'Late')).toBeUndefined()
+      expect(table.getView('default')).toBe(original)
+      expect(original.destroyed).toBe(true)
+    } finally {table.destroy()}
+  })
+
+
+  it.each(['addTable', 'addTableFromJson', 'replaceFromJson'] as const)('rejects %s after release without replacing retained tables or creating live views', mode => {
+    const dataSet = DataSet.fromJson(configuration), original = dataSet.getTable('Models')!, originalView = dataSet.getView('Models')!
+    dataSet.destroy()
+    try {
+      expect(() => {
+        if (mode === 'addTable') dataSet.addTable('Late', columns)
+        else if (mode === 'addTableFromJson') dataSet.addTableFromJson({tableName: 'Late', columns, views: {default: {}}})
+        else dataSet.replaceFromJson(configuration)
+      }).toThrow('has been destroyed')
+      expect(dataSet.getTable('Late')).toBeUndefined()
+      expect(dataSet.getTable('Models')).toBe(original)
+      expect(dataSet.getView('Models')).toBe(originalView)
+      expect(originalView.destroyed).toBe(true)
+    } finally {for (const table of Object.values(dataSet.tables)) table.destroy()}
+  })
+
   it.each(['view', 'direct-view', 'table', 'direct-table'] as const)(
     'releases the destroyed %s subscription without rebinding retained views', mode => {
       const dataSet = DataSet.fromJson(configuration)

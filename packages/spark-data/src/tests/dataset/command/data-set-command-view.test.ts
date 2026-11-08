@@ -9,6 +9,20 @@ import {
 } from '../../../data-set-command/data-set-command-view'
 
 describe('DataSet command view helper', () => {
+
+  it.each(['new', 'existing'] as const)('rejects %s static inputs after DataSet release', mode => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}}), columns = [{name: 'id', primary: true}]
+    if (mode === 'existing') ensureDataSetStaticInputTable(dataSet, 'Input', columns)
+    const original = dataSet.getTable('Input'), originalView = dataSet.getView('Input')
+    dataSet.destroy()
+    try {
+      expect(() => ensureDataSetStaticInputTable(dataSet, 'Input', columns)).toThrow('DATA_SET_RESOURCE_DESTROYED')
+      expect(dataSet.getTable('Input')).toBe(original)
+      expect(dataSet.getView('Input')).toBe(originalView)
+      if (originalView) expect(originalView.destroyed).toBe(true)
+    } finally {dataSet.getTable('Input')?.destroy()}
+  })
+
   it.each(['file', 'command', 'service-query', 'logical-view'])('requires and retains an explicit semantic resource kind (%s)', resourceType => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     try {

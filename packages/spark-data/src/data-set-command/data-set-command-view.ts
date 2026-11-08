@@ -85,6 +85,7 @@ export function ensureDataSetStaticInputTable(
   tableName: string,
   columns: readonly DataSetCommandColumnSpec[],
 ): void {
+  if (dataSet.destroyed) throw new Error('DATA_SET_RESOURCE_DESTROYED: 不能向已释放的数据空间注册资源')
   assertCommandColumns(columns)
   const existing = dataSet.getTable(tableName)
   if (existing) {

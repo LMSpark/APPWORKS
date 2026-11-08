@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
@@ -16,7 +18,10 @@ import Pdf from '@/views/features/data-platform/semi-structured/pdf-inspect/ui/p
 import {WORKFLOW, EXCEL, PDF, topicModels, topicTexts} from './formal-topic.fixture'
 import type {HttpResponse,RequestConfig} from '@spark-appworks/spark-utils'
 vi.mock('@/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue', () => ({default: {name:'ExcelEditorStub',props:['schemeRowid'],template:'<div data-excel-editor>{{schemeRowid}}</div>'}}))
-vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: () => {}}))
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession, useSystemPageDirtySource: () => {}}
+})
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi,appId:'D99A1DCE9894698799101EFD70F8FC76'}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
@@ -60,6 +65,12 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it('hosts the workflow catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it.each(['copy','failure','hidden','stale'] as const)('copies the clicked formal Excel row key through the page service: %s',async mode=>{
     state.http.records['Base_Import_solution']!.push({rowid:'E2',coding:'OTHER-CODE',solutionName:'另一个方案'})
     if(mode==='hidden')state.http.hiddenFields['Base_Import_solution']=['rowid']

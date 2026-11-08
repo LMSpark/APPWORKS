@@ -47,9 +47,8 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute,onBeforeRouteLeave,onBeforeRouteUpdate} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
 import WorkflowTriggerTableDialog from './workflow-trigger-table-dialog.vue'
 import WorkflowTriggerCondition from './workflow-trigger-condition.vue'
@@ -59,17 +58,21 @@ const route = useRoute()
 const designTarget=ref(''),designPage=ref<{hasPending:boolean;busy:boolean;unconfirmed:boolean;discardChanges:()=>boolean}>()
 const designPending=computed(()=>designPage.value?.hasPending===true||designPage.value?.busy===true)
 const {sparkProvide, sparkRemove} = SparkComponent.useSparkComponent({type: 'workflow-definition-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(SparkComponent.PAGE_RUNTIME),
+})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const triggerOpen = ref(false)
 const conditionEditing=ref(false)
 const triggerTypes=[{label:'表',value:'table'},{label:'时间',value:'time'}]
 const triggerOperations=[{label:'删除',value:'delete'},{label:'添加',value:'add'},{label:'编辑',value:'edit'}]
 const editTarget=ref(''),editReady=ref(false),editBusy=ref(false)
-const editor=()=>runtime?.getDataSet(scenarioId.value)?.getView(LowcodeWorkflowDefinition.catalogMetaName,'edit')
+const editor=()=>session.runtime?.getDataSet(scenarioId.value)?.getView(LowcodeWorkflowDefinition.catalogMetaName,'edit')
 const definitionUnconfirmed=computed(()=>{revision.value;return editor()?.hasUnconfirmedSave===true})
 const definitionLocked=computed(()=>editBusy.value||definitionUnconfirmed.value)
 const definitionPending=computed(()=>{revision.value;const target=editor();return conditionEditing.value||editBusy.value||!!target&&(target.hasUnconfirmedSave||target.hasEditingChanges()||target.dirtyTracking.hasPendingChanges())})
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selectionState = computed(() => {
   revision.value
   try{const values = view.value?.getSelectedValues() ?? [];return{id:values.length===1&&typeof values[0]==='string'?values[0]:'',error:''}}
@@ -111,7 +114,7 @@ async function openDefinition():Promise<void>{
  editTarget.value=id;editReady.value=false;editBusy.value=true;error.value=''
  try{
   target.queryContext={...target.queryContext,definitionId:id}
-  const status=runtime?.getDataSet(scenarioId.value)?.getView('workflowStatus');if(!status)throw Error('工作流状态视图缺失')
+  const status=session.runtime?.getDataSet(scenarioId.value)?.getView('workflowStatus');if(!status)throw Error('工作流状态视图缺失')
   await Promise.all([target.refresh(),status.refresh()]);if(target.loadingError)throw target.loadingError;if(status.loadingError)throw status.loadingError
   if(target.rows.length!==1||target.getPkKey(target.rows[0]!)!==id)throw Error('工作流定义不存在或身份不唯一')
   if(active&&own===generation)editReady.value=true
@@ -122,7 +125,7 @@ function closeDefinition(open:boolean):void{if(!open&&!definitionPending.value){
 function cancelDefinition():void{if(definitionLocked.value)return;try{editor()?.discardPendingChanges([editTarget.value]);error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 async function saveDefinition():Promise<void>{
  if(conditionEditing.value){error.value='请先应用或取消触发条件编辑';return}
- const target=editor(),ds=runtime?.getDataSet(scenarioId.value),id=editTarget.value,own=generation
+ const target=editor(),ds=session.runtime?.getDataSet(scenarioId.value),id=editTarget.value,own=generation
  if(editBusy.value||!editReady.value||!target||!ds)return
  if(target.queryContext['definitionId']!==id||target.rows.length!==1||target.getPkKey(target.rows[0]!)!==id){error.value='工作流定义编辑目标已变化';return}
  editBusy.value=true;error.value=''
@@ -136,22 +139,24 @@ function discardDesign():void{if(designPage.value?.busy||designPage.value?.uncon
 watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
-  unsubscribe?.(); view.value = undefined; sparkRemove(SparkComponent.PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  unsubscribe?.(); view.value = undefined; session.dispose()
   try {
     if (!id) throw new Error('数据工作流入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeWorkflowDefinition.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    runtime = new PageRuntime({pageId: 'workflow-definition-page', scenarioIds: [id], loadScenario: async () => dataSet})
-    await runtime.load()
-    if (!active || own !== generation) {runtime.dispose(); return}
+    const current = session.acquire({pageId: 'workflow-definition-page', scenarioIds: [id], targetId: id,
+      loadScenario: async () => dataSet})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView(LowcodeWorkflowDefinition.catalogMetaName, 'default')
     const changed=()=>revision.value++
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged:changed,editingChanged:changed,rowsChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
-    sparkProvide(SparkComponent.PAGE_RUNTIME, runtime); ready.value = true; dataSet.triggerAutoLoad()
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(SparkComponent.PAGE_RUNTIME, current); ready.value = true}
+    dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(SparkComponent.PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

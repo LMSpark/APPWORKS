@@ -9,7 +9,7 @@ import type {
   RuntimeNavigation,
   RuntimeNavigationItem,
 } from '@spark-appworks/spark-app'
-import { SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
+import { NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY } from '@spark-appworks/spark-app'
 import * as ProjectModel from '@spark-appworks/spark-project-model'
 import { createRequest, isRecord } from '@spark-appworks/spark-utils'
 import {DataSet} from '@spark-appworks/spark-data'
@@ -476,12 +476,17 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
       return assembleBuiltinSystemNavigation({applicationName: application.name, projectId: application.id,
         navigation, authorization})
     }
-    const runtime = new ProjectModel.PageRuntime({pageId: 'lowcode-runtime-navigation',
-      scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY], mainScenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+    const runtimeSession = new NativePageRuntimeSession()
+    const runtime = runtimeSession.acquire({
+      pageId: 'lowcode-runtime-navigation',
+      scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+      mainScenarioId: LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+      targetId: application.id,
       loadScenario: scenarioId => {
         assertExecutionScope()
         return loadLowcodeRuntimeScenario({projectId: executionProjectId, scenarioId})
-      }})
+      },
+    })
     let owner: BlueprintWorkspaceDataView | undefined
     try {
       await readWithinExecutionScope(runtime.load())
@@ -506,7 +511,7 @@ export async function readLowcodeRuntimeNavigation(projectId?: string): Promise<
       })
     } finally {
       owner?.dispose()
-      runtime.dispose()
+      runtimeSession.dispose()
     }
   } catch (error) {
     assertExecutionScope()

@@ -336,6 +336,12 @@ function record(input: BlueprintFixtureInput): LowcodeProjectBlueprintRecord {
 }
 
 describe('lowcode project navigation projection', () => {
+  it('hosts startup navigation through the shared native session', () => {
+    const source = readFileSync('src/lowcode/lowcode-runtime.ts', 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).not.toContain('new ProjectModel.PageRuntime')
+  })
+
   it('returns a current receipt for the application catalog state', () => {
     saveExecutionScope('APP-A')
     const originalCatalog = lowcodeApi.platform.enterApplicationCatalog.bind(lowcodeApi.platform)

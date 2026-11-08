@@ -1,12 +1,12 @@
 /**
  * @module app:views/features/data-platform/shared/model/use-staged-design-page
- * 编辑器页共用：PageRuntime + 设计 file DataView（refresh/saveChanges），页面不直连 HTTP。
+ * 编辑器页共用：公共 PageRuntime 会话 + 设计 file DataView（refresh/saveChanges），页面不直连 HTTP。
  */
 import {computed, onBeforeUnmount, ref, shallowRef, watch, type ComputedRef} from 'vue'
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
-import {PageRuntime,type PageRuntimeOptions} from '@spark-appworks/spark-project-model'
+import type {PageRuntime, PageRuntimeOptions} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 
 export type StagedDesignPageConfig = Readonly<{
@@ -16,7 +16,7 @@ export type StagedDesignPageConfig = Readonly<{
   scopeInputTable: string
   scopeField: string
   designViewTable: string
-  /** 本次正式场景、输入和装配回调；唯一PageRuntime由本helper创建并释放。 */
+  /** 本次正式场景、输入和装配回调；唯一PageRuntime由公共会话创建并释放。 */
   runtimeOptions: (input: Readonly<{scenarioId: string; scopeId: string}>) => PageRuntimeOptions
   /** 输入注入后、读取设计前的必要领域查询，不预装配其它工作区。 */
   prepareRuntime?: (runtime: PageRuntime) => Promise<void>
@@ -27,6 +27,10 @@ export type StagedDesignPageConfig = Readonly<{
 
 export function useStagedDesignPage(config: StagedDesignPageConfig) {
   const {sparkProvide, sparkRemove} = useSparkComponent({type: config.pageId})
+  const runtimeSession = new NativePageRuntimeSession({
+    provide: () => undefined,
+    remove: () => sparkRemove(PAGE_RUNTIME),
+  })
   const runtime = shallowRef<PageRuntime>()
   const loading = ref(false), ready = ref(false), busy = ref(false), error = ref('')
   let generation = 0, active = true
@@ -102,18 +106,32 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
       if (busy.value) throw new Error('设计保存尚未完成，请返回原目标核验')
       if (loadedScenario.value !== scenario || !runtime.value || boundScope.value !== scope && !hasPending()) {
         if (hasPending()) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
-        sparkRemove(PAGE_RUNTIME); runtime.value?.dispose(); runtime.value = undefined
+        runtime.value = undefined
         loadedScenario.value = ''; boundScope.value = ''
-        const next = new PageRuntime({...config.runtimeOptions({scenarioId: scenario, scopeId: scope}), pageId: config.pageId})
+        runtimeSession.dispose()
+        const options = config.runtimeOptions({scenarioId: scenario, scopeId: scope})
+        let current: PageRuntime | undefined
         try {
-          await next.load()
-          if (!isCurrent(own)) {next.dispose(); return}
-          if (!next.getDataSet(scenario)) throw new Error('设计工作区缺少主空间')
-          await config.prepareRuntime?.(next)
-          if (!isCurrent(own)) {next.dispose(); return}
-        } catch (cause) {next.dispose(); throw cause}
-        runtime.value = next; loadedScenario.value = scenario
-        sparkProvide(PAGE_RUNTIME, next)
+          current = runtimeSession.acquire({
+            pageId: config.pageId,
+            scenarioIds: options.scenarioIds,
+            targetId: scope,
+            loadScenario: options.loadScenario,
+            ...(options.mainScenarioId === undefined ? {} : {mainScenarioId: options.mainScenarioId}),
+            ...(options.deferredScenarioIds === undefined ? {} : {deferredScenarioIds: options.deferredScenarioIds}),
+            ...(options.scenarioInputs === undefined ? {} : {scenarioInputs: options.scenarioInputs}),
+          })
+          await current.load()
+          if (!isCurrent(own) || !runtimeSession.isCurrent(current)) return
+          if (!current.getDataSet(scenario)) throw new Error('设计工作区缺少主空间')
+          await config.prepareRuntime?.(current)
+          if (!isCurrent(own) || !runtimeSession.isCurrent(current)) return
+        } catch (cause) {
+          if (current && runtimeSession.isCurrent(current)) runtimeSession.dispose()
+          throw cause
+        }
+        runtime.value = current; loadedScenario.value = scenario
+        sparkProvide(PAGE_RUNTIME, current)
       }
       if (hasPending()) {
         if (boundScope.value !== scope) throw new Error('原设计仍有未保存修改或待核验提交，请返回原目标处理')
@@ -135,7 +153,7 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
 
   onBeforeUnmount(() => {
     active = false; generation++
-    sparkRemove(PAGE_RUNTIME); runtime.value?.dispose()
+    runtime.value = undefined; runtimeSession.dispose()
   })
 
   async function saveChanges(options: Readonly<{viewKey?: string; ids?: ReadonlyArray<string | number>}> = {}): Promise<void> {

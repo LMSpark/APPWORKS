@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {computed, defineComponent, h, ref} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
@@ -10,7 +12,10 @@ import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/u
 
 const wrappers: Array<ReturnType<typeof mount>> = []
 const host = vi.hoisted(() => ({dirty: [] as Array<{readonly isDirty: boolean}>}))
-vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {readonly isDirty: boolean}) => host.dirty.push(source)}))
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession, useSystemPageDirtySource: (source: {readonly isDirty: boolean}) => host.dirty.push(source)}
+})
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount())})
 async function setup(options: {companion?: boolean;pendingIntent?:()=>boolean} = {}) {
   const scope = ref('A'), writes = vi.fn(), reads = vi.fn(async (id: string) => ({rowid: id, targetId: id, designJson: '[]'}))
@@ -53,6 +58,13 @@ async function setup(options: {companion?: boolean;pendingIntent?:()=>boolean} =
 }
 
 describe('staged design current target', () => {
+  it('creates the design runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/shared/model/use-staged-design-page.ts'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('runtimeSession.isCurrent(current)')
+    expect(source).toContain('targetId: scope')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('retains a clean original runtime while a domain publication is still unresolved',async()=>{
     const pending=ref(false),{scope,page,dataSet,reads}=await setup({pendingIntent:()=>pending.value}),original=page.runtime.value
     expect(original?.isDirty).toBe(false);pending.value=true

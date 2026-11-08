@@ -11,7 +11,10 @@ import {buildFormalModels} from '../catalog/structured-config-catalog.fixture'
 import {LogicViewHttp,configureLogicFixture} from './logic-view.fixture'
 
 const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),createGateways:vi.fn()}))
-vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: () => undefined}))
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession, useSystemPageDirtySource: () => undefined}
+})
 let http: LogicViewHttp, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
   Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser'],

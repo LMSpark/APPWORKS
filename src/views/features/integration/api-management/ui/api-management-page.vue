@@ -23,9 +23,8 @@ AI用途：目录选择经查询级联驱动definition视图，新建使用空�
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererForm, RendererDialog, RendererButton, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
@@ -35,10 +34,14 @@ import ApiInterfaceListPage from './api-interface-list-page.vue'
 type EditView = 'definition' | 'create'
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-management-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const ready = ref(false), loading = ref(true), error = ref(''), editorError = ref(''), busy = ref(false), revision = ref(0)
 const editing = ref<EditView | ''>('')
 const configProviderId = ref(''), interfaceProviderId = ref('')
-let dataSet: DataSet | undefined, runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
+let dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
 const key = (viewId: string, table = 'Base_InterfaceProvider') => buildDataViewKey(table, viewId, scenarioId.value)
@@ -111,20 +114,20 @@ watch([scenarioId, projectId], async ([scenario, project]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''; editing.value = ''; busy.value = false
   configProviderId.value = ''; interfaceProviderId.value = ''
-  unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
+  unsubscribe?.(); dataSet = undefined; session.dispose()
   try {
-    const current = new PageRuntime({pageId: 'api-management-page', scenarioIds: [scenario],
+    const current = session.acquire({pageId: 'api-management-page', scenarioIds: [scenario], targetId: `${project}:${scenario}`,
       loadScenario: id => loadLowcodeRuntimeScenario({projectId: project, scenarioId: id})})
-    runtime = current; await current.load()
-    if (!active || own !== generation) {current.dispose(); return}
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     dataSet = current.getDataSet(scenario)!
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: changed, currentRowChanged: changed, rowsChanged: changed, editingChanged: changed,
       editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
     dataSet.triggerAutoLoad()
-    sparkProvide(PAGE_RUNTIME, current); ready.value = true
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
 function changed(): void {revision.value++}
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>

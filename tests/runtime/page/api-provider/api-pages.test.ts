@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
@@ -74,6 +76,13 @@ async function bindingFixture(parameterPatch:Record<string,unknown>={}){
 }
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it('hosts the external API catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-management-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).toContain('loadLowcodeRuntimeScenario({projectId: project, scenarioId: id})')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('cancels cross-interface parameter rebinding without writing or changing the original row',async()=>{
     const f=await bindingFixture();expect(f.wrapper.findAllComponents(RendererForm).some(form=>form.props('contextRowId')==='Q3')).toBe(true)
     await f.click('取消参数重绑')

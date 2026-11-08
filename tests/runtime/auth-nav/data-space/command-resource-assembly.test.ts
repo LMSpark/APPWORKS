@@ -11,7 +11,7 @@ const config=()=>new ScenarioViewConfig('SPACE',JSON.stringify({scenarioId:'SPAC
 function fixture(){const http=new NoNetwork(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})});return new LowcodeDataSpaceAssembler(runtime,http)}
 function options(resourceId='test-command'){
  const submit=vi.fn(async(row:DataRow)=>({...row,receipt:'accepted'})),verify=vi.fn(async(_row:DataRow):Promise<DataRow|undefined>=>undefined)
- return{resource:{resourceType:'command',resourceId},inputFields:['key'],guard:()=>undefined,createKey:()=> 'cmd1',submit,verify}
+ return{resource:{resourceType:'command' as const,resourceId},inputFields:['key'],guard:()=>undefined,createKey:()=> 'cmd1',submit,verify}
 }
 it('requires an exact command binding rather than a backend model or file owner',()=>{
  expect(()=>fixture().assemble({config:config(),space:{dataSpaceId:'SPACE',name:'Commands'},models:[],relations:[]})).toThrow('SCENARIO_COMMAND_BINDING')

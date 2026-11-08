@@ -107,7 +107,7 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
   }
   const prepare = (view: SparkData.DataView, kind: CatalogResultKind): SparkData.DataSetReadonlyCommandBinding =>
     SparkData.prepareDataSetReadonlyCommandQuery(view, {
-      resource: {resourceType: 'file', resourceId: catalogResultResources[kind]},
+      resource: {resourceType: 'service-query', resourceId: catalogResultResources[kind]},
       guard: () => {assertScope(); assertCatalogInput(dataSet, requireInput())},
       captureQueryInputs: () => {
         const identity = requireInput(), row = identity.table.rows[0], field = kind === 'databases' ? 'serverId' : 'dbId'
@@ -132,8 +132,8 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
     })
   const plans = descriptors.map(descriptor => {
     if (!dataSet.getTable(descriptor.name)) return {...descriptor, view: undefined, binding: undefined}
-    const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName: descriptor.name,
-      resourceId: catalogResultResources[descriptor.kind], columns: catalogResultColumns(descriptor.kind)})
+    const view = SparkData.ensureDataSetResourceView({dataSet, tableName: descriptor.name,
+      resource: {resourceType: 'service-query', resourceId: catalogResultResources[descriptor.kind]}, columns: catalogResultColumns(descriptor.kind)})
     if (view.primaryKey !== 'name') throw new Error('CATALOG_COMMAND_RESULT_IDENTITY: 目录命令结果必须以 name 为主键')
     const original = catalogResultBindings.get(view)
     if (original !== undefined) {
@@ -157,8 +157,8 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
     catalogInputInstances.set(identity.table, identity.view)
   }
   for (const plan of plans) {
-    const view = plan.view ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: plan.name,
-      resourceId: catalogResultResources[plan.kind], columns: catalogResultColumns(plan.kind)})
+    const view = plan.view ?? SparkData.ensureDataSetResourceView({dataSet, tableName: plan.name,
+      resource: {resourceType: 'service-query', resourceId: catalogResultResources[plan.kind]}, columns: catalogResultColumns(plan.kind)})
     const binding = plan.binding ?? prepare(view, plan.kind)
     if (!catalogResultBindings.has(view)) view.queryConfig = {...view.queryConfig, pagination: view.queryConfig.pagination ?? 'none'}
     binding.bind()
@@ -308,7 +308,7 @@ export function attachServerRegisterView(input: AttachServerRegisterViewInput): 
   if (revalidateDatabaseCommandBinding(view)) return
   const fields = options.columns.filter(column => !column.isPrimaryKey).map(column => column.name)
   const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
-    resource: {resourceType: 'file', resourceId: 'database-server-register'},
+    resource: {resourceType: 'command', resourceId: 'database-server-register'},
     guard: assertScope,
     inputFields: fields,
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
@@ -373,7 +373,7 @@ export function attachTableRegisterCommandView(input: AttachTableRegisterCommand
   if (revalidateDatabaseCommandBinding(view)) return
   const defaultFieldsAcknowledged = new Map<string, Readonly<{dbid: string; tableName: string}>>()
   const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
-    resource: {resourceType: 'file', resourceId: 'database-table-register'},
+    resource: {resourceType: 'command', resourceId: 'database-table-register'},
     guard: assertScope,
     inputFields: ['dbid', 'tableName', 'tableComment', 'addDefaultFields', 'batchKey', 'registrationDisposition', 'registrationStatus'],
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
@@ -446,7 +446,7 @@ export function attachViewRegisterCommandView(input: AttachViewRegisterCommandVi
   ]})
   if (revalidateDatabaseCommandBinding(view)) return
   const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
-    resource: {resourceType: 'file', resourceId: 'database-view-register'},
+    resource: {resourceType: 'command', resourceId: 'database-view-register'},
     guard: assertScope,
     inputFields: ['dbid', 'viewName', 'viewComment', 'batchKey', 'registrationDisposition', 'registrationStatus'],
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
@@ -494,7 +494,7 @@ function ensureDatabaseWriteCommandView(input: Readonly<{
   if (primaryColumns.length !== 1 || primaryColumns[0]?.name !== 'rowid' || primaryColumns[0].type !== 'string') {
     throw new Error('DATABASE_COMMAND_PRIMARY_KEY_CONFLICT: 数据库写命令声明必须包含唯一字符串主键 rowid')
   }
-  const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName, resourceId,
+  const view = SparkData.ensureDataSetResourceView({dataSet, tableName, resource: {resourceType: 'command', resourceId},
     columns: columns.map(({isPrimaryKey, ...column}) => ({...column, primary: isPrimaryKey === true}))})
   if (view.primaryKey !== 'rowid') throw new Error('DATABASE_COMMAND_PRIMARY_KEY_CONFLICT: 数据库写命令视图必须以 rowid 标识本次命令')
   return view
@@ -502,21 +502,12 @@ function ensureDatabaseWriteCommandView(input: Readonly<{
 
 export function attachTableSyncMetaDataView(input: AttachTableSyncMetaDataViewInput): void {
   const {dataSet, http, assertScope, sync} = input
-  if (!dataSet.getTable(sync)) {
-    const table = dataSet.addTable(sync, [
-      {name: 'rowid', type: 'string', isPrimaryKey: true, label: 'rowid'},
-      {name: 'dbid', type: 'string', label: '数据库'},
-      {name: 'tableid', type: 'string', label: '表'},
-    ])
-    table.resourceType = 'file'
-    table.resourceId = 'database-table-sync-metadata'
-  }
-  const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName: sync,
-    resourceId: 'database-table-sync-metadata', columns: [{name: 'rowid', primary: true}, {name: 'dbid'}, {name: 'tableid'}]})
+  const view = SparkData.ensureDataSetResourceView({dataSet, tableName: sync,
+    resource: {resourceType: 'command', resourceId: 'database-table-sync-metadata'}, columns: [{name: 'rowid', primary: true, label: 'rowid'}, {name: 'dbid', label: '数据库'}, {name: 'tableid', label: '表'}]})
   if (view.primaryKey !== 'rowid') throw new Error('DATABASE_SYNC_PRIMARY_KEY_CONFLICT: 同步命令视图必须以 rowid 标识本次命令')
   if (revalidateDatabaseCommandBinding(view)) return
   const assertBinding = SparkData.bindDataSetCommandSubmit(view, {
-    resource: {resourceType: 'file', resourceId: 'database-table-sync-metadata'},
+    resource: {resourceType: 'command', resourceId: 'database-table-sync-metadata'},
     guard: assertScope,
     inputFields: ['dbid', 'tableid'],
     createKey: () => crypto.randomUUID().replaceAll('-', '').toUpperCase(),
@@ -579,8 +570,8 @@ function inspectConnectionPair(options: Readonly<{
     const row = command.rows[0]
     if (command.rows.length > 1 || row && (typeof row['commandId'] !== 'string' || !row['commandId'].trim())) throw new Error('CONNECTION_PAIR_IDENTITY: 输入须为唯一有效命令行')
   }
-  const result = dataSet.getTable(tables.testResult) ? SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.testResult,
-    resourceId, columns: [{name: 'ok', primary: true}]}) : undefined
+  const result = dataSet.getTable(tables.testResult) ? SparkData.ensureDataSetResourceView({dataSet, tableName: tables.testResult,
+    resource: {resourceType: 'service-query', resourceId}, columns: [{name: 'ok', primary: true}]}) : undefined
   if (result && (result.destroyed || result.primaryKey !== 'ok')) throw new Error('CONNECTION_PAIR_IDENTITY: 结果视图已失效或主键错误')
   const original = (result ? connectionResults.get(result) : undefined) ?? (command ? connectionInputs.get(command) : undefined)
   if (original) {
@@ -599,8 +590,8 @@ function materializeConnectionPair(plan: ReturnType<typeof inspectConnectionPair
   SparkData.ensureDataSetStaticInputTable(dataSet, tables.commandInput, columns)
   const command = dataSet.getTable(tables.commandInput), commandView = dataSet.getView(tables.commandInput, 'default')
   if (!command || !commandView) throw new Error('连接测试输入装配失败')
-  const result = plan.result ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: tables.testResult,
-    resourceId, columns: [{name: 'ok', primary: true}]})
+  const result = plan.result ?? SparkData.ensureDataSetResourceView({dataSet, tableName: tables.testResult,
+    resource: {resourceType: 'service-query', resourceId}, columns: [{name: 'ok', primary: true}]})
   const resultTable = dataSet.getTable(tables.testResult)
   if (!resultTable) throw new Error('连接测试结果表缺失')
   if (!command.rows.length) command.addRows([Object.fromEntries(columns.map(column => [column.name, column.primary ? 'default' : '']))])
@@ -618,7 +609,7 @@ function assertConnectionPair(pair: ConnectionPair): void {
     || dataSet.getView(pair.inputName, 'default') !== pair.commandView || dataSet.getView(pair.resultName, 'default') !== pair.result
     || pair.commandView.primaryKey !== 'commandId' || pair.result.primaryKey !== 'ok') throw new Error('CONNECTION_PAIR_IDENTITY: 原连接测试实例已失效')
   SparkData.ensureDataSetStaticInputTable(dataSet, pair.inputName, pair.columns)
-  SparkData.ensureDataSetFileCommandView({dataSet, tableName: pair.resultName, resourceId: pair.resourceId, columns: [{name: 'ok', primary: true}]})
+  SparkData.ensureDataSetResourceView({dataSet, tableName: pair.resultName, resource: {resourceType: 'service-query', resourceId: pair.resourceId}, columns: [{name: 'ok', primary: true}]})
 }
 
 type ConnectionInputIdentity = Readonly<{row: DataRow; id: string}>
@@ -742,7 +733,7 @@ export function attachDatabaseDirectoryConnectionTestViews(input: AttachDatabase
   }
   const options: SparkData.BindReadonlyCommandQueryOptions = {
     derivedQueries: 'bound-view-only',
-    resource: {resourceType: 'file', resourceId: plan.resourceId},
+    resource: {resourceType: 'service-query', resourceId: plan.resourceId},
     guard: () => {try {assertDependencies()} catch (error) {clearSecrets(); throw error}},
     captureQueryInputs: () => {
       const captured = target, generation = targetGeneration, currentAttempt = ++attempt
@@ -820,7 +811,7 @@ export function attachServerConnectionTestViews(input: AttachServerConnectionTes
   const clearSecrets = (): void => {scrubbing = true; try {clearConnectionSecrets(requirePair())} finally {scrubbing = false}}
   const options: SparkData.BindReadonlyCommandQueryOptions = {
     derivedQueries: 'bound-view-only',
-    resource: {resourceType: 'file', resourceId: plan.resourceId}, guard: () => assertConnectionPair(requirePair()),
+    resource: {resourceType: 'service-query', resourceId: plan.resourceId}, guard: () => assertConnectionPair(requirePair()),
     captureQueryInputs: () => {
       const capturedRevision = revision, current = requirePair(), currentAttempt = ++attempt
       const identity = connectionInputIdentity(current)

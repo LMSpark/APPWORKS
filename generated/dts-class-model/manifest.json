@@ -9174,7 +9174,7 @@
         "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
         "packageName": "@spark-appworks/spark-data",
         "modulePath": "data-set-command/data-set-command-view",
-        "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static/file 命令表、只读 refresh 查询结果与写命令提交。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
+        "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static 输入和显式语义资源视图，统一只读查询与写命令提交。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "DataSetCommandColumnSpec",
@@ -9182,7 +9182,7 @@
           "DataSetCommandRowsLoader",
           "DataSetCommandResourceIdentity",
           "BindReadonlyCommandQueryOptions",
-          "EnsureDataSetFileCommandViewInput",
+          "EnsureDataSetResourceViewInput",
           "BindCommandSubmitOptions",
           "DataSetReadonlyCommandBinding"
         ]
@@ -11562,7 +11562,7 @@
         "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
         "packageName": "@spark-appworks/spark-lowcode-api",
         "modulePath": "realtime/ai-turn-resource",
-        "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/ai-turn-resource\n职责：把 V1 Agent 目录、创建轮次、轮次状态和取消命令装配为同一 DataSet 的语义 DataView。\n边界：HTTP 仅由 DataView query/save owner 调用；不提供审批、前端工具结果、候选解析或独立轮询状态。\nAI用途：需要将已配置 Agent 的轮次请求、状态查询和取消命令绑定到当前 DataSet 时使用。当前仅提供四个轮次 DataView；字典候选解析、预览和人工确认留给后续领域与页面接线。",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:realtime/ai-turn-resource\n职责：把 V1 Agent 目录、创建轮次、轮次状态和取消命令装配为同一 DataSet 的语义 DataView。\n边界：HTTP 仅由 DataView query/save owner 调用；不提供审批、前端工具结果、候选解析或独立轮询状态。\nAI用途：需要将已配置 Agent 的轮次请求、状态查询和取消命令绑定到当前 DataSet 时使用。提供四个轮次 DataView；候选解析、预览和确认由 AiDataEntrySession 领域与组件消费，不属于轮次 owner。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "AiTurnResource"
@@ -20908,7 +20908,7 @@
       "sourcePath": "packages/spark-ai/src/agent/tool-loop/function-call-recovery-enricher.ts",
       "file": "files/packages/spark-ai/src/agent/tool-loop/function-call-recovery-enricher.ts.json"
     },
-    "EnsureDataSetFileCommandViewInput": {
+    "EnsureDataSetResourceViewInput": {
       "sourcePath": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "file": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json"
     },

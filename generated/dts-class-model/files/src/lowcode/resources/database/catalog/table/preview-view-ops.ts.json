@@ -87,7 +87,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-07T23:29:38.458Z",
+  "generatedAt": "2026-11-08T01:20:14.568Z",
   "models": {
     "DatabaseCatalogPreviewParams": {
       "name": "DatabaseCatalogPreviewParams",

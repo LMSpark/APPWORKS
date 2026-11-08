@@ -2,13 +2,20 @@
  * @module @spark-appworks/spark-lowcode-api:realtime/ai-turn-resource
  * 职责：把 V1 Agent 目录、创建轮次、轮次状态和取消命令装配为同一 DataSet 的语义 DataView。
  * 边界：HTTP 仅由 DataView query/save owner 调用；不提供审批、前端工具结果、候选解析或独立轮询状态。
- * AI用途：需要将已配置 Agent 的轮次请求、状态查询和取消命令绑定到当前 DataSet 时使用。当前仅提供四个轮次 DataView；字典候选解析、预览和人工确认留给后续领域与页面接线。
+ * AI用途：需要将已配置 Agent 的轮次请求、状态查询和取消命令绑定到当前 DataSet 时使用。提供四个轮次 DataView；候选解析、预览和确认由 AiDataEntrySession 领域与组件消费，不属于轮次 owner。
  */
-import {bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, type DataColumn, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView, type DataColumn, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
 
 import {LowcodeApiError} from '../core/lowcode-api-error.js'
 import {LowcodeClient} from '../core/lowcode-client.js'
+
+const TURN_RESOURCES = {
+  AiTurnAgents: {resourceType: 'service-query', resourceId: 'ai-turn:AiTurnAgents'},
+  AiTurnRequest: {resourceType: 'command', resourceId: 'ai-turn:AiTurnRequest'},
+  AiTurnStatus: {resourceType: 'service-query', resourceId: 'ai-turn:AiTurnStatus'},
+  AiTurnCancel: {resourceType: 'command', resourceId: 'ai-turn:AiTurnCancel'},
+} as const
 
 const TURN_STATUSES = ['WAITING_ATTACHMENT', 'QUEUED', 'RUNNING', 'WAITING_APPROVAL', 'WAITING_CLIENT_TOOL', 'CANCELLING', 'COMPLETED', 'FAILED', 'CANCELLED'] as const
 type TurnStatus = typeof TURN_STATUSES[number]
@@ -176,17 +183,17 @@ export class AiTurnResource {
     this.cancellations = cancellations
 
     bindDataSetReadonlyCommandQuery(agents, {
-      resource: this.resourceIdentity('AiTurnAgents'), guard: () => this.assertScope(),
+      resource: TURN_RESOURCES.AiTurnAgents, guard: () => this.assertScope(),
       loadRows: async () => this.readAgents(),
     })
     bindDataSetCommandSubmit(requests, {
-      resource: this.resourceIdentity('AiTurnRequest'), guard: () => this.assertScope(),
+      resource: TURN_RESOURCES.AiTurnRequest, guard: () => this.assertScope(),
       inputFields: ['agentId', 'message', 'conversationId'], createKey: () => crypto.randomUUID(),
       submit: row => this.submitRequest(row), verify: row => this.verifyRequest(row),
       isUnconfirmed: error => error instanceof AiTurnResultUnknownError,
     })
     bindDataSetReadonlyCommandQuery(turns, {
-      resource: this.resourceIdentity('AiTurnStatus'), guard: () => this.assertScope(),
+      resource: TURN_RESOURCES.AiTurnStatus, guard: () => this.assertScope(),
       captureQueryInputs: view => {
         const baseId = view.queryContext['turnId']
         return () => {if (view.queryContext['turnId'] !== baseId) throw new Error('AI轮次读取目标已改变')}
@@ -199,23 +206,17 @@ export class AiTurnResource {
       },
     })
     bindDataSetCommandSubmit(cancellations, {
-      resource: this.resourceIdentity('AiTurnCancel'), guard: () => this.assertScope(),
+      resource: TURN_RESOURCES.AiTurnCancel, guard: () => this.assertScope(),
       inputFields: ['turnId'], createKey: () => crypto.randomUUID(),
       submit: row => this.submitCancellation(row), verify: row => this.verifyCancellation(row),
       isUnconfirmed: error => error instanceof AiTurnResultUnknownError,
     })
   }
 
-  private createView(tableName: string, columns: DataColumn[]): DataView {
-    const table = this.#dataSet.addTable(tableName, columns)
-    table.resourceType = 'file'
-    table.resourceId = `ai-turn:${tableName}`
-    const view = this.#dataSet.getView(tableName, 'default')
-    if (!view) throw new Error(`AI轮次资源视图缺失: ${tableName}`)
-    return view
+  private createView(tableName: keyof typeof TURN_RESOURCES, columns: DataColumn[]): DataView {
+    return ensureDataSetResourceView({dataSet: this.#dataSet, tableName, resource: TURN_RESOURCES[tableName],
+      columns: columns.map(({isPrimaryKey, ...column}) => ({...column, primary: isPrimaryKey === true}))})
   }
-
-  private resourceIdentity(resourceId: string) { return {resourceType: 'file' as const, resourceId: `ai-turn:${resourceId}`} }
 
   private assertScope(): void {
     this.#guard()

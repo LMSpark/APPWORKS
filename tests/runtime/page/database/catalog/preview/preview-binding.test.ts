@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {DataSet, ensureDataSetFileCommandView, ensureDataSetStaticInputTable, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, type DataView} from '@spark-appworks/spark-data'
 import * as preview from '@/lowcode/resources/database/catalog/table/preview-view-ops'
 import {DatabaseTableViewHttp} from '../table-view.fixture'
 
@@ -26,9 +26,9 @@ afterEach(() => {sets.splice(0).forEach(ds => ds.destroy()); vi.restoreAllMocks(
 describe.each(['table', 'view'] as const)('%s preview binding', kind => {
   it.each(['foreign-owner', 'wrong-resource', 'destroyed-result', 'result-key'] as const)('rejects %s before occupying input', conflict => {
     const {dataSet, inputName, resultName, resourceId, attach, http} = setup(kind)
-    const result = ensureDataSetFileCommandView({dataSet, tableName: resultName, resourceId: conflict === 'wrong-resource' ? 'foreign' : resourceId,
+    const result = ensureDataSetResourceView({dataSet, tableName: resultName, resource: {resourceType: 'service-query', resourceId: conflict === 'wrong-resource' ? 'foreign' : resourceId},
       columns: [{name: 'rowid', primary: true}]})
-    if (conflict === 'foreign-owner') result.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))}, {resource: {resourceType: 'file', resourceId}})
+    if (conflict === 'foreign-owner') result.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))}, {resource: {resourceType: 'service-query', resourceId}})
     if (conflict === 'destroyed-result') result.destroy()
     if (conflict === 'result-key') result.primaryKey = 'wrong'
     expect(() => attach()).toThrow()
@@ -48,7 +48,7 @@ describe.each(['table', 'view'] as const)('%s preview binding', kind => {
 
   it('binds a matching unbound result and queries exactly the requested service page once', async () => {
     const {dataSet, inputName, resultName, resourceId, http, attach, refresh} = setup(kind)
-    const view = ensureDataSetFileCommandView({dataSet, tableName: resultName, resourceId, columns: [{name: 'rowid', primary: true}]})
+    const view = ensureDataSetResourceView({dataSet, tableName: resultName, resource: {resourceType: 'service-query', resourceId}, columns: [{name: 'rowid', primary: true}]})
     attach()
     await refresh(view)
     expect(http.requests.map(request => request.url)).toEqual(['/api/DataOperation/GetData'])

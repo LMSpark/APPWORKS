@@ -41,7 +41,7 @@ describe.each(['server', 'table', 'view'] as const)('%s registration attachment'
     const {dataSet, http, attach} = setup(kind)
     const view = dataSet.getView('register')!, table = dataSet.getTable('register')!, mode = view.commitMode
     view.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))},
-      {resource: {resourceType: 'file', resourceId: table.resourceId!}})
+      {resource: {resourceType: 'command', resourceId: table.resourceId!}})
     expect(attach).toThrow('DATA_VIEW_QUERY_IDENTITY')
     expect(view.commitMode).toBe(mode)
     expect(http.requests).toHaveLength(0)
@@ -68,7 +68,7 @@ describe.each(['server', 'table', 'view'] as const)('%s registration attachment'
   it('rejects a missing default without recreating it', () => {
     const {dataSet, http, attach} = setup(kind)
     dataSet.getTable('register')!.destroyView('default')
-    expect(attach).toThrow('命令视图缺失')
+    expect(attach).toThrow('资源视图缺失')
     expect(dataSet.getView('register')).toBeUndefined()
     expect(http.requests).toHaveLength(0)
   })

@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {DataSet, ensureDataSetFileCommandView, ensureDataSetStaticInputTable} from '@spark-appworks/spark-data'
+import {DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, getOrCreateFileResourceView} from '@spark-appworks/spark-data'
 import {attachCatalogCommandViews} from '@/lowcode/resources/database/dataset-extensions'
 import {DatabaseTableViewHttp} from './catalog/table-view.fixture'
 
@@ -155,7 +155,7 @@ describe('catalog group binding preflight', () => {
 
   it('rejects an obsolete name-only table declaration instead of silently upgrading it', () => {
     const {dataSet, http, attach} = setup()
-    ensureDataSetFileCommandView({dataSet, tableName: 'tables', resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}]})
+    ensureDataSetResourceView({dataSet, tableName: 'tables', resource: {resourceType: 'service-query', resourceId: 'database-unregistered-tables'}, columns: [{name: 'name', primary: true}]})
     expect(attach).toThrow('DATA_SET_COMMAND_COLUMNS_CONFLICT')
     expect(dataSet.getTable('input')).toBeUndefined()
     expect(dataSet.getTable('tables')!.columns.some(column => column.name === 'tableComment')).toBe(false)
@@ -177,16 +177,40 @@ describe('catalog group binding preflight', () => {
     })
   })
 
+  it('does not let a service directory acquire a second file owner under the same resource ID', async () => {
+    const {dataSet, http, attach} = setup()
+    attach()
+    dataSet.getTable('input')!.rows[0]!['dbId'] = 'DB1'
+    http.unregisteredByDb['DB1'] = ['Raw']
+    const table = dataSet.getTable('tables')!, originalViews = [...table.viewList]
+    const read = vi.fn(async () => ({text: 'wrong file source', revision: null})), write = vi.fn(async () => {})
+    let rejection: unknown
+    try {
+      const file = getOrCreateFileResourceView({dataSet, tableName: 'tables', viewId: 'file-bypass', columns: table.columns,
+        resourceId: 'database-unregistered-tables', contentField: 'tableComment', target: () => ({key: 'not-a-file', fields: {}}),
+        transport: {read, write, isUnknown: () => false}})
+      await file.refresh()
+    } catch (error) { rejection = error }
+    expect(read).not.toHaveBeenCalled()
+    expect(write).not.toHaveBeenCalled()
+    expect(rejection).toHaveProperty('message', expect.stringContaining('FILE_RESOURCE_IDENTITY'))
+    expect(table.viewList).toEqual(originalViews)
+    await dataSet.getView('tables')!.refresh()
+    expect(dataSet.getView('tables')!.loadingError).toBeNull()
+    expect(dataSet.getView('tables')!.rows[0]?.['name']).toBe('Raw')
+    expect(http.requests.map(request => request.url)).toEqual(['/api/Db/getUnregisteredTable/DB1'])
+  })
+
   it('rejects a foreign last result before creating input or binding the first result', () => {
     const {dataSet, http, attach} = setup()
-    const first = ensureDataSetFileCommandView({dataSet, tableName: 'tables', resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}, {name: 'tableComment'}, {name: 'hasDefaultFields', type: 'int'}]})
-    const last = ensureDataSetFileCommandView({dataSet, tableName: 'views', resourceId: 'database-unregistered-views', columns: [{name: 'name', primary: true}, {name: 'viewComment'}]})
+    const first = ensureDataSetResourceView({dataSet, tableName: 'tables', resource: {resourceType: 'service-query', resourceId: 'database-unregistered-tables'}, columns: [{name: 'name', primary: true}, {name: 'tableComment'}, {name: 'hasDefaultFields', type: 'int'}]})
+    const last = ensureDataSetResourceView({dataSet, tableName: 'views', resource: {resourceType: 'service-query', resourceId: 'database-unregistered-views'}, columns: [{name: 'name', primary: true}, {name: 'viewComment'}]})
     last.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))},
-      {resource: {resourceType: 'file', resourceId: 'database-unregistered-views'}})
+      {resource: {resourceType: 'service-query', resourceId: 'database-unregistered-views'}})
     expect(attach).toThrow('DATA_VIEW_QUERY_IDENTITY')
     expect(dataSet.getTable('input')).toBeUndefined()
     expect(() => first.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('still unbound'))},
-      {resource: {resourceType: 'file', resourceId: 'database-unregistered-tables'}})).not.toThrow()
+      {resource: {resourceType: 'service-query', resourceId: 'database-unregistered-tables'}})).not.toThrow()
     expect(http.requests).toHaveLength(0)
   })
 

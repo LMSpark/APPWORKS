@@ -1,10 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **T** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AH** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
+
+> **AH当前恢复点：** 18类动态资源已按真实语义直接转换，旧File helper及导出已删除，不能再调用或复刻；真正文件资源仍用原文件适配。两项释放反例、第二file owner反例已修。正式ProjectToolCatalog持久投影及远端历史数据未转换；不得把动态声明调整冒作历史数据迁移完成。本批完整门禁与提交状态仅看末尾最终检查点，未冻结S1。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8213,3 +8215,20 @@ bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应
 另有正式持久ProjectToolCatalog声明file但实际blueprintTreeProjection派生，属独立一次性声明转换与owner选择：ScenarioViewConfig/runtime/assembler/ProjectToolResource/改名与view-design消费者均需按阶段边界一起评审，不能只改pagedata一行或用旧fileExecutors接logical-view兼容。仓内4个正式command声明已走commandBindings不迁；远端存量/该持久投影转换均待实际证据，不把动态18类分类当历史转换完成。下一先真实runtime反例与统一descriptor，不跨层补丁。
 
 **AG已提交推送并独立核实。**代码d2f7ebacde6d63236548a66f803001d5ac7fffe6（fix(database): decode formal unregistered directory records），21文件262增106删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。本事实补记docs跟随同步。恢复仍S1，按上述只读分类评审先建服务目录可误装file owner的真实反例，再统一显式语义descriptor、直接删旧helper/旧伪file声明，无兼容层；正式持久投影/远端存量另核，20包目标active，数据合同未整体冻结。
+
+
+**AH运行时资源语义集中批（S1，未冻结）。**主控真实catalog目录反例RED：同ID/name主键/tableComment正文可由getOrCreateFileResourceView创建file-bypass并实际调用file read；非仅断言标签。随后新helper直接替换旧ensureDataSetFileCommandView/EnsureDataSetFileCommandViewInput及根导出，不留别名/默认file；resource:{resourceType,resourceId}必传、非空且无边空白，保字段/PK/额外列/模型绑定冲突预检。AST仅机械转换调用声明后逐生产类别核：DB4写command，3目录/2probe/2preview service-query；AI request/cancel/config create command，3远端读service-query，候选logical-view。service-query为本仓运行时扩展来源标签，不是新后端协议、不自动支持正式场景模型。
+
+AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor，候选以同helper创建；输入仍static-data，真staged-design JSON保持file。Sync删除旧手工addTable及重复列定义。所有活动src/packages/tests旧helper符号查无，原证据烟测脚本亦无依赖；ClassModel待正式生成删除旧模型。既有typed primary列声明规则保留，无另起列/页面配置体系。
+
+写命令binder同步窄为command类型并运行前置检查（所有生产源已同步），主控真file误传binder1项实际RED后修复：guard/submit零调用，原view可正常绑定文件owner读取。新增显式4类/空及边空白type/同ID旧file不重标测试；目录second-file-owner反例修后0file I/O/0新view、原GET可用。首5文件144项GREEN，AI3文件98项此前通过；type/lint26441/96818待终态，未根验/提交，未实服写入。原组件json-tree未跟踪RED不动；组件仅更新既有AI测试的数据fixture适配新数据合同，无组件实现更改。正式4 command/pagedata/真实file/ProjectToolCatalog持久投影未混改，仓内无18动态ID不冒远端存量已转。
+
+**AH生命周期反例及末态评审。**高阶定位并主控实际2项RED：helper在destroyed DataSet复活占表名、返回已destroyed default。现查表/新增前拒已释放空间，返回前拒原释放视图，不自动重建；正式回归核Late未占名/原引用仍destroyed。5文件146项自然exit0；原file普通查询测试改为真实service-query语义，真实file幂等及文件owner测试保留。高阶末态只读复核18类生产映射、command限型及真实file链无剩余静态阻断，不冒测试/实服结果。包/下游扩大与官方生成门禁继续，S1未冻结。
+
+**AH扩大证据。**data24364最终57文件1292项/API77395最终44文件1474项均自然0；包type+lint66522及data→API实际build24250均自然0，编译包import核新helper存在/旧helper不存在，声明新必传resource输入。下游63043自然1：30文件610通过，注册3项仍断言旧命令视图缺失文案，非产品断链；已同步资源视图缺失并只重验该文件。官方ClassModel51506及lowcode生成自然0（611/218），删除旧helper/类型派生，其它组件产物仅编译符号ID连带变化不手改。verify79097在途。新实服目录/命令/AI请求未执行，旧独立只读/精确CRUD证据仅复用其未改真实DB路径，不冒本批服务分类的线上证明。
+
+**AH门禁校正。**注册单文件55717重验26项自然0，与前30文件610项覆盖合并613项（含数据库438项），不冒整批首次全绿。首根verify79097自然1仅正式command assembly测试options返回值推断resourceType为string，未满足新command字面量合同；在原测试工厂标明command as const，无运行兼容，单独assembly2项自然0。重新完整verify72004在途。源码与官方派生未再改，不重造测试或恢复旧宽类型。
+
+**AH最终检查点验收。**完整根verify72004自然exit0，类型/lint、ClassModel49项及正式规则全执行，保既有2模型警告/84薄页诊断，不冒整仓测试全绿。最终data1292/API1474；扩大消费者30文件610项+注册重验26项覆盖原31文件613项，另正式command装配2项；data/API包type+lint和实际build、编译导出检查、正式ClassModel/lowcode生成均自然0。高阶末态无剩余静态阻断。清理10份被末态替代的AH中间日志，另清首失败verify日志，保最终与消费者失败/重验配对证据；必要正式反例测试保留。唯一主worktree，无新增过程代码/总计划，原S2未跟踪RED不stage。准备只推origin同codex分支，不force/merge/部署，无新实服写入、Java/组件/页面/宿主实施。
+
+恢复仍S1：显式运行资源分类局部已收口，不再恢复旧File helper；正式ProjectToolCatalog持久投影的真实owner/合同转换及远端历史一次性转换仍需独立证据与阶段边界评审，不能只改JSON标签或接旧fileExecutor兼容。数据合同尚未整体冻结，原20包完整范围保留，不进入S2。

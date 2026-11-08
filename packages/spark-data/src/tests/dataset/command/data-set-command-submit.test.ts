@@ -1,16 +1,17 @@
 import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../../dataset'
 import type {DataRow} from '../../../types'
-import {bindDataSetCommandSubmit, ensureDataSetFileCommandView,type BindCommandSubmitOptions} from '../../../data-set-command/data-set-command-view'
+import {bindFileResourceAdapter} from '../../../query/file-resource-adapter'
+import {bindDataSetCommandSubmit, ensureDataSetResourceView,type BindCommandSubmitOptions} from '../../../data-set-command/data-set-command-view'
 
 class TransportFailure extends Error {}
 
 function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify'|'onPrepareInput'|'allowAbandonUnconfirmed'>> & {retainConfirmedOnRefresh?:boolean} = {}) {
   const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
-  const view = ensureDataSetFileCommandView({
+  const view = ensureDataSetResourceView({
     dataSet,
     tableName: 'Register',
-    resourceId: 'register',
+    resource: {resourceType: 'command', resourceId: 'register'},
     columns: [{name: 'rowid', primary: true}, {name: 'ServerName'}, {name: 'Password'}, {name: 'note'}],
   })
   const submit = vi.fn(overrides.submit ?? (async (row: DataRow) => ({rowid: row['rowid'], ServerName: row['ServerName']})))
@@ -19,7 +20,7 @@ function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify
   let next = 0
   const binding = vi.spyOn(view, 'bindQueryExecutor')
   const options: BindCommandSubmitOptions = {
-    resource: {resourceType: 'file', resourceId: 'register'},
+    resource: {resourceType: 'command', resourceId: 'register'},
     guard,
     inputFields: ['ServerName', 'Password'],
     createKey: () => `K${++next}`,
@@ -50,6 +51,26 @@ async function addInput(view: ReturnType<typeof setup>['view'], values: Record<s
 }
 
 describe('DataSet command submit helper', () => {
+  it('rejects a file document passed to the command binder without occupying its real file owner', async () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    try {
+      const view = ensureDataSetResourceView({dataSet, tableName: 'Document', resource: {resourceType: 'file', resourceId: 'document'},
+        columns: [{name: 'fileKey', primary: true}, {name: 'text'}]})
+      const guard = vi.fn(), submit = vi.fn(async (row: DataRow) => row), verify = vi.fn(async () => undefined)
+      expect(() => Reflect.apply(bindDataSetCommandSubmit, undefined, [view, {resource: {resourceType: 'file', resourceId: 'document'},
+        guard, inputFields: ['text'], createKey: () => 'command', submit, verify}])).toThrow('DATA_SET_COMMAND_RESOURCE_TYPE')
+      expect(guard).not.toHaveBeenCalled()
+      expect(submit).not.toHaveBeenCalled()
+      const read = vi.fn(async () => ({text: 'actual document', revision: null}))
+      bindFileResourceAdapter(view, {resourceId: 'document', contentField: 'text', target: () => ({key: 'document', fields: {}}),
+        transport: {read, write: async () => {}, isUnknown: () => false}})
+      await view.refresh()
+      expect(view.loadingError).toBeNull()
+      expect(view.rows[0]?.['text']).toBe('actual document')
+      expect(read).toHaveBeenCalledOnce()
+    } finally {dataSet.destroy()}
+  })
+
   it('calls the acceptance notification with its original executor receiver', async () => {
     const f = setup()
     const original = f.executor.acknowledgeSave!

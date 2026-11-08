@@ -13,7 +13,7 @@ function setup(existing = false) {
   sets.push(dataSet)
   if (existing) {
     const table = dataSet.addTable('sync', structuredClone(columns))
-    table.resourceType = 'file'
+    table.resourceType = 'command'
     table.resourceId = 'database-table-sync-metadata'
   }
   const http = new DatabaseTableViewHttp()
@@ -25,7 +25,7 @@ afterEach(() => sets.splice(0).forEach(ds => ds.destroy()))
 describe('actual metadata sync attachment', () => {
   it('rejects a formal model masquerading as the same command resource', () => {
     const dataSet = DataSet.fromJson({dataSetName: 'formal-model', scenarioId: 'SYNC-ATTACH', tables: {sync: {
-      tableName: 'sync', columns: structuredClone(columns), resourceType: 'file', resourceId: 'database-table-sync-metadata',
+      tableName: 'sync', columns: structuredClone(columns), resourceType: 'command', resourceId: 'database-table-sync-metadata',
       modelBinding: {modelId: 'M1', modelName: '正式模型'},
       views: {default: {tableName: 'sync', viewId: 'default', rows: [], page: 1, pageSize: 20}},
     }}})
@@ -39,7 +39,7 @@ describe('actual metadata sync attachment', () => {
   it('rejects a missing default without silently recreating it', () => {
     const {dataSet, http, attach} = setup(true)
     dataSet.getTable('sync')!.destroyView('default')
-    expect(attach).toThrow('命令视图缺失')
+    expect(attach).toThrow('资源视图缺失')
     expect(dataSet.getView('sync')).toBeUndefined()
     expect(http.requests).toHaveLength(0)
   })
@@ -60,7 +60,7 @@ describe('actual metadata sync attachment', () => {
     const {dataSet, http, attach} = setup(true)
     const view = dataSet.getView('sync')!, mode = view.commitMode
     view.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign owner'))},
-      {resource: {resourceType: 'file', resourceId: 'database-table-sync-metadata'}})
+      {resource: {resourceType: 'command', resourceId: 'database-table-sync-metadata'}})
     expect(attach).toThrow('DATA_VIEW_QUERY_IDENTITY')
     expect(view.commitMode).toBe(mode)
     expect(http.requests).toHaveLength(0)

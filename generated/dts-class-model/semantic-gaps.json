@@ -1,5 +1,5 @@
 {
-  "gapCount": 3763,
+  "gapCount": 3762,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -6112,9 +6112,9 @@
     },
     {
       "kind": "model",
-      "className": "EnsureDataSetFileCommandViewInput",
+      "className": "EnsureDataSetResourceViewInput",
       "reason": "missing-jsdoc",
-      "chainBreak": "EnsureDataSetFileCommandViewInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "chainBreak": "EnsureDataSetResourceViewInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationLine": 30,
@@ -6123,10 +6123,10 @@
     },
     {
       "kind": "attribute",
-      "className": "EnsureDataSetFileCommandViewInput",
+      "className": "EnsureDataSetResourceViewInput",
       "memberName": "dataSet",
       "reason": "missing-jsdoc",
-      "chainBreak": "EnsureDataSetFileCommandViewInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "EnsureDataSetResourceViewInput.dataSet 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationLine": 31,
@@ -6135,10 +6135,10 @@
     },
     {
       "kind": "attribute",
-      "className": "EnsureDataSetFileCommandViewInput",
+      "className": "EnsureDataSetResourceViewInput",
       "memberName": "tableName",
       "reason": "missing-jsdoc",
-      "chainBreak": "EnsureDataSetFileCommandViewInput.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "EnsureDataSetResourceViewInput.tableName 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationLine": 32,
@@ -6147,25 +6147,13 @@
     },
     {
       "kind": "attribute",
-      "className": "EnsureDataSetFileCommandViewInput",
-      "memberName": "resourceId",
-      "reason": "missing-jsdoc",
-      "chainBreak": "EnsureDataSetFileCommandViewInput.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 33,
-      "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "EnsureDataSetFileCommandViewInput",
+      "className": "EnsureDataSetResourceViewInput",
       "memberName": "columns",
       "reason": "missing-jsdoc",
-      "chainBreak": "EnsureDataSetFileCommandViewInput.columns 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "chainBreak": "EnsureDataSetResourceViewInput.columns 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 34,
+      "declarationLine": 35,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6177,7 +6165,7 @@
       "chainBreak": "BindCommandSubmitOptions.resource 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 49,
+      "declarationLine": 50,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6189,7 +6177,7 @@
       "chainBreak": "BindCommandSubmitOptions.guard 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 50,
+      "declarationLine": 53,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6201,7 +6189,7 @@
       "chainBreak": "BindCommandSubmitOptions.inputFields 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 51,
+      "declarationLine": 54,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "interface"
     },
@@ -6213,7 +6201,7 @@
       "chainBreak": "BindCommandSubmitOptions.createKey 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 52,
+      "declarationLine": 55,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6225,7 +6213,7 @@
       "chainBreak": "BindCommandSubmitOptions.submit 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 55,
+      "declarationLine": 58,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6237,7 +6225,7 @@
       "chainBreak": "BindCommandSubmitOptions.verify 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 56,
+      "declarationLine": 59,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },
@@ -6249,7 +6237,7 @@
       "chainBreak": "BindCommandSubmitOptions.isUnconfirmed 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-data/src/data-set-command/data-set-command-view.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
-      "declarationLine": 57,
+      "declarationLine": 60,
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "declarationKind": "typeAlias"
     },

@@ -2,7 +2,7 @@ import {afterEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref, type Component} from 'vue'
 import ElementPlus, {ElTable, ElTableColumn} from 'element-plus'
-import {bindDataSetReadonlyCommandQuery, DataSet, ensureDataSetFileCommandView, ensureDataSetStaticInputTable, type DataView} from '@spark-appworks/spark-data'
+import {bindDataSetReadonlyCommandQuery, DataSet, ensureDataSetResourceView, ensureDataSetStaticInputTable, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime, PageTool} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, FieldText, RendererForm, RendererTable, Spark, registerAllRenderers, useSparkComponent, AI_DATA_ENTRY_HOST} from '@spark-appworks/spark-component'
 import type {PageRuntime as PageRuntimeType} from '@spark-appworks/spark-project-model'
@@ -66,10 +66,10 @@ async function createTarget(options: {autoRefresh?: boolean; blocksWorkspace?: b
   input.commitMode = 'staged'
   input.appendRow({inputKey: 'input', businessPrompt: ''})
   input.setCurrentRowById('input')
-  const candidates = ensureDataSetFileCommandView({dataSet, tableName: 'AiDataEntryCandidates', resourceId: 'candidate-fixture',
+  const candidates = ensureDataSetResourceView({dataSet, tableName: 'AiDataEntryCandidates', resource: {resourceType: 'logical-view', resourceId: 'candidate-fixture'},
     columns: [{name: 'candidateKey', primary: true}, ...targetView.columns.filter(column => column.allowAIAdd === true && !column.isPrimaryKey)
       .map(column => ({name: column.name, type: column.type, label: column.label ?? column.name}))]})
-  bindDataSetReadonlyCommandQuery(candidates, {resource: {resourceType: 'file', resourceId: 'candidate-fixture'}, guard: () => undefined,
+  bindDataSetReadonlyCommandQuery(candidates, {resource: {resourceType: 'logical-view', resourceId: 'candidate-fixture'}, guard: () => undefined,
     loadRows: async () => options.candidateRows ?? []})
   const turnTable = dataSet.addTable('AiEntryTurnFixture', [
     {name: 'turnId', type: 'string', isPrimaryKey: true}, {name: 'status', type: 'string'},

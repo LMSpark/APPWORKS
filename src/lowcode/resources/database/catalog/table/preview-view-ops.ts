@@ -275,7 +275,7 @@ function assertPreviewBinding(binding: PreviewBinding, target: SparkData.DataVie
     throw new Error('PREVIEW_BINDING_IDENTITY: 原预览输入或结果实例已失效')
   }
   SparkData.ensureDataSetStaticInputTable(dataSet, inputName, [{name: 'commandId', primary: true}, ...previewSpec(binding.kind).fields.map(name => ({name}))])
-  SparkData.ensureDataSetFileCommandView({dataSet, tableName: resultName, resourceId: binding.resourceId, columns: [{name: 'rowid', primary: true}]})
+  SparkData.ensureDataSetResourceView({dataSet, tableName: resultName, resource: {resourceType: 'service-query', resourceId: binding.resourceId}, columns: [{name: 'rowid', primary: true}]})
   binding.assertOwner(target)
 }
 
@@ -363,13 +363,13 @@ function attachPreview(options: Readonly<{dataSet: SparkData.DataSet; http: Http
     if (current?.destroyed !== false || current.primaryKey !== 'commandId' || existingInput.rows.length > 1
       || row && (typeof row['commandId'] !== 'string' || !row['commandId'].trim())) throw new Error('PREVIEW_BINDING_IDENTITY: 预览输入无效')
   }
-  const resource = {resourceType: 'file', resourceId: spec.resourceId}
+  const resource = {resourceType: 'service-query', resourceId: spec.resourceId}
   const executor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {
     localAggregates: false, queryColumns: target => target.dataTable?.columns ?? [],
     executeQuery: (target, params) => queryPreview({binding, target, http, params}),
   }
-  const existing = dataSet.getTable(spec.resultName) ? SparkData.ensureDataSetFileCommandView({dataSet, tableName: spec.resultName,
-    resourceId: spec.resourceId, columns: [{name: 'rowid', primary: true}]}) : undefined
+  const existing = dataSet.getTable(spec.resultName) ? SparkData.ensureDataSetResourceView({dataSet, tableName: spec.resultName,
+    resource: {resourceType: 'service-query', resourceId: spec.resourceId}, columns: [{name: 'rowid', primary: true}]}) : undefined
   if (existing) {
     if (existing.destroyed || existing.primaryKey !== 'rowid') throw new Error('PREVIEW_BINDING_IDENTITY: 预览结果定义无效')
     existing.assertCanBindQueryExecutor(executor, {resource})
@@ -377,8 +377,8 @@ function attachPreview(options: Readonly<{dataSet: SparkData.DataSet; http: Http
   SparkData.ensureDataSetStaticInputTable(dataSet, spec.inputName, columns)
   const inputTable = dataSet.getTable(spec.inputName), inputView = dataSet.getView(spec.inputName, 'default')
   if (!inputTable || !inputView) throw new Error('预览输入装配失败')
-  const view = existing ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: spec.resultName,
-    resourceId: spec.resourceId, columns: [{name: 'rowid', primary: true}]})
+  const view = existing ?? SparkData.ensureDataSetResourceView({dataSet, tableName: spec.resultName,
+    resource: {resourceType: 'service-query', resourceId: spec.resourceId}, columns: [{name: 'rowid', primary: true}]})
   const resultTable = dataSet.getTable(spec.resultName)
   if (!resultTable) throw new Error('预览结果装配失败')
   if (!inputTable.rows.length) inputTable.addRows([Object.fromEntries(columns.map(column => [column.name, column.name === 'commandId' ? 'default' : '']))])

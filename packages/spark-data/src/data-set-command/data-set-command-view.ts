@@ -1,6 +1,6 @@
 /**
  * @module @spark-appworks/spark-data:data-set-command-view
- * 职责：在运行 DataSet 上幂等装配 static/file 命令表、只读 refresh 查询结果与写命令提交。
+ * 职责：在运行 DataSet 上幂等装配 static 输入和显式语义资源视图，统一只读查询与写命令提交。
  * 边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。
  */
 import {DataViewLocalQuery} from '../query/data-view-local-query'
@@ -21,7 +21,7 @@ type QueryResult = Awaited<ReturnType<NonNullable<Parameters<DataView['bindQuery
 /** 返回当次输入的完整资源集合；分页和输出由公共查询链执行，不以已加载业务页冒全集。 */
 export type DataSetCommandRowsLoader = (view: DataView, params: Readonly<QueryParams>) => Promise<readonly DataRow[]>
 
-/** 真实命令资源身份；文件命令仍为file，服务命令声明自身语义类型，不伪造文件或后端模型。 */
+/** 真实资源身份；file仅用于文件，服务命令、查询及应用投影声明自身语义类型，不伪造文件或后端模型。 */
 export type DataSetCommandResourceIdentity = Readonly<{resourceType: string; resourceId: string}>
 
 export type BindReadonlyCommandQueryOptions = Readonly<{
@@ -95,29 +95,39 @@ export function ensureDataSetStaticInputTable(
   table.resourceType = 'static-data'
 }
 
-export type EnsureDataSetFileCommandViewInput = Readonly<{
+export type EnsureDataSetResourceViewInput = Readonly<{
   dataSet: DataSet
   tableName: string
-  resourceId: string
+  /** 运行时扩展类型不自动获得正式场景配置或后端协议支持。 */
+  resource: DataSetCommandResourceIdentity
   columns: readonly DataSetCommandColumnSpec[]
 }>
 
-/** 幂等创建 file 资源命令结果表并返回 default DataView。 */
-export function ensureDataSetFileCommandView(input: EnsureDataSetFileCommandViewInput): DataView {
-  if (!input.resourceId.trim()) throw new Error('DATA_SET_COMMAND_RESOURCE_ID: 命令资源身份不能为空')
+/** 按显式语义资源身份幂等创建结果表并返回 default DataView；不推断 file 或后端模型。 */
+export function ensureDataSetResourceView(input: EnsureDataSetResourceViewInput): DataView {
+  if (input.dataSet.destroyed) throw new Error('DATA_SET_RESOURCE_DESTROYED: 不能向已释放的数据空间注册资源')
+  const identity: unknown = input.resource
+  if (!isRecord(identity) || typeof identity['resourceType'] !== 'string' || typeof identity['resourceId'] !== 'string'
+    || !identity['resourceType'].trim() || identity['resourceType'] !== identity['resourceType'].trim()
+    || !identity['resourceId'].trim() || identity['resourceId'] !== identity['resourceId'].trim()) {
+    throw new Error('DATA_SET_RESOURCE_IDENTITY: 资源类型与身份必须为非空、无首尾空白的字符串')
+  }
+  const resource = {resourceType: identity['resourceType'], resourceId: identity['resourceId']}
   assertCommandColumns(input.columns)
   const table = input.dataSet.getTable(input.tableName)
   if (table) {
-    assertCommandTable(table, input.columns, {resourceType: 'file', resourceId: input.resourceId})
+    assertCommandTable(table, input.columns, resource)
     const existing = input.dataSet.getView(input.tableName, 'default')
-    if (!existing) throw new Error(`命令视图缺失: ${input.tableName}`)
+    if (!existing) throw new Error(`资源视图缺失: ${input.tableName}`)
+    if (existing.destroyed) throw new Error('DATA_SET_RESOURCE_VIEW_STALE: 原资源视图已释放')
     return existing
   }
   const created = input.dataSet.addTable(input.tableName, columnDefs(input.columns))
-  created.resourceType = 'file'
-  created.resourceId = input.resourceId
+  created.resourceType = resource.resourceType
+  created.resourceId = resource.resourceId
   const view = input.dataSet.getView(input.tableName, 'default')
-  if (!view) throw new Error(`命令视图缺失: ${input.tableName}`)
+  if (!view) throw new Error(`资源视图缺失: ${input.tableName}`)
+  if (view.destroyed) throw new Error('DATA_SET_RESOURCE_VIEW_STALE: 原资源视图已释放')
   return view
 }
 
@@ -185,7 +195,7 @@ type SaveReceipt = Awaited<ReturnType<NonNullable<QueryExecutor['save']>>>[numbe
  * verify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit
  */
 export type BindCommandSubmitOptions = Readonly<{
-  resource: DataSetCommandResourceIdentity
+  resource: DataSetCommandResourceIdentity & Readonly<{resourceType: 'command'}>
   guard: DataSetCommandScopeGuard
   inputFields: readonly string[]
   createKey: () => string
@@ -239,6 +249,10 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
   }
 }
 
+function assertCommandResource(resource: DataSetCommandResourceIdentity): void {
+  if (resource.resourceType !== 'command') throw new Error('DATA_SET_COMMAND_RESOURCE_TYPE: 写命令须显式声明 command 资源')
+}
+
 /**
  * 绑定写命令：首次refresh初始化本地结果后addRow录入参数，DataSet.saveChanges一次提交一行并接纳回执。
  * 后续refresh按retainConfirmedOnRefresh保留或清空本实例已确认回执，不派发命令。
@@ -247,6 +261,7 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
  * @returns 重复装配时校验本视图仍绑定原查询/保存责任方的同步函数；不刷新、不提交、不替换状态。
  */
 export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSubmitOptions): () => void {
+  assertCommandResource(options.resource)
   let confirmed: DataRow[] = []
   const pending = new WeakMap<object, DataRow>()
   const received = new WeakMap<object, DataRow>()

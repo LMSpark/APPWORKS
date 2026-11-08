@@ -4,7 +4,7 @@
  */
 import {
   dataSetCommandQueryResultFromLocalRows,
-  ensureDataSetFileCommandView,
+  ensureDataSetResourceView,
   ensureDataSetStaticInputTable,
   DataViewSaveNotAppliedError,
   type DataRow,
@@ -78,10 +78,10 @@ export function attachStagedDesignView(
     scopeTable.addRows([{[options.scopeField]: ''}])
   }
 
-  const editView = ensureDataSetFileCommandView({
+  const editView = ensureDataSetResourceView({
     dataSet,
     tableName: options.designViewTable,
-    resourceId: options.resourceId,
+    resource: {resourceType: 'file', resourceId: options.resourceId},
     columns: options.columns,
   })
   editView.commitMode = 'staged'

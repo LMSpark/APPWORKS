@@ -4,7 +4,7 @@
  * 边界：轮次命令沿同 DataSet 的 AiTurnResource/DataView 提交；确认只向原目标 DataView 暂存新增行，不保存业务数据，也不自建权限或字段真源。
  * AI用途：页面或标准组件需要创建、查询、停止并确认一批 AI 候选时，使用本会话公共合同；组件卸载只应 detach 订阅，不得销毁仍有待核验状态的 owner。
  */
-import {RequestState, bindDataSetReadonlyCommandQuery, ensureDataSetStaticInputTable,
+import {RequestState, bindDataSetReadonlyCommandQuery, ensureDataSetStaticInputTable, ensureDataSetResourceView,
   type DataColumn, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 
 import type {AiTurnResource} from '../ai-turn-resource.js'
@@ -173,6 +173,7 @@ export class AiDataEntrySession {
     ensureDataSetStaticInputTable(input.dataSet, INPUT_TABLE, [
       {name: inputKey, primary: true}, {name: 'businessPrompt'},
     ])
+    const candidateResource = {resourceType: 'logical-view', resourceId: `ai-data-entry-candidates:${input.dataSet.scenarioId ?? ''}:${input.targetView.tableName}:${input.targetView.viewId}`} as const
     try {
       const candidateColumns: DataColumn[] = [
         {name: this.#candidateKey, type: 'string', isPrimaryKey: true},
@@ -182,7 +183,8 @@ export class AiDataEntrySession {
           return candidateColumn(source)
         }),
       ]
-      input.dataSet.addTable(CANDIDATE_TABLE, candidateColumns)
+      ensureDataSetResourceView({dataSet: input.dataSet, tableName: CANDIDATE_TABLE, resource: candidateResource,
+        columns: candidateColumns.map(({isPrimaryKey, ...column}) => ({...column, primary: isPrimaryKey === true}))})
     } catch (error) {
       input.dataSet.removeTable(INPUT_TABLE)
       throw error
@@ -203,13 +205,8 @@ export class AiDataEntrySession {
     this.candidates = candidateView
     this.#candidateFields = deriveAiDataEntryFields(input.targetView).map(field => field.name)
 
-    const resourceId = `ai-data-entry-candidates:${input.dataSet.scenarioId ?? ''}:${input.targetView.tableName}:${input.targetView.viewId}`
-    const candidateTable = input.dataSet.getTable(CANDIDATE_TABLE)
-    if (candidateTable === undefined) throw new Error('AI录入候选DataTable装配失败')
-    candidateTable.resourceType = 'file'
-    candidateTable.resourceId = resourceId
     bindDataSetReadonlyCommandQuery(candidateView, {
-      resource: {resourceType: 'file', resourceId},
+      resource: candidateResource,
       guard: () => this.assertUsable(),
       loadRows: () => Promise.resolve(this.readCandidateRows()),
     })

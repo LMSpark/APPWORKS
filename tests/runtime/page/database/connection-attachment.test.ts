@@ -1,5 +1,5 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
-import {DataSet, dataSetCommandQueryResultFromLocalRows, ensureDataSetFileCommandView, ensureDataSetStaticInputTable} from '@spark-appworks/spark-data'
+import {DataSet, dataSetCommandQueryResultFromLocalRows, ensureDataSetResourceView, ensureDataSetStaticInputTable} from '@spark-appworks/spark-data'
 import {attachDatabaseDirectoryConnectionTestViews, attachServerConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
 import {DatabaseServerHttp} from './server/resource.fixture'
 
@@ -39,9 +39,9 @@ async function directoryTarget() {
 describe.each(['server', 'directory'] as const)('%s connection pair', kind => {
   it.each(['foreign-owner', 'wrong-resource'] as const)('rejects an existing %s before creating input', mismatch => {
     const {dataSet, http, attach, resourceId} = setup(kind)
-    const result = ensureDataSetFileCommandView({dataSet, tableName: 'result', resourceId: mismatch === 'wrong-resource' ? 'foreign' : resourceId,
+    const result = ensureDataSetResourceView({dataSet, tableName: 'result', resource: {resourceType: 'service-query', resourceId: mismatch === 'wrong-resource' ? 'foreign' : resourceId},
       columns: [{name: 'ok', primary: true}]})
-    if (mismatch === 'foreign-owner') result.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))}, {resource: {resourceType: 'file', resourceId}})
+    if (mismatch === 'foreign-owner') result.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))}, {resource: {resourceType: 'service-query', resourceId}})
     expect(() => attach()).toThrow()
     expect(dataSet.getTable('input')).toBeUndefined()
     expect(http.requests).toHaveLength(0)

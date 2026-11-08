@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-08T00:26:16.027Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.555Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2684,7 +2684,7 @@
     "packages/spark-data/src/index.ts": {
       "sourceFile": "packages/spark-data/src/index.ts",
       "shardFile": "files/packages/spark-data/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-07T22:05:49.016Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.556Z"
     },
     "packages/spark-data/src/metadata.ts": {
       "sourceFile": "packages/spark-data/src/metadata.ts",
@@ -3369,12 +3369,12 @@
     "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts.json",
-      "sourceModifiedAt": "2026-11-08T00:19:40.238Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.563Z"
     },
     "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json",
-      "sourceModifiedAt": "2026-11-08T00:19:40.239Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.564Z"
     },
     "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
@@ -3384,7 +3384,7 @@
     "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json",
-      "sourceModifiedAt": "2026-11-08T00:26:16.028Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.566Z"
     },
     "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
@@ -4054,7 +4054,7 @@
     "src/lowcode/resources/database/catalog/table/preview-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/preview-view-ops.ts",
       "shardFile": "files/src/lowcode/resources/database/catalog/table/preview-view-ops.ts.json",
-      "sourceModifiedAt": "2026-11-07T23:29:38.458Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.568Z"
     },
     "src/lowcode/resources/database/catalog/table/register-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/table/register-view-ops.ts",
@@ -4084,7 +4084,7 @@
     "src/lowcode/resources/database/dataset-extensions.ts": {
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "shardFile": "files/src/lowcode/resources/database/dataset-extensions.ts.json",
-      "sourceModifiedAt": "2026-11-08T00:48:33.956Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.570Z"
     },
     "src/lowcode/resources/database/directory.ts": {
       "sourceFile": "src/lowcode/resources/database/directory.ts",
@@ -4164,7 +4164,7 @@
     "src/lowcode/resources/repository/staged-design-file-view.ts": {
       "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "shardFile": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T20:38:59.160Z"
+      "sourceModifiedAt": "2026-11-08T01:20:14.571Z"
     },
     "src/lowcode/resources/semi-structured/excel-import/association-fields.ts": {
       "sourceFile": "src/lowcode/resources/semi-structured/excel-import/association-fields.ts",

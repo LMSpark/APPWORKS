@@ -4,18 +4,72 @@ import type {DataColumn} from '../../../types'
 import {
   bindDataSetReadonlyCommandQuery,
   dataSetCommandQueryResultFromLocalRows,
-  ensureDataSetFileCommandView,
+  ensureDataSetResourceView,
   ensureDataSetStaticInputTable,
 } from '../../../data-set-command/data-set-command-view'
 
 describe('DataSet command view helper', () => {
+  it.each(['file', 'command', 'service-query', 'logical-view'])('requires and retains an explicit semantic resource kind (%s)', resourceType => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    try {
+      const input = {dataSet, tableName: 'Semantic', resource: {resourceType, resourceId: 'resource'}, columns: [{name: 'id', primary: true}]}
+      const view = ensureDataSetResourceView(input)
+      expect(view.dataTable?.resourceType).toBe(resourceType)
+      expect(view.dataTable?.resourceId).toBe('resource')
+      expect(ensureDataSetResourceView(input)).toBe(view)
+    } finally {dataSet.destroy()}
+  })
+
+  it.each(['', '   ', ' service-query', 'service-query '])('rejects an invalid type before registering any view (%j)', resourceType => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    try {
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Invalid', resource: {resourceType, resourceId: 'resource'},
+        columns: [{name: 'id', primary: true}]})).toThrow('DATA_SET_RESOURCE_IDENTITY')
+      expect(dataSet.getTable('Invalid')).toBeUndefined()
+    } finally {dataSet.destroy()}
+  })
+
+  it.each(['command', 'service-query', 'logical-view'])('never relabels an existing file to %s with the same ID', resourceType => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    try {
+      const input = {dataSet, tableName: 'Existing', resource: {resourceType: 'file', resourceId: 'same'}, columns: [{name: 'id', primary: true}]}
+      const view = ensureDataSetResourceView(input), table = view.dataTable
+      expect(() => ensureDataSetResourceView({...input, resource: {resourceType, resourceId: 'same'}})).toThrow('DATA_SET_COMMAND_RESOURCE_CONFLICT')
+      expect(view.dataTable).toBe(table)
+      expect(table?.resourceType).toBe('file')
+      expect(table?.viewList).toEqual([view])
+    } finally {dataSet.destroy()}
+  })
+
+  it('rejects registration after DataSet release without reviving a default view', () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    dataSet.destroy()
+    try {
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Late', resource: {resourceType: 'service-query', resourceId: 'late'},
+        columns: [{name: 'id', primary: true}]})).toThrow('DATA_SET_RESOURCE_DESTROYED')
+      expect(dataSet.getTable('Late')).toBeUndefined()
+    } finally {dataSet.getTable('Late')?.destroy()}
+  })
+
+  it('rejects a released default instead of returning or replacing it', () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
+    try {
+      const input = {dataSet, tableName: 'Existing', resource: {resourceType: 'service-query', resourceId: 'existing'}, columns: [{name: 'id', primary: true}]}
+      const original = ensureDataSetResourceView(input)
+      original.destroy()
+      expect(() => ensureDataSetResourceView(input)).toThrow('DATA_SET_RESOURCE_VIEW_STALE')
+      expect(dataSet.getView('Existing')).toBe(original)
+      expect(original.destroyed).toBe(true)
+    } finally {dataSet.destroy()}
+  })
+
   it('uses only the command primary declaration when structural metadata contains isPrimaryKey', () => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     const columns: DataColumn[] = [{name: 'id', type: 'string', isPrimaryKey: true}]
     try {
-      const input = {dataSet, tableName: 'Typed', resourceId: 'typed', columns}
-      const view = ensureDataSetFileCommandView(input)
-      expect(() => ensureDataSetFileCommandView(input)).not.toThrow()
+      const input = {dataSet, tableName: 'Typed', resource: {resourceType: 'file', resourceId: 'typed'}, columns}
+      const view = ensureDataSetResourceView(input)
+      expect(() => ensureDataSetResourceView(input)).not.toThrow()
       expect(view.columns.find(column => column.name === 'id')?.isPrimaryKey).not.toBe(true)
     } finally {dataSet.destroy()}
   })
@@ -25,12 +79,12 @@ describe('DataSet command view helper', () => {
     const columns = [{name: 'id', primary: true}, {name: 'kind', type: 'enum', required: true,
       label: 'Kind', enumOptions: [{value: 'A', label: 'Option A'}]}]
     try {
-      const view = ensureDataSetFileCommandView({dataSet, tableName: 'Typed', resourceId: 'typed', columns})
+      const view = ensureDataSetResourceView({dataSet, tableName: 'Typed', resource: {resourceType: 'file', resourceId: 'typed'}, columns})
       expect(view.columns.find(column => column.name === 'kind')).toMatchObject({type: 'enum', required: true,
         label: 'Kind', enumOptions: [{value: 'A', label: 'Option A'}]})
-      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Typed', resourceId: 'typed', columns})).not.toThrow()
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Typed', resource: {resourceType: 'file', resourceId: 'typed'}, columns})).not.toThrow()
       dataSet.getTable('Typed')!.columns.find(column => column.name === 'kind')!.required = false
-      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Typed', resourceId: 'typed', columns}))
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Typed', resource: {resourceType: 'file', resourceId: 'typed'}, columns}))
         .toThrow('DATA_SET_COMMAND_COLUMNS_CONFLICT')
     } finally {dataSet.destroy()}
   })
@@ -38,8 +92,8 @@ describe('DataSet command view helper', () => {
   it.each(['', '   '])('rejects an empty file resource identity before registering a table: %j', resourceId => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     try {
-      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Invalid', resourceId,
-        columns: [{name: 'id', primary: true}]})).toThrow('DATA_SET_COMMAND_RESOURCE_ID')
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Invalid', resource: {resourceType: 'file', resourceId},
+        columns: [{name: 'id', primary: true}]})).toThrow('DATA_SET_RESOURCE_IDENTITY')
       expect(dataSet.getTable('Invalid')).toBeUndefined()
     } finally {dataSet.destroy()}
   })
@@ -49,7 +103,7 @@ describe('DataSet command view helper', () => {
     const columns = [{name: 'id', primary: true}, {name: 'id'}]
     try {
       expect(() => type === 'file'
-        ? ensureDataSetFileCommandView({dataSet, tableName: 'Invalid', resourceId: 'resource', columns})
+        ? ensureDataSetResourceView({dataSet, tableName: 'Invalid', resource: {resourceType: 'file', resourceId: 'resource'}, columns})
         : ensureDataSetStaticInputTable(dataSet, 'Invalid', columns)).toThrow('DATA_SET_COMMAND_COLUMNS_CONFLICT')
       expect(dataSet.getTable('Invalid')).toBeUndefined()
     } finally {dataSet.destroy()}
@@ -63,7 +117,7 @@ describe('DataSet command view helper', () => {
     }}})
     try {
       const ensure = () => resourceType === 'file'
-        ? ensureDataSetFileCommandView({dataSet, tableName: 'Formal', resourceId: 'document', columns: [{name: 'id', primary: true}]})
+        ? ensureDataSetResourceView({dataSet, tableName: 'Formal', resource: {resourceType: 'file', resourceId: 'document'}, columns: [{name: 'id', primary: true}]})
         : ensureDataSetStaticInputTable(dataSet, 'Formal', [{name: 'id', primary: true}])
       expect(ensure).toThrow('DATA_SET_COMMAND_RESOURCE_CONFLICT')
       expect(dataSet.getTable('Formal')?.modelBinding?.modelId).toBe('M')
@@ -94,7 +148,7 @@ describe('DataSet command view helper', () => {
     }}})
     const table = dataSet.getTable('Existing')!
     try {
-      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Existing', resourceId: 'expected',
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Existing', resource: {resourceType: 'file', resourceId: 'expected'},
         columns: [{name: 'id', primary: true}]})).toThrow('DATA_SET_COMMAND_RESOURCE_CONFLICT')
       expect(dataSet.getTable('Existing')).toBe(table)
       expect(table.resourceType).toBe(resource.resourceType)
@@ -119,9 +173,9 @@ describe('DataSet command view helper', () => {
   ])('rejects a missing required column or a different primary key: %j', column => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     try {
-      const view = ensureDataSetFileCommandView({dataSet, tableName: 'Existing', resourceId: 'document',
+      const view = ensureDataSetResourceView({dataSet, tableName: 'Existing', resource: {resourceType: 'file', resourceId: 'document'},
         columns: [{name: 'id', primary: true}, {name: 'value'}]})
-      expect(() => ensureDataSetFileCommandView({dataSet, tableName: 'Existing', resourceId: 'document',
+      expect(() => ensureDataSetResourceView({dataSet, tableName: 'Existing', resource: {resourceType: 'file', resourceId: 'document'},
         columns: [column]})).toThrow('DATA_SET_COMMAND_COLUMNS_CONFLICT')
       expect(dataSet.getView('Existing')).toBe(view)
     } finally {dataSet.destroy()}
@@ -167,15 +221,15 @@ describe('DataSet command view helper', () => {
     } finally {dataSet.destroy()}
   })
 
-  it('ensure static input and file command view then refresh readonly rows', async () => {
+  it('creates static input and a service query view then refreshes readonly rows', async () => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
     ensureDataSetStaticInputTable(dataSet, 'CmdInput', [{name: 'commandId', primary: true}, {name: 'value'}])
     const input = dataSet.getTable('CmdInput')!
     input.addRows([{commandId: 'default', value: 'x'}])
-    const resultView = ensureDataSetFileCommandView({dataSet, tableName: 'CmdResult', resourceId: 'cmd-result', columns: [{name: 'ok', primary: true}]})
+    const resultView = ensureDataSetResourceView({dataSet, tableName: 'CmdResult', resource: {resourceType: 'service-query', resourceId: 'cmd-result'}, columns: [{name: 'ok', primary: true}]})
     const guard = vi.fn()
     bindDataSetReadonlyCommandQuery(resultView, {
-      resource: {resourceType: 'file', resourceId: 'cmd-result'},
+      resource: {resourceType: 'service-query', resourceId: 'cmd-result'},
       guard,
       loadRows: async () => [{ok: 'yes'}],
     })
@@ -186,10 +240,10 @@ describe('DataSet command view helper', () => {
     expect(resultView.fieldAccess(resultView.rows[0]!, 'ok').write).toBe('denied')
   })
 
-  it('ensure file command view is idempotent', () => {
+  it('creates an explicit file resource view idempotently', () => {
     const dataSet = DataSet.fromJson({scenarioId: 'CMD', tables: {}})
-    const first = ensureDataSetFileCommandView({dataSet, tableName: 'Once', resourceId: 'once', columns: [{name: 'id', primary: true}]})
-    const second = ensureDataSetFileCommandView({dataSet, tableName: 'Once', resourceId: 'once', columns: [{name: 'id', primary: true}]})
+    const first = ensureDataSetResourceView({dataSet, tableName: 'Once', resource: {resourceType: 'file', resourceId: 'once'}, columns: [{name: 'id', primary: true}]})
+    const second = ensureDataSetResourceView({dataSet, tableName: 'Once', resource: {resourceType: 'file', resourceId: 'once'}, columns: [{name: 'id', primary: true}]})
     expect(first).toBe(second)
     expect(dataSet.getTable('Once')).toBeTruthy()
   })

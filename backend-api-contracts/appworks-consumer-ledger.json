@@ -1051,13 +1051,13 @@
     {
       "expression": "/api/ai-agent/create",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
-      "sourceLine": 251,
+      "sourceLine": 252,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai-agent/get",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
-      "sourceLine": 266,
+      "sourceLine": 267,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -1099,13 +1099,13 @@
     {
       "expression": "/api/ai/v1/agents",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
-      "sourceLine": 239,
+      "sourceLine": 240,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
-      "sourceLine": 263,
+      "sourceLine": 264,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -1297,7 +1297,7 @@
     {
       "expression": "/api/Db/testConnection",
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "sourceLine": 842,
+      "sourceLine": 833,
       "scope": "app-composition"
     },
     {

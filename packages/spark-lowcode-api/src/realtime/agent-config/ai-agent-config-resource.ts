@@ -5,7 +5,7 @@
  * AI用途：配置阶段通过创建命令提交专用Agent配置，再按正式回执ID读取核验；运行生成只消费配置好的Agent ID。
  */
 import {
-  bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery,
+  bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, ensureDataSetResourceView,
   type DataColumn, type DataRow, type DataSet, type DataView,
 } from '@spark-appworks/spark-data'
 import type {HttpClientBase} from '@spark-appworks/spark-utils'
@@ -49,6 +49,11 @@ type AgentConfigRequest = Readonly<{
 
 const AGENT_CREATE_TABLE = 'AiAgentConfigCreate'
 const AGENT_CONFIG_TABLE = 'AiAgentConfig'
+const AGENT_RESOURCES = {
+  create: {resourceType: 'command', resourceId: 'ai-agent-config:create'},
+  read: {resourceType: 'service-query', resourceId: 'ai-agent-config:read'},
+} as const
+
 const AGENT_CREATE_INPUTS = [
   'agentName', 'agentPrompt', 'aiModelId', 'callModelName', 'enabled', 'functionIds', 'maxToolRounds',
   'enableSubtask', 'requireApproval',
@@ -189,18 +194,18 @@ export class AiAgentConfigResource {
       dataColumn('callModelName', 'string'), dataColumn('enabled', 'number'), dataColumn('functionIds', 'string'),
       dataColumn('maxToolRounds', 'number'), dataColumn('enableSubtask', 'number'), dataColumn('requireApproval', 'number'),
       dataColumn('agentId', 'string'),
-    ], 'ai-agent-config:create')
+    ], AGENT_RESOURCES.create)
     const configuration = this.createView(AGENT_CONFIG_TABLE, [
       dataColumn('id', 'string', true), dataColumn('agentName', 'string'), dataColumn('agentPrompt', 'string'),
       dataColumn('aiModelId', 'string'), dataColumn('callModelName', 'string'), dataColumn('functionIds', 'string'),
       dataColumn('maxToolRounds', 'number'), dataColumn('enableSubtask', 'number'),
       dataColumn('requireApproval', 'number'), dataColumn('enabled', 'number'),
-    ], 'ai-agent-config:read')
+    ], AGENT_RESOURCES.read)
     this.requests = requests
     this.configuration = configuration
 
     bindDataSetCommandSubmit(requests, {
-      resource: {resourceType: 'file', resourceId: 'ai-agent-config:create'},
+      resource: AGENT_RESOURCES.create,
       guard: () => this.assertScope(),
       inputFields: AGENT_CREATE_INPUTS,
       createKey: () => crypto.randomUUID(),
@@ -209,7 +214,7 @@ export class AiAgentConfigResource {
       isUnconfirmed: error => error instanceof AiAgentConfigResultUnknownError,
     })
     bindDataSetReadonlyCommandQuery(configuration, {
-      resource: {resourceType: 'file', resourceId: 'ai-agent-config:read'},
+      resource: AGENT_RESOURCES.read,
       guard: () => this.assertScope(),
       captureQueryInputs: view => {
         const baseId = view.queryContext['agentId']
@@ -219,13 +224,9 @@ export class AiAgentConfigResource {
     })
   }
 
-  private createView(tableName: string, columns: DataColumn[], resourceId: string): DataView {
-    const table = this.#dataSet.addTable(tableName, columns)
-    table.resourceType = 'file'
-    table.resourceId = resourceId
-    const view = this.#dataSet.getView(tableName, 'default')
-    if (view === undefined) throw new Error(`Agent配置DataView缺失: ${tableName}`)
-    return view
+  private createView(tableName: string, columns: DataColumn[], resource: Parameters<typeof ensureDataSetResourceView>[0]['resource']): DataView {
+    return ensureDataSetResourceView({dataSet: this.#dataSet, tableName, resource,
+      columns: columns.map(({isPrimaryKey, ...column}) => ({...column, primary: isPrimaryKey === true}))})
   }
 
   private assertScope(): void {

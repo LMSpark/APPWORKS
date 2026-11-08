@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
     "packageName": "@spark-appworks/spark-data",
     "modulePath": "data-set-command/data-set-command-view",
-    "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static/file 命令表、只读 refresh 查询结果与写命令提交。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
+    "jsdoc": "@module @spark-appworks/spark-data:data-set-command-view\n职责：在运行 DataSet 上幂等装配 static 输入和显式语义资源视图，统一只读查询与写命令提交。\n边界：不含业务 HTTP；调用方在 executeQuery 内执行远端请求并返回本地行。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
       "DataSetCommandColumnSpec",
@@ -15,7 +15,7 @@
       "DataSetCommandRowsLoader",
       "DataSetCommandResourceIdentity",
       "BindReadonlyCommandQueryOptions",
-      "EnsureDataSetFileCommandViewInput",
+      "EnsureDataSetResourceViewInput",
       "BindCommandSubmitOptions",
       "DataSetReadonlyCommandBinding"
     ]
@@ -244,7 +244,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@253519": {
+                "__@iterator@253559": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -299,7 +299,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@253519"
+                "__@iterator@253559"
               ],
               "additionalProperties": false
             },
@@ -649,10 +649,10 @@
         }
       }
     },
-    "EnsureDataSetFileCommandViewInput": {
+    "EnsureDataSetResourceViewInput": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
-      "title": "EnsureDataSetFileCommandViewInput",
+      "title": "EnsureDataSetResourceViewInput",
       "properties": {
         "dataSet": {
           "$ref": "../dataset.ts.json#/$defs/DataSet"
@@ -660,8 +660,8 @@
         "tableName": {
           "type": "string"
         },
-        "resourceId": {
-          "type": "string"
+        "resource": {
+          "$ref": "#/$defs/DataSetCommandResourceIdentity"
         },
         "columns": {
           "type": "array",
@@ -673,7 +673,7 @@
       "required": [
         "dataSet",
         "tableName",
-        "resourceId",
+        "resource",
         "columns"
       ],
       "additionalProperties": false
@@ -684,7 +684,23 @@
       "title": "BindCommandSubmitOptions",
       "properties": {
         "resource": {
-          "$ref": "#/$defs/DataSetCommandResourceIdentity"
+          "allOf": [
+            {
+              "$ref": "#/$defs/DataSetCommandResourceIdentity"
+            },
+            {
+              "type": "object",
+              "properties": {
+                "resourceType": {
+                  "const": "command"
+                }
+              },
+              "required": [
+                "resourceType"
+              ],
+              "additionalProperties": false
+            }
+          ]
         },
         "guard": {
           "type": "object",
@@ -781,7 +797,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T00:26:16.027Z",
+  "generatedAt": "2026-11-08T01:20:14.555Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -848,7 +864,7 @@
     },
     "DataSetCommandResourceIdentity": {
       "name": "DataSetCommandResourceIdentity",
-      "jsdoc": "真实命令资源身份；文件命令仍为file，服务命令声明自身语义类型，不伪造文件或后端模型。",
+      "jsdoc": "真实资源身份；file仅用于文件，服务命令、查询及应用投影声明自身语义类型，不伪造文件或后端模型。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    resourceType: string;\n    resourceId: string;\n}>",
@@ -953,16 +969,16 @@
         }
       }
     },
-    "EnsureDataSetFileCommandViewInput": {
-      "name": "EnsureDataSetFileCommandViewInput",
+    "EnsureDataSetResourceViewInput": {
+      "name": "EnsureDataSetResourceViewInput",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    resourceId: string;\n    columns: readonly DataSetCommandColumnSpec[];\n}>",
+        "declarationTypeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    /** 运行时扩展类型不自动获得正式场景配置或后端协议支持。 */\n    resource: DataSetCommandResourceIdentity;\n    columns: readonly DataSetCommandColumnSpec[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    resourceId: string;\n    columns: readonly DataSetCommandColumnSpec[];\n}>",
+            "typeText": "Readonly<{\n    dataSet: DataSet;\n    tableName: string;\n    /** 运行时扩展类型不自动获得正式场景配置或后端协议支持。 */\n    resource: DataSetCommandResourceIdentity;\n    columns: readonly DataSetCommandColumnSpec[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -979,7 +995,8 @@
               "writable": false
             },
             {
-              "name": "resourceId",
+              "name": "resource",
+              "jsdoc": "运行时扩展类型不自动获得正式场景配置或后端协议支持。",
               "readable": true,
               "writable": false
             },
@@ -997,11 +1014,11 @@
       "jsdoc": "写命令视图：一行新增即一次后端业务命令（如注册服务器），不是模型插表。\ninputFields — 可录入的命令参数，其余列只读\ncreateKey — 新增行的前端主键，命令须携带它以便结果未知时按主键核验\nsubmit — 执行命令并返回后端接纳行；明确失败直接抛错\nisUnconfirmed — 判定抛错属于结果未知（如网络中断、超时）；缺省全部视为明确失败\nverify — 结果未知后的下一次保存只调用它核验原提交，返回已生效行或 undefined（确认未生效），不重放 submit",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */\n    onPrepareInput?: (row: Readonly<DataRow>) => void;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n    /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */\n    allowAbandonUnconfirmed?: boolean;\n    /** true时refresh继续呈现本实例已确认的只读回执，不再次派发或查询后端。用于分配结果尚待其他资源写回的命令；省略时refresh清空回执。实例释放后不提供持久核验，空视图不代表命令未执行。 */\n    retainConfirmedOnRefresh?: boolean;\n}>",
+        "declarationTypeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity & Readonly<{\n        resourceType: 'command';\n    }>;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */\n    onPrepareInput?: (row: Readonly<DataRow>) => void;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n    /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */\n    allowAbandonUnconfirmed?: boolean;\n    /** true时refresh继续呈现本实例已确认的只读回执，不再次派发或查询后端。用于分配结果尚待其他资源写回的命令；省略时refresh清空回执。实例释放后不提供持久核验，空视图不代表命令未执行。 */\n    retainConfirmedOnRefresh?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */\n    onPrepareInput?: (row: Readonly<DataRow>) => void;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n    /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */\n    allowAbandonUnconfirmed?: boolean;\n    /** true时refresh继续呈现本实例已确认的只读回执，不再次派发或查询后端。用于分配结果尚待其他资源写回的命令；省略时refresh清空回执。实例释放后不提供持久核验，空视图不代表命令未执行。 */\n    retainConfirmedOnRefresh?: boolean;\n}>",
+            "typeText": "Readonly<{\n    resource: DataSetCommandResourceIdentity & Readonly<{\n        resourceType: 'command';\n    }>;\n    guard: DataSetCommandScopeGuard;\n    inputFields: readonly string[];\n    createKey: () => string;\n    /** 生成本地命令键后、接纳行前同步校验/捕获独立只读参数快照；不得异步或返回替代行。异常不接纳命令行。 */\n    onPrepareInput?: (row: Readonly<DataRow>) => void;\n    submit: (row: DataRow) => Promise<DataRow>;\n    verify: (row: DataRow) => Promise<DataRow | undefined>;\n    isUnconfirmed?: (error: unknown) => boolean;\n    /** false时不提供放弃未知捕获的能力；没有按请求核验合同的命令须保留原捕获，不能通过放弃再重发。 */\n    allowAbandonUnconfirmed?: boolean;\n    /** true时refresh继续呈现本实例已确认的只读回执，不再次派发或查询后端。用于分配结果尚待其他资源写回的命令；省略时refresh清空回执。实例释放后不提供持久核验，空视图不代表命令未执行。 */\n    retainConfirmedOnRefresh?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],

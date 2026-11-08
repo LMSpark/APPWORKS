@@ -45,7 +45,7 @@ export {
   bindDataSetCommandSubmit,
   bindDataSetReadonlyCommandQuery,
   dataSetCommandQueryResultFromLocalRows,
-  ensureDataSetFileCommandView,
+  ensureDataSetResourceView,
   ensureDataSetStaticInputTable,
   prepareDataSetReadonlyCommandQuery,
 } from './data-set-command/data-set-command-view'
@@ -57,6 +57,7 @@ export type {
   DataSetCommandRowsLoader,
   DataSetCommandScopeGuard,
   DataSetReadonlyCommandBinding,
+  EnsureDataSetResourceViewInput,
 } from './data-set-command/data-set-command-view'
 export { DataViewQueryCascadeInputs } from './strategies/cascade/query-cascade-inputs'
 export { FormalTableRequestConfig } from './core/formal-table-request-config'

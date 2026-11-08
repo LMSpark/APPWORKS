@@ -65,6 +65,12 @@ beforeEach(() => {
 })
 afterEach(() => {wrappers.splice(0).forEach(wrapper => wrapper.unmount()); config.global.stubs = original})
 describe('formal topic catalog pages', () => {
+  it('hosts the PDF catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('hosts the Excel catalog runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')

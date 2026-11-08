@@ -8501,3 +8501,9 @@ pnpm run verify
 **本批产品代码。**无。用户未跟踪的 `packages/spark-component/src/tests/filter/json-tree-value-root.test.ts` 不纳入。
 
 **冻结。**数据包 59 文件 1367 项、包 typecheck、lint、build 均为 0。根 `pnpm run verify` 自然退出 0（`artifacts/ap-verify.log`）；输出里的 JSON 行序列化待审是既有诊断。公开声明无变化，未重跑生成器。S1 数据层按本提交冻结。下一合法阶段是 S2，本提交不进入组件、宿主或页面。旧字段映射转换、远端历史配置、N3 服务缺证和 S4 断点仍按上文排除，不在冻结里改合同。
+
+### 2026-11-08 单一路径与工作树清理核验
+
+用户要求全仓只保留主项目路径并清理全部额外工作树。本次核验HEAD为745c39862736811abc80034215099920e543d5c8，分支codex/spark-data-s1-command-safety。git worktree list --porcelain仅主仓D:/SPARK_AppWorks；真实git-common-dir为主仓.git，无.git/worktrees及本机标准Codex/Cursor额外worktrees目录，当前聊天list_artifacts为空。先prune dry-run无待清项，再git worktree prune --verbose后仍仅同一主仓；额外工作树删除数0，没有用删除主仓来制造“全部删除”。根AGENTS.md已加入唯一主路径约束，禁止之后按通用技能新建/恢复额外worktree。
+
+当前5个生产文件有未提交修改及原S2未跟踪测试，全部保留，未stage/运行/覆盖这些内容。D:/SPARK_AppWorks-recovery是2026-10-30历史patch/index/未跟踪文件恢复备份，不是Git仓库或工作树，不删除。此次只处理工作路径治理，不评判或回退Cursor后续的阶段结论，不恢复旧移交状态，不实施产品变更；只提交本次AGENTS/台账文档，其他工作仍归当前实施者。

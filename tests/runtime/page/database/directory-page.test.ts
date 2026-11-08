@@ -16,7 +16,7 @@ import {LowcodeDatabaseDirectory} from '@/lowcode/resources/database/directory'
 import {attachDatabaseDirectoryConnectionTestViews, captureDatabaseDirectoryConnectionTestTarget, clearDatabaseDirectoryConnectionTest} from '@/lowcode/resources/database/dataset-extensions'
 import {databaseTableViewModels} from './catalog/table-view.fixture'
 import {createDynamicRouter} from '../../../../packages/spark-app/src/router/dynamic'
-import {buildComponentMap, getVuePageRouteAliases} from '@/registries/vue-page-registry'
+import {buildComponentMap} from '@/registries/vue-page-registry'
 
 const mocks = vi.hoisted(() => ({
   readSpaceDefinition: vi.fn(), readModel: vi.fn(), readRequestScope: vi.fn(),
@@ -571,7 +571,7 @@ describe('database directory page', () => {
     const dynamic = createDynamicRouter({router, pageComponent: DatabaseDirectoryPage, componentMap: {
       ...componentMap,
       '/DataBaseManage/DataBaseManage/index': DatabaseDirectoryPage,
-    }, componentAliases: getVuePageRouteAliases(), loadNavigation: async () => navRoot})
+    }, loadNavigation: async () => navRoot})
     dynamicHosts.push(dynamic)
     await dynamic.registerRoutes()
     let navigationContext: NavigationContext | undefined
@@ -627,7 +627,7 @@ describe('database directory page', () => {
     const dynamic = createDynamicRouter({router, pageComponent: DatabaseDirectoryPage, componentMap: {
       ...componentMap,
       '/DataBaseManage/DataBaseManage/index': DatabaseDirectoryPage,
-    }, componentAliases: getVuePageRouteAliases(), loadNavigation: async () => navRoot})
+    }, loadNavigation: async () => navRoot})
     dynamicHosts.push(dynamic)
     await dynamic.registerRoutes()
     const shell = reactive<typeof navRoot>({title: '', childPlacement: 'sidebar', items: []})
@@ -650,7 +650,6 @@ describe('database directory page', () => {
     await pageButton(page, '管理').trigger('click')
     await flushPromises()
     await flushPromises()
-    expect(page.text()).not.toContain('系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配')
     expect(routePush).toHaveBeenCalledWith(expect.objectContaining({
       query: expect.objectContaining({databaseId: 'DB1', __sparkNavigationId: 'A8FB2B2B161125A16FD15ED9581CD15B'}),
     }))

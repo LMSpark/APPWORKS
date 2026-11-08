@@ -81,9 +81,6 @@ export type DynamicRouterOptions = {
    */
   componentMap?: Record<string, Component>
 
-  /** canonical system-page path → explicit Vue Router aliases for the same route record/identity owner. */
-  componentAliases?: Readonly<Record<string, readonly string[]>>
-
   /**
    * 没有导航节点的系统页。只借用宿主路径上的节点身份，不把其它节点算作自己的身份。
    */
@@ -167,8 +164,6 @@ export class DynamicRouter {
   private registeredRoutes: Set<string> = new Set()
   /** path → Component 映射（system-page 路由使用） */
   private staticComponentMap: Map<string, Component> = new Map()
-  /** canonical system-page path → explicit alias paths from the Vue page registry */
-  private staticComponentAliases: Map<string, readonly string[]> = new Map()
   private identityCompanions: readonly SystemPageIdentityCompanion[] = []
   /** 应用路径前缀（如 '/apps/:projectId'），config 路由自动加此前缀 */
   private applicationPathPrefix: string
@@ -222,17 +217,6 @@ constructor(options: DynamicRouterOptions) {
     if (options.componentMap) {
       for (const [path, comp] of Object.entries(options.componentMap)) {
         this.staticComponentMap.set(this.normalizePath(path), comp)
-      }
-    }
-    if (options.componentAliases) {
-      for (const [path, aliases] of Object.entries(options.componentAliases)) {
-        const canonicalPath = this.normalizePath(path)
-        const normalizedAliases = aliases.map(alias => this.normalizePath(alias))
-        if (normalizedAliases.some(alias => !alias.startsWith('/') || alias.includes('?') || alias.includes('#'))
-          || new Set(normalizedAliases).size !== normalizedAliases.length) {
-          throw new Error(`system-page alias 配置无效：${path}`)
-        }
-        this.staticComponentAliases.set(canonicalPath, normalizedAliases)
       }
     }
     this.identityCompanions = this.readIdentityCompanions(options.systemPageIdentityCompanions)
@@ -465,69 +449,6 @@ constructor(options: DynamicRouterOptions) {
     routerLogger.info('动态路由注册完成', { count: this.registeredRoutes.size })
   }
 
-  private assertSystemPageAliasAvailability(
-    appNavTree: RuntimeNavigation | null,
-    platformNavTree: RuntimeNavigation | null,
-    publicNavTree: RuntimeNavigation | null,
-  ): void {
-    const routeOwners = new Map<string, Array<Readonly<{nodeId: string; scope: string | undefined; component: unknown; isPage: boolean}>>>()
-    const aliasDeclarations: Array<Readonly<{canonicalPath: string; nodeId: string; scope: string | undefined; component: unknown; aliases: readonly string[]}>> = []
-    const scopes: Array<Readonly<{tree: RuntimeNavigation; options: RouteRegistrationOptions}>> = []
-    if (publicNavTree) scopes.push({tree: publicNavTree, options: {skipApplicationPrefix: true}})
-    if (appNavTree) scopes.push({tree: appNavTree, options: {}})
-    if (platformNavTree) scopes.push({tree: platformNavTree, options: {routePathPrefix: this.platformPathPrefix}})
-
-    const visit = (items: readonly RuntimeNavigationItem[], options: RouteRegistrationOptions): void => {
-      for (const node of items) {
-        const target = resolveNavNodeRuntimeTarget(node)
-        if (target.kind === 'route') {
-          const relativePath = this.normalizePath(target.path.split(/[?#]/, 1)[0] ?? '')
-          const routePath = this.mapNavigationRoutePath(relativePath, options)
-          const component = this.staticComponentMap.get(relativePath)
-          routeOwners.set(routePath, [...(routeOwners.get(routePath) ?? []), {nodeId: node.id,
-            scope: options.systemPageScope, component, isPage: target.routeKind === 'page'}])
-          const aliases = target.routeKind === 'page' && component !== undefined
-            ? this.staticComponentAliases.get(relativePath) ?? []
-            : []
-          if (aliases.length > 0) {
-            aliasDeclarations.push({canonicalPath: routePath, nodeId: node.id, scope: options.systemPageScope, component,
-              aliases: aliases.map(alias => this.mapNavigationRoutePath(alias, options))})
-          }
-        }
-        if (node.children?.length) visit(node.children, options)
-      }
-    }
-    for (const {tree, options} of scopes) visit(tree.items, options)
-
-    const aliasPaths = new Set<string>()
-    const checkedCanonicalPaths = new Set<string>()
-    for (const declaration of aliasDeclarations) {
-      const canonicalOwners = routeOwners.get(declaration.canonicalPath) ?? []
-      const declarations = aliasDeclarations.filter(item => item.canonicalPath === declaration.canonicalPath)
-      const sameAliasSet = (left: readonly string[], right: readonly string[]) => left.length === right.length
-        && left.every((value, index) => value === right[index])
-      if (canonicalOwners.length === 0 || new Set(canonicalOwners.map(owner => owner.nodeId)).size !== canonicalOwners.length
-        || canonicalOwners.some(owner => !owner.isPage || owner.scope !== declaration.scope || owner.component !== declaration.component)
-        || declarations.length !== canonicalOwners.length
-        || declarations.some(item => item.scope !== declaration.scope || item.component !== declaration.component
-          || !sameAliasSet(item.aliases, declaration.aliases))) {
-        throw new Error(`系统页面 alias 正式 owner 不唯一：${declaration.canonicalPath}`)
-      }
-      if (checkedCanonicalPaths.has(declaration.canonicalPath)) continue
-      checkedCanonicalPaths.add(declaration.canonicalPath)
-      for (const aliasPath of declaration.aliases) {
-        if (routeOwners.has(aliasPath) || aliasPaths.has(aliasPath)) {
-          throw new Error(`系统页面 alias 路径冲突：${aliasPath} 已由正式路由占用`)
-        }
-        const existing = this.router.getRoutes().find(route => route.path === aliasPath)
-        if (existing && !this.registeredRoutes.has(aliasPath)) {
-          throw new Error(`系统页面 alias 路径冲突：${aliasPath} 已由现有路由占用`)
-        }
-        aliasPaths.add(aliasPath)
-      }
-    }
-  }
-
   private readIdentityCompanions(companions: readonly SystemPageIdentityCompanion[] | undefined): readonly SystemPageIdentityCompanion[] {
     if (companions === undefined) return []
     const seen = new Set<string>()
@@ -600,7 +521,6 @@ constructor(options: DynamicRouterOptions) {
   }
 
   private commitNavigation(appNavTree: RuntimeNavigation | null, platformNavTree: RuntimeNavigation | null, publicNavTree: RuntimeNavigation | null): void {
-    this.assertSystemPageAliasAvailability(appNavTree, platformNavTree, publicNavTree)
     const previousRoutes = new Set(this.registeredRoutes)
     const previousAppNavTree = this._appNavTree
     const previousPlatformNavTree = this._platformNavTree
@@ -734,9 +654,6 @@ constructor(options: DynamicRouterOptions) {
       // 平台级路由（preAuth）不加前缀，应用导航树路由统一加应用前缀
       const routePath = this.mapNavigationRoutePath(relativePath, options)
       const isIdentityHost = target.routeKind === 'page' && component !== undefined
-      const aliasRoutePaths = isIdentityHost
-        ? (this.staticComponentAliases.get(relativePath) ?? []).map(alias => this.mapNavigationRoutePath(alias, options))
-        : []
       if (isIdentityHost) {
         if (options.systemPageScope === undefined || options.systemPageOwners === undefined) {
           throw new Error('system-page host 缺少导航身份作用域')
@@ -862,7 +779,6 @@ constructor(options: DynamicRouterOptions) {
                 path: routePath,
                 name: routeName,
                 component: SystemPageRouteHost,
-                ...(aliasRoutePaths.length ? {alias: aliasRoutePaths} : {}),
                 meta: this.systemPages.hostRouteMeta(options.systemPageScope, routePath),
               }
             : {
@@ -880,7 +796,6 @@ constructor(options: DynamicRouterOptions) {
               }
           this.router.addRoute(route)
           this.registeredRoutes.add(routePath)
-          for (const alias of aliasRoutePaths) this.registeredRoutes.add(alias)
           if (shouldLogDynamicRouteDetails()) {
             routerLogger.debug(`Vue 组件路由已注册(nav): ${routePath}`)
           }

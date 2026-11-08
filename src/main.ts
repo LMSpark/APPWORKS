@@ -350,9 +350,8 @@ async function startApp() {
 
     // 4. 构建 Vue 组件页面注册表（数据来自根级 config/navigation/vue-pages.json）
     startupLogger.info('📄 构建 Vue 组件页面映射...')
-    const { buildComponentMap, buildPreAuthNavTree, getPublicPaths, getVuePageRouteAliases } = await import('./registries/vue-page-registry')
+    const { buildComponentMap, buildPreAuthNavTree, getPublicPaths } = await import('./registries/vue-page-registry')
     const componentMap = await buildComponentMap()
-    const componentAliases = getVuePageRouteAliases()
 
     // 登录前导航树 — 从 Vue page registry scope='public' 自动派生
     const preAuthNavTree = buildPreAuthNavTree()
@@ -408,7 +407,6 @@ async function startApp() {
         pageComponent: SparkPageRenderer,
         loadScenario: loadLowcodeRuntimeScenario,
         componentMap,
-        componentAliases,
         systemPageIdentityCompanions: [{
           path: '/features/data-platform/structured-config/logic-view/ui/logic-view-design-page',
           hostPath: '/features/data-platform/structured-config/logic-view/ui/logic-view-list-page',

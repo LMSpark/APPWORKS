@@ -3949,7 +3949,7 @@
       "chainBreak": "SystemPageIdentityCompanion.path 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 101,
+      "declarationLine": 99,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "interface"
     },
@@ -3961,7 +3961,7 @@
       "chainBreak": "SystemPageIdentityCompanion.hostPath 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 102,
+      "declarationLine": 100,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "interface"
     },
@@ -3973,7 +3973,7 @@
       "chainBreak": "DynamicRouter.getPageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 141,
+      "declarationLine": 137,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -3985,7 +3985,7 @@
       "chainBreak": "DynamicRouter.systemPageRevision 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 142,
+      "declarationLine": 138,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -3997,7 +3997,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 143,
+      "declarationLine": 139,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4009,7 +4009,7 @@
       "chainBreak": "DynamicRouter.getSystemPageInstanceById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 144,
+      "declarationLine": 140,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4021,7 +4021,7 @@
       "chainBreak": "DynamicRouter.closeSystemPageInstance 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 145,
+      "declarationLine": 141,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4033,7 +4033,7 @@
       "chainBreak": "DynamicRouter.resetSystemPageInstances 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 146,
+      "declarationLine": 142,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4045,7 +4045,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeView 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 147,
+      "declarationLine": 143,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4057,7 +4057,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeNames 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 148,
+      "declarationLine": 144,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4069,7 +4069,7 @@
       "chainBreak": "DynamicRouter.getPageRuntimeById 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 149,
+      "declarationLine": 145,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4081,7 +4081,7 @@
       "chainBreak": "DynamicRouter.closePageRuntime 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 150,
+      "declarationLine": 146,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4093,7 +4093,7 @@
       "chainBreak": "DynamicRouter.assertPageRuntimesClean 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 151,
+      "declarationLine": 147,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4105,7 +4105,7 @@
       "chainBreak": "DynamicRouter.disposePageRuntimes 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 152,
+      "declarationLine": 148,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -4117,7 +4117,7 @@
       "chainBreak": "DynamicRouter.markPageConfigPending 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/dynamic.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/dynamic.ts",
-      "declarationLine": 153,
+      "declarationLine": 149,
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "declarationKind": "class"
     },
@@ -39477,7 +39477,7 @@
       "chainBreak": "VuePageConfigEntry.dataSpaceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/vue-page-registry.ts",
-      "declarationLine": 39,
+      "declarationLine": 37,
       "sourceFile": "src/registries/vue-page-registry.ts",
       "declarationKind": "interface"
     },
@@ -39488,7 +39488,7 @@
       "chainBreak": "VuePagesConfig 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/vue-page-registry.ts",
-      "declarationLine": 41,
+      "declarationLine": 39,
       "sourceFile": "src/registries/vue-page-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -39500,7 +39500,7 @@
       "chainBreak": "VuePagesConfig.$schema 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/vue-page-registry.ts",
-      "declarationLine": 42,
+      "declarationLine": 40,
       "sourceFile": "src/registries/vue-page-registry.ts",
       "declarationKind": "interface"
     },
@@ -39512,7 +39512,7 @@
       "chainBreak": "VuePagesConfig.protocol 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/vue-page-registry.ts",
-      "declarationLine": 43,
+      "declarationLine": 41,
       "sourceFile": "src/registries/vue-page-registry.ts",
       "declarationKind": "interface"
     },
@@ -39524,7 +39524,7 @@
       "chainBreak": "VuePagesConfig.schemaVersion 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/vue-page-registry.ts",
-      "declarationLine": 44,
+      "declarationLine": 42,
       "sourceFile": "src/registries/vue-page-registry.ts",
       "declarationKind": "interface"
     },
@@ -39536,7 +39536,7 @@
       "chainBreak": "VuePagesConfig.pages 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/vue-page-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/vue-page-registry.ts",
-      "declarationLine": 45,
+      "declarationLine": 43,
       "sourceFile": "src/registries/vue-page-registry.ts",
       "declarationKind": "interface"
     },

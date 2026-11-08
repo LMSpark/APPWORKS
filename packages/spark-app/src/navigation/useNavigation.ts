@@ -508,36 +508,6 @@ export function useNavigation(navRoot: RuntimeNavigation, _options?: UseNavigati
     }
 
     const targetPath = addApplicationPrefix(path)
-    const resolvedAlias = router.resolve(targetPath).matched.find(record => record.aliasOf !== undefined
-      && record.meta['systemPageIdentityHost'] === true)
-    if (resolvedAlias) {
-      if (identityNode === undefined) {
-        void router.push(targetPath)
-        return
-      }
-      const matchingNodes: RuntimeNavigationItem[] = []
-      const visit = (nodes: readonly RuntimeNavigationItem[]) => {
-        for (const node of nodes) {
-          if (node.id === identityNode.id) matchingNodes.push(node)
-          if (node.children) visit(node.children)
-        }
-      }
-      visit(navRoot.items)
-      const owner = matchingNodes.length === 1 ? matchingNodes[0] : undefined
-      const target = owner === undefined ? undefined : resolveNavNodeRuntimeTarget(owner)
-      const formalPath = target?.kind === 'route' ? addApplicationPrefix(target.path) : ''
-      const aliasOf = resolvedAlias.aliasOf
-      if (aliasOf === undefined) throw new Error('系统页面 alias 缺少正式目标路由')
-      const canonicalPath = aliasOf.path
-      if (owner === undefined || target?.kind !== 'route' || target.routeKind !== 'page'
-        || normalizeComparablePath(formalPath.split(/[?#]/, 1)[0] ?? '') !== normalizeComparablePath(canonicalPath)) {
-        throw new Error('系统页面 alias 导航身份不属于当前活动导航或正式路径不匹配')
-      }
-      if (resolvedAlias.name === undefined) throw new Error('系统页面 alias 缺少正式命名路由')
-      pushNamedRoute({routeName: resolvedAlias.name, routePath: canonicalPath, inputPath: targetPath,
-        identityNodeId: identityNode.id, preserveInputPath: true})
-      return
-    }
     if (identityNode !== undefined) {
       const resolvedTarget = router.resolve(targetPath)
       const selectedRoute = router.getRoutes().find(routeRecord => routeRecord.name === resolvedTarget.name)

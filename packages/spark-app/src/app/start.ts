@@ -88,8 +88,6 @@ export type PageNodeOptions = {
    * 路由元数据完全由后端 DB 管理，前端只提供组件解析映射。
    */
   componentMap?: Record<string, Component>
-  /** canonical system-page path → explicit Vue Router aliases for the same identity owner. */
-  componentAliases?: Readonly<Record<string, readonly string[]>>
   /** 没有导航节点的系统页，只借用宿主路径上的节点身份。 */
   systemPageIdentityCompanions?: DynamicRouterOptions['systemPageIdentityCompanions']
   /**
@@ -316,7 +314,6 @@ export async function start(options: StartOptions): Promise<void> {
         readPageFile: pageNode.readPageFile,
         pageComponent, // SparkPageRenderer 或用户提供的组件，if 块已确保非空
         ...(pageNode.componentMap !== undefined && { componentMap: pageNode.componentMap }),
-        ...(pageNode.componentAliases !== undefined && { componentAliases: pageNode.componentAliases }),
         ...(pageNode.systemPageIdentityCompanions !== undefined && { systemPageIdentityCompanions: pageNode.systemPageIdentityCompanions }),
         ...(pageNode.applicationPathPrefix !== undefined && { applicationPathPrefix: pageNode.applicationPathPrefix }),
         ...(pageNode.loadNavigation !== undefined && { loadNavigation: pageNode.loadNavigation }),

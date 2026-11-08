@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-app:router/native-page-runtime-session",
+    "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts",
+    "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
+    "packageName": "@spark-appworks/spark-app",
+    "modulePath": "router/native-page-runtime-session",
+    "jsdoc": "@module @spark-appworks/spark-app:router/native-page-runtime-session\n职责：原生 Vue 页共用的 PageRuntime 创建、提供、换目标失效与释放。\n边界：不注册路由、不换接领域页面；配置页继续走 PageRuntimePool。\nAI用途：原生页需要同一调用身份复用实例、目标切换后停旧写入时，用本模块。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "NativePageRuntimeIdentity",
+      "NativePageRuntimeAcquireInput",
+      "NativePageRuntimeBinder",
+      "NativePageRuntimeSession"
+    ]
+  },
+  "$defs": {
+    "NativePageRuntimeIdentity": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativePageRuntimeIdentity",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mainScenarioId": {
+          "type": "string"
+        },
+        "deferredScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "scenarioInputs": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageScenarioInputs"
+        }
+      },
+      "required": [
+        "pageId",
+        "scenarioIds"
+      ],
+      "additionalProperties": false
+    },
+    "NativePageRuntimeAcquireInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativePageRuntimeAcquireInput",
+      "properties": {
+        "pageId": {
+          "type": "string"
+        },
+        "scenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "mainScenarioId": {
+          "type": "string"
+        },
+        "deferredScenarioIds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "targetId": {
+          "type": "string"
+        },
+        "scenarioInputs": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageScenarioInputs"
+        },
+        "loadScenario": {
+          "type": "object",
+          "title": "(scenarioId: string) => Promise<DataSet>"
+        }
+      },
+      "required": [
+        "pageId",
+        "scenarioIds",
+        "loadScenario"
+      ],
+      "additionalProperties": false
+    },
+    "NativePageRuntimeBinder": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativePageRuntimeBinder",
+      "$defs": {
+        "method.provide.params": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.provide.return": true,
+        "method.remove.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.remove.return": true
+      }
+    },
+    "NativePageRuntimeSession": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "NativePageRuntimeSession",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "constructor.params": {
+          "type": "object",
+          "properties": {
+            "binder": {
+              "$ref": "#/$defs/NativePageRuntimeBinder"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acquire.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/NativePageRuntimeAcquireInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.acquire.return": {
+          "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "method.isCurrent.params": {
+          "type": "object",
+          "properties": {
+            "runtime": {
+              "$ref": "../../../spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.isCurrent.return": {
+          "type": "boolean"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-08T09:34:13.691Z",
+  "models": {
+    "NativePageRuntimeIdentity": {
+      "name": "NativePageRuntimeIdentity",
+      "jsdoc": "原生页一次调用的固定身份；targetId 是业务目标，不是第二个场景身份。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "mainScenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deferredScenarioIds",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioInputs",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NativePageRuntimeAcquireInput": {
+      "name": "NativePageRuntimeAcquireInput",
+      "jsdoc": "创建原生 PageRuntime 所需的调用身份与装配回调。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "NativePageRuntimeIdentity & Readonly<{\n    loadScenario: PageRuntimeOptions['loadScenario'];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "NativePageRuntimeIdentity",
+            "targetName": "NativePageRuntimeIdentity"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "Readonly<{\n    loadScenario: PageRuntimeOptions['loadScenario'];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "loadScenario",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "NativePageRuntimeBinder": {
+      "name": "NativePageRuntimeBinder",
+      "jsdoc": "把当前实例提供给页面能力树；换目标或释放时先 remove。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    provide(runtime: PageRuntime): void;\n    remove(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    provide(runtime: PageRuntime): void;\n    remove(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "methods": [
+            {
+              "name": "provide",
+              "parameters": [
+                {
+                  "name": "runtime",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageRuntime"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "remove",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "NativePageRuntimeSession": {
+      "name": "NativePageRuntimeSession",
+      "jsdoc": "原生页 PageRuntime 会话：同一身份复用，换目标先释放旧实例。",
+      "declarationKind": "class",
+      "classDecl": {
+        "constructorMeta": {
+          "signatureText": "constructor(binder?: NativePageRuntimeBinder)",
+          "parameters": [
+            {
+              "name": "binder",
+              "type": {
+                "type": "reference",
+                "name": "NativePageRuntimeBinder",
+                "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts"
+              },
+              "flags": {
+                "isOptional": true
+              }
+            }
+          ]
+        },
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "jsdoc": "当前仍由本会话持有的运行实例。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "acquire",
+              "jsdoc": "同一路由身份复用实例；身份变化时释放旧实例后再创建。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "NativePageRuntimeAcquireInput",
+                    "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "PageRuntime"
+              }
+            },
+            {
+              "name": "isCurrent",
+              "jsdoc": "仅当该实例仍是本会话当前 owner 时为 true。",
+              "parameters": [
+                {
+                  "name": "runtime",
+                  "type": {
+                    "type": "reference",
+                    "name": "PageRuntime"
+                  }
+                }
+              ],
+              "type": {
+                "type": "intrinsic",
+                "name": "boolean"
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放当前实例并撤销提供；迟到装配由 PageRuntime 拒绝。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

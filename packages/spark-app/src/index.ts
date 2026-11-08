@@ -154,6 +154,12 @@ export type {
 } from './navigation/action-registry'
 export { useTabPages } from './navigation/useTabPages'
 export { useSystemPageDirtySource } from './router/system-page-identity/system-page-identity-pool'
+export { NativePageRuntimeSession } from './router/native-page-runtime-session'
+export type {
+  NativePageRuntimeAcquireInput,
+  NativePageRuntimeBinder,
+  NativePageRuntimeIdentity,
+} from './router/native-page-runtime-session'
 export { useColorScheme, setColorSchemeStorageScope, PRIMARY_PRESETS, NAV_PRESETS, STYLE_PRESETS } from './navigation/useColorScheme'
 export { NAV_KEY } from './navigation/nav-types'
 export type { NavigationContext } from './navigation/nav-types'

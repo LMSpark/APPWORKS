@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1与S2已冻结，S3进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 预览装配见 [AU](#au-s3-preview-assembly)，配置页身份见文末 AV。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1与S2已冻结，S3进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 预览装配见 [AU](#au-s3-preview-assembly)，配置页身份见 [AV](#av-s3-config-identity)，原生宿主 API 见文末 AW。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8574,3 +8574,12 @@ pnpm run verify
 **表视图旧 alias。**完整直接消费者：`vue-pages.json` 登记 `/DataBaseManage/TableAndView`；`src/views/DataBaseManage/DataBaseManage/index.vue` 的 `TABLE_VIEW_LEGACY_PATH` 与 `navigateToPath`；`tests/runtime/page/database/directory-page.test.ts` 断言该路径；`tests/runtime/auth-nav/navigation/database-table-view-route-alias.test.ts` 验证同一 owner。生产目录页仍走旧路径，S3 不改页面接线，因此保留 alias，不新增重定向，不改正式蓝图 URL。删除改到 S4 换接该页之后。
 
 **测试。**`page-scenario-inputs.test.ts`：附加场景一次装齐、URL deferred 拒绝。`database-table-view-route-alias.test.ts`：消费者仍在则 alias 仍在。连同平台页与 tab 共 4 文件 78 项通过。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未跑生成器（公开声明未变）。
+
+<a id="aw-s3-native-host-api"></a>
+#### AW. S3第三波：原生 Vue 共用创建/提供/释放（未冻结）
+
+开工时只有 `D:/SPARK_AppWorks`。抽出 `NativePageRuntimeSession`：同一路由身份复用一个 `PageRuntime`，目标切换先 remove 再 dispose 旧实例，释放后迟到装配销毁。`deferredScenarioIds` 仍只作为原生构造参数。配置页继续走 `PageRuntimePool`，系统页身份继续走 `SystemPageIdentityResolver`。本波不改 AppList、设计器或 20 包页面接线；`use-staged-design-page.ts` 与各页 `new PageRuntime` 仍在。
+
+**登记、不伪造。**`AppList.vue` 仍是 `blueprintScenarioId || builtin` 双身份；根 `/app-list` 缺正式 owner 仍按原记录，不编平台目录。隐藏设计弹窗单目标仍是 S4 领域输入。表视图旧 alias 消费者仍在，沿 AV 保留。
+
+**测试。**`native-page-runtime-session.test.ts` 3 项：同身份复用并 provide 一次；换目标后旧 `getDataSet` 拒绝且数据集销毁；释放后迟到 DataSet 销毁。连同 route-helpers 与 system-page-dirty 共 3 文件 9 项通过。根 typecheck 0。改动文件 eslint 0。公开导出后正式生成含新会话。未改 `spark-data`，未改 S2 组件。

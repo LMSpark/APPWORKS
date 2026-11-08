@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1110,
+  "scannedFileCount": 1111,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2055,6 +2055,24 @@
         "jsdoc": "@module @spark-appworks/spark-app:router/invalid-system-page\n职责：提供应用壳层 invalid-system-page 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 router/invalid-system-page。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
+      }
+    },
+    "packages/spark-app/src/router/native-page-runtime-session.ts": {
+      "file": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-app:router/native-page-runtime-session",
+        "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts",
+        "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
+        "packageName": "@spark-appworks/spark-app",
+        "modulePath": "router/native-page-runtime-session",
+        "jsdoc": "@module @spark-appworks/spark-app:router/native-page-runtime-session\n职责：原生 Vue 页共用的 PageRuntime 创建、提供、换目标失效与释放。\n边界：不注册路由、不换接领域页面；配置页继续走 PageRuntimePool。\nAI用途：原生页需要同一调用身份复用实例、目标切换后停旧写入时，用本模块。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "NativePageRuntimeIdentity",
+          "NativePageRuntimeAcquireInput",
+          "NativePageRuntimeBinder",
+          "NativePageRuntimeSession"
+        ]
       }
     },
     "packages/spark-app/src/router/page-runtime-pool.ts": {
@@ -22394,6 +22412,22 @@
     "MutationResult": {
       "sourcePath": "packages/spark-json-document/src/tree/tree-types.ts",
       "file": "files/packages/spark-json-document/src/tree/tree-types.ts.json"
+    },
+    "NativePageRuntimeAcquireInput": {
+      "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "file": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json"
+    },
+    "NativePageRuntimeBinder": {
+      "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "file": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json"
+    },
+    "NativePageRuntimeIdentity": {
+      "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "file": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json"
+    },
+    "NativePageRuntimeSession": {
+      "sourcePath": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "file": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json"
     },
     "NativeRendererTreeNodeLike": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererTree/zero-code.ts",

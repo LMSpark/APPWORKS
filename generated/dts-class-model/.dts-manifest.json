@@ -544,7 +544,7 @@
     "packages/spark-app/src/index.ts": {
       "sourceFile": "packages/spark-app/src/index.ts",
       "shardFile": "files/packages/spark-app/src/index.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:41:40.335Z"
+      "sourceModifiedAt": "2026-11-08T09:33:13.085Z"
     },
     "packages/spark-app/src/logger/index.ts": {
       "sourceFile": "packages/spark-app/src/logger/index.ts",
@@ -626,10 +626,15 @@
       "shardFile": "files/packages/spark-app/src/router/invalid-system-page.ts.json",
       "sourceModifiedAt": "2026-06-11T12:38:13.360Z"
     },
+    "packages/spark-app/src/router/native-page-runtime-session.ts": {
+      "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "shardFile": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json",
+      "sourceModifiedAt": "2026-11-08T09:34:13.691Z"
+    },
     "packages/spark-app/src/router/page-runtime-pool.ts": {
       "sourceFile": "packages/spark-app/src/router/page-runtime-pool.ts",
       "shardFile": "files/packages/spark-app/src/router/page-runtime-pool.ts.json",
-      "sourceModifiedAt": "2026-10-09T06:26:40.381Z"
+      "sourceModifiedAt": "2026-11-08T09:30:11.209Z"
     },
     "packages/spark-app/src/router/route-helpers.ts": {
       "sourceFile": "packages/spark-app/src/router/route-helpers.ts",

@@ -59,9 +59,8 @@ AI用途：原页面结构与输入语义保留，不查询凭据、不维护调
 <script setup lang="ts">
 import {computed, ref, watch, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataSet, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -78,6 +77,10 @@ const props = defineProps<ApiInterfaceListPageProps>()
 const emit = defineEmits<{close: []}>()
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-interface-list-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('definition')
 const outputEditing=ref<{id:string|number;epoch:number;created:boolean}>()
 const outputAction=ref<{id:string|number;epoch:number;mode:'pending'|'delete'}>()
@@ -85,7 +88,7 @@ const bindingWindow=ref<{interfaceId:string|number;outputId:string|number;epoch:
 const outputSession=computed(()=>!!outputEditing.value||!!outputAction.value||!!bindingWindow.value)
 const openedProvider=ref('')
 let outputEpoch=0
-let dataSet: DataSet | undefined, runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
+let dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined, active = true, generation = 0
 const key = (name: string, view = 'default') => buildDataViewKey(name, view, scenarioId)
 const mainKey = key('Base_DataServiceInterface'), parameterKey = key('_Base_ParamList'), headerKey = key('Base_InterfaceApi_Headers'), outputKey = key('Base_TblField')
 const bindingKey=key('Base_Interface_PublicParam','outputBinding')
@@ -157,22 +160,22 @@ function operateOutput(mode:'pending'|'delete'):void{
 }
 async function addOutput():Promise<void>{
   if(locked.value||outputSession.value)return
-  const outputs=view('Base_TblField'),parent=selected.value,owner=runtime
+  const outputs=view('Base_TblField'),parent=selected.value,owner=session.runtime
   if(!outputs||!parent||outputs.addActionState()!=='enabled')return
   await act(async()=>{
     const row=await outputs.addRow({}),id=outputs.getPkKey(row)
-    if(!active||owner!==runtime||selected.value!==parent)return
+    if(!active||owner!==session.runtime||selected.value!==parent)return
     if(id===undefined)throw Error('新增输出未返回原生身份')
     outputEditing.value={id,created:true,epoch:++outputEpoch}
   })
 }
 async function openBinding():Promise<void>{
   if(locked.value||outputSession.value)return
-  const parent=view('Base_DataServiceInterface'),outputs=view('Base_TblField'),parameters=dataSet?.getView('Base_Interface_PublicParam','outputBinding'),owner=runtime
+  const parent=view('Base_DataServiceInterface'),outputs=view('Base_TblField'),parameters=dataSet?.getView('Base_Interface_PublicParam','outputBinding'),owner=session.runtime
   const iface=parent?.currentRow,output=outputs?.currentRow,interfaceId=iface?parent?.getPkKey(iface):undefined,outputId=output?outputs?.getPkKey(output):undefined
   if(!parent||!outputs||!parameters||!iface||!output||interfaceId===undefined||outputId===undefined)return
   const context=JSON.stringify([parent.queryContext,outputs.queryContext])
-  const assertSource=()=>{if(owner!==runtime||parent.currentRow!==iface||outputs.currentRow!==output||JSON.stringify([parent.queryContext,outputs.queryContext])!==context||parent.hasEditingChanges(interfaceId)||parent.dirtyTracking.hasPendingChanges(interfaceId)||outputs.hasEditingChanges(outputId)||outputs.dirtyTracking.hasPendingChanges(outputId))throw Error('请先保存原接口和输出定义，再设置公共参数')}
+  const assertSource=()=>{if(owner!==session.runtime||parent.currentRow!==iface||outputs.currentRow!==output||JSON.stringify([parent.queryContext,outputs.queryContext])!==context||parent.hasEditingChanges(interfaceId)||parent.dirtyTracking.hasPendingChanges(interfaceId)||outputs.hasEditingChanges(outputId)||outputs.dirtyTracking.hasPendingChanges(outputId))throw Error('请先保存原接口和输出定义，再设置公共参数')}
   await act(async()=>{
     assertSource()
     if(!parameters.hasEditingChanges()&&!parameters.dirtyTracking.hasPendingChanges()){await parameters.refresh();if(parameters.loadingError)throw parameters.loadingError}
@@ -182,12 +185,12 @@ async function openBinding():Promise<void>{
 async function closeBinding(result:SparkComponent.DataViewRecordEditingFinish):Promise<void>{
   bindingWindow.value=undefined
   if(result!=='saved')return
-  const catalog=dataSet?.getView('Base_Interface_PublicParam'),owner=runtime
+  const catalog=dataSet?.getView('Base_Interface_PublicParam'),owner=session.runtime
   if(!catalog)return
   try{
     if(catalog.hasEditingChanges()||catalog.dirtyTracking.hasPendingChanges()||catalog.hasUnconfirmedSave)throw Error('目录有原修改')
     await catalog.refresh();if(catalog.loadingError)throw catalog.loadingError
-  }catch{if(active&&runtime===owner)error.value='绑定已保存，公共参数目录待刷新；不会重新提交原绑定'}
+  }catch{if(active&&session.runtime===owner)error.value='绑定已保存，公共参数目录待刷新；不会重新提交原绑定'}
 }
 function point(table: string, row: DataRow): void {if (!busy.value) view(table)?.setCurrentRow(row)}
 async function add(table: string): Promise<void> {
@@ -214,28 +217,28 @@ async function reload(): Promise<void> {if(outputSession.value)return;const targ
 function close(): void {if (!outputSession.value && !busy.value && !dirty.value && !unconfirmed.value) emit('close')}
 function cancel(): void {if (!outputSession.value && !locked.value) {for (const item of views.value) item.discardPendingChanges(); emit('close')}}
 async function loadProvider(providerId:string):Promise<void>{
-  if(runtime&&(busy.value||dirty.value||unconfirmed.value||outputSession.value)){error.value='请先处理当前服务商的原修改或未确认提交，再切换服务商';return}
+  if(session.runtime&&(busy.value||dirty.value||unconfirmed.value||outputSession.value)){error.value='请先处理当前服务商的原修改或未确认提交，再切换服务商';return}
   const own = ++generation; ready.value = false; loading.value = true; busy.value = false; error.value = ''; tab.value = 'definition'
   openedProvider.value=providerId
   outputEditing.value=undefined
   outputAction.value=undefined
   bindingWindow.value=undefined
-  unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
+  unsubscribe?.(); dataSet = undefined; session.dispose()
   try {
     const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
-    const next:PageRuntime = new PageRuntime({pageId: 'api-interface-list-page', scenarioIds: [scenarioId,DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY], scenarioInputs: {[scenarioId]: {providerId}},
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,getPage:()=>next})})
-    runtime = next; await next.load()
-    if (!active || own !== generation) {next.dispose(); return}
-    dataSet = next.getDataSet(scenarioId)!
+    const current = session.acquire({pageId: 'api-interface-list-page', scenarioIds: [scenarioId,DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY], targetId: providerId, scenarioInputs: {[scenarioId]: {providerId}},
+      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,getPage:()=>current})})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
+    dataSet = current.getDataSet(scenarioId)!
     unsubscribe = dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, selectedRowsChanged: changed, editingChanged: changed, editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
     dataSet.triggerAutoLoad()
-    sparkProvide(PAGE_RUNTIME, next); ready.value = true; changed()
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true; changed()}
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }
 watch(() => props.providerId, loadProvider, {immediate:true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 <style scoped>
 :deep(.interface-workspace) {grid-template-columns: minmax(220px, 1fr) minmax(0, 3fr) !important; align-items: start; gap: 20px;}

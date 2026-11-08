@@ -76,6 +76,14 @@ async function bindingFixture(parameterPatch:Record<string,unknown>={}){
 }
 
 describe('external API pages assembled through the standard scenario entry', () => {
+  it('hosts the API interface catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-interface-list-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).toContain('deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY]')
+    expect(source).toContain('scenarioInputs: {[scenarioId]: {providerId}}')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('hosts the API config runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/integration/api-management/ui/api-config-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')

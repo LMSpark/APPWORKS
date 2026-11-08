@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，Cursor移交收口）：** 用户要求收口、提交推送并准备移交Cursor；本会话停止新增实施，移交说明见文末[Cursor接续方案](#cursor-handoff-20261108)。此前用户已恢复S1并授权精确隔离烟测/清理/核定的一次性历史转换，该授权事实保留；当前产品实施停在 **S1未冻结**，不能据本次“收口”进入S2或宣称整体完成。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1已冻结）：** I3 十六组的证据与排除项见文末 [AP](#ap-s1-freeze)。冻结只说明数据层合同可以交给下一阶段，不表示 20 包完成，也不表示已经开始 S2。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8470,4 +8470,34 @@ pnpm run verify
 
 **验证（本机快照，日志均为ignored同机证据）。**spark-data全量59文件1367项；包typecheck/lint/build 0；正式`generate:class-model-surface`、`generate:lowcode-contracts`（611/221）0，派生除两处语义变化外仅TS符号编号移位，照生成结果提交（`artifacts/ao-class-model.log`、`ao-lowcode-contracts.log`）；消费者34文件1024项（AN范围+catalog-attachment，`maxWorkers=2`，阈值不变，`ao-consumers.log`）；根`pnpm run verify`自然0（`ao-verify.log`，既有JSON行序列化待审诊断保留）。纯离线，无实服请求，未重放U/AK。API1515/项目模型276未重跑：本批未改其源码，仅由根门禁类型/构建覆盖。
 
-**未闭合。**S1矩阵其余格（I3）仍待逐格核验，本批只核销“文件/pagedata适配”中可写文件owner的在途绑定一项；页面层同viewId由目录项视图与编辑视图交替重绑（`page-tool-file-dataview.ts`两入口同viewId不同策略）属S4消费者问题，本批仅保证数据层不错派发/错接纳，不改业务入口。
+**未闭合（AO当时）。**当时I3其余格尚未逐格登记；AP按当前源码补齐。页面层同viewId由目录项视图与编辑视图交替重绑（`page-tool-file-dataview.ts`两入口同viewId不同策略）属S4，数据层只保证不错派发、不错接纳。
+
+<a id="ap-s1-freeze"></a>
+#### AP. S1十六组合同核对（已冻结）
+
+核对基准是已推送的 `a1a19c64` 源码与仍引用这些符号的测试，不是 P–AO 的叙述。本组没有发现与现行合同相悖、需要先写失败测试再改数据层的缺口，因此不改 `packages/spark-data` 产品源码，也不重做目录捕获、可写文件绑定代次和 P–T 回执链。
+
+| 组 | 当前声明 | 仍对准源码的断言 |
+| --- | --- | --- |
+| 身份与视图定位 | `core/data-view-key.ts`，`DataSet.saveChanges` 的场景/模型校验 | `scenario-model-identity.test.ts`：无场景或无正式模型绑定时保存零派发；另一 DataSet 的视图不能串入。`data-view-key.test.ts`：局部键、成员键和畸形键分别拒绝 |
+| 配置与运行分离 | `DataTable.columns` 与 `DataView.toJson` | `view-config-roundtrip.test.ts`：远端资源表不序列化查询行；静态表保留行但剔除权限线协议字段 |
+| 查询、过滤、分页 | `DataViewQuery`，`nextPageAvailable`/`countReported` | `next-page-result.test.ts`：只暴露当次确认的下一页状态，畸形值拒绝且不替换原结果。`query-binding-preflight.test.ts`：输出不超出字段目录，未投影字段可过滤但不可读 |
+| 读取捕获与迟到结果 | `DataView` 读取证明与结果替换 | `read-row-proof.test.ts`：同值新查询后原证明仍在，且不拿替换查询重获身份。`query-input-cascade.test.ts`：迟到响应不接管原结果的权限和编辑守卫 |
+| 编辑、新增、删除、取消 | `DirtyTrackingDelegate`，`commitMode` | `commit-mode.test.ts`：staged 新增/修改/删除不发远程；待新增行的删除只取消本地创建；丢弃编辑不改已有行 |
+| 同模型多视图与变更范围 | `DataSet.saveChanges` 只走本次 `resolveSaveChangesTargets` | `scenario-model-identity.test.ts`：同记录多视图在派发前拒绝；只点名一个视图时另一视图的草稿保持不动且保存函数未被调用。未加载视图没有待提交变更，不进入删除 |
+| 当前、选择、值 | `data-view-key` 的 DataMember | `data-view-key.test.ts`：选中主键数组保留类型，配置的字符串序列化单独往返；字段值从指针和编辑覆盖读取，不把序列化文本拆开 |
+| 显式级联 | `field-cascade`，`query-input-cascade` | `field-cascade.test.ts`：多父输入、空选择、迟到选项不覆盖新父值或用户已输入的子值；未配置的旧 rowMode 拒绝而不猜测。无级联配置时不从模型关系自动生成联动 |
+| 通用校验 | `column-validation`，`DataTable` 保存规则 | `column-validation.test.ts`：必填、长度、范围、正则只作用于对应类型。`query-save-validation.test.ts`：校验失败保持草稿 |
+| 既有权限守卫 | 查询结果的 `fieldAccess` / 动作状态 | `query-binding-preflight.test.ts` 与文件适配测试：不可读字段为 invisible，只读目标的写入为 denied。新增或扩展数据权限、功能授权接线仍按用户指令暂缓，本阶段不新增前端角色 |
+| 提交与部分成功 | `saveChanges` / `saveChangesInPhases`，命令 `bindDataSetCommandSubmit` | `commit-mode.test.ts`：分阶段失败停在后续阶段，恢复时不重放已完成阶段。`data-set-command-submit.test.ts`：第一项失败时第二项零派发；文件适配测试保留先成功文件的回执 |
+| unknown 与不重放 | 命令 `pending` 与文件 `sharedState` | `data-set-command-submit.test.ts`：未知提交下次保存只核验、不重放；明确未生效与失败分开，禁止放弃的命令保留原捕获。文件测试在视图销毁重开后仍核原 target。命令 JSDoc 写明实例释放后不做持久核验，空视图不等于命令未执行；`does not restore a pending save capture on a destroyed view` 断言销毁后不再把该实例当成可核验对象，不把它改成文件式共享 pending |
+| 文件与 pagedata | `file-resource-adapter.ts`，`query/file-resource/directory.ts`，场景文件 owner | 目录在 `captureQueryInputs` 固定 source。可写链按 AO 绑定代次，`file-resource-rebind-capture.test.ts` 16 项。pagedata 局部变更保留未改内容见 `scenario-view-file.test.ts` 的完整文件保留与未改文件跳过断言。字节与文本、实服目录删除合同仍按 N3 缺证，不在本层伪造 |
+| 只读命令 | `prepareDataSetReadonlyCommandQuery`，`bindDataSetCommandSubmit` | `query-binding-preflight.test.ts`：只读绑定不执行回调。`data-set-command-view.test.ts`：刷新只读行不派发写命令。`data-set-command-submit.test.ts`：`retainConfirmedOnRefresh` 与默认清空回执分开，刷新不再次提交 |
+| 后端聚合与旧配置 | `DataView.aggregateError`，执行器 `localAggregates: false` | `data-space-view-aggregation.test.ts`：远程旧汇总读取抛 `DATA_VIEW_REMOTE_AGGREGATE`，不返回当前页数值；正式统计走服务查询。不把任意 JS 公式改写成 SQL。服务不支持的函数继续记缺口 |
+| 生命周期与释放 | `DataView.destroy`，`DataSet.destroy` | `dataset-subscription-lifecycle.test.ts`：替换视图只订阅一次，旧清理立即失效。`data-set-command-view.test.ts`：已释放 DataSet 拒绝注册，不复活 default。文件未知在同一 DataSet 重开后仍指向原 target |
+
+**明确不纳入本次冻结通过的项。**N3 已部署失败样本（工作流 merge、外部 API 输出校验、Excel 多组布局、领码冲突）、历史未知的 SaveView/sys_edit、报表/审批/PDF/Excel 导入/文件双端等正式服务缺证、远端历史配置未扫描转换。这些保持原记录，不重放 U/AK，不改、不启动 Java。S4 断点（整目录仍消费 `view.rows`、模型改名、设计器旧 file 假设、页面同 viewId 交替绑定）不在本阶段修改。
+
+**本批产品代码。**无。用户未跟踪的 `packages/spark-component/src/tests/filter/json-tree-value-root.test.ts` 不纳入。
+
+**冻结。**数据包 59 文件 1367 项、包 typecheck、lint、build 均为 0。根 `pnpm run verify` 自然退出 0（`artifacts/ap-verify.log`）；输出里的 JSON 行序列化待审是既有诊断。公开声明无变化，未重跑生成器。S1 数据层按本提交冻结。下一合法阶段是 S2，本提交不进入组件、宿主或页面。旧字段映射转换、远端历史配置、N3 服务缺证和 S4 断点仍按上文排除，不在冻结里改合同。

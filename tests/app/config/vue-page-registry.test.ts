@@ -103,8 +103,7 @@ describe('Vue page registry', () => {
       .toBe('src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue')
     expect(getVuePageEntry('/DataBaseManage/DataBaseManage/index')?.source)
       .toBe('src/views/DataBaseManage/DataBaseManage/index.vue')
-    expect(getVuePageEntry('/dbms')?.source)
-      .toBe('src/views/DataBaseManage/DataBaseManage/index.vue')
+    expect(getVuePageEntry('/dbms')).toBeUndefined()
     expect(getVuePageEntry('/features/application/application-manager/ui/application-manager-page')?.source)
       .toBe('src/views/app/AppList.vue')
   })
@@ -121,7 +120,7 @@ describe('Vue page registry', () => {
     expect(loads.every(load => load.mock.calls.length === 0)).toBe(true)
   })
 
-  it('loads only the mounted page and reuses one async component for source aliases', async () => {
+  it('loads only the mounted page and reuses one async component for two formal paths', async () => {
     const aboutEntry = getVuePageEntry('/about')
     if (aboutEntry === undefined) throw new Error('Expected the about page registry entry')
     const aboutSource = getVuePageOptions().filter(option => option.source === aboutEntry.source)
@@ -132,15 +131,15 @@ describe('Vue page registry', () => {
         default: defineComponent({ render: () => h('span', 'about loaded') }),
       })
     })
-    const directorySource = 'src/views/DataBaseManage/DataBaseManage/index.vue'
-    const aliases = getVuePageOptions().filter(option => option.source === directorySource)
-    if (aliases.length < 2) throw new Error('Expected both database directory navigation entries to share the native page')
-    let aliasLoads = 0
-    for (const alias of aliases) {
-      const aliasEntry = getVuePageEntry(alias.path)
-      if (aliasEntry === undefined) throw new Error(`Expected source entry for ${alias.path}`)
-      vi.spyOn(aliasEntry, 'load').mockImplementation(() => {
-        aliasLoads += 1
+    const applicationListSource = 'src/views/app/AppList.vue'
+    const applicationLists = getVuePageOptions().filter(option => option.source === applicationListSource)
+    if (applicationLists.length !== 2) throw new Error('Expected the catalog and blueprint application lists to share one page')
+    let applicationListLoads = 0
+    for (const page of applicationLists) {
+      const pageEntry = getVuePageEntry(page.path)
+      if (pageEntry === undefined) throw new Error(`Expected source entry for ${page.path}`)
+      vi.spyOn(pageEntry, 'load').mockImplementation(() => {
+        applicationListLoads += 1
         return Promise.resolve({
           default: defineComponent({
             setup() {
@@ -157,19 +156,19 @@ describe('Vue page registry', () => {
     const about = mount(defineComponent({ render: () => h(componentMap['/about']!) }))
     await flushPromises()
     expect(aboutLoads.reduce((total, load) => total + load.mock.calls.length, 0)).toBe(1)
-    expect(aliasLoads).toBe(0)
+    expect(applicationListLoads).toBe(0)
     expect(about.text()).toBe('about loaded')
 
-    const firstAlias = mount(defineComponent({ render: () => h(componentMap[aliases[0]!.path]!) }))
-    const secondAlias = mount(defineComponent({ render: () => h(componentMap[aliases[1]!.path]!) }))
+    const catalog = mount(defineComponent({ render: () => h(componentMap[applicationLists[0]!.path]!) }))
+    const blueprint = mount(defineComponent({ render: () => h(componentMap[applicationLists[1]!.path]!) }))
     await flushPromises()
-    expect(aliasLoads).toBe(1)
-    await firstAlias.get('button').trigger('click')
-    expect(firstAlias.text()).toBe('1')
-    expect(secondAlias.text()).toBe('0')
+    expect(applicationListLoads).toBe(1)
+    await catalog.get('button').trigger('click')
+    expect(catalog.text()).toBe('1')
+    expect(blueprint.text()).toBe('0')
     about.unmount()
-    firstAlias.unmount()
-    secondAlias.unmount()
+    catalog.unmount()
+    blueprint.unmount()
   })
 
   it('uses a synchronous route host and renders the page through Vue Router', async () => {

@@ -1060,7 +1060,6 @@ describe('lowcode project navigation projection', () => {
       '/capability-demo',
       '/workflow-designs',
       '/dev',
-      '/dbms',
     ])
     expect(projection.items.at(-1)?.children?.every((child) => !('dataSpaceId' in child))).toBe(true)
   })

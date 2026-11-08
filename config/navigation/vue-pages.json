@@ -140,14 +140,6 @@
       "source": "src/views/app/dev-system/DevSystem.vue"
     },
     {
-      "path": "/dbms",
-      "title": "数据库管理",
-      "icon": "DataBase",
-      "scope": "app",
-      "source": "src/views/DataBaseManage/DataBaseManage/index.vue",
-      "description": "数据库目录"
-    },
-    {
       "path": "/features/data-platform/database-management/ui/service-management-page",
       "title": "服务器管理",
       "icon": "DataBase",

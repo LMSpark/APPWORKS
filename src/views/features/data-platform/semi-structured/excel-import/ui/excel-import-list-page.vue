@@ -45,14 +45,13 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataView,type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import type {RToolbarProps,RFilterProps} from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
 import {startExcelSchemeCreation,saveExcelSchemeCreation,cancelExcelSchemeCreation,readExcelSchemeCreation,endExcelSchemeCreation} from '@/lowcode/resources/semi-structured/excel-import/catalog/creation'
 import {selectExcelTemplate,cancelExcelTemplate,saveExcelTemplate,readExcelTemplate,retainExcelTemplate} from '@/lowcode/resources/semi-structured/excel-import/catalog/template'
 import ExcelEditor from './excel-import-editor-page.vue'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 
 const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererDialog,RendererForm,RendererButton,useSparkComponent}=SparkComponent
 const route = useRoute()
@@ -60,6 +59,10 @@ const designTarget = ref('')
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
 const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
 const {sparkProvide, sparkRemove,sparkConsume} = useSparkComponent({type: 'excel-import-list-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const pageService=sparkConsume(PAGE_SERVICE)
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId=ref<string|number>(),acting=ref(false)
@@ -76,7 +79,7 @@ const locked=computed(()=>querying.value||acting.value||editingId.value!==undefi
 useSystemPageDirtySource({get isDirty(){return acting.value||pending.value||unconfirmed.value||designPending.value||creating.value||templatePending.value}})
 onBeforeRouteLeave(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value&&!templatePending.value)
 onBeforeRouteUpdate(()=>!acting.value&&!pending.value&&!unconfirmed.value&&!designPending.value&&!creating.value&&!templatePending.value)
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
   const row = view.value?.selectedRows[0]
@@ -141,7 +144,7 @@ function editRow(row:DataRow):void{
   editingId.value=id;error.value=''
 }
 async function saveEdit():Promise<void>{
-  const target=view.value,id=editingId.value,current=runtime?.getDataSet(scenarioId.value),own=generation
+  const target=view.value,id=editingId.value,current=session.runtime?.getDataSet(scenarioId.value),own=generation
   if(!target||id===undefined||!current||acting.value)return
   acting.value=true;error.value=''
   try{
@@ -201,22 +204,24 @@ watch(scenarioId, async id => {
   ready.value = false; loading.value = true; error.value = ''
   editingId.value=undefined;acting.value=false;designTarget.value=''
   unsubscribe?.(); view.value = undefined
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   try {
     if (!id) throw new Error('Excel 导入入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeExcelImport.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    runtime = new PageRuntime({pageId: 'excel-import-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
-    await runtime.load()
-    if (!active || own !== generation) {runtime.dispose(); return}
+    const current = session.acquire({pageId: 'excel-import-list-page', scenarioIds: [id], targetId: id,
+      loadScenario: async () => dataSet})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView(LowcodeExcelImport.catalogMetaName, 'default')
     const changed=()=>revision.value++
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged:changed,rowsChanged:changed,editingChanged:changed,mutatingChanged:changed,requestStateChanged:changed})
-    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true; dataSet.triggerAutoLoad()
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
+    dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

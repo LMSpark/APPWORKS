@@ -37,9 +37,8 @@ AI用途：三个独立提交域分别保存与取消，完整键定位正式配
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -55,8 +54,12 @@ const props = defineProps<ApiConfigPageProps>()
 const emit = defineEmits<{close: []}>()
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'api-config-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), revision = ref(0), tab = ref<string | number>('parameters')
-let dataSet: DataSet | undefined, runtime: PageRuntime | undefined, generation = 0, active = true
+let dataSet: DataSet | undefined, generation = 0, active = true
 let unsubscribe: (() => void) | undefined, unsubscribeCascade: (() => void) | undefined
 const key = (table: string, viewId = 'default') => buildDataViewKey(table, viewId, scenarioId)
 const parameterKey = key('Base_Interface_PublicParam'), headerKey = key('Base_InterfaceProvider_Headers'), prefixKey = key('Base_InterfaceProvider', 'authentication')
@@ -133,21 +136,21 @@ function cancel(): void {if (!busy.value && !unconfirmed.value) {for (const item
 watch(() => props.providerId, async providerId => {
   const own = ++generation
   ready.value = false; loading.value = true; busy.value = false; error.value = ''; tab.value = 'parameters'
-  unsubscribe?.(); unsubscribeCascade?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined
+  unsubscribe?.(); unsubscribeCascade?.(); dataSet = undefined; session.dispose()
   try {
     const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
-    const next:PageRuntime = new PageRuntime({pageId: 'api-config-page', scenarioIds: [scenarioId,DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY], scenarioInputs: {[scenarioId]: {providerId}},
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,getPage:()=>next})})
-    runtime = next; await next.load()
-    if (!active || own !== generation) {next.dispose(); return}
-    dataSet = next.getDataSet(scenarioId)!
+    const current = session.acquire({pageId: 'api-config-page', scenarioIds: [scenarioId,DATA_SPACE_DESIGN_FORM_KEY], deferredScenarioIds:[DATA_SPACE_DESIGN_FORM_KEY], targetId: providerId, scenarioInputs: {[scenarioId]: {providerId}},
+      loadScenario: id => loadLowcodeRuntimeScenario({projectId, scenarioId: id,getPage:()=>current})})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
+    dataSet = current.getDataSet(scenarioId)!
     unsubscribe = dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, editingChanged: changed,
       editingFieldChanged: changed, editingDiscarded: changed, requestStateChanged: changed})
     unsubscribeCascade = dataSet.onFieldCascadeChange(changed)
     dataSet.triggerAutoLoad()
-    sparkProvide(PAGE_RUNTIME, next); ready.value = true; changed()
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true; changed()}
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); unsubscribeCascade?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); unsubscribeCascade?.(); session.dispose()})
 </script>

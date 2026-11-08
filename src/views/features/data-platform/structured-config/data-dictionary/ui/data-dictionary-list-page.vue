@@ -36,9 +36,8 @@ AI用途：恢复专题目录时复用正式数据空间和标准组件，分别
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataView, type DataRow, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import DictionarySetting from './dictionary-setting.vue'
@@ -46,12 +45,16 @@ import DictionaryData from './dictionary-data-page.vue'
 
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-dictionary-list-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const editingId = ref(''), creating = ref(false), editorPending = ref(false)
 const dataWorkspace = ref<{releaseClean(): void; readonly isDirty: boolean}>()
 const workspaceDirty = computed(() => editorPending.value || dataWorkspace.value?.isDirty === true)
 const workspaceKind = ref<'design' | 'data'>('design')
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
   const values = view.value?.getSelectedValues() ?? []
@@ -69,7 +72,7 @@ const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
 const hasUnresolvedCreator = computed(() => {
   revision.value
   const catalog = view.value
-  const users = runtime?.getDataSet(scenarioId.value)?.getView('Base_UserInfo', 'default')
+  const users = session.runtime?.getDataSet(scenarioId.value)?.getView('Base_UserInfo', 'default')
   if (!catalog || !users) return false
   const readableIds = new Set(users.rows.filter(row => users.fieldAccess(row, 'ROWID').read === 'visible'
     && users.fieldAccess(row, 'UserName').read === 'visible').map(row => row['ROWID']))
@@ -136,22 +139,23 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''; editingId.value = ''
   unsubscribe?.(); view.value = undefined
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   try {
     if (!id) throw new Error('字典管理入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeDictionary.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = new PageRuntime({pageId: 'data-dictionary-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
-    runtime = current; await current.load()
-    if (!active || own !== generation) {current.dispose(); return}
+    const current = session.acquire({pageId: 'data-dictionary-list-page', scenarioIds: [id], targetId: id,
+      loadScenario: async () => dataSet})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView('_Base_DictType', 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++, rowsChanged: () => revision.value++,
       requestStateChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, current); ready.value = true
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

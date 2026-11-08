@@ -1,7 +1,7 @@
 /**
  * @module app:services/workflow-designs
- * 职责：提供 workflow 设计稿的 JSON 文件读写与 Dify-like graph 节点解析能力。
- * 边界：只处理编辑态 workflow design，不执行 Agent workflow 运行时。
+ * 职责：解析 workflow design.json、由设计稿派生 AgentWorkflowDefinition、生成新节点/连线的默认数据，并只读 definition.json。
+ * 边界：设计稿与 definition 的编辑和保存走 AgentWorkflowFiles 投影 DataView，本模块不写文件、不执行 Agent workflow 运行时。
  * AI用途：排查 workflow design、业务节点、ClassModel model context 或边投影时，用本模块确认前端接线。
  */
 import {
@@ -13,43 +13,12 @@ import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/reposito
 
 export type JsonRecord = Record<string, unknown>
 
-export type WorkflowDesignSummary = {
-  workflowId: string
-  filename: string
-  timestamp: string
-  title?: string
-  version?: number
-  status?: string
-  error?: string
-}
-
-export type WorkflowDesignWriteResult = {
-  ok: boolean
-  workflowId: string
-  filename: string
-  timestamp: string
-}
-
-export type WorkflowDesignReadResult = {
-  workflowId: string
-  filename: string
-  timestamp: string
-  document?: WorkflowDesignDocument
-  notModified?: boolean
-}
-
 export type WorkflowDefinitionReadResult = {
   workflowId: string
   filename: string
   timestamp: string
   definition?: SparkAgent.AgentWorkflowDefinition
   notModified?: boolean
-}
-
-export type WorkflowDesignDeleteResult = {
-  ok: boolean
-  workflowId: string
-  deleted: string[]
 }
 
 export type WorkflowDesignDocument = {
@@ -187,50 +156,6 @@ export type WorkflowDesignSparkNodeMeta = {
   [key: string]: unknown
 }
 
-export type WorkflowDesignNodeView = {
-  key: string
-  id: string
-  title: string
-  nodeType: string
-  depth: number
-  scopePath: string
-  ancestry: string[]
-  node: WorkflowDesignGraphNode
-  graph: WorkflowDesignGraph
-  isBusinessNode: boolean
-  isBoundaryNode: boolean
-  isWorkflowNode: boolean
-  isSingleModelEditTool: boolean
-  isProcessStageNode: boolean
-}
-
-export type WorkflowDesignGraphView = {
-  key: string
-  id: string
-  title: string
-  depth: number
-  scopePath: string
-  graph: WorkflowDesignGraph
-  carrier: 'root' | 'loop' | 'iteration'
-  ownerNodeId?: string
-  ownerNode?: WorkflowDesignGraphNode
-}
-
-export type WorkflowDesignLineView = {
-  key: string
-  id: string
-  from: WorkflowDesignLineEndpoint
-  to: WorkflowDesignLineEndpoint
-  fromNodeId: string
-  toNodeId: string
-  depth: number
-  scopePath: string
-  graph: WorkflowDesignGraph
-  line: WorkflowDesignGraphLine
-  fromNode?: WorkflowDesignGraphNode
-  toNode?: WorkflowDesignGraphNode
-}
-
 export type WorkflowDesignNodeCreateKind = 'node' | 'start' | 'output'
 
 export type WorkflowDesignNodeCreateInput = {
@@ -244,70 +169,9 @@ export type WorkflowDesignNodeCreateInput = {
   }
 }
 
-export type WorkflowDesignNodeRemoveResult = {
-  removed: boolean
-  removedLines: WorkflowDesignGraphLine[]
-}
-
-export type WorkflowDesignLinePatch = {
-  from?: WorkflowDesignLineEndpoint
-  to?: WorkflowDesignLineEndpoint
-  type?: string
-  relation?: string
-  lineType?: WorkflowDesignLineType
-  controlPoints?: readonly WorkflowDesignLineControlPoint[]
-}
-
-export type WorkflowDesignAutoLayoutGraphResult = {
-  scopePath: string
-  changedNodePositions: boolean
-  changedViewport: boolean
-}
-
-export type WorkflowDesignAutoLayoutResult = {
-  changed: boolean
-  graphs: WorkflowDesignAutoLayoutGraphResult[]
-}
-
 export type CreateAgentWorkflowDefinitionFromDesignOptions = {
   publishedAt?: string
 }
-
-type WorkflowDesignAutoLayoutNodePosition = Readonly<{
-  node: WorkflowDesignGraphNode
-  x: number
-  y: number
-}>
-
-type WorkflowDesignAutoLayoutNode = {
-  node: WorkflowDesignGraphNode
-  originalIndex: number
-  rank: number
-  lane: number
-  mainPath: boolean
-  preferredLane: number | null
-}
-
-type WorkflowDesignAutoLayoutLineCandidate = Readonly<{
-  line: WorkflowDesignGraphLine
-  originalIndex: number
-  fromIndex: number
-  toIndex: number
-}>
-
-type CollectWorkflowDesignNodeCommand = Readonly<{
-  graph: WorkflowDesignGraph
-  scopePath: string
-  depth: number
-  ancestry: string[]
-}>
-
-type CollectWorkflowDesignNestedNodeCommand = Readonly<{
-  node: WorkflowDesignGraphNode
-  scopePath: string
-  depth: number
-  ancestry: string[]
-}>
 
 type CreateWorkflowDefinitionNodeCommand<
   TType extends SparkAgent.AgentWorkflowGraphNodeType,
@@ -319,62 +183,15 @@ type CreateWorkflowDefinitionNodeCommand<
   position: WorkflowDesignGraphNode['position']
 }>
 
+type PublishNodeView = Readonly<{id: string; scopePath: string; node: WorkflowDesignGraphNode}>
+
 const PLACEHOLDER_MODEL_ROOT_CLASS_NAME = 'spark.placeholder.RootModel'
 const PLACEHOLDER_MODEL_CLASS_NAME = 'spark.placeholder.Model'
 const PLACEHOLDER_MODEL_ID = 'spark.placeholder.model'
 const PLACEHOLDER_VALIDATION_ACTION_NAME = 'spark.placeholder.validate'
 const PLACEHOLDER_RUNTIME_ID = 'spark.placeholder.workflow'
-const WORKFLOW_AUTO_LAYOUT_START_X = 40
-const WORKFLOW_AUTO_LAYOUT_START_Y = 40
-const WORKFLOW_AUTO_LAYOUT_STEP_X = 340
-const WORKFLOW_AUTO_LAYOUT_STEP_Y = 210
 
-export async function listWorkflowDesigns(): Promise<WorkflowDesignSummary[]> {
-  const owner = await createAgentWorkflowFileDataViewOwner()
-  try {
-    const entries = await owner.listWorkflowEntries()
-    return entries.map((entry) => ({
-    workflowId: entry.workflowId,
-    filename: 'design.json',
-    timestamp: entry.timestamp,
-    }))
-  } finally {owner.dispose()}
-}
-
-export function createWorkflowDesign(input: {
-  workflowId: string
-  title?: string
-}): Promise<WorkflowDesignWriteResult> {
-  void input
-  return Promise.reject(workflowMutationUnavailable())
-}
-
-export async function readWorkflowDesign(
-  workflowId: string,
-  timestamp?: string,
-): Promise<WorkflowDesignReadResult> {
-  void timestamp
-  const owner = await createAgentWorkflowFileDataViewOwner()
-  try {
-    const content = await owner.readDocument(workflowId, 'design.json')
-    return {workflowId, filename: 'design.json', timestamp: '', document: parseWorkflowDesignJson(content)}
-  } finally {owner.dispose()}
-}
-
-export function saveWorkflowDesign(
-  workflowId: string,
-  document: WorkflowDesignDocument,
-): Promise<WorkflowDesignWriteResult> {
-  void workflowId
-  void document
-  return Promise.reject(workflowMutationUnavailable())
-}
-
-export async function readWorkflowDefinition(
-  workflowId: string,
-  timestamp?: string,
-): Promise<WorkflowDefinitionReadResult> {
-  void timestamp
+export async function readWorkflowDefinition(workflowId: string): Promise<WorkflowDefinitionReadResult> {
   const owner = await createAgentWorkflowFileDataViewOwner()
   try {
     const content = await owner.readDocument(workflowId, 'definition.json')
@@ -382,29 +199,6 @@ export async function readWorkflowDefinition(
     assertAgentWorkflowDefinition(definition)
     return {workflowId, filename: 'definition.json', timestamp: '', definition}
   } finally {owner.dispose()}
-}
-
-export function saveWorkflowDefinition(
-  workflowId: string,
-  definition: SparkAgent.AgentWorkflowDefinition,
-): Promise<WorkflowDesignWriteResult> {
-  void workflowId
-  void definition
-  return Promise.reject(workflowMutationUnavailable())
-}
-
-export function publishWorkflowDefinition(
-  workflowId: string,
-  definition: SparkAgent.AgentWorkflowDefinition,
-): Promise<WorkflowDesignWriteResult> {
-  void workflowId
-  void definition
-  return Promise.reject(workflowMutationUnavailable())
-}
-
-export function deleteWorkflowDesign(workflowId: string): Promise<WorkflowDesignDeleteResult> {
-  void workflowId
-  return Promise.reject(workflowMutationUnavailable())
 }
 
 export function createAgentWorkflowDefinitionFromDesign(
@@ -441,100 +235,10 @@ export function createAgentWorkflowDefinitionFromDesign(
   }
 }
 
-export function parseAgentWorkflowDefinitionJson(text: string): SparkAgent.AgentWorkflowDefinition {
-  const parsed: unknown = JSON.parse(text)
-  assertAgentWorkflowDefinition(parsed)
-  return parsed
-}
-
 export function parseWorkflowDesignJson(text: string): WorkflowDesignDocument {
   const parsed: unknown = JSON.parse(text)
   assertWorkflowDesignDocument(parsed)
   return parsed
-}
-
-export function isWorkflowDefinitionNotFoundError(error: unknown): boolean {
-  const status = readErrorStatus(error)
-  if (status === 404) return true
-
-  const message = error instanceof Error ? error.message : String(error)
-  return message.includes('No static resource')
-    && message.includes('workflow-designs')
-    && message.includes('definition.json')
-}
-
-export function collectWorkflowDesignNodes(document: WorkflowDesignDocument): WorkflowDesignNodeView[] {
-  return collectGraphNodes({
-    graph: document.workflow.graph,
-    scopePath: 'workflow.graph',
-    depth: 0,
-    ancestry: [],
-  })
-}
-
-export function collectWorkflowDesignGraphs(document: WorkflowDesignDocument): WorkflowDesignGraphView[] {
-  const root: WorkflowDesignGraphView = {
-    key: 'workflow.graph',
-    id: typeof document.workflow.graph.id === 'string' && document.workflow.graph.id.length > 0
-      ? document.workflow.graph.id
-      : `${document.workflow.id}.graph`,
-    title: 'Main Graph',
-    depth: 0,
-    scopePath: 'workflow.graph',
-    graph: document.workflow.graph,
-    carrier: 'root',
-  }
-  return [root, ...collectNestedGraphViews(document.workflow.graph, 'workflow.graph', 0)]
-}
-
-export function collectWorkflowDesignLines(document: WorkflowDesignDocument): WorkflowDesignLineView[] {
-  return collectWorkflowDesignGraphs(document).flatMap(view => collectGraphLines(view))
-}
-
-export function autoLayoutWorkflowDesignGraphs(document: WorkflowDesignDocument): WorkflowDesignAutoLayoutResult {
-  const graphs = collectWorkflowDesignGraphs(document).map(view => autoLayoutWorkflowDesignGraph(view))
-  return {
-    changed: graphs.some(graph => graph.changedNodePositions || graph.changedViewport),
-    graphs,
-  }
-}
-
-export function isSingleModelEditToolNode(_node: WorkflowDesignGraphNode): boolean {
-  return false
-}
-
-export function isProcessStageNode(_node: WorkflowDesignGraphNode): boolean {
-  return false
-}
-
-export function getSingleModelEditValue(node: WorkflowDesignGraphNode): unknown {
-  return node.data?.inputs ?? {}
-}
-
-export function setSingleModelEditValue(node: WorkflowDesignGraphNode, value: unknown): void {
-  const data = ensureNodeData(node)
-  data.inputs = isJsonRecord(value) ? value : {}
-}
-
-export function ensureWorkflowDraft(document: WorkflowDesignDocument): JsonRecord {
-  const spark = ensureDocumentSpark(document)
-  return ensureRecord(spark, 'draft')
-}
-
-export function markWorkflowDesignDirty(document: WorkflowDesignDocument, dirtyPath: string): void {
-  const draft = ensureWorkflowDraft(document)
-  draft['status'] = 'dirty'
-  const dirtyPaths = Array.isArray(draft['dirtyPaths']) ? dirtyPathsFromDraft(draft) : []
-  if (!dirtyPaths.includes(dirtyPath)) {
-    dirtyPaths.push(dirtyPath)
-  }
-  draft['dirtyPaths'] = dirtyPaths
-}
-
-export function markWorkflowDesignSaved(document: WorkflowDesignDocument): void {
-  const draft = ensureWorkflowDraft(document)
-  draft['status'] = 'saved'
-  draft['dirtyPaths'] = []
 }
 
 export function addWorkflowDesignLine(
@@ -579,77 +283,8 @@ export function createWorkflowDesignNode(
   return node
 }
 
-export function removeWorkflowDesignNode(
-  graph: WorkflowDesignGraph,
-  nodeId: string,
-): WorkflowDesignNodeRemoveResult {
-  const index = graph.nodes.findIndex(node => node.id === nodeId)
-  if (index < 0) return { removed: false, removedLines: [] }
-
-  graph.nodes.splice(index, 1)
-  const removedLines: WorkflowDesignGraphLine[] = []
-  graph.lines = graph.lines.filter((line) => {
-    if (line.from.nodeId === nodeId || line.to.nodeId === nodeId) {
-      removedLines.push(line)
-      return false
-    }
-    return true
-  })
-  return { removed: true, removedLines }
-}
-
-export function removeWorkflowDesignLine(graph: WorkflowDesignGraph, line: WorkflowDesignGraphLine): boolean {
-  const index = graph.lines.indexOf(line)
-  if (index < 0) return false
-  graph.lines.splice(index, 1)
-  return true
-}
-
-export function updateWorkflowDesignLine(line: WorkflowDesignGraphLine, patch: WorkflowDesignLinePatch): void {
-  if (patch.from !== undefined) line.from = patch.from
-  if (patch.to !== undefined) line.to = patch.to
-  if (patch.type !== undefined) line.type = patch.type
-  if (patch.relation !== undefined) {
-    line.data ??= {}
-    line.data['relation'] = patch.relation
-  }
-  if (patch.lineType !== undefined) ensureWorkflowDesignLineVisual(line).lineType = patch.lineType
-  if (patch.controlPoints !== undefined) {
-    ensureWorkflowDesignLineVisual(line).controlPoints = patch.controlPoints.map(point => ({ ...point }))
-  }
-}
-
-export function workflowDesignLineType(line: WorkflowDesignGraphLine): WorkflowDesignLineType {
-  const value = line.data?.visual?.lineType
-  return value === 'straight' || value === 'bezier' ? value : 'orthogonal'
-}
-
-export function workflowDesignLineControlPoints(
-  line: WorkflowDesignGraphLine,
-): readonly WorkflowDesignLineControlPoint[] {
-  const value = line.data?.visual?.controlPoints
-  if (!Array.isArray(value)) return []
-  return value.filter(isWorkflowDesignLineControlPoint).map(point => ({ x: point.x, y: point.y }))
-}
-
-export function normalizeWorkflowDesignLineState(document: WorkflowDesignDocument): void {
-  for (const graphView of collectWorkflowDesignGraphs(document)) {
-    for (const line of graphView.graph.lines) {
-      line.from = normalizeWorkflowDesignLineEndpoint(line.from)
-      line.to = normalizeWorkflowDesignLineEndpoint(line.to)
-      const visual = ensureWorkflowDesignLineVisual(line)
-      visual.lineType = workflowDesignLineType(line)
-      visual.controlPoints = workflowDesignLineControlPoints(line).map(point => ({ ...point }))
-    }
-  }
-}
-
 export function formatJson(value: unknown): string {
   return JSON.stringify(value ?? {}, null, 2)
-}
-
-function workflowMutationUnavailable(): Error {
-  return new Error('lowcode 工作流文件写接口不满足写前镜像、journal、readback 与补偿门禁')
 }
 
 function collectDefinitionPublishIssues(document: WorkflowDesignDocument): SparkAgent.AgentWorkflowDefinitionValidationIssue[] {
@@ -666,7 +301,7 @@ function collectDefinitionPublishIssues(document: WorkflowDesignDocument): Spark
     }
   }
   validateWorkflowRuntimeBindingPublishReadiness(document, issues)
-  for (const view of collectWorkflowDesignNodes(document)) {
+  for (const view of publishNodeViews(document.workflow.graph, 'workflow.graph')) {
     const data = view.node.data
     if (data === undefined) continue
     const nodeType = typeof data.type === 'string' ? data.type : view.node.type
@@ -769,8 +404,15 @@ function validateWorkflowRuntimeBindingPublishReadiness(
   }
 }
 
+function publishNodeViews(graph: WorkflowDesignGraph, scopePath: string): PublishNodeView[] {
+  return graph.nodes.flatMap(node => [{id: node.id, scopePath, node}, ...(['loop', 'iteration'] as const).flatMap(carrier => {
+    const subGraph = node.data?.[carrier]?.subGraph
+    return subGraph === undefined ? [] : publishNodeViews(subGraph, `${scopePath}.${node.id}.${carrier}.subGraph`)
+  })])
+}
+
 function validateBusinessNodePublishReadiness(
-  view: WorkflowDesignNodeView,
+  view: PublishNodeView,
   data: WorkflowDesignNodeData,
   issues: SparkAgent.AgentWorkflowDefinitionValidationIssue[],
 ): void {
@@ -1229,559 +871,6 @@ function createDefaultBusinessNodeData(title: string, desc: string | undefined):
     capabilities: [],
   }
 }
-
-function collectGraphNodes(command: CollectWorkflowDesignNodeCommand): WorkflowDesignNodeView[] {
-  const { graph, scopePath, depth, ancestry } = command
-  const result: WorkflowDesignNodeView[] = []
-  for (const node of graph.nodes) {
-    const nodeType = typeof node.data?.type === 'string' ? node.data.type : node.type
-    const title = typeof node.data?.title === 'string' && node.data.title.length > 0 ? node.data.title : node.id
-    const isBusinessNode = nodeType === 'node'
-    const view: WorkflowDesignNodeView = {
-      key: `${scopePath}:${node.id}`,
-      id: node.id,
-      title,
-      nodeType,
-      depth,
-      scopePath,
-      ancestry,
-      node,
-      graph,
-      isBusinessNode,
-      isBoundaryNode: nodeType === 'start' || nodeType === 'output',
-      isWorkflowNode: false,
-      isSingleModelEditTool: false,
-      isProcessStageNode: false,
-    }
-    result.push(view)
-    result.push(...collectNestedNodes({ node, scopePath, depth, ancestry }))
-  }
-  return result
-}
-
-function collectNestedNodes(command: CollectWorkflowDesignNestedNodeCommand): WorkflowDesignNodeView[] {
-  const { node, scopePath, depth, ancestry } = command
-  const result: WorkflowDesignNodeView[] = []
-  const nextAncestry = [...ancestry, node.id]
-  const loopGraph = node.data?.loop?.subGraph
-  if (loopGraph !== undefined) {
-    result.push(...collectGraphNodes({
-      graph: loopGraph,
-      scopePath: `${scopePath}.${node.id}.loop.subGraph`,
-      depth: depth + 1,
-      ancestry: nextAncestry,
-    }))
-  }
-  const iterationGraph = node.data?.iteration?.subGraph
-  if (iterationGraph !== undefined) {
-    result.push(...collectGraphNodes({
-      graph: iterationGraph,
-      scopePath: `${scopePath}.${node.id}.iteration.subGraph`,
-      depth: depth + 1,
-      ancestry: nextAncestry,
-    }))
-  }
-  return result
-}
-
-function collectNestedGraphViews(
-  graph: WorkflowDesignGraph,
-  scopePath: string,
-  depth: number,
-): WorkflowDesignGraphView[] {
-  const result: WorkflowDesignGraphView[] = []
-  for (const node of graph.nodes) {
-    const loopGraph = node.data?.loop?.subGraph
-    if (loopGraph !== undefined) {
-      const nextScopePath = `${scopePath}.${node.id}.loop.subGraph`
-      result.push({
-        key: nextScopePath,
-        id: loopGraph.id ?? `${node.id}.loop`,
-        title: `${node.id} / loop`,
-        depth: depth + 1,
-        scopePath: nextScopePath,
-        graph: loopGraph,
-        carrier: 'loop',
-        ownerNodeId: node.id,
-        ownerNode: node,
-      })
-      result.push(...collectNestedGraphViews(loopGraph, nextScopePath, depth + 1))
-    }
-    const iterationGraph = node.data?.iteration?.subGraph
-    if (iterationGraph !== undefined) {
-      const nextScopePath = `${scopePath}.${node.id}.iteration.subGraph`
-      result.push({
-        key: nextScopePath,
-        id: iterationGraph.id ?? `${node.id}.iteration`,
-        title: `${node.id} / iteration`,
-        depth: depth + 1,
-        scopePath: nextScopePath,
-        graph: iterationGraph,
-        carrier: 'iteration',
-        ownerNodeId: node.id,
-        ownerNode: node,
-      })
-      result.push(...collectNestedGraphViews(iterationGraph, nextScopePath, depth + 1))
-    }
-  }
-  return result
-}
-
-function collectGraphLines(view: WorkflowDesignGraphView): WorkflowDesignLineView[] {
-  return view.graph.lines.map((line, index) => {
-    const fromNode = view.graph.nodes.find(node => node.id === line.from.nodeId)
-    const toNode = view.graph.nodes.find(node => node.id === line.to.nodeId)
-    return {
-      key: `${view.scopePath}:line:${line.id ?? index}`,
-      id: line.id ?? `${line.from.nodeId}-${line.to.nodeId}`,
-      from: line.from,
-      to: line.to,
-      fromNodeId: line.from.nodeId,
-      toNodeId: line.to.nodeId,
-      depth: view.depth,
-      scopePath: view.scopePath,
-      graph: view.graph,
-      line,
-      ...(fromNode === undefined ? {} : { fromNode }),
-      ...(toNode === undefined ? {} : { toNode }),
-    }
-  })
-}
-
-function autoLayoutWorkflowDesignGraph(view: WorkflowDesignGraphView): WorkflowDesignAutoLayoutGraphResult {
-  const layoutPositions = layoutWorkflowDesignGraphWithLayers(view.graph)
-  let changedNodePositions = false
-
-  for (const layoutPosition of layoutPositions) {
-    const position = layoutPosition.node.position
-    if (position?.x !== layoutPosition.x || position.y !== layoutPosition.y) {
-      changedNodePositions = true
-    }
-    layoutPosition.node.position = { ...position, x: layoutPosition.x, y: layoutPosition.y }
-  }
-
-  const viewport = view.graph.viewport
-  const changedViewport = layoutPositions.length > 0
-    && (viewport?.x !== 0 || viewport.y !== 0 || viewport.zoom !== 1)
-  if (layoutPositions.length > 0) {
-    view.graph.viewport = { ...viewport, x: 0, y: 0, zoom: 1 }
-  }
-
-  return {
-    scopePath: view.scopePath,
-    changedNodePositions,
-    changedViewport,
-  }
-}
-
-function layoutWorkflowDesignGraphWithLayers(graph: WorkflowDesignGraph): WorkflowDesignAutoLayoutNodePosition[] {
-  const layoutNodes = graph.nodes.map((node, originalIndex): WorkflowDesignAutoLayoutNode => ({
-    node,
-    originalIndex,
-    rank: 0,
-    lane: 0,
-    mainPath: false,
-    preferredLane: null,
-  }))
-  if (layoutNodes.length === 0) return []
-
-  const nodesById = new Map<string, WorkflowDesignAutoLayoutNode>()
-  const incomingNodesById = new Map<string, WorkflowDesignAutoLayoutNode[]>()
-  const outgoingNodesById = new Map<string, WorkflowDesignAutoLayoutNode[]>()
-  const incomingCountsById = new Map<string, number>()
-  for (const layoutNode of layoutNodes) {
-    nodesById.set(layoutNode.node.id, layoutNode)
-    incomingNodesById.set(layoutNode.node.id, [])
-    outgoingNodesById.set(layoutNode.node.id, [])
-    incomingCountsById.set(layoutNode.node.id, 0)
-  }
-
-  const acceptedNodePairKeys = new Set<string>()
-  for (const line of workflowLayoutForwardLines(graph)) {
-    const fromNode = nodesById.get(line.from.nodeId)
-    const toNode = nodesById.get(line.to.nodeId)
-    if (fromNode === undefined || toNode === undefined) continue
-    const nodePairKey = workflowDesignLayoutNodePairKey(fromNode.node.id, toNode.node.id)
-    if (acceptedNodePairKeys.has(nodePairKey)) continue
-    acceptedNodePairKeys.add(nodePairKey)
-    outgoingNodesById.get(fromNode.node.id)?.push(toNode)
-    incomingNodesById.get(toNode.node.id)?.push(fromNode)
-    incomingCountsById.set(toNode.node.id, (incomingCountsById.get(toNode.node.id) ?? 0) + 1)
-  }
-
-  rankWorkflowDesignLayoutNodes(layoutNodes, outgoingNodesById, incomingCountsById)
-  markWorkflowDesignMainPathNodes(layoutNodes, outgoingNodesById, incomingNodesById)
-  assignWorkflowDesignBranchRootLanes(layoutNodes, outgoingNodesById)
-  assignWorkflowDesignLayoutLanes(layoutNodes, incomingNodesById)
-
-  const minLane = layoutNodes.reduce((min, layoutNode) => Math.min(min, layoutNode.lane), Number.POSITIVE_INFINITY)
-  return layoutNodes.map(layoutNode => ({
-    node: layoutNode.node,
-    x: Math.round(WORKFLOW_AUTO_LAYOUT_START_X + (layoutNode.lane - minLane) * WORKFLOW_AUTO_LAYOUT_STEP_X),
-    y: WORKFLOW_AUTO_LAYOUT_START_Y + layoutNode.rank * WORKFLOW_AUTO_LAYOUT_STEP_Y,
-  }))
-}
-
-function rankWorkflowDesignLayoutNodes(
-  layoutNodes: WorkflowDesignAutoLayoutNode[],
-  outgoingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-  incomingCountsById: ReadonlyMap<string, number>,
-): void {
-  const remainingIncomingCountsById = new Map(incomingCountsById)
-  const queue = layoutNodes
-    .filter(layoutNode => (remainingIncomingCountsById.get(layoutNode.node.id) ?? 0) === 0)
-    .sort(compareWorkflowDesignLayoutNodes)
-  const rankedNodeIds = new Set<string>()
-
-  while (queue.length > 0) {
-    queue.sort(compareWorkflowDesignLayoutNodesByRank)
-    const currentNode = queue.shift()
-    if (currentNode === undefined || rankedNodeIds.has(currentNode.node.id)) continue
-    rankedNodeIds.add(currentNode.node.id)
-
-    const nextNodes = [...(outgoingNodesById.get(currentNode.node.id) ?? [])]
-      .sort(compareWorkflowDesignLayoutNodes)
-    for (const nextNode of nextNodes) {
-      nextNode.rank = Math.max(nextNode.rank, currentNode.rank + 1)
-      const nextIncomingCount = (remainingIncomingCountsById.get(nextNode.node.id) ?? 0) - 1
-      remainingIncomingCountsById.set(nextNode.node.id, nextIncomingCount)
-      if (nextIncomingCount <= 0) queue.push(nextNode)
-    }
-  }
-
-  let fallbackRank = layoutNodes.reduce((rank, layoutNode) => Math.max(rank, layoutNode.rank), 0) + 1
-  for (const layoutNode of [...layoutNodes].sort(compareWorkflowDesignLayoutNodes)) {
-    if (rankedNodeIds.has(layoutNode.node.id)) continue
-    layoutNode.rank = Math.max(layoutNode.rank, fallbackRank)
-    fallbackRank = layoutNode.rank + 1
-  }
-}
-
-function markWorkflowDesignMainPathNodes(
-  layoutNodes: readonly WorkflowDesignAutoLayoutNode[],
-  outgoingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-  incomingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): void {
-  const mainPathNodeIds = workflowDesignShortestPathNodeIds(layoutNodes, outgoingNodesById)
-  refineWorkflowDesignMainPathNodeIds(mainPathNodeIds, outgoingNodesById, incomingNodesById)
-  for (const layoutNode of layoutNodes) {
-    layoutNode.mainPath = mainPathNodeIds.has(layoutNode.node.id)
-    layoutNode.preferredLane = layoutNode.mainPath ? 0 : null
-  }
-}
-
-function workflowDesignShortestPathNodeIds(
-  layoutNodes: readonly WorkflowDesignAutoLayoutNode[],
-  outgoingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): Set<string> {
-  const startNode = layoutNodes.find(layoutNode => workflowDesignNodeType(layoutNode.node) === 'start')
-    ?? [...layoutNodes].sort(compareWorkflowDesignLayoutNodes)[0]
-  const outputNodeIds = new Set(
-    layoutNodes
-      .filter(layoutNode => workflowDesignNodeType(layoutNode.node) === 'output')
-      .map(layoutNode => layoutNode.node.id),
-  )
-  if (startNode === undefined || outputNodeIds.size === 0) {
-    return new Set(layoutNodes.map(layoutNode => layoutNode.node.id))
-  }
-
-  const queue: WorkflowDesignAutoLayoutNode[] = [startNode]
-  const previousNodeIdById = new Map<string, string | null>([[startNode.node.id, null]])
-  let foundOutputNodeId: string | null = null
-  while (queue.length > 0) {
-    const currentNode = queue.shift()
-    if (currentNode === undefined) continue
-    if (outputNodeIds.has(currentNode.node.id)) {
-      foundOutputNodeId = currentNode.node.id
-      break
-    }
-    for (const nextNode of uniqueWorkflowDesignLayoutNodes(outgoingNodesById.get(currentNode.node.id) ?? [])) {
-      if (previousNodeIdById.has(nextNode.node.id)) continue
-      previousNodeIdById.set(nextNode.node.id, currentNode.node.id)
-      queue.push(nextNode)
-    }
-  }
-
-  if (foundOutputNodeId === null) return new Set([startNode.node.id])
-  const pathNodeIds = new Set<string>()
-  let currentNodeId: string | null = foundOutputNodeId
-  while (currentNodeId !== null) {
-    pathNodeIds.add(currentNodeId)
-    currentNodeId = previousNodeIdById.get(currentNodeId) ?? null
-  }
-  return pathNodeIds
-}
-
-function refineWorkflowDesignMainPathNodeIds(
-  mainPathNodeIds: Set<string>,
-  outgoingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-  incomingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): void {
-  for (const mainPathNodeId of [...mainPathNodeIds]) {
-    const successors = uniqueWorkflowDesignLayoutNodes(outgoingNodesById.get(mainPathNodeId) ?? [])
-    if (successors.length < 2) continue
-    const mainSuccessors = successors.filter(successor => mainPathNodeIds.has(successor.node.id))
-    if (mainSuccessors.length !== 1) continue
-    const mainSuccessor = mainSuccessors[0]
-    if (mainSuccessor === undefined) continue
-    const successorIncomingCount = uniqueWorkflowDesignLayoutNodes(
-      incomingNodesById.get(mainSuccessor.node.id) ?? [],
-    ).length
-    if (successorIncomingCount > 1) continue
-    const branchSuccessors = successors.filter(successor => !mainPathNodeIds.has(successor.node.id))
-    if (branchSuccessors.some(successor => workflowDesignNodeReachesMainPath(successor, mainPathNodeIds, outgoingNodesById))) {
-      mainPathNodeIds.delete(mainSuccessor.node.id)
-    }
-  }
-}
-
-function workflowDesignNodeReachesMainPath(
-  startNode: WorkflowDesignAutoLayoutNode,
-  mainPathNodeIds: ReadonlySet<string>,
-  outgoingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): boolean {
-  const stack = [...uniqueWorkflowDesignLayoutNodes(outgoingNodesById.get(startNode.node.id) ?? [])]
-  const visitedNodeIds = new Set<string>([startNode.node.id])
-  while (stack.length > 0) {
-    const currentNode = stack.pop()
-    if (currentNode === undefined || visitedNodeIds.has(currentNode.node.id)) continue
-    if (mainPathNodeIds.has(currentNode.node.id)) return true
-    visitedNodeIds.add(currentNode.node.id)
-    stack.push(...uniqueWorkflowDesignLayoutNodes(outgoingNodesById.get(currentNode.node.id) ?? []))
-  }
-  return false
-}
-
-function assignWorkflowDesignBranchRootLanes(
-  layoutNodes: readonly WorkflowDesignAutoLayoutNode[],
-  outgoingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): void {
-  for (const layoutNode of [...layoutNodes].sort(compareWorkflowDesignLayoutNodesByRank)) {
-    if (!layoutNode.mainPath) continue
-    const branchNodes = uniqueWorkflowDesignLayoutNodes(outgoingNodesById.get(layoutNode.node.id) ?? [])
-      .filter(nextNode => !nextNode.mainPath)
-      .sort(compareWorkflowDesignLayoutNodes)
-    for (let index = 0; index < branchNodes.length; index += 1) {
-      const branchNode = branchNodes[index]
-      if (branchNode?.preferredLane !== null) continue
-      branchNode.preferredLane = workflowDesignBranchLaneOffset(index, branchNodes.length)
-    }
-  }
-}
-
-function assignWorkflowDesignLayoutLanes(
-  layoutNodes: readonly WorkflowDesignAutoLayoutNode[],
-  incomingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): void {
-  const rankGroups = new Map<number, WorkflowDesignAutoLayoutNode[]>()
-  for (const layoutNode of layoutNodes) {
-    const group = rankGroups.get(layoutNode.rank)
-    if (group === undefined) {
-      rankGroups.set(layoutNode.rank, [layoutNode])
-    } else {
-      group.push(layoutNode)
-    }
-  }
-
-  const sortedRanks = [...rankGroups.keys()].sort((left, right) => left - right)
-  for (const rank of sortedRanks) {
-    const rankNodes = rankGroups.get(rank)
-    if (rankNodes === undefined) continue
-    assignWorkflowDesignRankLanes(rankNodes, incomingNodesById)
-  }
-}
-
-function assignWorkflowDesignRankLanes(
-  rankNodes: readonly WorkflowDesignAutoLayoutNode[],
-  incomingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): void {
-  const nodesByPreferredLane = new Map<string, WorkflowDesignAutoLayoutNode[]>()
-  for (const layoutNode of [...rankNodes].sort(compareWorkflowDesignLayoutNodes)) {
-    const preferredLane = workflowDesignPreferredLayoutLane(layoutNode, incomingNodesById)
-    const laneKey = workflowDesignLayoutLaneKey(preferredLane)
-    const laneNodes = nodesByPreferredLane.get(laneKey)
-    if (laneNodes === undefined) {
-      nodesByPreferredLane.set(laneKey, [layoutNode])
-    } else {
-      laneNodes.push(layoutNode)
-    }
-  }
-
-  const usedLaneKeys = new Set<string>()
-  const laneGroups = [...nodesByPreferredLane.entries()]
-    .sort((left, right) => Number(left[0]) - Number(right[0]))
-  for (const [preferredLaneKey, laneNodes] of laneGroups) {
-    const preferredLane = Number(preferredLaneKey)
-    const sortedLaneNodes = [...laneNodes].sort(compareWorkflowDesignLayoutNodes)
-    for (let index = 0; index < sortedLaneNodes.length; index += 1) {
-      const layoutNode = sortedLaneNodes[index]
-      if (layoutNode === undefined) continue
-      const targetLane = preferredLane + workflowDesignCenteredLayoutOffset(index, sortedLaneNodes.length)
-      layoutNode.lane = reserveWorkflowDesignLayoutLane(targetLane, usedLaneKeys)
-    }
-  }
-}
-
-function workflowDesignPreferredLayoutLane(
-  layoutNode: WorkflowDesignAutoLayoutNode,
-  incomingNodesById: ReadonlyMap<string, readonly WorkflowDesignAutoLayoutNode[]>,
-): number {
-  if (layoutNode.preferredLane !== null) return layoutNode.preferredLane
-  const previousNodes = (incomingNodesById.get(layoutNode.node.id) ?? [])
-    .filter(incomingNode => incomingNode.rank < layoutNode.rank)
-  if (previousNodes.length === 0) return 0
-  return previousNodes.reduce((total, incomingNode) => total + incomingNode.lane, 0) / previousNodes.length
-}
-
-function workflowDesignBranchLaneOffset(index: number, count: number): number {
-  if (count === 2) return index === 0 ? -0.5 : 0.5
-  const lane = Math.floor(index / 2) + 1
-  return index % 2 === 0 ? -lane : lane
-}
-
-function workflowDesignCenteredLayoutOffset(index: number, count: number): number {
-  return index - (count - 1) / 2
-}
-
-function uniqueWorkflowDesignLayoutNodes(
-  layoutNodes: readonly WorkflowDesignAutoLayoutNode[],
-): WorkflowDesignAutoLayoutNode[] {
-  const seenNodeIds = new Set<string>()
-  const uniqueNodes: WorkflowDesignAutoLayoutNode[] = []
-  for (const layoutNode of layoutNodes) {
-    if (seenNodeIds.has(layoutNode.node.id)) continue
-    seenNodeIds.add(layoutNode.node.id)
-    uniqueNodes.push(layoutNode)
-  }
-  return uniqueNodes.sort(compareWorkflowDesignLayoutNodes)
-}
-
-function workflowDesignNodeType(node: WorkflowDesignGraphNode): SparkAgent.AgentWorkflowGraphNodeType {
-  return resolveDefinitionNodeType(node)
-}
-
-function reserveWorkflowDesignLayoutLane(preferredLane: number, usedLaneKeys: Set<string>): number {
-  const step = 0.5
-  for (let offset = 0; offset <= usedLaneKeys.size + 2; offset += step) {
-    const leftLane = preferredLane - offset
-    if (reserveWorkflowDesignLayoutLaneKey(leftLane, usedLaneKeys)) return leftLane
-    if (offset === 0) continue
-    const rightLane = preferredLane + offset
-    if (reserveWorkflowDesignLayoutLaneKey(rightLane, usedLaneKeys)) return rightLane
-  }
-  return preferredLane
-}
-
-function reserveWorkflowDesignLayoutLaneKey(lane: number, usedLaneKeys: Set<string>): boolean {
-  const laneKey = workflowDesignLayoutLaneKey(lane)
-  if (usedLaneKeys.has(laneKey)) return false
-  usedLaneKeys.add(laneKey)
-  return true
-}
-
-function workflowDesignLayoutLaneKey(lane: number): string {
-  return lane.toFixed(3)
-}
-
-function workflowDesignLayoutNodePairKey(fromNodeId: string, toNodeId: string): string {
-  return `${fromNodeId}\u0000${toNodeId}`
-}
-
-function compareWorkflowDesignLayoutNodes(
-  left: WorkflowDesignAutoLayoutNode,
-  right: WorkflowDesignAutoLayoutNode,
-): number {
-  return left.originalIndex - right.originalIndex
-}
-
-function compareWorkflowDesignLayoutNodesByRank(
-  left: WorkflowDesignAutoLayoutNode,
-  right: WorkflowDesignAutoLayoutNode,
-): number {
-  return left.rank - right.rank || compareWorkflowDesignLayoutNodes(left, right)
-}
-
-function workflowLayoutForwardLines(graph: WorkflowDesignGraph): WorkflowDesignGraphLine[] {
-  const acceptedLines: WorkflowDesignGraphLine[] = []
-  const nodeIndexById = new Map<string, number>()
-  for (const [index, node] of graph.nodes.entries()) {
-    nodeIndexById.set(node.id, index)
-  }
-  const lineCandidates = graph.lines
-    .map((line, originalIndex): WorkflowDesignAutoLayoutLineCandidate => ({
-      line,
-      originalIndex,
-      fromIndex: nodeIndexById.get(line.from.nodeId) ?? Number.MAX_SAFE_INTEGER,
-      toIndex: nodeIndexById.get(line.to.nodeId) ?? Number.MAX_SAFE_INTEGER,
-    }))
-    .sort(compareWorkflowDesignLayoutLineCandidates)
-
-  for (const { line } of lineCandidates) {
-    if (line.from.nodeId === line.to.nodeId) continue
-    if (workflowLayoutCreatesCycle(acceptedLines, line.from.nodeId, line.to.nodeId)) continue
-    acceptedLines.push(line)
-  }
-  return acceptedLines
-}
-
-function compareWorkflowDesignLayoutLineCandidates(
-  left: WorkflowDesignAutoLayoutLineCandidate,
-  right: WorkflowDesignAutoLayoutLineCandidate,
-): number {
-  return workflowDesignLayoutLineDirection(left) - workflowDesignLayoutLineDirection(right)
-    || left.fromIndex - right.fromIndex
-    || left.toIndex - right.toIndex
-    || left.originalIndex - right.originalIndex
-}
-
-function workflowDesignLayoutLineDirection(candidate: WorkflowDesignAutoLayoutLineCandidate): number {
-  return candidate.fromIndex <= candidate.toIndex ? 0 : 1
-}
-
-function workflowLayoutCreatesCycle(
-  acceptedLines: readonly WorkflowDesignGraphLine[],
-  fromNodeId: string,
-  toNodeId: string,
-): boolean {
-  const stack = [toNodeId]
-  const visitedNodeIds = new Set<string>()
-  while (stack.length > 0) {
-    const nodeId = stack.pop()
-    if (nodeId === undefined || visitedNodeIds.has(nodeId)) continue
-    if (nodeId === fromNodeId) return true
-    visitedNodeIds.add(nodeId)
-    for (const line of acceptedLines) {
-      if (line.from.nodeId === nodeId) stack.push(line.to.nodeId)
-    }
-  }
-  return false
-}
-
-function ensureDocumentSpark(document: WorkflowDesignDocument): JsonRecord {
-  const spark = document.x_spark
-  if (isJsonRecord(spark)) return spark
-  document.x_spark = {}
-  return document.x_spark
-}
-
-function ensureNodeData(node: WorkflowDesignGraphNode): WorkflowDesignNodeData {
-  node.data ??= {}
-  return node.data
-}
-
-function ensureRecord(parent: JsonRecord, key: string): JsonRecord {
-  const existing = parent[key]
-  if (isJsonRecord(existing)) return existing
-  const created: JsonRecord = {}
-  parent[key] = created
-  return created
-}
-
-function dirtyPathsFromDraft(draft: JsonRecord): string[] {
-  const value = draft['dirtyPaths']
-  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
-}
-
 function nextNodeId(graph: WorkflowDesignGraph, baseId: string): string {
   const used = new Set(graph.nodes.map(node => node.id))
   if (!used.has(baseId)) return baseId
@@ -1810,36 +899,6 @@ function createDefaultLineEndpoint(nodeId: string, memberName: string): Workflow
     memberName,
     dock: 0,
   }
-}
-
-function ensureWorkflowDesignLineVisual(line: WorkflowDesignGraphLine): WorkflowDesignLineVisual {
-  line.data ??= {}
-  const visual = line.data.visual
-  if (visual !== undefined && isJsonRecord(visual)) return visual
-  const created: WorkflowDesignLineVisual = {}
-  line.data.visual = created
-  return created
-}
-
-function normalizeWorkflowDesignLineEndpoint(
-  endpoint: WorkflowDesignLineEndpoint,
-): WorkflowDesignLineEndpoint {
-  const dock = endpoint.dock
-  if (dock !== undefined && (!Number.isInteger(dock) || dock < 0 || dock > 12)) {
-    throw new Error(`Workflow line dock must be an integer between 0 and 12: ${String(dock)}`)
-  }
-  return {
-    ...endpoint,
-    dock: dock ?? 0,
-  }
-}
-
-function isWorkflowDesignLineControlPoint(value: unknown): value is WorkflowDesignLineControlPoint {
-  return isJsonRecord(value)
-    && typeof value['x'] === 'number'
-    && Number.isFinite(value['x'])
-    && typeof value['y'] === 'number'
-    && Number.isFinite(value['y'])
 }
 
 function definitionWorkflowDesignLineData(data: WorkflowDesignLineData | undefined): JsonRecord | undefined {
@@ -1883,16 +942,6 @@ function normalizePosition(
     x: typeof input?.x === 'number' ? input.x : 120 + index * 220,
     y: typeof input?.y === 'number' ? input.y : 120,
   }
-}
-
-function readErrorStatus(error: unknown): number | null {
-  if (!isJsonRecord(error)) return null
-  const status = error['status']
-  if (typeof status === 'number') return status
-  const response = error['response']
-  if (!isJsonRecord(response)) return null
-  const responseStatus = response['status']
-  return typeof responseStatus === 'number' ? responseStatus : null
 }
 
 function readTitle(data: JsonRecord, fallback: string): string {

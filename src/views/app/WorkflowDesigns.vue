@@ -1,4558 +1,610 @@
 <!--
 @module app:views/app/WorkflowDesigns
-职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。
-边界：只处理设计态 JSON，不执行 Agent workflow 运行时。
-AI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel model context 或步骤线投影时，用本页面定位。
+职责：Agent 工作流设计页；目录、主图/子图、流程/节点/连线/变量/能力配置全部绑定 design.json 的投影 DataView。
+边界：编辑只写 DataView 编辑行，一次 saveChanges 合成一次 design.json 写入；发布只更新已有 definition.json 行，不创建文件。
+AI用途：排查工作流设计页的画布、属性表单、保存或发布时，从本页面定位视图绑定与命令编排。
 -->
 <template>
-  <div class="workflow-design-page">
-    <div class="workflow-design-shell" :style="workflowShellStyle">
-      <aside class="workflow-design-sidebar" :class="{ 'is-collapsed': leftPanelCollapsed }">
-        <button
-          v-if="leftPanelCollapsed"
-          type="button"
-          class="workflow-sidebar-collapsed-button"
-          title="展开设计列表"
-          @click="leftPanelCollapsed = false"
-        >
-          <span>设计</span>
-              <strong>{{ workflowDirectoryCount }}</strong>
-        </button>
-        <template v-else>
-          <div class="panel-heading workflow-list-heading">
-            <span>工作流设计</span>
-            <span class="workflow-list-heading-actions">
-              <el-tag size="small" type="info">{{ workflowDirectoryCount }}</el-tag>
-              <el-button link size="small" @click="leftPanelCollapsed = true">收起</el-button>
-            </span>
-          </div>
-          <el-skeleton v-if="loadingList && workflowDirectoryCount === 0" :rows="6" animated />
-          <el-empty v-else-if="workflowDirectoryCount === 0" description="暂无工作流设计" />
-          <RendererTable v-else :data-view-key="workflowDirectoryKey" :children="workflowDirectoryFields"
-            :highlight-current-row="true" :show-data-view-meta="false" :on-row-click="openDirectoryRow" />
-        </template>
-      </aside>
+  <div class="workflow-designs" :class="{'workflow-designs--collapsed': leftCollapsed}">
+    <aside class="workflow-designs__directory">
+      <header class="workflow-designs__directory-header">
+        <strong v-if="!leftCollapsed">工作流设计稿</strong>
+        <el-button size="small" :title="leftCollapsed ? '展开目录' : '收起目录'" @click="toggleLeft">{{ leftCollapsed ? '›' : '‹' }}</el-button>
+      </header>
+      <RendererTable v-if="owner && !leftCollapsed" :data-view-key="directoryKey" :children="directoryFields" :show-pagination="false"
+        :show-data-view-meta="false" :highlight-current-row="true" :on-row-click="chooseWorkflow" />
+    </aside>
 
-      <div
-        class="layout-resize-handle"
-        :class="{ 'is-disabled': leftPanelCollapsed }"
-        title="Resize workflow list"
-        role="separator"
-        aria-orientation="vertical"
-        @pointerdown.prevent="startLayoutResize($event, 'left')"
-      />
-
-      <main class="workflow-design-canvas">
-        <div v-if="currentDocument" class="canvas-toolbar">
-          <div class="document-title">
-            <span class="document-title-label">工作流设计</span>
-            <span class="document-title-id">{{ currentDocument.workflow.id }}</span>
-            <el-tag size="small">{{ currentDocument.kind }}</el-tag>
-            <el-tag size="small" :type="hasUnsavedChanges ? 'warning' : 'success'">
-              {{ hasUnsavedChanges ? 'unsaved' : 'saved' }}
-            </el-tag>
-          </div>
-          <div class="document-stats">
-            <span>节点 {{ allNodes.length }}</span>
-            <span>业务节点 {{ businessNodes.length }}</span>
-            <span v-if="currentTimestamp">ts {{ currentTimestamp }}</span>
-          </div>
-        </div>
-
-        <el-empty v-if="currentDocument === null && !opening" description="选择或新建工作流" />
-        <el-skeleton v-else-if="opening" :rows="12" animated />
-
-        <template v-else-if="currentDocument">
-          <section
-            v-if="currentMainGraphView"
-            class="graph-split"
-            :class="{
-              'is-top-collapsed': graphSplitCollapsed === 'top',
-              'is-bottom-collapsed': graphSplitCollapsed === 'bottom' || currentChildGraphView === null,
-            }"
-            :style="graphSplitStyle"
-          >
-            <template v-for="panel in graphSplitPanels" :key="panel.key">
-              <section
-                class="graph-split-pane graph-section"
-                :class="[
-                  `graph-split-pane--${panel.role}`,
-                  { 'is-collapsed': panel.collapsed },
-                ]"
-              >
-                <button
-                  v-if="panel.collapsed"
-                  type="button"
-                  class="graph-collapse-rail"
-                  :title="panel.role === 'main' ? 'Main graph collapsed' : 'Child graph collapsed'"
-                  @click="resetGraphSplit"
-                />
-
-                <template v-else-if="panel.graphView">
-                  <div class="section-label graph-panel-label">
-                    <span class="section-title">{{ graphPanelTitle(panel) }}</span>
-                    <span class="section-label-actions" @click.stop>
-                      <select
-                        v-if="panel.role === 'child' && mainChildGraphOptions.length > 1"
-                        v-model="currentChildGraphKey"
-                        class="native-select graph-child-select"
-                        title="选择下部子图"
-                      >
-                        <option v-for="child in mainChildGraphOptions" :key="child.key" :value="child.key">
-                          {{ child.title }}
-                        </option>
-                      </select>
-                      <el-tag v-if="panel.graphView.carrier === 'loop'" size="small" type="warning">循环分组</el-tag>
-                      <el-tag size="small" type="info">节点 {{ nodesForGraph(panel.graphView).length }}</el-tag>
-                      <el-tag size="small" type="info">连线 {{ linesForGraph(panel.graphView).length }}</el-tag>
-                      <el-button
-                        v-if="panel.role === 'main' && currentMainParentGraphView"
-                        link
-                        size="small"
-                        :icon="ArrowUp"
-                        @click.stop.prevent="returnMainGraphToParent"
-                      >
-                        回父级
-                      </el-button>
-                      <el-button
-                        v-if="panel.role === 'child'"
-                        link
-                        size="small"
-                        :icon="ArrowDown"
-                        @click.stop.prevent="promoteChildGraphToMain"
-                      >
-                        提升为 main
-                      </el-button>
-                    </span>
-                  </div>
-
-                  <div class="graph-panel-body">
-                    <div
-                      v-if="panel.graphView.carrier === 'loop'"
-                      class="loop-group-meta"
-                      role="group"
-                      aria-label="循环分组配置摘要"
-                    >
-                      <span>owner {{ panel.graphView.ownerNodeId }}</span>
-                      <span>mode {{ panel.graphView.ownerNode?.data?.loop?.mode || 'progressive' }}</span>
-                      <span>max {{ panel.graphView.ownerNode?.data?.loop?.maxLoopCount ?? 1 }}</span>
-                      <span>exit {{ panel.graphView.ownerNode?.data?.loop?.exitNodeId || '-' }}</span>
-                    </div>
-
-                    <div
-                      v-if="selectedNodeInGraph(panel.graphView) && selectedNode?.isBusinessNode === true && selectedClassModelOption"
-                      class="graph-class-model-strip"
-                    >
-                      <span class="class-model-pin" aria-hidden="true"></span>
-                      <strong>ClassModel</strong>
-                      <span class="graph-class-model-strip-badge">{{ selectedClassModelOption.kind }}</span>
-                      <span class="graph-class-model-strip-badge">attributes {{ selectedClassModelOption.attributes.length }}</span>
-                      <span class="graph-class-model-strip-badge">actions {{ selectedClassModelOption.methods.length }}</span>
-                      <span class="graph-class-model-strip-spacer" />
-                      <el-button link size="small" :icon="DocumentCopy" @click="openClassModelDrawer">
-                        知识抽屉
-                      </el-button>
-                      <el-button
-                        link
-                        size="small"
-                        :loading="classModelLoading"
-                        :icon="Refresh"
-                        @click="refreshClassModelOptions"
-                      >
-                        刷新
-                      </el-button>
-                    </div>
-
-                    <div class="workflow-flow-shell graph-panel-flow">
-                      <VueFlow
-                        :id="flowId(panel.graphView)"
-                        class="workflow-flow"
-                        :class="{ 'workflow-flow--subgraph': panel.graphView.carrier !== 'root' }"
-                        :nodes="flowNodesForGraph(panel.graphView)"
-                        :edges="flowConnectionsForGraph(panel.graphView)"
-                        :default-viewport="flowDefaultViewport(panel.graphView)"
-                        :connection-mode="ConnectionMode.Strict"
-                        :connection-line-type="ConnectionLineType.SmoothStep"
-                        :default-edge-options="flowDefaultLineOptions"
-                        :edges-updatable="true"
-                        :delete-key-code="null"
-                        :min-zoom="0.3"
-                        :max-zoom="1.6"
-                        @nodes-change="changes => handlePanelFlowNodesChange(changes, panel.graphView)"
-                        @node-drag-stop="handleFlowNodeDragStop"
-                        @edges-change="changes => handlePanelFlowLineChanges(changes, panel.graphView)"
-                        @edge-double-click="event => handlePanelFlowLineDoubleClick(event, panel.graphView)"
-                        @edge-update="event => handlePanelFlowLineUpdate(event, panel.graphView)"
-                        @connect="connection => handlePanelFlowConnect(connection, panel.graphView)"
-                        @viewport-change-end="viewport => handlePanelFlowViewportChangeEnd(viewport, panel.graphView)"
-                      >
-                        <Background pattern-color="#dbe3ee" :gap="24" />
-                        <Controls position="bottom-left" />
-                        <MiniMap pannable zoomable />
-
-                        <template #node-workflow="{ data, selected, id }">
-                          <div class="workflow-node" :class="{
-                            'is-selected': selected || selectedNodeKey === data.viewKey,
-                            'is-business': data.isBusinessNode,
-                            'is-boundary': data.isBoundaryNode,
-                            'is-loop': data.nodeType === 'loop',
-                          }" @dblclick.stop="openNodeEditor(data.viewKey)">
-                            <Handle v-for="dock in inputDockDefinitions" :id="`dock-${dock.id}`" :key="dock.id"
-                              type="target" :position="dock.position" :style="dock.style"
-                              :title="`输入接点 ${dock.id} · ${data.title}`" />
-                            <Handle v-for="dock in outputDockDefinitions" :id="`dock-${dock.id}`" :key="dock.id"
-                              type="source" :position="dock.position" :style="dock.style"
-                              :title="`输出接点 ${dock.id} · ${data.title}`" />
-                            <span class="node-kind">{{ data.nodeType }}</span>
-                            <strong>{{ data.title }}</strong>
-                            <small>{{ data.scopePath }} / {{ id }}</small>
-                            <span v-if="data.isBusinessNode" class="tool-name tool-name--pinned">
-                              <span class="class-model-pin" aria-hidden="true"></span>
-                              <span>{{ data.modelClassName }}</span>
-                            </span>
-                            <small v-if="data.modelDocText" class="node-jsdoc">{{ data.modelDocText }}</small>
-                            <span v-if="data.validationActionName" class="tool-name tool-name--pinned">
-                              <span class="class-model-pin" aria-hidden="true"></span>
-                              <span>{{ data.validationActionName }}</span>
-                            </span>
-                            <small v-if="data.validationActionDocText" class="node-jsdoc">{{ data.validationActionDocText }}</small>
-                          </div>
-                        </template>
-
-                        <template #edge-workflow-control="edge">
-                          <g
-                            class="workflow-control-edge"
-                            :class="`is-${edge.data.runtimeStatus}`"
-                            @dblclick.stop="addLineControlPoint($event, edge.data, panel.graphView)"
-                          >
-                            <BaseEdge
-                              :id="edge.id"
-                              :path="workflowControlEdgePath(edge)"
-                              :marker-end="edge.markerEnd"
-                              :style="edge.style"
-                            />
-                            <circle
-                              v-for="(point, index) in edge.data.controlPoints"
-                              :key="index"
-                              class="workflow-edge-control-point"
-                              :class="{ 'is-selected': isSelectedControlPoint(edge.data.lineKey, index) }"
-                              :cx="point.x"
-                              :cy="point.y"
-                              r="6"
-                              @pointerdown.stop.prevent="startControlPointDrag({ event: $event, data: edge.data, index, graphView: panel.graphView })"
-                              @click.stop="selectControlPoint(edge.data.lineKey, index)"
-                              @dblclick.stop.prevent="deleteLineControlPoint(edge.data.lineKey, index)"
-                            />
-                            <text
-                              v-if="edge.data.runtimeStatus !== 'idle'"
-                              class="workflow-edge-status-icon"
-                              :x="workflowEdgeStatusPoint(edge).x"
-                              :y="workflowEdgeStatusPoint(edge).y"
-                            >{{ workflowRuntimeStatusIcon(edge.data.runtimeStatus) }}</text>
-                          </g>
-                        </template>
-                      </VueFlow>
-                    </div>
-                  </div>
-                </template>
-              </section>
-
-              <div
-                v-if="panel.role === 'main'"
-                class="graph-splitter"
-                title="Resize graph split"
-                role="separator"
-                aria-orientation="horizontal"
-                @pointerdown.prevent="startGraphSplitResize"
-              >
-                <span class="graph-splitter-line" />
-                <span class="graph-splitter-actions" @pointerdown.stop>
-                  <el-button
-                    link
-                    size="small"
-                    :icon="ArrowUp"
-                    :disabled="currentChildGraphView === null"
-                    @click.stop.prevent="collapseGraphSplit('top')"
-                  >
-                    上折
-                  </el-button>
-                  <el-button link size="small" :icon="RefreshLeft" @click.stop.prevent="resetGraphSplit">
-                    复位
-                  </el-button>
-                  <el-button link size="small" :icon="ArrowDown" @click.stop.prevent="collapseGraphSplit('bottom')">
-                    下折
-                  </el-button>
-                </span>
-                <span class="graph-splitter-line" />
-              </div>
-            </template>
+    <main class="workflow-designs__canvas">
+      <p v-if="loadError" role="alert">{{ loadError }}</p>
+      <p v-if="unconfirmed" role="status">保存结果尚未确认，请再次点击保存核验；不会重复写入。</p>
+      <el-empty v-if="!workflowId" :description="owner ? '选择左侧工作流设计稿' : '正在装配工作流文件空间…'" />
+      <template v-else-if="design">
+        <section class="workflow-graph-panel" :style="childPath ? {flexBasis: `${splitRatio}%`} : undefined">
+          <header class="workflow-graph-panel__title">Main Graph · {{ workflowId }}</header>
+          <RendererGraph ref="mainGraph" class="workflow-graph" v-bind="graphProps('main')" />
+        </section>
+        <template v-if="childPath">
+          <div class="workflow-graph-splitter" role="separator" aria-orientation="horizontal" @pointerdown="startSplit" />
+          <section class="workflow-graph-panel">
+            <header class="workflow-graph-panel__title">
+              <span>Child Graph · {{ childPath }}</span>
+              <el-button size="small" :disabled="busy" @click="openChild('')">关闭子图</el-button>
+            </header>
+            <RendererGraph class="workflow-graph" v-bind="graphProps('child')" />
           </section>
         </template>
-      </main>
-
-      <div
-        class="layout-resize-handle"
-        title="Resize properties"
-        role="separator"
-        aria-orientation="vertical"
-        @pointerdown.prevent="startLayoutResize($event, 'right')"
-      />
-
-      <aside class="workflow-design-editor workflow-tool-sidebar">
-        <div class="panel-heading">
-          <span>工具栏</span>
-          <el-tag v-if="selectedLine" size="small" type="warning">连线</el-tag>
-          <el-tag
-            v-else-if="selectedNode"
-            size="small"
-            :type="selectedNode.isBusinessNode ? 'success' : selectedNode.isBoundaryNode ? 'info' : 'warning'"
-          >
-            {{ selectedNode.nodeType }}
-          </el-tag>
-        </div>
-
-        <section class="workflow-tool-group workflow-tool-group--actions">
-          <h3>流程级</h3>
-          <div class="workflow-tool-button-grid">
-            <el-button :icon="Refresh" :loading="loadingList" @click="loadDesigns">刷新</el-button>
-            <el-button type="primary" :icon="DocumentAdd" @click="openCreateDialog">新建</el-button>
-            <el-button :icon="DocumentCopy" :disabled="currentDocument === null" @click="openWorkflowPropertiesDrawer">
-              流程属性
-            </el-button>
-            <el-button :icon="DocumentCopy" :disabled="currentDocument === null" @click="copyJson">复制 JSON</el-button>
-            <el-button
-              :icon="RefreshLeft"
-              :loading="autoLayoutSaving"
-              :disabled="!canAutoLayout"
-              @click="autoLayoutCurrentDesign"
-            >
-              自动排版
-            </el-button>
-            <el-button :icon="DocumentCopy" :loading="openingDefinition" :disabled="!canOpenDefinition" @click="openDefinitionEditor">
-              Definition
-            </el-button>
-            <el-button type="success" :icon="Upload" :loading="saving" :disabled="!canSave" @click="saveCurrentDesign">
-              保存
-            </el-button>
-            <el-button type="primary" :icon="Upload" :loading="publishing" :disabled="!canPublish" @click="publishCurrentDefinition">
-              发布
-            </el-button>
-          </div>
-        </section>
-
-        <section class="workflow-tool-group">
-          <h3>节点级</h3>
-          <div v-if="selectedNode" class="workflow-tool-selection">
-            <strong>{{ selectedNode.title }}</strong>
-            <span>{{ selectedNode.id }}</span>
-            <span>{{ selectedNode.scopePath }}</span>
-          </div>
-          <div v-else class="workflow-tool-empty">未选择节点</div>
-          <el-button
-            :icon="DocumentAdd"
-            :disabled="currentMainGraphView === null"
-            @click="openNodeCreateDialogForCurrentGraph"
-          >
-            Add business node
-          </el-button>
-          <el-button :icon="DocumentCopy" :disabled="selectedNode === null" @click="openPropertiesDrawer">
-            打开属性
-          </el-button>
-          <el-button type="danger" :icon="Delete" :disabled="selectedNode === null" @click="deleteSelectedNode">
-            删除节点
-          </el-button>
-        </section>
-
-        <section class="workflow-tool-group">
-          <h3>连线级</h3>
-          <div v-if="selectedLine" class="workflow-tool-selection">
-            <strong>{{ selectedLine.id }}</strong>
-            <span>{{ selectedLine.fromNodeId }} -> {{ selectedLine.toNodeId }}</span>
-            <span>{{ selectedLine.scopePath }}</span>
-          </div>
-          <div v-else class="workflow-tool-empty">未选择连线</div>
-          <label v-if="selectedLine" class="workflow-line-type-field">
-            <span>线型</span>
-            <select v-model="lineVisualTypeText" class="native-select line-visual-type-select" @change="applySelectedLineVisualType">
-              <option value="orthogonal">正交</option>
-              <option value="straight">直线</option>
-              <option value="bezier">曲线</option>
-            </select>
-          </label>
-          <el-button :disabled="selectedLine === null || selectedLineControlPointCount === 0" @click="clearSelectedLineControlPoints">
-            清空控制点
-          </el-button>
-          <el-button :icon="DocumentCopy" :disabled="selectedLine === null" @click="openPropertiesDrawer">
-            打开属性
-          </el-button>
-          <el-button type="danger" :icon="Delete" :disabled="selectedLine === null" @click="deleteSelectedLine">
-            删除连线
-          </el-button>
-        </section>
-
-        <template v-if="selectedLine !== null && false">
-          <details class="editor-section collapsible-section" open>
-            <summary>连线信息</summary>
-            <div class="collapsible-body">
-              <el-descriptions :column="1" size="small" border>
-                <el-descriptions-item label="ID">{{ selectedLine?.id }}</el-descriptions-item>
-                <el-descriptions-item label="Scope">{{ selectedLine?.scopePath }}</el-descriptions-item>
-                <el-descriptions-item label="From">{{ selectedLine?.fromNodeId }}</el-descriptions-item>
-                <el-descriptions-item label="To">{{ selectedLine?.toNodeId }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>连线编辑</summary>
-            <div class="collapsible-body">
-              <el-form label-position="top">
-                <el-form-item label="From Node">
-                  <select v-model="lineFromNodeText" class="native-select" @change="markEditorDirty">
-                    <option v-for="node in selectedLineGraphNodes" :key="node.key" :value="node.id">
-                      {{ node.title }} / {{ node.id }}
-                    </option>
-                  </select>
-                </el-form-item>
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item label="From Model">
-                      <el-input v-model="lineFromModelText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="From Member">
-                      <el-input v-model="lineFromMemberText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-form-item label="To Node">
-                  <select v-model="lineToNodeText" class="native-select" @change="markEditorDirty">
-                    <option v-for="node in selectedLineGraphNodes" :key="node.key" :value="node.id">
-                      {{ node.title }} / {{ node.id }}
-                    </option>
-                  </select>
-                </el-form-item>
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item label="To Model">
-                      <el-input v-model="lineToModelText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="To Member">
-                      <el-input v-model="lineToMemberText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item label="Type">
-                      <el-input v-model="lineTypeText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="Relation">
-                      <el-input v-model="lineRelationText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item label="From Dock">
-                      <el-input v-model="lineFromDockText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="To Dock">
-                      <el-input v-model="lineToDockText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form>
-              <div class="editor-actions" style="justify-content: space-between">
-                <el-button :icon="CircleCheck" @click="applyLineEditorToSelected">应用连线</el-button>
-                <el-button type="danger" :icon="Delete" @click="deleteSelectedLine">删除连线</el-button>
-              </div>
-            </div>
-          </details>
-        </template>
-
-        <template v-if="selectedNode !== null && false">
-          <details class="editor-section collapsible-section" open>
-            <summary>节点信息</summary>
-            <div class="collapsible-body">
-                <el-descriptions :column="1" size="small" border>
-                  <el-descriptions-item label="ID">{{ selectedNode?.id }}</el-descriptions-item>
-                  <el-descriptions-item label="Scope">{{ selectedNode?.scopePath }}</el-descriptions-item>
-              </el-descriptions>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>基础编辑</summary>
-            <div class="collapsible-body">
-              <el-form label-position="top">
-                <el-form-item label="Type">
-                  <el-input v-model="nodeTypeText" @input="markEditorDirty" />
-                </el-form-item>
-                <el-form-item label="标题">
-                  <el-input v-model="nodeTitleText" @input="markEditorDirty" />
-                </el-form-item>
-                <el-form-item label="描述">
-                  <el-input v-model="nodeDescText" type="textarea" :rows="2" @input="markEditorDirty" />
-                </el-form-item>
-              </el-form>
-              <div class="editor-actions">
-                <el-button :icon="CircleCheck" @click="applySelectedDraft">应用节点</el-button>
-              </div>
-            </div>
-          </details>
-
-          <details v-if="selectedNode?.nodeType === 'loop'" class="editor-section collapsible-section" open>
-            <summary>循环分组</summary>
-            <div class="collapsible-body loop-editor-form">
-              <el-form label-position="top">
-                <el-form-item label="Mode">
-                  <el-input v-model="loopModeText" @input="markEditorDirty" />
-                </el-form-item>
-                <el-row :gutter="8">
-                  <el-col :span="12">
-                    <el-form-item label="Max Loop Count">
-                      <el-input-number
-                        v-model="loopMaxCountValue"
-                        :min="1"
-                        :step="1"
-                        controls-position="right"
-                        @change="markEditorDirty"
-                      />
-                    </el-form-item>
-                  </el-col>
-                  <el-col :span="12">
-                    <el-form-item label="Exit Node">
-                      <el-input v-model="loopExitNodeText" @input="markEditorDirty" />
-                    </el-form-item>
-                  </el-col>
-                </el-row>
-              </el-form>
-              <div class="editor-actions">
-                <el-button :icon="CircleCheck" @click="applyLoopEditorToSelected">应用循环配置</el-button>
-              </div>
-            </div>
-          </details>
-
-          <details
-            v-if="selectedNode?.isBusinessNode === true"
-            class="editor-section collapsible-section"
-            open
-          >
-            <summary>ClassModel</summary>
-            <div class="collapsible-body class-model-editor">
-              <el-form label-position="top">
-                <el-form-item label="Root Class">
-                  <el-input v-model="modelRootClassText" @input="markEditorDirty" />
-                </el-form-item>
-                <el-form-item label="Model Class">
-                  <select v-model="modelClassText" class="native-select" @change="handleModelClassSelectionChange">
-                    <option :value="modelClassText">{{ modelClassText || 'unbound' }}</option>
-                    <option v-for="item in classModelOptions" :key="item.kind" :value="item.kind">
-                      {{ item.kind }}
-                    </option>
-                  </select>
-                </el-form-item>
-                <el-form-item label="Completion Class">
-                  <el-input v-model="validationActionClassText" @input="markEditorDirty" />
-                </el-form-item>
-                <el-form-item label="Completion Member">
-                  <select v-model="validationActionNameText" class="native-select" @change="markEditorDirty">
-                    <option :value="validationActionNameText">{{ validationActionNameText || 'unbound' }}</option>
-                    <option v-for="method in selectedClassModelMethods" :key="method.name" :value="method.name">
-                      {{ method.name }}
-                    </option>
-                  </select>
-                </el-form-item>
-              </el-form>
-              <el-alert v-if="classModelError" :title="classModelError" type="error" :closable="false" />
-              <div v-if="selectedClassModelOption" class="class-model-catalog">
-                <strong>{{ selectedClassModelOption?.kind }}</strong>
-                <span>attributes {{ selectedClassModelOption?.attributes.length }}</span>
-                <span>actions {{ selectedClassModelOption?.methods.length }}</span>
-              </div>
-              <pre v-if="classModelGuideText" class="class-model-guide">{{ classModelGuideText }}</pre>
-              <div class="editor-actions">
-                <el-button :loading="classModelLoading" :icon="Refresh" @click="refreshClassModelOptions">
-                  刷新知识
-                </el-button>
-                <el-button :loading="classModelLoading" :icon="DocumentCopy" @click="loadValidationActionGuide">
-                  Action Guide
-                </el-button>
-                <el-button :icon="CircleCheck" @click="applyBusinessModelEditorToSelected">
-                  应用模型绑定
-                </el-button>
-              </div>
-            </div>
-          </details>
-
-        </template>
-      </aside>
-    </div>
-
-    <el-drawer
-      v-model="propertiesDrawerVisible"
-      class="properties-drawer"
-      direction="rtl"
-      :size="'33vw'"
-      :title="propertiesDrawerTitle"
-    >
-      <template v-if="propertiesDrawerTarget === 'workflow' && currentDocument">
-        <details class="editor-section collapsible-section" open>
-          <summary>流程信息</summary>
-          <div class="collapsible-body">
-            <el-descriptions :column="1" size="small" border>
-              <el-descriptions-item label="Design ID">{{ currentDocument.id }}</el-descriptions-item>
-              <el-descriptions-item label="Workflow ID">{{ currentDocument.workflow.id }}</el-descriptions-item>
-              <el-descriptions-item label="Kind">{{ currentDocument.kind }}</el-descriptions-item>
-              <el-descriptions-item label="Design Version">{{ currentDocument.version }}</el-descriptions-item>
-              <el-descriptions-item label="Workflow Version">{{ currentDocument.workflow.version }}</el-descriptions-item>
-              <el-descriptions-item v-for="row in workflowPrimaryMetadataRows" :key="row.label" :label="row.label">
-                {{ row.value }}
-              </el-descriptions-item>
-            </el-descriptions>
-          </div>
-        </details>
-
-        <details class="editor-section collapsible-section" open>
-          <summary>基础编辑</summary>
-          <div class="collapsible-body">
-            <el-form label-position="top">
-              <el-form-item label="中文标题">
-                <el-input v-model="workflowDesignerTitleText" class="workflow-title-input" @input="handleWorkflowEditorChange" />
-              </el-form-item>
-              <el-form-item label="Workflow Version">
-                <el-input-number v-model="workflowVersionValue" :min="1" :step="1" controls-position="right" @change="handleWorkflowEditorChange" />
-              </el-form-item>
-            </el-form>
-          </div>
-        </details>
-
-        <details class="editor-section collapsible-section" open>
-          <summary>变量</summary>
-          <div class="collapsible-body workflow-variable-editor">
-            <div class="workflow-variable-header">
-              <span>变量名</span>
-              <span>短标题</span>
-              <span>类型</span>
-              <span>必填</span>
-              <span>默认值</span>
-              <span>操作</span>
-            </div>
-            <div v-for="row in workflowVariableRows" :key="row.id" class="workflow-variable-row">
-              <el-input v-model="row.name" placeholder="name" @input="handleWorkflowEditorChange" />
-              <el-input v-model="row.title" placeholder="title" @input="handleWorkflowEditorChange" />
-              <select v-model="row.schemaType" class="native-select" @change="handleWorkflowEditorChange">
-                <option value="string">string</option>
-                <option value="number">number</option>
-                <option value="integer">integer</option>
-                <option value="boolean">boolean</option>
-                <option value="object">object</option>
-                <option value="array">array</option>
-              </select>
-              <label class="workflow-checkbox-label">
-                <input v-model="row.required" type="checkbox" @change="handleWorkflowEditorChange">
-                必填
-              </label>
-              <el-input
-                v-if="row.defaultValueEditable"
-                v-model="row.defaultValueText"
-                placeholder="default"
-                @input="handleWorkflowEditorChange"
-              />
-              <span v-else class="workflow-readonly-value">{{ metadataValueText(row.defaultValue) }}</span>
-              <el-button link type="danger" :icon="Delete" @click="removeWorkflowVariableRow(row)">删除</el-button>
-              <div v-if="workflowVariableDocText(row)" class="workflow-doc-reference">
-                <span class="class-model-pin" aria-hidden="true"></span>
-                <strong>用途</strong>
-                <span>{{ workflowVariableDocText(row) }}</span>
-              </div>
-            </div>
-            <el-button :icon="DocumentAdd" @click="addWorkflowVariableRow">添加变量</el-button>
-          </div>
-        </details>
-
-        <details class="editor-section collapsible-section" open>
-          <summary>运行绑定</summary>
-          <div class="collapsible-body workflow-runtime-editor">
-            <strong>Registration</strong>
-            <el-row :gutter="8">
-              <el-col :span="8">
-                <el-form-item label="Alias">
-                  <el-input v-model="workflowRuntimeAliasText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="Module ID">
-                  <el-input v-model="workflowRuntimeModuleIdText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="Business ID">
-                  <el-input v-model="workflowRuntimeBusinessIdText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <strong>Input Contract</strong>
-            <el-row :gutter="8">
-              <el-col :span="12">
-                <el-form-item label="Identity Field">
-                  <select v-model="workflowIdentityFieldText" class="native-select" @change="handleWorkflowEditorChange">
-                    <option v-for="option in workflowVariableEditorNames" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                </el-form-item>
-                <div v-if="workflowVariableDocTextByName(workflowIdentityFieldText)" class="workflow-doc-reference">
-                  <span class="class-model-pin" aria-hidden="true"></span>
-                  <strong>用途</strong>
-                  <span>{{ workflowVariableDocTextByName(workflowIdentityFieldText) }}</span>
-                </div>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="Message Field">
-                  <select v-model="workflowMessageFieldText" class="native-select" @change="handleWorkflowEditorChange">
-                    <option v-for="option in workflowVariableEditorNames" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                </el-form-item>
-                <div v-if="workflowVariableDocTextByName(workflowMessageFieldText)" class="workflow-doc-reference">
-                  <span class="class-model-pin" aria-hidden="true"></span>
-                  <strong>用途</strong>
-                  <span>{{ workflowVariableDocTextByName(workflowMessageFieldText) }}</span>
-                </div>
-              </el-col>
-            </el-row>
-            <div class="workflow-string-list">
-              <span>Readonly Steps</span>
-              <div v-for="card in workflowReadonlyStepCards" :key="card.id" class="workflow-string-row">
-                <el-input v-model="card.value" @input="handleWorkflowEditorChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeWorkflowStringCard(workflowReadonlyStepCards, card)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addWorkflowStringCard(workflowReadonlyStepCards, 'workflow.readonlyStep')">添加只读步骤</el-button>
-            </div>
-
-            <strong>Model Projection</strong>
-            <el-row :gutter="8">
-              <el-col :span="8">
-                <el-form-item label="Kind">
-                  <select v-model="workflowModelProjectionKindText" class="native-select" @change="handleWorkflowEditorChange">
-                    <option value="dts-class-model">dts-class-model</option>
-                  </select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="Root Class">
-                  <select v-model="workflowRootClassText" class="native-select" @change="handleWorkflowRootClassChange">
-                    <option v-for="option in rootClassOptions" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="Manifest Ref">
-                  <el-input v-model="workflowManifestUrlRefText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <div v-if="workflowRootClassDocText" class="workflow-doc-reference">
-              <span class="class-model-pin" aria-hidden="true"></span>
-              <strong>用途</strong>
-              <span>{{ workflowRootClassDocText }}</span>
-            </div>
-            <div class="workflow-inline-actions">
-              <el-button :loading="classModelLoading" :icon="Refresh" @click="refreshWorkflowClassModelOptions">
-                刷新知识
-              </el-button>
-              <el-button :icon="DocumentCopy" :disabled="workflowRootClassModelOption === null" @click="openClassModelDrawer">
-                知识抽屉
-              </el-button>
-            </div>
-
-            <strong>Executable</strong>
-            <el-row :gutter="8">
-              <el-col :span="8">
-                <el-form-item label="Kind">
-                  <select v-model="workflowExecutableKindText" class="native-select" @change="handleWorkflowEditorChange">
-                    <option value="js-module">js-module</option>
-                  </select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="Module Specifier">
-                  <el-input v-model="workflowExecutableModuleSpecifierText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="8">
-                <el-form-item label="Export Name">
-                  <el-input v-model="workflowExecutableExportNameText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-            </el-row>
-
-            <strong>Resolve Instance</strong>
-            <el-row :gutter="8">
-              <el-col :span="12">
-                <el-form-item label="Editor Source">
-                  <el-input v-model="workflowResolveEditorSourceText" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-col>
-              <el-col :span="12">
-                <el-form-item label="Identity Field">
-                  <select v-model="workflowResolveIdentityFieldText" class="native-select" @change="handleWorkflowEditorChange">
-                    <option v-for="option in workflowVariableEditorNames" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                </el-form-item>
-                <div v-if="workflowVariableDocTextByName(workflowResolveIdentityFieldText)" class="workflow-doc-reference">
-                  <span class="class-model-pin" aria-hidden="true"></span>
-                  <strong>用途</strong>
-                  <span>{{ workflowVariableDocTextByName(workflowResolveIdentityFieldText) }}</span>
-                </div>
-              </el-col>
-            </el-row>
-
-            <strong>Prompt and Tools</strong>
-            <el-form label-position="top">
-              <el-form-item label="System Prompt Template">
-                <el-input v-model="workflowSystemPromptTemplateText" type="textarea" :rows="3" @input="handleWorkflowEditorChange" />
-              </el-form-item>
-              <el-form-item label="Agent Complete Method">
-                <select v-model="workflowAgentCompleteMethodText" class="native-select" @change="handleWorkflowEditorChange">
-                  <option v-for="option in workflowMethodOptions" :key="option" :value="option">{{ option }}</option>
-                </select>
-              </el-form-item>
-            </el-form>
-            <div v-if="workflowAgentCompleteMethodDocText" class="workflow-doc-reference">
-              <span class="class-model-pin" aria-hidden="true"></span>
-              <strong>用途</strong>
-              <span>{{ workflowAgentCompleteMethodDocText }}</span>
-            </div>
-            <div class="workflow-string-list">
-              <span>Execution Tools</span>
-              <div v-for="card in workflowExecutionToolCards" :key="card.id" class="workflow-string-row">
-                <el-input v-model="card.value" @input="handleWorkflowEditorChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeWorkflowStringCard(workflowExecutionToolCards, card)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addWorkflowStringCard(workflowExecutionToolCards, 'workflow.executionTool')">添加工具</el-button>
-            </div>
-            <div class="workflow-string-list">
-              <span>Plan Without Tool Markers</span>
-              <div v-for="card in workflowPlanMarkerCards" :key="card.id" class="workflow-string-row">
-                <el-input v-model="card.value" @input="handleWorkflowEditorChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeWorkflowStringCard(workflowPlanMarkerCards, card)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addWorkflowStringCard(workflowPlanMarkerCards, 'workflow.planMarker')">添加标记</el-button>
-            </div>
-          </div>
-        </details>
-
-        <details class="editor-section collapsible-section" open>
-          <summary>流程能力</summary>
-          <div class="collapsible-body workflow-capability-editor">
-            <details v-for="card in workflowCapabilityCards" :key="card.id" class="structured-card" open>
-              <summary>{{ card.title || card.id }}</summary>
-              <el-form label-position="top">
-                <el-form-item label="ID">
-                  <el-input v-model="card.id" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-                <el-form-item label="Title">
-                  <el-input v-model="card.title" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-                <el-form-item label="Scope">
-                  <select v-model="card.scope" class="native-select" @change="handleWorkflowEditorChange">
-                    <option value="workflow">workflow</option>
-                    <option value="node">node</option>
-                  </select>
-                </el-form-item>
-                <el-form-item label="Description">
-                  <el-input v-model="card.description" type="textarea" :rows="2" @input="handleWorkflowEditorChange" />
-                </el-form-item>
-              </el-form>
-              <strong>Inputs</strong>
-              <div v-for="row in card.inputRows" :key="row.id" class="structured-field-row structured-field-row--compact">
-                <el-input v-model="row.path" placeholder="path" @input="handleWorkflowEditorChange" />
-                <select v-model="row.valueKind" class="native-select" @change="handleWorkflowEditorChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <el-input v-model="row.valueText" placeholder="value" @input="handleWorkflowEditorChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeWorkflowStructuredFieldRow(card.inputRows, row)">删除</el-button>
-                <div v-if="workflowStructuredRowDocText(row)" class="workflow-doc-reference structured-field-doc-reference">
-                  <span class="class-model-pin" aria-hidden="true"></span>
-                  <strong>用途</strong>
-                  <span>{{ workflowStructuredRowDocText(row) }}</span>
-                </div>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addWorkflowStructuredFieldRow(card.inputRows, 'workflow.capability.input')">添加输入</el-button>
-              <strong>Outputs</strong>
-              <div v-for="row in card.outputRows" :key="row.id" class="structured-field-row structured-field-row--compact">
-                <el-input v-model="row.path" placeholder="path" @input="handleWorkflowEditorChange" />
-                <select v-model="row.valueKind" class="native-select" @change="handleWorkflowEditorChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <el-input v-model="row.valueText" placeholder="value" @input="handleWorkflowEditorChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeWorkflowStructuredFieldRow(card.outputRows, row)">删除</el-button>
-                <div v-if="workflowStructuredRowDocText(row)" class="workflow-doc-reference structured-field-doc-reference">
-                  <span class="class-model-pin" aria-hidden="true"></span>
-                  <strong>用途</strong>
-                  <span>{{ workflowStructuredRowDocText(row) }}</span>
-                </div>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addWorkflowStructuredFieldRow(card.outputRows, 'workflow.capability.output')">添加输出</el-button>
-              <strong>Constraints</strong>
-              <div v-for="constraint in card.constraintCards" :key="constraint.id" class="workflow-string-row">
-                <el-input v-model="constraint.value" @input="handleWorkflowEditorChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeWorkflowStringCard(card.constraintCards, constraint)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addWorkflowStringCard(card.constraintCards, 'workflow.capability.constraint')">添加约束</el-button>
-              <el-button link type="danger" :icon="Delete" @click="removeWorkflowCapabilityCard(card)">删除能力</el-button>
-            </details>
-            <el-button :icon="DocumentAdd" @click="addWorkflowCapabilityCard">添加流程能力</el-button>
-          </div>
-        </details>
-
-        <details class="editor-section collapsible-section">
-          <summary>全量元信息只读</summary>
-          <div class="collapsible-body workflow-metadata-table">
-            <div v-for="row in workflowFullMetadataRows" :key="row.label" class="workflow-metadata-row">
-              <span>{{ row.label }}</span>
-              <strong>{{ row.value }}</strong>
-            </div>
-          </div>
-        </details>
-
-        <div class="editor-actions">
-          <el-button :icon="CircleCheck" @click="applyWorkflowEditorToCurrent">应用流程</el-button>
-        </div>
       </template>
+    </main>
 
-      <template v-else-if="propertiesDrawerTarget === 'line' && selectedLine">
-        <details class="editor-section collapsible-section" open>
-          <summary>连线信息</summary>
-          <div class="collapsible-body">
-            <el-descriptions :column="1" size="small" border>
-              <el-descriptions-item label="ID">{{ selectedLine.id }}</el-descriptions-item>
-              <el-descriptions-item label="Scope">{{ selectedLine.scopePath }}</el-descriptions-item>
-              <el-descriptions-item label="From">{{ selectedLine.fromNodeId }}</el-descriptions-item>
-              <el-descriptions-item label="To">{{ selectedLine.toNodeId }}</el-descriptions-item>
-            </el-descriptions>
-          </div>
-        </details>
+    <aside class="workflow-designs__tools">
+      <section>
+        <h3>工作流</h3>
+        <el-button :disabled="busy || !owner" @click="refreshDirectory">刷新目录</el-button>
+        <el-button :disabled="!design || busy" @click="openDrawer('workflow')">流程属性</el-button>
+        <el-button :disabled="!design || busy" @click="copyJson">复制已保存 JSON</el-button>
+        <el-button :disabled="!design || busy" @click="mainGraph?.arrange()">自动排版</el-button>
+        <el-button :disabled="!design || busy" @click="openDefinition">Definition</el-button>
+        <el-button type="primary" :disabled="!design || busy || !hasPending" :loading="saving" @click="save">{{ unconfirmed ? '核验保存结果' : '保存' }}</el-button>
+        <el-button :disabled="!design || busy || unconfirmed || !hasPending" @click="cancel">取消修改</el-button>
+        <el-button type="success" :disabled="!design || busy" :loading="publishing" @click="publish">发布 Definition</el-button>
+      </section>
+      <section v-if="design">
+        <h3>节点</h3>
+        <el-button :disabled="busy || !canAddNode(activeGraph)" @click="openNodeCreate">新增节点</el-button>
+        <el-button :disabled="busy || selected?.kind !== 'node'" @click="openDrawer('node')">节点属性</el-button>
+        <el-button :disabled="busy || !selectedChildPath" @click="openChild(selectedChildPath)">打开子图</el-button>
+        <el-button type="danger" :disabled="busy || selected?.kind !== 'node'" @click="removeNode">删除节点</el-button>
+      </section>
+      <section v-if="design">
+        <h3>连线</h3>
+        <el-button :disabled="busy || selected?.kind !== 'edge'" @click="openDrawer('line')">连线属性</el-button>
+        <el-button :disabled="busy || selected?.kind !== 'edge'" @click="clearControlPoints">清空控制点</el-button>
+        <el-button type="danger" :disabled="busy || selected?.kind !== 'edge'" @click="removeLine">删除连线</el-button>
+      </section>
+      <section v-if="design">
+        <h3>ClassModel</h3>
+        <el-input v-model="classModelRoot" size="small" placeholder="Root Class" />
+        <el-button size="small" :loading="classModelLoading" @click="queryClassModel">查询</el-button>
+        <p v-if="classModelError" role="alert">{{ classModelError }}</p>
+        <el-button v-for="option in classModelOptions" :key="option.kind" size="small" text @click="classModelActive = option">{{ option.kind }}</el-button>
+      </section>
+    </aside>
 
-        <details class="editor-section collapsible-section" open>
-          <summary>连线编辑</summary>
-          <div class="collapsible-body">
-            <el-form label-position="top">
-              <el-form-item label="From Node">
-                <select v-model="lineFromNodeText" class="native-select" @change="handleLineEditorChange">
-                  <option v-for="node in selectedLineGraphNodes" :key="node.key" :value="node.id">
-                    {{ node.title }} / {{ node.id }}
-                  </option>
-                </select>
-              </el-form-item>
-              <el-row :gutter="8">
-                <el-col :span="12">
-                  <el-form-item label="From Model">
-                    <span class="field-with-doc">
-                      <select v-model="lineFromModelText" class="native-select" @change="handleLineEditorChange">
-                        <option
-                          v-for="option in lineModelOptions(lineFromNodeText, lineFromModelText)"
-                          :key="option"
-                          :value="option"
-                        >
-                          {{ option }}
-                        </option>
-                      </select>
-                      <button v-if="lineFromModelDocText" type="button" class="doc-hint" :title="lineFromModelDocText" :aria-label="lineFromModelDocText">
-                        <el-icon><QuestionFilled /></el-icon>
-                        <span class="doc-hint-popover" role="tooltip">{{ lineFromModelDocText }}</span>
-                      </button>
-                    </span>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="From Member">
-                    <span class="field-with-doc">
-                      <select v-model="lineFromMemberText" class="native-select" @change="handleLineEditorChange">
-                        <option
-                          v-for="option in lineMemberOptions(lineFromNodeText, lineFromMemberText)"
-                          :key="option"
-                          :value="option"
-                        >
-                          {{ option }}
-                        </option>
-                      </select>
-                      <button v-if="lineFromMemberDocText" type="button" class="doc-hint" :title="lineFromMemberDocText" :aria-label="lineFromMemberDocText">
-                        <el-icon><QuestionFilled /></el-icon>
-                        <span class="doc-hint-popover" role="tooltip">{{ lineFromMemberDocText }}</span>
-                      </button>
-                    </span>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-form-item label="To Node">
-                <select v-model="lineToNodeText" class="native-select line-to-node-select" @change="handleLineEditorChange">
-                  <option v-for="node in selectedLineGraphNodes" :key="node.key" :value="node.id">
-                    {{ node.title }} / {{ node.id }}
-                  </option>
-                </select>
-              </el-form-item>
-              <el-row :gutter="8">
-                <el-col :span="12">
-                  <el-form-item label="To Model">
-                    <span class="field-with-doc">
-                      <select v-model="lineToModelText" class="native-select" @change="handleLineEditorChange">
-                        <option
-                          v-for="option in lineModelOptions(lineToNodeText, lineToModelText)"
-                          :key="option"
-                          :value="option"
-                        >
-                          {{ option }}
-                        </option>
-                      </select>
-                      <button v-if="lineToModelDocText" type="button" class="doc-hint" :title="lineToModelDocText" :aria-label="lineToModelDocText">
-                        <el-icon><QuestionFilled /></el-icon>
-                        <span class="doc-hint-popover" role="tooltip">{{ lineToModelDocText }}</span>
-                      </button>
-                    </span>
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="To Member">
-                    <span class="field-with-doc">
-                      <select v-model="lineToMemberText" class="native-select" @change="handleLineEditorChange">
-                        <option
-                          v-for="option in lineMemberOptions(lineToNodeText, lineToMemberText)"
-                          :key="option"
-                          :value="option"
-                        >
-                          {{ option }}
-                        </option>
-                      </select>
-                      <button v-if="lineToMemberDocText" type="button" class="doc-hint" :title="lineToMemberDocText" :aria-label="lineToMemberDocText">
-                        <el-icon><QuestionFilled /></el-icon>
-                        <span class="doc-hint-popover" role="tooltip">{{ lineToMemberDocText }}</span>
-                      </button>
-                    </span>
-                  </el-form-item>
-                </el-col>
-              </el-row>
-              <el-row :gutter="8">
-                <el-col :span="12">
-                  <el-form-item label="Type">
-                    <el-input v-model="lineTypeText" @input="handleLineEditorChange" />
-                  </el-form-item>
-                </el-col>
-                <el-col :span="12">
-                  <el-form-item label="Relation">
-                    <el-input v-model="lineRelationText" @input="handleLineEditorChange" />
-                  </el-form-item>
-                </el-col>
-              </el-row>
-            </el-form>
-            <div class="editor-actions" style="justify-content: space-between">
-              <el-button type="danger" :icon="Delete" @click="deleteSelectedLine">删除连线</el-button>
-            </div>
-          </div>
-        </details>
+    <el-drawer v-model="drawerOpen" class="workflow-properties-drawer" direction="rtl" size="40vw" :title="drawerTitle">
+      <template v-if="design && drawerTarget === 'workflow'">
+        <RendererForm :data-view-key="viewKey(design.workflow)" :children="workflowFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
+        <h4>变量</h4>
+        <RendererTable :data-view-key="viewKey(design.variables)" :children="variableList" :toolbar="listToolbar(design.variables, 'name', '变量')"
+          :show-pagination="false" :show-data-view-meta="false" :highlight-current-row="true" />
+        <RendererForm v-if="currentRow(design.variables)" :data-view-key="viewKey(design.variables)" :children="variableFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
+        <h4>能力</h4>
+        <RendererTable :data-view-key="viewKey(design.capabilities)" :children="capabilityList" :toolbar="listToolbar(design.capabilities, 'id', '能力')"
+          :show-pagination="false" :show-data-view-meta="false" :highlight-current-row="true" />
+        <RendererForm v-if="currentRow(design.capabilities)" :data-view-key="viewKey(design.capabilities)" :children="capabilityFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
       </template>
-
-      <template v-else-if="propertiesDrawerTarget === 'node' && selectedNode">
-        <details class="editor-section collapsible-section" open>
-          <summary>节点信息</summary>
-          <div class="collapsible-body">
-            <el-descriptions :column="1" size="small" border>
-              <el-descriptions-item label="ID">{{ selectedNode.id }}</el-descriptions-item>
-              <el-descriptions-item label="Scope">{{ selectedNode.scopePath }}</el-descriptions-item>
-            </el-descriptions>
-          </div>
-        </details>
-
-        <details class="editor-section collapsible-section" open>
-          <summary>基础编辑</summary>
-          <div class="collapsible-body">
-            <el-form label-position="top">
-              <el-form-item label="Type">
-                <el-input v-model="nodeTypeText" @input="markEditorDirty" />
-              </el-form-item>
-              <el-form-item label="标题">
-                <el-input v-model="nodeTitleText" @input="markEditorDirty" />
-              </el-form-item>
-              <el-form-item label="描述">
-                <el-input v-model="nodeDescText" type="textarea" :rows="2" @input="markEditorDirty" />
-              </el-form-item>
-            </el-form>
-            <div class="editor-actions">
-              <el-button :icon="CircleCheck" @click="applySelectedDraft">应用节点</el-button>
-            </div>
-            </div>
-          </details>
-
-        <details v-if="selectedNode.nodeType === 'loop'" class="editor-section collapsible-section" open>
-          <summary>循环分组</summary>
-          <div class="collapsible-body loop-editor-form">
-            <el-form label-position="top">
-              <el-form-item label="Mode">
-                <el-input v-model="loopModeText" @input="markEditorDirty" />
-              </el-form-item>
-              <el-form-item label="Exit Node">
-                <select v-model="loopExitNodeText" class="native-select" @change="markEditorDirty">
-                  <option v-for="node in selectedLineGraphNodes" :key="node.key" :value="node.id">
-                    {{ node.title }} / {{ node.id }}
-                  </option>
-                </select>
-              </el-form-item>
-            </el-form>
-          </div>
-        </details>
-
-        <template v-if="selectedNode.isBusinessNode">
-          <details class="editor-section collapsible-section" open>
-            <summary>ClassModel</summary>
-            <div class="collapsible-body class-model-editor">
-              <el-form label-position="top">
-                <el-form-item label="Root Class">
-                  <span class="field-with-doc">
-                    <select v-model="modelRootClassText" class="native-select" @change="handleBusinessNodeStructuredChange">
-                      <option v-for="option in rootClassOptions" :key="option" :value="option">{{ option }}</option>
-                    </select>
-                    <button v-if="modelRootClassDocText" type="button" class="doc-hint" :title="modelRootClassDocText" :aria-label="modelRootClassDocText">
-                      <el-icon><QuestionFilled /></el-icon>
-                      <span class="doc-hint-popover" role="tooltip">{{ modelRootClassDocText }}</span>
-                    </button>
-                  </span>
-                </el-form-item>
-                <el-form-item label="Model Class">
-                  <span class="field-with-doc">
-                    <select v-model="modelClassText" class="native-select" @change="handleModelClassSelectionChange">
-                      <option v-for="option in modelClassOptions" :key="option" :value="option">{{ option }}</option>
-                    </select>
-                    <button v-if="modelClassDocText" type="button" class="doc-hint" :title="modelClassDocText" :aria-label="modelClassDocText">
-                      <el-icon><QuestionFilled /></el-icon>
-                      <span class="doc-hint-popover" role="tooltip">{{ modelClassDocText }}</span>
-                    </button>
-                  </span>
-                </el-form-item>
-                <el-form-item label="Completion Class">
-                  <span class="field-with-doc">
-                    <select
-                      v-model="validationActionClassText"
-                      class="native-select"
-                      @change="handleBusinessNodeStructuredChange"
-                    >
-                      <option v-for="option in modelClassOptions" :key="option" :value="option">{{ option }}</option>
-                    </select>
-                    <button v-if="validationActionClassDocText" type="button" class="doc-hint" :title="validationActionClassDocText" :aria-label="validationActionClassDocText">
-                      <el-icon><QuestionFilled /></el-icon>
-                      <span class="doc-hint-popover" role="tooltip">{{ validationActionClassDocText }}</span>
-                    </button>
-                  </span>
-                </el-form-item>
-                <el-form-item label="Completion Member">
-                  <span class="field-with-doc">
-                    <select
-                      v-model="validationActionNameText"
-                      class="native-select"
-                      @change="handleBusinessNodeStructuredChange"
-                    >
-                      <option v-for="option in completionMemberOptions" :key="option" :value="option">{{ option }}</option>
-                    </select>
-                    <button v-if="validationActionMemberDocText" type="button" class="doc-hint" :title="validationActionMemberDocText" :aria-label="validationActionMemberDocText">
-                      <el-icon><QuestionFilled /></el-icon>
-                      <span class="doc-hint-popover" role="tooltip">{{ validationActionMemberDocText }}</span>
-                    </button>
-                  </span>
-                </el-form-item>
-              </el-form>
-              <el-alert v-if="classModelError" :title="classModelError" type="error" :closable="false" />
-              <div v-if="selectedClassModelOption" class="class-model-catalog">
-                <strong>{{ selectedClassModelOption?.kind }}</strong>
-                <span>attributes {{ selectedClassModelOption?.attributes.length }}</span>
-                <span>actions {{ selectedClassModelOption?.methods.length }}</span>
-              </div>
-              <pre v-if="classModelGuideText" class="class-model-guide">{{ classModelGuideText }}</pre>
-              <div class="editor-actions">
-                <el-button :loading="classModelLoading" :icon="Refresh" @click="refreshClassModelOptions">
-                  刷新知识
-                </el-button>
-                <el-button :loading="classModelLoading" :icon="DocumentCopy" @click="loadValidationActionGuide">
-                  Action Guide
-                </el-button>
-              </div>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>输入</summary>
-            <div class="collapsible-body structured-editor">
-              <div
-                v-for="row in businessInputRows"
-                :key="row.id"
-                class="structured-field-row structured-field-row--inputs"
-              >
-                <span class="field-with-doc structured-field-path">
-                  <select v-model="row.path" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in structuredPathOptions(businessInputRows)" :key="option" :value="option">
-                      {{ option }}
-                    </option>
-                  </select>
-                  <button v-if="nodeStructuredRowPathDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowPathDocText(row)" :aria-label="nodeStructuredRowPathDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowPathDocText(row) }}</span>
-                  </button>
-                </span>
-                <select v-model="row.valueKind" class="native-select structured-field-kind" @change="handleBusinessNodeStructuredChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <span v-if="row.valueKind === 'reference'" class="field-with-doc structured-field-value">
-                  <select
-                    v-model="row.valueText"
-                    class="native-select"
-                    @change="handleBusinessNodeStructuredChange"
-                  >
-                    <option v-for="option in structuredValueOptions(row)" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeStructuredRowValueDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowValueDocText(row)" :aria-label="nodeStructuredRowValueDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowValueDocText(row) }}</span>
-                  </button>
-                </span>
-                <input
-                  v-else-if="row.valueKind === 'boolean'"
-                  v-model="row.valueBoolean"
-                  class="structured-checkbox"
-                  type="checkbox"
-                  @change="handleBusinessNodeStructuredChange"
-                >
-                <el-input v-else v-model="row.valueText" class="structured-field-value" @input="handleBusinessNodeStructuredChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeStructuredFieldRow(businessInputRows, row)">
-                  删除
-                </el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addStructuredFieldRow(businessInputRows, 'input')">添加输入</el-button>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>输出</summary>
-            <div class="collapsible-body structured-editor">
-              <div
-                v-for="row in businessOutputRows"
-                :key="row.id"
-                class="structured-field-row structured-field-row--outputs"
-              >
-                <span class="field-with-doc structured-field-path">
-                  <select v-model="row.path" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in structuredPathOptions(businessOutputRows)" :key="option" :value="option">
-                      {{ option }}
-                    </option>
-                  </select>
-                  <button v-if="nodeStructuredRowPathDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowPathDocText(row)" :aria-label="nodeStructuredRowPathDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowPathDocText(row) }}</span>
-                  </button>
-                </span>
-                <select v-model="row.valueKind" class="native-select structured-field-kind" @change="handleBusinessNodeStructuredChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <span v-if="row.valueKind === 'reference'" class="field-with-doc structured-field-value">
-                  <select
-                    v-model="row.valueText"
-                    class="native-select"
-                    @change="handleBusinessNodeStructuredChange"
-                  >
-                    <option v-for="option in structuredValueOptions(row)" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeStructuredRowValueDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowValueDocText(row)" :aria-label="nodeStructuredRowValueDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowValueDocText(row) }}</span>
-                  </button>
-                </span>
-                <input
-                  v-else-if="row.valueKind === 'boolean'"
-                  v-model="row.valueBoolean"
-                  class="structured-checkbox"
-                  type="checkbox"
-                  @change="handleBusinessNodeStructuredChange"
-                >
-                <el-input v-else v-model="row.valueText" class="structured-field-value" @input="handleBusinessNodeStructuredChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeStructuredFieldRow(businessOutputRows, row)">
-                  删除
-                </el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addStructuredFieldRow(businessOutputRows, 'output')">添加输出</el-button>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>LLM 任务</summary>
-            <div class="collapsible-body structured-editor">
-              <el-form label-position="top">
-                <el-form-item label="Goal">
-                  <el-input v-model="taskGoalText" type="textarea" :rows="2" @input="handleBusinessNodeStructuredChange" />
-                </el-form-item>
-              </el-form>
-              <strong>Requirements</strong>
-              <div v-for="row in taskRequirementRows" :key="row.id" class="structured-field-row">
-                <span class="field-with-doc structured-field-path">
-                  <select v-model="row.path" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in structuredPathOptions(taskRequirementRows)" :key="option" :value="option">
-                      {{ option }}
-                    </option>
-                  </select>
-                  <button v-if="nodeStructuredRowPathDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowPathDocText(row)" :aria-label="nodeStructuredRowPathDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowPathDocText(row) }}</span>
-                  </button>
-                </span>
-                <select v-model="row.valueKind" class="native-select structured-field-kind" @change="handleBusinessNodeStructuredChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <span v-if="row.valueKind === 'reference'" class="field-with-doc structured-field-value">
-                  <select
-                    v-model="row.valueText"
-                    class="native-select"
-                    @change="handleBusinessNodeStructuredChange"
-                  >
-                    <option v-for="option in structuredValueOptions(row)" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeStructuredRowValueDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowValueDocText(row)" :aria-label="nodeStructuredRowValueDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowValueDocText(row) }}</span>
-                  </button>
-                </span>
-                <el-input v-else v-model="row.valueText" class="structured-field-value" @input="handleBusinessNodeStructuredChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeStructuredFieldRow(taskRequirementRows, row)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addStructuredFieldRow(taskRequirementRows, 'task.requirement')">添加需求</el-button>
-              <strong>Context Inputs</strong>
-              <div v-for="row in taskContextInputRows" :key="row.id" class="structured-field-row">
-                <span class="field-with-doc structured-field-path">
-                  <select v-model="row.path" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in structuredPathOptions(taskContextInputRows)" :key="option" :value="option">
-                      {{ option }}
-                    </option>
-                  </select>
-                  <button v-if="nodeStructuredRowPathDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowPathDocText(row)" :aria-label="nodeStructuredRowPathDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowPathDocText(row) }}</span>
-                  </button>
-                </span>
-                <select v-model="row.valueKind" class="native-select structured-field-kind" @change="handleBusinessNodeStructuredChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <span v-if="row.valueKind === 'reference'" class="field-with-doc structured-field-value">
-                  <select
-                    v-model="row.valueText"
-                    class="native-select"
-                    @change="handleBusinessNodeStructuredChange"
-                  >
-                    <option v-for="option in structuredValueOptions(row)" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeStructuredRowValueDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowValueDocText(row)" :aria-label="nodeStructuredRowValueDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowValueDocText(row) }}</span>
-                  </button>
-                </span>
-                <el-input v-else v-model="row.valueText" class="structured-field-value" @input="handleBusinessNodeStructuredChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeStructuredFieldRow(taskContextInputRows, row)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addStructuredFieldRow(taskContextInputRows, 'task.context')">添加上下文</el-button>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>知识和调用</summary>
-            <div class="collapsible-body structured-editor">
-              <strong>Allowed Actions</strong>
-              <div v-for="card in allowedActionCards" :key="card.id" class="structured-card">
-                <span class="field-with-doc">
-                  <select v-model="card.value" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in completionMemberOptions" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeActionCardDocText(card)" type="button" class="doc-hint" :title="nodeActionCardDocText(card)" :aria-label="nodeActionCardDocText(card)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeActionCardDocText(card) }}</span>
-                  </button>
-                </span>
-                <el-button link type="danger" :icon="Delete" @click="removeSelectCard(allowedActionCards, card)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addSelectCard(allowedActionCards, completionMemberOptions, 'knowledge.action')">
-                添加 Action
-              </el-button>
-              <strong>Readable Attributes</strong>
-              <div v-for="card in readableAttributeCards" :key="card.id" class="structured-card">
-                <span class="field-with-doc">
-                  <select v-model="card.value" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in modelAttributeOptions" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeAttributeCardDocText(card)" type="button" class="doc-hint" :title="nodeAttributeCardDocText(card)" :aria-label="nodeAttributeCardDocText(card)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeAttributeCardDocText(card) }}</span>
-                  </button>
-                </span>
-                <el-button link type="danger" :icon="Delete" @click="removeSelectCard(readableAttributeCards, card)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addSelectCard(readableAttributeCards, modelAttributeOptions, 'knowledge.attribute')">
-                添加属性
-              </el-button>
-              <el-form label-position="top">
-                <el-form-item label="Function Calling Mode">
-                  <select v-model="functionCallingModeText" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option value="freeWithinModelContext">freeWithinModelContext</option>
-                    <option value="restricted">restricted</option>
-                    <option value="disabled">disabled</option>
-                  </select>
-                </el-form-item>
-              </el-form>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>校验</summary>
-            <div class="collapsible-body structured-editor">
-              <el-descriptions :column="1" size="small" border>
-                <el-descriptions-item label="Status">{{ validationStatusText || 'draft' }}</el-descriptions-item>
-              </el-descriptions>
-              <strong>Input Projection</strong>
-              <div v-for="row in validationInputProjectionRows" :key="row.id" class="structured-field-row">
-                <span class="field-with-doc structured-field-path">
-                  <select v-model="row.path" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in structuredPathOptions(validationInputProjectionRows)" :key="option" :value="option">
-                      {{ option }}
-                    </option>
-                  </select>
-                  <button v-if="nodeStructuredRowPathDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowPathDocText(row)" :aria-label="nodeStructuredRowPathDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowPathDocText(row) }}</span>
-                  </button>
-                </span>
-                <select v-model="row.valueKind" class="native-select structured-field-kind" @change="handleBusinessNodeStructuredChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <span v-if="row.valueKind === 'reference'" class="field-with-doc structured-field-value">
-                  <select
-                    v-model="row.valueText"
-                    class="native-select"
-                    @change="handleBusinessNodeStructuredChange"
-                  >
-                    <option v-for="option in structuredValueOptions(row)" :key="option" :value="option">{{ option }}</option>
-                  </select>
-                  <button v-if="nodeStructuredRowValueDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowValueDocText(row)" :aria-label="nodeStructuredRowValueDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowValueDocText(row) }}</span>
-                  </button>
-                </span>
-                <el-input v-else v-model="row.valueText" class="structured-field-value" @input="handleBusinessNodeStructuredChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeStructuredFieldRow(validationInputProjectionRows, row)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addStructuredFieldRow(validationInputProjectionRows, 'validation.input')">添加输入投影</el-button>
-              <strong>Expected Result</strong>
-              <div v-for="row in validationExpectedResultRows" :key="row.id" class="structured-field-row">
-                <span class="field-with-doc structured-field-path">
-                  <select v-model="row.path" class="native-select" @change="handleBusinessNodeStructuredChange">
-                    <option v-for="option in structuredPathOptions(validationExpectedResultRows)" :key="option" :value="option">
-                      {{ option }}
-                    </option>
-                  </select>
-                  <button v-if="nodeStructuredRowPathDocText(row)" type="button" class="doc-hint" :title="nodeStructuredRowPathDocText(row)" :aria-label="nodeStructuredRowPathDocText(row)">
-                    <el-icon><QuestionFilled /></el-icon>
-                    <span class="doc-hint-popover" role="tooltip">{{ nodeStructuredRowPathDocText(row) }}</span>
-                  </button>
-                </span>
-                <select v-model="row.valueKind" class="native-select structured-field-kind" @change="handleBusinessNodeStructuredChange">
-                  <option value="reference">引用</option>
-                  <option value="text">文本</option>
-                  <option value="number">数字</option>
-                  <option value="boolean">布尔</option>
-                </select>
-                <el-input v-model="row.valueText" class="structured-field-value" @input="handleBusinessNodeStructuredChange" />
-                <el-button link type="danger" :icon="Delete" @click="removeStructuredFieldRow(validationExpectedResultRows, row)">删除</el-button>
-              </div>
-              <el-button :icon="DocumentAdd" @click="addStructuredFieldRow(validationExpectedResultRows, 'validation.expected')">添加期望结果</el-button>
-              <strong>Issues</strong>
-              <pre class="readonly-json-preview">{{ validationIssuesPreview }}</pre>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section" open>
-            <summary>能力</summary>
-            <div class="collapsible-body structured-editor">
-              <details v-for="card in capabilityCards" :key="card.id" class="structured-card" open>
-                <summary>{{ card.title || card.id }}</summary>
-                <el-form label-position="top">
-                  <el-form-item label="Title">
-                    <el-input v-model="card.title" @input="handleBusinessNodeStructuredChange" />
-                  </el-form-item>
-                  <el-form-item label="Scope">
-                    <select v-model="card.scope" class="native-select" @change="handleBusinessNodeStructuredChange">
-                      <option value="node">node</option>
-                      <option value="workflow">workflow</option>
-                    </select>
-                  </el-form-item>
-                  <el-form-item label="Description">
-                    <el-input v-model="card.description" type="textarea" :rows="2" @input="handleBusinessNodeStructuredChange" />
-                  </el-form-item>
-                </el-form>
-                <el-button link type="danger" :icon="Delete" @click="removeCapabilityCard(card)">删除能力</el-button>
-              </details>
-              <el-button :icon="DocumentAdd" @click="addCapabilityCard">添加能力</el-button>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section">
-            <summary>运行时只读</summary>
-            <div class="collapsible-body structured-editor">
-              <strong>State</strong>
-              <pre class="readonly-json-preview">{{ runtimeStatePreview }}</pre>
-              <strong>Result</strong>
-              <pre class="readonly-json-preview">{{ runtimeResultPreview }}</pre>
-            </div>
-          </details>
-
-          <details class="editor-section collapsible-section">
-            <summary>JSON 只读预览</summary>
-            <pre class="readonly-json-preview">{{ modelJsonText }}</pre>
-          </details>
-        </template>
-
-      </template>
+      <RendererForm v-else-if="design && drawerTarget === 'node' && selected" :data-view-key="viewKey(graphViews(selected.graph).nodes)"
+        :children="nodeFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
+      <RendererForm v-else-if="design && drawerTarget === 'line' && selected" :data-view-key="viewKey(graphViews(selected.graph).lines)"
+        :children="lineFields" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false" />
     </el-drawer>
 
-    <el-drawer
-      v-model="classModelDrawerVisible"
-      class="class-model-drawer"
-      direction="rtl"
-      :size="'33vw'"
-      title="ClassModel 知识"
-    >
-      <template v-if="activeClassModelDrawerOption">
-        <div class="class-model-doc-panel class-model-drawer-doc-panel">
-          <section class="class-model-doc-item">
-            <div class="class-model-doc-title">
-              <span class="class-model-pin" aria-hidden="true"></span>
-              <strong>{{ activeClassModelDrawerOption.kind }}</strong>
-            </div>
-            <pre>{{ classModelDocText(activeClassModelDrawerOption) }}</pre>
+    <el-drawer :model-value="classModelActive !== null" class="class-model-drawer" direction="rtl" size="33vw" title="ClassModel 知识"
+      @update:model-value="classModelActive = null">
+      <div v-if="classModelActive" class="class-model-doc-panel">
+        <h4>{{ classModelActive.kind }}</h4>
+        <pre>{{ classModelDocText(classModelActive) }}</pre>
+        <template v-if="classModelActive.constructorSignature">
+          <code>{{ classModelActive.constructorSignature.signature }}</code>
+          <pre>{{ classModelDocText(classModelActive.constructorSignature) }}</pre>
+        </template>
+        <details open>
+          <summary>Attributes {{ classModelActive.attributes.length }}</summary>
+          <section v-for="attribute in classModelActive.attributes" :key="attribute.name">
+            <strong>{{ attribute.name }}</strong> <code>{{ attribute.typeText }}</code>
+            <pre>{{ classModelDocText(attribute) }}</pre>
           </section>
-          <section v-if="activeClassModelDrawerOption.constructorSignature" class="class-model-doc-item">
-            <div class="class-model-doc-title">
-              <span class="class-model-pin" aria-hidden="true"></span>
-              <strong>constructor</strong>
-            </div>
-            <code>{{ activeClassModelDrawerOption.constructorSignature.signature }}</code>
-            <pre>{{ classModelDocText(activeClassModelDrawerOption.constructorSignature) }}</pre>
+        </details>
+        <details open>
+          <summary>Actions {{ classModelActive.methods.length }}</summary>
+          <section v-for="method in classModelActive.methods" :key="method.name">
+            <strong>{{ method.name }}</strong> <code>{{ method.signature }}</code>
+            <pre>{{ classModelDocText(method) }}</pre>
           </section>
-          <section v-if="activeClassModelDrawerActionOption" class="class-model-doc-item">
-            <div class="class-model-doc-title">
-              <span class="class-model-pin" aria-hidden="true"></span>
-              <strong>{{ activeClassModelDrawerActionOption.name }}</strong>
-            </div>
-            <code>{{ activeClassModelDrawerActionOption.signature }}</code>
-            <pre>{{ classModelDocText(activeClassModelDrawerActionOption) }}</pre>
-          </section>
-          <details class="class-model-doc-group" open>
-            <summary>Attributes {{ activeClassModelDrawerOption.attributes.length }}</summary>
-            <section
-              v-for="attribute in activeClassModelDrawerOption.attributes"
-              :key="attribute.name"
-              class="class-model-doc-item"
-            >
-              <div class="class-model-doc-title">
-                <span class="class-model-pin" aria-hidden="true"></span>
-                <strong>{{ attribute.name }}</strong>
-                <code>{{ attribute.typeText }}</code>
-              </div>
-              <pre>{{ classModelDocText(attribute) }}</pre>
-            </section>
-          </details>
-          <details class="class-model-doc-group" open>
-            <summary>Actions {{ activeClassModelDrawerOption.methods.length }}</summary>
-            <section
-              v-for="method in activeClassModelDrawerOption.methods"
-              :key="method.name"
-              class="class-model-doc-item"
-            >
-              <div class="class-model-doc-title">
-                <span class="class-model-pin" aria-hidden="true"></span>
-                <strong>{{ method.name }}</strong>
-              </div>
-              <code>{{ method.signature }}</code>
-              <pre>{{ classModelDocText(method) }}</pre>
-            </section>
-          </details>
-        </div>
-      </template>
-      <el-empty v-else description="未加载 ClassModel" />
-    </el-drawer>
-
-    <el-dialog v-model="createDialogVisible" title="新建工作流设计稿" width="460px">
-      <el-form label-position="top">
-        <el-form-item label="Workflow ID">
-          <el-input v-model="createForm.workflowId" />
-        </el-form-item>
-        <el-form-item label="名称">
-          <el-input v-model="createForm.title" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="createDialogVisible = false">取消</el-button>
-        <el-button type="primary" :loading="creating" @click="createDesign">创建</el-button>
-      </template>
-    </el-dialog>
-
-    <el-dialog v-model="nodeCreateDialogVisible" title="新增节点" width="520px">
-      <el-form label-position="top">
-        <el-form-item label="目标分区">
-          <el-input v-model="nodeCreateForm.graphKey" disabled />
-        </el-form-item>
-        <el-form-item label="节点类型">
-          <select v-model="nodeCreateForm.nodeKind" class="native-select" @change="syncNodeCreateKindDefaults">
-            <option value="node">Business Node</option>
-            <option value="start">Start</option>
-            <option value="output">Output</option>
-          </select>
-        </el-form-item>
-        <el-form-item label="节点 ID">
-          <el-input v-model="nodeCreateForm.id" />
-        </el-form-item>
-        <el-form-item label="标题">
-          <el-input v-model="nodeCreateForm.title" />
-        </el-form-item>
-        <el-form-item label="描述">
-          <el-input v-model="nodeCreateForm.desc" type="textarea" :rows="2" />
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <el-button @click="nodeCreateDialogVisible = false">取消</el-button>
-        <el-button type="primary" :icon="DocumentAdd" @click="createNodeInSelectedGraph">创建节点</el-button>
-      </template>
-    </el-dialog>
-
-    <el-dialog
-      v-if="definitionDialogVisible"
-      v-model="definitionDialogVisible"
-      :before-close="beforeCloseDefinitionEditor"
-      title="Agent Workflow Definition"
-      width="760px"
-    >
-      <div class="definition-editor">
-        <div class="definition-editor-meta">
-          <span>{{ currentWorkflowId }}</span>
-          <el-tag size="small">{{ definitionTimestamp ? `ts ${definitionTimestamp}` : 'local' }}</el-tag>
-          <el-tag size="small" :type="definitionDirty ? 'warning' : 'success'">
-            {{ definitionDirty ? 'unsaved' : 'saved' }}
-          </el-tag>
-        </div>
-        <RendererForm v-if="definitionHasDataViewRow" :data-view-key="definitionViewKey" context-data-member="currentRow"
-          :auto-columns="false" :show-data-view-meta="false">
-          <FieldJson class="definition-json-input" :data-view-key="definitionViewKey" data-member="currentRow" data-field="content"
-            mode="text" value-format="text" height="460px" :readonly="definitionPendingVerification"
-            :on-editing-change="onDefinitionFieldEditingChange" />
-        </RendererForm>
-        <el-input v-else v-model="definitionJsonText" class="definition-json-input" type="textarea" :rows="22"
-          :disabled="definitionPendingVerification" @input="markDefinitionDirty" />
+        </details>
       </div>
+    </el-drawer>
+
+    <el-dialog v-model="nodeCreateOpen" title="新增节点" width="520px">
+      <el-form label-position="top">
+        <el-form-item label="目标图"><el-input :model-value="graphViews(activeGraph).nodes.queryContext['graphPath']" disabled /></el-form-item>
+        <el-form-item label="节点类型">
+          <el-select v-model="nodeCreate.nodeKind" @change="resetNodeCreateDefaults">
+            <el-option value="node" label="Business Node" />
+            <el-option value="start" label="Start" />
+            <el-option value="output" label="Output" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="节点 ID"><el-input v-model="nodeCreate.id" /></el-form-item>
+        <el-form-item label="标题"><el-input v-model="nodeCreate.title" /></el-form-item>
+        <el-form-item label="描述"><el-input v-model="nodeCreate.desc" type="textarea" :rows="2" /></el-form-item>
+      </el-form>
       <template #footer>
-        <el-button @click="closeDefinitionEditor">关闭</el-button>
-        <el-button
-          type="primary"
-          :icon="Upload"
-          :loading="savingDefinition"
-          :disabled="!canSaveDefinition"
-          @click="saveCurrentDefinition"
-        >
-          保存 Definition
-        </el-button>
+        <el-button @click="nodeCreateOpen = false">取消</el-button>
+        <el-button type="primary" @click="createNode">创建节点</el-button>
+      </template>
+    </el-dialog>
+
+    <el-dialog v-if="definitionOpen && owner" :model-value="true" title="Agent Workflow Definition" width="760px" :before-close="closeDefinition">
+      <RendererForm :data-view-key="definitionKey" :grid-columns="1" :auto-columns="false" :show-data-view-meta="false">
+        <FieldJson class="definition-json-input" field="content" label="definition.json" mode="text" value-format="text" height="460px" />
+      </RendererForm>
+      <template #footer>
+        <el-button @click="closeDefinition()">关闭</el-button>
+        <el-button type="primary" :loading="savingDefinition" :disabled="!definitionPending" @click="saveDefinition">保存 Definition</el-button>
       </template>
     </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * @description 工作流设计稿可视化编辑页。编辑 Dify-like graph 中的业务节点和步骤线，并通过后端文件 API 保存 design.json。
- */
-import {
-  computed,
-  onBeforeUnmount,
-  onMounted,
-  ref,
-  shallowRef,
-  watch,
-  type CSSProperties,
-} from 'vue'
+import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
-import { ElMessage, ElMessageBox } from 'element-plus'
-import { Background } from '@vue-flow/background'
-import { Controls } from '@vue-flow/controls'
-import {
-  BaseEdge,
-  ConnectionLineType,
-  ConnectionMode,
-  Handle,
-  MarkerType,
-  Position,
-  VueFlow,
-  type Connection,
-  type NodeChange,
-  type NodeDragEvent,
-  type ViewportTransform,
-} from '@vue-flow/core'
-import { MiniMap } from '@vue-flow/minimap'
-import '@vue-flow/core/dist/style.css'
-import '@vue-flow/core/dist/theme-default.css'
-import '@vue-flow/controls/dist/style.css'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {FieldJson, PAGE_RUNTIME, RendererForm, RendererTable, useSparkComponent} from '@spark-appworks/spark-component'
-import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {FieldJson, PAGE_RUNTIME, RendererForm, RendererGraph, RendererTable, useSparkComponent, type RGraphProps,
+  type RToolbarProps} from '@spark-appworks/spark-component'
+import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
-import '@vue-flow/minimap/dist/style.css'
-import {
-  ArrowDown,
-  ArrowUp,
-  CircleCheck,
-  Delete,
-  DocumentAdd,
-  DocumentCopy,
-  QuestionFilled,
-  Refresh,
-  RefreshLeft,
-  Upload,
-} from '@element-plus/icons-vue'
-import {
-  addWorkflowDesignLine,
-  autoLayoutWorkflowDesignGraphs,
-  collectWorkflowDesignNodes,
-  collectWorkflowDesignLines,
-  collectWorkflowDesignGraphs,
-  createWorkflowDesign,
-  createAgentWorkflowDefinitionFromDesign,
-  createWorkflowDesignNode,
-  formatJson,
-  isWorkflowDefinitionNotFoundError,
-  markWorkflowDesignDirty as markWorkflowDesignDirtyBase,
-  markWorkflowDesignSaved,
-  normalizeWorkflowDesignLineState,
-  parseAgentWorkflowDefinitionJson,
-  publishWorkflowDefinition,
-  parseWorkflowDesignJson,
-  removeWorkflowDesignLine,
-  removeWorkflowDesignNode,
-  updateWorkflowDesignLine,
-  workflowDesignLineControlPoints,
-  workflowDesignLineType,
-  type WorkflowDesignDocument,
-  type WorkflowDesignLineType,
-  type WorkflowDesignLineView,
-  type WorkflowDesignGraphView,
-  type WorkflowDesignNodeView,
-  type WorkflowDesignNodeCreateKind,
-  type WorkflowDesignVariable,
-} from '@/services/workflow-designs'
-import type {
-  PropertyDrawerTarget,
-  LayoutResizeState,
-  GraphSplitCollapse,
-  GraphSplitResizeState,
-  GraphSplitPanel,
-  WorkflowFlowLineData,
-  WorkflowLineRuntimeStatus,
-  SelectedControlPoint,
-  ControlPointDragState,
-  StartControlPointDragCommand,
-  VueFlowLineChange,
-  VueFlowLineUpdateEvent,
-  ClassModelOption,
-  WorkflowFlowNode,
-  WorkflowFlowConnection,
-  LineEndpointPatchValidationCommand,
-  NodeCreateForm,
-  StructuredFieldRow,
-  StructuredRowsCollectionCommand,
-  StructuredSelectCard,
-  StructuredCapabilityCard,
-  ApplyStructuredEditorOptions,
-  WorkflowVariableEditorRow,
-  WorkflowMetadataRow,
-  WorkflowRuntimeBinding,
-} from './workflow-designs/workflow-design-view-types'
-import {
-  inputDockDefinitions,
-  outputDockDefinitions,
-  flowDefaultLineOptions,
-  isWorkflowFlowNodeData,
-  isWorkflowFlowLineData,
-  readFlowConnectionLineFromEvent,
-  dockHandle,
-  readDockText,
-  withConnectionEndpoint,
-  createEditorLineEndpoint,
-  isSameLineEndpoint,
-  flowId,
-  resolvedLineDocks,
-  workflowDockPoint,
-  workflowControlEdgePath,
-  workflowEdgeStatusPoint,
-  workflowRuntimeStatusIcon,
-  nearestLineSegmentIndex,
-  flowDefaultViewport,
-  workflowFlowConnectionId,
-  nodeKeyboardMoveDelta,
-  isEditableKeyboardTarget,
-} from './workflow-designs/workflow-design-flow'
-import {
-  classModelOptionMemberDocText,
-  shouldEditNodeConfig,
-  readBusinessNodeModelClassName,
-  readBusinessNodeValidationActionName,
-  createClassModelKnowledgeProvider,
-  readClassModelOptions,
-  readTextField,
-  classModelDocText,
-  shortClassModelDocText,
-  readPrimaryBusinessNodeModel,
-  ensurePrimaryBusinessNodeModel,
-  createWorkflowParamsSchema,
-} from './workflow-designs/workflow-design-class-model'
-import {
-  isJsonRecord,
-  recordOrEmpty,
-  uniqueTexts,
-  recordKeys,
-  metadataValueText,
-  collectWorkflowMetadataRows,
-  workflowVariableRowsToData,
-  primitiveValueText,
-  isPrimitiveEditableValue,
-  readWorkflowVariableSourceDocText,
-  firstMeaningfulText,
-  structuredRowsToRecord,
-  structuredCardsToStrings,
-  capabilityCardsToData,
-} from './workflow-designs/workflow-design-fields'
-import {
-  MIN_LEFT_PANEL_WIDTH,
-  MAX_LEFT_PANEL_WIDTH,
-  COLLAPSED_LEFT_PANEL_WIDTH,
-  MIN_RIGHT_PANEL_WIDTH,
-  MAX_RIGHT_PANEL_WIDTH,
-  GRAPH_SPLIT_MIN_RATIO,
-  GRAPH_SPLIT_MAX_RATIO,
-  GRAPH_SPLIT_SNAP_RATIO,
-  defaultCreateNodeId,
-  defaultCreateNodeTitle,
-  graphPanelTitle,
-  graphSplitStorageKey,
-  errorMessage,
-} from './workflow-designs/workflow-design-shell'
+import {createAgentWorkflowDefinitionFromDesign, formatJson, parseWorkflowDesignJson, type WorkflowDesignNodeCreateKind} from '@/services/workflow-designs'
+import {classModelDocText, createClassModelKnowledgeProvider, readClassModelOptions, type ClassModelOption} from './workflow-designs/workflow-design-class-model'
+import {WORKFLOW_NODE_HANDLES, workflowChildGraphPath, workflowEdgeNodeKeys, workflowLineRow, workflowNodeCorner, workflowNodePositions,
+  workflowNodeRow} from './workflow-designs/workflow-design-graph'
 
-let structuredEditorId = 0
+type GraphRole = 'main' | 'child'
+type GraphEvent<K extends 'onSelect' | 'onNodeMove' | 'onArrange' | 'onConnect' | 'onEdgePathChange'> = Parameters<NonNullable<RGraphProps[K]>>[0]
+type GraphSelection = GraphEvent<'onSelect'>
+type GraphNodeMove = GraphEvent<'onNodeMove'>
+type GraphArrange = GraphEvent<'onArrange'>
+type GraphConnection = GraphEvent<'onConnect'>
+type Selected = Readonly<{graph: GraphRole; kind: 'node' | 'edge'; id: string | number}>
+
+const LEFT_COLLAPSED_KEY = 'spark.workflow-design.left-collapsed'
+const SPLIT_KEY_PREFIX = 'spark.workflow-design.graph-split.'
+const json = (field: string, label: string): SparkNode => ({type: 'r-json', props: {field, label, mode: 'text', valueFormat: 'native', height: 160}})
+const text = (field: string, label: string, readonly = false): SparkNode => ({type: 'r-text', props: {field, label, ...readonly ? {readonly} : {}}})
+const number = (field: string, label: string): SparkNode => ({type: 'r-number', props: {field, label}})
+const directoryFields: SparkNode[] = [text('workflowId', 'Workflow ID'), text('timestamp', '更新时间')]
+const workflowFields: SparkNode[] = [text('workflowId', 'Workflow ID', true), text('title', '名称'), number('version', '版本'),
+  json('runtimeBinding', '运行绑定'), json('workflow', '流程其它配置'), json('document', '文档其它配置')]
+const variableList: SparkNode[] = [text('name', '变量名'), text('title', '标题')]
+const variableFields: SparkNode[] = [text('name', '变量名', true), text('title', '标题'), {type: 'r-switch', props: {field: 'required', label: '必填'}},
+  json('schema', 'Schema'), json('defaultValue', '默认值'), json('extra', '其它配置')]
+const capabilityList: SparkNode[] = [text('id', '能力 ID'), text('title', '标题'), text('scope', '范围')]
+const capabilityFields: SparkNode[] = [text('id', '能力 ID', true), text('title', '标题'), text('scope', '范围'),
+  {type: 'r-textarea', props: {field: 'description', label: '说明'}}, json('inputs', '输入'), json('outputs', '输出'), json('constraints', '约束'), json('extra', '其它配置')]
+const nodeFields: SparkNode[] = [text('id', '节点 ID', true), text('type', '画布类型'), text('dataType', '节点类型'), text('title', '标题'),
+  {type: 'r-textarea', props: {field: 'desc', label: '描述'}}, number('x', 'X'), number('y', 'Y'),
+  ...([['inputs', '输入'], ['outputs', '输出'], ['capabilities', '能力'], ['models', '模型'], ['llm', 'LLM'], ['validation', '校验'],
+    ['loop', '循环'], ['iteration', '迭代'], ['state', '状态'], ['result', '结果'], ['data', '其它数据'], ['extra', '其它配置']] as const).map(([field, label]) => json(field, label))]
+const lineFields: SparkNode[] = [text('id', '连线 ID', true), text('fromNodeId', '起点节点'), text('fromModelId', '起点模型'), text('fromMemberName', '起点成员'),
+  number('fromDock', '起点 dock'), text('toNodeId', '终点节点'), text('toModelId', '终点模型'), text('toMemberName', '终点成员'), number('toDock', '终点 dock'),
+  text('type', '画布类型'), text('relation', '关系'),
+  {type: 'r-select', props: {field: 'lineType', label: '线型', options: [{value: 'orthogonal', label: '正交折线'}, {value: 'straight', label: '直线折线'}, {value: 'bezier', label: '平滑曲线'}]}},
+  json('controlPoints', '控制点'), json('from', '起点其它配置'), json('to', '终点其它配置'), json('data', '其它数据'), json('extra', '其它配置')]
 
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-designs-page'})
-const dataOwner = shallowRef<AgentWorkflowFileDataViewOwner>()
-const directoryRevision = ref(0)
-const directoryView = computed<DataView | undefined>(() => {directoryRevision.value; return dataOwner.value?.directoryView})
-const workflowDirectoryKey = computed(() => {
-  const view = directoryView.value
-  return view ? buildDataViewKey(view.tableName, view.viewId, dataOwner.value?.dataSet.scenarioId ?? '') : ''
-})
-const workflowDirectoryCount = computed(() => {directoryRevision.value; return directoryView.value?.rows.length ?? 0})
-const workflowDirectoryFields: SparkNode[] = [
-  {type: 'r-text', props: {field: 'workflowId', label: 'Workflow ID', width: 280}},
-  {type: 'r-text', props: {field: 'timestamp', label: '更新时间', width: 180}},
-]
-const currentWorkflowId = ref('')
-const currentTimestamp = ref('')
-const currentFilename = ref('')
-const currentDocument = ref<WorkflowDesignDocument | null>(null)
-const selectedNodeKey = ref('')
-const selectedLineKey = ref('')
-const selectedControlPoint = ref<SelectedControlPoint | null>(null)
-const controlPointDragState = ref<ControlPointDragState | null>(null)
-const lineRuntimeStatuses = ref<Record<string, WorkflowLineRuntimeStatus>>({})
-const propertiesDrawerVisible = ref(false)
-const propertiesDrawerTarget = ref<PropertyDrawerTarget>('node')
-const classModelDrawerVisible = ref(false)
-const leftPanelCollapsed = ref(false)
-const layoutResizeState = ref<LayoutResizeState | null>(null)
-const graphSplitResizeState = ref<GraphSplitResizeState | null>(null)
-const leftPanelWidth = ref(280)
-const rightPanelWidth = ref(240)
-const currentMainGraphKey = ref('workflow.graph')
-const currentChildGraphKey = ref('')
-const graphSplitRatio = ref(48)
-const graphSplitCollapsed = ref<GraphSplitCollapse>(null)
-
-const loadingList = ref(false)
-const ready = ref(false)
-const opening = ref(false)
+const owner = shallowRef<AgentWorkflowFileDataViewOwner>()
+const revision = ref(0)
+const workflowId = ref('')
+const childPath = ref('')
+const selected = ref<Selected | null>(null)
+const activeGraph = ref<GraphRole>('main')
+const loadError = ref('')
+const acting = ref(false)
 const saving = ref(false)
-const autoLayoutSaving = ref(false)
 const publishing = ref(false)
-const openingDefinition = ref(false)
 const savingDefinition = ref(false)
-const creating = ref(false)
-const createDialogVisible = ref(false)
-const nodeCreateDialogVisible = ref(false)
-const definitionDialogVisible = ref(false)
-const editorDirty = ref(false)
-const definitionTimestamp = ref('')
-const definitionJsonText = ref('{}')
-const definitionDirty = ref(false)
-const definitionViewRevision = ref(0)
-
-const nodeTypeText = ref('')
-const nodeTitleText = ref('')
-const nodeDescText = ref('')
-const modelJsonText = ref('{}')
-const modelRootClassText = ref('')
-const modelClassText = ref('')
-const validationActionClassText = ref('')
-const validationActionNameText = ref('')
+const drawerOpen = ref(false)
+const drawerTarget = ref<'workflow' | 'node' | 'line'>('workflow')
+const nodeCreateOpen = ref(false)
+const nodeCreate = ref<{nodeKind: WorkflowDesignNodeCreateKind; id: string; title: string; desc: string}>({nodeKind: 'node', id: '', title: '', desc: ''})
+const definitionOpen = ref(false)
+const leftCollapsed = ref(localStorage.getItem(LEFT_COLLAPSED_KEY) === '1')
+const splitRatio = ref(55)
+const mainGraph = ref<InstanceType<typeof RendererGraph>>()
+const classModelRoot = ref('')
+const classModelOptions = ref<ClassModelOption[]>([])
+const classModelActive = ref<ClassModelOption | null>(null)
 const classModelLoading = ref(false)
 const classModelError = ref('')
-const classModelGuideText = ref('')
-const classModelOptions = ref<ClassModelOption[]>([])
-const classModelLoadedRootText = ref('')
-const workflowDesignerTitleText = ref('')
-const workflowVersionValue = ref(1)
-const workflowVariableRows = ref<WorkflowVariableEditorRow[]>([])
-const workflowCapabilityCards = ref<StructuredCapabilityCard[]>([])
-const workflowRuntimeAliasText = ref('')
-const workflowRuntimeModuleIdText = ref('')
-const workflowRuntimeBusinessIdText = ref('')
-const workflowIdentityFieldText = ref('')
-const workflowMessageFieldText = ref('')
-const workflowSystemPromptTemplateText = ref('')
-const workflowModelProjectionKindText = ref('dts-class-model')
-const workflowRootClassText = ref('')
-const workflowManifestUrlRefText = ref('')
-const workflowExecutableKindText = ref('js-module')
-const workflowExecutableModuleSpecifierText = ref('')
-const workflowExecutableExportNameText = ref('')
-const workflowResolveEditorSourceText = ref('')
-const workflowResolveIdentityFieldText = ref('')
-const workflowAgentCompleteMethodText = ref('')
-const workflowReadonlyStepCards = ref<StructuredSelectCard[]>([])
-const workflowExecutionToolCards = ref<StructuredSelectCard[]>([])
-const workflowPlanMarkerCards = ref<StructuredSelectCard[]>([])
-const loopModeText = ref('')
-const loopMaxCountValue = ref(10)
-const loopExitNodeText = ref('')
-const lineFromNodeText = ref('')
-const lineFromModelText = ref('')
-const lineFromMemberText = ref('')
-const lineToNodeText = ref('')
-const lineToModelText = ref('')
-const lineToMemberText = ref('')
-const lineTypeText = ref('')
-const lineFromDockText = ref('')
-const lineToDockText = ref('')
-const lineRelationText = ref('')
-const lineVisualTypeText = ref<WorkflowDesignLineType>('orthogonal')
-const businessInputRows = ref<StructuredFieldRow[]>([])
-const businessOutputRows = ref<StructuredFieldRow[]>([])
-const taskGoalText = ref('')
-const taskRequirementRows = ref<StructuredFieldRow[]>([])
-const taskContextInputRows = ref<StructuredFieldRow[]>([])
-const allowedActionCards = ref<StructuredSelectCard[]>([])
-const readableAttributeCards = ref<StructuredSelectCard[]>([])
-const functionCallingModeText = ref('freeWithinModelContext')
-const functionCallingConstraintCards = ref<StructuredSelectCard[]>([])
-const structuredResultRows = ref<StructuredFieldRow[]>([])
-const handoffToValidationValue = ref(true)
-const validationInputProjectionRows = ref<StructuredFieldRow[]>([])
-const validationExpectedResultRows = ref<StructuredFieldRow[]>([])
-const validationStatusText = ref('')
-const capabilityCards = ref<StructuredCapabilityCard[]>([])
-const runtimeStatePreview = ref('{}')
-const runtimeResultPreview = ref('{}')
-const validationIssuesPreview = ref('[]')
+let active = true
+let stopChanges: (() => void) | undefined
 
-const createForm = ref({
-  workflowId: '',
-  title: '',
+const design = computed<AgentWorkflowDesignViews | undefined>(() => {
+  revision.value
+  if (!owner.value || !workflowId.value) return undefined
+  try {return owner.value.design} catch {return undefined}
 })
+const designViews = computed<DataView[]>(() => design.value ? [design.value.workflow, design.value.nodes, design.value.lines, design.value.childNodes,
+  design.value.childLines, design.value.variables, design.value.capabilities] : [])
+const pendingIn = (view: DataView) => view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
+const hasPending = computed(() => {revision.value; return designViews.value.some(pendingIn)})
+const unconfirmed = computed(() => {revision.value; return designViews.value.some(view => view.hasUnconfirmedSave)})
+const busy = computed(() => {revision.value; return acting.value || saving.value || publishing.value || designViews.value.some(view => view.mutating)})
+const definitionPending = computed(() => {revision.value; const view = owner.value?.definitionView; return view ? pendingIn(view) : false})
+const directoryKey = computed(() => owner.value ? viewKey(owner.value.directoryView) : '')
+const definitionKey = computed(() => owner.value ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.value.dataSet.scenarioId) : '')
+const drawerTitle = computed(() => drawerTarget.value === 'workflow' ? '流程属性' : drawerTarget.value === 'node' ? '节点属性' : '连线属性')
+useSystemPageDirtySource({get isDirty() {return hasPending.value || definitionPending.value}})
 
-const nodeCreateForm = ref<NodeCreateForm>({
-  graphKey: '',
-  nodeKind: 'node',
-  id: '',
-  title: '',
-  desc: '',
-})
+function viewKey(view: DataView): string {return buildDataViewKey(view.tableName, view.viewId, view.dataSet?.scenarioId ?? '')}
+function currentRow(view: DataView): DataRow | null {revision.value; return view.currentRow}
+function graphViews(role: GraphRole): {nodes: DataView; lines: DataView} {
+  const views = design.value
+  if (!views) throw new Error('工作流设计视图尚未就绪')
+  return role === 'main' ? {nodes: views.nodes, lines: views.lines} : {nodes: views.childNodes, lines: views.childLines}
+}
+function shownRows(view: DataView): DataRow[] {
+  return view.rows.map(row => {const key = view.getPkKey(row); return key === undefined ? row : view.getEditingRow(key) ?? row})
+}
+function writable(view: DataView, row: DataRow, fields: readonly string[]): boolean {return fields.every(field => view.fieldAccess(row, field).write === 'allowed')}
+function member(value: unknown, field: string): unknown {
+  return typeof value === 'object' && value !== null && !Array.isArray(value) ? Object.entries(value).find(([key]) => key === field)?.[1] : undefined
+}
+function message(error: unknown): string {return error instanceof Error && error.message ? error.message : String(error)}
+function canAddNode(role: GraphRole): boolean {revision.value; return Boolean(design.value) && graphViews(role).nodes.addActionState() === 'enabled'}
 
-const allNodes = computed(() => currentDocument.value === null ? [] : collectWorkflowDesignNodes(currentDocument.value))
-const graphViews = computed(() => currentDocument.value === null ? [] : collectWorkflowDesignGraphs(currentDocument.value))
-const lineViews = computed(() => currentDocument.value === null ? [] : collectWorkflowDesignLines(currentDocument.value))
-const businessNodes = computed(() => allNodes.value.filter(node => node.isBusinessNode))
-const selectedNode = computed(() => allNodes.value.find(node => node.key === selectedNodeKey.value) ?? null)
-const selectedLine = computed(() => lineViews.value.find(line => line.key === selectedLineKey.value) ?? null)
-const selectedLineControlPointCount = computed(() => {
-  const line = selectedLine.value
-  return line === null ? 0 : workflowDesignLineControlPoints(line.line).length
+const selectedRow = computed(() => {
+  revision.value
+  const target = selected.value
+  if (!target || !design.value) return null
+  const {nodes, lines} = graphViews(target.graph), view = target.kind === 'node' ? nodes : lines
+  return view.getEditingRow(target.id) ?? view.rows.find(row => view.getPkKey(row) === target.id) ?? null
 })
-const selectedClassModelOption = computed(() => {
-  return classModelOptions.value.find(item => item.kind === modelClassText.value.trim()) ?? null
-})
-const selectedClassModelMethods = computed(() => selectedClassModelOption.value?.methods ?? [])
-const selectedValidationClassModelOption = computed(() => {
-  return classModelOptions.value.find(item => item.kind === validationActionClassText.value.trim())
-    ?? selectedClassModelOption.value
-})
-const selectedValidationActionOption = computed(() => {
-  const methodName = validationActionNameText.value.trim()
-  if (methodName.length === 0) return null
-  return selectedValidationClassModelOption.value?.methods.find(method => method.name === methodName) ?? null
-})
-const workflowRootClassModelOption = computed(() => {
-  return classModelOptions.value.find(item => item.kind === workflowRootClassText.value.trim()) ?? null
-})
-const workflowMethodOptions = computed(() => {
-  return uniqueTexts([
-    workflowAgentCompleteMethodText.value,
-    ...(workflowRootClassModelOption.value?.methods ?? []).map(method => method.name),
-  ])
-})
-const workflowAgentCompleteMethodOption = computed(() => {
-  const methodName = workflowAgentCompleteMethodText.value.trim()
-  if (methodName.length === 0) return null
-  return workflowRootClassModelOption.value?.methods.find(method => method.name === methodName) ?? null
-})
-const workflowRootClassDocText = computed(() => {
-  const option = workflowRootClassModelOption.value
-  return option === null ? '' : classModelDocText(option)
-})
-const workflowAgentCompleteMethodDocText = computed(() => {
-  const option = workflowAgentCompleteMethodOption.value
-  return option === null ? '' : classModelDocText(option)
-})
-const lineFromModelDocText = computed(() => lineEndpointModelDocText(lineFromNodeText.value, lineFromModelText.value))
-const lineToModelDocText = computed(() => lineEndpointModelDocText(lineToNodeText.value, lineToModelText.value))
-const lineFromMemberDocText = computed(() => lineEndpointMemberDocText(lineFromNodeText.value, lineFromModelText.value, lineFromMemberText.value))
-const lineToMemberDocText = computed(() => lineEndpointMemberDocText(lineToNodeText.value, lineToModelText.value, lineToMemberText.value))
-const modelRootClassDocText = computed(() => classModelDocTextByKind(modelRootClassText.value))
-const modelClassDocText = computed(() => classModelDocTextByKind(modelClassText.value))
-const validationActionClassDocText = computed(() => classModelDocTextByKind(validationActionClassText.value))
-const validationActionMemberDocText = computed(() => classModelMemberDocText(validationActionClassText.value || modelClassText.value, validationActionNameText.value))
-const activeClassModelDrawerOption = computed(() => {
-  return propertiesDrawerTarget.value === 'workflow'
-    ? workflowRootClassModelOption.value
-    : selectedClassModelOption.value
-})
-const activeClassModelDrawerActionOption = computed(() => {
-  return propertiesDrawerTarget.value === 'workflow'
-    ? workflowAgentCompleteMethodOption.value
-    : selectedValidationActionOption.value
-})
-const propertiesDrawerTitle = computed(() => {
-  if (propertiesDrawerTarget.value === 'workflow') return `流程属性 / ${currentDocument.value?.workflow.id ?? 'Workflow'}`
-  if (selectedLine.value !== null) return `连线属性 / ${selectedLine.value.id}`
-  if (selectedNode.value !== null) return `节点属性 / ${selectedNode.value.title}`
-  return 'Properties'
-})
-const workflowPrimaryMetadataRows = computed<WorkflowMetadataRow[]>(() => {
-  const document = currentDocument.value
-  if (document === null) return []
-  return [
-    { label: '文件名', value: currentFilename.value || 'design.json' },
-    { label: '时间戳', value: currentTimestamp.value || '-' },
-    { label: '创建人', value: readWorkflowMetadataText(['createdBy', 'creator', 'author', 'owner', 'createdUser']) || '-' },
-    { label: '创建时间', value: readWorkflowMetadataText(['createdAt', 'createdTime', 'createTime']) || '-' },
-    { label: '更新人', value: readWorkflowMetadataText(['updatedBy', 'modifier', 'modifiedBy', 'updatedUser']) || '-' },
-    { label: '更新时间', value: readWorkflowMetadataText(['updatedAt', 'modifiedAt', 'updatedTime', 'modifyTime']) || '-' },
-    { label: '状态', value: readTextField(document.x_spark.draft, 'status') || 'draft' },
-    { label: 'Schema', value: readTextField(document.x_spark, 'schema') || '-' },
-  ]
-})
-const workflowFullMetadataRows = computed<WorkflowMetadataRow[]>(() => {
-  const document = currentDocument.value
-  if (document === null) return []
-  const rows: WorkflowMetadataRow[] = []
-  collectWorkflowMetadataRows({
-    filename: currentFilename.value || 'design.json',
-    timestamp: currentTimestamp.value,
-    summaryStatus: '',
-    document: {
-      kind: document.kind,
-      version: document.version,
-      id: document.id,
-    },
-    workflow: {
-      id: document.workflow.id,
-      version: document.workflow.version,
-      variables: document.workflow.variables ?? [],
-      capabilities: document.workflow.capabilities ?? [],
-      runtimeBinding: document.workflow.runtimeBinding ?? {},
-    },
-    x_spark: document.x_spark,
-  }, '', rows)
-  return rows
-})
-const selectedLineGraphNodes = computed(() => {
-  const line = selectedLine.value
-  if (line === null) return []
-  return allNodes.value.filter(node => node.graph === line.graph)
-})
-const rootClassOptions = computed(() => {
-  const runtimeRoot = currentDocument.value?.workflow.runtimeBinding?.modelProjectionRef?.rootClassName
-  return uniqueTexts([
-    typeof runtimeRoot === 'string' ? runtimeRoot : '',
-    workflowRootClassText.value,
-    modelRootClassText.value,
-  ])
-})
-const modelClassOptions = computed(() => {
-  return uniqueTexts([
-    modelClassText.value,
-    validationActionClassText.value,
-    ...classModelOptions.value.map(item => item.kind),
-  ])
-})
-const completionMemberOptions = computed(() => {
-  return uniqueTexts([
-    validationActionNameText.value,
-    ...(selectedValidationClassModelOption.value?.methods ?? selectedClassModelMethods.value).map(method => method.name),
-  ])
-})
-const modelAttributeOptions = computed(() => {
-  return uniqueTexts(selectedClassModelOption.value?.attributes.map(attribute => attribute.name) ?? [])
-})
-const workflowVariableOptions = computed(() => {
-  return uniqueTexts(currentDocument.value?.workflow.variables?.map(variable => variable.name) ?? [])
-})
-const workflowVariableEditorNames = computed(() => {
-  return uniqueTexts([
-    workflowIdentityFieldText.value,
-    workflowMessageFieldText.value,
-    workflowResolveIdentityFieldText.value,
-    ...workflowVariableRows.value.map(row => row.name),
-  ])
-})
-const structuredBasePathOptions = computed(() => {
-  return uniqueTexts([
-    ...workflowVariableOptions.value,
-    ...modelAttributeOptions.value,
-    ...selectedLineGraphNodes.value.flatMap(node => recordKeys(node.node.data?.outputs)),
-  ])
-})
-const structuredReferenceOptions = computed(() => {
-  const selected = selectedNode.value
-  const incomingReferenceOptions = selected === null
-    ? []
-    : lineViews.value
-      .filter(line => line.graph === selected.graph && line.toNodeId === selected.id)
-      .flatMap(line => referenceOptionsForNodeId(line.fromNodeId, line.graph))
-  return uniqueTexts([
-    ...workflowVariableOptions.value.map(name => `{{ start.${name} }}`),
-    ...modelAttributeOptions.value.map(name => `$model.${name}`),
-    ...incomingReferenceOptions,
-    ...allStructuredRows().map(row => row.valueText),
-  ])
-})
-const workflowShellStyle = computed<CSSProperties>(() => {
-  const leftWidth = leftPanelCollapsed.value ? COLLAPSED_LEFT_PANEL_WIDTH : leftPanelWidth.value
-  const leftHandleWidth = leftPanelCollapsed.value ? 0 : 12
-  return {
-    gridTemplateColumns: `${leftWidth}px ${leftHandleWidth}px minmax(520px, 1fr) 8px ${rightPanelWidth.value}px`,
-  }
-})
-const rootGraphView = computed(() => graphViews.value[0] ?? null)
-const currentMainGraphView = computed(() => {
-  return graphViews.value.find(view => view.key === currentMainGraphKey.value)
-    ?? rootGraphView.value
-})
-const currentMainParentGraphView = computed(() => {
-  const main = currentMainGraphView.value
-  if (main === null || main.depth === 0) return null
-  return graphViews.value.find((view) => {
-    return view.depth === main.depth - 1 && main.scopePath.startsWith(`${view.scopePath}.`)
-  }) ?? null
-})
-const mainChildGraphOptions = computed(() => {
-  const main = currentMainGraphView.value
-  if (main === null) return []
-  return graphViews.value.filter((view) => {
-    return view.depth === main.depth + 1 && view.scopePath.startsWith(`${main.scopePath}.`)
-  })
-})
-const currentChildGraphView = computed(() => {
-  return mainChildGraphOptions.value.find(view => view.key === currentChildGraphKey.value)
-    ?? mainChildGraphOptions.value[0]
-    ?? null
-})
-const graphSplitPanels = computed<GraphSplitPanel[]>(() => {
-  const main = currentMainGraphView.value
-  if (main === null) return []
-  const child = currentChildGraphView.value
-  return [
-    {
-      key: 'main',
-      role: 'main',
-      graphView: main,
-      collapsed: graphSplitCollapsed.value === 'top',
-    },
-    {
-      key: 'child',
-      role: 'child',
-      graphView: child,
-      collapsed: graphSplitCollapsed.value === 'bottom' || child === null,
-    },
-  ]
-})
-const graphSplitStyle = computed<CSSProperties>(() => {
-  if (graphSplitCollapsed.value === 'top') {
-    return { gridTemplateRows: '8px 18px minmax(260px, 1fr)' }
-  }
-  if (graphSplitCollapsed.value === 'bottom' || currentChildGraphView.value === null) {
-    return { gridTemplateRows: 'minmax(300px, 1fr) 18px 8px' }
-  }
-  return {
-    gridTemplateRows: `minmax(220px, ${graphSplitRatio.value}fr) 18px minmax(220px, ${100 - graphSplitRatio.value}fr)`,
-  }
-})
-const canSave = computed(() => currentDocument.value !== null && currentWorkflowId.value.length > 0 && !opening.value)
-const canAutoLayout = computed(() => canSave.value && !saving.value && !autoLayoutSaving.value)
-const canPublish = computed(() => canSave.value && !saving.value && !publishing.value)
-const canOpenDefinition = computed(() => canSave.value && !openingDefinition.value)
-const definitionViewKey = computed(() => {
-  const owner = dataOwner.value
-  return owner ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.dataSet.scenarioId) : ''
-})
-const definitionHasDataViewRow = computed(() => {
-  definitionViewRevision.value
-  const owner = dataOwner.value
-  const row = owner?.definitionView.currentRow
-  return Boolean(row && row['workflowId'] === currentWorkflowId.value && row['fileName'] === 'definition.json'
-    && owner.definitionView.fieldAccess(row, 'content').read === 'visible'
-    && typeof row['content'] === 'string')
-})
-const canSaveDefinition = computed(() => (
-  currentWorkflowId.value.length > 0
-  && (definitionHasDataViewRow.value || definitionJsonText.value.trim().length > 0)
-  && !savingDefinition.value
-))
-const definitionPendingVerification = computed(() => {
-  definitionViewRevision.value
-  savingDefinition.value
-  return dataOwner.value?.definitionView.hasUnconfirmedSave ?? false
-})
-const hasDesignChanges = computed(() => {
-  const view = dataOwner.value?.designView
-  return Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
-    || editorDirty.value
-})
-const hasDefinitionChanges = computed(() => {
-  definitionViewRevision.value
-  const view = dataOwner.value?.definitionView
-  return Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
-    || definitionDirty.value
-})
-const hasUnsavedChanges = computed(() => hasDesignChanges.value || hasDefinitionChanges.value)
+const selectedChildPath = computed(() => selected.value?.kind === 'node' ? workflowChildGraphPath(selectedRow.value) : '')
 
-watch(() => dataOwner.value?.definitionView, (view, _previous, cleanup) => {
-  if (!view) return
-  const refreshDefinitionState = () => {
-    definitionViewRevision.value++
-    definitionDirty.value = Boolean(view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges())
-  }
-  view.events.on('editingChanged', refreshDefinitionState)
-  view.events.on('rowsChanged', refreshDefinitionState)
-  view.events.on('currentRowChanged', refreshDefinitionState)
-  view.events.on('requestStateChanged', refreshDefinitionState)
-  cleanup(() => {
-    view.events.off('editingChanged', refreshDefinitionState)
-    view.events.off('rowsChanged', refreshDefinitionState)
-    view.events.off('currentRowChanged', refreshDefinitionState)
-    view.events.off('requestStateChanged', refreshDefinitionState)
-  })
-}, {immediate: true, flush: 'sync'})
-
-function stageDocumentInDataView(document: WorkflowDesignDocument): void {
-  const owner = dataOwner.value
-  const view = owner?.designView
-  const row = view?.currentRow
-  if (!owner || !view || !row || row['workflowId'] !== currentWorkflowId.value
-    || view.fieldAccess(row, 'content').write !== 'allowed') {
-    throw new Error('Workflow design DataView 当前行不可编辑')
-  }
-  const id = view.getPkKey(row)
-  if (id === null || id === undefined) throw new Error('Workflow design DataView 行身份缺失')
-  view.updateEditingValue(id, 'content', formatJson(document))
+function graphProps(role: GraphRole): RGraphProps {
+  revision.value
+  const {nodes, lines} = graphViews(role)
+  const nodeRows = shownRows(nodes), locked = busy.value
+  const draggable = locked ? [] : nodes.rows.flatMap(row => writable(nodes, row, ['x', 'y']) ? [String(row['nodeKey'])] : [])
+  const connectable = locked || lines.addActionState() !== 'enabled' ? [] : nodeRows.map(row => String(row['nodeKey']))
+  return {dataViewKey: viewKey(nodes), edgeDataViewKey: viewKey(lines), labelField: 'title', descriptionField: 'desc', nodeCaptionField: 'dataType',
+    nodeAppearance: 'card', backgroundPattern: 'dots', edgeSourceField: 'fromNodeId', edgeTargetField: 'toNodeId',
+    edgeNodeKeys: workflowEdgeNodeKeys(nodeRows), nodePositions: workflowNodePositions(nodeRows), nodeHandles: WORKFLOW_NODE_HANDLES,
+    edgeSourceHandleField: 'fromDock', edgeTargetHandleField: 'toDock', edgeLineTypeField: 'lineType', edgeControlPointsField: 'controlPoints',
+    draggableKeys: draggable, connectableKeys: connectable, disabled: locked,
+    onSelect: (event: GraphSelection) => select(role, event), onNodeMove: (event: GraphNodeMove) => moveNode(role, event),
+    onArrange: (event: GraphArrange) => arrange(role, event), onConnect: (event: GraphConnection) => void connect(role, event),
+    onEdgePathChange: event => graphViews(role).lines.updateEditingValue(event.id, 'controlPoints', event.controlPoints)}
 }
 
-function markWorkflowDesignDirty(document: WorkflowDesignDocument, path: string): void {
-  if (dataOwner.value?.designView.hasUnconfirmedSave) throw new Error('design.json 提交结果待核验，核验前不能修改 DataView 草稿')
-  markWorkflowDesignDirtyBase(document, path)
-  if (document === currentDocument.value && currentWorkflowId.value) stageDocumentInDataView(document)
+function select(role: GraphRole, event: GraphSelection): void {
+  selected.value = {graph: role, kind: event.kind, id: event.id}
+  activeGraph.value = role
+  if (event.open) openDrawer(event.kind === 'node' ? 'node' : 'line')
 }
 
-watch(
-  () => selectedNode.value?.key ?? '',
-  () => {
-    if (propertiesDrawerTarget.value !== 'workflow') syncEditorFromSelected()
-    syncChildGraphFromSelectedMainNode()
-    ensureSelectedNodeClassModelKnowledge()
-  },
-  { immediate: true },
-)
-
-watch(
-  () => selectedLine.value?.key ?? '',
-  () => {
-    if (propertiesDrawerTarget.value !== 'workflow') syncLineEditorFromSelected()
-  },
-  { immediate: true },
-)
-
-watch(
-  () => graphViews.value.map(view => view.key).join('|'),
-  () => normalizeGraphNavigation(),
-  { immediate: true },
-)
-
-watch(
-  () => currentMainGraphView.value?.key ?? '',
-  () => normalizeChildGraphSelection(),
-)
-
-onMounted(async () => {
-  window.document.addEventListener('keydown', handleNodeKeyboardMove)
-  window.document.addEventListener('keydown', handleControlPointDeleteKey)
-  window.addEventListener('beforeunload', guardBrowserClose)
-  loadingList.value = true
-  try {
-    const owner = await createAgentWorkflowFileDataViewOwner()
-    if (!componentActive) {owner.dispose(); return}
-    dataOwner.value = owner
-    sparkProvide(PAGE_RUNTIME, owner.runtime)
-    owner.dataSet.onAnyViewChange({rowsChanged: () => directoryRevision.value++, requestStateChanged: () => directoryRevision.value++})
-    await owner.refreshDirectory()
-    if (!componentActive || dataOwner.value !== owner) return
-    ready.value = true
-    await openInitialDesign()
-  } catch (error: unknown) {
-    if (componentActive) ElMessage.error(`加载工作流设计稿失败: ${errorMessage(error)}`)
-  } finally {
-    if (componentActive) loadingList.value = false
-  }
-})
-
-let componentActive = true
-onBeforeRouteLeave(async () => {
-  if (!hasUnsavedChanges.value) return true
-  if (!await confirmDiscardEditorDraft()) return false
-  if (!await confirmDiscardDefinitionDraft()) return false
-  return true
-})
-
-function guardBrowserClose(event: BeforeUnloadEvent): void {
-  if (!hasUnsavedChanges.value) return
-  event.preventDefault()
-  event.returnValue = ''
+function moveNode(role: GraphRole, event: GraphNodeMove): void {
+  const {nodes} = graphViews(role), corner = workflowNodeCorner(event)
+  nodes.updateEditingValue(event.id, 'x', corner.x)
+  nodes.updateEditingValue(event.id, 'y', corner.y)
 }
 
-onBeforeUnmount(() => {
-  componentActive = false
-  window.document.removeEventListener('keydown', handleNodeKeyboardMove)
-  window.document.removeEventListener('keydown', handleControlPointDeleteKey)
-  window.removeEventListener('beforeunload', guardBrowserClose)
-  stopControlPointDrag()
-  stopLayoutResize()
-  stopGraphSplitResize()
-  sparkRemove(PAGE_RUNTIME)
-  dataOwner.value?.dispose()
-  dataOwner.value = undefined
-})
-
-async function openInitialDesign(): Promise<void> {
-  if (workflowDirectoryCount.value === 0 || currentWorkflowId.value.length > 0) return
-  const view = directoryView.value
-  for (const row of view?.rows ?? []) {
-    if (view?.fieldAccess(row, 'workflowId').read !== 'visible' || typeof row['workflowId'] !== 'string' || !row['workflowId']) continue
-    view.setCurrentRow(row)
-    if (await openDesign(row['workflowId'], false)) return
-  }
-  ElMessage.warning('当前设计稿均不可打开，请新建工作流或删除旧设计稿')
-}
-
-async function loadDesigns(): Promise<void> {
-  const owner = dataOwner.value
-  if (!componentActive || !owner || loadingList.value) return
-  loadingList.value = true
-  try {
-    await owner.refreshDirectory()
-    if (!componentActive || dataOwner.value !== owner) return
-    directoryRevision.value++
-  } catch (error: unknown) {
-    if (componentActive && dataOwner.value === owner) ElMessage.error(`加载工作流目录失败: ${errorMessage(error)}`)
-  } finally {
-    if (componentActive && dataOwner.value === owner) loadingList.value = false
-  }
-}
-
-function openDirectoryRow(row: DataRow): void {
-  const view = directoryView.value
-  if (!view || view.fieldAccess(row, 'workflowId').read !== 'visible' || typeof row['workflowId'] !== 'string') return
-  view.setCurrentRow(row)
-  void openDesign(row['workflowId'])
-}
-
-async function openDesign(workflowId: string, notifyError = true): Promise<boolean> {
-  const normalizedWorkflowId = workflowId.trim()
-  if (normalizedWorkflowId.length === 0) return false
-  const owner = dataOwner.value
-  if (!owner || !directoryView.value?.rows.some(row => row['workflowId'] === normalizedWorkflowId
-    && directoryView.value?.fieldAccess(row, 'workflowId').read === 'visible')) {
-    if (notifyError) ElMessage.error('设计稿不在当前已读工作流目录中')
-    return false
-  }
-  if (normalizedWorkflowId !== currentWorkflowId.value) {
-    if (!await confirmDiscardEditorDraft()) return false
-    if (!await confirmDiscardDefinitionDraft()) return false
-  }
-
-  opening.value = true
-  try {
-    await owner.loadDocument(normalizedWorkflowId, 'design.json')
-    if (!componentActive || dataOwner.value !== owner) return false
-    const row = owner.designView.currentRow
-    if (!row || owner.designView.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
-      throw new Error('design.json DataView 当前行不可读')
-    }
-    const document = parseWorkflowDesignJson(row['content'])
-    normalizeWorkflowDesignLineState(document)
-    currentWorkflowId.value = normalizedWorkflowId
-    currentFilename.value = String(row['fileName'] ?? 'design.json')
-    currentTimestamp.value = String(row['timestamp'] ?? '')
-    currentDocument.value = document
-    syncWorkflowEditorFromDocument()
-    resetDefinitionEditor()
-    selectedLineKey.value = ''
-    currentMainGraphKey.value = 'workflow.graph'
-    currentChildGraphKey.value = ''
-    loadGraphSplitState(normalizedWorkflowId)
-    const nodes = collectWorkflowDesignNodes(document)
-    selectedNodeKey.value = nodes.find(node => node.isBusinessNode)?.key
-      ?? nodes[0]?.key
-      ?? ''
-    return true
-  } catch (error: unknown) {
-    if (notifyError) ElMessage.error(`打开失败: ${errorMessage(error)}`)
-    return false
-  } finally {
-    opening.value = false
-  }
-}
-
-function openCreateDialog(): void {
-  const stamp = new Date().toISOString().replace(/[-:.TZ]/g, '').slice(0, 14)
-  createForm.value = {
-    workflowId: `agent.workflow.${stamp}`,
-    title: 'Agent Workflow',
-  }
-  createDialogVisible.value = true
-}
-
-async function createDesign(): Promise<void> {
-  const workflowId = createForm.value.workflowId.trim()
-  const title = createForm.value.title.trim()
-  if (workflowId.length === 0) {
-    ElMessage.warning('请输入 Workflow ID')
+function arrange(role: GraphRole, event: GraphArrange): void {
+  const {nodes} = graphViews(role)
+  if (event.nodes.some(node => {const row = nodes.rows.find(item => nodes.getPkKey(item) === node.id); return !row || !writable(nodes, row, ['x', 'y'])})) {
+    event.control.cancel = true
+    ElMessage.error('存在不可修改位置的节点，不能自动排版')
     return
   }
-  creating.value = true
+  for (const node of event.nodes) moveNode(role, {...node, edges: []})
+}
+
+async function connect(role: GraphRole, event: GraphConnection): Promise<void> {
+  const {nodes, lines} = graphViews(role), nodeRows = shownRows(nodes)
+  const idOf = (key: string | number) => nodeRows.find(row => row['nodeKey'] === key)?.['id']
+  const from = idOf(event.source), to = idOf(event.target)
+  if (typeof from !== 'string' || typeof to !== 'string') return
   try {
-    await createWorkflowDesign({ workflowId, title: title || workflowId })
-    createDialogVisible.value = false
-    await loadDesigns()
-    await openDesign(workflowId)
-    ElMessage.success('设计稿已创建')
-  } catch (error: unknown) {
-    ElMessage.error(`创建失败: ${errorMessage(error)}`)
-  } finally {
-    creating.value = false
+    const row = await lines.addRow(workflowLineRow({from, to, fromDock: Number(event.sourceHandle ?? 0), toDock: Number(event.targetHandle ?? 0),
+      existingIds: shownRows(lines).flatMap(line => typeof line['id'] === 'string' ? [line['id']] : [])}))
+    const key = lines.getPkKey(row)
+    if (key !== undefined) selected.value = {graph: role, kind: 'edge', id: key}
+  } catch (error) {ElMessage.error(`新增连线失败: ${message(error)}`)}
+}
+
+function openDrawer(target: 'workflow' | 'node' | 'line'): void {
+  if (target !== 'workflow' && selected.value) {
+    const {nodes, lines} = graphViews(selected.value.graph), view = target === 'node' ? nodes : lines
+    view.setCurrentRowById(selected.value.id)
+  }
+  drawerTarget.value = target
+  drawerOpen.value = true
+}
+
+function listToolbar(view: DataView, keyField: string, label: string): RToolbarProps {
+  revision.value
+  const row = view.currentRow, key = row ? view.getPkKey(row) : undefined
+  return {children: [
+    {type: 'r-button', props: {label: `新增${label}`, disabled: busy.value || view.addActionState() !== 'enabled', onClick: () => void addListRow(view, keyField, label)}},
+    {type: 'r-button', props: {label: `删除${label}`, disabled: busy.value || !row || key === undefined
+      || !view.dirtyTracking.isPendingCreate(key) && view.deleteActionState(row) !== 'enabled', onClick: () => key !== undefined && void view.removeRow(key)}},
+  ]}
+}
+
+async function addListRow(view: DataView, keyField: string, label: string): Promise<void> {
+  try {
+    const {value} = await ElMessageBox.prompt(`输入${label}的 ${keyField}`, `新增${label}`, {confirmButtonText: '新增', cancelButtonText: '取消'})
+    const id = String(value ?? '').trim()
+    if (!id) return
+    if (shownRows(view).some(row => row[keyField] === id)) {ElMessage.error(`${label} ${id} 已存在`); return}
+    view.setCurrentRow(await view.addRow({[keyField]: id}))
+  } catch (error) {if (error !== 'cancel' && error !== 'close') ElMessage.error(`新增${label}失败: ${message(error)}`)}
+}
+
+function openNodeCreate(): void {
+  nodeCreate.value = {nodeKind: 'node', id: '', title: '', desc: ''}
+  resetNodeCreateDefaults()
+  nodeCreateOpen.value = true
+}
+
+function resetNodeCreateDefaults(): void {
+  const kind = nodeCreate.value.nodeKind
+  nodeCreate.value.id = kind === 'node' ? 'node.model' : kind
+  nodeCreate.value.title = kind === 'node' ? 'Business Node' : kind === 'start' ? 'Start' : 'Output'
+}
+
+async function createNode(): Promise<void> {
+  const {nodes} = graphViews(activeGraph.value), rows = shownRows(nodes)
+  const id = nodeCreate.value.id.trim()
+  if (!id || rows.some(row => row['id'] === id)) {ElMessage.error(`节点 ID 为空或已存在: ${id}`); return}
+  try {
+    const row = await nodes.addRow(workflowNodeRow({...nodeCreate.value, id, index: rows.length}))
+    const key = nodes.getPkKey(row)
+    if (key !== undefined) selected.value = {graph: activeGraph.value, kind: 'node', id: key}
+    nodeCreateOpen.value = false
+  } catch (error) {ElMessage.error(`新增节点失败: ${message(error)}`)}
+}
+
+async function removeRows(view: DataView, keys: ReadonlyArray<string | number>): Promise<void> {
+  for (const key of keys) {
+    const result = await view.removeRow(key)
+    if (result === false || typeof result === 'object' && !result.success) throw new Error(`${view.tableName} ${String(key)} 不能删除`)
   }
 }
 
-function openNodeCreateDialog(graphView: WorkflowDesignGraphView, nodeKind: WorkflowDesignNodeCreateKind): void {
-  if (editorDirty.value && !applySelectedDraft({ silent: false })) return
-  nodeCreateForm.value = {
-    graphKey: graphView.key,
-    nodeKind,
-    id: defaultCreateNodeId(nodeKind),
-    title: defaultCreateNodeTitle(nodeKind),
-    desc: '',
-  }
-  nodeCreateDialogVisible.value = true
-}
-
-function openNodeCreateDialogForCurrentGraph(): void {
-  const graphView = currentMainGraphView.value
-  if (graphView === null) return
-  openNodeCreateDialog(graphView, 'node')
-}
-
-function syncNodeCreateKindDefaults(): void {
-  const form = nodeCreateForm.value
-  form.id = defaultCreateNodeId(form.nodeKind)
-  form.title = defaultCreateNodeTitle(form.nodeKind)
-}
-
-function createNodeInSelectedGraph(): void {
-  const document = currentDocument.value
-  if (document === null) return
-  const form = nodeCreateForm.value
-  const graphView = graphViews.value.find(view => view.key === form.graphKey)
-  if (graphView === undefined) {
-    ElMessage.warning('请选择有效的 graph/subGraph')
-    return
-  }
-
-  const node = createWorkflowDesignNode(graphView.graph, {
-    nodeKind: form.nodeKind,
-    id: form.id.trim(),
-    title: form.title.trim(),
-    desc: form.desc.trim(),
-  })
-  markWorkflowDesignDirty(document, `${graphView.scopePath}.nodes`)
-  nodeCreateDialogVisible.value = false
-  selectedLineKey.value = ''
-  selectedNodeKey.value = `${graphView.scopePath}:${node.id}`
-  ElMessage.success('节点已创建')
-}
-
-async function deleteSelectedNode(): Promise<void> {
-  const view = selectedNode.value
-  const document = currentDocument.value
-  if (view === null || document === null) return
-  if ((view.nodeType === 'start' || view.nodeType === 'output') && allNodes.value.filter(node => node.nodeType === view.nodeType).length <= 1) {
+async function removeNode(): Promise<void> {
+  const target = selected.value, row = selectedRow.value
+  if (target?.kind !== 'node' || !row) return
+  const {nodes, lines} = graphViews(target.graph), type = row['dataType']
+  if ((type === 'start' || type === 'output') && shownRows(nodes).filter(item => item['dataType'] === type).length <= 1) {
     ElMessage.warning('至少保留一个 start 和 output 节点')
     return
   }
-
   try {
-    await ElMessageBox.confirm(`确定删除节点 ${view.title}？相关连线也会被删除。`, '删除节点', {
-      type: 'warning',
-      confirmButtonText: '删除',
-      cancelButtonText: '取消',
-    })
-  } catch {
-    return
-  }
-
-  const result = removeWorkflowDesignNode(view.graph, view.id)
-  if (!result.removed) return
-  markWorkflowDesignDirty(document, `${view.scopePath}.nodes`)
-  if (result.removedLines.length > 0) markWorkflowDesignDirty(document, `${view.scopePath}.lines`)
-  selectedNodeKey.value = ''
-  selectedLineKey.value = ''
-  editorDirty.value = false
-  ElMessage.success('节点已删除')
-}
-
-function startLayoutResize(event: PointerEvent, side: 'left' | 'right'): void {
-  if (side === 'left' && leftPanelCollapsed.value) return
-  layoutResizeState.value = {
-    side,
-    startClientX: event.clientX,
-    startLeftWidth: leftPanelWidth.value,
-    startRightWidth: rightPanelWidth.value,
-  }
-  window.document.addEventListener('pointermove', handleLayoutResizeMove)
-  window.document.addEventListener('pointerup', stopLayoutResize, { once: true })
-}
-
-function handleLayoutResizeMove(event: PointerEvent): void {
-  const state = layoutResizeState.value
-  if (state === null) return
-  const deltaX = event.clientX - state.startClientX
-  if (state.side === 'left') {
-    leftPanelWidth.value = Math.min(MAX_LEFT_PANEL_WIDTH, Math.max(MIN_LEFT_PANEL_WIDTH, Math.round(state.startLeftWidth + deltaX)))
-  } else {
-    rightPanelWidth.value = Math.min(MAX_RIGHT_PANEL_WIDTH, Math.max(MIN_RIGHT_PANEL_WIDTH, Math.round(state.startRightWidth - deltaX)))
-  }
-  event.preventDefault()
-}
-
-function stopLayoutResize(): void {
-  window.document.removeEventListener('pointermove', handleLayoutResizeMove)
-  window.document.removeEventListener('pointerup', stopLayoutResize)
-  layoutResizeState.value = null
-}
-
-function normalizeGraphNavigation(): void {
-  const root = rootGraphView.value
-  if (root === null) {
-    currentMainGraphKey.value = 'workflow.graph'
-    currentChildGraphKey.value = ''
-    return
-  }
-  if (!graphViews.value.some(view => view.key === currentMainGraphKey.value)) {
-    currentMainGraphKey.value = root.key
-  }
-  normalizeChildGraphSelection()
-}
-
-function normalizeChildGraphSelection(): void {
-  const children = mainChildGraphOptions.value
-  if (children.length === 0) {
-    currentChildGraphKey.value = ''
-    graphSplitCollapsed.value = 'bottom'
-    return
-  }
-  if (!children.some(view => view.key === currentChildGraphKey.value)) {
-    currentChildGraphKey.value = children[0]?.key ?? ''
-  }
-  if (graphSplitCollapsed.value === 'bottom') graphSplitCollapsed.value = null
-}
-
-function syncChildGraphFromSelectedMainNode(): void {
-  const selected = selectedNode.value
-  const main = currentMainGraphView.value
-  if (selected === null || main === null || selected.graph !== main.graph) return
-  const child = mainChildGraphOptions.value.find(view => view.ownerNode === selected.node)
-  currentChildGraphKey.value = child?.key ?? mainChildGraphOptions.value[0]?.key ?? ''
-  if (currentChildGraphKey.value.length > 0 && graphSplitCollapsed.value === 'bottom') {
-    graphSplitCollapsed.value = null
-  }
-}
-
-function promoteChildGraphToMain(): void {
-  const child = currentChildGraphView.value
-  if (child === null) return
-  currentMainGraphKey.value = child.key
-  currentChildGraphKey.value = ''
-  selectedLineKey.value = ''
-  selectedNodeKey.value = child.graph.nodes[0] !== undefined ? `${child.scopePath}:${child.graph.nodes[0].id}` : ''
-  normalizeChildGraphSelection()
-}
-
-function returnMainGraphToParent(): void {
-  const main = currentMainGraphView.value
-  const parent = currentMainParentGraphView.value
-  if (main === null || parent === null) return
-  currentMainGraphKey.value = parent.key
-  currentChildGraphKey.value = main.key
-  selectedLineKey.value = ''
-  selectedNodeKey.value = main.ownerNodeId !== undefined ? `${parent.scopePath}:${main.ownerNodeId}` : ''
-  if (graphSplitCollapsed.value === 'bottom') graphSplitCollapsed.value = null
-}
-
-function startGraphSplitResize(event: PointerEvent): void {
-  if (editorDirty.value && !applySelectedDraft({ silent: false })) return
-  const currentTarget = event.currentTarget
-  const shell = currentTarget instanceof HTMLElement ? currentTarget.closest('.graph-split') : null
-  const rect = shell instanceof HTMLElement ? shell.getBoundingClientRect() : null
-  graphSplitResizeState.value = {
-    containerTop: rect?.top ?? 0,
-    containerHeight: rect !== null && rect.height > 0 ? rect.height : 720,
-    moved: false,
-  }
-  window.document.addEventListener('pointermove', handleGraphSplitResizeMove)
-  window.document.addEventListener('pointerup', handleGraphSplitResizeEnd, { once: true })
-}
-
-function handleGraphSplitResizeMove(event: PointerEvent): void {
-  const state = graphSplitResizeState.value
-  if (state === null) return
-  const rawRatio = ((event.clientY - state.containerTop) / state.containerHeight) * 100
-  state.moved = true
-  if (rawRatio <= GRAPH_SPLIT_SNAP_RATIO && currentChildGraphView.value !== null) {
-    graphSplitCollapsed.value = 'top'
-  } else if (rawRatio >= 100 - GRAPH_SPLIT_SNAP_RATIO) {
-    graphSplitCollapsed.value = 'bottom'
-  } else {
-    graphSplitCollapsed.value = null
-    graphSplitRatio.value = Math.min(
-      GRAPH_SPLIT_MAX_RATIO,
-      Math.max(GRAPH_SPLIT_MIN_RATIO, Math.round(rawRatio)),
-    )
-  }
-  event.preventDefault()
-}
-
-function handleGraphSplitResizeEnd(): void {
-  if (graphSplitResizeState.value?.moved === true) saveGraphSplitState()
-  stopGraphSplitResize()
-}
-
-function stopGraphSplitResize(): void {
-  window.document.removeEventListener('pointermove', handleGraphSplitResizeMove)
-  window.document.removeEventListener('pointerup', handleGraphSplitResizeEnd)
-  graphSplitResizeState.value = null
-}
-
-function collapseGraphSplit(side: Exclude<GraphSplitCollapse, null>): void {
-  if (side === 'top' && currentChildGraphView.value === null) return
-  graphSplitCollapsed.value = side
-  saveGraphSplitState()
-}
-
-function resetGraphSplit(): void {
-  graphSplitRatio.value = 48
-  graphSplitCollapsed.value = currentChildGraphView.value === null ? 'bottom' : null
-  saveGraphSplitState()
-}
-
-function loadGraphSplitState(workflowId: string): void {
-  const raw = window.localStorage.getItem(graphSplitStorageKey(workflowId))
-  if (raw === null) {
-    graphSplitRatio.value = 48
-    graphSplitCollapsed.value = null
-    return
-  }
+    await ElMessageBox.confirm(`确定删除节点 ${String(row['title'] ?? row['id'])}？相关连线也会被删除。`, '删除节点', {type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消'})
+  } catch {return}
+  acting.value = true
   try {
-    const value: unknown = JSON.parse(raw)
-    if (!isJsonRecord(value)) throw new Error('Graph split state must be an object.')
-    const ratio = value['ratio']
-    graphSplitRatio.value = typeof ratio === 'number' && Number.isFinite(ratio)
-      ? Math.min(GRAPH_SPLIT_MAX_RATIO, Math.max(GRAPH_SPLIT_MIN_RATIO, Math.round(ratio)))
-      : 48
-    const collapsed = value['collapsed']
-    graphSplitCollapsed.value = collapsed === 'top' || collapsed === 'bottom' ? collapsed : null
-  } catch {
-    graphSplitRatio.value = 48
-    graphSplitCollapsed.value = null
-  }
-}
-
-function saveGraphSplitState(): void {
-  if (currentWorkflowId.value.length === 0) return
-  window.localStorage.setItem(graphSplitStorageKey(currentWorkflowId.value), JSON.stringify({
-    ratio: graphSplitRatio.value,
-    collapsed: graphSplitCollapsed.value,
-  }))
-}
-
-function nextStructuredEditorId(prefix: string): string {
-  structuredEditorId += 1
-  return `${prefix}.${structuredEditorId}`
-}
-
-function allStructuredRows(): StructuredFieldRow[] {
-  return [
-    ...businessInputRows.value,
-    ...businessOutputRows.value,
-    ...taskRequirementRows.value,
-    ...taskContextInputRows.value,
-    ...structuredResultRows.value,
-    ...validationInputProjectionRows.value,
-    ...validationExpectedResultRows.value,
-    ...capabilityCards.value.flatMap(card => [...card.inputRows, ...card.outputRows]),
-  ]
-}
-
-function structuredPathOptions(rows: readonly StructuredFieldRow[]): string[] {
-  return uniqueTexts([...structuredBasePathOptions.value, ...rows.map(row => row.path)])
-}
-
-function structuredValueOptions(row: StructuredFieldRow): string[] {
-  return uniqueTexts([row.valueText, ...structuredReferenceOptions.value])
-}
-
-function readWorkflowMetadataText(keys: readonly string[]): string {
-  const document = currentDocument.value
-  if (document === null) return ''
-  const candidates: unknown[] = [
-    document,
-    document.x_spark,
-    document.x_spark.designer,
-    document.x_spark.draft,
-    document.x_spark.history,
-    document.x_spark.validation,
-  ]
-  for (const candidate of candidates) {
-    if (!isJsonRecord(candidate)) continue
-    for (const key of keys) {
-      const value = candidate[key]
-      if (typeof value === 'string' && value.trim().length > 0) return value.trim()
-      if (typeof value === 'number' || typeof value === 'boolean') return String(value)
-    }
-  }
-  return ''
-}
-
-function workflowVariableRowsFromData(value: unknown): WorkflowVariableEditorRow[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .filter(isJsonRecord)
-    .map((variable): WorkflowVariableEditorRow => {
-      const schema = isJsonRecord(variable['schema']) ? { ...variable['schema'] } : {}
-      const defaultValue = variable['defaultValue']
-      const name = readTextField(variable, 'name')
-      const title = readTextField(variable, 'title')
-      return {
-        id: name || nextStructuredEditorId('workflow.variable'),
-        source: { ...variable },
-        schema,
-        name,
-        title,
-        docText: readWorkflowVariableSourceDocText(variable, schema),
-        required: variable['required'] === true,
-        schemaType: readTextField(schema, 'type') || 'string',
-        defaultValue,
-        defaultValueText: primitiveValueText(defaultValue),
-        defaultValueEditable: isPrimitiveEditableValue(defaultValue),
-      }
-    })
-}
-
-function workflowVariableDocText(row: WorkflowVariableEditorRow): string {
-  return firstMeaningfulText([
-    row.docText,
-    workflowAttributeDocText(row.name),
-  ], [row.name, row.title])
-}
-
-function workflowVariableDocTextByName(name: string): string {
-  const variable = workflowVariableRows.value.find(row => row.name.trim() === name.trim())
-  return variable === undefined ? '' : workflowVariableDocText(variable)
-}
-
-function workflowAttributeDocText(name: string): string {
-  const attribute = workflowRootClassModelOption.value?.attributes.find(item => item.name === name.trim())
-  return attribute === undefined ? '' : classModelDocText(attribute)
-}
-
-function workflowStructuredRowDocText(row: StructuredFieldRow): string {
-  return firstMeaningfulText([
-    workflowVariableDocTextByName(row.path),
-    workflowAttributeDocText(row.path),
-    workflowReferenceDocText(row.valueText),
-  ], [row.path, row.valueText])
-}
-
-function workflowReferenceDocText(value: string): string {
-  const trimmed = value.trim()
-  const startMatch = /^\{\{\s*start\.([^.\s}]+)\s*\}\}$/u.exec(trimmed)
-  if (startMatch !== null) return workflowVariableDocTextByName(startMatch[1] ?? '')
-  const modelMatch = /^\$model\.([^.\s}]+)$/u.exec(trimmed)
-  if (modelMatch !== null) return workflowAttributeDocText(modelMatch[1] ?? '')
-  return ''
-}
-
-function lineEndpointModelDocText(nodeId: string, modelId: string): string {
-  const model = findLineEndpointClassModelOption(nodeId, modelId)
-  if (model !== null) return classModelDocText(model)
-  if (modelId.trim() === '$workflow') return workflowRootClassDocText.value
-  return ''
-}
-
-function lineEndpointMemberDocText(nodeId: string, modelId: string, memberName: string): string {
-  const trimmedMember = memberName.trim()
-  if (trimmedMember.length === 0) return ''
-  const node = selectedLineGraphNodes.value.find(item => item.id === nodeId)
-  if (node?.isBoundaryNode === true || modelId.trim() === '$workflow') {
-    return workflowVariableDocTextByName(trimmedMember)
-  }
-  const model = findLineEndpointClassModelOption(nodeId, modelId)
-  if (model !== null) {
-    const attribute = model.attributes.find(item => item.name === trimmedMember)
-    if (attribute !== undefined) return classModelDocText(attribute)
-    const method = model.methods.find(item => item.name === trimmedMember)
-    if (method !== undefined) return classModelDocText(method)
-  }
-  return workflowReferenceDocText(`$model.${trimmedMember}`)
-}
-
-function findLineEndpointClassModelOption(nodeId: string, modelId: string): ClassModelOption | null {
-  const node = selectedLineGraphNodes.value.find(item => item.id === nodeId)
-  if (node === undefined) return null
-  const models = Array.isArray(node.node.data?.models) ? node.node.data.models.filter(isJsonRecord) : []
-  const selectedModel = models.find(model => readTextField(model, 'id') === modelId.trim())
-  const className = selectedModel === undefined ? '' : readTextField(selectedModel, 'className') || readTextField(selectedModel, 'rootClassName')
-  if (className.length === 0) return null
-  return classModelOptions.value.find(item => item.kind === className) ?? null
-}
-
-function classModelDocTextByKind(className: string): string {
-  const option = classModelOptions.value.find(item => item.kind === className.trim())
-  return option === undefined ? '' : classModelDocText(option)
-}
-
-function classModelMemberDocText(className: string, memberName: string): string {
-  const option = classModelOptions.value.find(item => item.kind === className.trim())
-  if (option === undefined) return ''
-  return classModelOptionMemberDocText(option, memberName)
-}
-
-function selectedModelAttributeDocText(name: string): string {
-  const attribute = selectedClassModelOption.value?.attributes.find(item => item.name === name.trim())
-  return attribute === undefined ? '' : classModelDocText(attribute)
-}
-
-function nodeStructuredRowPathDocText(row: StructuredFieldRow): string {
-  return firstMeaningfulText([
-    workflowVariableDocTextByName(row.path),
-    selectedModelAttributeDocText(row.path),
-  ], [row.path])
-}
-
-function nodeStructuredRowValueDocText(row: StructuredFieldRow): string {
-  return firstMeaningfulText([
-    nodeReferenceDocText(row.valueText),
-  ], [row.valueText])
-}
-
-function nodeActionCardDocText(card: StructuredSelectCard): string {
-  return firstMeaningfulText([
-    classModelMemberDocText(validationActionClassText.value || modelClassText.value, card.value),
-  ], [card.value])
-}
-
-function nodeAttributeCardDocText(card: StructuredSelectCard): string {
-  return firstMeaningfulText([
-    selectedModelAttributeDocText(card.value),
-  ], [card.value])
-}
-
-function nodeReferenceDocText(value: string): string {
-  const trimmed = value.trim()
-  const modelMatch = /^\$model\.([^.\s}]+)$/u.exec(trimmed)
-  if (modelMatch !== null) return selectedModelAttributeDocText(modelMatch[1] ?? '')
-  const referenceMatch = /^\{\{\s*([^}]+?)\s*\}\}$/u.exec(trimmed)
-  if (referenceMatch === null) return ''
-  const body = (referenceMatch[1] ?? '').trim()
-  const separatorIndex = body.lastIndexOf('.')
-  if (separatorIndex <= 0 || separatorIndex >= body.length - 1) return ''
-  const nodeId = body.slice(0, separatorIndex)
-  const memberName = body.slice(separatorIndex + 1)
-  const graph = selectedNode.value?.graph ?? selectedLine.value?.graph
-  const node = graph?.nodes.find(item => item.id === nodeId)
-  if (node === undefined) return ''
-  return nodeMemberDocText(node, memberName)
-}
-
-function nodeMemberDocText(node: WorkflowDesignNodeView['node'], memberName: string): string {
-  const nodeType = typeof node.data?.type === 'string' ? node.data.type : node.type
-  if (nodeType === 'start') return workflowVariableDocTextByName(memberName)
-  const option = classModelOptionForGraphNode(node)
-  return option === null ? '' : classModelOptionMemberDocText(option, memberName)
-}
-
-function classModelOptionForGraphNode(node: WorkflowDesignNodeView['node']): ClassModelOption | null {
-  const models = Array.isArray(node.data?.models) ? node.data.models.filter(isJsonRecord) : []
-  const primaryModel = models[0]
-  const className = primaryModel === undefined ? '' : readTextField(primaryModel, 'className') || readTextField(primaryModel, 'rootClassName')
-  if (className.length === 0) return null
-  return classModelOptions.value.find(item => item.kind === className) ?? null
-}
-
-function lineModelOptions(nodeId: string, currentValue: string): string[] {
-  const node = selectedLineGraphNodes.value.find(item => item.id === nodeId)
-  if (node === undefined || node.isBoundaryNode) return uniqueTexts([currentValue, '$workflow'])
-  const data = node.node.data
-  const models = Array.isArray(data?.models) ? data.models.filter(isJsonRecord) : []
-  return uniqueTexts([
-    currentValue,
-    ...models.map(model => readTextField(model, 'id')),
-  ])
-}
-
-function lineMemberOptions(nodeId: string, currentValue: string): string[] {
-  const line = selectedLine.value
-  const graph = line?.graph
-  const node = graph?.nodes.find(item => item.id === nodeId)
-  if (node === undefined) return uniqueTexts([currentValue])
-  return uniqueTexts([currentValue, ...referenceMemberOptionsForNode(node)])
-}
-
-function referenceOptionsForNodeId(nodeId: string, graph: WorkflowDesignGraphView['graph']): string[] {
-  const node = graph.nodes.find(item => item.id === nodeId)
-  if (node === undefined) return []
-  return referenceMemberOptionsForNode(node).map(member => `{{ ${node.id}.${member} }}`)
-}
-
-function referenceMemberOptionsForNode(node: WorkflowDesignNodeView['node']): string[] {
-  const nodeType = typeof node.data?.type === 'string' ? node.data.type : node.type
-  if (nodeType === 'start') {
-    return workflowVariableOptions.value
-  }
-  if (nodeType === 'output') {
-    return recordKeys(node.data?.outputs)
-  }
-  return uniqueTexts([
-    ...recordKeys(node.data?.outputs),
-    ...modelAttributeOptions.value,
-  ])
-}
-
-function structuredRowsFromRecord(value: unknown, prefix: string): StructuredFieldRow[] {
-  if (!isJsonRecord(value)) return []
-  const rows: StructuredFieldRow[] = []
-  collectStructuredRows({ value, path: '', rows, prefix })
-  return rows
-}
-
-function collectStructuredRows(command: StructuredRowsCollectionCommand): void {
-  const { value, path, rows, prefix } = command
-  if (isJsonRecord(value)) {
-    for (const [key, child] of Object.entries(value)) {
-      collectStructuredRows({
-        value: child,
-        path: path.length === 0 ? key : `${path}.${key}`,
-        rows,
-        prefix,
-      })
-    }
-    return
-  }
-  if (Array.isArray(value)) {
-    for (const [index, child] of value.entries()) {
-      collectStructuredRows({
-        value: child,
-        path: path.length === 0 ? String(index) : `${path}.${index}`,
-        rows,
-        prefix,
-      })
-    }
-    return
-  }
-  rows.push(structuredRowFromValue(path, value, prefix))
-}
-
-function structuredRowFromValue(path: string, value: unknown, prefix: string): StructuredFieldRow {
-  if (typeof value === 'boolean') {
-    return {
-      id: nextStructuredEditorId(prefix),
-      path,
-      valueKind: 'boolean',
-      valueText: '',
-      valueBoolean: value,
-    }
-  }
-  if (typeof value === 'number') {
-    return {
-      id: nextStructuredEditorId(prefix),
-      path,
-      valueKind: 'number',
-      valueText: Number.isFinite(value) ? String(value) : '0',
-      valueBoolean: false,
-    }
-  }
-  const text = typeof value === 'string' ? value : String(value ?? '')
-  return {
-    id: nextStructuredEditorId(prefix),
-    path,
-    valueKind: text.includes('{{') || text.startsWith('$') ? 'reference' : 'text',
-    valueText: text,
-    valueBoolean: false,
-  }
-}
-
-function structuredCardsFromStrings(value: unknown, prefix: string): StructuredSelectCard[] {
-  return Array.isArray(value)
-    ? value
-      .filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
-      .map(item => ({ id: nextStructuredEditorId(prefix), value: item.trim() }))
-    : []
-}
-
-function capabilityCardsFromData(value: unknown): StructuredCapabilityCard[] {
-  if (!Array.isArray(value)) return []
-  return value
-    .filter(isJsonRecord)
-    .map((capability): StructuredCapabilityCard => ({
-      id: readTextField(capability, 'id') || nextStructuredEditorId('capability'),
-      title: readTextField(capability, 'title'),
-      scope: readTextField(capability, 'scope') || 'node',
-      description: readTextField(capability, 'description'),
-      inputRows: structuredRowsFromRecord(capability['inputs'], 'capability.input'),
-      outputRows: structuredRowsFromRecord(capability['outputs'], 'capability.output'),
-      constraintCards: structuredCardsFromStrings(capability['constraints'], 'capability.constraint'),
-    }))
-}
-
-function lineViewKey(graphView: WorkflowDesignGraphView, line: WorkflowDesignLineView['line']): string {
-  const view = lineViews.value.find(item => item.graph === graphView.graph && item.line === line)
-  if (view !== undefined) return view.key
-  const index = graphView.graph.lines.indexOf(line)
-  return `${graphView.scopePath}:line:${line.id ?? index}`
-}
-
-function selectNode(key: string): void {
-  if (key === selectedNodeKey.value) return
-  if (editorDirty.value && !applySelectedDraft({ silent: false })) return
-  selectedLineKey.value = ''
-  selectedNodeKey.value = key
-}
-
-function selectLine(key: string): void {
-  if (editorDirty.value && !applySelectedDraft({ silent: false })) return
-  selectedNodeKey.value = ''
-  selectedControlPoint.value = null
-  selectedLineKey.value = key
-}
-
-function openNodeEditor(key: string): void {
-  selectNode(key)
-  if (selectedNodeKey.value === key) openPropertiesDrawer()
-}
-
-function openLineEditor(key: string): void {
-  selectLine(key)
-  if (selectedLineKey.value === key) openPropertiesDrawer()
-}
-
-function selectedNodeInGraph(graphView: WorkflowDesignGraphView | null): boolean {
-  const node = selectedNode.value
-  return graphView !== null && node !== null && node.graph === graphView.graph
-}
-
-function openWorkflowPropertiesDrawer(): void {
-  if (currentDocument.value === null) return
-  propertiesDrawerTarget.value = 'workflow'
-  syncWorkflowEditorFromDocument()
-  propertiesDrawerVisible.value = true
-  ensureWorkflowClassModelKnowledge()
-}
-
-function openPropertiesDrawer(): void {
-  if (selectedNode.value === null && selectedLine.value === null) return
-  propertiesDrawerTarget.value = selectedLine.value !== null ? 'line' : 'node'
-  if (propertiesDrawerTarget.value === 'line') syncLineEditorFromSelected()
-  else syncEditorFromSelected()
-  propertiesDrawerVisible.value = true
-  if (selectedNode.value?.isBusinessNode === true && classModelOptions.value.length === 0) {
-    void refreshClassModelOptions()
-  }
-}
-
-function openClassModelDrawer(): void {
-  if (activeClassModelDrawerOption.value === null) return
-  classModelDrawerVisible.value = true
-}
-
-function handleLineEditorChange(): void {
-  void applyLineEditorToSelected({ silent: true })
-}
-
-function nodesForGraph(graphView: WorkflowDesignGraphView): WorkflowDesignNodeView[] {
-  return allNodes.value.filter(node => node.graph === graphView.graph)
-}
-
-function linesForGraph(graphView: WorkflowDesignGraphView): WorkflowDesignLineView[] {
-  return lineViews.value.filter(line => line.graph === graphView.graph)
-}
-
-function flowNodesForGraph(graphView: WorkflowDesignGraphView): WorkflowFlowNode[] {
-  return nodesForGraph(graphView).map((view) => {
-    return {
-      id: view.id,
-      type: 'workflow',
-      position: { x: view.node.position?.x ?? 0, y: view.node.position?.y ?? 0 },
-      targetPosition: Position.Top,
-      sourcePosition: Position.Bottom,
-      data: {
-        viewKey: view.key,
-        title: view.title,
-        nodeType: view.nodeType,
-        scopePath: view.scopePath,
-        isBusinessNode: view.isBusinessNode,
-        isBoundaryNode: view.isBoundaryNode,
-        modelClassName: readBusinessNodeModelClassName(view),
-        modelDocText: readBusinessNodeModelDocText(view),
-        validationActionName: readBusinessNodeValidationActionName(view),
-        validationActionDocText: readBusinessNodeValidationActionDocText(view),
-      },
-    }
-  })
-}
-
-function flowConnectionsForGraph(graphView: WorkflowDesignGraphView): WorkflowFlowConnection[] {
-  return linesForGraph(graphView).map((line) => {
-    const docks = resolvedLineDocks(line)
-    return {
-      id: workflowFlowConnectionId(line),
-      type: 'workflow-control',
-      source: line.from.nodeId,
-      target: line.to.nodeId,
-      sourceHandle: dockHandle(docks.source),
-      targetHandle: dockHandle(docks.target),
-      markerEnd: MarkerType.ArrowClosed,
-      data: {
-        lineKey: line.key,
-        lineType: workflowDesignLineType(line.line),
-        controlPoints: workflowDesignLineControlPoints(line.line),
-        runtimeStatus: lineRuntimeStatuses.value[line.key] ?? 'idle',
-      },
-    }
-  })
-}
-
-function setWorkflowLineRuntimeStatus(lineIdOrKey: string, status: WorkflowLineRuntimeStatus): boolean {
-  const line = lineViews.value.find(item => item.key === lineIdOrKey || item.id === lineIdOrKey)
-  if (line === undefined) return false
-  lineRuntimeStatuses.value = {
-    ...lineRuntimeStatuses.value,
-    [line.key]: status,
-  }
-  return true
-}
-
-defineExpose({ setWorkflowLineRuntimeStatus })
-
-function applySelectedLineVisualType(): void {
-  const line = selectedLine.value
-  const document = currentDocument.value
-  if (line === null || document === null) return
-  updateWorkflowDesignLine(line.line, { lineType: lineVisualTypeText.value })
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-}
-
-function clearSelectedLineControlPoints(): void {
-  const line = selectedLine.value
-  const document = currentDocument.value
-  if (line === null || document === null) return
-  updateWorkflowDesignLine(line.line, { controlPoints: [] })
-  selectedControlPoint.value = null
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-}
-
-function isSelectedControlPoint(lineKey: string, index: string | number): boolean {
-  const selected = selectedControlPoint.value
-  return selected !== null && selected.lineKey === lineKey && selected.index === Number(index)
-}
-
-function selectControlPoint(lineKey: string, index: string | number): void {
-  selectLine(lineKey)
-  selectedControlPoint.value = { lineKey, index: Number(index) }
-}
-
-function addLineControlPoint(event: MouseEvent, data: WorkflowFlowLineData, graphView: WorkflowDesignGraphView): void {
-  const line = lineViews.value.find(item => item.key === data.lineKey && item.graph === graphView.graph)
-  const svg = event.currentTarget instanceof SVGElement ? event.currentTarget.ownerSVGElement : null
-  const document = currentDocument.value
-  if (line === undefined || svg === null || document === null) return
-  const rect = svg.getBoundingClientRect()
-  const viewport = graphView.graph.viewport
-  const zoom = viewport?.zoom ?? 1
-  const point = {
-    x: Math.round((event.clientX - rect.left - (viewport?.x ?? 0)) / zoom),
-    y: Math.round((event.clientY - rect.top - (viewport?.y ?? 0)) / zoom),
-  }
-  const points = [...workflowDesignLineControlPoints(line.line)]
-  const docks = resolvedLineDocks(line)
-  const anchors = [workflowDockPoint(line.fromNode, docks.source), ...points, workflowDockPoint(line.toNode, docks.target)]
-  const insertIndex = nearestLineSegmentIndex(anchors, point)
-  points.splice(insertIndex, 0, point)
-  updateWorkflowDesignLine(line.line, { controlPoints: points })
-  selectControlPoint(line.key, insertIndex)
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-}
-
-function startControlPointDrag(command: StartControlPointDragCommand): void {
-  const { event, data, index, graphView } = command
-  const pointIndex = Number(index)
-  const point = data.controlPoints[pointIndex]
-  if (point === undefined) return
-  selectControlPoint(data.lineKey, pointIndex)
-  controlPointDragState.value = {
-    lineKey: data.lineKey,
-    index: pointIndex,
-    graph: graphView.graph,
-    startClientX: event.clientX,
-    startClientY: event.clientY,
-    startPoint: point,
-  }
-  window.addEventListener('pointermove', moveControlPoint)
-  window.addEventListener('pointerup', stopControlPointDrag, { once: true })
-}
-
-function moveControlPoint(event: PointerEvent): void {
-  const drag = controlPointDragState.value
-  const document = currentDocument.value
-  const line = drag === null ? undefined : lineViews.value.find(item => item.key === drag.lineKey && item.graph === drag.graph)
-  if (drag === null || line === undefined || document === null) return
-  const zoom = line.graph.viewport?.zoom ?? 1
-  const points = [...workflowDesignLineControlPoints(line.line)]
-  points[drag.index] = {
-    x: Math.round(drag.startPoint.x + (event.clientX - drag.startClientX) / zoom),
-    y: Math.round(drag.startPoint.y + (event.clientY - drag.startClientY) / zoom),
-  }
-  updateWorkflowDesignLine(line.line, { controlPoints: points })
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-}
-
-function stopControlPointDrag(): void {
-  controlPointDragState.value = null
-  window.removeEventListener('pointermove', moveControlPoint)
-}
-
-function deleteLineControlPoint(lineKey: string, index: string | number): void {
-  const line = lineViews.value.find(item => item.key === lineKey)
-  const document = currentDocument.value
-  if (line === undefined || document === null) return
-  const points = [...workflowDesignLineControlPoints(line.line)]
-  const pointIndex = Number(index)
-  if (pointIndex < 0 || pointIndex >= points.length) return
-  points.splice(pointIndex, 1)
-  updateWorkflowDesignLine(line.line, { controlPoints: points })
-  selectedControlPoint.value = null
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-}
-
-function handleControlPointDeleteKey(event: KeyboardEvent): void {
-  const selected = selectedControlPoint.value
-  if (selected === null || isEditableKeyboardTarget(event.target)) return
-  if (event.key !== 'Delete' && event.key !== 'Backspace') return
-  event.preventDefault()
-  deleteLineControlPoint(selected.lineKey, selected.index)
-}
-
-function handlePanelFlowNodesChange(changes: NodeChange[], graphView: WorkflowDesignGraphView | null): void {
-  if (graphView === null) return
-  handleFlowNodesChange(changes, graphView)
-}
-
-function handlePanelFlowLineChanges(changes: VueFlowLineChange[], graphView: WorkflowDesignGraphView | null): void {
-  if (graphView === null) return
-  handleFlowLineChanges(changes, graphView)
-}
-
-function handlePanelFlowLineDoubleClick(event: unknown, graphView: WorkflowDesignGraphView | null): void {
-  if (graphView === null) return
-  const connection = readFlowConnectionLineFromEvent(event)
-  const lineData = connection?.data
-  if (!isWorkflowFlowLineData(lineData)) return
-  const line = lineViews.value.find(item => item.key === lineData.lineKey)
-  if (line !== undefined && line.graph === graphView.graph) openLineEditor(line.key)
-}
-
-function handlePanelFlowLineUpdate(event: VueFlowLineUpdateEvent, graphView: WorkflowDesignGraphView | null): void {
-  if (graphView === null) return
-  handleFlowLineUpdate(event, graphView)
-}
-
-function handlePanelFlowConnect(connection: Connection, graphView: WorkflowDesignGraphView | null): void {
-  if (graphView === null) return
-  handleFlowConnect(connection, graphView)
-}
-
-function handlePanelFlowViewportChangeEnd(
-  viewport: ViewportTransform,
-  graphView: WorkflowDesignGraphView | null,
-): void {
-  if (graphView === null) return
-  handleFlowViewportChangeEnd(viewport, graphView)
-}
-
-function handleFlowNodesChange(changes: NodeChange[], graphView: WorkflowDesignGraphView): void {
-  for (const change of changes) {
-    if (change.type === 'select') {
-      if (change.selected) {
-        selectNode(`${graphView.scopePath}:${change.id}`)
-      } else if (selectedNodeKey.value === `${graphView.scopePath}:${change.id}`) {
-        selectedNodeKey.value = ''
-      }
-    }
-  }
-}
-
-function handleFlowLineChanges(changes: VueFlowLineChange[], graphView: WorkflowDesignGraphView): void {
-  for (const change of changes) {
-    if (change.type === 'select' && typeof change.id === 'string') {
-      if (change.selected) {
-        const lineView = workflowLineViewForFlowConnectionId(graphView, change.id)
-        if (lineView) selectLine(lineView.key)
-      } else {
-        const lineView = selectedLine.value
-        const selectedFlowConnectionId = lineView === null ? '' : workflowFlowConnectionId(lineView)
-        if (selectedFlowConnectionId === change.id && lineView?.graph === graphView.graph) selectedLineKey.value = ''
-      }
-    }
-  }
-}
-
-function workflowLineViewForFlowConnectionId(
-  graphView: WorkflowDesignGraphView,
-  connectionId: string,
-): WorkflowDesignLineView | undefined {
-  return lineViews.value.find(line => line.graph === graphView.graph && workflowFlowConnectionId(line) === connectionId)
-}
-
-function handleFlowViewportChangeEnd(viewport: ViewportTransform, graphView: WorkflowDesignGraphView): void {
-  const document = currentDocument.value
-  if (document === null) return
-  graphView.graph.viewport ??= {}
-  graphView.graph.viewport.x = Math.round(viewport.x)
-  graphView.graph.viewport.y = Math.round(viewport.y)
-  graphView.graph.viewport.zoom = Math.round(viewport.zoom * 100) / 100
-  markWorkflowDesignDirty(document, `${graphView.scopePath}.viewport`)
-}
-
-function handleFlowNodeDragStop(event: NodeDragEvent): void {
-  const data = event.node.data
-  if (!isWorkflowFlowNodeData(data)) return
-  const view = allNodes.value.find(node => node.key === data.viewKey)
-  const document = currentDocument.value
-  if (view === undefined || document === null) return
-
-  view.node.position ??= {}
-  view.node.position.x = Math.max(0, Math.round(event.node.position.x / 10) * 10)
-  view.node.position.y = Math.max(0, Math.round(event.node.position.y / 10) * 10)
-  markWorkflowDesignDirty(document, `${view.scopePath}.${view.id}.position`)
-}
-
-function handleNodeKeyboardMove(event: KeyboardEvent): void {
-  const delta = nodeKeyboardMoveDelta(event)
-  if (delta === null || isEditableKeyboardTarget(event.target)) return
-  const view = selectedNode.value
-  if (view === null || currentDocument.value === null) return
-  if (editorDirty.value && !applySelectedDraft({ silent: true })) return
-  event.preventDefault()
-  const currentX = view.node.position?.x ?? 0
-  const currentY = view.node.position?.y ?? 0
-  applyNodePosition(
-    Math.max(0, currentX + delta.x),
-    Math.max(0, currentY + delta.y),
-  )
-}
-
-function handleFlowConnect(connection: Connection, graphView: WorkflowDesignGraphView): void {
-  const document = currentDocument.value
-  if (document === null) return
-  const fromNodeId = connection.source.trim()
-  const toNodeId = connection.target.trim()
-  if (fromNodeId.length === 0 || toNodeId.length === 0) {
-    ElMessage.warning('连线必须包含 From 和 To')
-    return
-  }
-  if (fromNodeId === toNodeId) {
-    ElMessage.warning('不能连接节点自身')
-    return
-  }
-
-  const line = addWorkflowDesignLine(graphView.graph, fromNodeId, toNodeId)
-  updateWorkflowDesignLine(line, {
-    from: withConnectionEndpoint(line.from, fromNodeId, connection.sourceHandle),
-    to: withConnectionEndpoint(line.to, toNodeId, connection.targetHandle),
-  })
-  markWorkflowDesignDirty(document, `${graphView.scopePath}.lines`)
-  selectLine(lineViewKey(graphView, line))
-  ElMessage.success('连线已创建')
-}
-
-function handleFlowLineUpdate(event: VueFlowLineUpdateEvent, graphView: WorkflowDesignGraphView): void {
-  const document = currentDocument.value
-  if (document === null) return
-  const linePayload = event.edge
-  const data = linePayload.data
-  if (!isWorkflowFlowLineData(data)) return
-  const line = lineViews.value.find(item => item.key === data.lineKey)
-  if (line === undefined || line.graph !== graphView.graph) return
-
-  const fromNodeId = event.connection.source.trim()
-  const toNodeId = event.connection.target.trim()
-  const from = withConnectionEndpoint(line.from, fromNodeId, event.connection.sourceHandle)
-  const to = withConnectionEndpoint(line.to, toNodeId, event.connection.targetHandle)
-  if (!validateLineEndpointPatch({ line, from, to, options: { silent: false } })) return
-
-  updateWorkflowDesignLine(line.line, {
-    from,
-    to,
-  })
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-  editorDirty.value = false
-  ElMessage.success('连线端点已更新')
-  syncLineEditorFromSelected()
-}
-
-function deleteSelectedLine(): void {
-  const line = selectedLine.value
-  const document = currentDocument.value
-  if (line === null || document === null) return
-  if (!removeWorkflowDesignLine(line.graph, line.line)) return
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-  selectedLineKey.value = ''
-  ElMessage.success('连线已删除')
-}
-
-function validateLineEndpointPatch(command: LineEndpointPatchValidationCommand): boolean {
-  const { line, from, to, options } = command
-  const nodeIds = new Set(allNodes.value.filter(node => node.graph === line.graph).map(node => node.id))
-  if (
-    from.nodeId.length === 0
-    || from.modelId.length === 0
-    || from.memberName.length === 0
-    || to.nodeId.length === 0
-    || to.modelId.length === 0
-    || to.memberName.length === 0
-  ) {
-    if (options.silent !== true) ElMessage.warning('连线必须填写 From/To 的 Node、Model 和 Member')
-    return false
-  }
-  if (!nodeIds.has(from.nodeId) || !nodeIds.has(to.nodeId)) {
-    if (options.silent !== true) ElMessage.warning('From/To Node 必须是当前 graph/subGraph 内的节点')
-    return false
-  }
-  if (from.nodeId === to.nodeId) {
-    if (options.silent !== true) ElMessage.warning('连线不能指向节点自身')
-    return false
-  }
-  const duplicated = line.graph.lines.some(item => item !== line.line && isSameLineEndpoint(item.from, from) && isSameLineEndpoint(item.to, to))
-  if (duplicated) {
-    if (options.silent !== true) ElMessage.warning('同一 graph/subGraph 内已存在相同 From -> To 成员连线')
-    return false
-  }
-  return true
-}
-
-function applyLineEditorToSelected(options: { silent?: boolean } = {}): boolean {
-  const line = selectedLine.value
-  const document = currentDocument.value
-  if (line === null || document === null) return true
-
-  const from = createEditorLineEndpoint({
-    nodeId: String(lineFromNodeText.value ?? '').trim(),
-    modelId: String(lineFromModelText.value ?? '').trim(),
-    memberName: String(lineFromMemberText.value ?? '').trim(),
-    dockText: lineFromDockText.value,
-  })
-  const to = createEditorLineEndpoint({
-    nodeId: String(lineToNodeText.value ?? '').trim(),
-    modelId: String(lineToModelText.value ?? '').trim(),
-    memberName: String(lineToMemberText.value ?? '').trim(),
-    dockText: lineToDockText.value,
-  })
-  if (!validateLineEndpointPatch({ line, from, to, options })) return false
-
-  updateWorkflowDesignLine(line.line, {
-    from,
-    to,
-    type: String(lineTypeText.value ?? '').trim() || 'custom',
-    relation: String(lineRelationText.value ?? '').trim() || 'sequence',
-  })
-  markWorkflowDesignDirty(document, `${line.scopePath}.lines`)
-  editorDirty.value = false
-  if (options.silent !== true) ElMessage.success('连线已更新')
-  return true
-}
-
-function markEditorDirty(): void {
-  editorDirty.value = true
-}
-
-function clearBusinessNodeStructuredEditor(): void {
-  businessInputRows.value = []
-  businessOutputRows.value = []
-  taskGoalText.value = ''
-  taskRequirementRows.value = []
-  taskContextInputRows.value = []
-  allowedActionCards.value = []
-  readableAttributeCards.value = []
-  functionCallingModeText.value = 'freeWithinModelContext'
-  functionCallingConstraintCards.value = []
-  structuredResultRows.value = []
-  handoffToValidationValue.value = true
-  validationInputProjectionRows.value = []
-  validationExpectedResultRows.value = []
-  validationStatusText.value = ''
-  capabilityCards.value = []
-  runtimeStatePreview.value = '{}'
-  runtimeResultPreview.value = '{}'
-  validationIssuesPreview.value = '[]'
-}
-
-function syncEditorFromSelected(): void {
-  const view = selectedNode.value
-  editorDirty.value = false
-  if (view === null) {
-    nodeTypeText.value = ''
-    nodeTitleText.value = ''
-    nodeDescText.value = ''
-    modelJsonText.value = '{}'
-    modelRootClassText.value = ''
-    modelClassText.value = ''
-    validationActionClassText.value = ''
-    validationActionNameText.value = ''
-    classModelError.value = ''
-    classModelGuideText.value = ''
-    loopModeText.value = ''
-    loopMaxCountValue.value = 10
-    loopExitNodeText.value = ''
-    clearBusinessNodeStructuredEditor()
-    return
-  }
-  nodeTypeText.value = view.nodeType
-  nodeTitleText.value = view.title
-  nodeDescText.value = typeof view.node.data?.desc === 'string' ? view.node.data.desc : ''
-  modelJsonText.value = shouldEditNodeConfig(view) ? formatJson(view.node.data ?? {}) : '{}'
-  syncBusinessModelEditorFromSelected(view)
-  syncBusinessNodeStructuredEditorFromSelected(view)
-  const loop = view.node.data?.loop
-  loopModeText.value = typeof loop?.mode === 'string' && loop.mode.length > 0 ? loop.mode : 'progressive'
-  loopMaxCountValue.value = typeof loop?.maxLoopCount === 'number' && Number.isFinite(loop.maxLoopCount) ? loop.maxLoopCount : 1
-  const exitNodeId = typeof loop?.exitNodeId === 'string' && loop.exitNodeId.length > 0 ? loop.exitNodeId : '-'
-  loopExitNodeText.value = exitNodeId === '-' ? '' : exitNodeId
-}
-
-function syncLineEditorFromSelected(): void {
-  const line = selectedLine.value
-  editorDirty.value = false
-  if (line === null) {
-    lineFromNodeText.value = ''
-    lineFromModelText.value = ''
-    lineFromMemberText.value = ''
-    lineToNodeText.value = ''
-    lineToModelText.value = ''
-    lineToMemberText.value = ''
-    lineTypeText.value = ''
-    lineFromDockText.value = ''
-    lineToDockText.value = ''
-    lineRelationText.value = ''
-    lineVisualTypeText.value = 'orthogonal'
-    return
-  }
-  lineFromNodeText.value = line.from.nodeId
-  lineFromModelText.value = line.from.modelId
-  lineFromMemberText.value = line.from.memberName
-  lineToNodeText.value = line.to.nodeId
-  lineToModelText.value = line.to.modelId
-  lineToMemberText.value = line.to.memberName
-  lineTypeText.value = typeof line.line.type === 'string' ? line.line.type : 'custom'
-  lineFromDockText.value = readDockText(line.from.dock)
-  lineToDockText.value = readDockText(line.to.dock)
-  const relation = line.line.data?.['relation']
-  lineRelationText.value = typeof relation === 'string' ? relation : 'sequence'
-  lineVisualTypeText.value = workflowDesignLineType(line.line)
-}
-
-function syncWorkflowEditorFromDocument(): void {
-  const document = currentDocument.value
-  editorDirty.value = false
-  if (document === null) {
-    workflowDesignerTitleText.value = ''
-    workflowVersionValue.value = 1
-    workflowVariableRows.value = []
-    workflowCapabilityCards.value = []
-    workflowRuntimeAliasText.value = ''
-    workflowRuntimeModuleIdText.value = ''
-    workflowRuntimeBusinessIdText.value = ''
-    workflowIdentityFieldText.value = ''
-    workflowMessageFieldText.value = ''
-    workflowSystemPromptTemplateText.value = ''
-    workflowModelProjectionKindText.value = 'dts-class-model'
-    workflowRootClassText.value = ''
-    workflowManifestUrlRefText.value = ''
-    workflowExecutableKindText.value = 'js-module'
-    workflowExecutableModuleSpecifierText.value = ''
-    workflowExecutableExportNameText.value = ''
-    workflowResolveEditorSourceText.value = ''
-    workflowResolveIdentityFieldText.value = ''
-    workflowAgentCompleteMethodText.value = ''
-    workflowReadonlyStepCards.value = []
-    workflowExecutionToolCards.value = []
-    workflowPlanMarkerCards.value = []
-    return
-  }
-
-  const workflow = document.workflow
-  const binding = recordOrEmpty(workflow.runtimeBinding)
-  const registration = recordOrEmpty(binding['registration'])
-  const inputContract = recordOrEmpty(binding['inputContract'])
-  const systemPrompt = recordOrEmpty(binding['systemPrompt'])
-  const modelProjectionRef = recordOrEmpty(binding['modelProjectionRef'])
-  const executableRef = recordOrEmpty(binding['executableRef'])
-  const resolveInstance = recordOrEmpty(binding['resolveInstance'])
-
-  workflowDesignerTitleText.value = readTextField(document.x_spark.designer, 'title')
-    || workflow.id
-  workflowVersionValue.value = typeof workflow.version === 'number' && Number.isFinite(workflow.version) ? workflow.version : 1
-  workflowVariableRows.value = workflowVariableRowsFromData(workflow.variables)
-  workflowCapabilityCards.value = capabilityCardsFromData(workflow.capabilities).map(card => ({
-    ...card,
-    scope: card.scope || 'workflow',
-  }))
-  workflowRuntimeAliasText.value = readTextField(registration, 'alias')
-  workflowRuntimeModuleIdText.value = readTextField(registration, 'moduleId')
-  workflowRuntimeBusinessIdText.value = readTextField(registration, 'businessId')
-  workflowIdentityFieldText.value = readTextField(inputContract, 'identityField')
-  workflowMessageFieldText.value = readTextField(inputContract, 'messageField')
-  workflowReadonlyStepCards.value = structuredCardsFromStrings(inputContract['readonlySteps'], 'workflow.readonlyStep')
-  workflowSystemPromptTemplateText.value = readTextField(systemPrompt, 'template')
-  workflowModelProjectionKindText.value = readTextField(modelProjectionRef, 'kind') || 'dts-class-model'
-  workflowRootClassText.value = readTextField(modelProjectionRef, 'rootClassName')
-  workflowManifestUrlRefText.value = readTextField(modelProjectionRef, 'manifestUrlRef')
-  workflowExecutableKindText.value = readTextField(executableRef, 'kind') || 'js-module'
-  workflowExecutableModuleSpecifierText.value = readTextField(executableRef, 'moduleSpecifier')
-  workflowExecutableExportNameText.value = readTextField(executableRef, 'exportName')
-  workflowResolveEditorSourceText.value = readTextField(resolveInstance, 'editorSource')
-  workflowResolveIdentityFieldText.value = readTextField(resolveInstance, 'identityField')
-  workflowAgentCompleteMethodText.value = readTextField(binding, 'agentCompleteMethodName')
-  workflowExecutionToolCards.value = structuredCardsFromStrings(binding['executionToolNames'], 'workflow.executionTool')
-  workflowPlanMarkerCards.value = structuredCardsFromStrings(binding['planWithoutToolMarkers'], 'workflow.planMarker')
-}
-
-function syncBusinessModelEditorFromSelected(view: WorkflowDesignNodeView): void {
-  if (!view.isBusinessNode) {
-    modelRootClassText.value = ''
-    modelClassText.value = ''
-    validationActionClassText.value = ''
-    validationActionNameText.value = ''
-    classModelError.value = ''
-    classModelGuideText.value = ''
-    return
-  }
-  const model = readPrimaryBusinessNodeModel(view.node.data)
-  const completion = isJsonRecord(model?.['completion']) ? model['completion'] : undefined
-  modelRootClassText.value = readTextField(model, 'rootClassName')
-  modelClassText.value = readTextField(model, 'className')
-  validationActionClassText.value = modelClassText.value
-  validationActionNameText.value = readTextField(completion, 'memberName')
-  classModelError.value = ''
-  classModelGuideText.value = ''
-}
-
-function syncBusinessNodeStructuredEditorFromSelected(view: WorkflowDesignNodeView): void {
-  if (!view.isBusinessNode) {
-    clearBusinessNodeStructuredEditor()
-    return
-  }
-  const data = isJsonRecord(view.node.data) ? view.node.data : {}
-  businessInputRows.value = structuredRowsFromRecord(data['inputs'], 'input')
-  businessOutputRows.value = structuredRowsFromRecord(data['outputs'], 'output')
-  const llm = isJsonRecord(data['llm']) ? data['llm'] : {}
-  const task = isJsonRecord(llm['task']) ? llm['task'] : {}
-  taskGoalText.value = readTextField(task, 'goal')
-  taskRequirementRows.value = structuredRowsFromRecord(task['requirements'], 'task.requirement')
-  taskContextInputRows.value = structuredRowsFromRecord(task['contextInputs'], 'task.context')
-  const knowledge = isJsonRecord(llm['knowledge']) ? llm['knowledge'] : {}
-  allowedActionCards.value = structuredCardsFromStrings(knowledge['allowedActions'], 'knowledge.action')
-  readableAttributeCards.value = structuredCardsFromStrings(knowledge['readableAttributes'], 'knowledge.attribute')
-  const functionCalling = isJsonRecord(llm['functionCalling']) ? llm['functionCalling'] : {}
-  functionCallingModeText.value = readTextField(functionCalling, 'mode') || 'freeWithinModelContext'
-  functionCallingConstraintCards.value = structuredCardsFromStrings(functionCalling['constraints'], 'function.constraint')
-  const output = isJsonRecord(llm['output']) ? llm['output'] : {}
-  structuredResultRows.value = structuredRowsFromRecord(output['structuredResult'], 'output.structured')
-  handoffToValidationValue.value = typeof output['handoffToValidation'] === 'boolean'
-    ? output['handoffToValidation']
-    : true
-  const validation = isJsonRecord(data['validation']) ? data['validation'] : {}
-  const action = isJsonRecord(validation['action']) ? validation['action'] : {}
-  validationActionClassText.value = readTextField(action, 'className') || validationActionClassText.value
-  validationActionNameText.value = readTextField(action, 'actionName') || validationActionNameText.value
-  validationInputProjectionRows.value = structuredRowsFromRecord(action['inputProjection'], 'validation.input')
-  validationExpectedResultRows.value = structuredRowsFromRecord(action['expectedResult'], 'validation.expected')
-  validationStatusText.value = readTextField(validation, 'status')
-  validationIssuesPreview.value = formatJson(Array.isArray(validation['issues']) ? validation['issues'] : [])
-  capabilityCards.value = capabilityCardsFromData(data['capabilities'])
-  runtimeStatePreview.value = formatJson(isJsonRecord(data['state']) ? data['state'] : {})
-  runtimeResultPreview.value = formatJson(isJsonRecord(data['result']) ? data['result'] : {})
-}
-
-function applyNodePosition(x: number, y: number): void {
-  const view = selectedNode.value
-  const document = currentDocument.value
-  if (view === null || document === null) return
-  view.node.position ??= {}
-  view.node.position.x = Number.isFinite(x) ? x : 0
-  view.node.position.y = Number.isFinite(y) ? y : 0
-  markWorkflowDesignDirty(document, `${view.scopePath}.${view.id}.position`)
-}
-
-function applyNodeBasicEditorToSelected(): boolean {
-  const view = selectedNode.value
-  const document = currentDocument.value
-  if (view === null || document === null) return true
-  view.node.data ??= {}
-  view.node.data.type = nodeTypeText.value.trim() || view.nodeType || view.node.type || 'custom'
-  view.node.data.title = nodeTitleText.value.trim() || view.id
-  view.node.data.desc = nodeDescText.value.trim()
-  markWorkflowDesignDirty(document, `${view.scopePath}.${view.id}.data`)
-  return true
-}
-
-function readBusinessNodeModelDocText(view: WorkflowDesignNodeView): string {
-  const className = readBusinessNodeModelClassName(view)
-  const option = classModelOptions.value.find(item => item.kind === className)
-  return option === undefined ? '' : shortClassModelDocText(option)
-}
-
-function readBusinessNodeValidationActionDocText(view: WorkflowDesignNodeView): string {
-  const className = readBusinessNodeModelClassName(view)
-  const actionName = readBusinessNodeValidationActionName(view)
-  const option = classModelOptions.value.find(item => item.kind === className)
-  const method = option?.methods.find(item => item.name === actionName)
-  return method === undefined ? '' : shortClassModelDocText(method)
-}
-
-function handleBusinessNodeStructuredChange(): void {
-  applyBusinessNodeStructuredEditorToSelected({ silent: true })
-}
-
-function addStructuredFieldRow(rows: StructuredFieldRow[], prefix: string): void {
-  const path = structuredPathOptions(rows)[0] ?? ''
-  rows.push({
-    id: nextStructuredEditorId(prefix),
-    path,
-    valueKind: 'reference',
-    valueText: structuredReferenceOptions.value[0] ?? '',
-    valueBoolean: false,
-  })
-  handleBusinessNodeStructuredChange()
-}
-
-function removeStructuredFieldRow(rows: StructuredFieldRow[], row: StructuredFieldRow): void {
-  const index = rows.indexOf(row)
-  if (index >= 0) rows.splice(index, 1)
-  handleBusinessNodeStructuredChange()
-}
-
-function addSelectCard(cards: StructuredSelectCard[], options: readonly string[], prefix: string): void {
-  cards.push({
-    id: nextStructuredEditorId(prefix),
-    value: options[0] ?? '',
-  })
-  handleBusinessNodeStructuredChange()
-}
-
-function removeSelectCard(cards: StructuredSelectCard[], card: StructuredSelectCard): void {
-  const index = cards.indexOf(card)
-  if (index >= 0) cards.splice(index, 1)
-  handleBusinessNodeStructuredChange()
-}
-
-function addCapabilityCard(): void {
-  capabilityCards.value.push({
-    id: nextStructuredEditorId('capability'),
-    title: 'Capability',
-    scope: 'node',
-    description: '',
-    inputRows: [],
-    outputRows: [],
-    constraintCards: [],
-  })
-  handleBusinessNodeStructuredChange()
-}
-
-function removeCapabilityCard(card: StructuredCapabilityCard): void {
-  const index = capabilityCards.value.indexOf(card)
-  if (index >= 0) capabilityCards.value.splice(index, 1)
-  handleBusinessNodeStructuredChange()
-}
-
-function handleWorkflowEditorChange(): void {
-  editorDirty.value = true
-}
-
-function addWorkflowVariableRow(): void {
-  workflowVariableRows.value.push({
-    id: nextStructuredEditorId('workflow.variable'),
-    source: {},
-    schema: { type: 'string' },
-    name: '',
-    title: '',
-    docText: '',
-    required: false,
-    schemaType: 'string',
-    defaultValue: undefined,
-    defaultValueText: '',
-    defaultValueEditable: true,
-  })
-  handleWorkflowEditorChange()
-}
-
-function removeWorkflowVariableRow(row: WorkflowVariableEditorRow): void {
-  const index = workflowVariableRows.value.indexOf(row)
-  if (index >= 0) workflowVariableRows.value.splice(index, 1)
-  handleWorkflowEditorChange()
-}
-
-function addWorkflowCapabilityCard(): void {
-  workflowCapabilityCards.value.push({
-    id: nextStructuredEditorId('workflow.capability'),
-    title: 'Workflow Capability',
-    scope: 'workflow',
-    description: '',
-    inputRows: [],
-    outputRows: [],
-    constraintCards: [],
-  })
-  handleWorkflowEditorChange()
-}
-
-function removeWorkflowCapabilityCard(card: StructuredCapabilityCard): void {
-  const index = workflowCapabilityCards.value.indexOf(card)
-  if (index >= 0) workflowCapabilityCards.value.splice(index, 1)
-  handleWorkflowEditorChange()
-}
-
-function addWorkflowStringCard(cards: StructuredSelectCard[], prefix: string): void {
-  cards.push({
-    id: nextStructuredEditorId(prefix),
-    value: '',
-  })
-  handleWorkflowEditorChange()
-}
-
-function removeWorkflowStringCard(cards: StructuredSelectCard[], card: StructuredSelectCard): void {
-  const index = cards.indexOf(card)
-  if (index >= 0) cards.splice(index, 1)
-  handleWorkflowEditorChange()
-}
-
-function addWorkflowStructuredFieldRow(rows: StructuredFieldRow[], prefix: string): void {
-  rows.push({
-    id: nextStructuredEditorId(prefix),
-    path: '',
-    valueKind: 'text',
-    valueText: '',
-    valueBoolean: false,
-  })
-  handleWorkflowEditorChange()
-}
-
-function removeWorkflowStructuredFieldRow(rows: StructuredFieldRow[], row: StructuredFieldRow): void {
-  const index = rows.indexOf(row)
-  if (index >= 0) rows.splice(index, 1)
-  handleWorkflowEditorChange()
-}
-
-function validateWorkflowEditor(): boolean {
-  if (!Number.isFinite(workflowVersionValue.value) || workflowVersionValue.value < 1) {
-    ElMessage.warning('Workflow Version 必须大于 0')
-    return false
-  }
-  const variableNames = workflowVariableRows.value.map(row => row.name.trim()).filter(name => name.length > 0)
-  if (variableNames.length !== workflowVariableRows.value.length) {
-    ElMessage.warning('流程变量 name 不能为空')
-    return false
-  }
-  if (new Set(variableNames).size !== variableNames.length) {
-    ElMessage.warning('流程变量 name 不能重复')
-    return false
-  }
-  const requiredTexts = [
-    ['Registration Alias', workflowRuntimeAliasText.value],
-    ['Registration Module ID', workflowRuntimeModuleIdText.value],
-    ['Registration Business ID', workflowRuntimeBusinessIdText.value],
-    ['Identity Field', workflowIdentityFieldText.value],
-    ['Message Field', workflowMessageFieldText.value],
-    ['System Prompt Template', workflowSystemPromptTemplateText.value],
-    ['Root Class', workflowRootClassText.value],
-    ['Manifest Ref', workflowManifestUrlRefText.value],
-    ['Executable Module Specifier', workflowExecutableModuleSpecifierText.value],
-    ['Executable Export Name', workflowExecutableExportNameText.value],
-    ['Resolve Editor Source', workflowResolveEditorSourceText.value],
-    ['Resolve Identity Field', workflowResolveIdentityFieldText.value],
-  ] as const
-  for (const [label, value] of requiredTexts) {
-    if (value.trim().length === 0) {
-      ElMessage.warning(`${label} 不能为空`)
-      return false
-    }
-  }
-  for (const field of [workflowIdentityFieldText.value, workflowMessageFieldText.value, workflowResolveIdentityFieldText.value]) {
-    if (!variableNames.includes(field.trim())) {
-      ElMessage.warning(`字段 ${field.trim()} 必须来自流程变量`)
-      return false
-    }
-  }
-  return true
-}
-
-function applyWorkflowEditorToCurrent(options: ApplyStructuredEditorOptions = {}): boolean {
-  const document = currentDocument.value
-  if (document === null) return true
-  if (!validateWorkflowEditor()) return false
-
-  document.workflow.version = Math.max(1, Math.trunc(workflowVersionValue.value))
-  document.workflow.variables = workflowVariableRowsToData(workflowVariableRows.value)
-  document.workflow.capabilities = capabilityCardsToData(workflowCapabilityCards.value)
-  document.workflow.runtimeBinding = createWorkflowRuntimeBindingFromEditor(document.workflow.runtimeBinding, document.workflow.variables)
-  document.x_spark.designer = {
-    ...(isJsonRecord(document.x_spark.designer) ? document.x_spark.designer : {}),
-    title: workflowDesignerTitleText.value.trim() || document.workflow.id,
-  }
-  markWorkflowDesignDirty(document, 'workflow')
-  editorDirty.value = false
-  if (options.silent !== true) ElMessage.success('流程属性已更新')
-  return true
-}
-
-function createWorkflowRuntimeBindingFromEditor(
-  existing: WorkflowDesignDocument['workflow']['runtimeBinding'],
-  variables: readonly WorkflowDesignVariable[],
-): WorkflowRuntimeBinding {
-  const agentCompleteMethodName = workflowAgentCompleteMethodText.value.trim()
-  const executionToolNames = structuredCardsToStrings(workflowExecutionToolCards.value)
-  const planWithoutToolMarkers = structuredCardsToStrings(workflowPlanMarkerCards.value)
-  return {
-    registration: {
-      ...existing?.registration,
-      alias: workflowRuntimeAliasText.value.trim(),
-      moduleId: workflowRuntimeModuleIdText.value.trim(),
-      businessId: workflowRuntimeBusinessIdText.value.trim(),
-    },
-    inputContract: {
-      ...existing?.inputContract,
-      identityField: workflowIdentityFieldText.value.trim(),
-      messageField: workflowMessageFieldText.value.trim(),
-      paramsSchema: createWorkflowParamsSchema(existing?.inputContract.paramsSchema, variables),
-      readonlySteps: structuredCardsToStrings(workflowReadonlyStepCards.value),
-    },
-    systemPrompt: {
-      ...existing?.systemPrompt,
-      template: workflowSystemPromptTemplateText.value.trim(),
-    },
-    modelProjectionRef: {
-      ...existing?.modelProjectionRef,
-      kind: 'dts-class-model',
-      rootClassName: workflowRootClassText.value.trim(),
-      manifestUrlRef: workflowManifestUrlRefText.value.trim(),
-    },
-    executableRef: {
-      ...existing?.executableRef,
-      kind: 'js-module',
-      moduleSpecifier: workflowExecutableModuleSpecifierText.value.trim(),
-      exportName: workflowExecutableExportNameText.value.trim(),
-    },
-    resolveInstance: {
-      ...existing?.resolveInstance,
-      editorSource: workflowResolveEditorSourceText.value.trim(),
-      identityField: workflowResolveIdentityFieldText.value.trim(),
-    },
-    ...(existing?.toolLoopNudge === undefined ? {} : { toolLoopNudge: existing.toolLoopNudge }),
-    ...(existing?.beforeFunctionCall === undefined ? {} : { beforeFunctionCall: existing.beforeFunctionCall }),
-    ...(agentCompleteMethodName.length === 0 ? {} : { agentCompleteMethodName }),
-    ...(executionToolNames.length === 0 ? {} : { executionToolNames }),
-    ...(planWithoutToolMarkers.length === 0 ? {} : { planWithoutToolMarkers }),
-  }
-}
-
-function applyBusinessNodeStructuredEditorToSelected(options: ApplyStructuredEditorOptions = {}): boolean {
-  const view = selectedNode.value
-  const document = currentDocument.value
-  if (view === null || document === null || !view.isBusinessNode) return true
-  view.node.data ??= {}
-  const data = view.node.data
-  const primaryModel = ensurePrimaryBusinessNodeModel(data, view.id)
-  primaryModel['rootClassName'] = modelRootClassText.value.trim()
-  primaryModel['className'] = modelClassText.value.trim()
-  const completionMemberName = validationActionNameText.value.trim()
-  if (completionMemberName.length > 0) {
-    const completion = isJsonRecord(primaryModel['completion']) ? primaryModel['completion'] : {}
-    primaryModel['completion'] = {
-      ...completion,
-      memberName: completionMemberName,
-      returnContract: 'boolean-or-reason',
-    }
-  } else {
-    delete primaryModel['completion']
-  }
-  data.inputs = structuredRowsToRecord(businessInputRows.value)
-  data.outputs = structuredRowsToRecord(businessOutputRows.value)
-  data.llm = {
-    task: {
-      goal: taskGoalText.value.trim(),
-      requirements: structuredRowsToRecord(taskRequirementRows.value),
-      contextInputs: structuredRowsToRecord(taskContextInputRows.value),
-    },
-    knowledge: {
-      rootClassName: modelRootClassText.value.trim(),
-      className: modelClassText.value.trim(),
-      allowedActions: structuredCardsToStrings(allowedActionCards.value),
-      readableAttributes: structuredCardsToStrings(readableAttributeCards.value),
-    },
-    functionCalling: {
-      mode: functionCallingModeText.value.trim() || 'freeWithinModelContext',
-      constraints: structuredCardsToStrings(functionCallingConstraintCards.value),
-    },
-    output: {
-      structuredResult: structuredRowsToRecord(structuredResultRows.value),
-      handoffToValidation: handoffToValidationValue.value,
-    },
-  }
-  const existingValidation = isJsonRecord(data.validation) ? data.validation : {}
-  data.validation = {
-    ...existingValidation,
-    action: {
-      className: validationActionClassText.value.trim() || modelClassText.value.trim(),
-      actionName: validationActionNameText.value.trim(),
-      inputProjection: structuredRowsToRecord(validationInputProjectionRows.value),
-      expectedResult: structuredRowsToRecord(validationExpectedResultRows.value),
-    },
-  }
-  data.capabilities = capabilityCardsToData(capabilityCards.value)
-  modelJsonText.value = formatJson(data)
-  markWorkflowDesignDirty(document, `${view.scopePath}.${view.id}.data`)
-  editorDirty.value = false
-  if (options.silent !== true) ElMessage.success('节点配置已更新')
-  return true
-}
-
-function applyBusinessModelEditorToSelected(options: { silent?: boolean } = {}): boolean {
-  return applyBusinessNodeStructuredEditorToSelected(options)
-}
-
-function handleModelClassSelectionChange(): void {
-  if (validationActionClassText.value.trim().length === 0) {
-    validationActionClassText.value = modelClassText.value.trim()
-  }
-  handleBusinessNodeStructuredChange()
-}
-
-async function refreshClassModelOptions(): Promise<void> {
-  const rootClassName = modelRootClassText.value.trim()
-  await refreshClassModelOptionsForRoot(rootClassName, 'node')
-}
-
-async function refreshWorkflowClassModelOptions(): Promise<void> {
-  const rootClassName = workflowRootClassText.value.trim()
-  await refreshClassModelOptionsForRoot(rootClassName, 'workflow')
-}
-
-async function refreshClassModelOptionsForRoot(rootClassName: string, source: 'node' | 'workflow'): Promise<void> {
-  if (rootClassName.length === 0) {
-    classModelError.value = 'Root Class 不能为空'
-    return
-  }
-  classModelLoading.value = true
-  classModelError.value = ''
-  classModelGuideText.value = ''
+    const nested = `${String(row['graphPath'])}.${String(row['id'])}.`
+    if (childPath.value.startsWith(nested)) await openChild('')
+    const incident = shownRows(lines).filter(line => line['fromNodeId'] === row['id'] || line['toNodeId'] === row['id'])
+    await removeRows(lines, incident.flatMap(line => {const key = lines.getPkKey(line); return key === undefined ? [] : [key]}))
+    await removeRows(nodes, [target.id])
+    selected.value = null
+  } catch (error) {ElMessage.error(`删除节点失败: ${message(error)}`)} finally {acting.value = false}
+}
+
+async function removeLine(): Promise<void> {
+  const target = selected.value
+  if (target?.kind !== 'edge') return
+  try {await removeRows(graphViews(target.graph).lines, [target.id]); selected.value = null} catch (error) {ElMessage.error(`删除连线失败: ${message(error)}`)}
+}
+
+function clearControlPoints(): void {
+  const target = selected.value
+  if (target?.kind === 'edge') graphViews(target.graph).lines.updateEditingValue(target.id, 'controlPoints', [])
+}
+
+async function openChild(path: string): Promise<void> {
+  const views = design.value
+  if (!views || !owner.value) return
+  if ([views.childNodes, views.childLines].some(pendingIn)) {ElMessage.error('子图有未保存的修改，请先保存或取消'); return}
+  acting.value = true
   try {
-    const provider = createClassModelKnowledgeProvider(rootClassName)
-    const result = await provider.query({ includeMembers: true })
-    classModelOptions.value = readClassModelOptions(result)
-    classModelLoadedRootText.value = rootClassName
-    if (source === 'node' && modelClassText.value.trim().length === 0 && classModelOptions.value[0] !== undefined) {
-      modelClassText.value = classModelOptions.value[0].kind
-      validationActionClassText.value = modelClassText.value
-    }
-    if (source === 'workflow' && workflowRootClassText.value.trim().length === 0 && classModelOptions.value[0] !== undefined) {
-      workflowRootClassText.value = classModelOptions.value[0].kind
-    }
-  } catch (error: unknown) {
-    classModelError.value = `ClassModel 读取失败: ${errorMessage(error)}`
-  } finally {
-    classModelLoading.value = false
+    await owner.value.loadChildGraph(path)
+    childPath.value = path
+    if (selected.value?.graph === 'child') selected.value = null
+    activeGraph.value = path ? 'child' : 'main'
+    splitRatio.value = Number(localStorage.getItem(SPLIT_KEY_PREFIX + workflowId.value)) || 55
+  } catch (error) {ElMessage.error(`打开子图失败: ${message(error)}`)} finally {acting.value = false}
+}
+
+function startSplit(event: PointerEvent): void {
+  const panel = event.currentTarget instanceof HTMLElement ? event.currentTarget.parentElement : null
+  if (!panel) return
+  const bounds = panel.getBoundingClientRect()
+  const move = (next: PointerEvent) => {splitRatio.value = Math.min(78, Math.max(22, (next.clientY - bounds.top) / bounds.height * 100))}
+  const stop = () => {
+    window.removeEventListener('pointermove', move)
+    localStorage.setItem(SPLIT_KEY_PREFIX + workflowId.value, String(Math.round(splitRatio.value)))
   }
+  window.addEventListener('pointermove', move)
+  window.addEventListener('pointerup', stop, {once: true})
 }
 
-function ensureSelectedNodeClassModelKnowledge(): void {
-  if (selectedNode.value?.isBusinessNode !== true || classModelLoading.value) return
-  const rootClassName = modelRootClassText.value.trim()
-  if (rootClassName.length === 0 || rootClassName === classModelLoadedRootText.value) return
-  void refreshClassModelOptions()
+function toggleLeft(): void {
+  leftCollapsed.value = !leftCollapsed.value
+  localStorage.setItem(LEFT_COLLAPSED_KEY, leftCollapsed.value ? '1' : '0')
 }
 
-function ensureWorkflowClassModelKnowledge(): void {
-  if (classModelLoading.value) return
-  const rootClassName = workflowRootClassText.value.trim()
-  if (rootClassName.length === 0 || rootClassName === classModelLoadedRootText.value) return
-  void refreshWorkflowClassModelOptions()
-}
-
-function handleWorkflowRootClassChange(): void {
-  handleWorkflowEditorChange()
-  ensureWorkflowClassModelKnowledge()
-}
-
-async function loadValidationActionGuide(): Promise<void> {
-  const rootClassName = modelRootClassText.value.trim()
-  const className = validationActionClassText.value.trim() || modelClassText.value.trim()
-  const methodName = validationActionNameText.value.trim()
-  if (rootClassName.length === 0 || className.length === 0 || methodName.length === 0) {
-    classModelError.value = 'Root Class, completion class and completion member are required.'
-    return
-  }
-  classModelLoading.value = true
-  classModelError.value = ''
+async function confirmDiscard(): Promise<boolean> {
+  if (!hasPending.value) return true
+  if (unconfirmed.value) {ElMessage.error('保存结果尚未确认，请先核验保存'); return false}
   try {
-    const provider = createClassModelKnowledgeProvider(rootClassName)
-    classModelGuideText.value = await provider.methodGuide({
-      kind: className,
-      methodName,
-    })
-  } catch (error: unknown) {
-    classModelError.value = `Action Guide 读取失败: ${errorMessage(error)}`
-  } finally {
-    classModelLoading.value = false
-  }
-}
-
-function applyLoopEditorToSelected(options: { silent?: boolean } = {}): boolean {
-  const view = selectedNode.value
-  const document = currentDocument.value
-  if (view === null || document === null || view.nodeType !== 'loop') return true
-  applyNodeBasicEditorToSelected()
-  view.node.data ??= {}
-  view.node.data.loop ??= {}
-  view.node.data.loop.mode = loopModeText.value.trim() || 'progressive'
-  view.node.data.loop.maxLoopCount = Number.isFinite(loopMaxCountValue.value)
-    ? Math.max(1, Math.trunc(loopMaxCountValue.value))
-    : 1
-  view.node.data.loop.exitNodeId = loopExitNodeText.value.trim() || 'loop.exit'
-  markWorkflowDesignDirty(document, `${view.scopePath}.${view.id}.data.loop`)
-  editorDirty.value = false
-  if (options.silent !== true) ElMessage.success('循环配置已应用')
+    await ElMessageBox.confirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
+  } catch {return false}
+  for (const view of designViews.value) view.discardPendingChanges()
   return true
 }
 
-function applySelectedDraft(options: { silent?: boolean } = {}): boolean {
-  if (propertiesDrawerTarget.value === 'workflow') {
-    return editorDirty.value ? applyWorkflowEditorToCurrent(options) : true
-  }
-  if (selectedLine.value !== null) return applyLineEditorToSelected(options)
-  const view = selectedNode.value
-  if (view === null) {
-    editorDirty.value = false
-    return true
-  }
-  if (shouldEditNodeConfig(view)) {
-    applyNodeBasicEditorToSelected()
-    return applyBusinessNodeStructuredEditorToSelected({ silent: true })
-  }
-  if (view.nodeType === 'loop') return applyLoopEditorToSelected(options)
-  applyNodeBasicEditorToSelected()
-  editorDirty.value = false
-  if (options.silent !== true) ElMessage.success('节点已更新')
-  return true
+async function chooseWorkflow(row: DataRow): Promise<void> {
+  const id = row['workflowId']
+  if (typeof id !== 'string' || !id || id === workflowId.value || !owner.value) return
+  if (!await confirmDiscard()) return
+  acting.value = true
+  loadError.value = ''
+  try {
+    await owner.value.loadDesign(id)
+    workflowId.value = id
+    childPath.value = ''
+    selected.value = null
+    activeGraph.value = 'main'
+    const rootClass = member(member(design.value?.workflow.rows[0]?.['runtimeBinding'], 'modelProjectionRef'), 'rootClassName')
+    classModelRoot.value = typeof rootClass === 'string' ? rootClass : ''
+  } catch (error) {
+    loadError.value = `打开工作流失败: ${message(error)}`
+  } finally {acting.value = false}
 }
 
-async function saveCurrentDesign(): Promise<boolean> {
-  const document = currentDocument.value
-  if (document === null || currentWorkflowId.value.length === 0) return false
-  const initialOwner = dataOwner.value
-  if (!initialOwner) return false
-  const recovering = initialOwner.designView.hasUnconfirmedSave
-  if (!recovering) {
-    if (!applySelectedDraft({ silent: true })) return false
-    normalizeWorkflowDesignLineState(document)
-  }
+async function refreshDirectory(): Promise<void> {
+  try {await owner.value?.refreshDirectory()} catch (error) {ElMessage.error(`刷新目录失败: ${message(error)}`)}
+}
 
+async function save(): Promise<boolean> {
+  const current = owner.value
+  if (!current || !design.value) return false
   saving.value = true
   try {
-    const owner = dataOwner.value
-    const row = owner?.designView.currentRow
-    if (!owner || !row || row['workflowId'] !== currentWorkflowId.value) throw new Error('design.json DataView 当前行已变化')
-    const id = owner.designView.getPkKey(row)
-    if (id === null || id === undefined) throw new Error('design.json DataView 行身份缺失')
-    if (!recovering) {
-      markWorkflowDesignSaved(document)
-      stageDocumentInDataView(document)
-    }
-    const result = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'design', ids: [id]}]})
-    if (!result.success || owner.designView.hasUnconfirmedSave || owner.designView.dirtyTracking.hasPendingChanges(id)) {
-      throw result.error ?? new Error(result.message ?? 'design.json 保存回执未确认')
-    }
-    const confirmed = owner.designView.currentRow
-    if (!confirmed || confirmed['workflowId'] !== currentWorkflowId.value || typeof confirmed['content'] !== 'string') {
-      throw new Error('design.json 保存回执缺少已确认的 DataView 行')
-    }
-    currentDocument.value = parseWorkflowDesignJson(confirmed['content'])
-    normalizeWorkflowDesignLineState(currentDocument.value)
-    syncWorkflowEditorFromDocument()
-    currentFilename.value = 'design.json'
-    currentTimestamp.value = String(owner.designView.currentRow?.['timestamp'] ?? currentTimestamp.value)
-    editorDirty.value = false
-    await loadDesigns()
+    const views = designViews.value.filter(pendingIn).map(view => ({tableName: view.tableName, viewId: view.viewId}))
+    const result = await current.dataSet.saveChanges({views})
+    if (!result.success || designViews.value.some(pendingIn)) throw result.error ?? new Error(result.message ?? 'design.json 保存回执未确认')
     ElMessage.success('设计稿已保存')
+    void refreshDirectory()
     return true
-  } catch (error: unknown) {
-    if (!dataOwner.value?.designView.hasUnconfirmedSave) {
-      markWorkflowDesignDirtyBase(document, 'workflow')
-      try {stageDocumentInDataView(document)} catch { /* Preserve the original save failure. */ }
-    }
-    ElMessage.error(`保存失败: ${errorMessage(error)}`)
+  } catch (error) {
+    ElMessage.error(`保存失败: ${message(error)}`)
     return false
-  } finally {
-    saving.value = false
-  }
+  } finally {saving.value = false; revision.value++}
 }
 
-async function autoLayoutCurrentDesign(): Promise<void> {
-  const document = currentDocument.value
-  if (document === null || currentWorkflowId.value.length === 0) return
-  if (!applySelectedDraft({ silent: true })) return
-
-  const result = autoLayoutWorkflowDesignGraphs(document)
-  for (const graph of result.graphs) {
-    if (graph.changedNodePositions) markWorkflowDesignDirty(document, `${graph.scopePath}.nodes`)
-    if (graph.changedViewport) markWorkflowDesignDirty(document, `${graph.scopePath}.viewport`)
-  }
-  if (!result.changed && !hasDesignChanges.value) {
-    ElMessage.info('当前工作流图已无需自动排版')
-    return
-  }
-
-  autoLayoutSaving.value = true
-  try {
-    await saveCurrentDesign()
-  } finally {
-    autoLayoutSaving.value = false
-  }
-}
-
-async function openDefinitionEditor(): Promise<void> {
-  const workflowId = currentWorkflowId.value
-  if (workflowId.length === 0) return
-  if (!applySelectedDraft({ silent: true })) return
-
-  openingDefinition.value = true
-  try {
-    const owner = dataOwner.value
-    if (!owner) throw new Error('Workflow DataView 尚未就绪')
-    await owner.loadDocument(workflowId, 'definition.json')
-    if (!componentActive || dataOwner.value !== owner) return
-    const row = owner.definitionView.currentRow
-    if (!row || owner.definitionView.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
-      throw new Error('definition.json DataView 当前行不可读')
-    }
-    definitionTimestamp.value = String(row['timestamp'] ?? '')
-    parseAgentWorkflowDefinitionJson(row['content'])
-    definitionDirty.value = false
-    definitionDialogVisible.value = true
-  } catch (error: unknown) {
-    if (!isWorkflowDefinitionNotFoundError(error) || currentDocument.value === null) {
-      ElMessage.error(`打开 Definition 失败: ${errorMessage(error)}`)
-      return
-    }
-    const sourceDocument = await readFreshDesignForDefinitionDraft(workflowId)
-    const definition = createAgentWorkflowDefinitionFromDesign(sourceDocument)
-    definitionTimestamp.value = ''
-    definitionJsonText.value = formatJson(definition)
-    definitionDirty.value = true
-    definitionDialogVisible.value = true
-    ElMessage.info('definition.json 不存在，已根据当前设计生成本地草稿')
-  } finally {
-    openingDefinition.value = false
-  }
-}
-
-function markDefinitionDirty(): void {
-  definitionDirty.value = true
-}
-
-function onDefinitionFieldEditingChange(editing: boolean): void {
-  const view = dataOwner.value?.definitionView
-  definitionDirty.value = editing || Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()))
-}
-
-async function readFreshDesignForDefinitionDraft(workflowId: string): Promise<WorkflowDesignDocument> {
-  const openedDocument = currentDocument.value
-  if (openedDocument === null) {
-    throw new Error('当前设计稿未打开')
-  }
-  if (hasDesignChanges.value) {
-    return openedDocument
-  }
-  try {
-    const owner = dataOwner.value
-    if (!owner) throw new Error('Workflow DataView 尚未就绪')
-    await owner.loadDocument(workflowId, 'design.json')
-    if (!componentActive || dataOwner.value !== owner) throw new Error('Workflow 页面请求作用域已失效')
-    const row = owner.designView.currentRow
-    if (!row || owner.designView.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
-      throw new Error('design.json DataView 当前行不可读')
-    }
-    const document = parseWorkflowDesignJson(row['content'])
-    currentTimestamp.value = String(row['timestamp'] ?? '')
-    currentDocument.value = document
-    return document
-  } catch {
-    // Best-effort refresh only; keep the already-open design if the API is unavailable.
-  }
-  return currentDocument.value ?? openedDocument
-}
-
-async function saveCurrentDefinition(): Promise<void> {
-  const workflowId = currentWorkflowId.value
-  if (workflowId.length === 0) return
-
-  const owner = dataOwner.value
-  const view = owner?.definitionView
-  if (!owner || !view) return
-  const recovering = view.hasUnconfirmedSave
-  let definition: ReturnType<typeof parseAgentWorkflowDefinitionJson> | undefined
-  if (!recovering) {
-    try {
-      const row = view.currentRow
-      const id = row ? view.getPkKey(row) : undefined
-      const source = id === null || id === undefined ? definitionJsonText.value
-        : view.getEditingRow(id)?.['content'] ?? row?.['content'] ?? definitionJsonText.value
-      definition = parseAgentWorkflowDefinitionJson(String(source))
-    } catch (error: unknown) {
-      ElMessage.error(`Definition JSON 无效: ${errorMessage(error)}`)
-      return
-    }
-  }
-
-  savingDefinition.value = true
-  try {
-    const row = view?.currentRow
-    if (!owner || !view || !row || row['workflowId'] !== workflowId || row['fileName'] !== 'definition.json') {
-      throw new Error('definition.json DataView 当前行不存在；本页面不创建文件')
-    }
-    const id = view.getPkKey(row)
-    if (id === null || id === undefined || view.fieldAccess(row, 'content').write !== 'allowed') {
-      throw new Error('definition.json DataView 当前行不可编辑')
-    }
-    if (!definitionHasDataViewRow.value && !recovering) {
-      throw new Error('definition.json 不存在；本页面不创建文件')
-    }
-    if (!recovering && definition !== undefined) view.updateEditingValue(id, 'content', formatJson(definition))
-    const result = await owner.dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'definition', ids: [id]}]})
-    if (!result.success || view.hasUnconfirmedSave || view.dirtyTracking.hasPendingChanges(id)) {
-      throw result.error ?? new Error(result.message ?? 'definition.json 保存回执未确认')
-    }
-    definitionTimestamp.value = String(view.currentRow?.['timestamp'] ?? definitionTimestamp.value)
-    const confirmed = view.currentRow
-    if (!confirmed || confirmed['workflowId'] !== workflowId || typeof confirmed['content'] !== 'string') {
-      throw new Error('definition.json 保存回执缺少已确认的 DataView 行')
-    }
-    definitionDirty.value = false
-    ElMessage.success('definition.json 已保存')
-  } catch (error: unknown) {
-    ElMessage.error(`保存 Definition 失败: ${errorMessage(error)}`)
-  } finally {
-    savingDefinition.value = false
-  }
-}
-
-async function publishCurrentDefinition(): Promise<void> {
-  const document = currentDocument.value
-  const workflowId = currentWorkflowId.value
-  if (document === null || workflowId.length === 0) return
-  if (!applySelectedDraft({ silent: true })) return
-  if (hasDesignChanges.value && !await saveCurrentDesign()) return
-
-  const definition = createAgentWorkflowDefinitionFromDesign(document)
-  if (definition.x_spark.validation.status === 'invalid') {
-    const firstIssue = definition.x_spark.validation.issues.find(issue => issue.severity === 'error')
-    ElMessage.error(`发布失败: ${firstIssue?.message ?? 'definition 校验未通过'}`)
-    return
-  }
-
-  publishing.value = true
-  try {
-    const result = await publishWorkflowDefinition(workflowId, definition)
-    definitionTimestamp.value = result.timestamp
-    definitionJsonText.value = formatJson(definition)
-    definitionDirty.value = false
-    definitionDialogVisible.value = true
-    ElMessage.success('definition.json 已发布')
-  } catch (error: unknown) {
-    ElMessage.error(`发布失败: ${errorMessage(error)}`)
-  } finally {
-    publishing.value = false
-  }
-}
-
-function resetDefinitionEditor(): void {
-  definitionDialogVisible.value = false
-  definitionTimestamp.value = ''
-  definitionJsonText.value = '{}'
-  definitionDirty.value = false
-}
-
-async function closeDefinitionEditor(): Promise<void> {
-  if (!await confirmDiscardDefinitionDraft()) return
-  resetDefinitionEditor()
-}
-
-function beforeCloseDefinitionEditor(done: () => void): void {
-  void closeDefinitionEditor().then(() => {if (!definitionDialogVisible.value) done()})
+function cancel(): void {
+  if (unconfirmed.value) return
+  for (const view of designViews.value) view.discardPendingChanges()
+  revision.value++
 }
 
 async function copyJson(): Promise<void> {
-  if (currentDocument.value === null) return
+  const current = owner.value
+  if (!current) return
   try {
-    await navigator.clipboard.writeText(formatJson(currentDocument.value))
-    ElMessage.success('JSON 已复制')
-  } catch (error: unknown) {
-    ElMessage.error(`复制失败: ${errorMessage(error)}`)
-  }
+    await navigator.clipboard.writeText(await current.readDocument(workflowId.value, 'design.json'))
+    ElMessage.success('已保存的 design.json 已复制')
+  } catch (error) {ElMessage.error(`复制失败: ${message(error)}`)}
 }
 
-async function confirmDiscardEditorDraft(): Promise<boolean> {
-  if (!hasDesignChanges.value) return true
-  try {
-    await ElMessageBox.confirm('当前工作流设计有未保存更改，是否继续并丢弃这些更改？', '切换工作流设计', {
-      type: 'warning',
-      confirmButtonText: '继续',
-      cancelButtonText: '取消',
-    })
-    const owner = dataOwner.value
-    const view = owner?.designView
-    const row = view?.currentRow
-    const id = row ? view?.getPkKey(row) : undefined
-    if (!owner || !view || !row || id === null || id === undefined || row['workflowId'] !== currentWorkflowId.value) {
-      throw new Error('无法定位当前 design.json DataView 行')
-    }
-    if (view.hasUnconfirmedSave) throw new Error('design.json 提交结果仍未确认，暂不能丢弃')
-    view.discardPendingChanges([id])
-    await owner.loadDocument(currentWorkflowId.value, 'design.json')
-    const baseline = view.currentRow
-    if (!baseline || baseline['workflowId'] !== currentWorkflowId.value || typeof baseline['content'] !== 'string') {
-      throw new Error('重新读取 design.json 基线失败')
-    }
-    currentDocument.value = parseWorkflowDesignJson(baseline['content'])
-    normalizeWorkflowDesignLineState(currentDocument.value)
-    editorDirty.value = false
-    syncWorkflowEditorFromDocument()
-    return true
-  } catch (error: unknown) {
-    ElMessage.error(`丢弃设计草稿失败: ${errorMessage(error)}`)
-    return false
+async function loadDefinitionRow(): Promise<{view: DataView; id: string | number}> {
+  const current = owner.value
+  if (!current) throw new Error('工作流文件空间尚未就绪')
+  try {await current.loadDocument(workflowId.value, 'definition.json')} catch (error) {
+    throw new Error(`definition.json 不存在或不可读；本页面不创建文件（${message(error)}）`)
   }
+  const view = current.definitionView, row = view.currentRow, id = row ? view.getPkKey(row) : undefined
+  if (!row || id === undefined || view.fieldAccess(row, 'content').write !== 'allowed') throw new Error('definition.json 当前行不可编辑')
+  return {view, id}
 }
 
-async function confirmDiscardDefinitionDraft(): Promise<boolean> {
-  const owner = dataOwner.value
-  const view = owner?.definitionView
-  const pending = Boolean(view && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave))
-  if (!definitionDirty.value && !pending) return true
-  try {
-    await ElMessageBox.confirm('当前 definition.json 有未保存更改，是否继续并丢弃这些更改？', '切换工作流设计', {
-      type: 'warning',
-      confirmButtonText: '继续',
-      cancelButtonText: '取消',
-    })
-    if (view?.hasUnconfirmedSave) throw new Error('definition.json 提交结果仍未确认，暂不能丢弃')
-    const row = view?.currentRow
-    const id = row ? view?.getPkKey(row) : undefined
-    if (view && row && id !== null && id !== undefined && (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges(id))) {
-      view.discardPendingChanges([id])
-      if (owner && currentWorkflowId.value) await owner.loadDocument(currentWorkflowId.value, 'definition.json')
-      const baseline = view.currentRow
-      if (baseline && typeof baseline['content'] === 'string') parseAgentWorkflowDefinitionJson(baseline['content'])
-    }
-    definitionDirty.value = false
-    definitionDialogVisible.value = false
-    return true
-  } catch (error: unknown) {
-    ElMessage.error(`丢弃 definition 草稿失败: ${errorMessage(error)}`)
-    return false
-  }
+async function openDefinition(): Promise<void> {
+  try {await loadDefinitionRow(); definitionOpen.value = true} catch (error) {ElMessage.error(`打开 Definition 失败: ${message(error)}`)}
 }
+
+async function saveDefinitionView(view: DataView, id: string | number): Promise<void> {
+  const dataSet = view.dataSet
+  if (!dataSet) throw new Error('definition.json 视图已释放')
+  const result = await dataSet.saveChanges({views: [{tableName: AGENT_WORKFLOW_FILE_TABLE, viewId: 'definition', ids: [id]}]})
+  if (!result.success || pendingIn(view)) throw result.error ?? new Error(result.message ?? 'definition.json 保存回执未确认')
+}
+
+async function saveDefinition(): Promise<void> {
+  const view = owner.value?.definitionView, row = view?.currentRow, id = row ? view?.getPkKey(row) : undefined
+  if (!view || id === undefined) return
+  savingDefinition.value = true
+  try {await saveDefinitionView(view, id); ElMessage.success('definition.json 已保存')} catch (error) {
+    ElMessage.error(`保存 Definition 失败: ${message(error)}`)
+  } finally {savingDefinition.value = false; revision.value++}
+}
+
+async function closeDefinition(done?: () => void): Promise<void> {
+  const view = owner.value?.definitionView
+  if (view && definitionPending.value) {
+    if (view.hasUnconfirmedSave) {ElMessage.error('definition.json 保存结果尚未确认'); return}
+    try {
+      await ElMessageBox.confirm('definition.json 有未保存更改，是否丢弃？', '关闭 Definition', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
+    } catch {return}
+    view.discardPendingChanges()
+  }
+  definitionOpen.value = false
+  done?.()
+}
+
+async function publish(): Promise<void> {
+  const current = owner.value
+  if (!current || hasPending.value && !await save()) return
+  publishing.value = true
+  try {
+    const {view, id} = await loadDefinitionRow()
+    if (pendingIn(view)) throw new Error('definition.json 有未保存的修改，请先保存或关闭 Definition')
+    const definition = createAgentWorkflowDefinitionFromDesign(parseWorkflowDesignJson(await current.readDocument(workflowId.value, 'design.json')))
+    if (definition.x_spark.validation.status === 'invalid') {
+      throw new Error(definition.x_spark.validation.issues.find(issue => issue.severity === 'error')?.message ?? 'definition 校验未通过')
+    }
+    view.updateEditingValue(id, 'content', formatJson(definition))
+    await saveDefinitionView(view, id)
+    ElMessage.success('definition.json 已发布')
+  } catch (error) {
+    owner.value?.definitionView.discardPendingChanges()
+    ElMessage.error(`发布失败: ${message(error)}`)
+  } finally {publishing.value = false; revision.value++}
+}
+
+async function queryClassModel(): Promise<void> {
+  const root = classModelRoot.value.trim()
+  if (!root) {classModelError.value = 'Root Class 不能为空'; return}
+  classModelLoading.value = true
+  classModelError.value = ''
+  try {classModelOptions.value = readClassModelOptions(await createClassModelKnowledgeProvider(root).query({includeMembers: true}))} catch (error) {
+    classModelError.value = `ClassModel 读取失败: ${message(error)}`
+  } finally {classModelLoading.value = false}
+}
+
+onMounted(async () => {
+  try {
+    const created = await createAgentWorkflowFileDataViewOwner()
+    if (!active) {created.dispose(); return}
+    owner.value = created
+    sparkProvide(PAGE_RUNTIME, created.runtime)
+    const changed = () => {revision.value++}
+    stopChanges = created.dataSet.onAnyViewChange({rowsChanged: changed, currentRowChanged: changed, editingChanged: changed,
+      requestStateChanged: changed, mutatingChanged: changed})
+    await created.refreshDirectory()
+    const first = created.directoryView.rows.find(row => typeof row['workflowId'] === 'string')
+    if (first && active) await chooseWorkflow(first)
+  } catch (error) {
+    if (active) loadError.value = `加载工作流设计稿失败: ${message(error)}`
+  }
+})
+
+onBeforeRouteLeave(() => confirmDiscard())
+
+onBeforeUnmount(() => {
+  active = false
+  stopChanges?.()
+  sparkRemove(PAGE_RUNTIME)
+  owner.value?.dispose()
+})
 </script>
 
 <style scoped src="./workflow-designs/workflow-designs.css"></style>

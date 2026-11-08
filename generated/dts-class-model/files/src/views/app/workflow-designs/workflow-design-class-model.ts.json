@@ -7,11 +7,321 @@
     "sourceFile": "src/views/app/workflow-designs/workflow-design-class-model.ts",
     "packageName": "app",
     "modulePath": "views/app/workflow-designs/workflow-design-class-model",
-    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-class-model\n职责：WorkflowDesigns 读取 ClassModel 知识并整理业务节点模型、构造器、属性与方法选项。\n边界：只做知识读取与文本整理，不修改设计稿。\nAI用途：排查业务节点模型下拉或文档摘要内容时，从本模块定位。",
+    "jsdoc": "@module app:views/app/workflow-designs/workflow-design-class-model\n职责：WorkflowDesigns 按根类读取 ClassModel 知识，整理为类、构造器、属性与方法的参考选项。\n边界：只读知识并整理文本，不修改设计稿。\nAI用途：排查设计页 ClassModel 参考面板的查询或文档内容时，从本模块定位。",
     "jsdocSource": "leading-jsdoc",
-    "symbols": []
+    "symbols": [
+      "ClassModelOption"
+    ]
   },
-  "$defs": {},
-  "generatedAt": "2026-10-07T03:12:55.241Z",
-  "models": {}
+  "$defs": {
+    "ClassModelDoc": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelDoc",
+      "properties": {
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "jsdoc",
+        "summary"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelMethodOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelMethodOption",
+      "properties": {
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "jsdoc",
+        "summary",
+        "name",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelAttributeOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelAttributeOption",
+      "properties": {
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "typeText": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "jsdoc",
+        "summary",
+        "name",
+        "typeText"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelConstructorOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelConstructorOption",
+      "properties": {
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "signature": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "jsdoc",
+        "summary",
+        "signature"
+      ],
+      "additionalProperties": false
+    },
+    "ClassModelOption": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "ClassModelOption",
+      "properties": {
+        "jsdoc": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "constructorSignature": {
+          "type": [
+            "null",
+            "object"
+          ],
+          "title": "ClassModelConstructorOption"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ClassModelAttributeOption"
+          }
+        },
+        "methods": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ClassModelMethodOption"
+          }
+        }
+      },
+      "required": [
+        "jsdoc",
+        "summary",
+        "kind",
+        "constructorSignature",
+        "attributes",
+        "methods"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-08T20:02:16.832Z",
+  "models": {
+    "ClassModelDoc": {
+      "name": "ClassModelDoc",
+      "jsdoc": "一段可读文档：JSDoc 原文优先，其次摘要。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "{\n    /** JSDoc 原文。 */\n    jsdoc: string;\n    /** 摘要。 */\n    summary: string;\n}",
+        "members": {
+          "attributes": [
+            {
+              "name": "jsdoc",
+              "jsdoc": "JSDoc 原文。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "summary",
+              "jsdoc": "摘要。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelMethodOption": {
+      "name": "ClassModelMethodOption",
+      "jsdoc": "类的方法。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ClassModelDoc & {\n    /** 方法名。 */\n    name: string;\n    /** 签名。 */\n    signature: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ClassModelDoc",
+            "targetName": "ClassModelDoc"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 方法名。 */\n    name: string;\n    /** 签名。 */\n    signature: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "方法名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "signature",
+              "jsdoc": "签名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelAttributeOption": {
+      "name": "ClassModelAttributeOption",
+      "jsdoc": "类的属性。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ClassModelDoc & {\n    /** 属性名。 */\n    name: string;\n    /** 类型文本。 */\n    typeText: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ClassModelDoc",
+            "targetName": "ClassModelDoc"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 属性名。 */\n    name: string;\n    /** 类型文本。 */\n    typeText: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "name",
+              "jsdoc": "属性名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "typeText",
+              "jsdoc": "类型文本。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelConstructorOption": {
+      "name": "ClassModelConstructorOption",
+      "jsdoc": "类的构造器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ClassModelDoc & {\n    /** 签名。 */\n    signature: string;\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ClassModelDoc",
+            "targetName": "ClassModelDoc"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 签名。 */\n    signature: string;\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "signature",
+              "jsdoc": "签名。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    },
+    "ClassModelOption": {
+      "name": "ClassModelOption",
+      "jsdoc": "一个类及其构造器、属性与方法。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ClassModelDoc & {\n    /** 类名。 */\n    kind: string;\n    /** 构造器，null 表示未声明。 */\n    constructorSignature: ClassModelConstructorOption | null;\n    /** 属性。 */\n    attributes: ClassModelAttributeOption[];\n    /** 方法。 */\n    methods: ClassModelMethodOption[];\n}",
+        "declarationRelations": [
+          {
+            "kind": "intersection",
+            "typeText": "ClassModelDoc",
+            "targetName": "ClassModelDoc"
+          },
+          {
+            "kind": "intersection",
+            "typeText": "{\n    /** 类名。 */\n    kind: string;\n    /** 构造器，null 表示未声明。 */\n    constructorSignature: ClassModelConstructorOption | null;\n    /** 属性。 */\n    attributes: ClassModelAttributeOption[];\n    /** 方法。 */\n    methods: ClassModelMethodOption[];\n}"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "kind",
+              "jsdoc": "类名。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "constructorSignature",
+              "jsdoc": "构造器，null 表示未声明。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "attributes",
+              "jsdoc": "属性。",
+              "readable": true,
+              "writable": true
+            },
+            {
+              "name": "methods",
+              "jsdoc": "方法。",
+              "readable": true,
+              "writable": true
+            }
+          ]
+        }
+      }
+    }
+  }
 }

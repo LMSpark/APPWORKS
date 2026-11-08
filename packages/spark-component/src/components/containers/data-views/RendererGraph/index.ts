@@ -6,4 +6,4 @@
  */
 export {default} from './RendererGraph.vue'
 export {GraphLayout} from './GraphLayout'
-export type {RGraphProps, GraphSelection, GraphNodeMove, GraphArrange, RendererGraphApi} from './RendererGraph.props'
+export type {RGraphProps, GraphSelection, GraphNodeMove, GraphArrange, GraphConnection, GraphEdgePathChange, GraphNodeHandles, RendererGraphApi} from './RendererGraph.props'

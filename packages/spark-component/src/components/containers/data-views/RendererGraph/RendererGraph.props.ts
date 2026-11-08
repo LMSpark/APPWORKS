@@ -1,7 +1,7 @@
 /**
  * @module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props
  * 职责：声明节点与关系DataView驱动的关系图及可取消的对象选择。
- * 边界：节点和边来自视图，位置只是布局；不推导关系、授权或保存业务记录。
+ * 边界：节点和边来自视图，含未保存的编辑行；位置只是布局；不推导关系、授权或保存业务记录。
  * AI用途：先绑定节点模型与关系模型，再指定显示字段和端点字段。
  */
 import type {SparkNodeProps, SparkTableModelProps} from '../../../shared-types'

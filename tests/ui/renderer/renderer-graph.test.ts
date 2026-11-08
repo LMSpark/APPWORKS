@@ -669,6 +669,18 @@ describe('standard graph DataView binding', () => {
     expect(paths().every(path => !path?.includes('200,300'))).toBe(true)
   })
 
+  it('shows unsaved line edits and returns to the saved row after discard', async () => {
+    const {wrapper, ds} = await fixture({...LINE_PROPS, onEdgePathChange: vi.fn()})
+    const lines = ds.getView('Lines')!
+    const points = () => wrapper.findAll('.graph-edge__control-point').map(point => point.attributes('cx'))
+    expect(points()).toEqual(['200', '200', '300'])
+    lines.updateEditingValue('L1', 'points', [{x: 260, y: 100}]); await flushPromises()
+    expect(points()).toEqual(['260', '200', '300'])
+    expect(lines.rows[0]?.['points']).toEqual([{x: 200, y: 100}])
+    lines.discardPendingChanges(); await flushPromises()
+    expect(points()).toEqual(['200', '200', '300'])
+  })
+
   it('emits control point changes only for writable rows and never writes the line record', async () => {
     const onEdgePathChange = vi.fn()
     const {wrapper, ds, input} = await fixture({...LINE_PROPS, onEdgePathChange})

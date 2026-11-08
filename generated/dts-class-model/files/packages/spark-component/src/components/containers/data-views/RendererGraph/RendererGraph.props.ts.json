@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
     "packageName": "@spark-appworks/spark-component",
     "modulePath": "components/containers/data-views/RendererGraph/RendererGraph.props",
-    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props\n职责：声明节点与关系DataView驱动的关系图及可取消的对象选择。\n边界：节点和边来自视图，位置只是布局；不推导关系、授权或保存业务记录。\nAI用途：先绑定节点模型与关系模型，再指定显示字段和端点字段。",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props\n职责：声明节点与关系DataView驱动的关系图及可取消的对象选择。\n边界：节点和边来自视图，含未保存的编辑行；位置只是布局；不推导关系、授权或保存业务记录。\nAI用途：先绑定节点模型与关系模型，再指定显示字段和端点字段。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "GraphArrange",
@@ -750,7 +750,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T19:27:58.180Z",
+  "generatedAt": "2026-11-08T19:41:54.397Z",
   "models": {
     "GraphArrange": {
       "name": "GraphArrange",

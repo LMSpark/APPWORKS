@@ -365,24 +365,30 @@ export function composeWorkflowDesign(rows: AgentWorkflowDesignRows): Json {
 /** Applies one batch of row changes to the projection of `document` and returns the rebuilt document. */
 export function applyWorkflowDesignChanges(document: unknown, workflowId: string, changes: AgentWorkflowDesignChanges): Json {
   const base = projectWorkflowDesign(document, workflowId)
-  const next = {} as Record<AgentWorkflowDesignTableName, DataRow[]>
-  for (const table of Object.keys(base) as AgentWorkflowDesignTableName[]) {
-    const pk = PRIMARY_KEYS[table]
-    const byKey = new Map(base[table].map(row => [String(row[pk]), row]))
-    const change = changes[table]
-    for (const row of change?.deleted ?? []) {
-      if (!byKey.delete(String(row[pk]))) throw projectionError(`${table} 删除的行不在基线中: ${String(row[pk])}`)
-    }
-    for (const row of change?.changed ?? []) {
-      if (!byKey.has(String(row[pk]))) throw projectionError(`${table} 修改的行不在基线中: ${String(row[pk])}`)
-      byKey.set(String(row[pk]), clone(row))
-    }
-    for (const row of change?.added ?? []) {
-      if (typeof row[pk] !== 'string' || !row[pk]) throw projectionError(`${table} 新增行缺少 ${pk}`)
-      if (byKey.has(row[pk])) throw projectionError(`${table} 新增行主键重复: ${row[pk]}`)
-      byKey.set(row[pk], clone(row))
-    }
-    next[table] = [...byKey.values()]
+  const apply = (table: AgentWorkflowDesignTableName) => applyTableChanges(table, base[table], changes[table])
+  return composeWorkflowDesign({
+    [AGENT_WORKFLOW_DESIGN_TABLE]: apply(AGENT_WORKFLOW_DESIGN_TABLE),
+    [AGENT_WORKFLOW_NODE_TABLE]: apply(AGENT_WORKFLOW_NODE_TABLE),
+    [AGENT_WORKFLOW_LINE_TABLE]: apply(AGENT_WORKFLOW_LINE_TABLE),
+    [AGENT_WORKFLOW_VARIABLE_TABLE]: apply(AGENT_WORKFLOW_VARIABLE_TABLE),
+    [AGENT_WORKFLOW_CAPABILITY_TABLE]: apply(AGENT_WORKFLOW_CAPABILITY_TABLE),
+  })
+}
+
+function applyTableChanges(table: AgentWorkflowDesignTableName, rows: readonly DataRow[], change: AgentWorkflowDesignTableChanges | undefined): DataRow[] {
+  const pk = PRIMARY_KEYS[table]
+  const byKey = new Map(rows.map(row => [String(row[pk]), row]))
+  for (const row of change?.deleted ?? []) {
+    if (!byKey.delete(String(row[pk]))) throw projectionError(`${table} 删除的行不在基线中: ${String(row[pk])}`)
   }
-  return composeWorkflowDesign(next)
+  for (const row of change?.changed ?? []) {
+    if (!byKey.has(String(row[pk]))) throw projectionError(`${table} 修改的行不在基线中: ${String(row[pk])}`)
+    byKey.set(String(row[pk]), clone(row))
+  }
+  for (const row of change?.added ?? []) {
+    if (typeof row[pk] !== 'string' || !row[pk]) throw projectionError(`${table} 新增行缺少 ${pk}`)
+    if (byKey.has(row[pk])) throw projectionError(`${table} 新增行主键重复: ${row[pk]}`)
+    byKey.set(row[pk], clone(row))
+  }
+  return [...byKey.values()]
 }

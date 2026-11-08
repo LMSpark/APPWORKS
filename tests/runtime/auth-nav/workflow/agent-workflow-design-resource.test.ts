@@ -1,5 +1,4 @@
-import {describe, expect, it, vi} from 'vitest'
-import {DataSet} from '@spark-appworks/spark-data'
+import {describe, expect, it} from 'vitest'
 import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {
   AGENT_WORKFLOW_DESIGN_TABLE,
@@ -7,7 +6,7 @@ import {
   AGENT_WORKFLOW_NODE_TABLE,
   AGENT_WORKFLOW_VARIABLE_TABLE,
 } from '@/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection'
-import {agentWorkflowDesignTables} from './agent-workflow-design-fixture'
+import {agentWorkflowOwnerInput} from './agent-workflow-design-fixture'
 
 const design = {
   kind: 'agent.workflow.design', version: 1, id: 'alpha',
@@ -20,35 +19,10 @@ const design = {
   x_spark: {designer: {title: 'Alpha'}},
 }
 
-function catalogSet() {
-  const rows = [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]
-  const dataSet = DataSet.fromJson({scenarioId: 'CATALOG', tables: {Base_DataSet: {
-    modelBinding: {modelId: 'M', modelName: 'Base_DataSet'},
-    columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}, {name: 'Name', type: 'string'}], views: {default: {}, catalog: {}},
-  }}})
-  dataSet.getView('Base_DataSet', 'catalog')!.bindQueryExecutor({executeQuery: async () => ({rows, total: rows.length, rowKey: row => row['rowid'],
-    assertIdentity: () => undefined, fieldAccess: () => ({read: 'visible', write: 'denied', component: 'readonly', required: false, writeMode: 'readonly'}),
-    readFieldAccess: () => 'visible', addActionState: () => 'disabled', editActionState: () => 'disabled', deleteActionState: () => 'disabled',
-    createChildActionState: () => 'disabled', viewActionState: () => 'enabled'})})
-  return dataSet
-}
-
 async function fixture(options: Readonly<{readback?: (text: string) => string}> = {}) {
   const files = new Map([['design.json', JSON.stringify(design, null, 2)]])
-  const fileUpload = {uploadWorkingText: vi.fn(async (command: {fileName: string; text: string}) => {
-    files.set(command.fileName, command.text)
-    return {fileName: command.fileName, state: 'success' as const}
-  })}
-  const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-    api: {listFiles: async () => [{name: 'alpha', lastModified: 1}], readTextFile: async input => files.get(input.fileName) ?? '',
-      readFileBytes: async input => new TextEncoder().encode((options.readback ?? (text => text))(files.get(input.fileName) ?? ''))},
-    fileUpload, catalogScenarioId: 'CATALOG',
-    loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG' ? catalogSet() : DataSet.fromJson({scenarioId, tables: {
-      AgentWorkflowFiles: {resourceType: 'file', resourceId: 'agent-workflow-files', columns: [
-        {name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
-        {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'}], views: {default: {}, directory: {}, design: {}, definition: {}}},
-      ...agentWorkflowDesignTables(),
-    }})})
+  const {input, fileUpload} = agentWorkflowOwnerInput(files, options)
+  const owner = await createAgentWorkflowFileDataViewOwner(input)
   await owner.loadDesign('alpha')
   const saveAll = () => owner.dataSet.saveChanges({views: [
     {tableName: AGENT_WORKFLOW_DESIGN_TABLE, viewId: 'design'}, {tableName: AGENT_WORKFLOW_NODE_TABLE, viewId: 'graph'},

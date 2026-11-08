@@ -1,39 +1,16 @@
-import { flushPromises, mount } from '@vue/test-utils'
-import { defineComponent, h } from 'vue'
-import {DataSet, type DataRow} from '@spark-appworks/spark-data'
-import {FieldJson, SparkJsonEditor} from '@spark-appworks/spark-component'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
+import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
+import {defineComponent, h} from 'vue'
+import ElementPlus from 'element-plus'
+import {FieldText, RendererGraph, RendererTable, Spark, registerAllRenderers, type GraphSelection} from '@spark-appworks/spark-component'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
-import type { WorkflowDesignDocument } from '@/services/workflow-designs'
-import type { AgentWorkflowFileDataViewOwner } from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
+import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-workflow-design-fixture'
 
 const mocks = vi.hoisted(() => ({
-  listWorkflowDesigns: vi.fn(),
-  createOwner: vi.fn(),
-  readWorkflowDesign: vi.fn(),
-  saveWorkflowDesign: vi.fn(),
-  createAgentWorkflowDefinitionFromDesign: vi.fn(),
-  parseAgentWorkflowDefinitionJson: vi.fn(),
-  publishWorkflowDefinition: vi.fn(),
-  readWorkflowDefinition: vi.fn(),
-  saveWorkflowDefinition: vi.fn(),
-  createWorkflowDesign: vi.fn(),
-  deleteWorkflowDesign: vi.fn(),
-  message: {
-    success: vi.fn(),
-    error: vi.fn(),
-    warning: vi.fn(),
-    info: vi.fn(),
-  },
-  messageBox: {
-    confirm: vi.fn(),
-  },
-  classModelProvider: {
-    query: vi.fn(),
-    methodGuide: vi.fn(),
-  },
-  createWorkerDtsClassModelKnowledgeProvider: vi.fn(),
+  files: new Map<string, string>(),
+  uploads: (): string[] => [],
+  message: {success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn()},
+  messageBox: {confirm: vi.fn(async () => 'confirm'), prompt: vi.fn()},
 }))
 
 vi.mock('element-plus', async importOriginal => ({
@@ -42,1333 +19,177 @@ vi.mock('element-plus', async importOriginal => ({
   ElMessageBox: mocks.messageBox,
 }))
 
-vi.mock('@/services/workflow-designs', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/services/workflow-designs')>()
-  return {
-    ...actual,
-    listWorkflowDesigns: mocks.listWorkflowDesigns,
-    readWorkflowDesign: mocks.readWorkflowDesign,
-    saveWorkflowDesign: mocks.saveWorkflowDesign,
-    createAgentWorkflowDefinitionFromDesign: mocks.createAgentWorkflowDefinitionFromDesign,
-    parseAgentWorkflowDefinitionJson: mocks.parseAgentWorkflowDefinitionJson,
-    publishWorkflowDefinition: mocks.publishWorkflowDefinition,
-    readWorkflowDefinition: mocks.readWorkflowDefinition,
-    saveWorkflowDefinition: mocks.saveWorkflowDefinition,
-    createWorkflowDesign: mocks.createWorkflowDesign,
-    deleteWorkflowDesign: mocks.deleteWorkflowDesign,
-  }
+vi.mock('vue-router', () => ({onBeforeRouteLeave: vi.fn()}))
+vi.mock('@spark-appworks/spark-app', async importOriginal => ({...await importOriginal<Record<string, unknown>>(), useSystemPageDirtySource: () => undefined}))
+
+vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
+  const actual = await importOriginal<typeof import('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner')>()
+  return {...actual, createAgentWorkflowFileDataViewOwner: () => {
+    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files)
+    mocks.uploads = () => fileUpload.uploadWorkingText.mock.calls.map(([command]) => command.fileName)
+    return actual.createAgentWorkflowFileDataViewOwner(input)
+  }}
 })
 
-vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', () => ({
-  createAgentWorkflowFileDataViewOwner: mocks.createOwner,
-}))
-
-vi.mock('@spark-appworks/spark-ai/class-model', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@spark-appworks/spark-ai/class-model')>()
-  return {
-    ...actual,
-    createWorkerDtsClassModelKnowledgeProvider: mocks.createWorkerDtsClassModelKnowledgeProvider,
-  }
-})
-
-const ButtonStub = defineComponent({
-  props: {
-    disabled: Boolean,
-    loading: Boolean,
-  },
-  emits: ['click'],
-  setup(props, { attrs, emit, slots }) {
-    return () => h('button', {
-      ...attrs,
-      disabled: props.disabled || props.loading,
-      type: 'button',
-      onClick: () => emit('click'),
-    }, slots['default']?.())
-  },
-})
-
-const InputStub = defineComponent({
-  props: {
-    modelValue: {
-      type: [String, Number],
-      default: '',
-    },
-    type: String,
-  },
-  emits: ['update:modelValue', 'input'],
-  setup(props, { attrs, emit }) {
-    return () => {
-      const tag = props.type === 'textarea' ? 'textarea' : 'input'
-      return h(tag, {
-        ...attrs,
-        value: props.modelValue,
-        onInput: (event: Event) => {
-          const target = event.target as HTMLInputElement | HTMLTextAreaElement
-          emit('update:modelValue', target.value)
-          emit('input', target.value)
-        },
-      })
-    }
-  },
-})
-
-const InputNumberStub = defineComponent({
-  props: {
-    modelValue: {
-      type: Number,
-      default: 0,
-    },
-  },
-  emits: ['update:modelValue', 'change'],
-  setup(props, { attrs, emit }) {
-    return () => h('input', {
-      ...attrs,
-      type: 'number',
-      value: props.modelValue,
-      onInput: (event: Event) => {
-        const target = event.target as HTMLInputElement
-        const value = Number(target.value)
-        emit('update:modelValue', value)
-        emit('change', value)
-      },
-    })
-  },
-})
-
-const PassthroughStub = defineComponent({
-  setup(_props, { attrs, slots }) {
-    return () => h('div', attrs, Object.values(slots).flatMap(slot => slot?.() ?? []))
-  },
-})
-
-const DescriptionsItemStub = defineComponent({
-  props: {
-    label: String,
-  },
-  setup(props, { slots }) {
-    return () => h('div', [
-      h('span', props.label),
-      h('span', slots['default']?.()),
-    ])
-  },
-})
-
-const HandleStub = defineComponent({
-  props: {
-    id: String,
-    type: String,
-    position: String,
-  },
-  setup(props, { attrs, slots }) {
-    return () => h('button', {
-      ...attrs,
-      type: 'button',
-      class: ['vue-flow__handle', attrs['class']],
-      'data-handle-id': props.id,
-      'data-handle-type': props.type,
-      'data-handle-position': props.position,
-    }, slots['default']?.())
-  },
-})
-
-const workflowTableRows: DataRow[] = []
-let pageDataSet: DataSet | undefined
-let pageDesignView: ReturnType<DataSet['getView']> | undefined
-let pageDefinitionView: ReturnType<DataSet['getView']> | undefined
-let pageSaveViews: string[]
-let unknownNextPageSave: boolean
-let pageUploadCount: number
-const RendererTableStub = defineComponent({
-  props: {dataViewKey: String, children: Array, onRowClick: Function},
-  setup(props) {
-    return () => h('div', {'data-bound-view-key': props.dataViewKey, class: 'renderer-workflow-table'}, workflowTableRows.map(row => h('button', {
-      class: 'workflow-list-item', type: 'button', onClick: () => props.onRowClick?.(row),
-    }, String(row['workflowId'] ?? ''))))
-  },
-})
-const BaseEdgeStub = defineComponent({
-  props: {
-    id: String,
-    path: String,
-  },
-  setup(props) {
-    return () => h('path', {
-      class: 'vue-flow__edge-path',
-      'data-edge-id': props.id,
-      d: props.path,
-    })
-  },
-})
-
-const VueFlowStub = defineComponent({
-  props: {
-    nodes: {
-      type: Array,
-      default: () => [],
-    },
-    edges: {
-      type: Array,
-      default: () => [],
-    },
-  },
-  emits: ['nodesChange', 'nodeDragStop', 'edgesChange', 'edgeDoubleClick', 'edgeUpdate', 'connect', 'viewportChangeEnd'],
-  setup(props, { emit, slots }) {
-    const nodeTitle = (node: any) => String(node.data?.title ?? node.id)
-
-    return () => {
-      const renderedNodes = props.nodes.map((node: any) => h('div', {
-        class: 'vue-flow__node',
-        'data-node-id': node.id,
-        onClick: () => emit('nodesChange', [{ type: 'select', id: node.id, selected: true }]),
-      }, [
-        slots['node-workflow']?.({
-          data: node.data,
-          selected: false,
-          id: node.id,
-        }),
-        h('button', {
-          type: 'button',
-          class: 'workflow-flow-drag-node',
-          title: `移动 ${nodeTitle(node)}`,
-          onClick: (event: Event) => {
-            event.stopPropagation()
-            emit('nodeDragStop', {
-              node: {
-                ...node,
-                position: { x: 70, y: 30 },
-              },
-              nodes: props.nodes,
-            })
-          },
-        }),
-      ]))
-
-      const renderedLines = props.edges.map((line: any) => h('button', {
-        type: 'button',
-        class: 'vue-flow__line',
-        'data-edge-type': line.type,
-        'data-source-handle': line.sourceHandle,
-        'data-target-handle': line.targetHandle,
-        'data-line-type': line.data?.lineType,
-        'data-runtime-status': line.data?.runtimeStatus,
-        title: `选择连线 ${line.source} -> ${line.target}`,
-        onClick: () => emit('edgesChange', [{ type: 'select', id: line.id, selected: true }]),
-        onDblclick: () => emit('edgeDoubleClick', { edge: line }),
-      }, `${line.source}->${line.target}`))
-
-      const lineUpdateButtons = props.edges.map((line: any) => h('button', {
-        type: 'button',
-        class: 'workflow-flow-line-update',
-        title: `改连线 ${line.source} -> ${line.target} 到 output`,
-        onClick: () => emit('edgeUpdate', {
-          edge: line,
-          connection: {
-            source: line.source,
-            target: 'output',
-            sourceHandle: 'source',
-            targetHandle: 'target',
-          },
-        }),
-      }))
-
-      const customEdges = props.edges.flatMap((line: any) => slots['edge-workflow-control']?.({
-        id: line.id,
-        sourceX: 108,
-        sourceY: 118,
-        targetX: 388,
-        targetY: 0,
-        markerEnd: line.markerEnd,
-        style: {},
-        data: line.data,
-      }) ?? [])
-
-      return h('svg', { class: 'vue-flow-stub' }, [
-        ...renderedLines,
-        ...lineUpdateButtons,
-        ...renderedNodes,
-        ...customEdges,
-      ])
-    }
-  },
-})
-
-function createWorkflowDesignDocument(workflowId = 'agent.workflow.demo'): WorkflowDesignDocument {
-  return {
-    kind: 'agent.workflow.design',
-    version: 1,
-    id: workflowId,
-    workflow: {
-      id: workflowId,
-      version: 1,
-      variables: [
-        { name: 'prompt', title: 'Prompt', jsdoc: 'Prompt variable JSDoc.', required: true, schema: { type: 'string', description: 'Prompt' } },
-      ],
-      capabilities: [
-        {
-          id: 'demo.workflow',
-          title: 'Demo Workflow',
-          scope: 'workflow',
-          description: 'Run the demo workflow.',
-          constraints: [],
-        },
-      ],
-      runtimeBinding: {
-        registration: {
-          alias: 'demo',
-          moduleId: 'demo',
-          businessId: 'demo',
-        },
-        inputContract: {
-          identityField: 'prompt',
-          messageField: 'prompt',
-          paramsSchema: {
-            type: 'object',
-            properties: {
-              prompt: { type: 'string' },
-            },
-            required: ['prompt'],
-            additionalProperties: false,
-          },
-          readonlySteps: [],
-        },
-        systemPrompt: {
-          template: 'Demo prompt: {{ prompt }}',
-          conditionalHints: [],
-        },
-        modelProjectionRef: {
-          kind: 'dts-class-model',
-          rootClassName: 'ProjectModel',
-          manifestUrlRef: 'dts-class-model',
-        },
-        executableRef: {
-          kind: 'js-module',
-          moduleSpecifier: './project-model.js',
-          exportName: 'ProjectModel',
-        },
-        resolveInstance: {
-          editorSource: 'demo',
-          identityField: 'prompt',
-        },
-        beforeFunctionCall: {
-          gateRules: [],
-        },
-        executionToolNames: ['model_script'],
-        planWithoutToolMarkers: ['openPageDesign'],
-        agentCompleteMethodName: 'completePageDesign',
-      },
-      graph: {
-        nodes: [
-          {
-            id: 'start',
-            type: 'start',
-            position: { x: 0, y: 160 },
-            data: { type: 'start', title: 'Start' },
-          },
-          {
-            id: 'node.model',
-            type: 'node',
-            position: { x: 280, y: 160 },
-            data: {
-              type: 'node',
-              title: 'Business Node',
-              desc: 'Run model context work',
-              models: [
-                {
-                  id: 'node.model.project',
-                  rootClassName: 'ProjectModel',
-                  className: 'ProjectModel',
-                  sourceRef: '$',
-                  completion: {
-                    memberName: 'completePageDesign',
-                    returnContract: 'boolean-or-reason',
-                  },
-                },
-              ],
-              inputs: {
-                prompt: 'initial',
-              },
-              outputs: {
-                result: '$.result',
-              },
-              llm: {
-                task: {
-                  goal: 'Run page design work.',
-                  requirements: {
-                    prompt: 'initial',
-                  },
-                  contextInputs: {},
-                },
-                knowledge: {
-                  rootClassName: 'ProjectModel',
-                  className: 'ProjectModel',
-                  allowedActions: ['openPageDesign', 'agent_complete'],
-                  readableAttributes: ['activePage'],
-                },
-                functionCalling: {
-                  mode: 'freeWithinModelContext',
-                  constraints: [],
-                },
-                output: {
-                  structuredResult: {
-                    result: '$.result',
-                  },
-                  handoffToValidation: true,
-                },
-              },
-              validation: {
-                action: {
-                  className: 'ProjectModel',
-                  actionName: 'agent_complete',
-                  inputProjection: {
-                    summary: '$.result',
-                  },
-                  expectedResult: {
-                    completed: true,
-                  },
-                },
-                status: 'draft',
-                issues: [],
-              },
-              capabilities: [
-                {
-                  id: 'page-design.execute',
-                  title: 'Execute Page Design',
-                  scope: 'node',
-                  description: 'Let the pageDesign module plan and apply page design changes.',
-                  inputs: {
-                    prompt: 'initial',
-                  },
-                  outputs: {
-                    result: '$.result',
-                  },
-                  constraints: [],
-                },
-              ],
-            },
-          },
-          {
-            id: 'output',
-            type: 'output',
-            position: { x: 560, y: 160 },
-            data: {
-              type: 'output',
-              title: 'Output',
-              outputs: {
-                result: '{{ node.model.result }}',
-              },
-              capabilities: [],
-            },
-          },
-        ],
-        lines: [
-          {
-            id: 'line.start.node',
-            from: { nodeId: 'start', modelId: '$workflow', memberName: 'prompt' },
-            to: { nodeId: 'node.model', modelId: 'node.model.project', memberName: 'prompt' },
-          },
-          {
-            id: 'line.node.output',
-            from: { nodeId: 'node.model', modelId: 'node.model.project', memberName: 'result' },
-            to: { nodeId: 'output', modelId: '$workflow', memberName: 'result' },
-          },
-        ],
-        viewport: { x: 0, y: 0, zoom: 1 },
-      },
-    },
-    x_spark: {
-      schema: 'spark.agent.workflow.design.v1',
-      designer: { title: 'Demo Workflow', createdBy: 'tester', createdAt: '2026-01-01T00:00:00.000Z' },
-      draft: { status: 'draft', dirtyPaths: [] },
-      validation: { status: 'unknown', issues: [] },
-    },
-  }
+const design = {
+  kind: 'agent.workflow.design', version: 1, id: 'alpha',
+  workflow: {id: 'alpha', version: 1, variables: [{name: 'goal', title: '目标'}], runtimeBinding: {
+    registration: {alias: 'demo', moduleId: 'demo', businessId: 'demo'},
+    inputContract: {identityField: 'goal', messageField: 'goal', paramsSchema: {type: 'object', properties: {goal: {type: 'string'}}, required: ['goal'],
+      additionalProperties: false}, readonlySteps: []},
+    systemPrompt: {template: 'Demo: {{ goal }}', conditionalHints: []},
+    modelProjectionRef: {kind: 'dts-class-model', rootClassName: 'DemoModel', manifestUrlRef: 'dts-class-model'},
+    executableRef: {kind: 'js-module', moduleSpecifier: './demo-model.js', exportName: 'DemoModel'},
+  }, graph: {nodes: [
+    {id: 'start', type: 'custom', position: {x: 0, y: 0}, data: {type: 'start', title: '开始'}},
+    {id: 'loop', type: 'custom', position: {x: 300, y: 0}, data: {type: 'loop', title: '循环', loop: {mode: 'count', subGraph: {nodes: [
+      {id: 'inner', type: 'custom', position: {x: 0, y: 0}, data: {type: 'task', title: '内层'}},
+    ], lines: []}}}},
+    {id: 'output', type: 'custom', position: {x: 600, y: 0}, data: {type: 'output', title: '输出'}},
+  ], lines: [{id: 'l1', from: {nodeId: 'start', modelId: '$workflow', memberName: 'out'}, to: {nodeId: 'loop', modelId: '', memberName: 'in'}}]}},
+  x_spark: {designer: {title: 'Alpha'}},
 }
 
-function createDefinition() {
-  return {
-    kind: 'agent.workflow',
-    version: 1,
-    workflowId: 'agent.workflow.demo',
-    workflow: {
-      variables: [],
-      capabilities: [],
-      graph: {
-        nodes: [],
-        lines: [],
-      },
-    },
-    x_spark: {
-      validation: {
-        status: 'valid',
-        issues: [],
-      },
-    },
-  }
+const DrawerStub = defineComponent({props: {modelValue: Boolean, title: String}, setup(props, {slots}) {
+  return () => props.modelValue ? h('section', {class: 'drawer-stub', 'data-title': props.title}, slots['default']?.()) : null
+}})
+const DialogStub = defineComponent({props: {modelValue: Boolean}, setup(props, {slots}) {
+  return () => props.modelValue ? h('section', {class: 'dialog-stub'}, [slots['default']?.(), slots['footer']?.()]) : null
+}})
+
+const mounted: VueWrapper[] = []
+const restore: Array<() => void> = []
+beforeEach(() => {
+  mocks.files.clear()
+  mocks.files.set('design.json', JSON.stringify(design, null, 2))
+  mocks.files.set('definition.json', JSON.stringify({kind: 'old'}))
+  vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
+  Object.values(mocks.message).forEach(fn => fn.mockClear())
+})
+afterEach(() => {
+  mounted.splice(0).forEach(wrapper => wrapper.unmount())
+  restore.splice(0).forEach(dispose => dispose())
+  vi.unstubAllGlobals()
+})
+
+async function mountPage() {
+  registerAllRenderers()
+  const stubs = {...config.global.stubs}
+  delete stubs['SparkComponentRenderer']; delete stubs['spark-component-renderer']
+  const original = config.global.stubs; config.global.stubs = stubs
+  restore.push(() => {config.global.stubs = original})
+  const wrapper = mount(WorkflowDesigns, {global: {plugins: [Spark.createPlugin(), ElementPlus], stubs: {ElDrawer: DrawerStub, ElDialog: DialogStub}}})
+  mounted.push(wrapper)
+  for (let i = 0; i < 5; i++) await flushPromises()
+  return wrapper
 }
 
-function mountWorkflowDesigns() {
-  return mount(WorkflowDesigns, {
-    global: {
-      mocks: {
-        $router: { go: vi.fn() },
-      },
-      stubs: {
-        ElAlert: PassthroughStub,
-        ElButton: ButtonStub,
-        ElCol: PassthroughStub,
-        ElDescriptions: PassthroughStub,
-        ElDescriptionsItem: DescriptionsItemStub,
-        ElDialog: PassthroughStub,
-        ElDrawer: PassthroughStub,
-        ElEmpty: true,
-        ElForm: PassthroughStub,
-        ElFormItem: PassthroughStub,
-        ElIcon: PassthroughStub,
-        ElInput: InputStub,
-        ElInputNumber: InputNumberStub,
-        ElPageHeader: PassthroughStub,
-        ElRow: PassthroughStub,
-        ElSkeleton: true,
-        ElTag: PassthroughStub,
-        Background: true,
-        BaseEdge: BaseEdgeStub,
-        Controls: true,
-        Handle: HandleStub,
-        MiniMap: true,
-        VueFlow: VueFlowStub,
-        RendererTable: RendererTableStub,
-      },
-    },
-  })
+const saved = () => JSON.parse(mocks.files.get('design.json') ?? '{}')
+const uploads = () => mocks.uploads()
+function button(wrapper: VueWrapper, label: string) {
+  const found = wrapper.findAll('button').find(item => item.text() === label)
+  if (!found) throw new Error(`missing button ${label}`)
+  return found
+}
+function graph(wrapper: VueWrapper, index = 0) {
+  const found = wrapper.findAllComponents(RendererGraph)[index]
+  if (!found) throw new Error(`missing graph ${index}`)
+  return found
+}
+async function select(wrapper: VueWrapper, kind: 'node' | 'edge', id: string, index = 0, open = false) {
+  const event: GraphSelection = {kind, id, open, control: {cancel: false}}
+  graph(wrapper, index).props('onSelect')?.(event)
+  await flushPromises()
+}
+async function typeField(wrapper: VueWrapper, field: string, value: string) {
+  const input = wrapper.findAllComponents(FieldText).find(item => item.props('field') === field)?.find('input')
+  if (!input) throw new Error(`missing field ${field}`)
+  await input.setValue(value)
+  await input.trigger('change')
+  await flushPromises()
 }
 
-function findButton(wrapper: ReturnType<typeof mountWorkflowDesigns>, label: string) {
-  const button = wrapper.findAll('button').find(item => item.text().includes(label))
-  if (button === undefined) throw new Error(`missing button: ${label}`)
-  return button
-}
-
-function readSavedDocument(fileName: 'design.json' | 'definition.json'): Record<string, unknown> {
-  const view = fileName === 'design.json' ? pageDesignView : pageDefinitionView
-  const content = view?.rows[0]?.['content']
-  if (typeof content !== 'string') throw new Error(`missing saved ${fileName} DataView row`)
-  return JSON.parse(content) as Record<string, unknown>
-}
-
-describe('WorkflowDesigns visual editor', () => {
-  beforeEach(() => {
-    vi.clearAllMocks()
-    window.localStorage.clear()
-    mocks.messageBox.confirm.mockResolvedValue(undefined)
-    mocks.classModelProvider.query.mockResolvedValue({
-      rootKind: 'ProjectModel',
-      models: [
-        {
-          kind: 'ProjectModel',
-          name: 'ProjectModel',
-          jsdoc: 'ProjectModel full JSDoc.',
-          summary: 'ProjectModel summary.',
-          constructorSignature: {
-            jsdoc: 'ProjectModel constructor JSDoc.',
-            summary: 'ProjectModel constructor.',
-            signature: 'constructor(options: ProjectModelInitOptions)',
-          },
-          attributes: [
-            {
-              name: 'activePage',
-              jsdoc: 'Active page JSDoc.',
-              summary: 'Active page.',
-              typeText: 'ConfigPageNode',
-            },
-          ],
-          methods: [
-            {
-              name: 'agent_complete',
-              jsdoc: 'Agent completion JSDoc.',
-              summary: 'Complete the agent run.',
-              signature: 'agent_complete(summary: string): boolean',
-            },
-            {
-              name: 'completePageDesign',
-              jsdoc: 'Complete page design JSDoc.',
-              summary: 'Complete page design.',
-              signature: 'completePageDesign(): boolean',
-            },
-          ],
-        },
-      ],
-    })
-    mocks.classModelProvider.methodGuide.mockResolvedValue('Action guide text')
-    mocks.createWorkerDtsClassModelKnowledgeProvider.mockReturnValue(mocks.classModelProvider)
-    pageDataSet = undefined
-    pageDesignView = undefined
-    pageDefinitionView = undefined
-    pageSaveViews = []
-    unknownNextPageSave = false
-    pageUploadCount = 0
-    mocks.listWorkflowDesigns.mockResolvedValue([
-      {
-        workflowId: 'agent.workflow.demo',
-        filename: 'design.json',
-        timestamp: '1',
-        title: 'Demo Workflow',
-        version: 1,
-        status: 'draft',
-      },
-    ])
-    mocks.createOwner.mockImplementation(async () => {
-      const summaries = await mocks.listWorkflowDesigns()
-      const replies = new Map<string, string>()
-      const table = {
-        resourceType: 'file', resourceId: 'agent-workflow-files',
-        columns: [{name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
-          {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'}],
-        views: {default: {}, directory: {}, design: {}, definition: {}},
-      }
-      const dataSet = DataSet.fromJson({scenarioId: 'TEST-SPACE', tables: {AgentWorkflowFiles: table}})
-      pageDataSet = dataSet
-      const runtime = new PageRuntime({pageId: 'workflow-test', scenarioIds: ['TEST-SPACE'], loadScenario: async () => dataSet})
-      await runtime.load()
-      const directoryView = dataSet.getView('AgentWorkflowFiles', 'directory')!
-      const designView = dataSet.getView('AgentWorkflowFiles', 'design')!
-      const definitionView = dataSet.getView('AgentWorkflowFiles', 'definition')!
-      const pendingSaves = new WeakSet<object>()
-      pageDesignView = designView
-      pageDefinitionView = definitionView
-      const makeResult = (rows: DataRow[], writable: boolean) => ({rows, total: rows.length, rowKey: (row: DataRow) => row['workflowId'],
-        assertIdentity: () => undefined, fieldAccess: (key: unknown, field: string) => {
-          const visible = rows.some(row => row['workflowId'] === key && Object.hasOwn(row, field))
-          const write = visible && writable && field === 'content'
-          return {read: visible ? 'visible' as const : 'invisible' as const,
-            write: write ? 'allowed' as const : 'denied' as const,
-            component: write ? 'editable' as const : visible ? 'readonly' as const : 'hidden' as const,
-            required: false, writeMode: write ? 'editable' as const : 'readonly' as const}
-        },
-        readFieldAccess: (row: DataRow, field: string) => Object.hasOwn(row, field) ? 'visible' : 'invisible',
-        addActionState: () => 'disabled' as const, editActionState: (key: unknown) => writable && rows.some(row => row['workflowId'] === key) ? 'enabled' as const : 'disabled' as const, deleteActionState: () => 'disabled' as const,
-        createChildActionState: () => 'disabled' as const, viewActionState: () => 'enabled' as const})
-      const resourceIdentity = {resource: {resourceType: 'file' as const, resourceId: 'agent-workflow-files'}}
-      directoryView.bindQueryExecutor({executeQuery: async () => makeResult(summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})), false)}, resourceIdentity)
-      const bindDocument = (view: typeof designView, fileName: string) => view.bindQueryExecutor({executeQuery: async () => {
-        const workflowId = String(view.queryContext['workflowId'] ?? '')
-        return makeResult([{workflowId, fileName, timestamp: '', content: replies.get(`${workflowId}/${fileName}`) ?? ''}], true)
-      }, save: async command => command.changes.map(change => {
-        pageSaveViews.push(view.viewId)
-        const changed = change.changes.changed ?? []
-        const savedRow = changed[0]
-        const pending = pendingSaves.has(change.context)
-        if (pending) pendingSaves.delete(change.context)
-        else {
-          pageUploadCount++
-          if (savedRow) replies.set(`${String(savedRow['workflowId'])}/${fileName}`, String(savedRow['content'] ?? ''))
-          if (unknownNextPageSave) {
-            unknownNextPageSave = false
-            pendingSaves.add(change.context)
-            throw new Error('response lost after upload')
-          }
-        }
-        return {metaName: change.identity.metaName, added: [], changed, deleted: [], changedFields: [['content']],
-          context: makeResult(changed as DataRow[], true)}
-      }), hasUnconfirmedSave: context => pendingSaves.has(context)}, resourceIdentity)
-      bindDocument(designView, 'design.json')
-      bindDocument(definitionView, 'definition.json')
-      workflowTableRows.splice(0, workflowTableRows.length, ...summaries.map((item: any) => ({workflowId: item.workflowId, fileName: 'design.json', timestamp: item.timestamp ?? ''})))
-      const refreshDirectory = async () => {await directoryView.requestRefresh()}
-      const loadDocument = async (workflowId: string, fileName: 'design.json' | 'definition.json') => {
-        const view = fileName === 'design.json' ? designView : definitionView
-        if (fileName === 'design.json') {
-          const loaded = await mocks.readWorkflowDesign(workflowId)
-          replies.set(`${workflowId}/${fileName}`, JSON.stringify(loaded.document))
-        } else {
-          const loaded = await mocks.readWorkflowDefinition(workflowId, '')
-          replies.set(`${workflowId}/${fileName}`, JSON.stringify(loaded.definition))
-        }
-        view.queryContext = {...view.queryContext, workflowId}
-        const result = await view.requestRefresh()
-        if (!result.success) throw result.error ?? new Error(result.message)
-        view.setCurrentRow(view.rows[0] ?? null)
-      }
-      return {runtime, dataSet, directoryView, designView, definitionView, documentView: definitionView,
-        refreshDirectory, loadDocument,
-        listWorkflowEntries: async () => summaries,
-        listWorkflowIds: async () => summaries.map((item: any) => item.workflowId),
-        readDocument: async () => '', dispose: () => runtime.dispose()}
-    })
-    mocks.readWorkflowDesign.mockResolvedValue({
-      workflowId: 'agent.workflow.demo',
-      filename: 'design.json',
-      timestamp: '1',
-      document: createWorkflowDesignDocument(),
-    })
-    mocks.saveWorkflowDesign.mockResolvedValue({
-      ok: true,
-      workflowId: 'agent.workflow.demo',
-      filename: 'design.json',
-      timestamp: '2',
-    })
-    mocks.createAgentWorkflowDefinitionFromDesign.mockReturnValue(createDefinition())
-    mocks.parseAgentWorkflowDefinitionJson.mockReturnValue(createDefinition())
-    mocks.publishWorkflowDefinition.mockResolvedValue({
-      ok: true,
-      workflowId: 'agent.workflow.demo',
-      filename: 'definition.json',
-      timestamp: '3',
-    })
-    mocks.readWorkflowDefinition.mockResolvedValue({
-      workflowId: 'agent.workflow.demo',
-      filename: 'definition.json',
-      timestamp: '3',
-      definition: createDefinition(),
-    })
-    mocks.saveWorkflowDefinition.mockResolvedValue({
-      ok: true,
-      workflowId: 'agent.workflow.demo',
-      filename: 'definition.json',
-      timestamp: '4',
-    })
+describe('WorkflowDesigns on design projection DataViews', () => {
+  it('opens the first workflow and draws the main graph from node and line rows', async () => {
+    const wrapper = await mountPage()
+    expect(wrapper.find('.workflow-designs__directory').findComponent(RendererTable).props('dataViewKey')).toContain('AgentWorkflowFiles@directory')
+    expect(wrapper.findAllComponents(RendererGraph)).toHaveLength(1)
+    expect(wrapper.findAll('.graph-node').map(node => node.text())).toEqual(expect.arrayContaining([expect.stringContaining('开始'), expect.stringContaining('循环')]))
+    expect(graph(wrapper).props('edgeNodeKeys')).toMatchObject({start: 'workflow.graph#start', loop: 'workflow.graph#loop'})
+    expect(graph(wrapper).props('nodePositions')).toMatchObject({'workflow.graph#loop': {x: 416, y: 60}})
   })
 
-  it('disposes an owner that resolves after the page has unmounted without querying it', async () => {
-    let resolveOwner!: (owner: AgentWorkflowFileDataViewOwner) => void
-    const ownerPending = new Promise<AgentWorkflowFileDataViewOwner>(resolve => { resolveOwner = resolve })
-    const createOwner = mocks.createOwner.getMockImplementation()
-    mocks.createOwner.mockImplementationOnce(() => ownerPending)
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    wrapper.unmount()
-
-    const owner = await createOwner!()
-    const dispose = vi.spyOn(owner, 'dispose')
-    const refreshDirectory = vi.spyOn(owner, 'refreshDirectory')
-    resolveOwner(owner)
-    await flushPromises()
-
-    expect(dispose).toHaveBeenCalledOnce()
-    expect(refreshDirectory).not.toHaveBeenCalled()
-  })
-
-  it('disposes the attached owner and its exact runtime when the page unmounts', async () => {
-    const createOwner = mocks.createOwner.getMockImplementation()!
-    let attachedOwner: AgentWorkflowFileDataViewOwner | undefined
-    mocks.createOwner.mockImplementationOnce(async () => {
-      const owner = await createOwner()
-      attachedOwner = owner
-      vi.spyOn(owner, 'dispose')
-      vi.spyOn(owner.runtime, 'dispose')
-      return owner
-    })
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    expect(attachedOwner).toBeDefined()
-    const owner = attachedOwner as AgentWorkflowFileDataViewOwner
-
-    wrapper.unmount()
-
-    expect(owner.dispose).toHaveBeenCalledOnce()
-    expect(owner.runtime.dispose).toHaveBeenCalledOnce()
-  })
-
-  it('does not report a manual directory refresh failure after the page has unmounted', async () => {
-    let rejectRefresh!: (error: Error) => void
-    const refreshPending = new Promise<void>((_resolve, reject) => { rejectRefresh = reject })
-    const createOwner = mocks.createOwner.getMockImplementation()!
-    let owner!: AgentWorkflowFileDataViewOwner
-    mocks.createOwner.mockImplementationOnce(async () => {
-      owner = await createOwner()
-      return owner
-    })
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    await vi.waitFor(() => expect(wrapper.find('.document-title').exists()).toBe(true))
-    expect(wrapper.find('.renderer-workflow-table').exists(), wrapper.text()).toBe(true)
-
-    const refreshDirectory = vi.spyOn(owner, 'refreshDirectory').mockImplementation(() => refreshPending)
-    const refreshButton = wrapper.find('.workflow-tool-group--actions').findAll('button').find(button => button.text() === '刷新')
-    expect(refreshButton).toBeDefined()
-    await vi.waitFor(() => expect(refreshButton!.attributes('disabled')).toBeUndefined())
-    await refreshButton!.trigger('click')
-    await vi.waitFor(() => expect(refreshDirectory).toHaveBeenCalledOnce())
-    wrapper.unmount()
-    rejectRefresh(new Error('late manual refresh failure'))
-    await flushPromises()
-
-    expect(mocks.message.error).not.toHaveBeenCalledWith('加载工作流目录失败: late manual refresh failure')
-  })
-
-  it('auto-opens the first readable design and skips unreadable summaries', async () => {
-    mocks.listWorkflowDesigns.mockResolvedValueOnce([
-      {
-        workflowId: 'agent.workflow.legacy',
-        filename: 'design.json',
-        timestamp: '1',
-        title: 'Legacy Workflow',
-        version: 1,
-        status: 'unreadable',
-        error: 'forbidden field: app',
-      },
-      {
-        workflowId: 'agent.workflow.next',
-        filename: 'design.json',
-        timestamp: '2',
-        title: 'Next Workflow',
-        version: 1,
-        status: 'draft',
-      },
-    ])
-    mocks.readWorkflowDesign.mockImplementation(async workflowId => {
-      if (workflowId === 'agent.workflow.legacy') throw new Error('forbidden field: app')
-      return {workflowId, filename: 'design.json', timestamp: '2', document: createWorkflowDesignDocument(workflowId)}
-    })
-
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    expect(mocks.createOwner, wrapper.text()).toHaveBeenCalledOnce()
-    expect(wrapper.find('.renderer-workflow-table').exists(), wrapper.text()).toBe(true)
-    expect(wrapper.get('.renderer-workflow-table').attributes('data-bound-view-key')).toBe('TEST-SPACE@AgentWorkflowFiles@directory')
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledTimes(2)
-    expect(mocks.readWorkflowDesign).toHaveBeenNthCalledWith(1, 'agent.workflow.legacy')
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledWith('agent.workflow.next')
-    expect(wrapper.text()).toContain('agent.workflow.next')
-    expect(mocks.message.warning).not.toHaveBeenCalled()
-  })
-
-  it('reads the selected design through its DataView and reports a file read failure', async () => {
-    mocks.listWorkflowDesigns.mockResolvedValueOnce([
-      {
-        workflowId: 'agent.workflow.legacy',
-        filename: 'design.json',
-        timestamp: '1',
-        title: 'Legacy Workflow',
-        version: 1,
-        status: 'unreadable',
-        error: 'forbidden field: app',
-      },
-      {
-        workflowId: 'agent.workflow.demo',
-        filename: 'design.json',
-        timestamp: '2',
-        title: 'Demo Workflow',
-        version: 1,
-        status: 'draft',
-      },
-    ])
-    mocks.readWorkflowDesign.mockImplementation(async workflowId => {
-      if (workflowId === 'agent.workflow.legacy') throw new Error('forbidden field: app')
-      return {workflowId, filename: 'design.json', timestamp: '2', document: createWorkflowDesignDocument(workflowId)}
-    })
-
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    const legacyItem = wrapper.findAll('.workflow-list-item')
-      .find(item => item.text().includes('agent.workflow.legacy'))
-    if (legacyItem === undefined) throw new Error('missing legacy workflow item')
-    await legacyItem.trigger('click')
-    await flushPromises()
-
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledTimes(3)
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledWith('agent.workflow.demo')
-    expect(mocks.message.error).toHaveBeenCalledWith('打开失败: forbidden field: app')
-  })
-
-  it('keeps the empty state and warns when every design is unreadable', async () => {
-    mocks.listWorkflowDesigns.mockResolvedValueOnce([
-      {
-        workflowId: 'agent.workflow.legacy',
-        filename: 'design.json',
-        timestamp: '1',
-        title: 'Legacy Workflow',
-        version: 1,
-        status: 'unreadable',
-        error: 'forbidden field: app',
-      },
-    ])
-
-    mocks.readWorkflowDesign.mockRejectedValue(new Error('forbidden field: app'))
-    mountWorkflowDesigns()
-    await flushPromises()
-
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledOnce()
-    expect(mocks.message.warning).toHaveBeenCalledWith('当前设计稿均不可打开，请新建工作流或删除旧设计稿')
-    expect(mocks.message.error).not.toHaveBeenCalled()
-  })
-
-  it('opens, edits, and saves a business node config', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    expect(mocks.listWorkflowDesigns).toHaveBeenCalledOnce()
-    expect(mocks.readWorkflowDesign).toHaveBeenCalledWith('agent.workflow.demo')
-    expect(wrapper.text()).toContain('Business Node')
-
-    expect(wrapper.find('textarea.model-json-input').exists()).toBe(false)
-    const inputValue = wrapper.find('.structured-field-row--inputs .structured-field-value')
-    expect(inputValue.exists()).toBe(true)
-    await inputValue.setValue('edited')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    expect(mocks.saveWorkflowDesign).not.toHaveBeenCalled()
-    expect(pageSaveViews).toEqual(['design'])
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.id).toBe('agent.workflow.demo')
-    expect(savedDocument.workflow.graph.nodes[1]?.data?.inputs?.['prompt']).toBe('edited')
-    expect(savedDocument.x_spark.draft?.['status']).toBe('saved')
-  })
-
-  it('keeps the submitted DataView draft unchanged after an unknown receipt and retries only verification', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    const inputValue = wrapper.find('.structured-field-row--inputs .structured-field-value')
-    await inputValue.setValue('unknown-save')
-    unknownNextPageSave = true
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-    expect(pageDesignView?.hasUnconfirmedSave).toBe(true)
-    const submitted = pageDesignView?.rows[0]?.['content']
-    expect(String(submitted)).toContain('unknown-save')
-
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    expect(pageUploadCount).toBe(1)
-    expect(pageSaveViews).toEqual(['design', 'design'])
-    expect(pageDesignView?.hasUnconfirmedSave).toBe(false)
-    expect(pageDesignView?.dirtyTracking.hasPendingChanges()).toBe(false)
-    expect(readSavedDocument('design.json')).toMatchObject({workflow: {graph: {nodes: expect.arrayContaining([
-      expect.objectContaining({data: expect.objectContaining({inputs: {prompt: 'unknown-save'}})}),
-    ])}}})
-  })
-
-  it('opens, edits, and saves workflow-level properties', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await findButton(wrapper, '流程属性').trigger('click')
-    expect(wrapper.text()).toContain('创建人')
-    expect(wrapper.text()).toContain('tester')
-    expect(wrapper.text()).toContain('Prompt variable JSDoc.')
-    expect(wrapper.text()).toContain('ProjectModel full JSDoc.')
-
-    const titleInput = wrapper.find('.workflow-title-input')
-    expect(titleInput.exists()).toBe(true)
-    await titleInput.setValue('Edited Workflow')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.x_spark.designer?.['title']).toBe('Edited Workflow')
-    expect(savedDocument.workflow.runtimeBinding?.registration.alias).toBe('demo')
-    expect(savedDocument.workflow.runtimeBinding?.inputContract.paramsSchema.properties).toHaveProperty('prompt')
-  })
-
-  it('shows ClassModel pins and JSDoc at each extracted level', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    await flushPromises()
-
-    expect(mocks.createWorkerDtsClassModelKnowledgeProvider).toHaveBeenCalled()
-    expect(wrapper.findAll('.class-model-pin').length).toBeGreaterThan(0)
-    expect(wrapper.findAll('.doc-hint').length).toBeGreaterThan(0)
-    expect(wrapper.text()).toContain('ProjectModel full JSDoc.')
-    expect(wrapper.text()).toContain('ProjectModel constructor JSDoc.')
-    expect(wrapper.text()).toContain('Active page JSDoc.')
-    expect(wrapper.text()).toContain('Agent completion JSDoc.')
-    expect(wrapper.text()).toContain('Complete page design JSDoc.')
-  })
-
-  it('drags a graph node and saves its new position', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    const dragButton = wrapper.find('[title="移动 Business Node"]')
-    expect(dragButton.exists()).toBe(true)
-    await dragButton.trigger('click')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.nodes[1]?.position).toEqual({ x: 70, y: 30 })
-  })
-
-  it('moves the selected graph node with arrow keys', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await findButton(wrapper, '打开属性').trigger('click')
-    expect(wrapper.text()).not.toContain('位置')
-
-    window.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
-    window.document.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', shiftKey: true, bubbles: true }))
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.nodes[1]?.position).toEqual({ x: 300, y: 260 })
-  })
-
-  it('auto-layouts the workflow graph and saves immediately', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await findButton(wrapper, '自动排版').trigger('click')
-    await flushPromises()
-
-    expect(mocks.saveWorkflowDesign).not.toHaveBeenCalled()
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.nodes.map(node => node.position)).toEqual([
-      { x: 40, y: 40 },
-      { x: 40, y: 250 },
-      { x: 40, y: 460 },
-    ])
-    expect(savedDocument.workflow.graph.viewport).toEqual({ x: 0, y: 0, zoom: 1 })
-    expect(savedDocument.x_spark.draft?.['status']).toBe('saved')
+  it('edits the selected node through the form and saves design.json once', async () => {
+    const wrapper = await mountPage()
+    await select(wrapper, 'node', 'workflow.graph#start', 0, true)
+    expect(wrapper.find('.drawer-stub').attributes('data-title')).toBe('节点属性')
+    await typeField(wrapper, 'title', '起点')
+    expect(wrapper.text()).toContain('起点')
+    expect(saved().workflow.graph.nodes[0].data.title).toBe('开始')
+    await button(wrapper, '保存').trigger('click'); await flushPromises()
+    expect(uploads()).toEqual(['design.json'])
+    expect(saved().workflow.graph.nodes[0].data.title).toBe('起点')
+    expect(saved().workflow.graph.nodes[1].data.loop.subGraph.nodes[0].id).toBe('inner')
     expect(mocks.message.success).toHaveBeenCalledWith('设计稿已保存')
   })
 
-  it('creates a business node in the workflow graph', async () => {
-    const wrapper = mountWorkflowDesigns()
+  it('cancel discards node moves and new lines without writing', async () => {
+    const wrapper = await mountPage()
+    graph(wrapper).props('onNodeMove')?.({id: 'workflow.graph#start', x: 216, y: 160, edges: []})
+    graph(wrapper).props('onConnect')?.({source: 'workflow.graph#loop', target: 'workflow.graph#output', sourceHandle: '4', targetHandle: '10'})
     await flushPromises()
-
-    await findButton(wrapper, 'Add business node').trigger('click')
-    await findButton(wrapper, '创建节点').trigger('click')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.nodes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          id: 'node.model-2',
-          data: expect.objectContaining({
-            type: 'node',
-            models: [
-              expect.objectContaining({
-                className: 'spark.placeholder.Model',
-              }),
-            ],
-          }),
-        }),
-      ]),
-    )
+    expect(graph(wrapper).props('nodePositions')).toMatchObject({'workflow.graph#start': {x: 216, y: 160}})
+    expect(wrapper.findAll('.vue-flow__edge')).toHaveLength(2)
+    await button(wrapper, '取消修改').trigger('click'); await flushPromises()
+    expect(graph(wrapper).props('nodePositions')).toMatchObject({'workflow.graph#start': {x: 116, y: 60}})
+    expect(wrapper.findAll('.vue-flow__edge')).toHaveLength(1)
+    expect(uploads()).toEqual([])
   })
 
-  it('keeps start and output nodes protected while allowing business node deletion', async () => {
-    const wrapper = mountWorkflowDesigns()
+  it('saves moves and a new docked line into the design document', async () => {
+    const wrapper = await mountPage()
+    graph(wrapper).props('onNodeMove')?.({id: 'workflow.graph#start', x: 216, y: 160, edges: []})
+    graph(wrapper).props('onConnect')?.({source: 'workflow.graph#loop', target: 'workflow.graph#output', sourceHandle: '4', targetHandle: '10'})
     await flushPromises()
-
-    await findButton(wrapper, '删除节点').trigger('click')
-    await flushPromises()
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.nodes.map(node => node.id)).toEqual(['start', 'output'])
-    expect(savedDocument.workflow.graph.lines).toHaveLength(0)
+    await button(wrapper, '保存').trigger('click'); await flushPromises()
+    const document = saved()
+    expect(document.workflow.graph.nodes[0].position).toEqual({x: 100, y: 100})
+    expect(document.workflow.graph.lines[1]).toMatchObject({id: 'line.loop.output', from: {nodeId: 'loop', dock: 4}, to: {nodeId: 'output', dock: 10},
+      data: {branch: {label: 'default', default: true}, visual: {lineType: 'orthogonal', controlPoints: []}}})
+    expect(uploads()).toEqual(['design.json'])
   })
 
-  it('updates a line endpoint from the line editor and saves it', async () => {
-    const wrapper = mountWorkflowDesigns()
+  it('opens the loop sub-graph in a second graph bound to the child views', async () => {
+    const wrapper = await mountPage()
+    await select(wrapper, 'node', 'workflow.graph#loop')
+    await button(wrapper, '打开子图').trigger('click'); await flushPromises()
+    expect(wrapper.findAllComponents(RendererGraph)).toHaveLength(2)
+    expect(wrapper.text()).toContain('workflow.graph.loop.loop.subGraph')
+    expect(graph(wrapper, 1).find('.graph-node').text()).toContain('内层')
+    graph(wrapper, 1).props('onNodeMove')?.({id: 'workflow.graph.loop.loop.subGraph#inner', x: 156, y: 100, edges: []})
     await flushPromises()
-
-    const firstLine = wrapper.find('.vue-flow__line')
-    expect(firstLine.exists()).toBe(true)
-    await firstLine.trigger('dblclick')
-    await flushPromises()
-
-    expect(wrapper.findAll('.doc-hint').length).toBeGreaterThan(0)
-    expect(wrapper.text()).toContain('Prompt variable JSDoc.')
-    expect(wrapper.text()).toContain('ProjectModel full JSDoc.')
-
-    const toNodeSelect = wrapper.find('select.line-to-node-select')
-    expect(toNodeSelect.exists()).toBe(true)
-    await toNodeSelect.setValue('output')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.lines[0]).toEqual(expect.objectContaining({
-      from: expect.objectContaining({ nodeId: 'start' }),
-      to: expect.objectContaining({ nodeId: 'output' }),
-    }))
+    await button(wrapper, '保存').trigger('click'); await flushPromises()
+    expect(saved().workflow.graph.nodes[1].data.loop.subGraph.nodes[0].position).toEqual({x: 40, y: 40})
   })
 
-  it('rewires a line target from Vue Flow line update', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    const lineUpdateButton = wrapper.find('[title="改连线 start -> node.model 到 output"]')
-    expect(lineUpdateButton.exists()).toBe(true)
-    await lineUpdateButton.trigger('click')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.lines[0]).toEqual(expect.objectContaining({
-      from: expect.objectContaining({ nodeId: 'start' }),
-      to: expect.objectContaining({ nodeId: 'output' }),
-    }))
-  })
-
-  it('renders twelve numbered docks and resolves automatic endpoints', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    const businessNode = wrapper.find('[data-node-id="node.model"]')
-    expect(businessNode.findAll('.vue-flow__handle')).toHaveLength(12)
-    expect(businessNode.findAll('[data-handle-type="target"]').map(handle => handle.attributes('data-handle-id')))
-      .toEqual(['dock-1', 'dock-2', 'dock-3', 'dock-10', 'dock-11', 'dock-12'])
-    expect(businessNode.findAll('[data-handle-type="source"]').map(handle => handle.attributes('data-handle-id')))
-      .toEqual(['dock-4', 'dock-5', 'dock-6', 'dock-7', 'dock-8', 'dock-9'])
-
-    const firstLine = wrapper.find('.vue-flow__line')
-    expect(firstLine.attributes('data-edge-type')).toBe('workflow-control')
-    expect(firstLine.attributes('data-source-handle')).toMatch(/^dock-(4|5|6|7|8|9)$/u)
-    expect(firstLine.attributes('data-target-handle')).toMatch(/^dock-(1|2|3|10|11|12)$/u)
-    expect(firstLine.attributes('data-line-type')).toBe('orthogonal')
-    expect(firstLine.attributes('data-runtime-status')).toBe('idle')
-  })
-
-  it('changes and persists the selected line visual type', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await wrapper.find('.vue-flow__line').trigger('dblclick')
-    const lineTypeSelect = wrapper.find('select.line-visual-type-select')
-    expect(lineTypeSelect.exists()).toBe(true)
-    await lineTypeSelect.setValue('straight')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.lines[0]?.data?.visual).toMatchObject({
-      lineType: 'straight',
-      controlPoints: [],
-    })
-  })
-
-  it('accepts explicit runtime line states without persisting them', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    expect(wrapper.vm.setWorkflowLineRuntimeStatus('line.start.node', 'running')).toBe(true)
-    await flushPromises()
-    expect(wrapper.find('.vue-flow__line').attributes('data-runtime-status')).toBe('running')
-
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.lines[0]?.data).not.toHaveProperty('runtimeStatus')
-  })
-
-  it('adds, drags, deletes, and clears persisted line control points', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    const edgeGroup = wrapper.find('.workflow-control-edge')
-    expect(edgeGroup.exists()).toBe(true)
-    await edgeGroup.trigger('dblclick', { clientX: 220, clientY: 80 })
-    await flushPromises()
-    let controlPoint = wrapper.find('.workflow-edge-control-point')
-    expect(controlPoint.exists()).toBe(true)
-
-    controlPoint.element.dispatchEvent(new PointerEvent('pointerdown', { clientX: 220, clientY: 80, bubbles: true }))
-    window.dispatchEvent(new PointerEvent('pointermove', { clientX: 250, clientY: 110 }))
-    window.dispatchEvent(new PointerEvent('pointerup'))
-    await flushPromises()
-    controlPoint = wrapper.find('.workflow-edge-control-point')
-    await controlPoint.trigger('dblclick')
-    await flushPromises()
-    expect(wrapper.find('.workflow-edge-control-point').exists()).toBe(false)
-
-    await wrapper.find('.workflow-control-edge').trigger('dblclick', { clientX: 200, clientY: 70 })
-    await flushPromises()
-    await findButton(wrapper, '清空控制点').trigger('click')
-    await findButton(wrapper, '保存').trigger('click')
-    await flushPromises()
-
-    const savedDocument = readSavedDocument('design.json') as unknown as WorkflowDesignDocument
-    expect(savedDocument.workflow.graph.lines[0]?.data?.visual?.controlPoints).toEqual([])
-  })
-
-  it('publishes the current design as definition.json', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await findButton(wrapper, '发布').trigger('click')
-    await flushPromises()
-
-    expect(mocks.createAgentWorkflowDefinitionFromDesign).toHaveBeenCalledOnce()
-    expect(mocks.publishWorkflowDefinition).toHaveBeenCalledWith(
-      'agent.workflow.demo',
-      expect.objectContaining({
-        kind: 'agent.workflow',
-        workflowId: 'agent.workflow.demo',
-      }),
-    )
+  it('publishes the definition derived from the saved design into the existing definition.json', async () => {
+    const {nodes} = design.workflow.graph
+    mocks.files.set('design.json', JSON.stringify({...design, workflow: {...design.workflow, graph: {nodes: [nodes[0], nodes[2]],
+      lines: [{id: 'l1', from: {nodeId: 'start', modelId: '$workflow', memberName: 'out'}, to: {nodeId: 'output', modelId: '$workflow', memberName: 'in'}}]}}}))
+    const wrapper = await mountPage()
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
+    expect(mocks.message.error).not.toHaveBeenCalled()
+    expect(uploads()).toEqual(['definition.json'])
+    const definition = JSON.parse(mocks.files.get('definition.json') ?? '{}')
+    expect(definition.kind).not.toBe('old')
     expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已发布')
   })
 
-  it('marks ClassModel schema refs as legacy when creating a definition', async () => {
-    const actual = await vi.importActual<typeof import('@/services/workflow-designs')>('@/services/workflow-designs')
-    const document = createWorkflowDesignDocument()
-    Object.assign(document.workflow as unknown as Record<string, unknown>, {
-      features: {
-        file_upload: { enabled: false },
-      },
-      environment_variables: [],
-      conversation_variables: [],
-    })
-    const nodeData = document.workflow.graph.nodes[1]?.data
-    if (nodeData === undefined) throw new Error('missing business node data')
-    nodeData.x_spark = {
-      classModel: {
-        manifestPath: 'generated/dts-class-model/manifest.json',
-        sourcePath: 'packages/spark-project-model/src/project/project-model.ts',
-        rootClassName: 'ProjectModel',
-        actionName: 'replaceBlueprintChildren',
-        schemaRefs: {
-          params: {
-            $ref: 'project-model.ts.json#/$defs/ProjectModel/$defs/method.replaceBlueprintChildren.params',
-          },
-        },
-      },
-    }
-
-    const definition = actual.createAgentWorkflowDefinitionFromDesign(document, {
-      publishedAt: '2026-06-19T00:00:00.000Z',
-    })
-
-    expect(definition.workflow.graph.nodes[1]?.data).toMatchObject({
-      type: 'node',
-      models: [
-        expect.objectContaining({
-          rootClassName: 'ProjectModel',
-          className: 'ProjectModel',
-        }),
-      ],
-    })
-    expect(definition.workflow.graph.nodes[1]?.data).not.toHaveProperty('x_spark')
-    expect(definition.x_spark.validation).toMatchObject({
-      status: 'invalid',
-      issues: expect.arrayContaining([
-        expect.objectContaining({
-          code: 'AGENT_WORKFLOW_LEGACY_CLASS_MODEL_META',
-          nodeId: 'node.model',
-        }),
-      ]),
-    })
-    expect(definition.workflow as unknown as Record<string, unknown>).toMatchObject({
-      features: {
-        file_upload: { enabled: false },
-      },
-      environment_variables: [],
-      conversation_variables: [],
-    })
-  })
-
-  it('opens, edits, and saves definition.json', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await findButton(wrapper, 'Definition').trigger('click')
-    await flushPromises()
-
-    expect(mocks.readWorkflowDefinition).toHaveBeenCalledWith('agent.workflow.demo', '')
-    const boundDefinitionField = wrapper.findComponent(FieldJson)
-    expect(boundDefinitionField.exists()).toBe(true)
-    expect(boundDefinitionField.props()).toMatchObject({
-      dataViewKey: 'TEST-SPACE@AgentWorkflowFiles@definition',
-      dataMember: 'currentRow',
-      dataField: 'content',
-      mode: 'text',
-      valueFormat: 'text',
-      readonly: false,
-    })
-    const definitionEditor = wrapper.findComponent(SparkJsonEditor)
-    expect(definitionEditor.exists()).toBe(true)
-    expect(definitionEditor.props('mode')).toBe('text')
-    expect(definitionEditor.props('modelValue')).toBe(pageDefinitionView?.currentRow?.['content'])
-    expect(pageDefinitionView?.hasEditingChanges()).toBe(false)
-    expect(pageDefinitionView?.dirtyTracking.hasPendingChanges()).toBe(false)
-    definitionEditor.vm.$emit('update:modelValue', '{"kind":"agent.workflow"}')
-    await flushPromises()
-    expect(pageDefinitionView?.hasEditingChanges()).toBe(true)
-    const edited = pageDefinitionView?.getEditingRow(pageDefinitionView.currentRow ? pageDefinitionView.getPkKey(pageDefinitionView.currentRow)! : '')
-    expect(edited?.['content']).toBe('{"kind":"agent.workflow"}')
-    await findButton(wrapper, '保存 Definition').trigger('click')
-    await flushPromises()
-
-    expect(mocks.parseAgentWorkflowDefinitionJson).toHaveBeenCalledWith('{"kind":"agent.workflow"}')
-    expect(mocks.saveWorkflowDefinition).not.toHaveBeenCalled()
-    expect(pageSaveViews).toEqual(['definition'])
-    expect(readSavedDocument('definition.json')).toMatchObject({kind: 'agent.workflow', workflowId: 'agent.workflow.demo'})
-    expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已保存')
-  })
-
-  it('keeps an unknown definition save locked and retries verification without uploading again', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    await findButton(wrapper, 'Definition').trigger('click')
-    await flushPromises()
-    const editor = wrapper.findComponent(SparkJsonEditor)
-    editor.vm.$emit('update:modelValue', '{"kind":"agent.workflow","retry":true}')
-    await flushPromises()
-    unknownNextPageSave = true
-
-    await findButton(wrapper, '保存 Definition').trigger('click')
-    await flushPromises()
-    expect(pageDefinitionView?.hasUnconfirmedSave).toBe(true)
-    expect(wrapper.findComponent(FieldJson).props('readonly')).toBe(true)
-    expect(wrapper.findComponent(SparkJsonEditor).props('readOnly')).toBe(true)
-
-    await findButton(wrapper, '保存 Definition').trigger('click')
-    await flushPromises()
-
-    expect(pageUploadCount).toBe(1)
-    expect(pageSaveViews).toEqual(['definition', 'definition'])
-    expect(pageDefinitionView?.hasUnconfirmedSave).toBe(false)
-    expect(pageDefinitionView?.dirtyTracking.hasPendingChanges()).toBe(false)
-  })
-
-  it('discards a definition DataView overlay when the user confirms close', async () => {
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-    await findButton(wrapper, 'Definition').trigger('click')
-    await flushPromises()
-    wrapper.findComponent(SparkJsonEditor).vm.$emit('update:modelValue', '{"kind":"agent.workflow","discard":true}')
-    await flushPromises()
-    expect(pageDefinitionView?.hasEditingChanges()).toBe(true)
-
-    await findButton(wrapper, '关闭').trigger('click')
-    await flushPromises()
-
-    expect(mocks.messageBox.confirm).toHaveBeenCalled()
-    expect(pageDefinitionView?.hasEditingChanges()).toBe(false)
-    expect(pageDefinitionView?.dirtyTracking.hasPendingChanges()).toBe(false)
-  })
-
-  it('creates a local definition draft when the backend definition endpoint is missing', async () => {
-    mocks.readWorkflowDefinition.mockRejectedValueOnce(new Error(
-      'No static resource api/tenants/lmspark/projects/homepage/workflow-designs/agent.workflow.20260615095755/definition.json.',
-    ))
-    const wrapper = mountWorkflowDesigns()
-    await flushPromises()
-
-    await findButton(wrapper, 'Definition').trigger('click')
-    await flushPromises()
-
-    expect(mocks.createAgentWorkflowDefinitionFromDesign).toHaveBeenCalled()
-    const definitionEditor = wrapper.find('textarea.definition-json-input')
-    expect(definitionEditor.exists()).toBe(true)
-    expect((definitionEditor.element as HTMLTextAreaElement).value).toContain('"kind": "agent.workflow"')
-    expect(mocks.message.info).toHaveBeenCalledWith('definition.json 不存在，已根据当前设计生成本地草稿')
-    expect(mocks.message.error).not.toHaveBeenCalled()
-    await findButton(wrapper, '保存 Definition').trigger('click')
-    await flushPromises()
-    expect(pageSaveViews).toEqual([])
-    expect(pageUploadCount).toBe(0)
-    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('definition.json DataView 当前行不存在'))
+  it('refuses to publish when definition.json does not exist', async () => {
+    mocks.files.delete('definition.json')
+    const wrapper = await mountPage()
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
+    expect(uploads()).toEqual([])
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('本页面不创建文件'))
   })
 })

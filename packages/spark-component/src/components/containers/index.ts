@@ -35,6 +35,9 @@ export type {
 	GraphSelection,
 	GraphNodeMove,
 	GraphArrange,
+	GraphConnection,
+	GraphEdgePathChange,
+	GraphNodeHandles,
 	RendererGraphApi,
 } from './data-views/index.js'
 export {

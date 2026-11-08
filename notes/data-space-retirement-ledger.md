@@ -8881,8 +8881,23 @@ pnpm run verify
 
 **验证。**`renderer-graph.test.ts` 新增 4 项，覆盖：声明接点与最近接点回退；连线事件的接点过滤；三种线型路由与无布局字段时的默认路由；可写行的拖动、加点、删点事件，且不写记录；禁用与旧拖动作废；只读控制点不开放编辑；两个实例隔离。该文件 39 项、正式工作流设计页与数据空间设计图共 131 项通过。根 typecheck 0。改动文件 eslint 0。ClassModel 已重新生成，语义缺口仍为 3730，生成物只保留 RendererGraph 分片、新增几何分片和两份清单的真实差异。
 
+#### CJ. S4：WorkflowDesigns 改写为投影 DataView 页面（未冻结）
+
+页面不再持有 `currentDocument`、编辑 ref、同步/应用按钮。所有编辑都是 CH 那五张投影视图上的编辑行，保存一次 `dataSet.saveChanges`，取消按视图 `discardPendingChanges`。页面由 4304 行降到 610 行。
+
+- **RendererGraph 显示编辑行。**节点、关系及附加来源的行按 `getEditingRow` 覆盖后再投影，拖动、连线、改控制点在保存前即可见，丢弃后回到已保存行。组件仍不写 DataView。
+- **画布。**主图绑定 `graph` 视图，打开循环/迭代子图后另起一个绑定 `child` 视图的画布，分隔比例按工作流存本地。拖动写入左上角坐标（RendererGraph 位置是节点中心，差 116/60）。连线经 `addRow` 新增，接点 1–12 来自 `WORKFLOW_NODE_HANDLES`。自动排版先检查每个节点 x/y 可写，否则取消。
+- **属性。**流程、节点、连线属性及变量、能力列表都用 RendererForm/RendererTable 绑定当前行；新增变量、能力经 `addRow`。删除节点时至少保留一个 start 和 output，先删相连连线，子图正在打开时先关闭。
+- **发布。**先保存未提交的修改，再读已保存的 design.json 派生 definition，校验通过后改写现有 definition 行并只保存该视图。definition.json 不存在时直接报错，本页面不创建文件。
+- **删除。**`workflow-design-shell/flow/fields/view-types.ts` 删除。`services/workflow-designs.ts` 删去目录、读写、保存、发布、删除、collect、自动排版、dirty 草稿和连线 patch 等无消费者的函数，由 1968 行降到 1017 行；发布校验所需的子图遍历改为内部函数。`readWorkflowDefinition` 去掉无人传的 timestamp。服务测试同步删去被删函数的用例，补子图节点校验路径一项。
+- **门禁顺带修正。**CH 投影的 `applyWorkflowDesignChanges` 有两处类型断言，RendererGraph 的 `declaredHandle` 有 4 个位置参数，都改掉；页面从 spark-component 的具名导入降到 8 个。
+
+**验证。**新页面测试 7 项：打开并绘图、表单改标题后一次写 design.json、取消不写、移动加带接点连线后保存、子图移动保存、发布写 definition.json、definition 缺失时拒绝。renderer-graph 新增编辑行一项（40 项）。相关 41 个文件 453 项通过。根 typecheck 0，`pnpm run lint` 0，`verify:rules` 通过，`verify:class-model` 通过。ClassModel 已重新生成，只保留改动源文件分片、删除/新增分片和三份清单的真实差异。
+
+**待办与存量。**正式空间仍未登记五张投影表（等用户登录），在此之前页面打开设计稿会报 `AGENT_WORKFLOW_DESIGN_BINDING`。`lowcode-data-space-view-design.ts` 的 `assertDefinitionEditable` 在 `noUnusedLocals` 下报未使用，非本批引入。
+
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 的数据层承接和关系图组件能力已就绪。下一步：改写页面，把主子图 RendererGraph 与表单/表格绑定到投影视图，一次 `saveChanges` 保存；清理被取代的辅助函数。在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表需等用户登录。另排查上面的 ProjectToolCatalog 断链。不进入 S5。
+`WorkflowDesigns` 已改为投影 DataView 页面。下一步：用户登录后在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表并烟测；排查 CH 记载的 ProjectToolCatalog 断链。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

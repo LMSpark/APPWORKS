@@ -92,10 +92,10 @@ function identity(view: DataView, row: DataRow): string | number | undefined {
   if ((columns.length ? columns.map(column => column.name) : [view.primaryKey]).some(field => !visible(view, row, field))) return undefined
   return view.getPkKey(row)
 }
-function declaredHandle(view: DataView, row: DataRow, field: string | undefined, handles: readonly GraphHandle[]): GraphHandle | undefined {
+function declaredHandleId(view: DataView, row: DataRow, field: string | undefined): string | undefined {
   if (!field || !visible(view, row, field)) return undefined
   const value = row[field]
-  return value === undefined || value === null ? undefined : handles.find(handle => handle.id === String(value))
+  return value === undefined || value === null ? undefined : String(value)
 }
 function lineType(view: DataView, row: DataRow): GraphEdgeLineType | undefined {
   const field = props.edgeLineTypeField
@@ -115,10 +115,18 @@ function controlPoints(view: DataView, row: DataRow): GraphCanvasPoint[] | null 
   if (value === undefined || value === null) return []
   return Array.isArray(value) && value.every(isPoint) ? value.map(point => ({x: point.x, y: point.y})) : null
 }
+/** 未保存的编辑与正式行一起呈现，取消或保存后回到正式行。 */
+function shown(view: DataView, row: DataRow): DataRow {
+  const key = view.getPkKey(row)
+  return key === undefined ? row : view.getEditingRow(key) ?? row
+}
 const projection = computed(() => {
-  const nodeRows = props.dataMember === 'selectedRows' ? nodes.selectedRows.value : nodes.rows.value
-  const edgeRows = props.edgeDataMember === 'selectedRows' ? edges.selectedRows.value : edges.rows.value
+  for (const source of [nodes, edges, additionalEdges, ...additionalNodes.value.map(item => item.state)]) source.editingRows.value
   const nodeView = nodes.resolvedView.value, edgeView = props.edgeDataViewKey ? edges.resolvedView.value : undefined
+  const nodeRows = (props.dataMember === 'selectedRows' ? nodes.selectedRows.value : nodes.rows.value)
+    .map(row => nodeView ? shown(nodeView, row) : row)
+  const edgeRows = (props.edgeDataMember === 'selectedRows' ? edges.selectedRows.value : edges.rows.value)
+    .map(row => edgeView ? shown(edgeView, row) : row)
   const result: {nodes: GraphCanvasNode[]; edges: GraphCanvasEdge[]; messages: string[];
     keys: Map<string, {kind: 'node' | 'edge'; id: string | number; view: DataView}>} = {nodes: [], edges: [], messages: [], keys: new Map()}
   if (!nodeView || nodeView.destroyed) return result
@@ -130,7 +138,7 @@ const projection = computed(() => {
       const view = state.resolvedView.value
       if (!view || view.destroyed || visited.has(view)) return []
       visited.add(view)
-      return state.rows.value.map(row => ({row, view, config: {labelField: config.labelField ?? props.labelField,
+      return state.rows.value.map(row => ({row: shown(view, row), view, config: {labelField: config.labelField ?? props.labelField,
         descriptionField: config.descriptionField ?? props.descriptionField, nodeCaptionField: config.nodeCaptionField ?? props.nodeCaptionField,
         nodeCaptionOptions: config.nodeCaptionOptions ?? props.nodeCaptionOptions}}))
     })]
@@ -160,7 +168,7 @@ const projection = computed(() => {
   const supplementalEdges = props.additionalEdgeDataViewKey ? additionalEdges.resolvedView.value : undefined
   const edgeEntries = [...edgeView && !edgeView.destroyed ? edgeRows.map(row => ({row, view: edgeView})) : [],
     ...supplementalEdges && !supplementalEdges.destroyed && supplementalEdges !== edgeView
-      ? additionalEdges.rows.value.map(row => ({row, view: supplementalEdges})) : []]
+      ? additionalEdges.rows.value.map(row => ({row: shown(supplementalEdges, row), view: supplementalEdges})) : []]
   const edgeCounts = new Map<string | number, number>()
   for (const {row, view} of edgeEntries) {const key = identity(view, row); if (key !== undefined) edgeCounts.set(key, (edgeCounts.get(key) ?? 0) + 1)}
   for (const {row, view} of edgeEntries) {
@@ -190,8 +198,10 @@ const projection = computed(() => {
       result.messages.push('存在无效的关系折线路径，请核查布局配置。'); continue
     }
     const handles = props.nodeHandles
-    const fixedSource = handles && declaredHandle(view, row, props.edgeSourceHandleField, handles.outputs)
-    const fixedTarget = handles && declaredHandle(view, row, props.edgeTargetHandleField, handles.inputs)
+    const sourceHandleId = declaredHandleId(view, row, props.edgeSourceHandleField)
+    const targetHandleId = declaredHandleId(view, row, props.edgeTargetHandleField)
+    const fixedSource = handles?.outputs.find(handle => handle.id === sourceHandleId)
+    const fixedTarget = handles?.inputs.find(handle => handle.id === targetHandleId)
     const sourceNode = result.nodes.find(node => node.id === source)!, targetNode = result.nodes.find(node => node.id === target)!
     const pair = handles && nearestGraphHandles({source: sourceNode, target: targetNode, outputs: handles.outputs, inputs: handles.inputs,
       ...(fixedSource ? {fixedSource} : {}), ...(fixedTarget ? {fixedTarget} : {})})

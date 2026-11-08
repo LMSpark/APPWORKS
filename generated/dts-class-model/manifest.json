@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1114,
+  "scannedFileCount": 1111,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2956,7 +2956,7 @@
         "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
         "packageName": "@spark-appworks/spark-component",
         "modulePath": "components/containers/data-views/RendererGraph/RendererGraph.props",
-        "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props\n职责：声明节点与关系DataView驱动的关系图及可取消的对象选择。\n边界：节点和边来自视图，位置只是布局；不推导关系、授权或保存业务记录。\nAI用途：先绑定节点模型与关系模型，再指定显示字段和端点字段。",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/RendererGraph.props\n职责：声明节点与关系DataView驱动的关系图及可取消的对象选择。\n边界：节点和边来自视图，含未保存的编辑行；位置只是布局；不推导关系、授权或保存业务记录。\nAI用途：先绑定节点模型与关系模型，再指定显示字段和端点字段。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "GraphArrange",
@@ -15906,15 +15906,11 @@
         "sourceFile": "src/services/workflow-designs.ts",
         "packageName": "app",
         "modulePath": "services/workflow-designs",
-        "jsdoc": "@module app:services/workflow-designs\n职责：提供 workflow 设计稿的 JSON 文件读写与 Dify-like graph 节点解析能力。\n边界：只处理编辑态 workflow design，不执行 Agent workflow 运行时。\nAI用途：排查 workflow design、业务节点、ClassModel model context 或边投影时，用本模块确认前端接线。",
+        "jsdoc": "@module app:services/workflow-designs\n职责：解析 workflow design.json、由设计稿派生 AgentWorkflowDefinition、生成新节点/连线的默认数据，并只读 definition.json。\n边界：设计稿与 definition 的编辑和保存走 AgentWorkflowFiles 投影 DataView，本模块不写文件、不执行 Agent workflow 运行时。\nAI用途：排查 workflow design、业务节点、ClassModel model context 或边投影时，用本模块确认前端接线。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "JsonRecord",
-          "WorkflowDesignSummary",
-          "WorkflowDesignWriteResult",
-          "WorkflowDesignReadResult",
           "WorkflowDefinitionReadResult",
-          "WorkflowDesignDeleteResult",
           "WorkflowDesignDocument",
           "WorkflowDesignVariable",
           "WorkflowDesignCapability",
@@ -15929,15 +15925,8 @@
           "WorkflowDesignNodeData",
           "WorkflowDesignNestedGraphCarrier",
           "WorkflowDesignSparkNodeMeta",
-          "WorkflowDesignNodeView",
-          "WorkflowDesignGraphView",
-          "WorkflowDesignLineView",
           "WorkflowDesignNodeCreateKind",
           "WorkflowDesignNodeCreateInput",
-          "WorkflowDesignNodeRemoveResult",
-          "WorkflowDesignLinePatch",
-          "WorkflowDesignAutoLayoutGraphResult",
-          "WorkflowDesignAutoLayoutResult",
           "CreateAgentWorkflowDefinitionFromDesignOptions"
         ]
       }
@@ -16436,94 +16425,26 @@
         "sourceFile": "src/views/app/workflow-designs/workflow-design-class-model.ts",
         "packageName": "app",
         "modulePath": "views/app/workflow-designs/workflow-design-class-model",
-        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-class-model\n职责：WorkflowDesigns 读取 ClassModel 知识并整理业务节点模型、构造器、属性与方法选项。\n边界：只做知识读取与文本整理，不修改设计稿。\nAI用途：排查业务节点模型下拉或文档摘要内容时，从本模块定位。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/workflow-designs/workflow-design-fields.ts": {
-      "file": "files/src/views/app/workflow-designs/workflow-design-fields.ts.json",
-      "module": {
-        "name": "app:views/app/workflow-designs/workflow-design-fields",
-        "sourcePath": "src/views/app/workflow-designs/workflow-design-fields.ts",
-        "sourceFile": "src/views/app/workflow-designs/workflow-design-fields.ts",
-        "packageName": "app",
-        "modulePath": "views/app/workflow-designs/workflow-design-fields",
-        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-fields\n职责：WorkflowDesigns 属性面板的元数据行、变量默认值与结构化字段行的纯转换。\n边界：无响应式状态与副作用；输入输出均为普通数据。\nAI用途：排查属性面板字段回显或保存数据形状时，从本模块定位。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/workflow-designs/workflow-design-flow.ts": {
-      "file": "files/src/views/app/workflow-designs/workflow-design-flow.ts.json",
-      "module": {
-        "name": "app:views/app/workflow-designs/workflow-design-flow",
-        "sourcePath": "src/views/app/workflow-designs/workflow-design-flow.ts",
-        "sourceFile": "src/views/app/workflow-designs/workflow-design-flow.ts",
-        "packageName": "app",
-        "modulePath": "views/app/workflow-designs/workflow-design-flow",
-        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-flow\n职责：WorkflowDesigns 画布的端口、连线路径、控制点几何与键盘移动等纯计算。\n边界：无响应式状态与副作用；不读写设计稿。\nAI用途：排查画布连线走向、端口映射或控制点命中时，从本模块定位。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/workflow-designs/workflow-design-shell.ts": {
-      "file": "files/src/views/app/workflow-designs/workflow-design-shell.ts.json",
-      "module": {
-        "name": "app:views/app/workflow-designs/workflow-design-shell",
-        "sourcePath": "src/views/app/workflow-designs/workflow-design-shell.ts",
-        "sourceFile": "src/views/app/workflow-designs/workflow-design-shell.ts",
-        "packageName": "app",
-        "modulePath": "views/app/workflow-designs/workflow-design-shell",
-        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-shell\n职责：WorkflowDesigns 页面布局常量、设计稿列表文案、节点默认值与错误文本等纯辅助。\n边界：无响应式状态与副作用。\nAI用途：调整面板宽度、分屏比例或列表展示文案时，从本模块定位。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/workflow-designs/workflow-design-view-types.ts": {
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json",
-      "module": {
-        "name": "app:views/app/workflow-designs/workflow-design-view-types",
-        "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-        "sourceFile": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-        "packageName": "app",
-        "modulePath": "views/app/workflow-designs/workflow-design-view-types",
-        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-view-types\n职责：WorkflowDesigns 视图内部的画布、属性面板、ClassModel 选项与结构化字段类型。\n边界：只声明类型，不含运行逻辑；仅供 WorkflowDesigns 视图及同目录模块使用。\nAI用途：修改工作流设计页的节点、连线、面板或表单数据形状时，从本模块定位类型。",
+        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-class-model\n职责：WorkflowDesigns 按根类读取 ClassModel 知识，整理为类、构造器、属性与方法的参考选项。\n边界：只读知识并整理文本，不修改设计稿。\nAI用途：排查设计页 ClassModel 参考面板的查询或文档内容时，从本模块定位。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "PropertyDrawerTarget",
-          "LayoutResizeState",
-          "GraphSplitCollapse",
-          "GraphSplitResizeState",
-          "GraphSplitPanel",
-          "WorkflowFlowNodeData",
-          "WorkflowFlowLineData",
-          "WorkflowLineRuntimeStatus",
-          "WorkflowControlEdgeSlot",
-          "WorkflowDockDefinition",
-          "SelectedControlPoint",
-          "ControlPointDragState",
-          "StartControlPointDragCommand",
-          "VueFlowLineChange",
-          "VueFlowLineUpdateEvent",
-          "ClassModelMethodOption",
-          "ClassModelAttributeOption",
-          "ClassModelConstructorOption",
-          "ClassModelOption",
-          "WorkflowFlowNode",
-          "WorkflowFlowConnection",
-          "LineEndpointPatchValidationCommand",
-          "NodeCreateForm",
-          "StructuredValueKind",
-          "StructuredFieldRow",
-          "StructuredRowsCollectionCommand",
-          "EditorLineEndpointCommand",
-          "StructuredSelectCard",
-          "StructuredCapabilityCard",
-          "ApplyStructuredEditorOptions",
-          "WorkflowVariableEditorRow",
-          "WorkflowMetadataRow",
-          "WorkflowRuntimeBinding"
+          "ClassModelOption"
+        ]
+      }
+    },
+    "src/views/app/workflow-designs/workflow-design-graph.ts": {
+      "file": "files/src/views/app/workflow-designs/workflow-design-graph.ts.json",
+      "module": {
+        "name": "app:views/app/workflow-designs/workflow-design-graph",
+        "sourcePath": "src/views/app/workflow-designs/workflow-design-graph.ts",
+        "sourceFile": "src/views/app/workflow-designs/workflow-design-graph.ts",
+        "packageName": "app",
+        "modulePath": "views/app/workflow-designs/workflow-design-graph",
+        "jsdoc": "@module app:views/app/workflow-designs/workflow-design-graph\n职责：WorkflowDesigns 把投影视图的节点/连线行交给 RendererGraph：接点布局、中心坐标、端点映射、子图路径与新增行。\n边界：只读行或生成新增行草稿；新增行的结构经 design.json 投影得到，写入仍由页面通过 DataView 完成。\nAI用途：排查画布节点位置、连线接点、子图切换或新增节点/连线字段时，从本模块定位。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "WorkflowNodeDraft",
+          "WorkflowLineDraft"
         ]
       }
     },
@@ -16535,7 +16456,7 @@
         "sourceFile": "src/views/app/WorkflowDesigns.vue",
         "packageName": "app",
         "modulePath": "views/app/WorkflowDesigns",
-        "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。\n边界：只处理设计态 JSON，不执行 Agent workflow 运行时。\nAI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel model context 或步骤线投影时，用本页面定位。",
+        "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：Agent 工作流设计页；目录、主图/子图、流程/节点/连线/变量/能力配置全部绑定 design.json 的投影 DataView。\n边界：编辑只写 DataView 编辑行，一次 saveChanges 合成一次 design.json 写入；发布只更新已有 definition.json 行，不创建文件。\nAI用途：排查工作流设计页的画布、属性表单、保存或发布时，从本页面定位视图绑定与命令编排。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -19144,10 +19065,6 @@
       "sourcePath": "packages/spark-app/src/logger/index.ts",
       "file": "files/packages/spark-app/src/logger/index.ts.json"
     },
-    "ApplyStructuredEditorOptions": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "AppThemeCapability": {
       "sourcePath": "packages/spark-app/src/shell/theme/index.ts",
       "file": "files/packages/spark-app/src/shell/theme/index.ts.json"
@@ -19524,17 +19441,9 @@
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts",
       "file": "files/packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json"
     },
-    "ClassModelAttributeOption": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "ClassModelBuildConsistencyIssue": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/consistency.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/consistency.ts.json"
-    },
-    "ClassModelConstructorOption": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "ClassModelDeclarationRelation": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/types.ts",
@@ -19596,17 +19505,13 @@
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts",
       "file": "files/packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json"
     },
-    "ClassModelMethodOption": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "ClassModelModelGuideInput": {
       "sourcePath": "packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts",
       "file": "files/packages/spark-ai/src/class-model/knowledge/class-model-knowledge-service.ts.json"
     },
     "ClassModelOption": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
+      "sourcePath": "src/views/app/workflow-designs/workflow-design-class-model.ts",
+      "file": "files/src/views/app/workflow-designs/workflow-design-class-model.ts.json"
     },
     "ClassModelReflectionConnectivityIssue": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/declaration/reflection-connectivity.ts",
@@ -19819,10 +19724,6 @@
     "ContextSnapshot": {
       "sourcePath": "packages/spark-utils/src/script-types.ts",
       "file": "files/packages/spark-utils/src/script-types.ts.json"
-    },
-    "ControlPointDragState": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "CreateAgentWorkflowDefinitionFromDesignOptions": {
       "sourcePath": "src/services/workflow-designs.ts",
@@ -21032,10 +20933,6 @@
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
     },
-    "EditorLineEndpointCommand": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "EditRowHandler": {
       "sourcePath": "packages/spark-component/src/components/containers/support/interactionControl.ts",
       "file": "files/packages/spark-component/src/components/containers/support/interactionControl.ts.json"
@@ -21552,18 +21449,6 @@
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
     },
-    "GraphSplitCollapse": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "GraphSplitPanel": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "GraphSplitResizeState": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "GroupFunType": {
       "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
       "file": "files/packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts.json"
@@ -21751,14 +21636,6 @@
     "LayoutDataContextProps": {
       "sourcePath": "packages/spark-component/src/components/containers/runtime/layout-data-context.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/layout-data-context.ts.json"
-    },
-    "LayoutResizeState": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "LineEndpointPatchValidationCommand": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "LinkProbeResult": {
       "sourcePath": "packages/spark-project-model/src/io/project-blueprint-client.ts",
@@ -22656,10 +22533,6 @@
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
     },
-    "NodeCreateForm": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "NodeTargetOptionRow": {
       "sourcePath": "src/views/app/dev-system/node-target-resources.ts",
       "file": "files/src/views/app/dev-system/node-target-resources.ts.json"
@@ -23344,10 +23217,6 @@
       "sourcePath": "src/services/project/project-shell.ts",
       "file": "files/src/services/project/project-shell.ts.json"
     },
-    "PropertyDrawerTarget": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "QueryParams": {
       "sourcePath": "packages/spark-data/src/types.ts",
       "file": "files/packages/spark-data/src/types.ts.json"
@@ -24008,10 +23877,6 @@
       "sourcePath": "packages/spark-component/src/runtime/script-context-types.ts",
       "file": "files/packages/spark-component/src/runtime/script-context-types.ts.json"
     },
-    "SelectedControlPoint": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "SelectedRowsChangedContext": {
       "sourcePath": "packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts",
       "file": "files/packages/spark-component/src/components/containers/runtime/useDataViewEventBridge.ts.json"
@@ -24532,10 +24397,6 @@
       "sourcePath": "packages/spark-json-document/src/schema/schema-standardize.ts",
       "file": "files/packages/spark-json-document/src/schema/schema-standardize.ts.json"
     },
-    "StartControlPointDragCommand": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "StartOptions": {
       "sourcePath": "packages/spark-app/src/app/start.ts",
       "file": "files/packages/spark-app/src/app/start.ts.json"
@@ -24551,26 +24412,6 @@
     "StringSchemaOptions": {
       "sourcePath": "packages/spark-json-document/src/schema/schema-helpers.ts",
       "file": "files/packages/spark-json-document/src/schema/schema-helpers.ts.json"
-    },
-    "StructuredCapabilityCard": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "StructuredFieldRow": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "StructuredRowsCollectionCommand": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "StructuredSelectCard": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "StructuredValueKind": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "StyleColorSet": {
       "sourcePath": "packages/spark-app/src/navigation/useColorScheme.ts",
@@ -24868,14 +24709,6 @@
       "sourcePath": "packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts",
       "file": "files/packages/spark-component/src/components/containers/support/visibility-container-zero-code.ts.json"
     },
-    "VueFlowLineChange": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "VueFlowLineUpdateEvent": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "WireFilterOperator": {
       "sourcePath": "packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts",
       "file": "files/packages/spark-lowcode-api/src/contracts/lowcode-wire-query.ts.json"
@@ -24904,10 +24737,6 @@
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/connectors.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/connectors.ts.json"
     },
-    "WorkflowControlEdgeSlot": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "WorkflowDataOperation": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-model-create.ts.json"
@@ -24920,19 +24749,7 @@
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/definition-reference-reader.ts.json"
     },
-    "WorkflowDesignAutoLayoutGraphResult": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignAutoLayoutResult": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
     "WorkflowDesignCapability": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignDeleteResult": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
@@ -24952,10 +24769,6 @@
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
-    "WorkflowDesignGraphView": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
     "WorkflowDesignLineControlPoint": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
@@ -24968,15 +24781,7 @@
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
-    "WorkflowDesignLinePatch": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
     "WorkflowDesignLineType": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignLineView": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
@@ -25000,37 +24805,13 @@
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
-    "WorkflowDesignNodeRemoveResult": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignNodeView": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignReadResult": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
     "WorkflowDesignSparkNodeMeta": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignSummary": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
     },
     "WorkflowDesignVariable": {
       "sourcePath": "src/services/workflow-designs.ts",
       "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDesignWriteResult": {
-      "sourcePath": "src/services/workflow-designs.ts",
-      "file": "files/src/services/workflow-designs.ts.json"
-    },
-    "WorkflowDockDefinition": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowExecutionContext": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-context.ts",
@@ -25056,37 +24837,17 @@
       "sourcePath": "packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/resources/structured-config/workflow/workflow-execution-resource.ts.json"
     },
-    "WorkflowFlowConnection": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "WorkflowFlowLineData": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "WorkflowFlowNode": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
-    "WorkflowFlowNodeData": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "WorkflowLayoutDocument": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/layout/layout-document.ts.json"
     },
-    "WorkflowLineRuntimeStatus": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
+    "WorkflowLineDraft": {
+      "sourcePath": "src/views/app/workflow-designs/workflow-design-graph.ts",
+      "file": "files/src/views/app/workflow-designs/workflow-design-graph.ts.json"
     },
     "WorkflowMergeSourceOptions": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/merge-inputs.ts.json"
-    },
-    "WorkflowMetadataRow": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     },
     "WorkflowModelSourceEdit": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-edit.ts",
@@ -25095,6 +24856,10 @@
     "WorkflowModelSourceNodeCommit": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/source/query-source-node-commit.ts.json"
+    },
+    "WorkflowNodeDraft": {
+      "sourcePath": "src/views/app/workflow-designs/workflow-design-graph.ts",
+      "file": "files/src/views/app/workflow-designs/workflow-design-graph.ts.json"
     },
     "WorkflowNodeModelBinding": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/source/query-node-create.ts",
@@ -25116,10 +24881,6 @@
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/fields/query-inputs.ts.json"
     },
-    "WorkflowRuntimeBinding": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
-    },
     "WorkflowTestField": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/execution/execution-inputs.ts.json"
@@ -25135,10 +24896,6 @@
     "WorkflowTriggerCondition": {
       "sourcePath": "src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts",
       "file": "files/src/lowcode/resources/structured-config/workflow-definition/trigger/trigger-condition.ts.json"
-    },
-    "WorkflowVariableEditorRow": {
-      "sourcePath": "src/views/app/workflow-designs/workflow-design-view-types.ts",
-      "file": "files/src/views/app/workflow-designs/workflow-design-view-types.ts.json"
     }
   },
   "componentIndex": {

@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/WorkflowDesigns.vue",
     "packageName": "app",
     "modulePath": "views/app/WorkflowDesigns",
-    "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：提供工作流设计稿的可视化编辑入口，连接 Dify-like JSON graph、文件保存 API 与 workflow definition 发布。\n边界：只处理设计态 JSON，不执行 Agent workflow 运行时。\nAI用途：需要验证 workflow 编辑器如何配置业务节点、ClassModel model context 或步骤线投影时，用本页面定位。",
+    "jsdoc": "@module app:views/app/WorkflowDesigns\n职责：Agent 工作流设计页；目录、主图/子图、流程/节点/连线/变量/能力配置全部绑定 design.json 的投影 DataView。\n边界：编辑只写 DataView 编辑行，一次 saveChanges 合成一次 design.json 写入；发布只更新已有 definition.json 行，不创建文件。\nAI用途：排查工作流设计页的画布、属性表单、保存或发布时，从本页面定位视图绑定与命令编排。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-30T19:39:23.915Z",
+  "generatedAt": "2026-11-08T20:06:31.272Z",
   "models": {}
 }

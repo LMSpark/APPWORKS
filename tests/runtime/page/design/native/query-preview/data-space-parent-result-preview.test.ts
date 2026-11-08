@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount} from '@vue/test-utils'
 import {markRaw} from 'vue'
@@ -12,6 +14,12 @@ import {HttpClientBase, type HttpResponse, type RequestConfig} from '@spark-appw
 import {LowcodeDataSpaceQueryPreview} from '@/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview'
 
 describe('parent-result preview input ownership', () => {
+  it('hosts the preview runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain("targetId: [scenarioId, modelName, viewId].join(':')")
+    expect(source).not.toContain('new PageRuntime')
+  })
   it.each(['RootModel', 'ChildModel', 'GrandModel'])('keeps derived views free of independent input cascades when previewing %s', async modelName => {
     const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {
       Root: {tableName: 'Root', modelBinding: {modelId: 'ROOT', modelName: 'RootModel'}, columns: [{name: 'id', type: 'string'}],

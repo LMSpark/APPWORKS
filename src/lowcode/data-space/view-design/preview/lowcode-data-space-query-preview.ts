@@ -1,10 +1,11 @@
 /**
  * @module app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview
- * 职责：持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。
+ * 职责：经公共宿主持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。
  * 边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。
  * AI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。
  */
 import * as SparkData from '@spark-appworks/spark-data'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 
 /** 一次预览调用的参数值；不修改参数声明或场景文件。 */
@@ -21,6 +22,7 @@ type DataSpacePreviewQuery = Readonly<{
 export class LowcodeDataSpaceQueryPreview {
   /** 仅本预览持有的运行实例，供标准子组件解析完整绑定。 */
   readonly runtime: PageRuntime
+  readonly #session: NativePageRuntimeSession
   /** 目标空间ID@正式模型注册名@命名视图ID。 */
   readonly dataViewKey: string
   readonly #contexts = new Map<SparkData.DataView, SparkData.DataViewQueryContext>()
@@ -35,8 +37,13 @@ export class LowcodeDataSpaceQueryPreview {
     const scenarioId = dataSet.scenarioId
     if (!scenarioId) throw new Error('SCENARIO_VIEW_PREVIEW_IDENTITY: 预览空间身份缺失')
     this.dataViewKey = SparkData.buildDataViewKey(modelName, viewId, scenarioId)
-    this.runtime = new PageRuntime({pageId: '/features/data-platform/data-set-management/design/ui/data-set-design-page',
-      scenarioIds: [scenarioId], loadScenario: () => Promise.resolve(dataSet)})
+    this.#session = new NativePageRuntimeSession()
+    this.runtime = this.#session.acquire({
+      pageId: '/features/data-platform/data-set-management/design/ui/data-set-design-page',
+      scenarioIds: [scenarioId],
+      targetId: [scenarioId, modelName, viewId].join(':'),
+      loadScenario: () => Promise.resolve(dataSet),
+    })
     for (const table of Object.values(dataSet.tables)) for (const view of Object.values(table.views)) {
       this.#contexts.set(view, structuredClone(view.queryContext))
     }
@@ -163,7 +170,7 @@ export class LowcodeDataSpaceQueryPreview {
   dispose(): void {
     if (this.#disposed) return
     this.#disposed = true; this.#unsubscribe?.(); this.#unsubscribe = undefined
-    this.runtime.dispose(); this.#contexts.clear()
+    this.#session.dispose(); this.#contexts.clear()
     const listeners = [...this.#disposeListeners]
     this.#disposeListeners.clear()
     for (const listener of listeners) listener()

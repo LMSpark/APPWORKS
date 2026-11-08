@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1已冻结，S2未冻结）：** S1 证据见 [AP](#ap-s1-freeze)。JsonTree 值根见 [AQ](#aq-s2-json-tree)。后续组件族的当次重跑与停止点见文末 AR。未进 S3。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1已冻结，S2未冻结）：** S1 证据见 [AP](#ap-s1-freeze)。JsonTree 值根见 [AQ](#aq-s2-json-tree)。组件包类型偏差见文末 AS。未进 S3。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8532,3 +8532,14 @@ pnpm run verify
 | 动作按钮 | `button-row-callback.test.ts` 含在上述 44 项内 | 行回调按该行执行 |
 
 **停止。**S2 不冻结。`packages/spark-component` 的 `vue-tsc` 退出 2，失败点都在本轮未改的测试：`spark-ai-data-entry.test.ts` 的主键可能为空、`filter-expression-editor.test.ts` 的 `total` 与列类型 `string`、`renderer-filter-expression.test.ts` 的可选属性和只读 `inputParams` 赋值。运行时相关测试是绿的，不能靠放宽断言或类型转换把类型门禁涂绿。未改 `spark-data`，未进 S3。下一波只处理这四处类型与源码的偏差；偏差若要求新产品行为，先停下来记选择，不在组件里绕。
+
+#### AS. 四处测试类型对准声明（S2仍未冻结）
+
+开工时只有 `D:/SPARK_AppWorks`。不改产品源码，不加类型转换。
+
+- 空主键不再传入 `getEditingRow`，测试直接失败。
+- `CrudResult` 没有 `total`，列表 mock 去掉该字段。
+- 过滤字段声明的文本类型是 `text`，分组夹具里的 `string` 改为 `text`。数据列上的 `string` 仍是列类型，未改。
+- 渲染过滤表达式时只传入已有值。候选变更改为替换整个 `functionContext`：替换分支只留新的 `inputParams`，另一分支复制当前上下文并带上新的 `inputParams`，不给只读属性赋值。
+
+根测试入口三文件 106 项通过。`packages/spark-component` 的 `vue-tsc` 与 eslint 均为 0。公开声明无变化，未跑生成器。未改 `spark-data`。S2 冻结另记。

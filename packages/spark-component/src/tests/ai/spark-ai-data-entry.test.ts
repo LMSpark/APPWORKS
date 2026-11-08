@@ -258,6 +258,7 @@ describe('SparkAiDataEntry renderer', () => {
     const inputRow = f.session.input.currentRow
     if (inputRow === null) throw new Error('businessPrompt input row is missing')
     const inputId = f.session.input.getPkKey(inputRow)
+    if (inputId === undefined) throw new Error('businessPrompt input key is missing')
     expect(f.session.input.getEditingRow(inputId)?.['businessPrompt']).toBe('按当前模型新增条目')
     expect(f.session.input.hasEditingChanges()).toBe(true)
     expect(input.attributes()).not.toHaveProperty('disabled')

@@ -121,9 +121,30 @@ function fixture(format: 'tree' | 'spark-json' = 'tree', value: unknown = undefi
     const {sparkProvide} = useSparkComponent({type: 'filter-definition-test'})
     sparkProvide(DATA_SOURCE, view)
     sparkProvide(PAGE_RUNTIME_SERVICES, createPageRuntimeServices({info: vi.fn(), debug: vi.fn(), warn: vi.fn(), error: vi.fn()}))
-    return () => h(RendererFilterExpression, {...presentation.value, field: 'predicate', format, display, disabled: disabled.value,
-      onEditingChange: (value: boolean) => {editing.value = value},
-      functionContext: functionContext.value, columns: columns.value})
+    return () => {
+      const source = presentation.value
+      const presentationProps: Partial<RFilterExpressionProps> = {}
+      if (source.placeholder !== undefined) presentationProps.placeholder = source.placeholder
+      if (source.title !== undefined) presentationProps.title = source.title
+      if (source.clearable !== undefined) presentationProps.clearable = source.clearable
+      if (source.dialogWidth !== undefined) presentationProps.dialogWidth = source.dialogWidth
+      if (source.autoFullscreenBelow !== undefined) presentationProps.autoFullscreenBelow = source.autoFullscreenBelow
+      if (source.allowedOperators !== undefined) presentationProps.allowedOperators = source.allowedOperators
+      if (source.valuePath !== undefined) presentationProps.valuePath = source.valuePath
+      if (source.valueFormat !== undefined) presentationProps.valueFormat = source.valueFormat
+      const context = functionContext.value
+      const columnList = columns.value
+      return h(RendererFilterExpression, {
+        ...presentationProps,
+        field: 'predicate',
+        format,
+        display,
+        disabled: disabled.value,
+        onEditingChange: (value: boolean) => {editing.value = value},
+        ...(context !== undefined ? {functionContext: context} : {}),
+        ...(columnList !== undefined ? {columns: columnList} : {}),
+      })
+    }
   }})
   const wrapper = mount(host, {attachTo: document.body, global: {plugins: [ElementPlus], stubs: {SparkJsonEditor: true, JsonTreeEditor: true}}})
   wrappers.push(wrapper)
@@ -204,8 +225,10 @@ describe('standard filter definition binding', () => {
     fn.getComponent(ElSelect).vm.$emit('update:modelValue', 'changed'); await flushPromises()
     const oldApply = f.wrapper.getComponent(FilterExpressionEditor).vm.$.vnode.props?.['onUpdate:modelValue']
     expect(typeof oldApply).toBe('function')
-    if (change === 'replace') f.functionContext.value = {inputParams: [{value: 'customer', label: '客户'}]}
-    else if (f.functionContext.value) f.functionContext.value.inputParams = [{value: 'customer', label: '客户'}]
+    const current = f.functionContext.value
+    if (current === undefined) throw new Error('function context is missing')
+    const inputParams = [{value: 'customer', label: '客户'}]
+    f.functionContext.value = change === 'replace' ? {inputParams} : {...current, inputParams}
     await flushPromises()
     expect(f.wrapper.getComponent(FilterValueFunctionDialog).vm.$.uid).toBe(instance)
     expect(f.wrapper.getComponent(FilterValueFunctionDialog).props('modelValue')).toBe(true)

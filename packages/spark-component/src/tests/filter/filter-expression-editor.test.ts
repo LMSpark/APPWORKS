@@ -40,7 +40,7 @@ it.each(['omitted', undefined, true, false] as const)('applies filter input acco
     api: {list: {url: '/orders', method: 'GET'}}, views: {default: {queryConfig: {outputType: 'Table'}}},
   }}})
   const view = ds.getView('Orders')!
-  const list = vi.spyOn(view.crud, 'list').mockResolvedValue({success: true, data: [{id: 'one', Name: 'A'}], total: 1})
+  const list = vi.spyOn(view.crud, 'list').mockResolvedValue({success: true, data: [{id: 'one', Name: 'A'}]})
   const mode = ref(automatic)
   const host = defineComponent({setup() {
     const {sparkProvide} = useSparkComponent({type: 'filter-timing-test'})
@@ -509,7 +509,7 @@ describe('full public filter editor', () => {
   })
   it('rejects a scalar update captured before an explicit field switch',async()=>{
     const draft=new FilterExpressionEditorDraft({field:'Name',operator:'eq',value:'old'})
-    const wrapper=mount(FilterExpressionGroup,{props:{group:draft.root,draft,fields:[...fields,{name:'Other',type:'string'}],depth:0,maxDepth:3,maxRules:5},global:{plugins:[ElementPlus]}});wrappers.push(wrapper)
+    const wrapper=mount(FilterExpressionGroup,{props:{group:draft.root,draft,fields:[...fields,{name:'Other',type:'text'}],depth:0,maxDepth:3,maxRules:5},global:{plugins:[ElementPlus]}});wrappers.push(wrapper)
     const late=wrapper.getComponent(ElInput).vm.$.vnode.props?.['onUpdate:modelValue']
     expect(typeof late).toBe('function')
     wrapper.findAllComponents(ElSelect).find(control=>control.props('ariaLabel')==='过滤字段')!.vm.$emit('update:modelValue','Other');await flushPromises()

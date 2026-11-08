@@ -590,23 +590,14 @@ constructor(options: DynamicRouterOptions) {
     for (const path of paths) {
       const route = this.router.getRoutes().find(item => item.path === path)
       if (!route) continue
-      if (route.aliasOf) continue
       if (route.name === undefined || route.components === undefined || route.components === null) {
         throw new Error(`无法快照受管路由 ${path}`)
       }
-      const aliases = this.router.getRoutes().filter(item => item.aliasOf === route).map(item => item.path)
-      snapshots.push({ path: route.path, name: route.name, components: route.components, props: route.props, meta: route.meta,
-        ...(aliases.length ? {alias: aliases} : {}) })
+      snapshots.push({ path: route.path, name: route.name, components: route.components, props: route.props, meta: route.meta })
     }
     return snapshots
   }
 
-  /**
-   * 历史数据平滑迁移（递归）
-   *
-   * 将旧格式中 nodeKind='system-page' 且 path 不以 `/` 开头的节点诺认为 system-action。
-   * 旧格式编了 system-page 用于同时表示“Vue 组件路由”和“toolbar 动作按钮”两种语义。
-   */
   /**
    * 从导航节点树递归注册路由
    * - nodeKind='link' + linkTarget='iframe' → 内嵌 iframe 路由（path 为外部 URL）

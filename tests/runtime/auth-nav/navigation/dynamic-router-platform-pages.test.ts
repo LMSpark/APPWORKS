@@ -637,4 +637,34 @@ describe('DynamicRouter formal routes and runtime calls', () => {
     }
     wrapper.unmount()
   })
+
+  it('restores the formal route after a failed refresh and drops a manually attached alias', async () => {
+    const Login = defineComponent({ name: 'LoginPage', template: '<div />' })
+    const Other = defineComponent({ name: 'OtherPage', template: '<div />' })
+    let navigation: RuntimeNavigation = { id: 'root', projectId: 'APP', title: 'App', childPlacement: 'header', items: [
+      { id: 'login', title: 'Login', itemKind: 'system-page', path: '/login' },
+    ] }
+    const router = createRouter({ history: createMemoryHistory(), routes: [] })
+    const dynamic = createDynamicRouter({
+      router,
+      readPageFile: async () => '',
+      pageComponent: DummyPage,
+      componentMap: { '/login': Login, '/other': Other },
+      loadNavigation: async () => navigation,
+      loadScenario: async ({ scenarioId }) => DataSet.fromJson({ scenarioId, dataSetName: scenarioId, tables: {} }),
+    })
+    await dynamic.registerRoutes()
+    const formal = router.getRoutes().find(route => route.path.endsWith('/login') && route.aliasOf === undefined)
+    expect(formal?.name).toBeTypeOf('string')
+    router.addRoute({ path: formal!.path, name: formal!.name!, component: Login, alias: '/legacy-login' })
+    expect(router.getRoutes().some(route => route.path === '/legacy-login')).toBe(true)
+
+    navigation = { id: 'root', projectId: 'APP', title: 'App', childPlacement: 'header', items: [
+      { id: 'other', title: 'Other', itemKind: 'system-page', path: '/other?__sparkNavigationId=blocked' },
+    ] }
+    await expect(dynamic.refreshRoutes()).rejects.toThrow('系统页面目标使用保留身份参数')
+    expect(router.getRoutes().some(route => route.path === '/legacy-login')).toBe(false)
+    expect(router.getRoutes().some(route => route.aliasOf !== undefined)).toBe(false)
+    expect(router.getRoutes().some(route => route.path.endsWith('/login'))).toBe(true)
+  })
 })

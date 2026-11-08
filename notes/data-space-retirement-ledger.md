@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见文末 AX。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见文末 AY。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8601,3 +8601,10 @@ pnpm run verify
 **冻结范围。**共同宿主按当前源码冻结：PageRuntime 创建/提供/释放、导航调用身份、场景装配、四文件由池加载。S2 组件与 S1 数据层合同不在本冻结里改写。
 
 **明确不纳入。**S4 逐页换接并删除该页自建实例；`use-staged-design-page.ts` 与各包 `new PageRuntime` 仍在；`AppList.vue` 双身份与根 `/app-list` 无 owner；隐藏设计弹窗假导航身份；表视图 alias 删除；暂缓授权接线；N3 服务缺证；远端历史配置。下一合法阶段是 S4。本提交不进入页面换接。
+
+<a id="ay-s4-app-list-host"></a>
+#### AY. S4第一页：应用目录换接到公共宿主（未冻结）
+
+开工时只有 `D:/SPARK_AppWorks`，S3 冻结点 `d52838ed1`。N1 第一组从应用目录开始。`AppList.vue` 不再自建 `PageRuntime`，改由 `NativePageRuntimeSession` 创建、provide、换目标释放。`blueprintScenarioId || builtin` 双身份保持原样：有导航场景走 `loadLowcodeRuntimeScenario` 与 `default`，没有时仍走内置目录 `catalogApps`。根 `/app-list` 不另造平台 owner。
+
+**测试。**绑定源码改为要求会话、`session.dispose()`、`session.isCurrent(current)`，并拒绝页内 `new PageRuntime`。目录路由与迟到查询共 2 文件 13 项通过。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。

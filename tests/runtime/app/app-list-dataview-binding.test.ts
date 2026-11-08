@@ -84,9 +84,11 @@ describe('AppList formal scenario data binding', () => {
     expect(source).not.toContain('listApplications')
     expect(source).not.toContain('projects.value')
     expect(source).not.toContain('el-row v-else-if')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.dispose()')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
     expect(source).toContain('own !== generation')
-    expect(source).toContain('current.dispose()')
-    expect(source).toContain('runtime?.dispose()')
     expect(source).toContain('active = false')
   })
 

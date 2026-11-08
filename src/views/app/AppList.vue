@@ -45,8 +45,7 @@ import { ElMessage } from 'element-plus'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { PROJECT_SWITCH_KEY } from '@/services/project/project-shell'
 import { buildApplicationPath, parseApplicationPathScope, APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
-import { getNavHomePath } from '@spark-appworks/spark-app'
-import { PageRuntime } from '@spark-appworks/spark-project-model'
+import { getNavHomePath, NativePageRuntimeSession } from '@spark-appworks/spark-app'
 import { PAGE_RUNTIME, RendererList, RendererPageHeader, useSparkComponent } from '@spark-appworks/spark-component'
 import type { DataRow, DataView, SparkNode } from '@spark-appworks/spark-data'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -62,10 +61,13 @@ type ProjectItem = {
 const router = useRouter()
 const route = useRoute()
 const projectSwitch = inject(PROJECT_SWITCH_KEY)
-const { sparkProvide } = useSparkComponent({ type: 'app-list' })
+const { sparkProvide, sparkRemove } = useSparkComponent({ type: 'app-list' })
 const runtimeError = ref('')
 const scenarioView = shallowRef<DataView | null>(null)
-let runtime: PageRuntime | undefined
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 let active = true
 let generation = 0
 let unsubscribe: (() => void) | undefined
@@ -129,19 +131,18 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
   const own = ++generation
   runtimeError.value = ''
   scenarioView.value = null
-  runtime?.dispose(); runtime = undefined; unsubscribe?.(); unsubscribe = undefined
+  unsubscribe?.(); unsubscribe = undefined
+  session.dispose()
   const isBlueprintScenario = Boolean(blueprintScenarioId.value)
   const projectId = parseApplicationPathScope(route.path)?.projectId ?? ''
   if (isBlueprintScenario && !projectId) { runtimeError.value = '应用目录页面缺少正式应用身份'; return }
   try {
-    const current = new PageRuntime({pageId: 'application-manager-page', scenarioIds: [scenarioId],
+    const current = session.acquire({pageId: 'application-manager-page', scenarioIds: [scenarioId], targetId: scenarioId,
       loadScenario: id => isBlueprintScenario
         ? loadLowcodeRuntimeScenario({projectId, scenarioId: id})
         : loadLowcodeApplicationCatalog()})
-    runtime = current
-    sparkProvide(PAGE_RUNTIME, current)
     await current.load()
-    if (!active || own !== generation || current.destroyed) { current.dispose(); return }
+    if (!active || own !== generation || !session.isCurrent(current)) return
     const loaded = current.getDataSet(scenarioId)
     const view = loaded ? getFormalModelView(loaded, 'Base_AppSystemList', scenarioViewId.value) : undefined
     if (!loaded || !view) throw new Error('应用目录场景缺少 Base_AppSystemList@default')
@@ -157,7 +158,7 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
     }
     unsubscribe = loaded.onAnyViewChange({rowsChanged: update, requestStateChanged: update})
     const result = await view.requestRefresh()
-    if (!active || own !== generation || current.destroyed) return
+    if (!active || own !== generation || !session.isCurrent(current)) return
     if (!result.success) throw new Error(result.message ?? '应用目录 DataView 查询未成功')
     validateScenarioView(view)
     scenarioView.value = view
@@ -165,7 +166,7 @@ async function loadScenarioProjects(scenarioId: string): Promise<void> {
     if (active && own === generation) {
       runtimeError.value = cause instanceof Error ? cause.message : String(cause)
       unsubscribe?.(); unsubscribe = undefined
-      runtime?.dispose(); runtime = undefined; scenarioView.value = null
+      session.dispose(); scenarioView.value = null
     }
   }
 }
@@ -208,11 +209,11 @@ onMounted(async () => {
   await loadProjects()
 })
 watch(() => route.meta['blueprintScenarioId'], () => {
-  generation++; unsubscribe?.(); unsubscribe = undefined; runtime?.dispose(); runtime = undefined; scenarioView.value = null
+  generation++; unsubscribe?.(); unsubscribe = undefined; session.dispose(); scenarioView.value = null
   runtimeError.value = ''
   void loadProjects()
 }, {flush: 'sync'})
-onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); runtime?.dispose(); runtime = undefined })
+onBeforeUnmount(() => { active = false; generation++; unsubscribe?.(); session.dispose() })
 </script>
 
 <style scoped>

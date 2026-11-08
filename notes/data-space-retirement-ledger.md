@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1已冻结，S2进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 从 JsonTree 值根开始，当前波次见文末 AQ。S2 未冻结，未进 S3。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1已冻结，S2未冻结）：** S1 证据见 [AP](#ap-s1-freeze)。JsonTree 值根见 [AQ](#aq-s2-json-tree)。后续组件族的当次重跑与停止点见文末 AR。未进 S3。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8515,6 +8515,20 @@ pnpm run verify
 
 **合同。**`rootKind` 缺省仍是 `document`，对象或数组才是文档根，空文本仍建成空对象。`value` 接受任意 JSON 值：`null`、`false`、`0`、空串、文本、数组和对象都是路径为空的根，根可改类型、不可删、不可改键。未提交的字符串留在输入草稿，`change` 才写回；值根不发 `update:documentValue`。空文本和非法文本停在修复区，取消恢复原文，只读锁定原文。文档模式遇到标量仍提示顶层必须是对象或数组。
 
-**实现。**`parseJsonValue`、`buildValueTree`、`exportJsonValue` 放在 `spark-json-document`，文档导出仍拒绝标量根。`JsonTreeEditor` 只在 `rootKind=value` 且调用方没有自带 `canEditType` 时让根可改类型。既有 `FieldJson` 不传 `rootKind`，36 项原测试仍通过。
+**实现。**`parseJsonValue`、`buildValueTree`、`exportJsonValue` 放在 `spark-json-document`，文档导出仍拒绝标量根。`JsonTreeEditor` 只在 `rootKind=value` 且调用方没有自带 `canEditType` 时让根可改类型。既有 `FieldJson` 不传 `rootKind`，36 项原测试仍通过。正式提交 `0af60ff87` 已推 origin，`ls-remote` 与本地一致。
 
 **测试。**原未跟踪 `json-tree-value-root.test.ts` 收成正式回归，11 项通过。值输入选择器避开工具栏空筛选框，合同断言未改。`json-tree-policy` 5 项通过。`spark-json-document` typecheck 与 lint 为 0。改动文件的 eslint 为 0。`spark-component` 包级 `vue-tsc` 仍在四个本波未改的测试文件失败（`spark-ai-data-entry`、`filter-expression-editor`、`renderer-filter-expression`），不是本波引入。正式 `generate:class-model-surface` 为 0，`JsonTreeEditor` 声明含 `rootKind`；其余 JSON 多为符号编号或 `generatedAt`。`generate:lowcode-contracts` 为 611/221，工作树无合同账本差异。未改 `spark-data`，未进宿主、页面或 S3。
+
+#### AR. S2后续族当次重跑与停止点（未冻结）
+
+开工仍只有 `D:/SPARK_AppWorks`。本段不改产品源码。JSON 字段沿 `FieldJson` 现合同：树模式继续走文档根，原生标量包在 `value` 节点里；取消、只读、换行和旧回调拒绝已由 `tests/ui/field/text/field-json.test.ts` 36 项覆盖，本轮重跑通过。
+
+| 族 | 本轮重跑 | 现有断言覆盖 |
+| --- | --- | --- |
+| 表格 | `renderer-table-cell-edit.test.ts` 含在 4 文件 56 项内 | 编辑覆盖锁分页、失焦写回、换行保留暂存、绑定或只读变化关闭单元格、旧编辑器不改写另一个命名视图、拒绝隐藏和脱敏字段 |
+| 表单与详情 | `renderer-form-detail.test.ts` | 显式只读不被查询写权限放大、字段绑定选中行、工具栏与 CRUD 钩子可取消默认方法 |
+| 列表 | `renderer-list-section.test.ts` | 行按钮绑定渲染行而不是 currentRow、字段按各自行读写、点击处理可取消默认同步 |
+| 树 | `tree-identity.test.ts` 与 `renderer-toolbar.test.ts` 的树编辑投影，后者含在 2 文件 44 项内 | 无主键嵌套子节点不发明主键；工具栏合同走真实渲染器 |
+| 动作按钮 | `button-row-callback.test.ts` 含在上述 44 项内 | 行回调按该行执行 |
+
+**停止。**S2 不冻结。`packages/spark-component` 的 `vue-tsc` 退出 2，失败点都在本轮未改的测试：`spark-ai-data-entry.test.ts` 的主键可能为空、`filter-expression-editor.test.ts` 的 `total` 与列类型 `string`、`renderer-filter-expression.test.ts` 的可选属性和只读 `inputParams` 赋值。运行时相关测试是绿的，不能靠放宽断言或类型转换把类型门禁涂绿。未改 `spark-data`，未进 S3。下一波只处理这四处类型与源码的偏差；偏差若要求新产品行为，先停下来记选择，不在组件里绕。

@@ -10,7 +10,8 @@
     "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
-      "LoadScenarioDataSetInput"
+      "LoadScenarioDataSetInput",
+      "AssembleLowcodeRuntimeScenarioInput"
     ]
   },
   "$defs": {
@@ -48,9 +49,54 @@
         },
         "method.assertCurrent.return": true
       }
+    },
+    "AssembleLowcodeRuntimeScenarioInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AssembleLowcodeRuntimeScenarioInput",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "scenarioId": {
+          "type": "string"
+        },
+        "config": {
+          "$ref": "../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "getPage": true,
+        "owner": {
+          "$ref": "../../../packages/spark-project-model/src/project/project-workspace.ts.json#/$defs/ProjectWorkspace"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true,
+        "method.blueprintTreeProjection.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.blueprintTreeProjection.return": {
+          "anyOf": [
+            {
+              "$ref": "../../../packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json#/$defs/ProjectBlueprintTreeData"
+            },
+            {
+              "type": "object",
+              "title": "Promise<ProjectBlueprintTreeData>"
+            }
+          ]
+        }
+      }
     }
   },
-  "generatedAt": "2026-11-08T02:39:42.157Z",
+  "generatedAt": "2026-11-08T09:26:44.088Z",
   "models": {
     "LoadScenarioDataSetInput": {
       "name": "LoadScenarioDataSetInput",
@@ -132,6 +178,83 @@
               "type": {
                 "type": "intrinsic",
                 "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AssembleLowcodeRuntimeScenarioInput": {
+      "name": "AssembleLowcodeRuntimeScenarioInput",
+      "jsdoc": "用已解析的场景配置装配运行 DataSet。预览传入未保存定义，正式入口先读已保存文件再调用。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    assertCurrent: () => void;\n    getPage?: ApiModelRuleHost['getPage'];\n    owner?: ProjectWorkspace;\n    blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    scenarioId: string;\n    config: ScenarioViewConfig;\n    assertCurrent: () => void;\n    getPage?: ApiModelRuleHost['getPage'];\n    owner?: ProjectWorkspace;\n    blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "scenarioId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "getPage",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "owner",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            },
+            {
+              "name": "blueprintTreeProjection",
+              "parameters": [],
+              "type": {
+                "type": "union",
+                "types": [
+                  {
+                    "type": "reference",
+                    "name": "ProjectBlueprintTreeData"
+                  },
+                  {
+                    "type": "reference",
+                    "name": "Promise",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "ProjectBlueprintTreeData"
+                      }
+                    ]
+                  }
+                ]
               }
             }
           ]

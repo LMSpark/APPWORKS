@@ -33,6 +33,10 @@ const { httpGet, httpPost, httpPut, httpRequestFull, httpClearCache, httpInterce
 // This consumer fixture supplies C; the metadata chain suite verifies the production loader against formal records.
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({
   loadScenarioDataSet: previewLoad,
+  assembleLowcodeRuntimeScenario: async (input: {scenarioId: string}) => {
+    const result = await previewLoad(input) as {dataSet: DataSet}
+    return result.dataSet
+  },
   loadLowcodeRuntimeScenario: async ({ projectId, scenarioId }: { projectId: string; scenarioId: string }) => {
     if(scenarioId==='90A82E287930A234FEC3E687C94A93EA')return DataSet.fromJson({scenarioId,tables:{Base_DataSet:{
       modelBinding:{modelId:`${scenarioId}catalog`,modelName:'Base_DataSet'},

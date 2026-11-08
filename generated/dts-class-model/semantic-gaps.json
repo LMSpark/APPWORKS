@@ -1,5 +1,5 @@
 {
-  "gapCount": 3761,
+  "gapCount": 3768,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -23676,6 +23676,90 @@
       "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "declarationLine": 22,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 35,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "scenarioId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 36,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "config",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.config 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 37,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 38,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "getPage",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.getPage 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 39,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "owner",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.owner 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 40,
+      "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "AssembleLowcodeRuntimeScenarioInput",
+      "memberName": "blueprintTreeProjection",
+      "reason": "missing-jsdoc",
+      "chainBreak": "AssembleLowcodeRuntimeScenarioInput.blueprintTreeProjection 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/data-space/lowcode-data-space-runtime.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "declarationLine": 41,
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "declarationKind": "typeAlias"
     },

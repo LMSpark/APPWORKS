@@ -51,7 +51,7 @@ vi.mock('@/lowcode/lowcode-runtime', async () => {
 })
 
 import {resolve} from 'node:path'
-import { loadLowcodeRuntimeScenario, loadScenarioDataSet, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { assembleLowcodeRuntimeScenario, loadLowcodeRuntimeScenario, loadScenarioDataSet, readLowcodeExecutionProject } from '@/lowcode/data-space/lowcode-data-space-runtime'
 
 const scope = (token: string, appId: string) => ({ token, headers: { 'X-AppId': appId } })
 
@@ -353,6 +353,39 @@ describe('loadLowcodeRuntimeScenario', () => {
     expect(destroy).toHaveBeenCalledOnce()
     expect(relation.filterExpression.toJSON()).toEqual(raw)
     expect(mocks.request).not.toHaveBeenCalled()
+  })
+
+  it('rejects unsaved preview config with the same incomplete-assembly contract and does not read the saved file', async () => {
+    const {text} = relationFixture()
+    mocks.readText.mockRejectedValue(new Error('saved pagedata must not be read for unsaved preview'))
+    const destroy = vi.spyOn(DataSet.prototype, 'destroy')
+    await expect(assembleLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE',
+      config: new ScenarioViewConfig('SCENE', text), assertCurrent: () => undefined}))
+      .rejects.toThrow(/SCENARIO_ASSEMBLY_INCOMPLETE.*SCENE.*REL-BROKEN/s)
+    expect(destroy).toHaveBeenCalledOnce()
+    expect(mocks.readText).not.toHaveBeenCalled()
+  })
+
+  it('injects registered file owners for unsaved preview config', async () => {
+    mocks.readRequestScope.mockReturnValue(scope('preview-file', 'APP'))
+    const config = new ScenarioViewConfig('SCENE', JSON.stringify({scenarioId: 'SCENE', schemaVersion: 2, resourceRelations: [], tables: {
+      AgentWorkflowFiles: {resourceType: 'file', resourceId: 'agent-workflow-files', columns: [
+        {name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
+        {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'},
+      ], views: {default: {}, directory: {queryConfig: {allPages: true}}, design: {autoLoad: false,
+        queryContext: {workflowId: ''}}, definition: {autoLoad: false, queryContext: {workflowId: ''}}}},
+    }}))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'SCENE', name: '正式空间'})
+    mocks.readModelBatch.mockResolvedValue([])
+    mocks.listFiles.mockResolvedValue([{name: 'agent.workflow.alpha', lastModified: 1730000000000}])
+    mocks.readText.mockRejectedValue(new Error('saved pagedata must not be read for unsaved preview'))
+    const dataSet = await assembleLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE', config, assertCurrent: () => undefined})
+    try {
+      const directory = dataSet.getView('AgentWorkflowFiles', 'directory')!
+      expect((await directory.requestRefresh()).success).toBe(true)
+      expect(directory.rows).toMatchObject([{workflowId: 'agent.workflow.alpha', fileName: 'design.json'}])
+      expect(mocks.readText).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
   })
 
   it.each(['resolved', 'outside'])('loads %s relationships without false incompleteness errors', async kind => {

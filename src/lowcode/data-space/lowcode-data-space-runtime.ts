@@ -133,6 +133,41 @@ export function readLowcodeExecutionProject(): Readonly<{projectId: string; asse
  }}
 }
 
+/** 用已解析的场景配置装配运行 DataSet。预览传入未保存定义，正式入口先读已保存文件再调用。 */
+export type AssembleLowcodeRuntimeScenarioInput = Readonly<{
+ projectId: string
+ scenarioId: string
+ config: ScenarioViewConfig
+ assertCurrent: () => void
+ getPage?: ApiModelRuleHost['getPage']
+ owner?: ProjectWorkspace
+ blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>
+}>
+
+export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRuntimeScenarioInput): Promise<DataSet> {
+ const {projectId, scenarioId, config, assertCurrent} = input
+ if (config.scenarioId !== scenarioId) throw new Error('场景视图配置身份不一致')
+ if (isBuiltinApplication(projectId) && !resolveBuiltinScenarioResource(scenarioId)) {
+  throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
+ }
+ assertCurrent()
+ const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
+  ...createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent}),
+  ...createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
+  ...createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
+  ...(input.getPage?{getPage:input.getPage}:{}),
+  ...definitionBindings({projectId, scenarioId, config, assertCurrent,
+   ...(input.owner?{owner:input.owner}:{}),
+   ...(input.blueprintTreeProjection?{blueprintTreeProjection:input.blueprintTreeProjection}:{})})})
+ try {
+  assertCurrent()
+  if (result.diagnostics.length > 0) {
+   throw new Error(`SCENARIO_ASSEMBLY_INCOMPLETE: 场景 ${scenarioId} 的模型关系未完整装配，请在数据空间设计中修复：\n${result.diagnostics.join('\n')}`)
+  }
+ } catch (failure) { result.dataSet.destroy(); throw failure }
+ return result.dataSet
+}
+
 /** PageRuntime 场景装配入口：身份变化或模型关系装配不完整即失败并销毁；诊断修复仍走设计会话。 */
 export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: string; scenarioId: string; getPage?:ApiModelRuleHost['getPage'] }>): Promise<DataSet> {
  const { projectId, scenarioId } = command
@@ -146,20 +181,8 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  const text = await createLowcodeProjectGateways(projectId).scenarioViews.readText(scenarioId)
  assertCurrent()
  if (text === null) throw new Error(`SCENARIO_VIEW_FILE_MISSING: 场景 ${scenarioId} 尚未建立视图配置`)
- const config = new ScenarioViewConfig(scenarioId, text)
- const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
-  ...createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent}),
-  ...createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
-  ...createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
-  ...(command.getPage?{getPage:command.getPage}:{}),
-  ...definitionBindings({projectId, scenarioId, config, assertCurrent})})
- try {
-  assertCurrent()
-  if (result.diagnostics.length > 0) {
-   throw new Error(`SCENARIO_ASSEMBLY_INCOMPLETE: 场景 ${scenarioId} 的模型关系未完整装配，请在数据空间设计中修复：\n${result.diagnostics.join('\n')}`)
-  }
- } catch (failure) { result.dataSet.destroy(); throw failure }
- return result.dataSet
+ return assembleLowcodeRuntimeScenario({projectId, scenarioId, config: new ScenarioViewConfig(scenarioId, text), assertCurrent,
+  ...(command.getPage?{getPage:command.getPage}:{})})
 }
 
 /** 文件与只读投影由各自已声明的语义身份接线，目标ID不从当前空间猜测。 */

@@ -12849,7 +12849,8 @@
         "jsdoc": "@module app:lowcode/data-space/lowcode-data-space-runtime\n职责：读取场景绑定的正式模型与关系后装配独立运行空间。边界：应用身份由既有请求 scope 提供，异步返回检查调用代次；AI 可用此入口实现 PageRuntime 的 loadScenario。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
-          "LoadScenarioDataSetInput"
+          "LoadScenarioDataSetInput",
+          "AssembleLowcodeRuntimeScenarioInput"
         ]
       }
     },
@@ -19065,6 +19066,10 @@
     "ArraySessionLifecycle": {
       "sourcePath": "src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts",
       "file": "files/src/lowcode/data-space/model-source/array/lowcode-data-space-array-session.ts.json"
+    },
+    "AssembleLowcodeRuntimeScenarioInput": {
+      "sourcePath": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
+      "file": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json"
     },
     "AttachCatalogCommandViewsInput": {
       "sourcePath": "src/lowcode/resources/database/dataset-extensions.ts",

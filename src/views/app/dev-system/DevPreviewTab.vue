@@ -52,7 +52,7 @@ import type { DataSet, DataTable, DataView } from '@spark-appworks/spark-data'
 import { DisplayAlert,DisplayEmpty,FieldSwitch,RendererButton,RendererForm,SparkPageRenderer,PAGE_RUNTIME,useSparkComponent } from '@spark-appworks/spark-component'
 import { PageRuntime, PageTool, ScenarioDefinitionDocument, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '@spark-appworks/spark-component/runtime'
-import { loadScenarioDataSet } from '@/lowcode/data-space/lowcode-data-space-runtime'
+import { assembleLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import type { DevState } from './useDevState'
 
@@ -258,9 +258,7 @@ async function refresh():Promise<void> {
       const document=await ScenarioDefinitionDocument.open(definitions,scenarioId)
       let config:ScenarioViewConfig
       try {assertScope();config=new ScenarioViewConfig(scenarioId,document.getText())} finally {document.dispose()}
-      const result=await loadScenarioDataSet({scenarioId,config,assertCurrent:assertScope})
-      try {assertScope();return result.dataSet}
-      catch(error){result.dataSet.destroy();throw error}
+      return assembleLowcodeRuntimeScenario({projectId,scenarioId,config,assertCurrent:assertScope,getPage:()=>runtime})
     }})
     await runtime.load()
     assertTargetCurrent(target,current)

@@ -8232,3 +8232,5 @@ AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor
 **AH最终检查点验收。**完整根verify72004自然exit0，类型/lint、ClassModel49项及正式规则全执行，保既有2模型警告/84薄页诊断，不冒整仓测试全绿。最终data1292/API1474；扩大消费者30文件610项+注册重验26项覆盖原31文件613项，另正式command装配2项；data/API包type+lint和实际build、编译导出检查、正式ClassModel/lowcode生成均自然0。高阶末态无剩余静态阻断。清理10份被末态替代的AH中间日志，另清首失败verify日志，保最终与消费者失败/重验配对证据；必要正式反例测试保留。唯一主worktree，无新增过程代码/总计划，原S2未跟踪RED不stage。准备只推origin同codex分支，不force/merge/部署，无新实服写入、Java/组件/页面/宿主实施。
 
 恢复仍S1：显式运行资源分类局部已收口，不再恢复旧File helper；正式ProjectToolCatalog持久投影的真实owner/合同转换及远端历史一次性转换仍需独立证据与阶段边界评审，不能只改JSON标签或接旧fileExecutor兼容。数据合同尚未整体冻结，原20包完整范围保留，不进入S2。
+
+**AH已提交推送并独立核实。**代码56e8d9b2cad315d6a330fecad49a58de8bfe8910（fix(data): require explicit semantic resource identities），43文件435增306删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留；唯一主worktree。此事实补记docs跟随同步。恢复按上一最终检查点仍S1，不恢复旧helper/伪file、不开兼容，不把本批离线通过当正式持久转换/实服证明，不进入组件阶段。

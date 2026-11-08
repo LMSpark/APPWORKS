@@ -170,4 +170,19 @@ describe('query binding preflight', () => {
       expect(() => view.bindQueryExecutor(executor, {resource: {resourceType: 'service-query', resourceId: 'result'}})).not.toThrow()
     } finally {dataSet.destroy()}
   })
+  it('pairs the input guard and loader with the same isolated query parameter snapshot', async () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
+    try {
+      const view = ensureDataSetResourceView({dataSet, tableName: 'result', resource: {resourceType: 'service-query', resourceId: 'result'}, columns: [{name: 'id', primary: true}]})
+      const capture = vi.fn((_view: typeof view, _params: Readonly<import('../../../types').QueryParams>) => () => {})
+      const load = vi.fn(async (_view: typeof view, _params: Readonly<import('../../../types').QueryParams>) => [{id: 'A'}])
+      prepareDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'service-query', resourceId: 'result'}, guard: () => {}, captureQueryInputs: capture, loadRows: load}).bind()
+      const context = {term: 'A'}
+      await view.loadFromServer({context})
+      const captured = capture.mock.calls[0]?.[1], loaded = load.mock.calls[0]?.[1]
+      expect(captured).toBeDefined(); expect(loaded).toBe(captured); expect(captured?.context).not.toBe(context)
+      context.term = 'B'; expect(captured?.context?.['term']).toBe('A')
+    } finally {dataSet.destroy()}
+  })
+
 })

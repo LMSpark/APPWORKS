@@ -1,12 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AM** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AN** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AM当前恢复点：** S1文件SDK整批列表校验、精确身份及上传/删除确认本批已验，未保旧宽松解码。最终检查点与下一目录DataView断点见末尾；S1未冻结、未进S2。原20包、已登记S4消费断点仍保留，不重跑AK已消费写意图。
+> **AN当前恢复点：** S1目录DataView已改用公共只读工厂，正式来源列/当次投影/固定上下文/原请求scope与派生生命周期本批已验；末尾记录最终提交点。下一S1核可写文件owner的同目标重绑和在途捕获，不将目录批覆盖整条可写链。S1未冻结、未进S2；原20包和S4消费断点保留。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8328,3 +8328,25 @@ S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端�
 当前仅准备提交origin同codex分支，未force/merge/部署。下一批仍按AM开放目录DataView schema与公共只读工厂/捕获scope/option-context反例推进；S1未冻结，禁止跳S2，远端历史转换与整体20包验收未完成。
 
 **AM已提交推送并独立核实。**代码12a426659d4a309243af0e7120ac61b4dabba351（fix(spark-data): verify exact file identities and directory results），28文件471增138删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确一致。跟踪树清洁，仅原S2未跟踪RED；唯一主worktree。此补记docs跟随同步。恢复S1目录DataView既定反例，不恢复normalizeFileEntry丢条目、trim目标或仅basename/无ACK确认；不把只读清理核验当新CRUD，不声称S1冻结或整体完成。
+
+**AN目录DataView集中批（S1进行中，未冻结）。**基线ab2ba0b04已推。先按真实createQueryView(string)/refresh void合同修正测试用法，再跑13项得12失败1过：缺fileName/计算或错类型来源列仍绑定、坏名单被过滤分页隐藏、options覆盖固定目录上下文仍list、重绑B让A旧请求借新scope、原视图释放派生断链。实现将bindFileDirectoryQueryAdapter移入数据层file-resource-directory单一责任模块，原位置正式re-export不加包装/兼容；删旧手工executor/LocalQuery/权限算法，复用prepareDataSetReadonlyCommandQuery。公共captureQueryInputs(view,params)现收到与loadRows同一隔离参数快照，单一新合同，不保旧重载。WeakMap按本次params关联捕获的原options+独立target副本，只是查询捕获，不是第二份编辑或目录真源。
+
+纯公共guard只核原DataSet/DataTable；实际target注册、唯一原始字符串有效PK/fileName、file语义身份及当次scope在派发/结果/上下文消费核验。固定首绑queryContext已有键不可由options/query参数改写，新无关过滤context允许。同目标rebind核首次prepared可绑定性，不重造executor；A已派发仍由A守卫，B后续可查。每批完整names在过滤分页前拒非法/重复/稀疏，不把坏条目丢成空目录；PK=fileName合法。初始两文件66项到边界71项过；加公共capture/load快照同引用回归，数据包首58文件1346项过。types首仅新增spy误推零参数tuple，按实际target参数补声明后过；一次isComputed真值lint已改显式true。没有缩包含/as-any或改页面。
+
+高阶首审两条反例均实证RED（21项3失败18过）：持久fieldProjection只输出键会被current.columns误当缺来源，目标回调最后窗口改坏schema仍list。已改从table正式来源列核、受影响投影须同名原resource/string，合法排除fileName交公共输出/字段权限；target回调后再做纯schema/注册/context复核，改坏即零list。修后两个断言仍把原生_pk视作错误额外列，已改只核预期键与fileName未泄漏，不改原生_pk。目录/文件/公共preflight三文件最终重验进行中。首次根数据消费者30文件937项过仅当时快照，待最终扩大/生成/工程门禁与高阶再审，不冒完整数据合同冻结。
+
+**AN仍开放的消费者边界。**src/services/project/page-tool-file-operations.ts:27领域整目录清理消费view.rows，可能受既存过滤分页影响，留S4领域流程核全来源；本批不顺手改业务编排或把当前显示集冒后端全目录。只读动作由旧disabled改公共hidden，明确合同变化不保旧呈现。未实服写入/Java/组件/宿主/业务页实施；AK旧写意图不重跑。20包范围、远端历史未转换/服务缺证/权限暂缓及既有S4断点全部保留。
+
+**AN末态投影、实入口与目录门禁修正。**高阶后审当次loadFromServer(projection)可绕持久映射校验，1项真实RED后以同一assertProjection用于params.projection，先捕获options再纯投影校验，再执行目标回调。三个数据源测试文件96项自然0；22项目录反例含真实持久只键/显式排除fileName、实际当次secret→fileName零list拒、目标回调坏schema零list、Aguard同步重绑B仍用Atransport、目标副本、晚scope/晚schema/同名peer替换，以及原释放后peer可读。高阶限当前断点复核已收住，不替代最终门禁。
+
+数据包最终58文件1351项、API44文件1515项、项目模型5文件276项，以及末态首32文件973消费者均自然0；API/项目包随后未改其所消费公共数据源，不冒新实服。新增真实createPageFileDirectoryView消费者测试直接读取仓内pagedata中ProjectToolFile声明，返回31项、同一view复挂无额外查询、text隐藏/只读动作hidden、options.customPath越目标和scope失效均零IO；2项自然0。没有mock公共查询结果或改宿主/业务实现，仅mock数据适配最末IO。
+
+首root verify39794自然1仅新增目录文件数11/10两项（query、tests/auth-nav/data-space）；按精确原路径校验后把新数据模块移到query/file-resource/directory.ts，把新测试移到data-space/resources，不移动业务Vue或原导航路径。目录门禁已单独0，正式生成重新执行；三文件96项与数据包type/lint/build移动后重验自然0。最后消费者（含实入口新增）及ClassModel仍在原handle等待，不重启超时观察。本批无服务写入/历史数据转换/权限扩展，S1未冻结。
+
+**AN之后的S1核查线索（未当已修事实）：**可写file-resource-adapter仍以currentOptions共享读取transport/guard，executeQuery:327–331及preview/save相关await后会再读当前options，update:483可换同目标回调；须在下一独立S1批给同目标重绑A/B的查询/保存/未知结果核验做实证，不能以目录批已修覆盖可写文件owner。已确认领域整目录清理view.rows范围问题继续按S4消费断点，不在下一数据批偷改页面。远端历史未转换、服务限制/缺证、权限暂缓及原20包完整范围均保留。
+
+**AN最终检查点验收。**移动后正式ClassModel8329自然0，旧临时file-resource-directory路径派生已由生成器清除，正式入口query/file-resource/directory.ts；lowcode611/221自然0，无新后端协议。最终root verify13509自然exit0，含根type/lint、ClassModel49项与正式规则，保既有2模型warnings/84薄页诊断，不冒全业务测试全绿。数据包1351、API1515、项目模型276、三文件96、移动后包type/lint/build及实际编译包目录烟测（旧scope拒/后scope正常/options越目标零IO/原释放peer读取/filename作PK）均有效；后两包本批源未改，最后目录投影及移动范围由其自身/根实入口测试验证。
+
+最后扩大33文件974过1失败仅metadata-chain的标准控件视图测试15000ms超时，未改阈值；同条单独3.83s自然0，25跳过只说明定向；随后原33文件以maxWorkers=2有界重跑16999自然exit0，**975/975通过**。不是将超时抹成一直绿，不冒前次973覆盖实入口新2项。所有原handle终态，无服务写入/Java/组件/宿主/页面实现。精确校验路径后清理25份AN中间日志，保真实RED/超时/目录门禁失败与最终证据，无过程脚本/多余工作树/并行计划/兼容层，原S2未跟踪测试不stage。
+
+当前准备只推origin同codex分支，不force/merge/部署。下一S1仍按上节可写file owner currentOptions跨await重绑线索先反例，不自动进入组件合同；整体S1冻结、远端历史一次转换、20包整体验收均未完成。

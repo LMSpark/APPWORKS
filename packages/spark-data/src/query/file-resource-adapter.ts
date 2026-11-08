@@ -57,7 +57,6 @@ type HistoryAttempt=Readonly<{target:FileResourceTarget;attempt:FileResourceHist
 type SharedFileResourceState=Readonly<{pending:Map<string,PendingResourceChange>;owners:Map<string,Readonly<{view:DataView;context:SaveCommand['changes'][number]['context']}>>;historyAttempts:Map<string,HistoryAttempt>;saving:Set<string>}>
 const sharedStates=new WeakMap<object,Map<string,SharedFileResourceState>>()
 const fileResourceBindings=new WeakMap<DataView,FileResourceEngine>()
-const fileDirectoryBindings=new WeakMap<DataView,(options:BindFileDirectoryQueryAdapterOptions)=>void>()
 
 /**
  * Get a named file-resource view from its DataSet, creating its table and binding once.
@@ -502,47 +501,4 @@ export function bindFileResourceAdapter(view:DataView,options:BindFileResourceAd
   fileResourceBindings.set(view,engine)
 }
 
-/** Binds a complete, read-only file directory listing to one DataView query. */
-export function bindFileDirectoryQueryAdapter(view:DataView,options:BindFileDirectoryQueryAdapterOptions):void{
-  const existing=fileDirectoryBindings.get(view)
-  if(existing){existing(options);return}
-  let currentOptions=options
-  const targetIdentity=(target:FileResourceTarget)=>JSON.stringify([target.key,target.fields])
-  const boundTargetIdentity=targetIdentity(currentOptions.target(view))
-  const assertCurrent=()=>{
-    if(view.destroyed||view.dataTable?.getView(view.viewId)!==view)throw new Error('FILE_DIRECTORY_VIEW_STALE: DataView已释放或解绑')
-    if(targetIdentity(currentOptions.target(view))!==boundTargetIdentity)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图目标不可改绑')
-    currentOptions.assertCurrent?.()
-  }
-  const executor:Executor={localAggregates:false,executeQuery:async(current,params)=>{
-    assertCurrent()
-    if(current!==view)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录查询视图不匹配')
-    const target=currentOptions.target(current)
-    if(targetIdentity(target)!==boundTargetIdentity)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图目标不可改绑')
-    const primaryKey=current.primaryKey,fields=new Set([primaryKey,'fileName'])
-    const captured=DataViewLocalQuery.captureParams({fields,primaryKeys:[primaryKey],params})
-    const names=await currentOptions.list(target)
-    assertCurrent()
-    if(current.primaryKey!==primaryKey)throw new Error('FILE_DIRECTORY_QUERY_IDENTITY: 本次目录查询主键已变化')
-    const rows=names.map(fileName=>({[primaryKey]:fileName,fileName}))
-    const selected=DataViewLocalQuery.select({rows,fields,primaryKeys:[primaryKey],params:captured})
-    const keys=new Set(selected.rows.map(row=>String(row[primaryKey])))
-    const visible=(key:unknown,field:string)=>keys.has(String(key))&&selected.output.has(field)
-    return {rows:selected.rows,total:selected.total,rowKey:(row:Readonly<DataRow>)=>row[primaryKey],
-      assertIdentity:identity=>{assertCurrent();if(current.primaryKey!==primaryKey)throw new Error('FILE_DIRECTORY_QUERY_IDENTITY: 本次目录查询主键已变化');if(identity.scenarioId!==current.dataSet?.scenarioId||identity.metaName!==current.tableName
-        ||identity.resource?.resourceType!=='file'||identity.resource.resourceId!==currentOptions.resourceId){
-        throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录资源身份不匹配')}} ,
-      fieldAccess:(key,field)=>{const allowed=visible(key,field);return {read:allowed?'visible' as const:'invisible' as const,write:'denied' as const,
-        component:allowed?'readonly' as const:'hidden' as const,required:false,writeMode:'readonly' as const}},
-      readFieldAccess:(_row,field)=>selected.output.has(field)?'visible' as const:'invisible' as const,
-      addActionState:()=> 'disabled' as const,editActionState:()=> 'disabled' as const,deleteActionState:()=> 'disabled' as const,
-      createChildActionState:()=> 'disabled' as const,viewActionState:key=>keys.has(String(key))?'enabled' as const:'hidden' as const}
-  }}
-  view.bindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:currentOptions.resourceId}})
-  view.queryConfig={...view.queryConfig,pagination:view.queryConfig.pagination??'none'}
-  fileDirectoryBindings.set(view,next=>{
-    if(next.resourceId!==currentOptions.resourceId)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图已绑定另一资源')
-    if(targetIdentity(next.target(view))!==boundTargetIdentity)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图目标不可改绑')
-    currentOptions=next
-  })
-}
+export {bindFileDirectoryQueryAdapter} from './file-resource/directory'

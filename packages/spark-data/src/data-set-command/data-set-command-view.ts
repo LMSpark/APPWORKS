@@ -29,8 +29,8 @@ export type BindReadonlyCommandQueryOptions = Readonly<{
   derivedQueries?: 'bound-view-only'
   resource: DataSetCommandResourceIdentity
   guard: DataSetCommandScopeGuard
-  /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */
-  captureQueryInputs?: (view: DataView) => DataSetCommandScopeGuard
+  /** 每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。 */
+  captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard
   loadRows: DataSetCommandRowsLoader
   queryColumns?: (view: DataView) => readonly DataColumn[]
 }>
@@ -360,7 +360,7 @@ export function prepareDataSetReadonlyCommandQuery(view: DataView, options: Bind
       const fields = readonlyQueryFields(queryColumns(target)), primaryKey = target.primaryKey
       if (primaryKey && !fields.has(primaryKey)) throw new Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
       const captured = DataViewLocalQuery.captureParams({fields, primaryKeys: primaryKey ? [primaryKey] : [], params})
-      const assertInputs = options.captureQueryInputs?.(target)
+      const assertInputs = options.captureQueryInputs?.(target, captured)
       const assertCurrent = () => {
         options.guard(); assertInputs?.()
         if (target.primaryKey !== primaryKey) throw new Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')

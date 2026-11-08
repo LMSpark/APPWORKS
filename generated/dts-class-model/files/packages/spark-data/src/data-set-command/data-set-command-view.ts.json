@@ -244,7 +244,7 @@
                   "type": "object",
                   "title": "(index: number) => string | undefined"
                 },
-                "__@iterator@253703": {
+                "__@iterator@253723": {
                   "type": "object",
                   "title": "() => StringIterator<string>"
                 }
@@ -299,7 +299,7 @@
                 "matchAll",
                 "replaceAll",
                 "at",
-                "__@iterator@253703"
+                "__@iterator@253723"
               ],
               "additionalProperties": false
             },
@@ -628,6 +628,9 @@
           "properties": {
             "view": {
               "$ref": "../data-view.ts.json#/$defs/DataView"
+            },
+            "params": {
+              "$ref": "../types.ts.json#/$defs/QueryParams"
             }
           },
           "additionalProperties": false
@@ -801,7 +804,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T01:42:27.073Z",
+  "generatedAt": "2026-11-08T03:25:06.134Z",
   "models": {
     "DataSetCommandColumnSpec": {
       "name": "DataSetCommandColumnSpec",
@@ -900,11 +903,11 @@
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */\n    captureQueryInputs?: (view: DataView) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。 */\n    captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */\n    captureQueryInputs?: (view: DataView) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
+            "typeText": "Readonly<{\n    /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */\n    derivedQueries?: 'bound-view-only';\n    resource: DataSetCommandResourceIdentity;\n    guard: DataSetCommandScopeGuard;\n    /** 每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。 */\n    captureQueryInputs?: (view: DataView, params: Readonly<QueryParams>) => DataSetCommandScopeGuard;\n    loadRows: DataSetCommandRowsLoader;\n    queryColumns?: (view: DataView) => readonly DataColumn[];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -935,7 +938,7 @@
           "methods": [
             {
               "name": "captureQueryInputs",
-              "jsdoc": "每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。",
+              "jsdoc": "每次实际查询派发时捕获输入，params与loadRows共享同一隔离快照；返回校验守护结果及后续上下文。准备/预检不调用。",
               "parameters": [
                 {
                   "name": "view",
@@ -943,6 +946,20 @@
                     "type": "reference",
                     "name": "DataView",
                     "sourcePath": "packages/spark-data/src/data-view.ts"
+                  }
+                },
+                {
+                  "name": "params",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "reference",
+                        "name": "QueryParams",
+                        "sourcePath": "packages/spark-data/src/types.ts"
+                      }
+                    ]
                   }
                 }
               ],

@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-08T01:42:27.073Z"
+      "sourceModifiedAt": "2026-11-08T03:25:06.134Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2749,7 +2749,12 @@
     "packages/spark-data/src/query/file-resource-adapter.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "shardFile": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
-      "sourceModifiedAt": "2026-11-08T01:58:29.782Z"
+      "sourceModifiedAt": "2026-11-08T03:35:47.577Z"
+    },
+    "packages/spark-data/src/query/file-resource/directory.ts": {
+      "sourceFile": "packages/spark-data/src/query/file-resource/directory.ts",
+      "shardFile": "files/packages/spark-data/src/query/file-resource/directory.ts.json",
+      "sourceModifiedAt": "2026-11-08T03:35:47.574Z"
     },
     "packages/spark-data/src/query/filter/data-view-filter-catalog.ts": {
       "sourceFile": "packages/spark-data/src/query/filter/data-view-filter-catalog.ts",

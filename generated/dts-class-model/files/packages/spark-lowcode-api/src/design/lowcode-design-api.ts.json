@@ -213,7 +213,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-05T01:12:14.766Z",
+  "generatedAt": "2026-11-08T03:11:26.025Z",
   "models": {
     "LowcodeDesignApiOptions": {
       "name": "LowcodeDesignApiOptions",
@@ -452,7 +452,7 @@
             },
             {
               "name": "listFiles",
-              "jsdoc": "列出目录下文件；非法条目静默过滤，仅返回 name 非空且结构合法的项。",
+              "jsdoc": "列出正式目录快照；整批校验名称、唯一性及安全整数时间，异常不伪装为空目录。",
               "parameters": [
                 {
                   "name": "directory",

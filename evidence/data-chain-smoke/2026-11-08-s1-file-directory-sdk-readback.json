@@ -1,0 +1,79 @@
+{
+  "batch": "AM",
+  "sourceBase": "7b73e63bc37a3fb2c17e6c0e6be6452ca954b25a",
+  "scope": "Current SDK strict directory decode; independent fresh-login read-only verification of the previously deleted AK isolated object.",
+  "rawVerification": {
+    "runId": "s1_file_20261108_ak_01_c8f491d2",
+    "mode": "verify",
+    "locator": {
+      "appType": "jsondatapath",
+      "customPath": "spark-data-smoke/s1_file_20261108_ak_01_c8f491d2",
+      "fileName": "payload.json"
+    },
+    "phase": "verified-clean",
+    "requests": {
+      "/api/DataOperation/GetBaseData": 1,
+      "/api/LoginAuthority/UserLoginByEnt": 1,
+      "/api/File/content/text": 1,
+      "/api/File/list": 1
+    },
+    "responses": [
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      }
+    ],
+    "mutations": [],
+    "checks": [
+      "fresh-login-exact-404-and-empty-directory"
+    ],
+    "credentialsPersisted": false,
+    "cleanupConfirmed": true,
+    "directoryRemovalSupported": false,
+    "lastDirectoryCount": 0,
+    "updatedAt": "2026-11-08T03:12:22.172Z"
+  },
+  "limitations": [
+    "Zero mutations; the consumed AK create/update/delete intent was not replayed.",
+    "File content endpoint returned typed business 404; list endpoint returned Code 200 with an empty array. The Java reference also returns [] when File.listFiles() is null, so this is not proof of physical directory emptiness.",
+    "Nonempty valid/malformed lists and ambiguous-path rejection were tested with the same SDK and HTTP fixtures, not by mutating formal service directories.",
+    "Java e1eccc1b56c225212481ba276302d5e6b288e883 is reference evidence, not proof of the deployed revision. Known visible dotted content paths and upload-rewritten identities are rejected before dispatch; this does not repair backend path resolution.",
+    "File-directory DataView schema/common readonly factory/captured scope and option-context issues remain open in S1; this SDK batch does not freeze the data contract.",
+    "No AppWorks built-in tool files, pagedata, server history, components, hosts or business pages were written.",
+    "The read-only observation preceded the final upload ACK path checks; the readText/list behavior used for that observation was unchanged. Final upload checks were verified offline and in the built SDK, without another service write."
+  ],
+  "sourceSha256AtReadOnlyObservation": {
+    "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": "436dbbabfcf2f45bca47fa9a71b38acb3209389c48a224f5c5420ef291037ccc",
+    "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": "181ae66d048587dcac75679c7b91a149a7dac3026523f176ae3ca2d2d0e00d79",
+    "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts": "bc32b24a582b024416ed605aa1ea8ffa97703db3aacb4ab2e7ed9c99559d70e2",
+    "artifacts/data-chain-smoke/s1-file-crud-run.mts": "1286026d5a8b4b2e1f209dcb0d8d0345323d319e47f1c95d08d8f115790b7170",
+    "artifacts/data-chain-smoke/s1-file-crud.mts": "0e9b844de4480b8197a3517b133c357a09d88d3fa21840538aec23d5fb0ee913"
+  },
+  "finalSourceSha256": {
+    "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": "436dbbabfcf2f45bca47fa9a71b38acb3209389c48a224f5c5420ef291037ccc",
+    "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": "987f2cf99197a4ef8f4765647dd27b6b252d2038dd3d7177e8dafccf3d46a137",
+    "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts": "cf45a2093029ccdf02331dacd08efbaac984434209449be64fafcd13e64599dc"
+  },
+  "offlineVerification": {
+    "sdkPackageTests": 1515,
+    "localSdkIdentityTests": 84,
+    "dataConsumers": 973,
+    "compiledSdkChecks": 3,
+    "sdkTypecheck": true,
+    "sdkLint": true,
+    "sdkBuild": true,
+    "formalClassModelGenerated": true,
+    "formalLowcodeContracts": {
+      "endpoints": 611,
+      "consumers": 221
+    }
+  }
+}

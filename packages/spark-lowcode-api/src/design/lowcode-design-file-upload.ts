@@ -8,6 +8,7 @@ import { isRequestError, type HttpClientBase, type RequestConfig } from '@spark-
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeDesignApi,type LowcodeFileLocator } from './lowcode-design-api.js'
+import { assertExactTextUpload, exactFileContentPath, exactFileName, matchesFileUploadPath } from './lowcode-file-identity.js'
 import type { DataSpaceRequestScope } from '../platform/data-space/runtime/data-space-runtime-contract.js'
 
 /** 上传和回读共用的 HTTP 与请求 scope 来源，身份变化不能确认旧写入。 */
@@ -137,8 +138,10 @@ export class LowcodeDesignFileUpload {
   ): Promise<LowcodeDesignFileUploadResult> {
     const scope = this.readScope()
     const appType = command.appType ?? 'designfile'
-    const customPath = appType === 'designfile' ? requiredText(command.customPath, 'customPath') : command.customPath.trim()
-    const fileName = requiredText(command.fileName, 'fileName')
+    const customPath = exactFileContentPath(command.customPath)
+    if (appType === 'designfile' && customPath.length === 0) throw new LowcodeApiError(0, 'customPath 不能为空')
+    const fileName = exactFileName(command.fileName)
+    assertExactTextUpload({customPath, fileName, appType})
     const bytes = new TextEncoder().encode(command.text)
     const data = new FormData()
     data.append('customPath', customPath)
@@ -154,13 +157,11 @@ export class LowcodeDesignFileUpload {
       throw new LowcodeApiError(0, '文件上传 Result 不是单文件信息数组')
     }
     const receipt = Object.freeze({ ...result[0] })
-    if (!replace) {
-      const actualPath = receipt['filePath']
-      // 后端重名另存时 fileName 仍是请求名，必须核对实际落盘路径。
-      if (receipt['state'] !== 'success' || typeof actualPath !== 'string'
-        || actualPath.split(/[/\\]/).at(-1) !== fileName) {
-        throw new LowcodeApiError(0, '快照文件名与预定版本不一致，不能确认版本')
-      }
+    const actualPath = receipt['filePath']
+    // 覆盖和快照都核对ACK实际落盘名称，旧目标字节相同不能替另一个落点确认成功。
+    if (receipt['state'] !== 'success' || typeof actualPath !== 'string'
+      || !matchesFileUploadPath(actualPath, {customPath, fileName, appType})) {
+      throw new LowcodeApiError(0, '文件名与预定目标不一致，不能确认文件')
     }
     const readback = await this.design.readFileBytes({ appType, customPath, fileName })
     this.assertScope(scope)

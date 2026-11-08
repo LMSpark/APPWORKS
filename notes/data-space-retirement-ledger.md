@@ -1,12 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AL** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AM** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AL当前恢复点：** S1的ProjectToolCatalog logical-view合同、公共只读工厂及仓内声明一次转换本批已验，旧file声明显式拒绝；提交与下一断点见末尾。只改数据责任层、测试、派生和本台账；模型改名与设计器按file消费的S4断点不做兼容。AK隔离文件已清理，禁止重跑已消费写意图。S1未冻结、未进S2，原20包范围保留。
+> **AM当前恢复点：** S1文件SDK整批列表校验、精确身份及上传/删除确认本批已验，未保旧宽松解码。最终检查点与下一目录DataView断点见末尾；S1未冻结、未进S2。原20包、已登记S4消费断点仍保留，不重跑AK已消费写意图。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8310,3 +8310,19 @@ project-model包typecheck首次5诊断：用同完整tsconfig/CompilerHost仅内
 S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端历史配置未扫描/未转换，旧file有明确诊断；S4改名工具:90与设计fileModels/selection/字段预览仍须消费新投影，不据根门禁称正式入口可用。下一S1按已证来源缺口核文件目录声明与列表完整性：bindFileDirectoryQueryAdapter会返回未声明fileName（AK已限证），LowcodeDesignApi.listFiles仍map/filter坏条目成空，须以真实反例查字段目录与清理证明，不先改S4整目录业务编排。历史转换与实服/缺证/暂缓保持各自登记，不将本批局部结果冒数据合同全部冻结。
 
 **AL已提交推送并独立核实。**代码bc552fa523f310099f3a91dc1318f04fb6e8c653（fix(data): bind declared tool catalogs as readonly projections），40文件662增530删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。官方backend-api-contracts消费派生仅既有工具测试sourceLine移位，不是后端协议/Java改动。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。此事实补记docs跟随同步。恢复仍S1，按上一最终检查点核目录字段声明与正式列表严格解码；不恢复ProjectToolCatalog.executeQuery/伪file或兼容映射、不重跑AK原写意图，S4断点与远端历史保开放，S1未整体冻结。
+
+**AM 文件目录SDK收口（S1，未冻结；接续AL断点）。**只改正式文件SDK及其测试/派生，不改目录DataView适配器、标准组件、宿主、业务页或Java。初始17条真实RED（两文件43已过/17失败）：listFiles的map/filter将坏条目丢弃，坏回列能误确认删除；身份trim、含点customPath派发前未拒。现整批for-of校验稀疏项/非法basename/精确重复/非安全整数时间，缺失/null时间仍null；正常文件名、目录原样保留，不做兼容解码。readText/DownFile/Remove及依赖回读的上传拒已证normalizePath会忽略filename的含点目录，list仍可列含点目录。此为明确服务限制，不声称修了后端，也不因Java参考推定当前部署版本。
+
+高阶首审三个真实反例均重现：删除await后locator可变导致回列另一目录、上传清洗前导点/控制符/超长名及unknown/空白目录段会改落点、缺失folderPath变根目录请求。已统一捕获删除身份，路径缺失零IO拒，上传前拒会被实际服务改写的输入；working与version同核ACK state/实际路径，不因旧目标字节一致确认另一落点。次审同名异目录ACK和Java/JS trim Unicode差异亦真实RED后修：核请求目录完整分段+basename，服务企业/发布商前缀不猜造；ASCII空格判定保U+3000正例。旧工作文件ACK测试补实际filePath，不保无实际落点的假成功合同。
+
+当前局部77项已过；最终SDK全包/类型/lint/build、官方生成及根门禁进行中，不能用首1491/1503中间快照替最后源验收。新登录原AK精确对象只读核验自然exit0，content/text业务404/http200，list业务200/http200并返回[]，零Upload/Remove；证据[AM SDK只读回读](../evidence/data-chain-smoke/2026-11-08-s1-file-directory-sdk-readback.json)。不重跑已消费AK写意图。补正AK限制：Java listFiles()==null也给[]，只证明服务未返回目标，不能称物理目录为空。原AK CRUD仍仅当时generic json资源证据。
+
+**下一S1责任层保持开放：**bindFileDirectoryQueryAdapter仍会返回未声明fileName，尚待原始字符串有效PK/fileName schema、坏整批名称、公共只读工厂替代重复查询/权限、请求捕获scope及选项context冲突反例。高阶已指出A目录options传B应零list拒、A请求挂起后同目标重绑B不能由B守卫重新授权A；后续按同S1单批修验，不维护错误合同、不跨层补页面。S1整体未冻结，20包范围、S4已登记消费断点、远端历史未转换/服务缺证/权限暂缓均保持；原S2未跟踪测试不动。
+
+**AM末态复审与扩大。**回执继续补根JSON多/少企业前缀、设计显式owner大小写/空owner/重复相同owner3组真实RED后修验；json只许一个非空企业段，design只许服务规定新增owner段或已显式原前缀，目录及basename逐段原样，不猜发布商名称。高阶末态限定范围已核上述反例收住。SDK两文件最终84项、全包44文件1515项、type/lint/build、实际编译包3项离线smoke均自然0。根受影响消费者首32文件3失败970过，三失败均实际HTTP夹具ACK无filePath/无正式owner前缀；只补SDK合同测试回执，不改runtime产品代码。单文件37项及最终完整32文件973项自然0。一次组合PowerShell检查错误将重定向写成命令，虽构建输出完成该shell exit1，未记整体绿；已拆分独立type/lint/build重跑自然0。一次prefer-template测试lint已纠正重验。
+
+最终正式ClassModel生成自然0；其他包派生变化仅编译器内部symbol编号，并非组件/业务源修改，不手改产物。lowcode生成611/221；消费者增量含SDK remove回列及新增身份测试来源，非新后端协议。第一次根verify2966源中途变化虽自然0只记中间通过；最终快照root verify82413在途，待自然终态再清理提交。AM实服仅只读核验，未写/转换任何远端配置或历史数据；S1目录DataView既定下一反例仍开放，不据本批冻结合同。
+
+**AM最终检查点。**最终root verify82413自然exit0，根type/lint、ClassModel49项与正式规则通过，保既有2模型warnings/84薄页诊断，不冒全部业务测试全绿。SDK1515、受影响消费者973、局部84、包type/lint/build、编译包3项smoke、最终官方ClassModel及lowcode611/221全部有效，所有原handle终态。高阶限SDK范围复核已提反例收住；服务仅新登录只读核验，零写入。精确核路径后清理26份AM中间日志，保失败反例/最终证据及既有AK有效脚本；无新过程脚本/多余工作树/并行计划/兼容层，原S2未跟踪RED不stage。
+
+当前仅准备提交origin同codex分支，未force/merge/部署。下一批仍按AM开放目录DataView schema与公共只读工厂/捕获scope/option-context反例推进；S1未冻结，禁止跳S2，远端历史转换与整体20包验收未完成。

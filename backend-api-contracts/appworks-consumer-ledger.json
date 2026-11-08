@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 218,
+  "consumerCount": 221,
   "directUnmatchedCount": 128,
   "consumers": [
     {
@@ -539,27 +539,45 @@
       "scope": "publishable-lowcode-api"
     },
     {
+      "expression": "/api/File/RemoveFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 218,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/list",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 218,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/File/RemoveFile",
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.test.ts",
+      "sourceLine": 240,
+      "scope": "publishable-lowcode-api"
+    },
+    {
       "expression": "/api/File/DownFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 101,
+      "sourceLine": 106,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/content/text",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 115,
+      "sourceLine": 120,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/list",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 131,
+      "sourceLine": 136,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/RemoveFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
-      "sourceLine": 177,
+      "sourceLine": 180,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -619,13 +637,13 @@
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 111,
+      "sourceLine": 112,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/File/UploadFile",
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
-      "sourceLine": 150,
+      "sourceLine": 153,
       "scope": "publishable-lowcode-api"
     },
     {

@@ -28,7 +28,7 @@ class FixtureHttpClient extends HttpClientBase {
 
 describe('LowcodeDesignFileUpload', () => {
   it.each(['', '\uFEFF你好\r\n'])('uploads and confirms exact version bytes %j without replacing snapshots', async text => {
-    const receipt = { fileName: '2__script.js', filePath: '/APP-A/orders/2__script.js', state: 'success' }
+    const receipt = { fileName: '2__script.js', filePath: '/DesignFilePaths_publisher/APP-A/orders/2__script.js', state: 'success' }
     const http = new FixtureHttpClient({ Code: 200, Result: [receipt] }, text)
     const upload = new LowcodeDesignFileUpload({ http, readScope: fixtureScope })
 
@@ -59,7 +59,7 @@ describe('LowcodeDesignFileUpload', () => {
   })
 
   it('uploads JSON resource text in its real root namespace and reads bytes from the same area', async () => {
-    const text='{"flag":false,"items":[]}',http=new FixtureHttpClient({Code:200,Result:[{fileName:'data.json',state:'success'}]},text)
+    const text='{"flag":false,"items":[]}',http=new FixtureHttpClient({Code:200,Result:[{fileName:'data.json',state:'success',filePath:'/tenant/data.json'}]},text)
     const upload=new LowcodeDesignFileUpload({http,readScope:fixtureScope})
     await upload.uploadWorkingText({appType:'jsondatapath',customPath:'',fileName:'data.json',text})
     const form=http.requests[0]?.data
@@ -70,16 +70,16 @@ describe('LowcodeDesignFileUpload', () => {
 
   it('rejects a renamed version using the actual filePath, even when fileName is unchanged', async () => {
     const http = new FixtureHttpClient({ Code: 200, Result: [{ fileName: '2__script.js',
-      filePath: '/APP-A/orders/2__script_renamed.js', state: 'success' }] }, 'A')
+      filePath: '/DesignFilePaths_publisher/APP-A/orders/2__script_renamed.js', state: 'success' }] }, 'A')
     await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadTextVersion({
       customPath: 'APP-A/orders', fileName: '2__script.js', text: 'A',
-    })).rejects.toThrow('快照文件名')
+    })).rejects.toThrow('文件名')
     expect(http.requests).toHaveLength(1)
   })
 
   it('rejects a changed snapshot readback before confirming its version', async () => {
     const http = new FixtureHttpClient({ Code: 200, Result: [{ fileName: '2__script.js',
-      filePath: '/APP-A/orders/2__script.js', state: 'success' }] }, 'changed')
+      filePath: '/DesignFilePaths_publisher/APP-A/orders/2__script.js', state: 'success' }] }, 'changed')
     await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadTextVersion({
       customPath: 'APP-A/orders', fileName: '2__script.js', text: 'A',
     })).rejects.toThrow('写入后回读不一致')
@@ -87,7 +87,7 @@ describe('LowcodeDesignFileUpload', () => {
   })
 
   it.each(['', '\uFEFF你好\r\n第二行\n'])('uploads and reads back exact working text %j', async text => {
-    const result = { fileName: 'script.js', state: 'success', filePath: '/homepage/orders/script.js', fileSize: new TextEncoder().encode(text).length }
+    const result = { fileName: 'script.js', state: 'success', filePath: '/DesignFilePaths_publisher/homepage/orders/script.js', fileSize: new TextEncoder().encode(text).length }
     const http = new FixtureHttpClient({ Code: 200, Result: [result] }, text)
     const upload = new LowcodeDesignFileUpload({ http, readScope: fixtureScope })
     await expect(upload.uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text })).resolves.toEqual(result)
@@ -113,14 +113,14 @@ describe('LowcodeDesignFileUpload', () => {
   })
 
   it('rejects a changed readback without uploading again', async () => {
-    const http = new FixtureHttpClient({ Code: 200, Result: [{ fileName: 'script.js', state: 'success' }] }, 'other')
+    const http = new FixtureHttpClient({ Code: 200, Result: [{ fileName: 'script.js', state: 'success', filePath: '/DesignFilePaths_publisher/homepage/orders/script.js' }] }, 'other')
     const upload = new LowcodeDesignFileUpload({ http, readScope: fixtureScope })
     await expect(upload.uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text: 'source' })).rejects.toThrow('写入后回读不一致')
     expect(http.requests.filter(config => config.url === '/api/File/UploadFile')).toHaveLength(1)
   })
 
   it('rejects changed bytes even when the download length is unchanged', async () => {
-    const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success' }] }, new Uint8Array([97, 98, 255]).buffer)
+    const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success', filePath: '/DesignFilePaths_publisher/homepage/orders/script.js' }] }, new Uint8Array([97, 98, 255]).buffer)
     await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText({ customPath: 'homepage/orders', fileName: 'script.js', text: 'abc' })).rejects.toThrow('写入后回读不一致')
     expect(http.requests).toHaveLength(2)
   })
@@ -142,12 +142,12 @@ describe('LowcodeDesignFileUpload', () => {
 
   it('uses the shared request interceptors and captures text before writing', async () => {
     const command = { customPath: 'homepage/orders', fileName: 'script.js', text: 'source' }
-    const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success' }] }, 'source')
+    const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success', filePath: '/DesignFilePaths_publisher/homepage/orders/script.js' }] }, 'source')
     http.interceptors.request.use({ onRequest: config => {
       command.text = 'later edit'
       return { ...config, headers: { ...config.headers, Authorization: 'Bearer fixture' } }
     } })
-    await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText(command)).resolves.toEqual({ state: 'success' })
+    await expect(new LowcodeDesignFileUpload({ http, readScope: fixtureScope }).uploadWorkingText(command)).resolves.toEqual({ state: 'success', filePath: '/DesignFilePaths_publisher/homepage/orders/script.js' })
     expect(http.requests[0]?.headers?.['Authorization']).toBe('Bearer fixture')
     expect(http.requests[1]?.headers?.['X-AppId']).toBe('APP-A')
   })
@@ -157,7 +157,7 @@ describe('LowcodeDesignFileUpload', () => {
     { kind: 'version', stage: 'write' }, { kind: 'version', stage: 'readback' },
   ])('does not confirm or retry a $kind when identity changes during $stage', async ({ kind, stage }) => {
     let token = 'scope-A'
-    const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success', filePath: '/APP-A/SysForm/scene/1__pagedata.json' }] }, 'source')
+    const http = new FixtureHttpClient({ Code: 200, Result: [{ state: 'success', filePath: '/DesignFilePaths_publisher/APP-A/SysForm/scene/1__pagedata.json' }] }, 'source')
     http.interceptors.request.use({ onRequest: config => {
       if (config.url === (stage === 'write' ? '/api/File/UploadFile' : '/api/File/DownFile')) token = 'scope-B'
       return config
@@ -185,4 +185,79 @@ describe('LowcodeDesignFileUpload', () => {
       text: '[]',
     })).rejects.toThrow('文件上传 Result 不是单文件信息数组')
   })
+  it('rejects ambiguous content paths before upload instead of discovering the mismatch after writing', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: []})
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({appType: 'jsondatapath', customPath: 'owned.v1', fileName: 'payload.json', text: ''})).rejects.toThrow('customPath')
+    expect(http.requests).toEqual([])
+  })
+
+  it('uses the same exact path and basename for upload and byte confirmation', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath: '/tenant/ owned / payload.json'}]}, 'body')
+    await new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({appType: 'jsondatapath', customPath: ' owned ', fileName: ' payload.json', text: 'body'})
+    const data = http.requests[0]?.data as FormData
+    expect(data.get('customPath')).toBe(' owned ')
+    expect(data.get('newName')).toBe(' payload.json')
+    expect(http.requests[1]?.data).toMatchObject({customPath: ' owned ', fileName: ' payload.json'})
+  })
+
+  it.each([
+    {customPath: 'owned', fileName: '.payload.json'},
+    {customPath: 'owned', fileName: 'a\u0001.json'},
+    {customPath: 'owned', fileName: `${'x'.repeat(256)}.json`},
+    {customPath: 'owned/unknown', fileName: 'payload.json'},
+    {customPath: 'owned/ ', fileName: 'payload.json'},
+    {customPath: 'owned/xx\u007f', fileName: 'payload.json'},
+    {customPath: 'owned', fileName: 'payload.json '},
+  ])('rejects service-rewritten upload identities before IO: $customPath $fileName', async locator => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success'}]}, 'body')
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({...locator, appType: 'jsondatapath', text: 'body'})).rejects.toThrow()
+    expect(http.requests).toEqual([])
+  })
+
+  it.each([{state: 'failed', filePath: '/owned/payload.json'}, {state: 'success', filePath: '/owned/other.json'}])('rejects working-file ACK mismatch even when the old target bytes match', async receipt => {
+    const http = new FixtureHttpClient({Code: 200, Result: [receipt]}, 'body')
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({appType: 'jsondatapath', customPath: 'owned', fileName: 'payload.json', text: 'body'})).rejects.toThrow('文件名')
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it.each(['/tenant/other/payload.json', '/tenant/notowned/payload.json', '/tenant/owned/../payload.json', 'payload.json'])('rejects a same-name ACK from another directory: %s', async filePath => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath}]}, 'body')
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({appType: 'jsondatapath', customPath: 'owned', fileName: 'payload.json', text: 'body'})).rejects.toThrow('文件名')
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it('preserves Unicode-only directory and basename accepted by the formal Java sanitizer', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath: '/DesignFilePaths_publisher/　/　'}]}, 'body')
+    await new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({customPath: '　', fileName: '　', text: 'body'})
+    expect(http.requests[1]?.data).toMatchObject({customPath: '　', fileName: '　'})
+  })
+
+  it.each([
+    {customPath: '', filePath: '/tenant/other/payload.json'},
+    {customPath: '', filePath: '/payload.json'},
+    {customPath: 'owned', filePath: '/tenant/other/owned/payload.json'},
+  ])('rejects extra/missing namespace segments: $customPath $filePath', async ({customPath, filePath}) => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath}]}, 'body')
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({appType: 'jsondatapath', customPath, fileName: 'payload.json', text: 'body'})).rejects.toThrow('文件名')
+    expect(http.requests).toHaveLength(1)
+  })
+
+  it('accepts the already explicit design owner prefix without adding a second prefix', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath: '/DesignFilePaths_publisher/owned/script.js'}]}, 'body')
+    await new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({customPath: 'DesignFilePaths_publisher/owned', fileName: 'script.js', text: 'body'})
+    expect(http.requests).toHaveLength(2)
+  })
+
+  it.each(['/DesignFilePaths_/owned/script.js', '/DesignFilePaths_publisher/DesignFilePaths_publisher/owned/script.js'])('rejects an empty or duplicated owner: %s', async filePath => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath}]}, 'body')
+    const customPath = filePath.includes('/DesignFilePaths_/') ? 'owned' : 'DesignFilePaths_publisher/owned'
+    await expect(new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({customPath, fileName: 'script.js', text: 'body'})).rejects.toThrow('文件名')
+  })
+
+  it('preserves an explicitly supplied design owner prefix in its original case', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{state: 'success', filePath: '/designfilepaths_publisher/owned/script.js'}]}, 'body')
+    await new LowcodeDesignFileUpload({http, readScope: fixtureScope}).uploadWorkingText({customPath: 'designfilepaths_publisher/owned', fileName: 'script.js', text: 'body'})
+    expect(http.requests).toHaveLength(2)
+  })
+
 })

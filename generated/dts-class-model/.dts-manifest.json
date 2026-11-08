@@ -3059,12 +3059,17 @@
     "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json",
-      "sourceModifiedAt": "2026-11-05T01:12:14.766Z"
+      "sourceModifiedAt": "2026-11-08T03:11:26.025Z"
     },
     "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts.json",
-      "sourceModifiedAt": "2026-11-07T14:35:21.548Z"
+      "sourceModifiedAt": "2026-11-08T03:16:04.979Z"
+    },
+    "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts": {
+      "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts",
+      "shardFile": "files/packages/spark-lowcode-api/src/design/lowcode-file-identity.ts.json",
+      "sourceModifiedAt": "2026-11-08T03:18:04.418Z"
     },
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",

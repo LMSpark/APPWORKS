@@ -8,6 +8,7 @@ import { isRequestError, type HttpClientBase } from '@spark-appworks/spark-utils
 
 import { LowcodeApiError } from '../core/lowcode-api-error.js'
 import { LowcodeClient } from '../core/lowcode-client.js'
+import { exactFileContentPath, exactFileDirectoryPath, exactFileName } from './lowcode-file-identity.js'
 import type { DataSpaceRequestScope } from '../platform/data-space/runtime/data-space-runtime-contract.js'
 
 /** 实际 HTTP 通道与请求身份读取器；token 变化使迟到响应失效。 */
@@ -56,8 +57,8 @@ function deletionUnconfirmed(error: unknown): Error {
 
 function fileInfo(locator: LowcodeFileLocator): Readonly<Record<string, unknown>> {
   return {
-    customPath: locator.customPath.trim(),
-    fileName: requiredText(locator.fileName, 'fileName'),
+    customPath: exactFileContentPath(locator.customPath),
+    fileName: exactFileName(locator.fileName),
     appType: requiredText(locator.appType, 'appType'),
     isCrossEnt: locator.isCrossEnterprise ?? false,
     isReplace: true,
@@ -70,15 +71,19 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
 }
 
-function normalizeFileEntry(value: unknown): LowcodeFileEntry | null {
-  if (!isRecord(value) || typeof value['name'] !== 'string' || value['name'].trim() === '') return null
-  const rawLastModified = value['lastModified']
-  return {
-    name: value['name'],
-    lastModified: typeof rawLastModified === 'number' && Number.isFinite(rawLastModified)
-      ? rawLastModified
-      : null,
+function decodeFileEntries(values: readonly unknown[]): readonly LowcodeFileEntry[] {
+  const names = new Set<string>(), entries: LowcodeFileEntry[] = []
+  for (const value of values) {
+    if (!isRecord(value)) throw new LowcodeApiError(0, '文件列表条目不是对象')
+    const name = exactFileName(value['name']), lastModified = value['lastModified']
+    if (names.has(name)) throw new LowcodeApiError(0, `文件列表名称重复：${name}`)
+    if (lastModified !== undefined && lastModified !== null && (typeof lastModified !== 'number' || !Number.isSafeInteger(lastModified))) {
+      throw new LowcodeApiError(0, `文件列表修改时间不是安全整数：${name}`)
+    }
+    names.add(name)
+    entries.push({name, lastModified: lastModified ?? null})
   }
+  return entries
 }
 
 /** 设计文件读取和删除 owner；保留原字节，版本列表严格匹配同文件规范名并拒绝重复编号。 */
@@ -124,7 +129,7 @@ export class LowcodeDesignApi {
     return result
   }
 
-  /** 列出目录下文件；非法条目静默过滤，仅返回 name 非空且结构合法的项。 */
+  /** 列出正式目录快照；整批校验名称、唯一性及安全整数时间，异常不伪装为空目录。 */
   public async listFiles(directory: LowcodeFileDirectory): Promise<readonly LowcodeFileEntry[]> {
     const scope = this.readScope()
     const result = await this.client.requestResult({
@@ -132,15 +137,13 @@ export class LowcodeDesignApi {
       method: 'POST',
       headers: scope.headers,
       data: {
-        folderPath: directory.folderPath.trim(),
+        folderPath: exactFileDirectoryPath(directory.folderPath),
         appType: requiredText(directory.appType, 'appType'),
       },
     })
     this.assertScope(scope)
     if (!Array.isArray(result)) throw new LowcodeApiError(0, '文件列表 Result 不是数组')
-    return result
-      .map(normalizeFileEntry)
-      .filter((entry): entry is LowcodeFileEntry => entry !== null)
+    return decodeFileEntries(result)
   }
 
   private assertScope(scope: DataSpaceRequestScope): void {
@@ -151,7 +154,7 @@ export class LowcodeDesignApi {
 
   /** 仅返回目录实际存在的规范编号快照；裸工作文件不代表任何版本。 */
   public async listFileVersions(locator: LowcodeFileLocator): Promise<readonly LowcodeFileVersionSummary[]> {
-    const fileName = requiredText(locator.fileName, 'fileName')
+    const fileName = exactFileName(locator.fileName)
     const entries = await this.listFiles({ appType: locator.appType, folderPath: locator.customPath })
     const versions: LowcodeFileVersionSummary[] = []
     for (const entry of entries) {
@@ -170,12 +173,12 @@ export class LowcodeDesignApi {
   /** 正式后端删除端点以请求参数定位；不重试，成功后回列确认文件消失，后续核验失败携带既有fileResourceMutationMayHaveApplied标记，交原文件链只读核验。 */
   public async removeFile(locator: LowcodeFileLocator): Promise<void> {
     const scope = this.readScope()
-    const fileName = requiredText(locator.fileName, 'fileName')
+    const fileName = exactFileName(locator.fileName), customPath = exactFileContentPath(locator.customPath), appType = requiredText(locator.appType, 'appType')
     let response: unknown
     try {
       response = await this.http.request<unknown>({
         url: '/api/File/RemoveFile', method: 'POST',
-        params: { customPath: locator.customPath.trim(), fileName, appType: requiredText(locator.appType, 'appType') },
+        params: { customPath, fileName, appType },
         headers: { ...scope.headers }, retry: 0, cache: false, meta: { rawEnvelope: true },
       })
     } catch (error) {
@@ -190,7 +193,7 @@ export class LowcodeDesignApi {
       throw deletionUnconfirmed(error)
     }
     try {
-      const entries = await this.listFiles({ appType: locator.appType, folderPath: locator.customPath })
+      const entries = await this.listFiles({ appType, folderPath: customPath })
       this.assertScope(scope)
       if (entries.some(entry => entry.name === fileName)) throw new LowcodeApiError(0, `${fileName} 删除后仍存在，不能确认删除`)
     } catch (error) {

@@ -125,9 +125,9 @@ describe('host scenario file request wiring', () => {
         const form=config.data as FormData,fileName=String(form.get('newName')),file=form.get('file')
         if(!(file instanceof Blob))throw new Error('expected multipart file')
         const text=new TextDecoder().decode(await file.arrayBuffer()),replace=form.get('isReplace')==='true'
-        if(contents.has(fileName)&&!replace)return {data:{Code:200,Result:[{state:'success',filePath:`/APP-1/orders/${fileName} (1)`}]},status:200,statusText:'OK',headers:{}}
+        if(contents.has(fileName)&&!replace)return {data:{Code:200,Result:[{state:'success',filePath:`/DesignFilePaths_publisher/APP-1/orders/${fileName} (1)`}]},status:200,statusText:'OK',headers:{}}
         contents.set(fileName,text)
-        return {data:{Code:200,Result:[{state:'success',filePath:`/APP-1/orders/${fileName}`}]},status:200,statusText:'OK',headers:{}}
+        return {data:{Code:200,Result:[{state:'success',filePath:`/DesignFilePaths_publisher/APP-1/orders/${fileName}`}]},status:200,statusText:'OK',headers:{}}
       }
       if(config.url==='/api/File/DownFile'){
         const fileName=String((config.data as Record<string,unknown>)['fileName'])
@@ -257,7 +257,7 @@ describe('host scenario file request wiring', () => {
         const file = config.data.get('file')
         if (!(file instanceof Blob)) throw new Error('expected file')
         text = new TextDecoder().decode(await file.arrayBuffer())
-        data = { Code: 200, Result: [{ state: 'success' }] }
+        data = { Code: 200, Result: [{ state: 'success', filePath: '/DesignFilePaths_publisher/APP-1/SysForm/SCENE-1/pagedata.json' }] }
       } else if (config.url === '/api/File/DownFile') {
         const bytes = new TextEncoder().encode(text)
         const buffer = new ArrayBuffer(bytes.length)
@@ -314,7 +314,7 @@ describe('host scenario file request wiring', () => {
         expect(config.data.get('customPath')).toBe('APP-1/SysForm/SCENE-1')
         expect(config.data.get('isReplace')).toBe(name === 'pagedata.json' ? 'true' : 'false')
         files.set(name,new TextDecoder('utf-8',{ignoreBOM:true}).decode(await file.arrayBuffer()))
-        data={Code:200,Result:[{state:'success',filePath:`APP-1/SysForm/SCENE-1/${name}`}]}
+        data={Code:200,Result:[{state:'success',filePath:`/DesignFilePaths_publisher/APP-1/SysForm/SCENE-1/${name}`}]}
       } else {
         if(!isRecord(config.data)||typeof config.data['fileName'] !== 'string')throw new Error('invalid file read')
         expect(config.data['customPath']).toBe('APP-1/SysForm/SCENE-1')

@@ -182,13 +182,12 @@ describe('LowcodeDesignApi', () => {
     })])
   })
 
-  it('lists normalized file entries from the actual list endpoint', async () => {
+  it('lists complete validated file entries from the actual list endpoint', async () => {
     const http = new FixtureHttpClient({
       Code: 200,
       Result: [
         { name: 'pagedata.json', lastModified: 123 },
-        { name: 'rule.json', lastModified: 'unknown' },
-        { lastModified: 456 },
+        { name: 'rule.json', lastModified: null },
       ],
     })
     const api = new LowcodeDesignApi({ http, readScope: fixtureScope })
@@ -201,4 +200,56 @@ describe('LowcodeDesignApi', () => {
       { name: 'rule.json', lastModified: null },
     ])
   })
+  it.each([
+    [{lastModified: 1}], [{name: 'ok.json'}, null], Array(1),
+    [{name: 'same.json'}, {name: 'same.json'}],
+    [{name: '../other.json'}], [{name: '.'}], [{name: ''}],
+    [{name: 'ok.json', lastModified: 'unknown'}],
+    [{name: 'ok.json', lastModified: 0.5}],
+    [{name: 'ok.json', lastModified: Number.MAX_SAFE_INTEGER + 1}],
+  ].map(entries => ({entries})))('rejects the entire malformed directory batch %#', async ({entries}) => {
+    const http = new FixtureHttpClient({Code: 200, Result: entries})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).listFiles({appType: 'jsondatapath', folderPath: ''})).rejects.toThrow()
+  })
+
+  it('retains uncertainty after one delete when the confirmation list is malformed', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: [{lastModified: 1}]})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile({appType: 'jsondatapath', customPath: 'owned', fileName: 'payload.json'})).rejects.toMatchObject({fileResourceMutationMayHaveApplied: true})
+    expect(http.requests.map(request => request.url)).toEqual(['/api/File/RemoveFile', '/api/File/list'])
+  })
+
+  it('preserves exact whitespace in directory and file identities', async () => {
+    const http = new FixtureHttpClient({Code: 200, Result: 'text'})
+    await new LowcodeDesignApi({http, readScope: fixtureScope}).readTextFile({appType: 'jsondatapath', customPath: ' owned ', fileName: ' payload.json '})
+    expect(http.requests[0]?.data).toMatchObject({customPath: ' owned ', fileName: ' payload.json '})
+    const list = new FixtureHttpClient({Code: 200, Result: [{name: ' payload.json ', lastModified: 0}, {name: ' ', lastModified: null}]})
+    await expect(new LowcodeDesignApi({http: list, readScope: fixtureScope}).listFiles({appType: 'jsondatapath', folderPath: ' owned.with.dot '})).resolves.toHaveLength(2)
+    expect(list.requests[0]?.data).toMatchObject({folderPath: ' owned.with.dot '})
+  })
+
+  it.each(['readTextFile', 'readFileBytes', 'removeFile'] as const)('rejects known ambiguous dotted content paths before %s dispatch', async operation => {
+    const http = new FixtureHttpClient({Code: 200, Result: ''})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope})[operation]({appType: 'jsondatapath', customPath: 'owned.v1', fileName: 'payload.json'})).rejects.toThrow('customPath')
+    expect(http.requests).toEqual([])
+  })
+
+  it('confirms deletion only in the originally captured directory', async () => {
+    const locator = {appType: 'jsondatapath', customPath: 'owned', fileName: 'payload.json'}
+    class MutatingClient extends FixtureHttpClient {
+      protected override async executeRequest(config: RequestConfig): Promise<HttpResponse<unknown>> {
+        if (config.url === '/api/File/RemoveFile') Object.assign(locator, {appType: 'designfile', customPath: 'other', fileName: 'other.json'})
+        return super.executeRequest(config)
+      }
+    }
+    const http = new MutatingClient({Code: 200, Result: []})
+    await new LowcodeDesignApi({http, readScope: fixtureScope}).removeFile(locator)
+    expect(http.requests[1]?.data).toEqual({appType: 'jsondatapath', folderPath: 'owned'})
+  })
+
+  it.each([undefined, null])('rejects a missing runtime folder identity instead of listing root: %s', async folderPath => {
+    const http = new FixtureHttpClient({Code: 200, Result: []})
+    await expect(new LowcodeDesignApi({http, readScope: fixtureScope}).listFiles({appType: 'jsondatapath', folderPath: folderPath as unknown as string})).rejects.toThrow()
+    expect(http.requests).toEqual([])
+  })
+
 })

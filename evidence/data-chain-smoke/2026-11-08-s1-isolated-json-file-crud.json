@@ -309,7 +309,8 @@
     "FileResource snapshots used revision=null because this text transport supplies no authoritative version/CAS token; actual concurrency and unknown/partial outcomes were not injected.",
     "This proves the generic file adapter plus formal JSON file SDK, not AppWorks builtin tool files, pagedata persistence, or all 20 business packages.",
     "Create with isReplace=false is not an atomic create-if-absent guarantee; the SDK checked the actual ACK basename and byte readback.",
-    "The smoke directory view returned the basename as a raw row value; its File table did not declare fileName, so this is not field-metadata or standard-component binding evidence."
+    "The smoke directory view returned the basename as a raw row value; its File table did not declare fileName, so this is not field-metadata or standard-component binding evidence.",
+    "Clarification AM: formal File/list returned [], which is not physical directory-emptiness proof because the Java reference also returns [] for File.listFiles()==null. Typed content 404 and no returned target remain the observed cleanup evidence."
   ],
   "harnessPreparation": {
     "initialMissingSelectedApplication": true,

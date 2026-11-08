@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1108,
+  "scannedFileCount": 1109,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -10595,6 +10595,19 @@
           "LowcodeBinaryFileUploadReceipt",
           "LowcodeDesignFileUpload"
         ]
+      }
+    },
+    "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts": {
+      "file": "files/packages/spark-lowcode-api/src/design/lowcode-file-identity.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-lowcode-api:design/lowcode-file-identity",
+        "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts",
+        "sourceFile": "packages/spark-lowcode-api/src/design/lowcode-file-identity.ts",
+        "packageName": "@spark-appworks/spark-lowcode-api",
+        "modulePath": "design/lowcode-file-identity",
+        "jsdoc": "@module @spark-appworks/spark-lowcode-api:design/lowcode-file-identity\n职责：保留正式文件 basename 和目录身份，拒绝已证实无法精确定位的内容请求。\n边界：不改写路径，不补后端 normalizePath 的含点目录缺口。\nAI用途：读、删及依赖回读的上传在派发前使用同一定位校验。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "packages/spark-lowcode-api/src/index.ts": {

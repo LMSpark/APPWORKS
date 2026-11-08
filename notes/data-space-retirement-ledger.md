@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1与S2已冻结，S3进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 预览装配见文末 AU。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1与S2已冻结，S3进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 预览装配见 [AU](#au-s3-preview-assembly)，配置页身份见文末 AV。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8565,3 +8565,12 @@ pnpm run verify
 开工时只有 `D:/SPARK_AppWorks`。`assembleLowcodeRuntimeScenario` 接收已解析的 `ScenarioViewConfig`，注入 cache/workflow/Excel 绑定、文件 owner、页面宿主和诊断拒绝。`loadLowcodeRuntimeScenario` 仍先读已保存文件再调用。`DevPreviewTab` 把未保存定义交给同一入口，不再直接 `loadScenarioDataSet`。未注册内置场景仍在读文件前拒绝。
 
 **测试。**`lowcode-runtime-scenario-loader.test.ts` 增加：未保存配置不读 pagedata，不完整关系同样 `SCENARIO_ASSEMBLY_INCOMPLETE` 并销毁；未保存工作流文件配置注入已登记 owner。连同既有预览历史与 live refresh 共 3 文件 83 项通过。根 typecheck 0。改动文件 eslint 0。正式生成含新导出。未改 `spark-data`，未换页面接线。
+
+<a id="av-s3-config-identity"></a>
+#### AV. S3第二波：配置页调用身份与表视图 alias 清点（未冻结）
+
+开工时只有 `D:/SPARK_AppWorks`。配置页 `scenarioId` / `additionalScenarioIds` / `scenarioInputs` 仍从 URL 调用身份进入 `PageRuntime`，非法值继续拒绝。`additionalScenarioIds` 随本次调用立即装配，不记 `deferredScenarioIds`。URL 出现 `deferredScenarioIds` 视为非法身份，装配前拒绝；延后装载只属于原生页构造参数，S3 不给隐藏设计目标编导航身份。
+
+**表视图旧 alias。**完整直接消费者：`vue-pages.json` 登记 `/DataBaseManage/TableAndView`；`src/views/DataBaseManage/DataBaseManage/index.vue` 的 `TABLE_VIEW_LEGACY_PATH` 与 `navigateToPath`；`tests/runtime/page/database/directory-page.test.ts` 断言该路径；`tests/runtime/auth-nav/navigation/database-table-view-route-alias.test.ts` 验证同一 owner。生产目录页仍走旧路径，S3 不改页面接线，因此保留 alias，不新增重定向，不改正式蓝图 URL。删除改到 S4 换接该页之后。
+
+**测试。**`page-scenario-inputs.test.ts`：附加场景一次装齐、URL deferred 拒绝。`database-table-view-route-alias.test.ts`：消费者仍在则 alias 仍在。连同平台页与 tab 共 4 文件 78 项通过。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未跑生成器（公开声明未变）。

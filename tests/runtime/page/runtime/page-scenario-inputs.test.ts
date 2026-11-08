@@ -190,4 +190,24 @@ describe('scenario call inputs reach the formal query owner', () => {
     expect(() => programmatic(load, inputs)).toThrow(/scenarioInputs/)
     expect(evaluated).toBe(false)
   })
+
+  it('loads every additionalScenarioId with the call and never records deferred URL identity', async () => {
+    const {open, files} = fixture()
+    const call = await open({scenarioId: 'META', additionalScenarioIds: ['LOOKUP', 'EXTRA']})
+    expect([...files.keys()].sort()).toEqual(['EXTRA', 'LOOKUP', 'META'])
+    expect(call.call.scenarioIds).toEqual(['META', 'EXTRA', 'LOOKUP'])
+    expect(call.call.mainScenarioId).toBe('META')
+    expect(call.call.deferredScenarioIds).toBeUndefined()
+    expect(call.getDataSet('LOOKUP')?.scenarioId).toBe('LOOKUP')
+    expect(call.getDataSet('EXTRA')?.scenarioId).toBe('EXTRA')
+  })
+
+  it.each(['LOOKUP', '', 'LOOKUP&deferredScenarioIds=EXTRA'].map(deferredScenarioIds => ({deferredScenarioIds})))(
+    'rejects URL deferredScenarioIds $deferredScenarioIds before assembly', async ({deferredScenarioIds}) => {
+      const {open, files, http, pool} = fixture()
+      await expect(open({scenarioId: 'META', additionalScenarioIds: 'LOOKUP', deferredScenarioIds})).rejects.toThrow(/deferredScenarioIds/)
+      expect(files.size).toBe(0)
+      expect(http.requests).toHaveLength(0)
+      expect(pool.getPageRuntimeNames()).toEqual([])
+    })
 })

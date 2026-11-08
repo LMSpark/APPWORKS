@@ -41,6 +41,7 @@ export class PageRuntimePool {
   constructor(private readonly options: PageRuntimePoolOptions) {}
 
   private scenarioCall(query: LocationQuery): Readonly<{ ids: readonly string[]; main?: string }> {
+    if (query['deferredScenarioIds'] !== undefined) throw new Error('配置页不能把 deferredScenarioIds 当作调用身份')
     const main = query['scenarioId']
     if (main !== undefined && (typeof main !== 'string' || !main.trim() || main !== main.trim())) throw new Error('scenarioId 必须是单个非空场景ID')
     const additional = query['additionalScenarioIds']

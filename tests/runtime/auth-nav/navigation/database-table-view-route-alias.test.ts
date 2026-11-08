@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs'
 import {afterEach, describe, expect, it} from 'vitest'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {buildComponentMap, getVuePageRouteAliases} from '@/registries/vue-page-registry'
@@ -46,6 +47,16 @@ describe('database TableAndView legacy Router alias', () => {
   it('declares the legacy path as an explicit alias of the canonical Vue page registry entry', async () => {
     const componentMap = await buildComponentMap()
     expect(componentMap[CANONICAL_PATH]).toBeDefined()
+    expect(getVuePageRouteAliases()[CANONICAL_PATH]).toEqual([LEGACY_PATH])
+  })
+
+  it('keeps the alias while directory navigation and tests still call the legacy path', () => {
+    const directory = readFileSync('src/views/DataBaseManage/DataBaseManage/index.vue', 'utf8')
+    const directoryTests = readFileSync('tests/runtime/page/database/directory-page.test.ts', 'utf8')
+    expect(directory).toContain(`const TABLE_VIEW_LEGACY_PATH = '${LEGACY_PATH}'`)
+    expect(directory).toContain('nav.navigateToPath(destination, target.item)')
+    expect(directoryTests).toContain(`navigateToPath).toHaveBeenCalledWith(\`${LEGACY_PATH}?view=main&databaseId=DB1#top\``)
+    expect(directoryTests).toContain(`navigateToPath).toHaveBeenCalledWith('/apps/APP${LEGACY_PATH}?view=main&databaseId=DB1#top'`)
     expect(getVuePageRouteAliases()[CANONICAL_PATH]).toEqual([LEGACY_PATH])
   })
 

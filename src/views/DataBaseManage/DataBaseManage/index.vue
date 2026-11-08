@@ -65,11 +65,9 @@ AI用途：数据库列表筛选、分页、明确服务器选择及跳转到正
 
 <script setup lang="ts">
 import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
-import {normalizeNavRuntimePath, resolveNavNodeRuntimeTarget, useNav, getNavTree,
-  type RuntimeNavigationItem} from '@spark-appworks/spark-app'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, normalizeNavRuntimePath, resolveNavNodeRuntimeTarget, useNav, getNavTree,
+  useSystemPageDirtySource, type RuntimeNavigationItem} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererButton, RendererForm, useSparkComponent,
   type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useRoute} from 'vue-router'
@@ -108,6 +106,10 @@ const scopeFingerprint = computed(() => {
   return `${scope.token}:${scope.headers['X-AppId'] ?? ''}`
 })
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'database-directory-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const dataSet = shallowRef<DataSet>()
 const serverView = shallowRef<DataView>()
 const databaseView = shallowRef<DataView>()
@@ -116,7 +118,6 @@ const deleteConfirmation = shallowRef<{id: string | number; name: string}>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref('')
 const connectionTestOpen = ref(false), connectionTesting = ref(false), connectionTestError = ref('')
-let runtime: PageRuntime | undefined
 let unsubscribe: (() => void) | undefined
 let generation = 0
 let actionGeneration = 0
@@ -461,13 +462,13 @@ function release(): void {
   unsubscribe?.(); unsubscribe = undefined
   if (dataSet.value) clearDatabaseDirectoryConnectionTest(dataSet.value)
   connectionTestOpen.value = false; connectionTesting.value = false
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   edit.value = undefined; serverView.value = undefined; databaseView.value = undefined
   deleteConfirmation.value = undefined
   dataSet.value?.destroy(); dataSet.value = undefined
 }
 
-watch([scenarioId, scopeFingerprint], async ([id]) => {
+watch([scenarioId, scopeFingerprint], async ([id, scope]) => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   release()
@@ -478,12 +479,14 @@ watch([scenarioId, scopeFingerprint], async ([id]) => {
     const servers = requireDatabaseCatalogServerView(ds)
     const databases = requireDatabaseCatalogDbView(ds)
     dataSet.value = ds; serverView.value = servers; databaseView.value = databases
-    const current = new PageRuntime({pageId: 'database-directory-page', scenarioIds: [ds.scenarioId ?? id], loadScenario: async () => ds})
-    runtime = current; await current.load()
-    if (!active || own !== generation) {current.dispose(); return}
+    const formKey = ds.scenarioId ?? id
+    const current = session.acquire({pageId: 'database-directory-page', scenarioIds: [formKey], targetId: `${formKey}:${scope}`,
+      loadScenario: async () => ds})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     unsubscribe = ds.onAnyViewChange({rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
       requestStateChanged: () => revision.value++, editingChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, current); ready.value = true
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
   } catch (cause) {
     if (active && own === generation) {error.value = cause instanceof Error ? cause.message : String(cause); release()}
   } finally {if (active && own === generation) loading.value = false}

@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView, useRoute} from 'vue-router'
@@ -92,6 +94,13 @@ async function selectRow(table: VueWrapper): Promise<void> {
 }
 
 describe('database directory page', () => {
+  it('hosts the directory runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/DataBaseManage/DataBaseManage/index.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).toContain('TABLE_VIEW_LEGACY_PATH')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('attaches a database-level connection test owner to the directory DataSet', async () => {
     const ds = await LowcodeDatabaseDirectory.loadCatalog(DATABASE_TABLE_VIEW_SCENARIO_ID)
     try {

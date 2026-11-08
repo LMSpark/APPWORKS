@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见文末 BD。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见文末 BE。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8643,3 +8643,10 @@ pnpm run verify
 `table-and-view-page.vue` 不再自建 `PageRuntime`。目录 DataSet 仍先由 `LowcodeDatabaseTableView.loadCatalog` 读出，再交给 `NativePageRuntimeSession`；换代、卸载和加载失败都释放当前实例，迟到加载不把页面标成就绪。进入条件仍是导航绑定的蓝图场景。指定数据库时目标身份带上该数据库 ID。`/DataBaseManage/TableAndView` 旧 alias 的目录导航消费者仍在，本波保留 alias。
 
 **测试。**`table-and-view-page.test.ts` 82 项通过，含会话源码约束。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
+
+<a id="be-s4-database-directory-host"></a>
+#### BE. S4第七页：数据库目录换接到公共宿主（未冻结）
+
+`DataBaseManage/index.vue` 不再自建 `PageRuntime`。目录 DataSet 仍先由 `LowcodeDatabaseDirectory.loadCatalog` 读出，再交给 `NativePageRuntimeSession`；换代、卸载和加载失败都释放当前实例，迟到加载不把页面标成就绪。进入条件仍是导航绑定的蓝图场景，调用身份包含当次请求作用域。进入表和视图仍走正式路径，并保留 `/DataBaseManage/TableAndView` 旧 alias。
+
+**测试。**`directory-page.test.ts` 与 alias 测试共 40 项通过，含会话源码约束和旧路径保留。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。

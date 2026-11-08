@@ -1,12 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AJ** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AK** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AJ当前恢复点：** 文件正文/目录的实际查询范围、投影、存在性与私有写基线已集中修正，新增字段按owner的读取/写入/必填事实消费；末态门禁和提交以末尾记录为准。ProjectToolCatalog正式投影仍未转换：下一S1按I3完成数据合同及一次性配置转换/诊断旧配置，精确登记S4旧消费断点，不继续以跨阶段依赖冒冻结，也不加兼容。S1未冻结、未进S2，原20包保留。
+> **AK当前恢复点：** AJ文件查询/投影合同已推；AK已完成jsondatapath精确隔离文件实服CRUD与全新登录独立清理核验，正文文件已删，空运行目录可能保留。正式证据与提交状态见末尾。下一S1完成ProjectToolCatalog正式投影合同与配置转换/诊断旧配置、精确登记S4旧消费断点，不继续保错误file分类或加兼容。此文件证据不覆盖builtin工具文件/pagedata/真实unknown/并发CAS，S1未冻结、未进S2，原20包范围保留。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8268,3 +8268,15 @@ AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor
 **AJ最终检查点验收。**完整根verify80030自然exit0，含类型/lint、ClassModel49项与正式规则；保既有2模型警告/84薄页诊断，不冒整仓所有测试全绿。最终data1328/API1474/消费者896/定向168、包type/lint/build、正式ClassModel/lowcode生成与编译包内存烟测均自然0，原handle全部终态。高阶末态限定本批合同无剩余阻断。清理29份中间日志，保正式末态及有效project-model基线，唯一主worktree；原S2未跟踪RED不stage。提交范围仅spark-data实现/正式回归、官方派生和本台账，无组件/宿主/页面/Java实施、无实服写入/新协议/兼容分支。只推origin既定codex分支、不force/merge/部署。S1仍未冻结；ProjectToolCatalog正式数据合同/配置转换、目录整删旧消费与变更后真实文件来源证据仍按各自责任开放，完整20包不缩范围。
 
 **AJ已提交推送并独立核实。**代码49e088e49aeb1cee2fea88cd80a0df61bc50c99e（fix(data): preserve file query scope and source baselines），31文件570增186删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留；唯一主worktree。此事实补记docs跟随同步。恢复仍S1，按上一最终检查点的正式投影与实服文件缺证继续，不恢复旧File helper或二次全列查询，不进入组件阶段。
+
+**AK变更后精确隔离文件实服烟测（S1，未冻结）。**上一AJ修复/推送为有效进展。主控核当前f8780ddf4、固定Java E:/lowcode-jdk17 e1eccc1b及正式文件SDK，高阶只读复核路径/404/1003/上传回读/重名另存与清理限制。AppWorks builtin的工具文件远端入口明确拒，保持原守卫；本批直接验证正式jsondatapath企业命名空间的generic FileResourceAdapter，不冒工具页或pagedata已通过。SDK仍要求选中应用，首harness预检缺客户端应用上下文，只有登录/企业目录、无File请求或写；按原SDK明确D99应用后全新预检成功，不引入权限角色/后端协议。凭据仅子进程stdin/RAM，不入CLI参数/项目文件/证据。
+
+隔离对象：appType=jsondatapath，customPath=spark-data-smoke/s1_file_20261108_ak_01_c8f491d2，fileName=payload.json。实际预检精确content/text为HTTP200+业务404，目录list为HTTP200+1003，区分未存在目录，不把未知/401/403/网关HTTP404当空。脚本端点、目录/文件、multipart和三项删除query参数写闸，固定各操作最多一次；retry0、无原写重放。业务新增/改/删只从绑定的DataView经DataSet.saveChanges；正式SDK只在transport内执行，独立API读取只作验真。
+
+实服CRUD子进程3688自然exit0：UploadFile2（create isReplace=false / update=true）、DownFile2由SDK独立逐字节校验、RemoveFile1；共3个实际变更请求，不冒跨来源事务或原子create-if-absent。新增取消0写、私有scope不入公开草稿；正式新增独立正文回读，新DataSet保存重开；修改取消不多写、正式修改独立正文回读；目录DataView消费本目录唯一payload；删除后精确业务404+list[]。验证子进程11020全新登录、同SDK同locator独立再次HTTP200+业务404与list空，0变更请求，自然exit0。预检子进程20464亦自然0，全部句柄终态。
+
+正式证据：[2026-11-08-s1-isolated-json-file-crud.json](../evidence/data-chain-smoke/2026-11-08-s1-isolated-json-file-crud.json)，含实际端点计数/回执摘要/3次派发时间/正文哈希、源码与最终harness哈希、预检/CRUD/独立核验三段，未含凭据/会话/原正文。实际JSON文件已清；正式服务仅删文件，不提供本批已核目录删除合同，空运行目录/父前缀可能保留，不称无任何服务残留。transport真实版本为null（未假造服务CAS）；未注入实服unknown/部分成功/并发版本，继续分别引用离线反例与旧未改范围证据。静态Java不是部署一致证明。等高阶证据末审、文档治理及diff后提交推送；本批无产品源码/组件/宿主/页面/Java修改，原S2未跟踪RED不动。S1未冻结，20包目标active。
+
+**AK高阶证据末审。**三阶段正式观察与ignored实际原件逐结构一致，7源码/2最终脚本哈希全匹配，3次变更与新登录0变更清理证据成立，无需再写服务。目录仅证原始DataView行返回唯一basename：harness表未声明fileName，也未验该字段权限/标准组件，不能核销字段绑定；正式ProjectToolFile本有fileName。此局部声明/来源一致性仍需按S1合同核，不把返回数组当绑定完成。最终harness留本地ignored作为有效实服工具，仓内JSON仅含审过哈希，不冒可移机直接重跑。证据当前为待stage新文件，高阶未声称已提交；本轮将显式纳入。
+
+**AK最终检查点验收。**高阶末审及主控再次核正式JSON三阶段终态与9个源码/脚本哈希，均一致；6份最终脚本/原始记录/正式证据未保存账号、密码或Bearer，最后子进程exit0，RAM stdout已清。verify:docs通过564文件、git diff --check通过，唯一主worktree。精确删2份无效harness准备记录/console，保2份最终只读输入工具与3段原始有效记录；不保错误import或并行总计划。产品源码/声明未改，AJ同源码快照1328/1474/896/168与正式生成、完整工程门禁按原范围复用，不重冒新全包结果。原S2未跟踪RED未stage。准备仅stage本台账与正式AK JSON，推origin既定codex分支并独立核远端；不force/merge/部署，不把实际CRUD局部完成当S1或原20包完成。恢复下一S1正式投影合同/配置转换，目录声明一致性反例与旧领域整删消费各按责任层核验；阶段仍active未冻结。

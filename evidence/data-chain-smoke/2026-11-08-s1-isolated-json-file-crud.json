@@ -1,0 +1,321 @@
+{
+  "schemaVersion": 1,
+  "kind": "s1-isolated-json-file-crud",
+  "sourceBaseCommit": "f8780ddf4a3f791a876635f274ea452adbbe7eaf",
+  "sourceWorktreeSha256": {
+    "packages/spark-data/src/data-view.ts": "434f8f51551c79cf9c8e1cc96d6159bb47dc42389699dd47210a72669970afa8",
+    "packages/spark-data/src/dataset.ts": "00f8a67c2138445568269020375207cb9700a9807f8b2d893e9f0ce2ef2f9a05",
+    "packages/spark-data/src/query/file-resource-adapter.ts": "292edf1435a1b602d054971fe0044c0e76900b457ac4a3270f41afeafbbd3426",
+    "packages/spark-data/src/query/data-view-local-query.ts": "c31e846be44e9e95aef7851edaee18197e91b33c325137e2e2e270072192b787",
+    "packages/spark-lowcode-api/src/design/lowcode-design-api.ts": "cbab787030e2e5c7ca893e6298a7944ae96a59684368fc109fa44e5df2bc9489",
+    "packages/spark-lowcode-api/src/design/lowcode-design-file-upload.ts": "7cb26c6f8a828408a67c5169fecb7a96f65beb682f3ec86e77803631a34c2780",
+    "packages/spark-lowcode-api/src/core/lowcode-client.ts": "94f2064d86d2080f8301c5edb42a41b27d1a866b9bba2bde5efa51ad90b8255d"
+  },
+  "scriptSha256": {
+    "artifacts/data-chain-smoke/s1-file-crud-run.mts": "1286026d5a8b4b2e1f209dcb0d8d0345323d319e47f1c95d08d8f115790b7170",
+    "artifacts/data-chain-smoke/s1-file-crud.mts": "0e9b844de4480b8197a3517b133c357a09d88d3fa21840538aec23d5fb0ee913"
+  },
+  "service": "https://spark.lingmacn.com",
+  "backendSourceReference": {
+    "path": "E:/lowcode-jdk17",
+    "commit": "e1eccc1b56c225212481ba276302d5e6b288e883",
+    "deploymentParityClaimed": false
+  },
+  "namespace": {
+    "appType": "jsondatapath",
+    "scope": "authenticated enterprise; not an application-private namespace",
+    "selectedApplicationId": "D99A1DCE9894698799101EFD70F8FC76"
+  },
+  "preflight": {
+    "runId": "s1_file_20261108_ak_01_c8f491d2",
+    "mode": "preflight",
+    "locator": {
+      "appType": "jsondatapath",
+      "customPath": "spark-data-smoke/s1_file_20261108_ak_01_c8f491d2",
+      "fileName": "payload.json"
+    },
+    "phase": "preflight-confirmed",
+    "requests": {
+      "/api/DataOperation/GetBaseData": 1,
+      "/api/LoginAuthority/UserLoginByEnt": 1,
+      "/api/File/content/text": 1,
+      "/api/File/list": 1
+    },
+    "responses": [
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 1003,
+        "binary": false
+      }
+    ],
+    "mutations": [],
+    "checks": [],
+    "credentialsPersisted": false,
+    "cleanupConfirmed": false,
+    "directoryRemovalSupported": false,
+    "preflight": {
+      "fileAbsent": true,
+      "directory": "missing-1003"
+    },
+    "updatedAt": "2026-11-08T02:11:23.783Z"
+  },
+  "crud": {
+    "runId": "s1_file_20261108_ak_01_c8f491d2",
+    "mode": "crud",
+    "locator": {
+      "appType": "jsondatapath",
+      "customPath": "spark-data-smoke/s1_file_20261108_ak_01_c8f491d2",
+      "fileName": "payload.json"
+    },
+    "phase": "crud-clean",
+    "requests": {
+      "/api/DataOperation/GetBaseData": 1,
+      "/api/LoginAuthority/UserLoginByEnt": 1,
+      "/api/File/content/text": 14,
+      "/api/File/list": 4,
+      "/api/File/UploadFile": 2,
+      "/api/File/DownFile": 2,
+      "/api/File/RemoveFile": 1
+    },
+    "responses": [
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 1003,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/UploadFile",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/DownFile",
+        "httpStatus": 200,
+        "code": null,
+        "binary": true
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/UploadFile",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/DownFile",
+        "httpStatus": 200,
+        "code": null,
+        "binary": true
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/RemoveFile",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      }
+    ],
+    "mutations": [
+      {
+        "stage": "create",
+        "path": "/api/File/UploadFile",
+        "dispatchedAt": "2026-11-08T02:12:09.456Z"
+      },
+      {
+        "stage": "update",
+        "path": "/api/File/UploadFile",
+        "dispatchedAt": "2026-11-08T02:12:10.545Z"
+      },
+      {
+        "stage": "delete",
+        "path": "/api/File/RemoveFile",
+        "dispatchedAt": "2026-11-08T02:12:11.589Z"
+      }
+    ],
+    "checks": [
+      "cancel-new-zero-writes",
+      "private-draft-output",
+      "create-independent-readback",
+      "fresh-dataset-reopen",
+      "cancel-edit-zero-writes",
+      "update-independent-readback",
+      "directory-dataview-consumer",
+      "delete-exact-404-and-empty-directory"
+    ],
+    "credentialsPersisted": false,
+    "cleanupConfirmed": true,
+    "directoryRemovalSupported": false,
+    "preflight": {
+      "fileAbsent": true,
+      "directory": "missing-1003"
+    },
+    "lastDirectoryCount": 0,
+    "payloadSha256": [
+      "944b3a5f2ae79607d846606695e82a74b21fd68aa6b9c6a6a0be0defc05cc2b4",
+      "cebbb1f73e44dd0261a271aaaa116760013a61618deb7c1227d4ad68200973b4"
+    ],
+    "updatedAt": "2026-11-08T02:12:12.603Z"
+  },
+  "independentFreshLoginVerification": {
+    "runId": "s1_file_20261108_ak_01_c8f491d2",
+    "mode": "verify",
+    "locator": {
+      "appType": "jsondatapath",
+      "customPath": "spark-data-smoke/s1_file_20261108_ak_01_c8f491d2",
+      "fileName": "payload.json"
+    },
+    "phase": "verified-clean",
+    "requests": {
+      "/api/DataOperation/GetBaseData": 1,
+      "/api/LoginAuthority/UserLoginByEnt": 1,
+      "/api/File/content/text": 1,
+      "/api/File/list": 1
+    },
+    "responses": [
+      {
+        "path": "/api/File/content/text",
+        "httpStatus": 200,
+        "code": 404,
+        "binary": false
+      },
+      {
+        "path": "/api/File/list",
+        "httpStatus": 200,
+        "code": 200,
+        "binary": false
+      }
+    ],
+    "mutations": [],
+    "checks": [
+      "fresh-login-exact-404-and-empty-directory"
+    ],
+    "credentialsPersisted": false,
+    "cleanupConfirmed": true,
+    "directoryRemovalSupported": false,
+    "lastDirectoryCount": 0,
+    "updatedAt": "2026-11-08T02:12:53.569Z"
+  },
+  "limitations": [
+    "The isolated payload.json was deleted; its empty run directory may remain because no directory deletion contract was used.",
+    "FileResource snapshots used revision=null because this text transport supplies no authoritative version/CAS token; actual concurrency and unknown/partial outcomes were not injected.",
+    "This proves the generic file adapter plus formal JSON file SDK, not AppWorks builtin tool files, pagedata persistence, or all 20 business packages.",
+    "Create with isReplace=false is not an atomic create-if-absent guarantee; the SDK checked the actual ACK basename and byte readback.",
+    "The smoke directory view returned the basename as a raw row value; its File table did not declare fileName, so this is not field-metadata or standard-component binding evidence."
+  ],
+  "harnessPreparation": {
+    "initialMissingSelectedApplication": true,
+    "fileMutationsBeforeCorrectedPreflight": 0,
+    "credentialsInCliArguments": false,
+    "credentialsInEvidence": false
+  },
+  "harnessAvailability": "Final executed scripts are retained locally under ignored artifacts; the repository evidence contains their audited hashes, not a portable replay harness."
+}

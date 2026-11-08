@@ -7,11 +7,11 @@
     "sourceFile": "src/views/app/Settings.vue",
     "packageName": "app",
     "modulePath": "views/app/Settings",
-    "jsdoc": "@module app:views/app/Settings\n职责：提供主应用 Settings 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接视图、服务、布局、路由或平台租户流程。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/Settings。",
+    "jsdoc": "@module app:views/app/Settings\n职责：显示当前应用名称与版本，切换本机主题模式，查看已注册路由统计并从 lowcode 重载导航。\n边界：主题只写本机偏好；应用与导航数据来自现有运行时，不在本页另存设置。\nAI用途：需要定位主题切换、路由统计或手动重载导航入口时，用本模块定位 views/app/Settings。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
   "$defs": {},
-  "generatedAt": "2026-10-30T15:52:04.928Z",
+  "generatedAt": "2026-11-08T18:23:35.998Z",
   "models": {}
 }

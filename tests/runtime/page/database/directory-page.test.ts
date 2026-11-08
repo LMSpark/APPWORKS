@@ -98,7 +98,8 @@ describe('database directory page', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/DataBaseManage/DataBaseManage/index.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')
     expect(source).toContain('session.isCurrent(current)')
-    expect(source).toContain('TABLE_VIEW_LEGACY_PATH')
+    expect(source).toContain('TABLE_VIEW_PATH')
+    expect(source).not.toContain('/DataBaseManage/TableAndView')
     expect(source).not.toContain('new PageRuntime')
   })
   it('attaches a database-level connection test owner to the directory DataSet', async () => {
@@ -535,14 +536,14 @@ describe('database directory page', () => {
     await selectRow(tables[1]!)
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
-    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`, tableViewNode)
+    expect(navigateToPath).toHaveBeenCalledWith(`${targetPath}?view=main&databaseId=DB1#top`, tableViewNode)
   })
 
   it('keeps only the single application prefix when opening a table view from an app route', async () => {
     const wrapper = await open(undefined, '/apps/APP/DataBaseManage/DataBaseManage/index')
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
-    expect(navigateToPath).toHaveBeenCalledWith('/apps/APP/DataBaseManage/TableAndView?view=main&databaseId=DB1#top', tableViewNode)
+    expect(navigateToPath).toHaveBeenCalledWith(`/apps/APP${targetPath}?view=main&databaseId=DB1#top`, tableViewNode)
     expect(navigateToPath.mock.calls[0]?.[0]).not.toContain('/t/')
   })
 
@@ -553,7 +554,7 @@ describe('database directory page', () => {
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
-    expect(navigateToPath).toHaveBeenCalledWith(`/DataBaseManage/TableAndView?view=main&databaseId=DB1#top`, tableViewNode)
+    expect(navigateToPath).toHaveBeenCalledWith(`${targetPath}?view=main&databaseId=DB1#top`, tableViewNode)
   })
 
   it('navigates through real useNavigation and DynamicRouter with node identity and databaseId', async () => {
@@ -594,16 +595,16 @@ describe('database directory page', () => {
     await pageButton(page, '管理').trigger('click')
     await flushPromises()
     await flushPromises()
-    expect(routePush).toHaveBeenCalledWith(expect.objectContaining({
-      path: '/DataBaseManage/TableAndView',
+    expect(routePush).toHaveBeenNthCalledWith(2, expect.objectContaining({
+      name: `spark-system-page-host:application:${targetPath}`,
       query: expect.objectContaining({view: 'main', databaseId: 'DB1', __sparkNavigationId: selectedTarget.id}),
       hash: '#top',
     }))
     const targetRoute = router.currentRoute.value
     const targetInstance = dynamic.getSystemPageInstance(targetRoute)
-    expect(targetRoute.path).toContain('/DataBaseManage/TableAndView')
-    expect(targetRoute.fullPath).toContain('/DataBaseManage/TableAndView?view=main&databaseId=DB1&__sparkNavigationId=table-view-target#top')
-    expect(targetRoute.matched[0]?.aliasOf?.path).toContain(`/features/data-platform/database-management/table-and-view/ui/table-and-view-page`)
+    expect(targetRoute.path).toContain(targetPath)
+    expect(targetRoute.fullPath).toContain(`${targetPath}?view=main&databaseId=DB1&__sparkNavigationId=table-view-target#top`)
+    expect(targetRoute.matched[0]?.aliasOf).toBeUndefined()
     expect(targetRoute.query['__sparkNavigationId']).toBe(selectedTarget.id)
     expect(targetRoute.query['databaseId']).toBe('DB1')
     expect(targetRoute.meta['nodeId']).toBe(selectedTarget.id)
@@ -707,7 +708,7 @@ describe('database directory page', () => {
     await selectRow(wrapper.findAllComponents(RendererTable)[1]!)
     await pageButton(wrapper, '管理').trigger('click')
     expect(navigateTo).not.toHaveBeenCalled()
-    expect(navigateToPath).toHaveBeenCalledWith('/DataBaseManage/TableAndView?view=main&databaseId=DB-PK-1#top', tableViewNode)
+    expect(navigateToPath).toHaveBeenCalledWith(`${targetPath}?view=main&databaseId=DB-PK-1#top`, tableViewNode)
   })
 
   it('saves a database entered through the bound RendererForm and closes only after the DataSet receipt', async () => {

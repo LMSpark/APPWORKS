@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1与S2已冻结，S3进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 预览装配见 [AU](#au-s3-preview-assembly)，配置页身份见 [AV](#av-s3-config-identity)，原生宿主 API 见文末 AW。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见文末 AX。未进 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8583,3 +8583,21 @@ pnpm run verify
 **登记、不伪造。**`AppList.vue` 仍是 `blueprintScenarioId || builtin` 双身份；根 `/app-list` 缺正式 owner 仍按原记录，不编平台目录。隐藏设计弹窗单目标仍是 S4 领域输入。表视图旧 alias 消费者仍在，沿 AV 保留。
 
 **测试。**`native-page-runtime-session.test.ts` 3 项：同身份复用并 provide 一次；换目标后旧 `getDataSet` 拒绝且数据集销毁；释放后迟到 DataSet 销毁。连同 route-helpers 与 system-page-dirty 共 3 文件 9 项通过。根 typecheck 0。改动文件 eslint 0。公开导出后正式生成含新会话。未改 `spark-data`，未改 S2 组件。
+
+<a id="ax-s3-freeze"></a>
+#### AX. S3共同宿主冻结
+
+冻结基准是 `144c86ef4`。本段不改产品源码，不进入 S4 逐页换接。
+
+| 宿主合同 | 当次证据 |
+| --- | --- |
+| 预览与正式装配同一入口 | AU：`assembleLowcodeRuntimeScenario` 接收已解析配置；未保存草稿预览不读 pagedata；诊断非空销毁拒绝。提交 `27a975f0f` |
+| 配置页调用身份 | AV：`scenarioId` / `additionalScenarioIds` / `scenarioInputs` 从 URL 进入 `PageRuntime`；URL `deferredScenarioIds` 拒绝。提交 `adcd50725` |
+| 表视图旧 alias | AV：目录页、目录测试与 alias 测试仍走 `/DataBaseManage/TableAndView`，S3 保留 alias |
+| 原生创建/提供/释放 | AW：`NativePageRuntimeSession` 同身份复用、换目标停旧写入、释放拒绝迟到结果。提交 `144c86ef4` |
+
+冻结当次重跑：loader、预览历史、配置页输入、TableAndView alias、原生会话共 5 文件 128 项通过。工作树只有 `D:/SPARK_AppWorks`。
+
+**冻结范围。**共同宿主按当前源码冻结：PageRuntime 创建/提供/释放、导航调用身份、场景装配、四文件由池加载。S2 组件与 S1 数据层合同不在本冻结里改写。
+
+**明确不纳入。**S4 逐页换接并删除该页自建实例；`use-staged-design-page.ts` 与各包 `new PageRuntime` 仍在；`AppList.vue` 双身份与根 `/app-list` 无 owner；隐藏设计弹窗假导航身份；表视图 alias 删除；暂缓授权接线；N3 服务缺证；远端历史配置。下一合法阶段是 S4。本提交不进入页面换接。

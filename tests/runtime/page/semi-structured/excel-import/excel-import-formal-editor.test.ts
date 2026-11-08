@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
@@ -18,7 +20,10 @@ import {sourceModels, sourceRecords, SOURCE_SCENE} from '../../structured-config
 import sourceText from '../../../../../config/pages/shared/business-table-selector/pagedata.json?raw'
 import dictionaryText from '../../../../../config/pages/data-platform/data-dictionary/pagedata.json?raw'
 const state = vi.hoisted(() => ({http: undefined as unknown as ApiBackend, runtime: undefined as unknown as DataSpaceRuntimeApi, dirtySources: [] as Array<{isDirty: boolean}>}))
-vi.mock('@spark-appworks/spark-app', () => ({useSystemPageDirtySource: (source: {isDirty: boolean}) => state.dirtySources.push(source)}))
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession, useSystemPageDirtySource: (source: {isDirty: boolean}) => state.dirtySources.push(source)}
+})
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   get lowcodeHttp() {return state.http}, lowcodeDesignFileUpload: async () => {throw new Error('unexpected upload')},
   createLowcodeProjectGateways: () => ({scenarioViews: {readText: async (id: string) => id === EXCEL_DESIGN ? designText : id === SOURCE_SCENE ? sourceText : id===EXCEL_DICTIONARY?dictionaryText:topicTexts[id] ?? null}}),
@@ -95,6 +100,14 @@ async function selectTarget(f: Awaited<ReturnType<typeof open>>) {
   await vi.waitFor(() => expect(f.wrapper.text()).toContain('目标及字段替换共同保存'))
 }
 describe('formal Excel design editor', () => {
+  it('hosts the Excel design runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).toContain('deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId]')
+    expect(source).toContain('scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}}')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('creates the structured layout from a selected formal detail and cancels through the original node',async()=>{
     Object.assign(state.http.records['Base_ImportData_Config']![0]!,{relatedappid:'A1',table:'数据库一@table_one',exportType:'default',sheet_layout_json:''})
     state.http.records['Base_ImportData_Config']!.push({rowid:'C2',schemeid:'E1',pid:'C1',sheetName:'明细',relatedappid:'A1',table:'数据库一@table_three',exportType:'default',sheet_layout_json:'',sorted:''})

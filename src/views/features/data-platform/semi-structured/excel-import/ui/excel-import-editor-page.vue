@@ -128,8 +128,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataSet, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeExcelImport} from '@/lowcode/resources/semi-structured/excel-import/resource'
@@ -158,6 +157,10 @@ const nodesKey = key(nodesTable), fieldsKey = key(fieldsTable), rulesKey = key(r
 const ruleFieldOptionsKey=buildDataViewKey(fieldsTable,'foreignKeyFields',scene)
 const schemeKey = buildDataViewKey('Base_Import_solution', 'editorTarget', catalogScene)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'excel-import-editor-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const dataSet = shallowRef<DataSet>(), catalog = shallowRef<DataSet>(), opening = ref(false), ready = ref(false), acting = ref(false), error = ref(''), revision = ref(0)
 const inputs = ref(new Set<string>())
 const activeTopTab=ref<string|number>('basic'),activeBottomTab=ref<string|number>('fields')
@@ -172,7 +175,7 @@ const targetSaveLabel = computed(() => {
   return state?.dispatched?`核验${part}保存结果`:state?.applyStarted?`重新保存${part}`:`保存${part}`
 })
 const removal = shallowRef<ExcelConfigurationRemoval>(), removalState = computed(() => {revision.value; return removal.value?.getState()})
-let runtime: PageRuntime | undefined, unsubscribers: Array<() => void> = [], generation = 0, active = true
+let unsubscribers: Array<() => void> = [], generation = 0, active = true
 const view = (table: string) => table === schemeTable ? catalog.value?.getView(table, 'editorTarget') : dataSet.value?.getView(table)
 const views = computed(() => [...Object.values(dataSet.value?.tables ?? {}).flatMap(table => table.viewList), ...[view(schemeTable)].filter(item => item !== undefined)])
 const validTarget = computed(() => {revision.value; const target=view(schemeTable), row=target?.rows[0]; return target?.rows.length === 1 && row !== undefined && target.getPkKey(row) === importConfigId.value})
@@ -274,21 +277,21 @@ defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 watch(importConfigId, async id => {
   const own = ++generation
   sourceTargetId.value = ''; targetChange.value = undefined; removal.value = undefined; fieldReference.value=undefined
-  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sortDirectory.value?.dispose();sortDirectory.value=undefined;sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime=undefined; dataSet.value=undefined; catalog.value=undefined
+  unsubscribers.forEach(off=>off()); unsubscribers=[]; association.value=undefined; sortDirectory.value?.dispose();sortDirectory.value=undefined; dataSet.value=undefined; catalog.value=undefined; session.dispose()
   ready.value=false; opening.value=true; error.value=''; recoveryNotice.value=''; inputs.value.clear()
   try {
     if (!id.trim()) throw new Error('缺少 importConfigId 参数')
-    const page:PageRuntime = new PageRuntime({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
-      loadScenario: space => space === scene ? LowcodeExcelImport.loadEditor(scene,()=>page) : space === catalogScene ? LowcodeExcelImport.loadCatalog(catalogScene)
+    const current = session.acquire({pageId:'excel-import-editor-page',scenarioIds:[catalogScene,scene,LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],deferredScenarioIds:[LowcodeExcelImport.referenceScenarioId,LowcodeDictionary.editorScenarioId],targetId:id,scenarioInputs:{[catalogScene]:{importConfigId:id},[scene]:{importConfigId:id}},
+      loadScenario: space => space === scene ? LowcodeExcelImport.loadEditor(scene,()=>current) : space === catalogScene ? LowcodeExcelImport.loadCatalog(catalogScene)
         : space === LowcodeExcelImport.referenceScenarioId ? LowcodeExcelImport.loadReferenceSources() : space===LowcodeDictionary.editorScenarioId ? LowcodeDictionary.loadEditor().then(result=>result.dataSet) : Promise.reject(new Error('Excel页面未声明该来源空间'))})
-    runtime=page; await page.load()
-    if (!active || own!==generation) {page.dispose();return}
-    catalog.value=page.getDataSet(catalogScene); dataSet.value=page.getDataSet(scene)
+    await current.load()
+    if (!active || own!==generation || !session.isCurrent(current)) return
+    catalog.value=current.getDataSet(catalogScene); dataSet.value=current.getDataSet(scene)
     const target=catalog.value?.getView('Base_Import_solution','editorTarget'), nodes=view(nodesTable)
     if (!target || !nodes) throw new Error('Excel正式设计视图缺失')
     if ([nodesTable,fieldsTable,rulesTable].some(name=>view(name)?.commitMode!=='staged')) throw new Error('Excel设计必须使用正式暂存视图')
     association.value = new ExcelAssociationFields(dataSet.value!)
-    sortDirectory.value = new ExcelPhysicalFieldDirectory({dataSet:dataSet.value!,getPage:()=>page,viewId:'excelSortFields',recordId:()=>{const nodes=view(nodesTable),row=nodes?.currentRow;return row?nodes?.getPkKey(row):undefined},allowView:true},()=>{if(active)revision.value++})
+    sortDirectory.value = new ExcelPhysicalFieldDirectory({dataSet:dataSet.value!,getPage:()=>current,viewId:'excelSortFields',recordId:()=>{const nodes=view(nodesTable),row=nodes?.currentRow;return row?nodes?.getPkKey(row):undefined},allowView:true},()=>{if(active)revision.value++})
     const changed=()=>revision.value++
     unsubscribers=[catalog.value!,dataSet.value!].map(ds=>ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed}))
     await target.refresh(); if (target.loadingError) throw target.loadingError
@@ -297,7 +300,7 @@ watch(importConfigId, async id => {
     if (target.rows.length===1) {
       if (target.getPkKey(target.rows[0]!) !== id) throw new Error('方案身份与调用参数不一致')
       nodes.setTreeConfig({idField:'rowid',parentIdField:'pid',textField:'sheetName',rootParentValue:id,lazy:false})
-      sparkProvide(PAGE_RUNTIME,page); dataSet.value!.triggerAutoLoad()
+      if (active && own===generation && session.isCurrent(current)) sparkProvide(PAGE_RUNTIME,current); dataSet.value!.triggerAutoLoad()
     }
     ready.value=true
   } catch(cause) {if(active && own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
@@ -320,10 +323,10 @@ async function save(table: string): Promise<void> {await act(table,async target=
   if (pendingPart(table===schemeTable?'scheme':table===nodesTable?'nodes':table===rulesTable?'rules':'fields')) return
   const structural=ExcelConfigurationEdit.hasStructuralChanges(target)
   if(structural && !target.hasUnconfirmedSave && (table===nodesTable||table===fieldsTable)){
-    const own=generation,page=runtime,ds=dataSet.value,id=view(nodesTable)?.currentRow?.['rowid']
+    const own=generation,page=session.runtime,ds=dataSet.value,id=view(nodesTable)?.currentRow?.['rowid']
     if(!ds||typeof id!=='string')throw new Error('Excel结构保存缺少原节点')
     targetChange.value=ExcelConfigurationEdit.pending({dataSet:ds,nodeId:id,tableName:table,assertCurrent:()=>{
-      if(!active||own!==generation||runtime!==page||dataSet.value!==ds||view(nodesTable)?.currentRow?.['rowid']!==id)throw new Error('Excel结构保存上下文已变化')
+      if(!active||own!==generation||session.runtime!==page||dataSet.value!==ds||view(nodesTable)?.currentRow?.['rowid']!==id)throw new Error('Excel结构保存上下文已变化')
     }})
     await targetChange.value.save();if(targetChange.value.getState().done){targetChange.value=undefined;await refreshFilterDirectory(target)}
     return
@@ -349,16 +352,16 @@ async function openRemoval(): Promise<void> {
   await act(nodesTable, async nodes => {
     const id = nodes.currentRow ? nodes.getPkKey(nodes.currentRow) : undefined
     if (typeof id !== 'string') throw new Error('请先选择配置')
-    const own = generation, page = runtime, schemeId = importConfigId.value
+    const own = generation, page = session.runtime, schemeId = importConfigId.value
     removal.value = await ExcelConfigurationRemoval.open({dataSet: dataSet.value!, schemeId, nodeId: id,
-      assertCurrent: () => {if(!active || own!==generation || runtime!==page || importConfigId.value!==schemeId)throw new Error('Excel删除上下文已变化')}})
+      assertCurrent: () => {if(!active || own!==generation || session.runtime!==page || importConfigId.value!==schemeId)throw new Error('Excel删除上下文已变化')}})
   })
 }
 async function saveRemoval(): Promise<void> {await act(nodesTable,async()=>{await removal.value?.save();if(removal.value?.getState().done)removal.value=undefined})}
 function cancelRemoval(): void {if(busy.value)return;try{removal.value?.cancel();removal.value=undefined;error.value='';revision.value++}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 function validateSourceTarget(): void {
   const nodes = view(nodesTable), row = nodes?.currentRow
-  if (!active || !ready.value || !runtime || !sourceTargetId.value || !row || nodes?.getPkKey(row) !== sourceTargetId.value || row['schemeid'] !== importConfigId.value || !!targetChange.value) throw new Error('Excel来源目标已变化')
+  if (!active || !ready.value || !session.runtime || !sourceTargetId.value || !row || nodes?.getPkKey(row) !== sourceTargetId.value || row['schemeid'] !== importConfigId.value || !!targetChange.value) throw new Error('Excel来源目标已变化')
 }
 function openTarget(): void {
   if (locked.value || targetChange.value || !targetAllowed.value) return
@@ -369,8 +372,8 @@ function openTarget(): void {
 async function applyTarget(source: DataSet): Promise<void> {
   await act(nodesTable, async () => {
     validateSourceTarget()
-    const own = generation, page = runtime, id = sourceTargetId.value
-    const assertCurrent = () => {if(!active || own !== generation || runtime !== page || view(nodesTable)?.currentRow?.['rowid'] !== id)throw new Error('Excel目标替换上下文已变化')}
+    const own = generation, page = session.runtime, id = sourceTargetId.value
+    const assertCurrent = () => {if(!active || own !== generation || session.runtime !== page || view(nodesTable)?.currentRow?.['rowid'] !== id)throw new Error('Excel目标替换上下文已变化')}
     const command = await ExcelConfigurationEdit.stage({dataSet: dataSet.value!, nodeId: id, source, assertCurrent})
     assertCurrent(); targetChange.value = command; sourceTargetId.value = ''
   })
@@ -388,10 +391,10 @@ function changeAssociation(input: Readonly<{owner: ExcelAssociationFields | unde
 function editReference(clear:boolean):void{
   if(locked.value||targetChange.value)return
   try{
-    const ds=dataSet.value,nodeId=selectedNode.value?.['rowid'],row=currentMapping.value,fieldId=row?view(fieldsTable)?.getPkKey(row):undefined,own=generation,page=runtime
+    const ds=dataSet.value,nodeId=selectedNode.value?.['rowid'],row=currentMapping.value,fieldId=row?view(fieldsTable)?.getPkKey(row):undefined,own=generation,page=session.runtime
     if(!ds||typeof nodeId!=='string'||typeof fieldId!=='string')throw new Error('请先选择当前配置的字段映射')
     let command:ExcelFieldReference|undefined
-    command=new ExcelFieldReference({dataSet:ds,nodeId,fieldId,resolveSource:id=>page?.getDataSet(id),assertCurrent:()=>{if(!active||generation!==own||runtime!==page||dataSet.value!==ds||!clear&&command!==undefined&&fieldReference.value!==command)throw new Error('原引用映射宿主已失效')}})
+    command=new ExcelFieldReference({dataSet:ds,nodeId,fieldId,resolveSource:id=>page?.getDataSet(id),assertCurrent:()=>{if(!active||generation!==own||session.runtime!==page||dataSet.value!==ds||!clear&&command!==undefined&&fieldReference.value!==command)throw new Error('原引用映射宿主已失效')}})
     if(clear)command.clear();else fieldReference.value=command
     error.value='';revision.value++
   }catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}
@@ -413,15 +416,15 @@ async function remove(table: string): Promise<void> {if(unconfirmed.value)return
   const row=target.currentRow,id=row?target.getPkKey(row):undefined
   if(id===undefined)return
   if(table===fieldsTable){
-    const ds=dataSet.value,nodeId=view(nodesTable)?.currentRow?.['rowid'],signature=definitionTargetDraftSignature(target,[String(id)]),own=generation,page=runtime
+    const ds=dataSet.value,nodeId=view(nodesTable)?.currentRow?.['rowid'],signature=definitionTargetDraftSignature(target,[String(id)]),own=generation,page=session.runtime
     if(!ds||typeof nodeId!=='string'||typeof id!=='string')throw new Error('删除映射缺少原节点身份')
     await assertExcelFieldRemoval({dataSet:ds,nodeId,ids:[id],assertCurrent:()=>{
-      if(!active||own!==generation||runtime!==page||dataSet.value!==ds||target.currentRow!==row||view(nodesTable)?.currentRow?.['rowid']!==nodeId||definitionTargetDraftSignature(target,[id])!==signature)throw new Error('删除映射期间原目标或草稿已变化')
+      if(!active||own!==generation||session.runtime!==page||dataSet.value!==ds||target.currentRow!==row||view(nodesTable)?.currentRow?.['rowid']!==nodeId||definitionTargetDraftSignature(target,[id])!==signature)throw new Error('删除映射期间原目标或草稿已变化')
     }})
   }
   await target.removeRow(id)
 })}
-onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off());sortDirectory.value?.dispose();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
+onBeforeUnmount(()=>{active=false;generation++;unsubscribers.forEach(off=>off());sortDirectory.value?.dispose();session.dispose()})
 </script>
 
 <style scoped>

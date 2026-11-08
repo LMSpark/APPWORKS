@@ -22,21 +22,24 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererTable, RendererDialog, RendererForm, RendererButton, useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
-import {SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {buildApplicationPath, parseApplicationPathScope} from '@/services/application-scope'
 
 const route = useRoute()
 const router = useRouter()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'logic-view-list-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), editing = ref<{id: string | number; create: boolean}>()
 const pending = computed(() => {revision.value; return view.value?.hasEditingChanges() === true || view.value?.dirtyTracking.hasPendingChanges() === true})
 const unconfirmed = computed(() => {revision.value; return view.value?.hasUnconfirmedSave === true})
 useSystemPageDirtySource({get isDirty() {return busy.value || pending.value || unconfirmed.value}})
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
   const values = view.value?.getSelectedValues() ?? []
@@ -86,7 +89,7 @@ function editCatalog(): void {
   target.setCurrentRow(row); editing.value = {id: target.getPkKey(row)!, create: false}
 }
 async function saveCatalog(): Promise<void> {
-  const target = view.value, edit = editing.value, current = runtime?.getDataSet(scenarioId.value), own = generation
+  const target = view.value, edit = editing.value, current = session.runtime?.getDataSet(scenarioId.value), own = generation
   if (!target || !edit || !current || busy.value) return
   busy.value = true; error.value = ''
   try {
@@ -120,23 +123,24 @@ async function openDesignRoute(viewId: string): Promise<void> {
 watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; busy.value = false; editing.value = undefined; error.value = ''
-  unsubscribe?.(); view.value = undefined; sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  unsubscribe?.(); view.value = undefined; session.dispose()
   try {
     if (!id) throw new Error('逻辑视图入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeLogicView.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    runtime = new PageRuntime({pageId: 'logic-view-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
-    await runtime.load()
-    const results=await Promise.allSettled(['Base_DataViewList','Base_UserInfo','Base_AppSystemList'].map(async name=>{const current=dataSet.getView(name);if(!current)throw Error('逻辑视图目录缺少正式视图');await current.refresh();if(current.loadingError)throw current.loadingError}))
+    const current = session.acquire({pageId: 'logic-view-list-page', scenarioIds: [id], targetId: id,
+      loadScenario: async () => dataSet})
+    await current.load()
+    const results=await Promise.allSettled(['Base_DataViewList','Base_UserInfo','Base_AppSystemList'].map(async name=>{const catalogView=dataSet.getView(name);if(!catalogView)throw Error('逻辑视图目录缺少正式视图');await catalogView.refresh();if(catalogView.loadingError)throw catalogView.loadingError}))
     const failure=results.find(result=>result.status==='rejected');if(failure?.status==='rejected')throw failure.reason
-    if (!active || own !== generation) {runtime.dispose(); return}
+    if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView(LowcodeLogicView.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++, rowsChanged: () => revision.value++, editingChanged: () => revision.value++, requestStateChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, runtime); ready.value = true
+    if (active && own === generation && session.isCurrent(current)) {sparkProvide(PAGE_RUNTIME, current); ready.value = true}
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

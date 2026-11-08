@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {configureLogicFixture} from './logic-view.fixture'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
@@ -60,6 +62,12 @@ async function openList() {
 }
 
 describe('logic-view list page', () => {
+  it('hosts the logic view catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('does not submit an empty catalog name or missing owning application', async () => {
     const {wrapper} = await openList()
     try {

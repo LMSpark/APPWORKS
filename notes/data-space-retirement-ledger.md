@@ -8308,3 +8308,5 @@ project-model包typecheck首次5诊断：用同完整tsconfig/CompilerHost仅内
 **AL最终检查点验收。**完整root verify99555自然exit0，含根类型/lint、ClassModel49项及正式规则；既有2模型警告/84薄页诊断保留，不冒整仓所有业务测试全绿。项目模型包type/lint/build、276项、根数据空间908项、owner15项、编译包smoke与最终官方生成（611/218）均有效，原handle全终态；源spark-data/API未改，复用原1328/1474仅原范围。高阶限定范围复审无剩余阻断。精确清理28份AL中间日志，保最终及4条基线类型归因证据；唯一主worktree，无并行总计划/过程脚本/兼容接口，原S2未跟踪RED不stage。准备只推origin同codex分支，不force/merge/部署，无实服写入、Java/组件/宿主/业务页面实施。
 
 S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端历史配置未扫描/未转换，旧file有明确诊断；S4改名工具:90与设计fileModels/selection/字段预览仍须消费新投影，不据根门禁称正式入口可用。下一S1按已证来源缺口核文件目录声明与列表完整性：bindFileDirectoryQueryAdapter会返回未声明fileName（AK已限证），LowcodeDesignApi.listFiles仍map/filter坏条目成空，须以真实反例查字段目录与清理证明，不先改S4整目录业务编排。历史转换与实服/缺证/暂缓保持各自登记，不将本批局部结果冒数据合同全部冻结。
+
+**AL已提交推送并独立核实。**代码bc552fa523f310099f3a91dc1318f04fb6e8c653（fix(data): bind declared tool catalogs as readonly projections），40文件662增530删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。官方backend-api-contracts消费派生仅既有工具测试sourceLine移位，不是后端协议/Java改动。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。此事实补记docs跟随同步。恢复仍S1，按上一最终检查点核目录字段声明与正式列表严格解码；不恢复ProjectToolCatalog.executeQuery/伪file或兼容映射、不重跑AK原写意图，S4断点与远端历史保开放，S1未整体冻结。

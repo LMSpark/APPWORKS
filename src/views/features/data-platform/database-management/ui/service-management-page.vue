@@ -50,7 +50,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {PAGE_RUNTIME, RendererTable, RendererButton, RendererDialog, RendererForm,
   useSparkComponent, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {LowcodeDatabaseServer, DATABASE_SERVER_MODEL, DATABASE_SERVER_REGISTER_TABLE} from '@/lowcode/resources/database/server/resource'
@@ -74,12 +74,16 @@ import {
 const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'].trim() : '')
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'service-management-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const dataSet = shallowRef<DataSet>()
 const view = shallowRef<DataView>()
 const edit = shallowRef<DatabaseServerEditState>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), deleteOpen = ref(false), deleteName = ref('')
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
+let unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
 const catalogKey = computed(() => buildDataViewKey(DATABASE_SERVER_MODEL, 'default', catalogScenarioId.value))
 const registerKey = computed(() => buildDataViewKey(DATABASE_SERVER_REGISTER_TABLE, 'default', catalogScenarioId.value))
@@ -185,7 +189,7 @@ function release(): void {
   actionGeneration++
   busy.value = false; actionError.value = ''; message.value = ''
   unsubscribe?.(); unsubscribe = undefined
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   edit.value = undefined; view.value = undefined
   dataSet.value?.destroy(); dataSet.value = undefined
 }
@@ -199,12 +203,13 @@ watch(scenarioId, async id => {
     const v = requireDatabaseServerView(ds)
     dataSet.value = ds; view.value = v
     const formKey = ds.scenarioId ?? id
-    const current = new PageRuntime({pageId: 'service-management-page', scenarioIds: [formKey], loadScenario: async () => ds})
-    runtime = current; await current.load()
-    if (!active || own !== generation) {current.dispose(); return}
+    const current = session.acquire({pageId: 'service-management-page', scenarioIds: [formKey], targetId: formKey,
+      loadScenario: async () => ds})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     unsubscribe = ds.onAnyViewChange({rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
       requestStateChanged: () => revision.value++, editingChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, current); ready.value = true
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
   } catch (cause) {if (active && own === generation) {error.value = cause instanceof Error ? cause.message : String(cause); release()}}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})

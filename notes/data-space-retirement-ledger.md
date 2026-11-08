@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见文末 BB。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见文末 BC。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8629,3 +8629,10 @@ pnpm run verify
 `data-set-design-page.vue` 不再自建 `PageRuntime`。被设计目标仍是目录宿主传入的单一领域 ID，不造导航身份。蓝图场景与元数据场景仍由同一次 `NativePageRuntimeSession.acquire` 装配；导航 DataView 接管后才提供给页面。换代、失败和卸载都释放当前实例。设计会话仍由页面释放，不并入宿主会话。
 
 **测试。**`lowcode-runtime-scenario-loader.test.ts` 42 项通过，含会话源码约束。导航投影仍在 PageRuntime 接管原 DataView 之后注入。改名预览和工具目录旧声明在换接前的页面上同样失败，本波不改工具声明，也不把它们记成宿主回归。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
+
+<a id="bc-s4-service-management-host"></a>
+#### BC. S4第五页：数据库服务器目录换接到公共宿主（未冻结）
+
+`service-management-page.vue` 不再自建 `PageRuntime`。目录 DataSet 仍先由 `LowcodeDatabaseServer.loadCatalog` 读出，再交给 `NativePageRuntimeSession`；换代、卸载和加载失败都释放当前实例，迟到加载不把页面标成就绪。进入条件仍是导航绑定的蓝图场景。
+
+**测试。**`service-management-page.test.ts` 12 项通过，含会话源码约束和目录加载。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。

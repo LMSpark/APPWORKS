@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
@@ -65,6 +67,12 @@ async function open(scenarioId: string): Promise<VueWrapper> {
 }
 
 describe('service-management-page', () => {
+  it('hosts the server catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/database-management/ui/service-management-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('loads the server catalog when blueprintScenarioId is bound', async () => {
     const wrapper = await open(DATABASE_SERVER_SCENARIO_ID)
     await flushPromises()

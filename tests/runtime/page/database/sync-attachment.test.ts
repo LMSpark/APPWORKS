@@ -104,6 +104,35 @@ describe('actual metadata sync attachment', () => {
     expect(http.requests.map(request => request.url)).toEqual(['/api/Table/SyncMetaData/DB1/T1'])
   })
 
+  it('does not replay an unknown sync through an implicitly cloned query view', async () => {
+    const {dataSet, http, attach} = setup()
+    attach()
+    const view = dataSet.getView('sync')!
+    await view.refresh()
+    const row = await view.addRow({dbid: 'DB1', tableid: 'T1'}), id = view.getPkKey(row)!
+    http.syncMetadataMode = 'timeout-before'
+    await expect(dataSet.saveChanges({views: [{tableName: 'sync', viewId: 'default', ids: [id]}]})).rejects.toThrow()
+    expect(() => view.createQueryView('peer')).toThrow('DATA_VIEW_DERIVED_QUERY_UNSUPPORTED')
+    expect(dataSet.getView('sync', 'peer')).toBeUndefined()
+    expect(await dataSet.resolveUnconfirmedSaves()).toMatchObject({state: 'unknown'})
+    expect(view.hasUnconfirmedSaveFor([id])).toBe(true)
+    expect(http.requests.map(request => request.url)).toEqual(['/api/Table/SyncMetaData/DB1/T1'])
+  })
+
+  it('does not let an option query consume a confirmed sync receipt', async () => {
+    const {dataSet, http, attach} = setup()
+    attach()
+    const view = dataSet.getView('sync')!
+    await view.refresh()
+    const input = await view.addRow({dbid: 'DB1', tableid: 'T1'})
+    await dataSet.saveChanges({views: [{tableName: 'sync', viewId: 'default', ids: [view.getPkKey(input)!]}]})
+    const row = view.rows[0]!
+    await expect(view.queryOptionRows({fields: ['rowid']})).rejects.toThrow('DATA_VIEW_DERIVED_QUERY_UNSUPPORTED')
+    expect(view.rows[0]).toBe(row)
+    expect(view.fieldAccess(row, 'rowid').read).toBe('visible')
+    expect(http.requests).toHaveLength(1)
+  })
+
   it('revalidates current declarations after binding and preserves the original guard', async () => {
     const {dataSet, http, input, attach} = setup()
     attach()

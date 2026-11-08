@@ -735,6 +735,9 @@
       "type": "object",
       "title": "DataViewQueryExecutor",
       "properties": {
+        "derivedQueries": {
+          "const": "bound-view-only"
+        },
         "parentResults": {
           "type": "boolean"
         },
@@ -3192,7 +3195,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T22:05:48.996Z",
+  "generatedAt": "2026-11-07T23:57:47.388Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -4170,16 +4173,22 @@
       "jsdoc": "一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */\n    parentResults?: boolean;\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 同步通知原来源完成接纳，必须返回undefined；通知异常仅记录诊断，不反转已确认结果。此前来源须保留原提交事实。 */\n    acknowledgeSave?(context: DataViewQueryResult): undefined;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 仅原绑定视图可用的命令/显式探测禁止隐式命名查询与选项查询；省略表示来源支持派生读取。独立正式声明并绑定的实例不属于派生。 */\n    derivedQueries?: 'bound-view-only';\n    /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */\n    parentResults?: boolean;\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 同步通知原来源完成接纳，必须返回undefined；通知异常仅记录诊断，不反转已确认结果。此前来源须保留原提交事实。 */\n    acknowledgeSave?(context: DataViewQueryResult): undefined;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */\n    parentResults?: boolean;\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 同步通知原来源完成接纳，必须返回undefined；通知异常仅记录诊断，不反转已确认结果。此前来源须保留原提交事实。 */\n    acknowledgeSave?(context: DataViewQueryResult): undefined;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
+            "typeText": "Readonly<{\n    /** 仅原绑定视图可用的命令/显式探测禁止隐式命名查询与选项查询；省略表示来源支持派生读取。独立正式声明并绑定的实例不属于派生。 */\n    derivedQueries?: 'bound-view-only';\n    /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */\n    parentResults?: boolean;\n    /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */\n    localAggregates?: boolean;\n    /** 来源的每个DataView是独立确认边界时逐视图接纳回执，保留已确认来源并显式报告后续部分失败。 */\n    saveIndependently?: boolean;\n    /** 可选结果缓存协议；未实现时不能启用视图缓存。清除不改变编辑或原权限上下文。 */\n    invalidateQueryCache?(): void;\n    /** 释放本次页面缓存，不影响浏览器会话复用。 */\n    releaseQueryCache?(page: object): void;\n    /** 本来源实际可查询的字段；从原绑定定义派生，不是数据权限或当前视图的输出投影。 */\n    queryColumns?(view: DataView): readonly DataColumn[];\n    executeQuery(view: DataView, params: QueryParams): Promise<DataViewQueryResult>;\n    save?(command: DataViewQuerySaveCommand): Promise<DataViewQuerySaveReceipt[]>;\n    /** 原来源明确保留了待核验提交；只读判断，不把一般请求失败推断为未知。save再次接收原捕获时须先核验，不能重放写入。 */\n    hasUnconfirmedSave?(context: DataViewQueryResult): boolean;\n    /** 同步通知原来源完成接纳，必须返回undefined；通知异常仅记录诊断，不反转已确认结果。此前来源须保留原提交事实。 */\n    acknowledgeSave?(context: DataViewQueryResult): undefined;\n    /** 仅重读已确认新增行的权限，不重新提交保存。 */\n    refreshSavedRowPermissions?(context: DataViewQueryResult): Promise<DataViewQueryResult>;\n    /** 调用方明确放弃核验并改用实际查询结果；不撤销服务端可能已生效的写入。 */\n    abandonUnconfirmedSave?(context: DataViewQueryResult): void;\n    /** 可选资源来源生命周期；普通查询无此能力，不自动推导为可采用或可写。 */\n    source?: DataViewSourceAdapter;\n}>",
             "targetName": "Readonly"
           }
         ],
         "members": {
           "attributes": [
+            {
+              "name": "derivedQueries",
+              "jsdoc": "仅原绑定视图可用的命令/显式探测禁止隐式命名查询与选项查询；省略表示来源支持派生读取。独立正式声明并绑定的实例不属于派生。",
+              "readable": true,
+              "writable": false
+            },
             {
               "name": "parentResults",
               "jsdoc": "是否承接parentResult来源；缺少能力时须在派发前拒绝。",
@@ -5299,7 +5308,7 @@
             },
             {
               "name": "createQueryView",
-              "jsdoc": "在同一DataTable创建独立命名查询视图，复用查询owner和查询配置，不复制行、选择、草稿或权限。\n辅助查询不继承页面完成函数；确需完成动作的消费者须显式配置onRequestComplete。\n@param viewId 新视图身份，须在所属模型内唯一。\n@returns 由DataTable持有的视图；使用方释放时调用dataTable.destroyView。\n@throws 源已释放、无所属表或视图身份重复时拒绝创建。",
+              "jsdoc": "在同一DataTable创建独立命名查询视图，复用查询owner和查询配置，不复制行、选择、草稿或权限。\n辅助查询不继承页面完成函数；确需完成动作的消费者须显式配置onRequestComplete。\n@param viewId 新视图身份，须在所属模型内唯一。\n@returns 由DataTable持有的视图；使用方释放时调用dataTable.destroyView。\n@throws 源已释放、无所属表、视图身份重复或来源只允许原绑定实例时拒绝创建。",
               "parameters": [
                 {
                   "name": "viewId",
@@ -5521,7 +5530,7 @@
             },
             {
               "name": "queryOptionRows",
-              "jsdoc": "Query one complete option set without replacing this view's rows or query permission.",
+              "jsdoc": "Query one complete option set without replacing this view's rows or query permission.\n@throws 来源声明只允许原绑定实例时在捕获输入及查询前拒绝；选项结果不完整或不可读时拒绝。",
               "parameters": [
                 {
                   "name": "options",

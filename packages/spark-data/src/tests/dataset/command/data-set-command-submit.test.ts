@@ -18,7 +18,7 @@ function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify
   const guard = vi.fn()
   let next = 0
   const binding = vi.spyOn(view, 'bindQueryExecutor')
-  bindDataSetCommandSubmit(view, {
+  const options: BindCommandSubmitOptions = {
     resource: {resourceType: 'file', resourceId: 'register'},
     guard,
     inputFields: ['ServerName', 'Password'],
@@ -29,11 +29,17 @@ function setup(overrides: Partial<Pick<BindCommandSubmitOptions,'submit'|'verify
     ...(overrides.allowAbandonUnconfirmed===undefined?{}:{allowAbandonUnconfirmed:overrides.allowAbandonUnconfirmed}),
     ...(overrides.retainConfirmedOnRefresh===undefined?{}:{retainConfirmedOnRefresh:overrides.retainConfirmedOnRefresh}),
     ...(overrides.onPrepareInput?{onPrepareInput:overrides.onPrepareInput}:{}),
-  })
+  }
+  bindDataSetCommandSubmit(view, options)
   const executor = binding.mock.calls[0]![0]
   binding.mockRestore()
   const save = () => dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId}]})
-  return {dataSet, view, submit, verify, guard, save, executor}
+  const addDeclaredView = (viewId: string) => {
+    const declared = view.dataTable!.getOrCreateView(viewId)
+    bindDataSetCommandSubmit(declared, options)
+    return declared
+  }
+  return {dataSet, view, submit, verify, guard, save, executor, addDeclaredView}
 }
 
 async function addInput(view: ReturnType<typeof setup>['view'], values: Record<string, string>): Promise<DataRow> {
@@ -115,7 +121,7 @@ describe('DataSet command submit helper', () => {
       return {...row}
     }})
     try {
-      const second = f.view.createQueryView('second')
+      const second = f.addDeclaredView('second')
       await addInput(f.view, {ServerName: 'first'})
       await addInput(second, {ServerName: 'second'})
       await expect(f.dataSet.saveChanges()).rejects.toThrow('first command rejected')
@@ -131,7 +137,7 @@ describe('DataSet command submit helper', () => {
       return {...row}
     }, verify: async row => ({...row})})
     try {
-      const second = f.view.createQueryView('second')
+      const second = f.addDeclaredView('second')
       await addInput(f.view, {ServerName: 'first'})
       await addInput(second, {ServerName: 'second'})
       await expect(f.dataSet.saveChanges()).rejects.toThrow('second command unknown')

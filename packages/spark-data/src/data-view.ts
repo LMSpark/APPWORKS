@@ -269,6 +269,8 @@ type DataViewQueryResult = Readonly<{
 }>
 /** 一次运行绑定的查询保存 owner；保存消费原查询上下文，数据层不依赖具体 API 包。 */
 type DataViewQueryExecutor = Readonly<{
+  /** 仅原绑定视图可用的命令/显式探测禁止隐式命名查询与选项查询；省略表示来源支持派生读取。独立正式声明并绑定的实例不属于派生。 */
+  derivedQueries?: 'bound-view-only'
   /** 是否承接parentResult来源；缺少能力时须在派发前拒绝。 */
   parentResults?: boolean
   /** false表示本来源的业务汇总须由服务端执行；禁止旧aggregates及子表公式按当前页/选中缓存计算。省略保留纯本地来源行为。 */
@@ -591,15 +593,22 @@ rows: DataRow[] = []
     } catch (error) {this.#resourceIdentity = undefined; this.#queryExecutor = undefined; throw error}
   }
 
+  private assertDerivedQueryAllowed(use: 'named-view' | 'options'): void {
+    if (this.#queryExecutor?.derivedQueries === 'bound-view-only') {
+      throw new Error(`DATA_VIEW_DERIVED_QUERY_UNSUPPORTED: 本绑定来源不支持派生查询 ${use}`)
+    }
+  }
+
   /**
    * 在同一DataTable创建独立命名查询视图，复用查询owner和查询配置，不复制行、选择、草稿或权限。
    * 辅助查询不继承页面完成函数；确需完成动作的消费者须显式配置onRequestComplete。
    * @param viewId 新视图身份，须在所属模型内唯一。
    * @returns 由DataTable持有的视图；使用方释放时调用dataTable.destroyView。
-   * @throws 源已释放、无所属表或视图身份重复时拒绝创建。
+   * @throws 源已释放、无所属表、视图身份重复或来源只允许原绑定实例时拒绝创建。
    */
   createQueryView(viewId: string): DataView {
     this.checkDestroyed()
+    this.assertDerivedQueryAllowed('named-view')
     const table = this.dataTable
     if (!table || table.dataSet?.destroyed || table.getView(this.viewId) !== this) throw new Error('DATA_VIEW_QUERY_IDENTITY: 源视图未注册')
     if (!viewId.trim() || viewId.includes('@')) throw new Error('DATA_VIEW_QUERY_IDENTITY: 视图名称无效')
@@ -669,9 +678,13 @@ rows: DataRow[] = []
     })
   }
 
-  /** Query one complete option set without replacing this view's rows or query permission. */
+  /**
+   * Query one complete option set without replacing this view's rows or query permission.
+   * @throws 来源声明只允许原绑定实例时在捕获输入及查询前拒绝；选项结果不完整或不可读时拒绝。
+   */
   async queryOptionRows(options: DataViewOptionQueryOptions): Promise<DataRow[]> {
     this.checkDestroyed()
+    this.assertDerivedQueryAllowed('options')
     const table = this._dataTable
     const dataSet = table?.dataSet
     const executor = this.#queryExecutor

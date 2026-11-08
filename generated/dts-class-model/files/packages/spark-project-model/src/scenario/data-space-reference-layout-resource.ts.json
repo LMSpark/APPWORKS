@@ -19,6 +19,9 @@
       "type": "object",
       "title": "Executor",
       "properties": {
+        "derivedQueries": {
+          "const": "bound-view-only"
+        },
         "parentResults": {
           "enum": [
             false,

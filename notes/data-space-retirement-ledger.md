@@ -8158,3 +8158,16 @@ bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应
 **AD最终检查点验收。**32505官方重生成自然exit0，最新完整根verify75492自然exit0，含类型/lint、ClassModel49项与正式规则；既有2模型警告/84薄页诊断保留。数据57文件1261项、末态定向3文件62项、包type/lint证据有效，高阶已声明范围静态复审无阻断，不冒全20包或全部S1验收。追加精确删除3份已被末态覆盖日志（本批共30份），保最终test/type/lint/gen/gates；反例事实仅本台账，不另建过程方案。所有handle终态，diff检查通过，唯一主worktree；原S2未跟踪RED不stage。准备同codex分支推origin，不merge/force/部署。只S1公共文件适配及测试/文档/官方产物，无实服写入、无组件/宿主/页面/Java改动，无兼容层。S1合同仍未冻结，下一真实验证命令clone未知防重放及辅助查询用途边界；历史数据转换尚未宣称完成。
 
 **AD已提交推送并独立核实。**代码80e44035d7f6a3e02cb1fc91e49e606166118743（fix(data): validate file resource assembly before binding），18文件400增101删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地同精确SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。此事实补记docs跟随同步。恢复点仍S1：先真实sync-attachment命名clone未知防重放及连接queryOptionRows用途反例，再据公共合同解决；不以文件装配局部通过冒整体冻结，20包目标active。
+
+
+**AE命令派生用途集中批（S1，未冻结）。**主控真实sync-attachment反例已证：默认view仍unknown，createQueryView peer新context绕pending WeakMap再次POST相同SyncMetaData，1失败12通过。扩大实际两连接probe辅助选项与已确认sync选项读取共4真实RED44通过：辅助查询可消费秘密/清命令confirmed或绕未知。高阶确认应由executor正式声明bound-view-only派生限制，不能按file字面、allPages或saveIndependently推断，也不禁独立正式声明实例。
+
+已在DataView executor加derivedQueries纯声明，createQueryView在登记前、queryOptionRows在临时视图/捕获/IO前同一私有预检；写命令统一bound-view-only并拒非原target，readonly binder仅传适配显式声明，两个连接probe标记。普通模型/file/AC预览及真正只读目录保原派生合同，无兼容旁路/请求第三参/假resource类型修法。实际sync测试进一步精确到clone本身拒、peer未登记、原resolve仍unknown且POST仅1；两probe派生拒绝后秘密保留，随后显式refresh恰1次POST并清密。初定向2文件48项GREEN，新增公共预检无回调/无副作用及普通派生正例待扩大。资源语义file伪装及readonly查询参数忽略的I3余项仍开放，不因本批允许目录派生称完整过滤/排序/全集已支持。无新实服写入、无组件/宿主/页面/Java更改，原S2未跟踪RED不动。
+
+**AE扩大与旧测试合同纠正。**首数据包49847自然exit1：2失败1261通过，两项部分成功测试用createQueryView共享写命令owner，属本次明确删除的错误前提。fixture改为getOrCreateView正式声明后分别bind同领域options，保首命令失败零后续派发、第二unknown单独核验、已确认首项不再重发的全部断言；不删用例、不恢复克隆。首扩大66935自然exit1亦含这两项，不作末态绿。最终定向30548自然0为5文件102项；根vitest include不会收src路径下lowcodeAPI测试，故未冒它包含模板，另以API包28463实跑44文件1463项（正式include覆盖模板双绑定）自然0。数据包81760最终57文件1263项自然0，普通file命名派生沿原文件测试通过；数据库88884仍live，继续原句柄。
+
+高阶末态只读复审既定范围无阻断。public DataView/createQueryView/queryOptionRows及命令binder JSDoc已明确受限来源；正式末生成13633和包type/lint92380仍收终态。source实际createQueryView消费者查为正式模型/JSON文件/布局等，不把写命令误当这些通用来源；readonly helper忽略过滤/分页及伪file语义分类仍是独立I3待办。本批不将能力声明当历史存量转换或实服防重放证明。
+
+**AE最终实服只读及工程验收。**13633正式生成与92380包type/lint自然exit0，数据库88884最终18文件405项自然0；最终完整根verify24764自然exit0（类型/lint、ClassModel49项及正式规则），既有2模型警告/84薄页诊断保留。官方产物已核derivedQueries声明及createQueryView/queryOptionRows指南，消费者正式生成611端点216消费者。数据1263/API1463/最终定向102项证据各按范围，不冒全仓测试或20包完成。
+
+实服只读45749自然exit0：复用AA已核脚本、凭据只stdin/RAM、新登录后经当前正式SDK/assembler/DataView查询，GetBaseData1/Login1/GetData5，业务写0；原U精确PK 2E421295C650DD38886EBF456D8ECE48独立回读不存在，unconfirmed=false、recovery none。证据evidence/data-chain-smoke/2026-11-08-s1-command-derived-readonly.json含源码worktree/script SHA及当次范围；未重放CRUD、未执行Sync/probe、不冒服务幂等，凭据/session未落证据。所有本批handle终态，精确清理8份被末态替代的中间日志，反例/测试纠正事实仅本台账；保有效正式回归和实服JSON，无临时worktree。准备只推origin同codex分支，不merge/force/部署；原S2未跟踪RED不stage。仍S1：下一真实readonly参数/资源语义矩阵，尚未冻结、未进S2、历史转换不冒完成，原20包目标active。

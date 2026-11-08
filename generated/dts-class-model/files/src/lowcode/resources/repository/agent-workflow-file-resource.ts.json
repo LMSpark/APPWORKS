@@ -182,6 +182,9 @@
       "type": "object",
       "title": "FileQueryExecutor",
       "properties": {
+        "derivedQueries": {
+          "const": "bound-view-only"
+        },
         "parentResults": {
           "enum": [
             false,

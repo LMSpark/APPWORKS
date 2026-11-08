@@ -24,6 +24,8 @@ export type DataSetCommandRowsLoader = (view: DataView) => Promise<readonly Data
 export type DataSetCommandResourceIdentity = Readonly<{resourceType: string; resourceId: string}>
 
 export type BindReadonlyCommandQueryOptions = Readonly<{
+  /** 显式探测只允许原绑定视图调用，不可作为选项来源或隐式克隆；普通只读资源省略。 */
+  derivedQueries?: 'bound-view-only'
   resource: DataSetCommandResourceIdentity
   guard: DataSetCommandScopeGuard
   /** 每次实际查询派发时捕获输入，返回的校验同时守护结果接纳及后续上下文使用；准备/预检不调用它。 */
@@ -227,6 +229,7 @@ function commandSubmitResult(view: DataView, confirmed: readonly DataRow[], opti
  * 绑定写命令：首次refresh初始化本地结果后addRow录入参数，DataSet.saveChanges一次提交一行并接纳回执。
  * 后续refresh按retainConfirmedOnRefresh保留或清空本实例已确认回执，不派发命令。
  * 已接纳行只读；修改或删除已接纳行不是本命令语义，直接拒绝。
+ * 只允许原绑定实例，不支持隐式命名查询或选项读取；正式声明的独立视图须分别绑定。
  * @returns 重复装配时校验本视图仍绑定原查询/保存责任方的同步函数；不刷新、不提交、不替换状态。
  */
 export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSubmitOptions): () => void {
@@ -279,9 +282,11 @@ export function bindDataSetCommandSubmit(view: DataView, options: BindCommandSub
     }))
   }
   const executor: QueryExecutor = {
+    derivedQueries: 'bound-view-only',
     localAggregates: false,
     saveIndependently: true,
     executeQuery: target => {
+      if (target !== view) throw new Error('DATA_SET_COMMAND_VIEW_IDENTITY: 命令只属于原绑定视图')
       options.guard()
       if(options.retainConfirmedOnRefresh!==true)confirmed = []
       return Promise.resolve(commandSubmitResult(target, confirmed, options))
@@ -317,6 +322,7 @@ export type DataSetReadonlyCommandBinding = Readonly<{
 export function prepareDataSetReadonlyCommandQuery(view: DataView, options: BindReadonlyCommandQueryOptions): DataSetReadonlyCommandBinding {
   const queryColumns = options.queryColumns ?? (target => target.dataTable?.columns ?? [])
   const executor: QueryExecutor = {
+    ...(options.derivedQueries ? {derivedQueries: options.derivedQueries} : {}),
     localAggregates: false,
     queryColumns,
     executeQuery: async (target, _params) => {

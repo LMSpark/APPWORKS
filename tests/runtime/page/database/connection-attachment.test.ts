@@ -283,3 +283,23 @@ it.each(['server', 'directory'] as const)('isolates a late %s response from a ne
   expect(result.rows).toMatchObject([{ok: 'true'}])
   expect(view.getEditingRow(id)).toMatchObject({UserName: '', Password: ''})
 })
+
+it.each(['server', 'directory'] as const)('rejects implicit derived %s probes without consuming credentials', async kind => {
+  const state = kind === 'directory' ? await directoryTarget() : setup('server')
+  const {dataSet, http} = state
+  if (kind === 'server') state.attach()
+  const inputView = dataSet.getView('input')!, result = dataSet.getView('result')!, row = inputView.rows[0]!, id = inputView.getPkKey(row)!
+  if (kind === 'server') Object.assign(row, {Type: 'MYSQL', ServerName: 'Server', ip_address: 'host', Port: '3306'})
+  inputView.updateEditingValue(id, 'UserName', 'typed-user')
+  inputView.updateEditingValue(id, 'Password', 'typed-secret')
+  const post = vi.spyOn(http, 'post').mockResolvedValue({Code: 200, Type: 'success', Result: true})
+  await expect(result.queryOptionRows({fields: ['ok']})).rejects.toThrow('DATA_VIEW_DERIVED_QUERY_UNSUPPORTED')
+  expect(() => result.createQueryView('implicit')).toThrow('DATA_VIEW_DERIVED_QUERY_UNSUPPORTED')
+  expect(dataSet.getView('result', 'implicit')).toBeUndefined()
+  expect(post).not.toHaveBeenCalled()
+  expect(inputView.getEditingRow(id)).toMatchObject({UserName: 'typed-user', Password: 'typed-secret'})
+  await result.refresh()
+  expect(result.loadingError).toBeNull()
+  expect(post).toHaveBeenCalledTimes(1)
+  expect(inputView.getEditingRow(id)?.['Password'] ?? row['Password']).toBe('')
+})

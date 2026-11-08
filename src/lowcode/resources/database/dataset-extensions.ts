@@ -720,6 +720,7 @@ export function attachDatabaseDirectoryConnectionTestViews(input: AttachDatabase
       || connectionServerFields.some(field => scalar(serverRow[field]) !== captured.serverValues[field])) throw new Error('数据库或服务器目录参数已变化')
   }
   const options: SparkData.BindReadonlyCommandQueryOptions = {
+    derivedQueries: 'bound-view-only',
     resource: {resourceType: 'file', resourceId: plan.resourceId},
     guard: () => {try {assertDependencies()} catch (error) {clearSecrets(); throw error}},
     captureQueryInputs: () => {
@@ -797,6 +798,7 @@ export function attachServerConnectionTestViews(input: AttachServerConnectionTes
   const requirePair = (): ConnectionPair => pair
   const clearSecrets = (): void => {scrubbing = true; try {clearConnectionSecrets(requirePair())} finally {scrubbing = false}}
   const options: SparkData.BindReadonlyCommandQueryOptions = {
+    derivedQueries: 'bound-view-only',
     resource: {resourceType: 'file', resourceId: plan.resourceId}, guard: () => assertConnectionPair(requirePair()),
     captureQueryInputs: () => {
       const capturedRevision = revision, current = requirePair(), currentAttempt = ++attempt

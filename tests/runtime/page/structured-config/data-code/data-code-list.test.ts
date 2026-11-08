@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import catalogText from '../../../../../config/pages/structured-config/data-code-catalog/pagedata.json?raw'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
@@ -77,6 +79,12 @@ async function openList(select = true) {
 }
 
 describe('data-code list page', () => {
+  it('hosts the code catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('loadCatalog returns scoped catalog rows', async () => {
     const dataSet = await LowcodeDataCode.loadCatalog(LowcodeDataCode.navigationScenarioId)
     dataSet.triggerAutoLoad()

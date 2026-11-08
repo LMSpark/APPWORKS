@@ -30,7 +30,7 @@
 import {computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDataCode} from '@/lowcode/resources/structured-config/data-code/resource'
 
@@ -44,8 +44,12 @@ const designTarget = shallowRef<{applicationId: string; codeDesignId: string; cr
 const designPage = ref<{hasPending: boolean; busy: boolean; unconfirmed: boolean; discardChanges: () => boolean}>()
 const designPending = computed(() => designPage.value?.hasPending === true || designPage.value?.busy === true)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-code-list-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const view = shallowRef<DataView>(), loading = ref(false), ready = ref(false), error = ref(''), revision = ref(0)
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const selected = computed(() => {
   revision.value
   const values = view.value?.getSelectedValues() ?? []
@@ -56,12 +60,12 @@ const catalogKey = computed(() => buildDataViewKey(LowcodeDataCode.catalogMetaNa
 const appsKey = computed(() => buildDataViewKey('Base_AppSystemList', 'default', scenarioId.value))
 const selectedApplication = computed(() => {
   revision.value
-  const values = runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')?.getSelectedValues() ?? []
+  const values = session.runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')?.getSelectedValues() ?? []
   return values.length === 1 && typeof values[0] === 'string' ? values[0] : ''
 })
 const queryError = computed(() => {
   revision.value
-  const apps = runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')
+  const apps = session.runtime?.getDataSet(scenarioId.value)?.getView('Base_AppSystemList')
   return view.value?.loadingError?.message ?? apps?.loadingError?.message ?? ''
 })
 const toolbar = computed<RToolbarProps>(() => ({wrap: true, children: [
@@ -111,23 +115,23 @@ watch(scenarioId, async id => {
   const own = ++generation
   ready.value = false; loading.value = true; error.value = ''
   unsubscribe?.(); view.value = undefined
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   try {
     if (!id) throw new Error('编码管理入口缺少导航绑定的数据空间ID')
     const dataSet = await LowcodeDataCode.loadCatalog(id)
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const page = new PageRuntime({pageId: 'data-code-list-page', scenarioIds: [id], loadScenario: async () => dataSet})
-    runtime = page
-    await page.load()
-    if (!active || own !== generation) {page.dispose(); return}
+    const current = session.acquire({pageId: 'data-code-list-page', scenarioIds: [id], targetId: id,
+      loadScenario: async () => dataSet})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     view.value = dataSet.getView(LowcodeDataCode.catalogMetaName, 'default')
     unsubscribe = dataSet.onAnyViewChange({selectedRowsChanged: () => revision.value++, requestStateChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, page); ready.value = true
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
     dataSet.triggerAutoLoad()
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

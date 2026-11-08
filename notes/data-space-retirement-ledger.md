@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AN** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，Cursor移交收口）：** 用户要求收口、提交推送并准备移交Cursor；本会话停止新增实施，移交说明见文末[Cursor接续方案](#cursor-handoff-20261108)。此前用户已恢复S1并授权精确隔离烟测/清理/核定的一次性历史转换，该授权事实保留；当前产品实施停在 **S1未冻结**，不能据本次“收口”进入S2或宣称整体完成。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8352,3 +8352,100 @@ S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端�
 当前准备只推origin同codex分支，不force/merge/部署。下一S1仍按上节可写file owner currentOptions跨await重绑线索先反例，不自动进入组件合同；整体S1冻结、远端历史一次转换、20包整体验收均未完成。
 
 **AN已提交推送并独立核实。**代码f41d480bb4acea678d2a47aa12ffe6c71e33bb24（refactor(spark-data): unify readonly file directory queries），24文件522增134删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote精确同SHA。跟踪树清洁，仅原S2未跟踪RED、唯一主worktree。此补记docs跟随同步。恢复点仍S1可写file owner同目标重绑/在途捕获线索，先实证再修，不恢复目录手工executor/重复权限、不将本批只读证据冒完整写链或数据合同冻结。
+
+<a id="cursor-handoff-20261108"></a>
+### 2026-11-08 Cursor接续方案（本次移交的当前入口）
+
+**移交裁决。**这是用户本次“收口、提交推送、准备移交”的交接记录，不是第二份总计划。原六阶段整体目标未完成；本会话完成移交后暂停自动实施，避免与Cursor同时修改。Cursor可沿用户已恢复的S1授权继续，不必重新询问已授权的日常修复/提交步骤；仍须核实际写入对象和范围。本节优先于早期“只做S0/未授权实施/下一步E62”等历史语句，不能把历史未收句柄当当前仍运行，也不能把AN局部通过当S1冻结。
+
+#### 1. 接收快照、范围与工作区
+
+| 项目 | 接收依据 |
+| --- | --- |
+| 唯一工作区 | `D:/SPARK_AppWorks`；唯一主worktree，没有需要合并/删除的临时worktree |
+| 分支/远端 | `codex/spark-data-s1-command-safety`；仅向`origin`推送，URL为`https://github.com/LMSpark/APPWORKS.git`；本机另有`github`/`gitlab`，不操作；不force/merge/部署 |
+| 最新产品代码检查点 | `f41d480bb4acea678d2a47aa12ffe6c71e33bb24`，目录只读数据链收口 |
+| 本次移交前HEAD | `b88ca0e8ecf1a8f0bc60e5179c78565b0d688ccf`；本节文档提交在其上，接收时以`git log -1`及独立`git ls-remote`核同一远端分支 |
+| 唯一未跟踪文件 | `packages/spark-component/src/tests/filter/json-tree-value-root.test.ts`；用户已有S2 RED，未纳入本轮修改/测试/提交，不删除、不覆盖、不stage。接收时SHA256应为`74948A5CE39480E5A23925F0961FB895772C0F4F3FFEF78C29C55CF34CD4E11E`；若变化先辨别用户工作 |
+| 固定参考 | `E:/r/sparkproject`固定提交`1147b00ee53a1476d4ee715c61368b453a215192`；不要用参考仓新HEAD替代。Java只读参考`E:/lowcode-jdk17`的`e1eccc1b56c225212481ba276302d5e6b288e883`，不修改/启动/部署，也不当部署版本证明 |
+| 完整范围 | 本台账 **N1原20包交叉索引**逐行保留，F—M逐用例依据及N2/N3边界沿用。旧机器inventory只有19项，遗漏PDF，不能取代20包分母 |
+| 阶段编号 | 用户第1步=S0现状规划，第2步=S1数据，第3步=S2组件，第4步=S3宿主配置，第5步=S4业务页，第6步=S5整体验收；当前仍S1 |
+
+接收先读根`AGENTS.md`，然后本节、分阶段收口章、N1—N3、I3、P至AN最终检查点；产品事实回到源码/JSDoc/正式服务合同。历史过程可追查但不作执行指令。不要重新生成另一份交接总台账、并行计划或把整份聊天复制成活动规范。
+
+#### 2. 已交付的数据链与证据边界
+
+- DB命令的原捕获/回执接纳、防重放、混合来源部分成功与未知核验已有P—T等证据；U精确隔离CRUD已清理。数据库预览、注册/同步、只读命令用途及资源语义经过V—AH分批收口，不据局部样本宣称所有服务具幂等性。
+- 原生结构生命周期AI、文件输出/基线AJ、ProjectToolCatalog正式logical-view投影及仓内声明一次转换AL、文件SDK精确身份/整批目录解码AM、目录DataView公共只读查询AN已提交。`ProjectToolCatalog`无modelBinding才用其正式投影；正式逻辑模型仍走model owner，`ProjectToolFile`仍真file。
+- 禁止恢复`ensureDataSetFileCommandView`、`ProjectToolResource.executeQuery`、目录手工executor/权限算法、SDK静默过滤坏目录项、trim文件身份、只有basename/无ACK的上传确认；当前公开能力以实际源码为准，没有旧API兼容层。
+- 目录公共链的`captureQueryInputs(view, params)`和`loadRows`共用同一隔离查询参数；AN保原options/target、固定目录context、来源列/投影与注册生命周期。只读动作hidden替代旧disabled是已声明变化。不能把目录修复自动套认为可写文件链已修。
+
+| 验证 | 本地有效证据与限制 |
+| --- | --- |
+| 数据包 | 58文件1351项，`artifacts/an-complete-data-tests.log`；随后只做文件落点移动，移动后type/lint/build及三文件96项重验，见`an-last-data-*` |
+| API/项目模型 | 1515/276项，`artifacts/an-final-api-tests.log`、`an-final-project-tests.log`；后续目录局部变化由数据及真实入口测试覆盖，不冒新实服证据 |
+| 最终消费者 | 33文件975项，`artifacts/an-bounded-consumers.log`，`maxWorkers=2`、原超时阈值不变；含真实`createPageFileDirectoryView`消费正式pagedata的2项 |
+| 工程/派生 | `artifacts/an-last-verify.log`自然0（ClassModel49项等）；正式生成`an-final-class-model-after-move.log`、`an-last-lowcode-contracts.log`（611/221）；既有2模型warnings/84薄页诊断保留，不称全仓全绿 |
+| 编译包烟测 | `artifacts/an-complete-built-smoke.log`、`an-last-built-smoke.log`，核旧scope拒、后scope读、选项目标冲突零IO、原释放peer读、filename作PK；纯离线，无服务变更 |
+| 历史失败 | `an-complete-verify.log`保两处目录11/10失败（已按新子目录修复）；`an-last-consumers.log`保974过1超时；单条复核3.83s及最终975全过见`an-last-timeout-recheck.log`/bounded日志，不能抹成一直绿 |
+
+上述`artifacts/`为ignored的**同机证据**，不随git推送；换机器无这些文件时必须报告“本地日志不可得”，按影响面重验，不能假装已经持有。正式实服摘要在已跟踪`evidence/data-chain-smoke/`，并非可任意重放的凭据或写入脚本。
+
+#### 3. Cursor第一实施批：可写文件owner的在途捕获（只限S1）
+
+**当前是源码线索，尚未以本批反例证实或修复。**`packages/spark-data/src/query/file-resource-adapter.ts`内`currentOptions`可被同目标update替换；查询约327—331、preview/adopt/history及save跨await后使用当前transport/guard（具体行号以实际源为准）。先查完整调用链和真实回调，不能从目录成功反推它安全，也不能未经失败测试批量重写。
+
+1. 复核`createFileResourceEngine`、`targetFor/assertCurrent`、query contexts、pending/owners/history及update的责任；先跑现有file-resource测试定位基线，参考AN目录捕获的语义，而非复制目录权限模型到可写保存。
+2. 先用以下正反场景验证假设；已正确的项登记正向证据、不为造RED而改源，实际失败项才作为修复反例：A查询/预览挂起后同目标重绑B，A scope过期而B有效，A迟到不得接纳；A守卫同步重挂B不能把A派发换成B；回调原地修改target/字段不能进入另一个对象。保合法同目标后续B、原释放后仍合法的同表视图等正例。
+3. 保存分别覆盖：写入前切换零错派发；A已派发之后切换时保原结果/未知事实；部分成功仅确认原批已生效项；收到ACK但回读/接纳失败不重放；未知核验只能查原capture、原目标和原阶段，不能换transport后查B/重发A；原scope真正失效须停止写入，如何核原结果按正式责任明确，不绕过授权、不猜清理。
+4. 高阶模型审方案及关键反例，主控实施验证。优先复用原公共捕获/回执能力，删除被替代的共享错误入口；不造第二owner、草稿真源、永久兼容层或伪跨来源事务。
+5. 先受影响定向测试，再包/消费者/生成/根门禁；差距与真实服务范围只更新本台账。只有本层合同及证据成立才记录通过；不顺手改组件/宿主/业务流程。
+
+建议首轮命令（PowerShell逐条执行、检查各自退出码；不要直接跑所有包或该S2 RED）：
+
+```powershell
+Set-Location D:/SPARK_AppWorks
+git status --short
+git branch --show-current
+git log -4 --oneline
+git ls-remote origin refs/heads/codex/spark-data-s1-command-safety
+pnpm --filter @spark-appworks/spark-data test:run src/tests/query/file-resource-adapter.test.ts src/tests/query/file-directory-query-adapter.test.ts src/tests/dataset/command/query-binding-preflight.test.ts
+```
+
+修改生产源/公开声明后按顺序执行`pnpm run generate:class-model-surface`及`pnpm run generate:lowcode-contracts`，不手改派生。`typecheck`不等于重生成。再按影响面执行包typecheck/lint/build及测试；本批已有消费者范围的复验命令：
+
+```powershell
+pnpm exec vitest run --maxWorkers=2 tests/runtime/auth-nav/data-space tests/runtime/auth-nav/workflow/agent-workflow-file-resource.test.ts tests/runtime/page/semi-structured/json-document-file.test.ts tests/runtime/page/semi-structured/json-data-page.test.ts
+pnpm run verify
+```
+
+避免全量类型生成和大量并行worker争用资源；观察超时不等于任务结束，原进程活着就保原handle；失败先定位，不缩tsconfig/测试范围或提高阈值伪通过。门禁通过后精确stage本批文件（排除用户S2文件）、提交、仅推既定origin分支，独立`ls-remote`核SHA，更新同一台账并清理真正被替代的过程代码/测试/日志。不能运行`git clean -fdx`或递归扫删恢复目录/证据。
+
+#### 4. 冻结与后续阶段的接续条件
+
+| 层/类别 | Cursor继续处理的开放项 |
+| --- | --- |
+| S1冻结前 | 以I3数据合同矩阵为起点，结合P—AN新证据逐格核身份/多空间、查询/派生/选择/编辑取消/级联/通用校验、现有权限守卫、原批变更提交、部分成功/未知核验、生命周期，以及DB/file/pagedata各自真实结果；矩阵是待验清单，不是已有冻结结论 |
+| S2 | 只在S1验收冻结后集中处理标准组件dataViewKey/成员/字段/上下文/选项/动作、编辑覆盖/未提交输入/取消/只读/错误、切换释放、通用编辑器/标准子组件及源码-ClassModel-行为一致。用户已有JsonTree RED届时重新定位，不能先按旧历史方案补S2 |
+| S3 | 只在组件合同冻结后处理PageRuntime/导航调用身份/场景与四文件/实例所有权释放；新旧owner不能并存，同批只改宿主责任 |
+| S4 | 按N1全部20包依赖及固定参考恢复业务语义、布局和原相对路径；整目录清理`page-tool-file-operations.ts`仍消费view.rows，需核真正全来源；AL登记的模型改名工具和设计fileModels/选择/字段预览仍按file假设，届时改消费正式投影，不加file-or-logical兼容分支 |
+| S5 | 正常入口/读/增改删/取消/保存重开/独立回读/下游/切换/部分成功/未知，精确隔离真实CRUD及清理、相应门禁、提交推送远端核实；历史局部通过不能核销整包 |
+| 存量一次转换 | 仓内8D1目录声明已转，**远端历史未扫描/未转换**。先确定精确对象/映射/旧消费者/损失风险及核验方法，核定后一次转换并独立回读；不双读旧协议、不猜测重挂/批删孤立数据 |
+| 服务阻塞/缺证 | 分开沿N3记录部署失败样本、历史未知原提交、正式服务未证实和纯前端缺口。不能改/启Java补服务，不能增加未经核实协议，不能把源码/HTTP200当持久效果 |
+| 用户暂缓 | 新增/扩展数据权限和功能授权接线专题仍暂缓；既有正式查询/保存守卫继续，功能标签/治理范围保留；不建前端角色、不按用户名放行 |
+
+#### 5. 实服证据与不允许重放的写意图
+
+- U数据库烟测对象PK `2E421295C650DD38886EBF456D8ECE48`已精确清理并独立核不存在，证据`evidence/data-chain-smoke/2026-11-08-s1-owned-crud.json`。不得以“再烟测”重放原capture。
+- AK文件run `s1_file_20261108_ak_01_c8f491d2`，`jsondatapath`下`spark-data-smoke/该run/payload.json`，原create/update/delete均已消费并核删除；证据`2026-11-08-s1-isolated-json-file-crud.json`，AM独立只读`2026-11-08-s1-file-directory-sdk-readback.json`。这些证据只覆盖泛型JSON文件，不代表AppWorks工具文件/pagedata/20包全验。
+- 文件内容返回业务404、列表返回业务200/[]仅证明服务未返回该目标；Java列表null也可变[]，不能据此声称物理目录空。目录未执行删除合同，可能保留。revision=null没有权威CAS，实服未注入unknown/部分成功；离线反例单列，不伪造实服证据。
+- `artifacts/data-chain-smoke/s1-file-crud*.mts`是本机保留的**历史已执行工具**，其crud/verify尝试号已消费，不能直接重跑或改attempt绕wx锁。新烟测需独立精确对象/来源合同、一次写意图、防重放及清理证据。旧AK目录夹具未声明fileName，早已限证，不能当AN新目录schema样板。
+- 凭据/令牌只走安全输入及RAM，不进入命令参数、源码、日志、截图或git；交接不存测试密码。先前未知SaveView/sys_edit等按原记录核验，不能与U/AK的清理结果混结。
+
+#### 6. 可直接交给Cursor的启动指令
+
+> 接手`D:/SPARK_AppWorks`现有分支`codex/spark-data-s1-command-safety`。先读根AGENTS.md及唯一台账notes/data-space-retirement-ledger.md的“Cursor接续方案”，核Git远端和用户未跟踪S2文件；保持原20包和固定参考。当前S1未冻结，从可写file-resource-adapter的同目标A/B重绑、在途查询/保存/未知核验先构造反例，高阶审关键边界，由主控实现验证。只修改数据责任层及测试/文档/正式派生，不跨入组件、宿主或业务页，不做兼容层。复用有效证据，明确未验/服务阻塞/用户暂缓，不重放U/AK历史写意图，不修改或启动Java。通过影响面测试及正式门禁后及时提交推送、独立核远端，所有进度仍记唯一台账。首先报告接收快照与首批反例范围，然后实施。
+
+**移交时的待办归属。**上述是Cursor的下一步，不代表本会话继续并行实施；没有未收的测试/服务写入进程，本会话也没有执行本节新增修复。此交接只编制方案和核现状，未新增实服写入，未冻结S1、未标整体迁移完成。
+
+**移交文档核验。**本次只改本台账，未新增产品实施或实服请求；接收快照、原S2文件SHA、固定参考/阶段范围/启动测试路径已复核。高阶纠正“仅origin”可能误解为只有一个已配置远端，已明确本机另有github/gitlab而只向origin推送；首批按假设验证，原已正确的分支不为造失败而改源。文档治理通过564文件，产品代码验证复用AN对应快照，不冒本轮新全套工程测试；文档提交后以独立远端SHA核验作为本次交接最终凭据。整体目标保留未完成，本会话按用户移交要求停止后续自动实施。

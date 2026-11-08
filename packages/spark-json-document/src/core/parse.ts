@@ -10,7 +10,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import type { JsonDocument } from './json-types'
+import type { JsonDocument, JsonValue } from './json-types'
 import { asJsonValue, isJsonObject } from './json-types'
 
 /** 解析 JSON 字符串为 JsonDocument */
@@ -27,6 +27,14 @@ export function serializeJsonDocument(value: JsonDocument): string {
 /**
  * 归一化任意值为 JsonDocument（顶层仅允许对象或数组）。
  */
+/** 解析任意 JSON 值。空文本和非法文本抛出，JSON null 是合法值。 */
+export function parseJsonValue(rawText: string): JsonValue {
+  const parsed: unknown = JSON.parse(rawText)
+  const value = asJsonValue(parsed)
+  if (value === null && parsed !== null) throw new Error('JSON 值无效')
+  return value ?? null
+}
+
 export function normalizeJsonDocument(value: unknown): JsonDocument {
   const narrowed = asJsonValue(value)
   if (narrowed === null) throw new Error('JSON 顶层必须是对象或数组')

@@ -250,8 +250,10 @@ type JsonTreeEditorProps = {
   label?: string
   /** r-table 内列宽 */
   width?: number
-  /** JSON字符串内容；解析失败保留原文。可编辑且无Schema/结构策略时允许显式修复为合法对象或数组；受约束或只读时仅展示原文，不绕过约束。修复仍由原字段接纳，不提交后端。 */
+  /** JSON字符串内容；解析失败保留原文。可编辑且无Schema/结构策略时允许显式修复；受约束或只读时仅展示原文，不绕过约束。修复仍由原字段接纳，不提交后端。 */
   modelValue?: string
+  /** document 只接受对象或数组；value 接受任意 JSON 值，标量也是可改类型的根。缺省 document。 */
+  rootKind?: 'document' | 'value'
   /** 已解析的 JSON 文档对象 */
   documentValue?: Sjd.JsonDocument | null
   /** 编辑器高度 */
@@ -281,6 +283,7 @@ type JsonTreeEditorProps = {
 
 const props = withDefaults(defineProps<JsonTreeEditorProps>(), {
   value: '',
+  rootKind: 'document',
   documentValue: null,
   height: 420,
   readOnly: false,
@@ -340,6 +343,12 @@ const mergedPolicy = computed<Partial<Sjd.JsonTreePolicy>>(() => {
     ...(props.createDefaultArrayItem !== undefined ? { createDefaultArrayItem: props.createDefaultArrayItem } : {}),
     ...(props.createDefaultObjectValue !== undefined ? { createDefaultObjectValue: props.createDefaultObjectValue } : {}),
   }
+})
+
+const treePolicy = computed<Partial<Sjd.JsonTreePolicy>>(() => {
+  const policy = mergedPolicy.value
+  if (props.rootKind !== 'value' || props.canEditType !== undefined || props.policy?.canEditType !== undefined) return policy
+  return {...policy, canEditType: () => true}
 })
 
 const tableRef = ref<VxeTableInstance<DisplayRow> | null>(null)
@@ -429,7 +438,7 @@ const hasActiveFilter = computed(() => {
 // ── 数据管线 ─────────────────────────────────────────────────
 
 const allRows = computed<DisplayRow[]>(() => {
-  const rawRows = Sjd.toDisplayRows(treeModelRef.value, mergedPolicy.value)
+  const rawRows = Sjd.toDisplayRows(treeModelRef.value, treePolicy.value)
   const schemaCache = new Map<string, ReturnType<typeof Sjd.resolveSchemaInfoForPath>>()
   const rootLabel = mergedPolicy.value.rootLabel ?? '$'
   const policy = mergedPolicy.value
@@ -510,16 +519,17 @@ function captureTreeState(): void {
 
 function syncDocument(rawText: string): void {
   invalidateRepair()
-  if (rawText.trim() === '') {
+  if (props.rootKind !== 'value' && rawText.trim() === '') {
     captureTreeState()
-    treeModelRef.value = Sjd.buildTreeModel({}, mergedPolicy.value)
+    treeModelRef.value = Sjd.buildTreeModel({}, treePolicy.value)
     parseError.value = null
     return
   }
   try {
     captureTreeState()
-    const doc = Sjd.parseJsonDocument(rawText)
-    treeModelRef.value = Sjd.buildTreeModel(doc, mergedPolicy.value)
+    treeModelRef.value = props.rootKind === 'value'
+      ? Sjd.buildValueTree(Sjd.parseJsonValue(rawText), treePolicy.value)
+      : Sjd.buildTreeModel(Sjd.parseJsonDocument(rawText), treePolicy.value)
     parseError.value = null
   } catch (error) {
     parseError.value = error instanceof Error ? error.message : String(error)
@@ -692,8 +702,9 @@ function cancelRepair(context: RepairContext): void {
 function applyRepair(context: RepairContext): void {
   if (!currentRepair(context)) return
   try {
-    const document = Sjd.parseJsonDocument(repairText.value)
-    const model = Sjd.buildTreeModel(document, mergedPolicy.value)
+    const model = props.rootKind === 'value'
+      ? Sjd.buildValueTree(Sjd.parseJsonValue(repairText.value), treePolicy.value)
+      : Sjd.buildTreeModel(Sjd.parseJsonDocument(repairText.value), treePolicy.value)
     if (!currentRepair(context)) return
     publishModel(model)
     invalidateRepair()
@@ -740,7 +751,7 @@ function handleTypeChange(row: DisplayRow, value: Sjd.JsonNodeType): void {
     model: current,
     uid: row.id,
     nextType: value,
-    policy: mergedPolicy.value,
+    policy: treePolicy.value,
   }))
 }
 
@@ -819,11 +830,13 @@ function mutateModel(
 
 function publishModel(model: Sjd.TreeModel): void {
   treeModelRef.value = model
-  const nextDocument = Sjd.exportJsonDocument(model)
-  const nextText = Sjd.serializeJsonDocument(nextDocument)
+  const nextValue = Sjd.exportJsonValue(model)
+  const nextText = props.rootKind === 'value'
+    ? `${JSON.stringify(nextValue, null, 2)}\n`
+    : Sjd.serializeJsonDocument(Sjd.exportJsonDocument(model))
   parseError.value = null
   lastEmittedValue = nextText
-  emit('update:documentValue', deepClone(nextDocument))
+  if (props.rootKind !== 'value' && (Array.isArray(nextValue) || Sjd.isJsonObject(nextValue))) emit('update:documentValue', deepClone(nextValue))
   emit('update:modelValue', nextText)
   // 字段模式：通过能力链回写 DATA_ROW[field]
   void handleControlledChange(nextText)

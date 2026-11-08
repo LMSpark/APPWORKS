@@ -56,6 +56,7 @@ export {
 export {
   normalizeJsonDocument,
   parseJsonDocument,
+  parseJsonValue,
   serializeJsonDocument,
 } from './core/parse'
 
@@ -152,7 +153,9 @@ export type {
 export {
   buildJsonTreeRows,
   buildTreeModel,
+  buildValueTree,
   exportJsonDocument,
+  exportJsonValue,
   filterJsonTreeNodes,
   getNodePath,
   toDisplayRows,

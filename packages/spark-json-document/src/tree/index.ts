@@ -26,7 +26,9 @@ export type {
 export {
   buildJsonTreeRows,
   buildTreeModel,
+  buildValueTree,
   exportJsonDocument,
+  exportJsonValue,
   filterJsonTreeNodes,
   getNodePath,
   toDisplayRows,

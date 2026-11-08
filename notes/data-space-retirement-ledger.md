@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1已冻结）：** I3 十六组的证据与排除项见文末 [AP](#ap-s1-freeze)。冻结只说明数据层合同可以交给下一阶段，不表示 20 包完成，也不表示已经开始 S2。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1已冻结，S2进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 从 JsonTree 值根开始，当前波次见文末 AQ。S2 未冻结，未进 S3。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8507,3 +8507,14 @@ pnpm run verify
 用户要求全仓只保留主项目路径并清理全部额外工作树。本次核验HEAD为745c39862736811abc80034215099920e543d5c8，分支codex/spark-data-s1-command-safety。git worktree list --porcelain仅主仓D:/SPARK_AppWorks；真实git-common-dir为主仓.git，无.git/worktrees及本机标准Codex/Cursor额外worktrees目录，当前聊天list_artifacts为空。先prune dry-run无待清项，再git worktree prune --verbose后仍仅同一主仓；额外工作树删除数0，没有用删除主仓来制造“全部删除”。根AGENTS.md已加入唯一主路径约束，禁止之后按通用技能新建/恢复额外worktree。
 
 当前5个生产文件有未提交修改及原S2未跟踪测试，全部保留，未stage/运行/覆盖这些内容。D:/SPARK_AppWorks-recovery是2026-10-30历史patch/index/未跟踪文件恢复备份，不是Git仓库或工作树，不删除。此次只处理工作路径治理，不评判或回退Cursor后续的阶段结论，不恢复旧移交状态，不实施产品变更；只提交本次AGENTS/台账文档，其他工作仍归当前实施者。
+
+<a id="aq-s2-json-tree"></a>
+#### AQ. S2第一波：JsonTree 值根（未冻结）
+
+开工时 `git worktree list` 只有 `D:/SPARK_AppWorks`。随后 `802260772` 写入单一路径约束；本波在该提交之上继续，不另建工作树。
+
+**合同。**`rootKind` 缺省仍是 `document`，对象或数组才是文档根，空文本仍建成空对象。`value` 接受任意 JSON 值：`null`、`false`、`0`、空串、文本、数组和对象都是路径为空的根，根可改类型、不可删、不可改键。未提交的字符串留在输入草稿，`change` 才写回；值根不发 `update:documentValue`。空文本和非法文本停在修复区，取消恢复原文，只读锁定原文。文档模式遇到标量仍提示顶层必须是对象或数组。
+
+**实现。**`parseJsonValue`、`buildValueTree`、`exportJsonValue` 放在 `spark-json-document`，文档导出仍拒绝标量根。`JsonTreeEditor` 只在 `rootKind=value` 且调用方没有自带 `canEditType` 时让根可改类型。既有 `FieldJson` 不传 `rootKind`，36 项原测试仍通过。
+
+**测试。**原未跟踪 `json-tree-value-root.test.ts` 收成正式回归，11 项通过。值输入选择器避开工具栏空筛选框，合同断言未改。`json-tree-policy` 5 项通过。`spark-json-document` typecheck 与 lint 为 0。改动文件的 eslint 为 0。`spark-component` 包级 `vue-tsc` 仍在四个本波未改的测试文件失败（`spark-ai-data-entry`、`filter-expression-editor`、`renderer-filter-expression`），不是本波引入。正式 `generate:class-model-surface` 为 0，`JsonTreeEditor` 声明含 `rootKind`；其余 JSON 多为符号编号或 `generatedAt`。`generate:lowcode-contracts` 为 611/221，工作树无合同账本差异。未改 `spark-data`，未进宿主、页面或 S3。

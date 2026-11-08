@@ -1804,7 +1804,7 @@
     "packages/spark-component/src/components/editors/JsonTreeEditor.vue": {
       "sourceFile": "packages/spark-component/src/components/editors/JsonTreeEditor.vue",
       "shardFile": "files/packages/spark-component/src/components/editors/JsonTreeEditor.vue.json",
-      "sourceModifiedAt": "2026-11-06T08:20:41.114Z"
+      "sourceModifiedAt": "2026-11-08T09:00:47.906Z"
     },
     "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts": {
       "sourceFile": "packages/spark-component/src/components/editors/SparkCodeEditor.props.ts",
@@ -2939,12 +2939,12 @@
     "packages/spark-json-document/src/core/parse.ts": {
       "sourceFile": "packages/spark-json-document/src/core/parse.ts",
       "shardFile": "files/packages/spark-json-document/src/core/parse.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:51.032Z"
+      "sourceModifiedAt": "2026-11-08T08:58:40.227Z"
     },
     "packages/spark-json-document/src/index.ts": {
       "sourceFile": "packages/spark-json-document/src/index.ts",
       "shardFile": "files/packages/spark-json-document/src/index.ts.json",
-      "sourceModifiedAt": "2026-08-10T11:40:03.580Z"
+      "sourceModifiedAt": "2026-11-08T08:59:00.339Z"
     },
     "packages/spark-json-document/src/schema/index.ts": {
       "sourceFile": "packages/spark-json-document/src/schema/index.ts",
@@ -3004,12 +3004,12 @@
     "packages/spark-json-document/src/tree/index.ts": {
       "sourceFile": "packages/spark-json-document/src/tree/index.ts",
       "shardFile": "files/packages/spark-json-document/src/tree/index.ts.json",
-      "sourceModifiedAt": "2026-08-10T11:35:34.093Z"
+      "sourceModifiedAt": "2026-11-08T09:00:56.636Z"
     },
     "packages/spark-json-document/src/tree/tree-build.ts": {
       "sourceFile": "packages/spark-json-document/src/tree/tree-build.ts",
       "shardFile": "files/packages/spark-json-document/src/tree/tree-build.ts.json",
-      "sourceModifiedAt": "2026-10-18T15:48:12.551Z"
+      "sourceModifiedAt": "2026-11-08T08:58:45.016Z"
     },
     "packages/spark-json-document/src/tree/tree-flatten.ts": {
       "sourceFile": "packages/spark-json-document/src/tree/tree-flatten.ts",

@@ -10,7 +10,7 @@
  * ═══════════════════════════════════════════════════════════════
  */
 
-import type { JsonDocument } from '../core/json-types'
+import type { JsonDocument, JsonValue } from '../core/json-types'
 import { isJsonObject } from '../core/json-types'
 import type { JsonPath } from '../core/json-path'
 import type { TreeModel, JsonTreeNode, TreeDisplayNode, JsonTreePolicy } from './tree-types'
@@ -23,10 +23,15 @@ import { addNodeToMap, toJsonValue, getChildIds, rootOf } from './tree-utils'
 
 /** 从 JSON 文档构建内部树模型 */
 export function buildTreeModel(doc: JsonDocument, policy?: Partial<JsonTreePolicy>): TreeModel {
+  return buildValueTree(doc, policy)
+}
+
+/** 从任意 JSON 值构建树。标量、空数组和空对象都是路径为空的根。 */
+export function buildValueTree(value: JsonValue, policy?: Partial<JsonTreePolicy>): TreeModel {
   const nodes = new Map<string, JsonTreeNode>()
   addNodeToMap({
     nodes,
-    value: doc,
+    value,
     parentId: null,
     segment: resolvePolicy(policy).rootLabel,
     order: 0,
@@ -40,9 +45,14 @@ export function buildTreeModel(doc: JsonDocument, policy?: Partial<JsonTreePolic
 
 /** 从 TreeModel 重建 JSON 文档 */
 export function exportJsonDocument(model: TreeModel): JsonDocument {
-  const value = toJsonValue(model, rootOf(model))
+  const value = exportJsonValue(model)
   if (Array.isArray(value) || isJsonObject(value)) return value
   throw new Error('文档根节点必须是对象或数组')
+}
+
+/** 从树导回任意 JSON 值，标量根保持原类型。 */
+export function exportJsonValue(model: TreeModel): JsonValue {
+  return toJsonValue(model, rootOf(model))
 }
 
 // ═══════════════════════════════════════════════════════════════

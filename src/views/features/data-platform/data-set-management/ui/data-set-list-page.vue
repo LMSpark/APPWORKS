@@ -59,7 +59,7 @@
 import {computed, defineAsyncComponent, onBeforeUnmount, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeDataSpaceCatalog} from '@/lowcode/data-space/lowcode-data-space-catalog'
 import {parseApplicationPathScope} from '@/services/application-scope'
@@ -77,9 +77,13 @@ const designPage = ref<{hasPending: boolean} | null>(null)
 /** 设计页有未保存修改或在途操作时禁止关闭对话框，避免卸载时静默丢弃草稿。 */
 const designPending = computed(() => designPage.value?.hasPending === true)
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-set-list-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const owner = shallowRef<LowcodeDataSpaceCatalog>(), ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0)
 const busy = ref(false), actionError = ref(''), message = ref(''), bindingsOpen = ref(false), bindingsReady = ref(false)
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
+let unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const projectId = computed(() => parseApplicationPathScope(route.path)?.projectId ?? '')
 const catalogKey = computed(() => buildDataViewKey('Base_DataSet', 'catalog', scenarioId.value))
@@ -214,7 +218,7 @@ function release(): void {
   actionGeneration++
   bindingsOpen.value = false; bindingsReady.value = false; busy.value = false; actionError.value = ''; message.value = ''
   unsubscribe?.(); unsubscribe = undefined
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   owner.value?.dispose(); owner.value = undefined
 }
 watch([scenarioId, projectId], async ([scenario, project]) => {
@@ -226,15 +230,15 @@ watch([scenarioId, projectId], async ([scenario, project]) => {
     const catalog = await LowcodeDataSpaceCatalog.load({scenarioId: scenario, projectId: project})
     if (!active || own !== generation) {catalog.dispose(); return}
     owner.value = catalog
-    const current = new PageRuntime({pageId: 'data-set-list-page', scenarioIds: [scenario], loadScenario: async () => catalog.dataSet})
-    runtime = current; await current.load()
-    if (!active || own !== generation) {current.dispose(); return}
+    const current = session.acquire({pageId: 'data-set-list-page', scenarioIds: [scenario], targetId: `${project}:${scenario}`,
+      loadScenario: async () => catalog.dataSet})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     unsubscribe = catalog.dataSet.onAnyViewChange({rowsChanged: () => revision.value++, selectedRowsChanged: () => revision.value++,
       requestStateChanged: () => revision.value++, configChanged: () => revision.value++, editingChanged: () => revision.value++})
-    sparkProvide(PAGE_RUNTIME, current)
     // 首次查询先完成，再挂接容器，避免autoLoad与目录初始化并发发起同一请求。
     await catalog.initialize()
-    if (active && own === generation) ready.value = true
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
   } catch (cause) {if (active && own === generation) {error.value = cause instanceof Error ? cause.message : String(cause); release()}}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})

@@ -127,6 +127,12 @@ beforeEach(()=>{
 })
 afterEach(()=>{disposals.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals()})
 describe('native DataView catalog',()=>{
+  it('hosts the catalog runtime through the shared native session',()=>{
+    const source=readFileSync(resolve(process.cwd(),'src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue'),'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('deletes only the selected catalog row through the original DataView after the model preflight',async()=>{
     const fixture=writable();fixture.rows.push({rowid:'OTHER',Name:'Other directory item',Type:'datasource',sysid:'APP',createuser:'USER',createtime:'2026-01-02'})
     const {wrapper}=await page();await wrapper.get('tbody tr').trigger('click');await flushPromises()

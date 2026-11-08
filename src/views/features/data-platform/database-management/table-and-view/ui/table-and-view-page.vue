@@ -111,9 +111,8 @@
 <script setup lang="ts">
 import {computed, onBeforeUnmount, reactive, ref, shallowRef, toRaw, watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import * as SparkData from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 type RTableProps = SparkComponent.RTableProps
 import {
@@ -248,6 +247,10 @@ const requestedDatabaseId = computed((): Readonly<{provided: boolean; value?: st
   return {provided: true, value: value.trim()}
 })
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'table-and-view-page'})
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const dataSet = shallowRef<SparkData.DataSet>()
 const dbView = shallowRef<SparkData.DataView>()
 const tableEdit = shallowRef<DatabaseCatalogTableEditState>()
@@ -276,7 +279,7 @@ const fieldViewView = shallowRef<SparkData.DataView>()
 const ready = ref(false), loading = ref(false), error = ref(''), revision = ref(0), objectTab = ref<string | number>('tables')
 const busy = ref(false), actionError = ref(''), message = ref(''), unregisteredHint = ref(''), unregisteredTableHint = ref('')
 const workflowQuery = reactive<{name?: string; workflowKey?: string; description?: string; status?: string}>({})
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0, selectionGeneration = 0
+let unsubscribe: (() => void) | undefined, generation = 0, active = true, actionGeneration = 0, selectionGeneration = 0
 
 const catalogScenarioId = computed(() => dataSet.value?.scenarioId ?? scenarioId.value)
 const dbListFilter = computed<RFilterProps>(() => ({
@@ -1591,9 +1594,7 @@ function release(): void {
   busy.value = false; actionError.value = ''; message.value = ''; unregisteredHint.value = ''; unregisteredTableHint.value = ''
   unsubscribe?.()
   unsubscribe = undefined
-  sparkRemove(PAGE_RUNTIME)
-  runtime?.dispose()
-  runtime = undefined
+  session.dispose()
   tableEdit.value = undefined
   tableDesignOpen.value = false
   if (relationSession.value?.mode === 'edit') databaseCatalogRelationRelease(relationSession.value)
@@ -1669,17 +1670,20 @@ watch([scenarioId, requestedDatabaseId], async ([id, databaseTarget]) => {
     workflowView.value = ds.getView(DATABASE_CATALOG_WORKFLOW_MODEL, DATABASE_CATALOG_WORKFLOW_TABLE_VIEW) ?? undefined
     databaseCatalogSyncCommandInput(ds, db)
     const formKey = ds.scenarioId ?? id
-    const current = new PageRuntime({pageId: 'table-and-view-page', scenarioIds: [formKey], loadScenario: async () => ds})
-    runtime = current
+    const current = session.acquire({pageId: 'table-and-view-page', scenarioIds: [formKey],
+      targetId: databaseId === undefined ? formKey : `${formKey}:${databaseId}`,
+      loadScenario: async () => ds})
     await current.load()
-    if (!active || own !== generation) {current.dispose(); ds.destroy(); return}
+    if (!active || own !== generation || !session.isCurrent(current)) {
+      if (!ds.destroyed) ds.destroy()
+      return
+    }
     unsubscribe = ds.onAnyViewChange({
       rowsChanged: () => revision.value++,
       selectedRowsChanged: () => revision.value++,
       requestStateChanged: () => revision.value++,
       editingChanged: () => revision.value++,
     })
-    sparkProvide(PAGE_RUNTIME, current)
     ready.value = true
     if (databaseId !== undefined) {
       try {await refreshChildren()} catch { /* 正式子目录视图保留其加载错误，目录仍可见 */ }

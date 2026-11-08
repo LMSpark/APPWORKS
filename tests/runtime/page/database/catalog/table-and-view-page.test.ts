@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
@@ -211,6 +213,12 @@ async function fillNewRelationDialog(dialog: DOMWrapper<Element>, name: string, 
 }
 
 describe('table-and-view-page', () => {
+  it('hosts the table and view catalog runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('uses only formally output fields in field-view sorting when ordIdx is unavailable', async () => {
     service.readModel.mockImplementation(({metaName}: {metaName: string}) => {
       const found = databaseTableViewModels[metaName as keyof typeof databaseTableViewModels]

@@ -143,7 +143,11 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     for (const view of table.viewList) view.bindQueryExecutor({executeQuery: resource.executeQuery.bind(resource),
       save: resource.save.bind(resource), hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)},
     {resource: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID}})
-    const design = bindDesignTables(dataSet, new AgentWorkflowDesignResource({applicationId, api, fileUpload, assertCurrent}))
+    const designBinding = bindDesignTables(dataSet, new AgentWorkflowDesignResource({applicationId, api, fileUpload, assertCurrent}))
+    const designViews = (): AgentWorkflowDesignViews => {
+      if (designBinding instanceof Error) throw designBinding
+      return designBinding
+    }
     const directoryView = table.getView('directory')
     const designView = table.getView('design')
     const definitionView = table.getView('definition')
@@ -186,14 +190,19 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
       if (failed) throw failed.error ?? new Error(failed.message ?? 'Agent 工作流设计查询失败')
     }
     return {
-      runtime, catalogView, dataSet, directoryView, designView, definitionView, documentView, design,
+      runtime, catalogView, dataSet, directoryView, designView, definitionView, documentView,
+      get design() {return designViews()},
       loadDesign: async workflowId => {
+        const design = designViews()
         const ids = await thisDirectoryIds(directoryView, assertCurrent)
         if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
         await loadDesignViews([design.workflow, design.nodes, design.lines, design.variables, design.capabilities], {workflowId})
         await loadDesignViews([design.childNodes, design.childLines], {workflowId, graphPath: ''})
       },
-      loadChildGraph: graphPath => loadDesignViews([design.childNodes, design.childLines], {graphPath}),
+      loadChildGraph: async graphPath => {
+        const design = designViews()
+        await loadDesignViews([design.childNodes, design.childLines], {graphPath})
+      },
       refreshDirectory,
       loadDocument: async (workflowId, fileName) => {
         assertCurrent()
@@ -262,16 +271,20 @@ export type AgentWorkflowDesignViews = Readonly<{
   capabilities: DataView
 }>
 
-function bindDesignTables(dataSet: DataSet, resource: AgentWorkflowDesignResource): AgentWorkflowDesignViews {
+/** 空间未完整声明五张投影表时返回错误而不抛出：文件行与发布定义照常可用，只有使用设计视图时才失败。 */
+function bindDesignTables(dataSet: DataSet, resource: AgentWorkflowDesignResource): AgentWorkflowDesignViews | Error {
   const executor = {executeQuery: resource.executeQuery.bind(resource), save: resource.save.bind(resource),
     hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)}
   for (const definition of AGENT_WORKFLOW_DESIGN_TABLES) {
     const table = dataSet.getTable(definition.tableName)
     if (table?.resourceType !== 'file' || table.resourceId !== definition.resourceId || table.modelBinding
       || Object.keys(definition.views).some(viewId => !table.getView(viewId))) {
-      throw new Error(`AGENT_WORKFLOW_DESIGN_BINDING: 目标空间缺少已注册的设计投影表及完整视图: ${definition.tableName}`)
+      return new Error(`AGENT_WORKFLOW_DESIGN_BINDING: 目标空间缺少已注册的设计投影表及完整视图: ${definition.tableName}`)
     }
-    for (const view of table.viewList) view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId: definition.resourceId}})
+  }
+  for (const definition of AGENT_WORKFLOW_DESIGN_TABLES) {
+    dataSet.getTable(definition.tableName)?.viewList.forEach(view =>
+      view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId: definition.resourceId}}))
   }
   const view = (tableName: string, viewId: string): DataView => {
     const found = dataSet.getView(tableName, viewId)

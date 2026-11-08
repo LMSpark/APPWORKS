@@ -409,6 +409,21 @@ describe('Agent Workflow file owner lifecycle', () => {
     } finally {owner.dispose(); token = 'scope-2'}
   })
 
+  it('keeps file rows usable and fails only design access when the space lacks the projection tables', async () => {
+    const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
+      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async () => '{"workflow":{}}',
+        readFileBytes: async () => new TextEncoder().encode('{"workflow":{}}')},
+      catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}])
+        : DataSet.fromJson({scenarioId, tables: {AgentWorkflowFiles: {resourceType: 'file', resourceId: 'agent-workflow-files', columns,
+          views: {default: {}, directory: {}, design: {}, definition: {}}}}})})
+    try {
+      expect(await owner.readDocument('agent.workflow.alpha', 'definition.json')).toBe('{"workflow":{}}')
+      expect(() => owner.design).toThrow('AGENT_WORKFLOW_DESIGN_BINDING')
+      await expect(owner.loadDesign('agent.workflow.alpha')).rejects.toThrow('AGENT_WORKFLOW_DESIGN_BINDING')
+    } finally {owner.dispose()}
+  })
+
   it('does not load any target when the formal catalog name is ambiguous', async () => {
     const calls: string[] = []
     await expect(createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),

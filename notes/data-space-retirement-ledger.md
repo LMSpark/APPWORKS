@@ -8866,6 +8866,8 @@ pnpm run verify
 
 **测试。**新增 `agent-workflow-design-projection.test.ts`（5 项）和 `agent-workflow-design-resource.test.ts`（5 项），覆盖：主子图按路径查询；多表加主子图一批只上传一次；基线冲突不上传；回读不一致后重提不重传；经 graph 视图新增节点并推出投影主键。原 owner 测试的目标空间补上五张投影表。相关 6 个文件 91 项、扩大 13 个文件 202 项通过。根 typecheck 0。改动文件 eslint 0。已跑 `generate:class-model-surface` 与 `generate:lowcode-contracts`（611 端点，218 消费点）。新声明补了 JSDoc，语义缺口由 3777 降到 3730。生成物只保留移动/新增分片和三份清单的真实差异。
 
+**真实空间尚未加表，绑定改为按需失败。**正式「Agent工作流文件资源」空间目前只有 `AgentWorkflowFiles` 一张表。本地开发服务页面处于未登录状态，台账记载上次用已知凭据登录失败、几乎锁号，因此没有猜凭据，五张表的正式登记等待用户在浏览器登录后经数据空间设计页完成。为不让工作流页和 AI 运行器（只读写文件行与 `definition.json`）在此之前失效，owner 在空间缺表时不再装配失败：文件行照常，访问 `design`、`loadDesign`、`loadChildGraph` 才报 `AGENT_WORKFLOW_DESIGN_BINDING`。新增 owner 测试覆盖这一点。
+
 **存量断链（HEAD 上同样失败，非本批引入）。**`data-space-four-file.test.ts` 和数据空间设计页的多组原生测试报 `SCENARIO_PROJECTION_BINDING: ProjectToolCatalog 缺少显式只读投影工厂`。在 HEAD 暂存本批后复跑，两个文件的 66 项失败相同。下一批单独排查。
 
 #### 当前续做顺序（未冻结）

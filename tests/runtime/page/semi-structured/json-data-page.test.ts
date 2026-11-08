@@ -1,5 +1,6 @@
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
 import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {flushPromises,mount,config,type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory,createRouter,RouterView} from 'vue-router'
 import {defineComponent,h} from 'vue'
@@ -15,7 +16,10 @@ import {buildFormalModels} from '../structured-config/catalog/structured-config-
 const SCENE='FFDEF2AED3E19A38C0FCDDC748CF939B'
 const text=readFileSync('config/pages/semi-structured/json-data/pagedata.json','utf8')
 const state=vi.hoisted(()=>({picked:[] as PageSelectedFile[],browseCalls:[] as PageBrowseFilesOptions[],http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,files:new Map<string,string>(),reads:[] as string[],uploads:[] as string[],lose:false,dirty:[] as Array<{isDirty:boolean}>}))
-vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}))
+vi.mock('@spark-appworks/spark-app',async()=>{
+  const {NativePageRuntimeSession}=await import('../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession,useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}
+})
 vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadTextVersion:async(input:{fileName:string;text:string})=>{if(state.files.has(input.fileName))throw new Error('File exists');state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}},uploadWorkingText:async(input:{fileName:string;text:string})=>{state.files.set(input.fileName,input.text);state.uploads.push(input.fileName);if(state.lose){state.lose=false;throw new Error('response lost')}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===SCENE?text:null}}),lowcodeApi:{readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),design:{readTextFile:async(input:{fileName:string})=>{state.reads.push(input.fileName);const value=state.files.get(input.fileName);if(value===undefined)throw new LowcodeApiError(404,'文件不存在');return value}},dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'JSON数据'}),readModelBatch:async()=>buildFormalModels({Base_JsonData:['rowid','name','description','path','createuser','createtime'],Base_UserInfo:['ID','ROWID','UserName']}).map(model=>({...model,id:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001'),fields:model.fields.map(field=>({...field,modelId:SCENE+(model.metaName==='Base_JsonData'?'p000':'p001')}))})),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
@@ -46,6 +50,12 @@ it('displays a failed catalog query once through the standard table with metadat
  const f=await open();const errors=f.wrapper.findAll('[role="alert"]').filter(item=>item.text().includes('catalog query denied'));expect(errors).toHaveLength(1);expect(f.wrapper.find('[data-testid="data-view-meta"]').exists()).toBe(false)
 })
 describe('JSON document page on the formal DataSet',()=>{
+ it('hosts the JSON catalog runtime through the shared native session',()=>{
+  const source=readFileSync(resolve(process.cwd(),'src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue'),'utf8')
+  expect(source).toContain('new NativePageRuntimeSession')
+  expect(source).toContain('session.isCurrent(current)')
+  expect(source).not.toContain('new PageRuntime')
+ })
  it('loads files only after selecting a record and binds the actual document rather than wire tree rows',async()=>{
   const f=await open();expect(state.reads).toEqual([]);await f.choose()
   await vi.waitFor(()=>expect(f.wrapper.findComponent(FieldJson).exists()).toBe(true))

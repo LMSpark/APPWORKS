@@ -32,13 +32,16 @@
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataRow,type DataSet,type DataView,type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeJsonData} from '@/lowcode/resources/semi-structured/json-data/resource'
 const {PAGE_RUNTIME,PAGE_SERVICE,RendererTable,RendererForm,RendererDialog,RendererButton,FieldJson,FieldText,useSparkComponent}=SparkComponent
 const route=useRoute(),{sparkProvide,sparkRemove,sparkConsume}=useSparkComponent({type:'json-data-page'})
+const session=new NativePageRuntimeSession({
+  provide:()=>undefined,
+  remove:()=>sparkRemove(PAGE_RUNTIME),
+})
 const pageService=sparkConsume(PAGE_SERVICE)
 const scenarioId=computed(()=>typeof route.meta['blueprintScenarioId']==='string'?route.meta['blueprintScenarioId']:'')
 const catalogKey=computed(()=>buildDataViewKey(LowcodeJsonData.catalogMetaName,'default',scenarioId.value))
@@ -46,7 +49,7 @@ const dataSet=shallowRef<DataSet>(),catalog=shallowRef<DataView>(),document=shal
 const creating=ref('')
 const importing=ref(false)
 const contentSession=ref(0)
-let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,documentGeneration=0,active=true
+let off:(()=>void)|undefined,generation=0,documentGeneration=0,active=true
 const selected=computed(()=>{revision.value;const rows=catalog.value?.selectedRows??[],row=rows[0];return rows.length===1&&row?String(catalog.value?.getPkKey(row)??''):''})
 const contentKey=computed(()=>document.value?buildDataViewKey(document.value.tableName,document.value.viewId,scenarioId.value):'')
 const contentRowBinding=computed(()=>{const id=document.value?.queryContext['jsonId'];return typeof id==='string'?{contextRowId:id}:{}})
@@ -148,19 +151,21 @@ function cancelContent():void{if(busy.value||unconfirmed.value||creationFileComm
 function discardAndClose():void{cancelContent();if(!hasPending.value)closeDocument(false)}
 async function refreshCatalog():Promise<void>{if(busy.value||hasPending.value)return;closeDocument(false);try{await catalog.value?.refresh()}catch(cause){error.value=cause instanceof Error?cause.message:String(cause)}}
 watch(scenarioId,async id=>{
- const own=++generation;ready.value=false;opening.value=true;acting.value=false;openingDocument.value=false;importing.value=false;inputPending.value=false;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined
+ const own=++generation;ready.value=false;opening.value=true;acting.value=false;openingDocument.value=false;importing.value=false;inputPending.value=false;error.value='';off?.();documentGeneration++;creating.value='';document.value=undefined;catalog.value=undefined;dataSet.value=undefined;session.dispose()
  try{
   if(!id)throw new Error('JSON数据入口缺少导航数据空间ID')
-  const page=new PageRuntime({pageId:'json-data-page',scenarioIds:[id],loadScenario:()=>LowcodeJsonData.loadCatalog(id)});runtime=page;await page.load()
-  if(!active||own!==generation){page.dispose();return}
-  dataSet.value=page.getDataSet(id);catalog.value=dataSet.value?.getView(LowcodeJsonData.catalogMetaName)
+  const current=session.acquire({pageId:'json-data-page',scenarioIds:[id],targetId:id,loadScenario:()=>LowcodeJsonData.loadCatalog(id)})
+  await current.load()
+  if(!active||own!==generation||!session.isCurrent(current))return
+  dataSet.value=current.getDataSet(id);catalog.value=dataSet.value?.getView(LowcodeJsonData.catalogMetaName)
   if(!dataSet.value||!catalog.value)throw new Error('JSON正式目录视图缺失')
   const changed=()=>revision.value++;off=dataSet.value.onAnyViewChange({rowsChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
-  sparkProvide(PAGE_RUNTIME,page);ready.value=true;dataSet.value.triggerAutoLoad()
+  if(active&&own===generation&&session.isCurrent(current)){sparkProvide(PAGE_RUNTIME,current);ready.value=true}
+  dataSet.value.triggerAutoLoad()
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation)opening.value=false}
 },{immediate:true})
-onBeforeUnmount(()=>{active=false;generation++;documentGeneration++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
+onBeforeUnmount(()=>{active=false;generation++;documentGeneration++;off?.();session.dispose()})
 </script>
 <style scoped>
 .json-data-page{display:grid;gap:16px;padding:24px}

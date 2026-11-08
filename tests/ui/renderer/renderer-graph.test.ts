@@ -6,11 +6,20 @@ import {VueFlow, useVueFlow} from '@vue-flow/core'
 import {SparkData, type DataView} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {GraphLayout, PAGE_RUNTIME, RendererGraph, registerAllRenderers, Spark, useSparkComponent, type RGraphProps} from '@spark-appworks/spark-component'
+import type {GraphHandle} from '../../../packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props'
 import type {BeforeRenderContext} from '../../../packages/spark-component/src/components/support/beforeRender'
 import {DataSpaceQueryContext} from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/query/data-space-query-context'
 import {DataSpaceQueryTable} from '../../../packages/spark-lowcode-api/src/platform/data-space/runtime/protocol/data-space-query-table'
 
 const cleanup: Array<() => void> = []
+const LINE_COLUMNS = [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'from', type: 'string'}, {name: 'to', type: 'string'},
+  {name: 'out', type: 'string'}, {name: 'in', type: 'string'}, {name: 'type', type: 'string'}, {name: 'points', type: 'array'}]
+const side = (name: GraphHandle['side'], ids: readonly string[]) => ids.map((id, index) => ({id, side: name, offset: (index + 1) / 4}))
+const HANDLES = {inputs: [...side('top', ['1', '2', '3']), ...side('left', ['10', '11', '12'])],
+  outputs: [...side('right', ['4', '5', '6']), ...side('bottom', ['7', '8', '9'])]}
+const LINE_LAYOUT: Partial<RGraphProps> = {edgeDataViewKey: 'G@Lines@default', edgeNodeKeys: {A: 'A', B: 'B'}, nodeHandles: HANDLES,
+  nodePositions: {A: {x: 0, y: 0}, B: {x: 400, y: 0}}, edgeSourceHandleField: 'out', edgeTargetHandleField: 'in', edgeControlPointsField: 'points'}
+const LINE_PROPS: Partial<RGraphProps> = {...LINE_LAYOUT, edgeLineTypeField: 'type'}
 describe('standard graph layout', () => {
   it('aligns by existing horizontal then vertical order using the available viewport width', () => {
     const nodes = [{id: 'C', x: 600, y: 50}, {id: 'B', x: 50, y: 200}, {id: 'A', x: 50, y: 20}]
@@ -44,7 +53,21 @@ async function loadNodes(view: DataView, protect: boolean, hideIdentity = false)
   view.bindQueryExecutor({executeQuery: async () => context}); await view.loadFromServer()
 }
 
-async function fixture(props: Partial<RGraphProps> = {}, protect = false, hideIdentity = false) {
+const LINE_ROWS = [
+  {id: 'L1', from: 'A', to: 'B', points: [{x: 200, y: 100}]},
+  {id: 'L2', from: 'A', to: 'B', out: '6', in: '2', type: 'straight', points: [{x: 200, y: 300}, {x: 300, y: 300}]},
+  {id: 'L3', from: 'A', to: 'B', out: '99', in: '2', type: 'unknown', points: 'broken'},
+]
+async function loadLines(view: DataView, editable: string[]): Promise<void> {
+  const table = new DataSpaceQueryTable({scenarioId: 'G', metaName: 'Lines'})
+  const context = new DataSpaceQueryContext({identity: table.identity, scope: 'graph', readScope: () => 'graph',
+    snapshot: table.applyResult({Result: {primaryKeyField: 'id', data: {Items: LINE_ROWS.map(row => ({...row, lingma_sys_key: `KEY-${row.id}`,
+      lingma_sys_params: {r: [], e: editable, h: [], m: [], d: false}})), Count: LINE_ROWS.length}}}),
+  })
+  view.bindQueryExecutor({executeQuery: async () => context}); await view.loadFromServer()
+}
+
+async function fixture(props: Partial<RGraphProps> = {}, protect = false, hideIdentity = false, editableLines = ['points']) {
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
   const ds = SparkData.createDataSet({dataSetName: 'graph', scenarioId: 'G', tables: {
     Nodes: {tableName: 'Nodes', modelBinding: {modelId: 'N', modelName: 'Nodes'}, columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string'}, {name: 'note', type: 'string'}],
@@ -53,10 +76,12 @@ async function fixture(props: Partial<RGraphProps> = {}, protect = false, hideId
       views: {default: {rows: [{id: 'AB', from: 'AliasA', to: 'AliasB'}]}}},
     ProtectedEdges: {tableName: 'ProtectedEdges', modelBinding: {modelId: 'PE', modelName: 'ProtectedEdges'},
       columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'from', type: 'string'}, {name: 'to', type: 'string'}], views: {default: {}}},
+    Lines: {tableName: 'Lines', modelBinding: {modelId: 'L', modelName: 'Lines'}, columns: LINE_COLUMNS, views: {default: {}}},
   }})
   const runtime = new PageRuntime({pageId: 'graph', scenarioIds: ['G'], loadScenario: async () => ds})
   await runtime.load()
   await loadNodes(ds.getView('Nodes', 'default')!, protect, hideIdentity); await loadNodes(ds.getView('Nodes', 'other')!, protect, hideIdentity)
+  await loadLines(ds.getView('Lines', 'default')!, editableLines)
   cleanup.push(() => runtime.dispose())
   const input = shallowReactive<RGraphProps>({dataViewKey: 'G@Nodes@default', edgeDataViewKey: 'G@Edges@default', labelField: 'name', descriptionField: 'note',
     edgeSourceField: 'from', edgeTargetField: 'to', edgeNodeKeys: {AliasA: 'A', AliasB: 'B'}, ...props})
@@ -618,6 +643,73 @@ describe('standard graph DataView binding', () => {
     ds.getView('Nodes', 'other')!.replaceRows([{id: 'C', name: 'Changed old view'}])
     await flushPromises()
     expect(wrapper.text()).not.toContain('Changed old view')
+  })
+
+  it('projects declared handles, falls back to the nearest pair, and reports declared connection handles', async () => {
+    const onConnect = vi.fn()
+    const {wrapper} = await fixture({...LINE_PROPS, connectableKeys: ['A', 'B'], onConnect})
+    const flow = wrapper.getComponent(VueFlow)
+    expect(flow.props('edges')!.map(edge => [edge.sourceHandle, edge.targetHandle])).toEqual([['4', '10'], ['6', '2'], ['4', '2']])
+    expect(wrapper.findAll('.vue-flow__handle')).toHaveLength(24)
+    expect(wrapper.text()).toContain('无效的连线控制点')
+    const [a, b] = flow.props('nodes')!
+    flow.vm.$emit('connect', {source: a!.id, target: b!.id, sourceHandle: '7', targetHandle: '11'})
+    flow.vm.$emit('connect', {source: a!.id, target: b!.id, sourceHandle: '1', targetHandle: '99'})
+    expect(onConnect.mock.calls.map(call => call[0])).toEqual([
+      {source: 'A', target: 'B', sourceHandle: '7', targetHandle: '11'}, {source: 'A', target: 'B'}])
+  })
+
+  it('routes lines through control points by line type and keeps the default route without layout fields', async () => {
+    const {wrapper, input} = await fixture(LINE_LAYOUT)
+    const paths = () => wrapper.findAll('.vue-flow__edge-path').map(path => path.attributes('d'))
+    expect(paths()[1]).toMatch(/^M[-\d.]+,[-\d.]+ L[-\d.]+,[-\d.]+ L200,[-\d.]+ L200,300 /)
+    input.edgeLineTypeField = 'type'; await flushPromises()
+    expect(paths()[1]).toMatch(/^M[-\d.]+,[-\d.]+ L200,300 L300,300 L[-\d.]+,[-\d.]+$/)
+    delete input.edgeControlPointsField; delete input.edgeLineTypeField; await flushPromises()
+    expect(paths().every(path => !path?.includes('200,300'))).toBe(true)
+  })
+
+  it('emits control point changes only for writable rows and never writes the line record', async () => {
+    const onEdgePathChange = vi.fn()
+    const {wrapper, ds, input} = await fixture({...LINE_PROPS, onEdgePathChange})
+    const lines = ds.getView('Lines')!
+    expect(wrapper.findAll('.graph-edge--editable')).toHaveLength(2)
+    const points = wrapper.findAll('.graph-edge__control-point')
+    expect(points).toHaveLength(3)
+    await points[2]!.trigger('dblclick')
+    expect(onEdgePathChange).toHaveBeenLastCalledWith({id: 'L2', controlPoints: [{x: 200, y: 300}]})
+    points[0]!.element.dispatchEvent(new MouseEvent('pointerdown', {clientX: 10, clientY: 10, bubbles: true}))
+    window.dispatchEvent(new MouseEvent('pointermove', {clientX: 40, clientY: 30}))
+    await flushPromises()
+    expect(wrapper.find('.graph-edge__control-point').attributes('cx')).toBe('230')
+    window.dispatchEvent(new MouseEvent('pointerup'))
+    expect(onEdgePathChange).toHaveBeenLastCalledWith({id: 'L1', controlPoints: [{x: 230, y: 120}]})
+    wrapper.findAll('.graph-edge--editable')[0]!.element.dispatchEvent(new MouseEvent('dblclick', {clientX: 300, clientY: 50, bubbles: true}))
+    expect(onEdgePathChange.mock.lastCall![0].controlPoints).toHaveLength(2)
+    expect(lines.dirtyTracking.hasPendingChanges()).toBe(false)
+    const calls = onEdgePathChange.mock.calls.length
+    input.disabled = true; await flushPromises()
+    expect(wrapper.findAll('.graph-edge--editable')).toHaveLength(0)
+    input.disabled = false; await flushPromises()
+    wrapper.findAll('.graph-edge__control-point')[0]!.element.dispatchEvent(new MouseEvent('pointerdown', {clientX: 0, clientY: 0, bubbles: true}))
+    input.nodePositions = {A: {x: 10, y: 0}, B: {x: 400, y: 0}}; await flushPromises()
+    window.dispatchEvent(new MouseEvent('pointermove', {clientX: 40, clientY: 30}))
+    window.dispatchEvent(new MouseEvent('pointerup'))
+    expect(onEdgePathChange).toHaveBeenCalledTimes(calls)
+
+    const readonly = await fixture({...LINE_PROPS, onEdgePathChange}, false, false, [])
+    expect(readonly.wrapper.getComponent(VueFlow).props('edges')).toHaveLength(3)
+    expect(readonly.wrapper.findAll('.graph-edge--editable')).toHaveLength(0)
+  })
+
+  it('isolates control point edits between two graph instances', async () => {
+    const first = vi.fn(), second = vi.fn()
+    const one = await fixture({...LINE_PROPS, onEdgePathChange: first})
+    const two = await fixture({...LINE_PROPS, onEdgePathChange: second})
+    expect(one.wrapper.getComponent(VueFlow).props('id')).not.toBe(two.wrapper.getComponent(VueFlow).props('id'))
+    await two.wrapper.findAll('.graph-edge__control-point')[0]!.trigger('dblclick')
+    expect(second).toHaveBeenCalledExactlyOnceWith({id: 'L1', controlPoints: []})
+    expect(first).not.toHaveBeenCalled()
   })
 
   it('consumes formal field permissions and diagnoses unresolved edges', async () => {

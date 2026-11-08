@@ -87,6 +87,47 @@ export type GraphNodeSource = Readonly<{
   nodeCaptionOptions?: readonly GraphCaptionOption[]
 }>
 
+/** 节点上的一个连接点：所在边及沿该边从左/上起算的位置比例。 */
+export type GraphHandle = Readonly<{
+  /** 接点身份，与连线记录的接点字段按字符串严格匹配。 */
+  id: string
+  /** 所在边。 */
+  side: 'top' | 'right' | 'bottom' | 'left'
+  /** 沿该边的位置比例，0到1。 */
+  offset: number
+}>
+
+/** 全部节点共用的接点布局；输入接点只作终点，输出接点只作起点。 */
+export type GraphNodeHandles = Readonly<{
+  /** 输入接点。 */
+  inputs: readonly GraphHandle[]
+  /** 输出接点。 */
+  outputs: readonly GraphHandle[]
+}>
+
+/** 经控制点连线的线型；straight折线，bezier平滑曲线，orthogonal正交折线。 */
+export type GraphEdgeLineType = 'straight' | 'bezier' | 'orthogonal'
+
+/** 一次连线控制点变化建议；组件不写入DataView，页面接受后更新关系行的控制点字段。 */
+export type GraphEdgePathChange = Readonly<{
+  /** 关系DataView原始主键。 */
+  id: string | number
+  /** 变化后的全部控制点，画布坐标。 */
+  controlPoints: readonly GraphCanvasPoint[]
+}>
+
+/** 一次新连线确认；配置接点时带上两端接点身份。 */
+export type GraphConnection = Readonly<{
+  /** 起点节点原始主键。 */
+  source: string | number
+  /** 终点节点原始主键。 */
+  target: string | number
+  /** 起点输出接点身份。 */
+  sourceHandle?: string
+  /** 终点输入接点身份。 */
+  targetHandle?: string
+}>
+
 /** r-graph：模型节点和关系边分别绑定视图，不接受业务rows数组。 */
 export type RGraphProps = SparkNodeProps & Pick<SparkTableModelProps, 'dataViewKey'> & {
   /** 标准容器工具栏；子组件继承节点DataView，关系动作可显式绑定关系视图。 */
@@ -148,8 +189,20 @@ export type RGraphProps = SparkNodeProps & Pick<SparkTableModelProps, 'dataViewK
   onArrange?: (event: GraphArrange) => void
   /** 允许作为新连线端点的节点主键；默认关闭。仅开放交互，不代表关系新增已获授权。 */
   connectableKeys?: ReadonlyArray<string | number>
-  /** 连线确认的节点主键；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */
-  onConnect?: (event: Readonly<{source: string | number; target: string | number}>) => void
+  /** 连线确认的节点主键及接点；页面决定打开已有关系或创建草稿，组件不自动添加边或推导条件。 */
+  onConnect?: (event: GraphConnection) => void
+  /** 全部节点共用的接点布局；省略时每个节点只有左侧输入、右侧输出各一个接点。 */
+  nodeHandles?: GraphNodeHandles
+  /** 关系记录中的起点接点字段；值不可读或不是已声明的输出接点时，按两端距离自动选最近接点。 */
+  edgeSourceHandleField?: string
+  /** 关系记录中的终点接点字段；值不可读或不是已声明的输入接点时，按两端距离自动选最近接点。 */
+  edgeTargetHandleField?: string
+  /** 关系记录中的线型字段，值取GraphEdgeLineType；配置后连线按线型经过控制点，其它值按orthogonal。 */
+  edgeLineTypeField?: string
+  /** 关系记录中的控制点字段，值为{x,y}数组；只是布局，不改变关系端点。 */
+  edgeControlPointsField?: string
+  /** 控制点拖动、双击连线加点、双击控制点删点后发出；仅当控制点字段对该行可写时开放编辑。 */
+  onEdgePathChange?: (event: GraphEdgePathChange) => void
   /** 外部对象导航同步的高亮目标；null明确清空。 */
   current?: Readonly<{kind: 'node' | 'edge'; id: string | number}> | null
   /** 阻止对象选择、拖动和连线，不改变后端数据权限。 */

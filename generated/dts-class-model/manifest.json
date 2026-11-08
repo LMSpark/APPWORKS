@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1113,
+  "scannedFileCount": 1114,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2890,6 +2890,26 @@
         "componentDirectory": "containers/data-views"
       }
     },
+    "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts": {
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts.json",
+      "module": {
+        "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphEdgeGeometry",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts",
+        "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts",
+        "packageName": "@spark-appworks/spark-component",
+        "modulePath": "components/containers/data-views/RendererGraph/GraphEdgeGeometry",
+        "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphEdgeGeometry\n职责：关系图节点接点坐标、最近接点选择、控制点连线路径与最近线段的纯计算。\n边界：无状态、不读 DataView；节点几何固定为画布的 232×120 中心坐标系。\nAI用途：排查连线接到哪个接点、控制点路径走向或双击加点落在哪段时，从本模块定位。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "GraphHandlePairInput"
+        ],
+        "componentName": "RendererGraph",
+        "componentType": "r-graph",
+        "componentLevel": "table-level",
+        "componentLayer": "data-view-container",
+        "componentDirectory": "containers/data-views"
+      }
+    },
     "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts": {
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts.json",
       "module": {
@@ -2945,6 +2965,11 @@
           "GraphSelection",
           "GraphCaptionOption",
           "GraphNodeSource",
+          "GraphHandle",
+          "GraphNodeHandles",
+          "GraphEdgeLineType",
+          "GraphEdgePathChange",
+          "GraphConnection",
           "RGraphProps"
         ],
         "componentName": "RendererGraph",
@@ -21487,9 +21512,33 @@
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
     },
+    "GraphConnection": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
+    },
+    "GraphEdgeLineType": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
+    },
+    "GraphEdgePathChange": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
+    },
+    "GraphHandle": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
+    },
+    "GraphHandlePairInput": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts.json"
+    },
     "GraphLayout": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts",
       "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts.json"
+    },
+    "GraphNodeHandles": {
+      "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+      "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json"
     },
     "GraphNodeMove": {
       "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
@@ -25692,10 +25741,82 @@
           "directory": "containers/data-views"
         }
       },
+      "GraphConnection": {
+        "className": "GraphConnection",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json",
+        "component": {
+          "name": "RendererGraph",
+          "type": "r-graph",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "GraphEdgeLineType": {
+        "className": "GraphEdgeLineType",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json",
+        "component": {
+          "name": "RendererGraph",
+          "type": "r-graph",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "GraphEdgePathChange": {
+        "className": "GraphEdgePathChange",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json",
+        "component": {
+          "name": "RendererGraph",
+          "type": "r-graph",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "GraphHandle": {
+        "className": "GraphHandle",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json",
+        "component": {
+          "name": "RendererGraph",
+          "type": "r-graph",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "GraphHandlePairInput": {
+        "className": "GraphHandlePairInput",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts.json",
+        "component": {
+          "name": "RendererGraph",
+          "type": "r-graph",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
       "GraphLayout": {
         "className": "GraphLayout",
         "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts",
         "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/GraphLayout.ts.json",
+        "component": {
+          "name": "RendererGraph",
+          "type": "r-graph",
+          "level": "table-level",
+          "layer": "data-view-container",
+          "directory": "containers/data-views"
+        }
+      },
+      "GraphNodeHandles": {
+        "className": "GraphNodeHandles",
+        "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts",
+        "file": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.props.ts.json",
         "component": {
           "name": "RendererGraph",
           "type": "r-graph",
@@ -27590,7 +27711,13 @@
         "GraphCanvasPoint",
         "GraphCanvasProps",
         "GraphCaptionOption",
+        "GraphConnection",
+        "GraphEdgeLineType",
+        "GraphEdgePathChange",
+        "GraphHandle",
+        "GraphHandlePairInput",
         "GraphLayout",
+        "GraphNodeHandles",
         "GraphNodeMove",
         "GraphNodeSource",
         "GraphSelection",
@@ -27841,7 +27968,13 @@
         "GraphCanvasPoint",
         "GraphCanvasProps",
         "GraphCaptionOption",
+        "GraphConnection",
+        "GraphEdgeLineType",
+        "GraphEdgePathChange",
+        "GraphHandle",
+        "GraphHandlePairInput",
         "GraphLayout",
+        "GraphNodeHandles",
         "GraphNodeMove",
         "GraphNodeSource",
         "GraphSelection",
@@ -28161,7 +28294,13 @@
         "GraphCanvasPoint",
         "GraphCanvasProps",
         "GraphCaptionOption",
+        "GraphConnection",
+        "GraphEdgeLineType",
+        "GraphEdgePathChange",
+        "GraphHandle",
+        "GraphHandlePairInput",
         "GraphLayout",
+        "GraphNodeHandles",
         "GraphNodeMove",
         "GraphNodeSource",
         "GraphSelection",
@@ -28273,7 +28412,13 @@
         "GraphCanvasPoint",
         "GraphCanvasProps",
         "GraphCaptionOption",
+        "GraphConnection",
+        "GraphEdgeLineType",
+        "GraphEdgePathChange",
+        "GraphHandle",
+        "GraphHandlePairInput",
         "GraphLayout",
+        "GraphNodeHandles",
         "GraphNodeMove",
         "GraphNodeSource",
         "GraphSelection",
@@ -28397,7 +28542,13 @@
         "GraphCanvasPoint",
         "GraphCanvasProps",
         "GraphCaptionOption",
+        "GraphConnection",
+        "GraphEdgeLineType",
+        "GraphEdgePathChange",
+        "GraphHandle",
+        "GraphHandlePairInput",
         "GraphLayout",
+        "GraphNodeHandles",
         "GraphNodeMove",
         "GraphNodeSource",
         "GraphSelection",

@@ -8870,8 +8870,19 @@ pnpm run verify
 
 **存量断链（HEAD 上同样失败，非本批引入）。**`data-space-four-file.test.ts` 和数据空间设计页的多组原生测试报 `SCENARIO_PROJECTION_BINDING: ProjectToolCatalog 缺少显式只读投影工厂`。在 HEAD 暂存本批后复跑，两个文件的 66 项失败相同。下一批单独排查。
 
+#### CI. S4：RendererGraph 接点、线型与控制点（未冻结）
+
+用户批准扩展标准关系图组件，供工作流设计页绑定投影视图使用。组件只呈现、发出建议，不写 DataView。
+
+- **接点。**新增 `nodeHandles`（全部节点共用的输入/输出接点：边、位置比例）。关系行的 `edgeSourceHandleField` 和 `edgeTargetHandleField` 是已声明的接点 id 时固定该端；不可读、缺失或未声明时，按两端节点几何自动取最近的一对。连线确认的 `onConnect` 事件带回已声明的接点 id，未声明的不带。不配置接点时保持原来的左入右出。
+- **线型与控制点。**`edgeLineTypeField` 取 straight、bezier 或 orthogonal（其它值按 orthogonal），`edgeControlPointsField` 是 `{x,y}` 数组。配置任一字段时，连线依次经过起点、控制点和终点，算法与原工作流页一致。`edgePaths` 折线仍然优先。可读但格式不对的控制点会提示，连线照常显示，但不开放编辑。
+- **编辑与权限。**只有配置了 `onEdgePathChange`、控制点字段对该行 `fieldAccess.write === 'allowed'`、组件未禁用时才开放编辑。拖动控制点按视口缩放换算，松开时发出一次；双击连线在最近线段插点；双击控制点删点。查询替换、绑定或布局变化后，旧拖动作废。每个画布实例使用独立的 VueFlow id，互不串扰。
+- **新增模块。**纯几何计算在 `GraphEdgeGeometry.ts`：接点坐标、最近接点、控制点路径、最近线段。
+
+**验证。**`renderer-graph.test.ts` 新增 4 项，覆盖：声明接点与最近接点回退；连线事件的接点过滤；三种线型路由与无布局字段时的默认路由；可写行的拖动、加点、删点事件，且不写记录；禁用与旧拖动作废；只读控制点不开放编辑；两个实例隔离。该文件 39 项、正式工作流设计页与数据空间设计图共 131 项通过。根 typecheck 0。改动文件 eslint 0。ClassModel 已重新生成，语义缺口仍为 3730，生成物只保留 RendererGraph 分片、新增几何分片和两份清单的真实差异。
+
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 的数据层承接已就绪。下一步：在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表；扩展 RendererGraph 的端口、连线样式和控制点；改写页面并清理被取代的辅助函数。另排查上面的 ProjectToolCatalog 断链。不进入 S5。
+`WorkflowDesigns` 的数据层承接和关系图组件能力已就绪。下一步：改写页面，把主子图 RendererGraph 与表单/表格绑定到投影视图，一次 `saveChanges` 保存；清理被取代的辅助函数。在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表需等用户登录。另排查上面的 ProjectToolCatalog 断链。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

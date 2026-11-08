@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "@spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphEdgeGeometry",
+    "sourcePath": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts",
+    "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/GraphEdgeGeometry.ts",
+    "packageName": "@spark-appworks/spark-component",
+    "modulePath": "components/containers/data-views/RendererGraph/GraphEdgeGeometry",
+    "jsdoc": "@module @spark-appworks/spark-component:components/containers/data-views/RendererGraph/GraphEdgeGeometry\n职责：关系图节点接点坐标、最近接点选择、控制点连线路径与最近线段的纯计算。\n边界：无状态、不读 DataView；节点几何固定为画布的 232×120 中心坐标系。\nAI用途：排查连线接到哪个接点、控制点路径走向或双击加点落在哪段时，从本模块定位。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "GraphHandlePairInput"
+    ],
+    "componentName": "RendererGraph",
+    "componentType": "r-graph",
+    "componentLevel": "table-level",
+    "componentLayer": "data-view-container",
+    "componentDirectory": "containers/data-views"
+  },
+  "$defs": {
+    "GraphHandlePairInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "GraphHandlePairInput",
+      "properties": {
+        "source": {
+          "$ref": "GraphCanvas.types.ts.json#/$defs/GraphCanvasPoint"
+        },
+        "target": {
+          "$ref": "GraphCanvas.types.ts.json#/$defs/GraphCanvasPoint"
+        },
+        "outputs": {
+          "type": "array",
+          "items": {
+            "$ref": "RendererGraph.props.ts.json#/$defs/GraphHandle"
+          }
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "RendererGraph.props.ts.json#/$defs/GraphHandle"
+          }
+        },
+        "fixedSource": {
+          "$ref": "RendererGraph.props.ts.json#/$defs/GraphHandle"
+        },
+        "fixedTarget": {
+          "$ref": "RendererGraph.props.ts.json#/$defs/GraphHandle"
+        }
+      },
+      "required": [
+        "source",
+        "target",
+        "outputs",
+        "inputs"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-08T19:33:08.987Z",
+  "models": {
+    "GraphHandlePairInput": {
+      "name": "GraphHandlePairInput",
+      "jsdoc": "选择接点的输入：两端节点中心、可选接点，以及已固定的一端。",
+      "declarationKind": "typeAlias",
+      "component": {
+        "name": "RendererGraph",
+        "type": "r-graph",
+        "level": "table-level",
+        "layer": "data-view-container",
+        "directory": "containers/data-views"
+      },
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 起点节点中心。 */\n    source: GraphCanvasPoint;\n    /** 终点节点中心。 */\n    target: GraphCanvasPoint;\n    /** 起点可用的输出接点。 */\n    outputs: readonly GraphHandle[];\n    /** 终点可用的输入接点。 */\n    inputs: readonly GraphHandle[];\n    /** 已由连线记录固定的起点接点。 */\n    fixedSource?: GraphHandle;\n    /** 已由连线记录固定的终点接点。 */\n    fixedTarget?: GraphHandle;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 起点节点中心。 */\n    source: GraphCanvasPoint;\n    /** 终点节点中心。 */\n    target: GraphCanvasPoint;\n    /** 起点可用的输出接点。 */\n    outputs: readonly GraphHandle[];\n    /** 终点可用的输入接点。 */\n    inputs: readonly GraphHandle[];\n    /** 已由连线记录固定的起点接点。 */\n    fixedSource?: GraphHandle;\n    /** 已由连线记录固定的终点接点。 */\n    fixedTarget?: GraphHandle;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "source",
+              "jsdoc": "起点节点中心。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "target",
+              "jsdoc": "终点节点中心。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "outputs",
+              "jsdoc": "起点可用的输出接点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "inputs",
+              "jsdoc": "终点可用的输入接点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fixedSource",
+              "jsdoc": "已由连线记录固定的起点接点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fixedTarget",
+              "jsdoc": "已由连线记录固定的终点接点。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

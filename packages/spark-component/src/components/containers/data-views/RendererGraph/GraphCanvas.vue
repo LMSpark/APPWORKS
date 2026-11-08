@@ -36,18 +36,31 @@ AI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据�
     >
       <template #node-graph-node="{ data, id }">
         <article class="graph-node" :class="[{'graph-node--connectable': canConnect(id), 'graph-node--card': props.nodeAppearance === 'card'}, data.badge ? `graph-node--${data.badge.tone}` : '']">
-          <Handle type="target" :position="Position.Left" :connectable="canConnect(id)" />
+          <template v-if="props.handles">
+            <Handle v-for="handle in props.handles.inputs" :id="handle.id" :key="`in-${handle.id}`" type="target"
+              :position="handlePosition(handle)" :style="handleStyle(handle)" :connectable="canConnect(id)" />
+            <Handle v-for="handle in props.handles.outputs" :id="handle.id" :key="`out-${handle.id}`" type="source"
+              :position="handlePosition(handle)" :style="handleStyle(handle)" :connectable="canConnect(id)" />
+          </template>
+          <Handle v-else type="target" :position="Position.Left" :connectable="canConnect(id)" />
           <div v-if="data.caption || data.badge" class="graph-node__meta">
             <span v-if="data.caption" class="graph-node__caption" :title="data.caption">{{ data.caption }}</span>
             <span v-if="data.badge" class="graph-node__badge">{{ data.badge.label }}</span>
           </div>
           <strong class="graph-node__title" :title="data.title">{{ data.title }}</strong>
           <span class="graph-node__description" :title="data.description">{{ data.description }}</span>
-          <Handle type="source" :position="Position.Right" :connectable="canConnect(id)" />
+          <Handle v-if="!props.handles" type="source" :position="Position.Right" :connectable="canConnect(id)" />
         </article>
       </template>
       <template #edge-graph-edge="edge">
-        <BaseEdge :id="edge.id" :path="edgePath(edge)" :marker-end="edge.markerEnd" :style="edge.style" />
+        <g v-if="pathEditable(edge.id)" class="graph-edge--editable" @dblclick.stop="addControlPoint($event, edge)">
+          <BaseEdge :id="edge.id" :path="edgePath(edge)" :marker-end="edge.markerEnd" :style="edge.style" :interaction-width="18" />
+          <circle v-for="(point, index) in controlPointsOf(edge.id)" :key="index" class="graph-edge__control-point"
+            :cx="point.x" :cy="point.y" r="6"
+            @pointerdown.stop.prevent="startControlPointDrag($event, edge.id, index)"
+            @dblclick.stop.prevent="removeControlPoint(edge.id, index)" />
+        </g>
+        <BaseEdge v-else :id="edge.id" :path="edgePath(edge)" :marker-end="edge.markerEnd" :style="edge.style" />
       </template>
     </VueFlow>
     <div v-if="props.viewportControls !== false" class="graph-canvas__controls" aria-label="画布视口">
@@ -59,15 +72,19 @@ AI用途：业务页使用RendererGraph绑定视图，此组件仅用于数据�
 </template>
 
 <script setup lang="ts">
-import { computed, getCurrentInstance, nextTick, ref, watch } from 'vue'
+import { computed, getCurrentInstance, nextTick, onBeforeUnmount, ref, watch } from 'vue'
 import { BaseEdge, getSmoothStepPath, Handle, Position, VueFlow, useVueFlow } from '@vue-flow/core'
 import type { Edge, EdgeProps, Node } from '@vue-flow/core'
-import type { GraphCanvasProps, GraphCanvasPoint, GraphCanvasNode } from './GraphCanvas.types'
+import type { GraphCanvasEdge, GraphCanvasProps, GraphCanvasPoint, GraphCanvasNode } from './GraphCanvas.types'
+import type { GraphHandle } from './RendererGraph.props'
+import { graphControlPointPath, nearestGraphSegment } from './GraphEdgeGeometry'
 import '@vue-flow/core/dist/style.css'
 import '@vue-flow/core/dist/theme-default.css'
 
 type GraphFlowNodeData = Pick<GraphCanvasNode, 'title' | 'description' | 'caption' | 'badge'>
-type GraphFlowEdgeData = Readonly<{ pointsList?: readonly GraphCanvasPoint[] }>
+type GraphFlowEdgeData = Readonly<{ pointsList?: readonly GraphCanvasPoint[]; lineType?: GraphCanvasEdge['lineType']; controlled?: boolean }>
+/** 正在拖动的控制点；只属于发起时的投影版本。 */
+type ControlPointDrag = {contextKey: string; id: string; index: number; clientX: number; clientY: number; zoom: number; points: GraphCanvasPoint[]}
 /** 节点拖动时同步移动的连线路径。 */
 type MovedEdge = {
   /** 当前图内的关系绘图身份。 */
@@ -79,14 +96,15 @@ type DragStart = {contextKey: string; id: string; x: number; y: number}
 type DragNodeEvent = {node: {id: string; position: {x: number; y: number}}}
 type GraphNodeEvent = {node: {id: string}}
 type GraphEdgeEvent = {edge: {id: string}}
-type GraphConnectionEvent = {source?: string | null; target?: string | null}
+type GraphConnectionEvent = {source?: string | null; target?: string | null; sourceHandle?: string | null; targetHandle?: string | null}
 type MoveOptions = {points: readonly GraphCanvasPoint[]; dx: number; dy: number; side: 'start' | 'end' | 'both'}
 
 const props = withDefaults(defineProps<GraphCanvasProps>(), {viewportControls: true})
 const emit = defineEmits<{
   select: [payload: {contextKey: string; type: 'node' | 'edge'; id: string; open: boolean}]
   move: [payload: {contextKey: string; id: string; x: number; y: number; edges: MovedEdge[]}]
-  connect: [payload: {contextKey: string; source: string; target: string}]
+  connect: [payload: {contextKey: string; source: string; target: string; sourceHandle?: string; targetHandle?: string}]
+  path: [payload: {contextKey: string; id: string; controlPoints: GraphCanvasPoint[]}]
 }>()
 const instance = getCurrentInstance()
 if (!instance) throw new Error('GraphCanvas requires a Vue component instance')
@@ -212,9 +230,73 @@ function canConnect(id: string): boolean {
 function onConnect(connection: GraphConnectionEvent) {
   if (props.contextKey && connection.source && connection.target && canConnect(connection.source) && canConnect(connection.target)
     && props.nodes.some(node => node.id === connection.source) && props.nodes.some(node => node.id === connection.target)) {
-    emit('connect', {contextKey: props.contextKey, source: connection.source, target: connection.target})
+    emit('connect', {contextKey: props.contextKey, source: connection.source, target: connection.target,
+      ...(connection.sourceHandle ? {sourceHandle: connection.sourceHandle} : {}),
+      ...(connection.targetHandle ? {targetHandle: connection.targetHandle} : {})})
   }
 }
+const HANDLE_POSITIONS = {top: Position.Top, right: Position.Right, bottom: Position.Bottom, left: Position.Left} as const
+function handlePosition(handle: GraphHandle): Position {return HANDLE_POSITIONS[handle.side]}
+function handleStyle(handle: GraphHandle): Record<string, string> {
+  return handle.side === 'top' || handle.side === 'bottom' ? {left: `${handle.offset * 100}%`} : {top: `${handle.offset * 100}%`}
+}
+
+const controlPointPreview = ref<{id: string; points: GraphCanvasPoint[]} | null>(null)
+let controlPointDrag: ControlPointDrag | null = null
+function canvasEdge(id: string): GraphCanvasEdge | undefined {return props.edges.find(edge => edge.id === id)}
+function pathEditable(id: string): boolean {return interactive.value && canvasEdge(id)?.pathEditable === true}
+function controlPointsOf(id: string): readonly GraphCanvasPoint[] {
+  const preview = controlPointPreview.value
+  return preview?.id === id ? preview.points : canvasEdge(id)?.controlPoints ?? []
+}
+function emitPath(id: string, controlPoints: GraphCanvasPoint[]): void {
+  if (!props.contextKey || !pathEditable(id)) return
+  emit('path', {contextKey: props.contextKey, id, controlPoints})
+}
+function addControlPoint(event: MouseEvent, edge: EdgeProps<GraphFlowEdgeData>): void {
+  if (!pathEditable(edge.id)) return
+  const point = flow.screenToFlowCoordinate({x: event.clientX, y: event.clientY})
+  const rounded = {x: Math.round(point.x), y: Math.round(point.y)}
+  const points = [...controlPointsOf(edge.id)]
+  const anchors = [{x: edge.sourceX, y: edge.sourceY}, ...points, {x: edge.targetX, y: edge.targetY}]
+  points.splice(nearestGraphSegment(anchors, rounded), 0, rounded)
+  emitPath(edge.id, points)
+}
+function removeControlPoint(id: string, index: number): void {
+  const points = [...controlPointsOf(id)]
+  if (index < 0 || index >= points.length) return
+  points.splice(index, 1)
+  emitPath(id, points)
+}
+function moveControlPoint(event: PointerEvent): void {
+  const drag = controlPointDrag
+  if (!drag || drag.contextKey !== props.contextKey) return
+  const start = drag.points[drag.index]
+  if (!start) return
+  const points = drag.points.map(point => ({...point}))
+  points[drag.index] = {x: Math.round(start.x + (event.clientX - drag.clientX) / drag.zoom), y: Math.round(start.y + (event.clientY - drag.clientY) / drag.zoom)}
+  controlPointPreview.value = {id: drag.id, points}
+}
+function stopControlPointDrag(): void {
+  window.removeEventListener('pointermove', moveControlPoint)
+  const drag = controlPointDrag, preview = controlPointPreview.value
+  controlPointDrag = null
+  controlPointPreview.value = null
+  if (!drag || drag.contextKey !== props.contextKey || preview?.id !== drag.id) return
+  if (preview.points.every((point, index) => point.x === drag.points[index]?.x && point.y === drag.points[index]?.y)) return
+  emitPath(drag.id, preview.points)
+}
+function startControlPointDrag(event: PointerEvent, id: string, index: number): void {
+  if (!props.contextKey || !pathEditable(id)) return
+  controlPointDrag = {contextKey: props.contextKey, id, index, clientX: event.clientX, clientY: event.clientY,
+    zoom: flow.getViewport().zoom || 1, points: controlPointsOf(id).map(point => ({...point}))}
+  window.addEventListener('pointermove', moveControlPoint)
+  window.addEventListener('pointerup', stopControlPointDrag, {once: true})
+}
+onBeforeUnmount(() => {
+  window.removeEventListener('pointermove', moveControlPoint)
+  window.removeEventListener('pointerup', stopControlPointDrag)
+})
 
 const graphCanFit = computed(() => {
   const dimensions = flow.dimensions.value
@@ -268,14 +350,20 @@ const flowEdges = computed<Edge<GraphFlowEdgeData>[]>(() => props.edges.map(edge
   focusable: interactive.value,
   selected: props.selectedId === edge.id,
   updatable: false,
-  data: edge.pointsList === undefined ? {} : {
+  ...(props.handles && edge.sourceHandle ? {sourceHandle: edge.sourceHandle} : {}),
+  ...(props.handles && edge.targetHandle ? {targetHandle: edge.targetHandle} : {}),
+  data: edge.pointsList !== undefined ? {
     pointsList: (previewEdges.value?.find(item => item.id === edge.id)?.pointsList ?? edge.pointsList).map(point => ({ x: point.x, y: point.y })),
-  },
+  } : edge.lineType !== undefined || edge.controlPoints?.length ? {
+    controlled: true, ...(edge.lineType ? {lineType: edge.lineType} : {}),
+  } : {},
 })))
 
 watch(() => [props.contextKey, props.disabled], () => {
   dragStart = null
   previewEdges.value = null
+  controlPointDrag = null
+  controlPointPreview.value = null
   // Both endpoints and edges carry the binding revision. VueFlow may pause
   // either prop watcher during an interaction; restore nodes before edges.
   flow.setNodes(flowNodes.value)
@@ -286,6 +374,9 @@ function edgePath(edge: EdgeProps<GraphFlowEdgeData>): string {
   const points = edge.data.pointsList
   if (points !== undefined) {
     return points.map((point, index) => `${index === 0 ? 'M' : 'L'}${point.x},${point.y}`).join(' ')
+  }
+  if (edge.data.controlled) {
+    return graphControlPointPath([{x: edge.sourceX, y: edge.sourceY}, ...controlPointsOf(edge.id), {x: edge.targetX, y: edge.targetY}], edge.data.lineType)
   }
   return getSmoothStepPath({ sourceX: edge.sourceX, sourceY: edge.sourceY, sourcePosition: edge.sourcePosition,
     targetX: edge.targetX, targetY: edge.targetY, targetPosition: edge.targetPosition })[0]
@@ -407,4 +498,5 @@ function edgePath(edge: EdgeProps<GraphFlowEdgeData>): string {
 .graph-node--connectable {overflow: visible;}
 :deep(.graph-node--connectable > .vue-flow__handle) {opacity: 1; pointer-events: all; width: 10px; height: 10px; background: var(--el-color-primary, #409eff);}
 .graph-node--card > :deep(.vue-flow__handle) {z-index: 2;}
+.graph-edge__control-point {fill: var(--el-bg-color, #fff); stroke: var(--el-color-primary, #409eff); stroke-width: 2; cursor: move;}
 </style>

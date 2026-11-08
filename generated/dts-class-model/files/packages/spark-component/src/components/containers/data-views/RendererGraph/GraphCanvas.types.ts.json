@@ -114,6 +114,31 @@
           "items": {
             "$ref": "#/$defs/GraphCanvasPoint"
           }
+        },
+        "sourceHandle": {
+          "type": "string"
+        },
+        "targetHandle": {
+          "type": "string"
+        },
+        "lineType": {
+          "enum": [
+            "straight",
+            "bezier",
+            "orthogonal"
+          ]
+        },
+        "controlPoints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/GraphCanvasPoint"
+          }
+        },
+        "pathEditable": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "required": [
@@ -187,6 +212,9 @@
             false,
             true
           ]
+        },
+        "handles": {
+          "$ref": "RendererGraph.props.ts.json#/$defs/GraphNodeHandles"
         }
       },
       "required": [
@@ -196,7 +224,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-24T08:35:33.716Z",
+  "generatedAt": "2026-11-08T19:26:12.409Z",
   "models": {
     "GraphCanvasPoint": {
       "name": "GraphCanvasPoint",
@@ -316,11 +344,11 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n    /** 起点输出接点身份；仅在配置接点布局时有效。 */\n    sourceHandle?: string;\n    /** 终点输入接点身份；仅在配置接点布局时有效。 */\n    targetHandle?: string;\n    /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */\n    lineType?: GraphEdgeLineType;\n    /** 连线经过的控制点。 */\n    controlPoints?: readonly GraphCanvasPoint[];\n    /** 是否允许拖动、增加、删除控制点。 */\n    pathEditable?: boolean;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n}>",
+            "typeText": "Readonly<{\n    /** 当前图内唯一的关系绘图身份。 */\n    id: string;\n    /** 起点节点绘图身份。 */\n    source: string;\n    /** 终点节点绘图身份。 */\n    target: string;\n    /** 显式折线路径；缺省时由画布计算连线。 */\n    pointsList?: readonly GraphCanvasPoint[];\n    /** 起点输出接点身份；仅在配置接点布局时有效。 */\n    sourceHandle?: string;\n    /** 终点输入接点身份；仅在配置接点布局时有效。 */\n    targetHandle?: string;\n    /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */\n    lineType?: GraphEdgeLineType;\n    /** 连线经过的控制点。 */\n    controlPoints?: readonly GraphCanvasPoint[];\n    /** 是否允许拖动、增加、删除控制点。 */\n    pathEditable?: boolean;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -349,6 +377,36 @@
               "jsdoc": "显式折线路径；缺省时由画布计算连线。",
               "readable": true,
               "writable": false
+            },
+            {
+              "name": "sourceHandle",
+              "jsdoc": "起点输出接点身份；仅在配置接点布局时有效。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "targetHandle",
+              "jsdoc": "终点输入接点身份；仅在配置接点布局时有效。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lineType",
+              "jsdoc": "经控制点连线的线型；与控制点任一存在时按控制点计算路径。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "controlPoints",
+              "jsdoc": "连线经过的控制点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pathEditable",
+              "jsdoc": "是否允许拖动、增加、删除控制点。",
+              "readable": true,
+              "writable": false
             }
           ]
         }
@@ -366,11 +424,11 @@
         "directory": "containers/data-views"
       },
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */\n    backgroundPattern?: 'none' | 'dots' | undefined;\n    /** 节点呈现；卡片样式不改变固定几何或投影文字。 */\n    nodeAppearance?: 'default' | 'card' | undefined;\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */\n    backgroundPattern?: 'none' | 'dots' | undefined;\n    /** 节点呈现；卡片样式不改变固定几何或投影文字。 */\n    nodeAppearance?: 'default' | 'card' | undefined;\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n    /** 全部节点共用的接点布局；缺省时左入右出各一个。 */\n    handles?: GraphNodeHandles | undefined;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */\n    backgroundPattern?: 'none' | 'dots' | undefined;\n    /** 节点呈现；卡片样式不改变固定几何或投影文字。 */\n    nodeAppearance?: 'default' | 'card' | undefined;\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n}>",
+            "typeText": "Readonly<{\n    /** 背景呈现；点阵只改变视觉，不改变画布交互或坐标。 */\n    backgroundPattern?: 'none' | 'dots' | undefined;\n    /** 节点呈现；卡片样式不改变固定几何或投影文字。 */\n    nodeAppearance?: 'default' | 'card' | undefined;\n    /** 已授权的节点绘制投影。 */\n    nodes: readonly GraphCanvasNode[];\n    /** 已授权且端点可解析的关系投影。 */\n    edges: readonly GraphCanvasEdge[];\n    /** 是否允许拉出新连线；默认允许，标准查看图显式关闭。 */\n    connectable?: boolean | undefined;\n    /** 可连接的节点身份；缺省沿connectable开放全部，空数组关闭全部端口。 */\n    connectableIds?: readonly string[] | undefined;\n    /** 调用方提供的投影版本，事件原样返回以拒绝过期交互。 */\n    contextKey?: string | undefined;\n    /** 停用全部选择、拖动和连线交互。 */\n    disabled?: boolean | undefined;\n    /** 外部选中的节点或关系绘图身份。 */\n    selectedId?: string | undefined;\n    /** 可拖动节点的显式集合；缺省允许全部，空数组禁止拖动。 */\n    draggableIds?: readonly string[] | undefined;\n    /** 是否显示只操作视口的缩放与适应控件，默认true。 */\n    viewportControls?: boolean | undefined;\n    /** 全部节点共用的接点布局；缺省时左入右出各一个。 */\n    handles?: GraphNodeHandles | undefined;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -439,6 +497,12 @@
             {
               "name": "viewportControls",
               "jsdoc": "是否显示只操作视口的缩放与适应控件，默认true。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "handles",
+              "jsdoc": "全部节点共用的接点布局；缺省时左入右出各一个。",
               "readable": true,
               "writable": false
             }

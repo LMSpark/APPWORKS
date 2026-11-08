@@ -4,6 +4,8 @@
  * 边界：只含经权限检查后的文字、身份与坐标；没有业务查询或保存能力。
  * AI用途：业务页绑定RGraphProps，内部画布不作为业务数据入口。
  */
+import type {GraphEdgeLineType, GraphNodeHandles} from './RendererGraph.props'
+
 /** 画布中的坐标点，单位为像素。 */
 export type GraphCanvasPoint = Readonly<{
   /** 水平坐标。 */
@@ -45,6 +47,16 @@ export type GraphCanvasEdge = Readonly<{
   target: string
   /** 显式折线路径；缺省时由画布计算连线。 */
   pointsList?: readonly GraphCanvasPoint[]
+  /** 起点输出接点身份；仅在配置接点布局时有效。 */
+  sourceHandle?: string
+  /** 终点输入接点身份；仅在配置接点布局时有效。 */
+  targetHandle?: string
+  /** 经控制点连线的线型；与控制点任一存在时按控制点计算路径。 */
+  lineType?: GraphEdgeLineType
+  /** 连线经过的控制点。 */
+  controlPoints?: readonly GraphCanvasPoint[]
+  /** 是否允许拖动、增加、删除控制点。 */
+  pathEditable?: boolean
 }>
 
 /** 内部纯绘图合同；业务页通过RendererGraph绑定DataView。 */
@@ -71,4 +83,6 @@ export type GraphCanvasProps = Readonly<{
   draggableIds?: readonly string[] | undefined
   /** 是否显示只操作视口的缩放与适应控件，默认true。 */
   viewportControls?: boolean | undefined
+  /** 全部节点共用的接点布局；缺省时左入右出各一个。 */
+  handles?: GraphNodeHandles | undefined
 }>

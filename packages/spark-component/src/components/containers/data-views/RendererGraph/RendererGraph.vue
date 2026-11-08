@@ -13,9 +13,9 @@ AI用途：绑定节点与关系视图，通过字段名和显式端点映射恢
     <p v-for="message in projection.messages" :key="message" role="alert">{{ message }}</p>
     <GraphCanvas ref="canvas" :nodes="projection.nodes" :edges="projection.edges" :context-key="contextKey"
       :background-pattern="props.backgroundPattern" :node-appearance="props.nodeAppearance"
-      :viewport-controls="props.viewportControls"
+      :viewport-controls="props.viewportControls" :handles="props.nodeHandles"
       :disabled="props.disabled === true" :selected-id="selectedId" :draggable-ids="draggableIds"
-      :connectable="connectableIds.length > 0" :connectable-ids="connectableIds" @select="select" @move="move" @connect="connect" />
+      :connectable="connectableIds.length > 0" :connectable-ids="connectableIds" @select="select" @move="move" @connect="connect" @path="path" />
     </div>
   </div>
 </template>
@@ -34,8 +34,11 @@ import {useContainerToolbar} from '../../runtime/container-ui'
 import {useContainerDataSource} from '../view-data-source'
 import GraphCanvas from './GraphCanvas.vue'
 import type {GraphCanvasNode, GraphCanvasEdge, GraphCanvasPoint} from './GraphCanvas.types'
-import type {GraphSelection, GraphArrange, GraphNodeSource, RendererGraphApi, RGraphProps} from './RendererGraph.props'
+import type {GraphSelection, GraphArrange, GraphEdgeLineType, GraphHandle, GraphNodeSource, RendererGraphApi, RGraphProps} from './RendererGraph.props'
 import {GraphLayout} from './GraphLayout'
+import {nearestGraphHandles} from './GraphEdgeGeometry'
+
+const LINE_TYPES: readonly GraphEdgeLineType[] = ['straight', 'bezier', 'orthogonal']
 
 const props = withDefaults(defineProps<RGraphProps>(), {type: 'r-graph', dataMember: 'rows', edgeDataMember: 'rows', edgeSourceField: 'source', edgeTargetField: 'target', viewportControls: true, backgroundPattern: 'none', nodeAppearance: 'default'})
 const {isVisible, sparkConsume, sparkProvide, sparkRemove} = useSparkPageComponent(props)
@@ -70,7 +73,8 @@ watch([nodes.rows, () => additionalNodes.value.map(({state}) => [state.rows.valu
   () => props.dataMember, () => props.edgeDataMember,
   () => props.dataMember === 'selectedRows' ? nodes.selectedRows.value : null,
   () => props.edgeDataMember === 'selectedRows' ? edges.selectedRows.value : null], () => {bindingRevision.value++}, {flush: 'sync'})
-watch(() => JSON.stringify([props.nodePositions, props.hiddenNodeKeys, props.edgePaths, props.edgeNodeKeys, props.edgeSourceField, props.edgeTargetField]),
+watch(() => JSON.stringify([props.nodePositions, props.hiddenNodeKeys, props.edgePaths, props.edgeNodeKeys, props.edgeSourceField, props.edgeTargetField,
+  props.nodeHandles, props.edgeSourceHandleField, props.edgeTargetHandleField, props.edgeLineTypeField, props.edgeControlPointsField]),
   () => {bindingRevision.value++}, {flush: 'sync'})
 const contextKey = computed(() => String(bindingRevision.value))
 // VueFlow embeds this internal identity in a quoted DOM selector; retain raw keys only in the lookup map.
@@ -87,6 +91,29 @@ function identity(view: DataView, row: DataRow): string | number | undefined {
   const columns = view.columns.filter(column => column.isPrimaryKey)
   if ((columns.length ? columns.map(column => column.name) : [view.primaryKey]).some(field => !visible(view, row, field))) return undefined
   return view.getPkKey(row)
+}
+function declaredHandle(view: DataView, row: DataRow, field: string | undefined, handles: readonly GraphHandle[]): GraphHandle | undefined {
+  if (!field || !visible(view, row, field)) return undefined
+  const value = row[field]
+  return value === undefined || value === null ? undefined : handles.find(handle => handle.id === String(value))
+}
+function lineType(view: DataView, row: DataRow): GraphEdgeLineType | undefined {
+  const field = props.edgeLineTypeField
+  if (!field) return undefined
+  const value = visible(view, row, field) ? row[field] : undefined
+  return LINE_TYPES.find(type => type === value) ?? 'orthogonal'
+}
+function isPoint(value: unknown): value is GraphCanvasPoint {
+  return typeof value === 'object' && value !== null && 'x' in value && 'y' in value
+    && typeof value.x === 'number' && Number.isFinite(value.x) && typeof value.y === 'number' && Number.isFinite(value.y)
+}
+/** 不可读视作没有控制点；可读但格式不对返回null，由调用方提示。 */
+function controlPoints(view: DataView, row: DataRow): GraphCanvasPoint[] | null | undefined {
+  const field = props.edgeControlPointsField
+  if (!field || !visible(view, row, field)) return undefined
+  const value = row[field]
+  if (value === undefined || value === null) return []
+  return Array.isArray(value) && value.every(isPoint) ? value.map(point => ({x: point.x, y: point.y})) : null
 }
 const projection = computed(() => {
   const nodeRows = props.dataMember === 'selectedRows' ? nodes.selectedRows.value : nodes.rows.value
@@ -162,7 +189,19 @@ const projection = computed(() => {
     if (path !== undefined && (path.length < 2 || path.some(point => !Number.isFinite(point.x) || !Number.isFinite(point.y)))) {
       result.messages.push('存在无效的关系折线路径，请核查布局配置。'); continue
     }
-    result.edges.push({id, source, target, ...(path ? {pointsList: path} : {})})
+    const handles = props.nodeHandles
+    const fixedSource = handles && declaredHandle(view, row, props.edgeSourceHandleField, handles.outputs)
+    const fixedTarget = handles && declaredHandle(view, row, props.edgeTargetHandleField, handles.inputs)
+    const sourceNode = result.nodes.find(node => node.id === source)!, targetNode = result.nodes.find(node => node.id === target)!
+    const pair = handles && nearestGraphHandles({source: sourceNode, target: targetNode, outputs: handles.outputs, inputs: handles.inputs,
+      ...(fixedSource ? {fixedSource} : {}), ...(fixedTarget ? {fixedTarget} : {})})
+    const points = controlPoints(view, row), type = lineType(view, row)
+    if (points === null) result.messages.push('存在无效的连线控制点，请核查布局配置。')
+    const editable = points !== null && Boolean(props.onEdgePathChange) && props.edgeControlPointsField !== undefined
+      && view.fieldAccess(row, props.edgeControlPointsField).write === 'allowed'
+    result.edges.push({id, source, target, ...(path ? {pointsList: path} : {}),
+      ...(pair ? {sourceHandle: pair.source.id, targetHandle: pair.target.id} : {}),
+      ...(type ? {lineType: type} : {}), ...(points ? {controlPoints: points} : {}), ...(editable ? {pathEditable: true} : {})})
     result.keys.set(id, {kind: 'edge', id: key, view})
   }
   result.messages = [...new Set(result.messages)]
@@ -181,12 +220,22 @@ const draggableIds = computed(() => [...projection.value.keys].flatMap(([id, tar
   target.kind === 'node' && props.draggableKeys?.includes(target.id) ? [id] : []))
 const connectableIds = computed(() => [...projection.value.keys].flatMap(([id, target]) =>
   target.kind === 'node' && props.connectableKeys?.includes(target.id) ? [id] : []))
-function connect(event: {contextKey: string; source: string; target: string}): void {
+function connect(event: {contextKey: string; source: string; target: string; sourceHandle?: string; targetHandle?: string}): void {
   if (!active || props.disabled || event.contextKey !== contextKey.value) return
   const source = projection.value.keys.get(event.source), target = projection.value.keys.get(event.target)
   if (!source || !target || source.kind !== 'node' || target.kind !== 'node' || source.view.destroyed || target.view.destroyed
     || !connectableIds.value.includes(event.source) || !connectableIds.value.includes(event.target)) return
-  props.onConnect?.({source: source.id, target: target.id})
+  const handles = props.nodeHandles
+  const sourceHandle = handles?.outputs.some(handle => handle.id === event.sourceHandle) ? event.sourceHandle : undefined
+  const targetHandle = handles?.inputs.some(handle => handle.id === event.targetHandle) ? event.targetHandle : undefined
+  props.onConnect?.({source: source.id, target: target.id, ...(sourceHandle ? {sourceHandle} : {}), ...(targetHandle ? {targetHandle} : {})})
+}
+function path(event: {contextKey: string; id: string; controlPoints: GraphCanvasPoint[]}): void {
+  if (!active || props.disabled || event.contextKey !== contextKey.value || !event.controlPoints.every(isPoint)) return
+  const target = projection.value.keys.get(event.id)
+  const edge = projection.value.edges.find(item => item.id === event.id)
+  if (!target || target.kind !== 'edge' || target.view.destroyed || edge?.pathEditable !== true) return
+  props.onEdgePathChange?.({id: target.id, controlPoints: event.controlPoints.map(point => ({x: point.x, y: point.y}))})
 }
 function move(event: {contextKey: string; id: string; x: number; y: number; edges: {id: string; pointsList: GraphCanvasPoint[]}[]}): void {
   if (!active || props.disabled || event.contextKey !== contextKey.value || !Number.isFinite(event.x) || !Number.isFinite(event.y)) return

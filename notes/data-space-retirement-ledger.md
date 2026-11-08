@@ -8451,3 +8451,23 @@ pnpm run verify
 **移交文档核验。**本次只改本台账，未新增产品实施或实服请求；接收快照、原S2文件SHA、固定参考/阶段范围/启动测试路径已复核。高阶纠正“仅origin”可能误解为只有一个已配置远端，已明确本机另有github/gitlab而只向origin推送；首批按假设验证，原已正确的分支不为造失败而改源。文档治理通过564文件，产品代码验证复用AN对应快照，不冒本轮新全套工程测试；文档提交后以独立远端SHA核验作为本次交接最终凭据。整体目标保留未完成，本会话按用户移交要求停止后续自动实施。
 
 **交接推送与本机连接备注。**移交方案提交`b64394eaa6901af463b12c3eb9903ff5c65ed81b`已推origin既定分支，独立ls-remote与本地逐字一致；此备注随后的文档提交为最终交接HEAD，以接收时Git核验为准。首次默认schannel TLS握手失败，普通重试与仅切OpenSSL仍失败；读取本机既有Windows系统代理为`127.0.0.1:7897`（无userinfo），最终只对本次命令使用`git -c http.proxy=http://127.0.0.1:7897 -c http.sslBackend=openssl -c http.version=HTTP/1.1 push origin HEAD:refs/heads/codex/spark-data-s1-command-safety`成功，独立ls-remote使用相同单次连接参数。未关闭证书校验，未改Git/系统全局配置；Cursor如遇同错先核实际系统代理，其他机器不得盲套本机端口。跟踪树除本次备注外已清洁，原S2未跟踪文件保留；只有同一主worktree。此前产品1351/1515/276及975消费者、根门禁仍按AN快照范围复用，移交仅文档治理和Git验收，不假称新产品测试/服务CRUD。
+
+#### AO. Cursor接收与可写文件owner在途绑定捕获（S1；本批已验证，S1未冻结）
+
+**接收快照（2026-11-08 12:21）。**本地/远端`codex/spark-data-s1-command-safety`均为`3cb996c69396f8ddd6735f7f9ed3a84f0b81a0e2`；跟踪树清洁，唯一未跟踪为用户S2文件，SHA256仍为`74948A5C…E11E`，未stage；单一worktree。参考仓当前HEAD为`13686337b`，固定参考`1147b00`仍存在，继续只按固定提交读取。AN本机日志（an-complete-data-tests、an-final-api-tests、an-bounded-consumers、an-last-verify）在位，仍只证明AN快照范围。
+
+**基线。**`file-resource-adapter`、`file-directory-query-adapter`、`query-binding-preflight`、`file-resource-assembly`四文件116项通过。
+
+**反例已证实（不是推断）。**`createFileResourceEngine`的`currentOptions`在同目标`update()`后被替换，单次异步操作跨await继续读当前options。探针`src/tests/query/file-resource-rebind-capture.test.ts`在未改源码下7项RED、1正例通过：Q1 A查询挂起→重绑B→A守卫失效，A迟到结果被B守卫接纳；Q2 A守卫同步重绑B，同一次查询改由B.read派发；Q3 预览同Q1；Q4 A写已派发→重绑B→A失效，回读走B.read并确认回执；Q5 基线读挂起时重绑，写由B.write派发；Q6 未知写核验在A失效后按B守卫确认；Q7 快照create由B派发。P1 重绑后的后续查询使用B为合法正例。`DataViewSource`以`adapter.history`对象相等核验，source对象恒定，测不到此替换。
+
+**须保留的已有合同。**同目标重绑可替换后续操作的transport/守卫；同DataSet+resourceId的unknown/confirmed在视图销毁重开后由新绑定读取原target核验、不重放；失败重绑不替换原transport；目标锁定、owner/context、SAVE_PENDING串行、not-applied与unknown区分。
+
+**高阶评审修正（Opus）。**认同缺陷及捕获方向，补出四类遗漏：①写/删/快照派发后的`isUnknown`/`isDefiniteRejection`用替换绑定判定，可致不记pending而重放；②同一引擎服务声明视图与命名clone，任一视图重绑即切换全部；③history在创建引擎时固定，重绑增减history无效；④`notifyWriteConfirmed`、`targetFor`读当前回调、update内守卫重入覆盖。裁定：读取类迟到结果严格拒绝（transport读出含调用方工作区字段）；查询结果的字段/动作策略**跟随当前绑定**，不冻结在查询时（后续保存再按保存时绑定校验），assertIdentity不加代次比较以保合法重绑；已派发后仅重绑而原守卫仍有效，经原绑定回读确认则保留confirmed待交付，不降unknown。
+
+**实现（仅数据层）。**`file-resource-adapter.ts`引擎改持不可变`FileResourceBinding`（options+按绑定生成的history）；查询、预览、采用、history各入口、未知核验、保存命令开始时同步捕获本次绑定，全程只用其transport/守卫/策略及错误分类；守卫之后再比代次（守卫同步重绑也能识别）。派发前代次变化或守卫失败→`FILE_RESOURCE_BINDING_STALE`零IO；派发后回读只经原绑定，原守卫失败记unknown保原target/baseline/text，仅代次变化且回读一致则记confirmed（projectionNotified=false）后抛stale，由后续保存/核验经当前绑定交付且不重写。`source.history`改为getter返回当前绑定的history对象，`DataViewSource`既有对象身份检查即可识别重绑；`DataViewSourceAdapter.history`声明如实增加`undefined`。锁定目标deepFreeze后交给transport。update在旧守卫与新守卫调用后核代次，重入安装其他绑定即拒绝。未新增公开API、兼容层、第二owner或草稿真源。
+
+**测试。**新增`src/tests/query/file-resource-rebind-capture.test.ts`16项：Q1—Q7转绿；派发后用原transport分类；派发后仅重绑的confirmed保留且下一次保存不重写；较窄替换策略对既有行fieldAccess及下次保存生效（READ_ONLY零写）；history随绑定增减；update重入拒绝；目标冻结；clone在途查询被共享引擎重绑拒绝且后续查询走新绑定；P1正例。评审所设“同一保存命令两项间重绑”在本链不成立：执行器`saveIndependently:true`按视图分别下发命令且DataSet预检先触发守卫，测试改为按真实合同断言后续独立视图经替换绑定各写一次、A不触及script。
+
+**验证（本机快照，日志均为ignored同机证据）。**spark-data全量59文件1367项；包typecheck/lint/build 0；正式`generate:class-model-surface`、`generate:lowcode-contracts`（611/221）0，派生除两处语义变化外仅TS符号编号移位，照生成结果提交（`artifacts/ao-class-model.log`、`ao-lowcode-contracts.log`）；消费者34文件1024项（AN范围+catalog-attachment，`maxWorkers=2`，阈值不变，`ao-consumers.log`）；根`pnpm run verify`自然0（`ao-verify.log`，既有JSON行序列化待审诊断保留）。纯离线，无实服请求，未重放U/AK。API1515/项目模型276未重跑：本批未改其源码，仅由根门禁类型/构建覆盖。
+
+**未闭合。**S1矩阵其余格（I3）仍待逐格核验，本批只核销“文件/pagedata适配”中可写文件owner的在途绑定一项；页面层同viewId由目录项视图与编辑视图交替重绑（`page-tool-file-dataview.ts`两入口同viewId不同策略）属S4消费者问题，本批仅保证数据层不错派发/错接纳，不改业务入口。

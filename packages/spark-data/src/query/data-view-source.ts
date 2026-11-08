@@ -60,8 +60,8 @@ export type DataViewSourceAdapter = Readonly<{
   preview(view: DataView): Promise<DataViewSourceSnapshot>
   /** 再读并核版本和原文；成功后紧邻同步应用前调用beforeApply，失败不得应用。 */
   adopt(view: DataView, snapshot: DataViewSourceSnapshot, hooks: DataViewSourceAdoptHooks): Promise<void>
-  /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。 */
-  history?: Readonly<{
+  /** 可选来源历史；不接纳历史内容、不保存或恢复DataView行。适配器重绑可替换为另一对象或undefined，调用方按对象身份判定过期。 */
+  history?: undefined | Readonly<{
     /** 列出原存储版本，不构造本地版本号。 */ list(view: DataView): Promise<readonly DataViewSourceVersion[]>
     /** 预览指定历史原文；恢复须由对应语义资源转换成DataView变更并提交。 */ preview(view: DataView, version: string | number): Promise<string>
     /** 当前来源适配器保存的原快照attempt状态；关闭面板和新建DataViewSource不清除它。 */ status(view: DataView): DataViewSourceHistoryStatus

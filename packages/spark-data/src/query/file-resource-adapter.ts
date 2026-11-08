@@ -163,84 +163,136 @@ type FileResourceQueryContext=Readonly<{view:DataView;rows:readonly DataRow[];ta
 type FileResourceSelection=ReturnType<typeof DataViewLocalQuery.select>&Readonly<{primaryKey:string;baseline:FileResourceSnapshot|null}>
 type FileResourceEngine=Readonly<{executor:Executor;lockTarget(view:DataView):void;update(options:BindFileResourceAdapterOptions,view:DataView):void}>
 
+type FileResourceHistory=NonNullable<DataViewSourceAdapter['history']>
+/** One immutable rebind generation; every async operation keeps the generation it started with. */
+type FileResourceBinding=Readonly<{options:BindFileResourceAdapterOptions;history:FileResourceHistory|undefined}>
+
+function deepFreeze<T>(value:T):T{
+  if(typeof value==='object'&&value!==null&&!Object.isFrozen(value)){for(const item of Object.values(value))deepFreeze(item);Object.freeze(value)}
+  return value
+}
+
 /** Builds the single FileResource query/save engine; each view locks its target on first query. */
 function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,eagerView?:DataView):FileResourceEngine{
-  let currentOptions=initialOptions
   const targets=new WeakMap<DataView,FileResourceTarget>()
   const targetSignatures=new WeakMap<DataView,string>()
   const contexts=new WeakMap<object,FileResourceQueryContext>()
+  const resourceId=initialOptions.resourceId
   const targetIdentity=(target:FileResourceTarget)=>JSON.stringify([target.key,target.fields])
-  const targetFor=(view:DataView):FileResourceTarget=>{
-    const bound=targets.get(view),signature=targetSignatures.get(view)
-    if(bound&&signature!==targetIdentity(currentOptions.target(view)))throw new Error('FILE_RESOURCE_IDENTITY: 文件DataView目标不可改绑')
-    if(bound)return bound
-    const target=currentOptions.target(view),stable=structuredClone(target)
+  const targetFor=(view:DataView,bound:FileResourceBinding=current):FileResourceTarget=>{
+    const locked=targets.get(view),signature=targetSignatures.get(view)
+    if(locked&&signature!==targetIdentity(bound.options.target(view)))throw new Error('FILE_RESOURCE_IDENTITY: 文件DataView目标不可改绑')
+    if(locked)return locked
+    const stable=deepFreeze(structuredClone(bound.options.target(view)))
     targets.set(view,stable);targetSignatures.set(view,targetIdentity(stable))
     return stable
   }
-  const assertCurrent=(view:DataView,target?:FileResourceTarget)=>{
+  /** View, target and the operation's own scope; does not by itself reject a later rebind. */
+  const assertScope=(view:DataView,target:FileResourceTarget|undefined,bound:FileResourceBinding)=>{
     if(view.destroyed||view.dataTable?.getView(view.viewId)!==view)throw new Error('FILE_RESOURCE_VIEW_STALE: DataView已释放或解绑')
-    const bound=targetFor(view)
-    if(target&&targetIdentity(bound)!==targetIdentity(target))throw new Error('FILE_RESOURCE_IDENTITY: 文件DataView目标不可改绑')
-    currentOptions.assertCurrent?.(bound)
+    const locked=targetFor(view,bound)
+    if(target&&targetIdentity(locked)!==targetIdentity(target))throw new Error('FILE_RESOURCE_IDENTITY: 文件DataView目标不可改绑')
+    bound.options.assertCurrent?.(locked)
   }
-  if(eagerView)targetFor(eagerView)
-  const stateFor=(view:DataView)=>sharedState(view,currentOptions.resourceId)
+  const assertBinding=(bound:FileResourceBinding)=>{
+    if(current!==bound)throw new Error('FILE_RESOURCE_BINDING_STALE: 文件DataView绑定已在本次操作期间替换')
+  }
+  /** The guard may rebind synchronously, so the generation is compared after it returns. */
+  const assertCurrent=(view:DataView,target:FileResourceTarget|undefined,bound:FileResourceBinding)=>{assertScope(view,target,bound);assertBinding(bound)}
+  const stateFor=(view:DataView)=>sharedState(view,resourceId)
   const formalSnapshotFields=(view:DataView,fields:Readonly<DataRow>|undefined):DataRow=>Object.fromEntries(
     Object.entries(fields??{}).filter(([name])=>view.columns.some(column=>column.name===name)))
-  const canWrite=(target:FileResourceTarget)=>currentOptions.canWrite?.(target)??true
-  const canCreate=(target:FileResourceTarget)=>currentOptions.canCreate?.(target)??canWrite(target)
-  const canDelete=(target:FileResourceTarget)=>currentOptions.canDelete?.(target)??canWrite(target)
-  const assertWritable=(target:FileResourceTarget)=>{if(!canWrite(target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件目标只读')}
-  const notifyWriteConfirmed=(input:Readonly<{view:DataView;attempt:PendingWrite}>)=>{
-    const {view,attempt}=input,{target,text,baseline}=attempt
-    assertCurrent(view,target)
-    currentOptions.transport.onWriteConfirmed?.(target,text,baseline)
-    assertCurrent(view,target)
-  }
-  const confirmWriteProjection=(view:DataView,attempt:PendingWrite):PendingWrite=>{
+  const canWrite=(options:BindFileResourceAdapterOptions,target:FileResourceTarget)=>options.canWrite?.(target)??true
+  const canCreate=(options:BindFileResourceAdapterOptions,target:FileResourceTarget)=>options.canCreate?.(target)??canWrite(options,target)
+  const canDelete=(options:BindFileResourceAdapterOptions,target:FileResourceTarget)=>options.canDelete?.(target)??canWrite(options,target)
+  const assertWritable=(options:BindFileResourceAdapterOptions,target:FileResourceTarget)=>{if(!canWrite(options,target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件目标只读')}
+  const errorMessage=(error:unknown)=>error instanceof Error?error.message:String(error)
+  /** Stored as confirmed before notifying, so a stale or failed projection keeps the proven result for later delivery. */
+  const confirmWriteProjection=(view:DataView,attempt:PendingWrite,bound:FileResourceBinding):PendingWrite=>{
     const state=stateFor(view),confirmed={...attempt,state:'confirmed' as const,message:null,projectionNotified:false}
     state.pending.set(attempt.target.key,confirmed)
-    if(!attempt.projectionNotified)notifyWriteConfirmed({view,attempt})
+    if(!attempt.projectionNotified){
+      const {target,text,baseline}=attempt
+      assertCurrent(view,target,bound)
+      bound.options.transport.onWriteConfirmed?.(target,text,baseline)
+      assertCurrent(view,target,bound)
+    }
     const delivered={...confirmed,projectionNotified:true}
     state.pending.set(attempt.target.key,delivered)
     return delivered
   }
-  const requireHistoryTransport=()=>{
-    const transport=currentOptions.transport.history
-    if(!transport)throw new Error('FILE_RESOURCE_HISTORY_UNAVAILABLE: 来源历史适配器不可用')
-    return transport
+  const historyFor=(bound:FileResourceBinding,transport:NonNullable<FileResourceTransport['history']>):FileResourceHistory=>({
+    list:async view=>{const target=targetFor(view,bound);assertCurrent(view,target,bound);const items=await transport.list(target);assertCurrent(view,target,bound);return items.map(item=>({...item,label:item.fileName}))},
+    preview:async(view,version)=>{const target=targetFor(view,bound);assertCurrent(view,target,bound);const text=await transport.preview(target,version);assertCurrent(view,target,bound);return text},
+    status:(view):DataViewSourceHistoryStatus=>{const target=targetFor(view,bound),item=stateFor(view).historyAttempts.get(target.key)
+      return item?{state:item.state,version:item.attempt.version,fileName:item.attempt.fileName,message:item.message}: {state:'idle',version:null,fileName:null,message:null}},
+    isDeliveryPending:view=>{const target=targetFor(view,bound),item=stateFor(view).historyAttempts.get(target.key);return item?.state==='confirmed'&&item.deliveryPending},
+    acknowledge:view=>{const target=targetFor(view,bound),state=stateFor(view),item=state.historyAttempts.get(target.key)
+      if(item&&(item.state==='confirmed'||item.state==='not-applied'))state.historyAttempts.set(target.key,{...item,deliveryPending:false})},
+    verify:async(view,hooks)=>{const target=targetFor(view,bound),state=stateFor(view),item=state.historyAttempts.get(target.key)
+      if(item?.state !== 'unknown')return {state:item?.state??'idle',version:item?.attempt.version??null,fileName:item?.attempt.fileName??null,message:item?.message??null}
+      hooks.assertCurrent();assertCurrent(view,target,bound)
+      const applied=await transport.verify(target,item.attempt,item.text);hooks.assertCurrent();assertCurrent(view,target,bound)
+      const next={...item,state:applied?'confirmed' as const:'not-applied' as const,message:null,deliveryPending:applied};state.historyAttempts.set(target.key,next)
+      return {state:next.state,version:next.attempt.version,fileName:next.attempt.fileName,message:null}},
+    create:async(view,hooks)=>{const target=targetFor(view,bound);assertCurrent(view,target,bound);assertWritable(bound.options,target);await transport.assertCanCreate?.(target);assertCurrent(view,target,bound)
+      const snapshot=await bound.options.transport.read(target);assertCurrent(view,target,bound)
+      if(!snapshot)throw new Error('FILE_RESOURCE_MISSING: 来源文件不存在')
+      const matching=view.rows.filter(row=>String(row[view.primaryKey])===target.key)
+      const baseline=matching[0]
+      if(matching.length!==1||!baseline)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
+      if(baseline[bound.options.contentField]!==snapshot.text)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
+      if(bound.options.revisionField!==undefined&&String(baseline[bound.options.revisionField]??'')!==String(snapshot.revision??'')){
+        throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
+      }
+      let captured:FileResourceHistoryAttempt|undefined
+      try{await transport.create(target,snapshot.text,attempt=>{hooks.assertCurrent();assertCurrent(view,target,bound);if(captured)throw new Error('FILE_RESOURCE_ATTEMPT_INVALID: attempt重复捕获')
+        captured=attempt;stateFor(view).historyAttempts.set(target.key,{target,attempt,text:snapshot.text,state:'pending',message:null,deliveryPending:true});hooks.onAttempt(attempt)})
+        if(!captured)throw new Error('FILE_RESOURCE_ATTEMPT_MISSING: 创建来源历史未捕获attempt')
+        stateFor(view).historyAttempts.set(target.key,{target,attempt:captured,text:snapshot.text,state:'confirmed',message:null,deliveryPending:true})
+      }catch(error){if(captured){const state=stateFor(view),storedAttempt=state.historyAttempts.get(target.key)
+        if(storedAttempt){const notApplied=transport.isDefiniteRejection?.(error)===true;state.historyAttempts.set(target.key,{...storedAttempt,state:notApplied?'not-applied':'unknown',deliveryPending:!notApplied,message:errorMessage(error)})}}
+        throw error}},
+  })
+  const bindingFor=(options:BindFileResourceAdapterOptions):FileResourceBinding=>{
+    const binding:{options:BindFileResourceAdapterOptions;history:FileResourceHistory|undefined}={options,history:undefined}
+    if(options.transport.history)binding.history=historyFor(binding,options.transport.history)
+    return binding
   }
+  let current:FileResourceBinding=bindingFor(initialOptions)
+  if(eagerView)targetFor(eagerView)
   const result=(view:DataView,selected:FileResourceSelection,target:FileResourceTarget):Awaited<ReturnType<Executor['executeQuery']>>=>{
     const {primaryKey}=selected
-    const assertQueryCurrent=()=>{assertCurrent(view,target);if(view.primaryKey!==primaryKey)throw new Error('FILE_RESOURCE_QUERY_IDENTITY: 本次查询主键已变化')}
+    // Policy for later operations follows the live binding; each save re-checks it with its own generation.
+    const live=()=>current.options
+    const assertQueryCurrent=()=>{assertScope(view,target,current);if(view.primaryKey!==primaryKey)throw new Error('FILE_RESOURCE_QUERY_IDENTITY: 本次查询主键已变化')}
     const keys=new Set(selected.rows.map(row=>String(row[primaryKey])))
     const rowKey=(row:Readonly<DataRow>)=>row[primaryKey],creating=selected.baseline===null
     const allowed=(key:unknown,field:string)=>keys.has(String(key))&&selected.output.has(field)
     const queryResult={rows:selected.rows,total:selected.total,rowKey,resultPrimaryKey:primaryKey,
       newRowFieldAccess:(field:string)=>{
         assertQueryCurrent()
-        const visible=selected.output.has(field),writable=visible&&creating&&canCreate(target)&&field!==primaryKey&&field!==currentOptions.revisionField
+        const visible=selected.output.has(field),writable=visible&&creating&&canCreate(live(),target)&&field!==primaryKey&&field!==live().revisionField
         return {read:visible?'visible' as const:'invisible' as const,write:writable?'allowed' as const:'denied' as const,required:false}
       },
-      isFieldReadOnly:(field:string)=>!selected.output.has(field)||field===primaryKey||field===currentOptions.revisionField,
+      isFieldReadOnly:(field:string)=>!selected.output.has(field)||field===primaryKey||field===live().revisionField,
       prepareNewRow:(row:Readonly<DataRow>)=>{
         assertQueryCurrent()
-        if(!creating||!canCreate(target)||!selected.output.has(currentOptions.contentField))throw new Error('FILE_RESOURCE_CREATE_UNAVAILABLE: 本次文件查询不允许新增正文')
+        if(!creating||!canCreate(live(),target)||!selected.output.has(live().contentField))throw new Error('FILE_RESOURCE_CREATE_UNAVAILABLE: 本次文件查询不允许新增正文')
         for(const [field,value] of Object.entries(target.fields))if(Object.hasOwn(row,field)&&!Object.is(row[field],value))throw new Error('FILE_RESOURCE_SCOPE: 新文件身份与当前DataView目标不一致')
         return Object.fromEntries(Object.entries({...row,...target.fields,[primaryKey]:target.key}).filter(([field])=>selected.output.has(field)))
       },
       assertIdentity:assertQueryCurrent,
       fieldAccess:(key:unknown,field:string)=>{const existingRow=allowed(key,field),newTarget=creating&&key===target.key&&selected.output.has(field)
-        const visible=existingRow||newTarget,writable=canWrite(target),write=writable&&((existingRow&&field===currentOptions.contentField)
-          ||(newTarget&&field!==primaryKey&&field!==currentOptions.revisionField))
+        const visible=existingRow||newTarget,writable=canWrite(live(),target),write=writable&&((existingRow&&field===live().contentField)
+          ||(newTarget&&field!==primaryKey&&field!==live().revisionField))
         return {read:visible?'visible' as const:'invisible' as const,write:write?'allowed' as const:'denied' as const,
           component:!visible?'hidden' as const:write?'editable' as const:'readonly' as const,required:false,
           writeMode:write?'editable' as const:'readonly' as const}},
       readFieldAccess:(row:Readonly<DataRow>,field:string)=>selected.rows.includes(row)&&selected.output.has(field)?'visible' as const:'invisible' as const,
-      addActionState:(available=true)=>creating&&available&&selected.output.has(currentOptions.contentField)&&canCreate(target)?'enabled' as const:'disabled' as const,
-      editActionState:(key:unknown)=>keys.has(String(key))&&canWrite(target)?'enabled' as const:'disabled' as const,
-      deleteActionState:(key:unknown,available=true)=>keys.has(String(key))&&available&&canDelete(target)&&currentOptions.transport.remove?'enabled' as const:'disabled' as const,
+      addActionState:(available=true)=>creating&&available&&selected.output.has(live().contentField)&&canCreate(live(),target)?'enabled' as const:'disabled' as const,
+      editActionState:(key:unknown)=>keys.has(String(key))&&canWrite(live(),target)?'enabled' as const:'disabled' as const,
+      deleteActionState:(key:unknown,available=true)=>keys.has(String(key))&&available&&canDelete(live(),target)&&live().transport.remove?'enabled' as const:'disabled' as const,
       createChildActionState:()=> 'disabled' as const,
       viewActionState:(key:unknown)=>keys.has(String(key))?'enabled' as const:'disabled' as const}
     contexts.set(queryResult,{view,rows:selected.rows.map(row=>({...row})),target,primaryKey,output:selected.output,baseline:selected.baseline===null?null:{text:selected.baseline.text,revision:selected.baseline.revision}});return queryResult
@@ -254,52 +306,22 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
     return result(origin.view,{...selected,primaryKey:origin.primaryKey,baseline},origin.target)
   }
   const source:DataViewSourceAdapter={
-    views:current=>{const currentTarget=targetFor(current);return current.dataTable?.viewList.filter(candidate=>{
-      try{return targetIdentity(targets.get(candidate)??currentOptions.target(candidate))===targetIdentity(currentTarget)}catch{return false}
+    views:view=>{const currentTarget=targetFor(view);return view.dataTable?.viewList.filter(candidate=>{
+      try{return targetIdentity(targets.get(candidate)??current.options.target(candidate))===targetIdentity(currentTarget)}catch{return false}
     })??[]},
-    preview:async current=>{const target=targetFor(current);assertCurrent(current,target);const snapshot=await currentOptions.transport.read(target);assertCurrent(current,target)
+    preview:async view=>{const bound=current,target=targetFor(view,bound);assertCurrent(view,target,bound);const snapshot=await bound.options.transport.read(target);assertCurrent(view,target,bound)
       if(snapshot===null)throw new Error('FILE_RESOURCE_MISSING: 来源文件不存在')
       return {version:snapshot.revision,content:snapshot.text}},
-    adopt:async(current,snapshot,hooks)=>{const target=targetFor(current);assertCurrent(current,target);assertWritable(target);const remote=await currentOptions.transport.read(target);assertCurrent(current,target);hooks.assertCurrent()
+    adopt:async(view,snapshot,hooks)=>{const bound=current,target=targetFor(view,bound);assertCurrent(view,target,bound);assertWritable(bound.options,target)
+      const remote=await bound.options.transport.read(target);assertCurrent(view,target,bound);hooks.assertCurrent()
       if(remote?.text !== snapshot.content||remote.revision!==snapshot.version)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件已变化')
       hooks.beforeApply()},
-    ...(currentOptions.transport.history?{history:{
-      list:async current=>{const target=targetFor(current);assertCurrent(current,target);const items=await requireHistoryTransport().list(target);assertCurrent(current,target);return items.map(item=>({...item,label:item.fileName}))},
-      preview:async(current,version)=>{const target=targetFor(current);assertCurrent(current,target);const text=await requireHistoryTransport().preview(target,version);assertCurrent(current,target);return text},
-      status:(current):DataViewSourceHistoryStatus=>{const target=targetFor(current),item=stateFor(current).historyAttempts.get(target.key)
-        return item?{state:item.state,version:item.attempt.version,fileName:item.attempt.fileName,message:item.message}: {state:'idle',version:null,fileName:null,message:null}},
-      isDeliveryPending:current=>{const target=targetFor(current),item=stateFor(current).historyAttempts.get(target.key);return item?.state==='confirmed'&&item.deliveryPending},
-      acknowledge:current=>{const target=targetFor(current),state=stateFor(current),item=state.historyAttempts.get(target.key)
-        if(item&&(item.state==='confirmed'||item.state==='not-applied'))state.historyAttempts.set(target.key,{...item,deliveryPending:false})},
-      verify:async(current,hooks)=>{const target=targetFor(current),state=stateFor(current),item=state.historyAttempts.get(target.key)
-        if(item?.state !== 'unknown')return {state:item?.state??'idle',version:item?.attempt.version??null,fileName:item?.attempt.fileName??null,message:item?.message??null}
-        hooks.assertCurrent();const applied=await requireHistoryTransport().verify(target,item.attempt,item.text);hooks.assertCurrent();assertCurrent(current,target)
-        const next={...item,state:applied?'confirmed' as const:'not-applied' as const,message:null,deliveryPending:applied};state.historyAttempts.set(target.key,next)
-        return {state:next.state,version:next.attempt.version,fileName:next.attempt.fileName,message:null}},
-      create:async(current,hooks)=>{const target=targetFor(current);assertCurrent(current,target);assertWritable(target);await requireHistoryTransport().assertCanCreate?.(target);assertCurrent(current,target)
-        const snapshot=await currentOptions.transport.read(target);assertCurrent(current,target)
-        if(!snapshot)throw new Error('FILE_RESOURCE_MISSING: 来源文件不存在')
-        const matching=current.rows.filter(row=>String(row[current.primaryKey])===target.key)
-        const baseline=matching[0]
-        if(matching.length!==1||!baseline)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
-        if(baseline[currentOptions.contentField]!==snapshot.text)throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
-        if(currentOptions.revisionField!==undefined&&String(baseline[currentOptions.revisionField]??'')!==String(snapshot.revision??'')){
-          throw new Error('FILE_RESOURCE_SOURCE_CONFLICT: 来源文件与当前DataView查询基线不同')
-        }
-        let captured:FileResourceHistoryAttempt|undefined
-        try{await requireHistoryTransport().create(target,snapshot.text,attempt=>{hooks.assertCurrent();if(captured)throw new Error('FILE_RESOURCE_ATTEMPT_INVALID: attempt重复捕获')
-          captured=attempt;stateFor(current).historyAttempts.set(target.key,{target,attempt,text:snapshot.text,state:'pending',message:null,deliveryPending:true});hooks.onAttempt(attempt)})
-          if(!captured)throw new Error('FILE_RESOURCE_ATTEMPT_MISSING: 创建来源历史未捕获attempt')
-          stateFor(current).historyAttempts.set(target.key,{target,attempt:captured,text:snapshot.text,state:'confirmed',message:null,deliveryPending:true})
-        }catch(error){if(captured){const state=stateFor(current),storedAttempt=state.historyAttempts.get(target.key)
-          if(storedAttempt){const notApplied=requireHistoryTransport().isDefiniteRejection?.(error)===true;state.historyAttempts.set(target.key,{...storedAttempt,state:notApplied?'not-applied':'unknown',deliveryPending:!notApplied,message:error instanceof Error?error.message:String(error)})}}
-          throw error}},
-    }}: {}),
-    verifyWriteAttempt:async(current,hooks)=>{
-      const target=targetFor(current),state=stateFor(current),attempt=state.pending.get(target.key)
+    get history(){return current.history},
+    verifyWriteAttempt:async(view,hooks)=>{
+      const bound=current,target=targetFor(view,bound),state=stateFor(view),attempt=state.pending.get(target.key)
       if(!attempt)return {state:'idle',text:null,message:null}
-      hooks.assertCurrent();assertCurrent(current,target)
-      const remote=await currentOptions.transport.read(attempt.target);hooks.assertCurrent();assertCurrent(current,target)
+      hooks.assertCurrent();assertCurrent(view,target,bound)
+      const remote=await bound.options.transport.read(attempt.target);hooks.assertCurrent();assertCurrent(view,target,bound)
       if(state.pending.get(target.key)!==attempt)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交已接纳或替换')
       if(attempt.state==='confirmed'&&(attempt.operation==='delete'?remote!==null:remote?.text!==attempt.text)){
         return {state:'unknown',text:attempt.operation==='write'?attempt.text:null,message:'原提交已确认，但来源随后变化'}
@@ -309,14 +331,14 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         if(remote.text===attempt.baseline.text&&remote.revision===attempt.baseline.revision){state.pending.set(target.key,{...attempt,state:'not-applied',message:null});return {state:'not-applied',text:null,message:null}}
         return {state:'unknown',text:null,message:'远端文件与删除前来源均不一致'}
       }
-      if(remote?.text===attempt.text){confirmWriteProjection(current,attempt)
+      if(remote?.text===attempt.text){confirmWriteProjection(view,attempt,bound)
         return {state:'confirmed',text:attempt.text,message:null}}
       if(attempt.baseline===null?remote===null:remote?.text===attempt.baseline.text&&remote.revision===attempt.baseline.revision){const notApplied={...attempt,state:'not-applied' as const,message:null};state.pending.set(target.key,notApplied)
         return {state:'not-applied',text:attempt.text,message:null}}
       return {state:'unknown',text:attempt.text,message:'远端文件与原提交及原基线均不一致'}
     },
-    acknowledgeWriteAttempt:current=>{
-      const target=targetFor(current),state=stateFor(current),attempt=state.pending.get(target.key)
+    acknowledgeWriteAttempt:view=>{
+      const target=targetFor(view),state=stateFor(view),attempt=state.pending.get(target.key)
       const owner=state.owners.get(target.key)
       if(attempt?.state==='not-applied'||attempt?.state==='confirmed'&&(!owner||owner.view.destroyed)){
         state.pending.delete(target.key);state.owners.delete(target.key)
@@ -325,19 +347,37 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
   }
   const executor:Executor={localAggregates:false,saveIndependently:true,source,
     executeQuery:async(currentView,params:QueryParams)=>{
+      const bound=current,{options}=bound
       const primaryKey=currentView.primaryKey,fields=new Set(currentView.columns.filter(column=>!column.computeExpression&&column.name!=='_pk').map(column=>column.name))
       const captured=DataViewLocalQuery.captureParams({fields,primaryKeys:[primaryKey],params})
-      const target=targetFor(currentView);assertCurrent(currentView,target)
-      const snapshot=await currentOptions.transport.read(target);assertCurrent(currentView,target)
+      const target=targetFor(currentView,bound);assertCurrent(currentView,target,bound)
+      const snapshot=await options.transport.read(target);assertCurrent(currentView,target,bound)
       if(currentView.primaryKey!==primaryKey)throw new Error('FILE_RESOURCE_QUERY_IDENTITY: 本次查询主键已变化')
-      const revisionField=currentOptions.revisionField
-      const rows:DataRow[]=snapshot===null?[]:[{...target.fields,...snapshot.fields,[primaryKey]:target.key,[currentOptions.contentField]:snapshot.text,
+      const revisionField=options.revisionField
+      const rows:DataRow[]=snapshot===null?[]:[{...target.fields,...snapshot.fields,[primaryKey]:target.key,[options.contentField]:snapshot.text,
         ...(revisionField?{[revisionField]:snapshot.revision??''}:{})}]
       const selected=DataViewLocalQuery.select({rows,fields,primaryKeys:[primaryKey],params:captured})
       return result(currentView,{...selected,primaryKey,baseline:snapshot},target)
     },
     save:async(command:SaveCommand)=>{
+      // One generation for the whole command: a rebind between changes stops later changes before any I/O.
+      const bound=current,{options}=bound,transport=options.transport
       const receipts:SaveReceipt[]=[]
+      /** After dispatch: only the dispatching binding may prove the result; a later rebind keeps the proven confirmation undelivered. */
+      const readBackWrite=async(input:Readonly<{view:DataView;target:FileResourceTarget;baseline:FileResourceSnapshot|null;text:string;mismatch:string}>):Promise<FileResourceSnapshot>=>{
+        const {view,target,baseline,text}=input,state=stateFor(view)
+        const confirmed=await (async()=>{
+          try{const readback=await transport.read(target);assertScope(view,target,bound)
+            if(readback?.text!==text)throw new Error(input.mismatch)
+            return readback
+          }catch(error){state.pending.set(target.key,{target,operation:'write',baseline,text,state:'unknown',message:errorMessage(error),projectionNotified:false});throw error}
+        })()
+        const attempt:PendingWrite={target,operation:'write',baseline,text,state:'confirmed',message:null,projectionNotified:false}
+        state.pending.set(target.key,attempt)
+        assertBinding(bound)
+        confirmWriteProjection(view,attempt,bound)
+        return confirmed
+      }
       for(const change of command.changes){
         const context=contexts.get(change.context),original=context?.rows[0]
         const added=change.changes.added??[],changed=change.changes.changed??[],deleted=change.changes.deleted??[]
@@ -348,8 +388,8 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           state.pending.delete(target.key);state.owners.delete(target.key)
           throw new DataViewSaveNotAppliedError([change],message)
         }
-        assertCurrent(view,target)
-        if(!deleted.length)assertWritable(target)
+        assertCurrent(view,target,bound)
+        if(!deleted.length)assertWritable(options,target)
         if(state.saving.has(target.key))throw new Error('FILE_RESOURCE_SAVE_PENDING: 文件目标正在提交')
         const owner=state.owners.get(target.key)
         if(state.pending.has(target.key)&&owner&&!owner.view.destroyed&&owner.context!==change.context)throw new Error('FILE_RESOURCE_SAVE_OWNER: 原文件提交须由原查询上下文接纳')
@@ -360,16 +400,16 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
         let confirmedSnapshot:FileResourceSnapshot|null=null
         if(added.length){
           const submitted=added[0]
-          const writeText=submitted?.[currentOptions.contentField]
-          if(!canCreate(target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件来源不允许新增')
+          const writeText=submitted?.[options.contentField]
+          if(!canCreate(options,target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件来源不允许新增')
           if(!submitted||context.rows.length!==0||submitted[view.primaryKey]!==target.key||typeof writeText!=='string'
             ||Object.entries(target.fields).some(([field,value])=>context.output.has(field)&&!Object.is(submitted[field],value)))throw new Error('FILE_RESOURCE_SCOPE: 文件新增身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前新增操作不一致')
-            const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
+            const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
             if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
             if(remote?.text===prior.text){
-              confirmWriteProjection(view,prior)
+              confirmWriteProjection(view,prior,bound)
               if(prior.text!==writeText)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
               confirmedSnapshot=remote
             }
@@ -377,33 +417,30 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             else if(remote===null)rejectNotApplied('FILE_RESOURCE_NOT_APPLIED: 原文件新增未确认生效')
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及空基线均不一致')
           }else{
-              const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
+            const baseline=await transport.read(target);assertCurrent(view,target,bound)
             if(baseline!==null)throw new Error('FILE_RESOURCE_CONFLICT: 新增目标文件已存在')
-            try{await currentOptions.transport.write({target,text:writeText,baseline:null})}
-            catch(error){if(currentOptions.transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline:null,text:writeText,state:'unknown',message:error instanceof Error?error.message:String(error),projectionNotified:false});throw error}
-            try{confirmedSnapshot=await currentOptions.transport.read(target);assertCurrent(view,target)
-              if(confirmedSnapshot?.text!==writeText)throw new Error('FILE_RESOURCE_READBACK: 文件新增回读不一致')
-            }catch(error){state.pending.set(target.key,{target,operation:'write',baseline:null,text:writeText,state:'unknown',message:error instanceof Error?error.message:String(error),projectionNotified:false});throw error}
-            confirmWriteProjection(view,{target,operation:'write',baseline:null,text:writeText,state:'confirmed',message:null,projectionNotified:false})
+            try{await transport.write({target,text:writeText,baseline:null})}
+            catch(error){if(transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline:null,text:writeText,state:'unknown',message:errorMessage(error),projectionNotified:false});throw error}
+            confirmedSnapshot=await readBackWrite({view,target,baseline:null,text:writeText,mismatch:'FILE_RESOURCE_READBACK: 文件新增回读不一致'})
           }
           const saved=confirmedSnapshot
           if(saved?.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
-          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
+          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],context:receiptResult(context,[accepted],saved)})
           continue
         }
         if(changed.length){
           const submitted=changed[0]
-          const writeText=submitted?.[currentOptions.contentField]
+          const writeText=submitted?.[options.contentField]
           if(!submitted||!original||submitted[view.primaryKey]!==original[view.primaryKey]||typeof writeText!=='string')throw new Error('FILE_RESOURCE_SCOPE: 文件更新行身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前更新操作不一致')
-            const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
+            const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
             if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
             if(remote?.text===prior.text){
-              confirmWriteProjection(view,prior)
+              confirmWriteProjection(view,prior,bound)
               if(prior.text!==writeText)throw new Error('FILE_RESOURCE_UNKNOWN_DELIVERY: 原提交已确认，须先交付原回执再提交新文本')
               confirmedSnapshot=remote
             }
@@ -411,45 +448,44 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             else if(prior.baseline!==null&&remote?.text===prior.baseline.text&&remote.revision===prior.baseline.revision)rejectNotApplied('FILE_RESOURCE_NOT_APPLIED: 原文件提交确认未生效')
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致')
           }else{
-            const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
+            const baseline=await transport.read(target);assertCurrent(view,target,bound)
             if(!sameBaseline(baseline,context.baseline))throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView查询基线')
-            try{await currentOptions.transport.write({target,text:writeText,baseline})}
-            catch(error){if(currentOptions.transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline,text:writeText,state:'unknown',message:error instanceof Error?error.message:String(error),projectionNotified:false});throw error}
-            try{confirmedSnapshot=await currentOptions.transport.read(target);assertCurrent(view,target)
-              if(confirmedSnapshot?.text!==writeText)throw new Error('FILE_RESOURCE_READBACK: 文件保存回读不一致')
-            }catch(error){state.pending.set(target.key,{target,operation:'write',baseline,text:writeText,state:'unknown',message:error instanceof Error?error.message:String(error),projectionNotified:false});throw error}
-            confirmWriteProjection(view,{target,operation:'write',baseline,text:writeText,state:'confirmed',message:null,projectionNotified:false})
+            try{await transport.write({target,text:writeText,baseline})}
+            catch(error){if(transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline,text:writeText,state:'unknown',message:errorMessage(error),projectionNotified:false});throw error}
+            confirmedSnapshot=await readBackWrite({view,target,baseline,text:writeText,mismatch:'FILE_RESOURCE_READBACK: 文件保存回读不一致'})
           }
           const saved=confirmedSnapshot
           if(saved?.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
-          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
+          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(options.revisionField?{[options.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[],changed:[accepted],deleted:[],
-            changedFields:[[currentOptions.contentField,...(currentOptions.revisionField?[currentOptions.revisionField]:[]),...Object.keys(snapshotFields)]
+            changedFields:[[options.contentField,...(options.revisionField?[options.revisionField]:[]),...Object.keys(snapshotFields)]
               .filter(field=>context.output.has(field))],context:receiptResult(context,[accepted],saved)})
           continue
         }
         const submitted=deleted[0]
-        if(!canDelete(target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件目标只读')
-        if(!submitted||!original||!currentOptions.transport.remove||submitted[view.primaryKey]!==original[view.primaryKey])throw new Error('FILE_RESOURCE_DELETE_UNSUPPORTED: 来源不支持或无法确认目标文件行删除')
+        if(!canDelete(options,target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件目标只读')
+        const remove=transport.remove
+        if(!submitted||!original||!remove||submitted[view.primaryKey]!==original[view.primaryKey])throw new Error('FILE_RESOURCE_DELETE_UNSUPPORTED: 来源不支持或无法确认目标文件行删除')
         if(prior){
           if(prior.operation!=='delete')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前删除操作不一致')
-          const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
+          const remote=await transport.read(prior.target);assertCurrent(view,target,bound)
             if(state.pending.get(target.key)!==prior)throw new Error('FILE_RESOURCE_VERIFY_STALE: 原文件提交核验状态已变化')
           if(remote===null){state.pending.set(target.key,{...prior,state:'confirmed',message:null})}
           else if(prior.state==='confirmed')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原删除已确认，但来源随后变化')
           else if(remote.text===prior.baseline.text&&remote.revision===prior.baseline.revision)rejectNotApplied('FILE_RESOURCE_NOT_APPLIED: 文件删除未确认生效')
           else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与删除前来源均不一致')
         }else{
-          const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
+          const baseline=await transport.read(target);assertCurrent(view,target,bound)
           if(!sameBaseline(baseline,context.baseline)||!baseline)throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView删除基线')
-          try{await currentOptions.transport.remove({target,baseline})}
-          catch(error){if(currentOptions.transport.isUnknown(error))state.pending.set(target.key,{target,operation:'delete',baseline,state:'unknown',message:error instanceof Error?error.message:String(error)});throw error}
-          try{const readback=await currentOptions.transport.read(target);assertCurrent(view,target)
+          try{await remove.call(transport,{target,baseline})}
+          catch(error){if(transport.isUnknown(error))state.pending.set(target.key,{target,operation:'delete',baseline,state:'unknown',message:errorMessage(error)});throw error}
+          try{const readback=await transport.read(target);assertScope(view,target,bound)
             if(readback!==null)throw new Error('FILE_RESOURCE_READBACK: 文件删除回读仍存在')
-          }catch(error){state.pending.set(target.key,{target,operation:'delete',baseline,state:'unknown',message:error instanceof Error?error.message:String(error)});throw error}
+          }catch(error){state.pending.set(target.key,{target,operation:'delete',baseline,state:'unknown',message:errorMessage(error)});throw error}
           state.pending.set(target.key,{target,operation:'delete',baseline,state:'confirmed',message:null})
+          assertBinding(bound)
         }
         state.owners.set(target.key,{view,context:change.context})
         receipts.push({metaName:change.identity.metaName,added:[],changed:[],deleted:[submitted],changedFields:[],context:receiptResult(context,[],null)})
@@ -472,17 +508,19 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
       if(state.pending.get(captured.target.key)?.state!=='confirmed'){state.pending.delete(captured.target.key);state.owners.delete(captured.target.key)}}},
   }
   const update=(next:BindFileResourceAdapterOptions,view:DataView)=>{
-    view.assertCanBindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:currentOptions.resourceId}})
-    if(next.resourceId!==currentOptions.resourceId||next.contentField!==currentOptions.contentField||next.revisionField!==currentOptions.revisionField){
+    const before=current,{options}=before
+    view.assertCanBindQueryExecutor(executor,{resource:{resourceType:'file',resourceId}})
+    if(next.resourceId!==resourceId||next.contentField!==options.contentField||next.revisionField!==options.revisionField){
       throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一资源或字段合同')
     }
-    assertCurrent(view)
+    assertCurrent(view,undefined,before)
     if(targetIdentity(next.target(view))!==targetSignatures.get(view))throw new Error('FILE_RESOURCE_IDENTITY: DataView 已绑定另一文件目标')
-    next.assertCurrent?.(targetFor(view))
+    next.assertCurrent?.(targetFor(view,before))
     assertFileViewBinding(view,executor,next)
-    currentOptions=next
+    assertBinding(before)
+    current=bindingFor(next)
   }
-  return {executor,update,lockTarget:view=>{targetFor(view);assertCurrent(view)}}
+  return {executor,update,lockTarget:view=>{targetFor(view);assertCurrent(view,undefined,current)}}
 }
 
 /** Creates the shared DataView executor for a declared file resource table, including named query clones. */

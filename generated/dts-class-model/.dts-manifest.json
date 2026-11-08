@@ -2744,12 +2744,12 @@
     "packages/spark-data/src/query/data-view-source.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-source.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-source.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.567Z"
+      "sourceModifiedAt": "2026-11-08T04:31:45.294Z"
     },
     "packages/spark-data/src/query/file-resource-adapter.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource-adapter.ts",
       "shardFile": "files/packages/spark-data/src/query/file-resource-adapter.ts.json",
-      "sourceModifiedAt": "2026-11-08T03:35:47.577Z"
+      "sourceModifiedAt": "2026-11-08T07:44:34.692Z"
     },
     "packages/spark-data/src/query/file-resource/directory.ts": {
       "sourceFile": "packages/spark-data/src/query/file-resource/directory.ts",

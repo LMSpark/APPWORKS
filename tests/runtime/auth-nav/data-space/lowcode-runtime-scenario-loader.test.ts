@@ -446,6 +446,13 @@ describe('loadLowcodeRuntimeScenario', () => {
     expect(source).not.toContain('lowcodeApi')
   })
 
+  it('hosts the data space design runtime through the shared native session', () => {
+    const source = readFileSync(resolve('src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('runtimeSession.isCurrent(runtime)')
+    expect(source).not.toContain('new PageRuntime')
+  })
+
   it('rejects when the request application differs from the page project', async () => {
     mocks.readRequestScope.mockReturnValue(scope('t1', 'OTHER'))
     await expect(loadLowcodeRuntimeScenario({ projectId: 'APP', scenarioId: 'SCENE' })).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')

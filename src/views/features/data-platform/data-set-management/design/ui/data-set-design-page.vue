@@ -310,10 +310,10 @@
 <script setup lang="ts">
 import {computed, nextTick, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import DataSpaceArrayEditor from './node-panel/DataSpaceArrayEditor.vue'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
-import {PageRuntime, ScenarioDefinitionDocument} from '@spark-appworks/spark-project-model'
+import {ScenarioDefinitionDocument} from '@spark-appworks/spark-project-model'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {buildDataViewKey, RequestState, type DataRow, type DataSet, type DataView, type SparkNode} from '@spark-appworks/spark-data'
@@ -352,7 +352,11 @@ type DesignNode = {id: string; label: string; table?: string; viewId?: string; r
 /** 唯一被设计空间 ID 由宿主（数据空间目录对话框）传入；页面不读路由参数，也不接受第二个空间身份。 */
 const props = defineProps<{targetId: string}>()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'data-space-design'})
-let pageRuntime: PageRuntime | undefined
+const runtimeSession = new NativePageRuntimeSession({
+  // 导航 DataView 接管完成后再提供；释放时由会话撤销。
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 let blueprintDataSet: DataSet | undefined
 let blueprintWorkspace: BlueprintWorkspaceDataView | undefined
 const session = shallowRef<LowcodeDataSpaceDesignSession | null>(null)
@@ -1451,7 +1455,7 @@ async function load(): Promise<void> {
   historyDocument.value?.dispose(); historyDocument.value = null
   historyOpen.value = false; historyPending.value = false
   layoutError.value = ''; layoutMessage.value = ''; layoutPreview.value = undefined
-  sparkRemove(PAGE_RUNTIME); pageRuntime?.dispose(); pageRuntime = undefined
+  runtimeSession.dispose()
   blueprintWorkspace?.dispose(); blueprintWorkspace = undefined
   if (blueprintDataSet && !blueprintDataSet.destroyed) blueprintDataSet.destroy()
   blueprintDataSet = undefined
@@ -1477,7 +1481,7 @@ async function load(): Promise<void> {
     assertBlueprintCurrent()
     const opened = await openLowcodeDataSpaceDesignSession(id, {blueprintTreeProjection: () => {
       assertBlueprintCurrent()
-      const runtime = pageRuntime
+      const runtime = runtimeSession.runtime
       const owner = blueprintWorkspace
       const dataSet = blueprintDataSet
       if (!runtime || !owner || !dataSet || runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY) !== dataSet
@@ -1488,24 +1492,22 @@ async function load(): Promise<void> {
     // 页面后续创建的控件输入和投影视图各自响应绑定；不将其变化回灌整个空间。
     // 保留正式表实例身份，其按需创建的命名视图仍属于本次元数据定义。
     const definitionTables = new Set(Object.values(opened.metadataDataSet.tables))
-    let runtime: PageRuntime | undefined
     try {
       const scenarioId = opened.metadataDataSet.scenarioId
       if (!scenarioId) throw new Error('元数据空间缺少正式场景身份')
-      runtime = new PageRuntime({pageId: '/features/data-platform/data-set-management/design/ui/data-set-design-page', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY, scenarioId],
+      const runtime = runtimeSession.acquire({pageId: '/features/data-platform/data-set-management/design/ui/data-set-design-page', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY, scenarioId], targetId: id,
         loadScenario: async requestedScenarioId => {
           if (requestedScenarioId === LOWCODE_APPLICATION_CATALOG_FORM_KEY && blueprintDataSet) return blueprintDataSet
           if (requestedScenarioId === scenarioId) return opened.metadataDataSet
           throw new Error(`数据空间设计 PageRuntime 未声明场景 ${requestedScenarioId}`)
         }})
       await runtime.load()
-      if (!active || generation !== ownGeneration) {runtime.dispose(); opened.dispose(); return}
-      sparkProvide(PAGE_RUNTIME, runtime)
-      pageRuntime = runtime
+      if (!active || generation !== ownGeneration || !runtimeSession.isCurrent(runtime)) {opened.dispose(); return}
       if (!blueprintWorkspace || !isBlueprintViewAttachedToRuntime(runtime, LOWCODE_APPLICATION_CATALOG_FORM_KEY, blueprintWorkspace)) {
         throw new Error('PROJECT_TOOL_CATALOG_OWNER: PageRuntime 未接管原导航 DataView')
       }
-    } catch (cause) {runtime?.dispose(); opened.dispose(); throw cause}
+      sparkProvide(PAGE_RUNTIME, runtime)
+    } catch (cause) {runtimeSession.dispose(); opened.dispose(); throw cause}
     const navigation = opened.metadataDataSet.addTable(`DesignNavigation_${crypto.randomUUID().replaceAll('-', '')}`,
       ['id', 'label', 'parentId'].map(name => ({name, type: 'string', isPrimaryKey: name === 'id'})))
     navigation.resourceType = 'static-data'
@@ -1537,7 +1539,7 @@ async function load(): Promise<void> {
   } catch (cause) {
     if (active && generation === ownGeneration) {
       error.value = readError(cause)
-      sparkRemove(PAGE_RUNTIME); pageRuntime?.dispose(); pageRuntime = undefined
+      runtimeSession.dispose()
       session.value?.dispose(); session.value = null
       blueprintWorkspace?.dispose(); blueprintWorkspace = undefined
       if (blueprintDataSet && !blueprintDataSet.destroyed) blueprintDataSet.destroy()
@@ -1587,10 +1589,10 @@ function closeParameters(): void {
 }
 watch(() => props.targetId, () => {void load()}, {immediate: true})
 onBeforeUnmount(() => {
-  active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME)
+  active = false; generation++; unsubscribe?.()
   historyDocument.value?.dispose(); historyDocument.value = null
   layoutEdit.value?.dispose()
-  pageRuntime?.dispose(); pageRuntime = undefined
+  runtimeSession.dispose()
   blueprintWorkspace?.dispose(); blueprintWorkspace = undefined
   if (blueprintDataSet && !blueprintDataSet.destroyed) blueprintDataSet.destroy()
   blueprintDataSet = undefined

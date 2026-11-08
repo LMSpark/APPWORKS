@@ -11,7 +11,7 @@ import {lowcodeDataSpaceLayout} from './lowcode-data-space-layout'
 import type { DataSet } from '@spark-appworks/spark-data'
 import {LowcodeDataSpaceMetadata} from './lowcode-data-space-metadata'
 import {LowcodeModelRelationAdapter} from './lowcode-model-relation-adapter'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../resources/repository/agent-workflow-file-resource'
+import {createLowcodeFileResourceExecutors} from '../resources/repository/file-resource-registry'
 import {createPageToolFileResourceExecutor} from '@/services/project/page-tool-file-dataview'
 import {getBuiltinScenarioResource, isBuiltinApplication, resolveBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, BuiltinBlueprintNodeResource} from '../resources/repository/builtin-blueprint-node-resource'
@@ -206,8 +206,7 @@ function definitionBindings(input: DefinitionBindingsInput): Pick<LoadScenarioDa
   throw new Error('BUILTIN_BLUEPRINT_SOURCE_MISSING: 7AB 蓝图场景未声明仓内蓝图节点 DataView')
  }
  const builtinBlueprintOwner = isBuiltinApplication(projectId) && builtinBlueprintScenario
- const registeredFileExecutors = Object.fromEntries(LOWCODE_FILE_RESOURCE_REGISTRY.map(definition => [definition.tableName,
-  definition.createExecutor({applicationId: projectId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent})]))
+ const registeredFileExecutors = createLowcodeFileResourceExecutors({applicationId: projectId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent})
  if (declaresBuiltinBlueprint) registeredFileExecutors[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] = builtinBlueprintOwner
   ? new BuiltinBlueprintNodeResource({applicationId: projectId, scenarioId, assertCurrent}).executor
   : {executeQuery: () => Promise.reject(new Error('BUILTIN_BLUEPRINT_IDENTITY: 当前应用不能读取 AppWorks 仓内蓝图节点'))}

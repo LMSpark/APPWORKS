@@ -8853,8 +8853,23 @@ pnpm run verify
 
 **测试。**`project-ui-settings.test.ts`、`app-list-dataview-binding.test.ts` 与 `tests/app/views/app` 共 17 项通过。根 typecheck 0。改动文件 eslint 0。已跑 `generate:class-model-surface` 与 `generate:lowcode-contracts`（611 端点，218 消费点）。生成物只保留弹窗分片删除、服务分片和两份清单的真实差异，语义缺口数不变。未改 `spark-data`，未改 S2 组件，未改 `PageRuntimePool`。
 
+<a id="ch-s4-agent-workflow-design-projection"></a>
+#### CH. S4：design.json 投影为五张 DataView 表（未冻结）
+
+`WorkflowDesigns` 的节点、连线、变量编辑原先都在页面的 `currentDocument` 和约 70 个编辑 ref 里，只在保存时把整份 JSON 塞回一个文件行。本批先在数据层补承接能力，页面尚未改写。
+
+- **存储不变。**仍是每个工作流一份 `design.json`。`agent-workflow-design-projection.ts` 把它无损拆成流程、节点、连线、变量、能力五张表的行。节点和连线带 `graphPath`，循环/迭代子图按路径展开。未投影的字段原样留在 `extra`/`data` 列。null 和缺失分开保留。两份正式 `design.json` 往返逐字节一致。
+- **一批只写一次。**`AgentWorkflowDesignResource` 是五张表共用的执行器。DataSet 把同一执行器的视图合成一个保存命令，执行器按主键合并各表变更，基于同一基线写一次文件，再按写入结果返回各表回执。基线冲突时不上传，草稿保留。回读不一致时保持待核验，同内容重提只核验不重传。
+- **共用提交链。**原文件行执行器的基线、上传、字节回读和待核验逻辑抽成 `AgentWorkflowFileCommit`，文件行和投影两个执行器共用。文件行的行为和报错不变。
+- **注册与绑定。**文件资源注册表从文件行模块移到 `file-resource-registry.ts`，新增 `executorGroup`，同组表在一次装配中共用一个执行器。工作流 owner 要求目标空间声明全部五张投影表及完整视图，缺少就报 `AGENT_WORKFLOW_DESIGN_BINDING`；提供 `loadDesign` 和 `loadChildGraph`。owner 和资源文件移到 `repository/agent-workflow/` 子目录。
+- **spark-data 预检约束。**同一批保存里，两张表不能映射到同一个资源身份，否则报 `DATA_SET_SAVE_MODEL_CONFLICT`。所以五张表各有资源 ID（`agent-workflow-design-<表>`），执行器仍按 `executorGroup` 共享。同一张表的 `graph` 和 `child` 两个视图可以同批保存。spark-data 未改。
+
+**测试。**新增 `agent-workflow-design-projection.test.ts`（5 项）和 `agent-workflow-design-resource.test.ts`（5 项），覆盖：主子图按路径查询；多表加主子图一批只上传一次；基线冲突不上传；回读不一致后重提不重传；经 graph 视图新增节点并推出投影主键。原 owner 测试的目标空间补上五张投影表。相关 6 个文件 91 项、扩大 13 个文件 202 项通过。根 typecheck 0。改动文件 eslint 0。已跑 `generate:class-model-surface` 与 `generate:lowcode-contracts`（611 端点，218 消费点）。新声明补了 JSDoc，语义缺口由 3777 降到 3730。生成物只保留移动/新增分片和三份清单的真实差异。
+
+**存量断链（HEAD 上同样失败，非本批引入）。**`data-space-four-file.test.ts` 和数据空间设计页的多组原生测试报 `SCENARIO_PROJECTION_BINDING: ProjectToolCatalog 缺少显式只读投影工厂`。在 HEAD 暂存本批后复跑，两个文件的 66 项失败相同。下一批单独排查。
+
 #### 当前续做顺序（未冻结）
 
-无入口的项目设置弹窗已删除。断链表这一行只剩 `WorkflowDesigns` 的页面级并行状态，先核业务数据归属再动。不进入 S5。
+`WorkflowDesigns` 的数据层承接已就绪。下一步：在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表；扩展 RendererGraph 的端口、连线样式和控制点；改写页面并清理被取代的辅助函数。另排查上面的 ProjectToolCatalog 断链。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

@@ -1,5 +1,5 @@
 import {ScenarioDefinitionResource, DataSpaceReferenceLayoutResource, ProjectToolResource} from '@spark-appworks/spark-project-model'
-import {LOWCODE_FILE_RESOURCE_REGISTRY} from './agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from './file-resource-registry'
 
 /** Resolve parameter fields only for resource families that own that contract. */
 export function fileResourceQueryParameters(resourceId: string, viewId: string) {

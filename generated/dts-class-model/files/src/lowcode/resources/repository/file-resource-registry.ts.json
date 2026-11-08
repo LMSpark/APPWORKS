@@ -1,0 +1,361 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/file-resource-registry",
+    "sourcePath": "src/lowcode/resources/repository/file-resource-registry.ts",
+    "sourceFile": "src/lowcode/resources/repository/file-resource-registry.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/file-resource-registry",
+    "jsdoc": "@module app:lowcode/resources/repository/file-resource-registry\n职责：登记数据空间可选的文件资源表、视图、查询参数及其查询/保存执行器。\n边界：只汇总各文件资源的正式定义，执行逻辑留在各资源自己的模块。\nAI用途：数据空间设计或装配需要列出、绑定文件资源时，用本模块定位唯一注册表。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": [
+      "LowcodeFileResourceDefinition"
+    ]
+  },
+  "$defs": {
+    "LowcodeFileResourceApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileResourceApi",
+      "properties": {
+        "listFiles": {
+          "type": "object",
+          "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
+        },
+        "readTextFile": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<string>"
+        },
+        "readFileBytes": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
+        },
+        "listFileVersions": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<readonly LowcodeFileVersionSummary[]>"
+        },
+        "removeFile": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<void>"
+        }
+      },
+      "required": [
+        "listFiles",
+        "readTextFile",
+        "readFileBytes",
+        "listFileVersions",
+        "removeFile"
+      ],
+      "additionalProperties": false
+    },
+    "LowcodeFileResourceInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileResourceInput",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "api": {
+          "$ref": "#/$defs/LowcodeFileResourceApi"
+        },
+        "fileUpload": {
+          "type": "object",
+          "title": "Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    },
+    "LowcodeFileResourceDefinition": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileResourceDefinition",
+      "properties": {
+        "tableName": {
+          "type": "string"
+        },
+        "resourceId": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "columns": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "title": "DataColumn"
+          }
+        },
+        "views": {
+          "type": "object",
+          "title": "Record<string, Readonly<Record<string, unknown>>>"
+        },
+        "queryParameters": {
+          "type": "object",
+          "title": "Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>"
+        },
+        "executorGroup": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.createExecutor.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "$ref": "#/$defs/LowcodeFileResourceInput"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.createExecutor.return": true
+      }
+    },
+    "LowcodeFileResourceExecutor": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "LowcodeFileResourceExecutor",
+      "properties": {
+        "derivedQueries": {
+          "const": "bound-view-only"
+        },
+        "parentResults": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "localAggregates": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "saveIndependently": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "invalidateQueryCache": {
+          "type": "object",
+          "title": "() => void"
+        },
+        "releaseQueryCache": {
+          "type": "object",
+          "title": "(page: object) => void"
+        },
+        "queryColumns": {
+          "type": "object",
+          "title": "(view: DataView) => readonly DataColumn[]"
+        },
+        "executeQuery": {
+          "type": "object",
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+        },
+        "save": {
+          "type": "object",
+          "title": "(command: Readonly<{ changes: readonly Readonly<{ identity: Readonly<{ scenarioId: string; metaName: string; resource?: Readonly<{ resourceType: string; resourceId: string; }>; }>; tableConfig?: Pick<TableMetadata, \"api\" | \"crudConfig\">; context: Readonly<...>; changes: Readonly<...>; }>[]; }>) => Promise<Readonly<...."
+        },
+        "hasUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+        },
+        "acknowledgeSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
+        },
+        "refreshSavedRowPermissions": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
+        },
+        "abandonUnconfirmedSave": {
+          "type": "object",
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+        },
+        "source": {
+          "$ref": "../../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
+        }
+      },
+      "required": [
+        "executeQuery"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-08T19:14:58.822Z",
+  "models": {
+    "LowcodeFileResourceApi": {
+      "name": "LowcodeFileResourceApi",
+      "jsdoc": "文件资源执行器使用的设计文件读取接口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions' | 'removeFile'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<LowcodeDesignApi, 'listFiles' | 'readTextFile' | 'readFileBytes' | 'listFileVersions' | 'removeFile'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "LowcodeFileResourceInput": {
+      "name": "LowcodeFileResourceInput",
+      "jsdoc": "一次装配传给全部文件执行器的应用身份、文件接口和会话校验。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 当前应用 ID，决定文件目录。 */\n    applicationId: string;\n    /** 设计文件读取接口。 */\n    api: LowcodeFileResourceApi;\n    /** 正式文件上传适配器；缺省时保存显式失败。 */\n    fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n    /** 应用或会话已切换时抛错。 */\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 当前应用 ID，决定文件目录。 */\n    applicationId: string;\n    /** 设计文件读取接口。 */\n    api: LowcodeFileResourceApi;\n    /** 正式文件上传适配器；缺省时保存显式失败。 */\n    fileUpload?: Pick<LowcodeDesignFileUpload, 'uploadWorkingText' | 'uploadTextVersion'>;\n    /** 应用或会话已切换时抛错。 */\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "jsdoc": "当前应用 ID，决定文件目录。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "jsdoc": "设计文件读取接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
+              "jsdoc": "正式文件上传适配器；缺省时保存显式失败。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "jsdoc": "应用或会话已切换时抛错。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileResourceDefinition": {
+      "name": "LowcodeFileResourceDefinition",
+      "jsdoc": "数据空间可选的一张文件资源表：表结构、视图、查询参数和执行器工厂。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 数据空间里的表名。 */\n    tableName: string;\n    /** 表的文件资源身份；一次保存里不同表不能共用。 */\n    resourceId: string;\n    /** 设计页显示的资源名称。 */\n    label: string;\n    /** 表字段。 */\n    columns: readonly DataColumn[];\n    /** 命名视图及其默认配置。 */\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    /** 各视图的查询参数声明。 */\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    /** 同组表在一次装配中共用执行器。 */\n    executorGroup?: string;\n    /** 为一次装配创建该表的查询/保存执行器。 */\n    createExecutor(input: LowcodeFileResourceInput): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 数据空间里的表名。 */\n    tableName: string;\n    /** 表的文件资源身份；一次保存里不同表不能共用。 */\n    resourceId: string;\n    /** 设计页显示的资源名称。 */\n    label: string;\n    /** 表字段。 */\n    columns: readonly DataColumn[];\n    /** 命名视图及其默认配置。 */\n    views: Readonly<Record<string, Readonly<Record<string, unknown>>>>;\n    /** 各视图的查询参数声明。 */\n    queryParameters: Readonly<Record<string, ReadonlyArray<Readonly<{\n        name: string;\n        type: string;\n        label?: string;\n        required?: boolean;\n    }>>>>;\n    /** 同组表在一次装配中共用执行器。 */\n    executorGroup?: string;\n    /** 为一次装配创建该表的查询/保存执行器。 */\n    createExecutor(input: LowcodeFileResourceInput): Parameters<DataView['bindQueryExecutor']>[0];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "tableName",
+              "jsdoc": "数据空间里的表名。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "resourceId",
+              "jsdoc": "表的文件资源身份；一次保存里不同表不能共用。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "label",
+              "jsdoc": "设计页显示的资源名称。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "columns",
+              "jsdoc": "表字段。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "views",
+              "jsdoc": "命名视图及其默认配置。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryParameters",
+              "jsdoc": "各视图的查询参数声明。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "executorGroup",
+              "jsdoc": "同组表在一次装配中共用执行器。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "createExecutor",
+              "jsdoc": "为一次装配创建该表的查询/保存执行器。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "LowcodeFileResourceInput",
+                    "sourcePath": "src/lowcode/resources/repository/file-resource-registry.ts"
+                  }
+                }
+              ],
+              "type": {
+                "type": "unknown",
+                "name": "Parameters<DataView['bindQueryExecutor']>[0]"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "LowcodeFileResourceExecutor": {
+      "name": "LowcodeFileResourceExecutor",
+      "jsdoc": "绑定到文件资源视图的查询/保存执行器。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<LowcodeFileResourceDefinition['createExecutor']>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<LowcodeFileResourceDefinition['createExecutor']>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

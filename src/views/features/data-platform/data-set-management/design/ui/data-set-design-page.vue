@@ -341,7 +341,7 @@ import DataSpaceModelRemoval from '../model/removal/DataSpaceModelRemoval.vue'
 import DataSpaceRelationEditor from './edge-panel/data-set-design-edge-panel.vue'
 import DataSpaceCascadeEditor from './cascades/DataSpaceCascadeEditor.vue'
 import {DataSpaceLayoutEdit} from '../graph/data-space-layout-edit'
-import {LOWCODE_FILE_RESOURCE_REGISTRY, type LowcodeFileResourceDefinition} from '@/lowcode/resources/repository/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY, type LowcodeFileResourceDefinition} from '@/lowcode/resources/repository/file-resource-registry'
 
 type RGraphProps = SparkComponent.RGraphProps
 /** 一个设计记录字段的读取位置；source 省略时使用 table 的默认视图。 */

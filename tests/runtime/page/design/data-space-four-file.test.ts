@@ -13,7 +13,7 @@ import { createPageComponentRegistry } from '../../../../packages/spark-componen
 import { buildPageContext } from '../../../../packages/spark-component/src/page/context/buildPageContext'
 import type { PageContext } from '../../../../packages/spark-component/src/page/context/types'
 import { LowcodeDataSpaceAssembler } from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
-import { LOWCODE_FILE_RESOURCE_REGISTRY } from '../../../../src/lowcode/resources/repository/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '../../../../src/lowcode/resources/repository/file-resource-registry'
 import { BuiltinBlueprintNodeResource } from '../../../../src/lowcode/resources/repository/builtin-blueprint-node-resource'
 import { getBuiltinApplicationDescriptor } from '../../../../src/registries/builtin-application-registry'
 

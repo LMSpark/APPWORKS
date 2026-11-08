@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/agent-workflow/agent-workflow-design-projection",
+    "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+    "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-design-projection",
+    "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-design-projection\n职责：把 Agent 工作流 design.json 无损拆成流程、节点、连线、变量、能力五张表的行，并把行变更合回同一文档。\n边界：纯函数，不读写文件；子图按 graphPath 展开，未投影字段原样保留在 extra/data 列。\nAI用途：设计页编辑节点或连线需要落到 DataView 行，或排查 design.json 往返差异时，用本模块定位投影规则。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AgentWorkflowDesignTableName",
+      "AgentWorkflowDesignRows",
+      "AgentWorkflowDesignTableChanges",
+      "AgentWorkflowDesignChanges"
+    ]
+  },
+  "$defs": {
+    "AgentWorkflowDesignTableName": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "title": "AgentWorkflowDesignTableName",
+      "enum": [
+        "AgentWorkflowDesign",
+        "AgentWorkflowNodes",
+        "AgentWorkflowLines",
+        "AgentWorkflowVariables",
+        "AgentWorkflowCapabilities"
+      ]
+    },
+    "AgentWorkflowDesignRows": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDesignRows",
+      "properties": {
+        "AgentWorkflowDesign": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "AgentWorkflowNodes": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "AgentWorkflowLines": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "AgentWorkflowVariables": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "AgentWorkflowCapabilities": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "required": [
+        "AgentWorkflowDesign",
+        "AgentWorkflowNodes",
+        "AgentWorkflowLines",
+        "AgentWorkflowVariables",
+        "AgentWorkflowCapabilities"
+      ],
+      "additionalProperties": false
+    },
+    "AgentWorkflowDesignTableChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDesignTableChanges",
+      "properties": {
+        "added": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "changed": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        },
+        "deleted": {
+          "type": "array",
+          "items": {
+            "$ref": "../../../../../packages/spark-data/src/types.ts.json#/$defs/DataRow"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "AgentWorkflowDesignChanges": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDesignChanges",
+      "properties": {
+        "AgentWorkflowDesign": {
+          "$ref": "#/$defs/AgentWorkflowDesignTableChanges"
+        },
+        "AgentWorkflowNodes": {
+          "$ref": "#/$defs/AgentWorkflowDesignTableChanges"
+        },
+        "AgentWorkflowLines": {
+          "$ref": "#/$defs/AgentWorkflowDesignTableChanges"
+        },
+        "AgentWorkflowVariables": {
+          "$ref": "#/$defs/AgentWorkflowDesignTableChanges"
+        },
+        "AgentWorkflowCapabilities": {
+          "$ref": "#/$defs/AgentWorkflowDesignTableChanges"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Json": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Json",
+      "properties": {},
+      "additionalProperties": true
+    }
+  },
+  "generatedAt": "2026-11-08T19:15:03.285Z",
+  "models": {
+    "AgentWorkflowDesignTableName": {
+      "name": "AgentWorkflowDesignTableName",
+      "jsdoc": "design.json 投影出的五张表名：流程、节点、连线、变量、能力。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "typeof AGENT_WORKFLOW_DESIGN_TABLE | typeof AGENT_WORKFLOW_NODE_TABLE | typeof AGENT_WORKFLOW_LINE_TABLE | typeof AGENT_WORKFLOW_VARIABLE_TABLE | typeof AGENT_WORKFLOW_CAPABILITY_TABLE",
+        "declarationRelations": [
+          {
+            "kind": "union",
+            "typeText": "typeof AGENT_WORKFLOW_DESIGN_TABLE"
+          },
+          {
+            "kind": "union",
+            "typeText": "typeof AGENT_WORKFLOW_NODE_TABLE"
+          },
+          {
+            "kind": "union",
+            "typeText": "typeof AGENT_WORKFLOW_LINE_TABLE"
+          },
+          {
+            "kind": "union",
+            "typeText": "typeof AGENT_WORKFLOW_VARIABLE_TABLE"
+          },
+          {
+            "kind": "union",
+            "typeText": "typeof AGENT_WORKFLOW_CAPABILITY_TABLE"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AgentWorkflowDesignRows": {
+      "name": "AgentWorkflowDesignRows",
+      "jsdoc": "一份 design.json 的全部投影行，按表名分组；节点和连线含所有子图。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Record<AgentWorkflowDesignTableName, DataRow[]>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Record<AgentWorkflowDesignTableName, DataRow[]>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AgentWorkflowDesignTableChanges": {
+      "name": "AgentWorkflowDesignTableChanges",
+      "jsdoc": "一张表提交的行变更；修改行是按表主键定位的完整行。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 新增行。 */\n    added?: readonly DataRow[];\n    /** 修改后的完整行。 */\n    changed?: readonly DataRow[];\n    /** 删除行，只按主键定位。 */\n    deleted?: readonly DataRow[];\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 新增行。 */\n    added?: readonly DataRow[];\n    /** 修改后的完整行。 */\n    changed?: readonly DataRow[];\n    /** 删除行，只按主键定位。 */\n    deleted?: readonly DataRow[];\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "added",
+              "jsdoc": "新增行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "changed",
+              "jsdoc": "修改后的完整行。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "deleted",
+              "jsdoc": "删除行，只按主键定位。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowDesignChanges": {
+      "name": "AgentWorkflowDesignChanges",
+      "jsdoc": "一次保存涉及的各表变更；未出现的表保持基线不变。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<Partial<Record<AgentWorkflowDesignTableName, AgentWorkflowDesignTableChanges>>>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<Partial<Record<AgentWorkflowDesignTableName, AgentWorkflowDesignTableChanges>>>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "Json": {
+      "name": "Json",
+      "jsdoc": "design.json 中的普通 JSON 对象。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Record<string, unknown>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Record<string, unknown>",
+            "targetName": "Record"
+          }
+        ],
+        "members": {}
+      }
+    }
+  }
+}

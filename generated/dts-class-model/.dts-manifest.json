@@ -3779,7 +3779,7 @@
     "src/lowcode/data-space/lowcode-data-space-design.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-design.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-design.ts.json",
-      "sourceModifiedAt": "2026-11-08T02:22:19.462Z"
+      "sourceModifiedAt": "2026-11-08T19:10:39.649Z"
     },
     "src/lowcode/data-space/lowcode-data-space-layout.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-layout.ts",
@@ -3794,7 +3794,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-08T09:26:44.088Z"
+      "sourceModifiedAt": "2026-11-08T19:10:39.651Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4131,15 +4131,25 @@
       "shardFile": "files/src/lowcode/resources/integration/api-management/queries.ts.json",
       "sourceModifiedAt": "2026-11-06T19:49:25.496Z"
     },
-    "src/lowcode/resources/repository/agent-workflow-file-owner.ts": {
-      "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
-      "shardFile": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json",
-      "sourceModifiedAt": "2026-11-08T15:29:26.212Z"
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts": {
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+      "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json",
+      "sourceModifiedAt": "2026-11-08T19:15:03.285Z"
     },
-    "src/lowcode/resources/repository/agent-workflow-file-resource.ts": {
-      "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
-      "shardFile": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json",
-      "sourceModifiedAt": "2026-11-07T09:04:32.156Z"
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts": {
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts",
+      "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts.json",
+      "sourceModifiedAt": "2026-11-08T19:15:54.685Z"
+    },
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts": {
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+      "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts.json",
+      "sourceModifiedAt": "2026-11-08T19:16:50.420Z"
+    },
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts": {
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+      "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json",
+      "sourceModifiedAt": "2026-11-08T19:15:36.059Z"
     },
     "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",
@@ -4154,7 +4164,12 @@
     "src/lowcode/resources/repository/file-resource-query-parameters.ts": {
       "sourceFile": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
       "shardFile": "files/src/lowcode/resources/repository/file-resource-query-parameters.ts.json",
-      "sourceModifiedAt": "2026-11-08T02:22:19.463Z"
+      "sourceModifiedAt": "2026-11-08T19:10:39.654Z"
+    },
+    "src/lowcode/resources/repository/file-resource-registry.ts": {
+      "sourceFile": "src/lowcode/resources/repository/file-resource-registry.ts",
+      "shardFile": "files/src/lowcode/resources/repository/file-resource-registry.ts.json",
+      "sourceModifiedAt": "2026-11-08T19:14:58.822Z"
     },
     "src/lowcode/resources/repository/project-tool-version-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/project-tool-version-resource.ts",
@@ -4759,7 +4774,7 @@
     "src/services/workflow-designs.ts": {
       "sourceFile": "src/services/workflow-designs.ts",
       "shardFile": "files/src/services/workflow-designs.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.827Z"
+      "sourceModifiedAt": "2026-11-08T19:10:39.655Z"
     },
     "src/views/app/AppList.vue": {
       "sourceFile": "src/views/app/AppList.vue",
@@ -4969,7 +4984,7 @@
     "src/views/app/WorkflowDesigns.vue": {
       "sourceFile": "src/views/app/WorkflowDesigns.vue",
       "shardFile": "files/src/views/app/WorkflowDesigns.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.915Z"
+      "sourceModifiedAt": "2026-11-08T19:10:39.657Z"
     },
     "src/views/DataBaseManage/DataBaseManage/index.vue": {
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",
@@ -5054,7 +5069,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T12:58:27.799Z"
+      "sourceModifiedAt": "2026-11-08T19:10:39.659Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",

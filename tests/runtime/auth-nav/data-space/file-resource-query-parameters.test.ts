@@ -1,6 +1,7 @@
 import {describe, expect, it} from 'vitest'
 import {fileResourceQueryParameters} from '@/lowcode/resources/repository/file-resource-query-parameters'
-import {AGENT_WORKFLOW_FILE_RESOURCE_ID, LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/repository/agent-workflow-file-resource'
+import {LOWCODE_FILE_RESOURCE_REGISTRY} from '@/lowcode/resources/repository/file-resource-registry'
+import {AGENT_WORKFLOW_FILE_RESOURCE_ID} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
 
 describe('file resource query parameter ownership', () => {
   it('does not route a registered resource through the scenario-definition contract', () => {

@@ -1,3 +1,9 @@
+/**
+ * @module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner
+ * 职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet 并绑定文件表与 design.json 五张投影表的执行器。
+ * 边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。
+ * AI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。
+ */
 import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
@@ -11,32 +17,64 @@ import {
   AgentWorkflowFileResource,
   resolveAgentWorkflowDataSpaceId,
 } from './agent-workflow-file-resource'
+import {AGENT_WORKFLOW_DESIGN_TABLES, AgentWorkflowDesignResource} from './agent-workflow-design-resource'
+import {AGENT_WORKFLOW_CAPABILITY_TABLE, AGENT_WORKFLOW_DESIGN_TABLE, AGENT_WORKFLOW_LINE_TABLE, AGENT_WORKFLOW_NODE_TABLE,
+  AGENT_WORKFLOW_VARIABLE_TABLE} from './agent-workflow-design-projection'
 
+/** 当前请求作用域（令牌与应用头）。 */
 type RequestScope = ReturnType<typeof lowcodeApi.readRequestScope>
+/** owner 使用的工作流文件读取接口。 */
 type WorkflowFileApi = Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>
 
+/** Agent 工作流文件空间的运行实例及其命名视图、加载命令。 */
 export type AgentWorkflowFileDataViewOwner = Readonly<{
+  /** 文件空间的 PageRuntime。 */
   readonly runtime: PageRuntime
+  /** 用于解析空间身份的正式目录视图。 */
   readonly catalogView: DataView
+  /** 文件空间 DataSet。 */
   readonly dataSet: DataSet
+  /** 工作流目录视图。 */
   readonly directoryView: DataView
+  /** design.json 文件行视图。 */
   readonly designView: DataView
+  /** definition.json 文件行视图。 */
   readonly definitionView: DataView
+  /** 最近一次 loadDocument 使用的文件行视图。 */
   readonly documentView: DataView
+  /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */
+  readonly design: AgentWorkflowDesignViews
+  /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */
+  loadDesign(workflowId: string): Promise<void>
+  /** 让子图视图查询指定 graphPath；传空串清空子图。 */
+  loadChildGraph(graphPath: string): Promise<void>
+  /** 重新查询工作流目录。 */
   refreshDirectory(): Promise<void>
+  /** 让对应文件行视图查询指定工作流的文件。 */
   loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>
+  /** 查询目录并返回工作流及其修改时间。 */
   listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{workflowId: string; timestamp: string}>>>
+  /** 查询目录并返回工作流 ID。 */
   listWorkflowIds(): Promise<readonly string[]>
+  /** 经文件行视图读取文件全文。 */
   readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>
+  /** 释放目录和文件空间的运行实例。 */
   dispose(): void
 }>
 
+/** owner 的可注入依赖；缺省使用当前应用的正式运行接口。 */
 type OwnerInput = Readonly<{
+  /** 应用 ID，须与当前请求作用域一致。 */
   applicationId: string
+  /** 读取当前请求作用域。 */
   readScope: () => RequestScope
+  /** 文件读取接口。 */
   api: WorkflowFileApi
+  /** 文件上传接口。 */
   fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>
+  /** 数据空间目录场景 ID。 */
   catalogScenarioId: string
+  /** 装配指定场景的 DataSet。 */
   loadScenario: (input: Readonly<{projectId: string; scenarioId: string}>) => Promise<DataSet>
 }>
 
@@ -105,6 +143,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     for (const view of table.viewList) view.bindQueryExecutor({executeQuery: resource.executeQuery.bind(resource),
       save: resource.save.bind(resource), hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)},
     {resource: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID}})
+    const design = bindDesignTables(dataSet, new AgentWorkflowDesignResource({applicationId, api, fileUpload, assertCurrent}))
     const directoryView = table.getView('directory')
     const designView = table.getView('design')
     const definitionView = table.getView('definition')
@@ -131,8 +170,30 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
         return {workflowId: row['workflowId'], timestamp: row['timestamp']}
       })
     }
+    const loadDesignViews = async (views: readonly DataView[], context: Readonly<Record<string, string>>) => {
+      assertCurrent()
+      for (const view of views) {
+        if (view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges() || view.hasUnconfirmedSave) {
+          throw new Error(`AGENT_WORKFLOW_DESIGN_LOAD: ${view.tableName}@${view.viewId} 仍有未保存或待核验的修改`)
+        }
+      }
+      const results = await Promise.all(views.map(view => {
+        view.queryContext = {...view.queryContext, ...context}
+        return view.requestRefresh()
+      }))
+      assertCurrent()
+      const failed = results.find(result => !result.success)
+      if (failed) throw failed.error ?? new Error(failed.message ?? 'Agent 工作流设计查询失败')
+    }
     return {
-      runtime, catalogView, dataSet, directoryView, designView, definitionView, documentView,
+      runtime, catalogView, dataSet, directoryView, designView, definitionView, documentView, design,
+      loadDesign: async workflowId => {
+        const ids = await thisDirectoryIds(directoryView, assertCurrent)
+        if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
+        await loadDesignViews([design.workflow, design.nodes, design.lines, design.variables, design.capabilities], {workflowId})
+        await loadDesignViews([design.childNodes, design.childLines], {workflowId, graphPath: ''})
+      },
+      loadChildGraph: graphPath => loadDesignViews([design.childNodes, design.childLines], {graphPath}),
       refreshDirectory,
       loadDocument: async (workflowId, fileName) => {
         assertCurrent()
@@ -180,6 +241,51 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
   } catch (error) {
     session.dispose()
     throw error
+  }
+}
+
+/** design.json 投影视图：主图与子图分开查询、分开保留编辑，保存时合成一次写入。 */
+export type AgentWorkflowDesignViews = Readonly<{
+  /** 流程行（标题、版本、运行绑定）。 */
+  workflow: DataView
+  /** 主图节点。 */
+  nodes: DataView
+  /** 主图连线。 */
+  lines: DataView
+  /** 当前选中循环/迭代节点的子图节点。 */
+  childNodes: DataView
+  /** 当前子图连线。 */
+  childLines: DataView
+  /** 流程变量。 */
+  variables: DataView
+  /** 流程能力。 */
+  capabilities: DataView
+}>
+
+function bindDesignTables(dataSet: DataSet, resource: AgentWorkflowDesignResource): AgentWorkflowDesignViews {
+  const executor = {executeQuery: resource.executeQuery.bind(resource), save: resource.save.bind(resource),
+    hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)}
+  for (const definition of AGENT_WORKFLOW_DESIGN_TABLES) {
+    const table = dataSet.getTable(definition.tableName)
+    if (table?.resourceType !== 'file' || table.resourceId !== definition.resourceId || table.modelBinding
+      || Object.keys(definition.views).some(viewId => !table.getView(viewId))) {
+      throw new Error(`AGENT_WORKFLOW_DESIGN_BINDING: 目标空间缺少已注册的设计投影表及完整视图: ${definition.tableName}`)
+    }
+    for (const view of table.viewList) view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId: definition.resourceId}})
+  }
+  const view = (tableName: string, viewId: string): DataView => {
+    const found = dataSet.getView(tableName, viewId)
+    if (!found) throw new Error(`AGENT_WORKFLOW_DESIGN_BINDING: 缺少视图 ${tableName}@${viewId}`)
+    return found
+  }
+  return {
+    workflow: view(AGENT_WORKFLOW_DESIGN_TABLE, 'design'),
+    nodes: view(AGENT_WORKFLOW_NODE_TABLE, 'graph'),
+    lines: view(AGENT_WORKFLOW_LINE_TABLE, 'graph'),
+    childNodes: view(AGENT_WORKFLOW_NODE_TABLE, 'child'),
+    childLines: view(AGENT_WORKFLOW_LINE_TABLE, 'child'),
+    variables: view(AGENT_WORKFLOW_VARIABLE_TABLE, 'design'),
+    capabilities: view(AGENT_WORKFLOW_CAPABILITY_TABLE, 'design'),
   }
 }
 

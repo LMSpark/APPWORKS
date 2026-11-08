@@ -1,0 +1,729 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner",
+    "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+    "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-file-owner",
+    "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet 并绑定文件表与 design.json 五张投影表的执行器。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
+    "jsdocSource": "leading-jsdoc",
+    "symbols": [
+      "AgentWorkflowFileDataViewOwner",
+      "AgentWorkflowDesignViews"
+    ]
+  },
+  "$defs": {
+    "RequestScope": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "RequestScope",
+      "properties": {
+        "token": {
+          "type": "string"
+        },
+        "headers": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "token",
+        "headers"
+      ],
+      "additionalProperties": false
+    },
+    "WorkflowFileApi": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "WorkflowFileApi",
+      "properties": {
+        "listFiles": {
+          "type": "object",
+          "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
+        },
+        "readTextFile": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<string>"
+        },
+        "readFileBytes": {
+          "type": "object",
+          "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
+        }
+      },
+      "required": [
+        "listFiles",
+        "readTextFile",
+        "readFileBytes"
+      ],
+      "additionalProperties": false
+    },
+    "AgentWorkflowFileDataViewOwner": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowFileDataViewOwner",
+      "properties": {
+        "runtime": {
+          "$ref": "../../../../../packages/spark-project-model/src/page/runtime-page.ts.json#/$defs/PageRuntime"
+        },
+        "catalogView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "dataSet": {
+          "type": "object",
+          "title": "DataSet"
+        },
+        "directoryView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "designView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "definitionView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "documentView": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "design": {
+          "$ref": "#/$defs/AgentWorkflowDesignViews"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.loadDesign.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadDesign.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadChildGraph.params": {
+          "type": "object",
+          "properties": {
+            "graphPath": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadChildGraph.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.refreshDirectory.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.refreshDirectory.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.loadDocument.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            },
+            "fileName": {
+              "enum": [
+                "design.json",
+                "definition.json"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadDocument.return": {
+          "type": "object",
+          "title": "Promise<void>"
+        },
+        "method.listWorkflowEntries.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listWorkflowEntries.return": {
+          "type": "object",
+          "title": "Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>"
+        },
+        "method.listWorkflowIds.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.listWorkflowIds.return": {
+          "type": "object",
+          "title": "Promise<readonly string[]>"
+        },
+        "method.readDocument.params": {
+          "type": "object",
+          "properties": {
+            "workflowId": {
+              "type": "string"
+            },
+            "fileName": {
+              "enum": [
+                "design.json",
+                "definition.json"
+              ]
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.readDocument.return": {
+          "type": "object",
+          "title": "Promise<string>"
+        },
+        "method.dispose.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.dispose.return": true
+      }
+    },
+    "OwnerInput": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "OwnerInput",
+      "properties": {
+        "applicationId": {
+          "type": "string"
+        },
+        "api": {
+          "$ref": "#/$defs/WorkflowFileApi"
+        },
+        "fileUpload": {
+          "type": "object",
+          "title": "Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>"
+        },
+        "catalogScenarioId": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.readScope.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.readScope.return": {
+          "$ref": "#/$defs/RequestScope"
+        },
+        "method.loadScenario.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "projectId": {
+                  "type": "string"
+                },
+                "scenarioId": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "projectId",
+                "scenarioId"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.loadScenario.return": {
+          "type": "object",
+          "title": "Promise<DataSet>"
+        }
+      }
+    },
+    "AgentWorkflowDesignViews": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "AgentWorkflowDesignViews",
+      "properties": {
+        "workflow": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "nodes": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "lines": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "childNodes": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "childLines": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "variables": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        },
+        "capabilities": {
+          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
+        }
+      },
+      "required": [
+        "workflow",
+        "nodes",
+        "lines",
+        "childNodes",
+        "childLines",
+        "variables",
+        "capabilities"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "generatedAt": "2026-11-08T19:16:50.420Z",
+  "models": {
+    "RequestScope": {
+      "name": "RequestScope",
+      "jsdoc": "当前请求作用域（令牌与应用头）。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "ReturnType<typeof lowcodeApi.readRequestScope>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "ReturnType<typeof lowcodeApi.readRequestScope>",
+            "targetName": "ReturnType"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "WorkflowFileApi": {
+      "name": "WorkflowFileApi",
+      "jsdoc": "owner 使用的工作流文件读取接口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
+            "targetName": "Pick"
+          }
+        ],
+        "members": {}
+      }
+    },
+    "AgentWorkflowFileDataViewOwner": {
+      "name": "AgentWorkflowFileDataViewOwner",
+      "jsdoc": "Agent 工作流文件空间的运行实例及其命名视图、加载命令。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** 最近一次 loadDocument 使用的文件行视图。 */\n    readonly documentView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** 最近一次 loadDocument 使用的文件行视图。 */\n    readonly documentView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "runtime",
+              "jsdoc": "文件空间的 PageRuntime。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogView",
+              "jsdoc": "用于解析空间身份的正式目录视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "dataSet",
+              "jsdoc": "文件空间 DataSet。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "directoryView",
+              "jsdoc": "工作流目录视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "designView",
+              "jsdoc": "design.json 文件行视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "definitionView",
+              "jsdoc": "definition.json 文件行视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "documentView",
+              "jsdoc": "最近一次 loadDocument 使用的文件行视图。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "design",
+              "jsdoc": "design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "loadDesign",
+              "jsdoc": "读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。",
+              "parameters": [
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadChildGraph",
+              "jsdoc": "让子图视图查询指定 graphPath；传空串清空子图。",
+              "parameters": [
+                {
+                  "name": "graphPath",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "refreshDirectory",
+              "jsdoc": "重新查询工作流目录。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "loadDocument",
+              "jsdoc": "让对应文件行视图查询指定工作流的文件。",
+              "parameters": [
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "design.json"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "definition.json"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "void"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listWorkflowEntries",
+              "jsdoc": "查询目录并返回工作流及其修改时间。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "array",
+                    "elementType": {
+                      "type": "reference",
+                      "name": "Readonly",
+                      "typeArguments": [
+                        {
+                          "type": "unknown",
+                          "name": "{\n        workflowId: string;\n        timestamp: string;\n    }"
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "name": "listWorkflowIds",
+              "jsdoc": "查询目录并返回工作流 ID。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "unknown",
+                    "name": "readonly string[]"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "readDocument",
+              "jsdoc": "经文件行视图读取文件全文。",
+              "parameters": [
+                {
+                  "name": "workflowId",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                },
+                {
+                  "name": "fileName",
+                  "type": {
+                    "type": "union",
+                    "types": [
+                      {
+                        "type": "literal",
+                        "value": "design.json"
+                      },
+                      {
+                        "type": "literal",
+                        "value": "definition.json"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "intrinsic",
+                    "name": "string"
+                  }
+                ]
+              }
+            },
+            {
+              "name": "dispose",
+              "jsdoc": "释放目录和文件空间的运行实例。",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    },
+    "OwnerInput": {
+      "name": "OwnerInput",
+      "jsdoc": "owner 的可注入依赖；缺省使用当前应用的正式运行接口。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 应用 ID，须与当前请求作用域一致。 */\n    applicationId: string;\n    /** 读取当前请求作用域。 */\n    readScope: () => RequestScope;\n    /** 文件读取接口。 */\n    api: WorkflowFileApi;\n    /** 文件上传接口。 */\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    /** 数据空间目录场景 ID。 */\n    catalogScenarioId: string;\n    /** 装配指定场景的 DataSet。 */\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 应用 ID，须与当前请求作用域一致。 */\n    applicationId: string;\n    /** 读取当前请求作用域。 */\n    readScope: () => RequestScope;\n    /** 文件读取接口。 */\n    api: WorkflowFileApi;\n    /** 文件上传接口。 */\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    /** 数据空间目录场景 ID。 */\n    catalogScenarioId: string;\n    /** 装配指定场景的 DataSet。 */\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "applicationId",
+              "jsdoc": "应用 ID，须与当前请求作用域一致。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "jsdoc": "文件读取接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
+              "jsdoc": "文件上传接口。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "catalogScenarioId",
+              "jsdoc": "数据空间目录场景 ID。",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "readScope",
+              "jsdoc": "读取当前请求作用域。",
+              "parameters": [],
+              "type": {
+                "type": "reference",
+                "name": "RequestScope",
+                "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts"
+              }
+            },
+            {
+              "name": "loadScenario",
+              "jsdoc": "装配指定场景的 DataSet。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        projectId: string;\n        scenarioId: string;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "Promise",
+                "typeArguments": [
+                  {
+                    "type": "reference",
+                    "name": "DataSet"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    "AgentWorkflowDesignViews": {
+      "name": "AgentWorkflowDesignViews",
+      "jsdoc": "design.json 投影视图：主图与子图分开查询、分开保留编辑，保存时合成一次写入。",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    /** 流程行（标题、版本、运行绑定）。 */\n    workflow: DataView;\n    /** 主图节点。 */\n    nodes: DataView;\n    /** 主图连线。 */\n    lines: DataView;\n    /** 当前选中循环/迭代节点的子图节点。 */\n    childNodes: DataView;\n    /** 当前子图连线。 */\n    childLines: DataView;\n    /** 流程变量。 */\n    variables: DataView;\n    /** 流程能力。 */\n    capabilities: DataView;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    /** 流程行（标题、版本、运行绑定）。 */\n    workflow: DataView;\n    /** 主图节点。 */\n    nodes: DataView;\n    /** 主图连线。 */\n    lines: DataView;\n    /** 当前选中循环/迭代节点的子图节点。 */\n    childNodes: DataView;\n    /** 当前子图连线。 */\n    childLines: DataView;\n    /** 流程变量。 */\n    variables: DataView;\n    /** 流程能力。 */\n    capabilities: DataView;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "workflow",
+              "jsdoc": "流程行（标题、版本、运行绑定）。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodes",
+              "jsdoc": "主图节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "lines",
+              "jsdoc": "主图连线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childNodes",
+              "jsdoc": "当前选中循环/迭代节点的子图节点。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "childLines",
+              "jsdoc": "当前子图连线。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "variables",
+              "jsdoc": "流程变量。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "capabilities",
+              "jsdoc": "流程能力。",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    }
+  }
+}

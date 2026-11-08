@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1110,
+  "scannedFileCount": 1113,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -13955,33 +13955,71 @@
         ]
       }
     },
-    "src/lowcode/resources/repository/agent-workflow-file-owner.ts": {
-      "file": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json",
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json",
       "module": {
-        "name": "app:lowcode/resources/repository/agent-workflow-file-owner",
-        "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
-        "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
+        "name": "app:lowcode/resources/repository/agent-workflow/agent-workflow-design-projection",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/repository/agent-workflow-file-owner",
-        "jsdoc": "app 的 lowcode/resources/repository/agent-workflow-file-owner 模块。\n导出 DtsTypeDeclarationModel symbol: AgentWorkflowFileDataViewOwner（共 1 个 symbol）。",
-        "jsdocSource": "inferred",
+        "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-design-projection",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-design-projection\n职责：把 Agent 工作流 design.json 无损拆成流程、节点、连线、变量、能力五张表的行，并把行变更合回同一文档。\n边界：纯函数，不读写文件；子图按 graphPath 展开，未投影字段原样保留在 extra/data 列。\nAI用途：设计页编辑节点或连线需要落到 DataView 行，或排查 design.json 往返差异时，用本模块定位投影规则。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "AgentWorkflowFileDataViewOwner"
+          "AgentWorkflowDesignTableName",
+          "AgentWorkflowDesignRows",
+          "AgentWorkflowDesignTableChanges",
+          "AgentWorkflowDesignChanges"
         ]
       }
     },
-    "src/lowcode/resources/repository/agent-workflow-file-resource.ts": {
-      "file": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json",
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts.json",
       "module": {
-        "name": "app:lowcode/resources/repository/agent-workflow-file-resource",
-        "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
-        "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
+        "name": "app:lowcode/resources/repository/agent-workflow/agent-workflow-design-resource",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts",
         "packageName": "app",
-        "modulePath": "lowcode/resources/repository/agent-workflow-file-resource",
-        "jsdoc": "app 的 lowcode/resources/repository/agent-workflow-file-resource 模块。\n导出 DtsTypeDeclarationModel symbol: LowcodeFileResourceDefinition, AgentWorkflowFileResource（共 2 个 symbol）。",
-        "jsdocSource": "inferred",
+        "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-design-resource",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-design-resource\n职责：把 design.json 投影成流程、节点、连线、变量、能力五张表供 DataView 查询，并把一批多表变更合成一次文件写入。\n边界：文件读写、基线冲突、回读与待核验复用 AgentWorkflowFileCommit；投影规则在 agent-workflow-design-projection。\nAI用途：设计页节点/连线/变量的查询或保存失败、回执或待核验异常时，用本模块定位投影执行器。",
+        "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "LowcodeFileResourceDefinition",
+          "AgentWorkflowDesignTableDefinition",
+          "AgentWorkflowDesignResource"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-file-owner",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet 并绑定文件表与 design.json 五张投影表的执行器。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "AgentWorkflowFileDataViewOwner",
+          "AgentWorkflowDesignViews"
+        ]
+      }
+    },
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/agent-workflow/agent-workflow-file-resource",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-file-resource",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-resource\n职责：Agent 工作流 design.json/definition.json 的文件资源表、目录解析和共享文件提交（基线、上传、字节回读、待核验）。\n边界：只读写当前应用 workflow-designs 目录下的文件，不解析设计文档语义。\nAI用途：排查 Agent 工作流文件查询、保存冲突或结果未知时，用本模块定位文件提交链。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": [
+          "AgentWorkflowFileName",
+          "AgentWorkflowFileScope",
+          "AgentWorkflowFileCommitCommand",
+          "AgentWorkflowFileCommit",
           "AgentWorkflowFileResource"
         ]
       }
@@ -14028,6 +14066,21 @@
         "jsdoc": "app 的 lowcode/resources/repository/file-resource-query-parameters 模块。\n该 DTS shard 当前不导出 DtsTypeDeclarationModel symbol。",
         "jsdocSource": "inferred",
         "symbols": []
+      }
+    },
+    "src/lowcode/resources/repository/file-resource-registry.ts": {
+      "file": "files/src/lowcode/resources/repository/file-resource-registry.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/file-resource-registry",
+        "sourcePath": "src/lowcode/resources/repository/file-resource-registry.ts",
+        "sourceFile": "src/lowcode/resources/repository/file-resource-registry.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/file-resource-registry",
+        "jsdoc": "@module app:lowcode/resources/repository/file-resource-registry\n职责：登记数据空间可选的文件资源表、视图、查询参数及其查询/保存执行器。\n边界：只汇总各文件资源的正式定义，执行逻辑留在各资源自己的模块。\nAI用途：数据空间设计或装配需要列出、绑定文件资源时，用本模块定位唯一注册表。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": [
+          "LowcodeFileResourceDefinition"
+        ]
       }
     },
     "src/lowcode/resources/repository/project-tool-version-resource.ts": {
@@ -18154,6 +18207,34 @@
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts",
       "file": "files/packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts.json"
     },
+    "AgentWorkflowDesignChanges": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json"
+    },
+    "AgentWorkflowDesignResource": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts.json"
+    },
+    "AgentWorkflowDesignRows": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json"
+    },
+    "AgentWorkflowDesignTableChanges": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json"
+    },
+    "AgentWorkflowDesignTableDefinition": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-resource.ts.json"
+    },
+    "AgentWorkflowDesignTableName": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-design-projection.ts.json"
+    },
+    "AgentWorkflowDesignViews": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts.json"
+    },
     "AgentWorkflowDryRunCommand": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts",
       "file": "files/packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts.json"
@@ -18162,13 +18243,29 @@
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts",
       "file": "files/packages/spark-ai/src/agent/workflow/agent-workflow-dry-run.ts.json"
     },
+    "AgentWorkflowFileCommit": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json"
+    },
+    "AgentWorkflowFileCommitCommand": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json"
+    },
     "AgentWorkflowFileDataViewOwner": {
-      "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
-      "file": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts.json"
+    },
+    "AgentWorkflowFileName": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json"
     },
     "AgentWorkflowFileResource": {
-      "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
-      "file": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json"
+    },
+    "AgentWorkflowFileScope": {
+      "sourcePath": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
+      "file": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json"
     },
     "AgentWorkflowGraph": {
       "sourcePath": "packages/spark-ai/src/agent/workflow/agent-workflow-definition.ts",
@@ -22023,8 +22120,8 @@
       "file": "files/packages/spark-lowcode-api/src/design/lowcode-design-api.ts.json"
     },
     "LowcodeFileResourceDefinition": {
-      "sourcePath": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
-      "file": "files/src/lowcode/resources/repository/agent-workflow-file-resource.ts.json"
+      "sourcePath": "src/lowcode/resources/repository/file-resource-registry.ts",
+      "file": "files/src/lowcode/resources/repository/file-resource-registry.ts.json"
     },
     "LowcodeFileVersionSummary": {
       "sourcePath": "packages/spark-lowcode-api/src/design/lowcode-design-api.ts",

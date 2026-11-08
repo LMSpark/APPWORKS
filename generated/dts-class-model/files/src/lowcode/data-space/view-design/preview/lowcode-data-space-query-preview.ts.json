@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
     "packageName": "app",
     "modulePath": "lowcode/data-space/view-design/preview/lowcode-data-space-query-preview",
-    "jsdoc": "@module app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview\n职责：持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。\n边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。\nAI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。",
+    "jsdoc": "@module app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview\n职责：经公共宿主持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。\n边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。\nAI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "LowcodeDataSpaceQueryPreview"
@@ -262,7 +262,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T08:58:51.589Z",
+  "generatedAt": "2026-11-08T15:26:48.817Z",
   "models": {
     "DataSpacePreviewQuery": {
       "name": "DataSpacePreviewQuery",

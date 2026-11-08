@@ -16,7 +16,7 @@
  * - 本模块只编排：Vue ref、localStorage 活动页、autoSave、SSE、状态消息
  */
 import { ref, shallowRef, reactive, computed, getCurrentScope, nextTick, onScopeDispose } from 'vue'
-import { createAiRunAdapter, createAiToolApprovalBridge } from '@spark-appworks/spark-app'
+import { createAiRunAdapter, createAiToolApprovalBridge, NativePageRuntimeSession } from '@spark-appworks/spark-app'
 import type { AiRunTimelineEvent } from '@spark-appworks/spark-app'
 import type { AiToolApprovalRequest } from '@spark-appworks/spark-app'
 import * as ProjectBlueprintDomain from '@spark-appworks/spark-project-model'
@@ -35,7 +35,7 @@ import { getAppProjectBlueprintWorkspace } from '@/services/project/project-shel
 import type { ProjectWorkspaceScope } from '@/services/project/project-shell'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 import type {DataView, DataSet} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import { lowcodeApi, readLowcodePrincipal } from '@/lowcode/lowcode-runtime'
 import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
 import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -133,7 +133,7 @@ type PendingPageBindingCreate={kind:'binding';pageId:string;parentId:string;node
 type PendingChildPageCreate={kind:'child';pageId:string;parentId:string;nodeId:string;projectId:string;childInput:Record<string,unknown>;stage:'files'|'blueprint'|'compensate'|'done'}
 type PendingPageOperation=PendingPageBindingCreate|PendingChildPageCreate
 type PendingMountedPageDelete={pageId:string;customPath:string;nodeId:string;projectId:string;parentNodeId:string;title:string;stage:'blueprint'|'files'}
-type DevSystemOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;leaseGeneration:number;runtime:PageRuntime;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;pendingMountedPageDelete:PendingMountedPageDelete|undefined;pendingPageBindingCreate:PendingPageOperation|undefined}
+type DevSystemOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;leaseGeneration:number;runtime:PageRuntime;session:NativePageRuntimeSession;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;pendingMountedPageDelete:PendingMountedPageDelete|undefined;pendingPageBindingCreate:PendingPageOperation|undefined}
 const devSystemOwnerBundles=new WeakMap<ProjectBlueprintDomain.ProjectWorkspace,Map<string,DevSystemOwnerBundle>>()
 let devSystemLeaseGeneration=0
 function devSystemOwnerKey(scope:ProjectWorkspaceScope):string{return scope.projectId}
@@ -166,6 +166,7 @@ export function useDevState() {
   const externalDataViewSessions = new Set<ExternalDataViewSession>()
   const blueprintWorkspaceDataView = shallowRef<BlueprintWorkspaceDataView>()
   const blueprintPageRuntime = shallowRef<PageRuntime>()
+  let activeBlueprintSession: NativePageRuntimeSession | undefined
   let pendingMountedPageDelete:PendingMountedPageDelete|undefined
   let pendingPageBindingCreate:PendingPageOperation|undefined
   let activeOwnerBundle:DevSystemOwnerBundle|undefined
@@ -239,16 +240,17 @@ export function useDevState() {
         ||(bundle.blueprint.dataSet.getTable(PAGE_FILE_TABLE)?.viewList.some(view=>view.dirtyTracking.hasPendingChanges()||view.hasEditingChanges()||view.hasUnconfirmedSave)??false)
         ||bundle.workspace.hasPendingScenarioVersionAttempt
       retainHistoryOwner=bundle.workspace.hasPendingScenarioVersionAttempt
-      if(!pending){for(const page of bundle.workspace.project.design.pages)page.unbindCleanFileDataViews();deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.runtime.dispose()}
+      if(!pending){for(const page of bundle.workspace.project.design.pages)page.unbindCleanFileDataViews();deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.session.dispose()}
       bundle.assertCurrent=undefined
       ownerScopeToken=undefined
     }else if(!bundle){
       blueprintWorkspaceDataView.value?.dispose()
-      blueprintPageRuntime.value?.dispose()
+      activeBlueprintSession?.dispose()
     }
     ownerScopeToken=undefined
     activeOwnerBundle=retainHistoryOwner?bundle:undefined
     blueprintWorkspaceDataView.value=undefined
+    activeBlueprintSession=undefined
     blueprintPageRuntime.value=undefined
     blueprintWorkspaceLoad=undefined
     externalDataViewRevision.value++
@@ -275,6 +277,7 @@ export function useDevState() {
       pendingMountedPageDelete=parked.pendingMountedPageDelete
       pendingPageBindingCreate=parked.pendingPageBindingCreate
       blueprintPageRuntime.value=parked.runtime
+      activeBlueprintSession=parked.session
       blueprintWorkspaceDataView.value=parked.blueprint
       const session=parked.blueprint
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||hasPendingPageFileViews(session.dataSet)||!!pendingMountedPageDelete||!!pendingPageBindingCreate,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||hasUnconfirmedPageFileViews(session.dataSet),save:async()=>{
@@ -295,7 +298,8 @@ export function useDevState() {
     const revision=++blueprintWorkspaceLoadRevision
     let loadScopeToken=scopeToken
     const loading=(async()=>{
-      const runtime=new PageRuntime({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,
+      const runtimeSession=new NativePageRuntimeSession()
+      const runtime=runtimeSession.acquire({pageId:'dev-system-blueprint-workspace',scenarioIds:[LOWCODE_APPLICATION_CATALOG_FORM_KEY,DATA_SPACE_CATALOG_SCENARIO_ID,LowcodeDictionary.editorScenarioId],mainScenarioId:LOWCODE_APPLICATION_CATALOG_FORM_KEY,targetId:projectKey,
         loadScenario:async scenarioId=>{
           const assertCurrent=()=>{if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==loadScopeToken)throw new Error('蓝图 DataView 项目或认证作用域已切换')}
           assertCurrent()
@@ -304,18 +308,19 @@ export function useDevState() {
           if(scenarioId===LowcodeDictionary.editorScenarioId)return (await LowcodeDictionary.loadEditor()).dataSet
           throw new Error(`蓝图运行时未声明场景 ${scenarioId}`)
         }})
-      try{await runtime.load()}catch(error){loadScopeToken='';runtime.dispose();throw error}
+      const releaseAttempt=()=>{if(runtimeSession.isCurrent(runtime))runtimeSession.dispose()}
+      try{await runtime.load()}catch(error){loadScopeToken='';releaseAttempt();throw error}
       loadScopeToken=''
       const dataSet=runtime.getDataSet(LOWCODE_APPLICATION_CATALOG_FORM_KEY)
-      if(!dataSet){runtime.dispose();throw new Error('蓝图运行时缺少正式目录DataSet')}
-      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken){runtime.dispose();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
+      if(!dataSet){releaseAttempt();throw new Error('蓝图运行时缺少正式目录DataSet')}
+      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
       const scopeFingerprint=await fingerprintRequestScope(scopeToken)
-      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken){runtime.dispose();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
+      if(revision!==blueprintWorkspaceLoadRevision||projectId.value!==projectKey||currentEditor.value!==workspace||lowcodeApi.readRequestScope().token!==scopeToken||!runtimeSession.isCurrent(runtime)){releaseAttempt();throw new Error('蓝图 DataView 项目或认证作用域已切换')}
       let session:BlueprintWorkspaceDataView
       try{
         let assertLease:()=>void=()=>{throw new Error('DevSystem DataView owner 尚未取得活动租约')}
         session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>assertLease())
-        const bundle:DevSystemOwnerBundle={key:bundleKey,workspace,scopeFingerprint,leaseGeneration:++devSystemLeaseGeneration,runtime,blueprint:session,
+        const bundle:DevSystemOwnerBundle={key:bundleKey,workspace,scopeFingerprint,leaseGeneration:++devSystemLeaseGeneration,runtime,session:runtimeSession,blueprint:session,
           assertCurrent:undefined,pendingMountedPageDelete:undefined,pendingPageBindingCreate:undefined}
         ownerLeaseGeneration=bundle.leaseGeneration
         ownerScopeToken=scopeToken
@@ -323,7 +328,8 @@ export function useDevState() {
         bundle.assertCurrent=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('DevSystem DataView scope 已失效')}
         activeOwnerBundle=bundle
         setDevSystemOwnerBundle(bundle)
-      }catch(error){runtime.dispose();throw error}
+      }catch(error){releaseAttempt();throw error}
+      activeBlueprintSession=runtimeSession
       blueprintPageRuntime.value=runtime;blueprintWorkspaceDataView.value=session
       const external:ExternalDataViewSession={isDirty:()=>session.dirty||hasPendingPageFileViews(session.dataSet)||!!pendingMountedPageDelete||!!pendingPageBindingCreate,hasUnconfirmedSave:()=>session.hasPendingBlueprintCommand||hasUnconfirmedPageFileViews(session.dataSet),save:async()=>{
         if(pendingMountedPageDelete){await completePendingMountedPageDelete();return}

@@ -6,9 +6,10 @@
  */
 import {PageRuntime, type PageRuntimeOptions} from '@spark-appworks/spark-project-model'
 
-/** 原生页一次调用的固定身份；targetId 是业务目标，不是第二个场景身份。 */
+/** 原生页一次调用的固定身份；targetId 是业务目标，不是第二个场景身份。tool 与 pageId 二选一。 */
 export type NativePageRuntimeIdentity = Readonly<{
-  pageId: string
+  pageId?: string
+  tool?: PageRuntimeOptions['tool']
   scenarioIds: readonly string[]
   mainScenarioId?: string
   deferredScenarioIds?: readonly string[]
@@ -29,7 +30,7 @@ export type NativePageRuntimeBinder = Readonly<{
 
 function identityKey(input: NativePageRuntimeIdentity): string {
   return JSON.stringify([
-    input.pageId,
+    input.tool?.pageId ?? input.pageId ?? null,
     [...input.scenarioIds],
     input.mainScenarioId ?? null,
     input.deferredScenarioIds ? [...input.deferredScenarioIds] : null,
@@ -51,20 +52,28 @@ export class NativePageRuntimeSession {
   /** 当前仍由本会话持有的运行实例。 */
   get runtime(): PageRuntime | undefined { return this.#runtime }
 
-  /** 同一路由身份复用实例；身份变化时释放旧实例后再创建。 */
+  /**
+   * 系统页按同一路由身份复用；三文件工具每次新建。
+   * 身份变化或新工具先释放旧实例。tool 与 pageId 不能同时给出或同时缺失。
+   */
   acquire(input: NativePageRuntimeAcquireInput): PageRuntime {
+    const tool = input.tool
+    const pageId = input.pageId
+    if ((tool !== undefined) === (pageId !== undefined)) throw new Error('页面工具与系统页pageId必须二选一')
     const key = identityKey(input)
     const current = this.#runtime
-    if (current && !current.destroyed && this.#key === key) return current
+    if (tool === undefined && current && !current.destroyed && this.#key === key) return current
     this.release()
-    const runtime = new PageRuntime({
-      pageId: input.pageId,
+    const options = {
       scenarioIds: input.scenarioIds,
       loadScenario: input.loadScenario,
       ...(input.mainScenarioId === undefined ? {} : {mainScenarioId: input.mainScenarioId}),
       ...(input.deferredScenarioIds === undefined ? {} : {deferredScenarioIds: input.deferredScenarioIds}),
       ...(input.scenarioInputs === undefined ? {} : {scenarioInputs: input.scenarioInputs}),
-    })
+    }
+    const runtime = tool !== undefined
+      ? new PageRuntime({...options, tool})
+      : new PageRuntime({...options, pageId: pageId ?? ''})
     this.#runtime = runtime
     this.#key = key
     this.#binder?.provide(runtime)

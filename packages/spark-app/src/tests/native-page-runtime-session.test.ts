@@ -1,5 +1,6 @@
 import {afterEach, describe, expect, it} from 'vitest'
 import {DataSet} from '@spark-appworks/spark-data'
+import {PageTool} from '@spark-appworks/spark-project-model'
 import {NativePageRuntimeSession} from '../router/native-page-runtime-session'
 
 const sessions: NativePageRuntimeSession[] = []
@@ -67,5 +68,32 @@ describe('native PageRuntime session host', () => {
     expect(late.destroyed).toBe(true)
     expect(session.runtime).toBeUndefined()
     expect(session.isCurrent(runtime)).toBe(false)
+  })
+
+  it('creates a fresh tool runtime and releases the previous tool', async () => {
+    const session = new NativePageRuntimeSession()
+    sessions.push(session)
+    const firstTool = new PageTool({pageId: 'preview-page'})
+    firstTool.markLoaded()
+    const first = session.acquire({tool: firstTool, scenarioIds: ['META'], targetId: 'APP:preview-page', loadScenario: async id => data(id)})
+    await first.load()
+    expect(first.call.pageId).toBe('preview-page')
+    expect(first.tool).toBe(firstTool)
+    const secondTool = new PageTool({pageId: 'preview-page'})
+    secondTool.markLoaded()
+    const second = session.acquire({tool: secondTool, scenarioIds: ['META'], targetId: 'APP:preview-page', loadScenario: async id => data(id)})
+    expect(second).not.toBe(first)
+    expect(first.destroyed).toBe(true)
+    expect(second.call.pageId).toBe('preview-page')
+    expect(second.tool).toBe(secondTool)
+    expect(session.isCurrent(second)).toBe(true)
+  })
+
+  it('rejects a call that supplies both a tool and a system page id', () => {
+    const session = new NativePageRuntimeSession()
+    sessions.push(session)
+    const tool = new PageTool({pageId: 'preview-page'})
+    expect(() => session.acquire({pageId: 'preview-page', tool, scenarioIds: ['META'], loadScenario: async id => data(id)})).toThrow('二选一')
+    expect(() => session.acquire({scenarioIds: ['META'], loadScenario: async id => data(id)})).toThrow('二选一')
   })
 })

@@ -1,5 +1,5 @@
 {
-  "gapCount": 3778,
+  "gapCount": 3779,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -4136,12 +4136,24 @@
     {
       "kind": "attribute",
       "className": "NativePageRuntimeIdentity",
+      "memberName": "tool",
+      "reason": "missing-jsdoc",
+      "chainBreak": "NativePageRuntimeIdentity.tool 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "declarationLine": 11,
+      "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "NativePageRuntimeIdentity",
       "memberName": "scenarioIds",
       "reason": "missing-jsdoc",
       "chainBreak": "NativePageRuntimeIdentity.scenarioIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 11,
+      "declarationLine": 12,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4153,7 +4165,7 @@
       "chainBreak": "NativePageRuntimeIdentity.mainScenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4165,7 +4177,7 @@
       "chainBreak": "NativePageRuntimeIdentity.deferredScenarioIds 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4177,7 +4189,7 @@
       "chainBreak": "NativePageRuntimeIdentity.targetId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 14,
+      "declarationLine": 15,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4189,7 +4201,7 @@
       "chainBreak": "NativePageRuntimeIdentity.scenarioInputs 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 15,
+      "declarationLine": 16,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4201,7 +4213,7 @@
       "chainBreak": "NativePageRuntimeAcquireInput.loadScenario 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 19,
+      "declarationLine": 20,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4213,7 +4225,7 @@
       "chainBreak": "NativePageRuntimeBinder.provide 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 23,
+      "declarationLine": 24,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4225,7 +4237,7 @@
       "chainBreak": "NativePageRuntimeBinder.remove 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 24,
+      "declarationLine": 25,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "interface"
     },
@@ -4237,7 +4249,7 @@
       "chainBreak": "NativePageRuntimeSession.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-app/src/router/native-page-runtime-session.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
-      "declarationLine": 29,
+      "declarationLine": 30,
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "declarationKind": "class"
     },

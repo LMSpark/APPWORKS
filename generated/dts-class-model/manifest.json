@@ -13544,7 +13544,7 @@
         "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
         "packageName": "app",
         "modulePath": "lowcode/data-space/view-design/preview/lowcode-data-space-query-preview",
-        "jsdoc": "@module app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview\n职责：持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。\n边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。\nAI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。",
+        "jsdoc": "@module app:lowcode/data-space/view-design/preview/lowcode-data-space-query-preview\n职责：经公共宿主持有查询预览的独立PageRuntime，查询实际命名DataView并管理释放。\n边界：不复制正式数据或权限，不保存配置；原DataView执行过滤、依赖与分页。\nAI用途：原生设计页将标准组件绑定到runtime和dataViewKey，关闭时dispose。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "LowcodeDataSpaceQueryPreview"
@@ -17387,7 +17387,7 @@
         "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
         "packageName": "app",
         "modulePath": "views/features/data-platform/shared/model/use-staged-design-page",
-        "jsdoc": "@module app:views/features/data-platform/shared/model/use-staged-design-page\n编辑器页共用：PageRuntime + 设计 file DataView（refresh/saveChanges），页面不直连 HTTP。",
+        "jsdoc": "@module app:views/features/data-platform/shared/model/use-staged-design-page\n编辑器页共用：公共 PageRuntime 会话 + 设计 file DataView（refresh/saveChanges），页面不直连 HTTP。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "StagedDesignPageConfig"

@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {mount, flushPromises} from '@vue/test-utils'
 import {describe, expect, it, vi} from 'vitest'
 import NavHostProjectPicker from '@/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue'
@@ -12,7 +14,10 @@ const runtimeState = vi.hoisted(() => ({
 }))
 
 vi.mock('vue-router', () => ({useRoute: () => ({query: {__sparkNavigationId: 'host-a'}})}))
-vi.mock('@spark-appworks/spark-app', () => ({SYSTEM_PAGE_NAVIGATION_ID_QUERY: '__sparkNavigationId'}))
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY: '__sparkNavigationId'}
+})
 vi.mock('@spark-appworks/spark-lowcode-api', () => ({LOWCODE_APPLICATION_CATALOG_FORM_KEY: 'application-catalog-form'}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime', () => ({loadLowcodeRuntimeScenario: vi.fn()}))
 vi.mock('@spark-appworks/spark-project-model', () => ({
@@ -101,6 +106,12 @@ function dataView(rows: Record<string, unknown>[], fields: Record<string, unknow
 }
 
 describe('NavHost project picker hierarchy rendering', () => {
+  it('hosts relation preflight and project candidates through one native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('runtimeSession.isCurrent(next)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('does not issue the legacy navigation-host relation query for the repository-owned builtin app', async () => {
     runtimeState.runtimes.length = 0
     runtimeState.provided.length = 0

@@ -35,9 +35,9 @@
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {buildDataViewKey, DataViewFilter, type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DisplayAlert, PAGE_RUNTIME, RendererButton, RendererDialog, RendererTable, RendererTree, useSparkComponent} from '@spark-appworks/spark-component'
-import {SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, SYSTEM_PAGE_NAVIGATION_ID_QUERY} from '@spark-appworks/spark-app'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
@@ -47,11 +47,15 @@ import {configureProjectHierarchy, resolveNavHostProjectBinding, resolveProjectC
 const props = defineProps<{state: DevState}>()
 const route = useRoute()
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'dev-system-nav-host-project-picker'})
+const runtimeSession = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const loading = ref(false), error = ref(''), ready = ref(false), viewKey = ref(''), valueField = ref(''), labelField = ref(''), parentField = ref(''), primaryKey = ref(''), fields = ref<SparkNode[]>([])
 const busy = ref(false)
 const selectionRevision = ref(0)
 const pickerOpen = ref(false)
-let runtime: PageRuntime | undefined, hostRuntime: PageRuntime | undefined
+let runtime: PageRuntime | undefined
 let generation = 0
 const navigationId = computed(() => {
   const value = route.query[SYSTEM_PAGE_NAVIGATION_ID_QUERY]
@@ -68,11 +72,8 @@ function dispose(): void {
   primaryKey.value = ''
   fields.value = []
   busy.value = false
-  sparkRemove(PAGE_RUNTIME)
-  runtime?.dispose()
   runtime = undefined
-  hostRuntime?.dispose()
-  hostRuntime = undefined
+  runtimeSession.dispose()
 }
 
 const canOpen = computed(() => {
@@ -101,11 +102,10 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
       error.value = '仓内蓝图尚未接入该资源'
       return
     }
-    const relationRuntime = new PageRuntime({pageId: 'dev-system-nav-host-relation', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
-    hostRuntime = relationRuntime
+    const relationRuntime = runtimeSession.acquire({pageId: 'dev-system-nav-host-relation', scenarioIds: [LOWCODE_APPLICATION_CATALOG_FORM_KEY],
+      targetId: hostId, loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
     await relationRuntime.load()
-    if (stale || own !== generation || currentProject !== props.state.projectId) {relationRuntime.dispose(); return}
+    if (stale || own !== generation || currentProject !== props.state.projectId || !runtimeSession.isCurrent(relationRuntime)) return
     const hostView = relationRuntime.resolveView(`${LOWCODE_APPLICATION_CATALOG_FORM_KEY}@Base_Navigation_DataRelation@default`)
     if (!hostView) throw new Error('导航宿主关系 DataView 不存在')
     if (hostView.dataSet?.scenarioId !== LOWCODE_APPLICATION_CATALOG_FORM_KEY
@@ -123,11 +123,13 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     if (hostView.total > 1) throw new Error('当前导航存在多条项目切换关系')
     const binding = resolveNavHostProjectBinding(hostView, hostId)
     const {scenarioId, modelName, valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField} = binding
-    const next = new PageRuntime({pageId: 'dev-system-nav-host-project-picker', scenarioIds: [scenarioId],
-      loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
+    if (stale || own !== generation || !runtimeSession.isCurrent(relationRuntime)) return
+    runtimeSession.dispose()
+    const next = runtimeSession.acquire({pageId: 'dev-system-nav-host-project-picker', scenarioIds: [scenarioId],
+      targetId: `${hostId}:${scenarioId}`, loadScenario: id => loadLowcodeRuntimeScenario({projectId: currentProject, scenarioId: id})})
     runtime = next
     await next.load()
-    if (stale || own !== generation) { next.dispose(); return }
+    if (stale || own !== generation || !runtimeSession.isCurrent(next)) return
     const candidateView = next.resolveView(buildDataViewKey(modelName, 'default', scenarioId))
     if (!candidateView) throw new Error('导航项目候选默认 DataView 不存在')
     if (candidateView.dataSet?.scenarioId !== scenarioId
@@ -138,7 +140,7 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     if (mappedParentField) configureProjectHierarchy(candidateView, {valueField: mappedValueField, labelField: mappedLabelField, parentField: mappedParentField})
     if (mappedParentField) candidateView.queryConfig = {...candidateView.queryConfig, allPages: true}
     await candidateView.refresh()
-    if (stale || own !== generation) { next.dispose(); return }
+    if (stale || own !== generation || !runtimeSession.isCurrent(next)) return
     if (candidateView.loadingError) throw candidateView.loadingError
     if (mappedParentField && candidateView.rows.length !== candidateView.total) throw new Error('导航项目候选 DataView 读取不完整')
     if (candidateView.rows.length === 0) throw new Error('导航项目候选为空')
@@ -164,6 +166,7 @@ watch([navigationId, () => props.state.projectId], async ([hostId], _old, onClea
     labelField.value = mappedLabelField
     parentField.value = mappedParentField ?? ''
     primaryKey.value = candidateView.primaryKey
+    if (stale || own !== generation || !runtimeSession.isCurrent(next)) return
     sparkProvide(PAGE_RUNTIME, next)
     ready.value = true
   } catch (cause) {

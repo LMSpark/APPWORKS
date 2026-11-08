@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import { mount, flushPromises } from '@vue/test-utils'
 import { defineComponent, h, nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -83,6 +85,12 @@ function restoreLowcodeContext(){
 }
 
 describe('DevPreviewTab live refresh', () => {
+  it('hosts the preview runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/app/dev-system/DevPreviewTab.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('previewSession.isCurrent(runtime)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   beforeEach(() => {
     vi.useFakeTimers()
     lowcodeApi.session.save({accessToken:'preview-test-access',refreshToken:'preview-test-refresh',accessExpiresAt:Date.now()+60_000,

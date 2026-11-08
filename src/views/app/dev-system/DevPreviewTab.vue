@@ -50,7 +50,8 @@ import { computed, ref, shallowRef, watch, onMounted, onBeforeUnmount } from 'vu
 import { buildDataViewKey, parseDataViewKey } from '@spark-appworks/spark-data'
 import type { DataSet, DataTable, DataView } from '@spark-appworks/spark-data'
 import { DisplayAlert,DisplayEmpty,FieldSwitch,RendererButton,RendererForm,SparkPageRenderer,PAGE_RUNTIME,useSparkComponent } from '@spark-appworks/spark-component'
-import { PageRuntime, PageTool, ScenarioDefinitionDocument, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
+import {PageTool, ScenarioDefinitionDocument, ScenarioViewConfig, type PageRuntime} from '@spark-appworks/spark-project-model'
 import type { PageRoute } from '@spark-appworks/spark-component/runtime'
 import { assembleLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
@@ -75,6 +76,7 @@ let previewInputTableName: string | undefined
 let previewInputTable: DataTable | undefined
 let previewInputProvidedRuntime=false
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'dev-system-preview-tab'})
+const previewSession=new NativePageRuntimeSession()
 const livePreview = computed(() => {
   void previewInputRevision.value
   return readPreviewInput('livePreview', true)
@@ -220,7 +222,7 @@ async function refresh():Promise<void> {
   const target=currentTarget()
   if(!target){parseError.value='当前编辑工作区尚未就绪，无法创建预览';return}
   const current = ++generation
-  previewRuntime.value?.dispose()
+  previewSession.dispose()
   previewRuntime.value = null
   loading.value = true
   parseError.value = null
@@ -248,7 +250,7 @@ async function refresh():Promise<void> {
       if(!scenarioId)throw new Error(`PAGE_PREVIEW_BINDING: 局部绑定缺少主场景 ${binding}`)
       ids.add(scenarioId)
     }
-    runtime=new PageRuntime({tool,scenarioIds:[...ids],...(mainScenarioId ? {mainScenarioId} : {}),loadScenario:async scenarioId=>{
+    runtime=previewSession.acquire({tool,scenarioIds:[...ids],targetId:`${projectId}:${pageId}`,...(mainScenarioId ? {mainScenarioId} : {}),loadScenario:async scenarioId=>{
       assertTargetCurrent(target,current)
       const scope=lowcodeApi.readRequestScope()
       if(scope.headers['X-AppId']!==projectId)throw new Error('场景预览需要当前运行应用与编辑项目一致')
@@ -262,12 +264,13 @@ async function refresh():Promise<void> {
     }})
     await runtime.load()
     assertTargetCurrent(target,current)
+    if(!previewSession.isCurrent(runtime))return
     runtime.materialize()
     const path=`/__page/${pageId}`
     routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({projectId,pageId}),query:Object.freeze({}),hash:''})
-    previewRuntime.value=runtime
+    if(current===generation&&previewSession.isCurrent(runtime))previewRuntime.value=runtime
   } catch(error) {
-    runtime?.dispose()
+    if(runtime&&previewSession.isCurrent(runtime))previewSession.dispose()
     if(current===generation)parseError.value=error instanceof Error ? error.message : String(error)
   } finally { if(current===generation)loading.value=false }
 }
@@ -300,7 +303,7 @@ watch(previewIdentitySources,()=>{
   invalidatePendingPreview()
   const current=previewRuntime.value
   if(current?.isDirty){parseError.value='预览仍有未保存业务数据，当前目标不能替换';return}
-  current?.dispose()
+  previewSession.dispose()
   previewRuntime.value=null
   parseError.value=null
   if(livePreview.value)scheduleLiveRefresh()
@@ -316,7 +319,7 @@ onBeforeUnmount(() => {
   if (_liveTimer !== null) clearTimeout(_liveTimer)
   generation++
   releasePreviewInput()
-  previewRuntime.value?.dispose()
+  previewSession.dispose()
 })
 
 onMounted(() => {

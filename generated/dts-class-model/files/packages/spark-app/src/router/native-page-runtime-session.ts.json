@@ -25,6 +25,10 @@
         "pageId": {
           "type": "string"
         },
+        "tool": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-project-model\").PageTool"
+        },
         "scenarioIds": {
           "type": "array",
           "items": {
@@ -48,7 +52,6 @@
         }
       },
       "required": [
-        "pageId",
         "scenarioIds"
       ],
       "additionalProperties": false
@@ -60,6 +63,10 @@
       "properties": {
         "pageId": {
           "type": "string"
+        },
+        "tool": {
+          "type": "object",
+          "title": "import(\"@spark-appworks/spark-project-model\").PageTool"
         },
         "scenarioIds": {
           "type": "array",
@@ -88,7 +95,6 @@
         }
       },
       "required": [
-        "pageId",
         "scenarioIds",
         "loadScenario"
       ],
@@ -170,18 +176,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T09:34:13.691Z",
+  "generatedAt": "2026-11-08T15:50:42.690Z",
   "models": {
     "NativePageRuntimeIdentity": {
       "name": "NativePageRuntimeIdentity",
-      "jsdoc": "原生页一次调用的固定身份；targetId 是业务目标，不是第二个场景身份。",
+      "jsdoc": "原生页一次调用的固定身份；targetId 是业务目标，不是第二个场景身份。tool 与 pageId 二选一。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
+        "declarationTypeText": "Readonly<{\n    pageId?: string;\n    tool?: PageRuntimeOptions['tool'];\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    pageId: string;\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
+            "typeText": "Readonly<{\n    pageId?: string;\n    tool?: PageRuntimeOptions['tool'];\n    scenarioIds: readonly string[];\n    mainScenarioId?: string;\n    deferredScenarioIds?: readonly string[];\n    targetId?: string;\n    scenarioInputs?: PageRuntimeOptions['scenarioInputs'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -189,6 +195,11 @@
           "attributes": [
             {
               "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "tool",
               "readable": true,
               "writable": false
             },
@@ -326,7 +337,7 @@
           "methods": [
             {
               "name": "acquire",
-              "jsdoc": "同一路由身份复用实例；身份变化时释放旧实例后再创建。",
+              "jsdoc": "系统页按同一路由身份复用；三文件工具每次新建。\n身份变化或新工具先释放旧实例。tool 与 pageId 不能同时给出或同时缺失。",
               "parameters": [
                 {
                   "name": "input",

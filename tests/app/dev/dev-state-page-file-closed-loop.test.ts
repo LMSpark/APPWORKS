@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { readFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { defineComponent, effectScope, h, nextTick, watchEffect } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import ElementPlus from 'element-plus'
@@ -88,7 +89,9 @@ vi.mock('@/services/ai/agent-workflow-bindings',async importOriginal=>({
   activatePageDesignAgentWorkflow:pageDesignWorkflow.activate,
 }))
 
-vi.mock('@spark-appworks/spark-app', () => ({
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession,
   noopTraceSink: {
     appendUserMessage:vi.fn(),appendEvent:vi.fn(),appendDelta:vi.fn(),appendReasoning:vi.fn(),appendToolCall:vi.fn(),
     appendError:vi.fn(),markAborted:vi.fn(),finish:vi.fn(),reset:vi.fn(),
@@ -119,7 +122,8 @@ vi.mock('@spark-appworks/spark-app', () => ({
       return vi.fn()
     }),
   })),
-}))
+  }
+})
 
 vi.mock('@/lowcode/lowcode-runtime', () => ({
   lowcodeHttp: httpFns,
@@ -379,6 +383,12 @@ function isErrorLike(value: unknown): value is { status?: unknown; response?: { 
 }
 
 describe('DevState 页面文件闭环', () => {
+  it('hosts the blueprint workspace through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/app/dev-system/useDevState.ts'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('runtimeSession.isCurrent(runtime)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   beforeEach(() => {
     isolateAppProjectWorkspaceForTest()
     vi.clearAllMocks()

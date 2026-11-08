@@ -1,5 +1,6 @@
 import {afterEach,expect,it,vi} from 'vitest'
 import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {mount,flushPromises,config} from '@vue/test-utils'
 import ElementPlus from 'element-plus'
 import {defineComponent,h,reactive} from 'vue'
@@ -11,7 +12,10 @@ import Page from '@/views/features/system/cache-management/ui/cache-management-p
 const mocks=vi.hoisted(()=>({load:vi.fn(),route:{path:'/apps/APP/features/system/cache-management/ui/cache-management-page',meta:{blueprintScenarioId:'348D1C50B204C779AABBE2489C5E2FDF',nodeId:'CACHE_NODE',systemPageIdentityState:'resolved'}}}))
 vi.mock('vue-router',()=>({useRoute:()=>route}))
 vi.mock('@/lowcode/data-space/lowcode-data-space-runtime',()=>({loadLowcodeRuntimeScenario:mocks.load}))
-vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:()=>undefined}))
+vi.mock('@spark-appworks/spark-app',async()=>{
+ const {NativePageRuntimeSession}=await import('../../../packages/spark-app/src/router/native-page-runtime-session')
+ return {NativePageRuntimeSession,useSystemPageDirtySource:()=>undefined}
+})
 const cleanups:(()=>void)[]=[]
 const originalStubs=config.global.stubs
 const route=reactive(mocks.route)
@@ -59,6 +63,13 @@ async function activateDelete(actions:RToolbarProps|undefined,row:DataRow|undefi
  if(typeof click!=='function')throw Error('Missing original delete callback')
  await click(row)
 }
+it('hosts the cache manager runtime through the shared native session',()=>{
+ const source=readFileSync(resolve(process.cwd(),'src/views/features/system/cache-management/ui/cache-management-page.vue'),'utf8')
+ expect(source).toContain('new NativePageRuntimeSession')
+ expect(source).toContain('runtimeSession.isCurrent(current)')
+ expect(source).toContain('loadLowcodeRuntimeScenario({projectId,scenarioId:id})')
+ expect(source).not.toContain('new PageRuntime')
+})
 it('binds the original two workspaces, stages the row delete and cancels with zero command dispatch',async()=>{
  const f=await fixture(),tables=f.wrapper.findAllComponents(RendererTable)
  expect(tables).toHaveLength(2)

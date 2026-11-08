@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见文末 BT。未冻结 S4。续做顺序写在文末，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见文末 BU。未冻结 S4。续做顺序写在文末，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8756,14 +8756,20 @@ pnpm run verify
 
 **测试。**`api-pages.test.ts` 30 项通过，含接口目录会话源码约束、延后场景和原 `providerId`。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
 
+<a id="bu-s4-cache-management-host"></a>
+#### BU. S4第二十三页：缓存管理换接到公共宿主（未冻结）
+
+`cache-management-page.vue` 不再自建 `PageRuntime`。缓存场景仍由 `loadLowcodeRuntimeScenario` 按当前项目装配，再交给 `NativePageRuntimeSession`。页面身份仍是已解析的导航节点 ID，场景仍是正式缓存场景。目标身份是项目 ID 加导航节点 ID。类型和删除命令视图刷新成功后才提供运行时。删除确认仍用页面里的 `session` 表示命令，不与宿主会话混名。换代、失败和卸载都释放当前实例；迟到刷新不覆盖新导航。
+
+**测试。**`cache-management-page.test.ts` 7 项通过，含会话源码约束和原装配入口。该测试对 `spark-app` 的桩改为保留真实 `NativePageRuntimeSession`。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
+
 #### 当前续做顺序（未冻结）
 
 每波只换一页或一个共享 helper，保留原身份和拒绝，通过该页测试、根 typecheck 和改动文件 eslint 后写入本台账，提交并推 `origin/codex/spark-data-s1-command-safety`，然后立即做下一波。不另起总计划。
 
-1. 缓存管理 `cache-management-page.vue`
-2. `use-staged-design-page.ts`，仅当仍有页面经它自建
-3. 设计查询预览 `lowcode-data-space-query-preview.ts`
-4. `agent-workflow-file-owner.ts` 属数据层预检，页面换完后再核，不提前改 `spark-data`
-5. 工作台放在业务页之后：`DevPreviewTab.vue`、`useDevState.ts`、`NavHostProjectPicker.vue`
+1. `use-staged-design-page.ts`，仅当仍有页面经它自建
+2. 设计查询预览 `lowcode-data-space-query-preview.ts`
+3. `agent-workflow-file-owner.ts` 属数据层预检，页面换完后再核，不提前改 `spark-data`
+4. 工作台放在业务页之后：`DevPreviewTab.vue`、`useDevState.ts`、`NavHostProjectPicker.vue`
 
 `/DataBaseManage/TableAndView` 旧 alias 仍保留。隐藏设计不造导航身份。S4 未冻结。

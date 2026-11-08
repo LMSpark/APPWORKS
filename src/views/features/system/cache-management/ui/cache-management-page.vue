@@ -24,9 +24,8 @@
 <script setup lang="ts">
 import {computed,onBeforeUnmount,ref,watch} from 'vue'
 import {useRoute} from 'vue-router'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey,type DataSet,type DataRow,type SparkNode} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME,RendererTable,RendererButton,useSparkComponent,type RToolbarProps,type DataViewRecordEditingFinish} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
@@ -35,10 +34,14 @@ import CacheDeleteConfirmation from './cache-delete-confirmation.vue'
 const scenarioId='348D1C50B204C779AABBE2489C5E2FDF',route=useRoute()
 const categoryKey=buildDataViewKey('缓存过滤条件','default',scenarioId),listKey=buildDataViewKey('获取缓存信息','default',scenarioId),commandKey=buildDataViewKey('CacheDeleteRequest','default',scenarioId)
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'cache-management-page'})
+const runtimeSession=new NativePageRuntimeSession({
+  provide:()=>undefined,
+  remove:()=>sparkRemove(PAGE_RUNTIME),
+})
 const ready=ref(false),loading=ref(false),busy=ref(false),error=ref(''),revision=ref(0),session=ref<{id:string|number;epoch:number}>()
 const target=computed(()=>({projectId:parseApplicationPathScope(route.path)?.projectId,scene:route.meta['blueprintScenarioId'],nodeId:route.meta['nodeId'],state:route.meta['systemPageIdentityState']}))
 const openedIdentity=ref(''),needsSwitch=computed(()=>ready.value&&openedIdentity.value!==JSON.stringify(target.value))
-let runtime:PageRuntime|undefined,ds:DataSet|undefined,stop:(()=>void)|undefined,generation=0,epoch=0,active=true
+let ds:DataSet|undefined,stop:(()=>void)|undefined,generation=0,epoch=0,active=true
 const pending=computed(()=>{revision.value;const view=ds?.getView('CacheDeleteRequest');return !!view&&(view.hasUnconfirmedSave||view.hasEditingChanges()||view.dirtyTracking.hasPendingChanges())})
 useSystemPageDirtySource({get isDirty(){return busy.value||pending.value||!!session.value}})
 const categoryFields:SparkNode[]=[{type:'r-text',props:{field:'txt',label:'缓存类型',readonly:true}}]
@@ -68,29 +71,30 @@ async function finish(result:DataViewRecordEditingFinish):Promise<void>{
 }
 async function loadCurrentRoute():Promise<void>{
  const {projectId,scene,nodeId,state}=target.value,identity=JSON.stringify(target.value)
- if(runtime&&(pending.value||busy.value||session.value)){error.value='请先处理原缓存删除命令';return}
+ if(runtimeSession.runtime&&(pending.value||busy.value||session.value)){error.value='请先处理原缓存删除命令';return}
  const own=++generation
- ready.value=false;loading.value=true;error.value='';stop?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined;ds=undefined
- let next:PageRuntime|undefined
+ ready.value=false;loading.value=true;error.value='';stop?.();ds=undefined;runtimeSession.dispose()
+ let current:ReturnType<NativePageRuntimeSession['acquire']>|undefined
  try{
   if(typeof projectId!=='string'||!projectId||scene!==scenarioId||typeof nodeId!=='string'||!nodeId||state!=='resolved')throw Error('缓存管理入口缺少正式导航身份或数据空间绑定')
-  next=new PageRuntime({pageId:nodeId,scenarioIds:[scenarioId],loadScenario:id=>loadLowcodeRuntimeScenario({projectId,scenarioId:id})})
-  await next.load()
-  if(!active||own!==generation){next.dispose();return}
-  const loaded=next.getDataSet(scenarioId),categories=loaded?.getView('CacheCategories'),command=loaded?.getView('CacheDeleteRequest')
+  current=runtimeSession.acquire({pageId:nodeId,scenarioIds:[scenarioId],targetId:`${projectId}:${nodeId}`,
+    loadScenario:id=>loadLowcodeRuntimeScenario({projectId,scenarioId:id})})
+  await current.load()
+  if(!active||own!==generation||!runtimeSession.isCurrent(current))return
+  const loaded=current.getDataSet(scenarioId),categories=loaded?.getView('CacheCategories'),command=loaded?.getView('CacheDeleteRequest')
   if(!loaded||!categories||!command)throw Error('缓存管理缺少正式场景视图')
   await command.refresh();await categories.refresh()
   if(categories.loadingError)throw categories.loadingError
-  if(!active||own!==generation){next.dispose();return}
-  runtime=next;ds=loaded
+  if(!active||own!==generation||!runtimeSession.isCurrent(current))return
+  ds=loaded
   const changed=()=>{revision.value++}
   stop=loaded.onAnyViewChange({rowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
-  sparkProvide(PAGE_RUNTIME,next);openedIdentity.value=identity;ready.value=true
- }catch(cause){next?.dispose();if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
+  if(active&&own===generation&&runtimeSession.isCurrent(current)){sparkProvide(PAGE_RUNTIME,current);openedIdentity.value=identity;ready.value=true}
+ }catch(cause){if(current&&runtimeSession.isCurrent(current))runtimeSession.dispose();if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation)loading.value=false}
 }
 watch(target,loadCurrentRoute,{immediate:true})
-onBeforeUnmount(()=>{active=false;generation++;stop?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
+onBeforeUnmount(()=>{active=false;generation++;stop?.();runtimeSession.dispose()})
 </script>
 <style scoped>
 .cache-manager-page{display:flex;gap:16px;height:100%;min-height:0;padding:16px}

@@ -71,8 +71,7 @@ AI用途：恢复工作流业务工作区时复用当前PageRuntime、标准字�
 import {computed,onBeforeUnmount,ref,shallowRef,watch} from 'vue'
 import {onBeforeRouteLeave,onBeforeRouteUpdate,useRoute} from 'vue-router'
 import {buildDataViewKey,RequestState,type DataSet} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import * as SparkComponent from '@spark-appworks/spark-component'
 import {LowcodeWorkflowDefinition} from '@/lowcode/resources/structured-config/workflow-definition/resource'
@@ -95,8 +94,12 @@ const layoutTable=WORKFLOW_LAYOUT_TABLE,layoutKey=buildDataViewKey(layoutTable,'
 const boundaryCompletion=shallowRef<WorkflowBoundaryCompletion>()
 const boundaryActive=computed(()=>{revision.value;return !!boundaryCompletion.value&&!boundaryCompletion.value.complete})
 const {sparkProvide,sparkRemove}=useSparkComponent({type:'workflow-design-page'})
+const session=new NativePageRuntimeSession({
+  provide:()=>undefined,
+  remove:()=>sparkRemove(PAGE_RUNTIME),
+})
 const dataSet=shallowRef<DataSet>(),opening=ref(false),ready=ref(false),acting=ref(false),error=ref(''),revision=ref(0),selectedKind=ref<'node'|'edge'>(),inputs=ref(new Set<string>()),loadedTarget=ref('')
-let runtime:PageRuntime|undefined,off:(()=>void)|undefined,generation=0,active=true
+let off:(()=>void)|undefined,generation=0,active=true
 const view=(table:string)=>dataSet.value?.getView(table)
 const views=computed(()=>{revision.value;return Object.values(dataSet.value?.tables??{}).flatMap(table=>table.viewList)})
 const validTarget=computed(()=>{revision.value;return view('Base_WorkflowDefinition')?.rows.length===1})
@@ -171,12 +174,13 @@ onBeforeRouteUpdate(()=>!hasPending.value)
 defineExpose({hasPending,busy,unconfirmed,discardChanges:discardAll})
 watch(workflowId,async id=>{
  if(hasPending.value){error.value='请先保存或取消当前工作流修改';return}
- const own=++generation;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose();runtime=undefined;dataSet.value=undefined;boundaryCompletion.value=undefined;ready.value=false;opening.value=true;selectedKind.value=undefined;objectVisible.value=false;error.value='';inputs.value.clear()
+ const own=++generation;off?.();dataSet.value=undefined;session.dispose();boundaryCompletion.value=undefined;ready.value=false;opening.value=true;selectedKind.value=undefined;objectVisible.value=false;error.value='';inputs.value.clear()
  try{
   if(!id.trim())throw new Error('缺少 workflowId 参数')
-  const page=new PageRuntime({pageId:'workflow-design-page',scenarioIds:[scene],scenarioInputs:{[scene]:{workflowId:id}},loadScenario:()=>LowcodeWorkflowDefinition.loadEditor(scene)})
-  runtime=page;await page.load();if(!active||own!==generation){page.dispose();return}
-  dataSet.value=page.getDataSet(scene);const ds=dataSet.value,definition=view('Base_WorkflowDefinition')
+  const current=session.acquire({pageId:'workflow-design-page',scenarioIds:[scene],targetId:id,
+    scenarioInputs:{[scene]:{workflowId:id}},loadScenario:()=>LowcodeWorkflowDefinition.loadEditor(scene)})
+  await current.load();if(!active||own!==generation||!session.isCurrent(current))return
+  dataSet.value=current.getDataSet(scene);const ds=dataSet.value,definition=view('Base_WorkflowDefinition')
   if(!ds||!definition||!view(nodesTable)||!view(edgesTable)||!view(layoutTable))throw new Error('工作流正式设计视图缺失')
   const changed=()=>{revision.value++;const nodes=ds.getView(nodesTable),row=nodes?.currentRow,key=row&&nodes?.getPkKey(row);if(key!==undefined&&key!==null&&nodes?.dirtyTracking.isPendingCreate(key)&&row&&nodes.fieldAccess(row,'position_type').read==='visible'&&String(row['position_type'])==='1'){selectedKind.value='node';objectVisible.value=true}}
   off=ds.onAnyViewChange({rowsChanged:changed,currentRowChanged:changed,selectedRowsChanged:changed,editingChanged:changed,requestStateChanged:changed,mutatingChanged:changed})
@@ -184,7 +188,7 @@ watch(workflowId,async id=>{
   if(!active||own!==generation)return
   if(definition.rows.length>1)throw new Error('工作流身份不唯一')
   loadedTarget.value=id
-  if(definition.rows.length===1){sparkProvide(PAGE_RUNTIME,page);await Promise.all([view(nodesTable)!.refresh(),view(edgesTable)!.refresh(),view(layoutTable)!.refresh()])}
+  if(definition.rows.length===1){sparkProvide(PAGE_RUNTIME,current);await Promise.all([view(nodesTable)!.refresh(),view(edgesTable)!.refresh(),view(layoutTable)!.refresh()])}
   if(active&&own===generation)ready.value=true
  }catch(cause){if(active&&own===generation)error.value=cause instanceof Error?cause.message:String(cause)}
  finally{if(active&&own===generation)opening.value=false}
@@ -248,7 +252,7 @@ function discardAll():boolean{
  }catch(cause){error.value=cause instanceof Error?cause.message:String(cause);return false}
 }
 
-onBeforeUnmount(()=>{active=false;generation++;off?.();sparkRemove(PAGE_RUNTIME);runtime?.dispose()})
+onBeforeUnmount(()=>{active=false;generation++;off?.();session.dispose()})
 const objectTitle=computed(()=>selectedKind.value==='edge'?'节点关系设置':isStartNode.value?'输入参数设置':'节点设置')
 function openSelectedObject():void{if(!locked.value&&!hasPending.value&&selectedKind.value)objectVisible.value=true}
 

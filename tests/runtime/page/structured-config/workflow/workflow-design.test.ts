@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME,useSparkComponent} from '@spark-appworks/spark-component'
 import {afterEach,beforeEach,describe,expect,it,vi} from 'vitest'
@@ -22,7 +24,10 @@ import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {WORKFLOW_DESIGN,workflowDesignModels,workflowDesignText} from './workflow-native-design.fixture'
 import {workflowExecutionFixture} from './execution/workflow-execution.fixture'
 const state=vi.hoisted(()=>({http:undefined as unknown as ApiBackend,runtime:undefined as unknown as DataSpaceRuntimeApi,dirty:[] as Array<{isDirty:boolean}>,layoutText:null as string|null,uploads:[] as string[],denyLayout:false,loseLayoutReceipt:false}))
-vi.mock('@spark-appworks/spark-app',()=>({useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}))
+vi.mock('@spark-appworks/spark-app',async()=>{
+  const {NativePageRuntimeSession}=await import('../../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {NativePageRuntimeSession,useSystemPageDirtySource:(source:{isDirty:boolean})=>state.dirty.push(source)}
+})
 vi.mock('@/lowcode/lowcode-runtime',()=>({get lowcodeHttp(){return state.http},lowcodeDesignFileUpload:{uploadWorkingText:async(input:{text:string})=>{state.uploads.push(input.text);state.layoutText=input.text;if(state.loseLayoutReceipt){state.loseLayoutReceipt=false;throw new Error("layout response lost")}return {}}},createLowcodeProjectGateways:()=>({scenarioViews:{readText:async(id:string)=>id===WORKFLOW_DESIGN?workflowDesignText:null}}),lowcodeApi:{design:{readTextFile:async()=>{if(state.denyLayout)throw new LowcodeApiError(403,'布局读取被拒绝');if(state.layoutText===null)throw new LowcodeApiError(404,'missing');return state.layoutText}},readRequestScope:()=>({token:'scope',headers:{'X-AppId':'APP'}}),dataSpace:{get runtime(){return state.runtime},design:{readSpaceDefinition:async({dataSpaceId}:{dataSpaceId:string})=>({dataSpaceId,name:'工作流设计'}),readModelBatch:async()=>workflowDesignModels(),readRelations:async()=>[]}}}}))
 const wrappers:VueWrapper[]=[],original={...config.global.stubs}
 beforeEach(()=>{
@@ -56,6 +61,13 @@ class ExecutionBackend extends ApiBackend{
  }
 }
 describe('workflow formal design page',()=>{
+ it('hosts the workflow design runtime through the shared native session',()=>{
+  const source=readFileSync(resolve(process.cwd(),'src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue'),'utf8')
+  expect(source).toContain('new NativePageRuntimeSession')
+  expect(source).toContain('session.isCurrent(current)')
+  expect(source).toContain('scenarioInputs:{[scene]:{workflowId:id}}')
+  expect(source).not.toContain('new PageRuntime')
+ })
  it.each(['button','dataSet'] as const)('rejects changed ancestor declarations after asynchronous execution preflight before dispatch through %s',async entry=>{
   const backend=new ExecutionBackend();backend.records=state.http.records;state.http=backend;state.runtime=new DataSpaceRuntimeApi({http:backend,readScope:()=>({token:'scope',headers:{'X-AppId':'APP'}})})
   backend.records['Base_WorkflowNodeDefinition']!.push({rowid:'START',workflow_id:'W1',position_type:0,node_type:'API_CALL',output_mapping:JSON.stringify([{rowid:'P',pid:null,Name:'oldValue',FieldType:'string',isParent:false}])});backend.records['Base_WorkflowConnectors']=[{rowid:'SN',workflow_id:'W1',sourceID:'START',targetID:'N1',params:'[]'}]

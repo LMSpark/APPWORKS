@@ -1,5 +1,6 @@
 import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
+import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {lowcodeApi, lowcodeDesignFileUpload} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -58,11 +59,12 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     }
   }
 
-  const preflightRuntime = new PageRuntime({pageId: 'agent-workflow-file-catalog-preflight', scenarioIds: [catalogScenarioId],
-    mainScenarioId: catalogScenarioId, loadScenario: id => loadScenario({projectId: applicationId, scenarioId: id})})
-  let runtime: PageRuntime | undefined
+  const session = new NativePageRuntimeSession()
+  const loadOwnedScenario = (id: string) => loadScenario({projectId: applicationId, scenarioId: id})
   try {
     assertCurrent()
+    const preflightRuntime = session.acquire({pageId: 'agent-workflow-file-catalog-preflight', scenarioIds: [catalogScenarioId],
+      mainScenarioId: catalogScenarioId, targetId: catalogScenarioId, loadScenario: loadOwnedScenario})
     await preflightRuntime.load()
     assertCurrent()
     const preflightCatalog = preflightRuntime.getDataSet(catalogScenarioId)
@@ -75,11 +77,12 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     assertCurrent()
     if (!catalogResult.success) throw catalogResult.error ?? new Error(catalogResult.message ?? '正式数据空间目录查询失败')
     const targetId = resolveAgentWorkflowDataSpaceId(preflightView)
-    preflightRuntime.dispose()
+    if (!session.isCurrent(preflightRuntime)) throw new Error('AGENT_WORKFLOW_DATA_SPACE_CATALOG: 目录预查询已失效')
+    session.dispose()
     assertCurrent()
 
-    runtime = new PageRuntime({pageId: 'agent-workflow-file-data', scenarioIds: [catalogScenarioId, targetId], mainScenarioId: targetId,
-      loadScenario: id => loadScenario({projectId: applicationId, scenarioId: id})})
+    const runtime = session.acquire({pageId: 'agent-workflow-file-data', scenarioIds: [catalogScenarioId, targetId],
+      mainScenarioId: targetId, targetId, loadScenario: loadOwnedScenario})
     await runtime.load()
     assertCurrent()
     const catalog = runtime.getDataSet(catalogScenarioId)
@@ -172,11 +175,10 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
         }
         return row['content']
       },
-      dispose: () => {runtime?.dispose(); runtime = undefined},
+      dispose: () => {session.dispose()},
     }
   } catch (error) {
-    runtime?.dispose()
-    preflightRuntime.dispose()
+    session.dispose()
     throw error
   }
 }

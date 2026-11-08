@@ -354,9 +354,18 @@ describe('Agent Workflow target space resolution', () => {
 })
 
 
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow-file-owner'
 
 describe('Agent Workflow file owner lifecycle', () => {
+  it('hosts catalog preflight and the file data set through one native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/lowcode/resources/repository/agent-workflow-file-owner.ts'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(preflightRuntime)')
+    expect(source).toContain("pageId: 'agent-workflow-file-data'")
+    expect(source).not.toContain('new PageRuntime')
+  })
   function modelSet(scenarioId: string, rows: readonly Record<string, unknown>[]) {
     const dataSet = DataSet.fromJson({scenarioId, tables: {Base_DataSet: {
       modelBinding: {modelId: 'M', modelName: 'Base_DataSet'},

@@ -8350,3 +8350,5 @@ S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端�
 最后扩大33文件974过1失败仅metadata-chain的标准控件视图测试15000ms超时，未改阈值；同条单独3.83s自然0，25跳过只说明定向；随后原33文件以maxWorkers=2有界重跑16999自然exit0，**975/975通过**。不是将超时抹成一直绿，不冒前次973覆盖实入口新2项。所有原handle终态，无服务写入/Java/组件/宿主/页面实现。精确校验路径后清理25份AN中间日志，保真实RED/超时/目录门禁失败与最终证据，无过程脚本/多余工作树/并行计划/兼容层，原S2未跟踪测试不stage。
 
 当前准备只推origin同codex分支，不force/merge/部署。下一S1仍按上节可写file owner currentOptions跨await重绑线索先反例，不自动进入组件合同；整体S1冻结、远端历史一次转换、20包整体验收均未完成。
+
+**AN已提交推送并独立核实。**代码f41d480bb4acea678d2a47aa12ffe6c71e33bb24（refactor(spark-data): unify readonly file directory queries），24文件522增134删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote精确同SHA。跟踪树清洁，仅原S2未跟踪RED、唯一主worktree。此补记docs跟随同步。恢复点仍S1可写file owner同目标重绑/在途捕获线索，先实证再修，不恢复目录手工executor/重复权限、不将本批只读证据冒完整写链或数据合同冻结。

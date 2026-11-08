@@ -1,5 +1,7 @@
 import {readFileSync} from 'node:fs'
-import {DataSet, RequestState, type DataView} from '@spark-appworks/spark-data'
+import {DataSet, RequestState, bindDataSetReadonlyCommandQuery} from '@spark-appworks/spark-data'
+import type {ViewDesignAssembleInput} from '@/lowcode/data-space/view-design/lowcode-data-space-view-design'
+type DefinitionBindings = Pick<ViewDesignAssembleInput,'fileExecutors'|'projectionBindings'>
 
 /** Return the target model identity from the formal data-space design page config. */
 export function formalBaseDataSetModelBinding(): {modelId: string; modelName: string} {
@@ -25,7 +27,8 @@ export function createConfirmedMetadataFixture(targetId: string, tables: Record<
 
 /** 测试元数据装配同样读取正式配置声明，不复制一套文件模型字段。 */
 export async function assembleDefinitionFixtures(dataSet: DataSet, targetId: string,
-  executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet> {
+  bindings?: DefinitionBindings): Promise<DataSet> {
+  const executors=bindings?.fileExecutors
   if (!executors) throw new Error('missing definition resource executors')
   const config = JSON.parse(readFileSync('config/pages/data-platform/data-space-design/pagedata.json', 'utf8'))
   const baseTable = dataSet.getTable('Base_DataSet'), officialBinding = config.tables.Base_DataSet.modelBinding
@@ -53,17 +56,23 @@ export async function assembleDefinitionFixtures(dataSet: DataSet, targetId: str
     if (target.loadingError) {const error = target.loadingError; dataSet.destroy(); throw error}
   }
   const templates = DataSet.fromJson({scenarioId: dataSet.scenarioId, dataSetName: 'definitions', tables:
-    Object.fromEntries(Object.entries(config.tables).filter(([, value]) => (value as {resourceType?: string}).resourceType === 'file'))})
+    Object.fromEntries(Object.entries(config.tables).filter(([, value]) => ['file','logical-view'].includes((value as {resourceType?: string}).resourceType??'')))})
   try {
     for (const definition of Object.values(templates.tables)) {
+      const resourceType=definition.resourceType
+      if(resourceType!=='file'&&resourceType!=='logical-view')throw new Error('invalid definition fixture resource')
       const existing = dataSet.getTable(definition.tableName)
-      if (existing && existing.resourceType !== 'file') throw new Error('definition table already exists with a different resource')
+      if (existing && existing.resourceType !== definition.resourceType) throw new Error('definition table already exists with a different resource')
       const table = existing ?? dataSet.addTable(definition.tableName, definition.columns.filter(column => column.name !== '_pk'))
-      table.resourceType = 'file'; table.resourceId = definition.resourceId!
+      table.resourceType = resourceType; table.resourceId = definition.resourceId!
       for (const source of definition.viewList) {
         const view = table.getOrCreateView(source.viewId)
-        view.configure({...source.toJson(), queryContext: {...source.queryContext, dataSpaceId: targetId}})
-        view.bindQueryExecutor(executors[table.tableName]!, {resource: {resourceType: 'file', resourceId: table.resourceId!}})
+        view.configure({...source.toJson(), queryContext: table.resourceType==='file'?{...source.queryContext, dataSpaceId: targetId}:source.queryContext})
+        if(table.resourceType==='logical-view'){
+          const factory=bindings?.projectionBindings?.[table.tableName]
+          if(!factory)throw new Error('missing projection fixture binding')
+          bindDataSetReadonlyCommandQuery(view,factory(view))
+        }else view.bindQueryExecutor(executors[table.tableName]!, {resource: {resourceType: 'file', resourceId: table.resourceId!}})
       }
     }
   } catch (error) {dataSet.destroy(); throw error} finally {templates.destroy()}
@@ -71,7 +80,7 @@ export async function assembleDefinitionFixtures(dataSet: DataSet, targetId: str
 }
 
 /** 自制数据库夹具补装同一配置中的文件声明；真正的生产加载器自行完成装配。 */
-export function withDefinitionResources(load: (id: string, executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>) => Promise<DataSet>) {
-  return async (id: string, executors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>): Promise<DataSet> =>
-    await assembleDefinitionFixtures(await load(id, executors), id, executors)
+export function withDefinitionResources(load: (id: string, bindings?: DefinitionBindings) => Promise<DataSet>) {
+  return async (id: string, bindings?: DefinitionBindings): Promise<DataSet> =>
+    await assembleDefinitionFixtures(await load(id, bindings), id, bindings)
 }

@@ -3,7 +3,7 @@
  * 职责：将单场景视图配置与正式模型、关系装配为独立 DataSet。边界：场景文件不覆盖模型字段，每个命名视图绑定既有 query/save owner；AI 可用此入口装配 PageRuntime 的场景空间。
  */
 import { DataSpaceDesignApi, type DataSpaceRuntimeApi } from '@spark-appworks/spark-lowcode-api'
-import { DataSet, DataViewQuery, bindDataSetCommandSubmit, type BindCommandSubmitOptions, type DataResourceRelation, type DataView, type DataViewFilterTree } from '@spark-appworks/spark-data'
+import { DataSet, DataViewQuery, bindDataSetCommandSubmit, bindDataSetReadonlyCommandQuery, type BindCommandSubmitOptions, type DataResourceRelation, type DataView, type DataViewFilterTree } from '@spark-appworks/spark-data'
 import { ScenarioViewConfig } from '@spark-appworks/spark-project-model'
 import { isRecord, type HttpClientBase } from '@spark-appworks/spark-utils'
 import { LowcodeModelRelationAdapter } from './lowcode-model-relation-adapter'
@@ -23,6 +23,8 @@ export type LowcodeDataSpaceAssemblerInput = Readonly<{
  fileExecutors?: Readonly<Record<string, Parameters<DataView['bindQueryExecutor']>[0]>>
  /** 显式命令资源的宿主绑定；命令参数和回执行结构来自配置，factory不创建表或后端模型。 */
  commandBindings?: Readonly<Record<string,(view:DataView)=>BindCommandSubmitOptions>>
+ /** 无后端模型的显式只读投影；按配置表键提供工厂，不借文件或模型owner。 */
+ projectionBindings?: Readonly<Record<string,(view:DataView)=>Parameters<typeof bindDataSetReadonlyCommandQuery>[1]>>
  /** 正式模型第一次绑定时选择资源适配，按正式modelId定位，不在装配后改绑。 */
  modelAdapters?: Readonly<Record<string,NonNullable<NonNullable<Parameters<DataSpaceRuntimeApi['bindModelView']>[2]>['adapter']>>>
 }>
@@ -87,7 +89,20 @@ function validateRelationFields(relation: DataResourceRelation, dataSet: DataSet
  walk(relation.filterExpression)
 }
 
-/** 后端模型提供正式字段，显式文件表使用配置列及注入的资源owner；两者装配到同一DataSet。 */
+function ownProjectionFactory(bindings: LowcodeDataSpaceAssemblerInput['projectionBindings'], tableName: string) {
+ const descriptor = Object.getOwnPropertyDescriptor(bindings ?? {}, tableName)
+ if (descriptor === undefined || !Object.hasOwn(descriptor,'value')) return undefined
+ return bindings?.[tableName]
+}
+
+function assertProjectionOptions(value: unknown, resourceId: string | undefined, tableName: string): asserts value is Parameters<typeof bindDataSetReadonlyCommandQuery>[1] {
+ if (!isRecord(value) || !isRecord(value['resource']) || value['resource']['resourceType'] !== 'logical-view'
+  || value['resource']['resourceId'] !== resourceId || typeof value['guard'] !== 'function' || typeof value['loadRows'] !== 'function') {
+  throw new Error(`SCENARIO_PROJECTION_RESOURCE: ${tableName} 投影资源身份或只读查询工厂无效`)
+ }
+}
+
+/** 后端模型提供正式字段，文件、命令和只读投影使用配置列及各自注入的owner；均装配到同一DataSet。 */
 export class LowcodeDataSpaceAssembler {
  /** 注入已有模型查询保存 owner 和共享请求客户端；装配器不创建应用或租户 scope。 */
  public constructor(private readonly runtime: DataSpaceRuntimeApi, private readonly http: HttpClientBase) {}
@@ -101,6 +116,11 @@ export class LowcodeDataSpaceAssembler {
   const bindings = new Map<string, FormalModel>()
   for (const [tableName, value] of Object.entries(record(config['tables'], 'tables'))) {
    const table = record(value, tableName)
+   if (table['resourceType'] === 'logical-view' && table['modelBinding'] === undefined) {
+    const factory = ownProjectionFactory(input.projectionBindings, tableName)
+    if (typeof factory !== 'function') throw new Error(`SCENARIO_PROJECTION_BINDING: ${tableName} 缺少显式只读投影工厂`)
+    tables[tableName] = {tableName, ...structuredClone(table)}; continue
+   }
    if(table['resourceType']==='command'){
     if(!input.commandBindings?.[tableName])throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
     tables[tableName]={tableName,...structuredClone(table)};continue
@@ -154,6 +174,16 @@ export class LowcodeDataSpaceAssembler {
      view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId}})
     })
    }
+   for (const table of Object.values(dataSet.tables)) {
+    if (table.resourceType !== 'logical-view' || table.modelBinding) continue
+    const factory = ownProjectionFactory(input.projectionBindings, table.tableName)
+    if (typeof factory !== 'function') throw new Error(`SCENARIO_PROJECTION_BINDING: ${table.tableName} 缺少显式只读投影工厂`)
+    table.forEachView(view => {
+     const options: unknown = factory(view)
+     assertProjectionOptions(options, table.resourceId, table.tableName)
+     bindDataSetReadonlyCommandQuery(view, options)
+    })
+   }
    for (const [tableName, model] of bindings) {
     const table = dataSet.getTable(tableName)
     if (!table) throw new Error(`场景表缺失: ${tableName}`)
@@ -190,7 +220,7 @@ export class LowcodeDataSpaceAssembler {
     if(!factory)throw new Error(`SCENARIO_COMMAND_BINDING: ${table.tableName} 缺少命令资源绑定`)
     table.forEachView(view=>{
      const options=factory(view)
-     if(options.resource.resourceType!=='command'||options.resource.resourceId!==table.resourceId)throw new Error(`SCENARIO_COMMAND_RESOURCE: ${table.tableName} 命令资源身份不符`)
+     if(options.resource.resourceId!==table.resourceId)throw new Error(`SCENARIO_COMMAND_RESOURCE: ${table.tableName} 命令资源身份不符`)
      if(options.inputFields.some(field=>field===view.primaryKey||!view.columns.some(column=>column.name===field)))throw new Error(`SCENARIO_COMMAND_INPUT: ${table.tableName} 命令输入字段未声明或是命令键`)
      bindDataSetCommandSubmit(view,options)
     })

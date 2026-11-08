@@ -88,6 +88,7 @@ export type ViewDesignAssembleInput = Readonly<{
   /** 当前设计会话的正式元数据DataSet；仅设计预览/装配读取复用此查询owner。 */
   metadataDataSet?: SparkData.DataSet
   fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>
+  projectionBindings?: Readonly<Record<string,(view:SparkData.DataView)=>SparkData.BindReadonlyCommandQueryOptions>>
   modelScope?: string
 }>
 
@@ -98,11 +99,11 @@ type ViewDesignOptions = Readonly<{
   readModel(input: PageDataSpaceViewModelInput, metadata: SparkData.DataSet): Promise<FormalModel>
   /**
    * 装配不可变运行配置；文件身份、版本与保存仍由设计owner核定。
-   * scenarioId 必须与 config 一致；fileExecutors 为文件资源既有查询适配；modelScope 可选表键。
+   * scenarioId 必须与 config 一致；fileExecutors 与 projectionBindings 分别承接文件及只读投影；modelScope 可选表键。
    * @returns 独立SparkData.DataSet与转换诊断；调用者负责拒绝不完整预览并释放实例。
    */
   assemble(input: ViewDesignAssembleInput): Promise<LowcodeDataSpaceAssembly>
-  loadMetadata?(targetId: string, fileExecutors?: Readonly<Record<string, Parameters<SparkData.DataView['bindQueryExecutor']>[0]>>): Promise<SparkData.DataSet>
+  loadMetadata?(targetId: string, bindings?: Pick<ViewDesignAssembleInput,'fileExecutors'|'projectionBindings'>): Promise<SparkData.DataSet>
   readLegacyLayout?(targetId: string): Promise<string | null>
   /** 当前应用绑定的正式来源查询及精确预览能力，供原生新增模型使用。 */
   modelSources?: ModelCreateSources
@@ -2759,25 +2760,24 @@ export class LowcodeDataSpaceViewDesign {
     const fileExecutors = {...Object.fromEntries(Object.keys(ScenarioDefinitionRecords.resources).map(name => [name, executor])),
       ...(this.options.fileResourceExecutors ?? {})}
     const catalogResources=new Map<string,ProjectToolResource>()
-    const catalogExecutor: Parameters<SparkData.DataView['bindQueryExecutor']>[0] = {executeQuery: (view, params) => {
+    const projectionBindings = {ProjectToolCatalog: (view:SparkData.DataView) => {
       const metadataScenarioId=view.dataSet?.scenarioId
       if(!metadataScenarioId)throw new Error('PROJECT_TOOL_IDENTITY: 元空间身份缺失')
       let toolResource=catalogResources.get(metadataScenarioId)
       if(!toolResource){toolResource=new ProjectToolResource({workspace:this.options.workspace,metadataScenarioId,assertCurrent:this.options.assertScope,
         ...(options.blueprintTreeProjection?{blueprintTreeProjection:options.blueprintTreeProjection}:{})});catalogResources.set(metadataScenarioId,toolResource)}
-      return toolResource.executeQuery(view,params)
+      return toolResource.queryBinding(view)
     }}
-    for (const name of Object.keys(ProjectToolResource.resources)) fileExecutors[name] = name === 'ProjectToolCatalog' ? catalogExecutor
-      : this.options.fileResourceExecutors?.[name] ?? createPageToolFileResourceExecutor({appId: this.options.workspace.project.projectId, workspace: this.options.workspace, assertCurrent: this.options.assertScope})
+    fileExecutors['ProjectToolFile'] = this.options.fileResourceExecutors?.['ProjectToolFile'] ?? createPageToolFileResourceExecutor({appId: this.options.workspace.project.projectId, workspace: this.options.workspace, assertCurrent: this.options.assertScope})
     fileExecutors[DataSpaceReferenceLayoutResource.tableName] = {executeQuery: (view, params) => {
       const scenarioId = view.dataSet?.scenarioId
       if (!scenarioId) throw new Error('DATA_SPACE_REFERENCE_IDENTITY: 元空间身份缺失')
       return this.referenceLayoutResource(scenarioId).executeQuery(view, params)
     }}
-    const metadata = await loadMetadata(id, fileExecutors)
+    const metadata = await loadMetadata(id, {fileExecutors,projectionBindings})
     const assemble = (input: ViewDesignAssembleInput) => this.options.assemble({...input,
       metadataDataSet: metadata,
-      fileExecutors: input.fileExecutors ?? fileExecutors})
+      fileExecutors: input.fileExecutors ?? fileExecutors, projectionBindings: input.projectionBindings ?? projectionBindings})
     let session: LowcodeDataSpaceDesignSession | undefined
     try {
       this.options.assertScope()
@@ -2870,18 +2870,18 @@ export class LowcodeDataSpaceViewDesign {
       ...(this.options.fileResourceExecutors ?? {})}
     fileExecutors[DataSpaceReferenceLayoutResource.tableName] = this.referenceLayoutResource(input.scenarioId)
     const catalogResources=new Map<string,ProjectToolResource>()
-    fileExecutors['ProjectToolCatalog'] = {executeQuery: (view:SparkData.DataView,params:SparkData.QueryParams) => {
+    const projectionBindings = {ProjectToolCatalog: (view:SparkData.DataView) => {
       const metadataScenarioId=view.dataSet?.scenarioId
       if(!metadataScenarioId)throw new Error('PROJECT_TOOL_IDENTITY: 元空间身份缺失')
       let toolResource=catalogResources.get(metadataScenarioId)
       if(!toolResource){toolResource=new ProjectToolResource({workspace:this.options.workspace,metadataScenarioId,
         assertCurrent:()=>{this.options.assertScope();assertCurrent?.()},...(options.blueprintTreeProjection?{blueprintTreeProjection:options.blueprintTreeProjection}:{})});catalogResources.set(metadataScenarioId,toolResource)}
-      return toolResource.executeQuery(view,params)
+      return toolResource.queryBinding(view)
     }}
     fileExecutors['ProjectToolFile'] = readOnlyFileExecutor(this.options.fileResourceExecutors?.['ProjectToolFile']
       ?? createPageToolFileResourceExecutor({appId: this.options.workspace.project.projectId, workspace: this.options.workspace,
         assertCurrent: () => {this.options.assertScope(); assertCurrent?.()}, readOnly: true}))
-    const assembled = await this.options.assemble({scenarioId: input.scenarioId, config, fileExecutors, modelScope: tableName})
+    const assembled = await this.options.assemble({scenarioId: input.scenarioId, config, fileExecutors, projectionBindings, modelScope: tableName})
     let preview: LowcodeDataSpaceQueryPreview | undefined
     try {
       const validate = (): void => {

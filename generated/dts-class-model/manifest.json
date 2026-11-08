@@ -12042,7 +12042,7 @@
         "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
         "packageName": "@spark-appworks/spark-project-model",
         "modulePath": "scenario/scenario-view-config",
-        "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：后端模型真源与运行数据不属于此文件，显式文件资源须由已有owner承接。\nAI用途：校验模型绑定或文件资源、命名视图与显式级联。",
+        "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：后端模型真源与运行数据不属于此文件，显式文件、命令与只读投影须由对应owner承接。\nAI用途：校验模型绑定或明确语义资源、命名视图与显式级联。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "ScenarioViewConfig"

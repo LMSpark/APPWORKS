@@ -247,8 +247,8 @@ describe('data-space metadata DataSet', () => {
       const workspace = new ProjectWorkspace({projectId: 'APP-1', ...gateways})
       const service = new LowcodeDataSpaceViewDesign({workspace, assertScope, loadMetadata: loadLowcodeDataSpaceMetadata,
         readModel: async input => formalModel(input.modelName),
-        assemble: ({scenarioId, config, fileExecutors, modelScope}) => loadScenarioDataSet({scenarioId, config, assertCurrent: assertScope,
-          ...(fileExecutors ? {fileExecutors} : {}), ...(modelScope === undefined ? {} : {modelScope})})})
+        assemble: ({scenarioId, config, fileExecutors, projectionBindings, modelScope}) => loadScenarioDataSet({scenarioId, config, assertCurrent: assertScope,
+          ...(fileExecutors ? {fileExecutors} : {}), ...(projectionBindings ? {projectionBindings} : {}), ...(modelScope === undefined ? {} : {modelScope})})})
       const session = await service.openDesignSession(target, {deferDefinition: true})
       metadataSessions.push(session)
       return session
@@ -1161,12 +1161,18 @@ describe('data-space metadata DataSet', () => {
     expect(record(configuration)['scenarioId']).toBe(DATA_SPACE_DESIGN_FORM_KEY)
     for (const [tableName, input] of Object.entries(configTables())) {
       const table = record(input)
+      if(tableName==='ProjectToolCatalog'){
+        expect(table).toMatchObject({resourceType:'logical-view',resourceId:'project:tool-catalog'})
+        expect(table).not.toHaveProperty('modelBinding')
+        expect(table['columns']).toMatchObject([{name:'pageId',isPrimaryKey:true},{name:'versions'}])
+        for(const view of Object.values(record(table['views']))){expect(record(view)['queryContext']).toBeUndefined();expect(view).not.toHaveProperty('rows')}
+        continue
+      }
       if (table['resourceType'] === 'file') {
         expect(table).not.toHaveProperty('modelBinding')
         expect(Array.isArray(table['columns'])).toBe(true)
         for (const view of Object.values(record(table['views']))) {
           if (tableName === 'ProjectToolFile') expect(record(view)['queryContext']).toEqual({pageId: '', fileName: 'rule.json', versionId: ''})
-          else if (tableName === 'ProjectToolCatalog') expect(record(view)['queryContext']).toBeUndefined()
           else expect(record(view)['queryContext']).toMatchObject({dataSpaceId: ''})
           expect(view).not.toHaveProperty('rows')
         }

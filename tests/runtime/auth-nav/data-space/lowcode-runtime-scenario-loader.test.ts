@@ -2,7 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import {readFileSync} from 'node:fs'
 import { DATA_SPACE_DESIGN_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { DataSet, DataViewFilter } from '@spark-appworks/spark-data'
-import { PageRuntime, PageTool, ScenarioViewConfig } from '@spark-appworks/spark-project-model'
+import { PageRuntime, PageTool, ScenarioViewConfig, ProjectToolResource, ProjectWorkspace } from '@spark-appworks/spark-project-model'
 import {getBuiltinApplicationDescriptor} from '@/registries/builtin-application-registry'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
 import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/repository/builtin-system-navigation'
@@ -520,4 +520,45 @@ it('rejects a persisted concrete-view parentResult cycle during native assembly 
     parentResult: {dataViewKey: 'SCENE@PARENT@default', childModelName: 'CHILD'}}
   await expect(loadScenarioDataSet({scenarioId: 'SCENE', config: new ScenarioViewConfig('SCENE', JSON.stringify(input)), modelScope: 'CHILD'})).rejects.toThrow('PARENT_CYCLE')
   expect(mocks.request).not.toHaveBeenCalled()
+})
+
+
+describe('scoped projection scenario loading',()=>{
+ it('resolves a valid inherited relation before scoping legacy model configuration',async()=>{
+  const f=relationFixture('rowid')
+  const raw=JSON.parse(f.text)
+  raw.resourceRelations=[{sourceRelationId:f.relation.sourceRelationId,parentTable:'PARENT',childTable:'CHILD',relationName:'preserved',cascadeUpdate:true}]
+  const config=new ScenarioViewConfig('SCENE',JSON.stringify(raw))
+  const {dataSet}=await loadScenarioDataSet({scenarioId:'SCENE',config,modelScope:'PARENT'})
+  try{
+   expect(mocks.readRelations).toHaveBeenCalledOnce()
+   expect(Object.keys(dataSet.tables)).toEqual(['PARENT','CHILD'])
+   expect(dataSet.resourceRelations).toEqual(expect.arrayContaining([expect.objectContaining({relationName:'preserved',cascadeUpdate:true})]))
+  }finally{dataSet.destroy()}
+ })
+
+ beforeEach(()=>vi.clearAllMocks())
+ const definition=()=>new ScenarioViewConfig(DATA_SPACE_DESIGN_FORM_KEY,readFileSync('config/pages/data-platform/data-space-design/pagedata.json','utf8'))
+ it('rejects a missing scoped projection factory before formal service reads',async()=>{
+  mocks.readRequestScope.mockReturnValue(scope('projection-token','APP'))
+  mocks.readRelations.mockResolvedValue([])
+  await expect(loadScenarioDataSet({scenarioId:DATA_SPACE_DESIGN_FORM_KEY,config:definition(),modelScope:'ProjectToolCatalog'})).rejects.toThrow('SCENARIO_PROJECTION_BINDING')
+  expect(mocks.readSpaceDefinition).not.toHaveBeenCalled()
+  expect(mocks.readRelations).not.toHaveBeenCalled()
+  expect(mocks.readModelBatch).not.toHaveBeenCalled()
+ })
+ it('selects the production catalog from full metadata without loading backend model definitions or requiring its tree',async()=>{
+  mocks.readRequestScope.mockReturnValue(scope('projection-token','APP'))
+  mocks.readRelations.mockResolvedValue([])
+  mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId:DATA_SPACE_DESIGN_FORM_KEY,name:'Metadata'})
+  const owner=new ProjectToolResource({workspace:new ProjectWorkspace({projectId:'APP',blueprint:{}}),metadataScenarioId:DATA_SPACE_DESIGN_FORM_KEY,assertCurrent:()=>{}})
+  const {dataSet}=await loadScenarioDataSet({scenarioId:DATA_SPACE_DESIGN_FORM_KEY,config:definition(),modelScope:'ProjectToolCatalog',projectionBindings:{ProjectToolCatalog:view=>owner.queryBinding(view)}})
+  try{
+   expect(Object.keys(dataSet.tables)).toEqual(['ProjectToolCatalog'])
+   expect(mocks.readModelBatch).not.toHaveBeenCalled()
+   expect(mocks.request).not.toHaveBeenCalled()
+   await expect(dataSet.getView('ProjectToolCatalog')!.loadFromServer()).rejects.toThrow('PROJECT_TOOL_CATALOG_OWNER')
+   expect(mocks.request).not.toHaveBeenCalled()
+  }finally{dataSet.destroy()}
+ })
 })

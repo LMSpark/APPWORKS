@@ -1207,7 +1207,7 @@
     {
       "expression": "/api/query",
       "sourceFile": "packages/spark-project-model/tests/scenario/scenario-view-file.test.ts",
-      "sourceLine": 735,
+      "sourceLine": 738,
       "scope": "tooling"
     },
     {

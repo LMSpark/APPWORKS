@@ -2,7 +2,7 @@
   "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
   "tables": {
     "ProjectToolCatalog": {
-      "resourceType": "file", "resourceId": "project:tool-catalog",
+      "resourceType": "logical-view", "resourceId": "project:tool-catalog",
       "columns": [
         {"name": "pageId", "label": "工具ID", "type": "string", "required": true, "isPrimaryKey": true},
         {"name": "versions", "label": "发布版本", "type": "json"}

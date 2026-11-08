@@ -37,9 +37,9 @@ function fixture(initial: string | null = namedText, configureMetadata?: (dataSe
   const readModel = vi.fn(async () => formalModel)
   const http = new DefinitionHttp()
   const assembler = new LowcodeDataSpaceAssembler(new DataSpaceRuntimeApi({http, readScope: () => ({token: scope, headers: {}})}), http)
-  const assemble = vi.fn<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['assemble']>(async ({scenarioId, config, fileExecutors, modelScope}) => assembler.assemble({
+  const assemble = vi.fn<ConstructorParameters<typeof LowcodeDataSpaceViewDesign>[0]['assemble']>(async ({scenarioId, config, fileExecutors, projectionBindings, modelScope}) => assembler.assemble({
     config: modelScope === undefined ? config : config.selectModelScope(modelScope, []),
-    space: {dataSpaceId: scenarioId, name: scenarioId}, models: [formalModel], relations: [], ...(fileExecutors ? {fileExecutors} : {})}))
+    space: {dataSpaceId: scenarioId, name: scenarioId}, models: [formalModel], relations: [], ...(fileExecutors ? {fileExecutors} : {}), ...(projectionBindings ? {projectionBindings} : {})}))
   const loadMetadata = withDefinitionResources(async id => createConfirmedMetadataFixture(id))
   const service = new LowcodeDataSpaceViewDesign({ workspace, readModel, assemble,
     loadMetadata: async (...args) => {const dataSet = await loadMetadata(...args); configureMetadata?.(dataSet); return dataSet},

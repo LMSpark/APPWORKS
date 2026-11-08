@@ -30,6 +30,7 @@
           "type": "string"
         },
         "fileExecutors": true,
+        "projectionBindings": true,
         "commandBindings": true,
         "modelAdapters": true,
         "metadataDataSet": {
@@ -49,18 +50,18 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T11:25:45.044Z",
+  "generatedAt": "2026-11-08T02:39:42.157Z",
   "models": {
     "LoadScenarioDataSetInput": {
       "name": "LoadScenarioDataSetInput",
       "jsdoc": "场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 已声明命令的宿主绑定，不由页面构造提交owner。 */\n    commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings'];\n    /** 按正式modelId选择首次绑定适配模式。 */\n    modelAdapters?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['modelAdapters'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n    /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */\n    getPage?: ApiModelRuleHost['getPage'];\n}>",
+        "declarationTypeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 显式非模型投影的只读绑定工厂。 */\n    projectionBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['projectionBindings'];\n    /** 已声明命令的宿主绑定，不由页面构造提交owner。 */\n    commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings'];\n    /** 按正式modelId选择首次绑定适配模式。 */\n    modelAdapters?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['modelAdapters'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n    /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */\n    getPage?: ApiModelRuleHost['getPage'];\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 已声明命令的宿主绑定，不由页面构造提交owner。 */\n    commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings'];\n    /** 按正式modelId选择首次绑定适配模式。 */\n    modelAdapters?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['modelAdapters'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n    /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */\n    getPage?: ApiModelRuleHost['getPage'];\n}>",
+            "typeText": "Readonly<{\n    scenarioId: string;\n    designScenarioId?: string;\n    config: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['config'];\n    /** 可选运行范围的模型表键；先核完整关系依赖，再读取所需模型详情，不更改正式配置或业务数据。 */\n    modelScope?: string;\n    /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */\n    fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors'];\n    /** 显式非模型投影的只读绑定工厂。 */\n    projectionBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['projectionBindings'];\n    /** 已声明命令的宿主绑定，不由页面构造提交owner。 */\n    commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings'];\n    /** 按正式modelId选择首次绑定适配模式。 */\n    modelAdapters?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['modelAdapters'];\n    /** 活动数据空间设计会话持有的元数据DataSet；正式定义读取复用其中相应模型的查询owner。 */\n    metadataDataSet?: DataSet;\n    assertCurrent?: () => void;\n    /** 本次原页面宿主，仅供明确跨空间引用校验按需访问；不会在装配时读取。 */\n    getPage?: ApiModelRuleHost['getPage'];\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -90,6 +91,12 @@
             {
               "name": "fileExecutors",
               "jsdoc": "按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "projectionBindings",
+              "jsdoc": "显式非模型投影的只读绑定工厂。",
               "readable": true,
               "writable": false
             },

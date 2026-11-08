@@ -388,3 +388,61 @@ it('saves a named aggregate through the definition DataView, reopens and consume
   expect(JSON.stringify(formal)).toBe(modelBefore)
  } finally {editing.dataSet.destroy()}
 })
+
+
+describe('declared readonly projections',()=>{
+ it('keeps a formal logical-view model on its registered model owner',()=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const bound=vi.spyOn(runtime,'bindModelView'),projection=vi.fn(()=>{throw new Error('unexpected projection owner')})
+  const model={...formal,sourceType:'视图'}
+  const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config,space,models:[model],relations:[],projectionBindings:{Orders:projection}})
+  try{
+   expect(dataSet.getTable('Orders')?.resourceType).toBe('logical-view')
+   expect(dataSet.getTable('Orders')?.modelBinding).toEqual({modelId:'MODEL',modelName:'QueryOrders'})
+   expect(bound).toHaveBeenCalledTimes(2);expect(projection).not.toHaveBeenCalled()
+  }finally{dataSet.destroy()}
+ })
+
+ it('rejects the retired file identity for the tool catalog before any owner is invoked',()=>{
+  expect(()=>new ScenarioViewConfig('SCENE',JSON.stringify({scenarioId:'SCENE',tables:{ProjectToolCatalog:{resourceType:'file',resourceId:'project:tool-catalog',columns:[{name:'pageId',type:'string',isPrimaryKey:true},{name:'versions',type:'json'}],views:{default:{autoLoad:false}}}}}))).toThrow('PROJECT_TOOL_CATALOG_DECLARATION')
+ })
+
+ const definition=()=>new ScenarioViewConfig('SCENE',JSON.stringify({scenarioId:'SCENE',tables:{Projection:{resourceType:'logical-view',resourceId:'projection:inventory',columns:[{name:'id',type:'string',isPrimaryKey:true},{name:'label',type:'string'}],views:{default:{autoLoad:false,queryConfig:{pagination:'none'}}}}}}))
+ it('retains an explicitly non-model projection without inventing a backend model',()=>{
+  const declared=definition()
+  expect(declared.selectModelScope('Projection').toJSON()['tables']).toMatchObject({Projection:{resourceType:'logical-view',resourceId:'projection:inventory'}})
+ })
+ it('rejects a missing projection owner before assembling or querying',()=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assemble({config:definition(),space,models:[],relations:[]})).toThrow('SCENARIO_PROJECTION_BINDING')
+ })
+ it('requires an own data factory rather than an inherited or accessor binding',()=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const getter=vi.fn(()=>()=>undefined),inherited=Object.create({Projection:()=>undefined})
+  for(const projectionBindings of [inherited,Object.defineProperty({},'Projection',{get:getter})]){
+   expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assemble({config:definition(),space,models:[],relations:[],projectionBindings})).toThrow('SCENARIO_PROJECTION_BINDING')
+  }
+  expect(getter).not.toHaveBeenCalled()
+ })
+ it.each(['file','command','logical-view'])('requires the exact projected resource identity (%s)',resourceType=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const loadRows=vi.fn(async()=>[{id:'A',label:'one'}])
+  expect(()=>new LowcodeDataSpaceAssembler(runtime,http).assemble({config:definition(),space,models:[],relations:[],projectionBindings:{Projection:()=>({resource:{resourceType,resourceId:resourceType==='logical-view'?'wrong':'projection:inventory'},guard:()=>{},loadRows})}})).toThrow('SCENARIO_PROJECTION_RESOURCE')
+  expect(loadRows).not.toHaveBeenCalled()
+ })
+ it('queries and derives a declared projection through the shared readonly API',async()=>{
+  const http=new NoRequest(),runtime=new DataSpaceRuntimeApi({http,readScope:()=>({token:'scope',headers:{}})})
+  const loadRows=vi.fn(async()=>[{id:'A',label:'one'},{id:'B',label:'two'}])
+  const {dataSet}=new LowcodeDataSpaceAssembler(runtime,http).assemble({config:definition(),space,models:[],relations:[],projectionBindings:{Projection:()=>({resource:{resourceType:'logical-view',resourceId:'projection:inventory'},guard:()=>{},loadRows})}})
+  try{
+   const view=dataSet.getView('Projection')!,peer=view.createQueryView('peer')
+   await peer.loadFromServer({filter:{field:'id',operator:'eq',value:'B'}})
+   expect(peer.rows).toMatchObject([{id:'B',label:'two'}])
+   expect(peer.fieldAccess(peer.rows[0]!,'label').write).toBe('denied')
+   expect(peer.addActionState()).toBe('hidden')
+   await expect(peer.addRow({})).rejects.toThrow('DATA_VIEW_NEW_ROW_OWNER')
+   expect(view.rows).toEqual([])
+  }finally{dataSet.destroy()}
+ })
+
+})

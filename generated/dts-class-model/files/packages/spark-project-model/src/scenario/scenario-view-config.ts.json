@@ -7,7 +7,7 @@
     "sourceFile": "packages/spark-project-model/src/scenario/scenario-view-config.ts",
     "packageName": "@spark-appworks/spark-project-model",
     "modulePath": "scenario/scenario-view-config",
-    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：后端模型真源与运行数据不属于此文件，显式文件资源须由已有owner承接。\nAI用途：校验模型绑定或文件资源、命名视图与显式级联。",
+    "jsdoc": "@module @spark-appworks/spark-project-model:scenario/scenario-view-config\n职责：单场景视图配置的校验和不可变值。\n边界：后端模型真源与运行数据不属于此文件，显式文件、命令与只读投影须由对应owner承接。\nAI用途：校验模型绑定或明确语义资源、命名视图与显式级联。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "ScenarioViewConfig"
@@ -319,7 +319,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-07T00:01:25.326Z",
+  "generatedAt": "2026-11-08T02:39:42.156Z",
   "models": {
     "ScenarioConfigObject": {
       "name": "ScenarioConfigObject",
@@ -380,7 +380,7 @@
     },
     "ScenarioViewConfig": {
       "name": "ScenarioViewConfig",
-      "jsdoc": "场景配置：后端模型仅保存绑定和字段约束；显式文件资源保存列定义，由资源owner提供查询与保存，配置不授予权限或包含运行数据。",
+      "jsdoc": "场景配置：后端模型仅保存绑定和字段约束；文件、命令和无后端模型的只读投影保存自身列定义，由对应owner承接，配置不授予权限或包含运行数据。",
       "declarationKind": "class",
       "classDecl": {
         "constructorMeta": {

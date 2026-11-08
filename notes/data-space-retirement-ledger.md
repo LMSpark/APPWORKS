@@ -1,12 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AK** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AL** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AK当前恢复点：** AJ文件查询/投影合同已推；AK已完成jsondatapath精确隔离文件实服CRUD与全新登录独立清理核验，正文文件已删，空运行目录可能保留。正式证据与提交状态见末尾。下一S1完成ProjectToolCatalog正式投影合同与配置转换/诊断旧配置、精确登记S4旧消费断点，不继续保错误file分类或加兼容。此文件证据不覆盖builtin工具文件/pagedata/真实unknown/并发CAS，S1未冻结、未进S2，原20包范围保留。
+> **AL当前恢复点：** S1的ProjectToolCatalog logical-view合同、公共只读工厂及仓内声明一次转换本批已验，旧file声明显式拒绝；提交与下一断点见末尾。只改数据责任层、测试、派生和本台账；模型改名与设计器按file消费的S4断点不做兼容。AK隔离文件已清理，禁止重跑已消费写意图。S1未冻结、未进S2，原20包范围保留。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8282,3 +8282,29 @@ AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor
 **AK最终检查点验收。**高阶末审及主控再次核正式JSON三阶段终态与9个源码/脚本哈希，均一致；6份最终脚本/原始记录/正式证据未保存账号、密码或Bearer，最后子进程exit0，RAM stdout已清。verify:docs通过564文件、git diff --check通过，唯一主worktree。精确删2份无效harness准备记录/console，保2份最终只读输入工具与3段原始有效记录；不保错误import或并行总计划。产品源码/声明未改，AJ同源码快照1328/1474/896/168与正式生成、完整工程门禁按原范围复用，不重冒新全包结果。原S2未跟踪RED未stage。准备仅stage本台账与正式AK JSON，推origin既定codex分支并独立核远端；不force/merge/部署，不把实际CRUD局部完成当S1或原20包完成。恢复下一S1正式投影合同/配置转换，目录声明一致性反例与旧领域整删消费各按责任层核验；阶段仍active未冻结。
 
 **AK已提交推送并独立核实。**证据提交10af40cb003404222c61be43aca44960a9ed8a11（test(data): record isolated live file CRUD and cleanup proof），2文件335增2删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留。此事实补记docs跟随同步。实服payload已清理、空目录可能保留；下一恢复S1正式投影合同及旧配置处理，不重跑已消费的AK写意图、不扩服务清理范围，未冻结/未进S2。
+
+**AL正式只读投影合同与旧配置集中批（S1实施中，未冻结）。**基线1971f8e68已推。高阶确认按I3内部交接，不能无限保留ProjectToolCatalog伪file：无modelBinding的显式logical-view按只读工厂接入，正式后端逻辑模型仍保modelBinding走原model owner；实际ProjectToolFile继续真文件。主控正式配置/缺工厂/旧file拒绝3项真实RED后实施：ScenarioViewConfig将logical-view非模型配置纳原生依赖/序列化，ProjectToolResource.assertDeclaration拒旧保留ID的file声明；仓内8D1只改目录一项kind。删ProjectToolResource.executeQuery、自写LocalQuery及权限/动作算法，queryBinding返回既有公共只读options，仅保蓝图工具pageId/versions领域投影；PKpageId及字段类型/实际原ds原table与登记view守卫，派生/命名实际target在capture/load/columns核，不闭包default生存。缺蓝图tree仍按需查询拒，不提前阻元数据装配。
+
+assembler/runtime新增projectionBindings纯工厂通道，fileExecutors不承接；只接受own data function，继承/getter不调用；工厂kind/id及guard/loadRows与声明核验。所有公开数据回调传递在data-space-design/view-design的metadata/assemble/open/preview窄段同步，loadMetadata第二参数由旧file map直接替换为两类bindings，不保旧重载。保真实文件owner及只读预览文件护栏，文件参数目录仅ProjectToolFile。只读动作disabled→hidden是明确合同变化，不做旧呈现兼容。queryBinding的蓝图树来自当前已加载导航视图及编辑覆盖，不冒后端发布库全量依赖已核。
+
+首两文件35项GREEN，project-model全包275自然0；首完整auth-nav数据集成10文件失败/19通过、314失败575通过及1error，根typecheck仅2条测试fixture旧参数类型。未预归全部为夹具；已将正式测试替代装配与两处assemble回调按真实file/projection分别绑定与传递，不预实现查询结果、不放宽合同。第二轮集成31866运行中；新工厂继承/getter/错kind-id及命名派生正例8项已GREEN，仍待坏结构/真实logical模型对照、完整8D1 scope、owner失效及扩大/官方生成/门禁。模型改名:90硬file、设计fileModels/selection/字段参数/preview消费仍按S4明确断点；不顺手改领域算法或Vue，不宣称旧入口可用/数据合同冻结。本批无实服写入/Java/组件/宿主/业务页面实施，原S2未跟踪RED不动。
+
+**AL边界正反例与夹具归因。**第二集成31866自然1仅1失败893通过：正式元配置测试仍将目录归后端模型而断言不可有columns，已按独立logical-view目录断言身份/字段/无context纠正，真file分支删无效catalog旧条目。旧metadata夹具与两条assemble回调已分别注入/转递file和projection，不改产品业务逻辑；首root99806两条测试参数类型亦已对应修正，未缩类型包含。新资源回归：default销毁后派生仍可读；options使用原视图且不替换展示；坏额外字段/主键零tree IO；同名派生替换晚到按原生success:false拒、未改新实例（首误期望reject已纠正，非产品bug）。真实后端sourceType视图的DataTable虽logical-view但保modelBinding，正式bindModelView两次、投影factory0，未误接本地资源。
+
+完整8D1 modelScope目录走legacy关系依赖：缺工厂先readRelations1项实际RED，现先纯选scope预检目标projection own factory，零正式服务读，再做原关系装配，不以给文件owner代替；合法scope仅目录、不readModelBatch，缺tree可装配而查询明确PROJECT_TOOL_CATALOG_OWNER。最新4文件165项GREEN。project checks/tests、完整integration末态在途，高阶正在末态只读审查；标准组件/宿主/页面未进入，S1未冻结。
+
+**AL上游反例重验与包类型归因。**高阶发现本批前置selectModelScope(...,[])将未知旧来源关系当空，合法sourceRelationId覆盖在readRelations前失败；主控1项真实RED，退回同S1 runtime修为仅核当前可确定的直接声明（指定scope只核该表，未指定核全配置），真实关系读取后按原scope算法与最终工厂预检，不伪造空inherited。对照保关系名/cascadeUpdate及P/C依赖，正常工厂仍零前置服务读。另versions计算列和外项目空根2项真实RED，现required pageId/versions须原始非计算、整树每节点projectId精确匹配；scope/字段前置拒，保额外无关列。首计算测试污染共享JSON夹具已改每实例clone，不改产品DataTable共享行为；原判断结果按正确夹具重验。最新3文件87项自然0。
+
+project-model包typecheck首次5诊断：用同完整tsconfig/CompilerHost仅内存还原HEAD两源对照，4条测试诊断基线亦存在，新增仅未清旧Result别名。现删旧Executor/Result，4条基线逐真实类型修正：保存上下文instanceof DataSet后核tables、删未用setScope、递归children采用正式QueryParams类型、只读子计划用替代节点而非直接改属性。未as-any/缩包含/恢复旧协议；先前project275和根integration902自然0均非本轮源末态，尚待扩大/生成/工程门禁及高阶复审。
+
+**AL末态静态评审与正向边界。**高阶修后限定范围无剩余静态阻断，未跑实服。补pageId/versions两个required字段计算拒绝、无关行内计算列正例、正确根下foreign空module拒；owner源输入15项自然0。project-model四条旧测试类型逐真实合同修正后包type/lint通过（33472），仅做类型/表达整理无行为回退；源只读factory与表/视图注册引用守卫维持。已更新源码JSDoc的语义资源归属。最终project包type/lint/build与275测试、完整数据空间集成、官方ClassModel/lowcode生成正在重跑。spark-data/API源码本批未改，AJ 1328/1474仅按未改源范围复用，不冒本批重跑；AK实服文件证据仍限原来源，AL无新实服写入。S1未冻结，远端历史未扫描，旧改名/设计字段消费按S4断点，不因此标入口完整可用。
+
+**AL工程门禁校正及末态扩大。**首root verify35191仅测试fixture resourceType可undefined（虽模板筛选了类型），已显式核file/logical后赋值；次root48176类型过但lint指出descriptor.value隐式any及command恒定kind重复判断。现私有ownProjectionFactory先确认own data descriptor再从正式类型map读，getter不执行；返回值按unknown校其资源/guard/loadRows后交公共只读绑定，未用as-any。command保root精确resourceId，kind仍由既有bindDataSetCommandSubmit运行前守卫，删重复而不放行错kind。assembler定向lint0。新定义往返测试read→改视图→write→read绑定→write保持logical资源/字段/视图且无伪造dataModelId，包test新增1；首test索引属性误用点访问已纠正为正式索引访问，未改协议。
+
+最终project package type及5文件276项（28209）、根数据空间29文件908项（6542）、官方ClassModel/lowcode（80367，611/218）均自然0；54770包type/lint/build与编译包smoke自然0，公开新binding存在/旧executeQuery缺失、旧file配置拒绝、default释放后派生仍可查/指针保真/options投影/readonly皆实测。仅最后类JSDoc澄清本次已加载树不是后端工具/发布依赖全集，官方生成与最终root门禁将重刷，不冒旧生成覆盖新文案。本批无服务写入；S4入口不据此称完成。
+
+**AL最终生成与声明收口。**最后类合同澄清后官方生成38174自然0（611/218），实际包build再刷自然0，DTS/源码/ClassModel同语义。project类型+276项、数据空间908项、owner15项及编译包smoke有效；增量高阶复核own data工厂/unknown必需能力校验/公共command kind守卫无阻断。全活动src/packages/tests旧toolResource.executeQuery/catalogExecutor/definitionExecutors查无；历史台账名字仅历史，未留接口别名或旧file owner替身。最终完整root verify已按本快照再跑，原两个失败门禁为已归因类型/lint校正事实，不能抹成一直绿。S1整体未冻结/未发布，旧S4改名/设计选择入口不能据根门禁称可用；无新实服写入或远端配置转换。
+
+**AL最终检查点验收。**完整root verify99555自然exit0，含根类型/lint、ClassModel49项及正式规则；既有2模型警告/84薄页诊断保留，不冒整仓所有业务测试全绿。项目模型包type/lint/build、276项、根数据空间908项、owner15项、编译包smoke与最终官方生成（611/218）均有效，原handle全终态；源spark-data/API未改，复用原1328/1474仅原范围。高阶限定范围复审无剩余阻断。精确清理28份AL中间日志，保最终及4条基线类型归因证据；唯一主worktree，无并行总计划/过程脚本/兼容接口，原S2未跟踪RED不stage。准备只推origin同codex分支，不force/merge/部署，无实服写入、Java/组件/宿主/业务页面实施。
+
+S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端历史配置未扫描/未转换，旧file有明确诊断；S4改名工具:90与设计fileModels/selection/字段预览仍须消费新投影，不据根门禁称正式入口可用。下一S1按已证来源缺口核文件目录声明与列表完整性：bindFileDirectoryQueryAdapter会返回未声明fileName（AK已限证），LowcodeDesignApi.listFiles仍map/filter坏条目成空，须以真实反例查字段目录与清理证明，不先改S4整目录业务编排。历史转换与实服/缺证/暂缓保持各自登记，不将本批局部结果冒数据合同全部冻结。

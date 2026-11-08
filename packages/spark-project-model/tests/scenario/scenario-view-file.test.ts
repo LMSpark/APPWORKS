@@ -3,7 +3,7 @@ import {ScenarioViewFile, ScenarioViewWriteNotAppliedError} from '../../src/scen
 import { ScenarioViewConfig } from '../../src/scenario/scenario-view-config'
 import { ScenarioDefinitionRecords } from '../../src/scenario/scenario-definition-records'
 import {ProjectWorkspace, ScenarioViewVersionNotAppliedError, type ScenarioViewVersionCreateCommand} from '../../src/project/project-workspace'
-import {DataSet} from '@spark-appworks/spark-data'
+import {DataSet,type QueryParams} from '@spark-appworks/spark-data'
 
 function fixture(pageSize = 20): string {
   return JSON.stringify({ scenarioId: 'UNIT-SCENE', tables: {
@@ -678,7 +678,10 @@ describe('ScenarioViewFile', () => {
       expect(writeText).toHaveBeenCalledExactlyOnceWith('UNIT-SCENE', fixture(31), fixture())
       expect(file.isDirty).toBe(false)
       expect(file.getText()).toBe(fixture(31))
-      expect(Object.values(save.mock.contexts[0]!.tables).every(table => table.modelBinding === undefined)).toBe(true)
+      const captured=save.mock.contexts[0]
+      expect(captured).toBeInstanceOf(DataSet)
+      if(!(captured instanceof DataSet))throw new Error('missing saved DataSet context')
+      expect(Object.values(captured.tables).every(table => table.modelBinding === undefined)).toBe(true)
     } finally {save.mockRestore()}
   })
   it('preserves unbound design nodes without allowing business data in layout', () => {
@@ -1532,7 +1535,7 @@ describe('ProjectWorkspace shared scenario versions', () => {
     expect(createVersion).not.toHaveBeenCalled()
   })
   it('rejects an invalid snapshot receipt or stale request scope after a snapshot write', async () => {
-    const { workspace, createVersion, setScope } = workspaceFixture()
+    const { workspace, createVersion } = workspaceFixture()
     await workspace.loadScenarioViews({ scenarioId: 'UNIT-SCENE' })
     createVersion.mockImplementationOnce(async ({scenarioId, version, text, onAttempt}: ScenarioViewVersionCreateCommand) => {
       onAttempt({scenarioId, resourceId: `test:scenario:${scenarioId}`, scope: 'request-a', version,
@@ -1657,6 +1660,17 @@ describe('ProjectWorkspace shared scenario versions', () => {
 })
 
 describe('registered file resource binding persistence', () => {
+  it('preserves a non-model projection through view and binding definition roundtrips',()=>{
+    const before=new ScenarioViewConfig('S',JSON.stringify({scenarioId:'S',tables:{Inventory:{resourceType:'logical-view',resourceId:'projection:inventory',columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{autoLoad:false}}}}}))
+    const views=ScenarioDefinitionRecords.read(before,ScenarioDefinitionRecords.resources.DataViewDefinition)
+    views[0]!['pageSize']=7
+    const changed=ScenarioDefinitionRecords.write({config:before,resource:ScenarioDefinitionRecords.resources.DataViewDefinition,rows:views})
+    const bindings=ScenarioDefinitionRecords.read(changed,ScenarioDefinitionRecords.resources.DataTableBindingDefinition)
+    const reopened=ScenarioDefinitionRecords.write({config:changed,resource:ScenarioDefinitionRecords.resources.DataTableBindingDefinition,rows:bindings})
+    expect(reopened.toJSON()['tables']).toMatchObject({Inventory:{resourceType:'logical-view',resourceId:'projection:inventory',columns:[{name:'id',isPrimaryKey:true}],views:{default:{pageSize:7}}}})
+    expect(bindings[0]).not.toHaveProperty('dataModelId')
+  })
+
   it('adds a file DataTableBindingDefinition and its views without inventing a database model identity', () => {
     const before = new ScenarioViewConfig('S', JSON.stringify({scenarioId: 'S', tables: {
       Parent: {modelBinding: {modelId: 'P', modelName: 'Parent'}, views: {default: {}}},
@@ -1689,7 +1703,7 @@ describe('parent result and explicit child-plan persisted model dependencies', (
     return {scenarioId: 'S', schemaVersion: 2, resourceRelations: [], tables: {
       ParentConfig: {modelBinding: {modelId: 'P', modelName: 'Parent'}, views: {default: {queryConfig: {
         pagination: 'none', outputType: 'Navigation', children: [{modelName: 'ChildA', fields: ['id']},
-          {modelName: 'ChildB', fields: ['id'], children: [{modelName: 'Grandchild', fields: ['id']}]}],
+          {modelName: 'ChildB', fields: ['id'], children: [{modelName: 'Grandchild', fields: ['id']}]}] as NonNullable<QueryParams['children']>,
       }}}},
       AConfig: {modelBinding: {modelId: 'A', modelName: 'ChildA'}, views: {default: {queryConfig: {
         pagination: 'none', autoQuery: false, parentResult: {dataViewKey: 'S@Parent@default', childModelName: 'ChildA'},
@@ -1773,7 +1787,8 @@ describe('parent result and explicit child-plan persisted model dependencies', (
     expect(Object.keys(stored.selectModelScope('Unrelated').toJSON()['tables'] as object)).toEqual(['Unrelated'])
     expect(() => stored.selectModelScope('AConfig')).toThrow('父结果视图无法唯一定位')
     const missingChild = source()
-    missingChild.tables.ParentConfig.views.default.queryConfig.children[1]!.modelName = 'Missing'
+    missingChild.tables.ParentConfig.views.default.queryConfig.children = missingChild.tables.ParentConfig.views.default.queryConfig.children
+      .map((child,index)=>index===1?{...child,modelName:'Missing'}:child)
     expect(() => config(missingChild).selectModelScope('ParentConfig')).toThrow('子查询模型无法唯一定位')
   })
 })

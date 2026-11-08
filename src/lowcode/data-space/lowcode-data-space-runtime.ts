@@ -29,6 +29,8 @@ export type LoadScenarioDataSetInput = Readonly<{
  modelScope?: string
  /** 按配置表键注入已存在的文件查询/保存owner；文件声明本身不产生存储或访问能力。 */
  fileExecutors?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['fileExecutors']
+ /** 显式非模型投影的只读绑定工厂。 */
+ projectionBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['projectionBindings']
  /** 已声明命令的宿主绑定，不由页面构造提交owner。 */
  commandBindings?: Parameters<LowcodeDataSpaceAssembler['assemble']>[0]['commandBindings']
  /** 按正式modelId选择首次绑定适配模式。 */
@@ -40,7 +42,7 @@ export type LoadScenarioDataSetInput = Readonly<{
  getPage?: ApiModelRuleHost['getPage']
 }>
 
-type DefinitionExecutorsInput = Readonly<{
+type DefinitionBindingsInput = Readonly<{
   projectId: string
   scenarioId: string
   config: ScenarioViewConfig
@@ -57,6 +59,14 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  input.assertCurrent?.()
  const formalInput = {designScenarioId, dataSpaceId: scenarioId, ...(input.assertCurrent ? {assertCurrent: input.assertCurrent} : {})}
  let config = input.config
+ const preflightTables = config.toJSON()['tables']
+ if (isRecord(preflightTables)) for (const [tableName, table] of Object.entries(preflightTables)) {
+  if (input.modelScope !== undefined && input.modelScope !== tableName) continue
+  if (isRecord(table) && table['resourceType'] === 'logical-view' && !Object.hasOwn(table,'modelBinding')
+   && typeof Object.getOwnPropertyDescriptor(input.projectionBindings ?? {}, tableName)?.value !== 'function') {
+   throw new Error(`SCENARIO_PROJECTION_BINDING: ${tableName} 缺少显式只读投影工厂`)
+  }
+ }
  let inherited: Awaited<ReturnType<typeof lowcodeApi.dataSpace.design.readRelations>> | undefined
  if (input.modelScope !== undefined) {
   const configuredTables = config.toJSON()['tables']
@@ -67,7 +77,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
    input.assertCurrent?.()
    const bindings = new Map<string, {id: string; name: string}>()
    for (const [key, table] of Object.entries(configuredTables)) {
-    if (isRecord(table) && (table['resourceType'] === 'file'||table['resourceType'] === 'command')) continue
+    if (isRecord(table) && (table['resourceType'] === 'file'||table['resourceType'] === 'command'||table['resourceType'] === 'logical-view'&&!Object.hasOwn(table,'modelBinding'))) continue
     const binding = isRecord(table) ? table['modelBinding'] : undefined
     if (!isRecord(binding) || typeof binding['modelId'] !== 'string' || typeof binding['modelName'] !== 'string') throw new Error('场景模型绑定不完整')
     bindings.set(key, {id: binding['modelId'], name: binding['modelName']})
@@ -79,6 +89,10 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  if (!isRecord(tables)) throw new Error('场景视图缺少 tables')
  const names = new Set<string>()
  for (const [tableName, table] of Object.entries(tables)) {
+  if (isRecord(table) && table['resourceType'] === 'logical-view' && !Object.hasOwn(table,'modelBinding')) {
+   if (typeof Object.getOwnPropertyDescriptor(input.projectionBindings ?? {}, tableName)?.value !== 'function') throw new Error(`SCENARIO_PROJECTION_BINDING: ${tableName} 缺少显式只读投影工厂`)
+   continue
+  }
   if(isRecord(table)&&table['resourceType']==='command'){
    if(!input.commandBindings?.[tableName])throw new Error(`SCENARIO_COMMAND_BINDING: ${tableName} 缺少命令资源绑定`)
    continue
@@ -99,6 +113,7 @@ export async function loadScenarioDataSet(input: LoadScenarioDataSetInput): Prom
  input.assertCurrent?.()
  const result=new LowcodeDataSpaceAssembler(lowcodeApi.dataSpace.runtime, lowcodeHttp).assemble({config, space, models, relations,
   ...(input.fileExecutors ? {fileExecutors: input.fileExecutors} : {}),
+  ...(input.projectionBindings ? {projectionBindings: input.projectionBindings} : {}),
   ...(input.commandBindings?{commandBindings:input.commandBindings}:{}),
   ...(input.modelAdapters?{modelAdapters:input.modelAdapters}:{})})
  try{registerApiModelRules(result.dataSet,{...(input.getPage?{getPage:input.getPage}:{}),...(input.assertCurrent?{assertCurrent:input.assertCurrent}:{})});return result}
@@ -137,7 +152,7 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
   ...createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
   ...createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
   ...(command.getPage?{getPage:command.getPage}:{}),
-  fileExecutors: definitionExecutors({projectId, scenarioId, config, assertCurrent})})
+  ...definitionBindings({projectId, scenarioId, config, assertCurrent})})
  try {
   assertCurrent()
   if (result.diagnostics.length > 0) {
@@ -147,17 +162,19 @@ export async function loadLowcodeRuntimeScenario(command: Readonly<{ projectId: 
  return result.dataSet
 }
 
-/** 文件资源由已声明的语义身份接线，目标ID仍由DataView输入提供，不从当前空间猜测。 */
-function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadScenarioDataSetInput['fileExecutors']> {
+/** 文件与只读投影由各自已声明的语义身份接线，目标ID不从当前空间猜测。 */
+function definitionBindings(input: DefinitionBindingsInput): Pick<LoadScenarioDataSetInput,'fileExecutors'|'projectionBindings'> {
  const {projectId, scenarioId, config, assertCurrent, owner, blueprintTreeProjection} = input
  const tables = config.toJSON()['tables']
  const declared = isRecord(tables) ? Object.entries(tables).filter(([name, table]) => isRecord(table) && table['resourceType'] === 'file'
   && Object.entries(ScenarioDefinitionRecords.resources).some(([key, resource]) => key === name && resource === table['resourceId'])) : []
  const reference = isRecord(tables) ? tables[DataSpaceReferenceLayoutResource.tableName] : undefined
  const hasReference = isRecord(reference) && reference['resourceType'] === 'file' && reference['resourceId'] === DataSpaceReferenceLayoutResource.resourceId
- const toolTables = isRecord(tables) ? Object.entries(ProjectToolResource.resources).filter(([name, id]) => {
-  const table = tables[name]; return isRecord(table) && table['resourceType'] === 'file' && table['resourceId'] === id
- }) : []
+ const toolFile = isRecord(tables) ? tables['ProjectToolFile'] : undefined
+ const hasToolFile = isRecord(toolFile) && toolFile['resourceType'] === 'file' && toolFile['resourceId'] === ProjectToolResource.resources.ProjectToolFile
+ const catalog = isRecord(tables) ? tables['ProjectToolCatalog'] : undefined
+ const hasCatalog = isRecord(catalog) && catalog['resourceType'] === ProjectToolResource.catalogResource.resourceType && catalog['resourceId'] === ProjectToolResource.catalogResource.resourceId
+ const projectionBindings: Record<string,NonNullable<LoadScenarioDataSetInput['projectionBindings']>[string]> = {}
  const builtinBlueprintTable = isRecord(tables) ? tables[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] : undefined
  const declaresBuiltinBlueprint = isRecord(builtinBlueprintTable) && builtinBlueprintTable['resourceType'] === 'file'
   && builtinBlueprintTable['resourceId'] === BUILTIN_BLUEPRINT_NODE_RESOURCE_ID
@@ -171,13 +188,13 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  if (declaresBuiltinBlueprint) registeredFileExecutors[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] = builtinBlueprintOwner
   ? new BuiltinBlueprintNodeResource({applicationId: projectId, scenarioId, assertCurrent}).executor
   : {executeQuery: () => Promise.reject(new Error('BUILTIN_BLUEPRINT_IDENTITY: 当前应用不能读取 AppWorks 仓内蓝图节点'))}
- if (!declared.length && !hasReference && !toolTables.length) return registeredFileExecutors
+ if (!declared.length && !hasReference && !hasToolFile && !hasCatalog) return {fileExecutors: registeredFileExecutors}
  const workspace = owner ?? new ProjectWorkspace({projectId, ...createLowcodeProjectGateways(projectId)})
  const executor = ScenarioDefinitionResource.forQueries({workspace, metadataScenarioId: scenarioId, assertCurrent,
   validate: async (next, previous, resources) => {
    const selected = ScenarioDefinitionRecords.validationScope(next, previous, resources)
    if (!selected) return
-   const result = await loadScenarioDataSet({scenarioId: next.scenarioId, config: selected, assertCurrent, fileExecutors: executors})
+   const result = await loadScenarioDataSet({scenarioId: next.scenarioId, config: selected, assertCurrent, fileExecutors: executors, projectionBindings})
    try {if (result.diagnostics.length) throw new Error(`SCENARIO_DEFINITION_INCOMPLETE: ${result.diagnostics.join('；')}`)}
    finally {result.dataSet.destroy()}
   }})
@@ -185,14 +202,14 @@ function definitionExecutors(input: DefinitionExecutorsInput): NonNullable<LoadS
  if (hasReference) executors[DataSpaceReferenceLayoutResource.tableName] = new DataSpaceReferenceLayoutResource({metadataScenarioId: scenarioId,
   assertCurrent, read: lowcodeDataSpaceLayout.createReader().readDataSpaceLayout})
  const tools = new ProjectToolResource({workspace, metadataScenarioId: scenarioId, assertCurrent, ...(blueprintTreeProjection ? {blueprintTreeProjection} : {})})
- for (const [name] of toolTables) executors[name] = name === 'ProjectToolCatalog' ? tools
-  : createPageToolFileResourceExecutor({appId: projectId, workspace, assertCurrent})
- return executors
+ if (hasCatalog) projectionBindings['ProjectToolCatalog'] = view => tools.queryBinding(view)
+ if (hasToolFile) executors['ProjectToolFile'] = createPageToolFileResourceExecutor({appId: projectId, workspace, assertCurrent})
+ return {fileExecutors: executors, projectionBindings}
 }
 
 /** 装配元数据空间并读取首屏空间与模型；字段和来源关系由工作区按需加载。 */
 export async function loadLowcodeDataSpaceMetadata(dataSpaceId: string,
- fileExecutors?: LoadScenarioDataSetInput['fileExecutors'], options: Readonly<{workspace?: ProjectWorkspace;
+ bindings?: Pick<LoadScenarioDataSetInput,'fileExecutors'|'projectionBindings'>, options: Readonly<{workspace?: ProjectWorkspace;
   blueprintTreeProjection?: () => ProjectBlueprintTreeData | Promise<ProjectBlueprintTreeData>}> = {}): Promise<DataSet> {
  if (typeof dataSpaceId !== 'string' || !dataSpaceId.trim() || dataSpaceId.trim() !== dataSpaceId
    || dataSpaceId === '.' || dataSpaceId === '..' || /[\\/%\u0000-\u001f\u007f]/.test(dataSpaceId)) {
@@ -214,8 +231,8 @@ export async function loadLowcodeDataSpaceMetadata(dataSpaceId: string,
  if (text === null) throw new Error('DATA_SPACE_METADATA_CONFIG: 数据空间设计器尚未建立正式视图配置')
  const config = new ScenarioViewConfig(DATA_SPACE_DESIGN_FORM_KEY, text)
  const assembly = await loadScenarioDataSet({scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent,
-  fileExecutors: fileExecutors ?? definitionExecutors({projectId, scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent,
-   ...(options.workspace ? {owner: options.workspace} : {}), ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {})})})
+  ...(bindings ?? definitionBindings({projectId, scenarioId: DATA_SPACE_DESIGN_FORM_KEY, config, assertCurrent,
+   ...(options.workspace ? {owner: options.workspace} : {}), ...(options.blueprintTreeProjection ? {blueprintTreeProjection: options.blueprintTreeProjection} : {})}))})
  const dataSet = assembly.dataSet
  try {
   assertCurrent()

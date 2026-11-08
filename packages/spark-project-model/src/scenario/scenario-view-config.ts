@@ -1,11 +1,12 @@
 /**
  * @module @spark-appworks/spark-project-model:scenario/scenario-view-config
  * 职责：单场景视图配置的校验和不可变值。
- * 边界：后端模型真源与运行数据不属于此文件，显式文件资源须由已有owner承接。
- * AI用途：校验模型绑定或文件资源、命名视图与显式级联。
+ * 边界：后端模型真源与运行数据不属于此文件，显式文件、命令与只读投影须由对应owner承接。
+ * AI用途：校验模型绑定或明确语义资源、命名视图与显式级联。
  */
 import * as SparkData from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
+import {ProjectToolResource} from '../page-tool/project-tool-resource'
 
 /** 只读JSON配置对象，构造时校验并递归冻结。 */
 type ScenarioConfigObject = Readonly<Record<string, unknown>>
@@ -45,6 +46,7 @@ function record(value: unknown, path: string): Record<string, unknown> {
 
 function isNonModelResource(table: ScenarioConfigObject): boolean {
   return table['resourceType'] === 'file' || table['resourceType'] === 'command'
+    || table['resourceType'] === 'logical-view' && !Object.hasOwn(table, 'modelBinding')
 }
 
 function name(value: unknown, path: string): string {
@@ -80,7 +82,7 @@ type SelectTablesInput = Readonly<{
   inheritedGroups?: ReadonlyArray<readonly string[]>
 }>
 
-/** 场景配置：后端模型仅保存绑定和字段约束；显式文件资源保存列定义，由资源owner提供查询与保存，配置不授予权限或包含运行数据。 */
+/** 场景配置：后端模型仅保存绑定和字段约束；文件、命令和无后端模型的只读投影保存自身列定义，由对应owner承接，配置不授予权限或包含运行数据。 */
 export class ScenarioViewConfig {
   static readonly #viewProperties = Object.freeze<Record<keyof Omit<SparkData.ViewMetadata, 'tableName' | 'viewId' | 'rows'>, true>>({
     onRequestComplete: true,
@@ -157,6 +159,7 @@ export class ScenarioViewConfig {
     for (const [tableName, inputTable] of Object.entries(tables)) {
       name(tableName, 'tableName')
       const table = record(inputTable, `tables.${tableName}`)
+      ProjectToolResource.assertDeclaration(table)
       const nonModel = isNonModelResource(table)
       keys(table, ['businessCategory', 'columns', 'views', ...(nonModel ? ['resourceType', 'resourceId'] : ['modelBinding', 'api', 'crudConfig'])], `tables.${tableName}`)
       this.validateRequests(table, `tables.${tableName}`)

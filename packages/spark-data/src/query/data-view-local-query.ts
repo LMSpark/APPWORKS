@@ -17,6 +17,15 @@ export class DataViewLocalQuery {
     Object.freeze({value: 'SelfRefData', label: '完整集合（不分页）'}),
   ])
 
+  /** 在来源读取前捕获并校验本次参数；viewConfig为元信息引用，其余输入隔离原地修改。 */
+  static captureParams(input: Readonly<{fields: ReadonlySet<string>; primaryKeys: readonly string[]; params: QueryParams}>): QueryParams {
+    const {viewConfig, ...query} = input.params
+    const params: QueryParams = {...structuredClone(query), ...(viewConfig ? {viewConfig} : {})}
+    if (input.primaryKeys.some(key => !input.fields.has(key))) throw new Error('LOCAL_QUERY_PRIMARY_KEY: 主键不在本次来源字段范围')
+    this.select({...input, rows: [], params})
+    return params
+  }
+
   /** 使用视图请求快照查询完整来源；主键始终保留，总数在分页之前计算。 */
   static select(input: Readonly<{rows: readonly DataRow[]; fields: ReadonlySet<string>;
     primaryKeys: readonly string[]; params: QueryParams}>): Readonly<{rows: DataRow[]; total: number; output: ReadonlySet<string>}> {

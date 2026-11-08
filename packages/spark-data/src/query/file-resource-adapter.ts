@@ -160,7 +160,8 @@ function sharedState(view:DataView,resourceId:string):SharedFileResourceState{
   return state
 }
 
-type FileResourceQueryContext=Readonly<{view:DataView;rows:readonly DataRow[];target:FileResourceTarget}>
+type FileResourceQueryContext=Readonly<{view:DataView;rows:readonly DataRow[];target:FileResourceTarget;primaryKey:string;output:ReadonlySet<string>;baseline:FileResourceSnapshot|null}>
+type FileResourceSelection=ReturnType<typeof DataViewLocalQuery.select>&Readonly<{primaryKey:string;baseline:FileResourceSnapshot|null}>
 type FileResourceEngine=Readonly<{executor:Executor;lockTarget(view:DataView):void;update(options:BindFileResourceAdapterOptions,view:DataView):void}>
 
 /** Builds the single FileResource query/save engine; each view locks its target on first query. */
@@ -211,18 +212,26 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
     if(!transport)throw new Error('FILE_RESOURCE_HISTORY_UNAVAILABLE: 来源历史适配器不可用')
     return transport
   }
-  const result=(view:DataView,rows:readonly DataRow[],target:FileResourceTarget):Awaited<ReturnType<Executor['executeQuery']>>=>{
-    const primaryKey=view.primaryKey
-    const fields=new Set(view.columns.map(column=>column.name)),selected=DataViewLocalQuery.select({rows:[...rows],fields,primaryKeys:[primaryKey],params:{page:1,allPages:true,treeMode:'flat'}})
+  const result=(view:DataView,selected:FileResourceSelection,target:FileResourceTarget):Awaited<ReturnType<Executor['executeQuery']>>=>{
+    const {primaryKey}=selected
+    const assertQueryCurrent=()=>{assertCurrent(view,target);if(view.primaryKey!==primaryKey)throw new Error('FILE_RESOURCE_QUERY_IDENTITY: 本次查询主键已变化')}
     const keys=new Set(selected.rows.map(row=>String(row[primaryKey])))
-    const rowKey=(row:Readonly<DataRow>)=>row[primaryKey],creating=rows.length===0
+    const rowKey=(row:Readonly<DataRow>)=>row[primaryKey],creating=selected.baseline===null
     const allowed=(key:unknown,field:string)=>keys.has(String(key))&&selected.output.has(field)
     const queryResult={rows:selected.rows,total:selected.total,rowKey,resultPrimaryKey:primaryKey,
-      prepareNewRow:(row:Readonly<DataRow>)=>{
-        for(const [field,value] of Object.entries(target.fields))if(Object.hasOwn(row,field)&&!Object.is(row[field],value))throw new Error('FILE_RESOURCE_SCOPE: 新文件身份与当前DataView目标不一致')
-        return {...row,...target.fields,[primaryKey]:target.key}
+      newRowFieldAccess:(field:string)=>{
+        assertQueryCurrent()
+        const visible=selected.output.has(field),writable=visible&&creating&&canCreate(target)&&field!==primaryKey&&field!==currentOptions.revisionField
+        return {read:visible?'visible' as const:'invisible' as const,write:writable?'allowed' as const:'denied' as const,required:false}
       },
-      assertIdentity:()=>assertCurrent(view,target),
+      isFieldReadOnly:(field:string)=>!selected.output.has(field)||field===primaryKey||field===currentOptions.revisionField,
+      prepareNewRow:(row:Readonly<DataRow>)=>{
+        assertQueryCurrent()
+        if(!creating||!canCreate(target)||!selected.output.has(currentOptions.contentField))throw new Error('FILE_RESOURCE_CREATE_UNAVAILABLE: 本次文件查询不允许新增正文')
+        for(const [field,value] of Object.entries(target.fields))if(Object.hasOwn(row,field)&&!Object.is(row[field],value))throw new Error('FILE_RESOURCE_SCOPE: 新文件身份与当前DataView目标不一致')
+        return Object.fromEntries(Object.entries({...row,...target.fields,[primaryKey]:target.key}).filter(([field])=>selected.output.has(field)))
+      },
+      assertIdentity:assertQueryCurrent,
       fieldAccess:(key:unknown,field:string)=>{const existingRow=allowed(key,field),newTarget=creating&&key===target.key&&selected.output.has(field)
         const visible=existingRow||newTarget,writable=canWrite(target),write=writable&&((existingRow&&field===currentOptions.contentField)
           ||(newTarget&&field!==primaryKey&&field!==currentOptions.revisionField))
@@ -230,12 +239,20 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           component:!visible?'hidden' as const:write?'editable' as const:'readonly' as const,required:false,
           writeMode:write?'editable' as const:'readonly' as const}},
       readFieldAccess:(row:Readonly<DataRow>,field:string)=>selected.rows.includes(row)&&selected.output.has(field)?'visible' as const:'invisible' as const,
-      addActionState:(available=true)=>creating&&available&&canCreate(target)?'enabled' as const:'disabled' as const,
+      addActionState:(available=true)=>creating&&available&&selected.output.has(currentOptions.contentField)&&canCreate(target)?'enabled' as const:'disabled' as const,
       editActionState:(key:unknown)=>keys.has(String(key))&&canWrite(target)?'enabled' as const:'disabled' as const,
       deleteActionState:(key:unknown,available=true)=>keys.has(String(key))&&available&&canDelete(target)&&currentOptions.transport.remove?'enabled' as const:'disabled' as const,
       createChildActionState:()=> 'disabled' as const,
       viewActionState:(key:unknown)=>keys.has(String(key))?'enabled' as const:'disabled' as const}
-    contexts.set(queryResult,{view,rows:rows.map(row=>({...row})),target});return queryResult
+    contexts.set(queryResult,{view,rows:selected.rows.map(row=>({...row})),target,primaryKey,output:selected.output,baseline:selected.baseline===null?null:{text:selected.baseline.text,revision:selected.baseline.revision}});return queryResult
+  }
+  const sameBaseline=(snapshot:FileResourceSnapshot|null,baseline:FileResourceSnapshot|null):boolean=>{
+    if(snapshot===null||baseline===null)return false
+    return snapshot.text===baseline.text&&snapshot.revision===baseline.revision
+  }
+  const receiptResult=(origin:FileResourceQueryContext,rows:readonly DataRow[],baseline:FileResourceSnapshot|null)=>{
+    const selected=DataViewLocalQuery.select({rows,fields:origin.output,primaryKeys:[origin.primaryKey],params:{page:1,allPages:true,treeMode:'flat'}})
+    return result(origin.view,{...selected,primaryKey:origin.primaryKey,baseline},origin.target)
   }
   const source:DataViewSourceAdapter={
     views:current=>{const currentTarget=targetFor(current);return current.dataTable?.viewList.filter(candidate=>{
@@ -309,16 +326,16 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
   }
   const executor:Executor={localAggregates:false,saveIndependently:true,source,
     executeQuery:async(currentView,params:QueryParams)=>{
+      const primaryKey=currentView.primaryKey,fields=new Set(currentView.columns.filter(column=>!column.computeExpression&&column.name!=='_pk').map(column=>column.name))
+      const captured=DataViewLocalQuery.captureParams({fields,primaryKeys:[primaryKey],params})
       const target=targetFor(currentView);assertCurrent(currentView,target)
       const snapshot=await currentOptions.transport.read(target);assertCurrent(currentView,target)
-      if(snapshot===null)return result(currentView,[],target)
+      if(currentView.primaryKey!==primaryKey)throw new Error('FILE_RESOURCE_QUERY_IDENTITY: 本次查询主键已变化')
       const revisionField=currentOptions.revisionField
-      const row:DataRow={...target.fields,...snapshot.fields,[currentView.primaryKey]:target.key,[currentOptions.contentField]:snapshot.text,
-        ...(revisionField?{[revisionField]:snapshot.revision??''}:{})}
-      const selected=DataViewLocalQuery.select({rows:[row],fields:new Set(currentView.columns.map(column=>column.name)),
-        primaryKeys:[currentView.primaryKey],params})
-      const context=result(currentView,selected.rows,target)
-      return context
+      const rows:DataRow[]=snapshot===null?[]:[{...target.fields,...snapshot.fields,[primaryKey]:target.key,[currentOptions.contentField]:snapshot.text,
+        ...(revisionField?{[revisionField]:snapshot.revision??''}:{})}]
+      const selected=DataViewLocalQuery.select({rows,fields,primaryKeys:[primaryKey],params:captured})
+      return result(currentView,{...selected,primaryKey,baseline:snapshot},target)
     },
     save:async(command:SaveCommand)=>{
       const receipts:SaveReceipt[]=[]
@@ -347,7 +364,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           const writeText=submitted?.[currentOptions.contentField]
           if(!canCreate(target))throw new Error('FILE_RESOURCE_READ_ONLY: 文件来源不允许新增')
           if(!submitted||context.rows.length!==0||submitted[view.primaryKey]!==target.key||typeof writeText!=='string'
-            ||Object.entries(target.fields).some(([field,value])=>!Object.is(submitted[field],value)))throw new Error('FILE_RESOURCE_SCOPE: 文件新增身份或内容无效')
+            ||Object.entries(target.fields).some(([field,value])=>context.output.has(field)&&!Object.is(submitted[field],value)))throw new Error('FILE_RESOURCE_SCOPE: 文件新增身份或内容无效')
           if(prior){
             if(prior.operation!=='write')throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 原文件提交与当前新增操作不一致')
             const remote=await currentOptions.transport.read(prior.target);assertCurrent(view,target)
@@ -373,9 +390,9 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           const saved=confirmedSnapshot
           if(saved?.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件新增回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
-          const accepted={...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
+          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
-          receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],context:result(view,[accepted],target)})
+          receipts.push({metaName:change.identity.metaName,added:[accepted],changed:[],deleted:[],changedFields:[],context:receiptResult(context,[accepted],saved)})
           continue
         }
         if(changed.length){
@@ -396,8 +413,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
             else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与原提交及原基线均不一致')
           }else{
             const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
-            if(baseline===null||baseline.text!==original[currentOptions.contentField]
-              ||currentOptions.revisionField&&String(baseline.revision??'')!==String(original[currentOptions.revisionField]??''))throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView查询基线')
+            if(!sameBaseline(baseline,context.baseline))throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView查询基线')
             try{await currentOptions.transport.write({target,text:writeText,baseline})}
             catch(error){if(currentOptions.transport.isUnknown(error))state.pending.set(target.key,{target,operation:'write',baseline,text:writeText,state:'unknown',message:error instanceof Error?error.message:String(error),projectionNotified:false});throw error}
             try{confirmedSnapshot=await currentOptions.transport.read(target);assertCurrent(view,target)
@@ -408,11 +424,11 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           const saved=confirmedSnapshot
           if(saved?.text!==writeText)throw new Error('FILE_RESOURCE_RECEIPT: 文件保存回执无法确认')
           const snapshotFields=formalSnapshotFields(view,saved.fields)
-          const accepted={...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}
+          const accepted=Object.fromEntries(Object.entries({...submitted,...snapshotFields,...(currentOptions.revisionField?{[currentOptions.revisionField]:saved.revision??''}:{})}).filter(([field])=>context.output.has(field)))
           state.owners.set(target.key,{view,context:change.context})
           receipts.push({metaName:change.identity.metaName,added:[],changed:[accepted],deleted:[],
             changedFields:[[currentOptions.contentField,...(currentOptions.revisionField?[currentOptions.revisionField]:[]),...Object.keys(snapshotFields)]
-              .filter(field=>view.columns.some(column=>column.name===field))],context:result(view,[accepted],target)})
+              .filter(field=>context.output.has(field))],context:receiptResult(context,[accepted],saved)})
           continue
         }
         const submitted=deleted[0]
@@ -428,8 +444,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           else throw new Error('FILE_RESOURCE_UNKNOWN_CONFLICT: 远端文件与删除前来源均不一致')
         }else{
           const baseline=await currentOptions.transport.read(target);assertCurrent(view,target)
-          if(!baseline||baseline.text!==original[currentOptions.contentField]
-            ||currentOptions.revisionField&&String(baseline.revision??'')!==String(original[currentOptions.revisionField]??''))throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView删除基线')
+          if(!sameBaseline(baseline,context.baseline)||!baseline)throw new Error('FILE_RESOURCE_CONFLICT: 远端文件已不同于DataView删除基线')
           try{await currentOptions.transport.remove({target,baseline})}
           catch(error){if(currentOptions.transport.isUnknown(error))state.pending.set(target.key,{target,operation:'delete',baseline,state:'unknown',message:error instanceof Error?error.message:String(error)});throw error}
           try{const readback=await currentOptions.transport.read(target);assertCurrent(view,target)
@@ -438,7 +453,7 @@ function createFileResourceEngine(initialOptions:BindFileResourceAdapterOptions,
           state.pending.set(target.key,{target,operation:'delete',baseline,state:'confirmed',message:null})
         }
         state.owners.set(target.key,{view,context:change.context})
-        receipts.push({metaName:change.identity.metaName,added:[],changed:[],deleted:[submitted],changedFields:[],context:result(view,[],target)})
+        receipts.push({metaName:change.identity.metaName,added:[],changed:[],deleted:[submitted],changedFields:[],context:receiptResult(context,[],null)})
         }finally{state.saving.delete(target.key);if(!state.pending.has(target.key))state.owners.delete(target.key)}
       }
       return receipts
@@ -504,15 +519,17 @@ export function bindFileDirectoryQueryAdapter(view:DataView,options:BindFileDire
     if(current!==view)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录查询视图不匹配')
     const target=currentOptions.target(current)
     if(targetIdentity(target)!==boundTargetIdentity)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图目标不可改绑')
+    const primaryKey=current.primaryKey,fields=new Set([primaryKey,'fileName'])
+    const captured=DataViewLocalQuery.captureParams({fields,primaryKeys:[primaryKey],params})
     const names=await currentOptions.list(target)
     assertCurrent()
-    const rows=names.map(fileName=>({[current.primaryKey]:fileName,fileName}))
-    const selected=DataViewLocalQuery.select({rows,fields:new Set(current.columns.map(column=>column.name)),primaryKeys:[current.primaryKey],
-      params:{...params,allPages:true,treeMode:'flat'}})
-    const keys=new Set(selected.rows.map(row=>String(row[current.primaryKey])))
+    if(current.primaryKey!==primaryKey)throw new Error('FILE_DIRECTORY_QUERY_IDENTITY: 本次目录查询主键已变化')
+    const rows=names.map(fileName=>({[primaryKey]:fileName,fileName}))
+    const selected=DataViewLocalQuery.select({rows,fields,primaryKeys:[primaryKey],params:captured})
+    const keys=new Set(selected.rows.map(row=>String(row[primaryKey])))
     const visible=(key:unknown,field:string)=>keys.has(String(key))&&selected.output.has(field)
-    return {rows:selected.rows,total:selected.total,rowKey:(row:Readonly<DataRow>)=>row[current.primaryKey],
-      assertIdentity:identity=>{assertCurrent();if(identity.scenarioId!==current.dataSet?.scenarioId||identity.metaName!==current.tableName
+    return {rows:selected.rows,total:selected.total,rowKey:(row:Readonly<DataRow>)=>row[primaryKey],
+      assertIdentity:identity=>{assertCurrent();if(current.primaryKey!==primaryKey)throw new Error('FILE_DIRECTORY_QUERY_IDENTITY: 本次目录查询主键已变化');if(identity.scenarioId!==current.dataSet?.scenarioId||identity.metaName!==current.tableName
         ||identity.resource?.resourceType!=='file'||identity.resource.resourceId!==currentOptions.resourceId){
         throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录资源身份不匹配')}} ,
       fieldAccess:(key,field)=>{const allowed=visible(key,field);return {read:allowed?'visible' as const:'invisible' as const,write:'denied' as const,
@@ -522,6 +539,7 @@ export function bindFileDirectoryQueryAdapter(view:DataView,options:BindFileDire
       createChildActionState:()=> 'disabled' as const,viewActionState:key=>keys.has(String(key))?'enabled' as const:'hidden' as const}
   }}
   view.bindQueryExecutor(executor,{resource:{resourceType:'file',resourceId:currentOptions.resourceId}})
+  view.queryConfig={...view.queryConfig,pagination:view.queryConfig.pagination??'none'}
   fileDirectoryBindings.set(view,next=>{
     if(next.resourceId!==currentOptions.resourceId)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图已绑定另一资源')
     if(targetIdentity(next.target(view))!==boundTargetIdentity)throw new Error('FILE_DIRECTORY_VIEW_IDENTITY: 目录视图目标不可改绑')

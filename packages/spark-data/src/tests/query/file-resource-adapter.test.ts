@@ -2,7 +2,7 @@ import {describe, expect, it, vi} from 'vitest'
 import {DataSet} from '../../dataset'
 import {bindFileDirectoryQueryAdapter,bindFileResourceAdapter,createFileResourceAdapterExecutor, type FileResourceTransport} from '../../query/file-resource-adapter'
 
-function fixture(rejectHistoryBeforeWrite=false) {
+function fixture(rejectHistoryBeforeWrite=false,exposeRevision=true) {
   const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{Files:{resourceType:'file',resourceId:'page-files',
     columns:[{name:'fileKey',type:'string',isPrimaryKey:true},{name:'pageId',type:'string'},{name:'fileName',type:'string'},
       {name:'text',type:'string'},{name:'revision',type:'string'}],views:{default:{commitMode:'staged',queryContext:{pageId:'PAGE',fileName:'rule.json'}}}}}})
@@ -22,13 +22,206 @@ function fixture(rejectHistoryBeforeWrite=false) {
     verify:async(_target,attempt,expectedText)=>versions.get(Number(attempt.version))===expectedText,
   }
   const transport:FileResourceTransport={read,write,remove,history,isUnknown:error=>error instanceof Error&&error.message==='timeout'}
-  const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId:'page-files',contentField:'text',revisionField:'revision',
+  const bind=(targetView:typeof view)=>bindFileResourceAdapter(targetView,{resourceId:'page-files',contentField:'text',...(exposeRevision?{revisionField:'revision'}:{}),
     target:target=>({key:JSON.stringify([target.queryContext['pageId'],target.queryContext['fileName']]),fields:{pageId:target.queryContext['pageId'],fileName:target.queryContext['fileName']}}),transport})
   bind(view)
   return {dataSet,view,current,read,write,remove,bind,versions,history,transport}
 }
 
 describe('DataView file resource adapter',()=>{
+
+  it('keeps filter ownership defaults private when they are outside the new file output',async()=>{
+    const f=fixture();f.current.text=null
+    try{
+      f.view.filterExpression={field:'pageId',operator:'eq',value:'PAGE'}
+      await f.view.loadFromServer({fields:['fileKey','text']})
+      const added=await f.view.addRow({text:'filtered new file'})
+      expect(added).not.toHaveProperty('pageId')
+      expect(f.view.rows[0]).not.toHaveProperty('pageId')
+      f.view.discardPendingChanges()
+      expect(f.view.rows).toHaveLength(0);expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.write).not.toHaveBeenCalled()
+      await f.view.addRow({text:'filtered new file'})
+      expect(f.view.rows[0]).not.toHaveProperty('pageId')
+      const saved=await f.dataSet.saveChanges();expect(saved.success).toBe(true)
+      expect(f.current.text).toBe('filtered new file')
+    }finally{f.dataSet.destroy()}
+  })
+
+
+  it('does not inject unprojected target fields into a valid new file draft',async()=>{
+    const f=fixture();f.current.text=null
+    try{
+      await f.view.loadFromServer({fields:['fileKey','text']})
+      const added=await f.view.addRow({text:'new file'})
+      expect(added).not.toHaveProperty('pageId');expect(added).not.toHaveProperty('fileName')
+      expect(f.view.rows[0]).not.toHaveProperty('pageId')
+      expect(f.view.fieldAccess(f.view.rows[0]!,'pageId').read).toBe('invisible')
+      const saved=await f.dataSet.saveChanges();expect(saved.success).toBe(true)
+      expect(f.current.text).toBe('new file');expect(f.write).toHaveBeenCalledOnce()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('uses the owner output scope for missing-file field visibility before staging',async()=>{
+    const f=fixture();f.current.text=null
+    try{
+      await f.view.loadFromServer({fields:['fileKey','text']})
+      expect(f.view.newRowFieldAccess('pageId')).toMatchObject({read:'invisible',write:'denied',component:'hidden'})
+      expect(f.view.newRowFieldAccess('text')).toMatchObject({read:'visible',write:'allowed'})
+    }finally{f.dataSet.destroy()}
+  })
+
+
+  it.each(['page','projection'] as const)('rejects new file drafts outside the query create capability (%s)',async mode=>{
+    const f=fixture()
+    try{
+      if(mode==='projection')f.current.text=null
+      f.view.queryConfig={pagination:'paged'}
+      await f.view.loadFromServer(mode==='page'?{page:2,pageSize:1}:{fields:['fileKey']})
+      if(mode==='projection')expect(f.view.newRowFieldAccess('text').write).toBe('denied')
+      await expect(f.view.addRow({})).rejects.toThrow('FILE_RESOURCE_CREATE_UNAVAILABLE')
+      expect(f.view.rows).toHaveLength(0)
+      expect(f.view.dirtyTracking.hasPendingChanges()).toBe(false)
+      expect(f.write).not.toHaveBeenCalled()
+    }finally{f.dataSet.destroy()}
+  })
+
+
+  it.each([
+    {expose:false,from:'v1',to:'v2'}, {expose:true,from:null,to:''},
+  ].flatMap(version=>(['update','delete'] as const).map(operation=>({...version,operation}))))('keeps the source revision independent of its display column (%j)',async version=>{
+      const operation=version.operation
+      const f=fixture(false,version.expose);f.current.revision=version.from
+      try{
+        await f.view.refresh()
+        const id=f.view.getPkKey(f.view.rows[0]!)!
+        if(operation==='update')await f.view.editRowById(id,{text:'edited'})
+        else await f.view.removeRow(id)
+        f.current.revision=version.to
+        await expect(f.dataSet.saveChanges()).rejects.toThrow('FILE_RESOURCE_CONFLICT')
+        expect(f.write).not.toHaveBeenCalled();expect(f.remove).not.toHaveBeenCalled()
+      }finally{f.dataSet.destroy()}
+  })
+
+
+  it.each(['create','update'] as const)('does not publish unprojected snapshot fields through a %s receipt',async operation=>{
+    const f=fixture()
+    f.dataSet.getTable('Files')!.addColumns([{name:'localDirty',type:'boolean'}])
+    f.read.mockImplementation(async()=>f.current.text===null?null:{text:f.current.text,revision:f.current.revision,fields:{localDirty:false}})
+    if(operation==='create')f.current.text=null
+    try{
+      await f.view.loadFromServer({fields:['fileKey','pageId','fileName','text','revision']})
+      if(operation==='create')await f.view.addRow({pageId:'PAGE',fileName:'rule.json',text:'saved'})
+      else await f.view.editRowById(f.view.getPkKey(f.view.rows[0]!)!,{text:'saved'})
+      const saved=await f.dataSet.saveChanges()
+      expect(saved.success).toBe(true)
+      expect(f.view.rows[0]).not.toHaveProperty('localDirty')
+      expect(f.view.fieldAccess(f.view.rows[0]!,'localDirty').read).toBe('invisible')
+      expect(f.write).toHaveBeenCalledOnce()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('deletes a key-only projection using the private source baseline',async()=>{
+    const f=fixture()
+    try{
+      await f.view.loadFromServer({fields:['fileKey']})
+      await f.view.removeRow(f.view.getPkKey(f.view.rows[0]!)!)
+      const saved=await f.dataSet.saveChanges()
+      expect(saved.success).toBe(true);expect(f.current.text).toBeNull()
+      expect(f.remove).toHaveBeenCalledOnce();expect(f.view.rows).toHaveLength(0)
+    }finally{f.dataSet.destroy()}
+  })
+
+
+  it('keeps the original file output scope after accepting a write receipt',async()=>{
+    const f=fixture()
+    try{
+      await f.view.loadFromServer({fields:['fileKey','text']})
+      await f.view.editRowById(f.view.getPkKey(f.view.rows[0]!)!,{text:'edited'})
+      const saved=await f.dataSet.saveChanges()
+      expect(saved.success).toBe(true);expect(f.current.text).toBe('edited')
+      expect(f.view.fieldAccess(f.view.rows[0]!,'revision')).toMatchObject({read:'invisible',write:'denied'})
+      expect(f.write).toHaveBeenCalledOnce()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('captures the file filter before awaiting the source read',async()=>{
+    const f=fixture()
+    let release:(snapshot:{text:string;revision:string})=>void=()=>{throw new Error('not started')}
+    f.read.mockImplementationOnce(()=>new Promise(resolve=>{release=resolve}))
+    const filter={field:'text',operator:'eq' as const,value:'baseline'}
+    try{
+      const pending=f.view.loadFromServer({filter})
+      await vi.waitFor(()=>expect(f.read).toHaveBeenCalledOnce())
+      filter.value='different';release({text:'baseline',revision:'v1'})
+      await pending
+      expect(f.view.rows).toHaveLength(1)
+      expect(f.view.rows[0]?.['text']).toBe('baseline')
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('rejects unsupported directory fields and tree modes before listing',async()=>{
+    const f=fixture(),view=f.dataSet.getTable('Files')!.getOrCreateView('directory-invalid')
+    const list=vi.fn(async()=>['rule.json'])
+    try{
+      bindFileDirectoryQueryAdapter(view,{resourceId:'page-files',target:()=>({key:'PAGE',fields:{pageId:'PAGE'}}),list})
+      await view.loadFromServer({fields:['text']}).catch(()=>undefined)
+      expect(view.loadingError).toBeInstanceOf(Error);expect(list).not.toHaveBeenCalled()
+      view.treeMode='nested'
+      await view.loadFromServer().catch(()=>undefined)
+      expect(view.loadingError).toBeInstanceOf(Error);expect(list).not.toHaveBeenCalled()
+    }finally{f.dataSet.destroy()}
+  })
+
+
+  it.each(['page', 'filter'] as const)('does not treat an existing file hidden by %s as missing',async mode=>{
+    const f=fixture()
+    try{
+      f.view.queryConfig={pagination:'paged'}
+      const options=mode==='page'?{page:2,pageSize:1}:{filter:{field:'text',operator:'eq' as const,value:'absent'}}
+      await f.view.loadFromServer(options)
+      expect(f.view.rows).toHaveLength(0)
+      expect(f.view.total).toBe(mode==='page'?1:0)
+      expect(f.view.addActionState()).toBe('disabled')
+      expect(f.read).toHaveBeenCalledOnce();expect(f.write).not.toHaveBeenCalled()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('does not widen a key-only file projection into readable or writable content',async()=>{
+    const f=fixture()
+    try{
+      await f.view.loadFromServer({fields:['fileKey']})
+      const row=f.view.rows[0]!
+      expect(row).not.toHaveProperty('text')
+      expect(f.view.fieldAccess(row,'text')).toMatchObject({read:'invisible',write:'denied'})
+    }finally{f.dataSet.destroy()}
+  })
+
+  it.each([true,false])('rejects unsupported file queries before transport even when missing=%s',async missing=>{
+    const f=fixture();if(missing)f.current.text=null
+    try{
+      await f.view.loadFromServer({distinct:true}).catch(()=>undefined)
+      expect(f.view.loadingError).toBeInstanceOf(Error)
+      expect(f.read).not.toHaveBeenCalled()
+    }finally{f.dataSet.destroy()}
+  })
+
+  it('keeps explicit directory pagination and the full default listing separate',async()=>{
+    const f=fixture(),view=f.dataSet.getTable('Files')!.getOrCreateView('directory-page')
+    const names=Array.from({length:31},(_,i)=>`file-${i}.json`),list=vi.fn(async()=>names)
+    const options={resourceId:'page-files',target:()=>({key:'PAGE',fields:{pageId:'PAGE'}}),list}
+    try{
+      bindFileDirectoryQueryAdapter(view,options)
+      await view.refresh();expect(view.rows).toHaveLength(31)
+      view.queryConfig={pagination:'paged'}
+      await view.loadFromServer({page:2,pageSize:1})
+      expect(view.rows.map(row=>row['fileName'])).toEqual(['file-1.json'])
+      expect(view.total).toBe(31)
+      bindFileDirectoryQueryAdapter(view,options)
+      expect(view.queryConfig.pagination).toBe('paged')
+    }finally{f.dataSet.destroy()}
+  })
+
   it('does not downgrade a concurrent confirmed write with a stale recovery read',async()=>{
     const f=fixture()
     try{

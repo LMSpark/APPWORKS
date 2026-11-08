@@ -67,7 +67,7 @@
         },
         "childResult": {
           "type": "object",
-          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 21 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
         },
         "rows": {
           "type": "array",
@@ -89,6 +89,10 @@
         "prepareNewRow": {
           "type": "object",
           "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "newRowFieldAccess": {
+          "type": "object",
+          "title": "(field: string) => Pick<Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>, \"read\" | \"write\" | \"required\">"
         },
         "prepareNewRowWithIdentity": {
           "type": "object",

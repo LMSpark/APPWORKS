@@ -217,7 +217,7 @@
         },
         "executeQuery": {
           "type": "object",
-          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
+          "title": "(view: DataView, params: QueryParams) => Promise<Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>>"
         },
         "save": {
           "type": "object",
@@ -225,19 +225,19 @@
         },
         "hasUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => boolean"
         },
         "acknowledgeSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => undefined"
         },
         "refreshSavedRowPermissions": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => Promise<Readonly<...>>"
         },
         "abandonUnconfirmedSave": {
           "type": "object",
-          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 18 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
+          "title": "(context: Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; hasPendingSavedRowPermissions?: boolean; pendingSavedRowIds?: readonly unknown[]; ... 19 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>) => void"
         },
         "source": {
           "$ref": "../../../../packages/spark-data/src/query/data-view-source.ts.json#/$defs/DataViewSourceAdapter"
@@ -368,7 +368,7 @@
         },
         "childResult": {
           "type": "object",
-          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 20 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
+          "title": "(parent: Readonly<Record<string, unknown>> | null, modelName: string) => Readonly<{ undefinedChanges?: \"clear\"; countReported?: boolean; nextPageAvailable?: boolean | undefined; ... 21 more ...; viewActionState(rowKey: unknown, available?: boolean): DataViewActionState; }>"
         },
         "rows": {
           "type": "array",
@@ -390,6 +390,10 @@
         "prepareNewRow": {
           "type": "object",
           "title": "(row: Readonly<Record<string, unknown>>) => Record<string, unknown>"
+        },
+        "newRowFieldAccess": {
+          "type": "object",
+          "title": "(field: string) => Pick<Readonly<{ read: \"invisible\" | \"masked\" | \"visible\"; write: \"denied\" | \"allowed\"; component: \"hidden\" | \"readonly\" | \"editable\"; required: boolean; writeMode: \"required\" | \"editable\" | \"readonly\"; }>, \"read\" | \"write\" | \"required\">"
         },
         "prepareNewRowWithIdentity": {
           "type": "object",

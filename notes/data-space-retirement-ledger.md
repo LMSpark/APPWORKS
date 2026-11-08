@@ -1,12 +1,12 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AI** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
+> **唯一当前入口（2026-11-08，已恢复实施）：** 用户已明确恢复 **S1 SPARK data 集中收口**，并授权隔离实服烟测、清理及一次性历史数据转换；按“烟测→评审断链→方案→实现→再烟测”迭代。总体阶段合同见[分阶段收口](#spark-data-component-replan-20261108)，最新执行事实见本台账末尾 **AJ** 批及后补记录。S1 尚未冻结，禁止进入组件、宿主或业务页面实施，不加兼容层、不修改或启动 Java 后端。历史数据仅按已核定映射一次性转换，不猜测重挂或批量删除孤立数据。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AI当前恢复点：** AH的18类动态资源显式分类已推，旧File helper及导出已删除，不能再调用或复刻。AI补结构入口释放拒绝；末态门禁/提交以末尾记录为准。ProjectToolCatalog持久伪file仍开放：只读评审已定位S1数据合同与S3/S4消费切换依赖，尚未实施projectionBindings或改正式JSON。不得将其描述为已修或将动态声明调整冒作远端历史转换完成。S1未冻结。
+> **AJ当前恢复点：** 文件正文/目录的实际查询范围、投影、存在性与私有写基线已集中修正，新增字段按owner的读取/写入/必填事实消费；末态门禁和提交以末尾记录为准。ProjectToolCatalog正式投影仍未转换：下一S1按I3完成数据合同及一次性配置转换/诊断旧配置，精确登记S4旧消费断点，不继续以跨阶段依赖冒冻结，也不加兼容。S1未冻结、未进S2，原20包保留。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8248,3 +8248,21 @@ AiTurn共用显式descriptor表建表与bind，Agent显式create/read descriptor
 **AI最终检查点验收。**完整根verify13045自然exit0，含类型/lint、ClassModel49项及正式规则；既有2模型警告/84薄页诊断保留，不冒整仓所有测试全绿。data1307/API1474/消费者19文件440项、定向55项及编译smoke均自然0，包type/lint/build与官方生成通过；全部原handle终态。高阶末态无阻断，精确清理10份AI中间日志保正式末态，唯一主worktree，无过程脚本/并行总计划，原S2未跟踪RED不stage。本批S1仅原生结构生命周期，真实file/DB适配未换协议，无实服写入/Java/组件/宿主/页面实施。只推origin既定codex分支、不force/merge/部署。S1尚未冻结，ProjectToolCatalog正式投影转换及远端历史核验仍开放，按本批研读的阶段依赖继续，不恢复旧file helper、不用局部门禁核销20包整体目标。
 
 **AI已提交推送并独立核实。**代码6f5150774dc3d4b6f279733400b700484ba1fc89（fix(data): reject structural mutations after dataset disposal），24文件197增93删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留。此事实补记docs跟随同步。恢复仍S1，结构释放反例已闭环；正式投影与历史转换未完成，不进入组件阶段。
+
+**AJ文件查询/投影/私有基线集中批（S1，未冻结）。**前批c90e18cd3是有效已推检查点。按I3重核未覆盖来源，源码定位FileResource正文executeQuery先select再result二次全列select，丢分页total/output且creating按结果页空集；目录强制allPages/flat，缺文件直接跳params校验。真实DataView+原file transport夹具6项RED（存在文件page2/filter空仍新增、key-only重开text权限、存在/缺文件不支持参数已读来源或假成功、目录显式分页被忽略）。现复用DataViewLocalQuery.captureParams在read/list前克隆实际参数并纯预检，viewConfig仅元信息引用；共同readonly工厂移除此重复捕获算法。正文只select一次保rows/total/output，文件存在性按真实snapshot，不用空页猜；目录首次显式pagination none保>20完整默认，明确paged尊重参数且重绑不覆盖，来源字段只PK/fileName，拒nested/其它未支持语义不强改flat。
+
+高阶再定位写回两断链：selected rows不能作text/revision保存基线；回执context投影不足，added/changed/changedFields仍会向公开rows补入未投影元数据。主控text-only更新真实RED、key-only删除真实RED；初create/update额外localDirty测试误用不存在addColumn，纠正正式addColumns后以内存备份当前源、临时HEAD原adapter跑正确2例，实际2RED并finally原样恢复，无备份脚本/旧实现遗留。现私有query context只保正式读取text/revision原基线，不是第二可编辑草稿；save前独立回读比原基线，保冲突/unknown；accepted与changedFields及receipt.context共同沿原output缩，保存回执带本次实际snapshot更新私有基线，delete为null，不重开字段。6文件159项GREEN，含原文件owner/装配/命令及真实内存工具文件消费者；完整data25665/API36082/consumer26090/package78749/generation24936在途。
+
+**AJ基线/下游与剩余边界。**恢复前project-model全包275、auth-nav/data-space 29文件886项自然0，仅作为修改前基线；末态消费者正在重验。高阶发现目录整删page-tool-file-operations:27/108/123复用被filter污染的同名视图，删除a再读空不证明b已删；这是当前S4/S5领域消费者未闭环，本批不改服务层业务编排、不声称整目录清理已通过。S1仅保证查询忠实与已证资源结果，下一消费迁移须显式无过滤/全量语义，total===rows.length本身不证明物理目录完整。ProjectToolCatalog不能无限以阶段为由保错误合同：I3内部交接规则允许S1完成确定logical-view数据合同/拒旧配置、精确登记S4旧消费者断点；下一S1仍须真正实现并转换或诊断拒旧，不把AI研读当已完成或冻结条件。此批无实服写入/Java/组件/宿主/页面实施，原S2未跟踪RED不动。
+
+**AJ末态追加反例。**源snapshot版本独立于展示revisionField，高阶指出无展示列漏版本冲突、String折叠null/空；主控update/delete×无展示v1→v2及展示null→空4例真实RED。另已存在空页addRow({})绕按钮、缺文件key-only newRowFieldAccess正文可写2例真实RED。现私有sameBaseline严格比text/revision原生值；prepareNewRow在生成草稿前核原身份/实际missing/canCreate/正文在原output，isFieldReadOnly按原output/key/revision消费，addAction同步合同，不动DataView通用新增。6文件165项自然0；合法缺文件新增、正文更新/主键删除及原unknown不重放保留。前data1319/API1474/消费者等均自然0但被末态取代；package78749 type过lint2处optional-chain失败，已在sameBaseline集中后移除对应表达式，未缩门禁。24936生成自然0需末态再刷。所有旧handle已终态，末态全包/consumer/package/生成正运行，不冒早轮为末验。
+
+**AJ暂存期同源投影闭环。**高阶定位key/text合法新增会注入未投影pageId/fileName到公开草稿；主控草稿字段泄漏及新行可见性2项真实RED。现目标字段仅按原output回填，保存身份仍由私有target决定、投影内目标字段核原值，不要求把隐藏scope写回公开行。DataViewQueryResult补原owner的可选newRowFieldAccess合同，由既有queryNewRowFieldAccess统一消费，仅进一步收窄动作/主键/计算列/只读/失效限制，不新增后端权限协议或角色。文件owner按输出提供新增字段可见性；合法missing key/text新增及保存成立，空页/非法create仍无脏状态。6文件167项自然0。此前data1325/API1474/consumer、包type/lint/build与生成均自然0但不冒新增合同末态，原handle全终态；已按新源码再跑完整回归/正式生成。
+
+**AJ最后原生默认值反例。**DataView queryOwnershipDefaults会将过滤pageId传入prepare；只裁第二个target spread不足。主控filter pageId、仅key/text、合法新增1项真实RED。现先核完整输入与私有target，再整体按原output裁剪，取消恢复空/clean/零写，再次新增保存可用。hook类型收窄为真正消费的read/write/required（不虚承component/writeMode）；DataView展示统一计算、读写维度独立，源结果仍不能扩大原动作/主键/计算列/失效限制。6文件168项自然0；此前36957/39537/61442/30173/79348均自然0（消费者30文件896）但非最后源快照，原handle全终态。最终final-data/API/consumer/package/正式生成已再跑，不以旧局部通过替代末态。
+
+**AJ末态扩大/编译包烟测。**最终data80256为57文件1328项、API39126为44文件1474项，自然0；package61502 type/lint及实际build自然0。官方ClassModel/lowcode88686自然0（611/218）；编译包内存真实FileResource烟测自然0：取消零写/公开草稿无隐藏scope、再新增保存独立回读确认、无展示版本列的真实revision漂移零重放、目录默认31项及显式page2只一项total31。仅内存transport，无实服写入/服务支持冒称。高阶末态限定范围无阻断；消费者35382与root verify原handle仍待终态。正式投影转换及目录整删过滤污染仍各自开放，S1未冻结。
+
+**AJ消费者与清理补记。**35382最终30文件896项自然exit0；工程root80030仍原活handle，类型/lint/文档已过等待余门禁。精确删除29份AJ中间/被末态替代日志，保最终data/API/consumer/package/generation/verify、168定向、编译烟测与project-model275基线。原生/文件结果合同已查正式ClassModel产生新owner事实钩子与captureParams，不手改派生。不将此前文件/pagedata实服历史证据冒作新投影与私有基线的线上验证；这条改动后的真实隔离文件来源CRUD/清理仍缺证，DB旧隔离CRUD只复用其未改owner范围。下一S1仍需正式投影合同并按精确对象补文件来源实服结果证据，不用内存transport或测试账号权限猜服务支持。
+
+**AJ最终检查点验收。**完整根verify80030自然exit0，含类型/lint、ClassModel49项与正式规则；保既有2模型警告/84薄页诊断，不冒整仓所有测试全绿。最终data1328/API1474/消费者896/定向168、包type/lint/build、正式ClassModel/lowcode生成与编译包内存烟测均自然0，原handle全部终态。高阶末态限定本批合同无剩余阻断。清理29份中间日志，保正式末态及有效project-model基线，唯一主worktree；原S2未跟踪RED不stage。提交范围仅spark-data实现/正式回归、官方派生和本台账，无组件/宿主/页面/Java实施、无实服写入/新协议/兼容分支。只推origin既定codex分支、不force/merge/部署。S1仍未冻结；ProjectToolCatalog正式数据合同/配置转换、目录整删旧消费与变更后真实文件来源证据仍按各自责任开放，完整20包不缩范围。

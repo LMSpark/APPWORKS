@@ -46,6 +46,39 @@
           "properties": {},
           "additionalProperties": false
         },
+        "method.captureParams.params": {
+          "type": "object",
+          "properties": {
+            "input": {
+              "type": "object",
+              "properties": {
+                "fields": {
+                  "type": "object",
+                  "title": "ReadonlySet<string>"
+                },
+                "primaryKeys": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  }
+                },
+                "params": {
+                  "$ref": "../types.ts.json#/$defs/QueryParams"
+                }
+              },
+              "required": [
+                "fields",
+                "primaryKeys",
+                "params"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "additionalProperties": false
+        },
+        "method.captureParams.return": {
+          "$ref": "../types.ts.json#/$defs/QueryParams"
+        },
         "method.select.params": {
           "type": "object",
           "properties": {
@@ -110,7 +143,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T00:11:13.992Z",
+  "generatedAt": "2026-11-08T01:42:27.072Z",
   "models": {
     "DataViewLocalQuery": {
       "name": "DataViewLocalQuery",
@@ -132,6 +165,30 @@
             }
           ],
           "methods": [
+            {
+              "name": "captureParams",
+              "jsdoc": "在来源读取前捕获并校验本次参数；viewConfig为元信息引用，其余输入隔离原地修改。",
+              "parameters": [
+                {
+                  "name": "input",
+                  "type": {
+                    "type": "reference",
+                    "name": "Readonly",
+                    "typeArguments": [
+                      {
+                        "type": "unknown",
+                        "name": "{\n        fields: ReadonlySet<string>;\n        primaryKeys: readonly string[];\n        params: QueryParams;\n    }"
+                      }
+                    ]
+                  }
+                }
+              ],
+              "type": {
+                "type": "reference",
+                "name": "QueryParams",
+                "sourcePath": "packages/spark-data/src/types.ts"
+              }
+            },
             {
               "name": "select",
               "jsdoc": "使用视图请求快照查询完整来源；主键始终保留，总数在分页之前计算。",

@@ -357,12 +357,9 @@ export function prepareDataSetReadonlyCommandQuery(view: DataView, options: Bind
     queryColumns,
     executeQuery: async (target, params) => {
       options.guard()
-      const {viewConfig, ...query} = params
-      const captured: QueryParams = {...structuredClone(query), ...(viewConfig ? {viewConfig} : {})}
       const fields = readonlyQueryFields(queryColumns(target)), primaryKey = target.primaryKey
       if (primaryKey && !fields.has(primaryKey)) throw new Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
-      DataViewLocalQuery.select({rows: [], fields,
-        primaryKeys: primaryKey ? [primaryKey] : [], params: captured})
+      const captured = DataViewLocalQuery.captureParams({fields, primaryKeys: primaryKey ? [primaryKey] : [], params})
       const assertInputs = options.captureQueryInputs?.(target)
       const assertCurrent = () => {
         options.guard(); assertInputs?.()

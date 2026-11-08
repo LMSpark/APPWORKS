@@ -255,6 +255,8 @@ type DataViewQueryResult = Readonly<{
   assertIdentity(identity: DataViewQueryIdentity): void
   rowKey(row: DataViewQueryRow): unknown
   prepareNewRow?(row: DataViewQueryRow): Record<string, unknown>
+  /** 原查询owner提供新增字段的读取/写入范围；DataView仍收窄失效、动作、主键与计算列限制。 */
+  newRowFieldAccess?(field: string): Pick<DataViewFieldAccess, 'read' | 'write' | 'required'>
   /** 仅正式查询owner可选支持的显式身份新增；身份与普通字段分开传递并须原样保留。 */
   prepareNewRowWithIdentity?(row: DataViewQueryRow, identity: DataViewNewRowIdentity): Record<string, unknown>
   /** 查询owner的字段结构只读约束，供新增输入消费；缺省不增加约束，false不授予数据权限。 */
@@ -879,6 +881,14 @@ rows: DataRow[] = []
       && context.addActionState(!this._resultStale) === 'enabled'
       && !this.effectivePkFields.includes(field) && !column.autoIncrement && context.isFieldReadOnly?.(field) !== true
     const required = column.required ?? column.allowDBNull === false
+    const owned = context.newRowFieldAccess?.(field)
+    if (owned) {
+      const writable = editable && owned.write === 'allowed'
+      const requiredInput = required || owned.required
+      return {...owned, required: requiredInput, write: writable ? 'allowed' : 'denied',
+        component: owned.read === 'invisible' ? 'hidden' : writable ? 'editable' : 'readonly',
+        writeMode: writable ? requiredInput ? 'required' : 'editable' : 'readonly'}
+    }
     return {read: 'visible', write: editable ? 'allowed' : 'denied', required,
       component: editable ? 'editable' : 'readonly', writeMode: editable ? required ? 'required' : 'editable' : 'readonly'}
   }

@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见文末 AY。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见文末 AZ。未冻结 S4。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8608,3 +8608,10 @@ pnpm run verify
 开工时只有 `D:/SPARK_AppWorks`，S3 冻结点 `d52838ed1`。N1 第一组从应用目录开始。`AppList.vue` 不再自建 `PageRuntime`，改由 `NativePageRuntimeSession` 创建、provide、换目标释放。`blueprintScenarioId || builtin` 双身份保持原样：有导航场景走 `loadLowcodeRuntimeScenario` 与 `default`，没有时仍走内置目录 `catalogApps`。根 `/app-list` 不另造平台 owner。
 
 **测试。**绑定源码改为要求会话、`session.dispose()`、`session.isCurrent(current)`，并拒绝页内 `new PageRuntime`。目录路由与迟到查询共 2 文件 13 项通过。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改 S2 组件，未改其他页面。公开声明未变，未跑生成器。
+
+<a id="az-s4-platform-apps-host"></a>
+#### AZ. S4第二页：平台应用目录换接到公共宿主（未冻结）
+
+`PlatformApps.vue` 不再自建 `PageRuntime`。目录 DataSet 仍先由 `loadLowcodeApplicationCatalog` 读出，再交给 `NativePageRuntimeSession`；换代、卸载和查询失败都释放当前实例，迟到刷新不写回。创建和删除仍拒绝不满足写前镜像的旧接口，不在本页伪造写命令。
+
+**测试。**`platform-apps-dataview.test.ts` 8 项通过，含会话源码约束、正式视图绑定、卸载后迟到查询和查询失败。目录夹具在每次重置后仍读取当前 `state.dataSet`。根 typecheck 0。改动文件 eslint 0。未改 `spark-data`，未改其他页面。公开声明未变，未跑生成器。

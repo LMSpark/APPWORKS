@@ -1,3 +1,4 @@
+import {readFileSync} from 'node:fs'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {defineComponent, h} from 'vue'
 import {flushPromises, mount} from '@vue/test-utils'
@@ -56,7 +57,10 @@ vi.mock('@spark-appworks/spark-component', () => ({
     }
   }}),
 }))
-vi.mock('@spark-appworks/spark-app', () => ({getNavHomePath: () => '/home'}))
+vi.mock('@spark-appworks/spark-app', async () => {
+  const {NativePageRuntimeSession} = await import('../../../../packages/spark-app/src/router/native-page-runtime-session')
+  return {getNavHomePath: () => '/home', NativePageRuntimeSession}
+})
 vi.mock('@/services/application-scope', () => ({buildApplicationPath: ({projectId}: {projectId: string}) => `/apps/${projectId}/home`}))
 vi.mock('@/services/project/project-shell', () => ({PROJECT_SWITCH_KEY: state.projectSwitchKey}))
 
@@ -76,7 +80,7 @@ afterEach(() => {
     fieldAccess: (_row: unknown, field: string) => ({read: field === 'IsSys' ? 'hidden' : 'visible'}), requestRefresh: state.refresh}),
     onAnyViewChange: () => () => undefined, destroy: vi.fn()}
   state.refresh.mockReset().mockResolvedValue({success: true})
-  state.loadCatalog.mockReset().mockResolvedValue(state.dataSet)
+  state.loadCatalog.mockReset().mockImplementation(async () => state.dataSet)
   state.dispose.mockReset()
   state.children = []; state.actions = []; state.viewKey = ''
   state.toolbar = {}; state.getFormalView.mockClear()
@@ -96,6 +100,13 @@ async function mountPage() {
 }
 
 describe('PlatformApps formal application catalog', () => {
+  it('creates its catalog runtime through the shared native session', () => {
+    const source = readFileSync('src/views/platform/PlatformApps.vue', 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
+
   it('binds the standard table to the formal view and refreshes that DataView', async () => {
     const {wrapper} = await mountPage()
     expect(state.loadCatalog).toHaveBeenCalledOnce()

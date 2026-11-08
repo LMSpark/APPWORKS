@@ -37,8 +37,7 @@
 import {computed, inject, onBeforeUnmount, onMounted, reactive, ref, shallowRef} from 'vue'
 import {useRouter} from 'vue-router'
 import {ElMessage, ElMessageBox} from 'element-plus'
-import {getNavHomePath} from '@spark-appworks/spark-app'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {getNavHomePath, NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {PAGE_RUNTIME, RendererButton, RendererTable, useSparkComponent, type RToolbarProps} from '@spark-appworks/spark-component'
 import {lowcodeApi, lowcodeEnterpriseDisplayName, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
@@ -54,7 +53,10 @@ const projectSwitch = inject(PROJECT_SWITCH_KEY)
 const view = shallowRef<DataView>()
 const ready = ref(false), loading = ref(false), runtimeError = ref(''), submitting = ref(false), dialogVisible = ref(false)
 const form = reactive({projectId: '', name: '', icon: 'Box', description: ''})
-let runtime: PageRuntime | undefined
+const session = new NativePageRuntimeSession({
+  provide: current => sparkProvide(PAGE_RUNTIME, current),
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 let unsubscribe: (() => void) | undefined
 let active = true
 let generation = 0
@@ -101,21 +103,20 @@ async function loadCatalog(): Promise<void> {
   const own = ++generation
   ready.value = false; loading.value = true; runtimeError.value = ''
   unsubscribe?.(); unsubscribe = undefined; view.value = undefined
-  sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined
+  session.dispose()
   try {
     const dataSet = await loadLowcodeApplicationCatalog()
     if (!active || own !== generation) {dataSet.destroy(); return}
-    const current = new PageRuntime({pageId: 'platform-applications', scenarioIds: [catalogScenarioId],
+    const current = session.acquire({pageId: 'platform-applications', scenarioIds: [catalogScenarioId], targetId: catalogScenarioId,
       loadScenario: async () => dataSet})
-    runtime = current
     await current.load()
-    if (!active || own !== generation || current.destroyed) {current.dispose(); return}
+    if (!active || own !== generation || !session.isCurrent(current)) return
     const dataView = getFormalModelView(dataSet, MODEL, 'catalogApps')
     if (!dataView || dataView.queryConfig.allPages !== true || dataView.queryConfig.distinct !== true) {
       throw new Error('正式应用目录 DataView 配置无效')
     }
     const assertCurrent = () => {
-      if (!active || own !== generation || current.destroyed) return
+      if (!active || own !== generation || !session.isCurrent(current)) return
       for (const row of dataView.rows) {
         if (dataView.fieldAccess(row, 'rowid').read !== 'visible' || typeof row['rowid'] !== 'string' || !row['rowid'].trim()) {
           throw new Error('应用目录缺少可读的应用身份')
@@ -127,17 +128,16 @@ async function loadCatalog(): Promise<void> {
       catch (cause) {runtimeError.value = cause instanceof Error ? cause.message : String(cause); ready.value = false}
     }})
     const result = await dataView.requestRefresh()
-    if (!active || own !== generation || current.destroyed) return
+    if (!active || own !== generation || !session.isCurrent(current)) return
     if (!result.success) throw new Error(result.message ?? '应用目录查询未成功')
     assertCurrent()
     view.value = dataView
-    sparkProvide(PAGE_RUNTIME, current)
     ready.value = true
   } catch (cause) {
     if (active && own === generation) {
       runtimeError.value = cause instanceof Error ? cause.message : String(cause)
       unsubscribe?.(); unsubscribe = undefined
-      sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; view.value = undefined
+      session.dispose(); view.value = undefined
     }
   } finally {if (active && own === generation) loading.value = false}
 }
@@ -173,7 +173,7 @@ async function deleteProject(project: {projectId: string; name: string}): Promis
 }
 onMounted(() => {void loadCatalog()})
 onBeforeUnmount(() => {
-  active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; view.value = undefined
+  active = false; generation++; unsubscribe?.(); session.dispose(); view.value = undefined
 })
 </script>
 

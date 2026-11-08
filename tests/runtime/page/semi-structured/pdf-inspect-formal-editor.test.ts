@@ -1,3 +1,5 @@
+import {readFileSync} from 'node:fs'
+import {resolve} from 'node:path'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {createMemoryHistory, createRouter, RouterView} from 'vue-router'
@@ -39,6 +41,13 @@ async function open(ruleId = 'P1') {
   return {wrapper, click, router}
 }
 describe('formal PDF rule editor', () => {
+  it('hosts the PDF design runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).toContain('scenarioInputs: {[scene]: {ruleId: id}}')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('preserves a malformed existing rule when only the name is changed', async () => {
     state.http.records['Base_FileInspectConfig']![0]!['rule_config'] = '{legacy-invalid'
     const f = await open()

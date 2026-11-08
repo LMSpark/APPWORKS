@@ -24,7 +24,7 @@
 import {computed, onBeforeUnmount, ref, shallowRef, watch} from 'vue'
 import {onBeforeRouteLeave, onBeforeRouteUpdate, useRoute} from 'vue-router'
 import {buildDataViewKey, type DataSet} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
+import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import {parseJsonDocument} from '@spark-appworks/spark-json-document'
 import {PAGE_RUNTIME, FieldText, FieldJson, RendererForm, RendererButton, useSparkComponent} from '@spark-appworks/spark-component'
 import {LowcodePdfInspect} from '@/lowcode/resources/semi-structured/pdf-inspect/resource'
@@ -33,8 +33,12 @@ const route = useRoute()
 const scenarioId = computed(() => typeof route.meta['blueprintScenarioId'] === 'string' ? route.meta['blueprintScenarioId'] : '')
 const ruleId = computed(() => typeof route.query['ruleId'] === 'string' ? route.query['ruleId'] : '')
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'pdf-inspect-editor-page'})
+const session = new NativePageRuntimeSession({
+  provide: () => undefined,
+  remove: () => sparkRemove(PAGE_RUNTIME),
+})
 const dataSet = shallowRef<DataSet>(), loading = ref(false), ready = ref(false), busy = ref(false), error = ref(''), pendingInput = ref(false), revision = ref(0)
-let runtime: PageRuntime | undefined, unsubscribe: (() => void) | undefined, generation = 0, active = true
+let unsubscribe: (() => void) | undefined, generation = 0, active = true
 const definitionKey = computed(() => buildDataViewKey(LowcodePdfInspect.catalogMetaName, 'definition', scenarioId.value))
 const definition = computed(() => dataSet.value?.getView(LowcodePdfInspect.catalogMetaName, 'definition'))
 const hasDefinition = computed(() => {revision.value; return definition.value?.rows.length === 1})
@@ -50,22 +54,24 @@ onBeforeRouteLeave(() => !hasPending.value)
 onBeforeRouteUpdate(() => !hasPending.value)
 watch([scenarioId, ruleId], async ([scene, id]) => {
   const own = ++generation
-  unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet.value = undefined
+  unsubscribe?.(); dataSet.value = undefined; session.dispose()
   ready.value = false; loading.value = true; error.value = ''; pendingInput.value = false
   try {
     if (!id.trim()) throw new Error('缺少 ruleId 参数')
     const loaded = await LowcodePdfInspect.loadEditor(scene)
     if (!active || own !== generation) {loaded.destroy(); return}
-    const page = new PageRuntime({pageId: 'pdf-inspect-editor-page', scenarioIds: [scene], scenarioInputs: {[scene]: {ruleId: id}}, loadScenario: async () => loaded})
-    runtime = page; await page.load()
-    if (!active || own !== generation) {page.dispose(); return}
+    const current = session.acquire({pageId: 'pdf-inspect-editor-page', scenarioIds: [scene], targetId: id,
+      scenarioInputs: {[scene]: {ruleId: id}}, loadScenario: async () => loaded})
+    await current.load()
+    if (!active || own !== generation || !session.isCurrent(current)) return
     const view = loaded.getView(LowcodePdfInspect.catalogMetaName, 'definition')
     if (!view) throw new Error('PDF正式规则视图缺失')
     dataSet.value = loaded
     const changed = () => revision.value++
     unsubscribe = loaded.onAnyViewChange({rowsChanged: changed, editingChanged: changed, requestStateChanged: changed, mutatingChanged: changed})
-    sparkProvide(PAGE_RUNTIME, page); await view.refresh()
-    if (active && own === generation) ready.value = true
+    if (active && own === generation && session.isCurrent(current)) sparkProvide(PAGE_RUNTIME, current)
+    await view.refresh()
+    if (active && own === generation && session.isCurrent(current)) ready.value = true
   } catch (cause) {if (active && own === generation) error.value = cause instanceof Error ? cause.message : String(cause)}
   finally {if (active && own === generation) loading.value = false}
 }, {immediate: true})
@@ -83,7 +89,7 @@ function cancel(): void {
   try {definition.value?.discardPendingChanges(); error.value = ''; revision.value++}
   catch (cause) {error.value = cause instanceof Error ? cause.message : String(cause)}
 }
-onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); sparkRemove(PAGE_RUNTIME); runtime?.dispose()})
+onBeforeUnmount(() => {active = false; generation++; unsubscribe?.(); session.dispose()})
 </script>
 
 <style scoped>

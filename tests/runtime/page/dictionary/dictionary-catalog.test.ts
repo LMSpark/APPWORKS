@@ -175,6 +175,12 @@ function captureDictionaryAiOwner(hosts: AiDataEntryHost[], attachments: AiDataE
 }
 
 describe('dictionary catalog formal view assembly', () => {
+  it('hosts the dictionary workspace runtime through the shared native session', () => {
+    const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts'), 'utf8')
+    expect(source).toContain('new NativePageRuntimeSession')
+    expect(source).toContain('session.isCurrent(current)')
+    expect(source).not.toContain('new PageRuntime')
+  })
   it('hosts the dictionary catalog runtime through the shared native session', () => {
     const source = readFileSync(resolve(process.cwd(), 'src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue'), 'utf8')
     expect(source).toContain('new NativePageRuntimeSession')

@@ -8,9 +8,8 @@ import {computed, onBeforeUnmount, ref, shallowRef, toValue, watch, type MaybeRe
 import {AI_DATA_ENTRY_HOST, type AiDataEntryAttachment, type AiDataEntryHostCapability} from '@spark-appworks/spark-component'
 import {DictionaryWorkspace} from '@spark-appworks/spark-lowcode-api'
 import type {DataSet, DataView} from '@spark-appworks/spark-data'
-import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
-import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
+import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import type {AiDataEntryHost} from '@/lowcode/resources/shared/ai-data-entry-host'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 
@@ -33,11 +32,15 @@ type DictionaryPageInput = Readonly<{
 /** 装配与操作结果均隔离到本次字典身份；设计与业务数据分别保存。 */
 export function useDictionaryWorkspace(input: DictionaryPageInput) {
   const {sparkProvide, sparkRemove} = useSparkComponent({type: input.pageId})
+  const session = new NativePageRuntimeSession({
+    provide: () => undefined,
+    remove: () => sparkRemove(PAGE_RUNTIME),
+  })
   const workspace = shallowRef<DictionaryWorkspace>()
   const aiHost = shallowRef<AiDataEntryHost>()
   const aiVisible = ref(false)
   const ready = ref(false), loading = ref(true), busy = ref(false), error = ref(''), aiError = ref(''), revision = ref(0)
-  let runtime: PageRuntime | undefined, dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined
+  let dataSet: DataSet | undefined, unsubscribe: (() => void) | undefined
   let hostUnsubscribe: (() => void) | undefined, active = true, generation = 0
   const pending = computed(() => {revision.value; return workspace.value?.pending === true || aiHost.value?.isDirty === true})
   const uncertain = computed(() => {revision.value; return workspace.value?.requiresVerification === true})
@@ -75,8 +78,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
   function disposeRuntime(): void {
     unsubscribe?.(); unsubscribe = undefined
     hostUnsubscribe?.(); hostUnsubscribe = undefined
-    sparkRemove(PAGE_RUNTIME)
-    runtime?.dispose(); runtime = undefined; dataSet = undefined
+    session.dispose(); dataSet = undefined
     workspace.value = undefined; aiHost.value = undefined
     ready.value = false
     aiVisible.value = false
@@ -124,7 +126,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       ready.value = false; loading.value = false; changed()
       return
     }
-    if (runtime !== undefined) {
+    if (session.runtime !== undefined) {
       if (input.open === undefined) disposeRuntime()
       else {
         try {releaseClean()}
@@ -150,17 +152,17 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
       const scenarioIds = [LowcodeDictionary.editorScenarioId]
       const dataSets = new Map<string, DataSet>([[LowcodeDictionary.editorScenarioId, opened.dataSet]])
       if (optionsDataSet && applicationScenarioId) {scenarioIds.push(applicationScenarioId); dataSets.set(applicationScenarioId, optionsDataSet)}
-      let current: PageRuntime
+      let current: ReturnType<NativePageRuntimeSession['acquire']>
       try {
-        current = new PageRuntime({pageId: input.pageId, scenarioIds,
+        current = session.acquire({pageId: input.pageId, scenarioIds, targetId: id,
           loadScenario: scenarioId => {
             const scenarioDataSet = dataSets.get(scenarioId)
             if (!scenarioDataSet) throw new Error(`字典页面请求了未装配的数据空间 ${scenarioId}`)
             return Promise.resolve(scenarioDataSet)
           }})
       } catch (cause) {for (const scenarioDataSet of dataSets.values()) scenarioDataSet.destroy(); throw cause}
-      runtime = current; dataSet = opened.dataSet; await current.load()
-      if (!isCurrent()) {current.dispose(); return}
+      dataSet = opened.dataSet; await current.load()
+      if (!isCurrent() || !session.isCurrent(current)) return
       const owner = new DictionaryWorkspace({dataSet: opened.dataSet, dictionaryId: id, ...(input.create ? {create: true} : {})})
       workspace.value = owner; await owner.load()
       if (!isCurrent()) return
@@ -171,7 +173,7 @@ export function useDictionaryWorkspace(input: DictionaryPageInput) {
     } catch (cause) {
       if (active && own === generation) {
         unsubscribe?.(); unsubscribe = undefined; hostUnsubscribe?.(); hostUnsubscribe = undefined
-        sparkRemove(PAGE_RUNTIME); runtime?.dispose(); runtime = undefined; dataSet = undefined; workspace.value = undefined; aiHost.value = undefined
+        session.dispose(); dataSet = undefined; workspace.value = undefined; aiHost.value = undefined
         error.value = cause instanceof Error ? cause.message : String(cause)
       }
     }

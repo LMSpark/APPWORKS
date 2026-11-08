@@ -53,7 +53,6 @@ describe('AppList formal scenario data binding', () => {
     expect(source).toContain('handleSwitch')
     expect(source).not.toContain('handleDelete')
     expect(source).not.toContain('openSettings')
-    expect(source).not.toContain('AppProjectSettingsDialog')
     expect(source).not.toContain('创建应用')
     expect(buttonProps).toContain('onClick?: (...args: unknown[]) => unknown')
     expect(source).toContain('暂无描述')

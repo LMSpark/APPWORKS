@@ -529,7 +529,7 @@
     "packages/spark-app/src/app/start.ts": {
       "sourceFile": "packages/spark-app/src/app/start.ts",
       "shardFile": "files/packages/spark-app/src/app/start.ts.json",
-      "sourceModifiedAt": "2026-10-31T19:04:41.168Z"
+      "sourceModifiedAt": "2026-11-08T17:44:55.495Z"
     },
     "packages/spark-app/src/constants.ts": {
       "sourceFile": "packages/spark-app/src/constants.ts",
@@ -589,7 +589,7 @@
     "packages/spark-app/src/navigation/useNavigation.ts": {
       "sourceFile": "packages/spark-app/src/navigation/useNavigation.ts",
       "shardFile": "files/packages/spark-app/src/navigation/useNavigation.ts.json",
-      "sourceModifiedAt": "2026-11-01T05:47:38.548Z"
+      "sourceModifiedAt": "2026-11-08T17:45:20.100Z"
     },
     "packages/spark-app/src/navigation/useTabPages.ts": {
       "sourceFile": "packages/spark-app/src/navigation/useTabPages.ts",
@@ -609,7 +609,7 @@
     "packages/spark-app/src/router/dynamic.ts": {
       "sourceFile": "packages/spark-app/src/router/dynamic.ts",
       "shardFile": "files/packages/spark-app/src/router/dynamic.ts.json",
-      "sourceModifiedAt": "2026-10-31T19:04:33.417Z"
+      "sourceModifiedAt": "2026-11-08T17:53:53.660Z"
     },
     "packages/spark-app/src/router/external-link-frame-page.ts": {
       "sourceFile": "packages/spark-app/src/router/external-link-frame-page.ts",
@@ -629,7 +629,7 @@
     "packages/spark-app/src/router/native-page-runtime-session.ts": {
       "sourceFile": "packages/spark-app/src/router/native-page-runtime-session.ts",
       "shardFile": "files/packages/spark-app/src/router/native-page-runtime-session.ts.json",
-      "sourceModifiedAt": "2026-11-08T09:34:13.691Z"
+      "sourceModifiedAt": "2026-11-08T15:50:42.690Z"
     },
     "packages/spark-app/src/router/page-runtime-pool.ts": {
       "sourceFile": "packages/spark-app/src/router/page-runtime-pool.ts",
@@ -3084,7 +3084,7 @@
     "packages/spark-lowcode-api/src/index.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/index.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/index.ts.json",
-      "sourceModifiedAt": "2026-11-07T13:16:28.653Z"
+      "sourceModifiedAt": "2026-11-08T18:16:16.033Z"
     },
     "packages/spark-lowcode-api/src/lowcode-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/lowcode-api.ts",
@@ -3254,7 +3254,7 @@
     "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.611Z"
+      "sourceModifiedAt": "2026-11-08T18:16:22.144Z"
     },
     "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-session-store.ts",
@@ -3994,7 +3994,7 @@
     "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/preview/lowcode-data-space-query-preview.ts.json",
-      "sourceModifiedAt": "2026-11-06T08:58:51.589Z"
+      "sourceModifiedAt": "2026-11-08T15:26:48.817Z"
     },
     "src/lowcode/lowcode-application-catalog.ts": {
       "sourceFile": "src/lowcode/lowcode-application-catalog.ts",
@@ -4004,7 +4004,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-10-31T08:58:37.930Z"
+      "sourceModifiedAt": "2026-11-08T17:25:17.112Z"
     },
     "src/lowcode/resources/database/catalog/db-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/db-view-ops.ts",
@@ -4134,7 +4134,7 @@
     "src/lowcode/resources/repository/agent-workflow-file-owner.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-owner.ts",
       "shardFile": "files/src/lowcode/resources/repository/agent-workflow-file-owner.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.695Z"
+      "sourceModifiedAt": "2026-11-08T15:29:26.212Z"
     },
     "src/lowcode/resources/repository/agent-workflow-file-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow-file-resource.ts",
@@ -4619,7 +4619,7 @@
     "src/main.ts": {
       "sourceFile": "src/main.ts",
       "shardFile": "files/src/main.ts.json",
-      "sourceModifiedAt": "2026-10-31T19:04:41.962Z"
+      "sourceModifiedAt": "2026-11-08T17:44:56.412Z"
     },
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
@@ -4629,7 +4629,7 @@
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
       "shardFile": "files/src/registries/vue-page-registry.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.719Z"
+      "sourceModifiedAt": "2026-11-08T17:45:44.735Z"
     },
     "src/services/ai/agent-workflow-bindings.ts": {
       "sourceFile": "src/services/ai/agent-workflow-bindings.ts",
@@ -4744,7 +4744,7 @@
     "src/services/project/project-settings.ts": {
       "sourceFile": "src/services/project/project-settings.ts",
       "shardFile": "files/src/services/project/project-settings.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.740Z"
+      "sourceModifiedAt": "2026-11-08T18:27:05.758Z"
     },
     "src/services/project/project-shell.ts": {
       "sourceFile": "src/services/project/project-shell.ts",
@@ -4764,17 +4764,12 @@
     "src/views/app/AppList.vue": {
       "sourceFile": "src/views/app/AppList.vue",
       "shardFile": "files/src/views/app/AppList.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.745Z"
-    },
-    "src/views/app/AppProjectSettingsDialog.vue": {
-      "sourceFile": "src/views/app/AppProjectSettingsDialog.vue",
-      "shardFile": "files/src/views/app/AppProjectSettingsDialog.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:42:38.761Z"
+      "sourceModifiedAt": "2026-11-08T09:56:59.279Z"
     },
     "src/views/app/CacheManager.vue": {
       "sourceFile": "src/views/app/CacheManager.vue",
       "shardFile": "files/src/views/app/CacheManager.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:41:40.339Z"
+      "sourceModifiedAt": "2026-11-08T18:16:43.508Z"
     },
     "src/views/app/demo/CapabilityDemo.vue": {
       "sourceFile": "src/views/app/demo/CapabilityDemo.vue",
@@ -4894,7 +4889,7 @@
     "src/views/app/dev-system/DevPreviewTab.vue": {
       "sourceFile": "src/views/app/dev-system/DevPreviewTab.vue",
       "shardFile": "files/src/views/app/dev-system/DevPreviewTab.vue.json",
-      "sourceModifiedAt": "2026-11-08T09:26:20.568Z"
+      "sourceModifiedAt": "2026-11-08T15:43:24.939Z"
     },
     "src/views/app/dev-system/DevSystem.vue": {
       "sourceFile": "src/views/app/dev-system/DevSystem.vue",
@@ -4914,7 +4909,7 @@
     "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue": {
       "sourceFile": "src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue",
       "shardFile": "files/src/views/app/dev-system/nav-host-project-picker/NavHostProjectPicker.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.772Z"
+      "sourceModifiedAt": "2026-11-08T15:44:17.761Z"
     },
     "src/views/app/dev-system/node-target-resources.ts": {
       "sourceFile": "src/views/app/dev-system/node-target-resources.ts",
@@ -4934,7 +4929,7 @@
     "src/views/app/dev-system/useDevState.ts": {
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "shardFile": "files/src/views/app/dev-system/useDevState.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.898Z"
+      "sourceModifiedAt": "2026-11-08T15:44:04.530Z"
     },
     "src/views/app/dev-system/useDevSystem.ts": {
       "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
@@ -4944,7 +4939,7 @@
     "src/views/app/Settings.vue": {
       "sourceFile": "src/views/app/Settings.vue",
       "shardFile": "files/src/views/app/Settings.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:52:04.928Z"
+      "sourceModifiedAt": "2026-11-08T18:23:35.998Z"
     },
     "src/views/app/workflow-designs/workflow-design-class-model.ts": {
       "sourceFile": "src/views/app/workflow-designs/workflow-design-class-model.ts",
@@ -4979,7 +4974,7 @@
     "src/views/DataBaseManage/DataBaseManage/index.vue": {
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",
       "shardFile": "files/src/views/DataBaseManage/DataBaseManage/index.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.921Z"
+      "sourceModifiedAt": "2026-11-08T17:34:10.177Z"
     },
     "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/graph/data-space-layout-edit.ts",
@@ -5059,7 +5054,7 @@
     "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/design/ui/data-set-design-page.vue.json",
-      "sourceModifiedAt": "2026-10-31T18:08:47.352Z"
+      "sourceModifiedAt": "2026-11-08T12:58:27.799Z"
     },
     "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts": {
       "sourceFile": "src/views/features/data-platform/data-set-management/design/ui/edge-panel/data-set-design-edge-panel.props.ts",
@@ -5194,7 +5189,7 @@
     "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/data-set-management/ui/data-set-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-31T18:08:33.204Z"
+      "sourceModifiedAt": "2026-11-08T12:42:00.645Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/add-table-dialog.vue",
@@ -5224,7 +5219,7 @@
     "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/table-and-view/ui/table-and-view-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T14:59:19.566Z"
+      "sourceModifiedAt": "2026-11-08T14:07:46.184Z"
     },
     "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/table-and-view/ui/table-design-dialog.vue",
@@ -5244,17 +5239,17 @@
     "src/views/features/data-platform/database-management/ui/service-management-page.vue": {
       "sourceFile": "src/views/features/data-platform/database-management/ui/service-management-page.vue",
       "shardFile": "files/src/views/features/data-platform/database-management/ui/service-management-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.972Z"
+      "sourceModifiedAt": "2026-11-08T13:00:42.814Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T09:09:33.556Z"
+      "sourceModifiedAt": "2026-11-08T14:59:17.330Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-07T17:12:35.435Z"
+      "sourceModifiedAt": "2026-11-08T14:55:35.609Z"
     },
     "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/excel-import/ui/excel-import-reference-dialog.vue",
@@ -5289,17 +5284,17 @@
     "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/json-data/ui/json-data-page.vue.json",
-      "sourceModifiedAt": "2026-11-07T09:08:05.024Z"
+      "sourceModifiedAt": "2026-11-08T14:52:45.413Z"
     },
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T19:04:52.196Z"
+      "sourceModifiedAt": "2026-11-08T15:04:40.702Z"
     },
     "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/semi-structured/pdf-inspect/ui/pdf-inspect-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-01T18:49:08.541Z"
+      "sourceModifiedAt": "2026-11-08T15:02:03.966Z"
     },
     "src/views/features/data-platform/shared/model/design-json-ui.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/design-json-ui.ts",
@@ -5309,7 +5304,7 @@
     "src/views/features/data-platform/shared/model/use-staged-design-page.ts": {
       "sourceFile": "src/views/features/data-platform/shared/model/use-staged-design-page.ts",
       "shardFile": "files/src/views/features/data-platform/shared/model/use-staged-design-page.ts.json",
-      "sourceModifiedAt": "2026-11-06T15:03:43.977Z"
+      "sourceModifiedAt": "2026-11-08T15:23:44.841Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/code-class-edit-dialog.vue",
@@ -5339,12 +5334,12 @@
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-editor-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T13:53:27.339Z"
+      "sourceModifiedAt": "2026-11-08T14:41:57.016Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-code/ui/data-code-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-02T09:51:48.907Z"
+      "sourceModifiedAt": "2026-11-08T14:37:28.062Z"
     },
     "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-code/ui/dialogs/use-code-node-rule-dialog.ts",
@@ -5369,12 +5364,12 @@
     "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/model/use-dictionary-workspace.ts.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.993Z"
+      "sourceModifiedAt": "2026-11-08T14:35:00.253Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:39:23.995Z"
+      "sourceModifiedAt": "2026-11-08T14:20:32.540Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
@@ -5394,7 +5389,7 @@
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/logic-view/ui/logic-view-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T09:55:15.449Z"
+      "sourceModifiedAt": "2026-11-08T14:44:19.894Z"
     },
     "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/logic-view/ui/logic-view-node-editor.vue",
@@ -5424,7 +5419,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page.vue.json",
-      "sourceModifiedAt": "2026-11-07T04:31:33.732Z"
+      "sourceModifiedAt": "2026-11-08T14:49:30.854Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/design/ui/workflow-execution-panel.vue",
@@ -5459,7 +5454,7 @@
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-definition-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T08:58:51.605Z"
+      "sourceModifiedAt": "2026-11-08T14:47:05.602Z"
     },
     "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/workflow-definition/ui/workflow-trigger-condition.vue",
@@ -5479,7 +5474,7 @@
     "src/views/features/integration/api-management/ui/api-config-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-config-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-config-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T19:31:27.248Z"
+      "sourceModifiedAt": "2026-11-08T15:13:11.373Z"
     },
     "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.props.ts",
@@ -5489,12 +5484,12 @@
     "src/views/features/integration/api-management/ui/api-interface-list-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-interface-list-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-interface-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-06T21:40:06.470Z"
+      "sourceModifiedAt": "2026-11-08T15:15:46.905Z"
     },
     "src/views/features/integration/api-management/ui/api-management-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-management-page.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.797Z"
+      "sourceModifiedAt": "2026-11-08T15:07:50.321Z"
     },
     "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
@@ -5524,7 +5519,7 @@
     "src/views/features/system/cache-management/ui/cache-management-page.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-management-page.vue",
       "shardFile": "files/src/views/features/system/cache-management/ui/cache-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-07T01:10:29.222Z"
+      "sourceModifiedAt": "2026-11-08T15:19:02.737Z"
     },
     "src/views/platform/About.vue": {
       "sourceFile": "src/views/platform/About.vue",
@@ -5544,7 +5539,7 @@
     "src/views/platform/PlatformApps.vue": {
       "sourceFile": "src/views/platform/PlatformApps.vue",
       "shardFile": "files/src/views/platform/PlatformApps.vue.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.799Z"
+      "sourceModifiedAt": "2026-11-08T10:00:25.097Z"
     },
     "src/views/platform/PlatformTenantManagement.vue": {
       "sourceFile": "src/views/platform/PlatformTenantManagement.vue",

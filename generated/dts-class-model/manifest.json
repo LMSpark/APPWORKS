@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1111,
+  "scannedFileCount": 1110,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -15779,14 +15779,9 @@
         "sourceFile": "src/services/project/project-settings.ts",
         "packageName": "app",
         "modulePath": "services/project/project-settings",
-        "jsdoc": "@module app:services/project/project-settings\n职责：项目运行时设置（HTTP）与壳层 UI 偏好（localStorage）。\n边界：只处理 app 层配置读写，不修改 spark-project-model 协议。\nAI用途：调整项目布局偏好或读取项目详情/导航元数据时，用本模块定位 HTTP 与 localStorage 接线。",
+        "jsdoc": "@module app:services/project/project-settings\n职责：按应用作用域把壳层 UI 偏好（头部优先、侧栏折叠、页脚、页面模式）读写到 localStorage。\n边界：只存本机偏好，不读写应用或导航的后端数据。\nAI用途：调整壳层布局偏好的存储键或默认值时，用本模块定位 localStorage 接线。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
-          "ProjectDetail",
-          "ProjectHomeNodeOption",
-          "ProjectRuntimeSettings",
-          "ProjectRuntimeSettingsInput",
-          "SaveProjectRuntimeSettingsCommand",
           "ProjectUiSettings"
         ]
       }
@@ -15878,19 +15873,6 @@
         "packageName": "app",
         "modulePath": "views/app/AppList",
         "jsdoc": "@module app:views/app/AppList\n职责：提供主应用 AppList 能力，围绕应用目录连接视图、服务、布局和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppList。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
-    "src/views/app/AppProjectSettingsDialog.vue": {
-      "file": "files/src/views/app/AppProjectSettingsDialog.vue.json",
-      "module": {
-        "name": "app:views/app/AppProjectSettingsDialog",
-        "sourcePath": "src/views/app/AppProjectSettingsDialog.vue",
-        "sourceFile": "src/views/app/AppProjectSettingsDialog.vue",
-        "packageName": "app",
-        "modulePath": "views/app/AppProjectSettingsDialog",
-        "jsdoc": "@module app:views/app/AppProjectSettingsDialog\n职责：提供主应用 AppProjectSettingsDialog 能力，围绕应用设置连接视图、服务和应用路由。\n边界：只处理 app 层编排和 UI 入口，不定义底层包的核心协议，也不绕过配置真源。\nAI用途：需要理解应用入口、平台视图或业务服务接线时，用本模块定位 views/app/AppProjectSettingsDialog。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }
@@ -23068,10 +23050,6 @@
       "sourcePath": "packages/spark-project-model/src/blueprint/project-blueprint-node.ts",
       "file": "files/packages/spark-project-model/src/blueprint/project-blueprint-node.ts.json"
     },
-    "ProjectDetail": {
-      "sourcePath": "src/services/project/project-settings.ts",
-      "file": "files/src/services/project/project-settings.ts.json"
-    },
     "ProjectDirtyProjection": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
       "file": "files/packages/spark-project-model/src/project/project-types.ts.json"
@@ -23087,10 +23065,6 @@
     "ProjectDtsRootFilesToJsonSchemasOptions": {
       "sourcePath": "packages/spark-ai/src/class-model/class-model/schema/class-model-to-json-schema.ts",
       "file": "files/packages/spark-ai/src/class-model/class-model/schema/class-model-to-json-schema.ts.json"
-    },
-    "ProjectHomeNodeOption": {
-      "sourcePath": "src/services/project/project-settings.ts",
-      "file": "files/src/services/project/project-settings.ts.json"
     },
     "ProjectInfo": {
       "sourcePath": "packages/spark-project-model/src/project/project-types.ts",
@@ -23183,14 +23157,6 @@
     "ProjectReferenceGateway": {
       "sourcePath": "packages/spark-project-model/src/io/project-reference-client.ts",
       "file": "files/packages/spark-project-model/src/io/project-reference-client.ts.json"
-    },
-    "ProjectRuntimeSettings": {
-      "sourcePath": "src/services/project/project-settings.ts",
-      "file": "files/src/services/project/project-settings.ts.json"
-    },
-    "ProjectRuntimeSettingsInput": {
-      "sourcePath": "src/services/project/project-settings.ts",
-      "file": "files/src/services/project/project-settings.ts.json"
     },
     "ProjectSession": {
       "sourcePath": "packages/spark-project-model/src/project/project-session.ts",
@@ -23835,10 +23801,6 @@
     "SaveDataSetAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
-    },
-    "SaveProjectRuntimeSettingsCommand": {
-      "sourcePath": "src/services/project/project-settings.ts",
-      "file": "files/src/services/project/project-settings.ts.json"
     },
     "SaveRuleValidator": {
       "sourcePath": "packages/spark-data/src/validation/save-rule-validator.ts",

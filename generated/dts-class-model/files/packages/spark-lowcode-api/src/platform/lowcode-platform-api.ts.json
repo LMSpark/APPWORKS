@@ -18,7 +18,6 @@
       "LowcodeRegistrationResult",
       "LowcodeIdentity",
       "LowcodeEnterprise",
-      "LowcodeCacheStats",
       "LowcodeSession",
       "LowcodePlatformApiOptions",
       "LowcodeApplicationSelectionReceipt",
@@ -307,24 +306,6 @@
       ],
       "additionalProperties": false
     },
-    "LowcodeCacheStats": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "LowcodeCacheStats",
-      "properties": {
-        "dataSetModelCount": {
-          "type": "number"
-        },
-        "developmentFileCount": {
-          "type": "number"
-        }
-      },
-      "required": [
-        "dataSetModelCount",
-        "developmentFileCount"
-      ],
-      "additionalProperties": false
-    },
     "LowcodeSession": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -502,15 +483,6 @@
           "type": "object",
           "title": "Promise<LowcodeEnterpriseInfo>"
         },
-        "method.getCacheStats.params": {
-          "type": "object",
-          "properties": {},
-          "additionalProperties": false
-        },
-        "method.getCacheStats.return": {
-          "type": "object",
-          "title": "Promise<LowcodeCacheStats>"
-        },
         "method.sendVerificationCode.params": {
           "type": "object",
           "properties": {
@@ -615,7 +587,7 @@
       }
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.611Z",
+  "generatedAt": "2026-11-08T18:16:22.144Z",
   "models": {
     "LowcodeLoginCredentials": {
       "name": "LowcodeLoginCredentials",
@@ -991,35 +963,6 @@
         }
       }
     },
-    "LowcodeCacheStats": {
-      "name": "LowcodeCacheStats",
-      "jsdoc": "平台缓存统计；wire Result.Count 须为非负整数。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    dataSetModelCount: number;\n    developmentFileCount: number;\n}>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Readonly<{\n    dataSetModelCount: number;\n    developmentFileCount: number;\n}>",
-            "targetName": "Readonly"
-          }
-        ],
-        "members": {
-          "attributes": [
-            {
-              "name": "dataSetModelCount",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "developmentFileCount",
-              "readable": true,
-              "writable": false
-            }
-          ]
-        }
-      }
-    },
     "LowcodeSession": {
       "name": "LowcodeSession",
       "jsdoc": "完整低代码会话：双 token、过期时间与身份/企业快照。\naccessToken/refreshToken 已剥离 Bearer 前缀；刷新时 Authorization 与 X-Authorization 分别携带二者。",
@@ -1331,22 +1274,6 @@
                     "type": "reference",
                     "name": "LowcodeEnterpriseInfo",
                     "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-enterprise.ts"
-                  }
-                ]
-              }
-            },
-            {
-              "name": "getCacheStats",
-              "jsdoc": "查询 DATA_SET_MODEL 与 DEV_FILE_UPDATE_TIME 两类缓存条目数；需已认证。",
-              "parameters": [],
-              "type": {
-                "type": "reference",
-                "name": "Promise",
-                "typeArguments": [
-                  {
-                    "type": "reference",
-                    "name": "LowcodeCacheStats",
-                    "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts"
                   }
                 ]
               }

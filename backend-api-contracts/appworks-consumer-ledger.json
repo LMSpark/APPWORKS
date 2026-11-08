@@ -7,7 +7,7 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 221,
+  "consumerCount": 218,
   "directUnmatchedCount": 128,
   "consumers": [
     {
@@ -803,75 +803,57 @@
       "scope": "publishable-lowcode-api"
     },
     {
-      "expression": "/api/sysCache/findByPatternPageWithTotal",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1239,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/sysCache/findByPatternPageWithTotal",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1244,
-      "scope": "publishable-lowcode-api"
-    },
-    {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1298,
+      "sourceLine": 1275,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.test.ts",
-      "sourceLine": 1333,
+      "sourceLine": 1310,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLoginByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 276,
+      "sourceLine": 261,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/DataOperation/GetBaseData",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 305,
-      "scope": "publishable-lowcode-api"
-    },
-    {
-      "expression": "/api/sysCache/findByPatternPageWithTotal",
-      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 324,
+      "sourceLine": 290,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/message/code/send/public",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 340,
+      "sourceLine": 308,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/register",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 355,
+      "sourceLine": 323,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/Ent/AddEnterprise",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 379,
+      "sourceLine": 347,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/refresh",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 414,
+      "sourceLine": 382,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/LoginAuthority/UserLogoutByEnt",
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "sourceLine": 443,
+      "sourceLine": 411,
       "scope": "publishable-lowcode-api"
     },
     {

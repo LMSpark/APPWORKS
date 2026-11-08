@@ -125,4 +125,7 @@ it('routes the original cache URL to its business page while preserving the sepa
  const pages=source['pages'].filter(isRecord)
  expect(pages.find(page=>page['path']==='/features/system/cache-management/ui/cache-management-page')?.['source']).toBe('src/views/features/system/cache-management/ui/cache-management-page.vue')
  expect(pages.find(page=>page['path']==='/cache-manager')?.['source']).toBe('src/views/app/CacheManager.vue')
+ const utility=readFileSync(resolve(process.cwd(),'src/views/app/CacheManager.vue'),'utf8')
+ expect(utility).not.toContain('lowcodeApi')
+ expect(utility).not.toContain('getCacheStats')
 })

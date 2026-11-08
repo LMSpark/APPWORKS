@@ -95,12 +95,6 @@ export type LowcodeEnterprise = Readonly<{
   raw: Readonly<Record<string, unknown>>
 }>
 
-/** 平台缓存统计；wire Result.Count 须为非负整数。 */
-export type LowcodeCacheStats = Readonly<{
-  dataSetModelCount: number
-  developmentFileCount: number
-}>
-
 /**
  * 完整低代码会话：双 token、过期时间与身份/企业快照。
  * accessToken/refreshToken 已剥离 Bearer 前缀；刷新时 Authorization 与 X-Authorization 分别携带二者。
@@ -190,15 +184,6 @@ function firstString(record: Record<string, unknown>, keys: readonly string[]): 
 function registrationResult(value: unknown): LowcodeRegistrationResult {
   const id = isRecord(value) ? firstString(value, ['rowid', 'ROWID', 'userId', 'id']) : null
   return { id, raw: value }
-}
-
-function cacheCount(value: unknown, cacheType: string): number {
-  if (!isRecord(value)) throw new LowcodeApiError(0, `${cacheType} 缓存 Result 不是对象`)
-  const count = value['Count']
-  if (typeof count !== 'number' || !Number.isInteger(count) || count < 0) {
-    throw new LowcodeApiError(0, `${cacheType} 缓存 Count 不是非负整数`)
-  }
-  return count
 }
 
 function requiredInput(value: string, name: string): string {
@@ -315,23 +300,6 @@ export class LowcodePlatformApi {
     const session = this.session.get()
     if (session === null) throw new LowcodeApiError(401, '没有可读取的 lowcode 企业会话')
     return Promise.resolve(normalizeEnterpriseInfo(session.enterprise.raw))
-  }
-
-  /** 查询 DATA_SET_MODEL 与 DEV_FILE_UPDATE_TIME 两类缓存条目数；需已认证。 */
-  public async getCacheStats(): Promise<LowcodeCacheStats> {
-    const readCount = async (prefix: 'DATA_SET_MODEL' | 'DEV_FILE_UPDATE_TIME'): Promise<number> => {
-      const result = await this.client.requestResult({
-        path: '/api/sysCache/findByPatternPageWithTotal',
-        method: 'POST',
-        data: { prefix, page: 1, size: 1 },
-      })
-      return cacheCount(result, prefix)
-    }
-    const [dataSetModelCount, developmentFileCount] = await Promise.all([
-      readCount('DATA_SET_MODEL'),
-      readCount('DEV_FILE_UPDATE_TIME'),
-    ])
-    return { dataSetModelCount, developmentFileCount }
   }
 
   /** 发送注册/企业注册验证码；公开接口，账号与企业名会先 trim。 */

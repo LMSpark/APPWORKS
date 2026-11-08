@@ -10,14 +10,14 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <template #icon><el-icon :size="20"><Coin /></el-icon></template>
     </el-page-header>
 
-    <el-tabs v-model="activeTab" type="border-card" style="margin-top: 16px">
-      <!-- ── 前端缓存 ────────────────────────────────────── -->
-      <el-tab-pane label="前端缓存" name="frontend">
+    <section class="cache-manager__body">
         <div class="tab-toolbar">
           <el-button type="primary" :icon="Refresh" @click="loadFrontendCache">刷新</el-button>
           <el-button type="danger" :icon="Delete" :disabled="feEntries.length === 0" @click="handleClearAllFrontend">
             清除全部
           </el-button>
+          <el-button type="warning" @click="handleRefreshRoutes">刷新路由</el-button>
+          <el-button type="success" @click="handleReloadNavigation">刷新导航</el-button>
           <span class="stats-text">
             共 {{ feEntries.length }} 条缓存，约 {{ feTotalSizeKB }} KB
           </span>
@@ -72,53 +72,21 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
           <el-descriptions-item label="L3">15 天（默认）</el-descriptions-item>
           <el-descriptions-item label="L4">30 天</el-descriptions-item>
         </el-descriptions>
-      </el-tab-pane>
-
-      <!-- ── 后端缓存 ────────────────────────────────────── -->
-      <el-tab-pane label="后端缓存" name="backend">
-        <div class="tab-toolbar">
-          <el-button type="primary" :icon="Refresh" @click="loadBackendStats">刷新</el-button>
-          <el-button type="warning" @click="handleRefreshRoutes">
-            刷新路由
-          </el-button>
-          <el-button type="success" @click="handleReloadNavigation">
-            刷新导航
-          </el-button>
-        </div>
-
-        <el-row :gutter="20" style="margin-top: 16px">
-          <el-col :span="12">
-            <el-card header="lowcode 租户缓存统计">
-              <el-descriptions :column="1" border size="small" v-loading="beLoading">
-                <el-descriptions-item label="数据模型缓存数">
-                  {{ beStats?.dataSetModelCount ?? '—' }}
-                </el-descriptions-item>
-                <el-descriptions-item label="开发文件版本缓存数">
-                  {{ beStats?.developmentFileCount ?? '—' }}
-                </el-descriptions-item>
-              </el-descriptions>
-            </el-card>
-          </el-col>
-        </el-row>
-      </el-tab-pane>
-    </el-tabs>
+    </section>
   </div>
 </template>
 
 <script setup lang="ts">
 /**
- * @description 缓存管理页面，查看前后端缓存统计并支持手动清理前端页面缓存；属于应用级路由页，不允许作为 SparkNode 组件配置生成。
+ * @description 浏览器本地页面文件缓存工具：查看、清理 localStorage 中的页面文件缓存，并刷新路由与导航。后端缓存只在正式缓存管理页通过 DataView 维护；属于应用级路由页，不允许作为 SparkNode 组件配置生成。
  */
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Coin, Refresh, Delete } from '@element-plus/icons-vue'
 import { refreshRoutes } from '@spark-appworks/spark-app'
 import { isRecord } from '@spark-appworks/spark-utils'
-import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import { reloadAndSyncNavigation } from '@/services/project/project-shell'
 
-// ── 前端缓存状态 ──────────────────────────────────────────
-const activeTab = ref('frontend')
 const feLoading = ref(false)
 
 type FeCacheRow = {
@@ -266,26 +234,6 @@ async function handleClearAllFrontend() {
   }
 }
 
-// ── 后端缓存状态 ──────────────────────────────────────────
-const beLoading = ref(false)
-
-type BackendStats = {
-  dataSetModelCount: number
-  developmentFileCount: number}
-
-const beStats = ref<BackendStats | null>(null)
-
-async function loadBackendStats() {
-  beLoading.value = true
-  try {
-    beStats.value = await lowcodeApi.platform.getCacheStats()
-  } catch (e) {
-    ElMessage.error(`加载后端统计失败: ${e instanceof Error ? e.message : String(e)}`)
-  } finally {
-    beLoading.value = false
-  }
-}
-
 async function handleRefreshRoutes() {
   try {
     const result = await refreshRoutes()
@@ -307,7 +255,6 @@ async function handleReloadNavigation() {
 // ── 初始化 ──────────────────────────────────────────────
 onMounted(() => {
   loadFrontendCache()
-  void loadBackendStats()
 })
 </script>
 
@@ -315,6 +262,10 @@ onMounted(() => {
 .cache-manager {
   padding: 20px;
   max-width: 1200px;
+}
+
+.cache-manager__body {
+  margin-top: 16px;
 }
 
 .tab-toolbar {

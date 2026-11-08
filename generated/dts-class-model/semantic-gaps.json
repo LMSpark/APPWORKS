@@ -1,5 +1,5 @@
 {
-  "gapCount": 3779,
+  "gapCount": 3777,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -15542,37 +15542,13 @@
     },
     {
       "kind": "attribute",
-      "className": "LowcodeCacheStats",
-      "memberName": "dataSetModelCount",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeCacheStats.dataSetModelCount 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 82,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
-      "className": "LowcodeCacheStats",
-      "memberName": "developmentFileCount",
-      "reason": "missing-jsdoc",
-      "chainBreak": "LowcodeCacheStats.developmentFileCount 的成员语义链断开：attribute 声明没有 JSDoc。",
-      "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
-      "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 83,
-      "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationKind": "interface"
-    },
-    {
-      "kind": "attribute",
       "className": "LowcodeSession",
       "memberName": "accessToken",
       "reason": "missing-jsdoc",
       "chainBreak": "LowcodeSession.accessToken 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 90,
+      "declarationLine": 85,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15584,7 +15560,7 @@
       "chainBreak": "LowcodeSession.refreshToken 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 91,
+      "declarationLine": 86,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15596,7 +15572,7 @@
       "chainBreak": "LowcodeSession.accessExpiresAt 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 92,
+      "declarationLine": 87,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15608,7 +15584,7 @@
       "chainBreak": "LowcodeSession.refreshExpiresAt 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 93,
+      "declarationLine": 88,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15620,7 +15596,7 @@
       "chainBreak": "LowcodeSession.identity 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 94,
+      "declarationLine": 89,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15632,7 +15608,7 @@
       "chainBreak": "LowcodeSession.enterprise 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 95,
+      "declarationLine": 90,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15644,7 +15620,7 @@
       "chainBreak": "LowcodePlatformApiOptions.http 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 103,
+      "declarationLine": 98,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15656,7 +15632,7 @@
       "chainBreak": "LowcodePlatformApiOptions.session 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 104,
+      "declarationLine": 99,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15668,7 +15644,7 @@
       "chainBreak": "LowcodePlatformApiOptions.application 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 105,
+      "declarationLine": 100,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15680,7 +15656,7 @@
       "chainBreak": "LowcodeApplicationSelectionReceipt.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 113,
+      "declarationLine": 108,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15691,7 +15667,7 @@
       "chainBreak": "LowcodeApplicationActivation 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 115,
+      "declarationLine": 110,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "typeAlias"
     },
@@ -15703,7 +15679,7 @@
       "chainBreak": "LowcodeApplicationActivation.application 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 116,
+      "declarationLine": 111,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15715,7 +15691,7 @@
       "chainBreak": "LowcodeApplicationActivation.navigationRootId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 117,
+      "declarationLine": 112,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "interface"
     },
@@ -15727,7 +15703,7 @@
       "chainBreak": "LowcodePlatformApi.constructor 的构造语义链断开：构造签名没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 129,
+      "declarationLine": 124,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "class"
     },
@@ -15739,7 +15715,7 @@
       "chainBreak": "LowcodePlatformApi.session 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 130,
+      "declarationLine": 125,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "class"
     },
@@ -15751,7 +15727,7 @@
       "chainBreak": "LowcodePlatformApi.application 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "declarationLine": 131,
+      "declarationLine": 126,
       "sourceFile": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
       "declarationKind": "class"
     },

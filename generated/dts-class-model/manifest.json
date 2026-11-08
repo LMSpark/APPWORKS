@@ -11178,7 +11178,6 @@
           "LowcodeRegistrationResult",
           "LowcodeIdentity",
           "LowcodeEnterprise",
-          "LowcodeCacheStats",
           "LowcodeSession",
           "LowcodePlatformApiOptions",
           "LowcodeApplicationSelectionReceipt",
@@ -21772,10 +21771,6 @@
     "LowcodeBlueprintFileVersions": {
       "sourcePath": "packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts",
       "file": "files/packages/spark-lowcode-api/src/platform/project-blueprint/project-blueprint-file-version.ts.json"
-    },
-    "LowcodeCacheStats": {
-      "sourcePath": "packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts",
-      "file": "files/packages/spark-lowcode-api/src/platform/lowcode-platform-api.ts.json"
     },
     "LowcodeCatalogApi": {
       "sourcePath": "packages/spark-lowcode-api/src/catalog/lowcode-catalog-api.ts",

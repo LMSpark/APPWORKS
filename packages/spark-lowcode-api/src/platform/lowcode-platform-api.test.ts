@@ -1225,29 +1225,6 @@ describe('LowcodePlatformApi', () => {
     })
   })
 
-  it('reads tenant-scoped cache counts without enumerating keys or values', async () => {
-    const http = new FixtureHttpClient([
-      { Code: 200, Result: { Count: 7, Items: [] } },
-      { Code: 200, Result: { Count: 12, Items: [] } },
-    ])
-
-    const stats = await new LowcodeApi({ http }).platform.getCacheStats()
-
-    expect(stats).toEqual({ dataSetModelCount: 7, developmentFileCount: 12 })
-    expect(http.requestConfigs).toEqual([
-      expect.objectContaining({
-        url: '/api/sysCache/findByPatternPageWithTotal',
-        method: 'POST',
-        data: { prefix: 'DATA_SET_MODEL', page: 1, size: 1 },
-      }),
-      expect.objectContaining({
-        url: '/api/sysCache/findByPatternPageWithTotal',
-        method: 'POST',
-        data: { prefix: 'DEV_FILE_UPDATE_TIME', page: 1, size: 1 },
-      }),
-    ])
-  })
-
   it('fails closed when lowcode reports an application error', async () => {
     const http = new FixtureHttpClient({
       Code: 401,

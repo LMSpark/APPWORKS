@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见文末 CD。未冻结 S4。续做清单已空，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE。未冻结 S4。续做清单已空，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8832,8 +8832,15 @@ pnpm run verify
 
 **测试。**`vue-page-registry.test.ts`、`lowcode-runtime-navigation.test.ts` 与 `directory-page.test.ts` 共 102 项通过。注册表不再有 `/dbms`，SPARK 工具清单不再包含它，AppList 两条正式路径仍共用一次组件加载。根 typecheck 0。改动文件 eslint 0。公开声明未变，未跑生成器。未改 `spark-data`，未改 S2 组件，未改 `PageRuntimePool`。
 
+<a id="ce-s4-cache-stats-bypass"></a>
+#### CE. S4：删除缓存工具的后端直连统计（未冻结）
+
+后端缓存只由正式缓存管理页通过缓存场景的 DataView 读取和删除。`/cache-manager` 原有的“后端缓存”页签另调 `lowcodeApi.platform.getCacheStats()`，直接请求 `/api/sysCache/findByPatternPageWithTotal` 读两类条目数，绕过 SPARK data。这个页签、`getCacheStats`、`LowcodeCacheStats` 与对应测试已删除。`/cache-manager` 只保留浏览器 localStorage 页面文件缓存的查看和清理，以及刷新路由、刷新导航两个按钮。
+
+**测试。**`cache-management-page.test.ts` 7 项通过，新增断言要求 `/cache-manager` 源码不再出现 `lowcodeApi` 或 `getCacheStats`。`lowcode-platform-api.test.ts` 在包内 58 项通过。根 typecheck 0。改动文件 eslint 0。公开声明已变，已跑 `generate:class-model-surface` 与 `generate:lowcode-contracts`（611 端点，218 消费点）。生成物只保留 `manifest.json`、`semantic-gaps.json`、平台 API 分片和消费台账的真实差异。未改 `spark-data`，未改 S2 组件，未改 `PageRuntimePool`。
+
 #### 当前续做顺序（未冻结）
 
-数据库目录第二路径已删除，清单已空。不进入 S5。
+缓存工具的后端直连统计已删除，清单已空。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

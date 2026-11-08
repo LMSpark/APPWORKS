@@ -98,7 +98,6 @@ export { LowcodeApplicationStore } from './platform/lowcode-application-store.js
 export { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from './platform/lowcode-application.js'
 export { LowcodeSessionStore } from './platform/lowcode-session-store.js'
 export type {
-  LowcodeCacheStats,
   LowcodeEnterprise,
   LowcodeIdentity,
   LowcodeLoginCredentials,

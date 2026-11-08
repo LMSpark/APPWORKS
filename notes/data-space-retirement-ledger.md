@@ -8326,3 +8326,5 @@ S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端�
 **AM最终检查点。**最终root verify82413自然exit0，根type/lint、ClassModel49项与正式规则通过，保既有2模型warnings/84薄页诊断，不冒全部业务测试全绿。SDK1515、受影响消费者973、局部84、包type/lint/build、编译包3项smoke、最终官方ClassModel及lowcode611/221全部有效，所有原handle终态。高阶限SDK范围复核已提反例收住；服务仅新登录只读核验，零写入。精确核路径后清理26份AM中间日志，保失败反例/最终证据及既有AK有效脚本；无新过程脚本/多余工作树/并行计划/兼容层，原S2未跟踪RED不stage。
 
 当前仅准备提交origin同codex分支，未force/merge/部署。下一批仍按AM开放目录DataView schema与公共只读工厂/捕获scope/option-context反例推进；S1未冻结，禁止跳S2，远端历史转换与整体20包验收未完成。
+
+**AM已提交推送并独立核实。**代码12a426659d4a309243af0e7120ac61b4dabba351（fix(spark-data): verify exact file identities and directory results），28文件471增138删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确一致。跟踪树清洁，仅原S2未跟踪RED；唯一主worktree。此补记docs跟随同步。恢复S1目录DataView既定反例，不恢复normalizeFileEntry丢条目、trim目标或仅basename/无ACK确认；不把只读清理核验当新CRUD，不声称S1冻结或整体完成。

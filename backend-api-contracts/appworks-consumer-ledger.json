@@ -7,8 +7,8 @@
     "Dynamic path segments are normalized to {dynamic}; unmatched does not prove a missing backend route.",
     "Presence in this ledger proves a static consumer reference, not successful runtime behavior."
   ],
-  "consumerCount": 216,
-  "directUnmatchedCount": 126,
+  "consumerCount": 218,
+  "directUnmatchedCount": 128,
   "consumers": [
     {
       "expression": "/api/v1",
@@ -1039,79 +1039,91 @@
     {
       "expression": "/api/ai-agent/get",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.test.ts",
-      "sourceLine": 124,
+      "sourceLine": 153,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai-agent/create",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.test.ts",
-      "sourceLine": 358,
+      "sourceLine": 387,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai-agent/create",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
-      "sourceLine": 247,
+      "sourceLine": 251,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai-agent/get",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
-      "sourceLine": 262,
+      "sourceLine": 266,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns/B",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sourceLine": 59,
+      "scope": "publishable-lowcode-api"
+    },
+    {
+      "expression": "/api/ai/v1/turns/B",
+      "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
+      "sourceLine": 85,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/agents",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
-      "sourceLine": 54,
+      "sourceLine": 94,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
-      "sourceLine": 110,
+      "sourceLine": 150,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/turns/T1",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
-      "sourceLine": 248,
+      "sourceLine": 288,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/turns/T1",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.test.ts",
-      "sourceLine": 267,
+      "sourceLine": 307,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/agents",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
-      "sourceLine": 233,
+      "sourceLine": 239,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
-      "sourceLine": 257,
+      "sourceLine": 263,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/agents",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 241,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/turns",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.test.ts",
-      "sourceLine": 178,
+      "sourceLine": 241,
       "scope": "publishable-lowcode-api"
     },
     {
       "expression": "/api/ai/v1/agents",
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.test.ts",
-      "sourceLine": 261,
+      "sourceLine": 324,
       "scope": "publishable-lowcode-api"
     },
     {
@@ -1279,13 +1291,13 @@
     {
       "expression": "/api/Db/registerServer",
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "sourceLine": 301,
+      "sourceLine": 302,
       "scope": "app-composition"
     },
     {
       "expression": "/api/Db/testConnection",
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
-      "sourceLine": 821,
+      "sourceLine": 822,
       "scope": "app-composition"
     },
     {

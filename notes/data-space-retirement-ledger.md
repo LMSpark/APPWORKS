@@ -8173,3 +8173,24 @@ bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应
 实服只读45749自然exit0：复用AA已核脚本、凭据只stdin/RAM、新登录后经当前正式SDK/assembler/DataView查询，GetBaseData1/Login1/GetData5，业务写0；原U精确PK 2E421295C650DD38886EBF456D8ECE48独立回读不存在，unconfirmed=false、recovery none。证据evidence/data-chain-smoke/2026-11-08-s1-command-derived-readonly.json含源码worktree/script SHA及当次范围；未重放CRUD、未执行Sync/probe、不冒服务幂等，凭据/session未落证据。所有本批handle终态，精确清理8份被末态替代的中间日志，反例/测试纠正事实仅本台账；保有效正式回归和实服JSON，无临时worktree。准备只推origin同codex分支，不merge/force/部署；原S2未跟踪RED不stage。仍S1：下一真实readonly参数/资源语义矩阵，尚未冻结、未进S2、历史转换不冒完成，原20包目标active。
 
 **AE已提交推送并独立核实。**代码052ba5f83a85cd1786227aa0b6353b6898caa137（fix(data): prevent implicit derived command execution），32文件416增133删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地精确同SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。本事实补记docs跟随同步；下一恢复S1 readonly helper真实过滤/排序/完整查询参数以及命令/只读资源语义分类，按实际用例先RED，不保伪file错误合同，不跨组件/业务页。S1尚未整体冻结，原20包目标active。
+
+
+**AF只读查询参数集中批（S1，未冻结）。**主控先在实际catalog适配复现filter/sort/paging和options过滤两项RED。高阶并由主控读固定E:/lowcode-jdk17源码发现旧表/视图夹具错误：DbInfoController/ ViewController均AjaxResult.success；库名为string集合，表项含table_name/table_comment/hasDefaultFields，视图项含table_name/table_comment。当前表filter仅string会吞正式对象成空，视图未解包会拒信封。未实服请求、不冒部署事实。为隔离公共参数反例，正式改用库名success信封（unregisteredDbBody），仍两项真实RED；表/视图正式解码及元数据承接另列下一S1优先缺口，不为当前错误夹具新增兼容。
+
+高阶确认不能直接把全资源默认截成20条：AI候选整批/Agent目录以及三个未登记名称是完整集合消费者。已在其首次资源创建/装配显式queryConfig.pagination none，重复装配不覆盖消费者分页设置；显式paged请求按正式参数表达。内部单一readonlyRowsQueryResult共用DataViewLocalQuery处理实际params和权限投影；公开FromLocalRows仍是明确的完整本地快照用途（非查询请求旁路），不新增重载或独立算法。RowsLoader正式收第二参Readonly<QueryParams>完整请求；AIturn/config按请求context取服务ID，同时守原view基础ID，options覆盖B不误读A或改展示A。
+
+实际AIturn options上下文/候选过滤子集2项RED，新增31条默认完整集回归；candidate确认对照同一原AI完成草稿生成的candidate键全集，不持第二草稿，拒可见子集后不消费原批。初AI3文件91项、库名18项通过。进一步不支持语义测试原10项RED中nested直接params被DataView buildTreeModeParams按view.treeMode覆盖，改按正式view.treeMode表达；其余9项真实忽略。首修验证9项因loadFromServer实际抛错未catch而失败，不算产品反例；正确捕获后两文件33项通过。共享LocalQuery补distinct/子查询/来源模式/search/include/节点范围/nested及非基础投影显式拒，readonly在capture/load前空集纯预检，不派发probe后才报不支持。未冻结数据合同，无组件/页面/宿主/Java改动、实服写入或提交；待补完整/上下文失效反例、扩大、生成、门禁与复审，原S2未跟踪RED不动。
+
+**AF第二轮真实反例与修正。**初全包data1273/API1470自然0不代表最终完整性；高阶再定位并主控实际5项RED：查询参数在途原地A→B改写；queryColumns与view.columns分裂导致未输出字段过滤晚失败/来源收窄却扩大输出；Agent基础A请求B在validateQueryResult钩子改C仍接纳；candidate投影丢可选amount但keys完整仍consumed。已一次捕获queryColumns字段集合供预检/正式select同用，snapshot实际query参数（不无谓深克隆viewConfig），loader与结算同一捕获。AI基础ID守卫进既有captureQueryInputs贯穿回包接纳/读取；candidate逐key对同一原draft字段/值只读证明，不补回投影丢值、不持第二编辑基线。最新common+库名2文件37项及AI3文件96项GREEN；加原生嵌套/日期完整批正例与turn最终接纳钩子反例待重验。
+
+独立字段说明：初agent配置options测试误用未声明agentId输出字段，实际为id，已按正式列纠正，不当产品缺陷。candidate过滤/分页子集拒绝后恢复完整读取可正常确认31条，Agent在31条尾项可启动；catalog默认库名31项完整、后续显式分页重挂不被覆盖。FromLocalRows另有staged-design-file-view用于保存后/空定义的确定快照，node-target-resources在S3宿主责任层的普通查询用途须再核，不据保此快照API宣称所有查询请求已收口。表/视图正式payload对象解码/完整字段承接仍列S1下一优先，不改Java、不冒实服支持、不维护裸旧回执兼容。
+
+**AF末轮PK范围反例。**高阶复核来源仅id但view主键secret可经LocalQuery强制保PK重泄字段；主控先验及在途改键2项实际RED。现捕获实际主键并须在本次支持字段中，否则capture/loader前拒；预检/结算/rowKey使用捕获键，guard持续核键，禁止await后扩范围。最新2文件39项+AI98项自然0。前快照data4709=1276/API15883=1474/DB29487=408均自然0但不冒新增PK修正末态。data包type/lint通过，API包type通过但lint require-await指出同步candidate reader的async包装，已改Promise.resolve，无额外草稿。
+
+证据范围纠正：nativebatch只验原JSON嵌套对象/数组/日期字段的字符串载荷，未测JS Date实例；逐字段比对用于原JSON完成草稿保真，依JSON值及键序，不声称任意对象语义等价。captured隔离入口调用者在途改filter/context；受信loader按Readonly消费同一捕获，viewConfig仍元信息引用，不声称隔离任意回调主动改写。所有临时反例为当前产品测试留正式回归，无兼容分支。下一收末态完整测试/生成/门禁，S1未冻结。
+
+**AF末态扩大及派生。**data44337最终57文件1278项、API34619最终44文件1474项、DB38040最终18文件408项均自然exit0；包data97915/API52298 type+lint与94904官方ClassModel重生成均自然0。高阶末态已点名保证静态复核无剩余阻断，非实服结果。正式查询参数/字段/主键捕获、完整小集合默认声明和AI原JSON批次保真作为本批范围，不冒backend业务统计或所有资源完整承接。清理26份被末态替代的中间日志，保最终test/type/lint/生成/门禁及原有效实服证据；唯一主worktree，原S2未跟踪RED不动。根verify16448 live，等原handle自然终态，未提交。AF未更改DataView实际DB读取owner/接口，AE新登录独立只读证据复用其未改路径；本批无新实服写入，不将离线查询/AI测试当线上目录或模型调用证据。S1下一优先仍三类目录成功信封与表/视图对象载荷/元数据承接，完整20包范围与后续历史转换未缩减。
+
+**AF最终检查点验收。**最终完整根verify16448自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留；最新data1278/API1474/DB408、定向39/98、包type/lint及94904正式生成均有效且所有句柄终态。官方ClassModel已查到RowsLoader(view,params:Readonly<QueryParams>)实际声明。lowcode正式生成611端点218静态消费者，新增2仅是AI测试内/B路径断言，非新增后端路由或线上消费证据；不改生成器/不手改派生。
+
+高阶末态已点名保证无剩余静态阻断，diff检查通过，精确清理26份中间日志，保最终验证及原有效实服证据；唯一主worktree，原S2未跟踪RED不stage。准备同codex分支只推origin、不merge/force/部署。AF参数化与候选原JSON完整性作为局部检查点，不冒S1全部冻结或原20包完成；固定Java目录载荷断链/完整字段承接仍第一后续，不能因旧夹具绿维护裸旧合同；历史一次性转换未冒完成。本批无新实服写入、无组件/宿主/业务页面或Java实施。

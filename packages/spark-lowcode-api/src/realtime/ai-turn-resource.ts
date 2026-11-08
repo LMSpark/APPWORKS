@@ -169,6 +169,7 @@ export class AiTurnResource {
     const cancellations = this.createView('AiTurnCancel', [
       dataColumn('operationId', 'string', true), dataColumn('turnId', 'string'), dataColumn('requested', 'boolean'), dataColumn('observedStatus', 'string'),
     ])
+    agents.queryConfig = {...agents.queryConfig, pagination: 'none'}
     this.agents = agents
     this.requests = requests
     this.turns = turns
@@ -186,10 +187,15 @@ export class AiTurnResource {
     })
     bindDataSetReadonlyCommandQuery(turns, {
       resource: this.resourceIdentity('AiTurnStatus'), guard: () => this.assertScope(),
-      loadRows: async view => {
-        const id = view.queryContext['turnId']
+      captureQueryInputs: view => {
+        const baseId = view.queryContext['turnId']
+        return () => {if (view.queryContext['turnId'] !== baseId) throw new Error('AI轮次读取目标已改变')}
+      },
+      loadRows: async (_view, params) => {
+        const id = params.context?.['turnId']
         if (typeof id !== 'string' || id.trim() === '') return []
-        return [await this.readTurn(id)]
+        const turn = await this.readTurn(id)
+        return [turn]
       },
     })
     bindDataSetCommandSubmit(cancellations, {

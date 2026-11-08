@@ -24,6 +24,15 @@ export class DataViewLocalQuery {
     if (params.tree || params.outputType && !this.outputTypes.some(item => item.value === params.outputType)) {
       throw new Error('本地资源支持Table或完整SelfRefData，不执行服务器节点/关联查询')
     }
+    if (params.distinct === true || (params.children?.length ?? 0) > 0 || params.sourceInputMode !== undefined
+      || params.search !== undefined && params.search !== '' || (params.include?.length ?? 0) > 0
+      || params.parentId !== undefined || params.rootId !== undefined || params.depthLimit !== undefined
+      || params.limit !== undefined || params.treeMode === 'nested') {
+      throw new Error('本地资源不支持去重、子查询、来源模式、搜索或节点范围参数')
+    }
+    if (params.projection?.some(field => field.group !== 0 || field.distinct || field.expression !== '' || field.valueFunction !== '')) {
+      throw new Error('本地资源只支持基本字段输出，不执行分组、表达式或函数投影')
+    }
     let rows = input.rows.slice()
     if (params.filter) {
       const parsed = DataViewFilter.parse(params.filter)

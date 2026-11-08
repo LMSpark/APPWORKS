@@ -211,7 +211,11 @@ export class AiAgentConfigResource {
     bindDataSetReadonlyCommandQuery(configuration, {
       resource: {resourceType: 'file', resourceId: 'ai-agent-config:read'},
       guard: () => this.assertScope(),
-      loadRows: view => this.readConfiguration(view),
+      captureQueryInputs: view => {
+        const baseId = view.queryContext['agentId']
+        return () => {if (view.queryContext['agentId'] !== baseId) throw new Error('Agent配置读取目标已改变，旧结果已失效')}
+      },
+      loadRows: (_view, params) => this.readConfiguration(params.context ?? {}),
     })
   }
 
@@ -255,12 +259,11 @@ export class AiAgentConfigResource {
     } finally { this.#createInFlight = false }
   }
 
-  private async readConfiguration(view: DataView): Promise<readonly DataRow[]> {
-    const agentId = view.queryContext['agentId']
+  private async readConfiguration(context: Readonly<Record<string, unknown>>): Promise<readonly DataRow[]> {
+    const agentId = context['agentId']
     if (typeof agentId !== 'string' || agentId.trim() === '') return []
     this.assertScope()
     const raw = await this.request({path: '/api/ai-agent/get', method: 'GET', params: {id: agentId}})
-    if (view.queryContext['agentId'] !== agentId) throw new Error('Agent配置读取目标已改变，旧结果已失效')
     return [readAgentConfig(raw, agentId)]
   }
 }

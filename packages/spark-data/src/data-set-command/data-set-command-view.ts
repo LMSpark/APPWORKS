@@ -8,7 +8,7 @@ import {isRecord} from '@spark-appworks/spark-utils'
 import type {DataSet} from '../dataset'
 import type {DataTable} from '../data-table'
 import {DataViewSaveNotAppliedError, type DataView} from '../data-view'
-import type {DataColumn, DataRow} from '../types'
+import type {DataColumn, DataRow, QueryParams} from '../types'
 
 /** 创建时保留字段元数据；重复装配核资源、类型、主键及显式必填/枚举声明。 */
 export type DataSetCommandColumnSpec = Readonly<Partial<Omit<DataColumn, 'name' | 'isPrimaryKey'>>
@@ -18,7 +18,8 @@ export type DataSetCommandScopeGuard = () => void
 
 type QueryResult = Awaited<ReturnType<NonNullable<Parameters<DataView['bindQueryExecutor']>[0]['executeQuery']>>>
 
-export type DataSetCommandRowsLoader = (view: DataView) => Promise<readonly DataRow[]>
+/** 返回当次输入的完整资源集合；分页和输出由公共查询链执行，不以已加载业务页冒全集。 */
+export type DataSetCommandRowsLoader = (view: DataView, params: Readonly<QueryParams>) => Promise<readonly DataRow[]>
 
 /** 真实命令资源身份；文件命令仍为file，服务命令声明自身语义类型，不伪造文件或后端模型。 */
 export type DataSetCommandResourceIdentity = Readonly<{resourceType: string; resourceId: string}>
@@ -120,28 +121,41 @@ export function ensureDataSetFileCommandView(input: EnsureDataSetFileCommandView
   return view
 }
 
-/** 将内存行包装为只读查询结果（供命令 DataView.refresh 消费）。 */
+/** 将已确定的完整本地快照包装为只读结果；实际参数化查询由只读绑定消费请求，不在此入口推断视图参数。 */
 export function dataSetCommandQueryResultFromLocalRows(
   view: DataView,
   rows: readonly DataRow[],
   guard: DataSetCommandScopeGuard,
 ): Promise<QueryResult> {
-  guard()
-  const fields = new Set(view.columns.filter(column => column.name !== '_pk' && !column.computeExpression).map(column => column.name))
+  return readonlyRowsQueryResult({view, rows, guard, fields: readonlyQueryFields(view.columns), primaryKey: view.primaryKey, params: {page: 1, allPages: true, treeMode: 'flat'}})
+}
+
+function readonlyQueryFields(columns: readonly DataColumn[]): ReadonlySet<string> {
+  return new Set(columns.filter(column => column.name !== '_pk' && !column.computeExpression).map(column => column.name))
+}
+
+function readonlyRowsQueryResult(input: Readonly<{view: DataView; rows: readonly DataRow[]; guard: DataSetCommandScopeGuard; fields: ReadonlySet<string>; primaryKey: string; params: QueryParams}>): Promise<QueryResult> {
+  const {view, rows, guard, fields, primaryKey, params} = input
+  const assertCurrent = () => {
+    guard()
+    if (view.primaryKey !== primaryKey) throw new Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')
+  }
+  assertCurrent()
+  if (primaryKey && !fields.has(primaryKey)) throw new Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
   const {rows: outputRows, total, output} = DataViewLocalQuery.select({
     rows: [...rows],
     fields,
-    primaryKeys: view.primaryKey ? [view.primaryKey] : [],
-    params: {page: 1, allPages: true, treeMode: 'flat'},
+    primaryKeys: primaryKey ? [primaryKey] : [],
+    params,
   })
-  const rowKey = (row: Readonly<DataRow>) => (view.primaryKey ? row[view.primaryKey] : undefined)
+  const rowKey = (row: Readonly<DataRow>) => {assertCurrent(); return primaryKey ? row[primaryKey] : undefined}
   const keys = new Set(outputRows.map(rowKey))
   const allowed = (key: unknown, field: string) => key !== undefined && keys.has(key) && output.has(field)
   return Promise.resolve({
     rows: outputRows,
     total,
     rowKey,
-    assertIdentity: () => guard(),
+    assertIdentity: assertCurrent,
     fieldAccess: (key, field) => ({
       read: allowed(key, field) ? 'visible' : 'invisible',
       write: 'denied',
@@ -325,13 +339,22 @@ export function prepareDataSetReadonlyCommandQuery(view: DataView, options: Bind
     ...(options.derivedQueries ? {derivedQueries: options.derivedQueries} : {}),
     localAggregates: false,
     queryColumns,
-    executeQuery: async (target, _params) => {
+    executeQuery: async (target, params) => {
       options.guard()
+      const {viewConfig, ...query} = params
+      const captured: QueryParams = {...structuredClone(query), ...(viewConfig ? {viewConfig} : {})}
+      const fields = readonlyQueryFields(queryColumns(target)), primaryKey = target.primaryKey
+      if (primaryKey && !fields.has(primaryKey)) throw new Error('DATA_SET_READONLY_QUERY_FIELDS: 主键不在本次来源字段范围')
+      DataViewLocalQuery.select({rows: [], fields,
+        primaryKeys: primaryKey ? [primaryKey] : [], params: captured})
       const assertInputs = options.captureQueryInputs?.(target)
-      const assertCurrent = () => {options.guard(); assertInputs?.()}
+      const assertCurrent = () => {
+        options.guard(); assertInputs?.()
+        if (target.primaryKey !== primaryKey) throw new Error('DATA_SET_READONLY_QUERY_IDENTITY: 本次查询主键已变化')
+      }
       assertCurrent()
-      const rows = await options.loadRows(target)
-      return dataSetCommandQueryResultFromLocalRows(target, rows, assertCurrent)
+      const rows = await options.loadRows(target, captured)
+      return readonlyRowsQueryResult({view: target, rows, guard: assertCurrent, fields, primaryKey, params: captured})
     },
   }
   const resource = {...options.resource}

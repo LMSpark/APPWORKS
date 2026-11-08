@@ -46,6 +46,46 @@ async function stageRequest(resource: AiTurnResource, values: Row = {agentId: 'a
 }
 
 describe('AiTurnResource native DataSet contract', () => {
+  it('reads the requested option turn context without replacing the displayed turn', async () => {
+    const f = await fixture()
+    const turn = (id: string) => ({id, conversationId: 'C1', agentId: 'A1', status: 'RUNNING', assistantDraft: null, errorCode: null, errorMessage: null})
+    try {
+      f.resource.turns.queryContext = {turnId: 'A'}
+      f.http.responses.push(turn('A'))
+      await f.resource.turns.refresh()
+      const row = f.resource.turns.rows[0]
+      f.http.responses.push(turn('B'))
+      expect(await f.resource.turns.queryOptionRows({fields: ['id'], context: {turnId: 'B'}})).toEqual([{id: 'B'}])
+      expect(f.http.requests.at(-1)?.url).toBe('/api/ai/v1/turns/B')
+      expect(f.resource.turns.rows[0]).toBe(row)
+      expect(f.resource.turns.queryContext).toEqual({turnId: 'A'})
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('keeps the complete default agent catalog beyond one page', async () => {
+    const f = await fixture()
+    try {
+      f.http.responses.push(Array.from({length: 31}, (_, index) => ({id: `A${index}`, agentName: `Agent ${index}`, description: null})))
+      await f.resource.agents.refresh()
+      expect(f.resource.agents.rows).toHaveLength(31)
+      expect(f.resource.agents.rows.at(-1)?.['id']).toBe('A30')
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('rejects a requested turn when the base target changes during final validation', async () => {
+    const f = await fixture()
+    try {
+      const view = f.resource.turns
+      view.queryContext = {turnId: 'A'}
+      f.http.responses.push({id: 'B', conversationId: 'C1', agentId: 'A1', status: 'RUNNING', assistantDraft: null, errorCode: null, errorMessage: null})
+      view.validateQueryResult = () => {view.queryContext = {turnId: 'C'}}
+      await view.loadFromServer({context: {turnId: 'B'}}).catch(() => undefined)
+      expect(view.loadingError).toBeInstanceOf(Error)
+      expect(view.rows).toEqual([])
+      expect(f.http.requests.at(-1)?.url).toBe('/api/ai/v1/turns/B')
+    } finally { f.dataSet.destroy() }
+  })
+
   it('loads only the allowlisted Agent catalog fields and denies edits', async () => {
     const f = await fixture()
     f.http.responses.push([{id: 'agent-metadata-admin', agentName: '元数据管理', description: '字典候选', agentPrompt: 'secret', tools: ['secret']}])

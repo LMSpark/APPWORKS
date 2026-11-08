@@ -132,6 +132,7 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
     const view = plan.view ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: plan.name,
       resourceId: catalogResultResources[plan.kind], columns: [{name: 'name', primary: true}]})
     const binding = plan.binding ?? prepare(view, plan.kind)
+    if (!catalogResultBindings.has(view)) view.queryConfig = {...view.queryConfig, pagination: view.queryConfig.pagination ?? 'none'}
     binding.bind()
     catalogResultBindings.set(view, {input: identity, binding})
   }

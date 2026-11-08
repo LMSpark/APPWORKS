@@ -139,6 +139,69 @@ async function startAndRefresh(f: Awaited<ReturnType<typeof createSession>>, tur
 }
 
 describe('AiDataEntrySession native DataSet contract', () => {
+  it.each(['complete', 'filtered', 'paged'] as const)('never consumes only a visible subset of a candidate batch (%s)', async mode => {
+    const f = await createSession()
+    try {
+      const entries = Array.from({length: 31}, (_, index) => ({name: `Candidate ${index}`, count: index + 1}))
+      await startAndRefresh(f, 'TURN-COMPLETE-BATCH', JSON.stringify({entries}))
+      expect(f.session.candidates.rows).toHaveLength(31)
+      if (mode !== 'complete') {
+        await f.session.candidates.loadFromServer(mode === 'paged' ? {pagination: 'paged', page: 1, pageSize: 1} : {filter: {field: 'name', operator: 'eq', value: 'Candidate 0'}})
+        expect(f.session.candidates.rows).toHaveLength(1)
+        await expect(f.session.confirm()).rejects.toThrow('候选批次不完整')
+        expect(f.targetView.rows).toHaveLength(1)
+        await f.session.candidates.loadFromServer({pagination: 'none'})
+        await f.session.confirm()
+        expect(f.targetView.dirtyTracking.pendingCreateIds.size).toBe(31)
+      } else {
+        await f.session.confirm()
+        expect(f.targetView.dirtyTracking.pendingCreateIds.size).toBe(31)
+      }
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('accepts the configured agent when it is beyond the default first page', async () => {
+    const f = await createSession()
+    try {
+      await enterPrompt(f.session, 'full catalog')
+      enqueueSuccessfulStart(f.http, 'TURN-LAST-AGENT', JSON.stringify({entries: [{name: 'Tail', count: 1}]}))
+      f.http.responses[0] = {kind: 'value', value: [...Array.from({length: 30}, (_, index) => ({id: `OTHER-${index}`, agentName: `Agent ${index}`, description: null})),
+        {id: 'AGENT-ENTRY', agentName: 'Selected', description: null}]}
+      await f.session.start()
+      await f.session.refresh()
+      expect(f.session.candidates.rows).toHaveLength(1)
+      expect(f.http.requests.filter(request => request.method === 'POST')).toHaveLength(1)
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('does not consume a complete-key batch whose projection drops optional source fields', async () => {
+    const f = await createSession()
+    try {
+      await startAndRefresh(f, 'TURN-PROJECTION', JSON.stringify({entries: [{name: 'One', amount: 7, count: 1}]}))
+      f.session.candidates.queryConfig = {...f.session.candidates.queryConfig, fields: ['name', 'count']}
+      await f.session.candidates.refresh()
+      await expect(f.session.confirm()).rejects.toThrow('候选批次不完整')
+      expect(f.targetView.rows).toHaveLength(1)
+      f.session.candidates.queryConfig = {pagination: 'none'}
+      await f.session.candidates.refresh()
+      await f.session.confirm()
+      expect(f.targetView.rows).toContainEqual(expect.objectContaining({name: 'One', amount: 7, count: 1}))
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('preserves native nested and date values while checking the original complete batch', async () => {
+    const f = await createSession({model: {tableName: 'Items', modelId: 'NATIVE', columns: [
+      {name: 'id', type: 'string', isPrimaryKey: true}, {name: 'name', type: 'string', allowAIAdd: true},
+      {name: 'payload', type: 'object', allowAIAdd: true}, {name: 'tags', type: 'array', allowAIAdd: true}, {name: 'when', type: 'date', allowAIAdd: true},
+    ]}})
+    try {
+      const entry = {name: 'One', payload: {nested: {active: true}}, tags: ['a', 2], when: '2026-11-08'}
+      await startAndRefresh(f, 'TURN-NATIVE-COMPLETE', JSON.stringify({entries: [entry]}))
+      await f.session.confirm()
+      expect(f.targetView.rows).toContainEqual(expect.objectContaining(entry))
+    } finally { f.dataSet.destroy() }
+  })
+
   it('requires staged target mode and does not rewrite an immediate target configuration', async () => {
     const {AiDataEntrySession} = await import('./ai-data-entry-session')
     const {AiTurnResource} = await import('../ai-turn-resource')

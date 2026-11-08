@@ -15,6 +15,48 @@ function setup() {
 afterEach(() => sets.splice(0).forEach(ds => ds.destroy()))
 
 describe('catalog group binding preflight', () => {
+  it('applies requested filtering, sorting and paging to the actual complete catalog source', async () => {
+    const {dataSet, http, input} = setup()
+    attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
+    dataSet.getTable('input')!.rows[0]!['serverId'] = 'S1'
+    http.unregisteredDbBody = {Code: 200, Result: ['A', 'C', 'B', 'D']}
+    const view = dataSet.getView('databases')!
+    await view.loadFromServer({filter: {field: 'name', operator: 'ne', value: 'D'}, pagination: 'paged', sort: 'name:desc', page: 2, pageSize: 1})
+    expect(view.loadingError).toBeNull()
+    expect(view.rows).toMatchObject([{name: 'B'}])
+    expect(view.total).toBe(3)
+    expect(http.requests.map(request => request.url)).toEqual(['/api/Db/getUnregisteredDb/S1'])
+  })
+
+  it('uses option filters without replacing the displayed catalog result', async () => {
+    const {dataSet, http, input} = setup()
+    attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
+    dataSet.getTable('input')!.rows[0]!['serverId'] = 'S1'
+    http.unregisteredDbBody = {Code: 200, Result: ['A', 'B', 'C']}
+    const view = dataSet.getView('databases')!
+    await view.refresh()
+    const row = view.rows[0]
+    expect(await view.queryOptionRows({fields: ['name'], filter: {field: 'name', operator: 'eq', value: 'B'}})).toEqual([{name: 'B'}])
+    expect(view.rows[0]).toBe(row)
+    expect(view.total).toBe(3)
+  })
+
+  it('keeps complete default database names and preserves later consumer paging on reattachment', async () => {
+    const {dataSet, http, input} = setup(), options = {...input, tables: {...input.tables, unregisteredDbNames: 'databases'}}
+    attachCatalogCommandViews(options)
+    dataSet.getTable('input')!.rows[0]!['serverId'] = 'S1'
+    http.unregisteredDbBody = {Code: 200, Result: Array.from({length: 31}, (_, index) => `Database-${index}`)}
+    const view = dataSet.getView('databases')!
+    await view.refresh()
+    expect(view.rows).toHaveLength(31)
+    view.configure({queryConfig: {pagination: 'paged'}, pageSize: 1})
+    attachCatalogCommandViews(options)
+    expect(view.queryConfig.pagination).toBe('paged')
+    await view.refresh()
+    expect(view.rows).toHaveLength(1)
+    expect(view.total).toBe(31)
+  })
+
   it('rejects a foreign last result before creating input or binding the first result', () => {
     const {dataSet, http, attach} = setup()
     const first = ensureDataSetFileCommandView({dataSet, tableName: 'tables', resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}]})

@@ -195,6 +195,7 @@ export class AiDataEntrySession {
       if (input.dataSet.getTable(CANDIDATE_TABLE) !== undefined) input.dataSet.removeTable(CANDIDATE_TABLE)
       throw new Error('AI录入临时DataView装配不完整')
     }
+    candidateView.queryConfig = {...candidateView.queryConfig, pagination: 'none'}
     inputView.commitMode = 'staged'
     inputView.appendRow({[inputKey]: 'input', businessPrompt: ''})
     inputView.setCurrentRowById('input')
@@ -210,7 +211,7 @@ export class AiDataEntrySession {
     bindDataSetReadonlyCommandQuery(candidateView, {
       resource: {resourceType: 'file', resourceId},
       guard: () => this.assertUsable(),
-      loadRows: async () => this.readCandidateRows(),
+      loadRows: () => Promise.resolve(this.readCandidateRows()),
     })
     const observedViews = [inputView, candidateView, input.targetView, ...turnViews]
     const viewEvents = ['rowsChanged', 'editingChanged', 'editingFieldChanged', 'cleared', 'configChanged',
@@ -669,23 +670,34 @@ export class AiDataEntrySession {
     return row?.['agentId'] === this.#agentId && row['conversationId'] === this.#conversationId ? row : undefined
   }
 
-  private readCandidateRows(): Promise<readonly DataRow[]> {
+  private readCandidateRows(): readonly DataRow[] {
     this.assertUsable()
     const turn = this.currentTurnRow()
     const capture = this.#capture
     if (turn?.['status'] !== 'COMPLETED' || capture === undefined || this.#consumed
-      || !this.isCurrentCapture(capture)) return Promise.resolve([])
+      || !this.isCurrentCapture(capture)) return []
     const draft = turn['assistantDraft']
     if (typeof draft !== 'string') throw new Error('AI完成结果缺少assistantDraft')
     const rows = this.parseCandidateDraft(draft, capture.fields)
-    return Promise.resolve(rows.map((row, index) => ({[this.#candidateKey]: `candidate-${index + 1}`, ...row})))
+    return rows.map((row, index) => ({[this.#candidateKey]: `candidate-${index + 1}`, ...row}))
   }
 
   private readCandidateRowsFromView(fields: readonly AiDataEntryField[]): readonly DataRow[] {
     if (this.candidates.requestState !== RequestState.Loaded || this.candidates.loadingError !== null) {
       throw new Error('AI候选预览尚未由只读DataView有效读取')
     }
-    return this.candidates.readSnapshot().rows.map(row => this.candidateRow(row, fields))
+    const rows = this.candidates.readSnapshot().rows, expected = this.readCandidateRows()
+    const keys = new Set(rows.map(row => row[this.#candidateKey]))
+    if (rows.length !== expected.length || keys.size !== expected.length || expected.some(row => !keys.has(row[this.#candidateKey]))) {
+      throw new Error('AI候选批次不完整，不能仅确认当前可见子集')
+    }
+    const byKey = new Map(rows.map(row => [row[this.#candidateKey], row]))
+    // 对照同一原完成草稿核只读批次完整性，不作为编辑基线，也不补回被投影丢弃的值。
+    if (expected.some(original => {
+      const row = byKey.get(original[this.#candidateKey])
+      return !row || JSON.stringify(this.candidateRow(row, fields)) !== JSON.stringify(this.candidateRow(original, fields))
+    })) throw new Error('AI候选批次不完整，字段或值已缺失')
+    return rows.map(row => this.candidateRow(row, fields))
   }
 
   private isCurrentCapture(capture: SessionCapture): boolean {

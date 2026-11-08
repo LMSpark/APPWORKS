@@ -112,6 +112,35 @@ describe('AiAgentConfigResource native DataSet contract', () => {
     } finally { f.dataSet.destroy() }
   })
 
+  it('uses a requested option Agent identity without replacing the displayed configuration', async () => {
+    const f = await fixture()
+    try {
+      f.resource.configuration.queryContext = {agentId: 'A'}
+      f.http.respond(agentReadback('A'))
+      await f.resource.configuration.refresh()
+      const row = f.resource.configuration.rows[0]
+      f.http.respond(agentReadback('B'))
+      expect(await f.resource.configuration.queryOptionRows({fields: ['id'], context: {agentId: 'B'}})).toEqual([{id: 'B'}])
+      expect(f.http.requests.at(-1)?.params).toEqual({id: 'B'})
+      expect(f.resource.configuration.rows[0]).toBe(row)
+      expect(f.resource.configuration.queryContext).toEqual({agentId: 'A'})
+    } finally { f.dataSet.destroy() }
+  })
+
+  it('rejects requested configuration B when the base identity switches during final validation', async () => {
+    const f = await fixture()
+    try {
+      const view = f.resource.configuration
+      view.queryContext = {agentId: 'A'}
+      f.http.respond(agentReadback('B'))
+      view.validateQueryResult = () => {view.queryContext = {agentId: 'C'}}
+      await view.loadFromServer({context: {agentId: 'B'}}).catch(() => undefined)
+      expect(view.loadingError).toBeInstanceOf(Error)
+      expect(view.rows).toEqual([])
+      expect(f.http.requests.at(-1)?.params).toEqual({id: 'B'})
+    } finally { f.dataSet.destroy() }
+  })
+
   it('reads the selected Agent ID through the readonly configuration view and exposes only approved fields', async () => {
     const f = await fixture()
     try {

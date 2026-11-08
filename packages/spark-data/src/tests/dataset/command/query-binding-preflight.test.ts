@@ -3,6 +3,90 @@ import {DataSet} from '../../../dataset'
 import {ensureDataSetFileCommandView, prepareDataSetReadonlyCommandQuery} from '../../../data-set-command/data-set-command-view'
 
 describe('query binding preflight', () => {
+  it.each([{distinct: true}, {search: 'one'}, {include: ['related']}, {sourceInputMode: 'direct' as const},
+    {sourceInputMode: 'mapped' as const}, {parentId: null}, {rootId: 'ROOT'}, {depthLimit: 1}, {limit: 1}, {treeMode: 'nested' as const}])('rejects unsupported local query semantics before capturing or loading (%j)', async params => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
+    try {
+      const view = ensureDataSetFileCommandView({dataSet, tableName: 'result', resourceId: 'result', columns: [{name: 'id', primary: true}]})
+      const loadRows = vi.fn(async () => [{id: 'one'}]), captureQueryInputs = vi.fn(() => vi.fn())
+      prepareDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'file', resourceId: 'result'}, guard: () => {}, loadRows, captureQueryInputs}).bind()
+      if ('treeMode' in params) view.treeMode = params.treeMode
+      await view.loadFromServer(params).catch(() => undefined)
+      expect(view.loadingError).toBeInstanceOf(Error)
+      expect(captureQueryInputs).not.toHaveBeenCalled()
+      expect(loadRows).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
+  })
+
+  it('captures mutable filtering inputs before awaiting the complete loader', async () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
+    try {
+      const view = ensureDataSetFileCommandView({dataSet, tableName: 'result', resourceId: 'result', columns: [{name: 'id', primary: true}]})
+      let finish: (rows: readonly Record<string, unknown>[]) => void = () => {throw new Error('not started')}
+      const loadRows = vi.fn(() => new Promise<readonly Record<string, unknown>[]>(resolve => {finish = resolve}))
+      prepareDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'file', resourceId: 'result'}, guard: () => {}, loadRows}).bind()
+      const filter = {field: 'id', operator: 'eq' as const, value: 'A'}
+      const pending = view.loadFromServer({filter})
+      await vi.waitFor(() => expect(loadRows).toHaveBeenCalledOnce())
+      filter.value = 'B'
+      finish([{id: 'A'}, {id: 'B'}])
+      await pending
+      expect(view.rows).toMatchObject([{id: 'A'}])
+    } finally {dataSet.destroy()}
+  })
+
+  it('does not expand output beyond the source query field catalog', async () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
+    try {
+      const view = ensureDataSetFileCommandView({dataSet, tableName: 'result', resourceId: 'result', columns: [{name: 'id', primary: true}, {name: 'secret'}]})
+      prepareDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'file', resourceId: 'result'}, guard: () => {},
+        queryColumns: target => target.dataTable!.columns.filter(column => column.name === 'id'), loadRows: async () => [{id: 'A', secret: 'hidden'}]}).bind()
+      await view.refresh()
+      expect(view.rows[0]).not.toHaveProperty('secret')
+      expect(view.fieldAccess(view.rows[0]!, 'secret').read).toBe('invisible')
+    } finally {dataSet.destroy()}
+  })
+
+  it('can filter on an unprojected source field while keeping it unreadable in output', async () => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
+    try {
+      const view = ensureDataSetFileCommandView({dataSet, tableName: 'result', resourceId: 'result', columns: [{name: 'id', primary: true}, {name: 'name'}, {name: 'status'}]})
+      view.fieldProjection = ['id', 'name'].map(name => ({fieldId: name, source: 'resource' as const, resourceFieldId: null, resourceField: name,
+        viewField: name, type: 'string' as const, label: name, output: true, sortOrder: 0, sortDirection: null, group: 0, distinct: false,
+        primaryKey: name === 'id', value: '', valueFunction: '', expression: ''}))
+      prepareDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'file', resourceId: 'result'}, guard: () => {},
+        loadRows: async () => [{id: 'A', name: 'One', status: 'active'}, {id: 'B', name: 'Two', status: 'inactive'}]}).bind()
+      await view.loadFromServer({filter: {field: 'status', operator: 'eq', value: 'active'}})
+      expect(view.rows).toMatchObject([{id: 'A', name: 'One'}])
+      expect(view.rows[0]).not.toHaveProperty('status')
+      expect(view.fieldAccess(view.rows[0]!, 'status').read).toBe('invisible')
+    } finally {dataSet.destroy()}
+  })
+
+  it.each([false, true])('never reintroduces a source-excluded field through a primary key override (inFlight=%s)', async inFlight => {
+    const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
+    try {
+      const view = ensureDataSetFileCommandView({dataSet, tableName: 'result', resourceId: 'result', columns: [{name: 'id', primary: true}, {name: 'secret'}]})
+      let finish: (rows: readonly Record<string, unknown>[]) => void = () => {throw new Error('not started')}
+      const loadRows = vi.fn(() => new Promise<readonly Record<string, unknown>[]>(resolve => {finish = resolve}))
+      prepareDataSetReadonlyCommandQuery(view, {resource: {resourceType: 'file', resourceId: 'result'}, guard: () => {}, loadRows,
+        queryColumns: target => target.dataTable!.columns.filter(column => column.name === 'id')}).bind()
+      if (!inFlight) view.primaryKey = 'secret'
+      const pending = view.refresh()
+      if (inFlight) {
+        await vi.waitFor(() => expect(loadRows).toHaveBeenCalledOnce())
+        view.primaryKey = 'secret'
+        finish([{id: 'A', secret: 'hidden'}])
+      } else {
+        await Promise.resolve()
+        expect(loadRows).not.toHaveBeenCalled()
+      }
+      await pending
+      expect(view.loadingError).toBeInstanceOf(Error)
+      expect(view.rows).toEqual([])
+    } finally {dataSet.destroy()}
+  })
+
   it('prepares one readonly binding without executing callbacks and retains its resource snapshot', async () => {
     const dataSet = DataSet.fromJson({scenarioId: 'PREFLIGHT', tables: {}})
     try {

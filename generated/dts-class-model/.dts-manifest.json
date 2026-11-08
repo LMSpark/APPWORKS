@@ -2654,7 +2654,7 @@
     "packages/spark-data/src/data-set-command/data-set-command-view.ts": {
       "sourceFile": "packages/spark-data/src/data-set-command/data-set-command-view.ts",
       "shardFile": "files/packages/spark-data/src/data-set-command/data-set-command-view.ts.json",
-      "sourceModifiedAt": "2026-11-07T23:57:47.389Z"
+      "sourceModifiedAt": "2026-11-08T00:26:16.027Z"
     },
     "packages/spark-data/src/data-table.ts": {
       "sourceFile": "packages/spark-data/src/data-table.ts",
@@ -2719,7 +2719,7 @@
     "packages/spark-data/src/query/data-view-local-query.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-local-query.ts",
       "shardFile": "files/packages/spark-data/src/query/data-view-local-query.ts.json",
-      "sourceModifiedAt": "2026-10-14T20:34:23.234Z"
+      "sourceModifiedAt": "2026-11-08T00:11:13.992Z"
     },
     "packages/spark-data/src/query/data-view-option-catalog.ts": {
       "sourceFile": "packages/spark-data/src/query/data-view-option-catalog.ts",
@@ -3369,12 +3369,12 @@
     "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/agent-config/ai-agent-config-resource.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.783Z"
+      "sourceModifiedAt": "2026-11-08T00:19:40.238Z"
     },
     "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/ai-turn-resource.ts.json",
-      "sourceModifiedAt": "2026-10-24T13:55:04.081Z"
+      "sourceModifiedAt": "2026-11-08T00:19:40.239Z"
     },
     "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-fields.ts",
@@ -3384,7 +3384,7 @@
     "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/realtime/data-entry/ai-data-entry-session.ts.json",
-      "sourceModifiedAt": "2026-10-25T08:42:55.793Z"
+      "sourceModifiedAt": "2026-11-08T00:26:16.028Z"
     },
     "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/realtime/lowcode-realtime-api.ts",
@@ -4084,7 +4084,7 @@
     "src/lowcode/resources/database/dataset-extensions.ts": {
       "sourceFile": "src/lowcode/resources/database/dataset-extensions.ts",
       "shardFile": "files/src/lowcode/resources/database/dataset-extensions.ts.json",
-      "sourceModifiedAt": "2026-11-07T23:54:45.320Z"
+      "sourceModifiedAt": "2026-11-08T00:14:42.704Z"
     },
     "src/lowcode/resources/database/directory.ts": {
       "sourceFile": "src/lowcode/resources/database/directory.ts",

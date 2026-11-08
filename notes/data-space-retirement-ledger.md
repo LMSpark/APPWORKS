@@ -8194,3 +8194,5 @@ bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应
 **AF最终检查点验收。**最终完整根verify16448自然exit0，含类型/lint、ClassModel49项及正式规则，既有2模型警告/84薄页诊断保留；最新data1278/API1474/DB408、定向39/98、包type/lint及94904正式生成均有效且所有句柄终态。官方ClassModel已查到RowsLoader(view,params:Readonly<QueryParams>)实际声明。lowcode正式生成611端点218静态消费者，新增2仅是AI测试内/B路径断言，非新增后端路由或线上消费证据；不改生成器/不手改派生。
 
 高阶末态已点名保证无剩余静态阻断，diff检查通过，精确清理26份中间日志，保最终验证及原有效实服证据；唯一主worktree，原S2未跟踪RED不stage。准备同codex分支只推origin、不merge/force/部署。AF参数化与候选原JSON完整性作为局部检查点，不冒S1全部冻结或原20包完成；固定Java目录载荷断链/完整字段承接仍第一后续，不能因旧夹具绿维护裸旧合同；历史一次性转换未冒完成。本批无新实服写入、无组件/宿主/业务页面或Java实施。
+
+**AF已提交推送并独立核实。**代码f1c7d09dcf556127065c1c13830e6b1481d8f1c0（fix(data): honor readonly query scope and complete candidate batches），33文件497增163删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地同精确SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。此事实补记docs跟随同步。恢复点仍S1：先按固定Java成功信封/库名string、表与视图对象载荷在真实数据适配建立RED，确认table_comment/hasDefaultFields的正式字段和注册下游承接，删除旧吞对象/裸视图回执分支并纠正夹具；不得借此改页面或Java。数据合同仍未整体冻结，原20包范围及历史转换目标active。

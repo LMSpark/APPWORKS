@@ -119,6 +119,7 @@ export class DatabaseTableViewHttp extends HttpClientBase {
   unregisteredByDb: Record<string, string[]> = {}
   unregisteredTableBody: unknown = undefined
   unregisteredViewsByDb: Record<string, string[]> = {}
+  unregisteredViewBody: unknown = undefined
   rows: Record<string, Array<Record<string, unknown>>> = {
     [DATABASE_SERVER_MODEL]: [{rowid: 'S1', Type: 'MYSQL', ServerName: '主库', ip_address: '10.0.0.1', Port: '3306', description: ''}],
     [DATABASE_CATALOG_DB_MODEL]: [{rowid: 'DB1', serverId: 'S1', Name: '业务库', ServerName: '主库', SchemaName: 'dbo', Remark: ''}],
@@ -178,15 +179,15 @@ export class DatabaseTableViewHttp extends HttpClientBase {
     }
     if (config.url?.startsWith('/api/Db/getUnregisteredDb/')) {
       const serverId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredDb/'.length))
-      return {data: this.unregisteredDbBody ?? this.unregisteredByServer[serverId] ?? [], status: 200, statusText: 'OK', headers: {}}
+      return {data: this.unregisteredDbBody !== undefined ? this.unregisteredDbBody : {Code: 200, Type: 'success', Result: this.unregisteredByServer[serverId] ?? []}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/Db/getUnregisteredTable/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/Db/getUnregisteredTable/'.length))
-      return {data: this.unregisteredTableBody ?? this.unregisteredByDb[dbId] ?? [], status: 200, statusText: 'OK', headers: {}}
+      return {data: this.unregisteredTableBody !== undefined ? this.unregisteredTableBody : {Code: 200, Type: 'success', Result: (this.unregisteredByDb[dbId] ?? []).map(name => ({table_name: name, table_comment: '', hasDefaultFields: 0}))}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/View/getUnregisteredView/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/View/getUnregisteredView/'.length))
-      return {data: this.unregisteredViewsByDb[dbId] ?? [], status: 200, statusText: 'OK', headers: {}}
+      return {data: this.unregisteredViewBody !== undefined ? this.unregisteredViewBody : {Code: 200, Type: 'success', Result: (this.unregisteredViewsByDb[dbId] ?? []).map(name => ({table_name: name, table_comment: ''}))}, status: 200, statusText: 'OK', headers: {}}
     }
     if (config.url?.startsWith('/api/Table/registerTable/')) {
       const dbId = decodeURIComponent(config.url.slice('/api/Table/registerTable/'.length))

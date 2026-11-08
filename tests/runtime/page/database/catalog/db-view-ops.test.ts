@@ -272,7 +272,7 @@ describe('database/catalog/db-view-ops', () => {
     const serverView = requireDatabaseCatalogServerView(ds)
     serverView.setSelectedRows([serverView.rows[0]!])
     const serverId = databaseCatalogServerSelectedId(serverView)
-    http.unregisteredDbBody = {Code: 200, Message: 'success', Result: ['Staging', 'Archive']}
+    http.unregisteredDbBody = {Code: 200, Type: 'success', Message: 'success', Result: ['Staging', 'Archive']}
 
     const names = await databaseCatalogQueryUnregisteredDbNames(ds, serverId, {
       commandInput: 'DatabaseDirectoryCommandInput',

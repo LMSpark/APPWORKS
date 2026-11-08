@@ -8196,3 +8196,18 @@ bound primaryKey覆盖先被已接纳resultPrimaryKey遮蔽，原“改setter应
 高阶末态已点名保证无剩余静态阻断，diff检查通过，精确清理26份中间日志，保最终验证及原有效实服证据；唯一主worktree，原S2未跟踪RED不stage。准备同codex分支只推origin、不merge/force/部署。AF参数化与候选原JSON完整性作为局部检查点，不冒S1全部冻结或原20包完成；固定Java目录载荷断链/完整字段承接仍第一后续，不能因旧夹具绿维护裸旧合同；历史一次性转换未冒完成。本批无新实服写入、无组件/宿主/业务页面或Java实施。
 
 **AF已提交推送并独立核实。**代码f1c7d09dcf556127065c1c13830e6b1481d8f1c0（fix(data): honor readonly query scope and complete candidate batches），33文件497增163删；origin同codex/spark-data-s1-command-safety push自然exit0，独立ls-remote与本地同精确SHA。跟踪树清洁，仅原S2未跟踪RED保留，唯一主worktree。此事实补记docs跟随同步。恢复点仍S1：先按固定Java成功信封/库名string、表与视图对象载荷在真实数据适配建立RED，确认table_comment/hasDefaultFields的正式字段和注册下游承接，删除旧吞对象/裸视图回执分支并纠正夹具；不得借此改页面或Java。数据合同仍未整体冻结，原20包范围及历史转换目标active。
+
+
+**AG正式未登记目录载荷集中批（S1，未冻结）。**主控核固定E:/lowcode-jdk17 e1eccc1：三个Controller均AjaxResult.success；库名Set<string>，表项table_name/table_comment/Integer hasDefaultFields（现源码固定0），视图项table_name/table_comment。Swagger表名string示例与Service实际对象矛盾，按实际源码制作夹具，未作实服调用或Java变更。主控先正式非空/空集/混入坏项/坏信封/重名等实际15项RED25通过。现按kind逐项严格解数字200+Type success+数组Result，拒裸旧数组/字符串Code/Code0/坏项/重名，不filter吞空；非200原Message保留。库名原string、表说明映tableComment、视图说明映viewComment、表标记按Java Integer数值保留，不把标记解释为实际物理字段已存在或替代显式addDefaultFields。
+
+三处existing/new/queryColumns共用kind字段声明，name为唯一源键；说明保原文。HTTP fixture只在目录端点边界将旧命名seed变正式信封/对象，raw override用!==undefined保故意null，增加view override；只纠正AF缺Type成功正样和两迟到回包，未改注册POST/ACK模型或页面。首40项GREEN后，额外表声明字段被误当可查询源输出，1项真实RED，已限制queryColumns只取kind正式字段；加旧name-only声明须零IO拒、不静默修活。未做兼容层，待末态定向/扩大/官方生成/门禁及高阶复审，不冻结S1。
+
+**注册及下游边界。**固定TableFieldServiceImpl按请求table_comment写tblDesc，hasDefaultFields==1才补字段；原command tableComment/显式addDefaultFields保留。ViewServiceImpl仅读取请求table_name、描述由服务生成，不能把本地viewComment回执当已持久；原view POST不扩协议。当前页面两个comment都传空及name-only helper消费仍归S5，目录元数据本批只证DataView可读，不冒页面预填或注册说明落库。源名称保原文、不猜大小写合并；现下游scalar首尾trim的边界须在S5恢复完整语义时核，不借当前局部通过宣称所有物理名/布局已迁。原S2未跟踪RED不动，唯一主worktree，无实服写入。
+
+**AG目标边界及验收加固。**首数据库族51879自然exit0：18文件431项，定向lint自然0，不能冒末态。高阶指出来源name与既有names helper/页面trim不一致会把' Orders '提交成Orders；主控三kind单项/混合碰撞6项真实RED，现对首尾空白名明确整体诊断拒绝，不悄悄trim/合并；此是当前精确下游尚未恢复的前端能力差距，不把此类物理名永久排除原目标，S5按精确名称完整恢复后重验，comment仍保原文。失败保旧测试已把坏次首项换Different/Changed再混null，除了数组引用还核原row对象、数量、名称、说明及无新名，避免DataView原地splice掩盖部分发布。等待末态回归/生成/门禁，未推送/写实服。
+
+**AG最终检查点验收。**数据库92421最终18文件437项、定向48项、28109定向lint、65418官方ClassModel生成及完整根verify61990均自然exit0（含类型/lint、ClassModel49项与正式规则）；既有2模型警告/84薄页诊断保留。lowcode正式611端点218静态消费者，源仅位置更新不新增服务。高阶末态静态复审既定范围无剩余阻断，非线上目录证明。spark-data/API源码本批未改，AF1278/1474有效包证据复用其未改责任源，不重复冒本批全包结果。diff通过，所有句柄终态；精确删除7份中间日志保正式末态与历史有效实服证据，唯一主worktree，原S2未跟踪RED不stage。准备只推origin同codex分支，不merge/force/部署，无新实服写入/Java/组件/页面实施。S1未冻结，20包整体active。
+
+**下一S1资源语义分类只读评审（未实施）。**高阶盘实际运行：DB四写/三目录/两probe/两物理预览共11类，AI agents/status读、request/cancel写、config create/read、candidate本地投影共7类；上述18类ID在仓内config/pages/**/pagedata.json未出现，由真实模型DataSet assemble后动态装配，不冒远端存量已扫描。建议直接以显式resource:{resourceType,resourceId}的ensureDataSetResourceView替换旧File helper及导出/类型，无别名/默认file；已有command用于实际写，service-query为拟新增本仓运行时语义而非后端协议，候选用既有logical-view。权限/派生/save/verify仍看executor，不按type猜行为、不放宽queryIdentity或正式场景模型分支。真实file/pagedata/JSON/布局/版本及staged-design-file-view(GetView/SaveView实际JSON文件)保file。首实际RED：服务目录当前伪file可被getOrCreateFileResourceView同ID/正文tableComment+新命名view装配第二file owner；分类后须在注册前拒、0fileIO，原目录仍正常。
+
+另有正式持久ProjectToolCatalog声明file但实际blueprintTreeProjection派生，属独立一次性声明转换与owner选择：ScenarioViewConfig/runtime/assembler/ProjectToolResource/改名与view-design消费者均需按阶段边界一起评审，不能只改pagedata一行或用旧fileExecutors接logical-view兼容。仓内4个正式command声明已走commandBindings不迁；远端存量/该持久投影转换均待实际证据，不把动态18类分类当历史转换完成。下一先真实runtime反例与统一descriptor，不跨层补丁。

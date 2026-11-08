@@ -32,6 +32,35 @@ type CatalogResultKind = 'databases' | 'tables' | 'views'
 const catalogResultResources: Readonly<Record<CatalogResultKind, string>> = {
   databases: 'database-unregistered-names', tables: 'database-unregistered-tables', views: 'database-unregistered-views',
 }
+function catalogResultColumns(kind: CatalogResultKind): readonly SparkData.DataSetCommandColumnSpec[] {
+  return [{name: 'name', primary: true}, ...(kind === 'databases' ? [] : [{name: kind === 'tables' ? 'tableComment' : 'viewComment', label: '来源说明'}]),
+    ...(kind === 'tables' ? [{name: 'hasDefaultFields', type: 'int' as const, label: '来源默认字段标记'}] : [])]
+}
+
+function catalogDirectoryRows(kind: CatalogResultKind, response: unknown): DataRow[] {
+  const invalid = () => new Error('CATALOG_DIRECTORY_RESPONSE: 未登记目录响应格式无效')
+  if (!isRecord(response) || typeof response['Code'] !== 'number') throw invalid()
+  if (response['Code'] !== 200) {
+    const message = response['Message']
+    throw new Error(typeof message === 'string' && message.trim() ? message : '查询未登记目录失败')
+  }
+  const items = response['Result']
+  if (response['Type'] !== 'success' || !Array.isArray(items)) throw invalid()
+  const names = new Set<string>()
+  return items.map((item: unknown) => {
+    const name = kind === 'databases' ? item : isRecord(item) ? item['table_name'] : undefined
+    if (typeof name !== 'string' || !name.trim() || names.has(name)) throw invalid()
+    if (name !== name.trim()) throw new Error('CATALOG_DIRECTORY_TARGET: 来源名称含首尾空白，当前消费链不能保证精确目标')
+    names.add(name)
+    if (kind === 'databases') return {name}
+    if (!isRecord(item) || typeof item['table_comment'] !== 'string') throw invalid()
+    if (kind === 'views') return {name, viewComment: item['table_comment']}
+    const flag = item['hasDefaultFields']
+    if (typeof flag !== 'number' || !Number.isInteger(flag) || flag < -2147483648 || flag > 2147483647) throw invalid()
+    return {name, tableComment: item['table_comment'], hasDefaultFields: flag}
+  })
+}
+
 const catalogInputInstances = new WeakMap<SparkData.DataTable, SparkData.DataView>()
 const catalogResultBindings = new WeakMap<SparkData.DataView, Readonly<{
   input: CatalogInputIdentity; binding: SparkData.DataSetReadonlyCommandBinding
@@ -89,23 +118,22 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
           }
         }
       },
-      queryColumns: target => target.dataTable?.columns.filter(column => column.name === 'name') ?? [],
+      queryColumns: target => target.dataTable?.columns.filter(column => catalogResultColumns(kind).some(source => source.name === column.name)) ?? [],
       loadRows: async () => {
         const row = requireInput().table.rows[0]
         const id = scalar(row?.[kind === 'databases' ? 'serverId' : 'dbId'])
         if (!id) throw new Error(kind === 'databases' ? '查询未登记数据库缺少服务器 ID' : '查询未登记对象缺少数据库 ID')
         let response: unknown
-        if (kind === 'databases') response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredDb/${encodeURIComponent(id)}`), '查询未登记数据库失败')
-        else if (kind === 'tables') response = commandAjaxResult(await http.get<unknown>(`/api/Db/getUnregisteredTable/${encodeURIComponent(id)}`), '查询未登记数据表失败')
+        if (kind === 'databases') response = await http.get<unknown>(`/api/Db/getUnregisteredDb/${encodeURIComponent(id)}`)
+        else if (kind === 'tables') response = await http.get<unknown>(`/api/Db/getUnregisteredTable/${encodeURIComponent(id)}`)
         else response = await http.get<unknown>(`/api/View/getUnregisteredView/${encodeURIComponent(id)}`)
-        if (!Array.isArray(response)) throw new Error('未登记对象列表响应格式无效')
-        return response.filter((name: unknown): name is string => typeof name === 'string' && name.trim() !== '').map(name => ({name: name.trim()}))
+        return catalogDirectoryRows(kind, response)
       },
     })
   const plans = descriptors.map(descriptor => {
     if (!dataSet.getTable(descriptor.name)) return {...descriptor, view: undefined, binding: undefined}
     const view = SparkData.ensureDataSetFileCommandView({dataSet, tableName: descriptor.name,
-      resourceId: catalogResultResources[descriptor.kind], columns: [{name: 'name', primary: true}]})
+      resourceId: catalogResultResources[descriptor.kind], columns: catalogResultColumns(descriptor.kind)})
     if (view.primaryKey !== 'name') throw new Error('CATALOG_COMMAND_RESULT_IDENTITY: 目录命令结果必须以 name 为主键')
     const original = catalogResultBindings.get(view)
     if (original !== undefined) {
@@ -130,7 +158,7 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
   }
   for (const plan of plans) {
     const view = plan.view ?? SparkData.ensureDataSetFileCommandView({dataSet, tableName: plan.name,
-      resourceId: catalogResultResources[plan.kind], columns: [{name: 'name', primary: true}]})
+      resourceId: catalogResultResources[plan.kind], columns: catalogResultColumns(plan.kind)})
     const binding = plan.binding ?? prepare(view, plan.kind)
     if (!catalogResultBindings.has(view)) view.queryConfig = {...view.queryConfig, pagination: view.queryConfig.pagination ?? 'none'}
     binding.bind()
@@ -140,14 +168,6 @@ export function attachCatalogCommandViews(input: AttachCatalogCommandViewsInput)
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
-}
-
-/** AjaxResult `{Code, Message, Result}`：Code 0/200 为成功，其余为后端明确拒绝。 */
-function commandAjaxResult(response: unknown, fallbackMessage: string): unknown {
-  if (!isRecord(response) || !('Code' in response)) return response
-  const code = Number(response['Code'])
-  if (code === 0 || code === 200) return response['Result']
-  throw new Error(scalar(response['Message']) || scalar(response['Msg']) || `${fallbackMessage}（${scalar(response['Code'])}）`)
 }
 
 /** 当前服务实现的逐项成功回执：精确名称键和值，不接受参考文档中的其它猜测形态。 */

@@ -19,7 +19,7 @@ describe('catalog group binding preflight', () => {
     const {dataSet, http, input} = setup()
     attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
     dataSet.getTable('input')!.rows[0]!['serverId'] = 'S1'
-    http.unregisteredDbBody = {Code: 200, Result: ['A', 'C', 'B', 'D']}
+    http.unregisteredDbBody = {Code: 200, Type: 'success', Result: ['A', 'C', 'B', 'D']}
     const view = dataSet.getView('databases')!
     await view.loadFromServer({filter: {field: 'name', operator: 'ne', value: 'D'}, pagination: 'paged', sort: 'name:desc', page: 2, pageSize: 1})
     expect(view.loadingError).toBeNull()
@@ -32,7 +32,7 @@ describe('catalog group binding preflight', () => {
     const {dataSet, http, input} = setup()
     attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
     dataSet.getTable('input')!.rows[0]!['serverId'] = 'S1'
-    http.unregisteredDbBody = {Code: 200, Result: ['A', 'B', 'C']}
+    http.unregisteredDbBody = {Code: 200, Type: 'success', Result: ['A', 'B', 'C']}
     const view = dataSet.getView('databases')!
     await view.refresh()
     const row = view.rows[0]
@@ -45,7 +45,7 @@ describe('catalog group binding preflight', () => {
     const {dataSet, http, input} = setup(), options = {...input, tables: {...input.tables, unregisteredDbNames: 'databases'}}
     attachCatalogCommandViews(options)
     dataSet.getTable('input')!.rows[0]!['serverId'] = 'S1'
-    http.unregisteredDbBody = {Code: 200, Result: Array.from({length: 31}, (_, index) => `Database-${index}`)}
+    http.unregisteredDbBody = {Code: 200, Type: 'success', Result: Array.from({length: 31}, (_, index) => `Database-${index}`)}
     const view = dataSet.getView('databases')!
     await view.refresh()
     expect(view.rows).toHaveLength(31)
@@ -57,10 +57,130 @@ describe('catalog group binding preflight', () => {
     expect(view.total).toBe(31)
   })
 
+  it.each(['databases', 'tables', 'views'] as const)('accepts the formal %s directory and retains source metadata', async kind => {
+    const {dataSet, http, input} = setup()
+    attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
+    Object.assign(dataSet.getTable('input')!.rows[0]!, {serverId: 'S1', dbId: 'DB1'})
+    const comment = '  中文说明\n原文  '
+    const result = kind === 'databases' ? ['Raw'] : [{table_name: 'Raw', table_comment: comment, ...(kind === 'tables' ? {hasDefaultFields: 0} : {})}]
+    vi.spyOn(http, 'get').mockResolvedValue({Code: 200, Type: 'success', Result: result})
+    const view = dataSet.getView(kind)!
+    await view.refresh()
+    expect(view.loadingError).toBeNull()
+    expect(view.rows).toHaveLength(1)
+    expect(view.rows[0]?.['name']).toBe('Raw')
+    if (kind !== 'databases') {
+      const field = kind === 'tables' ? 'tableComment' : 'viewComment'
+      expect(view.rows[0]?.[field]).toBe(comment)
+      expect(view.fieldAccess(view.rows[0]!, field).read).toBe('visible')
+      await view.loadFromServer({filter: {field, operator: 'eq', value: comment}})
+      expect(view.rows).toHaveLength(1)
+    }
+    if (kind === 'tables') {
+      expect(view.rows[0]?.['hasDefaultFields']).toBe(0)
+      expect(view.fieldAccess(view.rows[0]!, 'hasDefaultFields').read).toBe('visible')
+    }
+  })
+
+  it.each(['databases', 'tables', 'views'] as const)('distinguishes a formal empty %s directory from failed responses', async kind => {
+    const {dataSet, http, input} = setup()
+    attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
+    Object.assign(dataSet.getTable('input')!.rows[0]!, {serverId: 'S1', dbId: 'DB1'})
+    vi.spyOn(http, 'get').mockResolvedValue({Code: 200, Type: 'success', Result: []})
+    const view = dataSet.getView(kind)!
+    await view.refresh()
+    expect(view.loadingError).toBeNull()
+    expect(view.rows).toEqual([])
+  })
+
+  it.each(['databases', 'tables', 'views'] as const)('rejects a mixed malformed %s collection instead of accepting a subset', async kind => {
+    const {dataSet, http, input} = setup()
+    attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
+    Object.assign(dataSet.getTable('input')!.rows[0]!, {serverId: 'S1', dbId: 'DB1'})
+    const good = kind === 'databases' ? 'Raw' : {table_name: 'Raw', table_comment: 'Original', ...(kind === 'tables' ? {hasDefaultFields: 0} : {})}
+    const other = kind === 'databases' ? 'Different' : {table_name: 'Different', table_comment: 'Changed', ...(kind === 'tables' ? {hasDefaultFields: 0} : {})}
+    vi.spyOn(http, 'get').mockResolvedValueOnce({Code: 200, Type: 'success', Result: [good]})
+      .mockResolvedValueOnce({Code: 200, Type: 'success', Result: [other, null]})
+    const view = dataSet.getView(kind)!
+    await view.refresh()
+    expect(view.rows).toHaveLength(1)
+    const rows = view.rows, original = view.rows[0]
+    await view.refresh()
+    expect(view.loadingError).toBeInstanceOf(Error)
+    expect(view.rows).toBe(rows)
+    expect(view.rows).toHaveLength(1)
+    expect(view.rows[0]).toBe(original)
+    expect(view.rows[0]?.['name']).toBe('Raw')
+    if (kind !== 'databases') expect(view.rows[0]?.[kind === 'tables' ? 'tableComment' : 'viewComment']).toBe('Original')
+    expect(view.rows.some(row => row['name'] === 'Different')).toBe(false)
+  })
+
+  it.each([[], {Code: '200', Type: 'success', Result: []}, {Code: 0, Type: 'success', Result: []},
+    {Code: 200, Type: 'error', Result: []}, {Code: 200, Result: []}, {Code: 200, Type: 'success', Result: null},
+    {Code: 200, Type: 'success'}, {Code: 200, Type: 'success', Result: ['Raw']},
+    {Code: 200, Type: 'success', Result: [{table_name: 'Raw', hasDefaultFields: 0}]},
+    {Code: 200, Type: 'success', Result: [{table_name: 'Raw', table_comment: '', hasDefaultFields: '0'}]},
+    {Code: 200, Type: 'success', Result: [{table_name: 'Raw', table_comment: '', hasDefaultFields: 0}, {table_name: 'Raw', table_comment: 'Other', hasDefaultFields: 0}]}])('rejects unsupported table directory wire shape (%j)', async response => {
+    const {dataSet, http, attach} = setup()
+    attach()
+    dataSet.getTable('input')!.rows[0]!['dbId'] = 'DB1'
+    vi.spyOn(http, 'get').mockResolvedValue(response)
+    const view = dataSet.getView('tables')!
+    await view.refresh()
+    expect(view.loadingError).toBeInstanceOf(Error)
+    expect(view.rows).toEqual([])
+  })
+
+  it('preserves a formal refusal diagnostic rather than converting it to an empty directory', async () => {
+    const {dataSet, http, attach} = setup()
+    attach()
+    dataSet.getTable('input')!.rows[0]!['dbId'] = 'DB1'
+    vi.spyOn(http, 'get').mockResolvedValue({Code: 500, Type: 'error', Message: 'catalog refusal', Result: null})
+    const view = dataSet.getView('tables')!
+    await view.refresh()
+    expect(view.loadingError).toHaveProperty('message', 'catalog refusal')
+  })
+
+  it('does not claim extra table declaration fields as supported directory source output', async () => {
+    const {dataSet, http, attach} = setup()
+    attach()
+    dataSet.getTable('input')!.rows[0]!['dbId'] = 'DB1'
+    dataSet.getTable('tables')!.addColumns([{name: 'notSource', type: 'string'}])
+    const get = vi.spyOn(http, 'get').mockResolvedValue({Code: 200, Type: 'success', Result: [{table_name: 'Raw', table_comment: '', hasDefaultFields: 0}]})
+    const view = dataSet.getView('tables')!
+    await view.loadFromServer({fields: ['notSource']}).catch(() => undefined)
+    expect(view.loadingError).toBeInstanceOf(Error)
+    expect(get).not.toHaveBeenCalled()
+  })
+
+  it('rejects an obsolete name-only table declaration instead of silently upgrading it', () => {
+    const {dataSet, http, attach} = setup()
+    ensureDataSetFileCommandView({dataSet, tableName: 'tables', resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}]})
+    expect(attach).toThrow('DATA_SET_COMMAND_COLUMNS_CONFLICT')
+    expect(dataSet.getTable('input')).toBeUndefined()
+    expect(dataSet.getTable('tables')!.columns.some(column => column.name === 'tableComment')).toBe(false)
+    expect(http.requests).toHaveLength(0)
+  })
+
+  describe.each(['databases', 'tables', 'views'] as const)('%s exact target names', kind => {
+    it.each([false, true])('rejects unsupported edge whitespace before a trim-based downstream can retarget it (collision=%s)', async collision => {
+      const {dataSet, http, input} = setup()
+      attachCatalogCommandViews({...input, tables: {...input.tables, unregisteredDbNames: 'databases'}})
+      Object.assign(dataSet.getTable('input')!.rows[0]!, {serverId: 'S1', dbId: 'DB1'})
+      const names = collision ? ['Orders', ' Orders '] : [' Orders ']
+      const result = names.map(name => kind === 'databases' ? name : {table_name: name, table_comment: '  preserve comment  ', ...(kind === 'tables' ? {hasDefaultFields: 0} : {})})
+      vi.spyOn(http, 'get').mockResolvedValue({Code: 200, Type: 'success', Result: result})
+      const view = dataSet.getView(kind)!
+      await view.refresh()
+      expect(view.loadingError).toBeInstanceOf(Error)
+      expect(view.rows).toEqual([])
+    })
+  })
+
   it('rejects a foreign last result before creating input or binding the first result', () => {
     const {dataSet, http, attach} = setup()
-    const first = ensureDataSetFileCommandView({dataSet, tableName: 'tables', resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}]})
-    const last = ensureDataSetFileCommandView({dataSet, tableName: 'views', resourceId: 'database-unregistered-views', columns: [{name: 'name', primary: true}]})
+    const first = ensureDataSetFileCommandView({dataSet, tableName: 'tables', resourceId: 'database-unregistered-tables', columns: [{name: 'name', primary: true}, {name: 'tableComment'}, {name: 'hasDefaultFields', type: 'int'}]})
+    const last = ensureDataSetFileCommandView({dataSet, tableName: 'views', resourceId: 'database-unregistered-views', columns: [{name: 'name', primary: true}, {name: 'viewComment'}]})
     last.bindQueryExecutor({executeQuery: () => Promise.reject(new Error('foreign'))},
       {resource: {resourceType: 'file', resourceId: 'database-unregistered-views'}})
     expect(attach).toThrow('DATA_VIEW_QUERY_IDENTITY')
@@ -165,7 +285,7 @@ describe('catalog group binding preflight', () => {
     await vi.waitFor(() => expect(get).toHaveBeenCalledTimes(1))
     table.destroyView('default')
     table.addView('default')
-    release(['late'])
+    release({Code: 200, Type: 'success', Result: [{table_name: 'late', table_comment: '', hasDefaultFields: 0}]})
     await refresh
     expect(result.loadingError).toHaveProperty('message', expect.stringContaining('CATALOG_COMMAND_INPUT_IDENTITY'))
     expect(result.rows).toHaveLength(0)
@@ -199,7 +319,7 @@ describe('catalog group binding preflight', () => {
     const views = dataSet.getView('views')!
     await views.refresh()
     expect(views.loadingError).toBeNull()
-    release(['DB1-old-table'])
+    release({Code: 200, Type: 'success', Result: [{table_name: 'DB1-old-table', table_comment: '', hasDefaultFields: 0}]})
     await refresh
     expect(tables.loadingError).toHaveProperty('message', expect.stringContaining('CATALOG_COMMAND_INPUT_CHANGED'))
     expect(tables.rows).toHaveLength(0)

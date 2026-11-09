@@ -1,6 +1,7 @@
 /**
  * @module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner
- * 职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet 并绑定文件表与 design.json 五张投影表的执行器。
+ * 职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet，核对文件表与 design.json 五张投影表的声明并暴露命名视图。
+ * 执行器由场景装配按文件资源注册表绑定，本 owner 不另绑。
  * 边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。
  * AI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。
  */
@@ -8,23 +9,20 @@ import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-d
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {lowcodeApi, lowcodeDesignFileUpload} from '@/lowcode/lowcode-runtime'
+import {lowcodeApi} from '@/lowcode/lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {
   AGENT_WORKFLOW_DATA_SPACE_NAME,
   AGENT_WORKFLOW_FILE_RESOURCE_ID,
   AGENT_WORKFLOW_FILE_TABLE,
-  AgentWorkflowFileResource,
   resolveAgentWorkflowDataSpaceId,
 } from './agent-workflow-file-resource'
-import {AGENT_WORKFLOW_DESIGN_TABLES, AgentWorkflowDesignResource} from './agent-workflow-design-resource'
+import {AGENT_WORKFLOW_DESIGN_TABLES} from './agent-workflow-design-resource'
 import {AGENT_WORKFLOW_CAPABILITY_TABLE, AGENT_WORKFLOW_DESIGN_TABLE, AGENT_WORKFLOW_LINE_TABLE, AGENT_WORKFLOW_NODE_TABLE,
   AGENT_WORKFLOW_VARIABLE_TABLE} from './agent-workflow-design-projection'
 
 /** 当前请求作用域（令牌与应用头）。 */
 type RequestScope = ReturnType<typeof lowcodeApi.readRequestScope>
-/** owner 使用的工作流文件读取接口。 */
-type WorkflowFileApi = Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>
 
 /** Agent 工作流文件空间的运行实例及其命名视图、加载命令。 */
 export type AgentWorkflowFileDataViewOwner = Readonly<{
@@ -68,13 +66,9 @@ type OwnerInput = Readonly<{
   applicationId: string
   /** 读取当前请求作用域。 */
   readScope: () => RequestScope
-  /** 文件读取接口。 */
-  api: WorkflowFileApi
-  /** 文件上传接口。 */
-  fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>
   /** 数据空间目录场景 ID。 */
   catalogScenarioId: string
-  /** 装配指定场景的 DataSet。 */
+  /** 装配指定场景的 DataSet，并按文件资源注册表绑定文件表执行器。 */
   loadScenario: (input: Readonly<{projectId: string; scenarioId: string}>) => Promise<DataSet>
 }>
 
@@ -87,8 +81,6 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     throw new Error('SPARK_EXECUTION_SCOPE_STALE: 当前应用身份无效')
   }
   const catalogScenarioId = input?.catalogScenarioId ?? getBuiltinScenarioResource('dataSpaceCatalog').scenarioId
-  const api = input?.api ?? lowcodeApi.design
-  const fileUpload = input?.fileUpload ?? lowcodeDesignFileUpload
   const loadScenario = input?.loadScenario ?? (command => loadLowcodeRuntimeScenario(command))
   const assertCurrent = (): void => {
     const current = readScope()
@@ -139,11 +131,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
       || !(table.getView('directory') && table.getView('design') && table.getView('definition'))) {
       throw new Error('AGENT_WORKFLOW_FILE_BINDING: 目标空间缺少已注册的文件资源及完整视图')
     }
-    const resource = new AgentWorkflowFileResource({applicationId, api, fileUpload, assertCurrent})
-    for (const view of table.viewList) view.bindQueryExecutor({executeQuery: resource.executeQuery.bind(resource),
-      save: resource.save.bind(resource), hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)},
-    {resource: {resourceType: 'file', resourceId: AGENT_WORKFLOW_FILE_RESOURCE_ID}})
-    const designBinding = bindDesignTables(dataSet, new AgentWorkflowDesignResource({applicationId, api, fileUpload, assertCurrent}))
+    const designBinding = designTables(dataSet)
     const designViews = (): AgentWorkflowDesignViews => {
       if (designBinding instanceof Error) throw designBinding
       return designBinding
@@ -271,20 +259,14 @@ export type AgentWorkflowDesignViews = Readonly<{
   capabilities: DataView
 }>
 
-/** 空间未完整声明五张投影表时返回错误而不抛出：文件行与发布定义照常可用，只有使用设计视图时才失败。 */
-function bindDesignTables(dataSet: DataSet, resource: AgentWorkflowDesignResource): AgentWorkflowDesignViews | Error {
-  const executor = {executeQuery: resource.executeQuery.bind(resource), save: resource.save.bind(resource),
-    hasUnconfirmedSave: resource.hasUnconfirmedSave.bind(resource)}
+/** 空间未完整声明五张投影表时返回错误而不抛出：文件行与发布定义照常可用，只有使用设计视图时才失败。执行器由场景装配按文件资源注册表绑定。 */
+function designTables(dataSet: DataSet): AgentWorkflowDesignViews | Error {
   for (const definition of AGENT_WORKFLOW_DESIGN_TABLES) {
     const table = dataSet.getTable(definition.tableName)
     if (table?.resourceType !== 'file' || table.resourceId !== definition.resourceId || table.modelBinding
       || Object.keys(definition.views).some(viewId => !table.getView(viewId))) {
       return new Error(`AGENT_WORKFLOW_DESIGN_BINDING: 目标空间缺少已注册的设计投影表及完整视图: ${definition.tableName}`)
     }
-  }
-  for (const definition of AGENT_WORKFLOW_DESIGN_TABLES) {
-    dataSet.getTable(definition.tableName)?.viewList.forEach(view =>
-      view.bindQueryExecutor(executor, {resource: {resourceType: 'file', resourceId: definition.resourceId}}))
   }
   const view = (tableName: string, viewId: string): DataView => {
     const found = dataSet.getView(tableName, viewId)

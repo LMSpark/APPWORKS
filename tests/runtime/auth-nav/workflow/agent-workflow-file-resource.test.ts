@@ -357,7 +357,7 @@ describe('Agent Workflow target space resolution', () => {
 import {readFileSync} from 'node:fs'
 import {resolve} from 'node:path'
 import {createAgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
-import {agentWorkflowDesignTables} from './agent-workflow-design-fixture'
+import {agentWorkflowDesignTables, bindRegisteredFileResources} from './agent-workflow-design-fixture'
 
 describe('Agent Workflow file owner lifecycle', () => {
   it('hosts catalog preflight and the file data set through one native session', () => {
@@ -382,24 +382,23 @@ describe('Agent Workflow file owner lifecycle', () => {
       createChildActionState: () => 'disabled', viewActionState: () => 'enabled'})})
     return dataSet
   }
-  function workflowSet(scenarioId: string) {
-    return DataSet.fromJson({scenarioId, tables: {AgentWorkflowFiles: {
+  function workflowSet(scenarioId: string, ports: Parameters<typeof bindRegisteredFileResources>[1], options: Readonly<{designTables?: boolean}> = {}) {
+    return bindRegisteredFileResources(DataSet.fromJson({scenarioId, tables: {AgentWorkflowFiles: {
       resourceType: 'file', resourceId: 'agent-workflow-files', columns,
       views: {default: {}, directory: {}, design: {}, definition: {}},
-    }, ...agentWorkflowDesignTables()}})
+    }, ...(options.designTables === false ? {} : agentWorkflowDesignTables())}}), ports)
   }
-
   it('loads the target from the formal catalog and serves page/AI definitions through its DataView', async () => {
     let token = 'scope-1'
     const calls: string[] = []
     const api = {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1730000000000}],
       readTextFile: async (input: {fileName: string}) => input.fileName === 'definition.json' ? '{"workflow":{}}' : '{"kind":"agent.workflow.design"}',
       readFileBytes: async () => new TextEncoder().encode('{"workflow":{}}')}
-    const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token, headers: {'X-AppId': 'APP'}}), api,
+    const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token, headers: {'X-AppId': 'APP'}}),
       loadScenario: async ({scenarioId}) => {
         calls.push(scenarioId)
         if (scenarioId === 'CATALOG') return modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}])
-        return workflowSet(scenarioId)
+        return workflowSet(scenarioId, {api})
       }, catalogScenarioId: 'CATALOG'})
     try {
       expect(calls).toEqual(['CATALOG', 'CATALOG', 'SPACE-1'])
@@ -410,13 +409,12 @@ describe('Agent Workflow file owner lifecycle', () => {
   })
 
   it('keeps file rows usable and fails only design access when the space lacks the projection tables', async () => {
+    const api = {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async () => '{"workflow":{}}',
+      readFileBytes: async () => new TextEncoder().encode('{"workflow":{}}')}
     const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async () => '{"workflow":{}}',
-        readFileBytes: async () => new TextEncoder().encode('{"workflow":{}}')},
       catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
         ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}])
-        : DataSet.fromJson({scenarioId, tables: {AgentWorkflowFiles: {resourceType: 'file', resourceId: 'agent-workflow-files', columns,
-          views: {default: {}, directory: {}, design: {}, definition: {}}}}})})
+        : workflowSet(scenarioId, {api}, {designTables: false})})
     try {
       expect(await owner.readDocument('agent.workflow.alpha', 'definition.json')).toBe('{"workflow":{}}')
       expect(() => owner.design).toThrow('AGENT_WORKFLOW_DESIGN_BINDING')
@@ -427,7 +425,7 @@ describe('Agent Workflow file owner lifecycle', () => {
   it('does not load any target when the formal catalog name is ambiguous', async () => {
     const calls: string[] = []
     await expect(createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array()}, catalogScenarioId: 'CATALOG',
+      catalogScenarioId: 'CATALOG',
       loadScenario: async ({scenarioId}) => {calls.push(scenarioId); return modelSet('CATALOG', [
         {rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}, {rowid: 'SPACE-2', Name: 'Agent工作流文件资源'},
       ])}})).rejects.toThrow('唯一')
@@ -438,17 +436,17 @@ describe('Agent Workflow file owner lifecycle', () => {
     let token = 'scope-1'
     const calls: string[] = []
     await expect(createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token, headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [], readTextFile: async () => '', readFileBytes: async () => new Uint8Array()}, catalogScenarioId: 'CATALOG',
+      catalogScenarioId: 'CATALOG',
       loadScenario: async ({scenarioId}) => {calls.push(scenarioId); const result = modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]); token = 'scope-2'; return result}})).rejects.toThrow('SPARK_EXECUTION_SCOPE_STALE')
     expect(calls).toEqual(['CATALOG'])
   })
 
   it('keeps selected document content on the page-owned bound DataView currentRow', async () => {
+    const api = {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: null}], readTextFile: async () => '{"kind":"agent.workflow.design"}',
+      readFileBytes: async () => new TextEncoder().encode('{"kind":"agent.workflow.design"}')}
     const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: null}], readTextFile: async () => '{"kind":"agent.workflow.design"}',
-        readFileBytes: async () => new TextEncoder().encode('{"kind":"agent.workflow.design"}')},
       catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
-        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)})
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId, {api})})
     try {
       expect(owner.loadDocument).toBeTypeOf('function')
       await owner.loadDocument('agent.workflow.alpha', 'design.json')
@@ -468,9 +466,9 @@ describe('Agent Workflow file owner lifecycle', () => {
       content = command.text
       return {fileName: command.fileName, state: 'success'}
     })}
-    const ownerInput = {applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}), api, fileUpload,
+    const ownerInput = {applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
       catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}: {scenarioId: string}) => scenarioId === 'CATALOG'
-        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)}
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId, {api, fileUpload})}
     const owner = await createAgentWorkflowFileDataViewOwner(ownerInput)
     try {
       await owner.loadDocument('agent.workflow.alpha', 'design.json')
@@ -501,11 +499,11 @@ describe('Agent Workflow file owner lifecycle', () => {
       files.set(command.fileName, command.text)
       return {fileName: command.fileName, state: 'success' as const}
     })}
+    const api = {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async (input: {fileName: string}) => files.get(input.fileName) ?? '',
+      readFileBytes: async (input: {fileName: string}) => new TextEncoder().encode(files.get(input.fileName) ?? '')}
     const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async input => files.get(input.fileName) ?? '',
-        readFileBytes: async input => new TextEncoder().encode(files.get(input.fileName) ?? '')}, fileUpload,
       catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
-        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)})
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId, {api, fileUpload})})
     try {
       await owner.loadDocument('agent.workflow.alpha', 'design.json')
       const designId = owner.designView.getPkKey(owner.designView.currentRow!)!
@@ -532,11 +530,11 @@ describe('Agent Workflow file owner lifecycle', () => {
       files.set(command.fileName, command.text)
       return {fileName: command.fileName, state: 'success' as const}
     })}
+    const api = {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async (input: {fileName: string}) => files.get(input.fileName) ?? '',
+      readFileBytes: async (input: {fileName: string}) => new TextEncoder().encode(files.get(input.fileName) ?? '')}
     const owner = await createAgentWorkflowFileDataViewOwner({applicationId: 'APP', readScope: () => ({token: 'scope', headers: {'X-AppId': 'APP'}}),
-      api: {listFiles: async () => [{name: 'agent.workflow.alpha', lastModified: 1}], readTextFile: async input => files.get(input.fileName) ?? '',
-        readFileBytes: async input => new TextEncoder().encode(files.get(input.fileName) ?? '')}, fileUpload,
       catalogScenarioId: 'CATALOG', loadScenario: async ({scenarioId}) => scenarioId === 'CATALOG'
-        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId)})
+        ? modelSet('CATALOG', [{rowid: 'SPACE-1', Name: 'Agent工作流文件资源'}]) : workflowSet(scenarioId, {api, fileUpload})})
     try {
       await owner.loadDocument('agent.workflow.alpha', 'design.json')
       await owner.loadDocument('agent.workflow.alpha', 'definition.json')

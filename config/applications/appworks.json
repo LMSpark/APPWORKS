@@ -19,6 +19,10 @@
       "resourceId": "repository:scenario-view:34BDBE645F461A3D83282A941D6037F4", "path": "config/pages/shared/business-table-selector/pagedata.json"
     },
     {
+      "name": "agentWorkflowFiles", "scenarioId": "01000B6C7F84B4F1A85C91C4FC28E875",
+      "resourceId": "repository:scenario-view:01000B6C7F84B4F1A85C91C4FC28E875", "path": "config/pages/shared/agent-workflow-files/pagedata.json"
+    },
+    {
       "name": "dataSpaceDesign",
       "scenarioId": "8D1AB14DD8277F3E7017CD38F77B09FD",
       "resourceId": "repository:scenario-view:8D1AB14DD8277F3E7017CD38F77B09FD",

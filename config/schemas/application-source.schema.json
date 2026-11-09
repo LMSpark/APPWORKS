@@ -27,7 +27,7 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint", "cacheManagement", "apiProvider", "apiConfig", "apiInterface", "dataCodeCatalog", "dataCodeEditor", "workflowCatalog", "excelImportCatalog", "pdfInspectCatalog", "excelImportEditor", "workflowEditor", "jsonDataCatalog", "businessTableSelector"]},
+          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint", "cacheManagement", "apiProvider", "apiConfig", "apiInterface", "dataCodeCatalog", "dataCodeEditor", "workflowCatalog", "excelImportCatalog", "pdfInspectCatalog", "excelImportEditor", "workflowEditor", "jsonDataCatalog", "businessTableSelector", "logicViewCatalog", "agentWorkflowFiles"]},
           "scenarioId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
           "resourceId": {"type": "string", "pattern": "^repository:scenario-view:[A-F0-9]{32}$"},
           "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"}

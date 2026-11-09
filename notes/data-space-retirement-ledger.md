@@ -8920,8 +8920,18 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 **验证。**工作流相关 5 个测试文件 56 项通过；改动文件 eslint 0。真实页面尚未打开设计稿。
 
+#### CM. S4：工作流文件空间登记为仓内系统场景（未冻结）
+
+用户选择把「Agent工作流文件资源」登记为仓内系统场景，与其他内置场景同一来源。
+
+- **登记。**远端 pagedata 原样落入 `config/pages/shared/agent-workflow-files/pagedata.json`（六张表：文件行加五张投影表）。`appworks.json` 增加 `agentWorkflowFiles`，场景 ID 仍是 `01000B6C7F84B4F1A85C91C4FC28E875`。注册表的名称联合、必选集合和类型守卫同步。schema 的名称枚举补上已登记的 `logicViewCatalog` 和本次的 `agentWorkflowFiles`。
+- **执行器只绑一次。**场景装配已经按文件资源注册表给这些表绑了执行器。owner 再绑一次就报 `DATA_VIEW_QUERY_IDENTITY: 查询 owner 不可改绑`。owner 现在只核对声明并交出命名视图，不再接收 `api`/`fileUpload`，也不再绑定执行器。测试夹具在 `loadScenario` 里用同一注册表绑定，走生产执行器。
+- **烟测。**`/workflow-designs` 装配通过，目录查询打到正式文件服务，返回 `[1003] 文件夹路径不存在`。页面显示该错误和空目录，不再在装配阶段失败。这个结果与台账已记载的目录合同一致：该应用下 `workflow-designs` 文件夹不存在，前端不把错误折成空列表，也不新建目录。因此还没有打开、编辑或保存设计稿。
+
+**验证。**工作流相关 5 个测试文件 56 项通过；场景装配、场景加载与仓内场景相关 9 个文件 137 项通过。根 typecheck 0，`pnpm run lint` 0，`verify:rules` 通过，`verify:pages-config` 通过。
+
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 已改为投影 DataView 页面，ProjectToolCatalog 断链已在 CK 解决，正式空间已登记五张投影表（CL）。下一步：按用户裁决解决 CL 断链三，再烟测打开、编辑、保存设计稿。不进入 S5。
+`WorkflowDesigns` 已改为投影 DataView 页面。ProjectToolCatalog 断链、五张投影表登记、仓内场景登记都已完成。下一步：正式文件目录 `[1003] 文件夹路径不存在` 要由正式资源生命周期建立后，才能烟测打开、编辑、保存设计稿。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

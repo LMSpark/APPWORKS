@@ -8936,8 +8936,15 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 两张正式视图补上同一棵树：`idField=rowid`，`parentIdField=prowid`，`textField=FunName`，`rootParentValue=000000`。重开开发工作台后，顶层只剩「软件工坊[AppWorks]」，其下 13 个子节点，全部 85 个节点仍在。
 
+#### CO. S4：五张投影表的查询烟测与保存缺口（未冻结）
+
+正式空间 `01000B6C7F84B4F1A85C91C4FC28E875`（Agent工作流文件资源）在设计器里可见 6 个文件模型：`AgentWorkflowFiles` 加五张投影表。`AgentWorkflowDesign` 的资源是 `agent-workflow-design-workflow`，命名视图是 `default` 与 `design`。
+
+- **查询。**`/workflow-designs` 目录查询仍返回 `[1003] 文件夹路径不存在`，页面显示该错误和空表，保存按钮保持禁用。设计器对 `AgentWorkflowDesign@design` 做查询预览，空的 `workflowId` 被正式执行器拒绝：`AGENT_WORKFLOW_FILE_QUERY: 查询必须提供有效工作流身份`。没有把错误折成空结果。
+- **保存缺口。**投影保存先读取已有 `design.json` 作为基线，再上传。当前应用没有这个目录，也没有创建首份设计稿的合同。本轮没有新建目录、没有猜造工作流身份、没有写入文件。本地夹具已覆盖一批多表保存；线上保存要等正式资源生命周期建立目录并存在一份设计稿之后才能做。
+
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 已改为投影 DataView 页面。ProjectToolCatalog 断链、五张投影表登记、仓内场景登记都已完成。开发工作台蓝图已按 `prowid` 成树。下一步：正式文件目录 `[1003] 文件夹路径不存在` 要由正式资源生命周期建立后，才能烟测打开、编辑、保存设计稿。不进入 S5。
+五张投影表已在正式空间登记，查询走到正式执行器。线上保存仍停在 `[1003] 文件夹路径不存在`：目录要由正式资源生命周期建立，并且已有 `design.json` 之后，才能烟测打开、编辑、保存设计稿。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

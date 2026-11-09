@@ -80,7 +80,7 @@ type OwnerInput = Readonly<{
 
 /** One PageRuntime owner for the formal catalog lookup and one for the resolved file resource. */
 export async function createAgentWorkflowFileDataViewOwner(input?: Partial<OwnerInput>): Promise<AgentWorkflowFileDataViewOwner> {
-  const readScope = input?.readScope ?? lowcodeApi.readRequestScope
+  const readScope = input?.readScope ?? (() => lowcodeApi.readRequestScope())
   const initialScope = readScope()
   const applicationId = input?.applicationId ?? initialScope.headers['X-AppId']
   if (!applicationId || initialScope.headers['X-AppId'] !== applicationId) {
@@ -111,7 +111,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
       throw new Error('AGENT_WORKFLOW_DATA_SPACE_CATALOG: 正式目录DataSet缺少 Base_DataSet@catalog')
     }
     preflightView.queryConfig = {...preflightView.queryConfig, fields: ['rowid', 'Name'], allPages: true, maxRows: 50000, autoQuery: false}
-    const catalogResult = await preflightView.loadFromServer({filter: {field: 'Name', operator: 'eq', value: AGENT_WORKFLOW_DATA_SPACE_NAME}, allPages: true, maxRows: 50000})
+    const catalogResult = await preflightView.loadFromServer({filter: {field: 'Name', operator: 'eq', value: AGENT_WORKFLOW_DATA_SPACE_NAME}, sort: '', allPages: true, maxRows: 50000})
     assertCurrent()
     if (!catalogResult.success) throw catalogResult.error ?? new Error(catalogResult.message ?? '正式数据空间目录查询失败')
     const targetId = resolveAgentWorkflowDataSpaceId(preflightView)
@@ -127,7 +127,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     const catalogView = catalog?.getView('Base_DataSet', 'catalog')
     if (!catalog || !catalogView || catalog.scenarioId !== catalogScenarioId) throw new Error('AGENT_WORKFLOW_DATA_SPACE_CATALOG: 正式目录DataSet未保留在页面PageRuntime中')
     catalogView.queryConfig = {...catalogView.queryConfig, fields: ['rowid', 'Name'], allPages: true, maxRows: 50000, autoQuery: false}
-    const verifiedCatalog = await catalogView.loadFromServer({filter: {field: 'Name', operator: 'eq', value: AGENT_WORKFLOW_DATA_SPACE_NAME}, allPages: true, maxRows: 50000})
+    const verifiedCatalog = await catalogView.loadFromServer({filter: {field: 'Name', operator: 'eq', value: AGENT_WORKFLOW_DATA_SPACE_NAME}, sort: '', allPages: true, maxRows: 50000})
     assertCurrent()
     if (!verifiedCatalog.success || resolveAgentWorkflowDataSpaceId(catalogView) !== targetId) {
       throw verifiedCatalog.error ?? new Error('AGENT_WORKFLOW_DATA_SPACE_CATALOG: PageRuntime目录身份与预查询不一致')

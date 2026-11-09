@@ -8909,8 +8909,19 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 **观察（未处理）。**`openPreview` 给预览装配传入 `ProjectToolCatalog` 工厂，但文件模型分支已不能选中 logical-view 目录；预览按 `modelScope` 只装配所选表时，这段工厂是否还能触发待核。
 
+#### CL. S4：正式空间登记五张投影表与 /workflow-designs 烟测（未冻结）
+
+用户已在浏览器登录（王涛）。本批没有输入或猜测凭据。
+
+- **正式登记。**在 D99「数据空间管理」打开「Agent工作流文件资源」（`01000B6C7F84B4F1A85C91C4FC28E875`）的设计器，在「模型」目录下依次点「新增 Agent工作流设计-流程/节点/连线/变量/能力」。每次都走设计页的标准链：`DataTableBindingDefinition` 与 `DataViewDefinition` 一次 `saveChanges`，再回读核对资源 ID、列与全部注册视图。五次都通过回读，没有手改 pagedata，也没有直调后端。
+- **烟测断链一：请求作用域丢失 this。**`createAgentWorkflowFileDataViewOwner` 的默认 `readScope` 是未绑定的 `lowcodeApi.readRequestScope`，页面打开即报 `Cannot read properties of undefined (reading 'authenticatedSession')`。测试一直注入 `readScope`，所以没测出来。改为 `() => lowcodeApi.readRequestScope()`。
+- **烟测断链二：目录查询排序越界。**目录视图 `Base_DataSet@catalog` 默认按 `createtime` 倒序，owner 只投影 `rowid`/`Name`，查询报 `SPARK DataView 无效排序: createtime:desc`。按名称唯一查找不需要排序，两处目录查询显式传 `sort: ''`。
+- **烟测断链三（阻塞，待裁决）。**随后报 `BUILTIN_SCENARIO_SOURCE_MISSING: 01000B6C… 不是已登记的系统程序场景`。D99 是仓内内置应用，`loadLowcodeRuntimeScenario`/`assembleLowcodeRuntimeScenario` 自 64f57344d 起只允许装配 `appworks.json` 登记的仓内场景；但场景视图网关对未登记场景仍读写远端 `designfile`，所以设计器能保存、运行时却拒绝装配。这与台账顶部「内置应用页用导航节点 ID 装运行场景」是同一类问题，仍需二选一：把该空间登记为仓内系统场景（`config/pages` + `appworks.json`），或允许内置应用装配远端业务空间。
+
+**验证。**工作流相关 5 个测试文件 56 项通过；改动文件 eslint 0。真实页面尚未打开设计稿。
+
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 已改为投影 DataView 页面，ProjectToolCatalog 断链已在 CK 解决。下一步：用户登录后在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表并烟测。不进入 S5。
+`WorkflowDesigns` 已改为投影 DataView 页面，ProjectToolCatalog 断链已在 CK 解决，正式空间已登记五张投影表（CL）。下一步：按用户裁决解决 CL 断链三，再烟测打开、编辑、保存设计稿。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

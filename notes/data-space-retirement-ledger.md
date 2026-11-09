@@ -8930,8 +8930,14 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 **验证。**工作流相关 5 个测试文件 56 项通过；场景装配、场景加载与仓内场景相关 9 个文件 137 项通过。根 typecheck 0，`pnpm run lint` 0，`verify:rules` 通过，`verify:pages-config` 通过。
 
+#### CN. 开发工作台蓝图树按父节点成树（未冻结）
+
+开发工作台左侧用的是 `RendererTree`，但 `Base_NavigationInfo@default` 和 `RepositoryBlueprintNode@default` 都没有 `treeConfig`。`prowid` 已在行里，组件却把 85 条记录都画成根叶子，展开图标是 `is-leaf`，看起来是平铺列表。
+
+两张正式视图补上同一棵树：`idField=rowid`，`parentIdField=prowid`，`textField=FunName`，`rootParentValue=000000`。重开开发工作台后，顶层只剩「软件工坊[AppWorks]」，其下 13 个子节点，全部 85 个节点仍在。
+
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 已改为投影 DataView 页面。ProjectToolCatalog 断链、五张投影表登记、仓内场景登记都已完成。下一步：正式文件目录 `[1003] 文件夹路径不存在` 要由正式资源生命周期建立后，才能烟测打开、编辑、保存设计稿。不进入 S5。
+`WorkflowDesigns` 已改为投影 DataView 页面。ProjectToolCatalog 断链、五张投影表登记、仓内场景登记都已完成。开发工作台蓝图已按 `prowid` 成树。下一步：正式文件目录 `[1003] 文件夹路径不存在` 要由正式资源生命周期建立后，才能烟测打开、编辑、保存设计稿。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

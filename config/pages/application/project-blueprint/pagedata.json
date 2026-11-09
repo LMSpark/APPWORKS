@@ -8,7 +8,13 @@
       },
       "views": {
         "default": {
-          "autoLoad": false
+          "autoLoad": false,
+          "treeConfig": {
+            "idField": "rowid",
+            "parentIdField": "prowid",
+            "textField": "FunName",
+            "rootParentValue": "000000"
+          }
         },
         "catalogBindings": {
           "autoLoad": false,
@@ -355,6 +361,12 @@
             ],
             "allPages": true,
             "maxRows": 50000
+          },
+          "treeConfig": {
+            "idField": "rowid",
+            "parentIdField": "prowid",
+            "textField": "FunName",
+            "rootParentValue": "000000"
           }
         }
       }

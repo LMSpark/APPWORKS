@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-08，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。未冻结 S4。续做清单已空，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-09，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。未冻结 S4。续做清单已空，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8353,7 +8353,7 @@ S1未整体冻结、20包完整范围active。仅仓内8D1本次转换，远端�
 **AN已提交推送并独立核实。**代码f41d480bb4acea678d2a47aa12ffe6c71e33bb24（refactor(spark-data): unify readonly file directory queries），24文件522增134删；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote精确同SHA。跟踪树清洁，仅原S2未跟踪RED、唯一主worktree。此补记docs跟随同步。恢复点仍S1可写file owner同目标重绑/在途捕获线索，先实证再修，不恢复目录手工executor/重复权限、不将本批只读证据冒完整写链或数据合同冻结。
 
 <a id="cursor-handoff-20261108"></a>
-### 2026-11-08 Cursor接续方案（本次移交的当前入口）
+### 2026-11-08 Cursor接续方案（历史交接，当前由后续实施与CP接续取代）
 
 **移交裁决。**这是用户本次“收口、提交推送、准备移交”的交接记录，不是第二份总计划。原六阶段整体目标未完成；本会话完成移交后暂停自动实施，避免与Cursor同时修改。Cursor可沿用户已恢复的S1授权继续，不必重新询问已授权的日常修复/提交步骤；仍须核实际写入对象和范围。本节优先于早期“只做S0/未授权实施/下一步E62”等历史语句，不能把历史未收句柄当当前仍运行，也不能把AN局部通过当S1冻结。
 
@@ -8942,14 +8942,14 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **查询。**`/workflow-designs` 目录查询仍返回 `[1003] 文件夹路径不存在`，页面显示该错误和空表，保存按钮保持禁用。设计器对 `AgentWorkflowDesign@design` 做查询预览，空的 `workflowId` 被正式执行器拒绝：`AGENT_WORKFLOW_FILE_QUERY: 查询必须提供有效工作流身份`。没有把错误折成空结果。
 - **保存缺口。**投影保存先读取已有 `design.json` 作为基线，再上传。当前应用没有这个目录，也没有创建首份设计稿的合同。本轮没有新建目录、没有猜造工作流身份、没有写入文件。本地夹具已覆盖一批多表保存；线上保存要等正式资源生命周期建立目录并存在一份设计稿之后才能做。
 
-#### 当前续做顺序（未冻结）
+#### CO阶段续做记录（历史断点，当前以CP末尾为准）
 
 五张投影表已在正式空间登记，查询走到正式执行器。线上保存仍停在 `[1003] 文件夹路径不存在`：目录要由正式资源生命周期建立，并且已有 `design.json` 之后，才能烟测打开、编辑、保存设计稿。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。
 
 <a id="cp-s4-workflow-definition-recovery"></a>
-#### CP. 2026-11-09 S4工作流Definition原草稿与未知恢复（进行中）
+#### CP. 2026-11-09 S4工作流Definition原草稿与未知恢复（本批已验，S4未冻结）
 
 **接收与责任。**主仓18b22fb72991cff59bf165d6549c50999634df87，干净且唯一worktree；用户要求清理过时过程代码/测试/文档并沿总体方案持续推进，不建额外工作树、不做兼容层。按当前AP/AT/AX冻结进入S4，不恢复旧AN“回S1”指令；已删除台账顶部过时AN恢复段，原AN历史事实保留；顶部“续做清单已空”纠正为当前CO/CP实际断点。此批只改工作流页面、领域owner及测试/文档/正式派生，不改冻结公共数据/组件/宿主合同，不写Java或实服。
 
@@ -8974,3 +8974,6 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 **CP末态清理与接续。**高阶末审已提窗口在限定S4责任内无剩余静态阻断；正式源、类型/lint、5文件64项、ClassModel/lowcode生成、完整根verify均已验，各handle终态。扩大native单条超时与定向通过分别保留，不冒439全过。已精确校验artifacts路径后删13份中间日志，保实际RED、最终证据及扩大失败；旧交接文档和documentView错误别名/重复读取分支删除，未扫删有效历史证据、node_modules或恢复备份。新实服只读证据保源码SHA和观察限制。临时前端dev会话99114在观察最终1003后主动停止（Ctrl-C终态1是清理，不冒服务自然成功退出），本会话不留后台写入任务；未创建任何worktree，唯一主目录不变。最终rootverify仅报告2模型warnings/85薄页待审，未把诊断或S4完整范围核销。
 
 真实导航切换期间还出现NavHeaderBar/ElMenu的“Duplicate keys found during update:1”警告，但随后正常选中应用内工作流页；根因/影响范围尚未核，登记独立S4导航消费线索，不在本批顺手改冻结组件/宿主。若下一批反例证实上游合同错误，按用户阶段规则退对应层修复重验，不维护错误合同。当前下一主线仍S4首稿command完整创建/刷新重开，再恢复首次发布与整目录删除；原20包完整范围与其他未验用例不变，不因本批修安全缺陷就声称完成工作流迁移。准备只推既定origin分支，不force/merge/部署。
+
+
+**CP已提交推送并独立核实。**代码5a51d3349a8e9f2871a0bdce5d2d6027b82ba681（fix(workflow): preserve definition drafts and uncertain publications），77文件468增305删，主要为官方派生刷新；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确一致，跟踪树清洁、唯一主worktree。旧Cursor交接标题及CO“当前续做”标题已显式改为历史，防止恢复旧S1/等待外部预置等过时指令；此补记docs跟随同步。当前S4继续按本批已核首稿创建领域命令方案推进，不重新实施CP已验草稿保护，也不以局部通过缩减20包或跳S5。

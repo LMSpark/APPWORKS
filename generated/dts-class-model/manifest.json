@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1113,
+  "scannedFileCount": 1114,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -16439,6 +16439,19 @@
         "packageName": "app",
         "modulePath": "views/app/Settings",
         "jsdoc": "@module app:views/app/Settings\n职责：显示当前应用名称与版本，切换本机主题模式，查看已注册路由统计并从 lowcode 重载导航。\n边界：主题只写本机偏好；应用与导航数据来自现有运行时，不在本页另存设置。\nAI用途：需要定位主题切换、路由统计或手动重载导航入口时，用本模块定位 views/app/Settings。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/app/workflow-designs/workflow-create-dialog.vue": {
+      "file": "files/src/views/app/workflow-designs/workflow-create-dialog.vue.json",
+      "module": {
+        "name": "app:views/app/workflow-designs/workflow-create-dialog",
+        "sourcePath": "src/views/app/workflow-designs/workflow-create-dialog.vue",
+        "sourceFile": "src/views/app/workflow-designs/workflow-create-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/app/workflow-designs/workflow-create-dialog",
+        "jsdoc": "@module app:views/app/workflow-designs/workflow-create-dialog\n职责：标准组件编辑原首稿创建命令行，保存、取消和未知核验复用公共单记录生命周期。\n边界：不创建数据实例，不复制输入，不查询或写文件；确认后由宿主刷新与打开。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

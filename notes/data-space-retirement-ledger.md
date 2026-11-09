@@ -1,6 +1,6 @@
 # 数据空间旧方案删除记录
 
-> **唯一当前入口（2026-11-09，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。未冻结 S4。续做清单已空，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
+> **唯一当前入口（2026-11-09，S1、S2与S3已冻结，S4进行中）：** S1 证据见 [AP](#ap-s1-freeze)。S2 冻结见 [AT](#at-s2-freeze)。S3 冻结见 [AX](#ax-s3-freeze)。S4 应用目录换接见 [AY](#ay-s4-app-list-host)，平台应用目录见 [AZ](#az-s4-platform-apps-host)，数据空间目录见 [BA](#ba-s4-data-set-list-host)，数据空间设计见 [BB](#bb-s4-data-set-design-host)，服务器目录见 [BC](#bc-s4-service-management-host)，表和视图目录见 [BD](#bd-s4-table-and-view-host)，数据库目录见 [BE](#be-s4-database-directory-host)，字典目录见 [BF](#bf-s4-dictionary-catalog-host)，字典工作区见 [BG](#bg-s4-dictionary-workspace-host)，编码目录见 [BH](#bh-s4-data-code-catalog-host)，编码设计见 [BI](#bi-s4-data-code-editor-host)，逻辑视图目录见 [BJ](#bj-s4-logic-view-catalog-host)，工作流目录见 [BK](#bk-s4-workflow-catalog-host)，工作流设计见 [BL](#bl-s4-workflow-design-host)，JSON 目录见 [BM](#bm-s4-json-catalog-host)，Excel 目录见 [BN](#bn-s4-excel-catalog-host)，Excel 设计见 [BO](#bo-s4-excel-editor-host)，PDF 目录见 [BP](#bp-s4-pdf-catalog-host)，PDF 设计见 [BQ](#bq-s4-pdf-editor-host)，外部 API 目录见 [BR](#br-s4-api-catalog-host)，API 配置见 [BS](#bs-s4-api-config-host)，API 接口目录见 [BT](#bt-s4-api-interface-host)，缓存管理见 [BU](#bu-s4-cache-management-host)，分阶段设计助手见 [BV](#bv-s4-staged-design-host)，设计查询预览见 [BW](#bw-s4-query-preview-host)，工作流文件 owner 见 [BX](#bx-s4-workflow-file-owner-host)，工作台见 [BY](#by-s4-workbench-host)，启动导航见 [BZ](#bz-s4-startup-navigation-host)，表和视图旧路径见 [CA](#ca-s4-table-view-alias-removal)，系统页 alias 链见 [CB](#cb-s4-system-page-alias-chain)，路由回滚不再恢复 alias 见 [CC](#cc-s4-route-rollback-alias)，数据库目录第二路径见 [CD](#cd-s4-dbms-path-removal)，缓存直连统计见文末 CE，系统设置假配置见 CF，项目设置弹窗见 CG。S4未冻结。最新实施与验收断点见文末CR：首稿创建标准组件入口已接通，当前验证结论、首次发布/整删及实服缺证均以CR末态为准；不得恢复CQ尚未接入口或等待外部预置的旧断点，不另起总计划。完整20包、固定参考、层级边界及本台账唯一性不变。
 >
 > **提交及清理规则：** 通过当前影响面的门禁后，及时向 `origin/codex/spark-data-s1-command-safety` 提交推送并独立核远端，精确结果以末尾当前检查点记录为准。历史门禁失败不得抹除或改称整仓全绿。删除被替代实现及错误测试，正式派生只走生成器；保留仍有效的验收反例和服务限制。凭据不得进入文档、证据或提交。
 >
@@ -8978,7 +8978,7 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 **CP已提交推送并独立核实。**代码5a51d3349a8e9f2871a0bdce5d2d6027b82ba681（fix(workflow): preserve definition drafts and uncertain publications），77文件468增305删，主要为官方派生刷新；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确一致，跟踪树清洁、唯一主worktree。旧Cursor交接标题及CO“当前续做”标题已显式改为历史，防止恢复旧S1/等待外部预置等过时指令；此补记docs跟随同步。当前S4继续按本批已核首稿创建领域命令方案推进，不重新实施CP已验草稿保护，也不以局部通过缩减20包或跳S5。
 
-#### CQ. 2026-11-09 S4首稿创建领域命令（实施中，未宣称页面闭环）
+#### CQ. 2026-11-09 S4首稿创建领域命令（历史已提交检查点，当前接续见CR）
 
 沿CP已核历史用例补AgentWorkflowCreation命令资源，正式场景01000B6C7F84B4F1A85C91C4FC28E875通过既有commandBindings/bindDataSetCommandSubmit接入同一DataSet；未改冻结公共数据、组件、宿主合同，不恢复退役路由。仅设计首稿，不夹带首次发布或整目录删除。先登记本次精确commandId/workflowId/title，取消零IO；design与definition均须typed404才允许非覆盖上传；1003/403/网络失败不是缺失。SDK正常返回已有精确ACK及字节回读，异常保原命令未知，随后只读匹配含x_spark.creation.commandId的完整原字节，不放弃/重放、不声称跨客户端原子创建。
 
@@ -8991,3 +8991,19 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 已核绝对artifacts边界后清除12份中间日志，仅保真实评审RED、门禁失败解释、最终测试/生成/门禁证据；有效回归测试保留，不把测试一律当过程垃圾删除。唯一主worktree仍D:/SPARK_AppWorks；未新建/恢复/切换额外worktree，未动历史恢复备份、未运行本地Java、未做实服写入。本次只收口领域命令，尚不能从正常页面调用；下一批S4将新建对话框以标准字段直接绑定AgentWorkflowCreation，原命令saveChanges后区分确认成功与刷新/打开失败，不重传，不丢旧设计/Definition草稿；须补页面取消/冲突/未知/刷新失败烟测。首次发布、整目录删除与精确隔离实服CRUD清理继续保留，当前文件服务未证实整目录清理能力，不为冒烟制造无法清理的线上对象。原20包及全部验收用例不缩减，S4未冻结、不进入S5。
 
 **CQ提交与远端证据。**领域检查点a34a850165f61970fea5560c2ba43fb5f70a2438已推origin/codex/spark-data-s1-command-safety，push自然0，随后独立ls-remote精确相同，跟踪树干净。本补记随docs检查点推送；下一实施断点只取本CQ末段，不恢复旧S1或等待外部预置首稿逻辑。
+
+#### CR. 2026-11-09 S4首稿创建标准组件入口（实施与终验中）
+
+承接CQ领域命令，不改AP/AT/AX冻结数据、组件、宿主合同；原20包完整范围保留。本批只改WorkflowDesigns宿主、所属workflow-create-dialog窄交互及测试/台账/正式派生。ClassModel来源核manifest.classIndex目录后查RFormProps/RTextProps及shared SparkFieldSemanticProps、RDialogProps/RButtonProps、useDataViewRecordEditing指南与实际源码；当前公开声明自CQ生成后未改，最终仍走正式生成链。弹窗使用RendererDialog/Form/Button/FieldText，完整视图键+currentRow/contextRowId绑定原AgentWorkflowCreation行，autoColumns=false只展示ID和可选标题；值、脏状态与未知提交均由原DataView/公共单记录能力负责，页面不自建草稿或保存状态机。原commandId作为本窗身份；save/cancel/unknown复用useDataViewRecordEditing单ID操作。目录1003不阻断输入弹窗，取消没有资源上传。
+
+六个入口用例先RED为缺新建入口；初次集成暴露captureReadRow不能用于新接纳命令回执，以及显式绑定按钮先于PageRuntime挂载，均确认为S4消费错误，改为saved通知后复核原回执并在owner就绪后挂载按钮；未退回或修改正确上游。创建已确认后保原回执，刷新/打开失败与创建失败分开，不重传；跳转仍先保护旧设计与Definition草稿。高阶发现部分主视图已切B而child查询失败仍留A标题、离开确认期间开始保存会先丢旧稿、旧确认可丢同一视图替换新ID三项反例，实际测试3失败后修：跨目标加载起始撤下旧编辑区，全部加载成功才发布新身份；确认前后整体核在途/未知/owner/目标/原命令行集合及ID，先核全再discard。当前26项UI用例通过，扩大回归与完整工程门禁待终态，不宣称S4冻结。
+
+正常浏览器由首页登录已授权测试企业，经应用列表元数据管理(D99A1DCE9894698799101EFD70F8FC76)→SPARK工具→工作流设计，观察正式场景目录1003；新建按钮可用，输入cr-cancel-20261109与首稿取消烟测后点取消，弹窗关闭、按钮恢复；重开两字段为空，再取消结束。没有点创建提交/发布/删除，未写实服；不能据UI观察冒充网络全量0IO或实服CRUD。冲突/未知/刷新失败用正式命令链+标准组件响应夹具验证，证据层次分开。实服创建写入和整目录清理仍未证明，不生成不能清理的线上对象；首次发布/整删及其他20包验收继续登记未完成。
+
+**CR最终验收与当前断点。**原入口6例RED、评审并发3例RED、保留节点弹窗slot的渲染1例RED均实跑；最后把节点弹窗限定为design且open才挂载并在跨目标加载起点复位，修复后六文件98项全部通过（创建领域21项、页面28项和其余资源/投影/服务）；补验原未知目标缺失、异文仍锁定，恢复原字节才核验成功且上传始终1。高阶限定终审无剩余静态阻断。标准生命周期与固定目标仍由冻结公共API承担，所改均属S4消费，不做兼容层或上游跨层补丁。
+
+正式ClassModel最终生成自然0：1114文件、2213符号、1720索引、3663语义待审项（含新增Vue声明，非新增业务缺口完成证明）；lowcode正式生成自然0：611端点/218消费者。完整pnpm run verify终态通过，含当前类型/lint/架构/目录/场景/文档/ClassModel49项等门禁，2模型warnings和85薄页待审诊断未核销。中途named import9>8门禁失败保留原日志，已使用类型命名空间收敛导入并重新完整验证，不改门禁或基线。生成产物仍由正式工具刷新，未手改。有效回归反例保留，已核绝对artifacts边界清除13份中间日志；保实际RED/失败/最终证据，不删除历史恢复备份或有效工程测试。
+
+修复后重启临时前端，再用原登录态重载正常工作流导航：1003目录下新建可用，输入cr-final-cancel-20261109后取消，重开两字段为空，再取消，保存最终源码hash及两轮限制于evidence/data-chain-smoke/2026-11-09-s4-workflow-create-cancel.json；两次前端会话均已主动停止，不留后台服务。未点击实服创建/发布/删除；冲突/未知/刷新失败证据是同一正式commandBindings及标准组件的响应夹具，不声称线上CRUD已验。工作树唯一D:/SPARK_AppWorks。顶部“续做清单已空”错误已纠正；CQ已标历史检查点，后续不得重复实施已接入口。
+
+**下一批仍属S4。**本批首稿创建页面入口与异常接线已验；在线文件服务创建/确认/精确清理仍需独立证据，不能在整目录清理缺证时制造新线上残留。沿既有完整生命周期核首次发布在definition不存在时的领域命令及整目录删除真实能力；保存更新已有definition不等于首发、删除节点不等于删工作流，SDK可删单文件不证明目录可删。按原20包完整用例继续，服务阻塞、缺证、用户暂缓分开登记，不恢复退役spark-ai-server、旧owner或手工保存旁路，不缩减20包、不冻结S4或自动进入S5。准备按既定origin分支提交推送，独立核远端。

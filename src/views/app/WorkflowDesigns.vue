@@ -40,6 +40,7 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
     <aside class="workflow-designs__tools">
       <section>
         <h3>工作流</h3>
+        <RendererButton v-if="owner" v-bind="creationView ? {dataViewKey: viewKey(creationView)} : {}" label="新建工作流" :disabled="busy || !owner || creationId !== undefined" @click="openCreation" />
         <el-button :disabled="busy || !owner" @click="refreshDirectory">刷新目录</el-button>
         <el-button :disabled="!design || busy" @click="openDrawer('workflow')">流程属性</el-button>
         <el-button :disabled="!design || busy" @click="copyJson">复制已保存 JSON</el-button>
@@ -115,7 +116,10 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
       </div>
     </el-drawer>
 
-    <el-dialog v-model="nodeCreateOpen" title="新增节点" width="520px">
+    <WorkflowCreateDialog v-if="creationId !== undefined && creationView" :key="creationId" :data-view-key="viewKey(creationView)"
+      :record-id="creationId" @finish="finishCreation" />
+
+    <el-dialog v-if="design && nodeCreateOpen" v-model="nodeCreateOpen" title="新增节点" width="520px">
       <el-form label-position="top">
         <el-form-item label="目标图"><el-input :model-value="graphViews(activeGraph).nodes.queryContext['graphPath']" disabled /></el-form-item>
         <el-form-item label="节点类型">
@@ -151,11 +155,13 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
 import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import {ElMessage, ElMessageBox} from 'element-plus'
-import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {FieldJson, PAGE_RUNTIME, RendererForm, RendererGraph, RendererTable, useSparkComponent, type RGraphProps,
-  type RToolbarProps} from '@spark-appworks/spark-component'
+import {FieldJson, PAGE_RUNTIME, RendererForm, RendererGraph, RendererTable, useSparkComponent, RendererButton} from '@spark-appworks/spark-component'
+import type * as SparkComponentTypes from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
+import WorkflowCreateDialog from './workflow-designs/workflow-create-dialog.vue'
+import {AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
 import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
 import {createAgentWorkflowDefinitionFromDesign, formatJson, parseWorkflowDesignJson, type WorkflowDesignNodeCreateKind} from '@/services/workflow-designs'
 import {classModelDocText, createClassModelKnowledgeProvider, readClassModelOptions, type ClassModelOption} from './workflow-designs/workflow-design-class-model'
@@ -163,7 +169,7 @@ import {WORKFLOW_NODE_HANDLES, workflowChildGraphPath, workflowEdgeNodeKeys, wor
   workflowNodeRow} from './workflow-designs/workflow-design-graph'
 
 type GraphRole = 'main' | 'child'
-type GraphEvent<K extends 'onSelect' | 'onNodeMove' | 'onArrange' | 'onConnect' | 'onEdgePathChange'> = Parameters<NonNullable<RGraphProps[K]>>[0]
+type GraphEvent<K extends 'onSelect' | 'onNodeMove' | 'onArrange' | 'onConnect' | 'onEdgePathChange'> = Parameters<NonNullable<SparkComponentTypes.RGraphProps[K]>>[0]
 type GraphSelection = GraphEvent<'onSelect'>
 type GraphNodeMove = GraphEvent<'onNodeMove'>
 type GraphArrange = GraphEvent<'onArrange'>
@@ -197,6 +203,8 @@ const lineFields: SparkNode[] = [text('id', '连线 ID', true), text('fromNodeId
 const {sparkProvide, sparkRemove} = useSparkComponent({type: 'workflow-designs-page'})
 const owner = shallowRef<AgentWorkflowFileDataViewOwner>()
 const revision = ref(0)
+const creationId = ref<string | number>()
+const creationView = computed(() => owner.value?.dataSet.getView(AGENT_WORKFLOW_CREATE_TABLE, 'default'))
 const workflowId = ref('')
 const childPath = ref('')
 const selected = ref<Selected | null>(null)
@@ -232,12 +240,12 @@ const designViews = computed<DataView[]>(() => design.value ? [design.value.work
 const pendingIn = (view: DataView) => view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
 const hasPending = computed(() => {revision.value; return designViews.value.some(pendingIn)})
 const unconfirmed = computed(() => {revision.value; return designViews.value.some(view => view.hasUnconfirmedSave)})
-const busy = computed(() => {revision.value; return acting.value || saving.value || publishing.value || designViews.value.some(view => view.mutating)})
+const busy = computed(() => {revision.value; return acting.value || saving.value || publishing.value || creationView.value?.mutating === true || designViews.value.some(view => view.mutating)})
 const definitionPending = computed(() => {revision.value; const view = owner.value?.definitionView; return view ? pendingIn(view) : false})
 const directoryKey = computed(() => owner.value ? viewKey(owner.value.directoryView) : '')
 const definitionKey = computed(() => owner.value ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.value.dataSet.scenarioId) : '')
 const drawerTitle = computed(() => drawerTarget.value === 'workflow' ? '流程属性' : drawerTarget.value === 'node' ? '节点属性' : '连线属性')
-useSystemPageDirtySource({get isDirty() {return hasPending.value || definitionPending.value}})
+useSystemPageDirtySource({get isDirty() {revision.value; return hasPending.value || definitionPending.value || Boolean(creationView.value && pendingIn(creationView.value))}})
 
 function viewKey(view: DataView): string {return buildDataViewKey(view.tableName, view.viewId, view.dataSet?.scenarioId ?? '')}
 function currentRow(view: DataView): DataRow | null {revision.value; return view.currentRow}
@@ -265,7 +273,7 @@ const selectedRow = computed(() => {
 })
 const selectedChildPath = computed(() => selected.value?.kind === 'node' ? workflowChildGraphPath(selectedRow.value) : '')
 
-function graphProps(role: GraphRole): RGraphProps {
+function graphProps(role: GraphRole): SparkComponentTypes.RGraphProps {
   revision.value
   const {nodes, lines} = graphViews(role)
   const nodeRows = shownRows(nodes), locked = busy.value
@@ -325,7 +333,7 @@ function openDrawer(target: 'workflow' | 'node' | 'line'): void {
   drawerOpen.value = true
 }
 
-function listToolbar(view: DataView, keyField: string, label: string): RToolbarProps {
+function listToolbar(view: DataView, keyField: string, label: string): SparkComponentTypes.RToolbarProps {
   revision.value
   const row = view.currentRow, key = row ? view.getPkKey(row) : undefined
   return {children: [
@@ -441,41 +449,104 @@ function toggleLeft(): void {
   localStorage.setItem(LEFT_COLLAPSED_KEY, leftCollapsed.value ? '1' : '0')
 }
 
+function editableViews(): DataView[] {return [...designViews.value, ...(owner.value ? [owner.value.definitionView] : []), ...(creationView.value ? [creationView.value] : [])]}
+
 async function confirmDiscard(): Promise<boolean> {
-  const current = owner.value, targetId = workflowId.value
-  const pendingViews = [...designViews.value, ...(owner.value ? [owner.value.definitionView] : [])].filter(pendingIn)
+  const inFlight = (view: DataView) => view.mutating || view.requestState === RequestState.Preparing || view.requestState === RequestState.Loading
+  if (editableViews().some(inFlight)) {ElMessage.error('查询或提交进行中，请等待结果'); return false}
+  const current = owner.value, targetId = workflowId.value, command = creationView.value, commandId = creationId.value
+  const commandRows = command ? [...command.rows] : []
+  const pendingViews = editableViews().filter(pendingIn)
   if (pendingViews.length === 0) return true
   if (pendingViews.some(view => view.hasUnconfirmedSave)) {ElMessage.error('保存结果尚未确认，请先核验保存'); return false}
   try {
     await ElMessageBox.confirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
   } catch {return false}
-  if (owner.value !== current || workflowId.value !== targetId || pendingViews.some(view => view.destroyed)
-    || [...designViews.value, ...(current ? [current.definitionView] : [])].filter(pendingIn)
-      .some(view => view.hasUnconfirmedSave || !pendingViews.includes(view))) {
+  if (!active || owner.value !== current || workflowId.value !== targetId || creationView.value !== command || creationId.value !== commandId
+    || command && (command.rows.length !== commandRows.length || command.rows.some((row, index) => row !== commandRows[index]))
+    || pendingViews.some(view => view.destroyed || inFlight(view))
+    || editableViews().filter(pendingIn)
+      .some(view => inFlight(view) || view.hasUnconfirmedSave || !pendingViews.includes(view))) {
     ElMessage.error('原工作流已变化或保存结果尚未确认，请先处理原提交')
     return false
   }
   for (const view of pendingViews) view.discardPendingChanges()
+  creationId.value = undefined
   return true
 }
 
 async function chooseWorkflow(row: DataRow): Promise<void> {
   const id = row['workflowId']
+  if (busy.value || creationId.value !== undefined) return
   if (typeof id !== 'string' || !id || id === workflowId.value || !owner.value) return
-  if (!await confirmDiscard()) return
+  const current = owner.value
+  if (!await confirmDiscard() || !active || owner.value !== current) return
   acting.value = true
   loadError.value = ''
+  workflowId.value = ''
+  nodeCreateOpen.value = false
+  childPath.value = ''
+  selected.value = null
+  activeGraph.value = 'main'
   try {
-    await owner.value.loadDesign(id)
+    await current.loadDesign(id)
+    if (!active || owner.value !== current) return
     workflowId.value = id
-    childPath.value = ''
-    selected.value = null
-    activeGraph.value = 'main'
     const rootClass = member(member(design.value?.workflow.rows[0]?.['runtimeBinding'], 'modelProjectionRef'), 'rootClassName')
     classModelRoot.value = typeof rootClass === 'string' ? rootClass : ''
   } catch (error) {
-    loadError.value = `打开工作流失败: ${message(error)}`
+    if (active && owner.value === current) loadError.value = `${row['status'] === 'created' ? '首稿已创建，但' : ''}打开工作流失败: ${message(error)}`
   } finally {acting.value = false}
+}
+
+async function openCreation(): Promise<void> {
+  const current = owner.value, view = creationView.value
+  if (!current || busy.value || creationId.value !== undefined) return
+  acting.value = true
+  try {
+    if (!view || view.dataSet !== current.dataSet || view.dataTable?.resourceType !== 'command') throw new Error('正式工作流场景缺少首稿创建命令')
+    if (pendingIn(view)) throw new Error('原创建命令仍有未处理或待核验的修改')
+    const loaded = await view.loadFromServer()
+    if (!active || owner.value !== current || view.destroyed) return
+    if (!loaded.success) throw loaded.error ?? new Error(loaded.message ?? '创建命令初始化失败')
+    if (pendingIn(view)) throw new Error('原创建命令在打开期间已变化')
+    const row = await view.addRow({title: ''})
+    if (!active || owner.value !== current || view.destroyed) return
+    if (!('commandId' in row) || typeof row['commandId'] !== 'string') throw new Error('创建命令未返回原记录身份')
+    view.setCurrentRow(row)
+    creationId.value = row['commandId']
+  } catch (error) {if (active) ElMessage.error(`打开新建失败: ${message(error)}`)}
+  finally {acting.value = false}
+}
+
+async function finishCreation(result: 'saved' | 'cancelled' | 'preserved'): Promise<void> {
+  const current = owner.value, view = creationView.value, id = creationId.value
+  if (!active || !current || !view || id === undefined) return
+  if (result !== 'saved') {creationId.value = undefined; return}
+  creationId.value = undefined
+  const row = view.rows.find(item => view.getPkKey(item) === id)
+  if (!row || view.fieldAccess(row, 'workflowId').read !== 'visible' || view.fieldAccess(row, 'status').read !== 'visible'
+    || row['status'] !== 'created' || typeof row['workflowId'] !== 'string') {
+    ElMessage.error('首稿创建已返回，但原创建回执不可读；请保留原命令核查')
+    return
+  }
+  const target = row['workflowId']
+  const assertReceipt = () => {
+    if (view.destroyed || current.runtime.resolveView(viewKey(view)) !== view || !view.rows.includes(row)
+      || row['workflowId'] !== target || row['status'] !== 'created'
+      || ['workflowId', 'status'].some(field => view.fieldAccess(row, field).read !== 'visible')) throw new Error('原创建回执已变化或不可读')
+  }
+  ElMessage.success('工作流首稿已创建')
+  acting.value = true
+  try {
+    await current.refreshDirectory()
+    if (!active || owner.value !== current) return
+    assertReceipt()
+  } catch (error) {
+    if (active) ElMessage.error(`首稿已创建，但目录刷新失败: ${message(error)}`)
+    return
+  } finally {acting.value = false}
+  if (active && owner.value === current) await chooseWorkflow(row)
 }
 
 async function refreshDirectory(): Promise<void> {

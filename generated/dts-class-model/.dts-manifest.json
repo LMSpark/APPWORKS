@@ -4971,6 +4971,11 @@
       "shardFile": "files/src/views/app/Settings.vue.json",
       "sourceModifiedAt": "2026-11-08T18:23:35.998Z"
     },
+    "src/views/app/workflow-designs/workflow-create-dialog.vue": {
+      "sourceFile": "src/views/app/workflow-designs/workflow-create-dialog.vue",
+      "shardFile": "files/src/views/app/workflow-designs/workflow-create-dialog.vue.json",
+      "sourceModifiedAt": "2026-11-09T15:44:53.521Z"
+    },
     "src/views/app/workflow-designs/workflow-design-class-model.ts": {
       "sourceFile": "src/views/app/workflow-designs/workflow-design-class-model.ts",
       "shardFile": "files/src/views/app/workflow-designs/workflow-design-class-model.ts.json",
@@ -4984,7 +4989,7 @@
     "src/views/app/WorkflowDesigns.vue": {
       "sourceFile": "src/views/app/WorkflowDesigns.vue",
       "shardFile": "files/src/views/app/WorkflowDesigns.vue.json",
-      "sourceModifiedAt": "2026-11-09T14:54:16.715Z"
+      "sourceModifiedAt": "2026-11-09T15:56:12.441Z"
     },
     "src/views/DataBaseManage/DataBaseManage/index.vue": {
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",

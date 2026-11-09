@@ -1,0 +1,39 @@
+{
+  "date": "2026-11-09",
+  "phase": "S4",
+  "batch": "CR",
+  "baseCommit": "5fcf925befeffea2fd06e030f2c200aaf0127280",
+  "url": "http://127.0.0.1:5273/apps/D99A1DCE9894698799101EFD70F8FC76/workflow-designs?__sparkNavigationId=appworks-tool-workflow-designs",
+  "sourceHashes": {
+    "page": "215EBFADE23D2799A60543CC09E1BFD18D5529FE386CDC203FCE3223B50B0DB7",
+    "dialog": "E952E89A8339667CAC7E61B31C845F3C99FF971D81DC21D1D2C65EAF5186CE98"
+  },
+  "route": "home -> login -> application list -> metadata application -> SPARK tools -> workflow designs",
+  "observations": [
+    "formal directory returned 1003",
+    "creation entry remained enabled",
+    "standard workflow ID and optional title inputs were editable",
+    "cancel closed dialog and enabled entry",
+    "reopening showed both inputs empty",
+    "second cancel closed dialog"
+  ],
+  "writeActionClicked": false,
+  "limitations": [
+    "No real creation, publication or deletion performed",
+    "UI does not prove full network absence",
+    "Conflict, unknown verification, refresh/open failure and race cases use production DataSet command bindings with response fixtures"
+  ],
+  "firstSourceHashes": {
+    "page": "215EBFADE23D2799A60543CC09E1BFD18D5529FE386CDC203FCE3223B50B0DB7",
+    "dialog": "E952E89A8339667CAC7E61B31C845F3C99FF971D81DC21D1D2C65EAF5186CE98"
+  },
+  "finalRound": [
+    "restarted dev server after all review fixes",
+    "reloaded same normal navigation URL using existing login",
+    "directory returned 1003 and creation remained enabled",
+    "entered cr-final-cancel-20261109 then cancelled",
+    "reopened and observed both fields empty",
+    "cancelled and observed entry enabled again",
+    "stopped temporary dev server"
+  ]
+}

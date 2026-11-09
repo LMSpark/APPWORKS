@@ -10,6 +10,10 @@ import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-wor
 const mocks = vi.hoisted(() => ({
   files: new Map<string, string>(),
   uploads: (): string[] => [],
+  creations: (): number => 0,
+  afterCreate: (): void | Promise<void> => undefined,
+  directoryError: (): Error | undefined => undefined,
+  readError: (_path: string): Error | undefined => undefined,
   owner: (): AgentWorkflowFileDataViewOwner | undefined => undefined,
   readback: (text: string) => text,
   leave: (): boolean | Promise<boolean> => true,
@@ -29,7 +33,8 @@ vi.mock('@spark-appworks/spark-app', async importOriginal => ({...await importOr
 vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner')>()
   return {...actual, createAgentWorkflowFileDataViewOwner: async () => {
-    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files, {readback: text => mocks.readback(text)})
+    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files, {creation: true, readback: text => mocks.readback(text), afterCreate: () => mocks.afterCreate(), directoryError: () => mocks.directoryError(), readError: path => mocks.readError(path)})
+    mocks.creations = () => fileUpload.uploadTextVersion.mock.calls.length
     mocks.uploads = () => fileUpload.uploadWorkingText.mock.calls.map(([command]) => command.fileName)
     const owner = await actual.createAgentWorkflowFileDataViewOwner(input)
     mocks.owner = () => owner
@@ -60,7 +65,8 @@ const DrawerStub = defineComponent({props: {modelValue: Boolean, title: String},
   return () => props.modelValue ? h('section', {class: 'drawer-stub', 'data-title': props.title}, slots['default']?.()) : null
 }})
 const DialogStub = defineComponent({props: {modelValue: Boolean}, setup(props, {slots}) {
-  return () => props.modelValue ? h('section', {class: 'dialog-stub'}, [slots['default']?.(), slots['footer']?.()]) : null
+  let opened = false
+  return () => {opened ||= props.modelValue; return opened ? h('section', {class: 'dialog-stub', style: props.modelValue ? '' : 'display:none'}, [slots['default']?.(), slots['footer']?.()]) : null}
 }})
 
 const mounted: VueWrapper[] = []
@@ -68,6 +74,10 @@ const restore: Array<() => void> = []
 beforeEach(() => {
   mocks.files.clear()
   mocks.owner = () => undefined
+  mocks.afterCreate = () => undefined
+  mocks.directoryError = () => undefined
+  mocks.readError = () => undefined
+  mocks.messageBox.confirm.mockResolvedValue('confirm')
   mocks.readback = text => text
   mocks.files.set('design.json', JSON.stringify(design, null, 2))
   mocks.files.set('definition.json', JSON.stringify({kind: 'old'}))
@@ -110,7 +120,7 @@ async function select(wrapper: VueWrapper, kind: 'node' | 'edge', id: string, in
   await flushPromises()
 }
 async function typeField(wrapper: VueWrapper, field: string, value: string) {
-  const input = wrapper.findAllComponents(FieldText).find(item => item.props('field') === field)?.find('input')
+  const input = wrapper.findAllComponents(FieldText).find(item => item.props('field') === field && item.find('input').exists())?.find('input')
   if (!input) throw new Error(`missing field ${field}`)
   await input.setValue(value)
   await input.trigger('change')
@@ -124,6 +134,193 @@ function usePublishableDesign() {
 }
 
 describe('WorkflowDesigns on design projection DataViews', () => {
+  it('creates via standard fields bound to the command view and opens the confirmed draft', async () => {
+    const wrapper = await mountPage()
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'new-workflow'); await typeField(wrapper, 'title', '新首稿')
+    const view = mocks.owner()?.dataSet.getView('AgentWorkflowCreation')
+    const id = view?.currentRow?.['commandId']; if (!view || typeof id !== 'string') throw new Error('missing original command')
+    expect(view.getEditingRow(id)).toMatchObject({workflowId: 'new-workflow', title: '新首稿'})
+    expect(view?.currentRow?.['title']).toBe('')
+    expect(mocks.creations()).toBe(0)
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(JSON.parse(mocks.files.get('new-workflow/design.json') ?? '{}').workflow.id).toBe('new-workflow')
+    expect(wrapper.text()).toContain('Main Graph · new-workflow')
+    expect(mocks.message.success).toHaveBeenCalledWith('工作流首稿已创建')
+  })
+
+  it('cancels creation without writing or losing the current design', async () => {
+    const wrapper = await mountPage()
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'cancelled-workflow')
+    await button(wrapper, '取消创建').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(0); expect(uploads()).toEqual([])
+    expect(mocks.owner()?.dataSet.getView('AgentWorkflowCreation')?.hasEditingChanges()).toBe(false)
+    expect(wrapper.text()).toContain('Main Graph · alpha')
+  })
+
+  it('keeps conflicting input editable and never uploads over an existing workflow', async () => {
+    const wrapper = await mountPage()
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'alpha')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(0)
+    expect(wrapper.text()).toContain('已存在')
+    expect(button(wrapper, '创建首稿').attributes('disabled')).toBeUndefined()
+    expect(saved().workflow.id).toBe('alpha')
+  })
+
+  it('blocks abandoning unknown creation and verifies without uploading again', async () => {
+    const wrapper = await mountPage()
+    mocks.afterCreate = () => {throw new Error('lost ACK')}
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'unknown-workflow')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(button(wrapper, '取消创建').attributes('disabled')).toBeDefined()
+    expect(await mocks.leave()).toBe(false)
+    await button(wrapper, '核验创建结果').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(wrapper.text()).toContain('Main Graph · unknown-workflow')
+  })
+
+  it('keeps the original unknown intent locked through missing and mismatched readbacks', async () => {
+    const wrapper = await mountPage()
+    mocks.afterCreate = () => {throw new Error('lost ACK')}
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'readback-workflow')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises()
+    const original = mocks.files.get('readback-workflow/design.json')
+    if (!original) throw new Error('missing original dispatched bytes')
+    mocks.files.delete('readback-workflow/design.json')
+    await button(wrapper, '核验创建结果').trigger('click'); await flushPromises()
+    expect(button(wrapper, '取消创建').attributes('disabled')).toBeDefined()
+    expect(await mocks.leave()).toBe(false)
+    mocks.files.set('readback-workflow/design.json', '{}')
+    await button(wrapper, '核验创建结果').trigger('click'); await flushPromises()
+    expect(button(wrapper, '取消创建').attributes('disabled')).toBeDefined()
+    mocks.files.set('readback-workflow/design.json', original)
+    await button(wrapper, '核验创建结果').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(wrapper.text()).toContain('Main Graph · readback-workflow')
+  })
+
+  it('retains a confirmed receipt when refreshing the directory fails', async () => {
+    const wrapper = await mountPage()
+    mocks.afterCreate = () => {mocks.directoryError = () => new Error('directory unavailable')}
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'refresh-failed-workflow')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(mocks.owner()?.dataSet.getView('AgentWorkflowCreation')?.rows).toEqual(expect.arrayContaining([expect.objectContaining({workflowId: 'refresh-failed-workflow', status: 'created'})]))
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('首稿已创建'))
+    expect(wrapper.text()).toContain('Main Graph · alpha')
+  })
+
+  it('keeps the original design draft when the user declines switching after creation', async () => {
+    const wrapper = await mountPage()
+    await select(wrapper, 'node', 'workflow.graph#start', 0, true)
+    await typeField(wrapper, 'title', '原稿未保存')
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'preserve-old-workflow')
+    mocks.messageBox.confirm.mockRejectedValueOnce(new Error('cancel'))
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1); expect(uploads()).toEqual([])
+    expect(wrapper.text()).toContain('Main Graph · alpha')
+    expect(mocks.owner()?.design.nodes.getEditingRow('workflow.graph#start')?.['title']).toBe('原稿未保存')
+  })
+
+  it('reports an opening failure after successful creation without resubmitting', async () => {
+    const wrapper = await mountPage()
+    mocks.afterCreate = () => {mocks.readError = path => path.endsWith('/open-failed-workflow') ? new Error('open unavailable') : undefined}
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'open-failed-workflow')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(mocks.message.success).toHaveBeenCalledWith('工作流首稿已创建')
+    expect(wrapper.text()).toContain('打开工作流失败')
+    await button(wrapper, '刷新目录').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+  })
+
+  it('withdraws the old editor when only the new child views fail to load', async () => {
+    const wrapper = await mountPage()
+    let reads = 0
+    mocks.afterCreate = () => {mocks.readError = path => path.endsWith('/partial-open-workflow') && ++reads === 6 ? new Error('child query failed') : undefined}
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'partial-open-workflow')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises(); await flushPromises()
+    expect(reads).toBeGreaterThanOrEqual(6)
+    expect(wrapper.text()).toContain('打开工作流失败')
+    expect(wrapper.text()).not.toContain('Main Graph · alpha')
+    expect(wrapper.findAllComponents(RendererGraph)).toHaveLength(0)
+    expect(mocks.creations()).toBe(1)
+  })
+
+  it('rechecks all busy views before discarding any draft after confirmation', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await owner.design.nodes.editRowById('workflow.graph#start', {title: '原稿待保护'})
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'inflight-workflow')
+    let confirm: ((value: string) => void) | undefined, uploaded: (() => void) | undefined
+    mocks.messageBox.confirm.mockImplementationOnce(() => new Promise<string>(resolve => {confirm = resolve}))
+    const leaving = Promise.resolve(mocks.leave()).catch(error => error); await flushPromises()
+    mocks.afterCreate = () => new Promise<void>(resolve => {uploaded = resolve})
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises()
+    expect(owner.dataSet.getView('AgentWorkflowCreation')?.mutating).toBe(true)
+    confirm?.('confirm')
+    try {
+      expect(await leaving).toBe(false)
+      expect(owner.design.nodes.getEditingRow('workflow.graph#start')?.['title']).toBe('原稿待保护')
+    } finally {uploaded?.(); await flushPromises(); await flushPromises()}
+  })
+
+  it('does not let an old leave confirmation discard a replacement creation row', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await owner.design.nodes.editRowById('workflow.graph#start', {title: '原稿待保护'})
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'first-intent')
+    let confirm: ((value: string) => void) | undefined
+    mocks.messageBox.confirm.mockImplementationOnce(() => new Promise<string>(resolve => {confirm = resolve}))
+    const leaving = Promise.resolve(mocks.leave()).catch(error => error); await flushPromises()
+    await button(wrapper, '取消创建').trigger('click'); await flushPromises()
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'replacement-intent')
+    confirm?.('confirm')
+    expect(await leaving).toBe(false)
+    expect(owner.design.nodes.getEditingRow('workflow.graph#start')?.['title']).toBe('原稿待保护')
+    expect(owner.dataSet.getView('AgentWorkflowCreation')?.hasEditingChanges()).toBe(true)
+    expect(mocks.creations()).toBe(0)
+  })
+
+  it('releases a previously opened node dialog before switching to the created workflow', async () => {
+    const errors: unknown[] = [], previous = config.global.config.errorHandler
+    config.global.config.errorHandler = error => {errors.push(error)}
+    restore.push(() => {if (previous) config.global.config.errorHandler = previous; else delete config.global.config.errorHandler})
+    const wrapper = await mountPage()
+    await button(wrapper, '新增节点').trigger('click'); await flushPromises()
+    await button(wrapper, '取消').trigger('click'); await flushPromises()
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    await typeField(wrapper, 'workflowId', 'after-node-dialog')
+    await button(wrapper, '创建首稿').trigger('click'); await flushPromises(); await flushPromises()
+    expect(errors).toEqual([])
+    expect(wrapper.text()).toContain('Main Graph · after-node-dialog')
+    expect(mocks.creations()).toBe(1)
+  })
+
+  it('offers creation even when the original directory lookup fails', async () => {
+    mocks.directoryError = () => new Error('[1003] 文件夹路径不存在')
+    const wrapper = await mountPage()
+    expect(button(wrapper, '新建工作流').attributes('disabled')).toBeUndefined()
+    await button(wrapper, '新建工作流').trigger('click'); await flushPromises()
+    expect(wrapper.findAllComponents(FieldText).some(field => field.props('field') === 'workflowId')).toBe(true)
+    await button(wrapper, '取消创建').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(0)
+  })
+
   it('opens the first workflow and draws the main graph from node and line rows', async () => {
     const wrapper = await mountPage()
     expect(wrapper.find('.workflow-designs__directory').findComponent(RendererTable).props('dataViewKey')).toContain('AgentWorkflowFiles@directory')

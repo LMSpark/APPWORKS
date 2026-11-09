@@ -1,5 +1,5 @@
 {
-  "gapCount": 3662,
+  "gapCount": 3663,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -42530,6 +42530,17 @@
       "declarationLine": 39,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/app/workflow-designs/workflow-create-dialog",
+      "moduleName": "app:views/app/workflow-designs/workflow-create-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/app/workflow-designs/workflow-create-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/app/workflow-designs/workflow-create-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/workflow-designs/workflow-create-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/app/workflow-designs/workflow-create-dialog.vue"
     },
     {
       "kind": "module",

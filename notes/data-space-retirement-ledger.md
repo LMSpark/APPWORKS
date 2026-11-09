@@ -6,7 +6,6 @@
 >
 > **下文历史段落不是活动指令：** 旧“仅规划/暂停/下一步”、旧 E62 方案及历次局部通过均只表示当时事实。不得依据它们恢复旧逻辑、缩减原20业务包范围、跳阶段或宣称整体完成。只有本入口与末尾当前批次决定恢复位置，不另起总计划。
 
-> **AN当前恢复点：** S1目录DataView已改用公共只读工厂，正式来源列/当次投影/固定上下文/原请求scope与派生生命周期本批已验；末尾记录最终提交点。下一S1核可写文件owner的同目标重绑和在途捕获，不将目录批覆盖整条可写链。S1未冻结、未进S2；原20包和S4消费断点保留。
 
 ### 2026-10-31 数据平台链路审计
 
@@ -8948,3 +8947,30 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 五张投影表已在正式空间登记，查询走到正式执行器。线上保存仍停在 `[1003] 文件夹路径不存在`：目录要由正式资源生命周期建立，并且已有 `design.json` 之后，才能烟测打开、编辑、保存设计稿。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。
+
+<a id="cp-s4-workflow-definition-recovery"></a>
+#### CP. 2026-11-09 S4工作流Definition原草稿与未知恢复（进行中）
+
+**接收与责任。**主仓18b22fb72991cff59bf165d6549c50999634df87，干净且唯一worktree；用户要求清理过时过程代码/测试/文档并沿总体方案持续推进，不建额外工作树、不做兼容层。按当前AP/AT/AX冻结进入S4，不恢复旧AN“回S1”指令；已删除台账顶部过时AN恢复段，原AN历史事实保留；顶部“续做清单已空”纠正为当前CO/CP实际断点。此批只改工作流页面、领域owner及测试/文档/正式派生，不改冻结公共数据/组件/宿主合同，不写Java或实服。
+
+**先烟测再定位。**原4文件51项自然0。新增UI四项先真实RED（11项4失败7通过）：已有Definition草稿被publish catch无条件discard；Definition冲突前先save设计；未知发布无法保留安全处理入口；只有Definition修改时离开守卫漏检。高阶复核定位confirmDiscard只查designViews、publish先save设计、loadDefinitionRow每次reload、catch无条件清owner当前definition。实现先拒Definition pending再保存设计；失败不自动丢弃；同目标pending行不刷新，核workflowId/fileName/原行/数据权限后打开Definition，通过原DataSet.saveChanges核原capture，不将任意Definition草稿冒充“已发布”。切换与离开同时守设计+Definition，unknown拒绝；普通修改仅明确确认后discard，确认返回时再核owner/实例/unknown，防等待窗口出现未知后仍放行。
+
+**删除与复用。**loadDocument/readDocument原来各自复制目录→文件查询，已合并为内部原行读取并复用DataView.captureReadRow核选择事件/await前后原查询、行、workflowId/fileName/content。documentView实际固定definitionView而JSDoc声称“最近文件”，src无消费者、仅旧测试一处，删除该别名并测试直接用definitionView，不保兼容getter。旧notes/handoff-data-space-iteration.md仅撤回说明且全仓无引用，删除；Git历史仍可追溯，历史恢复备份未动。
+
+新增选择事件/确认等待窗口测试首写错事件入口(view.on而非view.events.on)、误当on返回unsubscribe、及未接DataSet.saveChanges拒绝；这些是测试错误，按真实API纠正，不计产品RED、不改冻结公共层。原四项UI失败是有效反例。修后原四文件55项先过；补等待窗口和原行证明后最终复验在途。类型首报RowClickHandler要4参数，测试按正式事件合同补control，不收窄类型。未知弹窗首断言依赖class透传，已改检查实际FieldJson组件，不把未声明DOM类当业务失败。
+
+**当前生命周期缺口及后续方案（不冒已实现）。**高阶核固定1147b00的结构化数据工作流与本仓Agent文件工作流是不同业务；历史ab176adc276abbebff38a4a4e1b906e7952766ff的WorkflowDesignService原语义是workflowId+可选title创建仅design.json、同名拒绝，首次发布才创建definition，删除整目录。当前五投影只编辑既有design，AgentWorkflowFiles拒added/deleted；节点增删不代替整工作流CRUD。现CO目录1003不等于必须等待别人预置首稿才能推进，更不能核销新建/首次发布/整删用例。下一S4独立首稿创建command沿正式场景commandBindings及已冻结bindDataSetCommandSubmit，输入commandId/workflowId/title，取消零IO，原目标typed404才进入不覆盖上传(isReplace:false)，以原ID、命令关联及完整文本/精确ACK回读确认；刷新/打开失败不得重传已确认创建。上传可建父目录但重名可能另存，不承诺原子create-if-absent；派发后坏ACK/超时保unknown，404/1003/异文均不能自动解锁重放，allowAbandonUnconfirmed:false。不得复活已退役spark-ai-server路由或直拼HTTP保存旁路。
+
+首次发布、整目录删除仍分别开放；旧历史点号workflowId受正式SDK含点内容目录护栏阻断，单列存量/服务定位缺口，不改ID假装兼容。File/list无目录类型且listFiles()==null可给[]，当前每个条目都当工作流，删除两份JSON会遗留幽灵目录或漏资产；整删须核原目标完整生命周期、独立结果及部分成功，不以空列表宣称物理目录清空。完整20包、N1依赖、N3服务反例/缺证、权限新增暂缓、远端历史未扫描转换及S5未进入全部保留。CP当前只修已证草稿/未知断链与重复逻辑，未恢复上述三个生命周期用例。
+
+
+**CP二审晚到反例与最终修复。**高阶发现发布在await design读取期间可覆盖晚出现的Definition草稿、离开确认可扩及新脏视图、关闭确认未重核unknown。补三项真实RED（15项3失败12过），现publish保原owner/workflowId+Definition原行captureReadRow，await后核原目标及pending再写；确认离开只允许原pending视图集合，新普通dirty也拒；Definition关闭捕获原行证明，确认后核owner/目标/原行/unknown，不关未知窗口。修后5文件64项自然0。后审限定已提CP边界无剩余静态阻断，非实服保存结论。
+
+**CP工程与真实只读烟测。**完整根verify42057自然exit0，含类型/lint、ClassModel49项与正式规则，报告2模型warnings/85薄页诊断，不冒全业务测试全绿。最终官方ClassModel63274自然0（语义缺口3652），lowcode611/218；全量生成还刷新此前源码已变而派生未同步的sourceLine/编译器symbol编号，不手改产物或据此声称改了其他层。扩大6文件439项原90307自然1：438过，data-space-design-page唯一参数/JSON树用例15000ms超时；保持原handle到511.34s自然终态，未重启。该条单独25989原阈值下5.29s通过（377跳过仅定向），不把扩大批改称全通过；CP最后相关5文件64项已在末态通过。
+
+已用正式登录入口及正常导航进入D99：平台应用目录正式Name是“元数据管理”，按准确ID选中后仓内标题为“软件工坊[AppWorks]”，未按名字/角色放行。SPARK工具→工作流设计的正式应用内URL装配成功，真实页面显示1003目录不存在/No Data，保存、Definition、发布均disabled；未创建临时业务目录/文件或改权限来伪造闭环。本次新证据[evidence/data-chain-smoke/2026-11-09-s4-workflow-readonly.json](../evidence/data-chain-smoke/2026-11-09-s4-workflow-readonly.json)只证明正常入口/错误呈现，不证明线上设计稿保存；原草稿/unknown/晚窗口由真实DataView离线夹具验证，范围分列。凭据未写证据/源码/日志，未抓取认证存储，未记录原始账号口令；页面只读，业务变更控件未调用。
+
+
+**CP末态清理与接续。**高阶末审已提窗口在限定S4责任内无剩余静态阻断；正式源、类型/lint、5文件64项、ClassModel/lowcode生成、完整根verify均已验，各handle终态。扩大native单条超时与定向通过分别保留，不冒439全过。已精确校验artifacts路径后删13份中间日志，保实际RED、最终证据及扩大失败；旧交接文档和documentView错误别名/重复读取分支删除，未扫删有效历史证据、node_modules或恢复备份。新实服只读证据保源码SHA和观察限制。临时前端dev会话99114在观察最终1003后主动停止（Ctrl-C终态1是清理，不冒服务自然成功退出），本会话不留后台写入任务；未创建任何worktree，唯一主目录不变。最终rootverify仅报告2模型warnings/85薄页待审，未把诊断或S4完整范围核销。
+
+真实导航切换期间还出现NavHeaderBar/ElMenu的“Duplicate keys found during update:1”警告，但随后正常选中应用内工作流页；根因/影响范围尚未核，登记独立S4导航消费线索，不在本批顺手改冻结组件/宿主。若下一批反例证实上游合同错误，按用户阶段规则退对应层修复重验，不维护错误合同。当前下一主线仍S4首稿command完整创建/刷新重开，再恢复首次发布与整目录删除；原20包完整范围与其他未验用例不变，不因本批修安全缺陷就声称完成工作流迁移。准备只推既定origin分支，不force/merge/部署。

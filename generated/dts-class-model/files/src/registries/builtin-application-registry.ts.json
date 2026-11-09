@@ -38,7 +38,8 @@
         "excelImportEditor",
         "workflowEditor",
         "jsonDataCatalog",
-        "businessTableSelector"
+        "businessTableSelector",
+        "agentWorkflowFiles"
       ]
     },
     "BuiltinScenarioResource": {
@@ -108,14 +109,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-07T00:59:24.371Z",
+  "generatedAt": "2026-11-09T04:24:21.650Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector'",
+        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector' | 'agentWorkflowFiles'",
         "declarationRelations": [
           {
             "kind": "union",
@@ -188,6 +189,10 @@
           {
             "kind": "union",
             "typeText": "'businessTableSelector'"
+          },
+          {
+            "kind": "union",
+            "typeText": "'agentWorkflowFiles'"
           }
         ],
         "members": {}

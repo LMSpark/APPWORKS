@@ -408,7 +408,7 @@
             },
             "persistedDataSpaceId": {
               "type": "object",
-              "title": "UseDateFormatReturn"
+              "title": "import(\"vue\").ComputedRef<string>"
             },
             "sceneBindingPending": {
               "type": "object",
@@ -435,7 +435,7 @@
             },
             "activePageId": {
               "type": "object",
-              "title": "UseDateFormatReturn"
+              "title": "import(\"vue\").ComputedRef<string>"
             },
             "pageIoBusy": {
               "type": "object",
@@ -878,15 +878,15 @@
         },
         "pageDesignPromptViewKey": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "pageDesignPromptScopeKey": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "headerActionScopeKey": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "headerActions": {
           "type": "object",
@@ -894,11 +894,11 @@
         },
         "initiatingProjectDataViewKey": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "blueprintTreeScopeKey": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "notifyPageDesignPromptChanged": {
           "type": "object",

@@ -1,4 +1,4 @@
-import {DataSet, RequestState} from '@spark-appworks/spark-data'
+import {DataSet, RequestState, type DataRow} from '@spark-appworks/spark-data'
 import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import type {LowcodeDesignApi, LowcodeDesignFileUpload} from '@spark-appworks/spark-lowcode-api'
 import {AgentWorkflowFileResource, AGENT_WORKFLOW_FILE_RESOURCE_ID, AGENT_WORKFLOW_FILE_TABLE, resolveAgentWorkflowDataSpaceId} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
@@ -404,7 +404,14 @@ describe('Agent Workflow file owner lifecycle', () => {
       expect(calls).toEqual(['CATALOG', 'CATALOG', 'SPACE-1'])
       expect(await owner.listWorkflowIds()).toEqual(['agent.workflow.alpha'])
       expect(await owner.readDocument('agent.workflow.alpha', 'definition.json')).toBe('{"workflow":{}}')
-      expect(owner.documentView.fieldAccess(owner.documentView.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
+      expect(owner.definitionView.fieldAccess(owner.definitionView.rows[0]!, 'content')).toMatchObject({read: 'visible', write: 'allowed'})
+      expect('documentView' in owner).toBe(false)
+      owner.definitionView.autoCurrentFirst = false
+      const tamper = (row: DataRow | null) => {if (row) row['fileName'] = 'design.json'}
+      owner.definitionView.events.on('currentRowChanged', tamper)
+      await expect(owner.readDocument('agent.workflow.alpha', 'definition.json')).rejects.toThrow()
+      owner.definitionView.events.off('currentRowChanged', tamper)
+
     } finally {owner.dispose(); token = 'scope-2'}
   })
 

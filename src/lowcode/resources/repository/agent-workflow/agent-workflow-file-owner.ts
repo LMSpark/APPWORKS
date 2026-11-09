@@ -5,7 +5,7 @@
  * 边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。
  * AI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。
  */
-import {RequestState, type DataSet, type DataView} from '@spark-appworks/spark-data'
+import {RequestState, type DataRow, type DataSet, type DataView} from '@spark-appworks/spark-data'
 import {NativePageRuntimeSession} from '@spark-appworks/spark-app'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
@@ -38,8 +38,6 @@ export type AgentWorkflowFileDataViewOwner = Readonly<{
   readonly designView: DataView
   /** definition.json 文件行视图。 */
   readonly definitionView: DataView
-  /** 最近一次 loadDocument 使用的文件行视图。 */
-  readonly documentView: DataView
   /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */
   readonly design: AgentWorkflowDesignViews
   /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */
@@ -140,8 +138,7 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
     const designView = table.getView('design')
     const definitionView = table.getView('definition')
     if (!directoryView || !designView || !definitionView) throw new Error('AGENT_WORKFLOW_FILE_BINDING: 文件资源DataView缺失')
-    const documentView = definitionView
-    if (directoryView.dataSet !== dataSet || documentView.dataSet !== dataSet) throw new Error('AGENT_WORKFLOW_FILE_BINDING: DataView不属于目标DataSet')
+    if ([directoryView, designView, definitionView].some(view => view.dataSet !== dataSet)) throw new Error('AGENT_WORKFLOW_FILE_BINDING: DataView不属于目标DataSet')
     const refreshDirectory = async () => {
       assertCurrent()
       const result = await directoryView.requestRefresh()
@@ -177,8 +174,28 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
       const failed = results.find(result => !result.success)
       if (failed) throw failed.error ?? new Error(failed.message ?? 'Agent 工作流设计查询失败')
     }
+    const loadDocumentRow = async (workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<Readonly<{row: Readonly<DataRow>; assertRow: () => void}>> => {
+      assertCurrent()
+      const ids = await thisDirectoryIds(directoryView, assertCurrent)
+      if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
+      const selected = fileName === 'design.json' ? designView : definitionView
+      selected.queryContext = {...selected.queryContext, workflowId}
+      const result = await selected.requestRefresh()
+      assertCurrent()
+      const row = selected.rows.find(item => item['workflowId'] === workflowId && item['fileName'] === fileName)
+      if (!result.success || selected.queryContext['workflowId'] !== workflowId || selected.rows.length !== 1 || !row
+        || selected.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
+        throw result.error ?? selected.loadingError ?? new Error(result.message ?? `工作流文件不可读: ${workflowId}/${fileName}`)
+      }
+      const assertRow = selected.captureReadRow(row, ['workflowId', 'fileName', 'content'])
+      selected.setCurrentRow(row)
+      assertCurrent(); assertRow()
+      if (selected.queryContext['workflowId'] !== workflowId || !selected.rows.includes(row)
+        || selected.fieldAccess(row, 'content').read !== 'visible') throw new Error('AGENT_WORKFLOW_FILE_READ: 原文件查询或行已失效')
+      return {row, assertRow}
+    }
     return {
-      runtime, catalogView, dataSet, directoryView, designView, definitionView, documentView,
+      runtime, catalogView, dataSet, directoryView, designView, definitionView,
       get design() {return designViews()},
       loadDesign: async workflowId => {
         const design = designViews()
@@ -192,45 +209,13 @@ export async function createAgentWorkflowFileDataViewOwner(input?: Partial<Owner
         await loadDesignViews([design.childNodes, design.childLines], {graphPath})
       },
       refreshDirectory,
-      loadDocument: async (workflowId, fileName) => {
-        assertCurrent()
-        const ids = await thisDirectoryIds(directoryView, assertCurrent)
-        if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
-        const selected = fileName === 'design.json' ? designView : definitionView
-        selected.queryContext = {...selected.queryContext, workflowId}
-        const result = await selected.requestRefresh()
-        assertCurrent()
-        const row = selected.rows.find(item => item['workflowId'] === workflowId && item['fileName'] === fileName)
-        if (!result.success || selected.rows.length !== 1 || !row || selected.fieldAccess(row, 'content').read !== 'visible'
-          || typeof row['content'] !== 'string') {
-          throw result.error ?? selected.loadingError ?? new Error(result.message ?? `工作流文件不可读: ${workflowId}/${fileName}`)
-        }
-        selected.setCurrentRow(row)
-      },
+      loadDocument: async (workflowId, fileName) => {await loadDocumentRow(workflowId, fileName)},
       listWorkflowEntries,
       listWorkflowIds: async () => (await listWorkflowEntries()).map(row => row.workflowId),
       readDocument: async (workflowId, fileName) => {
-        await (async () => {
-          assertCurrent()
-          const ids = await thisDirectoryIds(directoryView, assertCurrent)
-          if (!ids.includes(workflowId)) throw new Error(`AGENT_WORKFLOW_FILE_DIRECTORY: 工作流不在当前可读目录中: ${workflowId}`)
-          const selected = fileName === 'design.json' ? designView : definitionView
-          selected.queryContext = {...selected.queryContext, workflowId}
-          const result = await selected.requestRefresh()
-          assertCurrent()
-          const row = selected.rows.find(item => item['workflowId'] === workflowId && item['fileName'] === fileName)
-          if (!result.success || selected.rows.length !== 1 || !row || selected.fieldAccess(row, 'content').read !== 'visible'
-            || typeof row['content'] !== 'string') {
-            throw result.error ?? selected.loadingError ?? new Error(result.message ?? `工作流文件不可读: ${workflowId}/${fileName}`)
-          }
-          selected.setCurrentRow(row)
-        })()
-        const selected = fileName === 'design.json' ? designView : definitionView
-        assertCurrent()
-        const row = selected.currentRow
-        if (!row || selected.fieldAccess(row, 'content').read !== 'visible' || typeof row['content'] !== 'string') {
-          throw new Error(`AGENT_WORKFLOW_FILE_READ: DataView currentRow 不可读: ${workflowId}/${fileName}`)
-        }
+        const {row, assertRow} = await loadDocumentRow(workflowId, fileName)
+        assertCurrent(); assertRow()
+        if (typeof row['content'] !== 'string') throw new Error('AGENT_WORKFLOW_FILE_READ: 原文件行内容不可读')
         return row['content']
       },
       dispose: () => {session.dispose()},

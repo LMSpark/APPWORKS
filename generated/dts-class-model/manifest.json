@@ -14022,7 +14022,7 @@
         "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-file-owner",
-        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet 并绑定文件表与 design.json 五张投影表的执行器。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet，核对文件表与 design.json 五张投影表的声明并暴露命名视图。\n执行器由场景装配按文件资源注册表绑定，本 owner 不另绑。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "AgentWorkflowFileDataViewOwner",

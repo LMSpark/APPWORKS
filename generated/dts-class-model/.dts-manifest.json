@@ -909,7 +909,7 @@
     "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.vue": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.vue",
       "shardFile": "files/packages/spark-component/src/components/containers/data-views/RendererGraph/RendererGraph.vue.json",
-      "sourceModifiedAt": "2026-11-08T20:06:00.751Z"
+      "sourceModifiedAt": "2026-11-09T01:33:19.803Z"
     },
     "packages/spark-component/src/components/containers/data-views/RendererList/index.ts": {
       "sourceFile": "packages/spark-component/src/components/containers/data-views/RendererList/index.ts",
@@ -3954,7 +3954,7 @@
     "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts",
       "shardFile": "files/src/lowcode/data-space/model-source/rename/lowcode-data-space-model-rename-tools.ts.json",
-      "sourceModifiedAt": "2026-10-25T07:25:48.418Z"
+      "sourceModifiedAt": "2026-11-09T01:27:44.525Z"
     },
     "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts": {
       "sourceFile": "src/lowcode/data-space/model-source/source/lowcode-data-space-model-source-edit-session.ts",
@@ -3979,7 +3979,7 @@
     "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts",
       "shardFile": "files/src/lowcode/data-space/view-design/lowcode-data-space-view-design.ts.json",
-      "sourceModifiedAt": "2026-11-08T02:39:42.159Z"
+      "sourceModifiedAt": "2026-11-09T01:29:22.331Z"
     },
     "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts": {
       "sourceFile": "src/lowcode/data-space/view-design/lowcode-data-space-view-fields.ts",
@@ -4149,7 +4149,7 @@
     "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
       "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts.json",
-      "sourceModifiedAt": "2026-11-08T19:22:09.231Z"
+      "sourceModifiedAt": "2026-11-09T14:47:11.426Z"
     },
     "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
@@ -4644,7 +4644,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-07T00:59:24.371Z"
+      "sourceModifiedAt": "2026-11-09T04:24:21.650Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -4974,7 +4974,7 @@
     "src/views/app/WorkflowDesigns.vue": {
       "sourceFile": "src/views/app/WorkflowDesigns.vue",
       "shardFile": "files/src/views/app/WorkflowDesigns.vue.json",
-      "sourceModifiedAt": "2026-11-08T20:06:31.272Z"
+      "sourceModifiedAt": "2026-11-09T14:54:16.715Z"
     },
     "src/views/DataBaseManage/DataBaseManage/index.vue": {
       "sourceFile": "src/views/DataBaseManage/DataBaseManage/index.vue",

@@ -7,7 +7,7 @@
     "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts",
     "packageName": "app",
     "modulePath": "lowcode/resources/repository/agent-workflow/agent-workflow-file-owner",
-    "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet 并绑定文件表与 design.json 五张投影表的执行器。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
+    "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/agent-workflow-file-owner\n职责：从正式目录解析「Agent工作流文件资源」空间，装配其 DataSet，核对文件表与 design.json 五张投影表的声明并暴露命名视图。\n执行器由场景装配按文件资源注册表绑定，本 owner 不另绑。\n边界：页面和 AI 运行器只经本 owner 的 DataView 读写工作流文件；文件提交链在 agent-workflow-file-resource。\nAI用途：工作流设计页或 AI 运行器找不到工作流视图、加载设计或子图失败时，用本模块定位装配与绑定。",
     "jsdocSource": "leading-jsdoc",
     "symbols": [
       "AgentWorkflowFileDataViewOwner",
@@ -37,31 +37,6 @@
       ],
       "additionalProperties": false
     },
-    "WorkflowFileApi": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "type": "object",
-      "title": "WorkflowFileApi",
-      "properties": {
-        "listFiles": {
-          "type": "object",
-          "title": "(directory: LowcodeFileDirectory) => Promise<readonly LowcodeFileEntry[]>"
-        },
-        "readTextFile": {
-          "type": "object",
-          "title": "(locator: LowcodeFileLocator) => Promise<string>"
-        },
-        "readFileBytes": {
-          "type": "object",
-          "title": "(locator: LowcodeFileLocator) => Promise<Uint8Array>"
-        }
-      },
-      "required": [
-        "listFiles",
-        "readTextFile",
-        "readFileBytes"
-      ],
-      "additionalProperties": false
-    },
     "AgentWorkflowFileDataViewOwner": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -84,9 +59,6 @@
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "definitionView": {
-          "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
-        },
-        "documentView": {
           "$ref": "../../../../../packages/spark-data/src/data-view.ts.json#/$defs/DataView"
         },
         "design": {
@@ -202,13 +174,6 @@
         "applicationId": {
           "type": "string"
         },
-        "api": {
-          "$ref": "#/$defs/WorkflowFileApi"
-        },
-        "fileUpload": {
-          "type": "object",
-          "title": "Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>"
-        },
         "catalogScenarioId": {
           "type": "string"
         }
@@ -290,7 +255,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-08T19:16:50.420Z",
+  "generatedAt": "2026-11-09T14:47:11.426Z",
   "models": {
     "RequestScope": {
       "name": "RequestScope",
@@ -308,32 +273,16 @@
         "members": {}
       }
     },
-    "WorkflowFileApi": {
-      "name": "WorkflowFileApi",
-      "jsdoc": "owner 使用的工作流文件读取接口。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
-        "declarationRelations": [
-          {
-            "kind": "alias",
-            "typeText": "Pick<typeof lowcodeApi.design, 'listFiles' | 'readTextFile' | 'readFileBytes'>",
-            "targetName": "Pick"
-          }
-        ],
-        "members": {}
-      }
-    },
     "AgentWorkflowFileDataViewOwner": {
       "name": "AgentWorkflowFileDataViewOwner",
       "jsdoc": "Agent 工作流文件空间的运行实例及其命名视图、加载命令。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** 最近一次 loadDocument 使用的文件行视图。 */\n    readonly documentView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** 最近一次 loadDocument 使用的文件行视图。 */\n    readonly documentView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
+            "typeText": "Readonly<{\n    /** 文件空间的 PageRuntime。 */\n    readonly runtime: PageRuntime;\n    /** 用于解析空间身份的正式目录视图。 */\n    readonly catalogView: DataView;\n    /** 文件空间 DataSet。 */\n    readonly dataSet: DataSet;\n    /** 工作流目录视图。 */\n    readonly directoryView: DataView;\n    /** design.json 文件行视图。 */\n    readonly designView: DataView;\n    /** definition.json 文件行视图。 */\n    readonly definitionView: DataView;\n    /** design.json 的五张投影表视图；同一执行器，一次 saveChanges 合成一次文件写入。 */\n    readonly design: AgentWorkflowDesignViews;\n    /** 读取工作流的流程、主图、变量和能力；子图视图清空，待选中循环/迭代节点后再查。 */\n    loadDesign(workflowId: string): Promise<void>;\n    /** 让子图视图查询指定 graphPath；传空串清空子图。 */\n    loadChildGraph(graphPath: string): Promise<void>;\n    /** 重新查询工作流目录。 */\n    refreshDirectory(): Promise<void>;\n    /** 让对应文件行视图查询指定工作流的文件。 */\n    loadDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<void>;\n    /** 查询目录并返回工作流及其修改时间。 */\n    listWorkflowEntries(): Promise<ReadonlyArray<Readonly<{\n        workflowId: string;\n        timestamp: string;\n    }>>>;\n    /** 查询目录并返回工作流 ID。 */\n    listWorkflowIds(): Promise<readonly string[]>;\n    /** 经文件行视图读取文件全文。 */\n    readDocument(workflowId: string, fileName: 'design.json' | 'definition.json'): Promise<string>;\n    /** 释放目录和文件空间的运行实例。 */\n    dispose(): void;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -372,12 +321,6 @@
             {
               "name": "definitionView",
               "jsdoc": "definition.json 文件行视图。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "documentView",
-              "jsdoc": "最近一次 loadDocument 使用的文件行视图。",
               "readable": true,
               "writable": false
             },
@@ -585,11 +528,11 @@
       "jsdoc": "owner 的可注入依赖；缺省使用当前应用的正式运行接口。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 应用 ID，须与当前请求作用域一致。 */\n    applicationId: string;\n    /** 读取当前请求作用域。 */\n    readScope: () => RequestScope;\n    /** 文件读取接口。 */\n    api: WorkflowFileApi;\n    /** 文件上传接口。 */\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    /** 数据空间目录场景 ID。 */\n    catalogScenarioId: string;\n    /** 装配指定场景的 DataSet。 */\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 应用 ID，须与当前请求作用域一致。 */\n    applicationId: string;\n    /** 读取当前请求作用域。 */\n    readScope: () => RequestScope;\n    /** 数据空间目录场景 ID。 */\n    catalogScenarioId: string;\n    /** 装配指定场景的 DataSet，并按文件资源注册表绑定文件表执行器。 */\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 应用 ID，须与当前请求作用域一致。 */\n    applicationId: string;\n    /** 读取当前请求作用域。 */\n    readScope: () => RequestScope;\n    /** 文件读取接口。 */\n    api: WorkflowFileApi;\n    /** 文件上传接口。 */\n    fileUpload: Pick<typeof lowcodeDesignFileUpload, 'uploadWorkingText'>;\n    /** 数据空间目录场景 ID。 */\n    catalogScenarioId: string;\n    /** 装配指定场景的 DataSet。 */\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
+            "typeText": "Readonly<{\n    /** 应用 ID，须与当前请求作用域一致。 */\n    applicationId: string;\n    /** 读取当前请求作用域。 */\n    readScope: () => RequestScope;\n    /** 数据空间目录场景 ID。 */\n    catalogScenarioId: string;\n    /** 装配指定场景的 DataSet，并按文件资源注册表绑定文件表执行器。 */\n    loadScenario: (input: Readonly<{\n        projectId: string;\n        scenarioId: string;\n    }>) => Promise<DataSet>;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -598,18 +541,6 @@
             {
               "name": "applicationId",
               "jsdoc": "应用 ID，须与当前请求作用域一致。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "api",
-              "jsdoc": "文件读取接口。",
-              "readable": true,
-              "writable": false
-            },
-            {
-              "name": "fileUpload",
-              "jsdoc": "文件上传接口。",
               "readable": true,
               "writable": false
             },
@@ -633,7 +564,7 @@
             },
             {
               "name": "loadScenario",
-              "jsdoc": "装配指定场景的 DataSet。",
+              "jsdoc": "装配指定场景的 DataSet，并按文件资源注册表绑定文件表执行器。",
               "parameters": [
                 {
                   "name": "input",

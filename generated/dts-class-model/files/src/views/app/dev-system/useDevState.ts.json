@@ -590,7 +590,7 @@
         },
         "persistedDataSpaceId": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "sceneBindingPending": {
           "type": "object",
@@ -617,7 +617,7 @@
         },
         "activePageId": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "import(\"vue\").ComputedRef<string>"
         },
         "pageIoBusy": {
           "type": "object",
@@ -1045,7 +1045,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T19:39:23.898Z",
+  "generatedAt": "2026-11-08T15:44:04.530Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",

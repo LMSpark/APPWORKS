@@ -33,7 +33,7 @@
       "properties": {
         "tableName": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "viewId": {
           "type": "object",
@@ -103,7 +103,7 @@
       "properties": {
         "value": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "label": {
           "type": "object",
@@ -230,7 +230,7 @@
       "properties": {
         "tableName": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "viewId": {
           "type": "object",
@@ -270,7 +270,7 @@
         },
         "value": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "label": {
           "type": "object",
@@ -410,7 +410,7 @@
       "properties": {
         "tableName": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "viewId": {
           "type": "object",
@@ -450,7 +450,7 @@
         },
         "value": {
           "type": "object",
-          "title": "UseDateFormatReturn"
+          "title": "ComputedRef<string>"
         },
         "label": {
           "type": "object",

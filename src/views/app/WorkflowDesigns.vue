@@ -442,12 +442,20 @@ function toggleLeft(): void {
 }
 
 async function confirmDiscard(): Promise<boolean> {
-  if (!hasPending.value) return true
-  if (unconfirmed.value) {ElMessage.error('保存结果尚未确认，请先核验保存'); return false}
+  const current = owner.value, targetId = workflowId.value
+  const pendingViews = [...designViews.value, ...(owner.value ? [owner.value.definitionView] : [])].filter(pendingIn)
+  if (pendingViews.length === 0) return true
+  if (pendingViews.some(view => view.hasUnconfirmedSave)) {ElMessage.error('保存结果尚未确认，请先核验保存'); return false}
   try {
     await ElMessageBox.confirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
   } catch {return false}
-  for (const view of designViews.value) view.discardPendingChanges()
+  if (owner.value !== current || workflowId.value !== targetId || pendingViews.some(view => view.destroyed)
+    || [...designViews.value, ...(current ? [current.definitionView] : [])].filter(pendingIn)
+      .some(view => view.hasUnconfirmedSave || !pendingViews.includes(view))) {
+    ElMessage.error('原工作流已变化或保存结果尚未确认，请先处理原提交')
+    return false
+  }
+  for (const view of pendingViews) view.discardPendingChanges()
   return true
 }
 
@@ -509,11 +517,18 @@ async function copyJson(): Promise<void> {
 async function loadDefinitionRow(): Promise<{view: DataView; id: string | number}> {
   const current = owner.value
   if (!current) throw new Error('工作流文件空间尚未就绪')
-  try {await current.loadDocument(workflowId.value, 'definition.json')} catch (error) {
-    throw new Error(`definition.json 不存在或不可读；本页面不创建文件（${message(error)}）`)
+  const view = current.definitionView
+  if (!pendingIn(view)) {
+    try {await current.loadDocument(workflowId.value, 'definition.json')} catch (error) {
+      throw new Error(`definition.json 不存在或不可读；本页面不创建文件（${message(error)}）`)
+    }
   }
-  const view = current.definitionView, row = view.currentRow, id = row ? view.getPkKey(row) : undefined
-  if (!row || id === undefined || view.fieldAccess(row, 'content').write !== 'allowed') throw new Error('definition.json 当前行不可编辑')
+  const row = view.currentRow, id = row ? view.getPkKey(row) : undefined
+  if (!row || id === undefined || row['workflowId'] !== workflowId.value || row['fileName'] !== 'definition.json'
+    || typeof row['content'] !== 'string' || view.fieldAccess(row, 'content').read !== 'visible'
+    || !view.hasUnconfirmedSave && view.fieldAccess(row, 'content').write !== 'allowed') {
+    throw new Error('definition.json 原工作流行不可读写或仍有其他目标的待处理修改')
+  }
   return {view, id}
 }
 
@@ -538,12 +553,22 @@ async function saveDefinition(): Promise<void> {
 }
 
 async function closeDefinition(done?: () => void): Promise<void> {
-  const view = owner.value?.definitionView
+  const current = owner.value, targetId = workflowId.value, view = current?.definitionView
   if (view && definitionPending.value) {
     if (view.hasUnconfirmedSave) {ElMessage.error('definition.json 保存结果尚未确认'); return}
+    const row = view.currentRow
+    let assertRow: () => void
+    try {
+      if (!row) throw new Error('原Definition行已失效')
+      assertRow = view.captureReadRow(row, ['workflowId', 'fileName', 'content'])
+    } catch (error) {ElMessage.error(`关闭 Definition 失败: ${message(error)}`); return}
     try {
       await ElMessageBox.confirm('definition.json 有未保存更改，是否丢弃？', '关闭 Definition', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
     } catch {return}
+    if (owner.value !== current || workflowId.value !== targetId || view.destroyed || view.hasUnconfirmedSave || view.currentRow !== row) {
+      ElMessage.error('原Definition已变化或保存结果尚未确认，请先处理原提交'); return
+    }
+    try {assertRow()} catch (error) {ElMessage.error(`关闭 Definition 失败: ${message(error)}`); return}
     view.discardPendingChanges()
   }
   definitionOpen.value = false
@@ -551,13 +576,24 @@ async function closeDefinition(done?: () => void): Promise<void> {
 }
 
 async function publish(): Promise<void> {
-  const current = owner.value
-  if (!current || hasPending.value && !await save()) return
+  const current = owner.value, targetId = workflowId.value
+  if (!current) return
+  if (pendingIn(current.definitionView)) {
+    ElMessage.error('发布失败: definition.json 有未保存或待核验的修改，请先在 Definition 中处理原行')
+    return
+  }
+  if (hasPending.value && !await save()) return
   publishing.value = true
   try {
     const {view, id} = await loadDefinitionRow()
     if (pendingIn(view)) throw new Error('definition.json 有未保存的修改，请先保存或关闭 Definition')
-    const definition = createAgentWorkflowDefinitionFromDesign(parseWorkflowDesignJson(await current.readDocument(workflowId.value, 'design.json')))
+    const row = view.currentRow
+    if (!row) throw new Error('原Definition行已失效')
+    const assertRow = view.captureReadRow(row, ['workflowId', 'fileName', 'content'])
+    const source = await current.readDocument(targetId, 'design.json')
+    if (owner.value !== current || workflowId.value !== targetId || pendingIn(view)) throw new Error('发布目标已变化或Definition又有待处理修改')
+    assertRow()
+    const definition = createAgentWorkflowDefinitionFromDesign(parseWorkflowDesignJson(source))
     if (definition.x_spark.validation.status === 'invalid') {
       throw new Error(definition.x_spark.validation.issues.find(issue => issue.severity === 'error')?.message ?? 'definition 校验未通过')
     }
@@ -565,7 +601,6 @@ async function publish(): Promise<void> {
     await saveDefinitionView(view, id)
     ElMessage.success('definition.json 已发布')
   } catch (error) {
-    owner.value?.definitionView.discardPendingChanges()
     ElMessage.error(`发布失败: ${message(error)}`)
   } finally {publishing.value = false; revision.value++}
 }

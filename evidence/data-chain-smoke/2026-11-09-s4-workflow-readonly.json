@@ -1,0 +1,38 @@
+{
+  "date": "2026-11-09",
+  "batch": "CP",
+  "sourceBase": "18b22fb72991cff59bf165d6549c50999634df87",
+  "sourceSha256": {
+    "src/views/app/WorkflowDesigns.vue": "b483d05c54b500c46b2b768b7c900a579f2c35b29ac6351f81a7fddc2a66cbd6",
+    "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner.ts": "f7bf6b3470cfb61a1b19b8e98fc53c20abd70e1dff984e995a966665a4bd099c",
+    "config/pages/shared/agent-workflow-files/pagedata.json": "b8a6df475c0de4869d1b1aa05747ab04c903361a98f4f1713a60847497e7ee7b"
+  },
+  "mode": "authenticated-browser-readonly",
+  "applicationId": "D99A1DCE9894698799101EFD70F8FC76",
+  "normalEntry": [
+    "login",
+    "platform application catalog",
+    "D99 formal row",
+    "SPARK tools",
+    "workflow design"
+  ],
+  "url": "http://127.0.0.1:5273/apps/D99A1DCE9894698799101EFD70F8FC76/workflow-designs?__sparkNavigationId=appworks-tool-workflow-designs",
+  "observed": {
+    "title": "工作流设计 - SPARK",
+    "visibleError": "[1003] 文件夹路径不存在",
+    "directory": "No Data",
+    "saveDisabled": true,
+    "publishDisabled": true,
+    "definitionDisabled": true,
+    "refreshDirectoryAvailable": true
+  },
+  "businessMutationActions": [],
+  "credentialsPersistedInEvidence": false,
+  "limitations": [
+    "This confirms normal entry and error presentation, not opening or saving a real workflow design.",
+    "No temporary workflow, directory, file, permission or server mutation was performed to hide the resource-lifecycle gap.",
+    "The browser rendered the error; raw HTTP responses and mutation request counts were not independently captured.",
+    "Draft preservation, late-callback rejection and unknown-result recovery were exercised through real DataViews in isolated HTTP/file fixtures, not injected into a live business workflow.",
+    "The complete 20-package migration and S4 acceptance remain open."
+  ]
+}

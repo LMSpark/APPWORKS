@@ -2,13 +2,17 @@ import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {config, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h} from 'vue'
 import ElementPlus from 'element-plus'
-import {FieldText, RendererGraph, RendererTable, Spark, registerAllRenderers, type GraphSelection} from '@spark-appworks/spark-component'
+import {FieldJson, FieldText, RendererGraph, RendererTable, Spark, registerAllRenderers, type GraphSelection} from '@spark-appworks/spark-component'
 import WorkflowDesigns from '@/views/app/WorkflowDesigns.vue'
+import type {AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import {agentWorkflowOwnerInput} from '../../runtime/auth-nav/workflow/agent-workflow-design-fixture'
 
 const mocks = vi.hoisted(() => ({
   files: new Map<string, string>(),
   uploads: (): string[] => [],
+  owner: (): AgentWorkflowFileDataViewOwner | undefined => undefined,
+  readback: (text: string) => text,
+  leave: (): boolean | Promise<boolean> => true,
   message: {success: vi.fn(), error: vi.fn(), warning: vi.fn(), info: vi.fn()},
   messageBox: {confirm: vi.fn(async () => 'confirm'), prompt: vi.fn()},
 }))
@@ -19,15 +23,17 @@ vi.mock('element-plus', async importOriginal => ({
   ElMessageBox: mocks.messageBox,
 }))
 
-vi.mock('vue-router', () => ({onBeforeRouteLeave: vi.fn()}))
+vi.mock('vue-router', () => ({onBeforeRouteLeave: (guard: typeof mocks.leave) => {mocks.leave = guard}}))
 vi.mock('@spark-appworks/spark-app', async importOriginal => ({...await importOriginal<Record<string, unknown>>(), useSystemPageDirtySource: () => undefined}))
 
 vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner')>()
-  return {...actual, createAgentWorkflowFileDataViewOwner: () => {
-    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files)
+  return {...actual, createAgentWorkflowFileDataViewOwner: async () => {
+    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files, {readback: text => mocks.readback(text)})
     mocks.uploads = () => fileUpload.uploadWorkingText.mock.calls.map(([command]) => command.fileName)
-    return actual.createAgentWorkflowFileDataViewOwner(input)
+    const owner = await actual.createAgentWorkflowFileDataViewOwner(input)
+    mocks.owner = () => owner
+    return owner
   }}
 })
 
@@ -61,6 +67,8 @@ const mounted: VueWrapper[] = []
 const restore: Array<() => void> = []
 beforeEach(() => {
   mocks.files.clear()
+  mocks.owner = () => undefined
+  mocks.readback = text => text
   mocks.files.set('design.json', JSON.stringify(design, null, 2))
   mocks.files.set('definition.json', JSON.stringify({kind: 'old'}))
   vi.stubGlobal('ResizeObserver', class {observe() {} unobserve() {} disconnect() {}})
@@ -107,6 +115,12 @@ async function typeField(wrapper: VueWrapper, field: string, value: string) {
   await input.setValue(value)
   await input.trigger('change')
   await flushPromises()
+}
+
+function usePublishableDesign() {
+  const {nodes} = design.workflow.graph
+  mocks.files.set('design.json', JSON.stringify({...design, workflow: {...design.workflow, graph: {nodes: [nodes[0], nodes[2]],
+    lines: [{id: 'l1', from: {nodeId: 'start', modelId: '$workflow', memberName: 'out'}, to: {nodeId: 'output', modelId: '$workflow', memberName: 'in'}}]}}}))
 }
 
 describe('WorkflowDesigns on design projection DataViews', () => {
@@ -173,9 +187,7 @@ describe('WorkflowDesigns on design projection DataViews', () => {
   })
 
   it('publishes the definition derived from the saved design into the existing definition.json', async () => {
-    const {nodes} = design.workflow.graph
-    mocks.files.set('design.json', JSON.stringify({...design, workflow: {...design.workflow, graph: {nodes: [nodes[0], nodes[2]],
-      lines: [{id: 'l1', from: {nodeId: 'start', modelId: '$workflow', memberName: 'out'}, to: {nodeId: 'output', modelId: '$workflow', memberName: 'in'}}]}}}))
+    usePublishableDesign()
     const wrapper = await mountPage()
     await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
     expect(mocks.message.error).not.toHaveBeenCalled()
@@ -192,4 +204,131 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     expect(uploads()).toEqual([])
     expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('本页面不创建文件'))
   })
+  it('preserves a user definition draft when publication refuses to replace it', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, 'Definition').trigger('click'); await flushPromises()
+    const view = owner.definitionView
+    await view.editRowById('alpha', {content: '{"user":"unsaved"}'})
+    const discard = vi.spyOn(view, 'discardPendingChanges')
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
+    expect(discard).not.toHaveBeenCalled()
+    expect(view.getEditingRow('alpha')?.['content']).toBe('{"user":"unsaved"}')
+    expect(uploads()).toEqual([])
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('未保存'))
+  })
+
+  it('keeps an uncertain publication and verifies the original row through Definition save without reupload', async () => {
+    usePublishableDesign()
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    const discard = vi.spyOn(owner.definitionView, 'discardPendingChanges')
+    mocks.readback = () => 'unconfirmed readback'
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
+    expect(uploads()).toEqual(['definition.json'])
+    expect(owner.definitionView.hasUnconfirmedSave).toBe(true)
+    expect(discard).not.toHaveBeenCalled()
+    expect(await mocks.leave()).toBe(false)
+    const load = vi.spyOn(owner, 'loadDesign')
+    wrapper.findComponent(RendererTable).props('onRowClick')?.({workflowId: 'beta'}, undefined, undefined, {cancel: false})
+    await flushPromises(); expect(load).not.toHaveBeenCalled()
+    expect(owner.definitionView.hasUnconfirmedSave).toBe(true)
+    await button(wrapper, 'Definition').trigger('click'); await flushPromises()
+    expect(mocks.message.error.mock.calls.map(([text]) => text)).not.toContainEqual(expect.stringContaining('打开 Definition 失败'))
+    expect(wrapper.findComponent(FieldJson).exists()).toBe(true)
+    mocks.readback = text => text
+    await button(wrapper, '保存 Definition').trigger('click'); await flushPromises()
+    expect(owner.definitionView.hasUnconfirmedSave).toBe(false)
+    expect(uploads()).toEqual(['definition.json'])
+    expect(discard).not.toHaveBeenCalled()
+  })
+
+  it('rejects publishing before saving design changes when Definition already has a draft', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await owner.loadDocument('alpha', 'definition.json')
+    await owner.definitionView.editRowById('alpha', {content: '{"user":"pending"}'})
+    await owner.design.workflow.editRowById('alpha', {title: 'unsaved design'})
+    await flushPromises()
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
+    expect(uploads()).toEqual([])
+    expect(owner.design.workflow.getEditingRow('alpha')?.['title']).toBe('unsaved design')
+    expect(owner.definitionView.getEditingRow('alpha')?.['content']).toBe('{"user":"pending"}')
+  })
+
+  it('preserves a definition-only draft when the user cancels leaving', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, 'Definition').trigger('click'); await flushPromises()
+    await owner.definitionView.editRowById('alpha', {content: '{"user":"keep"}'})
+    mocks.messageBox.confirm.mockRejectedValueOnce('cancel')
+    expect(await mocks.leave()).toBe(false)
+    expect(owner.definitionView.getEditingRow('alpha')?.['content']).toBe('{"user":"keep"}')
+    expect(uploads()).toEqual([])
+  })
+
+  it('rechecks uncertainty when a discard confirmation resolves after a failed save', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, 'Definition').trigger('click'); await flushPromises()
+    await owner.definitionView.editRowById('alpha', {content: '{"user":"pending"}'})
+    let confirm: ((value: string) => void) | undefined
+    mocks.messageBox.confirm.mockImplementationOnce(() => new Promise<string>(resolve => {confirm = resolve}))
+    const leaving = mocks.leave(); await flushPromises()
+    mocks.readback = () => 'unknown readback'
+    await expect(owner.dataSet.saveChanges({views: [{tableName: owner.definitionView.tableName, viewId: 'definition'}]})).rejects.toThrow('回读不一致')
+    expect(owner.definitionView.hasUnconfirmedSave).toBe(true)
+    confirm?.('confirm')
+    expect(await leaving).toBe(false)
+    expect(owner.definitionView.hasUnconfirmedSave).toBe(true)
+  })
+
+  it('does not overwrite a Definition draft added while saved design is being read for publication', async () => {
+    usePublishableDesign()
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    const original = owner.readDocument
+    let release: (() => void) | undefined
+    vi.spyOn(owner, 'readDocument').mockImplementationOnce(async (id, file) => {
+      const text = await original(id, file)
+      return new Promise<string>(resolve => {release = () => resolve(text)})
+    })
+    await button(wrapper, '发布 Definition').trigger('click')
+    await vi.waitFor(() => expect(release).toBeDefined())
+    await owner.definitionView.editRowById('alpha', {content: '{"user":"late"}'})
+    release?.(); await flushPromises()
+    expect(uploads()).toEqual([])
+    expect(owner.definitionView.getEditingRow('alpha')?.['content']).toBe('{"user":"late"}')
+  })
+
+  it('does not extend an earlier discard confirmation to a newly dirty Definition view', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await owner.design.workflow.editRowById('alpha', {title: 'pending design'})
+    let confirm: ((value: string) => void) | undefined
+    mocks.messageBox.confirm.mockImplementationOnce(() => new Promise<string>(resolve => {confirm = resolve}))
+    const leaving = mocks.leave(); await flushPromises()
+    await owner.loadDocument('alpha', 'definition.json')
+    await owner.definitionView.editRowById('alpha', {content: '{"user":"new-view"}'})
+    confirm?.('confirm')
+    expect(await leaving).toBe(false)
+    expect(owner.definitionView.getEditingRow('alpha')?.['content']).toBe('{"user":"new-view"}')
+    expect(owner.design.workflow.getEditingRow('alpha')?.['title']).toBe('pending design')
+  })
+
+  it('keeps the Definition dialog open when its save becomes unknown while confirming close', async () => {
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    await button(wrapper, 'Definition').trigger('click'); await flushPromises()
+    await owner.definitionView.editRowById('alpha', {content: '{"user":"pending"}'})
+    let confirm: ((value: string) => void) | undefined
+    mocks.messageBox.confirm.mockImplementationOnce(() => new Promise<string>(resolve => {confirm = resolve}))
+    await button(wrapper, '关闭').trigger('click'); await flushPromises()
+    mocks.readback = () => 'unknown readback'
+    await expect(owner.dataSet.saveChanges({views: [{tableName: owner.definitionView.tableName, viewId: 'definition'}]})).rejects.toThrow('回读不一致')
+    confirm?.('confirm'); await flushPromises()
+    expect(wrapper.findComponent(FieldJson).exists()).toBe(true)
+    expect(owner.definitionView.hasUnconfirmedSave).toBe(true)
+  })
+
 })

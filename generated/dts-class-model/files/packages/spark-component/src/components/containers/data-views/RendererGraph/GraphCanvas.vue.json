@@ -39,7 +39,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-24T08:52:59.243Z",
+  "generatedAt": "2026-11-08T19:32:40.605Z",
   "models": {
     "MovedEdge": {
       "name": "MovedEdge",

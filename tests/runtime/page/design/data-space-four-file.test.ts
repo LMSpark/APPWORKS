@@ -6,7 +6,7 @@ import { createMemoryHistory, createRouter } from 'vue-router'
 import { describe, expect, it } from 'vitest'
 import { registerAllRenderers, Spark, SparkPageRenderer } from '@spark-appworks/spark-component'
 import { DataSpaceRuntimeApi, type DataSpaceDesignApi } from '@spark-appworks/spark-lowcode-api'
-import { ScenarioViewConfig, PageRuntime, PageTool, type PageRuntime as PageRuntimeType } from '@spark-appworks/spark-project-model'
+import { ScenarioViewConfig, PageRuntime, PageTool, ProjectToolResource, type PageRuntime as PageRuntimeType } from '@spark-appworks/spark-project-model'
 import { HttpClientBase, isRecord, type HttpResponse, type RequestConfig } from '@spark-appworks/spark-utils'
 import { compileFunctions } from '../../../../packages/spark-component/src/page/createSandbox'
 import { createPageComponentRegistry } from '../../../../packages/spark-component/src/page/context/page-component-registry'
@@ -397,7 +397,9 @@ async function createCatalogScriptFixture(services: Partial<PageContext['$page']
   ]
   const designAssembly = new LowcodeDataSpaceAssembler(runtime, http).assemble({ config: designConfig,
     space: {dataSpaceId: designScenarioId, name: '设计空间'},
-    models: designModels, relations: [], fileExecutors: designFileExecutors })
+    models: designModels, relations: [], fileExecutors: designFileExecutors,
+    projectionBindings: {ProjectToolCatalog: () => ({resource: ProjectToolResource.catalogResource, guard: () => {},
+      loadRows: async () => { throw new Error('Unexpected designer resource query: ProjectToolCatalog') }})} })
   const blueprintConfig = new ScenarioViewConfig(blueprintScenarioId,
     readFileSync(resolve(process.cwd(), 'config/pages/application/project-blueprint/pagedata.json'), 'utf8'))
   const blueprintModels = formalModels().map(model => model.metaName === 'Base_AppSystemList'

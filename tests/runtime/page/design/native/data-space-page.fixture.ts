@@ -513,7 +513,7 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
         }
         return metadata
       }),
-      assemble: async ({scenarioId: id, config, fileExecutors, modelScope}) => {
+      assemble: async ({scenarioId: id, config, fileExecutors, projectionBindings, modelScope}) => {
         await options.assemblyGate
         if (options.broken) throw new Error('SCENARIO_ASSEMBLY: 模型关系无法装配')
         const relations = !config.usesNativeResourceRelations && options.relationRows?.length ? await design.readRelations({designScenarioId: 'META', dataSpaceId: id}) : []
@@ -535,7 +535,8 @@ export function dataSpacePageFixture(options: {missing?: boolean; readOnly?: boo
           return {...sourceModel(id, row.rowid),
             ...(options.sourceInput && row.rowid === 'M1' ? {sourceType: '接口', sourceInputBindings: [{id: 'F2', name: 'customerArg', ...(valueFunction ? {valueFunction} : {})}]} : {})}
         }))
-        return assembler.assemble({config, space: {dataSpaceId: id, name: `空间 ${id}`}, models: [...targetModels, ...createdModels(id)], relations, ...(fileExecutors ? {fileExecutors} : {})})
+        return assembler.assemble({config, space: {dataSpaceId: id, name: `空间 ${id}`}, models: [...targetModels, ...createdModels(id)], relations,
+          ...(fileExecutors ? {fileExecutors} : {}), ...(projectionBindings ? {projectionBindings} : {})})
       },
     })
     const session = await service.openDesignSession(targetId, {deferDefinition: loading.deferDefinition ?? options.deferDefinition ?? false,

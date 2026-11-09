@@ -34,7 +34,7 @@ import {useContainerToolbar} from '../../runtime/container-ui'
 import {useContainerDataSource} from '../view-data-source'
 import GraphCanvas from './GraphCanvas.vue'
 import type {GraphCanvasNode, GraphCanvasEdge, GraphCanvasPoint} from './GraphCanvas.types'
-import type {GraphSelection, GraphArrange, GraphEdgeLineType, GraphHandle, GraphNodeSource, RendererGraphApi, RGraphProps} from './RendererGraph.props'
+import type {GraphSelection, GraphArrange, GraphEdgeLineType, GraphNodeSource, RendererGraphApi, RGraphProps} from './RendererGraph.props'
 import {GraphLayout} from './GraphLayout'
 import {nearestGraphHandles} from './GraphEdgeGeometry'
 

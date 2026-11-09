@@ -12,7 +12,7 @@ import {openLowcodeDataSpaceDesignSession} from '@/lowcode/data-space/lowcode-da
 import {Spark, registerAllRenderers, FilterValueFunctionDialog, JsonTreeEditor, FieldJson, FieldValueFunction, FieldCheckbox, FieldRadio, FieldSelect, FieldText, FieldTextarea, FieldNumber, RendererButton, RendererForm, RendererTable, RendererTree, RendererTabs, RendererDialog, RendererSection, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {DataSet, DataView, RequestState, resolveDataViewKey} from '@spark-appworks/spark-data'
 import {FilterExpressionEditor, RendererFilterExpression} from '@spark-appworks/spark-component'
-import {PageRuntime, type ProjectBlueprintTreeData} from '@spark-appworks/spark-project-model'
+import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {DataSpaceDesignApi} from '@spark-appworks/spark-lowcode-api'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
@@ -2738,19 +2738,6 @@ describe('native data-space design entry', () => {
     expect(wrapper.get('[data-test="scene-snapshot"]').attributes('disabled')).toBeDefined()
     expect(wrapper.get('[data-test="scene-restore"]').attributes('disabled')).toBeDefined()
     expect(f.fileWrites).toEqual([])
-  })
-  it('reuses the session navigation projection owner for a ProjectToolCatalog preview', async () => {
-    const f = fixture()
-    f.stored.set('A', JSON.stringify({scenarioId:'A',tables:{ProjectToolCatalog:{resourceType:'file',resourceId:'project:tool-catalog',
-      columns:[{name:'pageId',type:'string',isPrimaryKey:true},{name:'versions',type:'json'}],views:{default:{autoLoad:false}}}},viewCascades:[]}))
-    const tree: ProjectBlueprintTreeData = {nodeId:'ROOT',parentNodeId:'',projectId:'APP',kind:'module',capability:{name:'App'},source:{},children:[]}
-    const projection = vi.fn(() => tree)
-    const session = await f.open('A',{deferDefinition:true,blueprintTreeProjection:projection})
-    try {
-      const preview = await session.openPreview({tableName:'ProjectToolCatalog',viewId:'default',fileResourceId:'project:tool-catalog'})
-      try {await preview.view.loadFromServer(); expect(projection).toHaveBeenCalledOnce(); expect(preview.view.rows).toEqual([])}
-      finally {preview.dispose()}
-    } finally {session.dispose()}
   })
   it('injects the formal navigation projection only after the page runtime adopts its exact DataView', async () => {
     fixture({overviewOnly:true})

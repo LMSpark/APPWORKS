@@ -87,7 +87,8 @@ export class LowcodeDataSpaceModelRenameTools {
   private async query(name: keyof typeof ProjectToolResource.resources, context: Record<string, unknown>): Promise<DataView> {
     this.assertLive()
     const source = this.dataSet.getView(name, 'default')
-    if (!source || source.dataTable?.resourceType !== 'file' || source.dataTable.resourceId !== ProjectToolResource.resources[name]) throw new Error(`正式元空间缺少工具资源 ${name}，请升级配置`)
+    const resourceType = name === 'ProjectToolCatalog' ? ProjectToolResource.catalogResource.resourceType : 'file'
+    if (!source || source.dataTable?.resourceType !== resourceType || source.dataTable.resourceId !== ProjectToolResource.resources[name]) throw new Error(`正式元空间缺少工具资源 ${name}，请升级配置`)
     const view = source.createQueryView(`modelRenameTool:${crypto.randomUUID()}`)
     try {
       view.configure({queryContext: context, commitMode: 'staged', filterExpression: {logic: 'and', filters: []}, fieldProjection: [], queryConfig: {allPages: true, maxRows: 50000}})

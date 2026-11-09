@@ -8868,7 +8868,7 @@ pnpm run verify
 
 **真实空间尚未加表，绑定改为按需失败。**正式「Agent工作流文件资源」空间目前只有 `AgentWorkflowFiles` 一张表。本地开发服务页面处于未登录状态，台账记载上次用已知凭据登录失败、几乎锁号，因此没有猜凭据，五张表的正式登记等待用户在浏览器登录后经数据空间设计页完成。为不让工作流页和 AI 运行器（只读写文件行与 `definition.json`）在此之前失效，owner 在空间缺表时不再装配失败：文件行照常，访问 `design`、`loadDesign`、`loadChildGraph` 才报 `AGENT_WORKFLOW_DESIGN_BINDING`。新增 owner 测试覆盖这一点。
 
-**存量断链（HEAD 上同样失败，非本批引入）。**`data-space-four-file.test.ts` 和数据空间设计页的多组原生测试报 `SCENARIO_PROJECTION_BINDING: ProjectToolCatalog 缺少显式只读投影工厂`。在 HEAD 暂存本批后复跑，两个文件的 66 项失败相同。下一批单独排查。
+**存量断链（HEAD 上同样失败，非本批引入）。**`data-space-four-file.test.ts` 和数据空间设计页的多组原生测试报 `SCENARIO_PROJECTION_BINDING: ProjectToolCatalog 缺少显式只读投影工厂`。在 HEAD 暂存本批后复跑，两个文件的 66 项失败相同。已在 CK 解决。
 
 #### CI. S4：RendererGraph 接点、线型与控制点（未冻结）
 
@@ -8894,10 +8894,23 @@ pnpm run verify
 
 **验证。**新页面测试 7 项：打开并绘图、表单改标题后一次写 design.json、取消不写、移动加带接点连线后保存、子图移动保存、发布写 definition.json、definition 缺失时拒绝。renderer-graph 新增编辑行一项（40 项）。相关 41 个文件 453 项通过。根 typecheck 0，`pnpm run lint` 0，`verify:rules` 通过，`verify:class-model` 通过。ClassModel 已重新生成，只保留改动源文件分片、删除/新增分片和三份清单的真实差异。
 
-**待办与存量。**正式空间仍未登记五张投影表（等用户登录），在此之前页面打开设计稿会报 `AGENT_WORKFLOW_DESIGN_BINDING`。`lowcode-data-space-view-design.ts` 的 `assertDefinitionEditable` 在 `noUnusedLocals` 下报未使用，非本批引入。
+**待办与存量。**正式空间仍未登记五张投影表（等用户登录），在此之前页面打开设计稿会报 `AGENT_WORKFLOW_DESIGN_BINDING`。`lowcode-data-space-view-design.ts` 的 `assertDefinitionEditable` 在 `noUnusedLocals` 下报未使用，非本批引入，已在 CK 删除。
+
+#### CK. S4：ProjectToolCatalog 改为 logical-view 后的断链（未冻结）
+
+bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-view 投影，装配器从此要求每张 logical-view 表都有显式投影工厂。正式装配路径已经传入工厂，但还有一处生产代码和几处测试夹具没跟上。
+
+- **生产缺陷：模型改名读不到工具目录。**`lowcode-data-space-model-rename-tools.ts` 的 `query` 仍要求两张工具表都是 `file`，所以改名预览总是报「正式元空间缺少工具资源 ProjectToolCatalog」。现在按资源分别核对：目录取 `ProjectToolResource.catalogResource.resourceType`，`ProjectToolFile` 仍是 `file`。
+- **测试夹具。**`data-space-four-file.test.ts` 装配设计器 pagedata 时补上 `ProjectToolCatalog` 工厂，查询即报错，因为这些测试不读目录。`data-space-page.fixture.ts` 的 `assemble` 把 `projectionBindings` 转给装配器。
+- **删除过时测试。**「reuses the session navigation projection owner for a ProjectToolCatalog preview」把目标空间的目录声明为 `file`，再经文件模型分支预览。现行合同拒绝这种声明。设计器的文件模型分支只接受 `resourceType: 'file'`，logical-view 目录不会走到那里。会话层注入导航投影仍由紧随其后的测试覆盖。
+- **死代码。**删除未引用的 `assertDefinitionEditable`；`tsc -p tsconfig.json` 在 `src/` 下不再报未使用（tests 下的未使用变量是存量，不在本批）。CJ 遗留的 `RendererGraph.vue` 未使用 `GraphHandle` 导入一并删除。
+
+**验证。**`data-space-four-file.test.ts` 65 项全过（原 64 项失败）。数据空间设计页整文件复跑，378 项通过，原 10 项失败、未处理异常均消失；另删除上述过时测试 1 项。相关 15 个文件 676 项通过，涵盖 native/model、场景装配、场景加载、工具资源、模型改名、工作流设计页与服务、RendererGraph。根 typecheck 0，`pnpm run lint` 0，`verify:rules` 通过。
+
+**观察（未处理）。**`openPreview` 给预览装配传入 `ProjectToolCatalog` 工厂，但文件模型分支已不能选中 logical-view 目录；预览按 `modelScope` 只装配所选表时，这段工厂是否还能触发待核。
 
 #### 当前续做顺序（未冻结）
 
-`WorkflowDesigns` 已改为投影 DataView 页面。下一步：用户登录后在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表并烟测；排查 CH 记载的 ProjectToolCatalog 断链。不进入 S5。
+`WorkflowDesigns` 已改为投影 DataView 页面，ProjectToolCatalog 断链已在 CK 解决。下一步：用户登录后在数据空间设计页给「Agent工作流文件资源」空间加入五张投影表并烟测。不进入 S5。
 
 隐藏设计不造导航身份。S4 未冻结。

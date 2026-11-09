@@ -303,10 +303,6 @@ export class LowcodeDataSpaceDesignSession {
     }
   }
 
-  private assertDefinitionEditable(): void {
-    if (!this.#definitionError) this.assertProjectionClean()
-  }
-
   private attach(file: ScenarioViewFile | null): void {
     if (file === this.#file) return
     this.#unsubscribe?.()

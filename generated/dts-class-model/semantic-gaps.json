@@ -1,5 +1,5 @@
 {
-  "gapCount": 3652,
+  "gapCount": 3662,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -34047,6 +34047,124 @@
       "declarationFile": "src/lowcode/resources/integration/api-management/queries.ts",
       "declarationLine": 1,
       "sourceFile": "src/lowcode/resources/integration/api-management/queries.ts"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/repository/agent-workflow/creation-scaffold",
+      "moduleName": "app:lowcode/resources/repository/agent-workflow/creation-scaffold",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/repository/agent-workflow/creation-scaffold 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "workflowId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.workflowId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "title",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.title 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "commandId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.commandId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "module",
+      "className": "app:lowcode/resources/repository/agent-workflow/creation",
+      "moduleName": "app:lowcode/resources/repository/agent-workflow/creation",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:lowcode/resources/repository/agent-workflow/creation 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation.ts 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationLine": 1,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "config",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.config 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationLine": 9,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "applicationId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.applicationId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationLine": 10,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "api",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.api 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationLine": 11,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "Input",
+      "memberName": "fileUpload",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.fileUpload 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationLine": 12,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "method",
+      "className": "Input",
+      "memberName": "assertCurrent",
+      "reason": "missing-jsdoc",
+      "chainBreak": "Input.assertCurrent 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/lowcode/resources/repository/agent-workflow/creation.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationLine": 13,
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "declarationKind": "typeAlias"
     },
     {
       "kind": "module",

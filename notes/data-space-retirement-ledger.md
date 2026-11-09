@@ -8977,3 +8977,15 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 
 **CP已提交推送并独立核实。**代码5a51d3349a8e9f2871a0bdce5d2d6027b82ba681（fix(workflow): preserve definition drafts and uncertain publications），77文件468增305删，主要为官方派生刷新；origin/codex/spark-data-s1-command-safety push自然0，独立ls-remote与本地精确一致，跟踪树清洁、唯一主worktree。旧Cursor交接标题及CO“当前续做”标题已显式改为历史，防止恢复旧S1/等待外部预置等过时指令；此补记docs跟随同步。当前S4继续按本批已核首稿创建领域命令方案推进，不重新实施CP已验草稿保护，也不以局部通过缩减20包或跳S5。
+
+#### CQ. 2026-11-09 S4首稿创建领域命令（实施中，未宣称页面闭环）
+
+沿CP已核历史用例补AgentWorkflowCreation命令资源，正式场景01000B6C7F84B4F1A85C91C4FC28E875通过既有commandBindings/bindDataSetCommandSubmit接入同一DataSet；未改冻结公共数据、组件、宿主合同，不恢复退役路由。仅设计首稿，不夹带首次发布或整目录删除。先登记本次精确commandId/workflowId/title，取消零IO；design与definition均须typed404才允许非覆盖上传；1003/403/网络失败不是缺失。SDK正常返回已有精确ACK及字节回读，异常保原命令未知，随后只读匹配含x_spark.creation.commandId的完整原字节，不放弃/重放、不声称跨客户端原子创建。
+
+高阶审查指出错误字段投影和遗漏output.desc，已先补反例确认2失败，再修复；另外保留原新建ID格式（字母数字开头、最长128），含点身份因现服务不可精确定位明确拒绝，不改写旧ID或限制已有读取。实例、查询声明、字段映射、scope和原输入跨await复核；冲突前不保留孤立整稿attempt。当前18项创建用例及既有两文件共54项已过；类型/lint/正式派生与完整门禁尚需最终验，不据此宣称CQ完成。页面创建入口尚未接；原20包范围、首次发布/整删、实服隔离CRUD与清理仍未核销。此前仅import路径/声明格式失败不是业务反例，真实评审RED单独保留。
+
+**CQ领域检查点最终验收（不等于工作流整体验收）。**创建21项，连同原文件资源、投影资源、投影结构、页面与服务测试六文件共85项通过（artifacts/cq-workflow-final.log）。高阶最终静态复核无阻断；新增反例包括错误原表PK被视图override遮蔽、初始错误字段来源及最后definition缺失检查期间改投影；保留可选标题的原语义。两份typed404及最后身份核验后才保原派发快照，移除重复dispatched/confirmed布尔状态，未知由公共binder管理，只读核原命令字节。普通保存仍只有既有SPARK data链，不增加兼容层。
+
+最终正式ClassModel生成自然0（1113文件、2213符号、1720索引、3662声明语义待审项，非新能力完成证明），lowcode生成自然0（611端点/218消费者）；完整pnpm run verify自然0，含类型/lint/规则/ClassModel49项。2模型warnings及85薄页待审诊断保持登记。一次中途薄页失败实为字面量unknown后布尔||被正则误判union，已等价整理条件，未改门禁/基线或加豁免；同时消除真实冗余状态，失败日志保留。官方派生包含编译符号ID及行号的正常刷新，未手改产物、未修改公共上游源码。
+
+已核绝对artifacts边界后清除12份中间日志，仅保真实评审RED、门禁失败解释、最终测试/生成/门禁证据；有效回归测试保留，不把测试一律当过程垃圾删除。唯一主worktree仍D:/SPARK_AppWorks；未新建/恢复/切换额外worktree，未动历史恢复备份、未运行本地Java、未做实服写入。本次只收口领域命令，尚不能从正常页面调用；下一批S4将新建对话框以标准字段直接绑定AgentWorkflowCreation，原命令saveChanges后区分确认成功与刷新/打开失败，不重传，不丢旧设计/Definition草稿；须补页面取消/冲突/未知/刷新失败烟测。首次发布、整目录删除与精确隔离实服CRUD清理继续保留，当前文件服务未证实整目录清理能力，不为冒烟制造无法清理的线上对象。原20包及全部验收用例不缩减，S4未冻结、不进入S5。

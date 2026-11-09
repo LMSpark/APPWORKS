@@ -3799,7 +3799,7 @@
     "src/lowcode/data-space/lowcode-data-space-runtime.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-runtime.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-08T19:10:39.651Z"
+      "sourceModifiedAt": "2026-11-09T15:18:19.951Z"
     },
     "src/lowcode/data-space/lowcode-model-relation-adapter.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-model-relation-adapter.ts",
@@ -4155,6 +4155,16 @@
       "sourceFile": "src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts",
       "shardFile": "files/src/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource.ts.json",
       "sourceModifiedAt": "2026-11-08T19:15:36.059Z"
+    },
+    "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts": {
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+      "shardFile": "files/src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts.json",
+      "sourceModifiedAt": "2026-11-09T15:24:46.861Z"
+    },
+    "src/lowcode/resources/repository/agent-workflow/creation.ts": {
+      "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+      "shardFile": "files/src/lowcode/resources/repository/agent-workflow/creation.ts.json",
+      "sourceModifiedAt": "2026-11-09T15:30:56.211Z"
     },
     "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
       "sourceFile": "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts",

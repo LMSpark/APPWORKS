@@ -18,6 +18,7 @@ import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME, B
 import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integration/api-management/model-rules'
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
+import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
@@ -152,6 +153,7 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
  }
  assertCurrent()
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
+  ...createAgentWorkflowCreationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent}),
   ...createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent}),
   ...createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
   ...createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),

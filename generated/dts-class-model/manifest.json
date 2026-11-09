@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1111,
+  "scannedFileCount": 1113,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14047,6 +14047,32 @@
           "AgentWorkflowFileCommit",
           "AgentWorkflowFileResource"
         ]
+      }
+    },
+    "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/agent-workflow/creation-scaffold",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation-scaffold.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/agent-workflow/creation-scaffold",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/creation-scaffold\n职责：生成有明确创建命令关联的未发布工作流首稿。\n边界：仅生成设计态JSON，不登记运行别名、不发布、不写文件。",
+        "jsdocSource": "leading-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/lowcode/resources/repository/agent-workflow/creation.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/creation.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/agent-workflow/creation",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/creation.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/agent-workflow/creation",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/creation\n职责：为正式场景声明的创建首稿命令提供一次提交及原目标未知核验。\n边界：不覆盖已有design或definition；派发后只读核验，不删除旁名、不保证服务原子创建。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
       }
     },
     "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {

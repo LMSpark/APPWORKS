@@ -52,6 +52,14 @@ AI用途：需要理解 renderer table 的实际渲染结构、slot/toolbar/状�
           :width="52"
           :resizable="tableColumnResizable"
         />
+        <el-table-column
+          v-if="props.showRowIndex"
+          type="index"
+          label="#"
+          :width="64"
+          :resizable="tableColumnResizable"
+          align="center"
+        />
 
         <!-- 行操作列（左） -->
         <el-table-column

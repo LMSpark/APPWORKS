@@ -11,8 +11,8 @@
     "navigationRootId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
     "publishedNodeIds": {
       "type": "array",
-      "minItems": 26,
-      "maxItems": 26,
+      "minItems": 28,
+      "maxItems": 28,
       "uniqueItems": true,
       "items": {"type": "string", "pattern": "^[A-F0-9]{32}$"}
     },

@@ -187,6 +187,21 @@ describe('DataView owns query configuration', () => {
     restored.destroy()
   })
 
+  it('can explicitly restart an unchanged filter on page one without changing the default', async () => {
+    const {view, load} = fixture()
+    const filter = {field: 'id', operator: 'eq' as const, value: 'one'}
+    await view.executeFilter(filter)
+    await view.setPage(2)
+    await view.executeFilter(filter, true)
+    expect(view.page).toBe(1)
+    expect(load).toHaveBeenCalledTimes(3)
+    expect(load.mock.calls[2]?.[0]).toMatchObject({page: 1, filter})
+    await view.setPage(2)
+    await view.executeFilter(filter)
+    expect(view.page).toBe(2)
+    expect(load.mock.calls[4]?.[0]).toMatchObject({page: 2, filter})
+  })
+
   it('does not reset request state when only autoQuery changes', () => {
     const {view} = fixture()
     view.queryConfig = {outputType: 'Table'}

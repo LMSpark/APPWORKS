@@ -95,6 +95,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/organization/organization-structure/ui/organization-structure-page",
+      "title": "机构管理",
+      "icon": "OfficeBuilding",
+      "scope": "app",
+      "source": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+      "description": "当前租户正式机构投影",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/tenants",
       "title": "租户管理",
       "icon": "OfficeBuilding",

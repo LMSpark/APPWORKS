@@ -3099,6 +3099,9 @@
           "properties": {
             "filter": {
               "$ref": "query/filter/data-view-filter-contract.ts.json#/$defs/DataViewFilterTree"
+            },
+            "firstPage": {
+              "type": "boolean"
             }
           },
           "additionalProperties": false
@@ -3208,7 +3211,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T01:58:29.780Z",
+  "generatedAt": "2026-11-10T14:21:51.286Z",
   "models": {
     "DataViewSaveNotAppliedError": {
       "name": "DataViewSaveNotAppliedError",
@@ -8058,7 +8061,7 @@
             },
             {
               "name": "executeFilter",
-              "jsdoc": "显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。\n@param filter 要执行的过滤表达式；undefined 表示清除过滤。",
+              "jsdoc": "显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。\n@param filter 要执行的过滤表达式；undefined 表示清除过滤。\n@param firstPage 显式查询时从第一页开始；默认沿用当前页。",
               "parameters": [
                 {
                   "name": "filter",
@@ -8069,6 +8072,16 @@
                       "name": "DataViewFilterTree",
                       "sourcePath": "packages/spark-data/src/query/filter/data-view-filter-contract.ts"
                     }
+                  }
+                },
+                {
+                  "name": "firstPage",
+                  "type": {
+                    "type": "intrinsic",
+                    "name": "boolean"
+                  },
+                  "flags": {
+                    "isOptional": true
                   }
                 }
               ],

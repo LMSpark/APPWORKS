@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/organization/organization-structure/ui/organization-structure-page",
+    "sourcePath": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+    "sourceFile": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/organization/organization-structure/ui/organization-structure-page",
+    "jsdoc": "@module app:views/features/organization/organization-structure/ui/organization-structure-page\n职责：展示当前租户机构目录并提供查询、重置、刷新和分页。\n边界：只读取正式机构 DataView，不提供机构编辑或跨租户切换。\nAI用途：恢复组织机构目录时，核对正式导航身份及只读数据绑定。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-10T14:41:10.914Z",
+  "models": {}
+}

@@ -108,6 +108,15 @@ describe('DataView SPARK public filter', () => {
     expect(view.hasEditingChanges()).toBe(true)
   })
 
+  it('does not reset an unchanged filter page before rejecting pending edits', async () => {
+    const view = staticView()
+    view.page = 3
+    view.updateEditingValue(1, 'price', 99)
+    await expect(view.executeFilter(undefined, true)).rejects.toThrow()
+    expect(view.page).toBe(3)
+    expect(view.hasEditingChanges()).toBe(true)
+  })
+
   it('preserves public string constants without interpreting former placeholders', async () => {
     const view = staticView()
     await view.setFilter({ field: 'tag', operator: 'eq', value: '$[draft]' })

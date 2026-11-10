@@ -43,6 +43,12 @@ export type RFilterProps = SparkNodeProps & {
     dataViewKey?: string
     /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。 */
     autoQuery?: boolean | undefined
+    /** 常用筛选重置时立即查询；默认只清空输入，由autoQuery决定是否查询。 */
+    queryOnReset?: boolean
+    /** 点击查询或启用queryOnReset时从第一页开始；默认沿用DataView原有行为。 */
+    firstPageOnSearch?: boolean
+    /** 是否显示完整过滤表达式编辑器；默认显示，关闭时仍保留常用筛选。 */
+    showExpressionEditor?: boolean
     /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器并即时接纳有效结构编辑；JSON草稿可取消，过滤仍走同一DataView链。 */
     expressionDisplay?: 'dialog' | 'inline'
     /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */

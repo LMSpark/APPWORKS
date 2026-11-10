@@ -79,6 +79,43 @@ async function mountTableFilters(view: FilterViewLike, filterChildren: SparkNode
 }
 
 describe('useFilterPanel', () => {
+  it('does not execute a pending reset against a switched or disposed view', async () => {
+    const first = createView({resourceType: 'static-data'})
+    const second = createView({resourceType: 'static-data'})
+    const viewRef = shallowRef(first.view)
+    const scope = effectScope()
+    let panel: FilterPanelState | undefined
+    scope.run(() => {
+      panel = useFilterPanel({
+        filterChildren: [{type: 'r-text', props: {field: 'Name'}}],
+        dataView: () => viewRef.value,
+        autoQuery: false,
+        logger: {error: vi.fn()},
+      })
+    })
+    if (!panel) throw new Error('useFilterPanel did not initialize')
+    panel.filterModel['Name'] = 'old'
+    const switched = panel.resetFilters(true)
+    viewRef.value = second.view
+    await switched
+    expect(first.view.executeFilter).not.toHaveBeenCalled()
+    expect(second.view.executeFilter).not.toHaveBeenCalled()
+    panel.filterModel['Name'] = 'new'
+    const disposed = panel.resetFilters(true)
+    scope.stop()
+    await disposed
+    expect(second.view.executeFilter).not.toHaveBeenCalled()
+  })
+
+  it('preserves surrounding spaces in a text filter unless trimming is configured', async () => {
+    const {view} = createView({resourceType: 'static-data'})
+    const {scope, api} = await mountTableFilters(view, [{type: 'r-text', props: {field: 'Name'}}])
+    api.filterModel['Name'] = '  literal  '
+    await api.searchFilters()
+    expect(view.executeFilter).toHaveBeenLastCalledWith({field: 'Name', operator: 'contains', value: '  literal  '})
+    scope.stop()
+  })
+
   it('rejects mixing a keyword alternatives filter with a resident field reference', async () => {
     const {view}=createView({resourceType:'static-data',columns:[{name:'Name'}]})
     await expect(mountTableFilters(view,[{type:'r-text',props:{field:'Name',filterValueRefField:'Name',

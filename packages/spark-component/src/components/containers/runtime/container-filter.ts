@@ -5,7 +5,7 @@
  * AI用途：排查组件配置、运行态上下文或渲染注册关系时，用本模块确认局部语义。
  */
 
-import { computed, reactive, ref, toValue, watch } from 'vue'
+import { computed, nextTick, onScopeDispose, reactive, ref, toValue, watch } from 'vue'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 import { type SparkNode, DataViewFilter, type DataViewFilterTree, type DataViewFilterOperator, type DataViewFilterJsonValue, nodeInputProp } from '@spark-appworks/spark-data'
 import { isRecord } from '@spark-appworks/spark-utils'
@@ -54,7 +54,7 @@ getColumn?: (field: string) => unknown
   /** 由 DataView 同步过滤并按数据来源决定本地执行或远端刷新。 */
   setFilter(expr: DataViewFilterTree | undefined): Promise<void>
   /** 立即执行过滤查询（用于"搜索"按钮主动触发远端查询）。 */
-  executeFilter(expr: DataViewFilterTree | undefined): Promise<void>
+  executeFilter(expr: DataViewFilterTree | undefined, firstPage?: boolean): Promise<void>
   /** 重新拉取远端数据并刷新当前视图行。 */
   refresh(): Promise<void>}
 
@@ -66,6 +66,7 @@ type ApplyFilterSafelyOptions = {
   readonly message: string
   /** set=同步表达式；execute=立即执行过滤查询。 */
   readonly mode?: 'set' | 'execute'
+  readonly firstPage?: boolean
 }
 
 /** 判断过滤值是否为空（空字符串、空数组、null、undefined 均视为空）。 */
@@ -266,9 +267,11 @@ function toResidentFieldRefCondition(descriptor: ResidentFieldRefFilterDescripto
 function buildCondition(config: SparkNode, value: unknown, view: FilterPanelDataView | null | undefined): DataViewFilterTree | undefined {
   const field = getNodeField(config)
   if (!field || isEmptyFilterValue(value)) return undefined
+  const input = config.type === FILTER_NODE_TYPE_TEXT && nodeInputProp(config, 'filterTrim') === true && typeof value === 'string'
+    ? value.trim() : value
   const alternatives = nodeInputProp(config, 'filterAlternatives')
   if (alternatives !== undefined) {
-    if (config.type !== FILTER_NODE_TYPE_TEXT || typeof value !== 'string'
+    if (config.type !== FILTER_NODE_TYPE_TEXT || typeof input !== 'string'
       || !Array.isArray(alternatives) || !alternatives.length || isRangeFilterConfig(config)) {
       throw new Error('RendererFilter: filterAlternatives需要文本及非空条件列表')
     }
@@ -276,14 +279,14 @@ function buildCondition(config: SparkNode, value: unknown, view: FilterPanelData
       if (!isRecord(item) || Object.keys(item).some(key => key !== 'field' && key !== 'operator')
         || typeof item['field'] !== 'string' || !item['field'].trim()) throw new Error('RendererFilter: filterAlternatives条件无效')
       if (!viewHasField(view,item['field'])) throw new Error(`RendererFilter: 过滤条件字段不存在 "${item['field']}"`)
-      return requireCondition(item['field'],item['operator'],value.trim())
+      return requireCondition(item['field'],item['operator'],input.trim())
     })}).toJSON()
   }
-  const inferredRange = Array.isArray(value)
+  const inferredRange = Array.isArray(input)
     && (config.type === FILTER_NODE_TYPE_DATE || config.type === FILTER_NODE_TYPE_NUMBER)
     && nodeInputProp(config, 'filterOp') === undefined && nodeInputProp(config, 'filterOperator') === undefined
-  if (isRangeFilterConfig(config) || inferredRange) return buildRangeCondition(field, value)
-  return requireCondition(field, inferDataViewFilterOperator(config, value), value)
+  if (isRangeFilterConfig(config) || inferredRange) return buildRangeCondition(field, input)
+  return requireCondition(field, inferDataViewFilterOperator(config, input), input)
 }
 
 function buildRangeCondition(field: string, value: unknown): DataViewFilterTree | undefined {
@@ -391,14 +394,15 @@ function clearFilterModel(model: Record<string, unknown>): void {
  * - 捕获异常，向面板返回错误文本并记录日志。
  */
 async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<string | null> {
-  const { view, expr, hasFilters, logger, message, mode = 'set' } = params
+  const { view, expr, hasFilters, logger, message, mode = 'set', firstPage = false } = params
   if (!hasFilters) return null
   if (!view) return 'RendererFilter: 未绑定 DataView'
   if (view.supportsQueryFiltering === false) return '当前视图沿父查询计划读取，不支持独立过滤'
 
   try {
     if (mode === 'execute') {
-      await view.executeFilter(expr)
+      if (firstPage) await view.executeFilter(expr, true)
+      else await view.executeFilter(expr)
     } else {
       await view.setFilter(expr)
       if (
@@ -423,6 +427,8 @@ async function applyFilterSafely(params: ApplyFilterSafelyOptions): Promise<stri
 type UseFilterPanelOptions = {
   /** false时保留筛选草稿，查询按钮才应用；缺省立即。 */
   autoQuery?: MaybeRefOrGetter<boolean>
+  /** 显式查询时从第一页开始。 */
+  firstPageOnSearch?: MaybeRefOrGetter<boolean>
   /** 过滤器子节点列表（响应式）。 */
   filterChildren: MaybeRefOrGetter<SparkNode[]>
   /** 目标 DataView（响应式）。 */
@@ -445,7 +451,7 @@ export type FilterPanelState = {
   /** 应用过滤（executeFilter 模式，用于搜索按钮）。 */
   searchFilters: () => Promise<boolean>
   /** 重置所有过滤值。 */
-  resetFilters: () => Promise<void>}
+  resetFilters: (query?: boolean) => Promise<void>}
 
 /**
  * 过滤面板完整状态管理。
@@ -462,6 +468,9 @@ export type FilterPanelState = {
 export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState {
   const filterModel = reactive<Record<string, unknown>>({})
   const filterError = ref<string | null>(null)
+  let suppressAutomaticFilter = false
+  let disposed = false
+  onScopeDispose(() => {disposed = true})
 
   const allFilterNodes = computed(() => {
     const nodes = toValue(options.filterChildren)
@@ -520,7 +529,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
 
   // 表达式变化时：自动应用（set 模式，后续行为由 DataView 决定）。
   watch([filterBuild, () => toValue(options.autoQuery)], async ([built, automatic], [previous]) => {
-    if (automatic === false) return
+    if (automatic === false || suppressAutomaticFilter) return
     if (built.error !== null) { filterError.value = built.error; return }
     if (built.expr === undefined && previous.expr === undefined && previous.error === null) return
     filterError.value = await applyFilterSafely({
@@ -536,10 +545,21 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
     countActiveInputFilters(inputFilterDescriptors.value, filterModel),
   )
 
-  function resetFilters(): Promise<void> {
-    if (resolvedFilterDataView.value?.supportsQueryFiltering === false) return Promise.resolve()
-    clearFilterModel(filterModel)
-    return Promise.resolve()
+  async function resetFilters(query = false): Promise<void> {
+    const view = resolvedFilterDataView.value
+    if (view?.supportsQueryFiltering === false) return
+    if (!query) {
+      clearFilterModel(filterModel)
+      return
+    }
+    suppressAutomaticFilter = true
+    try {
+      clearFilterModel(filterModel)
+      await nextTick()
+    } finally {
+      suppressAutomaticFilter = false
+    }
+    if (!disposed && view === resolvedFilterDataView.value) await searchFilters()
   }
 
   async function searchFilters(): Promise<boolean> {
@@ -551,6 +571,7 @@ export function useFilterPanel(options: UseFilterPanelOptions): FilterPanelState
       logger: options.logger,
       message: FILTER_APPLY_ERROR_MESSAGE,
       mode: 'execute',
+      firstPage: toValue(options.firstPageOnSearch) === true,
     })
     return filterError.value === null
   }

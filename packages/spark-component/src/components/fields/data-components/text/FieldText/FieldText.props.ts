@@ -9,6 +9,8 @@ import type {DataRow, DataViewFilterOperator} from '@spark-appworks/spark-data'
 
 /** RText Props 的属性契约。 */
 export type RTextProps = SparkNodeProps & SparkFieldSemanticProps<string> & {
+  /** 常用文本筛选在生成条件前去除首尾空白；默认保留原输入。 */
+  filterTrim?: boolean
   /** 常用筛选中将同一去首尾空白文本用于这些字段的OR条件；完整表达式仍存入绑定DataView。字段必须存在，不能与范围或字段引用筛选混用。 */
   filterAlternatives?: Array<{field: string; operator: DataViewFilterOperator}>
   /** 只读呈现的纯格式化函数；只接收已获准读取的字段值，隐藏/脱敏不调用，不修改输入及存储值。辅助目录的读取权限由格式化函数继续核对。 */

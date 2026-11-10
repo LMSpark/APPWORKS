@@ -76,6 +76,7 @@ AI用途：需要理解 renderer filter 的实际渲染结构、slot/toolbar/状
   </div>
   <div v-if="dataState.resolvedView.value" class="renderer-filter" :class="props.class">
     <FilterExpressionEditor
+      v-if="props.showExpressionEditor !== false"
       :key="viewInstanceRevision"
       :model-value="appliedFilter"
       :display="props.expressionDisplay ?? 'dialog'"
@@ -115,6 +116,7 @@ import type { RFilterProps as Props, RendererFilterApi } from './RendererFilter.
 const props = withDefaults(defineProps<Props>(), {
   type: 'r-filter',
   autoQuery: undefined,
+  showExpressionEditor: true,
 })
 
 const { sparkConsume, sparkProvide, logger } = useSparkPageComponent(props)
@@ -180,6 +182,7 @@ const {
   dataView: dataState.resolvedView,
   logger,
   autoQuery: () => props.autoQuery ?? dataState.resolvedView.value?.queryConfig.autoQuery ?? true,
+  firstPageOnSearch: () => props.firstPageOnSearch === true,
 })
 
 const expressionError = ref<string | null>(null)
@@ -207,7 +210,10 @@ async function applyExpression(tree: DataViewFilterTree | undefined, options: Re
   applyingExpression.value = true
   expressionError.value = null
   try {
-    if (options.forceQuery || (props.autoQuery ?? view.queryConfig.autoQuery ?? true)) await view.executeFilter(tree)
+    if (options.forceQuery || (props.autoQuery ?? view.queryConfig.autoQuery ?? true)) {
+      if (options.forceQuery === true && props.firstPageOnSearch === true) await view.executeFilter(tree, true)
+      else await view.executeFilter(tree)
+    }
     else view.filterExpression = tree
   } catch (error) {
     if (view === dataState.resolvedView.value) expressionError.value = error instanceof Error ? error.message : String(error)
@@ -307,7 +313,7 @@ async function handleSearch(): Promise<void> {
 }
 
 async function handleReset(): Promise<void> {
-  await resetFilters()
+  await resetFilters(props.queryOnReset === true)
 }
 
 function handleToggleCollapsed() {

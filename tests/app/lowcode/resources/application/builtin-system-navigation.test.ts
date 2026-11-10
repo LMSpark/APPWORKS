@@ -14,6 +14,7 @@ const publishedIds=[
   'A2D63AB2AAEF156E7727094A23AEA433','5E9676B1E38860B023921F48FB4370DE','E0BB79BA59101F76628F1448D6351B4E',
   'CB52B21B26AD20AADDC4498613C3078D','C24764B008CAE96205D6AA6C8487FE52','90A82E287930A234FEC3E687C94A93EA',
   'A73BFB70B8EA48FA84C4D8F3CD4F20BD','6DA2948858EE3C55476751E2722EE0B4',
+  '9D26D23E5A9DD0D31619D776114405E8','4138A7C47ECB96EA85CA61A8A8B7191F',
 ]
 const source=JSON.parse(readFileSync('config/navigation/appworks-system.json','utf8')) as Record<string,unknown>
 const evidence=JSON.parse(readFileSync('notes/evidence/workbench-tool-mapping-20261029/builtin-blueprint-business-records.json','utf8')) as {
@@ -28,9 +29,12 @@ describe('AppWorks repository navigation source', () => {
     const navigation = await readBuiltinSystemNavigation()
     expect(application).toEqual({id: rootId, name: '软件工坊[AppWorks]'})
     expect(navigation.navigationRootId).toBe(application.id)
-    expect(navigation.nodes.filter(item => item.kind === 'Navitem')).toHaveLength(18)
+    expect(navigation.nodes.filter(item => item.kind === 'Navitem')).toHaveLength(19)
     expect(navigation.nodes.some(item => item.id === pageId
       && item.url === 'vue:/features/application/application-manager/ui/application-manager-page')).toBe(true)
+    expect(navigation.nodes.some(item => item.id === '4138A7C47ECB96EA85CA61A8A8B7191F'
+      && item.parentId === '9D26D23E5A9DD0D31619D776114405E8'
+      && item.url === 'vue:/features/organization/organization-structure/ui/organization-structure-page')).toBe(true)
   })
 
   it('preserves all builtin business records and derives only the fixed published identities',async()=>{
@@ -42,10 +46,10 @@ describe('AppWorks repository navigation source', () => {
     expect(records).toHaveLength(85)
     expect(records?.every(record=>Object.keys(record).length===evidence.businessFields.length)).toBe(true)
     expect(records?.find(record=>record['rowid']===rootId)).toMatchObject({name:'DataSchemaManage',FunName:'软件工坊[AppWorks]',conType:'Model',NavigationUrl:null})
-    expect(publishedNodeIds).toHaveLength(26)
+    expect(publishedNodeIds).toHaveLength(28)
     expect(publishedNodeIds).toEqual(publishedIds)
-    expect(navigation.nodes).toHaveLength(26)
-    expect(navigation.nodes.filter(item=>item.kind==='Navitem')).toHaveLength(18)
+    expect(navigation.nodes).toHaveLength(28)
+    expect(navigation.nodes.filter(item=>item.kind==='Navitem')).toHaveLength(19)
     expect(navigation.nodes.find(item=>item.id==='E328FBBF518141973C575D612CD75151')).toBeUndefined()
   })
 

@@ -78,7 +78,7 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
   }
   const rootId = value['navigationRootId']
   if (rootId !== getBuiltinSystemApplicationId()) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 仓内应用身份与导航根不一致')
-  if (value['records'].length !== 85 || value['publishedNodeIds'].length !== 26) {
+  if (value['records'].length !== 85 || value['publishedNodeIds'].length !== 28) {
     throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 完整业务记录或固定发布选择数量无效')
   }
 
@@ -129,7 +129,7 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
     return projectPublishedNode(record)
   })
   const pages = nodes.filter(node => node.kind === 'Navitem')
-  if (nodes.length !== 26 || pages.length !== 18) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 固定导航投影范围无效')
+  if (nodes.length !== 28 || pages.length !== 19) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 固定导航投影范围无效')
   return {navigationRootId: rootId, records, publishedNodeIds, nodes}
 }
 

@@ -1,0 +1,25 @@
+{
+  "scenarioId": "4138A7C47ECB96EA85CA61A8A8B7191F",
+  "tables": {
+    "Base_DepartInfo": {
+      "modelBinding": {
+        "modelId": "4138A7C47ECB96EA85CA61A8A8B7191Fp000",
+        "modelName": "Base_DepartInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "page": 1,
+          "pageSize": 10,
+          "queryConfig": {
+            "fields": ["rowid", "DepName", "DepID", "Prowid", "DepLevel", "CSR"]
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

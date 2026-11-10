@@ -18,19 +18,35 @@ async function fixture(children?: SparkNode[], slot = false) {
   }})
   const runtime = new PageRuntime({pageId: 'parent-query-ui', scenarioIds: ['S'], loadScenario: async () => ds}); await runtime.load()
   cleanups.push(() => {runtime.dispose(); ds.destroy()})
-  const binding = shallowRef('S@Child@default'), filterBinding = shallowRef('S@Child@default')
+  const binding = shallowRef('S@Child@default'), filterBinding = shallowRef('S@Child@default'), showRowIndex = shallowRef(false)
   const registry = Spark.createRegistry(); registry.register({type: 'r-text', component: FieldText}); registry.register({type: 'r-filter', component: RendererFilter})
   const Host = defineComponent({setup() {
     useSparkComponent({type: 'parent-query-ui'}).sparkProvide(PAGE_RUNTIME, runtime)
-    return () => h(RendererTable, {dataViewKey: binding.value, autoColumns: !slot, showPagination: false, showDataViewMeta: false,
+    return () => h(RendererTable, {dataViewKey: binding.value, autoColumns: !slot, showPagination: false, showDataViewMeta: false, showRowIndex: showRowIndex.value,
       filter: {dataViewKey: filterBinding.value, autoQuery: false}, ...(children ? {children} : {})}, slot ? {default: () => h(FieldText, {field: 'name', sortable: 'custom'})} : undefined)
   }})
   const stubs = {...config.global.stubs}; for (const n of ['el-table','el-table-column','SparkComponentRenderer','spark-component-renderer']) delete stubs[n]
   const originalStubs = config.global.stubs; config.global.stubs = stubs; cleanups.push(() => {config.global.stubs = originalStubs})
   const wrapper = mount(Host, {global: {plugins: [ElementPlus, Spark.createPlugin({registry})], stubs, components: {'el-table': ElTable,'el-table-column': ElTableColumn}}})
   cleanups.push(() => wrapper.unmount()); await flushPromises()
-  return {wrapper, ds, binding, filterBinding}
+  return {wrapper, ds, binding, filterBinding, showRowIndex}
 }
+
+it('renders an optional page-local row index without changing the data fields', async () => {
+  const {wrapper, binding, showRowIndex, ds} = await fixture()
+  binding.value = 'S@Child@ordinary'
+  await flushPromises()
+  const columns = ds.getView('Child', 'ordinary')!.columns.map(column => column.name)
+  expect(wrapper.find('.el-table__header-wrapper').text()).not.toContain('#')
+  showRowIndex.value = true
+  await flushPromises()
+  expect(wrapper.findAll('.el-table__header-wrapper th').map(header => header.text())).toEqual(['', '#', 'name'])
+  expect(wrapper.findAll('.el-table__body-wrapper tbody tr td').map(cell => cell.text())).toContain('1')
+  expect(ds.getView('Child', 'ordinary')!.columns.map(column => column.name)).toEqual(columns)
+  showRowIndex.value = false
+  await flushPromises()
+  expect(wrapper.find('.el-table__header-wrapper').text()).not.toContain('#')
+})
 it.each(['auto','explicit','group','slot'] as const)('removes child sorting for %s fields and restores ordinary binding', async mode => {
   const field: SparkNode = {type: 'r-text', props: {field: 'name', sortable: true}}
   const children = mode === 'explicit' ? [field] : mode === 'group' ? [{type: 'r-text', props: {label: 'group'}, children: [{type: 'r-text', props: {label: 'nested'}, children: [field]}]}] : undefined

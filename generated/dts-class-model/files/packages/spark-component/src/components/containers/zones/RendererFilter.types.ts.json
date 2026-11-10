@@ -181,11 +181,11 @@
               "type": "object",
               "title": "((index: number) => string | number | SparkNode | undefined) & ((index: number) => SparkNode | undefined)"
             },
-            "__@iterator@248794": {
+            "__@iterator@249052": {
               "type": "object",
               "title": "(() => ArrayIterator<string | number | SparkNode>) & (() => ArrayIterator<SparkNode>)"
             },
-            "__@unscopables@248796": {
+            "__@unscopables@249054": {
               "type": "object",
               "properties": {
                 "length": {
@@ -386,13 +386,13 @@
                     true
                   ]
                 },
-                "__@iterator@248794": {
+                "__@iterator@249052": {
                   "enum": [
                     false,
                     true
                   ]
                 },
-                "__@unscopables@248796": {
+                "__@unscopables@249054": {
                   "enum": [
                     false,
                     true
@@ -436,8 +436,8 @@
             "flatMap",
             "flat",
             "at",
-            "__@iterator@248794",
-            "__@unscopables@248796"
+            "__@iterator@249052",
+            "__@unscopables@249054"
           ],
           "additionalProperties": false
         },
@@ -454,6 +454,24 @@
           "type": "string"
         },
         "autoQuery": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "queryOnReset": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "firstPageOnSearch": {
+          "enum": [
+            false,
+            true
+          ]
+        },
+        "showExpressionEditor": {
           "enum": [
             false,
             true
@@ -527,7 +545,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-06T10:44:29.644Z",
+  "generatedAt": "2026-11-10T14:25:15.737Z",
   "models": {
     "RendererFilterApi": {
       "name": "RendererFilterApi",
@@ -575,7 +593,7 @@
         "directory": "containers/zones"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。 */\n    autoQuery?: boolean | undefined;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器并即时接纳有效结构编辑；JSON草稿可取消，过滤仍走同一DataView链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
+        "declarationTypeText": "SparkNodeProps & {\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。 */\n    autoQuery?: boolean | undefined;\n    /** 常用筛选重置时立即查询；默认只清空输入，由autoQuery决定是否查询。 */\n    queryOnReset?: boolean;\n    /** 点击查询或启用queryOnReset时从第一页开始；默认沿用DataView原有行为。 */\n    firstPageOnSearch?: boolean;\n    /** 是否显示完整过滤表达式编辑器；默认显示，关闭时仍保留常用筛选。 */\n    showExpressionEditor?: boolean;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器并即时接纳有效结构编辑；JSON草稿可取消，过滤仍走同一DataView链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -584,7 +602,7 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。 */\n    autoQuery?: boolean | undefined;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器并即时接纳有效结构编辑；JSON草稿可取消，过滤仍走同一DataView链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
+            "typeText": "{\n    /** 组件类型固定为 `r-filter`。 */\n    type?: 'r-filter';\n    /** 节点标识。 */\n    id?: string;\n    /** 常用筛选子组件；带 field 的子组件生成筛选条件。未配置时仍可使用绑定视图的完整表达式编辑器。 */\n    children?: SparkNode[];\n    /**\n     * 筛选区附加 CSS class。\n     * @remarks 由 RendererFilter 应用到筛选面板和完整表达式编辑器各自的根区域。\n     */\n    class?: string;\n    /**\n     * DataView 定位键（dataViewKey）。\n     * @remarks RendererFilter 通过该 key 解析 DataView，并写入 filterExpression。\n     * 未提供时退回到向上注入的 DATA_SOURCE 能力（如 r-table 内嵌时）。\n     */\n    dataViewKey?: string;\n    /** 输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。 */\n    autoQuery?: boolean | undefined;\n    /** 常用筛选重置时立即查询；默认只清空输入，由autoQuery决定是否查询。 */\n    queryOnReset?: boolean;\n    /** 点击查询或启用queryOnReset时从第一页开始；默认沿用DataView原有行为。 */\n    firstPageOnSearch?: boolean;\n    /** 是否显示完整过滤表达式编辑器；默认显示，关闭时仍保留常用筛选。 */\n    showExpressionEditor?: boolean;\n    /** 完整表达式的呈现方式。默认dialog由按钮打开；inline直接显示同一编辑器并即时接纳有效结构编辑；JSON草稿可取消，过滤仍走同一DataView链。 */\n    expressionDisplay?: 'dialog' | 'inline';\n    /** 值函数的明确编辑上下文；不从页面表名猜后端模型名称。 */\n    filterFunctionContext?: DataViewFilterFunctionContext;\n    /** 是否允许折叠。 */\n    collapsible?: boolean;\n    /** 初始是否折叠。 */\n    defaultCollapsed?: boolean;\n    /** 自适应最小宽度。 */\n    autoFitMinWidth?: string;\n    /** 每个筛选项占据的栅格列数。 */\n    itemSpan?: number;\n    /** 操作区占据的栅格列数，默认跟随 itemSpan。 */\n    actionSpan?: number;\n    /** CSS Grid 列数。 */\n    gridColumns?: number;\n    /** 栅格间距。 */\n    gridGap?: number | string;\n    /** 栅格行高。 */\n    gridAutoRows?: string;\n    /** 是否显示 DataView 元信息栏。 */\n    showDataViewMeta?: boolean;\n    /** 是否显示全量聚合摘要。 */\n    showAggregateSummary?: boolean;\n    /** 是否显示选区聚合摘要。 */\n    showSelectionSummary?: boolean;\n}"
           }
         ],
         "members": {
@@ -622,6 +640,24 @@
             {
               "name": "autoQuery",
               "jsdoc": "输入改变后是否立即查询。缺省沿用DataView.queryConfig.autoQuery，视图缺省true；false等待查询按钮。显式值只在当前绑定期间覆盖该视图的查询级联与过滤查询时机；完整表达式同样遵守，search始终显式执行一次。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "queryOnReset",
+              "jsdoc": "常用筛选重置时立即查询；默认只清空输入，由autoQuery决定是否查询。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "firstPageOnSearch",
+              "jsdoc": "点击查询或启用queryOnReset时从第一页开始；默认沿用DataView原有行为。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "showExpressionEditor",
+              "jsdoc": "是否显示完整过滤表达式编辑器；默认显示，关闭时仍保留常用筛选。",
               "readable": true,
               "writable": false
             },

@@ -4,6 +4,7 @@ import {defineComponent, h, shallowRef} from 'vue'
 import ElementPlus from 'element-plus'
 import {FieldText, RendererTable, Spark, JsonTreeEditor, PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import RendererFilter from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.vue'
+import RendererFieldScope from '../../../../packages/spark-component/src/components/containers/support/scope/RendererFieldScope.vue'
 import type {RFilterProps} from '../../../../packages/spark-component/src/components/containers/zones/RendererFilter.types'
 import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
@@ -39,6 +40,7 @@ async function fixture(filter?: RFilterProps,remote=false) {
   const registry = Spark.createRegistry()
   registry.register({type: 'r-filter', component: RendererFilter})
   registry.register({type: 'r-text', component: FieldText})
+  registry.register({type: 'r-field-scope', component: RendererFieldScope})
   const filterConfig = shallowRef(filter)
   const Host = defineComponent({setup() {
     useSparkComponent({type: 'filter-test-host'}).sparkProvide(PAGE_RUNTIME, runtime)
@@ -76,6 +78,66 @@ describe('container unified DataView filter', () => {
     await applyName(f.wrapper,'kept')
     expect(f.http.reads).toHaveLength(initial+1);expect(f.view.rows.map(row=>row['id'])).toEqual([2])
   })
+
+  it('queries a manual reset and restarts repeated searches on the first page when configured', async () => {
+    const f = await fixture({autoQuery: false, queryOnReset: true, firstPageOnSearch: true,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称'}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    filter.vm.filterModel['Name'] = 'kept'
+    await flushPromises()
+    const initial = f.http.reads.length
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(f.http.reads).toHaveLength(initial + 1)
+    expect(f.view.rows.map(row => row['id'])).toEqual([2])
+    f.view.page = 2
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(f.view.page).toBe(1)
+    expect(f.http.reads).toHaveLength(initial + 2)
+    f.view.page = 2
+    await filter.findAll('button').find(button => button.text() === '重置')!.trigger('click')
+    await flushPromises()
+    expect(f.view.page).toBe(1)
+    expect(f.view.filterExpression).toBeUndefined()
+    expect(f.view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(f.http.reads).toHaveLength(initial + 3)
+  })
+
+  it('executes a configured automatic reset only once', async () => {
+    const f = await fixture({autoQuery: true, queryOnReset: true,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称'}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    filter.vm.filterModel['Name'] = 'kept'
+    await flushPromises()
+    expect(f.view.rows.map(row => row['id'])).toEqual([2])
+    const initial = f.http.reads.length
+    await filter.findAll('button').find(button => button.text() === '重置')!.trigger('click')
+    await flushPromises()
+    expect(f.view.filterExpression).toBeUndefined()
+    expect(f.view.rows.map(row => row['id'])).toEqual([1, 2])
+    expect(f.http.reads).toHaveLength(initial + 1)
+  })
+
+  it('can hide the expression editor without hiding the common filter panel', async () => {
+    const f = await fixture({autoQuery: false, showExpressionEditor: false,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称'}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    expect(filter.find('[data-action="open"]').exists()).toBe(false)
+    expect(filter.findAll('button').map(button => button.text())).toEqual(expect.arrayContaining(['查询', '重置']))
+  })
+
+  it('only trims text filters when explicitly configured', async () => {
+    const f = await fixture({autoQuery: false,
+      children: [{type: 'r-text', props: {field: 'Name', label: '名称', filterTrim: true}}]}, true)
+    const filter = f.wrapper.getComponent(RendererFilter)
+    filter.vm.filterModel['Name'] = '  kept  '
+    await filter.findAll('button').find(button => button.text() === '查询')!.trigger('click')
+    await flushPromises()
+    expect(f.view.filterExpression).toEqual({field: 'Name', operator: 'contains', value: 'kept'})
+    expect(f.view.rows.map(row => row['id'])).toEqual([2])
+  })
+
   it('renders filter:{} and applies and clears the bound DataView through the full editor', async () => {
     const {wrapper, view} = await fixture({})
     expect(wrapper.find('[data-action="open"]').exists()).toBe(true)

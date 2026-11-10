@@ -4436,13 +4436,20 @@ async moveTreeNode(nodeId: string | number, newParentId: string | number | null,
    * 显式执行过滤：即使表达式未变化也会处理数据（用于“查询”按钮语义）。
    *
    * @param filter 要执行的过滤表达式；undefined 表示清除过滤。
+   * @param firstPage 显式查询时从第一页开始；默认沿用当前页。
    */
-  async executeFilter(filter: DataViewFilterTree | undefined): Promise<void> {
+  async executeFilter(filter: DataViewFilterTree | undefined, firstPage = false): Promise<void> {
     if (!this.supportsQueryFiltering) throw new Error('DATA_VIEW_PARENT_QUERY: 子结果过滤须修改父查询计划')
     const unchanged = this._isSameFilterExpression(this.filterExpression, filter)
     if (!unchanged) {
       await this.setFilter(filter)
       return
+    }
+
+    if (firstPage && this.page !== 1) {
+      this.assertResultReplacementAllowed()
+      this.page = 1
+      this.emitConfigChanged()
     }
 
     if (this._shouldApplySynchronousLocalFilter()) {

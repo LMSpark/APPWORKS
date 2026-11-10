@@ -22,12 +22,13 @@
     },
     "scenarioResources": {
       "type": "array",
-      "minItems": 16,
+      "minItems": 20,
+      "maxItems": 20,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint", "cacheManagement", "apiProvider", "apiConfig", "apiInterface", "dataCodeCatalog", "dataCodeEditor", "workflowCatalog", "excelImportCatalog", "pdfInspectCatalog", "excelImportEditor", "workflowEditor", "jsonDataCatalog", "businessTableSelector", "logicViewCatalog", "agentWorkflowFiles"]},
+          "name": {"enum": ["dataSpaceDesign", "dataSpaceCatalog", "dataDictionary", "projectBlueprint", "cacheManagement", "apiProvider", "apiConfig", "apiInterface", "dataCodeCatalog", "dataCodeEditor", "workflowCatalog", "excelImportCatalog", "pdfInspectCatalog", "excelImportEditor", "workflowEditor", "jsonDataCatalog", "businessTableSelector", "logicViewCatalog", "agentWorkflowFiles", "organizationStructure"]},
           "scenarioId": {"type": "string", "pattern": "^[A-F0-9]{32}$"},
           "resourceId": {"type": "string", "pattern": "^repository:scenario-view:[A-F0-9]{32}$"},
           "path": {"type": "string", "pattern": "^config/pages/.+/pagedata\\.json$"}

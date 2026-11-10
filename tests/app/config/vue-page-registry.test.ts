@@ -64,6 +64,7 @@ describe('Vue page registry', () => {
     ['/features/data-platform/structured-config/data-code/ui/data-code-editor-page', false],
     ['/features/data-platform/structured-config/logic-view/ui/logic-view-design-page', false],
     ['/features/data-platform/structured-config/workflow-definition/design/ui/workflow-design-page', false],
+    ['/features/organization/organization-structure/ui/organization-structure-page', false],
   ])('resolves the unchanged native navigation path to its matching source: %s', (path, shellTool) => {
     const entry = getVuePageEntry(path)
     expect(entry?.source).toBe(`src/views${path}.vue`)

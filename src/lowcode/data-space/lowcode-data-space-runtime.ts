@@ -20,6 +20,7 @@ import {createCacheScenarioBindings} from '../resources/system/cache-management/
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
 import {createAgentWorkflowPublicationBindings} from '../resources/repository/agent-workflow/publication'
+import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '../resources/structured-config/logic-view/design-ops'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
@@ -223,6 +224,11 @@ function definitionBindings(input: DefinitionBindingsInput): Pick<LoadScenarioDa
  }
  const builtinBlueprintOwner = isBuiltinApplication(projectId) && builtinBlueprintScenario
  const registeredFileExecutors = createLowcodeFileResourceExecutors({applicationId: projectId, api: lowcodeApi.design, fileUpload: lowcodeDesignFileUpload, assertCurrent})
+ const logicViewDesign = isRecord(tables) ? tables[LOGIC_VIEW_DESIGN_VIEW] : undefined
+ if (isRecord(logicViewDesign) && logicViewDesign['resourceType'] === 'file' && logicViewDesign['resourceId'] === LOGIC_VIEW_DESIGN_RESOURCE_ID) {
+  registeredFileExecutors[LOGIC_VIEW_DESIGN_VIEW] = createLogicViewDesignExecutor({scenarioId, http: lowcodeHttp, guard: assertCurrent,
+   readScope: () => lowcodeApi.readRequestScope()})
+ }
  if (declaresBuiltinBlueprint) registeredFileExecutors[BUILTIN_BLUEPRINT_NODE_TABLE_NAME] = builtinBlueprintOwner
   ? new BuiltinBlueprintNodeResource({applicationId: projectId, scenarioId, assertCurrent}).executor
   : {executeQuery: () => Promise.reject(new Error('BUILTIN_BLUEPRINT_IDENTITY: 当前应用不能读取 AppWorks 仓内蓝图节点'))}

@@ -141,6 +141,34 @@
           ]
         }
       }
+    },
+    "LogicViewDesignEdit": {
+      "resourceType": "file",
+      "resourceId": "logic-view-design",
+      "columns": [
+        {
+          "name": "rowid",
+          "type": "string",
+          "isPrimaryKey": true
+        },
+        {
+          "name": "viewId",
+          "type": "string"
+        },
+        {
+          "name": "designJson",
+          "type": "string"
+        }
+      ],
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "commitMode": "staged",
+          "queryContext": {
+            "viewId": ""
+          }
+        }
+      }
     }
   },
   "resourceRelations": [],

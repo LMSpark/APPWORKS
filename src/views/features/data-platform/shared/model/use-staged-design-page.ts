@@ -7,13 +7,12 @@ import type {DataSet, DataView} from '@spark-appworks/spark-data'
 import type {PageRuntime, PageRuntimeOptions} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {NativePageRuntimeSession, useSystemPageDirtySource} from '@spark-appworks/spark-app'
-import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
 
 export type StagedDesignPageConfig = Readonly<{
   pageId: string
   scenarioId: ComputedRef<string>
   scopeId: ComputedRef<string | undefined>
-  scopeInputTable: string
+  /** 设计视图 queryContext 中的目标字段。 */
   scopeField: string
   designViewTable: string
   /** 本次正式场景、输入和装配回调；唯一PageRuntime由公共会话创建并释放。 */
@@ -89,7 +88,7 @@ export function useStagedDesignPage(config: StagedDesignPageConfig) {
     const view = input.dataSet.getView(config.designViewTable, 'default')
     if (!view) throw new Error('设计视图缺失')
     view.assertResultReplacementAllowed()
-    setDesignScopeValue({dataSet: input.dataSet, tableName: config.scopeInputTable, field: config.scopeField, scopeId: input.scope})
+    view.queryContext = {...view.queryContext, [config.scopeField]: input.scope}
     boundScope.value = input.scope
     await view.refresh()
     if (!isCurrent(input.generation)) return

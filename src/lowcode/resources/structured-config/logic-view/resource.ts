@@ -3,13 +3,12 @@
  * 职责：从正式场景配置装配目录、设计及按需元数据；目标仅为本次viewId。
  * 边界：查询在PageRuntime注入输入后执行，保存与未知结果由原DataView承担。
  */
+import {lowcodeApi} from '../../../lowcode-runtime'
 import {RequestState,type DataSet} from '@spark-appworks/spark-data'
 import {DATA_SPACE_DESIGN_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import type {PageRuntime,PageRuntimeOptions} from '@spark-appworks/spark-project-model'
-import {lowcodeApi,lowcodeHttp} from '../../../lowcode-runtime'
 import {loadLowcodeRuntimeScenario} from '../../../data-space/lowcode-data-space-runtime'
 import {readStructuredConfigScope} from '../catalog'
-import {attachLogicViewDesignEdit} from './design-ops'
 import {isRecord} from '@spark-appworks/spark-utils'
 import {LogicViewSourceViews} from './source-views'
 import {LogicViewOutputEdit} from './output/publication-edit'
@@ -25,17 +24,11 @@ export class LowcodeLogicView {
  /** 正式输出发布与来源字段读取分开跟踪编辑及提交。 */
  static readonly outputFieldViewId='logicViewOutputFields'
 
- /** Loader只装配正式结构；业务查询须等待PageRuntime注入viewId。 */
+ /** Loader只装配正式结构（含设计文件视图）；业务查询须等待PageRuntime注入viewId。 */
  static async loadCatalog(scenarioId:string):Promise<DataSet>{
   if(scenarioId!==this.navigationScenarioId)throw Error('逻辑视图目录场景身份不匹配')
   const projectId=lowcodeApi.readRequestScope().headers['X-AppId'];if(!projectId)throw Error('请先选择执行应用')
   return loadLowcodeRuntimeScenario({projectId,scenarioId})
- }
- /** 仅接入原设计文件DataView；目标查询由输入注入后的prepareEditor执行。 */
- static async loadEditor(scenarioId:string):Promise<DataSet>{
-  const {assertCurrent}=readStructuredConfigScope('逻辑视图'),dataSet=await this.loadCatalog(scenarioId)
-  try{assertCurrent();attachLogicViewDesignEdit({dataSet,http:lowcodeHttp,guard:assertCurrent,readScope:()=>lowcodeApi.readRequestScope()});return dataSet}
-  catch(cause){dataSet.destroy();throw cause}
  }
  /** 声明同一次工具调用的两个正式空间；元数据空间延后到实际显示参数或来源时装配。 */
  static editorRuntimeOptions(input:Readonly<{scenarioId:string;viewId:string}>):PageRuntimeOptions{
@@ -47,7 +40,7 @@ export class LowcodeLogicView {
    scenarioInputs:{[scenarioId]:{viewId},[this.parameterScenarioId]:{viewId}},loadScenario:async id=>{
     assertCurrent()
     if(id!==scenarioId&&id!==this.parameterScenarioId)throw Error('逻辑视图工作区未声明该空间')
-    const dataSet=await (id===scenarioId?this.loadEditor(id):loadLowcodeRuntimeScenario({projectId,scenarioId:id}))
+    const dataSet=await (id===scenarioId?this.loadCatalog(id):loadLowcodeRuntimeScenario({projectId,scenarioId:id}))
     try{assertCurrent();return dataSet}catch(cause){dataSet.destroy();throw cause}
    }}
  }

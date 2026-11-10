@@ -7,7 +7,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {ApiBackend} from '../../api-provider/api-provider.fixture'
 import {Spark} from '@spark-appworks/spark-component'
-import {attachStagedDesignView} from '@/lowcode/resources/repository/staged-design-file-view'
+import {createStagedDesignExecutor} from '@/lowcode/resources/repository/staged-design-file-view'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
 
 const wrappers: Array<ReturnType<typeof mount>> = []
@@ -30,10 +30,12 @@ async function setup(options: {companion?: boolean;pendingIntent?:()=>boolean} =
     return ds
   }
   function createDataSet() {
-  const dataSet = DataSet.fromJson({scenarioId: 'SCENE', tables: {}})
-  attachStagedDesignView(dataSet, {scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design',
-    resourceId: 'test-design', columns: [{name: 'rowid', primary: true}, {name: 'targetId'}, {name: 'designJson'}],
-    jsonFields: ['designJson'], loadRow: reads, persistRow: async row => {writes(row)}}, () => {})
+  const dataSet = DataSet.fromJson({scenarioId: 'SCENE', tables: {Design: {resourceType: 'file', resourceId: 'test-design',
+    columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}, {name: 'targetId', type: 'string'}, {name: 'designJson', type: 'string'}],
+    views: {default: {commitMode: 'staged', queryContext: {targetId: ''}}}}}})
+  dataSet.getView('Design')!.bindQueryExecutor(createStagedDesignExecutor({scopeField: 'targetId', resourceId: 'test-design',
+    columns: [{name: 'rowid', primary: true}, {name: 'targetId'}, {name: 'designJson'}], jsonFields: ['designJson'], loadRow: reads,
+    persistRow: async row => {writes(row)}}, () => {}), {resource: {resourceType: 'file', resourceId: 'test-design'}})
   return dataSet
   }
   const dataSet = createDataSet()
@@ -41,7 +43,7 @@ async function setup(options: {companion?: boolean;pendingIntent?:()=>boolean} =
   let page!: ReturnType<typeof useStagedDesignPage>
   const component = defineComponent({setup() {
     page = useStagedDesignPage({pageId: 'scope-test', scenarioId: computed(() => 'SCENE'), scopeId: computed(() => scope.value),
-      scopeInputTable: 'Input', scopeField: 'targetId', designViewTable: 'Design', runtimeOptions: input => {
+      scopeField: 'targetId', designViewTable: 'Design', runtimeOptions: input => {
         const ds = loads++ === 0 ? dataSet : createDataSet()
         return {scenarioIds:options.companion?['SCENE','PARAMETERS']:['SCENE'],loadScenario:async id=>{
           if(id==='SCENE')return ds
@@ -140,7 +142,7 @@ describe('staged design current target', () => {
     page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
     scope.value = 'B'; await flushPromises()
     await page.refreshDesign({discardChanges: true})
-    expect(dataSet.getTable('Input')?.rows[0]?.['targetId']).toBe('A')
+    expect(dataSet.getView('Design')?.queryContext['targetId']).toBe('A')
     expect(reads).toHaveBeenCalledTimes(1)
     scope.value = 'A'; await flushPromises()
     expect(page.designView.value?.rows[0]?.['designJson']).toContain('Edited')
@@ -176,7 +178,7 @@ describe('staged design current target', () => {
     const {scope, page, dataSet, reads} = await setup()
     page.updateDesignField(page.designView.value, 'designJson', '[{"Name":"Edited"}]'); await flushPromises()
     scope.value = 'B'; await flushPromises()
-    expect(dataSet.getTable('Input')?.rows[0]?.['targetId']).toBe('A')
+    expect(dataSet.getView('Design')?.queryContext['targetId']).toBe('A')
     expect(reads.mock.calls.map(call => call[0])).toEqual(['A'])
     expect(page.ready.value).toBe(false)
     scope.value = 'A'; await flushPromises()

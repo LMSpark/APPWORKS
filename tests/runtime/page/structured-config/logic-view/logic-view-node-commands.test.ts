@@ -3,7 +3,7 @@ import {DataSet} from '@spark-appworks/spark-data'
 import {LogicViewNodeCommands} from '@/lowcode/resources/structured-config/logic-view/node-commands'
 import {logicFieldRowAdapter} from '@/lowcode/resources/structured-config/logic-view/field-row-adapter'
 import {logicNodeFunctionContext} from '@/lowcode/resources/structured-config/logic-view/function-context'
-import {attachStagedDesignView,setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
+import {createStagedDesignExecutor} from '@/lowcode/resources/repository/staged-design-file-view'
 import type {PageDataSpaceModelSourcePrepared} from '@/lowcode/data-space/model-source/lowcode-data-space-source-catalog'
 const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
@@ -11,13 +11,16 @@ const prepared:PageDataSpaceModelSourcePrepared={source:{type:'table',id:'T',nam
   model:{Type:'数据库表',MetaName:'Orders',description:'订单',DbId:'DB',DbName:'Business',JoinType:'',ForeignKeyFields:'',JoinFilter:'',PId:''},
   fields:[{type:'dataModel',Name:'id',description:'编号',FieldType:'varchar',IsPKey:1,IsOutput:0,AsName:'',ValueFun:'',Expression:'',allowAIAdd:0,OrderType:'',Order:0,Group:0}]}
 async function fixture(){
-  const ds=DataSet.fromJson({scenarioId:'S',tables:{}});sets.push(ds)
+  const ds=DataSet.fromJson({scenarioId:'S',tables:{Design:{resourceType:'file',resourceId:'logic-design',
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true},{name:'viewId',type:'string'},{name:'designJson',type:'string'}],
+    views:{default:{commitMode:'staged',queryContext:{viewId:'V'}}}}}});sets.push(ds)
   const original=[{Name:'Orders',extra:{keep:0},ChildTables:[{Name:'Lines',unknown:false,ChildTables:[]}]},{Name:'Other',ChildTables:[]}]
   const persist=vi.fn(),permission={allowed:true},active={value:true}
-  const view=attachStagedDesignView(ds,{scopeInputTable:'Input',scopeField:'viewId',designViewTable:'Design',resourceId:'logic-design',
+  const view=ds.getView('Design')!
+  view.bindQueryExecutor(createStagedDesignExecutor({scopeField:'viewId',resourceId:'logic-design',
     columns:[{name:'rowid',primary:true},{name:'viewId'},{name:'designJson'}],jsonFields:['designJson'],editing:{fields:['designJson'],allowed:()=>permission.allowed},
-    loadRow:async()=>({rowid:'V',viewId:'V',designJson:JSON.stringify(original)}),persistRow:persist},()=>{})
-  setDesignScopeValue({dataSet:ds,tableName:'Input',field:'viewId',scopeId:'V'});await view.refresh()
+    loadRow:async()=>({rowid:'V',viewId:'V',designJson:JSON.stringify(original)}),persistRow:persist},()=>{}),{resource:{resourceType:'file',resourceId:'logic-design'}})
+  await view.refresh()
   const commands=new LogicViewNodeCommands({view,assertCurrent:()=>{if(!active.value)throw Error('STALE')}})
   const read=()=>JSON.parse(String(view.getEditingRow('V')?.['designJson']??view.rows[0]?.['designJson']))
   return {ds,view,commands,original,persist,permission,active,read}

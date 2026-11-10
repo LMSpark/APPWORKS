@@ -26,7 +26,9 @@ it('declares a formal catalog and an independent exact editor target without eag
  expect(tables['Base_DataViewList']?.views['default']?.['filterExpression']).toBeUndefined()
  expect(tables['Base_DataViewList']?.views['default']?.['autoLoad']).toBe(false)
  expect(tables['Base_DataViewList']?.views['editorTarget']).toMatchObject({autoLoad:false,autoCurrentFirst:false,commitMode:'staged',queryContext:{viewId:''},filterExpression:{field:'rowid',operator:'eq',value:{Type:'GetInputParam',ParamName:'viewId'}}})
- expect(Object.keys(tables).sort()).toEqual(['Base_AppSystemList','Base_DataViewList','Base_UserInfo'])
+ expect(Object.keys(tables).sort()).toEqual(['Base_AppSystemList','Base_DataViewList','Base_UserInfo','LogicViewDesignEdit'])
+ expect(tables['LogicViewDesignEdit']).toMatchObject({resourceType:'file',resourceId:'logic-view-design',
+  views:{default:{autoLoad:false,commitMode:'staged',queryContext:{viewId:''}}}})
 })
 it('keeps view parameters separate from default and interface source details',()=>{
  const config=new ScenarioViewConfig('8D1AB14DD8277F3E7017CD38F77B09FD',readFileSync('config/pages/data-platform/data-space-design/pagedata.json','utf8')).toJSON()

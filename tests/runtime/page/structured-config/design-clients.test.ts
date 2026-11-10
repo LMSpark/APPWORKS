@@ -1,8 +1,9 @@
 import {DataSet, type DataRow} from '@spark-appworks/spark-data'
-import {attachStagedDesignView, parseJsonObject, setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
+import {createStagedDesignExecutor, parseJsonObject} from '@/lowcode/resources/repository/staged-design-file-view'
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest'
 import {LogicViewDesignClient} from '@spark-appworks/spark-lowcode-api'
-import {attachLogicViewDesignEdit, LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
+import {createLogicViewDesignExecutor, LOGIC_VIEW_DESIGN_RESOURCE_ID, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
+import logicCatalog from '../../../../config/pages/structured-config/logic-view-catalog/pagedata.json'
 import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {StructuredCatalogHttp} from './catalog/structured-config-catalog.fixture'
 import {DataSpaceDefinitionSave, verifyDataSpaceDefinitionCapture, verifyAndDiscardDataSpaceDefinitionCapture,
@@ -91,15 +92,25 @@ describe('LogicViewDesignClient', () => {
   })
 })
 
-it('requires the owning DataSet to carry a formal scenario before attaching design storage', () => {
-  const dataSet = DataSet.fromJson({tables: {}}); sets.push(dataSet)
-  expect(() => attachLogicViewDesignEdit({dataSet, http, guard: () => {}, readScope})).toThrow('场景')
+it('requires a formal scenario before creating design storage', () => {
+  expect(() => createLogicViewDesignExecutor({scenarioId: '', http, guard: () => {}, readScope})).toThrow('场景')
   expect(http.posts).toEqual([])
 })
 
+/** 按逻辑视图目录正式 pagedata 声明的设计表装配，再绑定装配层同一执行器并注入本次 viewId。 */
+function bindLogicDesign(dataSet: DataSet, viewId = 'V1') {
+  const view = dataSet.getView(LOGIC_VIEW_DESIGN_VIEW)!
+  view.bindQueryExecutor(createLogicViewDesignExecutor({scenarioId: 'SPACE', http, guard: () => {}, readScope}),
+    {resource: {resourceType: 'file', resourceId: LOGIC_VIEW_DESIGN_RESOURCE_ID}})
+  view.queryContext = {...view.queryContext, viewId}
+  return view
+}
+const declaredLogicDesign = () => logicCatalog.tables.LogicViewDesignEdit
+
 it('edits, cancels and saves a real design array through the existing DataSet owner without losing nested fields', async () => {
   const dataSet = DataSet.fromJson({scenarioId:'SPACE',tables:{Base_DataViewList:{resourceType:'static-data',
-    columns:[{name:'rowid',type:'string',isPrimaryKey:true}],views:{default:{},editorTarget:{rows:[{rowid:'V1'}]}}}}})
+    columns:[{name:'rowid',type:'string',isPrimaryKey:true}],views:{default:{},editorTarget:{rows:[{rowid:'V1'}]}}},
+    [LOGIC_VIEW_DESIGN_VIEW]:declaredLogicDesign()}})
   sets.push(dataSet)
   vi.spyOn(dataSet.getView('Base_DataViewList','editorTarget')!,'editActionState').mockReturnValue('enabled')
   let stored = [{Name: 'Orders', Fields: [{Name: 'id', IsOutput: 0}], ChildTables: [{Name: 'Lines', Fields: []}], custom: {keep: false}}]
@@ -110,9 +121,7 @@ it('edits, cancels and saves a real design array through the existing DataSet ow
     stored = structuredClone((data as {data: typeof stored}).data)
     return {Code: 200, Result: '保存成功'} as T
   }
-  attachLogicViewDesignEdit({dataSet, http, guard: () => {}, readScope})
-  setDesignScopeValue({dataSet, tableName: LOGIC_VIEW_DESIGN_INPUT, field: 'viewId', scopeId: 'V1'})
-  const view = dataSet.getView(LOGIC_VIEW_DESIGN_VIEW)!
+  const view = bindLogicDesign(dataSet)
   await view.refresh()
   const changed = structuredClone(stored); changed[0]!.custom.keep = true
   view.updateEditingValue('V1', 'designJson', JSON.stringify(changed))
@@ -129,12 +138,10 @@ it('edits, cancels and saves a real design array through the existing DataSet ow
 })
 
 it('does not grant design editing or dispatch a file write without the original directory permission',async()=>{
-  const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{}});sets.push(dataSet)
+  const dataSet=DataSet.fromJson({scenarioId:'SPACE',tables:{[LOGIC_VIEW_DESIGN_VIEW]:declaredLogicDesign()}});sets.push(dataSet)
   const writes:unknown[]=[]
   http.post=async<T>(url:string,data?:unknown):Promise<T>=>{if(url.endsWith('GetView'))return {Code:200,Result:[]} as T;writes.push(data);return {Code:200,Result:'保存成功'} as T}
-  attachLogicViewDesignEdit({dataSet,http,guard:()=>{},readScope})
-  setDesignScopeValue({dataSet,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
-  const view=dataSet.getView(LOGIC_VIEW_DESIGN_VIEW)!;await view.refresh()
+  const view=bindLogicDesign(dataSet);await view.refresh()
   expect(view.fieldAccess(view.rows[0]!,'designJson').write).toBe('denied')
   view.updateEditingValue('V1','designJson','[{"Name":"blocked"}]')
   await expect(dataSet.saveChanges({views:[{tableName:LOGIC_VIEW_DESIGN_VIEW,viewId:'default'}]})).rejects.toThrow('DESIGN_EDIT_DENIED')
@@ -145,18 +152,20 @@ const sets: DataSet[] = []
 afterEach(() => {sets.splice(0).forEach(set => set.destroy())})
 
 async function open(options: {content?: string; json?: boolean} = {}) {
-  const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {}})
+  const dataSet = DataSet.fromJson({scenarioId: 'SPACE', tables: {Design: {resourceType: 'file', resourceId: 'test-design',
+    columns: [{name: 'rowid', type: 'string', isPrimaryKey: true}, {name: 'targetId', type: 'string'}, {name: 'content', type: 'string'}],
+    views: {default: {commitMode: 'staged', queryContext: {targetId: ''}}}}}})
   sets.push(dataSet)
   let stored: DataRow = {rowid: 'A', targetId: 'A', content: options.content ?? 'original'}
   const guard = vi.fn()
   const load = vi.fn(async () => ({...stored}))
   const persist = vi.fn(async (row: Readonly<DataRow>) => {stored = {...row}})
-  const view = attachStagedDesignView(dataSet, {scopeInputTable: 'Input', scopeField: 'targetId',
-    designViewTable: 'Design', resourceId: 'test-design',
+  const view = dataSet.getView('Design')!
+  view.bindQueryExecutor(createStagedDesignExecutor({scopeField: 'targetId', resourceId: 'test-design',
     columns: [{name: 'rowid', primary: true}, {name: 'targetId'}, {name: 'content'}],
     ...(options.json ? {jsonFields:['content']} : {}),
-    loadRow: load, persistRow: persist}, guard)
-  const scope = (scopeId: string) => setDesignScopeValue({dataSet, tableName: 'Input', field: 'targetId', scopeId})
+    loadRow: load, persistRow: persist}, guard), {resource: {resourceType: 'file', resourceId: 'test-design'}})
+  const scope = (scopeId: string) => {view.queryContext = {...view.queryContext, targetId: scopeId}}
   scope('A'); await view.refresh()
   const save = () => dataSet.saveChanges({views: [{tableName: 'Design', viewId: 'default'}]})
   return {dataSet, view, persist, load, scope, save, guard}

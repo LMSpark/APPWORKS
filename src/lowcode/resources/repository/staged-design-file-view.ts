@@ -1,48 +1,30 @@
 /**
  * @module app:lowcode/resources/repository/staged-design-file-view
- * 专用设计/内容：单 file 资源 DataView（staged + refresh/save），HTTP 仅在 load/persist 回调内。
+ * 专用设计/内容：正式场景声明的单 file 资源 DataView 的查询/保存执行器；目标来自视图 queryContext，HTTP 仅在 load/persist 回调内。
  */
 import {
   dataSetCommandQueryResultFromLocalRows,
-  ensureDataSetResourceView,
-  ensureDataSetStaticInputTable,
   DataViewSaveNotAppliedError,
   type DataRow,
-  type DataSet,
   type DataView,
 } from '@spark-appworks/spark-data'
 import {DesignResourceRejection} from '@spark-appworks/spark-lowcode-api'
 
 export type StagedDesignColumn = Readonly<{name: string; primary?: boolean}>
 
-export type StagedDesignAttachOptions = Readonly<{
-  scopeInputTable: string
+/** 设计文件执行器选项；表与视图由正式场景声明，执行器只负责读写本次 queryContext 目标。 */
+export type StagedDesignExecutorOptions = Readonly<{
+  /** 视图 queryContext 中的目标字段，同时是设计行的同名字段。 */
   scopeField: string
-  designViewTable: string
   resourceId: string
   columns: readonly StagedDesignColumn[]
   /** JSON文本字段按解析后的结构核验，其他字段逐值比较。 */
   jsonFields?: readonly string[]
   /** 文件定义字段的编辑授权由当次正式目录查询提供；省略仍为只读查询结果。不能用于数据库权限推导。 */
-  editing?: Readonly<{fields: readonly string[]; allowed: (scopeId:string)=>boolean}>
+  editing?: Readonly<{fields: readonly string[]; allowed: (scopeId: string, view: DataView) => boolean}>
   loadRow: (scopeId: string) => Promise<Record<string, unknown>>
   persistRow: (row: Readonly<DataRow>) => Promise<void>
 }>
-
-export type SetDesignScopeValueInput = Readonly<{
-  dataSet: DataSet
-  tableName: string
-  field: string
-  scopeId: string
-}>
-
-export function setDesignScopeValue(input: SetDesignScopeValueInput): void {
-  const table = input.dataSet.getTable(input.tableName)
-  if (!table) throw new Error(`设计范围输入表缺失: ${input.tableName}`)
-  const current = table.rows[0]
-  if (current === undefined) table.addRows([{[input.field]: input.scopeId}])
-  else Object.assign(current, {[input.field]: input.scopeId})
-}
 
 function isJsonObject(value: unknown): value is Record<string, unknown> {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -67,41 +49,33 @@ export function parseJsonValue(raw: string, empty: unknown): unknown {
   return JSON.parse(trimmed)
 }
 
-export function attachStagedDesignView(
-  dataSet: DataSet,
-  options: StagedDesignAttachOptions,
-  guard: () => void,
-): DataView {
-  ensureDataSetStaticInputTable(dataSet, options.scopeInputTable, [{name: options.scopeField, primary: true}])
-  const scopeTable = dataSet.getTable(options.scopeInputTable)
-  if (scopeTable?.rows.length === 0) {
-    scopeTable.addRows([{[options.scopeField]: ''}])
-  }
+type StagedDesignExecutor = Parameters<DataView['bindQueryExecutor']>[0]
 
-  const editView = ensureDataSetResourceView({
-    dataSet,
-    tableName: options.designViewTable,
-    resource: {resourceType: 'file', resourceId: options.resourceId},
-    columns: options.columns,
-  })
-  editView.commitMode = 'staged'
+/** 读取视图当前声明的设计目标；空串表示尚未选择目标。 */
+function viewScope(view: DataView, field: string): string {
+  return String(view.queryContext[field] ?? '').trim()
+}
 
-  const scopeId = (): string => String(dataSet.getTable(options.scopeInputTable)?.rows[0]?.[options.scopeField] ?? '').trim()
-  const assertScope = (expected: string): void => {
-    guard()
-    if (scopeId() !== expected) throw new Error('DESIGN_SCOPE_STALE: 设计目标已变化，请重开对应目标')
-  }
+/** 单文件设计执行器：保存后按原目标回读核对；结果不明保留待核验，重提只核验不重发。 */
+export function createStagedDesignExecutor(options: StagedDesignExecutorOptions, guard: () => void): StagedDesignExecutor {
+  const owners = new WeakMap<object, DataView>()
   const pending = new WeakMap<object, Readonly<{row: DataRow; baseline: DataRow; scope: string}>>()
-  const queryResult = async (rows:readonly DataRow[], scope:string) => {
-    const result=await dataSetCommandQueryResultFromLocalRows(editView,rows,()=>assertScope(scope))
-    const editing=options.editing
-    if(!editing)return result
-    const allowed=()=>{assertScope(scope);return editing.allowed(scope)}
-    return {...result,fieldAccess:(key:unknown,field:string)=>{
-      const access=result.fieldAccess(key,field)
-      const writable=access.read==='visible'&&editing.fields.includes(field)&&allowed()
-      return {...access,write:writable?'allowed' as const:'denied' as const,component:writable?'editable' as const:access.component,writeMode:writable?'editable' as const:'readonly' as const}
-    },editActionState:(key:unknown)=>result.viewActionState(key)==='enabled'&&allowed()?'enabled' as const:'disabled' as const}
+  const assertScope = (view: DataView, expected: string): void => {
+    guard()
+    if (view.destroyed || viewScope(view, options.scopeField) !== expected) throw new Error('DESIGN_SCOPE_STALE: 设计目标已变化，请重开对应目标')
+  }
+  const queryResult = async (view: DataView, rows: readonly DataRow[], scope: string) => {
+    const base = await dataSetCommandQueryResultFromLocalRows(view, rows, () => assertScope(view, scope))
+    const editing = options.editing
+    const result = editing ? {...base, fieldAccess: (key: unknown, field: string) => {
+      const access = base.fieldAccess(key, field)
+      const writable = access.read === 'visible' && editing.fields.includes(field) && allowed()
+      return {...access, write: writable ? 'allowed' as const : 'denied' as const, component: writable ? 'editable' as const : access.component,
+        writeMode: writable ? 'editable' as const : 'readonly' as const}
+    }, editActionState: (key: unknown) => base.viewActionState(key) === 'enabled' && allowed() ? 'enabled' as const : 'disabled' as const} : base
+    function allowed(): boolean {assertScope(view, scope); return editing?.allowed(scope, view) === true}
+    owners.set(result, view)
+    return result
   }
   const canonical = (value: unknown): unknown => {
     if (Array.isArray(value)) return value.map(canonical)
@@ -116,29 +90,31 @@ export function attachStagedDesignView(
     } catch {return false}
   }
 
-  editView.bindQueryExecutor({
+  return {
     localAggregates: false,
     executeQuery: async target => {
       guard()
-      const scope = scopeId()
-      if (!scope) return dataSetCommandQueryResultFromLocalRows(target, [], () => assertScope(scope))
+      const scope = viewScope(target, options.scopeField)
+      if (!scope) return queryResult(target, [], scope)
       const row = await options.loadRow(scope)
-      assertScope(scope)
+      assertScope(target, scope)
       const pk = String(row['rowid'] ?? scope)
       if (pk !== scope || row[options.scopeField] !== scope) throw new Error('DESIGN_SCOPE_STALE: 设计回读目标不一致')
-      return queryResult([{...row, rowid: pk}],scope)
+      return queryResult(target, [{...row, rowid: pk}], scope)
     },
     save: async command => {
       guard()
       const receipts = []
       for (const change of command.changes) {
-        if(options.editing&&!options.editing.allowed(scopeId()))throw new Error('DESIGN_EDIT_DENIED: 当前目录查询不允许编辑设计')
+        const view = owners.get(change.context)
+        if (!view) throw new Error('DESIGN_SCOPE_STALE: 设计提交缺少原查询视图')
+        const scope = viewScope(view, options.scopeField)
+        if (options.editing && !options.editing.allowed(scope, view)) throw new Error('DESIGN_EDIT_DENIED: 当前目录查询不允许编辑设计')
         if (change.changes.changed?.length !== 1 || change.changes.added?.length || change.changes.deleted?.length) {
           throw new Error('DESIGN_SAVE_SINGLE_ROW: 设计保存只接受一条已读取记录的修改')
         }
         const row = change.changes.changed[0]
-        if (!row) throw new Error(`${options.designViewTable} 保存缺少编辑行`)
-        const scope = scopeId()
+        if (!row) throw new Error(`${view.tableName} 保存缺少编辑行`)
         change.context.assertIdentity(change.identity)
         if (row['rowid'] !== scope || row[options.scopeField] !== scope) throw new Error('DESIGN_SCOPE_STALE: 提交目标不一致')
         const recovering = pending.has(change.context)
@@ -154,9 +130,9 @@ export function attachStagedDesignView(
             throw error
           }
         }
-        assertScope(captured.scope)
+        assertScope(view, captured.scope)
         const read = await options.loadRow(captured.scope)
-        assertScope(captured.scope)
+        assertScope(view, captured.scope)
         if (!options.columns.every(column => matches(column.name, captured.row[column.name], read[column.name]))) {
           if (recovering && options.columns.every(column => matches(column.name, captured.baseline[column.name], read[column.name]))) {
             pending.delete(change.context)
@@ -172,7 +148,7 @@ export function attachStagedDesignView(
           changed: [saved],
           deleted: [],
           changedFields: [fields],
-          context: await queryResult([saved],captured.scope),
+          context: await queryResult(view, [saved], captured.scope),
         })
         pending.delete(change.context)
       }
@@ -180,7 +156,5 @@ export function attachStagedDesignView(
     },
     hasUnconfirmedSave: context => pending.has(context),
     abandonUnconfirmedSave: context => {pending.delete(context)},
-  }, {resource: {resourceType: 'file', resourceId: options.resourceId}})
-
-  return editView
+  }
 }

@@ -52,7 +52,7 @@ import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {FieldJson, RendererButton, RendererDialog, RendererForm, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
 import LogicViewNodeEditor from './logic-view-node-editor.vue'
-import {LOGIC_VIEW_DESIGN_INPUT, LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
+import {LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {LogicViewPublication} from '@/lowcode/resources/structured-config/logic-view/output/publication'
 import {useStagedDesignPage} from '@/views/features/data-platform/shared/model/use-staged-design-page'
@@ -81,7 +81,6 @@ const {runtime, designView, designError, loading, ready, busy, error, saveChange
   pageId: 'logic-view-design-page',
   scenarioId,
   scopeId: viewId,
-  scopeInputTable: LOGIC_VIEW_DESIGN_INPUT,
   scopeField: 'viewId',
   designViewTable: LOGIC_VIEW_DESIGN_VIEW,
   runtimeOptions: input => LowcodeLogicView.editorRuntimeOptions({scenarioId: input.scenarioId, viewId: input.scopeId}),

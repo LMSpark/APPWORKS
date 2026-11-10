@@ -6,8 +6,7 @@ import type {RequestConfig} from '@spark-appworks/spark-utils'
 import {LowcodeLogicView} from '@/lowcode/resources/structured-config/logic-view/resource'
 import {LogicViewPublication} from '@/lowcode/resources/structured-config/logic-view/output/publication'
 import {DataSpaceDefinitionSave} from '@/lowcode/data-space/model-source/data-space-definition-save'
-import {LOGIC_VIEW_DESIGN_INPUT,LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
-import {setDesignScopeValue} from '@/lowcode/resources/repository/staged-design-file-view'
+import {LOGIC_VIEW_DESIGN_VIEW} from '@/lowcode/resources/structured-config/logic-view/design-ops'
 import {configureLogicFixture,LogicViewHttp} from '../logic-view.fixture'
 import {buildFormalModels} from '../../catalog/structured-config-catalog.fixture'
 const service=vi.hoisted(()=>({readSpaceDefinition:vi.fn(),readModel:vi.fn(),readModelBatch:vi.fn(),readRelations:vi.fn(),readRequestScope:vi.fn(),createGateways:vi.fn()}))
@@ -45,7 +44,6 @@ async function workspace(next:unknown[]=design('新编号')){
  const page=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'publication-test'})
  pages.push(page);await page.load();await LowcodeLogicView.prepareEditor(page)
  const ds=page.getDataSet(LowcodeLogicView.navigationScenarioId)!
- setDesignScopeValue({dataSet:ds,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
  const file=ds.getView(LOGIC_VIEW_DESIGN_VIEW)!
  await file.refresh();if(file.loadingError)throw file.loadingError
  file.updateEditingValue('V1','designJson',JSON.stringify(next))
@@ -115,7 +113,6 @@ describe('logic view two-source publication through original DataSets',()=>{
   const outputs=(await LowcodeLogicView.ensureOutputFields(reopened)).getView('Base_TblField',LowcodeLogicView.outputFieldViewId)!
   expect(outputs.readSnapshot().rows).toEqual([expect.objectContaining({rowid:'F1',enname:fieldName,DataType:fieldType,IsPKey:primary,cnname:'Published'})])
   const reopenedDs=reopened.getDataSet(LowcodeLogicView.navigationScenarioId)!
-  setDesignScopeValue({dataSet:reopenedDs,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
   const reopenedFile=reopenedDs.getView(LOGIC_VIEW_DESIGN_VIEW)!
   await reopenedFile.refresh();if(reopenedFile.loadingError)throw reopenedFile.loadingError
   const persisted=reopenedFile.readSnapshot().rows[0]?.['designJson']
@@ -276,7 +273,6 @@ describe('logic view two-source publication through original DataSets',()=>{
   const reopened=new PageRuntime({...LowcodeLogicView.editorRuntimeOptions({scenarioId:LowcodeLogicView.navigationScenarioId,viewId:'V1'}),pageId:'publication-readback'})
   pages.push(reopened);await reopened.load();await LowcodeLogicView.prepareEditor(reopened)
   const reopenedMetadata=await LowcodeLogicView.ensureOutputFields(reopened),reopenedDs=reopened.getDataSet(LowcodeLogicView.navigationScenarioId)!
-  setDesignScopeValue({dataSet:reopenedDs,tableName:LOGIC_VIEW_DESIGN_INPUT,field:'viewId',scopeId:'V1'})
   const reopenedFile=reopenedDs.getView(LOGIC_VIEW_DESIGN_VIEW)!
   await reopenedFile.refresh();if(reopenedFile.loadingError)throw reopenedFile.loadingError
   expect(reopenedDs).not.toBe(file.dataSet)

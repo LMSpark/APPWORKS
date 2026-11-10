@@ -31,7 +31,7 @@ beforeEach(() => {
       Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'createtime'],
       Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
       Base_UserInfo: ['ID', 'ROWID', 'UserName'],
-    }).map(model=>({...model,id:logicCatalog.tables[model.metaName as keyof typeof logicCatalog.tables].modelBinding.modelId})).find(m => m.metaName === metaName),
+    }).map(model=>{const table=Object.entries(logicCatalog.tables).find(([name])=>name===model.metaName)?.[1];return {...model,id:table&&'modelBinding' in table?table.modelBinding.modelId:model.id}}).find(m => m.metaName === metaName),
   ))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
 })

@@ -1,0 +1,27 @@
+{
+  "date": "2026-11-10",
+  "phase": "S4",
+  "batch": "CR-first-publication",
+  "baseCommit": "75d5653be3078d2387b1d263f4c80200ae31a921",
+  "url": "http://127.0.0.1:5273/apps/D99A1DCE9894698799101EFD70F8FC76/workflow-designs?__sparkNavigationId=appworks-tool-workflow-designs",
+  "sourceHashes": {
+    "page": "901AABC47EBB3F0B7A9CA5F1745C45630BA815471644A2D1C3BB1A7A5F14FE13",
+    "publication": "F84268FFEEA13C3D30413261F5F305D42E316E4C7D898884563809B809B9A45E",
+    "pagedata": "B7F2F6327FECDEDB99EAE7B30705866C022DC50A782BFB9BAE778AB1AB24DEB5"
+  },
+  "route": "application list (existing login) -> metadata application -> SPARK tools -> workflow designs",
+  "observations": [
+    "scenario with both AgentWorkflowCreation and AgentWorkflowPublication command views assembled; page left the loading state",
+    "formal directory returned 1003 and creation entry remained enabled",
+    "publish Definition stayed disabled because no workflow design is selectable",
+    "entered cs-cancel-20261110 and optional title, then cancelled; dialog closed and entry re-enabled",
+    "reopened and observed both inputs empty, cancelled again",
+    "request listener recorded zero non-GET file upload/remove requests across the cancel/reopen/cancel sequence"
+  ],
+  "writeActionClicked": false,
+  "limitations": [
+    "No real creation, first publication or deletion performed; directory is empty so the first-publication branch cannot be reached online",
+    "First publication, existing-Definition update, unknown verification and conflict cases are covered by production command bindings with response fixtures only",
+    "Request listener covers only the interaction window, not full network absence"
+  ]
+}

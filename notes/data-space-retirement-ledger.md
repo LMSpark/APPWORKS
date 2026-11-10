@@ -9010,3 +9010,11 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 
 
 **CR提交及远端核实（2026-11-10跨日收口）。**代码6bb408459d9b3899ba1c604fd8f0420e9b0c31c7已推origin/codex/spark-data-s1-command-safety，push自然0；随后独立ls-remote与本地精确相同，工作区干净。实际浏览器两轮记录文件保留起始日期2026-11-09，末态于2026-11-10补记；本docs检查点跟随推送。当前断点是CR末段，不重复首稿页面入口、不恢复已修的错目标展示和丢稿窗口；原20包完整目标与未验实服写入/首发/整删范围不变。
+
+**CR后续：S4 Definition 首次发布命令（2026-11-10，本地闭环已验证，真实服务未验）。**在不改 S1/S2/S3 的前提下，为正式工作流场景增加 `AgentWorkflowPublication` command DataView，经 `commandBindings → DataSet.saveChanges → uploadTextVersion(isReplace=false) → 原字节回读` 首次创建 Definition；已有 Definition 保持原 DataView 更新。页面仅在精确 404 时选首发分支，其它读取错误拒绝；未知状态保留原命令，页面提供核验入口且核验不重传。首发尝试绑定捕获的已保存设计文本与派生 Definition；在设计稿异步读取期间若原 DataView 出现新编辑则拒绝并保留草稿。目录 `workflowId` 仅作为文件路径身份，不与 design 内部 `id` / `workflow.id` 混同。
+
+接线时发现 `assembleLowcodeRuntimeScenario` 连续展开多个领域工厂的返回对象会互相覆盖顶层 `commandBindings`；现将各工厂映射显式合并，并用正式 `loadLowcodeRuntimeScenario` 回归确认首稿创建与首发命令同实例可用。用户期间格式化了共享 pagedata；核对后保留该格式，仅确认正式声明中含首发命令，未覆盖用户版本。
+
+最终受影响工作流资源/命令/页面及场景装配测试 7 文件 142/142 通过；根 typecheck、改动文件 ESLint、完整 `verify:rules`、production build 通过。规则扫描保留既有 2 warnings/1 info、85 项 page-thin review diagnostics；build 保留依赖 PURE 注释、chunk size 和 CodeMirror 动态导入告警。未修改 Java、未执行线上文件创建/发布/删除、未启动浏览器或声称真实服务持久化闭环。单文件 `RemoveFile` 不构成整目录删除合同，目录枚举完整性、部分成功和精确清理仍未证实；整工作流删除本批保持未接线，不能制造不可清理的线上对象。带点 workflowId 的正式内容路径兼容仍未解决，不绕过 SDK 路径守卫。S4 与原 20 包范围均未冻结/缩减。
+
+**CR首发浏览器烟测（2026-11-10）。**用已登录态经应用列表→元数据管理→SPARK 工具→工作流设计进入正式场景：含创建与首发两个命令视图的场景装配成功；目录仍返回 1003，新建入口可用，发布按钮因无可选设计保持禁用。输入 cs-cancel-20261110 后取消、重开两字段为空、再取消，期间请求监听记录 0 次非 GET 文件上传/删除请求；证据见 `evidence/data-chain-smoke/2026-11-10-s4-workflow-first-publication-cancel.json`。线上目录为空，首发分支在线不可达，只由正式命令绑定+响应夹具验证；不冒称实服首发。浏览器工具按 ref 输入时曾把文本落入名称框，直接点击输入框正常，判为工具定位问题，非页面缺陷。下一断点：带点 workflowId 路径合同研究（保持 fail-closed），随后目录删除合同（如可实施，遇首个失败即停并报告已完成/剩余项）。

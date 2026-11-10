@@ -1,5 +1,13 @@
 # AI 编码效果度量台账 - 2026-06
 
+### 2026-11-10 S4 工作流 Definition 首次发布
+
+- 复杂度：中等，新增领域 command binding、正式 pagedata、运行时多命令合并、WorkflowDesigns 分流与测试；总墙钟未完整计量。用户明确启动实施；期间 pagedata 曾因补丁失配而暂时损坏，随后由原 JSON 解析结果重建，保留用户格式并逐项核对。
+- 发现并修复：多个场景工厂的顶层 `commandBindings` 连续展开会互相覆盖；增加同一 PageRuntime 双命令绑定集成反例。Definition 首发与既有更新分开处理；新增异步期间设计 DataView 编辑守卫，身份校验区分目录 workflowId 与文档内部 ID。
+- 验证：受影响 workflow 领域/资源/装配/UI 7 文件 142 项通过；根 `typecheck`、改动文件 ESLint、`verify:rules`、production build 通过。AI model spec 保留 2 warnings/1 info，page-thin 保留 85 项待审诊断；build 保留 PURE 注释、chunk size、CodeMirror 动态导入告警。30 天存活待后续复查。
+- 浏览器取消/重开烟测通过（0 次文件写请求），证据 `evidence/data-chain-smoke/2026-11-10-s4-workflow-first-publication-cancel.json`。
+- 未做真实服务首发、发布、删除或浏览器写入；未修改/启动 Java。实现/测试与文档分两次提交推送。整目录删除及带点 workflowId 内容路径仍为服务/身份缺证，唯一当前断点续记 `notes/data-space-retirement-ledger.md`；20 包 S4 范围未缩减。
+
 ### 2026-10-26 B1续接：候选空态与字典删除失败关闭
 
 - 复杂度：中等，跨共享DataView/标准组件、字典领域与页面回归；总墙钟未完整计量。返工1次：发现原工作流测试仍要求删除成功后，暂停并将删除回归纳入已审核方案。审查轮次1次最终差异复核；人工干预为用户批准修订范围，30天存活待后续复查。

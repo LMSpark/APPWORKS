@@ -5659,7 +5659,7 @@
       "chainBreak": "UseFieldOptionsReturn.optionError 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/options/useFieldOptions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
-      "declarationLine": 39,
+      "declarationLine": 41,
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "declarationKind": "interface"
     },
@@ -5671,7 +5671,7 @@
       "chainBreak": "UseFieldOptionsReturn.optionsAvailable 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/options/useFieldOptions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
-      "declarationLine": 40,
+      "declarationLine": 42,
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "declarationKind": "interface"
     },
@@ -5683,7 +5683,7 @@
       "chainBreak": "UseFieldOptionsReturn.toControlValue 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/options/useFieldOptions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
-      "declarationLine": 45,
+      "declarationLine": 47,
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "declarationKind": "typeAlias"
     },
@@ -5695,7 +5695,7 @@
       "chainBreak": "UseFieldOptionsReturn.toSourceValue 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/components/fields/options/useFieldOptions.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
-      "declarationLine": 46,
+      "declarationLine": 48,
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "declarationKind": "typeAlias"
     },

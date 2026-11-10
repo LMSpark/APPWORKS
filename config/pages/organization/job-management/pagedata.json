@@ -1,0 +1,44 @@
+{
+  "scenarioId": "0A835EB88AAC2BDFBDE344477C6827BB",
+  "tables": {
+    "Base_JobInfo": {
+      "modelBinding": {
+        "modelId": "0A835EB88AAC2BDFBDE344477C6827BBp000",
+        "modelName": "Base_JobInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "page": 1,
+          "pageSize": 10,
+          "queryConfig": {
+            "fields": ["rowid", "JobName", "JobCode", "DepName", "Depid", "DepLevel"]
+          }
+        }
+      }
+    },
+    "Base_DepartInfo": {
+      "modelBinding": {
+        "modelId": "0A835EB88AAC2BDFBDE344477C6827BBp003",
+        "modelName": "Base_DepartInfo"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {"field": "DepID", "operator": "is-not-empty"},
+          "queryConfig": {
+            "allPages": true,
+            "fields": ["rowid", "DepID", "DepName"]
+          }
+        }
+      }
+    }
+  },
+  "viewCascades": []
+}

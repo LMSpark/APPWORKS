@@ -1974,7 +1974,7 @@
     "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.props.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.props.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.props.ts.json",
-      "sourceModifiedAt": "2026-11-05T13:07:53.214Z"
+      "sourceModifiedAt": "2026-11-10T15:30:02.906Z"
     },
     "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue": {
       "sourceFile": "packages/spark-component/src/components/fields/data-components/choice/FieldSelect/FieldSelect.vue",
@@ -2374,7 +2374,7 @@
     "packages/spark-component/src/components/fields/options/option-source.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/option-source.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/options/option-source.ts.json",
-      "sourceModifiedAt": "2026-10-13T02:42:36.264Z"
+      "sourceModifiedAt": "2026-11-10T15:41:10.539Z"
     },
     "packages/spark-component/src/components/fields/options/useFieldCascadeOptions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldCascadeOptions.ts",
@@ -2384,7 +2384,7 @@
     "packages/spark-component/src/components/fields/options/useFieldOptions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/options/useFieldOptions.ts.json",
-      "sourceModifiedAt": "2026-11-06T09:09:33.242Z"
+      "sourceModifiedAt": "2026-11-10T15:42:36.410Z"
     },
     "packages/spark-component/src/components/fields/options/useInputParameterFunctionContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useInputParameterFunctionContext.ts",
@@ -4179,7 +4179,7 @@
     "src/lowcode/resources/repository/builtin-system-navigation.ts": {
       "sourceFile": "src/lowcode/resources/repository/builtin-system-navigation.ts",
       "shardFile": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json",
-      "sourceModifiedAt": "2026-11-10T14:25:53.391Z"
+      "sourceModifiedAt": "2026-11-10T15:05:33.855Z"
     },
     "src/lowcode/resources/repository/file-resource-query-parameters.ts": {
       "sourceFile": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
@@ -4659,7 +4659,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-10T14:25:53.352Z"
+      "sourceModifiedAt": "2026-11-10T15:03:00.806Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -5536,10 +5536,20 @@
       "shardFile": "files/src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue.json",
       "sourceModifiedAt": "2026-11-06T21:57:00.709Z"
     },
+    "src/views/features/organization/job-management/ui/job-management-page.vue": {
+      "sourceFile": "src/views/features/organization/job-management/ui/job-management-page.vue",
+      "shardFile": "files/src/views/features/organization/job-management/ui/job-management-page.vue.json",
+      "sourceModifiedAt": "2026-11-10T15:30:02.933Z"
+    },
     "src/views/features/organization/organization-structure/ui/organization-structure-page.vue": {
       "sourceFile": "src/views/features/organization/organization-structure/ui/organization-structure-page.vue",
       "shardFile": "files/src/views/features/organization/organization-structure/ui/organization-structure-page.vue.json",
-      "sourceModifiedAt": "2026-11-10T14:41:10.914Z"
+      "sourceModifiedAt": "2026-11-10T15:03:00.751Z"
+    },
+    "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts": {
+      "sourceFile": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
+      "shardFile": "files/src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts.json",
+      "sourceModifiedAt": "2026-11-10T15:17:05.109Z"
     },
     "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",

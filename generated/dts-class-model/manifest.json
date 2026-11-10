@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1116,
+  "scannedFileCount": 1118,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17962,6 +17962,19 @@
         "symbols": []
       }
     },
+    "src/views/features/organization/job-management/ui/job-management-page.vue": {
+      "file": "files/src/views/features/organization/job-management/ui/job-management-page.vue.json",
+      "module": {
+        "name": "app:views/features/organization/job-management/ui/job-management-page",
+        "sourcePath": "src/views/features/organization/job-management/ui/job-management-page.vue",
+        "sourceFile": "src/views/features/organization/job-management/ui/job-management-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/organization/job-management/ui/job-management-page",
+        "jsdoc": "@module app:views/features/organization/job-management/ui/job-management-page\n职责：展示当前租户岗位目录并提供查询、重置、刷新和分页。\n边界：岗位及机构选项均读取正式 DataView，不提供岗位编辑或跨租户切换。\nAI用途：恢复岗位目录时，核对正式导航身份与机构选项绑定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/views/features/organization/organization-structure/ui/organization-structure-page.vue": {
       "file": "files/src/views/features/organization/organization-structure/ui/organization-structure-page.vue.json",
       "module": {
@@ -17971,6 +17984,19 @@
         "packageName": "app",
         "modulePath": "views/features/organization/organization-structure/ui/organization-structure-page",
         "jsdoc": "@module app:views/features/organization/organization-structure/ui/organization-structure-page\n职责：展示当前租户机构目录并提供查询、重置、刷新和分页。\n边界：只读取正式机构 DataView，不提供机构编辑或跨租户切换。\nAI用途：恢复组织机构目录时，核对正式导航身份及只读数据绑定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts": {
+      "file": "files/src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts.json",
+      "module": {
+        "name": "app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime",
+        "sourcePath": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
+        "sourceFile": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
+        "packageName": "app",
+        "modulePath": "views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime",
+        "jsdoc": "@module app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime\n职责：装配租户组织只读页面的正式运行实例及主视图。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。\nAI用途：机构和岗位目录复用同一生命周期时使用。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

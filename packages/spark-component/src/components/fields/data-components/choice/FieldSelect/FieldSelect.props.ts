@@ -14,6 +14,8 @@ import type {DataRow} from '@spark-appworks/spark-data'
  * 此模式读取选中主键数组中的单个值，选择/清空经DataView.setSelectedRows，不编辑记录或扩大字段权限；readonly和宿主禁用仍生效。
  */
 export type RSelectProps = SparkNodeProps & SparkOptionFieldProps<string | number> & {
+  /** 直接绑定平面选项视图时修剪文本选项值并排除空白；默认false。须显式声明optionValueField，只用于字段值，不能用于记录选择或级联；原视图不变，修剪后值冲突会禁用选择并提示。 */
+  optionValueTrim?: boolean
   /** 允许可搜索的普通文本字段输入候选外的非空字符串，默认false。仅写原字段，不新增或选择选项记录；记录选择及tabs不开放。远端选项须完成本次查询，禁用同值候选不能借输入放行；数据列和领域保存约束仍生效。 */
   allowCreate?: boolean
   /** 单值选择的呈现方式，默认select；tabs以横向页签展示同一选项和值，不承载面板或另建选择状态。 */

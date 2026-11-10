@@ -4,7 +4,7 @@
  * 边界：只覆盖当前模块职责，不把相邻包、运行时副作用或业务配置混入同一语义入口。
  * AI用途：需要定位 components/fields/options/useFieldOptions 的声明、导出和使用边界时，从本模块开始。
  */
-import { computed, shallowRef } from 'vue'
+import { computed, shallowRef, watch } from 'vue'
 import type { ComputedRef } from 'vue'
 import type { SparkOptionFieldProps } from '../../shared-types.js'
 import { PAGE_RUNTIME, useSparkConsume } from '../../internal'
@@ -49,7 +49,11 @@ type FieldOptionProps = FieldComposableProps<Pick<
   | 'optionDataField'
   | 'valueSeparator'
   | 'valueMode'
->> & {multiple?: boolean | undefined}
+>> & {
+  multiple?: boolean | undefined
+  /** r-select 显式启用的平面选项值修剪。 */
+  optionValueTrim?: boolean
+}
 
 /** Use Field Options Return 的语义模型。 */
 type UseFieldOptionsReturn = {
@@ -126,6 +130,9 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   const refreshOptions = () => {optionRevision.value++}
   const invalidateOptions = () => {optionIntentRevision.value++;refreshOptions()}
   const refreshPointer = () => {if(resolvedOptionDataMember.value===DataMember.Rows)refreshOptions();else invalidateOptions()}
+  watch([() => props.optionValueTrim, () => props.optionValueField, () => props.optionChildrenField],
+    ([active], [previous]) => {if (active || previous) invalidateOptions()}, {flush: 'sync'})
+  watch(optionDataView, () => {if (props.optionValueTrim) invalidateOptions()}, {flush: 'sync'})
   useDataViewEventBridge({resolvedView: optionDataView, onRowsChanged: invalidateOptions, onCleared: invalidateOptions,
     onRequestStateChanged: invalidateOptions, onConfigChanged: invalidateOptions,
     onCurrentRowChanged: refreshPointer, onSelectedRowsChanged: refreshPointer, onEditingChanged: refreshOptions})
@@ -154,9 +161,39 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   const optionChildrenField = computed(() => props.optionChildrenField ?? 'children')
   const valueSeparator = computed(() => props.valueSeparator ?? optionConfig.value.selectionDelimiter ?? ',')
 
+  const trimmedOptionSource = computed(() => {
+    if (props.optionValueTrim !== true) return undefined
+    const view = optionDataView.value
+    if (!view || cascade.definition.value || resolvedOptionDataMember.value !== DataMember.Rows
+      || !props.optionValueField?.trim() || view.treeConfig
+      || (props.dataMember === DataMember.Value && !(props.dataField ?? props.field))) {
+      throw new Error('FIELD_OPTION_VALUE: 修剪选项值需要直接绑定平面视图和明确的字段值')
+    }
+    optionRevision.value
+    return buildOptionSourceFromView(view, {
+      labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
+      trimValue: true, ...(props.optionLabelFields ? {labelFields: props.optionLabelFields} : {}),
+    })
+  })
+  const trimmedOptionError = computed(() => {
+    const rows = trimmedOptionSource.value
+    if (!rows) return undefined
+    const seen = new Set<string>()
+    for (const row of rows) {
+      if (!isRecord(row) || Array.isArray(row[optionChildrenField.value])) return '选项值修剪不支持层级数据'
+      const value = row[optionValueField.value]
+      if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') return '选项值必须是标量'
+      const key = String(value)
+      if (seen.has(key)) return '选项值去空白后不唯一，请检查数据'
+      seen.add(key)
+    }
+    return undefined
+  })
+
   const options = computed<FieldOption[]>(() => {
     optionRevision.value
     const view = optionDataView.value
+    const trimmed = trimmedOptionSource.value
     if (props.optionLabelFields && (!view || cascade.definition.value || resolvedOptionDataMember.value !== DataMember.Rows)) {
       throw new Error('FIELD_OPTION_LABEL: 多标题字段需要直接绑定DataView.rows')
     }
@@ -165,7 +202,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
       const source = cascade.definition.value
         ? buildOptionSourceFromView(view, {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
             rows: cascade.bound.value && cascade.state.value.status === 'ready' ? cascade.state.value.options : []})
-        : resolvedOptionDataMember.value === DataMember.Rows
+        : trimmed ?? (resolvedOptionDataMember.value === DataMember.Rows
         ? buildOptionSourceFromView(
             view,
             {labelField: optionLabelField.value, valueField: optionValueField.value, childrenField: optionChildrenField.value,
@@ -175,7 +212,7 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
             dataViewKey: `${view.tableName}@${view.viewId}`,
             dataMember: resolvedOptionDataMember.value,
             dataField: props.optionDataField,
-          }, view.dataSet)
+          }, view.dataSet))
 
       const rows = Array.isArray(source) ? source : []
       const optionFields = {
@@ -230,13 +267,15 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
     optionRevision.value
     if(cascade.definition.value)return cascade.bound.value&&cascade.state.value.status==='ready'
     const view=optionDataView.value
-    return !view||(!view.destroyed&&!view.loadingError&&![RequestState.Preparing,RequestState.Loading,RequestState.Failed].includes(view.requestState))
+    return !view||(!view.destroyed&&!view.loadingError
+      &&![RequestState.Preparing,RequestState.Loading,RequestState.Failed].includes(view.requestState)
+      &&trimmedOptionError.value===undefined)
   })
   const optionError = computed(() => {
     optionRevision.value
     if(cascade.definition.value)return cascade.state.value.error
     const view=optionDataView.value
-    return view&&!view.destroyed?view.loadingError?.message:undefined
+    return view&&!view.destroyed?(view.loadingError?.message ?? trimmedOptionError.value):undefined
   })
   const optionsReady = computed(() => {
     optionRevision.value

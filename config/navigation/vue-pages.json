@@ -105,6 +105,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/organization/job-management/ui/job-management-page",
+      "title": "岗位管理",
+      "icon": "User",
+      "scope": "app",
+      "source": "src/views/features/organization/job-management/ui/job-management-page.vue",
+      "description": "当前租户正式岗位投影",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/tenants",
       "title": "租户管理",
       "icon": "OfficeBuilding",

@@ -15,6 +15,8 @@ type OptionSourceOptions = {
   labelFields?: readonly string[]
   /** 显式值字段；省略时复用视图的valueField或主键。 */
   valueField?: string
+  /** 按调用方显式配置修剪文本值；只影响选项投影，不修改视图记录。 */
+  trimValue?: boolean
   /** 嵌套选项的子节点字段。 */
   childrenField: string
   /** loadOptionRows已核验的本次级联结果，省略时读取正式视图。 */
@@ -37,6 +39,15 @@ function readableRows(view: DataView, rows: readonly DataRow[], options: OptionS
         result[field] = readableRows(view, value.filter(isRecord), options)
       } else if (view.fieldAccess(row, field).read === 'visible') result[field] = value
     }
+    if (options.trimValue && typeof values === 'string') {
+      const value = row[values]
+      if (value === null || value === undefined) return []
+      if (typeof value === 'string') {
+        const trimmed = value.trim()
+        if (!trimmed) return []
+        result[values] = trimmed
+      }
+    }
     if (options.labelFields) {
       let label = ''
       for (const field of options.labelFields) {
@@ -49,7 +60,7 @@ function readableRows(view: DataView, rows: readonly DataRow[], options: OptionS
         label = String(raw).trim()
         if (label) break
       }
-      result[options.labelField] = label || (typeof values === 'string' ? String(row[values] ?? '') : '')
+      result[options.labelField] = label || (typeof values === 'string' ? String(result[values] ?? '') : '')
     }
     return [result]
   })

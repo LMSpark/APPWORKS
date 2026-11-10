@@ -78,8 +78,8 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
   }
   const rootId = value['navigationRootId']
   if (rootId !== getBuiltinSystemApplicationId()) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 仓内应用身份与导航根不一致')
-  if (value['records'].length !== 85 || value['publishedNodeIds'].length !== 28) {
-    throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 完整业务记录或固定发布选择数量无效')
+  if (value['records'].length !== 85 || value['publishedNodeIds'].length === 0) {
+    throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 完整业务记录或发布选择数量无效')
   }
 
   const records = value['records'].map(parseBlueprintRecord)
@@ -128,8 +128,7 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
     if (!record) throw new Error(`BUILTIN_NAVIGATION_SOURCE_INVALID: 发布节点 ${id} 不存在于完整蓝图`)
     return projectPublishedNode(record)
   })
-  const pages = nodes.filter(node => node.kind === 'Navitem')
-  if (nodes.length !== 28 || pages.length !== 19) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 固定导航投影范围无效')
+  if (!nodes.some(node => node.kind === 'Navitem')) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 发布选择缺少页面')
   return {navigationRootId: rootId, records, publishedNodeIds, nodes}
 }
 

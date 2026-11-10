@@ -121,6 +121,31 @@ describe('direct option DataView failure and recovery',()=>{
 })
 
 describe('field components consume native value cascades', () => {
+  it('rejects option-value trimming for a configured data cascade', async () => {
+    const f = await fixture()
+    try {
+      expect(() => mountFieldInContext({
+        component: FieldSelect, type: 'r-select', model: f.orders.currentRow!, fieldName: 'city',
+        dataSource: f.orders, pageDataSet: f.ds,
+        componentProps: {optionDataViewKey: 'FORM@Cities@default', optionValueField: 'code', optionValueTrim: true},
+        global: {stubs: {'el-select': Select, 'el-option': Option, 'el-form-item': FormItem}},
+      })).toThrow('FIELD_OPTION_VALUE: 修剪选项值需要直接绑定平面视图和明确的字段值')
+    } finally {f.ds.destroy()}
+  })
+
+  it('rejects option-value trimming for DataView record selection', async () => {
+    const f = await fixture()
+    try {
+      f.ds.removeCascade({cascadeId: 'city'})
+      expect(() => mountFieldInContext({
+        component: FieldSelect, type: 'r-select', model: f.choices.currentRow ?? {}, fieldName: '',
+        dataSource: f.choices, pageDataSet: f.ds,
+        componentProps: {dataMember: 'value', optionDataViewKey: 'FORM@Cities@default', optionValueField: 'code', optionValueTrim: true},
+        global: {stubs: {'el-select': Select, 'el-option': Option, 'el-form-item': FormItem}},
+      })).toThrow('FIELD_OPTION_VALUE: 修剪选项值需要直接绑定平面视图和明确的字段值')
+    } finally {f.ds.destroy()}
+  })
+
   it('isolates identical binding addresses in separate runtime spaces', async () => {
     const a = await fixture()
     const b = await fixture()

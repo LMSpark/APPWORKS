@@ -111,6 +111,12 @@
       "scenarioId": "4138A7C47ECB96EA85CA61A8A8B7191F",
       "resourceId": "repository:scenario-view:4138A7C47ECB96EA85CA61A8A8B7191F",
       "path": "config/pages/organization/organization-structure/pagedata.json"
+    },
+    {
+      "name": "jobManagement",
+      "scenarioId": "0A835EB88AAC2BDFBDE344477C6827BB",
+      "resourceId": "repository:scenario-view:0A835EB88AAC2BDFBDE344477C6827BB",
+      "path": "config/pages/organization/job-management/pagedata.json"
     }
   ]
 }

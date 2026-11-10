@@ -138,6 +138,12 @@
             false,
             true
           ]
+        },
+        "optionValueTrim": {
+          "enum": [
+            false,
+            true
+          ]
         }
       },
       "additionalProperties": false
@@ -335,7 +341,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-06T09:09:33.242Z",
+  "generatedAt": "2026-11-10T15:42:36.410Z",
   "models": {
     "FieldTransferOption": {
       "name": "FieldTransferOption",
@@ -372,7 +378,7 @@
       "jsdoc": "Field Option Props 的属性契约。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n}",
+        "declarationTypeText": "FieldComposableProps<Pick<SparkOptionFieldProps, 'field' | 'dataViewKey' | 'dataMember' | 'dataField' | 'options' | 'optionLabelField' | 'optionLabelFields' | 'optionValueField' | 'optionDisabledField' | 'optionChildrenField' | 'optionDataViewKey' | 'optionDataMember' | 'optionDataField' | 'valueSeparator' | 'valueMode'>> & {\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
@@ -381,13 +387,19 @@
           },
           {
             "kind": "intersection",
-            "typeText": "{\n    multiple?: boolean | undefined;\n}"
+            "typeText": "{\n    multiple?: boolean | undefined;\n    /** r-select 显式启用的平面选项值修剪。 */\n    optionValueTrim?: boolean;\n}"
           }
         ],
         "members": {
           "attributes": [
             {
               "name": "multiple",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "optionValueTrim",
+              "jsdoc": "r-select 显式启用的平面选项值修剪。",
               "readable": true,
               "writable": false
             }

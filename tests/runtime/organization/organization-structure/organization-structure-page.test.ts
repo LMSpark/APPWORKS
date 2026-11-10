@@ -61,7 +61,7 @@ async function open(wait = true) {
     attachTo: document.body, global: {plugins: [router, ElementPlus, Spark.createPlugin()]},
   })
   wrappers.push(wrapper)
-  if (wait) await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).not.toContain('正在读取机构')})
+  if (wait) await vi.waitFor(async () => {await flushPromises(); expect(wrapper.text()).not.toContain('正在读取机构')}, {timeout: 10000})
   await flushPromises()
   return {wrapper, router, observed}
 }

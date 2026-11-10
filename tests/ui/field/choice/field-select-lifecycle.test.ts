@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest'
 import {config, DOMWrapper, flushPromises, mount, type VueWrapper} from '@vue/test-utils'
 import {defineComponent, h, ref} from 'vue'
-import ElementPlus, {ElSelect} from 'element-plus'
+import ElementPlus, {ElOption, ElSelect} from 'element-plus'
 import {SparkData,DataViewOptionCatalog} from '@spark-appworks/spark-data'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {PAGE_RUNTIME, RendererForm, Spark, registerAllRenderers, useSparkComponent} from '@spark-appworks/spark-component'
@@ -19,14 +19,17 @@ async function fixture(value: string | number = 'first', selection = false, inhe
     Inputs: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'choice', type: 'string'}],
       views: {default: {commitMode: 'staged', rows: [{id: 'a', choice: value}, {id: 'b', choice: 'second'}]}}},
     Choices: {resourceType: 'static-data', columns: [{name: 'id', type: 'string', isPrimaryKey: true}, {name: 'title', type: 'string'}, {name:'disabled',type:'boolean'}],
-      views: {default: {valueField: 'id', labelField: 'title', rows: [{id: 'first', title: '第一项'}, {id: 'second', title: '第二项'}]}}},
+      views: {
+        default: {valueField: 'id', labelField: 'title', rows: [{id: 'first', title: '第一项'}, {id: 'second', title: '第二项'}]},
+        alternate: {valueField: 'id', labelField: 'title', rows: [{id: 'first', title: '另一项'}, {id: 'second', title: '另一第二项'}]},
+      }},
   }})
   const runtime = new PageRuntime({pageId: 'select-lifecycle', scenarioIds: ['S'], loadScenario: async () => dataSet})
   await runtime.load(); runtimes.push(runtime)
   const view = dataSet.getView('Inputs')!, choices = dataSet.getView('Choices')!, readonly = ref(false)
-  const selectionKey = ref('S@Choices@default')
+  const selectionKey = ref('S@Choices@default'), optionKey = ref('S@Choices@default')
   const formKey=ref(inherited?'S@Choices@default':'S@Inputs@default')
-  const allowCreate=ref(false),filterable=ref(true),staticOptions=ref<unknown[]>()
+  const allowCreate=ref(false),filterable=ref(true),staticOptions=ref<unknown[]>(),optionValueTrim=ref(false)
   const onChange = ref<((...args: unknown[]) => unknown) | undefined>()
   view.setCurrentRowById('a')
   const stubs = {...originalStubs}
@@ -37,12 +40,13 @@ async function fixture(value: string | number = 'first', selection = false, inhe
     sparkProvide(PAGE_RUNTIME, runtime)
     return () => h(RendererForm, {dataViewKey: formKey.value, children: [{type: 'r-select', props: {
       ...(selection ? {...(inherited?{}:{dataViewKey: selectionKey.value}), dataMember: 'value'} : {field: 'choice'}),
-      ...(staticOptions.value?{options:staticOptions.value}:{optionDataViewKey:'S@Choices@default'}), optionDisabledField:'disabled', filterable: filterable.value, allowCreate:allowCreate.value, readonly: readonly.value,
+      ...(staticOptions.value?{options:staticOptions.value}:{optionDataViewKey:optionKey.value}), optionDisabledField:'disabled', filterable: filterable.value, allowCreate:allowCreate.value, readonly: readonly.value,
+      ...(optionValueTrim.value ? {optionValueTrim: true, optionValueField: 'id'} : {}),
       onChange: onChange.value,
     }}]})
   }}), {global: {stubs: {transition: false}, plugins: [ElementPlus, Spark.createPlugin()]}})
   wrappers.push(wrapper); await flushPromises()
-  return {wrapper, view, choices, readonly, selectionKey, onChange,formKey,dataSet,allowCreate,filterable,staticOptions}
+  return {wrapper, view, choices, readonly, selectionKey, optionKey, onChange,formKey,dataSet,allowCreate,filterable,staticOptions,optionValueTrim}
 }
 
 describe('FieldSelect native option lifecycle', () => {
@@ -131,6 +135,59 @@ describe('FieldSelect native option lifecycle', () => {
     await visibleOptions[0]!.trigger('click');await flushPromises()
     expect(f.view.getEditingRow('a')?.['choice']).toBe('second')
     expect(f.view.rows[0]?.['choice']).toBe('first')
+  })
+
+  it('only trims opted-in option values, preserves their types and never edits their source rows', async () => {
+    const f = await fixture(), select = f.wrapper.getComponent(ElSelect)
+    f.choices.replaceRows([
+      {id: ' first ', title: '第一项'},
+      {id: ' second ', title: '第二项'},
+      {id: '   ', title: '空白项'},
+      {id: 0, title: '数字零'},
+    ])
+    await flushPromises()
+    await select.get('.el-select__wrapper').trigger('click'); await flushPromises()
+    expect(select.findAllComponents(ElOption).map(option => option.props('value')))
+      .toEqual([' first ', ' second ', '   ', 0])
+    f.optionValueTrim.value = true; await flushPromises()
+    expect(select.findAllComponents(ElOption).map(option => option.props('value')))
+      .toEqual(['first', 'second', 0])
+    expect(f.choices.rows.map(row => row['id'])).toEqual([' first ', ' second ', '   ', 0])
+    select.vm.$emit('update:modelValue', 'second'); await flushPromises()
+    expect(f.view.getEditingRow('a')?.['choice']).toBe('second')
+    expect(f.choices.hasEditingChanges()).toBe(false)
+  })
+
+  it('rejects a pending selection when option normalization changes and changes back', async () => {
+    const f = await fixture()
+    f.optionValueTrim.value = true
+    let started = false, release = () => {}
+    const pending = new Promise<void>(resolve => {release = resolve})
+    f.onChange.value = async () => {started = true; await pending}
+    await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', 'second'); await flushPromises()
+    expect(started).toBe(true)
+    f.optionValueTrim.value = false; await flushPromises()
+    f.optionValueTrim.value = true; await flushPromises()
+    release(); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.choices.hasEditingChanges()).toBe(false)
+  })
+
+  it('rejects a pending normalized selection after the option view changes and changes back', async () => {
+    const f = await fixture()
+    f.optionValueTrim.value = true
+    let started = false, release = () => {}
+    const pending = new Promise<void>(resolve => {release = resolve})
+    f.onChange.value = async () => {started = true; await pending}
+    await flushPromises()
+    f.wrapper.getComponent(ElSelect).vm.$emit('update:modelValue', 'second'); await flushPromises()
+    expect(started).toBe(true)
+    f.optionKey.value = 'S@Choices@alternate'; await flushPromises()
+    f.optionKey.value = 'S@Choices@default'; await flushPromises()
+    release(); await flushPromises()
+    expect(f.view.hasEditingChanges()).toBe(false)
+    expect(f.choices.hasEditingChanges()).toBe(false)
   })
 
   it('opens options on demand and edits, clears and cancels through the bound DataView', async () => {

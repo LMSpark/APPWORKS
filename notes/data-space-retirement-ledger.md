@@ -9054,3 +9054,17 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - 本轮只恢复服务并验证上述两个真实页面，无认证代填、业务数据写入或删除；其他业务页面及 SaveView、工作流整删等写入闭环仍未核销，不据此宣称全界面通过。
 
 - 复核（同日）：5273 由主仓 `vite --host 127.0.0.1 --port 5273 --strictPort`（node PID 8592，父 cmd PID 29200）提供。新开浏览器页的结果：`/login` 渲染出登录表单；未登录时 `/apps/homepage/app-list`、`/dev` 正确重定向到平台首页。三个页面都没有 vite 错误浮层，捕获窗口内 `pageerror`、本地 4xx/5xx 与失败请求均为 0。复核时浏览器无登录态，上文“已认证 67 个应用/总数 67”无法复现，仅作当时观察记录，不作为当前已验证事实。
+
+### 2026-11-10 应用进入链认证烟测与壳层修复（CY）
+
+- 以已认证会话逐个点击应用列表约 57 个「进入应用」。发现三处壳层缺陷，均已修复：
+  1. 切换失败后壳层失联：目标应用导航加载失败时，路由回落到 preAuth 树，系统页身份失效，连应用列表都不可用。`src/App.vue` 的 `switchAndReload` 现在会回滚到原应用选择，重载导航后用 `router.replace(force)` 重新绑定系统页身份，再把原错误抛给提示。已加回归测试 `application-switch.test.ts`。
+  2. 单个未绑定工具的配置节点拖垮整个应用：`resolveNavRoutePageId` 抛错会让整棵导航失败（四维OA、系统表单、中楚拍卖、intelligen-oa、应用管理、世纪楚风、平台默认基础等）。现在该节点注册为显式错误页 `invalid-config-page`（复用 `InvalidSystemPage`，提示“没有明确的工具目标”），既不推断路径，也不隐藏节点。`route-helpers.ts` 及其测试已删除。原 `router/__tests__` 不在 vitest include 内，两份测试已迁到 `packages/spark-app/src/tests/router/` 并实际运行。
+  3. `NavHeaderBar` 中 `v-if`/`v-else` 分支的隐式 key（0/1）被 `ElMenu` 展平后重复，触发 “Duplicate keys”。已在分支元素上显式写 `:key="item.id"`。
+- 以下数据缺陷保持严格报错，不在前端隐藏、猜挂或删除，由数据侧修复：
+  - 蓝图父节点闭包缺失：数据资产管理（0F63→05F5）、财务专票云平台（83D0→1234…）、领码ERP（0735→2A9E）、另一应用（7654…→9876…）、0756→5CE6。
+  - 应用导航根节点为 0 行：SPARK薪酬管理系统等。
+  - 后端 `[1003] 导航菜单不存在`：3 个应用。
+- 未迁移系统页显示 SYSTEM PAGE MAPPING ERROR：领码薪酬、财务管理、销售智能、领码智能投标、领码360、人力资源、任务管理、CRM、客户模块等，涉及 `/workbench/index`、`/client/*` 等路径。另有多个应用导航自身声明了 `/dashboard` 等 demo 节点，落到仓内演示仪表板。这两类属于迁移与数据范围，不是壳层缺陷。
+- 偶发 502（`catalogApps`）重试后消失，记为后端网关波动。
+- 验证：typecheck、改动文件 ESLint 均通过；`packages/spark-app/src/router`、`tests/runtime/auth-nav`、`tests/app/services/project` 共 55 个文件 1230 项、新路由测试 4 项均通过。浏览器复测：上述 7 个应用均可进入，菜单与页签切换正常，无重复 key 警告。本轮只读，没有远端写入。

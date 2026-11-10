@@ -32,7 +32,6 @@ import {
 } from './system-page-identity/system-page-identity-resolver'
 import type { SystemPageInstance } from './system-page-identity/system-page-identity-pool'
 import { resolveNavNodeRuntimeTarget } from '../navigation/runtime-target'
-import { resolveNavRoutePageId } from './route-helpers'
 import type { RuntimeNavigation, RuntimeNavigationItem } from '../navigation/runtime-navigation'
 import { PageRuntimePool, type RuntimeScenarioLoadCommand } from './page-runtime-pool'
 
@@ -639,9 +638,11 @@ constructor(options: DynamicRouterOptions) {
       const crossProjectRefUrl = isCrossProjectRefNode ? this.resolveCrossProjectRefUrl(node) : null
       const nodePath = typeof node.path === 'string' ? node.path.trim() : ''
       const relativePath = this.normalizePath(rawNodePath.split(/[?#]/, 1)[0] ?? '')
-      const component = this.staticComponentMap.get(relativePath)
+      // 缺少工具目标的配置节点只让该节点显示错误页，不推断路径，也不拖垮整棵应用导航。
+      const untargetedConfigPage = node.itemKind === 'page' && node.tool === undefined
+      const component = untargetedConfigPage ? undefined : this.staticComponentMap.get(relativePath)
       const useStaticComponent = target.routeKind === 'page' && (node.itemKind === 'system-page' || component !== undefined)
-      const pageId = resolveNavRoutePageId(node, rawNodePath)
+      const pageId = node.tool?.pageId ?? node.id
       // 平台级路由（preAuth）不加前缀，应用导航树路由统一加应用前缀
       const routePath = this.mapNavigationRoutePath(relativePath, options)
       const isIdentityHost = target.routeKind === 'page' && component !== undefined
@@ -671,7 +672,9 @@ constructor(options: DynamicRouterOptions) {
             ? 'system-page'
             : node.itemKind === 'system-page'
               ? 'invalid-system-page'
-              : 'config-page'
+              : untargetedConfigPage
+                ? 'invalid-config-page'
+                : 'config-page'
 
       if (!this.registeredRoutes.has(routePath)) {
         const staleRoute = this.router.getRoutes().find(route => route.path === routePath)
@@ -814,6 +817,22 @@ constructor(options: DynamicRouterOptions) {
         if (shouldLogDynamicRouteDetails()) {
           routerLogger.debug(`无效 system-page 路由已注册(nav): ${routePath}`, { pageId })
         }
+      } else if (untargetedConfigPage) {
+        routerLogger.warn('配置节点缺少明确工具目标，使用显式错误页', { path: rawNodePath, nodeId: node.id })
+        this.router.addRoute({
+          path: routePath,
+          name: routeName,
+          component: InvalidSystemPage,
+          meta: {
+            type: 'invalid-config-page',
+            pageId,
+            nodeId: node.id,
+            title: node.title,
+            ...(node.icon !== undefined && { icon: node.icon }),
+            ...(node.permissionMode !== undefined && { permissionMode: node.permissionMode }),
+          },
+        })
+        this.registeredRoutes.add(routePath)
       } else {
         // config 页面 → PageRenderer
         const route: RouteRecordRaw = {

@@ -376,24 +376,52 @@ const projectSwitchService: ProjectSwitchService = {
   async switchAndReload(projectId: string): Promise<LowcodeApplicationSelectionReceipt> {
     const dynamic = getDynamicRouter()
     dynamic?.assertPageRuntimesClean()
+    const previousProjectId = readLowcodePrincipal()?.applicationId ?? APPLICATION_CATALOG_PROJECT_ID
     const intent = ++projectSwitchIntent
-    const ownerReceipt = projectId === APPLICATION_CATALOG_PROJECT_ID
-      ? enterLowcodeApplicationCatalog()
-      : await activateLowcodeApplication(projectId)
-    const assertCurrent = (): void => {
-      if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
-      ownerReceipt.assertCurrent()
+    const receipt = await commitProjectSelection(projectId, intent)
+    try {
+      await reloadNavigation(receipt)
+      receipt.assertCurrent()
+    } catch (error: unknown) {
+      if (intent === projectSwitchIntent && previousProjectId !== projectId) {
+        await restoreProjectSelection(previousProjectId)
+      }
+      throw error
     }
-    const receipt: LowcodeApplicationSelectionReceipt = Object.freeze({ assertCurrent })
-    receipt.assertCurrent()
-    dynamic?.resetSystemPageInstances()
-    dynamic?.disposePageRuntimes()
-    activeProjectId.value = projectId
-    applyProjectSettingsScope(resolveProjectSettingsScope(projectId))
-    await reloadNavigation(receipt)
-    receipt.assertCurrent()
     return receipt
   },
+}
+
+async function commitProjectSelection(projectId: string, intent: number): Promise<LowcodeApplicationSelectionReceipt> {
+  const dynamic = getDynamicRouter()
+  const ownerReceipt = projectId === APPLICATION_CATALOG_PROJECT_ID
+    ? enterLowcodeApplicationCatalog()
+    : await activateLowcodeApplication(projectId)
+  const assertCurrent = (): void => {
+    if (intent !== projectSwitchIntent) throw new Error('APP_PROJECT_SWITCH_STALE: 项目切换已失效，请重新选择。')
+    ownerReceipt.assertCurrent()
+  }
+  const receipt: LowcodeApplicationSelectionReceipt = Object.freeze({ assertCurrent })
+  receipt.assertCurrent()
+  dynamic?.resetSystemPageInstances()
+  dynamic?.disposePageRuntimes()
+  activeProjectId.value = projectId
+  applyProjectSettingsScope(resolveProjectSettingsScope(projectId))
+  return receipt
+}
+
+// A failed target navigation must not strand the shell on the public fallback tree; reselect the prior application.
+async function restoreProjectSelection(previousProjectId: string): Promise<void> {
+  const intent = ++projectSwitchIntent
+  try {
+    const receipt = await commitProjectSelection(previousProjectId, intent)
+    await reloadNavigation(receipt)
+    receipt.assertCurrent()
+    const current = router.currentRoute.value
+    await router.replace({ path: current.path, query: current.query, hash: current.hash, force: true })
+  } catch (restoreError: unknown) {
+    console.error('[App] 应用切换失败后恢复原应用失败', restoreError)
+  }
 }
 provide(PROJECT_SWITCH_KEY, projectSwitchService)
 

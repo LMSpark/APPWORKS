@@ -295,6 +295,26 @@ describe('App project selection owner', () => {
     await expect(service.switchAndReload('APP-A')).rejects.toBe(refreshError)
   })
 
+  it('restores the previous application navigation when the target navigation fails', async () => {
+    const { router, dynamic } = await mountRealApp()
+    const service = mountedProjectSwitch
+    if (!service) throw new Error('App did not provide project-switch service')
+    const refreshError = new Error('蓝图 DataView 父节点闭包缺失')
+    shellState.reload.mockRejectedValueOnce(refreshError)
+    shellState.reload.mockImplementationOnce(async () => { await dynamic.refreshRoutes(); return null })
+    const activate = vi.mocked(activateLowcodeApplication)
+    activate.mockClear()
+
+    await expect(service.switchAndReload('APP-A')).rejects.toBe(refreshError)
+    await flushPromises()
+
+    expect(activate.mock.calls.map(call => call[0])).toEqual(['APP-A', 'old'])
+    expect(lowcodeState.applicationId).toBe('old')
+    expect(shellState.reload).toHaveBeenCalledTimes(2)
+    expect(router.currentRoute.value.path).toBe('/apps/old/dashboard')
+    expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeDefined()
+  })
+
   it('does not let the real App home consumer navigate to a switch superseded before its await resumes', async () => {
     const { router } = await mountRealApp()
     const service = mountedProjectSwitch

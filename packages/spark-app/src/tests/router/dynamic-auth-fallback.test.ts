@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { defineComponent } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
-import { createDynamicRouter } from '../dynamic'
+import { createDynamicRouter } from '../../router/dynamic'
 import type { RuntimeNavigation } from '../../navigation/runtime-navigation'
 
 const DummyPage = defineComponent({

@@ -25,6 +25,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       <template v-for="item in visibleItems" :key="item.id">
         <el-sub-menu
           v-if="hasDropdown(item)"
+          :key="item.id"
           :index="item.id"
           :disabled="item.disabled"
           :class="menuItemClass(item)"
@@ -51,6 +52,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
         </el-sub-menu>
         <el-menu-item
           v-else
+          :key="item.id"
           :index="item.id"
           :disabled="item.disabled"
           :aria-current="isCurrentPage(item) ? 'page' : undefined"

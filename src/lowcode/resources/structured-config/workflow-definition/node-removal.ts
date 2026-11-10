@@ -22,7 +22,8 @@ function id(view:DataView,row:DataRow):string{const key=read(view,row,view.prima
 function document(value:unknown):unknown{return value===undefined||value===null||value===''?null:typeof value==='string'?parseJsonDocument(value):value}
 function filter(value:unknown):unknown{if(value!==undefined&&value!==null&&typeof value!=='string')throw Error('删除依赖过滤原文不是文本');return DataViewFilterCodec.parseStored(value)?.toJSON()}
 function snapshot(view:DataView):string{
- const columns=view.queryConfig.fields??view.columns.map(column=>column.name)
+ // 计算列（含框架主键 _pk）不是来源业务字段，不参与依赖可读性与回读证据。
+ const columns=view.queryConfig.fields??view.columns.filter(column=>column.name!=='_pk'&&!column.isComputed&&!column.computeExpression).map(column=>column.name)
  for(const row of view.rows){id(view,row);for(const key of columns)read(view,row,key)}
  // Readback evidence uses the public permission-projected query snapshot; edits remain native DataView diffs.
  const {rows}=view.readSnapshot()

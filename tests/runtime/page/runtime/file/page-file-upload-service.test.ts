@@ -70,3 +70,48 @@ describe('default page upload service receipts', () => {
     expect(post).not.toHaveBeenCalled()
   })
 })
+
+describe('app shell page file selection', () => {
+  beforeEach(() => {post.mockReset()})
+
+  it('uses the shared picker and preserves the selected file metadata', async () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    let input: HTMLInputElement | null = null
+    try {
+      const selected = new File(['{}'], 'document.json', {type: 'application/json', lastModified: 123})
+      const pending = buildPageService(router(), {pageService: appPageUiService}).browseFiles({accept: '.json', multiple: true})
+      input = document.querySelector<HTMLInputElement>('input[type="file"]')
+      if (!input) throw new Error('file picker input missing')
+      expect(input.accept).toBe('.json')
+      expect(input.multiple).toBe(true)
+      expect(click).toHaveBeenCalledOnce()
+      Object.defineProperty(input, 'files', {value: [selected], configurable: true})
+      input.dispatchEvent(new Event('change'))
+      await expect(pending).resolves.toEqual([{
+        name: selected.name, size: selected.size, type: selected.type, lastModified: selected.lastModified, file: selected,
+      }])
+      expect(input.isConnected).toBe(false)
+      expect(appPageUiService).not.toHaveProperty('browseFiles')
+    } finally {
+      input?.remove()
+      click.mockRestore()
+    }
+  })
+
+  it('resolves a cancelled selection without uploading and removes the picker', async () => {
+    const click = vi.spyOn(HTMLInputElement.prototype, 'click').mockImplementation(() => {})
+    let input: HTMLInputElement | null = null
+    try {
+      const pending = buildPageService(router(), {pageService: appPageUiService}).browseFiles()
+      input = document.querySelector<HTMLInputElement>('input[type="file"]')
+      if (!input) throw new Error('file picker input missing')
+      input.dispatchEvent(new Event('cancel'))
+      await expect(pending).resolves.toEqual([])
+      expect(input.isConnected).toBe(false)
+      expect(post).not.toHaveBeenCalled()
+    } finally {
+      input?.remove()
+      click.mockRestore()
+    }
+  })
+})

@@ -11,8 +11,6 @@ type PageDialogOptions = Parameters<PageServiceCapability['showDialog']>[0]
 type PageDialogResult = Awaited<ReturnType<PageServiceCapability['showDialog']>>
 type PageSelectEntitiesOptions = Parameters<PageServiceCapability['selectEntities']>[0]
 type PageSelectorOption = Awaited<ReturnType<PageServiceCapability['selectEntities']>>[number]
-type PageBrowseFilesOptions = Parameters<PageServiceCapability['browseFiles']>[0]
-type PageSelectedFile = Awaited<ReturnType<PageServiceCapability['browseFiles']>>[number]
 type PageSelectorValue = PageSelectorOption['value']
 type PageSelectorCurrentValue = PageSelectorValue | PageSelectorValue[]
 
@@ -67,17 +65,6 @@ const selectorState = reactive<SelectorState>({
 let dialogResolver: ((result: PageDialogResult) => void) | null = null
 let selectorResolver: ((result: PageSelectorOption[]) => void) | null = null
 
-function mapFile(file: File): PageSelectedFile {
-  return {
-    name: file.name,
-    size: file.size,
-    type: file.type,
-    lastModified: file.lastModified,
-    file,
-  }
-}
-
-
 function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): string[] {
   if (Array.isArray(value)) return value.map(item => String(item))
   if (typeof value === 'string') {
@@ -86,27 +73,6 @@ function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): str
   }
   if (typeof value === 'number' || typeof value === 'boolean') return [String(value)]
   return []
-}
-
-async function browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]> {
-  return await new Promise((resolve) => {
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.style.display = 'none'
-    input.accept = options?.accept ?? ''
-    input.multiple = options?.multiple === true
-    input.onchange = () => {
-      const files = Array.from(input.files ?? []).map(mapFile)
-      input.remove()
-      resolve(files)
-    }
-    input.oncancel = () => {
-      input.remove()
-      resolve([])
-    }
-    document.body.appendChild(input)
-    input.click()
-  })
 }
 
 async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]> {
@@ -170,10 +136,9 @@ export const appPageUiState = {
   selector: selectorState,
 }
 
-export const appPageUiService: Pick<PageServiceCapability, 'showDialog' | 'selectEntities' | 'browseFiles'> = {
+export const appPageUiService: Pick<PageServiceCapability, 'showDialog' | 'selectEntities'> = {
   showDialog,
   selectEntities,
-  browseFiles,
 }
 
 export function confirmAppDialog(): void {

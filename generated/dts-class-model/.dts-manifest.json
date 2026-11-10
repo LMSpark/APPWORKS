@@ -659,7 +659,7 @@
     "packages/spark-app/src/shell/page-ui/pageUiService.ts": {
       "sourceFile": "packages/spark-app/src/shell/page-ui/pageUiService.ts",
       "shardFile": "files/packages/spark-app/src/shell/page-ui/pageUiService.ts.json",
-      "sourceModifiedAt": "2026-11-10T10:09:58.259Z"
+      "sourceModifiedAt": "2026-11-10T10:23:44.499Z"
     },
     "packages/spark-app/src/shell/plugins/index.ts": {
       "sourceFile": "packages/spark-app/src/shell/plugins/index.ts",

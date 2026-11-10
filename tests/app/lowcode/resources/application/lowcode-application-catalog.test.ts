@@ -43,7 +43,7 @@ function saveNavigationRootSession(): void {
   })
 }
 
-function makeNavigationModel(names: readonly string[] = ['rowid', 'SysId', 'prowid']) {
+function makeNavigationModel(names: readonly string[] = ['rowid', 'SysId', 'prowid', 'FunName']) {
   const rootFields = names.map((name, order) => ({id: name, modelId: '7AB874097A1E8711A42FD845939A6E05p000', name,
     canonicalName: name, type: 'string', description: name, primaryKey: name === 'rowid', output: true,
     computed: false, order, orderType: '', raw: {}}))
@@ -667,7 +667,7 @@ describe('authenticated application catalog DataView', () => {
     })
     lowcodeApi.application.clear()
     queryRows = rows
-    const rootFields = ['rowid', 'SysId', 'prowid'].map((name, order) => ({
+    const rootFields = ['rowid', 'SysId', 'prowid', 'FunName'].map((name, order) => ({
       id: name, modelId: '7AB874097A1E8711A42FD845939A6E05p000', name, canonicalName: name, type: 'string', description: name,
       primaryKey: name === 'rowid', output: true, computed: false, order, orderType: '', raw: {},
     }))
@@ -742,7 +742,7 @@ describe('authenticated application catalog DataView', () => {
 
   it.each([
     ['wrong model name', makeNavigationModel(), CATALOG_SCENARIO_ID],
-    ['missing formal parent field', makeNavigationModel(['rowid', 'SysId']), CATALOG_SCENARIO_ID],
+    ['missing formal parent field', makeNavigationModel(['rowid', 'SysId', 'FunName']), CATALOG_SCENARIO_ID],
     ['wrong formal data space', makeNavigationModel(), 'OTHER-SPACE'],
   ])('rejects %s before returning a root identity', async (_label, model, spaceId) => {
     saveNavigationRootSession()

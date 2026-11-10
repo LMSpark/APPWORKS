@@ -9045,3 +9045,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - 正式 `pnpm run generate:class-model-surface` 成功：1115 DTS 文件、2215 symbols、1719 classIndex entries、3664 semantic gaps；未手改派生产物。全量生成器另刷新当前源码对应的其它 ClassModel JSON/manifest/semantic-gap 派生结果。
 - 编码前与最终 `pnpm run typecheck` 均通过；改动三 TS/Vue 路径 ESLint 通过；完整 `pnpm run verify:rules` 与 `pnpm run build` 通过。规则扫描保留既有 AI model spec 2 warnings/1 info、85 项 page-thin review diagnostics；构建保留依赖 PURE annotation、chunk size 与 CodeMirror dynamic import 告警。`git diff --check` 通过。
 - 本轮只用本地静态 DataSet 测试，无 Java 修改、真实服务写入或数据删除；提交推送与远端状态按本轮结束时的 Git 核验记录。
+
+### 2026-11-10 本地界面不可达恢复与认证只读烟测（CX）
+
+- 用户反馈界面打不开后，浏览器打开原应用列表地址直接报 `ERR_CONNECTION_REFUSED`；本机 5273 无监听，HTTP 请求同样被拒绝。本轮先前的组件测试与构建通过不能证明开发服务正在运行，也不能替代真实页面验收。
+- 在唯一主仓启动独立持久运行的 `pnpm run dev --host 127.0.0.1 --port 5273 --strictPort`，Vite 就绪后根路径与应用列表路径均返回 HTTP 200；服务保留运行供用户继续使用，未创建其他工作树或修改产品源码。
+- 原浏览器页重新导航后，先显示登录页，随后已有认证会话进入应用列表。最终重新加载应用列表实测显示 67 个应用入口，捕获窗口内 `pageerror` 与失败请求均为 0；点击平台应用管理后正式列表显示“总数 67”，再经菜单返回应用列表。等待登录标题曾因页面已进入认证列表而超时，不能记为登录页失败或无登录态。
+- 本轮只恢复服务并验证上述两个真实页面，无认证代填、业务数据写入或删除；其他业务页面及 SaveView、工作流整删等写入闭环仍未核销，不据此宣称全界面通过。

@@ -209,13 +209,15 @@ export class LowcodeProjectBlueprintApi {
     const result = await this.#client.requestResult({
       path: `${endpoint}?${query.toString()}`,
       method: 'GET',
+      retry: 0,
     })
     return {
       projectId: normalizedProjectId,
       kind,
       status: 'submitted',
       coverage: 'legacy-menu-scope',
-      message: typeof result === 'string' ? result : '蓝图文档任务已提交',
+      message: typeof result === 'string' && result.trim()
+        ? result : '任务提交请求已确认；文档生成状态未知',
     }
   }
 }

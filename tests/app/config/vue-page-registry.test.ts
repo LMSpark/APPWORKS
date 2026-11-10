@@ -106,7 +106,7 @@ describe('Vue page registry', () => {
       .toBe('src/views/DataBaseManage/DataBaseManage/index.vue')
     expect(getVuePageEntry('/dbms')).toBeUndefined()
     expect(getVuePageEntry('/features/application/application-manager/ui/application-manager-page')?.source)
-      .toBe('src/views/app/AppList.vue')
+      .toBe('src/views/features/application/application-manager/ui/application-manager-page.vue')
   })
 
   it('does not load page modules while building the component map', async () => {
@@ -121,7 +121,7 @@ describe('Vue page registry', () => {
     expect(loads.every(load => load.mock.calls.length === 0)).toBe(true)
   })
 
-  it('loads only the mounted page and reuses one async component for two formal paths', async () => {
+  it('loads only the mounted page and keeps the application manager source separate', async () => {
     const aboutEntry = getVuePageEntry('/about')
     if (aboutEntry === undefined) throw new Error('Expected the about page registry entry')
     const aboutSource = getVuePageOptions().filter(option => option.source === aboutEntry.source)
@@ -134,7 +134,7 @@ describe('Vue page registry', () => {
     })
     const applicationListSource = 'src/views/app/AppList.vue'
     const applicationLists = getVuePageOptions().filter(option => option.source === applicationListSource)
-    if (applicationLists.length !== 2) throw new Error('Expected the catalog and blueprint application lists to share one page')
+    if (applicationLists.length !== 1) throw new Error('Expected the default application catalog to retain its own page')
     let applicationListLoads = 0
     for (const page of applicationLists) {
       const pageEntry = getVuePageEntry(page.path)
@@ -151,6 +151,14 @@ describe('Vue page registry', () => {
         })
       })
     }
+    const managerPath = '/features/application/application-manager/ui/application-manager-page'
+    const managerEntry = getVuePageEntry(managerPath)
+    if (managerEntry === undefined) throw new Error('Expected the application manager page registry entry')
+    let managerLoads = 0
+    vi.spyOn(managerEntry, 'load').mockImplementation(() => {
+      managerLoads += 1
+      return Promise.resolve({default: defineComponent({render: () => h('span', 'application manager loaded')})})
+    })
 
     const componentMap = await buildComponentMap()
     expect(aboutLoads.every(load => load.mock.calls.length === 0)).toBe(true)
@@ -158,18 +166,21 @@ describe('Vue page registry', () => {
     await flushPromises()
     expect(aboutLoads.reduce((total, load) => total + load.mock.calls.length, 0)).toBe(1)
     expect(applicationListLoads).toBe(0)
+    expect(managerLoads).toBe(0)
     expect(about.text()).toBe('about loaded')
 
     const catalog = mount(defineComponent({ render: () => h(componentMap[applicationLists[0]!.path]!) }))
-    const blueprint = mount(defineComponent({ render: () => h(componentMap[applicationLists[1]!.path]!) }))
     await flushPromises()
     expect(applicationListLoads).toBe(1)
     await catalog.get('button').trigger('click')
     expect(catalog.text()).toBe('1')
-    expect(blueprint.text()).toBe('0')
+    const manager = mount(defineComponent({render: () => h(componentMap[managerPath]!)}))
+    await flushPromises()
+    expect(managerLoads).toBe(1)
+    expect(manager.text()).toBe('application manager loaded')
     about.unmount()
     catalog.unmount()
-    blueprint.unmount()
+    manager.unmount()
   })
 
   it('uses a synchronous route host and renders the page through Vue Router', async () => {

@@ -47,6 +47,12 @@
       "path": "config/pages/application/project-blueprint/pagedata.json"
     },
     {
+      "name": "applicationManager",
+      "scenarioId": "0C70F74793F9E858B71E0DBDEC784D57",
+      "resourceId": "repository:scenario-view:0C70F74793F9E858B71E0DBDEC784D57",
+      "path": "config/pages/application/application-manager/pagedata.json"
+    },
+    {
       "name": "apiProvider",
       "scenarioId": "8CBB62EBC873A38DB9E6EEF177AFC731",
       "resourceId": "repository:scenario-view:8CBB62EBC873A38DB9E6EEF177AFC731",

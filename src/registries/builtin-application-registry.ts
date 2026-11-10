@@ -1,7 +1,7 @@
 import appworks from '../../config/applications/appworks.json'
 
 export type BuiltinScenarioName = 'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement'
-  | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector' | 'agentWorkflowFiles' | 'organizationStructure' | 'jobManagement'
+  | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector' | 'agentWorkflowFiles' | 'organizationStructure' | 'jobManagement' | 'applicationManager'
 export type BuiltinScenarioResource = Readonly<{name: BuiltinScenarioName; scenarioId: string; resourceId: string; path: string}>
 export type BuiltinNavigationResource = Readonly<{resourceId: string; path: string}>
 export type BuiltinApplicationDescriptor = Readonly<{id: string; name: string; navigation: BuiltinNavigationResource}>
@@ -13,7 +13,7 @@ const scenarios = new Map<string, BuiltinScenarioResource>()
 const scenariosByName = new Map<BuiltinScenarioName, BuiltinScenarioResource>()
 const paths = new Set<string>()
 const requiredScenarioNames = new Set<BuiltinScenarioName>(['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint', 'cacheManagement',
-  'logicViewCatalog', 'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor', 'workflowCatalog', 'excelImportCatalog', 'pdfInspectCatalog', 'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector', 'agentWorkflowFiles', 'organizationStructure', 'jobManagement'])
+  'logicViewCatalog', 'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor', 'workflowCatalog', 'excelImportCatalog', 'pdfInspectCatalog', 'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector', 'agentWorkflowFiles', 'organizationStructure', 'jobManagement', 'applicationManager'])
 for (const resource of appworks.scenarioResources) {
   if (!isBuiltinScenarioName(resource.name)
     || !resource.scenarioId.trim() || resource.resourceId !== `repository:scenario-view:${resource.scenarioId}`
@@ -35,7 +35,7 @@ function isBuiltinScenarioName(value: string): value is BuiltinScenarioName {
   return value === 'dataSpaceDesign' || value === 'dataSpaceCatalog' || value === 'dataDictionary' || value === 'projectBlueprint' || value === 'cacheManagement'
     || value === 'logicViewCatalog' || value === 'apiProvider' || value === 'apiConfig' || value === 'apiInterface' || value === 'dataCodeCatalog' || value === 'dataCodeEditor'
     || value === 'workflowCatalog' || value === 'excelImportCatalog' || value === 'pdfInspectCatalog' || value === 'excelImportEditor' || value === 'workflowEditor' || value === 'jsonDataCatalog' || value === 'businessTableSelector'
-    || value === 'agentWorkflowFiles' || value === 'organizationStructure' || value === 'jobManagement'
+    || value === 'agentWorkflowFiles' || value === 'organizationStructure' || value === 'jobManagement' || value === 'applicationManager'
 }
 
 /** AppWorks system program configuration has one explicit repository source; dynamic applications remain remote. */

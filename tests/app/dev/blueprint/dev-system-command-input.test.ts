@@ -6,21 +6,33 @@ import {DataSet, type DataRow} from '@spark-appworks/spark-data'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY as SCENARIO} from '@spark-appworks/spark-lowcode-api'
 import {PageRuntime} from '@spark-appworks/spark-project-model'
 import {RendererButton, RendererForm, Spark} from '@spark-appworks/spark-component'
+import type {RuntimeNavigation} from '@spark-appworks/spark-app'
 import {BlueprintWorkspaceDataView} from '@/services/project/blueprint-workspace-dataview'
 import type {DevState} from '@/views/app/dev-system/useDevState'
 import DevSystem from '@/views/app/dev-system/DevSystem.vue'
 
 let testState:DevState
+let navigationTree:RuntimeNavigation|null=null
+let shellDirtySource:Readonly<{isDirty:boolean}>|undefined
+let routeLeaveGuard:(()=>boolean)|undefined
+const navigateTo=vi.fn()
 vi.mock('@/views/app/dev-system/useDevState',()=>({useDevState:()=>testState}))
-vi.mock('@/composables/useApplicationRouter',()=>({useApplicationRouter:()=>({router:{push:vi.fn()}})}))
 vi.mock('@/services/sse-events',()=>({onPageConfigChange:()=>()=>{}}))
-vi.mock('vue-router',async original=>({...await original<typeof import('vue-router')>(),onBeforeRouteLeave:vi.fn()}))
+vi.mock('vue-router',async original=>({...await original<typeof import('vue-router')>(),
+  onBeforeRouteLeave:(guard:()=>boolean)=>{routeLeaveGuard=guard}}))
+vi.mock('@spark-appworks/spark-app',async original=>({
+  ...await original<typeof import('@spark-appworks/spark-app')>(),
+  getNavTree:()=>navigationTree,
+  useNav:()=>({navigateTo}),
+  useSystemPageDirtySource:(source:Readonly<{isDirty:boolean}>)=>{shellDirtySource=source},
+}))
 
 async function createTarget(projectId='APP-A') {
   const rows:DataRow[]=[
-    {rowid:'ROOT',SysId:projectId,prowid:'000000',FunOrderValue:0,name:'Project',FunName:'Project',conType:'Model',NavigationUrl:''},
-    {rowid:'NODE-A',SysId:projectId,prowid:'ROOT',FunOrderValue:0,name:'Orders',FunName:'Orders',conType:'Navitem',NavigationUrl:'cfg:orders'},
-    {rowid:'NODE-B',SysId:projectId,prowid:'ROOT',FunOrderValue:1,name:'Billing',FunName:'Billing',conType:'Navitem',NavigationUrl:'cfg:billing'},
+    {rowid:'ROOT',SysId:projectId,prowid:'000000',FunOrderValue:0,name:'Project',FunName:'Project',conType:'Model',NavigationUrl:'',conid:''},
+    {rowid:'NODE-A',SysId:projectId,prowid:'ROOT',FunOrderValue:0,name:'Orders',FunName:'Orders',conType:'Navitem',NavigationUrl:'cfg:orders',conid:''},
+    {rowid:'NODE-B',SysId:projectId,prowid:'ROOT',FunOrderValue:1,name:'Billing',FunName:'Billing',conType:'Navitem',NavigationUrl:'cfg:billing',conid:''},
+    {rowid:'NODE-C',SysId:projectId,prowid:'ROOT',FunOrderValue:2,name:'Spaces',FunName:'Spaces',conType:'Navitem',NavigationUrl:'vue:/features/data-space',conid:'SPACE'},
   ]
   const fields=Object.keys(rows[0]!)
   const dataSet=DataSet.fromJson({scenarioId:SCENARIO,tables:{Base_NavigationInfo:{
@@ -51,6 +63,15 @@ async function createTarget(projectId='APP-A') {
 }
 
 async function mountWorkbench(showImport=false) {
+  navigateTo.mockReset()
+  shellDirtySource=undefined
+  routeLeaveGuard=undefined
+  navigationTree={projectId:'APP-A',title:'App',childPlacement:'header',items:[
+    {id:'ROOT',title:'Project',itemKind:'module',children:[
+      {id:'NODE-C',title:'Spaces',itemKind:'system-page',path:'/features/data-space',blueprintScenarioId:'SPACE'},
+      {id:'NODE-A',title:'Orders',itemKind:'page',path:'/__page/NODE-A',tool:{projectId:'APP-A',pageId:'orders'}},
+    ]},
+  ]}
   const first=await createTarget(),next=await createTarget('APP-B')
   const owner=shallowRef(first.owner),runtime=shallowRef(first.runtime)
   const selectedNode=shallowRef<DevState['selectedNode']['value']>(first.owner.treeProjection().children[0]!)
@@ -81,15 +102,135 @@ async function mountWorkbench(showImport=false) {
     return {form,view:view!}
   }
   const aiButton=()=>wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='AI 编辑')!
-  return {first,next,wrapper,prompt,aiButton,runPageDesignAi,saveAll,hasAnyDirty,importVisible,runImport,
+  const previewButton=()=>wrapper.findAllComponents(RendererButton).find(button=>['预览页面','打开运行页面'].includes(String(button.props('label'))))!
+  return {first,next,wrapper,prompt,aiButton,previewButton,runPageDesignAi,saveAll,hasAnyDirty,importVisible,runImport,
     async openImport(){importVisible.value=true;await flushPromises()},
     async clearSelection(){selectedNode.value=null;activePageId.value='';await flushPromises()},
     async switchNode(){await owner.value.load('NODE-B');selectedNode.value=owner.value.treeProjection().children[1]!;activePageId.value='billing';await flushPromises()},
+    async switchNative(){
+      await owner.value.load('NODE-C')
+      selectedNode.value=owner.value.treeProjection().children[2]!
+      activePageId.value=''
+      if(!testState.blueprintDraft.navigation)throw new Error('test navigation missing')
+      testState.blueprintDraft.navigation.target='vue:/features/data-space'
+      await flushPromises()
+    },
     async switchRuntime(){owner.value=next.owner;runtime.value=next.runtime;selectedNode.value=next.owner.treeProjection().children[0]!;activePageId.value='orders';await flushPromises()},
     dispose(){wrapper.unmount();first.dispose();next.dispose()}}
 }
 
 describe('DevSystem standard command input DataView',()=>{
+  it('opens the selected config page in the existing preview without hiding save',async()=>{
+    const fixture=await mountWorkbench()
+    try{
+      await fixture.previewButton().find('button').trigger('click');await flushPromises()
+      const workspace=fixture.wrapper.findComponent({name:'BlueprintWorkspace'})
+      expect(workspace.props('previewRequest')).toMatchObject({projectId:'APP-A',nodeId:'NODE-A',pageId:'orders'})
+      expect(fixture.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='保存')).toBe(true)
+    }finally{fixture.dispose()}
+  })
+
+  it('opens a Vue system page using its exact published navigation identity',async()=>{
+    const fixture=await mountWorkbench()
+    try{
+      await fixture.switchNative()
+      expect(fixture.previewButton().props('label')).toBe('打开运行页面')
+      await fixture.previewButton().find('button').trigger('click');await flushPromises()
+      expect(navigateTo).toHaveBeenCalledExactlyOnceWith(navigationTree?.items[0]?.children?.[0])
+      expect(fixture.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='保存')).toBe(true)
+    }finally{fixture.dispose()}
+  })
+
+  it('opens the config tool through its runtime navigation rather than a guessed page path',async()=>{
+    const fixture=await mountWorkbench()
+    try{
+      const link=fixture.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='打开运行页面')
+      expect(link).toBeDefined()
+      await link!.find('button').trigger('click');await flushPromises()
+      expect(navigateTo).toHaveBeenCalledExactlyOnceWith(navigationTree?.items[0]?.children?.[1])
+      expect(fixture.wrapper.findAllComponents(RendererButton).some(button=>button.props('label')==='/orders')).toBe(false)
+    }finally{fixture.dispose()}
+  })
+
+  it('passes the matching config navigation with its data-space and tool version',async()=>{
+    const fixture=await mountWorkbench()
+    try{
+      const node=navigationTree?.items[0]?.children?.[1]
+      if(!node)throw new Error('test config navigation missing')
+      fixture.first.owner.update('conid','SPACE & 2')
+      node.path='/__page/NODE-A?scenarioId=SPACE+%26+2'
+      node.blueprintScenarioId='SPACE & 2'
+      node.tool={projectId:'APP-A',pageId:'orders',versionId:'rule=2;script=1;style=3'}
+      const link=fixture.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='打开运行页面')
+      expect(link).toBeDefined()
+      await link!.find('button').trigger('click');await flushPromises()
+      expect(navigateTo).toHaveBeenCalledExactlyOnceWith(node)
+    }finally{fixture.dispose()}
+  })
+
+  it.each(['different project','different tool','different path','different scenario','duplicate node','disabled parent'])(
+    'does not open a stale or unavailable config navigation (%s)',async condition=>{
+      const fixture=await mountWorkbench()
+      try{
+        const group=navigationTree?.items[0]
+        const node=group?.children?.[1]
+        if(!navigationTree||!group||!node)throw new Error('test config navigation missing')
+        if(condition==='different project')navigationTree.projectId='OTHER'
+        if(condition==='different tool')node.tool={projectId:'APP-A',pageId:'other'}
+        if(condition==='different path')node.path='/__page/OTHER'
+        if(condition==='different scenario')node.blueprintScenarioId='OTHER'
+        if(condition==='duplicate node')group.children?.push({...node})
+        if(condition==='disabled parent')group.disabled=true
+        const link=fixture.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='打开运行页面')
+        expect(link).toBeDefined()
+        await link!.find('button').trigger('click');await flushPromises()
+        expect(navigateTo).not.toHaveBeenCalled()
+        expect(testState.addStatus).toHaveBeenCalledWith(expect.stringMatching(/导航|目标|场景|身份/),'warning')
+      }finally{fixture.dispose()}
+    },
+  )
+
+  it.each(['different project','different target','different scenario','duplicate node','disabled parent'])(
+    'does not open a stale or unavailable Vue navigation (%s)',async condition=>{
+      const fixture=await mountWorkbench()
+      try{
+        await fixture.switchNative()
+        const group=navigationTree?.items[0]
+        const node=group?.children?.[0]
+        if(!navigationTree||!group||!node)throw new Error('test navigation missing')
+        if(condition==='different project')navigationTree.projectId='OTHER'
+        if(condition==='different target')node.path='/another-page'
+        if(condition==='different scenario')node.blueprintScenarioId='OTHER'
+        if(condition==='duplicate node')group.children?.push({...node})
+        if(condition==='disabled parent')group.disabled=true
+        await fixture.previewButton().find('button').trigger('click');await flushPromises()
+        expect(navigateTo).not.toHaveBeenCalled()
+        expect(testState.addStatus).toHaveBeenCalledWith(expect.stringMatching(/导航|目标|场景|身份/),'warning')
+      }finally{fixture.dispose()}
+    },
+  )
+
+  it('prevents workbench save and shell release while the preview owns pending work',async()=>{
+    const fixture=await mountWorkbench()
+    try{
+      const workspace=fixture.wrapper.findComponent({name:'BlueprintWorkspace'})
+      const register=workspace.props('registerPreviewGuard')
+      expect(typeof register).toBe('function')
+      if(typeof register!=='function')throw new Error('preview guard missing')
+      let dirty=true
+      const release=register(()=>dirty)
+      expect(shellDirtySource?.isDirty).toBe(true)
+      expect(routeLeaveGuard?.()).toBe(false)
+      await fixture.wrapper.findAllComponents(RendererButton).find(button=>button.props('label')==='保存')!.find('button').trigger('click')
+      expect(fixture.saveAll).not.toHaveBeenCalled()
+      expect(testState.addStatus).toHaveBeenCalledWith(expect.stringContaining('预览'),'warning')
+      dirty=false
+      expect(shellDirtySource?.isDirty).toBe(false)
+      expect(routeLeaveGuard?.()).toBe(true)
+      release()
+    }finally{fixture.dispose()}
+  })
+
   it('edits the prompt through the standard field and sends its overlay to the existing AI command',async()=>{
     const fixture=await mountWorkbench()
     try{

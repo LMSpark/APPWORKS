@@ -20,7 +20,7 @@ AI用途：保存策划、原型、场景绑定、估算、交付或发布前定
       <RendererTabPane label="导航属性" name="navigation" :index="3" :lazy="true"><template v-if="activeStage==='navigation' && readyWorkspaceForView"><NodeBasicInfo :state="state" :sections="['navigation']" /><NodeTargetConfig :state="state" /><NodeLayoutConfig :state="state" /><NodeStateConfig :key="readyWorkspaceForView.runtime.instanceId" :state="state" /></template></RendererTabPane>
       <RendererTabPane label="导航宿主" name="nav-host" :index="4"><BlueprintReadonlyInfo v-if="activeStage==='nav-host' && readyWorkspaceForView" :key="`${readyWorkspaceForView.runtime.instanceId}-nav-host-${readyWorkspaceForView.nodeId}`" :runtime="readyWorkspaceForView.runtime" :node-id="readyWorkspaceForView.nodeId" :binding="`${BLUEPRINT_SCENARIO_ID}@Base_Navigation_DataRelation@default`" :fields="NAV_HOST_FIELDS" :assert-current="assertReadonlyTarget" /></RendererTabPane>
       <RendererTabPane label="任务信息" name="task-info" :index="5"><DisplayEmpty description="参考实现暂无对应任务资源" /></RendererTabPane>
-      <RendererTabPane label="本仓扩展" name="extensions" :index="6"><RendererTabs v-model="activeExtension" class="extension-tabs"><RendererTabPane label="节点估算" name="estimate" :index="0"><EstimatePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :field-access="estimateAccess" @changed="fieldChanged" @save="save('节点估算')" /></RendererTabPane><RendererTabPane label="开发交付" name="delivery" :index="1" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" @save="saveDelivery" /></RendererTabPane><RendererTabPane label="发布运行" name="release" :index="2"><ReleasePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" :runtime-access="access('NavigationUrl')" :visibility-boolean="isBooleanField('IsShowAtNav')" :visibility-options="binaryOptions('IsShowAtNav')" :navigation-options="navigationTypeOptions" @changed="fieldChanged" @save="save('发布运行')" /></RendererTabPane></RendererTabs></RendererTabPane>
+      <RendererTabPane label="本仓扩展" name="extensions" :index="6"><RendererTabs v-model="activeExtension" class="extension-tabs"><RendererTabPane label="节点估算" name="estimate" :index="0"><EstimatePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :field-access="estimateAccess" @changed="fieldChanged" @save="save('节点估算')" /></RendererTabPane><RendererTabPane label="开发交付" name="delivery" :index="1" :disabled="!state.activePageId.value"><DeliveryPane :state="state" :saving="saving" :can-publish="deliveryAccess" v-bind="deliveryPreviewProps" @save="saveDelivery" /></RendererTabPane><RendererTabPane label="发布运行" name="release" :index="2"><ReleasePane v-if="readyWorkspaceForView" :binding="readyWorkspaceForView.session.standardComponentBinding" :saving="saving" :visibility-access="access('IsShowAtNav')" :navigation-access="access('NavigationType')" :runtime-access="access('NavigationUrl')" :visibility-boolean="isBooleanField('IsShowAtNav')" :visibility-options="binaryOptions('IsShowAtNav')" :navigation-options="navigationTypeOptions" @changed="fieldChanged" @save="save('发布运行')" /></RendererTabPane></RendererTabs></RendererTabPane>
     </RendererTabs>
     </div>
     <DisplayEmpty v-else :description="loadError || '正在装载当前节点 DataView'" />
@@ -40,6 +40,7 @@ import { lowcodeApi } from '@/lowcode/lowcode-runtime'
 import {DisplayEmpty, DisplayTag, PAGE_RUNTIME, RendererButton, RendererTabPane, RendererTabs, useSparkComponent} from '@spark-appworks/spark-component'
 import type {PageRuntime} from '@spark-appworks/spark-project-model'
 import type { DevState } from '../useDevState'
+import type { DevPreviewRequest } from '../useDevSystem'
 import { BlueprintWorkspaceDataView } from '@/services/project/blueprint-workspace-dataview'
 import type { DataView } from '@spark-appworks/spark-data'
 import PrototypePane from './PrototypePane.vue'
@@ -54,7 +55,7 @@ import NodeTargetConfig from '../components/NodeTargetConfig.vue'
 import NodeLayoutConfig from '../components/NodeLayoutConfig.vue'
 import NodeStateConfig from '../components/NodeStateConfig.vue'
 
-const props = defineProps<{ state: DevState }>()
+const props = defineProps<{ state: DevState; previewRequest?: DevPreviewRequest; registerPreviewGuard?: (guard: () => boolean) => () => void }>()
 const HISTORY_FIELDS=['prowid','rowid','desc','versionId','VersionName','version'] as const
 const NAV_HOST_FIELDS=['dataName','paramType','titleLocation','location','pName','prowid','ValParamName','childrowid','dbName','TextParamName','rowid','selectTextParam','selectPid','selectValParam','dataType','dataSetId','title'] as const
 function assertReadonlyTarget(nodeId:string,runtime:PageRuntime):void{
@@ -111,6 +112,20 @@ const readyWorkspaceForView = computed<ReadyWorkspace | undefined>(() => {
     && ready.session.view.currentRow?.['SysId']===ready.projectId
     ? ready : undefined
 })
+const acceptedPreviewRequest = computed(() => {
+  const ready=readyWorkspaceForView.value,request=props.previewRequest
+  return ready && request && request.projectId===ready.projectId && request.nodeId===ready.nodeId
+    && request.runtimeId===ready.runtime.instanceId && request.pageId===props.state.activePageId.value ? request : undefined
+})
+const deliveryPreviewProps = computed(() => ({
+  ...(acceptedPreviewRequest.value ? {previewRequest:acceptedPreviewRequest.value} : {}),
+  ...(props.registerPreviewGuard ? {registerPreviewGuard:props.registerPreviewGuard} : {}),
+}))
+watch(acceptedPreviewRequest, request => {
+  if (!request) return
+  activeStage.value='extensions'
+  activeExtension.value='delivery'
+}, {immediate:true,flush:'sync'})
 const workspaceBinding = computed(() => {
   const key=readyWorkspaceForView.value?.session.standardComponentBinding.dataViewKey
   return key ? {dataViewKey:key} : {}

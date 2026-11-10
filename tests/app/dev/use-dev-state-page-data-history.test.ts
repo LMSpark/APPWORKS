@@ -737,6 +737,7 @@ describe('tool and shared scenario editing owners',()=>{
   } finally {release({dataSet:late});wrapper.unmount()}
  })
  it('keeps the dirty business preview accessible when a refresh is blocked',async()=>{
+  vi.useFakeTimers()
   httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')?fixtureText(20):url.endsWith('/rule.json')?'[]':''}))
   const state=createDevStateWithConfigPages([], '')
   state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
@@ -746,13 +747,24 @@ describe('tool and shared scenario editing owners',()=>{
    views:{default:{commitMode:'staged',rows:[{id:'order',title:'saved'}]}}}}})
   previewLoad.mockResolvedValueOnce({dataSet:business}).mockImplementation(async()=>({dataSet:DataSet.fromJson({scenarioId:'scene',tables:{}})}))
   const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
-  const wrapper=mount(DevPreviewTab,{props:{state,refreshToken:0},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  let previewPending=()=>false
+  const registerPreviewGuard=(guard:()=>boolean)=>{previewPending=guard;return ()=>{previewPending=()=>false}}
+  const wrapper=mount(DevPreviewTab,{props:{state,refreshToken:0,registerPreviewGuard},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
   try {
    await flushPromises()
    const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as PageRuntime
+   expect(wrapper.findComponent(Renderer).props('routeSnapshot')).toMatchObject({
+    path:'/apps/homepage/__page/orders-page-node',
+    fullPath:'/apps/homepage/__page/orders-page-node?scenarioId=scene',
+    query:{scenarioId:'scene'},
+   })
    const view=business.getView('Orders')!
    view.updateEditingValue('order','title','unsaved')
    expect(runtime.isDirty).toBe(true)
+   expect(state.hasAnyDirty.value).toBe(true)
+   await vi.advanceTimersByTimeAsync(600);await flushPromises()
+   expect(runtime.configPending).toBe(false)
+   expect(previewLoad).toHaveBeenCalledTimes(1)
    await wrapper.setProps({refreshToken:1});await flushPromises()
    expect(runtime.destroyed).toBe(false)
    expect(view.getEditingPatch('order')).toEqual({title:'unsaved'})
@@ -760,7 +772,26 @@ describe('tool and shared scenario editing owners',()=>{
    expect(wrapper.findComponent(Renderer).props('pageRuntime')).toBe(runtime)
    expect(wrapper.findAllComponents({name:'DisplayAlert'}).some(alert=>String(alert.props('description')).includes('未保存'))).toBe(true)
    view.discardEditingRows()
+   expect(runtime.isDirty).toBe(false)
+   expect(previewPending()).toBe(false)
+   view.mutating=true
+   view.events.emit('mutatingChanged',true)
+   expect(previewPending()).toBe(true)
+   expect(state.hasAnyDirty.value).toBe(true)
    await wrapper.setProps({refreshToken:2});await flushPromises()
+   expect(runtime.destroyed).toBe(false)
+   view.mutating=false
+   const unconfirmed=vi.spyOn(view,'hasUnconfirmedSave','get').mockReturnValue(true)
+   view.events.emit('mutatingChanged',false)
+   expect(runtime.isDirty).toBe(false)
+   expect(previewPending()).toBe(true)
+   expect(state.hasAnyDirty.value).toBe(true)
+   await wrapper.setProps({refreshToken:3});await flushPromises()
+   expect(runtime.destroyed).toBe(false)
+   unconfirmed.mockRestore()
+   view.events.emit('mutatingChanged',false)
+   expect(previewPending()).toBe(false)
+   await wrapper.setProps({refreshToken:4});await flushPromises()
    expect(runtime.destroyed).toBe(true)
   } finally {wrapper.unmount()}
  })

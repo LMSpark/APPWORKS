@@ -4,6 +4,7 @@ import { defineComponent, h } from 'vue'
 import { createMemoryHistory, createRouter } from 'vue-router'
 import type { Router } from 'vue-router'
 import { SYSTEM_PAGE_NAVIGATION_ID_QUERY, type RuntimeNavigation } from '@spark-appworks/spark-app'
+import { buildConfigPageNavigationPath } from '@/services/application-scope'
 import { useNavigation } from '../../../../packages/spark-app/src/navigation/useNavigation'
 import { CROSS_PROJECT_REF_HOST_ROUTE_NAME } from '../../../../packages/spark-app/src/router/cross-project-ref-route'
 
@@ -185,6 +186,20 @@ describe('useNavigation platform paths', () => {
     expect(router.currentRoute.value.path).toBe('/apps/homepage/dashboard')
     expect(router.currentRoute.value.query).toEqual({ scenarioId: 'S1', additionalScenarioIds: ['S2', 'S3'], bare: null, blank: '' })
     expect(router.currentRoute.value.hash).toBe('#section')
+  })
+
+  it('navigates a config node with its tool identity and scenario call parameter', async () => {
+    const node={id:'orders-node',title:'Orders',itemKind:'page' as const,
+      path:buildConfigPageNavigationPath('orders-node','SPACE & 2'),
+      tool:{projectId:'homepage',pageId:'orders-tool',versionId:'rule=2;script=1;style=3'}}
+    const {router,navigateTo}=await mountNavigationProbe('/apps/homepage/home',{...NAV_ROOT,items:[node]})
+    router.addRoute({path:'/apps/:projectId/__page/orders-node',name:'nav-orders-node',component:DummyPage,
+      meta:{type:'config-page',nodeId:node.id,tool:node.tool}})
+    navigateTo(node)
+    await flushPromises()
+    expect(router.currentRoute.value.path).toBe('/apps/homepage/__page/orders-node')
+    expect(router.currentRoute.value.query).toEqual({scenarioId:'SPACE & 2'})
+    expect(router.currentRoute.value.meta['tool']).toEqual(node.tool)
   })
 
   it('navigates same-path mapped page nodes with their identity and derives active state from route meta', async () => {

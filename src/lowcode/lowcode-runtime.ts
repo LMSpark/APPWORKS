@@ -15,7 +15,7 @@ import { createRequest, isRecord } from '@spark-appworks/spark-utils'
 import {DataSet} from '@spark-appworks/spark-data'
 import { parseQuery } from 'vue-router'
 import { getVuePageOptions } from '@/registries/vue-page-registry'
-import { APPLICATION_CATALOG_PROJECT_ID } from '@/services/application-scope'
+import { APPLICATION_CATALOG_PROJECT_ID, buildConfigPageNavigationPath } from '@/services/application-scope'
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import { loadLowcodeRuntimeScenario } from './data-space/lowcode-data-space-runtime'
 import {readLowcodeApplicationById, readLowcodeApplications, readLowcodeNavigationRootId} from './lowcode-application-catalog'
@@ -182,10 +182,7 @@ function runtimeTargetProjection(
   const target = (record.navigation?.target ?? '')
   if (target.startsWith('cfg:')) {
     if (!ProjectModel.parseConfigToolPageId(target)) throw new Error(`蓝图节点 ${record.nodeId} 的配置工具目标无效：${target}`)
-    const query = new URLSearchParams()
-    if (record.dataSpace?.scenarioId) query.set('scenarioId', record.dataSpace.scenarioId)
-    const parameters = query.toString()
-    return { targetKind: 'route', path: `/__page/${encodeURIComponent(record.nodeId)}${parameters ? `?${parameters}` : ''}` }
+    return { targetKind: 'route', path: buildConfigPageNavigationPath(record.nodeId, record.dataSpace?.scenarioId) }
   }
   const targetKind: LowcodePlatform.LowcodeNavigationTargetKind = !target
     ? 'empty'

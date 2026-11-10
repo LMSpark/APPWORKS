@@ -115,14 +115,12 @@ defaultValue: string
     /** param Name 名称。 */
 paramName: string}
 
-/** Dev Workspace Tab 的语义模型。 */
-export type DevWorkspaceTab = 'props' | 'preview' | ProjectBlueprintDomain.PageToolFileName
-
 /** DataView-backed page areas register the same dirty/save owner with the DevSystem shell. */
 export type ExternalDataViewSession = Readonly<{
   isDirty: () => boolean
   hasUnconfirmedSave?: () => boolean
   save: () => Promise<void>
+  prepareContextChange?: () => () => void
   moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>
   moveBlueprintNodeRelative?: (command:Readonly<{nodeId:string;targetNodeId:string;position:'before'|'after'|'inner'}>) => Promise<void>
   treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData
@@ -506,6 +504,18 @@ export function useDevState() {
     return () => {externalDataViewSessions.delete(session); externalDataViewRevision.value++}
   }
   function notifyExternalDataViewChanged(): void {externalDataViewRevision.value++}
+  function prepareExternalContextChange(): () => void {
+    const resumes:Array<() => void>=[]
+    try {
+      for (const session of externalDataViewSessions) {
+        if (session.prepareContextChange) resumes.push(session.prepareContextChange())
+      }
+    } catch (error) {
+      for (const resume of resumes.reverse()) resume()
+      throw error
+    }
+    return () => {for (const resume of resumes.reverse()) resume()}
+  }
   async function completePendingMountedPageDelete():Promise<void>{
     const pending=pendingMountedPageDelete
     if(!pending)return
@@ -798,19 +808,28 @@ export function useDevState() {
       return false
     }
 
-    cancelAutoSave()
-    blueprintLoadRevision++
-    blueprintTreeLoadFlights.clear()
-    releaseBlueprintWorkspaceDataView()
-    loadedBlueprintScopeKeys.clear()
-    activeEditScope.value = nextScope
-    projectPicker.projectId = nextScope.projectId
-    installScenarioDocument(null)
-    currentEditor.value = getAppProjectBlueprintWorkspace(nextScope)
-    bindProjectBlueprintEvents()
-    autoSaveStatus.value = 'idle'
-    await loadBlueprint({ preserveActivePageId: readPersistedActivePageId() })
-    return true
+    let resume:()=>void
+    try {resume=prepareExternalContextChange()}
+    catch(error) {
+      addStatus(`预览工作尚未处理，不能切换项目：${String(error)}`, 'warning')
+      projectPicker.projectId=projectId.value
+      return false
+    }
+    try {
+      cancelAutoSave()
+      blueprintLoadRevision++
+      blueprintTreeLoadFlights.clear()
+      releaseBlueprintWorkspaceDataView()
+      loadedBlueprintScopeKeys.clear()
+      activeEditScope.value = nextScope
+      projectPicker.projectId = nextScope.projectId
+      installScenarioDocument(null)
+      currentEditor.value = getAppProjectBlueprintWorkspace(nextScope)
+      bindProjectBlueprintEvents()
+      autoSaveStatus.value = 'idle'
+      await loadBlueprint({ preserveActivePageId: readPersistedActivePageId() })
+      return true
+    } finally {resume()}
   }
 
   async function openProjectPickerScope(options?: { force?: boolean }): Promise<boolean> {
@@ -1765,22 +1784,27 @@ export function useDevState() {
       addStatus('当前蓝图节点有 DataView 未保存修改，请先保存或取消后再切换节点', 'warning')
       return
     }
-    if (blueprintDirty.value && selectedNode.value) void saveNodeChanges()
-    if (selectedNode.value?.nodeId !== node.nodeId || selectedNode.value.dataSpace?.scenarioId !== node.dataSpace?.scenarioId) {
-      scenarioLoad++; installScenarioDocument(null); pageDataError.value = null
-    }
-    const owner=await loadBlueprintWorkspaceDataView()
-    await owner.load(node.nodeId)
-    if(selectionRevision!==nodeSelectionRevision||currentScopeKey()!==scope||currentEditor.value!==workspace
-      ||!findNodeById(readBlueprintProjection().tree,node.nodeId))throw new Error('节点选择期间当前项目树已变化')
-    loadNodeToForm(node)
-    const pageId = resolvePageNodePageId(node)
-    if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(node))) {
-      // loadNodeToForm binds the active page identity. File contents are loaded
-      // lazily by the active file's ProjectToolFile DataView, or by preview when
-      // all three files are actually needed.
-      persistActivePageId(pageId)
-    }
+    const resume=prepareExternalContextChange()
+    try {
+      if (blueprintDirty.value && selectedNode.value) void saveNodeChanges()
+      const owner=await loadBlueprintWorkspaceDataView()
+      if (hasExternalDataViewChanges()) {
+        addStatus('节点切换期间出现未保存修改，请先处理后再切换', 'warning')
+        return
+      }
+      await owner.load(node.nodeId)
+      if(selectionRevision!==nodeSelectionRevision||currentScopeKey()!==scope||currentEditor.value!==workspace
+        ||!findNodeById(readBlueprintProjection().tree,node.nodeId))throw new Error('节点选择期间当前项目树已变化')
+      if (selectedNode.value?.nodeId !== node.nodeId || selectedNode.value.dataSpace?.scenarioId !== node.dataSpace?.scenarioId) {
+        scenarioLoad++; installScenarioDocument(null); pageDataError.value = null
+      }
+      loadNodeToForm(node)
+      const pageId = resolvePageNodePageId(node)
+      if (pageId && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(node))) {
+        // The active file and preview load the original file DataViews on demand.
+        persistActivePageId(pageId)
+      }
+    } finally {resume()}
   }
 
   async function selectNodeById(nodeId:string):Promise<void>{
@@ -1863,6 +1887,9 @@ export function useDevState() {
     const pageId = resolvePageNodePageId(data)
     const shouldRemoveMountedPage = pageId.length > 0 && isConfigNodeKind(ProjectBlueprintDomain.projectNodeDeliveryKind(data))
     if(blueprintSaving.value){addStatus('蓝图节点正在保存，请稍后再删除','warning');return}
+    let resume:()=>void
+    try {resume=prepareExternalContextChange()}
+    catch(error){addStatus(`预览工作尚未处理，不能删除节点：${String(error)}`,'warning');return}
     blueprintSaving.value=true
     const deletePromise = (async()=>{
       try{
@@ -1875,13 +1902,11 @@ export function useDevState() {
           await completePendingMountedPageDelete()
           return
         }
-        try{
-          const owner=await loadBlueprintWorkspaceDataView()
-          await owner.removeLeafNode(data.nodeId,data.projectId,data.parentNodeId)
-          refreshBlueprintTreeProjection()
-          externalDataViewRevision.value++
-        }finally{blueprintSaving.value=false}
-      }finally{blueprintSaving.value=false}
+        const owner=await loadBlueprintWorkspaceDataView()
+        await owner.removeLeafNode(data.nodeId,data.projectId,data.parentNodeId)
+        refreshBlueprintTreeProjection()
+        externalDataViewRevision.value++
+      }finally{blueprintSaving.value=false;resume()}
     })()
     void deletePromise.then(
       () => {

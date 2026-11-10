@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { buildApplicationPath, buildApplicationRootPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
+import { buildApplicationPath, buildApplicationRootPath, buildConfigPageNavigationPath, parseApplicationPathScope, stripApplicationPath } from '@/services/application-scope'
 
 describe('application path helpers', () => {
   const scope = { projectId: 'homepage' }
@@ -18,6 +18,11 @@ describe('application path helpers', () => {
     expect(buildApplicationPath(scope, '/dev')).toBe('/apps/homepage/dev')
     expect(buildApplicationPath(scope, '/apps/APP-1/dashboard')).toBe('/apps/APP-1/dashboard')
     expect(buildApplicationPath(scope, '')).toBe('/apps/homepage/')
+  })
+
+  it('builds config navigation from node and scenario identities', () => {
+    expect(buildConfigPageNavigationPath('NODE-1')).toBe('/__page/NODE-1')
+    expect(buildConfigPageNavigationPath('NODE / 1', 'SPACE & 2')).toBe('/__page/NODE%20%2F%201?scenarioId=SPACE+%26+2')
   })
 
   it('strips one application path segment', () => {

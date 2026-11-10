@@ -1,5 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
-import { computed, defineComponent, h, nextTick, ref, shallowRef, type Component } from 'vue'
+import { computed, defineComponent, h, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, type Component } from 'vue'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import ElementPlus from 'element-plus'
 import { buildDataViewKey, DataSet, type DataRow, type DataView } from '@spark-appworks/spark-data'
@@ -89,6 +89,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus
   let owner: BlueprintWorkspaceDataView | undefined
   const fileViews=new Map<string,{currentRow:DataRow;createSourceVersion:(onAttempt?:(attempt:{version:number;fileName:string})=>void)=>Promise<{state:string;version:number;fileName:string;message:null}>;acknowledgeSourceHistoryAttempt:()=>void;getPkKey:(row:DataRow)=>string;getEditingRow:()=>DataRow|null;editRowById:(id:string,patch:DataRow)=>Promise<void>;dirtyTracking:{hasPendingChanges:()=>boolean};hasEditingChanges:()=>boolean;hasUnconfirmedSave:boolean}>()
   const blueprintWorkspaceDataView=shallowRef<BlueprintWorkspaceDataView>()
+  const previewRequest=shallowRef<{projectId:string;nodeId:string;pageId:string;runtimeId:string;sequence:number}>()
   const accessRevision = ref(0)
   const capability = new Proxy({} as {name?:string;description?:string}, {get(_target,key){const row=owner?.nodeData();return key==='name'?row?.capability.name:row?.capability.description},set(_target,key,value){const row=owner?.nodeData();if(!owner||!row)return false;owner.updateNodeData({...row,capability:{...row.capability,[key==='name'?'name':'description']:value}});accessRevision.value++;return true}})
   const state = {
@@ -128,7 +129,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus
     project: {},
   }
   const Host=defineComponent({setup(){useSparkComponent({type:'blueprint-workspace-test-host'}).sparkProvide(PAGE_RUNTIME,pageRuntime)
-    return ()=>h(BlueprintWorkspace,{state:state as never})}})
+    return ()=>h(BlueprintWorkspace,{state:state as never,...(previewRequest.value ? {previewRequest:previewRequest.value} : {})})}})
   const wrapper = mount(Host, {
     global: {
       plugins: testRuntime ? [ElementPlus, Spark.createPlugin()] : [], directives: testRuntime ? {} : { loading: () => {} }, stubs: {
@@ -142,7 +143,7 @@ function setup(options: Parameters<typeof createDataSet>[0] = {}, autoSaveStatus
       },
     },
   })
-  return { state, wrapper, dataSet:activeDataSet, workspaceOwner: () => owner, fileViews,
+  return { state, wrapper, dataSet:activeDataSet, workspaceOwner: () => owner, fileViews, previewRequest,
     replaceWorkspace(nextDataSet:DataSet,nextRuntime:PageRuntime){owner?.dispose();owner=undefined;activeDataSet=nextDataSet;blueprintWorkspaceDataView.value=undefined;state.blueprintPageRuntime.value=nextRuntime} }
 }
 
@@ -385,6 +386,46 @@ describe('BlueprintWorkspace file delivery', () => {
       expect(owner.value('VersionId')).toBe('rule=8;script=8;style=8')
       expect(mounted.state.addStatus).toHaveBeenCalledWith(expect.stringContaining('三个文件已独立上传、切换版本并读回'),'success')
     }finally{mounted.wrapper.unmount();mounted.workspaceOwner()?.dispose();dataSet.destroy();runtime.dispose()}
+  })
+
+  it('opens the identity-matched preview and retains it across all delivery tab switches',async()=>{
+    const dataSet=createDataSet()
+    const runtime=new PageRuntime({pageId:'blueprint-preview-target',scenarioIds:[scenarioId],loadScenario:async()=>dataSet})
+    await runtime.load()
+    const mountedPreview=vi.fn(),unmountedPreview=vi.fn()
+    const PreviewProbe=defineComponent({name:'DevPreviewTab',props:{refreshToken:Number},setup(props){
+      onMounted(mountedPreview);onBeforeUnmount(unmountedPreview)
+      return ()=>h('output',{'data-preview-token':props.refreshToken},'preview owner')
+    }})
+    const mounted=setup({},'saved',{dataSet,runtime,stubs:{
+      RendererTabs:false,RendererTabPane:false,RendererButton:false,DeliveryPane:false,
+      DevFileEditor:true,DevPreviewTab:PreviewProbe,
+    }})
+    try{
+      await flushPromises()
+      mounted.previewRequest.value={projectId:'APP-A',nodeId:'other-node',pageId:'tool-A',runtimeId:runtime.instanceId,sequence:1}
+      await flushPromises()
+      expect(mountedPreview).not.toHaveBeenCalled()
+      mounted.previewRequest.value={projectId:'APP-A',nodeId:'node-A',pageId:'tool-A',runtimeId:runtime.instanceId,sequence:2}
+      await flushPromises()
+      expect(mounted.wrapper.find('output[data-preview-token]').exists()).toBe(true)
+      expect(mountedPreview).toHaveBeenCalledTimes(1)
+      const initialToken=Number(mounted.wrapper.find('output[data-preview-token]').attributes('data-preview-token'))
+      const tab=(label:string)=>mounted.wrapper.findAll('.el-tabs__item').find(item=>item.text().trim()===label)
+      await tab('rule.json')!.trigger('click');await flushPromises()
+      await tab('基本信息')!.trigger('click');await flushPromises()
+      expect(unmountedPreview).not.toHaveBeenCalled()
+      await tab('本仓扩展')!.trigger('click');await flushPromises()
+      await tab('预览')!.trigger('click');await flushPromises()
+      expect(mountedPreview).toHaveBeenCalledTimes(1)
+      const returnedToken=Number(mounted.wrapper.find('output[data-preview-token]').attributes('data-preview-token'))
+      expect(returnedToken).toBeGreaterThan(initialToken)
+      mounted.previewRequest.value={projectId:'APP-A',nodeId:'node-A',pageId:'tool-A',runtimeId:runtime.instanceId,sequence:3}
+      await flushPromises()
+      expect(Number(mounted.wrapper.find('output[data-preview-token]').attributes('data-preview-token'))).toBeGreaterThan(returnedToken)
+      expect(unmountedPreview).not.toHaveBeenCalled()
+    }finally{mounted.wrapper.unmount();mounted.workspaceOwner()?.dispose();dataSet.destroy();runtime.dispose()}
+    expect(unmountedPreview).toHaveBeenCalledTimes(1)
   })
 
   it('organizes the SPA work area by the reference six domains and preserves local extensions', async () => {

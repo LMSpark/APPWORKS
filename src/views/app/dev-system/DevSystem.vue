@@ -50,7 +50,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
           :disabled="!canRunPageDesignAi"
           @click="headerActions.runPageDesignAi"
         />
-        <RendererButton :data-view-key="initiatingProjectDataViewKey" label="预览页面" icon="Search" button-size="small" @click="headerActions.preview" :disabled="!canPreviewCurrentPage" />
+        <RendererButton :data-view-key="initiatingProjectDataViewKey" :label="previewActionLabel" icon="Search" button-size="small" @click="headerActions.preview" :disabled="!canPreviewCurrentPage" />
         <RendererButton
           v-if="canSaveFromHeader && initiatingProjectDataViewKey"
           :data-view-key="initiatingProjectDataViewKey"
@@ -89,7 +89,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
             @abort="state.abortAiTool"
           />
         </div>
-        <BlueprintWorkspace :state="state" />
+        <BlueprintWorkspace :state="state" v-bind="previewRequest ? {previewRequest} : {}" :register-preview-guard="registerPreviewGuard" />
         <div class="workspace-footer">
           <div class="workspace-footer__left">
             <template v-if="state.selectedNode.value">
@@ -109,12 +109,12 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
               v-if="state.activePageId.value && initiatingProjectDataViewKey"
               :key="headerActionScopeKey"
               :data-view-key="initiatingProjectDataViewKey"
-              :label="`/${state.activePageId.value}`"
+              label="打开运行页面"
               icon="Connection"
               button-size="small"
               button-type="success"
               link
-              @click="headerActions.previewPage(state.activePageId.value)"
+              @click="headerActions.openRuntimePage"
             />
           </div>
         </div>
@@ -166,7 +166,10 @@ const {
   blueprintTreeScopeKey,
   headerActionScopeKey,
   headerActions,
+  previewRequest,
+  registerPreviewGuard,
   canPreviewCurrentPage,
+  previewActionLabel,
   canSaveFromHeader,
   canRunPageDesignAi,
   headerSaveLabel,

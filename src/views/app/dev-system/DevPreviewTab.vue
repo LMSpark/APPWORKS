@@ -19,7 +19,7 @@ AI用途：需要理解开发系统如何编辑节点和文件时，用本模块
         </RendererForm>
       </div>
       <div class="preview-toolbar__right">
-        <RendererButton label="刷新预览" button-type="default" :loading="loading" @click="refresh" />
+        <RendererButton label="刷新预览" button-type="default" :loading="loading" :disabled="contextSuspended" @click="refresh" />
       </div>
     </div>
 
@@ -55,12 +55,14 @@ import {PageTool, ScenarioDefinitionDocument, ScenarioViewConfig, type PageRunti
 import type { PageRoute } from '@spark-appworks/spark-component/runtime'
 import { assembleLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-space-runtime'
 import { lowcodeApi } from '@/lowcode/lowcode-runtime'
+import { buildApplicationPath, buildConfigPageNavigationPath } from '@/services/application-scope'
 import type { DevState } from './useDevState'
 
 const props = defineProps<{
   state: DevState
   /** 外部通知刷新（如切 Tab 时 ++） */
   refreshToken?: number
+  registerPreviewGuard?: (guard: () => boolean) => () => void
 }>()
 
 const loading = ref(false)
@@ -86,6 +88,11 @@ const autoRefresh = computed(() => {
   return readPreviewInput('autoRefresh', true)
 })
 let generation = 0
+let disposed = false
+let contextSuspensions = 0
+let notifyingPreviewChange = false
+const contextSuspended = ref(false)
+let releaseRuntimeSubscriptions: Array<() => void> = []
 type PreviewInputScope = Readonly<{
   projectId: string
   workspace: DevState['editor']
@@ -129,6 +136,45 @@ function assertTargetCurrent(target:PreviewTarget,expectedGeneration:number):voi
     ||props.state.blueprintPageRuntime.value!==target.ownerRuntime
     ||target.owner.nodeId!==target.nodeId||props.state.projectId!==target.projectId)
     throw new Error('PAGE_PREVIEW_STALE: 预览目标或编辑owner已改变')
+}
+
+function hasPendingPreview():boolean {
+  const runtime=previewRuntime.value
+  if (!runtime || runtime.destroyed) return false
+  if (runtime.isDirty) return true
+  return runtime.call.scenarioIds.some(id => {
+    const dataSet=runtime.getDataSet(id)
+    return dataSet!==undefined && Object.values(dataSet.tables).some(table =>
+      Object.values(table.views).some(view => view.mutating || view.hasUnconfirmedSave))
+  })
+}
+
+function notifyPreviewChange():void {
+  notifyingPreviewChange=true
+  try {props.state.notifyExternalDataViewChanged()}
+  finally {notifyingPreviewChange=false}
+}
+
+function releasePreviewRuntime():void {
+  for (const release of releaseRuntimeSubscriptions.splice(0)) release()
+  previewRuntime.value=null
+  previewSession.dispose()
+}
+
+function watchPreviewRuntime(runtime:PageRuntime):void {
+  releaseRuntimeSubscriptions.push(runtime.onContentChange(notifyPreviewChange))
+  for (const id of runtime.call.scenarioIds) {
+    const dataSet=runtime.getDataSet(id)
+    if (!dataSet) continue
+    releaseRuntimeSubscriptions.push(dataSet.onAnyViewChange({
+      rowsChanged:notifyPreviewChange,
+      editingFieldChanged:notifyPreviewChange,
+      editingChanged:notifyPreviewChange,
+      editingDiscarded:notifyPreviewChange,
+      mutatingChanged:notifyPreviewChange,
+      requestCompleted:notifyPreviewChange,
+    }))
+  }
 }
 
 function releasePreviewInput():void {
@@ -216,14 +262,33 @@ const previewConfigurationSources=[
   () => props.state.scenarioDefinitionRevision.value,
   () => props.state.scenarioDefinitionDocument.value?.getText(),
 ]
+const unregisterPreviewGuard=props.registerPreviewGuard?.(hasPendingPreview)
+const unregisterExternalSession=props.state.registerExternalDataViewSession({
+  isDirty:hasPendingPreview,
+  save:async()=>{throw new Error('预览业务修改必须在预览页面通过原数据视图提交或取消')},
+  prepareContextChange:()=>{
+    if (hasPendingPreview()) throw new Error('预览存在未保存业务数据或待核验写入')
+    contextSuspensions++
+    contextSuspended.value=true
+    invalidatePendingPreview()
+    releasePreviewRuntime()
+    return ()=>{
+      contextSuspensions--
+      if (contextSuspensions===0) {
+        contextSuspended.value=false
+        if (!disposed && !previewRuntime.value && livePreview.value) scheduleLiveRefresh()
+      }
+    }
+  },
+})
 async function refresh():Promise<void> {
-  if(previewRuntime.value?.isDirty){previewRuntime.value.markConfigPending();parseError.value='预览仍有未保存业务数据，请保存后刷新';return}
+  if(contextSuspended.value){parseError.value='工作区目标正在切换，暂不能刷新预览';return}
+  if(hasPendingPreview()){previewRuntime.value?.markConfigPending();parseError.value='预览仍有未保存业务数据或待核验写入，请处理后刷新';return}
   if(_liveTimer!==null){clearTimeout(_liveTimer);_liveTimer=null}
   const target=currentTarget()
   if(!target){parseError.value='当前编辑工作区尚未就绪，无法创建预览';return}
   const current = ++generation
-  previewSession.dispose()
-  previewRuntime.value = null
+  releasePreviewRuntime()
   loading.value = true
   parseError.value = null
   let runtime:PageRuntime | undefined
@@ -266,9 +331,15 @@ async function refresh():Promise<void> {
     assertTargetCurrent(target,current)
     if(!previewSession.isCurrent(runtime))return
     runtime.materialize()
-    const path=`/__page/${pageId}`
-    routeSnapshot.value=Object.freeze({path,fullPath:path,name:null,params:Object.freeze({projectId,pageId}),query:Object.freeze({}),hash:''})
-    if(current===generation&&previewSession.isCurrent(runtime))previewRuntime.value=runtime
+    const path=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId))
+    const fullPath=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId,mainScenarioId))
+    const query:PageRoute['query']={}
+    if(mainScenarioId)query['scenarioId']=mainScenarioId
+    routeSnapshot.value=Object.freeze({path,fullPath,name:null,params:Object.freeze({projectId}),query:Object.freeze(query),hash:''})
+    if(current===generation&&previewSession.isCurrent(runtime)){
+      previewRuntime.value=runtime
+      watchPreviewRuntime(runtime)
+    }
   } catch(error) {
     if(runtime&&previewSession.isCurrent(runtime))previewSession.dispose()
     if(current===generation)parseError.value=error instanceof Error ? error.message : String(error)
@@ -282,7 +353,7 @@ watch(() => props.refreshToken, () => {
 
 let _liveTimer: ReturnType<typeof setTimeout> | null = null
 function scheduleLiveRefresh() {
-  if (!livePreview.value) return
+  if (!livePreview.value || contextSuspended.value || disposed) return
   if (_liveTimer !== null) clearTimeout(_liveTimer)
   _liveTimer = setTimeout(() => {
     _liveTimer = null
@@ -301,25 +372,29 @@ function invalidatePendingPreview():void {
 
 watch(previewIdentitySources,()=>{
   invalidatePendingPreview()
-  const current=previewRuntime.value
-  if(current?.isDirty){parseError.value='预览仍有未保存业务数据，当前目标不能替换';return}
-  previewSession.dispose()
-  previewRuntime.value=null
+  if(hasPendingPreview()){parseError.value='预览仍有未保存业务数据或待核验写入，当前目标不能替换';return}
+  releasePreviewRuntime()
   parseError.value=null
   if(livePreview.value)scheduleLiveRefresh()
 },{flush:'sync'})
 
 watch(previewConfigurationSources,()=>{
+  if(notifyingPreviewChange)return
   invalidatePendingPreview()
   const current=previewRuntime.value
-  if(current?.isDirty){parseError.value='预览仍有未保存业务数据，配置变化暂不能应用';return}
+  if(hasPendingPreview()){current?.markConfigPending();parseError.value='预览仍有未保存业务数据或待核验写入，配置变化暂不能应用';return}
   if(livePreview.value)scheduleLiveRefresh()
 },{flush:'sync'})
 onBeforeUnmount(() => {
-  if (_liveTimer !== null) clearTimeout(_liveTimer)
-  generation++
+  disposed=true
+  if (hasPendingPreview()) props.state.addStatus('预览仍有未处理业务修改或待核验写入，运行实例被强制释放', 'error')
+  invalidatePendingPreview()
   releasePreviewInput()
-  previewSession.dispose()
+  releasePreviewRuntime()
+  unregisterPreviewGuard?.()
+  notifyingPreviewChange=true
+  try {unregisterExternalSession()}
+  finally {notifyingPreviewChange=false}
 })
 
 onMounted(() => {

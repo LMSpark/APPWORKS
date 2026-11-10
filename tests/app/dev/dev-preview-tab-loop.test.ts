@@ -163,6 +163,134 @@ describe('DevPreviewTab live refresh', () => {
     expect(Reflect.has(state.editor, 'ensureActivePageFilesLoaded')).toBe(false)
     expect(fileViewLoad.mock.calls.map(([input]) => input.fileName).sort()).toEqual(['rule.json', 'script.js', 'style.css'])
     expect(fileViewLoad.mock.calls.every(([input]) => input.pageId === 'cascade-demo')).toBe(true)
+    expect(wrapper.findComponent(RendererStub).props('routeSnapshot')).toMatchObject({
+      path:'/apps/homepage/__page/cascade-node',
+      fullPath:'/apps/homepage/__page/cascade-node',
+      params:{projectId:'homepage'},
+      query:{},
+    })
     wrapper.unmount()
+  })
+
+  it('only refreshes on tab requests when the DataView auto-refresh switch is enabled',async()=>{
+    const {state}=await createPreviewState()
+    const wrapper=mount(DevPreviewTab,{
+      props:{state,refreshToken:0},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+    })
+    try{
+      await flushPromises()
+      const original=wrapper.findComponent(RendererStub).props('pageRuntime')
+      const switches=wrapper.findAllComponents(SwitchStub)
+      expect(switches).toHaveLength(2)
+      switches[1]!.vm.$emit('update:modelValue',false);await flushPromises()
+      await wrapper.setProps({refreshToken:1});await flushPromises()
+      expect(wrapper.findComponent(RendererStub).props('pageRuntime')).toBe(original)
+      switches[1]!.vm.$emit('update:modelValue',true);await flushPromises()
+      await wrapper.setProps({refreshToken:2});await flushPromises()
+      expect(wrapper.findComponent(RendererStub).props('pageRuntime')).not.toBe(original)
+      expect(original?.['destroyed']).toBe(true)
+    }finally{wrapper.unmount()}
+  })
+
+  it('retains the preview owner and blocks node changes while preview work is pending', async () => {
+    const {state}=await createPreviewState()
+    let pending: (() => boolean) | undefined
+    const registerPreviewGuard=(check:()=>boolean)=>{
+      pending=check
+      return ()=>{pending=undefined}
+    }
+    const wrapper=mount(DevPreviewTab,{
+      props:{state,refreshToken:0,registerPreviewGuard},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+    })
+    try{
+      await flushPromises()
+      const runtime=wrapper.findComponent(RendererStub).props('pageRuntime')
+      if(!(runtime instanceof PageRuntime))throw new Error('preview runtime missing')
+      const content=runtime.getContent('preview-draft')
+      expect(content.acceptRead('saved')).toBe(true)
+      content.setDraft('unsaved')
+      expect(pending?.()).toBe(true)
+      expect(state.hasAnyDirty.value).toBe(true)
+      const selected=state.selectedNode.value
+      if(!selected)throw new Error('selected node missing')
+      await state.selectNode({...selected,nodeId:'different-node'})
+      expect(state.selectedNode.value?.nodeId).toBe(selected.nodeId)
+      expect(state.statusMessages.value[0]?.text).toContain('未保存')
+      expect(await state.openEditingProject({projectId:'different-project'},{force:true})).toBe(false)
+      state.removeNodeFromTree(selected)
+      expect(runtime.destroyed).toBe(false)
+      const saveDefinitions=vi.spyOn(state.editor,'saveDirtyScenarioDefinitions')
+      await state.saveAll()
+      expect(saveDefinitions).not.toHaveBeenCalled()
+      expect(state.statusMessages.value[0]?.text).toContain('预览业务修改')
+      await wrapper.setProps({refreshToken:1});await flushPromises()
+      expect(runtime.destroyed).toBe(false)
+      expect(content.draft).toBe('unsaved')
+      content.discardDraft()
+      expect(pending?.()).toBe(false)
+      await expect(content.startWrite({kind:'save',submitted:'write',expectedContent:'saved',run:async()=>{throw new Error('unknown receipt')}})).rejects.toThrow('unknown receipt')
+      expect(content.status).toBe('unknown')
+      expect(pending?.()).toBe(true)
+      await wrapper.setProps({refreshToken:2});await flushPromises()
+      expect(runtime.destroyed).toBe(false)
+      const read=content.offerRemote('saved',content.revision)
+      content.adoptRemote(read,content.revision)
+      expect(pending?.()).toBe(false)
+    }finally{wrapper.unmount()}
+    expect(pending).toBeUndefined()
+  })
+
+  it('retires a clean preview synchronously before an asynchronous node switch',async()=>{
+    const {state}=await createPreviewState()
+    const owner=state.blueprintWorkspaceDataView.value
+    const selected=state.selectedNode.value
+    if(!owner||!selected)throw new Error('preview owner missing')
+    let release:(value:BlueprintWorkspaceDataView)=>void=()=>{}
+    const pendingOwner=new Promise<BlueprintWorkspaceDataView>(resolve=>{release=resolve})
+    vi.spyOn(state,'loadBlueprintWorkspaceDataView').mockReturnValueOnce(pendingOwner)
+    vi.spyOn(owner,'load').mockRejectedValueOnce(new Error('target unavailable'))
+    const wrapper=mount(DevPreviewTab,{
+      props:{state,refreshToken:0},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+    })
+    try{
+      await flushPromises()
+      const runtime=wrapper.findComponent(RendererStub).props('pageRuntime')
+      if(!(runtime instanceof PageRuntime))throw new Error('preview runtime missing')
+      const content=runtime.getContent('race')
+      expect(content.acceptRead('saved')).toBe(true)
+      const switching=state.selectNode({...selected,nodeId:'different-node'})
+      const rejected=expect(switching).rejects.toThrow('target unavailable')
+      expect(runtime.destroyed).toBe(true)
+      expect(()=>content.setDraft('late change')).toThrow('PAGE_CONTENT_DISPOSED')
+      await wrapper.setProps({refreshToken:1});await flushPromises()
+      expect(wrapper.findComponent(RendererStub).exists()).toBe(false)
+      release(owner)
+      await rejected
+      await vi.advanceTimersByTimeAsync(600);await flushPromises()
+      expect(wrapper.findComponent(RendererStub).exists()).toBe(true)
+      expect(state.selectedNode.value?.nodeId).toBe(selected.nodeId)
+    }finally{release(owner);wrapper.unmount()}
+  })
+
+  it('resumes preview after a config-page deletion is rejected',async()=>{
+    const {state}=await createPreviewState()
+    const selected=state.selectedNode.value
+    if(!selected)throw new Error('selected node missing')
+    const wrapper=mount(DevPreviewTab,{
+      props:{state,refreshToken:0},
+      global:{stubs:{ElAlert:true,ElButton:ButtonStub,ElEmpty:true,ElIcon:true,ElSwitch:SwitchStub,Loading:true,NavIcon:true,SparkPageRenderer:RendererStub}},
+    })
+    try{
+      await flushPromises()
+      expect(wrapper.findComponent(RendererStub).exists()).toBe(true)
+      state.removeNodeFromTree({...selected,projectId:'different-project'})
+      await flushPromises()
+      expect(state.statusMessages.value[0]?.text).toContain('删除目标项目身份不匹配')
+      await vi.advanceTimersByTimeAsync(600);await flushPromises()
+      expect(wrapper.findComponent(RendererStub).exists()).toBe(true)
+    }finally{wrapper.unmount()}
   })
 })

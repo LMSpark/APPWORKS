@@ -12,42 +12,53 @@
  */
 import { computed, onScopeDispose, ref, shallowRef, watch } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
-import { useApplicationRouter } from '@/composables/useApplicationRouter'
-import { buildApplicationPath } from '@/services/application-scope'
-import { useDevState, type DevWorkspaceTab } from './useDevState'
-import type { PageToolFileName } from '@spark-appworks/spark-project-model'
+import { getNavTree, resolveNavNodeRuntimeTarget, useNav, useSystemPageDirtySource, type RuntimeNavigationItem } from '@spark-appworks/spark-app'
+import { buildConfigPageNavigationPath } from '@/services/application-scope'
+import { useDevState } from './useDevState'
+import { parseConfigToolPageId, type PageToolFileName } from '@spark-appworks/spark-project-model'
 import { onPageConfigChange } from '@/services/sse-events'
 import { buildDataViewKey, ensureDataSetStaticInputTable, type DataSet, type DataTable, type DataView } from '@spark-appworks/spark-data'
 
 const PAGE_DESIGN_PROMPT_ROW = 'page-design-prompt'
+
+export type DevPreviewRequest = Readonly<{
+  projectId: string
+  nodeId: string
+  pageId: string
+  runtimeId: string
+  sequence: number
+}>
 
 export function canLeaveDevSystem(hasPendingPageFileSave: boolean): boolean {
   return !hasPendingPageFileSave
 }
 
 export function useDevSystem() {
-  const { router } = useApplicationRouter()
+  const navigation = useNav()
   const state = useDevState()
+  const previewGuards = new Set<() => boolean>()
+  const hasPendingPreview = (): boolean => [...previewGuards].some(guard => guard())
+  function registerPreviewGuard(guard: () => boolean): () => void {
+    previewGuards.add(guard)
+    return () => {previewGuards.delete(guard)}
+  }
+  useSystemPageDirtySource({get isDirty() {return state.hasPendingDevSystemWrite() || hasPendingPreview()}})
   onBeforeRouteLeave(() => {
-    if (canLeaveDevSystem(state.hasPendingDevSystemWrite())) return true
-    state.addStatus('存在待核验的 DevSystem 数据写入；请留在当前页面完成原命令核验后再离开', 'warning')
+    if (canLeaveDevSystem(state.hasPendingDevSystemWrite() || hasPendingPreview())) return true
+    state.addStatus('存在待核验的 DevSystem 写入或预览业务修改；请先在原页面处理后再离开', 'warning')
     return false
   })
   const isPageFileName = (value: string): value is PageToolFileName =>
     state.pageFileNames.some((name) => name === value)
 
-  // ─── 工作区 Tab 状态 ───────────────────────────────────
-  const workTab = ref<DevWorkspaceTab>('props')
-  const previewRefreshToken = ref(0)
+  const previewRequest = shallowRef<DevPreviewRequest>()
+  let previewSequence = 0
   const pageDesignPromptView = shallowRef<DataView>()
   const pageDesignPromptRevision = ref(0)
   let pageDesignPromptDataSet: DataSet | undefined
   let pageDesignPromptTableName: string | undefined
   let pageDesignPromptTable: DataTable | undefined
 
-  const currentWorkspaceFile = computed<PageToolFileName | null>(() =>
-    isPageFileName(workTab.value) ? workTab.value : null,
-  )
   const initiatingProjectDataViewKey = computed(() => {
     const runtime = state.blueprintPageRuntime.value
     const owner = state.blueprintWorkspaceDataView.value
@@ -60,8 +71,9 @@ export function useDevSystem() {
   const headerActionScope = computed(() => {
     const runtime=state.blueprintPageRuntime.value,owner=state.blueprintWorkspaceDataView.value
     const key=initiatingProjectDataViewKey.value
-    if(!runtime||!owner||!key)return undefined
-    return {runtime,owner,projectId:state.projectId,key,nodeId:state.selectedNode.value?.nodeId,pageId:state.activePageId.value}
+    const nodeId=state.selectedNode.value?.nodeId
+    if(!runtime||!owner||!key||!nodeId||owner.nodeId!==nodeId)return undefined
+    return {runtime,owner,projectId:state.projectId,key,nodeId,pageId:state.activePageId.value}
   })
   const headerActionScopeKey = computed(() => {
     const scope=headerActionScope.value
@@ -177,20 +189,21 @@ export function useDevSystem() {
   onScopeDispose(stopPageConfigChange)
 
   // ─── 派生能力 ──────────────────────────────────────────
-  const canPreviewCurrentPage = computed(
-    () => Boolean(state.blueprintDraft.navigation?.target) || Boolean(state.activePageId.value),
-  )
+  const currentNavigationTarget = computed(() => {
+    void state.externalDataViewRevision.value
+    const scope=headerActionScope.value
+    const target=scope?.owner.value('NavigationUrl')
+    return typeof target==='string' ? target : ''
+  })
+  const canPreviewCurrentPage = computed(() => Boolean(currentNavigationTarget.value) || Boolean(state.activePageId.value))
+  const previewActionLabel = computed(() => currentNavigationTarget.value.startsWith('vue:') ? '打开运行页面' : '预览页面')
   const activePageDescription = computed(() => {
     const pageId = state.activePageId.value
     if (!pageId) return ''
     const page = state.pageList.value.find((item: { pageId: string }) => item.pageId === pageId)
     return String(page?.effectiveDescription ?? page?.description ?? '').trim()
   })
-  const canSaveCleanNode = computed(() => {
-    if (workTab.value !== 'props') return false
-    const node = state.selectedNode.value
-    return Boolean(node)
-  })
+  const canSaveCleanNode = computed(() => Boolean(state.selectedNode.value))
   const canSaveFromHeader = computed(() => state.hasAnyDirty.value || canSaveCleanNode.value)
   const headerSaveLabel = computed(() => state.hasAnyDirty.value ? '全部保存' : '保存')
   const canRunPageDesignAi = computed(() => {
@@ -199,37 +212,65 @@ export function useDevSystem() {
       && (currentPageDesignPrompt().trim() || activePageDescription.value))
   })
 
-  // 选中节点时自动切到节点属性页签
-  watch(() => state.selectedNode.value?.nodeId ?? '', (nextId, prevId) => {
-    if (nextId && nextId !== prevId) {
-      workTab.value = 'props'
-    }
-  })
-
-  // activePageId 切换时的默认页签联动
-  watch(() => state.activePageId.value, (nextPageId) => {
-    const hasSelectedNode = state.selectedNode.value !== null
-    if (nextPageId && !hasSelectedNode) {
-      workTab.value = 'rule.json'
+  // ─── 动作方法 ──────────────────────────────────────────
+  function openRuntimePage(scope: NonNullable<typeof headerActionScope.value>): void {
+    const tree=getNavTree()
+    if (tree?.projectId!==scope.projectId || !navigation) {
+      state.addStatus('当前应用的运行导航身份不可用，无法打开目标页面', 'warning')
       return
     }
-    if (!nextPageId && hasSelectedNode) {
-      workTab.value = 'props'
+    if (!scope.owner.canRead('conid')) {
+      state.addStatus('当前节点的数据空间身份不可读取，无法核对运行导航', 'warning')
+      return
     }
-  })
-
-  // ─── 动作方法 ──────────────────────────────────────────
-  function previewPage(pageId: string) {
-    void router.push(buildApplicationPath({ projectId: state.projectId }, `/${pageId}`))
+    const matches:Array<{node:RuntimeNavigationItem; unavailable:boolean}>=[]
+    const collect=(items:readonly RuntimeNavigationItem[], unavailable=false):void=>{
+      for (const node of items) {
+        const blocked=unavailable || node.disabled===true || node.hidden===true
+        if (node.id===scope.nodeId) matches.push({node,unavailable:blocked})
+        if (node.children) collect(node.children,blocked)
+      }
+    }
+    collect(tree.items)
+    const match=matches[0]
+    const target=currentNavigationTarget.value
+    const scenarioId=String(scope.owner.value('conid') ?? '').trim()
+    const resource=target.startsWith('vue:') ? target.slice(4).replace(/^\/+/,'') : ''
+    const matchesNative=resource!=='' && match?.node.itemKind==='system-page' && match.node.path===`/${resource}`
+    const toolPageId=parseConfigToolPageId(target)
+    const matchesConfig=toolPageId!=='' && toolPageId===scope.pageId && match?.node.itemKind==='page'
+      && match.node.tool?.projectId===scope.projectId && match.node.tool.pageId===toolPageId
+      && match.node.path===buildConfigPageNavigationPath(scope.nodeId,scenarioId)
+    if (matches.length!==1 || !match || match.unavailable || (!matchesNative && !matchesConfig)
+      || (match.node.blueprintScenarioId ?? '')!==scenarioId) {
+      state.addStatus('运行导航的节点、目标或数据空间身份不匹配，或该页面尚不可用', 'warning')
+      return
+    }
+    const resolved=resolveNavNodeRuntimeTarget(match.node)
+    if (resolved.kind!=='route' || resolved.routeKind!=='page') {
+      state.addStatus('运行导航目标不是可打开的页面', 'warning')
+      return
+    }
+    navigation.navigateTo(match.node)
   }
 
-  function switchToPreview() {
+  function switchToPreview(scope: NonNullable<typeof headerActionScope.value>) {
     if (!canPreviewCurrentPage.value) return
-    workTab.value = 'preview'
-    previewRefreshToken.value++
+    const target=currentNavigationTarget.value
+    if (target.startsWith('vue:')) {openRuntimePage(scope);return}
+    if (!scope.pageId || parseConfigToolPageId(target)!==scope.pageId) {
+      state.addStatus('当前节点的配置工具目标身份无效，无法预览', 'warning')
+      return
+    }
+    previewRequest.value={projectId:scope.projectId,nodeId:scope.nodeId,pageId:scope.pageId,
+      runtimeId:scope.runtime.instanceId,sequence:++previewSequence}
   }
 
   function saveAll() {
+    if (hasPendingPreview()) {
+      state.addStatus('预览页面仍有未保存业务数据或待核验写入，请在预览中处理；工作台保存不会代替业务提交', 'warning')
+      return
+    }
     void state.saveAll()
   }
 
@@ -245,24 +286,17 @@ export function useDevSystem() {
   const headerActions=computed(()=>{
     const captured=headerActionScope.value
     return {
-      preview:()=>{if(captured&&isCurrentHeaderActionScope(captured))switchToPreview()},
+      preview:()=>{if(captured&&isCurrentHeaderActionScope(captured))switchToPreview(captured)},
       saveAll:()=>{if(captured&&isCurrentHeaderActionScope(captured))saveAll()},
       runPageDesignAi:()=>{if(captured)void runPageDesignAiFor(captured)},
-      previewPage:(pageId:string)=>{if(captured?.pageId === pageId&&isCurrentHeaderActionScope(captured))previewPage(pageId)},
+      openRuntimePage:()=>{if(captured&&isCurrentHeaderActionScope(captured))openRuntimePage(captured)},
     }
   })
 
-  function isWorkspaceTabDirty(name: PageToolFileName): boolean {
-    void state.projectRevision.value
-    void state.externalDataViewRevision.value
-    return state.isPageToolFileDirty(name)
-  }
-
   return {
     state,
-    workTab,
-    previewRefreshToken,
-    currentWorkspaceFile,
+    previewRequest,
+    registerPreviewGuard,
     pageDesignPromptViewKey,
     pageDesignPromptScopeKey,
     headerActionScopeKey,
@@ -271,10 +305,10 @@ export function useDevSystem() {
     blueprintTreeScopeKey,
     notifyPageDesignPromptChanged,
     canPreviewCurrentPage,
+    previewActionLabel,
     canSaveFromHeader,
     canRunPageDesignAi,
     headerSaveLabel,
-    isWorkspaceTabDirty,
   }
 }
 

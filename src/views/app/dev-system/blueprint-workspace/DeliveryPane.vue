@@ -14,22 +14,32 @@ AI用途：编辑rule/script/style并触发父工作台真实交付动作。
       <RendererTabPane v-for="(file, index) in files" :key="file" :label="file" :name="file" :index="index">
         <DevFileEditor v-if="activeFile === file" :state="state" :active-file="file" :show-tabs="false" />
       </RendererTabPane>
-      <RendererTabPane label="预览" name="preview" :index="files.length"><DevPreviewTab v-if="activeFile === 'preview'" :state="state" :refresh-token="0" /></RendererTabPane>
+      <RendererTabPane label="预览" name="preview" :index="files.length" :lazy="true"><DevPreviewTab :state="state" :refresh-token="previewRefreshToken" v-bind="registerPreviewGuard ? {registerPreviewGuard} : {}" /></RendererTabPane>
     </RendererTabs>
   </section>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import type { PageToolFileName } from '@spark-appworks/spark-project-model'
 import { RendererButton, RendererTabPane, RendererTabs } from '@spark-appworks/spark-component'
 import DevFileEditor from '../DevFileEditor.vue'
 import DevPreviewTab from '../DevPreviewTab.vue'
 import type { DevState } from '../useDevState'
-defineProps<{ state: DevState; saving: boolean; canPublish: boolean }>()
+import type { DevPreviewRequest } from '../useDevSystem'
+const props=defineProps<{ state: DevState; saving: boolean; canPublish: boolean; previewRequest?: DevPreviewRequest; registerPreviewGuard?: (guard: () => boolean) => () => void }>()
 defineEmits<{ save: [] }>()
 const files: readonly PageToolFileName[] = ['rule.json', 'script.js', 'style.css']
 const activeFile = ref<PageToolFileName | 'preview'>('rule.json')
+const previewRefreshToken = ref(0)
+watch(activeFile, (value, previous) => {
+  if (value==='preview' && previous!=='preview') previewRefreshToken.value++
+}, {flush:'sync'})
+watch(()=>props.previewRequest, request => {
+  if (!request) return
+  if (activeFile.value==='preview') previewRefreshToken.value++
+  else activeFile.value='preview'
+}, {immediate:true,flush:'sync'})
 </script>
 
 <style scoped>

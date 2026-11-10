@@ -54,9 +54,6 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
 
   return {
     state,
-    workTab: ref('props'),
-    previewRefreshToken: ref(0),
-    currentWorkspaceFile: ref(null),
     pageDesignPromptViewKey: ref(''),
     pageDesignPromptScopeKey: ref('unbound'),
     initiatingProjectDataViewKey: ref('APP@Base_NavigationInfo@default'),
@@ -66,18 +63,14 @@ function createDevSystemCtx(overrides: Record<string, unknown> = {}) {
       saveAll: vi.fn(),
       preview: vi.fn(),
       runPageDesignAi: vi.fn(),
-      previewPage: vi.fn(),
+      openRuntimePage: vi.fn(),
     },
     notifyPageDesignPromptChanged: vi.fn(),
     canPreviewCurrentPage: ref(true),
+    previewActionLabel: ref('预览页面'),
     canSaveFromHeader: ref(true),
     canRunPageDesignAi: ref(false),
     headerSaveLabel: ref('保存'),
-    previewPage: vi.fn(),
-    switchToPreview: vi.fn(),
-    saveAll: vi.fn(),
-    runPageDesignAi: vi.fn(),
-    isWorkspaceTabDirty: vi.fn(() => false),
     ...overrides,
   }
 }

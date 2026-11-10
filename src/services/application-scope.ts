@@ -31,3 +31,10 @@ export function buildApplicationPath(scope: ApplicationPathScope, subPath: strin
   if (parseApplicationPathScope(normalized) !== null) return normalized
   return `${buildApplicationRootPath(scope)}${normalized}`
 }
+
+export function buildConfigPageNavigationPath(nodeId: string, scenarioId?: string): string {
+  const query = new URLSearchParams()
+  if (scenarioId) query.set('scenarioId', scenarioId)
+  const parameters = query.toString()
+  return `/__page/${encodeURIComponent(nodeId)}${parameters ? `?${parameters}` : ''}`
+}

@@ -332,9 +332,18 @@ async function refresh():Promise<void> {
     if(!previewSession.isCurrent(runtime))return
     runtime.materialize()
     const path=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId))
-    const fullPath=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId,mainScenarioId))
+    let fullPath=buildApplicationPath({projectId},buildConfigPageNavigationPath(target.nodeId,mainScenarioId))
     const query:PageRoute['query']={}
     if(mainScenarioId)query['scenarioId']=mainScenarioId
+    const call=runtime.call
+    const additionalIds=call.scenarioIds.filter(id=>id!==call.mainScenarioId)
+    const firstAdditional=additionalIds[0]
+    if(firstAdditional!==undefined){
+      const parameters=new URLSearchParams()
+      for(const id of additionalIds)parameters.append('additionalScenarioIds',id)
+      fullPath+=`${mainScenarioId?'&':'?'}${parameters.toString()}`
+      query['additionalScenarioIds']=additionalIds.length===1?firstAdditional:Object.freeze(additionalIds)
+    }
     routeSnapshot.value=Object.freeze({path,fullPath,name:null,params:Object.freeze({projectId}),query:Object.freeze(query),hash:''})
     if(current===generation&&previewSession.isCurrent(runtime)){
       previewRuntime.value=runtime

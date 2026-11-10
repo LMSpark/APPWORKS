@@ -12,7 +12,7 @@ import {DataSet, type DataRow, type DataView, type DataViewSourceHistoryStatus} 
 import {DATA_ROW, DATA_SOURCE, PAGE_RUNTIME, Spark, useSparkComponent, useSparkConsume} from '@spark-appworks/spark-component'
 import {LOWCODE_APPLICATION_CATALOG_FORM_KEY} from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
-import {ScenarioDefinitionResource, type PageRuntime, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
+import {PageRuntime, ScenarioDefinitionResource, type ProjectWorkspace} from '@spark-appworks/spark-project-model'
 import metadataConfig from '../../../config/pages/data-platform/data-space-design/pagedata.json'
 import appConfig from '../../../config/pages/application/project-blueprint/pagedata.json'
 
@@ -690,10 +690,44 @@ describe('tool and shared scenario editing owners',()=>{
     expect(previewLoad.mock.calls.map(([input])=>input.scenarioId)).toEqual(['extra'])
     const runtime=wrapper.findComponent(Renderer).props('pageRuntime') as PageRuntime
     expect(runtime.resolveView('extra@Orders@default')).toBe(runtime.getDataSet('extra')!.getView('Internal'))
+    expect(wrapper.findComponent(Renderer).props('routeSnapshot')).toMatchObject({
+      fullPath:'/apps/homepage/__page/orders-page-node?additionalScenarioIds=extra',
+      query:{additionalScenarioIds:'extra'},
+    })
     expect(httpPut).not.toHaveBeenCalled()
    } finally {wrapper.unmount()}
   },
  )
+ it('keeps the preview route snapshot aligned with the main and additional runtime spaces',async()=>{
+  const rule=JSON.stringify([{id:'field',type:'r-select',props:{
+   dataViewKey:'Orders@default',optionDataViewKey:'extra & space@Orders@default',edgeDataViewKey:'third@Orders@default',
+  }}])
+  httpGet.mockImplementation(async(url:string)=>({content:url.startsWith('scenario:')
+   ?fixtureText(20).replaceAll('"scene"',JSON.stringify(url.slice('scenario:'.length))):url.endsWith('/rule.json')?rule:''}))
+  previewLoad.mockImplementation(async({scenarioId}:{scenarioId:string})=>({dataSet:DataSet.fromJson({scenarioId,tables:{Internal:{
+   modelBinding:{modelId:'orders-model',modelName:'Orders'},columns:[{name:'id',type:'string',isPrimaryKey:true}],views:{default:{}},
+  }}})}))
+  const state=createDevStateWithConfigPages([], '')
+  state.project.replaceBlueprintChildren([sceneNode()]);await state.selectNode(sceneNode())
+  await ensureDevStateActivePageLoaded(state)
+  const Renderer=defineComponent({name:'SparkPageRenderer',props:['pageRuntime','routeSnapshot'],template:'<div />'})
+  const wrapper=mount(DevPreviewTab,{props:{state},global:{stubs:{DisplayAlert:true,DisplayEmpty:true,FieldSwitch:true,RendererButton:true,SparkPageRenderer:Renderer}}})
+  try {
+   await flushPromises()
+   const renderer=wrapper.findComponent(Renderer)
+   const runtime=renderer.props('pageRuntime')
+   if (!(runtime instanceof PageRuntime)) throw new Error('preview runtime missing')
+   expect(runtime.call.scenarioIds).toEqual(['scene','extra & space','third'])
+   const snapshot=renderer.props('routeSnapshot')
+   expect(snapshot).toMatchObject({
+    path:'/apps/homepage/__page/orders-page-node',
+    fullPath:'/apps/homepage/__page/orders-page-node?scenarioId=scene&additionalScenarioIds=extra+%26+space&additionalScenarioIds=third',
+    query:{scenarioId:'scene',additionalScenarioIds:['extra & space','third']},
+   })
+   expect(Object.isFrozen(snapshot.query.additionalScenarioIds)).toBe(true)
+   expect(httpPut).not.toHaveBeenCalled()
+  } finally {wrapper.unmount()}
+ })
  it('invalidates an in-flight file preview immediately across same-page node ABA',async()=>{
   vi.useFakeTimers()
   httpGet.mockImplementation(async(url:string)=>({content:url.endsWith('/rule.json')?'[]':''}))

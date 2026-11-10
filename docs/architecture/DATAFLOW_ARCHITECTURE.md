@@ -1397,6 +1397,8 @@ PageRuntimeOptions 的可选 `scenarioInputs` 为“空间 ID → JSON 参数对
 
 PageRuntimePool 从 URL 的单个 `scenarioInputs` JSON 参数传入同一合同，例如解码后 `{"META":{"dataSpaceId":"TARGET"},"LOOKUP":{"filterId":0}}`。META/LOOKUP 须由 scenarioId 或 additionalScenarioIds 显式声明；dataSpaceId 不替换 META 的身份。其他 URL query 继续只是路由上下文，不隐式传给每个空间。重复参数、损坏 JSON、非参数对象、未声明空间和非 JSON 程序调用值在装配前拒绝。
 
+工作台工具预览从选定主空间及规则中的静态视图绑定装配本次 PageRuntime，传给渲染器和脚本的路由快照按实际调用身份包含 `scenarioId` 与 `additionalScenarioIds`。它不推断脚本动态引用或提供 `scenarioInputs`；正式蓝图导航当前仍只投影主空间，多空间参数的设计、预览及正式调用入口尚未闭环。
+
 空串、0、false、null 和数组保留类型，不做字符串拆分或真假值兜底。渲染器在 runtime.load 之后才触发自动查询，因此首次自动查询可读取这些输入；显式 query 的 context 仍按现有查询合同覆盖本次视图上下文。该机制初始化本次装配的视图，未建立运行后新增视图的空间级参数存储。
 
 #### 参数声明、调用值与来源映射的完整链

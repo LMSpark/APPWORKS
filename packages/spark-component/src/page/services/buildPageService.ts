@@ -11,7 +11,7 @@
  * 优先使用 props 注入的 UI 服务（测试或宿主覆盖），回退到 Element Plus。
  */
 
-import type { Router, LocationQueryRaw } from 'vue-router'
+import type { Router } from 'vue-router'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import type {
   PageBrowseFilesOptions,
@@ -27,6 +27,7 @@ import type {
 import { createRequest, isRecord, isRequestError } from '@spark-appworks/spark-utils'
 import { PageUploadError } from '../../runtime/app-services.js'
 import { pageLogger } from './pageLogger'
+import { stringifyPageRouteQuery } from './page-route-query'
 
 /** 内部实现：ElMessageBox.confirm() 取消时抛出 'cancel' 字符串或 { action: 'cancel' }，用于区分真正的异常。这是 PageServiceCapability 内部实现细节，script.js 不能直接访问 ElMessageBox（已从沙箱移除）。 */
 function isElCancelAction(e: unknown): boolean {
@@ -71,20 +72,6 @@ function extractUploadedUrl(response: unknown): string | undefined {
     return typeof nestedCandidate === 'string' ? nestedCandidate : undefined
   }
   return undefined
-}
-
-function queryValue(value: unknown): string | null | undefined {
-  if (value === null || value === undefined) return value
-  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'boolean') return String(value)
-  throw new Error('页面调用参数必须是标量或标量数组')
-}
-
-function stringifyQueryParams(params: Record<string, unknown>): LocationQueryRaw {
-  const query: LocationQueryRaw = {}
-  for (const [key, value] of Object.entries(params)) {
-    query[key] = Array.isArray(value) ? value.map((item: unknown) => queryValue(item)) : queryValue(value)
-  }
-  return query
 }
 
 function createFilePicker(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]> {
@@ -368,7 +355,7 @@ export function buildPageService(
     },
 
     navigate: (path, params) => {
-      router.push(params ? { path, query: stringifyQueryParams(params) } : path)
+      router.push(params ? { path, query: stringifyPageRouteQuery(params) } : path)
         .catch((err: unknown) => { pageLogger.warn('导航失败', { path, error: err }) })
     },
   }

@@ -13,26 +13,11 @@
 import type { RouteLocationRaw, Router } from 'vue-router'
 import type { PageRuntimeServicesCapability } from '../../runtime'
 import type { LoggerApi } from '@spark-appworks/spark-utils'
+import { stringifyPageRouteQuery } from './page-route-query'
 
 type AppRouteObjectTarget = {
   path: string
   query?: Record<string, unknown>}
-
-/**
- * 将业务侧传入的 query 值归一为 vue-router 可接受的字符串 query。
- *
- * undefined/null 表示不参与路由参数；其他值统一转字符串，避免把对象或数字直接
- * 交给 router 后出现序列化差异。
- */
-function stringifyQueryParams(params: Record<string, unknown>): Record<string, string> {
-  const query: Record<string, string> = {}
-  for (const [key, value] of Object.entries(params)) {
-    if (value !== undefined && value !== null) {
-      query[key] = String(value)
-    }
-  }
-  return query
-}
 
 /**
  * 将页面运行时的轻量跳转参数转换为 vue-router 原生 RouteLocationRaw。
@@ -45,7 +30,7 @@ function toRouteLocation(to: string | AppRouteObjectTarget): RouteLocationRaw {
   if (typeof to === 'string') return to
   return {
     path: to.path,
-    ...(to.query !== undefined ? { query: stringifyQueryParams(to.query) } : {}),
+    ...(to.query !== undefined ? { query: stringifyPageRouteQuery(to.query) } : {}),
   }
 }
 
@@ -58,12 +43,11 @@ export function buildPageRuntimeServices(
 ): PageRuntimeServicesCapability {
   return {
     router: {
-      push: (to) => router.push(toRouteLocation(to)),
-      replace: (to) => router.replace(toRouteLocation(to)),
+      push: async (to) => await router.push(toRouteLocation(to)),
+      replace: async (to) => await router.replace(toRouteLocation(to)),
       back: () => router.back(),
       get currentRoute() { return router.currentRoute.value },
     },
     logger
   }
 }
-

@@ -240,15 +240,15 @@ export type PageServiceCapability = {
   uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>
   /** 显示 / 隐藏全局 Loading */
   showLoading(show: boolean, text?: string): void
-  /** 路由跳转 */
+  /** 路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。 */
   navigate(path: string, params?: Record<string, unknown>): void
 }
 
-/** 路由服务：SPA 内的 push / replace / back 操作 */
+/** 路由服务：query 与页面服务一致，保留标量数组；复杂对象须先显式序列化。 */
 export type PageRouterService = {
-  /** 导航到目标（字符串路径或路由对象） */
+  /** 导航到目标（字符串路径或路由对象）；无效 query 以 Promise 拒绝。 */
   push(to: string | { path: string; query?: Record<string, unknown> }): Promise<unknown>
-  /** 替换当前路由 */
+  /** 替换当前路由；无效 query 以 Promise 拒绝。 */
   replace(to: string | { path: string; query?: Record<string, unknown> }): Promise<unknown>
   /** 后退 */
   back(): void

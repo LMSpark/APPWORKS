@@ -1,11 +1,14 @@
 import {afterEach, describe, expect, it} from 'vitest'
 import {defineComponent, h} from 'vue'
 import {createMemoryHistory, createRouter, type LocationQueryRaw} from 'vue-router'
+import {flushPromises} from '@vue/test-utils'
 import {PageRuntime, PageTool, ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import {DataSpaceRuntimeApi} from '@spark-appworks/spark-lowcode-api'
 import {HttpClientBase, isRecord, type HttpResponse, type RequestConfig} from '@spark-appworks/spark-utils'
 import type {DataSet} from '@spark-appworks/spark-data'
 import {PageRuntimePool} from '../../../../packages/spark-app/src/router/page-runtime-pool'
+import {buildPageService} from '../../../../packages/spark-component/src/page/services/buildPageService'
+import {buildPageRuntimeServices} from '../../../../packages/spark-component/src/page/services/providePageRuntimeServices'
 import {LowcodeDataSpaceAssembler} from '../../../../src/lowcode/data-space/lowcode-data-space-assembler'
 
 const calls: PageRuntime[] = []
@@ -74,6 +77,69 @@ function programmatic(load: (id: string) => Promise<DataSet>, inputs: Record<str
 }
 
 describe('scenario call inputs reach the formal query owner', () => {
+  it.each(['page', 'push', 'replace'] as const)('preserves multiple spaces through %s navigation and formal queries', async surface => {
+    const {router, pool, http} = fixture()
+    const path = '/apps/APP/__tool/shared'
+    const inputs = JSON.stringify({META: {formid: 'TARGET-A', ids: [0, '2'], enabled: false},
+      LOOKUP: {formid: 'LOOKUP-A'}, EXTRA: {formid: 'EXTRA-A'}})
+    const query = {scenarioId: 'META', additionalScenarioIds: ['LOOKUP', 'EXTRA'], scenarioInputs: inputs}
+    if (surface === 'page') {
+      buildPageService(router).navigate(path, query)
+      await flushPromises()
+    } else {
+      const services = buildPageRuntimeServices(router, {debug() {}, info() {}, warn() {}, error() {}})
+      if (!services.router) throw new Error('missing page router')
+      await services.router[surface]({path, query})
+    }
+
+    expect(router.currentRoute.value.query['additionalScenarioIds']).toEqual(['LOOKUP', 'EXTRA'])
+    const call = pool.getPageRuntime(router.currentRoute.value)
+    if (!call) throw new Error('missing runtime')
+    calls.push(call)
+    await call.load()
+    expect(call.call.scenarioIds).toEqual(['META', 'EXTRA', 'LOOKUP'])
+    for (const space of ['META', 'LOOKUP', 'EXTRA']) await call.resolveView(`#${space}@Records@detail`)!.loadFromServer()
+    expect(http.requests.map(request => request.headers?.['x-FormKey'])).toEqual(['META', 'LOOKUP', 'EXTRA'])
+    expect(http.requests.map(request => wire(request)['inputParams'])).toEqual([
+      [{Name: 'fixed', Value: 'detail'}, {Name: 'formid', Value: 'TARGET-A'}, {Name: 'ids', Value: [0, '2']}, {Name: 'enabled', Value: false}],
+      [{Name: 'fixed', Value: 'detail'}, {Name: 'formid', Value: 'LOOKUP-A'}],
+      [{Name: 'fixed', Value: 'detail'}, {Name: 'formid', Value: 'EXTRA-A'}],
+    ])
+    expect(['META', 'LOOKUP', 'EXTRA'].map(space => call.resolveView(`#${space}@Records@detail`)!.rows[0]?.['id']))
+      .toEqual(['TARGET-A', 'LOOKUP-A', 'EXTRA-A'])
+  })
+
+  it.each(['push', 'replace'] as const)('preserves primitive query values and rejects objects with %s', async method => {
+    const {router} = fixture()
+    const pageRouter = buildPageRuntimeServices(router, {debug() {}, info() {}, warn() {}, error() {}}).router
+    if (!pageRouter) throw new Error('missing page router')
+    const path = '/apps/APP/__tool/shared'
+    await pageRouter[method]({path, query: {blank: '', zero: 0, enabled: false, bare: null, absent: undefined}})
+    expect(router.currentRoute.value.query).toEqual({blank: '', zero: '0', enabled: 'false', bare: null})
+    const before = router.currentRoute.value.fullPath
+    await expect(pageRouter[method]({path, query: {scenarioInputs: {META: {formid: 'A'}}}}))
+      .rejects.toThrow('页面调用参数必须是标量或标量数组')
+    await expect(pageRouter[method]({path, query: {additionalScenarioIds: ['LOOKUP', {}]}}))
+      .rejects.toThrow('页面调用参数必须是标量或标量数组')
+    expect(router.currentRoute.value.fullPath).toBe(before)
+    expect(() => buildPageService(router).navigate(path, {scenarioInputs: {META: {formid: 'A'}}}))
+      .toThrow('页面调用参数必须是标量或标量数组')
+  })
+
+  it('does not split a scalar scenario identity containing a comma', async () => {
+    const {router, pool} = fixture()
+    const pageRouter = buildPageRuntimeServices(router, {debug() {}, info() {}, warn() {}, error() {}}).router
+    if (!pageRouter) throw new Error('missing page router')
+    await pageRouter.push({path: '/apps/APP/__tool/shared',
+      query: {scenarioId: 'META', additionalScenarioIds: 'LOOKUP,EXTRA'}})
+    const call = pool.getPageRuntime(router.currentRoute.value)
+    if (!call) throw new Error('missing runtime')
+    calls.push(call)
+    await call.load()
+    expect(call.call.scenarioIds).toEqual(['META', 'LOOKUP,EXTRA'])
+    expect(call.getDataSet('LOOKUP,EXTRA')?.scenarioId).toBe('LOOKUP,EXTRA')
+  })
+
   it('binds two URL spaces independently and keeps the target ID separate from the metadata identity', async () => {
     const {open, http, files} = fixture()
     const call = await open({scenarioId: 'META', additionalScenarioIds: 'LOOKUP', returnTo: '/elsewhere',

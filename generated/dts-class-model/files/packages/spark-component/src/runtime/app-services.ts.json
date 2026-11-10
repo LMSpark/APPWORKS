@@ -779,7 +779,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.550Z",
+  "generatedAt": "2026-11-10T10:47:41.174Z",
   "models": {
     "PageMessageType": {
       "name": "PageMessageType",
@@ -1249,7 +1249,7 @@
       "jsdoc": "页面服务：消息提示、对话框、文件操作、实体选择、导航等。\n所有方法由宿主（如 Vue Router、Element Plus 等）实现，\n页面通过 ScriptContext 调用。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */\n    copyText(text: string): Promise<void>;\n    /** 显示提示消息 */\n    showMessage(message: string, type?: PageMessageType): void;\n    /** 显示确认对话框，返回用户操作结果 */\n    showConfirm(message: string, title?: string, options?: {\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }): Promise<boolean>;\n    /** 显示输入弹窗 */\n    showPrompt(message: string, title?: string, options?: {\n        placeholder?: string;\n        defaultValue?: string;\n    }): Promise<string | null>;\n    /** 显示提示框（无取消操作） */\n    showAlert(message: string, title?: string, options?: {\n        type?: PageMessageType;\n    }): Promise<void>;\n    /** 显示自定义对话框 */\n    showDialog(options: PageDialogOptions): Promise<PageDialogResult>;\n    /** 打开实体选择器 */\n    selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>;\n    /** 打开文件浏览对话框 */\n    browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>;\n    /**\n     * 通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。\n     * 字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。\n     */\n    uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>;\n    /** 显示 / 隐藏全局 Loading */\n    showLoading(show: boolean, text?: string): void;\n    /** 路由跳转 */\n    navigate(path: string, params?: Record<string, unknown>): void;\n}",
+        "declarationTypeText": "{\n    /** 写入剪贴板文本；仅在宿主确认写入成功后完成。 */\n    copyText(text: string): Promise<void>;\n    /** 显示提示消息 */\n    showMessage(message: string, type?: PageMessageType): void;\n    /** 显示确认对话框，返回用户操作结果 */\n    showConfirm(message: string, title?: string, options?: {\n        confirmText?: string;\n        cancelText?: string;\n        type?: PageMessageType;\n    }): Promise<boolean>;\n    /** 显示输入弹窗 */\n    showPrompt(message: string, title?: string, options?: {\n        placeholder?: string;\n        defaultValue?: string;\n    }): Promise<string | null>;\n    /** 显示提示框（无取消操作） */\n    showAlert(message: string, title?: string, options?: {\n        type?: PageMessageType;\n    }): Promise<void>;\n    /** 显示自定义对话框 */\n    showDialog(options: PageDialogOptions): Promise<PageDialogResult>;\n    /** 打开实体选择器 */\n    selectEntities(options: PageSelectEntitiesOptions): Promise<PageSelectorOption[]>;\n    /** 打开文件浏览对话框 */\n    browseFiles(options?: PageBrowseFilesOptions): Promise<PageSelectedFile[]>;\n    /**\n     * 通过宿主文件传输能力上传文件。默认实现要求每个成功项返回非空 URL，传输失败或回执缺失时以 PageUploadError 拒绝并保留已确认/未确认文件；宿主覆盖可返回正式的非 URL 引用。\n     * 字段组件随后仍通过原 DataView 字段写入该引用，上传服务本身不提交 DataSet。\n     */\n    uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]>;\n    /** 显示 / 隐藏全局 Loading */\n    showLoading(show: boolean, text?: string): void;\n    /** 路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。 */\n    navigate(path: string, params?: Record<string, unknown>): void;\n}",
         "members": {
           "methods": [
             {
@@ -1582,7 +1582,7 @@
             },
             {
               "name": "navigate",
-              "jsdoc": "路由跳转",
+              "jsdoc": "路由跳转；参数为标量或标量数组，复杂对象须先显式序列化。",
               "parameters": [
                 {
                   "name": "path",
@@ -1623,10 +1623,10 @@
     },
     "PageRouterService": {
       "name": "PageRouterService",
-      "jsdoc": "路由服务：SPA 内的 push / replace / back 操作",
+      "jsdoc": "路由服务：query 与页面服务一致，保留标量数组；复杂对象须先显式序列化。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 导航到目标（字符串路径或路由对象） */\n    push(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 替换当前路由 */\n    replace(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 后退 */\n    back(): void;\n    /** 当前路由信息 */\n    currentRoute: unknown;\n}",
+        "declarationTypeText": "{\n    /** 导航到目标（字符串路径或路由对象）；无效 query 以 Promise 拒绝。 */\n    push(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 替换当前路由；无效 query 以 Promise 拒绝。 */\n    replace(to: string | {\n        path: string;\n        query?: Record<string, unknown>;\n    }): Promise<unknown>;\n    /** 后退 */\n    back(): void;\n    /** 当前路由信息 */\n    currentRoute: unknown;\n}",
         "members": {
           "attributes": [
             {
@@ -1639,7 +1639,7 @@
           "methods": [
             {
               "name": "push",
-              "jsdoc": "导航到目标（字符串路径或路由对象）",
+              "jsdoc": "导航到目标（字符串路径或路由对象）；无效 query 以 Promise 拒绝。",
               "parameters": [
                 {
                   "name": "to",
@@ -1671,7 +1671,7 @@
             },
             {
               "name": "replace",
-              "jsdoc": "替换当前路由",
+              "jsdoc": "替换当前路由；无效 query 以 Promise 拒绝。",
               "parameters": [
                 {
                   "name": "to",

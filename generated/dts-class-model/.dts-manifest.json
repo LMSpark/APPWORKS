@@ -2579,7 +2579,12 @@
     "packages/spark-component/src/page/services/buildPageService.ts": {
       "sourceFile": "packages/spark-component/src/page/services/buildPageService.ts",
       "shardFile": "files/packages/spark-component/src/page/services/buildPageService.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.548Z"
+      "sourceModifiedAt": "2026-11-10T10:47:41.160Z"
+    },
+    "packages/spark-component/src/page/services/page-route-query.ts": {
+      "sourceFile": "packages/spark-component/src/page/services/page-route-query.ts",
+      "shardFile": "files/packages/spark-component/src/page/services/page-route-query.ts.json",
+      "sourceModifiedAt": "2026-11-10T10:49:10.703Z"
     },
     "packages/spark-component/src/page/services/pageLogger.ts": {
       "sourceFile": "packages/spark-component/src/page/services/pageLogger.ts",
@@ -2589,7 +2594,7 @@
     "packages/spark-component/src/page/services/providePageRuntimeServices.ts": {
       "sourceFile": "packages/spark-component/src/page/services/providePageRuntimeServices.ts",
       "shardFile": "files/packages/spark-component/src/page/services/providePageRuntimeServices.ts.json",
-      "sourceModifiedAt": "2026-06-11T12:48:50.992Z"
+      "sourceModifiedAt": "2026-11-10T10:47:41.167Z"
     },
     "packages/spark-component/src/permission/index.ts": {
       "sourceFile": "packages/spark-component/src/permission/index.ts",
@@ -2609,7 +2614,7 @@
     "packages/spark-component/src/runtime/app-services.ts": {
       "sourceFile": "packages/spark-component/src/runtime/app-services.ts",
       "shardFile": "files/packages/spark-component/src/runtime/app-services.ts.json",
-      "sourceModifiedAt": "2026-10-30T15:31:33.550Z"
+      "sourceModifiedAt": "2026-11-10T10:47:41.174Z"
     },
     "packages/spark-component/src/runtime/index.ts": {
       "sourceFile": "packages/spark-component/src/runtime/index.ts",

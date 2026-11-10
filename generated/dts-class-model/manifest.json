@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1115,
+  "scannedFileCount": 1114,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -2090,19 +2090,6 @@
           "PageRuntimePoolOptions",
           "PageRuntimePool"
         ]
-      }
-    },
-    "packages/spark-app/src/router/route-helpers.ts": {
-      "file": "files/packages/spark-app/src/router/route-helpers.ts.json",
-      "module": {
-        "name": "@spark-appworks/spark-app:router/route-helpers",
-        "sourcePath": "packages/spark-app/src/router/route-helpers.ts",
-        "sourceFile": "packages/spark-app/src/router/route-helpers.ts",
-        "packageName": "@spark-appworks/spark-app",
-        "modulePath": "router/route-helpers",
-        "jsdoc": "@module @spark-appworks/spark-app:router/route-helpers\n职责：提供应用壳层 route-helpers 能力，围绕 模块入口、副作用注册或内部组合逻辑 连接导航、认证、插件、主题或 AI 宿主接线。\n边界：只负责 spark-app 基础设施和运行时接线，不定义底层 DataSet，也不实现组件渲染细节。\nAI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 router/route-helpers。",
-        "jsdocSource": "leading-jsdoc",
-        "symbols": []
       }
     },
     "packages/spark-app/src/router/system-page-identity/system-page-identity-pool.ts": {
@@ -16421,7 +16408,6 @@
         "symbols": [
           "StatusMessage",
           "DevContextConfig",
-          "DevWorkspaceTab",
           "ExternalDataViewSession",
           "DevState"
         ]
@@ -16438,6 +16424,7 @@
         "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": [
+          "DevPreviewRequest",
           "DevSystemCtx"
         ]
       }
@@ -20816,6 +20803,10 @@
       "sourcePath": "src/views/app/dev-system/useDevState.ts",
       "file": "files/src/views/app/dev-system/useDevState.ts.json"
     },
+    "DevPreviewRequest": {
+      "sourcePath": "src/views/app/dev-system/useDevSystem.ts",
+      "file": "files/src/views/app/dev-system/useDevSystem.ts.json"
+    },
     "DevState": {
       "sourcePath": "src/views/app/dev-system/useDevState.ts",
       "file": "files/src/views/app/dev-system/useDevState.ts.json"
@@ -20823,10 +20814,6 @@
     "DevSystemCtx": {
       "sourcePath": "src/views/app/dev-system/useDevSystem.ts",
       "file": "files/src/views/app/dev-system/useDevSystem.ts.json"
-    },
-    "DevWorkspaceTab": {
-      "sourcePath": "src/views/app/dev-system/useDevState.ts",
-      "file": "files/src/views/app/dev-system/useDevState.ts.json"
     },
     "DialogFullscreenOptions": {
       "sourcePath": "packages/spark-component/src/components/containers/layout/overlay/RendererDialog/FullscreenDialog.props.ts",

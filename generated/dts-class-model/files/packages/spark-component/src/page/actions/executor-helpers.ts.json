@@ -211,7 +211,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-06T19:50:59.447Z",
+  "generatedAt": "2026-11-10T10:12:35.023Z",
   "models": {
     "PickActionTextInput": {
       "name": "PickActionTextInput",
@@ -257,10 +257,10 @@
     },
     "ActionNotifier": {
       "name": "ActionNotifier",
-      "jsdoc": "动作执行通知接口（由 createActionNotifier 创建）。\n- `notify`：受 `silent` 控制，静默模式下吞掉非 error 消息\n- `notifyError`：始终展示 error（无视 silent），用于运行时异常",
+      "jsdoc": "动作执行通知接口（由 createActionNotifier 创建）。\n- `notify`：受 `silent` 控制，静默模式下吞掉非 error 消息\n- `notifyError`：始终报告 error（无视 silent），用于运行时异常",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "{\n    /** 发送成功/警告/info 类型消息；`silent=true` 时静默忽略 */\n    notify(type: PageMessageType, message: string): void;\n    /** 发送 error 消息（无视 silent，始终展示） */\n    notifyError(message: string): void;\n}",
+        "declarationTypeText": "{\n    /** 发送成功/警告/info 类型消息；`silent=true` 时静默忽略 */\n    notify(type: PageMessageType, message: string): void;\n    /** 发送 error 消息（无视 silent，缺少页面服务时记录错误） */\n    notifyError(message: string): void;\n}",
         "members": {
           "methods": [
             {
@@ -290,7 +290,7 @@
             },
             {
               "name": "notifyError",
-              "jsdoc": "发送 error 消息（无视 silent，始终展示）",
+              "jsdoc": "发送 error 消息（无视 silent，缺少页面服务时记录错误）",
               "parameters": [
                 {
                   "name": "message",
@@ -311,7 +311,7 @@
     },
     "ConfirmationInput": {
       "name": "ConfirmationInput",
-      "jsdoc": "统一确认弹窗：返回 true 表示用户确认或无需确认（直通）。\n直通条件（跳过弹窗）：\n- `pageService` 不可用\n- `confirmMessage` 显式设为 `''`（有意取消确认）\n- `confirmMessage` 未设置且 `fallbackMessage` 为空字符串\n`fallbackMessage` 为内置默认确认语（如\"确认删除 XX 吗？\"），由调用方构造。",
+      "jsdoc": "统一确认弹窗：返回 true 表示用户确认或无需确认（直通）。\n直通条件（跳过弹窗）：\n- `confirmMessage` 显式设为空或纯空白（有意取消确认）\n- `confirmMessage` 未设置且 `fallbackMessage` 为空或纯空白\n`fallbackMessage` 为内置默认确认语（如\"确认删除 XX 吗？\"），由调用方构造。",
       "declarationKind": "typeAlias",
       "typeAlias": {
         "declarationTypeText": "Readonly<{\n    /** 确认弹窗正文的内置兜底文案（如\"确认删除 张三 吗？\"），decorator.confirmMessage 未设置时使用 */\n    fallbackMessage: string;\n    /** 确认弹窗标题的内置兜底文案（如\"操作确认\"），decorator.confirmTitle 未设置时使用 */\n    fallbackTitle: string;\n}>",

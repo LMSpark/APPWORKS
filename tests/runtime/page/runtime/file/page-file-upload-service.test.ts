@@ -1,6 +1,7 @@
 import {beforeEach, describe, expect, it, vi} from 'vitest'
 import {createMemoryHistory, createRouter} from 'vue-router'
 import {buildPageService} from '../../../../../packages/spark-component/src/page/services/buildPageService'
+import {appPageUiService} from '../../../../../packages/spark-app/src/shell/page-ui/pageUiService'
 
 const {post} = vi.hoisted(() => ({post: vi.fn()}))
 vi.mock('@spark-appworks/spark-utils', async importOriginal => ({
@@ -39,6 +40,18 @@ describe('default page upload service receipts', () => {
     const first = file('one.txt'), second = file('two.txt'), third = file('three.txt')
     post.mockResolvedValueOnce({url: '/files/one.txt'}).mockRejectedValueOnce(new Error('connection lost'))
     await expect(buildPageService(router()).uploadFiles({action: '/upload', files: [first, second, third]})).rejects.toMatchObject({
+      confirmedFiles: [expect.objectContaining({file: first, url: '/files/one.txt'})],
+      unconfirmedFile: expect.objectContaining({file: second, name: 'two.txt'}),
+    })
+    expect(post).toHaveBeenCalledTimes(2)
+  })
+
+  it('retains confirmed receipts and rejects an unconfirmed upload through the actual app shell', async () => {
+    const first = file('one.txt'), second = file('two.txt'), third = file('three.txt')
+    post.mockResolvedValueOnce({url: '/files/one.txt'}).mockRejectedValueOnce(new Error('connection lost'))
+    await expect(buildPageService(router(), {pageService: appPageUiService}).uploadFiles({
+      action: '/upload', files: [first, second, third],
+    })).rejects.toMatchObject({
       confirmedFiles: [expect.objectContaining({file: first, url: '/files/one.txt'})],
       unconfirmedFile: expect.objectContaining({file: second, name: 'two.txt'}),
     })

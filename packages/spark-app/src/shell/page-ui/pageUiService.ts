@@ -5,7 +5,6 @@
  * AI用途：需要理解应用层如何把路由、服务和组件系统组装起来时，用本模块定位 page-ui/pageUiService。
  */
 import { reactive } from 'vue'
-import { createRequest, isRecord } from '@spark-appworks/spark-utils'
 import type { PageServiceCapability } from '@spark-appworks/spark-component'
 
 type PageDialogOptions = Parameters<PageServiceCapability['showDialog']>[0]
@@ -14,8 +13,6 @@ type PageSelectEntitiesOptions = Parameters<PageServiceCapability['selectEntitie
 type PageSelectorOption = Awaited<ReturnType<PageServiceCapability['selectEntities']>>[number]
 type PageBrowseFilesOptions = Parameters<PageServiceCapability['browseFiles']>[0]
 type PageSelectedFile = Awaited<ReturnType<PageServiceCapability['browseFiles']>>[number]
-type PageUploadFilesOptions = Parameters<PageServiceCapability['uploadFiles']>[0]
-type PageUploadedFile = Awaited<ReturnType<PageServiceCapability['uploadFiles']>>[number]
 type PageSelectorValue = PageSelectorOption['value']
 type PageSelectorCurrentValue = PageSelectorValue | PageSelectorValue[]
 
@@ -81,24 +78,6 @@ function mapFile(file: File): PageSelectedFile {
 }
 
 
-function getErrorResponse(value: unknown): unknown {
-  if (!isRecord(value)) return value
-  return value['response'] ?? value
-}
-
-function extractUploadedUrl(response: unknown): string | undefined {
-  if (!isRecord(response)) return undefined
-  const record = response
-  const candidate = record['url'] ?? record['path'] ?? record['filePath'] ?? record['data']
-  if (typeof candidate === 'string') return candidate
-  if (isRecord(candidate)) {
-    const nested = candidate
-    const nestedCandidate = nested['url'] ?? nested['path'] ?? nested['filePath']
-    return typeof nestedCandidate === 'string' ? nestedCandidate : undefined
-  }
-  return undefined
-}
-
 function normalizeSelectorKeys(value: PageSelectorCurrentValue | undefined): string[] {
   if (Array.isArray(value)) return value.map(item => String(item))
   if (typeof value === 'string') {
@@ -152,46 +131,6 @@ async function selectEntities(options: PageSelectEntitiesOptions): Promise<PageS
   })
 }
 
-async function uploadFiles(options: PageUploadFilesOptions): Promise<PageUploadedFile[]> {
-  const selectedFiles = options.files ?? (await browseFiles(options)).map(item => item.file)
-  if (selectedFiles.length === 0) return []
-
-  const results: PageUploadedFile[] = []
-  for (const file of selectedFiles) {
-    const formData = new FormData()
-    formData.append(options.fieldName ?? 'file', file)
-    if (options.data !== undefined) {
-      for (const [key, value] of Object.entries(options.data)) {
-        formData.append(key, value)
-      }
-    }
-
-    const client = createRequest()
-    const headers: Record<string, string> = {}
-    if (options.headers !== undefined) {
-      Object.assign(headers, options.headers)
-    }
-
-    let responseData: unknown
-    try {
-      responseData = await client.post<unknown>(options.action, formData, {
-        ...(Object.keys(headers).length > 0 ? { headers } : {}),
-        ...(options.withCredentials === true ? { withCredentials: true } : {}),
-      })
-    } catch (err) {
-      responseData = getErrorResponse(err)
-    }
-    const uploadedUrl = extractUploadedUrl(responseData)
-    results.push({
-      ...mapFile(file),
-      response: responseData,
-      ...(uploadedUrl !== undefined ? { url: uploadedUrl } : {}),
-    })
-  }
-
-  return results
-}
-
 async function showDialog(options: PageDialogOptions): Promise<PageDialogResult> {
   if (dialogResolver) {
     dialogResolver('close')
@@ -231,11 +170,10 @@ export const appPageUiState = {
   selector: selectorState,
 }
 
-export const appPageUiService: Pick<PageServiceCapability, 'showDialog' | 'selectEntities' | 'browseFiles' | 'uploadFiles'> = {
+export const appPageUiService: Pick<PageServiceCapability, 'showDialog' | 'selectEntities' | 'browseFiles'> = {
   showDialog,
   selectEntities,
   browseFiles,
-  uploadFiles,
 }
 
 export function confirmAppDialog(): void {

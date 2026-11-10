@@ -474,6 +474,38 @@ describe('DataView CRUD bridge', () => {
     expect(pageService.showConfirm).toHaveBeenCalledOnce()
   })
 
+  it('does not clear rows when the required confirmation service is missing', async () => {
+    const { dataSet, view } = await createDataView()
+    const context = {...createActionContext(dataSet, createPageService()), getPageService: () => null}
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await executeActionDescriptor({action: 'clear-rows', dataViewKey: 'Users@default'}, context)
+      expect(view.rows).toHaveLength(1)
+      expect(error.mock.calls.flat().join(' ')).toContain('PAGE_SERVICE')
+    } finally {error.mockRestore()}
+  })
+
+  it('does not delete a row when the required confirmation service is missing', async () => {
+    const { dataSet, view } = await createDataView()
+    const context = {...createActionContext(dataSet, createPageService()), getPageService: () => null}
+    const remove = vi.spyOn(view, 'removeRow').mockResolvedValue(true)
+    const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+    try {
+      await executeActionDescriptor({action: 'delete', target: 'current', dataViewKey: 'Users@default'}, context)
+      expect(remove).not.toHaveBeenCalled()
+      expect(error.mock.calls.flat().join(' ')).toContain('PAGE_SERVICE')
+    } finally {error.mockRestore()}
+  })
+
+  it.each(['', '   '])('honors an explicitly disabled confirmation %j without a page service', async confirmMessage => {
+    const { dataSet, view } = await createDataView()
+    const context = {...createActionContext(dataSet, createPageService()), getPageService: () => null}
+    const remove = vi.spyOn(view, 'removeRow').mockResolvedValue(true)
+    await executeActionDescriptor({action: 'delete', target: 'current', dataViewKey: 'Users@default',
+      confirmMessage, silent: true}, context)
+    expect(remove).toHaveBeenCalledWith(1)
+  })
+
   it('builtin disabledWhenRow should disable action for matching current row', () => {
     const dataSet = SparkData.createDataSet({
       dataSetName: 'BuiltinDisableDS',

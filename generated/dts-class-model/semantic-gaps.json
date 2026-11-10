@@ -1,5 +1,5 @@
 {
-  "gapCount": 3664,
+  "gapCount": 3671,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -5812,7 +5812,7 @@
       "chainBreak": "DataViewSavePermissionInput 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/page/actions/executor-helpers.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
-      "declarationLine": 236,
+      "declarationLine": 235,
       "sourceFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "declarationKind": "typeAlias"
     },
@@ -5824,7 +5824,7 @@
       "chainBreak": "DataViewSavePermissionInput.view 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/page/actions/executor-helpers.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
-      "declarationLine": 237,
+      "declarationLine": 236,
       "sourceFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "declarationKind": "interface"
     },
@@ -5836,7 +5836,7 @@
       "chainBreak": "DataViewSavePermissionInput.ids 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/page/actions/executor-helpers.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
-      "declarationLine": 238,
+      "declarationLine": 237,
       "sourceFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "declarationKind": "interface"
     },
@@ -5848,7 +5848,7 @@
       "chainBreak": "DataViewSavePermissionInput.applyEditingRows 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 packages/spark-component/src/page/actions/executor-helpers.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
-      "declarationLine": 239,
+      "declarationLine": 238,
       "sourceFile": "packages/spark-component/src/page/actions/executor-helpers.ts",
       "declarationKind": "interface"
     },
@@ -42477,7 +42477,7 @@
       "chainBreak": "ExternalDataViewSession.isDirty 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 28,
+      "declarationLine": 26,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42489,7 +42489,7 @@
       "chainBreak": "ExternalDataViewSession.hasUnconfirmedSave 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 29,
+      "declarationLine": 27,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42501,7 +42501,19 @@
       "chainBreak": "ExternalDataViewSession.save 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 30,
+      "declarationLine": 28,
+      "sourceFile": "src/views/app/dev-system/useDevState.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "method",
+      "className": "ExternalDataViewSession",
+      "memberName": "prepareContextChange",
+      "reason": "missing-jsdoc",
+      "chainBreak": "ExternalDataViewSession.prepareContextChange 的成员语义链断开：method 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevState.ts",
+      "declarationLine": 29,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42513,7 +42525,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNode 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 31,
+      "declarationLine": 30,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42525,7 +42537,7 @@
       "chainBreak": "ExternalDataViewSession.moveBlueprintNodeRelative 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 32,
+      "declarationLine": 31,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42537,7 +42549,7 @@
       "chainBreak": "ExternalDataViewSession.treeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 37,
+      "declarationLine": 36,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42549,7 +42561,7 @@
       "chainBreak": "ExternalDataViewSession.hasTreeProjection 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 38,
+      "declarationLine": 37,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
     },
@@ -42561,9 +42573,80 @@
       "chainBreak": "ExternalDataViewSession.childCreateActionState 的成员语义链断开：method 声明没有 JSDoc。",
       "fixHint": "在 src/views/app/dev-system/useDevState.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/views/app/dev-system/useDevState.ts",
-      "declarationLine": 39,
+      "declarationLine": 38,
       "sourceFile": "src/views/app/dev-system/useDevState.ts",
       "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "model",
+      "className": "DevPreviewRequest",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DevPreviewRequest 的模型语义链在首次声明处断开：声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevSystem.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationLine": 3,
+      "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationKind": "typeAlias"
+    },
+    {
+      "kind": "attribute",
+      "className": "DevPreviewRequest",
+      "memberName": "projectId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DevPreviewRequest.projectId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevSystem.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationLine": 4,
+      "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DevPreviewRequest",
+      "memberName": "nodeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DevPreviewRequest.nodeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevSystem.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationLine": 5,
+      "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DevPreviewRequest",
+      "memberName": "pageId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DevPreviewRequest.pageId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevSystem.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationLine": 6,
+      "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DevPreviewRequest",
+      "memberName": "runtimeId",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DevPreviewRequest.runtimeId 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevSystem.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationLine": 7,
+      "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationKind": "interface"
+    },
+    {
+      "kind": "attribute",
+      "className": "DevPreviewRequest",
+      "memberName": "sequence",
+      "reason": "missing-jsdoc",
+      "chainBreak": "DevPreviewRequest.sequence 的成员语义链断开：attribute 声明没有 JSDoc。",
+      "fixHint": "在 src/views/app/dev-system/useDevSystem.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationLine": 8,
+      "sourceFile": "src/views/app/dev-system/useDevSystem.ts",
+      "declarationKind": "interface"
     },
     {
       "kind": "module",

@@ -280,6 +280,10 @@ cap?.doWork()
 | `DATA_ROW` | `DataRow` | 当前行作用域 |
 | `PAGE_PERMISSION_MODE` | `PermissionMode` | 页面权限模式（SSOT：`@spark-appworks/spark-utils`） |
 
+`buildPageService(router, overrides)` 构建完整的 `PAGE_SERVICE`，并可复用宿主提供的对话框、选择器等覆盖能力。AppWorks 壳层向原生系统页提供该服务，配置页面渲染器仍按页面实例提供自己的服务。默认文件上传要求服务端返回有效地址；传输失败或回执缺失时抛出 `PageUploadError`，保留已确认文件和待核验文件，不继续上传后续文件。
+
+内置删除或清空动作需要确认时，缺少 `PAGE_SERVICE` 会阻止动作并记录错误；显式设置空或纯空白的 `confirmMessage` 表示该动作不要求确认。
+
 ---
 
 ## Vue 插件
@@ -324,6 +328,7 @@ export { SPARK_REGISTRY_KEY }
 export {
   SparkPageRenderer,
   SparkComponentRenderer,
+  buildPageService,
 }
 export type {
   PageContext,

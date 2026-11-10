@@ -29,7 +29,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.722Z",
+  "generatedAt": "2026-11-10T09:44:40.178Z",
   "models": {
     "ApplicationPathScope": {
       "name": "ApplicationPathScope",

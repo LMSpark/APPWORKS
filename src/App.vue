@@ -118,7 +118,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
       @update:mode="setMode"
     />
 
-    <!-- page-ui host 是 APP 壳层能力，承载弹层、文件浏览和文件上传。 -->
+    <!-- page-ui host 承载应用壳层的对话框和选择器。 -->
     <AppPageUiHost />
   </template>
 </template>
@@ -129,7 +129,7 @@ import { useRoute, useRouter } from 'vue-router'
 import * as SparkAppRuntime from '@spark-appworks/spark-app'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
 import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
-import { PAGE_RUNTIME_SERVICES } from '@spark-appworks/spark-component'
+import { PAGE_RUNTIME_SERVICES, PAGE_SERVICE, buildPageService } from '@spark-appworks/spark-component'
 import {
   MODULE_CONTEXT,
   useSparkComponent,
@@ -497,8 +497,8 @@ const nav = useNavigation(_navRoot, {
   getHeaders: lowcodeRequestHeaders,
   actionRegistry: navigationActionRegistry,
 })
-const pageUiService = appPageUiService
-sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: pageUiService })
+sparkProvide(PAGE_RUNTIME_SERVICES, { pageService: appPageUiService })
+sparkProvide(PAGE_SERVICE, buildPageService(router, { pageService: appPageUiService }))
 const pageModuleContext = computed<ContextSnapshot | null>(() => {
   const state = nav.moduleContext.value
   if (!state) return null

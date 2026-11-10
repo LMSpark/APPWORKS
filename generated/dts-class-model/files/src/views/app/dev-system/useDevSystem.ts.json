@@ -10,10 +10,41 @@
     "jsdoc": "@module app:views/app/dev-system/useDevSystem\n职责：提供 DevSystem 的 useDevSystem 能力，围绕 DevSystemCtx 支撑配置调试、节点编辑、预览或开发态状态管理。\n边界：只服务开发系统 UI 和调试流程；正式节点数据通过 SPARK DataView/DataSet，领域命令保留其目标校验。\nAI用途：需要理解开发系统如何编辑节点和文件时，用本模块定位 views/app/dev-system/useDevSystem。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": [
+      "DevPreviewRequest",
       "DevSystemCtx"
     ]
   },
   "$defs": {
+    "DevPreviewRequest": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "DevPreviewRequest",
+      "properties": {
+        "projectId": {
+          "type": "string"
+        },
+        "nodeId": {
+          "type": "string"
+        },
+        "pageId": {
+          "type": "string"
+        },
+        "runtimeId": {
+          "type": "string"
+        },
+        "sequence": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "projectId",
+        "nodeId",
+        "pageId",
+        "runtimeId",
+        "sequence"
+      ],
+      "additionalProperties": false
+    },
     "DevSystemCtx": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -864,17 +895,13 @@
           ],
           "additionalProperties": false
         },
-        "workTab": {
+        "previewRequest": {
           "type": "object",
-          "title": "import(\"vue\").Ref<DevWorkspaceTab, DevWorkspaceTab>"
+          "title": "import(\"vue\").ShallowRef<Readonly<{ projectId: string; nodeId: string; pageId: string; runtimeId: string; sequence: number; }> | undefined, Readonly<{ projectId: string; nodeId: string; pageId: string; runtimeId: string; sequence: number; }> | undefined>"
         },
-        "previewRefreshToken": {
+        "registerPreviewGuard": {
           "type": "object",
-          "title": "import(\"vue\").Ref<number, number>"
-        },
-        "currentWorkspaceFile": {
-          "type": "object",
-          "title": "import(\"vue\").ComputedRef<\"rule.json\" | \"script.js\" | \"style.css\" | null>"
+          "title": "(guard: () => boolean) => () => void"
         },
         "pageDesignPromptViewKey": {
           "type": "object",
@@ -890,7 +917,7 @@
         },
         "headerActions": {
           "type": "object",
-          "title": "import(\"vue\").ComputedRef<{ preview: () => void; saveAll: () => void; runPageDesignAi: () => void; previewPage: (pageId: string) => void; }>"
+          "title": "import(\"vue\").ComputedRef<{ preview: () => void; saveAll: () => void; runPageDesignAi: () => void; openRuntimePage: () => void; }>"
         },
         "initiatingProjectDataViewKey": {
           "type": "object",
@@ -908,6 +935,10 @@
           "type": "object",
           "title": "import(\"vue\").ComputedRef<boolean>"
         },
+        "previewActionLabel": {
+          "type": "object",
+          "title": "import(\"vue\").ComputedRef<\"打开运行页面\" | \"预览页面\">"
+        },
         "canSaveFromHeader": {
           "type": "object",
           "title": "import(\"vue\").ComputedRef<boolean>"
@@ -919,17 +950,12 @@
         "headerSaveLabel": {
           "type": "object",
           "title": "import(\"vue\").ComputedRef<\"保存\" | \"全部保存\">"
-        },
-        "isWorkspaceTabDirty": {
-          "type": "object",
-          "title": "(name: PageToolFileName) => boolean"
         }
       },
       "required": [
         "state",
-        "workTab",
-        "previewRefreshToken",
-        "currentWorkspaceFile",
+        "previewRequest",
+        "registerPreviewGuard",
         "pageDesignPromptViewKey",
         "pageDesignPromptScopeKey",
         "headerActionScopeKey",
@@ -938,16 +964,60 @@
         "blueprintTreeScopeKey",
         "notifyPageDesignPromptChanged",
         "canPreviewCurrentPage",
+        "previewActionLabel",
         "canSaveFromHeader",
         "canRunPageDesignAi",
-        "headerSaveLabel",
-        "isWorkspaceTabDirty"
+        "headerSaveLabel"
       ],
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-10-30T15:31:33.777Z",
+  "generatedAt": "2026-11-10T09:45:08.174Z",
   "models": {
+    "DevPreviewRequest": {
+      "name": "DevPreviewRequest",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    projectId: string;\n    nodeId: string;\n    pageId: string;\n    runtimeId: string;\n    sequence: number;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    projectId: string;\n    nodeId: string;\n    pageId: string;\n    runtimeId: string;\n    sequence: number;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "projectId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "nodeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "pageId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "runtimeId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "sequence",
+              "readable": true,
+              "writable": false
+            }
+          ]
+        }
+      }
+    },
     "DevSystemCtx": {
       "name": "DevSystemCtx",
       "jsdoc": "Dev System Ctx 的语义模型。",

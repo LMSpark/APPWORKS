@@ -253,12 +253,12 @@ export function getActionProps(action: SparkNode): Record<string, unknown> {
  * 动作执行通知接口（由 createActionNotifier 创建）。
  *
  * - `notify`：受 `silent` 控制，静默模式下吞掉非 error 消息
- * - `notifyError`：始终展示 error（无视 silent），用于运行时异常
+ * - `notifyError`：始终报告 error（无视 silent），用于运行时异常
  */
 export type ActionNotifier = {
   /** 发送成功/警告/info 类型消息；`silent=true` 时静默忽略 */
   notify(type: PageMessageType, message: string): void
-  /** 发送 error 消息（无视 silent，始终展示） */
+  /** 发送 error 消息（无视 silent，缺少页面服务时记录错误） */
   notifyError(message: string): void}
 
 export function createActionNotifier(
@@ -274,9 +274,8 @@ export function createActionNotifier(
       ps.showMessage(message, type)
       return
     }
-    if (import.meta.env.DEV) {
-      _notifierLogger.warn(`PAGE_SERVICE 不可用，消息未展示: ${message}`)
-    }
+    if (type === 'error') _notifierLogger.error('PAGE_SERVICE 不可用，错误提示未展示')
+    else _notifierLogger.warn('PAGE_SERVICE 不可用，操作提示未展示')
   }
 
   return {
@@ -294,9 +293,8 @@ export function createActionNotifier(
  * 统一确认弹窗：返回 true 表示用户确认或无需确认（直通）。
  *
  * 直通条件（跳过弹窗）：
- * - `pageService` 不可用
- * - `confirmMessage` 显式设为 `''`（有意取消确认）
- * - `confirmMessage` 未设置且 `fallbackMessage` 为空字符串
+ * - `confirmMessage` 显式设为空或纯空白（有意取消确认）
+ * - `confirmMessage` 未设置且 `fallbackMessage` 为空或纯空白
  *
  * `fallbackMessage` 为内置默认确认语（如"确认删除 XX 吗？"），由调用方构造。
  */
@@ -313,13 +311,13 @@ export async function confirmIfNeeded(
   input: ConfirmationInput,
 ): Promise<boolean> {
   const { fallbackMessage, fallbackTitle } = input
-  const ps = ctx.getPageService()
-  if (!ps) return true
-
   const rawMessage = decorator?.confirmMessage
   if (rawMessage === '') return true
   const message = rawMessage ?? fallbackMessage
   if (message.trim().length === 0) return true
+
+  const ps = ctx.getPageService()
+  if (!ps) throw new Error('PAGE_SERVICE_REQUIRED: 缺少确认服务，操作已阻止')
 
   const title = decorator?.confirmTitle ?? fallbackTitle
   const opts: { type?: PageMessageType } = {}

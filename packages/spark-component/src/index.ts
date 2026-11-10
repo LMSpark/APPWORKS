@@ -131,6 +131,7 @@ export type {
 export {
   SparkPageRenderer,
 } from './page/index.js'
+export { buildPageService } from './page/services/buildPageService.js'
 // 组件层公共导出（容器 / 字段 / 展示 / 支持组件）
 export {
   DisplayAlert,

@@ -12,7 +12,6 @@
     "symbols": [
       "StatusMessage",
       "DevContextConfig",
-      "DevWorkspaceTab",
       "ExternalDataViewSession",
       "DevState"
     ]
@@ -67,17 +66,6 @@
       ],
       "additionalProperties": false
     },
-    "DevWorkspaceTab": {
-      "$schema": "https://json-schema.org/draft/2020-12/schema",
-      "title": "DevWorkspaceTab",
-      "enum": [
-        "rule.json",
-        "script.js",
-        "style.css",
-        "preview",
-        "props"
-      ]
-    },
     "ExternalDataViewSession": {
       "$schema": "https://json-schema.org/draft/2020-12/schema",
       "type": "object",
@@ -107,6 +95,15 @@
         "method.save.return": {
           "type": "object",
           "title": "Promise<void>"
+        },
+        "method.prepareContextChange.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.prepareContextChange.return": {
+          "type": "object",
+          "title": "() => void"
         },
         "method.moveBlueprintNode.params": {
           "type": "object",
@@ -1045,7 +1042,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T05:44:24.279Z",
+  "generatedAt": "2026-11-10T09:47:56.305Z",
   "models": {
     "StatusMessage": {
       "name": "StatusMessage",
@@ -1107,40 +1104,16 @@
         }
       }
     },
-    "DevWorkspaceTab": {
-      "name": "DevWorkspaceTab",
-      "jsdoc": "Dev Workspace Tab 的语义模型。",
-      "declarationKind": "typeAlias",
-      "typeAlias": {
-        "declarationTypeText": "'props' | 'preview' | ProjectBlueprintDomain.PageToolFileName",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'props'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'preview'"
-          },
-          {
-            "kind": "union",
-            "typeText": "ProjectBlueprintDomain.PageToolFileName",
-            "targetName": "ProjectBlueprintDomain.PageToolFileName"
-          }
-        ],
-        "members": {}
-      }
-    },
     "ExternalDataViewSession": {
       "name": "ExternalDataViewSession",
       "jsdoc": "DataView-backed page areas register the same dirty/save owner with the DevSystem shell.",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    moveBlueprintNodeRelative?: (command: Readonly<{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }>) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
+        "declarationTypeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    prepareContextChange?: () => () => void;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    moveBlueprintNodeRelative?: (command: Readonly<{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }>) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    moveBlueprintNodeRelative?: (command: Readonly<{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }>) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
+            "typeText": "Readonly<{\n    isDirty: () => boolean;\n    hasUnconfirmedSave?: () => boolean;\n    save: () => Promise<void>;\n    prepareContextChange?: () => () => void;\n    moveBlueprintNode?: (nodeId: string, parentId: string | null, index: number) => Promise<void>;\n    moveBlueprintNodeRelative?: (command: Readonly<{\n        nodeId: string;\n        targetNodeId: string;\n        position: 'before' | 'after' | 'inner';\n    }>) => Promise<void>;\n    treeProjection?: () => ProjectBlueprintDomain.ProjectBlueprintTreeData;\n    hasTreeProjection?: () => boolean;\n    childCreateActionState?: (parentNodeId: string) => 'enabled' | 'hidden' | 'disabled' | 'unknown';\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -1174,6 +1147,24 @@
                     "name": "void"
                   }
                 ]
+              }
+            },
+            {
+              "name": "prepareContextChange",
+              "parameters": [],
+              "type": {
+                "type": "reflection",
+                "declaration": {
+                  "signatures": [
+                    {
+                      "parameters": [],
+                      "type": {
+                        "type": "intrinsic",
+                        "name": "void"
+                      }
+                    }
+                  ]
+                }
               }
             },
             {

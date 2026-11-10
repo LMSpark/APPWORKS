@@ -3,7 +3,8 @@ import { defineComponent, h, inject, nextTick, onUnmounted, ref } from 'vue'
 import { flushPromises, mount } from '@vue/test-utils'
 import { createMemoryHistory, createRouter, useRoute, useRouter } from 'vue-router'
 import type { RuntimeNavigation } from '@spark-appworks/spark-app'
-import { useSystemPageDirtySource } from '@spark-appworks/spark-app'
+import { appPageUiState, closeAppDialog, useSystemPageDirtySource } from '@spark-appworks/spark-app'
+import { PAGE_SERVICE, useSparkComponent, type PageServiceCapability } from '@spark-appworks/spark-component'
 import type { LowcodeApplicationSelectionReceipt } from '@spark-appworks/spark-lowcode-api'
 import { createDynamicRouter } from '../../../../packages/spark-app/src/router/dynamic'
 import { SystemPageIdentityResolver } from '../../../../packages/spark-app/src/router/system-page-identity/system-page-identity-resolver'
@@ -135,6 +136,39 @@ async function setupIdentity(component = page) {
 }
 
 describe('system page identity pool', () => {
+  it('provides the real shell page service to native system pages', async () => {
+    const services: PageServiceCapability[] = []
+    const consumer = defineComponent({
+      name: 'NativePageServiceProbe',
+      setup() {
+        const { sparkConsume } = useSparkComponent({ type: 'native-page-service-probe' })
+        const service = sparkConsume(PAGE_SERVICE)
+        if (service) services.push(service)
+        return () => h('span', { 'data-page-service': service ? 'ready' : 'missing' })
+      },
+    })
+    const { router, dynamic } = await setupIdentity(consumer)
+    setDynamicRouter(dynamic)
+    await router.push('/apps/project/dashboard?__sparkNavigationId=system-node')
+    const wrapper = mountApp({ global: {
+      plugins: [router],
+      stubs: {
+        AppLayout: AppLayoutProbe, AppHeader: AppHeaderProbe, AppBreadcrumb: true, AppFooter: true,
+        AppSidebar: true, NavHeaderBar: true, NavContextSelector: true, ThemeConfigurator: true, AppPageUiHost: true,
+      },
+    } })
+    await flushPromises()
+    expect(wrapper.get('[data-page-service]').attributes('data-page-service')).toBe('ready')
+    const service = services[0]
+    if (!service) throw new Error('native page service missing')
+    const dialog = service.showDialog({ title: '宿主对话框', content: '测试' })
+    try {
+      expect(appPageUiState.dialog.visible).toBe(true)
+      expect(appPageUiState.dialog.title).toBe('宿主对话框')
+    } finally { closeAppDialog() }
+    await expect(dialog).resolves.toBe('close')
+  })
+
   it.each([
     ['single', 'dirty'], ['single', 'unknown'], ['multi', 'dirty'], ['multi', 'unknown'],
   ] as const)(
@@ -600,4 +634,3 @@ describe('system page identity pool', () => {
     expect(dynamic.getSystemPageInstance(router.currentRoute.value)).toBeUndefined()
   })
 })
-

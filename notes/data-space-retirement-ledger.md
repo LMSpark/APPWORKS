@@ -9028,3 +9028,12 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 **新登记断链（非本批引入）。**`tests/runtime/page/structured-config/workflow/graph/workflow-node-removal.test.ts` 在干净 HEAD `7d64e96bc` 上即有 13/35 失败，均为 `删除依赖不可读: WorkflowLayout._pk`；与本批无关，已用 stash 在提交前基线复现。同轮全量并发运行中 `data-space-chain` 3 项与 `workflow-design` 1 项 15 秒超时，单独以 60 秒超时重跑 115/115 通过，记为负载超时。下一断点：定位 WorkflowLayout 删除依赖 `_pk` 断链。
 
 **CU. 工作流节点删除 `_pk` 断链修复（2026-11-10）。**根因：`DataView.columns` 按 spark-data 合同包含框架计算主键 `_pk`（`isComputed`，无字段授权，`queryColumns` 已排除），`node-removal.ts` 的 `snapshot()` 在未配置 `queryConfig.fields` 时回落到全部列，把 `_pk` 当业务字段做可读性检查，凡布局文件存在即报 `删除依赖不可读: WorkflowLayout._pk`。修复只在消费方排除计算列（含 `_pk`），与 `queryColumns` 及同目录 query-source-edit / query-source-node-commit 的既有过滤一致；未改 spark-data 公共合同。同类模式全仓复查，其它调用点均已过滤。工作流 24 文件 545 项全部通过（原 13 项失败恢复），改动 ESLint、typecheck、page-thin、ai-codegen 通过。下一断点仍按唯一台账选取不依赖实服写入的 S4 独立闭环；SaveView、工作流整删、带点 ID 线上验证均待隔离目标/登录态。
+
+**CV. 全仓烟测断链批次（2026-11-10）。**全量根测试（515 文件）发现 4 个失败文件、17 项，逐项核为既有断链（非本会话引入），按单一架构在消费方修复，未放宽 spark-data 冻结守卫：
+- `lowcode-application-catalog.test.ts` 10 项：`09706cbda` 仅给蓝图 default 视图声明父子树（`textField: FunName`），未同步测试夹具；装配正确按正式输出校验树字段，夹具 `Base_NavigationInfo` 缺 `FunName` 导致每例先失败于装配。夹具补齐正式字段（`90167307b`），“缺父字段”例改为只缺 `prowid`。51/51。
+- `page-tool-file-operations.test.ts` 1 项：`f41d480bb` 起公共目录适配器先拒非法/重复 basename（`FILE_DIRECTORY_NAMES`），删除前仍 0 删除 0 保存；期望码过期。改为两例：路径穿越由公共目录拒绝，首尾空白由更严格的领域规则 `PAGE_TOOL_FILE_DIRECTORY` 拒绝。
+- `dev-state-page-file-closed-loop.test.ts` 3 项：`a1a19c64e` 起文件资源操作固定起始绑定，在途期间重绑即 `FILE_RESOURCE_BINDING_STALE`，且重绑须先过旧守卫。工作台两处消费缺陷：①读取/暂存经 `getOrCreateFileResourceView` 反复重绑，打断在途保存；②长期文件绑定守卫闭包捕获首个 `useDevState` 实例的持有状态，跨 scope 续接同一 parked owner 后永久失效，原未知提交无法核验。修复（`070c7d059`）：读取/暂存只定位已加载视图（共享 `pageFileResourceViewId`）；owner bundle 增 `holderCheck`，每次取得租约设置、释放清除，长期绑定经它跟随当前持有者。dev 工作台 21 文件 340 项通过。
+- `data-space-chain.test.ts` 3 项为测试内显式 15 秒超时的并发负载超时，单独运行通过，不改代码。
+改动 ESLint、typecheck、完整 verify:rules、build 通过（AI model spec 既有 2 warnings）。全量复跑结果见下一条。
+
+全量复跑（修复后，`--testTimeout=60000`）：515 文件中 513 通过，9680/9684 项；剩余 4 项为 `data-space-chain` 3 项与 `data-space-design-page` 1 项，均为测试内显式超时在全量并发负载下触发，两文件单独运行 404/404 通过，登记为负载超时、非产品断链。下一断点：SaveView、工作流整删、带点 ID 的线上验证待隔离目标与有效登录态；其余按唯一台账选下一项 S4 独立闭环。

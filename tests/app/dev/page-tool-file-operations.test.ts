@@ -115,11 +115,14 @@ describe('PageTool files use the formal ProjectToolFile DataView chain',()=>{
     }finally{scope.dataSet.destroy()}
   })
 
-  it('rejects an unsafe basename from the directory DataView before deleting anything',async()=>{
-    const files=new Map([['PAGE/../outside','unsafe']]),remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>{files.delete(`${pageId}/${fileName}`)})
+  it.each([
+    ['PAGE/../outside', 'FILE_DIRECTORY_NAMES'],
+    ['PAGE/ rule.json', 'PAGE_TOOL_FILE_DIRECTORY'],
+  ])('rejects an unsafe basename %s from the directory DataView before deleting anything',async(key,code)=>{
+    const files=new Map([[key,'unsafe']]),remove=vi.fn(async(_app:string,pageId:string,fileName:string)=>{files.delete(`${pageId}/${fileName}`)})
     const scope=createScope(files,remove),save=vi.spyOn(scope.dataSet,'saveChanges')
     try{
-      await expect(deletePageToolFiles(scope)).rejects.toThrow('PAGE_TOOL_FILE_DIRECTORY')
+      await expect(deletePageToolFiles(scope)).rejects.toThrow(code)
       expect(remove).not.toHaveBeenCalled()
       expect(save).not.toHaveBeenCalled()
       expect(files.size).toBe(1)

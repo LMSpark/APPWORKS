@@ -42,7 +42,7 @@ import { loadLowcodeRuntimeScenario } from '@/lowcode/data-space/lowcode-data-sp
 import { LOWCODE_APPLICATION_CATALOG_FORM_KEY } from '@spark-appworks/spark-lowcode-api'
 import {LowcodeDictionary} from '@/lowcode/resources/structured-config/dictionary/resource'
 import {getBuiltinScenarioResource} from '@/registries/builtin-application-registry'
-import {createPageFileResourceView} from '@/services/project/page-tool-file-dataview'
+import {createPageFileResourceView, pageFileResourceViewId} from '@/services/project/page-tool-file-dataview'
 import { BlueprintWorkspaceDataView, type BlueprintNodeFormData } from '@/services/project/blueprint-workspace-dataview'
 import {createPageToolFiles,compensatePageToolFiles,deletePageToolFiles,listPageToolFileNames} from '@/services/project/page-tool-file-operations'
 
@@ -133,7 +133,15 @@ type PendingPageBindingCreate={kind:'binding';pageId:string;parentId:string;node
 type PendingChildPageCreate={kind:'child';pageId:string;parentId:string;nodeId:string;projectId:string;childInput:Record<string,unknown>;stage:'files'|'blueprint'|'compensate'|'done'}
 type PendingPageOperation=PendingPageBindingCreate|PendingChildPageCreate
 type PendingMountedPageDelete={pageId:string;customPath:string;nodeId:string;projectId:string;parentNodeId:string;title:string;stage:'blueprint'|'files'}
-type DevSystemOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;leaseGeneration:number;runtime:PageRuntime;session:NativePageRuntimeSession;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;pendingMountedPageDelete:PendingMountedPageDelete|undefined;pendingPageBindingCreate:PendingPageOperation|undefined}
+type DevSystemOwnerBundle={key:string;workspace:ProjectBlueprintDomain.ProjectWorkspace;scopeFingerprint:string;leaseGeneration:number;runtime:PageRuntime;session:NativePageRuntimeSession;blueprint:BlueprintWorkspaceDataView;assertCurrent:(()=>void)|undefined;
+  /** 当前持有该 owner 的工作区实例所做的完整租约核验；每次取得租约时设置、释放时清除。长期绑定经此跟随续接的持有者。 */
+  holderCheck:(()=>void)|undefined;pendingMountedPageDelete:PendingMountedPageDelete|undefined;pendingPageBindingCreate:PendingPageOperation|undefined}
+/** 文件 DataView 等长期绑定的守卫：跟随 owner 当前持有者，而不是绑定时的工作区实例。 */
+function assertOwnerBundleHeld(bundle:DevSystemOwnerBundle):void{
+  const check=bundle.holderCheck
+  if(!check)throw new Error('DevSystem DataView owner 当前未被同项目工作区持有')
+  check()
+}
 const devSystemOwnerBundles=new WeakMap<ProjectBlueprintDomain.ProjectWorkspace,Map<string,DevSystemOwnerBundle>>()
 let devSystemLeaseGeneration=0
 function devSystemOwnerKey(scope:ProjectWorkspaceScope):string{return scope.projectId}
@@ -183,15 +191,24 @@ export function useDevState() {
   function currentPageFileView(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):DataView{
     const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
     if(!bundle||!session||bundle.blueprint!==session)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前 DataSet 未就绪')
-    return createPageFileResourceView({dataSet:session.dataSet,appId:session.projectId,pageId,fileName,workspace:bundle.workspace,assertCurrent:()=>assertOwnerBundleCurrent(bundle)})
+    return createPageFileResourceView({dataSet:session.dataSet,appId:session.projectId,pageId,fileName,workspace:bundle.workspace,assertCurrent:()=>assertOwnerBundleHeld(bundle)})
+  }
+  /** 读取或暂存只定位已加载的原文件 DataView；不重新绑定，避免替换在途保存所依赖的绑定。 */
+  function loadedPageFileView(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):DataView{
+    const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
+    if(!bundle||!session||bundle.blueprint!==session)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前 DataSet 未就绪')
+    assertOwnerBundleCurrent(bundle)
+    const view=session.dataSet.getView('ProjectToolFile',pageFileResourceViewId(pageId,fileName))
+    if(!view||view.destroyed)throw new Error('PAGE_TOOL_FILE_VIEW_ROW: 当前文件 DataView 尚未按目标身份加载')
+    return view
   }
   function pageFileOperationScope(pageId:string){
     const bundle=activeOwnerBundle,session=blueprintWorkspaceDataView.value
     if(!bundle||!session||bundle.blueprint!==session)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 当前正式 DataSet 未就绪')
-    return {dataSet:session.dataSet,appId:session.projectId,pageId,assertCurrent:()=>assertOwnerBundleCurrent(bundle)}
+    return {dataSet:session.dataSet,appId:session.projectId,pageId,assertCurrent:()=>assertOwnerBundleHeld(bundle)}
   }
   function readPageToolFileDataViewText(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName):string{
-    const view=currentPageFileView(pageId,fileName)
+    const view=loadedPageFileView(pageId,fileName)
     const row=view.currentRow
     const id=row&&view.getPkKey(row)
     const edited=id===null||id===undefined?row:view.getEditingRow(id)??row
@@ -199,7 +216,7 @@ export function useDevState() {
     return edited['text']
   }
   function pageToolFileDataViewState(pageId:string,fileName:ProjectBlueprintDomain.PageToolFileName){
-    const view=currentPageFileView(pageId,fileName),row=view.currentRow,id=row&&view.getPkKey(row)
+    const view=loadedPageFileView(pageId,fileName),row=view.currentRow,id=row&&view.getPkKey(row)
     if(!row||id===null||id===undefined||row['pageId']!==pageId||row['fileName']!==fileName)throw new Error('PAGE_TOOL_FILE_VIEW_ROW: 当前文件 DataView 尚未按目标身份加载')
     return {view,row,id,dirty:view.dirtyTracking.hasPendingChanges(id)||view.hasEditingChanges(id),unconfirmed:view.hasUnconfirmedSave}
   }
@@ -242,6 +259,7 @@ export function useDevState() {
       retainHistoryOwner=bundle.workspace.hasPendingScenarioVersionAttempt
       if(!pending){for(const page of bundle.workspace.project.design.pages)page.unbindCleanFileDataViews();deleteDevSystemOwnerBundle(bundle.workspace,bundle.key);bundle.blueprint.dispose();bundle.session.dispose()}
       bundle.assertCurrent=undefined
+      bundle.holderCheck=undefined
       ownerScopeToken=undefined
     }else if(!bundle){
       blueprintWorkspaceDataView.value?.dispose()
@@ -272,6 +290,7 @@ export function useDevState() {
       ownerLeaseGeneration=parked.leaseGeneration
       ownerScopeToken=scopeToken
       parked.assertCurrent=guard
+      parked.holderCheck=()=>assertOwnerBundleCurrent(parked)
       parked.blueprint.rebindScope(()=>assertOwnerBundleCurrent(parked))
       activeOwnerBundle=parked
       pendingMountedPageDelete=parked.pendingMountedPageDelete
@@ -321,11 +340,12 @@ export function useDevState() {
         let assertLease:()=>void=()=>{throw new Error('DevSystem DataView owner 尚未取得活动租约')}
         session=new BlueprintWorkspaceDataView(dataSet,projectKey,()=>assertLease())
         const bundle:DevSystemOwnerBundle={key:bundleKey,workspace,scopeFingerprint,leaseGeneration:++devSystemLeaseGeneration,runtime,session:runtimeSession,blueprint:session,
-          assertCurrent:undefined,pendingMountedPageDelete:undefined,pendingPageBindingCreate:undefined}
+          assertCurrent:undefined,holderCheck:undefined,pendingMountedPageDelete:undefined,pendingPageBindingCreate:undefined}
         ownerLeaseGeneration=bundle.leaseGeneration
         ownerScopeToken=scopeToken
         assertLease=()=>assertOwnerBundleCurrent(bundle)
         bundle.assertCurrent=()=>{if(projectId.value!==projectKey||currentEditor.value!==workspace)throw new Error('DevSystem DataView scope 已失效')}
+        bundle.holderCheck=()=>assertOwnerBundleCurrent(bundle)
         activeOwnerBundle=bundle
         setDevSystemOwnerBundle(bundle)
       }catch(error){releaseAttempt();throw error}
@@ -475,7 +495,7 @@ export function useDevState() {
   function stagePageToolFileDataView(input:{pageId:string;fileName:ProjectBlueprintDomain.PageToolFileName;text:string}):void{
     const workspace=currentEditor.value,scope=currentScopeKey(),page=workspace.project.findPageTool(input.pageId)
     if(!page||workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_VIEW_SCOPE: 活跃文件 DataView 或页面身份不匹配')
-    const view=currentPageFileView(input.pageId,input.fileName),row=view.currentRow,id=row&&view.getPkKey(row),edited=id===null||id===undefined?null:view.getEditingRow(id)??row
+    const view=loadedPageFileView(input.pageId,input.fileName),row=view.currentRow,id=row&&view.getPkKey(row),edited=id===null||id===undefined?null:view.getEditingRow(id)??row
     if(!row||!edited||id===null||id===undefined||row['fileName']!==input.fileName||row['pageId']!==input.pageId||edited['text']!==input.text)throw new Error('PAGE_TOOL_FILE_VIEW_DRAFT: 标准字段更新没有写入目标 DataView')
     if(currentEditor.value!==workspace||currentScopeKey()!==scope||workspace.project.findPageTool(input.pageId)!==page||workspace.project.getActivePage()!==page)throw new Error('PAGE_TOOL_FILE_SAVE_STALE: 工作区或页面身份已变化')
     externalDataViewRevision.value++

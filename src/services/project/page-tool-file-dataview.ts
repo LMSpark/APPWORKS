@@ -98,6 +98,11 @@ export function createPageFileDirectoryView(input:Readonly<{
   return view
 }
 
+/** 页面工具文件在 ProjectToolFile 表中的命名视图身份；创建与查找共用。 */
+export function pageFileResourceViewId(pageId:string,fileName:string):string{
+  return `page-${encodeURIComponent(pageId)}-${encodeURIComponent(fileName)}`
+}
+
 function createPageFileView(input:Readonly<{
   dataSet:DataSet
   appId:string
@@ -122,7 +127,7 @@ function createPageFileView(input:Readonly<{
     return {key:JSON.stringify([targetAppId,targetPageId,fileName,versionId]),fields:{pageId:targetPageId,fileName,versionId}}
   }
   const transport=createPageFileTransport({appId,io,assertCurrent,...(input.workspace?{workspace:input.workspace}:{}),history:!input.allowDirectoryEntry})
-  const view=getOrCreateFileResourceView({dataSet,tableName:TABLE,viewId:`page-${encodeURIComponent(pageId)}-${encodeURIComponent(resourceFileName)}`,resourceId:ProjectToolResource.resources.ProjectToolFile,
+  const view=getOrCreateFileResourceView({dataSet,tableName:TABLE,viewId:pageFileResourceViewId(pageId,resourceFileName),resourceId:ProjectToolResource.resources.ProjectToolFile,
     columns:formalTable.columns,contentField:'text',queryContext:{appId,pageId,fileName:resourceFileName,versionId:''},target,transport,assertCurrent,
     ...(input.allowDirectoryEntry?{canCreate:()=>false}:{}),
     ...(input.rejectLocalDirty?{canWrite:resource=>resource.fields['versionId']===''&&(!isPageToolFileName(resource.fields['fileName'])||!input.workspace?.project.findPageTool(String(resource.fields['pageId']))?.isDirty())}:{}),

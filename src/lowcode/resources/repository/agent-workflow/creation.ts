@@ -8,6 +8,7 @@ import {LowcodeApiError, type LowcodeDesignApi, type LowcodeDesignFileUpload} fr
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {LowcodeDataSpaceAssemblerInput} from '../../../data-space/lowcode-data-space-assembler'
 import {createAgentWorkflowScaffold} from './creation-scaffold'
+import {agentWorkflowDirectory, agentWorkflowId} from './agent-workflow-file-resource'
 
 export const AGENT_WORKFLOW_CREATE_TABLE = 'AgentWorkflowCreation'
 export const AGENT_WORKFLOW_CREATE_RESOURCE = 'agent-workflow-create'
@@ -18,19 +19,13 @@ type Input = Readonly<{config: ScenarioViewConfig; applicationId: string;
   fileUpload: Pick<LowcodeDesignFileUpload, 'uploadTextVersion'>; assertCurrent: () => void}>
 type Attempt = {row: DataRow; text: string; customPath: string}
 
-function exactSegment(value: unknown): string {
-  if (typeof value !== 'string' || value === '' || value !== value.trim() || value.length > 255 || /[.\\/%\u0000-\u001f\u007f?#]/.test(value) || value === 'unknown') {
-    throw new Error('AGENT_WORKFLOW_CREATE_INPUT: 当前正式文件服务不支持此精确目录身份')
-  }
-  return value
-}
 function uncertain(cause: unknown): Error {
   return Object.assign(new Error(`AGENT_WORKFLOW_CREATE_UNKNOWN: 首稿结果尚未确认（${cause instanceof Error ? cause.message : String(cause)}）`, {cause}), {workflowCreateMayHaveApplied: true})
 }
 function isUncertain(error: unknown): boolean {return error instanceof Error && 'workflowCreateMayHaveApplied' in error && error.workflowCreateMayHaveApplied === true}
 
 function options(view: DataView, input: Input): BindCommandSubmitOptions {
-  const ds = view.dataSet, table = view.dataTable, appId = exactSegment(input.applicationId)
+  const ds = view.dataSet, table = view.dataTable, directory = agentWorkflowDirectory(input.applicationId)
   const attempts = new Map<string, Attempt>()
   const declaration = JSON.stringify([view.queryConfig, view.queryContext, view.fieldProjection])
   const guard = () => {
@@ -57,12 +52,11 @@ function options(view: DataView, input: Input): BindCommandSubmitOptions {
     inputFields: ['workflowId', 'title'], createKey: () => crypto.randomUUID(), allowAbandonUnconfirmed: false, retainConfirmedOnRefresh: true,
     submit: async row => {
       guard()
-      const commandId = row['commandId'], workflowId = exactSegment(row['workflowId']), title = row['title'] === undefined ? '' : row['title']
-      if (!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(workflowId)) throw new Error('AGENT_WORKFLOW_CREATE_INPUT: workflowId 不符合原领域身份规则')
+      const commandId = row['commandId'], workflowId = agentWorkflowId(row['workflowId']), title = row['title'] === undefined ? '' : row['title']
       if (typeof commandId !== 'string' || !commandId || typeof title !== 'string') throw new Error('AGENT_WORKFLOW_CREATE_INPUT: 缺少原命令键或标题')
       if (attempts.has(commandId)) throw uncertain(new Error('原命令已经派发，不能重传'))
       const original: DataRow = {commandId, workflowId, title: row['title']}, text = createAgentWorkflowScaffold({commandId, workflowId, title})
-      const attempt: Attempt = {row: original, text, customPath: `${appId}/workflow-designs/${workflowId}`}
+      const attempt: Attempt = {row: original, text, customPath: `${directory}/${workflowId}`}
       const assertInput = () => {
         guard()
         const current = view.getEditingRow(commandId)

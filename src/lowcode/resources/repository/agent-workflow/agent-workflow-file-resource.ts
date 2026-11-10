@@ -63,6 +63,28 @@ export function resolveAgentWorkflowDataSpaceId(view: DataView): string {
 /** 每个工作流目录下的两份文件：设计稿和发布定义。 */
 export type AgentWorkflowFileName = 'design.json' | 'definition.json'
 
+const AGENT_WORKFLOW_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{0,127}$/
+
+/**
+ * 工作流目录身份的唯一规则；读、写、创建、首发都在派发前使用。
+ * 正式文件服务 normalizePath 遇到含点目录会忽略 fileName，上传会改写 unknown 分段，因此这些身份无法精确定位，一律拒绝。
+ */
+export function agentWorkflowId(value: unknown): string {
+  if (typeof value !== 'string' || !AGENT_WORKFLOW_ID.test(value) || value === 'unknown') {
+    throw new Error('AGENT_WORKFLOW_ID_UNSUPPORTED: 工作流 ID 须为字母或数字开头、仅含字母/数字/_/- 的 1–128 位标识；含点等目录无法由当前文件服务精确定位')
+  }
+  return value
+}
+
+/** 当前应用的工作流根目录；应用身份同样须能被文件服务精确定位。 */
+export function agentWorkflowDirectory(applicationId: unknown): string {
+  if (typeof applicationId !== 'string' || applicationId === '' || applicationId.trim() !== applicationId
+    || /[.\\/%?#\u0000-\u001f\u007f]/.test(applicationId) || applicationId === 'unknown') {
+    throw new Error('AGENT_WORKFLOW_FILE_SCOPE: 应用身份无效')
+  }
+  return `${applicationId}/workflow-designs`
+}
+
 /** 工作流文件的目录、文本和字节读取接口。 */
 type WorkflowFileApi = Readonly<{
   /** 列出应用 workflow-designs 目录下的工作流。 */
@@ -129,11 +151,7 @@ export class AgentWorkflowFileCommit {
 
   /** 校验应用身份并固定本应用的 workflow-designs 目录。 */
   constructor(input: AgentWorkflowFileScope) {
-    const applicationId = input.applicationId.trim()
-    if (!applicationId || applicationId !== input.applicationId || /[\\/%\u0000-\u001f\u007f]/.test(applicationId)) {
-      throw new Error('AGENT_WORKFLOW_FILE_SCOPE: 应用身份无效')
-    }
-    this.#directory = `${applicationId}/workflow-designs`
+    this.#directory = agentWorkflowDirectory(input.applicationId)
     this.#api = input.api
     this.#fileUpload = input.fileUpload ?? {uploadWorkingText: () => Promise.reject(new Error('AGENT_WORKFLOW_FILE_SAVE_OWNER: 未注入正式文件上传适配器'))}
     this.#assertCurrent = input.assertCurrent
@@ -153,12 +171,8 @@ export class AgentWorkflowFileCommit {
       timestamp: entry.lastModified === null ? '' : String(entry.lastModified)}))
   }
 
-  /** 读取一份工作流文件全文；工作流身份非法时拒绝。 */
+  /** 读取一份工作流文件全文；工作流身份不可精确定位时在派发前拒绝。 */
   async readText(workflowId: unknown, fileName: AgentWorkflowFileName): Promise<string> {
-    if (typeof workflowId !== 'string' || !workflowId.trim() || workflowId.trim() !== workflowId
-      || /[\\/%\u0000-\u001f\u007f?#]/.test(workflowId)) {
-      throw new Error('AGENT_WORKFLOW_FILE_QUERY: 查询必须提供有效工作流身份')
-    }
     const content = await this.#api.readTextFile(this.locator(workflowId, fileName))
     this.#assertCurrent()
     return content
@@ -212,8 +226,8 @@ export class AgentWorkflowFileCommit {
     throw new Error('AGENT_WORKFLOW_FILE_CONFLICT: 原上传与基线均不匹配，待核验状态保留')
   }
 
-  private locator(workflowId: string, fileName: AgentWorkflowFileName): LowcodeFileLocator {
-    return {appType: 'designfile', customPath: `${this.#directory}/${workflowId}`, fileName}
+  private locator(workflowId: unknown, fileName: AgentWorkflowFileName): LowcodeFileLocator {
+    return {appType: 'designfile', customPath: `${this.#directory}/${agentWorkflowId(workflowId)}`, fileName}
   }
 }
 

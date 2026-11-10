@@ -111,6 +111,18 @@ describe('Agent workflow first publication command', () => {
     } finally {state.dataSet.destroy()}
   })
 
+  it.each(['legacy.workflow', 'unknown', 'a b', '-lead'])('rejects an unsupported workflow ID before any IO: %s', async id => {
+    const state = fixture()
+    try {
+      await state.view.loadFromServer()
+      const row = await state.view.addRow({workflowId: id, designContent, definitionContent})
+      state.view.setCurrentRow(row)
+      await expect(state.save()).rejects.toThrow('AGENT_WORKFLOW_ID_UNSUPPORTED')
+      expect(state.readTextFile).not.toHaveBeenCalled()
+      expect(state.uploadTextVersion).not.toHaveBeenCalled()
+    } finally {state.dataSet.destroy()}
+  })
+
   it('keeps unknown when the original Definition bytes differ and does not upload again', async () => {
     const state = fixture({afterUpload: () => {state.files.set('APP/workflow-designs/alpha/definition.json', '{}'); throw new Error('response lost')}})
     try {

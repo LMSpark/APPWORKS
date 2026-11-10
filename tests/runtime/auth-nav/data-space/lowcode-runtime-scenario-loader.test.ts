@@ -298,20 +298,20 @@ describe('loadLowcodeRuntimeScenario', () => {
     }}))
     mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'SCENE', name: '正式空间'})
     mocks.readModelBatch.mockResolvedValue([])
-    mocks.listFiles.mockResolvedValue([{name: 'agent.workflow.alpha', lastModified: 1730000000000}])
+    mocks.listFiles.mockResolvedValue([{name: 'agent-workflow-alpha', lastModified: 1730000000000}])
     mocks.readTextFile.mockResolvedValue('{"kind":"agent.workflow.definition"}')
     const dataSet = await loadLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE'})
     try {
       const directory = dataSet.getView('AgentWorkflowFiles', 'directory')!
       expect((await directory.requestRefresh()).success).toBe(true)
-      expect(directory.rows).toMatchObject([{workflowId: 'agent.workflow.alpha', fileName: 'design.json'}])
+      expect(directory.rows).toMatchObject([{workflowId: 'agent-workflow-alpha', fileName: 'design.json'}])
       expect(mocks.listFiles).toHaveBeenCalledExactlyOnceWith({appType: 'designfile', folderPath: 'APP/workflow-designs'})
       const definition = dataSet.getView('AgentWorkflowFiles', 'definition')!
-      definition.queryContext = {...definition.queryContext, workflowId: 'agent.workflow.alpha'}
+      definition.queryContext = {...definition.queryContext, workflowId: 'agent-workflow-alpha'}
       expect((await definition.requestRefresh()).success).toBe(true)
       expect(definition.currentRow).toMatchObject({content: '{"kind":"agent.workflow.definition"}'})
       expect(mocks.readTextFile).toHaveBeenCalledExactlyOnceWith({appType: 'designfile',
-        customPath: 'APP/workflow-designs/agent.workflow.alpha', fileName: 'definition.json'})
+        customPath: 'APP/workflow-designs/agent-workflow-alpha', fileName: 'definition.json'})
     } finally {dataSet.destroy()}
   })
 
@@ -402,13 +402,13 @@ describe('loadLowcodeRuntimeScenario', () => {
     }}))
     mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: 'SCENE', name: '正式空间'})
     mocks.readModelBatch.mockResolvedValue([])
-    mocks.listFiles.mockResolvedValue([{name: 'agent.workflow.alpha', lastModified: 1730000000000}])
+    mocks.listFiles.mockResolvedValue([{name: 'agent-workflow-alpha', lastModified: 1730000000000}])
     mocks.readText.mockRejectedValue(new Error('saved pagedata must not be read for unsaved preview'))
     const dataSet = await assembleLowcodeRuntimeScenario({projectId: 'APP', scenarioId: 'SCENE', config, assertCurrent: () => undefined})
     try {
       const directory = dataSet.getView('AgentWorkflowFiles', 'directory')!
       expect((await directory.requestRefresh()).success).toBe(true)
-      expect(directory.rows).toMatchObject([{workflowId: 'agent.workflow.alpha', fileName: 'design.json'}])
+      expect(directory.rows).toMatchObject([{workflowId: 'agent-workflow-alpha', fileName: 'design.json'}])
       expect(mocks.readText).not.toHaveBeenCalled()
     } finally {dataSet.destroy()}
   })

@@ -8,6 +8,7 @@ import {LowcodeApiError, type LowcodeDesignApi, type LowcodeDesignFileUpload} fr
 import type {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import type {LowcodeDataSpaceAssemblerInput} from '../../../data-space/lowcode-data-space-assembler'
 import {AGENT_WORKFLOW_SCENARIO} from './creation'
+import {agentWorkflowDirectory, agentWorkflowId} from './agent-workflow-file-resource'
 
 export const AGENT_WORKFLOW_PUBLICATION_TABLE = 'AgentWorkflowPublication'
 export const AGENT_WORKFLOW_PUBLICATION_RESOURCE = 'agent-workflow-publication'
@@ -20,14 +21,6 @@ type Input = Readonly<{
   assertCurrent: () => void
 }>
 type Attempt = Readonly<{row: DataRow; customPath: string; designContent: string; definitionContent: string}>
-
-function exactSegment(value: unknown): string {
-  if (typeof value !== 'string' || value === '' || value !== value.trim() || value.length > 255
-    || /[.\\/%\u0000-\u001f\u007f?#]/.test(value) || value === 'unknown') {
-    throw new Error('AGENT_WORKFLOW_PUBLICATION_INPUT: 当前正式文件服务不支持此精确目录身份')
-  }
-  return value
-}
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -61,7 +54,7 @@ function sameBytes(left: Uint8Array, right: Uint8Array): boolean {
 }
 
 function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions {
-  const dataSet = view.dataSet, table = view.dataTable, applicationId = exactSegment(input.applicationId)
+  const dataSet = view.dataSet, table = view.dataTable, directory = agentWorkflowDirectory(input.applicationId)
   const attempts = new Map<string, Attempt>()
   const declaration = JSON.stringify([view.queryConfig, view.queryContext, view.fieldProjection])
   const guard = () => {
@@ -91,7 +84,7 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
   }
   const receipt = (attempt: Attempt): DataRow => ({...attempt.row, status: 'published'})
   const locator = (workflowId: string, fileName: 'design.json' | 'definition.json') => ({
-    appType: 'designfile', customPath: `${applicationId}/workflow-designs/${workflowId}`, fileName,
+    appType: 'designfile', customPath: `${directory}/${workflowId}`, fileName,
   })
   const readDesign = async (attempt: Attempt): Promise<void> => {
     const text = await input.api.readTextFile(locator(String(attempt.row['workflowId']), 'design.json'))
@@ -118,7 +111,7 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
     allowAbandonUnconfirmed: false,
     submit: async row => {
       guard()
-      const commandId = row['commandId'], workflowId = exactSegment(row['workflowId'])
+      const commandId = row['commandId'], workflowId = agentWorkflowId(row['workflowId'])
       const designContent = row['designContent'], definitionContent = row['definitionContent']
       if (typeof commandId !== 'string' || !commandId || typeof designContent !== 'string' || typeof definitionContent !== 'string') {
         throw new Error('AGENT_WORKFLOW_PUBLICATION_INPUT: 缺少原命令键或发布内容')
@@ -130,7 +123,7 @@ function commandOptions(view: DataView, input: Input): BindCommandSubmitOptions 
       if (!current || ['commandId', 'workflowId', 'designContent', 'definitionContent'].some(field => current[field] !== original[field])) {
         throw new Error('AGENT_WORKFLOW_PUBLICATION_INPUT: 原命令输入已变化')
       }
-      const attempt: Attempt = {row: original, customPath: `${applicationId}/workflow-designs/${workflowId}`, designContent, definitionContent}
+      const attempt: Attempt = {row: original, customPath: `${directory}/${workflowId}`, designContent, definitionContent}
       await readDesign(attempt)
       await assertDefinitionMissing(attempt)
       guard()

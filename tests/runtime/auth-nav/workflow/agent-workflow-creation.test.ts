@@ -157,7 +157,7 @@ describe('formal Agent workflow creation command', () => {
 
   it.each(['bad.id', 'unknown', '../outside', '-foo', 'a b', 'a'.repeat(129)])('rejects unsupported exact IDs before any IO: %s', async id => {
     const f = fixture()
-    try {await f.prepare(id); await expect(f.save()).rejects.toThrow(); expect(f.api.readTextFile).not.toHaveBeenCalled(); expect(f.fileUpload.uploadTextVersion).not.toHaveBeenCalled()}
+    try {await f.prepare(id); await expect(f.save()).rejects.toThrow('AGENT_WORKFLOW_ID_UNSUPPORTED'); expect(f.api.readTextFile).not.toHaveBeenCalled(); expect(f.fileUpload.uploadTextVersion).not.toHaveBeenCalled()}
     finally {f.ds.destroy()}
   })
 })

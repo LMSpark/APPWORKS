@@ -9138,3 +9138,11 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **未完成范围。** 人员页的正式模型身份和状态来源、应用系统管理的场景及负责人/删除完整性合同仍未解决；岗位页通过不代表整个 AppWorks 迁移已完成。
 - **发布核对。** 岗位阶段提交 `e5c5bfa0a20aace0cc20e46c4ed308e3c7fafc07` 已推送，`git ls-remote` 确认远端同 SHA；当次工作区干净，唯一 worktree 仍为 `D:\SPARK_AppWorks`。台账补充后的文档治理检查也通过。另行尝试的新标签未继承原页运行会话而返回平台首页，弹窗通道未成功打开；均未形成额外的真实点击验收，隔离标签已关闭，不能把这些测量失败记为岗位业务失败或鼠标操作通过。
 - **人员身份进一步核查。** 通过已登记的元数据 DataSet/DataView 按来源名精确查询，正式 `View_UserDJAndDepCSR` 确实存在于机构空间 `4138A7C47ECB96EA85CA61A8A8B7191F`（模型 `8dd73fb6-3509-4f9b-810b-35b226cb856d`）和“根据部门获取用户”空间 `F5C3CD1ED04843CBAF6E401304AC3D04`（模型 `F5C3CD1ED04843CBAF6E401304AC3D04p003`），不是人员空间 `1B7FD70E326717B8E4B611D0431FFCBA` 的模型。参考仓 F5C 空间被审批追加处理人及办理页的人员选择使用，不是人员管理页的当前场景；不能据名称相同悄悄改用其他空间的授权上下文。继续通过正式元字段视图精确读取这些模型的定义，只发现 `IsWork`，没有参考归一化器使用的状态名称字段；人员空间的 `view_user_dj` 和 `Base_UserInfo` 虽有 `State`、`IsWork`，二者的业务含义、与任岗投影的关联及展示映射仍未核准。本次只返回模型/字段定义，无人员业务值和写入；不得猜状态、拼人员副本或伪造人员空间模型。下一实施须先解决本页正式绑定与状态合同；应用系统管理的完整迁移断点仍按上一节保留。
+
+### 2026-11-11 AppWorks 人员管理迁移
+
+- **绑定决策。** 参考 `TenantGovernanceList mode="user"` 与机构、岗位同属租户组织只读治理；人员任职模型 `View_UserDJAndDepCSR` 及机构 `Base_DepartInfo` 都是机构空间 `4138A7C47ECB96EA85CA61A8A8B7191F` 的正式模型，故页面以导航节点 `1B7FD70E326717B8E4B611D0431FFCBA` 为页面身份、显式消费机构空间，不使用审批选人空间 `F5C3…`，也不伪造人员空间模型。共享运行器新增 `navigationId`：导航节点和蓝图场景须同为页面身份，数据身份仍由完整键 `4138…@View_UserDJAndDepCSR@default` 与 `4138…@Base_DepartInfo@options` 定位；省略时页面与空间同一身份，机构、岗位行为不变。导航身份误用为数据空间时拒绝装配。
+- **配置。** 机构空间共享 `pagedata.json` 增加人员任职默认视图（分页 10，投影 `rowid/UserName/UserID/DepName/DepID/JobName`）和同模型 `Base_DepartInfo@options` 视图（`DepID is-not-empty`、全部分页），机构页原 `default` 视图不变。页面按原目录承接，标准表格只读展示人员姓名、人员 ID、所属机构、岗位；`UserName contains`、`DepID eq` 查询，机构选项启用 `optionValueTrim`。
+- **状态缺口。** 参考归一化器的 `StateName/StatusName/state` 在正式模型中不存在且实服拒绝投影；`IsWork` 只有 0/1 原值，未发现字典或业务定义，故本页不显示状态列，不猜映射。须确认正式状态来源后再补齐。
+- **验证。** 人员页 6 项及机构、岗位、蓝图导航回归共 4 文件 33 项通过；`pnpm run typecheck`、正式 ClassModel 生成（语义缺口仍 3671）、`pnpm run verify`、`pnpm run build:fe` 通过，保留既有警告。同源隔离 iframe 经原 URL 进入，导航激活“人员管理”；实服 14 条（首页 10 行、第二页 4 行）、9 个机构选项，选“市场部”得 4 条且机构一致，无匹配为 0，重置恢复 14，翻到第 2 页刷新后仍为第 2 页，未写业务数据。隔离 iframe 不推进动画帧，筛选计数标签的离场过渡停留，实例 `activeFilterCount` 已为 0，不属产品缺陷。
+- **未完成范围。** 人员状态列、应用系统管理场景及负责人/删除完整性合同，以及 BUG 管理、流程监控、报表管理、数据恢复迁移仍开放。

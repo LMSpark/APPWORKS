@@ -115,6 +115,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/organization/user-management/ui/user-management-page",
+      "title": "人员管理",
+      "icon": "User",
+      "scope": "app",
+      "source": "src/views/features/organization/user-management/ui/user-management-page.vue",
+      "description": "当前租户正式人员任职投影",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/tenants",
       "title": "租户管理",
       "icon": "OfficeBuilding",

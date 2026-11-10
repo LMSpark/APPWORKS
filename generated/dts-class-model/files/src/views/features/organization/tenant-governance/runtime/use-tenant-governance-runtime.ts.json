@@ -7,7 +7,7 @@
     "sourceFile": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
     "packageName": "app",
     "modulePath": "views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime",
-    "jsdoc": "@module app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime\n职责：装配租户组织只读页面的正式运行实例及主视图。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。\nAI用途：机构和岗位目录复用同一生命周期时使用。",
+    "jsdoc": "@module app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime\n职责：装配租户组织只读页面的正式运行实例及主视图。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。\nAI用途：机构、岗位和人员目录复用同一生命周期时使用；人员页以独立导航身份消费机构空间。",
     "jsdocSource": "source-file-jsdoc",
     "symbols": []
   },
@@ -18,6 +18,9 @@
       "title": "TenantGovernanceRuntimeOptions",
       "properties": {
         "scenarioId": {
+          "type": "string"
+        },
+        "navigationId": {
           "type": "string"
         },
         "modelName": {
@@ -39,18 +42,18 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T15:17:05.109Z",
+  "generatedAt": "2026-11-10T18:29:58.557Z",
   "models": {
     "TenantGovernanceRuntimeOptions": {
       "name": "TenantGovernanceRuntimeOptions",
       "jsdoc": "一个租户组织目录的正式数据身份及组件上下文。",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "Readonly<{\n    /** 同时匹配蓝图场景和节点的正式空间身份。 */\n    scenarioId: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n}>",
+        "declarationTypeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n}>",
         "declarationRelations": [
           {
             "kind": "alias",
-            "typeText": "Readonly<{\n    /** 同时匹配蓝图场景和节点的正式空间身份。 */\n    scenarioId: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n}>",
+            "typeText": "Readonly<{\n    /** 本页消费的正式数据空间身份。 */\n    scenarioId: string;\n    /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */\n    navigationId?: string;\n    /** 主视图所属的正式模型名称，而非物理来源别名。 */\n    modelName: string;\n    /** 本页能力树节点类型，不作为数据身份。 */\n    componentType: string;\n    /** 用于入口及主视图诊断的页面名称。 */\n    title: string;\n}>",
             "targetName": "Readonly"
           }
         ],
@@ -58,7 +61,13 @@
           "attributes": [
             {
               "name": "scenarioId",
-              "jsdoc": "同时匹配蓝图场景和节点的正式空间身份。",
+              "jsdoc": "本页消费的正式数据空间身份。",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "navigationId",
+              "jsdoc": "页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。",
               "readable": true,
               "writable": false
             },

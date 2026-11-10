@@ -5549,7 +5549,12 @@
     "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts": {
       "sourceFile": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
       "shardFile": "files/src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-10T15:17:05.109Z"
+      "sourceModifiedAt": "2026-11-10T18:29:58.557Z"
+    },
+    "src/views/features/organization/user-management/ui/user-management-page.vue": {
+      "sourceFile": "src/views/features/organization/user-management/ui/user-management-page.vue",
+      "shardFile": "files/src/views/features/organization/user-management/ui/user-management-page.vue.json",
+      "sourceModifiedAt": "2026-11-10T18:30:36.123Z"
     },
     "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue": {
       "sourceFile": "src/views/features/system/cache-management/ui/cache-delete-confirmation.vue",

@@ -17,6 +17,36 @@
           "queryConfig": {
             "fields": ["rowid", "DepName", "DepID", "Prowid", "DepLevel", "CSR"]
           }
+        },
+        "options": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "pageSize": 500,
+          "filterExpression": {"field": "DepID", "operator": "is-not-empty"},
+          "queryConfig": {
+            "allPages": true,
+            "fields": ["rowid", "DepID", "DepName"]
+          }
+        }
+      }
+    },
+    "View_UserDJAndDepCSR": {
+      "modelBinding": {
+        "modelId": "8dd73fb6-3509-4f9b-810b-35b226cb856d",
+        "modelName": "View_UserDJAndDepCSR"
+      },
+      "views": {
+        "default": {
+          "autoLoad": false,
+          "autoCurrentFirst": false,
+          "autoSelectFirst": false,
+          "selectionDelimiter": "",
+          "page": 1,
+          "pageSize": 10,
+          "queryConfig": {
+            "fields": ["rowid", "UserName", "UserID", "DepName", "DepID", "JobName"]
+          }
         }
       }
     }

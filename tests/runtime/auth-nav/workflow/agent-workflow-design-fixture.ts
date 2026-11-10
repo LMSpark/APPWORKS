@@ -8,6 +8,7 @@ import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {ScenarioViewConfig} from '@spark-appworks/spark-project-model'
 import config from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
 import {createAgentWorkflowCreationBindings, AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
+import {createAgentWorkflowPublicationBindings, AGENT_WORKFLOW_PUBLICATION_TABLE} from '@/lowcode/resources/repository/agent-workflow/publication'
 
 type RegisteredFileResourceInput = Parameters<typeof createLowcodeFileResourceExecutors>[0]
 /** Test file API: only the reads the workflow resources use; other registry resources fail if touched. */
@@ -50,7 +51,8 @@ function catalogSet(id = 'SPACE-1'): DataSet {
 }
 
 /** In-memory files of one workflow plus the owner dependencies that read and upload them. */
-export function agentWorkflowOwnerInput(files: Map<string, string>, options: Readonly<{readback?: (text: string) => string; creation?: boolean; afterCreate?: () => void | Promise<void>; directoryError?: () => Error | undefined; readError?: (path: string) => Error | undefined}> = {}) {
+export function agentWorkflowOwnerInput(files: Map<string, string>, options: Readonly<{readback?: (text: string) => string; creation?: boolean;
+  publication?: boolean; afterCreate?: () => void | Promise<void>; directoryError?: () => Error | undefined; readError?: (path: string) => Error | undefined}> = {}) {
   const key = (command: {fileName: string; customPath: string}) => {
     const id = command.customPath.split('/').at(-1)
     return id === 'alpha' ? command.fileName : `${id}/${command.fileName}`
@@ -76,7 +78,7 @@ export function agentWorkflowOwnerInput(files: Map<string, string>, options: Rea
     loadScenario: async ({scenarioId}) => {
       if (scenarioId === 'CATALOG') return catalogSet(options.creation ? config.scenarioId : undefined)
       const scenario = new ScenarioViewConfig(config.scenarioId, JSON.stringify(config))
-      const ds = bindRegisteredFileResources(DataSet.fromJson(options.creation ? scenario.toJSON() : {scenarioId, tables: {
+      const ds = bindRegisteredFileResources(DataSet.fromJson(options.creation || options.publication ? scenario.toJSON() : {scenarioId, tables: {
         AgentWorkflowFiles: {resourceType: 'file', resourceId: 'agent-workflow-files', columns: [
           {name: 'workflowId', type: 'string', isPrimaryKey: true}, {name: 'fileName', type: 'string'},
           {name: 'timestamp', type: 'string'}, {name: 'content', type: 'string'}], views: {default: {}, directory: {}, design: {}, definition: {}}},
@@ -86,6 +88,12 @@ export function agentWorkflowOwnerInput(files: Map<string, string>, options: Rea
         const bindings = createAgentWorkflowCreationBindings({config: scenario, applicationId: 'APP', api, fileUpload, assertCurrent: () => undefined})
         const view = ds.getView(AGENT_WORKFLOW_CREATE_TABLE), factory = bindings.commandBindings?.[AGENT_WORKFLOW_CREATE_TABLE]
         if (!view || !factory) throw new Error('missing creation binding')
+        bindDataSetCommandSubmit(view, factory(view))
+      }
+      if (options.publication) {
+        const bindings = createAgentWorkflowPublicationBindings({config: scenario, applicationId: 'APP', api, fileUpload, assertCurrent: () => undefined})
+        const view = ds.getView(AGENT_WORKFLOW_PUBLICATION_TABLE), factory = bindings.commandBindings?.[AGENT_WORKFLOW_PUBLICATION_TABLE]
+        if (!view || !factory) throw new Error('missing publication binding')
         bindDataSetCommandSubmit(view, factory(view))
       }
       return ds

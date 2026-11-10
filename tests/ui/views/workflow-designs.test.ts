@@ -33,7 +33,8 @@ vi.mock('@spark-appworks/spark-app', async importOriginal => ({...await importOr
 vi.mock('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner', async importOriginal => {
   const actual = await importOriginal<typeof import('@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner')>()
   return {...actual, createAgentWorkflowFileDataViewOwner: async () => {
-    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files, {creation: true, readback: text => mocks.readback(text), afterCreate: () => mocks.afterCreate(), directoryError: () => mocks.directoryError(), readError: path => mocks.readError(path)})
+    const {input, fileUpload} = agentWorkflowOwnerInput(mocks.files, {creation: true, publication: true, readback: text => mocks.readback(text),
+      afterCreate: () => mocks.afterCreate(), directoryError: () => mocks.directoryError(), readError: path => mocks.readError(path)})
     mocks.creations = () => fileUpload.uploadTextVersion.mock.calls.length
     mocks.uploads = () => fileUpload.uploadWorkingText.mock.calls.map(([command]) => command.fileName)
     const owner = await actual.createAgentWorkflowFileDataViewOwner(input)
@@ -394,13 +395,41 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已发布')
   })
 
-  it('refuses to publish when definition.json does not exist', async () => {
+  it('refuses first publish when the Definition lookup fails for a non-404 reason', async () => {
     mocks.files.delete('definition.json')
     const wrapper = await mountPage()
+    mocks.readError = () => new Error('service unavailable')
     await button(wrapper, '发布 Definition').trigger('click'); await flushPromises()
+    expect(mocks.creations()).toBe(0)
     expect(uploads()).toEqual([])
-    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('本页面不创建文件'))
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('拒绝首发或覆盖'))
   })
+
+  it('creates definition.json on the first publish when the saved design is valid', async () => {
+    mocks.files.delete('definition.json')
+    usePublishableDesign()
+    const wrapper = await mountPage()
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(uploads()).toEqual([])
+    expect(JSON.parse(mocks.files.get('definition.json') ?? '{}').kind).not.toBe('old')
+    expect(mocks.message.success).toHaveBeenCalledWith('definition.json 已首次发布')
+  })
+
+  it('verifies an unknown first publication by the original command without uploading again', async () => {
+    mocks.files.delete('definition.json')
+    usePublishableDesign()
+    mocks.afterCreate = () => {throw new Error('lost publication ACK')}
+    const wrapper = await mountPage()
+    await button(wrapper, '发布 Definition').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(button(wrapper, '核验首次发布').exists()).toBe(true)
+    expect(await mocks.leave()).toBe(false)
+    await button(wrapper, '核验首次发布').trigger('click'); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(1)
+    expect(mocks.message.success).toHaveBeenCalledWith('definition.json 首次发布已确认')
+  })
+
   it('preserves a user definition draft when publication refuses to replace it', async () => {
     const wrapper = await mountPage(), owner = mocks.owner()
     if (!owner) throw new Error('missing owner')
@@ -496,6 +525,26 @@ describe('WorkflowDesigns on design projection DataViews', () => {
     release?.(); await flushPromises()
     expect(uploads()).toEqual([])
     expect(owner.definitionView.getEditingRow('alpha')?.['content']).toBe('{"user":"late"}')
+  })
+
+  it('does not first-publish a captured design after a newer local edit arrives', async () => {
+    mocks.files.delete('definition.json')
+    usePublishableDesign()
+    const wrapper = await mountPage(), owner = mocks.owner()
+    if (!owner) throw new Error('missing owner')
+    const original = owner.readDocument
+    let release: (() => void) | undefined
+    vi.spyOn(owner, 'readDocument').mockImplementationOnce(async (id, file) => {
+      const text = await original(id, file)
+      return new Promise<string>(resolve => {release = () => resolve(text)})
+    })
+    await button(wrapper, '发布 Definition').trigger('click')
+    await vi.waitFor(() => expect(release).toBeDefined())
+    await owner.design.workflow.editRowById('alpha', {title: 'late local edit'})
+    release?.(); await flushPromises(); await flushPromises()
+    expect(mocks.creations()).toBe(0)
+    expect(owner.design.workflow.getEditingRow('alpha')?.['title']).toBe('late local edit')
+    expect(mocks.message.error).toHaveBeenCalledWith(expect.stringContaining('设计稿'))
   })
 
   it('does not extend an earlier discard confirmation to a newly dirty Definition view', async () => {

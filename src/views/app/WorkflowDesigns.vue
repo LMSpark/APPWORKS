@@ -17,7 +17,8 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
 
     <main class="workflow-designs__canvas">
       <p v-if="loadError" role="alert">{{ loadError }}</p>
-      <p v-if="unconfirmed" role="status">保存结果尚未确认，请再次点击保存核验；不会重复写入。</p>
+      <p v-if="publicationUnconfirmed" role="status">首次发布结果尚未确认，请再次点击“核验首次发布”；不会重复上传。</p>
+      <p v-else-if="unconfirmed" role="status">保存结果尚未确认，请再次点击保存核验；不会重复写入。</p>
       <el-empty v-if="!workflowId" :description="owner ? '选择左侧工作流设计稿' : '正在装配工作流文件空间…'" />
       <template v-else-if="design">
         <section class="workflow-graph-panel" :style="childPath ? {flexBasis: `${splitRatio}%`} : undefined">
@@ -45,10 +46,10 @@ AI用途：排查工作流设计页的画布、属性表单、保存或发布时
         <el-button :disabled="!design || busy" @click="openDrawer('workflow')">流程属性</el-button>
         <el-button :disabled="!design || busy" @click="copyJson">复制已保存 JSON</el-button>
         <el-button :disabled="!design || busy" @click="mainGraph?.arrange()">自动排版</el-button>
-        <el-button :disabled="!design || busy" @click="openDefinition">Definition</el-button>
-        <el-button type="primary" :disabled="!design || busy || !hasPending" :loading="saving" @click="save">{{ unconfirmed ? '核验保存结果' : '保存' }}</el-button>
+        <el-button :disabled="!design || busy || publicationUnconfirmed" @click="openDefinition">Definition</el-button>
+        <el-button type="primary" :disabled="!design || busy || publicationUnconfirmed || !hasPending" :loading="saving" @click="save">{{ unconfirmed ? '核验保存结果' : '保存' }}</el-button>
         <el-button :disabled="!design || busy || unconfirmed || !hasPending" @click="cancel">取消修改</el-button>
-        <el-button type="success" :disabled="!design || busy" :loading="publishing" @click="publish">发布 Definition</el-button>
+        <el-button type="success" :disabled="!design || busy" :loading="publishing" @click="publish">{{ publicationUnconfirmed ? '核验首次发布' : '发布 Definition' }}</el-button>
       </section>
       <section v-if="design">
         <h3>节点</h3>
@@ -156,12 +157,14 @@ import {computed, onBeforeUnmount, onMounted, ref, shallowRef} from 'vue'
 import {onBeforeRouteLeave} from 'vue-router'
 import {ElMessage, ElMessageBox} from 'element-plus'
 import {buildDataViewKey, RequestState, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
+import {LowcodeApiError} from '@spark-appworks/spark-lowcode-api'
 import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {FieldJson, PAGE_RUNTIME, RendererForm, RendererGraph, RendererTable, useSparkComponent, RendererButton} from '@spark-appworks/spark-component'
 import type * as SparkComponentTypes from '@spark-appworks/spark-component'
 import {createAgentWorkflowFileDataViewOwner, type AgentWorkflowDesignViews, type AgentWorkflowFileDataViewOwner} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-owner'
 import WorkflowCreateDialog from './workflow-designs/workflow-create-dialog.vue'
 import {AGENT_WORKFLOW_CREATE_TABLE} from '@/lowcode/resources/repository/agent-workflow/creation'
+import {AGENT_WORKFLOW_PUBLICATION_TABLE} from '@/lowcode/resources/repository/agent-workflow/publication'
 import {AGENT_WORKFLOW_FILE_TABLE} from '@/lowcode/resources/repository/agent-workflow/agent-workflow-file-resource'
 import {createAgentWorkflowDefinitionFromDesign, formatJson, parseWorkflowDesignJson, type WorkflowDesignNodeCreateKind} from '@/services/workflow-designs'
 import {classModelDocText, createClassModelKnowledgeProvider, readClassModelOptions, type ClassModelOption} from './workflow-designs/workflow-design-class-model'
@@ -175,6 +178,7 @@ type GraphNodeMove = GraphEvent<'onNodeMove'>
 type GraphArrange = GraphEvent<'onArrange'>
 type GraphConnection = GraphEvent<'onConnect'>
 type Selected = Readonly<{graph: GraphRole; kind: 'node' | 'edge'; id: string | number}>
+type PublishFirstDefinitionInput = Readonly<{owner: AgentWorkflowFileDataViewOwner; workflowId: string; designContent: string; definitionContent: string}>
 
 const LEFT_COLLAPSED_KEY = 'spark.workflow-design.left-collapsed'
 const SPLIT_KEY_PREFIX = 'spark.workflow-design.graph-split.'
@@ -205,6 +209,7 @@ const owner = shallowRef<AgentWorkflowFileDataViewOwner>()
 const revision = ref(0)
 const creationId = ref<string | number>()
 const creationView = computed(() => owner.value?.dataSet.getView(AGENT_WORKFLOW_CREATE_TABLE, 'default'))
+const publicationView = computed(() => owner.value?.dataSet.getView(AGENT_WORKFLOW_PUBLICATION_TABLE, 'default'))
 const workflowId = ref('')
 const childPath = ref('')
 const selected = ref<Selected | null>(null)
@@ -240,12 +245,15 @@ const designViews = computed<DataView[]>(() => design.value ? [design.value.work
 const pendingIn = (view: DataView) => view.hasUnconfirmedSave || view.hasEditingChanges() || view.dirtyTracking.hasPendingChanges()
 const hasPending = computed(() => {revision.value; return designViews.value.some(pendingIn)})
 const unconfirmed = computed(() => {revision.value; return designViews.value.some(view => view.hasUnconfirmedSave)})
-const busy = computed(() => {revision.value; return acting.value || saving.value || publishing.value || creationView.value?.mutating === true || designViews.value.some(view => view.mutating)})
+const publicationUnconfirmed = computed(() => {revision.value; return publicationView.value?.hasUnconfirmedSave === true})
+const busy = computed(() => {revision.value; return acting.value || saving.value || publishing.value || creationView.value?.mutating === true
+  || publicationView.value?.mutating === true || designViews.value.some(view => view.mutating)})
 const definitionPending = computed(() => {revision.value; const view = owner.value?.definitionView; return view ? pendingIn(view) : false})
 const directoryKey = computed(() => owner.value ? viewKey(owner.value.directoryView) : '')
 const definitionKey = computed(() => owner.value ? buildDataViewKey(AGENT_WORKFLOW_FILE_TABLE, 'definition', owner.value.dataSet.scenarioId) : '')
 const drawerTitle = computed(() => drawerTarget.value === 'workflow' ? '流程属性' : drawerTarget.value === 'node' ? '节点属性' : '连线属性')
-useSystemPageDirtySource({get isDirty() {revision.value; return hasPending.value || definitionPending.value || Boolean(creationView.value && pendingIn(creationView.value))}})
+useSystemPageDirtySource({get isDirty() {revision.value; return hasPending.value || definitionPending.value
+  || Boolean(creationView.value && pendingIn(creationView.value)) || Boolean(publicationView.value && pendingIn(publicationView.value))}})
 
 function viewKey(view: DataView): string {return buildDataViewKey(view.tableName, view.viewId, view.dataSet?.scenarioId ?? '')}
 function currentRow(view: DataView): DataRow | null {revision.value; return view.currentRow}
@@ -449,13 +457,15 @@ function toggleLeft(): void {
   localStorage.setItem(LEFT_COLLAPSED_KEY, leftCollapsed.value ? '1' : '0')
 }
 
-function editableViews(): DataView[] {return [...designViews.value, ...(owner.value ? [owner.value.definitionView] : []), ...(creationView.value ? [creationView.value] : [])]}
+function editableViews(): DataView[] {return [...designViews.value, ...(owner.value ? [owner.value.definitionView] : []),
+  ...(creationView.value ? [creationView.value] : []), ...(publicationView.value ? [publicationView.value] : [])]}
 
 async function confirmDiscard(): Promise<boolean> {
   const inFlight = (view: DataView) => view.mutating || view.requestState === RequestState.Preparing || view.requestState === RequestState.Loading
   if (editableViews().some(inFlight)) {ElMessage.error('查询或提交进行中，请等待结果'); return false}
   const current = owner.value, targetId = workflowId.value, command = creationView.value, commandId = creationId.value
   const commandRows = command ? [...command.rows] : []
+  const publication = publicationView.value, publicationRows = publication ? [...publication.rows] : []
   const pendingViews = editableViews().filter(pendingIn)
   if (pendingViews.length === 0) return true
   if (pendingViews.some(view => view.hasUnconfirmedSave)) {ElMessage.error('保存结果尚未确认，请先核验保存'); return false}
@@ -463,7 +473,9 @@ async function confirmDiscard(): Promise<boolean> {
     await ElMessageBox.confirm('当前工作流设计有未保存更改，是否丢弃？', '丢弃修改', {type: 'warning', confirmButtonText: '丢弃', cancelButtonText: '取消'})
   } catch {return false}
   if (!active || owner.value !== current || workflowId.value !== targetId || creationView.value !== command || creationId.value !== commandId
+    || publicationView.value !== publication
     || command && (command.rows.length !== commandRows.length || command.rows.some((row, index) => row !== commandRows[index]))
+    || publication && (publication.rows.length !== publicationRows.length || publication.rows.some((row, index) => row !== publicationRows[index]))
     || pendingViews.some(view => view.destroyed || inFlight(view))
     || editableViews().filter(pendingIn)
       .some(view => inFlight(view) || view.hasUnconfirmedSave || !pendingViews.includes(view))) {
@@ -556,6 +568,7 @@ async function refreshDirectory(): Promise<void> {
 async function save(): Promise<boolean> {
   const current = owner.value
   if (!current || !design.value) return false
+  if (publicationUnconfirmed.value) {ElMessage.error('首次发布结果尚未确认，请先核验原命令'); return false}
   saving.value = true
   try {
     const views = designViews.value.filter(pendingIn).map(view => ({tableName: view.tableName, viewId: view.viewId}))
@@ -601,6 +614,58 @@ async function loadDefinitionRow(): Promise<{view: DataView; id: string | number
     throw new Error('definition.json 原工作流行不可读写或仍有其他目标的待处理修改')
   }
   return {view, id}
+}
+
+async function loadDefinitionRowForPublish(): Promise<{view: DataView; id: string | number} | null> {
+  const current = owner.value
+  if (!current) throw new Error('工作流文件空间尚未就绪')
+  const view = current.definitionView
+  if (pendingIn(view)) throw new Error('definition.json 有未保存或待核验的修改')
+  try {await current.loadDocument(workflowId.value, 'definition.json')} catch (error) {
+    if (error instanceof LowcodeApiError && error.code === 404) return null
+    throw new Error(`读取 definition.json 失败，拒绝首发或覆盖（${message(error)}）`)
+  }
+  const row = view.currentRow, id = row ? view.getPkKey(row) : undefined
+  if (!row || id === undefined || row['workflowId'] !== workflowId.value || row['fileName'] !== 'definition.json'
+    || typeof row['content'] !== 'string' || view.fieldAccess(row, 'content').read !== 'visible'
+    || view.fieldAccess(row, 'content').write !== 'allowed') throw new Error('definition.json 原工作流行不可读写')
+  return {view, id}
+}
+
+async function savePublicationCommand(view: DataView, id: string | number): Promise<DataRow> {
+  const dataSet = view.dataSet
+  if (!dataSet) throw new Error('首次发布命令视图已释放')
+  const result = await dataSet.saveChanges({views: [{tableName: view.tableName, viewId: view.viewId, ids: [id]}]})
+  if (!result.success || pendingIn(view)) throw result.error ?? new Error(result.message ?? '首次发布命令回执未确认')
+  const row = view.rows.find(item => view.getPkKey(item) === id)
+  if (!row || row['status'] !== 'published' || row['workflowId'] !== workflowId.value
+    || ['workflowId', 'status'].some(field => view.fieldAccess(row, field).read !== 'visible')) {
+    throw new Error('首次发布回执缺失或目标身份不匹配')
+  }
+  return row
+}
+
+async function publishFirstDefinition(input: PublishFirstDefinitionInput): Promise<void> {
+  const {owner: current, workflowId: targetId, designContent, definitionContent} = input
+  const view = publicationView.value
+  if (!view || view.dataSet !== current.dataSet || view.dataTable?.resourceType !== 'command') throw new Error('正式工作流场景缺少首次发布命令')
+  if (pendingIn(view)) throw new Error('首次发布命令仍有未处理或待核验的修改')
+  const loaded = await view.loadFromServer()
+  if (!active || owner.value !== current || workflowId.value !== targetId || view.destroyed) throw new Error('首次发布目标已变化')
+  if (!loaded.success) throw loaded.error ?? new Error(loaded.message ?? '首次发布命令初始化失败')
+  if (pendingIn(view)) throw new Error('首次发布命令在初始化期间已变化')
+  const row = await view.addRow({workflowId: targetId, designContent, definitionContent})
+  if (!active || owner.value !== current || workflowId.value !== targetId || view.destroyed) {
+    if (!view.destroyed && pendingIn(view)) view.discardPendingChanges()
+    throw new Error('首次发布目标在创建命令行期间已变化')
+  }
+  const id = view.getPkKey(row)
+  if (id === undefined) throw new Error('首次发布命令缺少原始身份')
+  view.setCurrentRow(row)
+  try {await savePublicationCommand(view, id)} catch (error) {
+    if (!view.hasUnconfirmedSave && pendingIn(view)) view.discardPendingChanges()
+    throw error
+  }
 }
 
 async function openDefinition(): Promise<void> {
@@ -649,6 +714,17 @@ async function closeDefinition(done?: () => void): Promise<void> {
 async function publish(): Promise<void> {
   const current = owner.value, targetId = workflowId.value
   if (!current) return
+  const publication = publicationView.value
+  if (publication?.hasUnconfirmedSave) {
+    const row = publication.currentRow, id = row ? publication.getPkKey(row) : undefined
+    if (id === undefined) {ElMessage.error('首次发布未知结果缺少原命令行'); return}
+    publishing.value = true
+    try {await savePublicationCommand(publication, id); ElMessage.success('definition.json 首次发布已确认')}
+    catch (error) {ElMessage.error(`首次发布结果仍未确认: ${message(error)}`)}
+    finally {publishing.value = false; revision.value++}
+    return
+  }
+  if (publication && pendingIn(publication)) {ElMessage.error('首次发布命令有未处理修改，请先处理原命令'); return}
   if (pendingIn(current.definitionView)) {
     ElMessage.error('发布失败: definition.json 有未保存或待核验的修改，请先在 Definition 中处理原行')
     return
@@ -656,19 +732,31 @@ async function publish(): Promise<void> {
   if (hasPending.value && !await save()) return
   publishing.value = true
   try {
-    const {view, id} = await loadDefinitionRow()
-    if (pendingIn(view)) throw new Error('definition.json 有未保存的修改，请先保存或关闭 Definition')
-    const row = view.currentRow
-    if (!row) throw new Error('原Definition行已失效')
-    const assertRow = view.captureReadRow(row, ['workflowId', 'fileName', 'content'])
+    const existing = await loadDefinitionRowForPublish()
+    if (owner.value !== current || workflowId.value !== targetId || publicationUnconfirmed.value || hasPending.value) {
+      throw new Error('发布目标已变化、设计稿有未保存修改或首次发布待核验')
+    }
+    const assertRow = existing
+      ? existing.view.captureReadRow(existing.view.currentRow!, ['workflowId', 'fileName', 'content'])
+      : undefined
     const source = await current.readDocument(targetId, 'design.json')
-    if (owner.value !== current || workflowId.value !== targetId || pendingIn(view)) throw new Error('发布目标已变化或Definition又有待处理修改')
-    assertRow()
+    if (owner.value !== current || workflowId.value !== targetId || publicationUnconfirmed.value
+      || hasPending.value || existing && pendingIn(existing.view)) {
+      throw new Error('发布目标、设计稿或 Definition 在读取期间已变化')
+    }
+    assertRow?.()
     const definition = createAgentWorkflowDefinitionFromDesign(parseWorkflowDesignJson(source))
     if (definition.x_spark.validation.status === 'invalid') {
       throw new Error(definition.x_spark.validation.issues.find(issue => issue.severity === 'error')?.message ?? 'definition 校验未通过')
     }
-    view.updateEditingValue(id, 'content', formatJson(definition))
+    const definitionContent = formatJson(definition)
+    if (!existing) {
+      await publishFirstDefinition({owner: current, workflowId: targetId, designContent: source, definitionContent})
+      ElMessage.success('definition.json 已首次发布')
+      return
+    }
+    const {view, id} = existing
+    view.updateEditingValue(id, 'content', definitionContent)
     await saveDefinitionView(view, id)
     ElMessage.success('definition.json 已发布')
   } catch (error) {

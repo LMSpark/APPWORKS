@@ -1,1 +1,505 @@
-{"scenarioId":"01000B6C7F84B4F1A85C91C4FC28E875","schemaVersion":2,"tables":{"AgentWorkflowFiles":{"resourceType":"file","resourceId":"agent-workflow-files","columns":[{"name":"workflowId","type":"string","isPrimaryKey":true},{"name":"fileName","type":"string"},{"name":"timestamp","type":"string"},{"name":"content","type":"string"}],"views":{"default":{},"directory":{"queryConfig":{"allPages":true,"maxRows":50000}},"design":{"autoLoad":false,"queryContext":{"workflowId":""}},"definition":{"autoLoad":false,"queryContext":{"workflowId":""}}}},"AgentWorkflowDesign":{"resourceType":"file","resourceId":"agent-workflow-design-workflow","columns":[{"name":"workflowId","type":"string","isPrimaryKey":true},{"name":"title","type":"string"},{"name":"version","type":"number"},{"name":"runtimeBinding","type":"object"},{"name":"workflow","type":"object"},{"name":"document","type":"object"}],"views":{"default":{"autoLoad":false,"queryContext":{"workflowId":""}},"design":{"autoLoad":false,"queryContext":{"workflowId":""}}}},"AgentWorkflowNodes":{"resourceType":"file","resourceId":"agent-workflow-design-nodes","columns":[{"name":"nodeKey","type":"string","isPrimaryKey":true},{"name":"graphPath","type":"string"},{"name":"id","type":"string"},{"name":"order","type":"number"},{"name":"type","type":"string"},{"name":"dataType","type":"string"},{"name":"title","type":"string"},{"name":"desc","type":"string"},{"name":"x","type":"number"},{"name":"y","type":"number"},{"name":"inputs","type":"object"},{"name":"outputs","type":"object"},{"name":"capabilities","type":"array"},{"name":"models","type":"array"},{"name":"llm","type":"object"},{"name":"validation","type":"object"},{"name":"loop","type":"object"},{"name":"iteration","type":"object"},{"name":"state","type":"object"},{"name":"result","type":"object"},{"name":"data","type":"object"},{"name":"extra","type":"object"}],"views":{"default":{"autoLoad":false,"queryContext":{"workflowId":"","graphPath":""}},"graph":{"autoLoad":false,"queryContext":{"workflowId":"","graphPath":"workflow.graph"}},"child":{"autoLoad":false,"queryContext":{"workflowId":"","graphPath":""}}}},"AgentWorkflowLines":{"resourceType":"file","resourceId":"agent-workflow-design-lines","columns":[{"name":"lineKey","type":"string","isPrimaryKey":true},{"name":"graphPath","type":"string"},{"name":"id","type":"string"},{"name":"order","type":"number"},{"name":"fromNodeId","type":"string"},{"name":"fromModelId","type":"string"},{"name":"fromMemberName","type":"string"},{"name":"fromDock","type":"number"},{"name":"toNodeId","type":"string"},{"name":"toModelId","type":"string"},{"name":"toMemberName","type":"string"},{"name":"toDock","type":"number"},{"name":"type","type":"string"},{"name":"relation","type":"string"},{"name":"lineType","type":"string"},{"name":"controlPoints","type":"array"},{"name":"from","type":"object"},{"name":"to","type":"object"},{"name":"data","type":"object"},{"name":"extra","type":"object"}],"views":{"default":{"autoLoad":false,"queryContext":{"workflowId":"","graphPath":""}},"graph":{"autoLoad":false,"queryContext":{"workflowId":"","graphPath":"workflow.graph"}},"child":{"autoLoad":false,"queryContext":{"workflowId":"","graphPath":""}}}},"AgentWorkflowVariables":{"resourceType":"file","resourceId":"agent-workflow-design-variables","columns":[{"name":"name","type":"string","isPrimaryKey":true},{"name":"order","type":"number"},{"name":"title","type":"string"},{"name":"required","type":"boolean"},{"name":"schema","type":"object"},{"name":"defaultValue","type":"object"},{"name":"extra","type":"object"}],"views":{"default":{"autoLoad":false,"queryContext":{"workflowId":""}},"design":{"autoLoad":false,"queryContext":{"workflowId":""}}}},"AgentWorkflowCapabilities":{"resourceType":"file","resourceId":"agent-workflow-design-capabilities","columns":[{"name":"id","type":"string","isPrimaryKey":true},{"name":"order","type":"number"},{"name":"title","type":"string"},{"name":"scope","type":"string"},{"name":"description","type":"string"},{"name":"inputs","type":"object"},{"name":"outputs","type":"object"},{"name":"constraints","type":"array"},{"name":"extra","type":"object"}],"views":{"default":{"autoLoad":false,"queryContext":{"workflowId":""}},"design":{"autoLoad":false,"queryContext":{"workflowId":""}}}},"AgentWorkflowCreation":{"resourceType":"command","resourceId":"agent-workflow-create","columns":[{"name":"commandId","type":"string","isPrimaryKey":true},{"name":"workflowId","type":"string","required":true},{"name":"title","type":"string"},{"name":"status","type":"string"}],"views":{"default":{"autoLoad":false,"autoCurrentFirst":false,"autoSelectFirst":false,"commitMode":"staged","queryConfig":{"pagination":"none"}}}}}}
+{
+    "scenarioId": "01000B6C7F84B4F1A85C91C4FC28E875",
+    "schemaVersion": 2,
+    "tables": {
+        "AgentWorkflowFiles": {
+            "resourceType": "file",
+            "resourceId": "agent-workflow-files",
+            "columns": [
+                {
+                    "name": "workflowId",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "fileName",
+                    "type": "string"
+                },
+                {
+                    "name": "timestamp",
+                    "type": "string"
+                },
+                {
+                    "name": "content",
+                    "type": "string"
+                }
+            ],
+            "views": {
+                "default": {},
+                "directory": {
+                    "queryConfig": {
+                        "allPages": true,
+                        "maxRows": 50000
+                    }
+                },
+                "design": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                },
+                "definition": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                }
+            }
+        },
+        "AgentWorkflowDesign": {
+            "resourceType": "file",
+            "resourceId": "agent-workflow-design-workflow",
+            "columns": [
+                {
+                    "name": "workflowId",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "version",
+                    "type": "number"
+                },
+                {
+                    "name": "runtimeBinding",
+                    "type": "object"
+                },
+                {
+                    "name": "workflow",
+                    "type": "object"
+                },
+                {
+                    "name": "document",
+                    "type": "object"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                },
+                "design": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                }
+            }
+        },
+        "AgentWorkflowNodes": {
+            "resourceType": "file",
+            "resourceId": "agent-workflow-design-nodes",
+            "columns": [
+                {
+                    "name": "nodeKey",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "graphPath",
+                    "type": "string"
+                },
+                {
+                    "name": "id",
+                    "type": "string"
+                },
+                {
+                    "name": "order",
+                    "type": "number"
+                },
+                {
+                    "name": "type",
+                    "type": "string"
+                },
+                {
+                    "name": "dataType",
+                    "type": "string"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "desc",
+                    "type": "string"
+                },
+                {
+                    "name": "x",
+                    "type": "number"
+                },
+                {
+                    "name": "y",
+                    "type": "number"
+                },
+                {
+                    "name": "inputs",
+                    "type": "object"
+                },
+                {
+                    "name": "outputs",
+                    "type": "object"
+                },
+                {
+                    "name": "capabilities",
+                    "type": "array"
+                },
+                {
+                    "name": "models",
+                    "type": "array"
+                },
+                {
+                    "name": "llm",
+                    "type": "object"
+                },
+                {
+                    "name": "validation",
+                    "type": "object"
+                },
+                {
+                    "name": "loop",
+                    "type": "object"
+                },
+                {
+                    "name": "iteration",
+                    "type": "object"
+                },
+                {
+                    "name": "state",
+                    "type": "object"
+                },
+                {
+                    "name": "result",
+                    "type": "object"
+                },
+                {
+                    "name": "data",
+                    "type": "object"
+                },
+                {
+                    "name": "extra",
+                    "type": "object"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": "",
+                        "graphPath": ""
+                    }
+                },
+                "graph": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": "",
+                        "graphPath": "workflow.graph"
+                    }
+                },
+                "child": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": "",
+                        "graphPath": ""
+                    }
+                }
+            }
+        },
+        "AgentWorkflowLines": {
+            "resourceType": "file",
+            "resourceId": "agent-workflow-design-lines",
+            "columns": [
+                {
+                    "name": "lineKey",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "graphPath",
+                    "type": "string"
+                },
+                {
+                    "name": "id",
+                    "type": "string"
+                },
+                {
+                    "name": "order",
+                    "type": "number"
+                },
+                {
+                    "name": "fromNodeId",
+                    "type": "string"
+                },
+                {
+                    "name": "fromModelId",
+                    "type": "string"
+                },
+                {
+                    "name": "fromMemberName",
+                    "type": "string"
+                },
+                {
+                    "name": "fromDock",
+                    "type": "number"
+                },
+                {
+                    "name": "toNodeId",
+                    "type": "string"
+                },
+                {
+                    "name": "toModelId",
+                    "type": "string"
+                },
+                {
+                    "name": "toMemberName",
+                    "type": "string"
+                },
+                {
+                    "name": "toDock",
+                    "type": "number"
+                },
+                {
+                    "name": "type",
+                    "type": "string"
+                },
+                {
+                    "name": "relation",
+                    "type": "string"
+                },
+                {
+                    "name": "lineType",
+                    "type": "string"
+                },
+                {
+                    "name": "controlPoints",
+                    "type": "array"
+                },
+                {
+                    "name": "from",
+                    "type": "object"
+                },
+                {
+                    "name": "to",
+                    "type": "object"
+                },
+                {
+                    "name": "data",
+                    "type": "object"
+                },
+                {
+                    "name": "extra",
+                    "type": "object"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": "",
+                        "graphPath": ""
+                    }
+                },
+                "graph": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": "",
+                        "graphPath": "workflow.graph"
+                    }
+                },
+                "child": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": "",
+                        "graphPath": ""
+                    }
+                }
+            }
+        },
+        "AgentWorkflowVariables": {
+            "resourceType": "file",
+            "resourceId": "agent-workflow-design-variables",
+            "columns": [
+                {
+                    "name": "name",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "order",
+                    "type": "number"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "required",
+                    "type": "boolean"
+                },
+                {
+                    "name": "schema",
+                    "type": "object"
+                },
+                {
+                    "name": "defaultValue",
+                    "type": "object"
+                },
+                {
+                    "name": "extra",
+                    "type": "object"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                },
+                "design": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                }
+            }
+        },
+        "AgentWorkflowCapabilities": {
+            "resourceType": "file",
+            "resourceId": "agent-workflow-design-capabilities",
+            "columns": [
+                {
+                    "name": "id",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "order",
+                    "type": "number"
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "scope",
+                    "type": "string"
+                },
+                {
+                    "name": "description",
+                    "type": "string"
+                },
+                {
+                    "name": "inputs",
+                    "type": "object"
+                },
+                {
+                    "name": "outputs",
+                    "type": "object"
+                },
+                {
+                    "name": "constraints",
+                    "type": "array"
+                },
+                {
+                    "name": "extra",
+                    "type": "object"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                },
+                "design": {
+                    "autoLoad": false,
+                    "queryContext": {
+                        "workflowId": ""
+                    }
+                }
+            }
+        },
+        "AgentWorkflowCreation": {
+            "resourceType": "command",
+            "resourceId": "agent-workflow-create",
+            "columns": [
+                {
+                    "name": "commandId",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "workflowId",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "title",
+                    "type": "string"
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "autoCurrentFirst": false,
+                    "autoSelectFirst": false,
+                    "commitMode": "staged",
+                    "queryConfig": {
+                        "pagination": "none"
+                    }
+                }
+            }
+        },
+        "AgentWorkflowPublication": {
+            "resourceType": "command",
+            "resourceId": "agent-workflow-publication",
+            "columns": [
+                {
+                    "name": "commandId",
+                    "type": "string",
+                    "isPrimaryKey": true
+                },
+                {
+                    "name": "workflowId",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "designContent",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "definitionContent",
+                    "type": "string",
+                    "required": true
+                },
+                {
+                    "name": "status",
+                    "type": "string"
+                }
+            ],
+            "views": {
+                "default": {
+                    "autoLoad": false,
+                    "autoCurrentFirst": false,
+                    "autoSelectFirst": false,
+                    "commitMode": "staged",
+                    "queryConfig": {
+                        "pagination": "none"
+                    }
+                }
+            }
+        }
+    }
+}

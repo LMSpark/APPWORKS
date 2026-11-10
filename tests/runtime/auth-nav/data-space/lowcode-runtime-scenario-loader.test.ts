@@ -8,6 +8,7 @@ import {getBuiltinScenarioResource} from '@/registries/builtin-application-regis
 import {BUILTIN_BLUEPRINT_BUSINESS_FIELDS} from '@/lowcode/resources/repository/builtin-system-navigation'
 import {BUILTIN_BLUEPRINT_NODE_RESOURCE_ID, BUILTIN_BLUEPRINT_NODE_TABLE_NAME} from '@/lowcode/resources/repository/builtin-blueprint-node-resource'
 import {cacheScenarioModels} from './cache/cache-scenario.fixture'
+import agentWorkflowConfig from '../../../../config/pages/shared/agent-workflow-files/pagedata.json'
 
 const mocks = vi.hoisted(() => ({
   readRequestScope: vi.fn(),
@@ -77,6 +78,30 @@ function relationFixture(field = 'missing', childModelId = 'CHILD') {
 describe('loadLowcodeRuntimeScenario', () => {
   beforeEach(() => { vi.clearAllMocks() })
   afterEach(() => { vi.restoreAllMocks() })
+
+  it('keeps both Agent Workflow command bindings in the assembled DataSet', async () => {
+    const scenarioId = agentWorkflowConfig.scenarioId
+    mocks.readRequestScope.mockReturnValue(scope('workflow-token', 'APP-A'))
+    mocks.readText.mockResolvedValue(JSON.stringify(agentWorkflowConfig))
+    mocks.readSpaceDefinition.mockResolvedValue({dataSpaceId: scenarioId, name: 'Agent 工作流文件资源'})
+    mocks.readModelBatch.mockResolvedValue([])
+    mocks.readRelations.mockResolvedValue([])
+    const dataSet = await loadLowcodeRuntimeScenario({projectId: 'APP-A', scenarioId})
+    try {
+      const creation = dataSet.getView('AgentWorkflowCreation')
+      const publication = dataSet.getView('AgentWorkflowPublication')
+      if (!creation || !publication) throw new Error('Agent Workflow 命令视图缺失')
+      expect((await creation.loadFromServer()).success).toBe(true)
+      expect((await publication.loadFromServer()).success).toBe(true)
+      const creationRow = await creation.addRow({title: ''})
+      const publicationRow = await publication.addRow({workflowId: 'alpha', designContent: '{}', definitionContent: '{}'})
+      expect(creation.getPkKey(creationRow)).toBeDefined()
+      expect(publication.getPkKey(publicationRow)).toBeDefined()
+      creation.discardPendingChanges()
+      publication.discardPendingChanges()
+      expect(mocks.request).not.toHaveBeenCalled()
+    } finally {dataSet.destroy()}
+  })
 
   it('loads the registered cache scenario through original model bindings and the configured command factory', async () => {
     const scene=getBuiltinScenarioResource('cacheManagement'),app=getBuiltinApplicationDescriptor()

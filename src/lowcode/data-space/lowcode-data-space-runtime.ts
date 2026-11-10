@@ -19,6 +19,7 @@ import {registerApiModelRules,type ApiModelRuleHost} from '../resources/integrat
 import {createCacheScenarioBindings} from '../resources/system/cache-management/runtime-bindings'
 import {createWorkflowScenarioBindings} from '../resources/structured-config/workflow-definition/execution/runtime-bindings'
 import {createAgentWorkflowCreationBindings} from '../resources/repository/agent-workflow/creation'
+import {createAgentWorkflowPublicationBindings} from '../resources/repository/agent-workflow/publication'
 import {createExcelCatalogBindings} from '../resources/semi-structured/excel-import/catalog/creation'
 
 /** 场景装配命令；配置身份必须匹配 scenarioId，可指定正式设计场景并检查调用是否仍有效。 */
@@ -152,11 +153,24 @@ export async function assembleLowcodeRuntimeScenario(input: AssembleLowcodeRunti
   throw new Error(`BUILTIN_SCENARIO_SOURCE_MISSING: ${scenarioId} 不是已登记的系统程序场景`)
  }
  assertCurrent()
+ const agentCreation = createAgentWorkflowCreationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
+ const agentPublication = createAgentWorkflowPublicationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent})
+ const cacheBindings = createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent})
+ const workflowBindings = createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
+ const excelBindings = createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent})
  const result = await loadScenarioDataSet({scenarioId, config, assertCurrent,
-  ...createAgentWorkflowCreationBindings({config,applicationId:projectId,api:lowcodeApi.design,fileUpload:lowcodeDesignFileUpload,assertCurrent}),
-  ...createCacheScenarioBindings({config,runtime:lowcodeApi.dataSpace.runtime,assertCurrent}),
-  ...createWorkflowScenarioBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
-  ...createExcelCatalogBindings({config,http:lowcodeHttp,readScope:()=>lowcodeApi.readRequestScope(),assertCurrent}),
+  ...agentCreation,
+  ...agentPublication,
+  ...cacheBindings,
+  ...workflowBindings,
+  ...excelBindings,
+  commandBindings: {
+   ...agentCreation.commandBindings,
+   ...agentPublication.commandBindings,
+   ...cacheBindings.commandBindings,
+   ...workflowBindings.commandBindings,
+   ...excelBindings.commandBindings,
+  },
   ...(input.getPage?{getPage:input.getPage}:{}),
   ...definitionBindings({projectId, scenarioId, config, assertCurrent,
    ...(input.owner?{owner:input.owner}:{}),

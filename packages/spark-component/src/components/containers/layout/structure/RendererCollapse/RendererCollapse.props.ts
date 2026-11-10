@@ -4,13 +4,13 @@
  * 边界：只描述 container/layout-container 组件的声明式配置，不读取 DataSet、不触发运行时事件，也不直接渲染 DOM。
  * AI用途：生成或修订页面配置时，用本模块判断 renderer collapse 允许哪些 props、哪些字段属于数据绑定，避免把运行时 API 写进配置。
  */
-import type { SparkNodeProps } from '../../../../shared-types'
+import type { LayoutDataContextProps } from '../../../runtime/layout-data-context'
 import type { RToolbarProps } from '../../action/RendererToolbar/RendererToolbar.types'
 
 // 这里不再为 JS 基础类型保留导出别名，折叠面板值直接使用原生联合类型。
 
-/** RCollapse Props 的属性契约。 */
-export type RCollapseProps = SparkNodeProps & {
+/** RCollapse Props 的属性契约；完整 dataViewKey 定位场景、模型和视图，dataMember/dataField 选择上下文，省略时继承父级。 */
+export type RCollapseProps = LayoutDataContextProps & {
   /** 结构化工具栏 */
     toolbar?: RToolbarProps
     /** 当前展开的面板 */

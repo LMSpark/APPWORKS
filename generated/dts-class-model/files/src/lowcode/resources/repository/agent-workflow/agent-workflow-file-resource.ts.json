@@ -530,7 +530,7 @@
       }
     }
   },
-  "generatedAt": "2026-11-08T19:15:36.059Z",
+  "generatedAt": "2026-11-10T04:39:16.047Z",
   "models": {
     "AgentWorkflowFileName": {
       "name": "AgentWorkflowFileName",
@@ -833,7 +833,7 @@
             },
             {
               "name": "readText",
-              "jsdoc": "读取一份工作流文件全文；工作流身份非法时拒绝。",
+              "jsdoc": "读取一份工作流文件全文；工作流身份不可精确定位时在派发前拒绝。",
               "parameters": [
                 {
                   "name": "workflowId",

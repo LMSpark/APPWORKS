@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1114,
+  "scannedFileCount": 1115,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -14075,6 +14075,19 @@
         "symbols": []
       }
     },
+    "src/lowcode/resources/repository/agent-workflow/publication.ts": {
+      "file": "files/src/lowcode/resources/repository/agent-workflow/publication.ts.json",
+      "module": {
+        "name": "app:lowcode/resources/repository/agent-workflow/publication",
+        "sourcePath": "src/lowcode/resources/repository/agent-workflow/publication.ts",
+        "sourceFile": "src/lowcode/resources/repository/agent-workflow/publication.ts",
+        "packageName": "app",
+        "modulePath": "lowcode/resources/repository/agent-workflow/publication",
+        "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/publication\n职责：为缺失的 Agent 工作流 definition.json 提供非覆盖首发命令和原 attempt 核验。\n边界：已有 Definition 的更新仍由原文件 DataView 负责；本命令只消费已保存设计的精确快照。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
     "src/lowcode/resources/repository/builtin-blueprint-node-resource.ts": {
       "file": "files/src/lowcode/resources/repository/builtin-blueprint-node-resource.ts.json",
       "module": {
@@ -14203,12 +14216,11 @@
         "sourceFile": "src/lowcode/resources/repository/staged-design-file-view.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/repository/staged-design-file-view",
-        "jsdoc": "@module app:lowcode/resources/repository/staged-design-file-view\n专用设计/内容：单 file 资源 DataView（staged + refresh/save），HTTP 仅在 load/persist 回调内。",
+        "jsdoc": "@module app:lowcode/resources/repository/staged-design-file-view\n专用设计/内容：正式场景声明的单 file 资源 DataView 的查询/保存执行器；目标来自视图 queryContext，HTTP 仅在 load/persist 回调内。",
         "jsdocSource": "leading-jsdoc",
         "symbols": [
           "StagedDesignColumn",
-          "StagedDesignAttachOptions",
-          "SetDesignScopeValueInput"
+          "StagedDesignExecutorOptions"
         ]
       }
     },
@@ -14850,7 +14862,7 @@
         "sourceFile": "src/lowcode/resources/structured-config/logic-view/design-ops.ts",
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/logic-view/design-ops",
-        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/design-ops",
+        "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/design-ops\n职责：逻辑视图设计 JSON 的文件资源执行器；表与视图由逻辑视图目录场景 pagedata 正式声明。\n边界：读写只经 GetView/SaveView；编辑授权取本次目录 editorTarget 的正式编辑状态。",
         "jsdocSource": "leading-jsdoc",
         "symbols": []
       }
@@ -14950,7 +14962,7 @@
         "packageName": "app",
         "modulePath": "lowcode/resources/structured-config/logic-view/resource",
         "jsdoc": "@module app:lowcode/resources/structured-config/logic-view/resource\n职责：从正式场景配置装配目录、设计及按需元数据；目标仅为本次viewId。\n边界：查询在PageRuntime注入输入后执行，保存与未知结果由原DataView承担。",
-        "jsdocSource": "leading-jsdoc",
+        "jsdocSource": "source-file-jsdoc",
         "symbols": [
           "LowcodeLogicView"
         ]
@@ -23976,10 +23988,6 @@
       "sourcePath": "packages/spark-component/src/ai/types.ts",
       "file": "files/packages/spark-component/src/ai/types.ts.json"
     },
-    "SetDesignScopeValueInput": {
-      "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
-      "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json"
-    },
     "SetFieldAction": {
       "sourcePath": "packages/spark-component/src/page/actions/action-types.ts",
       "file": "files/packages/spark-component/src/page/actions/action-types.ts.json"
@@ -24416,11 +24424,11 @@
       "sourcePath": "packages/spark-component/src/components/shared-types.ts",
       "file": "files/packages/spark-component/src/components/shared-types.ts.json"
     },
-    "StagedDesignAttachOptions": {
+    "StagedDesignColumn": {
       "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json"
     },
-    "StagedDesignColumn": {
+    "StagedDesignExecutorOptions": {
       "sourcePath": "src/lowcode/resources/repository/staged-design-file-view.ts",
       "file": "files/src/lowcode/resources/repository/staged-design-file-view.ts.json"
     },

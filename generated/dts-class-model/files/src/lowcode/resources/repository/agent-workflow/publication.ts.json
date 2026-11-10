@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:lowcode/resources/repository/agent-workflow/publication",
+    "sourcePath": "src/lowcode/resources/repository/agent-workflow/publication.ts",
+    "sourceFile": "src/lowcode/resources/repository/agent-workflow/publication.ts",
+    "packageName": "app",
+    "modulePath": "lowcode/resources/repository/agent-workflow/publication",
+    "jsdoc": "@module app:lowcode/resources/repository/agent-workflow/publication\n职责：为缺失的 Agent 工作流 definition.json 提供非覆盖首发命令和原 attempt 核验。\n边界：已有 Definition 的更新仍由原文件 DataView 负责；本命令只消费已保存设计的精确快照。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {
+    "Input": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "type": "object",
+      "title": "Input",
+      "properties": {
+        "config": {
+          "$ref": "../../../../../packages/spark-project-model/src/scenario/scenario-view-config.ts.json#/$defs/ScenarioViewConfig"
+        },
+        "applicationId": {
+          "type": "string"
+        },
+        "api": {
+          "type": "object",
+          "title": "Pick<LowcodeDesignApi, 'readTextFile' | 'readFileBytes'>"
+        },
+        "fileUpload": {
+          "type": "object",
+          "title": "Pick<LowcodeDesignFileUpload, 'uploadTextVersion'>"
+        }
+      },
+      "additionalProperties": false,
+      "$defs": {
+        "method.assertCurrent.params": {
+          "type": "object",
+          "properties": {},
+          "additionalProperties": false
+        },
+        "method.assertCurrent.return": true
+      }
+    }
+  },
+  "generatedAt": "2026-11-10T04:35:22.658Z",
+  "models": {
+    "Input": {
+      "name": "Input",
+      "jsdoc": "",
+      "declarationKind": "typeAlias",
+      "typeAlias": {
+        "declarationTypeText": "Readonly<{\n    config: ScenarioViewConfig;\n    applicationId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile' | 'readFileBytes'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadTextVersion'>;\n    assertCurrent: () => void;\n}>",
+        "declarationRelations": [
+          {
+            "kind": "alias",
+            "typeText": "Readonly<{\n    config: ScenarioViewConfig;\n    applicationId: string;\n    api: Pick<LowcodeDesignApi, 'readTextFile' | 'readFileBytes'>;\n    fileUpload: Pick<LowcodeDesignFileUpload, 'uploadTextVersion'>;\n    assertCurrent: () => void;\n}>",
+            "targetName": "Readonly"
+          }
+        ],
+        "members": {
+          "attributes": [
+            {
+              "name": "config",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "applicationId",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "api",
+              "readable": true,
+              "writable": false
+            },
+            {
+              "name": "fileUpload",
+              "readable": true,
+              "writable": false
+            }
+          ],
+          "methods": [
+            {
+              "name": "assertCurrent",
+              "parameters": [],
+              "type": {
+                "type": "intrinsic",
+                "name": "void"
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+}

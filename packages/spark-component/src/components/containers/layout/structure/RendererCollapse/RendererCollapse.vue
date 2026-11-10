@@ -9,7 +9,7 @@ AI用途：需要理解 renderer collapse 的实际渲染结构、slot/toolbar/�
     <div v-if="toolbarConfig" :class="['renderer-collapse-toolbar', toolbarClassValue]">
       <SparkComponentRenderer :config="toolbarConfig" />
     </div>
-    <div class="renderer-collapse-main">
+    <div :key="scopeKey" class="renderer-collapse-main">
       <el-collapse
         :model-value="currentValue"
         @update:model-value="handleModelUpdate"
@@ -35,9 +35,10 @@ AI用途：需要理解 renderer collapse 的实际渲染结构、slot/toolbar/�
  * @notes children 内放 r-collapse-item
  */
 import { computed } from 'vue'
-import { useSparkPageComponent, SparkComponentRenderer } from '../../../../internal'
+import { SparkComponentRenderer } from '../../../../internal'
 
 import { useContainerToolbar } from '../../../runtime/container-ui'
+import { useLayoutDataContext } from '../../../runtime/layout-data-context'
 import type { RendererCollapseApi } from './types'
 import { createRendererCollapseZeroCode } from './zero-code'
 import { useUnifiedValueBridge } from '../../state'
@@ -52,7 +53,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | number | Array<string | number>]
 }>()
 
-const { registerApi } = useSparkPageComponent(props)
+const { registerApi, scopeKey } = useLayoutDataContext(props)
 
 // 工具栏优先通过 props.toolbar 输入。
 const itemConfigs = computed(() => getSparkNodeChildren(props.children))

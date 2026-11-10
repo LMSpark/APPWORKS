@@ -86,11 +86,11 @@
       }
     }
   },
-  "generatedAt": "2026-10-07T02:30:27.106Z",
+  "generatedAt": "2026-11-10T07:24:01.145Z",
   "models": {
     "RCollapseProps": {
       "name": "RCollapseProps",
-      "jsdoc": "RCollapse Props 的属性契约。",
+      "jsdoc": "RCollapse Props 的属性契约；完整 dataViewKey 定位场景、模型和视图，dataMember/dataField 选择上下文，省略时继承父级。",
       "declarationKind": "typeAlias",
       "component": {
         "name": "RendererCollapse",
@@ -100,12 +100,12 @@
         "directory": "containers/layout"
       },
       "typeAlias": {
-        "declarationTypeText": "SparkNodeProps & {\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 当前展开的面板 */\n    modelValue?: string | number | Array<string | number>;\n    /** 展开/折叠切换回调 */\n    onChange?: (value: string | number | Array<string | number>) => void;\n}",
+        "declarationTypeText": "LayoutDataContextProps & {\n    /** 结构化工具栏 */\n    toolbar?: RToolbarProps;\n    /** 当前展开的面板 */\n    modelValue?: string | number | Array<string | number>;\n    /** 展开/折叠切换回调 */\n    onChange?: (value: string | number | Array<string | number>) => void;\n}",
         "declarationRelations": [
           {
             "kind": "intersection",
-            "typeText": "SparkNodeProps",
-            "targetName": "SparkNodeProps"
+            "typeText": "LayoutDataContextProps",
+            "targetName": "LayoutDataContextProps"
           },
           {
             "kind": "intersection",

@@ -1,0 +1,34 @@
+{
+  "scenarioId": "E328FBBF518141973C575D612CD75151",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "View_FlowObjList": {
+      "modelBinding": {"modelId": "a6fa2c61-9b3f-4528-8117-9203ccafaa58", "modelName": "View_FlowObjList"},
+      "columns": [{"name": "handleInfo", "type": "string", "label": "办理信息",
+        "computeExpression": "UserNameList || (status + '' === '1' ? '流程结束。' : '当前办理人员：无')"}],
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+        "page": 1, "pageSize": 15,
+        "queryConfig": {"fields": ["rowid", "WFMID", "TITLE", "AppDesc", "CrtUserID", "CrtTime", "UserNameList", "status"]}
+      }}
+    },
+    "Dict_state": {
+      "modelBinding": {"modelId": "c9d53daf-68e0-4223-bf39-f5589c88b39d", "modelName": "Dict_state"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
+        "valueField": "val", "labelField": "txt",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "72546df0-40d8-477f-bc5f-94eff18e5d48", "modelName": "Base_UserInfo"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+        "valueField": "rowid", "labelField": "UserName",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "UserName"]}
+      }}
+    }
+  },
+  "viewCascades": []
+}

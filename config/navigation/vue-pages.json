@@ -71,6 +71,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/system/flow-monitor/ui/flow-monitor-page",
+      "title": "流程监控",
+      "icon": "Monitor",
+      "scope": "app",
+      "source": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "description": "AppWorks 系统导航登记的原生流程监控页面",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",

@@ -20,7 +20,7 @@ const service = vi.hoisted(() => ({readSpaceDefinition: vi.fn(), readModel: vi.f
 let http: ApiBackend, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
   Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'createtime'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+  Base_UserInfo: ['ID', 'rowid', 'UserName'],
   Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
 })
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -32,7 +32,7 @@ const originalStubs = {...config.global.stubs}
 beforeEach(() => {
   http = new ApiBackend(); http.records = {
     Base_DataViewList: [{rowid: 'V1', sysid: 'APP', name: '销售汇总', description: '汇总视图', createuser: 'U-ROW'}],
-    Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
+    Base_UserInfo: [{ID: 'U-PK', rowid: 'U-ROW', UserName: '张三'}],
     Base_AppSystemList: [{rowid: 'APP', AppDesc: '应用甲', AppName: 'App'}],
   }
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})

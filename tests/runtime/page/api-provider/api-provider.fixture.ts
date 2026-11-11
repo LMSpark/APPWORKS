@@ -20,7 +20,7 @@ type FormalModel = Awaited<ReturnType<DataSpaceDesignApi['readModel']>>
 type Table = {modelBinding: {modelId: string; modelName: string}; columns?: Array<{name: string}>; views: Record<string, {queryConfig?: {fields?: string[]}; filterExpression?: unknown}>}
 
 const keys: Record<string, string> = {Base_UserInfo: 'ID', _Base_ParamList: 'parid'}
-const extra: Record<string, string[]> = {Base_UserInfo: ['ROWID'], Base_InterfaceProvider_Account: ['ProviderID'],
+const extra: Record<string, string[]> = {Base_UserInfo: ['rowid'], Base_InterfaceProvider_Account: ['ProviderID'],
   Base_TblField: ['DataType', 'IsPKey', 'tblname', 'Memo', 'description'],
   Base_Interface_PublicParam: ['providerId', 'paramName', 'interfaceId', 'outputfield', 'interfaceName', 'accessPath', 'desc']}
 
@@ -119,7 +119,7 @@ export function createApiService() {
 export const seed: Record<string, Row[]> = {
   Base_InterfaceProvider: [{rowid: 'P1', Name: '服务甲', BaseURL: 'https://a.test', TokenPrefix: 'Bearer ', updateuser: 'U1'},
     {rowid: 'P2', Name: '服务乙', BaseURL: 'https://b.test', TokenPrefix: ''}],
-  Base_UserInfo: [{ID: 'U-PK', ROWID: 'U1', UserName: '修改人甲'}],
+  Base_UserInfo: [{ID: 'U-PK', rowid: 'U1', UserName: '修改人甲'}],
   Base_InterfaceProvider_Headers: [{rowid: 'H1', proId: 'P1', paramName: 'Authorization', paramValue: 'plain', type: 'auth'},
     {rowid: 'H2', proId: 'P2', paramName: 'Other', paramValue: '', type: 'all'}],
   Base_Interface_PublicParam: [{rowid: 'Q1', providerId: 'P1', paramName: 'access_token', desc: '令牌', interfaceId: 'I1', outputfield: 'token', interfaceName: '取令牌', accessPath: '/token'},

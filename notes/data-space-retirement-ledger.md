@@ -9258,3 +9258,11 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **断链修复。** `GetData` 把资源自身 AjaxResult 包在 `Result.data` 中；内层 `Code 1004`（表无默认字段）曾被当作缺总数的空结果，报“分页缺少后端总数”。`decodeEnvelope` 现同时校验内层业务码并抛原消息，新增回归用例。
 - **已登记差距。** 原数据主键取唯一存在的 `rowid`/`id`；正式字段元数据未标识来源主键，两者都缺或并存时阻止恢复并提示。“全部数据”对未授权表由后端返回 500 权限不足，由表格显示原因，不在前端绕过。恢复记录的表名称、操作人显示原 ID（`Base_UserInfo` 未作为选项视图装配）。
 - **验证。** typecheck、改动文件 ESLint、lowcode-api/组件/运行时 vitest、`generate:class-model-surface`、`generate:lowcode-contracts`、`verify:lowcode-contracts`/`class-model`/`docs`/`page-thin`/`ai-codegen` 通过。实服烟测：应用、数据库、232 张表分页、动态列头；`Base_SysOperate_Log` 显示后端 1004 原因；`Base_PW_EditInfo` 待恢复 2 条，恢复后变 1 条并在已恢复页出现记录（回执 `mapListAdd`），撤销恢复（`status=1`，回执 `mapListEdit`）后已恢复为空、待恢复回到 2 条。未改 Java，未新增 Node.js 服务。
+
+### 2026-11-11 系统运维迁移：流程监控
+
+- **迁移落点。** 参考 `features/system/flow-monitor/ui/flow-monitor-page.vue` 按原路径恢复，场景 `E328FBBF518141973C575D612CD75151` 以 `config/pages/system/flow-monitor/pagedata.json` 绑定 `View_FlowObjList`（分页15）及 `Dict_state`、`Base_UserInfo` 选项视图；“办理信息”为 pagedata 本地计算列（`UserNameList`，否则按 `status` 显示“流程结束。/当前办理人员：无”）。按应用、标题、状态查询、重置与分页均经 DataView。“详情”依赖流程运行明细，留在 `mig-flow` 包接入。
+- **断链修复：导航页面判定。** 流程监控蓝图记录 `conType` 为 `Model` 但携带 `vue:` 导航地址，原投影只给 `Navitem` 赋 URL，菜单进入落回服务器管理。系统导航投影与菜单过滤改为按 `NavigationUrl` 判定页面，不再按节点类别。
+- **断链修复：系统行键。** 服务端把未起别名的 `ROWID` 输出为小写 `rowid`（`row_id AS rowid`），正式字段却以 `ROWID` 作 canonicalName，凡 `valueField: "ROWID"` 的用户选项均匹配不到行，创建人显示原 ID。`DataSpaceDesignApi.formalField` 对未起别名的 ROWID 统一以实际输出名 `rowid` 消费；七份 pagedata、数据空间目录及两页面同步改用 `rowid`，删除目录对 `ROWID`/`rowid` 双键的并存判断。
+- **已登记差距。** 不在当前租户 `Base_UserInfo` 的创建人（如 U00005、U00028、U00795）显示原 ID，与参考回退一致。
+- **验证。** typecheck、改动文件 ESLint、导航/注册/数据空间/字典/结构化配置/半结构化/外部服务 vitest（并发负载下的超时用例单独复跑通过）、生成器与 `verify:*` 门禁通过。实服烟测：菜单出现“流程监控”，列表 255 条、状态筛选 35 条、重置与分页正常，创建人显示用户名；字典、逻辑视图、JSON、Excel 导入、数据库三页回归无异常。未改 Java，未新增 Node.js 服务。

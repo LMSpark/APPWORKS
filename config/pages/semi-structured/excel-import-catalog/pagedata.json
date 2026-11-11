@@ -50,8 +50,8 @@
     "Base_UserInfo": {
       "modelBinding": {"modelId": "36B01771C627B9BF5CD493DC75B996A1p001", "modelName": "Base_UserInfo"},
       "views": {"default": {
-        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "ROWID", "labelField": "UserName",
-        "queryConfig": {"fields": ["ID", "ROWID", "UserName"], "allPages": true}
+        "autoLoad": true, "autoCurrentFirst": false, "autoSelectFirst": false, "valueField": "rowid", "labelField": "UserName",
+        "queryConfig": {"fields": ["ID", "rowid", "UserName"], "allPages": true}
       }}
     }
   },

@@ -15,10 +15,7 @@ function scalar(value: unknown): string {
 }
 
 function association(row: Readonly<Record<string, unknown>>, read: ReadAccess): string {
-  if (read('ROWID') !== 'visible' || read('rowid') !== 'visible') return ''
-  const formal = Object.hasOwn(row, 'ROWID'), output = Object.hasOwn(row, 'rowid')
-  if (formal && output && scalar(row['ROWID']) !== scalar(row['rowid'])) throw new Error('用户查询结果 ROWID 与 rowid 关联值冲突')
-  return scalar(formal ? row['ROWID'] : output ? row['rowid'] : undefined)
+  return read('rowid') === 'visible' ? scalar(row['rowid']) : ''
 }
 
 function validate(result: QueryResult, keyField: string, options: Readonly<{fields: readonly string[]; requireComplete?: boolean}>): void {
@@ -64,7 +61,7 @@ export class LowcodeDataSpaceCatalog {
     this.users = resolve('Base_UserInfo', 'catalogUsers')
     this.view.queryConfig = {...this.view.queryConfig, fields: catalogFields, allPages: false, autoQuery: false}
     this.apps.queryConfig = {...this.apps.queryConfig, fields: ['rowid', 'AppDesc', 'AppName'], allPages: true}
-    this.users.queryConfig = {...this.users.queryConfig, fields: ['ID', 'ROWID', 'UserName'], allPages: true}
+    this.users.queryConfig = {...this.users.queryConfig, fields: ['ID', 'rowid', 'UserName'], allPages: true}
     this.view.autoSelectFirst = false
     this.view.autoCurrentFirst = false
     const userScope = this.users.filterExpression
@@ -84,7 +81,7 @@ export class LowcodeDataSpaceCatalog {
       const ids = [...new Set(result.rows.flatMap(row => result.fieldAccess(result.rowKey(row), 'createuser').read === 'visible'
         ? [scalar(row['createuser'])].filter(Boolean) : []))]
       if (ids.length) {
-        const filter = {field: 'ROWID', operator: 'in' as const, value: ids}
+        const filter = {field: 'rowid', operator: 'in' as const, value: ids}
         await this.users.executeFilter(userScope ? {logic: 'and', filters: [userScope, filter]} : filter)
         this.assertCurrent()
         if (revision !== this.#revision) throw new Error('数据空间目录查询已过期')

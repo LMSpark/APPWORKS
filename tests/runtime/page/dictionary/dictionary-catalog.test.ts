@@ -32,7 +32,7 @@ vi.mock('@/lowcode/lowcode-runtime', () => ({
 const models = Object.entries({
   _Base_DictType: ['rowid', 'AppId', 'TypeName', 'functiondesc', 'StructureTypeID', 'createuser', 'crttime'],
   Base_StructureType: ['rowid', 'Mrowid', 'Name'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+  Base_UserInfo: ['ID', 'rowid', 'UserName'],
   Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
 }).map(([name, fields]) => ({
   id: `${name}-model`, name, metaName: name, sourceType: 'table', sourceId: 'DB', sourceName: name,
@@ -53,7 +53,7 @@ class CatalogHttp extends HttpClientBase {
   hideUserValue = false
   hideStructureName = false
   unresolvedCreator = false
-  userRows = [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}]
+  userRows = [{ID: 'U-PK', rowid: 'U-ROW', UserName: '张三'}]
   appRows = [{rowid: 'APP', AppDesc: '应用说明', AppName: '应用名称'}]
   dictionaryRows: Array<Record<string, unknown>> = [
     {rowid: 'D1', AppId: 'APP', TypeName: '配色', createuser: 'U-ROW', StructureTypeID: 'S1'},
@@ -94,7 +94,7 @@ class CatalogHttp extends HttpClientBase {
     return {data: {Code: 200, Result: {primaryKeyField: name === 'Base_UserInfo' ? 'ID' : 'rowid', allowAdd: this.allowAdd,
       lingma_sys_key: 'table-key', data: {Items: rows.map(row => ({...row, lingma_sys_key: 'row-key',
         lingma_sys_params: {r: [], e: [], h: name === 'Base_UserInfo'
-          ? [...(this.hideUserName ? ['UserName'] : []), ...(this.hideUserValue ? ['ROWID'] : [])]
+          ? [...(this.hideUserName ? ['UserName'] : []), ...(this.hideUserValue ? ['rowid'] : [])]
           : name === 'Base_StructureType' && this.hideStructureName ? ['Name'] : [],
           m: name === 'Base_UserInfo' && this.maskUserName ? ['UserName'] : [], d: false}})), Count: count}}},
       status: 200, statusText: 'OK', headers: {}}
@@ -193,12 +193,12 @@ describe('dictionary catalog formal view assembly', () => {
       tables: {_Base_DictType: {views: {default: {sortExpression: unknown; queryConfig: {filterLookups: Array<Record<string, string>>}}}}}
     }
     document.tables._Base_DictType.views.default.sortExpression = [{field: 'TypeName', direction: 'asc'}]
-    document.tables._Base_DictType.views.default.queryConfig.filterLookups[0]!['matchField'] = 'ROWID'
+    document.tables._Base_DictType.views.default.queryConfig.filterLookups[0]!['matchField'] = 'rowid'
     const dataSet = await LowcodeDictionary.loadCatalog('CATALOG', JSON.stringify(document)); sets.push(dataSet)
     const view = dataSet.getView('_Base_DictType', 'default')!
     expect(view.sortExpression).toEqual([{field: 'TypeName', direction: 'asc'}])
     expect(view.toJson().queryConfig?.filterLookups?.[0]).toEqual({
-      field: 'createuser', sourceViewKey: 'CATALOG@Base_UserInfo@default', matchField: 'ROWID', valueField: 'ROWID',
+      field: 'createuser', sourceViewKey: 'CATALOG@Base_UserInfo@default', matchField: 'rowid', valueField: 'rowid',
     })
     const implementation = readFileSync(resolve(process.cwd(), 'src/lowcode/resources/structured-config/dictionary/resource.ts'), 'utf8')
     expect(implementation).not.toContain('filterLookups')
@@ -328,7 +328,7 @@ describe('dictionary catalog formal view assembly', () => {
   })
   it('binds auxiliary labels by their formal reference field without changing dictionary IDs', async () => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
-    expect(ds.getView('Base_UserInfo', 'default')?.valueField).toBe('ROWID')
+    expect(ds.getView('Base_UserInfo', 'default')?.valueField).toBe('rowid')
     expect(ds.getView('Base_UserInfo', 'default')?.primaryKey).toBe('ID')
     expect(ds.getView('Base_UserInfo', 'default')?.rows[0]?.['UserName']).toBe('张三')
     expect(ds.getView('Base_StructureType', 'default')?.treeConfig).toMatchObject({idField: 'rowid', parentIdField: 'Mrowid', textField: 'Name'})
@@ -392,7 +392,7 @@ describe('dictionary catalog formal view assembly', () => {
     const users = ds.getView('Base_UserInfo', 'default')!
     const rows = users.rows
     users.setSelectedRows([rows[0]!])
-    http.userRows.push({ID: 'U-PK2', ROWID: 'U-ROW2', UserName: '张四'}, {ID: 'U-PK3', ROWID: 'U-ROW3', UserName: '李三'})
+    http.userRows.push({ID: 'U-PK2', rowid: 'U-ROW2', UserName: '张四'}, {ID: 'U-PK3', rowid: 'U-ROW3', UserName: '李三'})
     http.requests.length = 0
     const view = ds.getView('_Base_DictType', 'default')!
     await view.executeFilter({field: 'createuser', operator: 'contains', value: '张'})
@@ -441,7 +441,7 @@ describe('dictionary catalog formal view assembly', () => {
   it('does not dispatch an obsolete catalog request after a slower creator search resolves', async () => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
     const view = ds.getView('_Base_DictType', 'default')!
-    http.userRows.push({ID:'U-PK2',ROWID:'U-ROW2',UserName:'李四'})
+    http.userRows.push({ID:'U-PK2',rowid:'U-ROW2',UserName:'李四'})
     let release!: () => void, started!: () => void
     const ready = new Promise<void>(resolve => {started=resolve})
     const wait = new Promise<void>(resolve => {release=resolve})
@@ -460,7 +460,7 @@ describe('dictionary catalog formal view assembly', () => {
   it('fails an invalid scoped lookup and preserves configuration through serialization', async () => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
     const view = ds.getView('_Base_DictType', 'default')!
-    expect(view.toJson().queryConfig?.filterLookups?.[0]).toEqual({field:'createuser',sourceViewKey:'CATALOG@Base_UserInfo@default',matchField:'UserName',valueField:'ROWID'})
+    expect(view.toJson().queryConfig?.filterLookups?.[0]).toEqual({field:'createuser',sourceViewKey:'CATALOG@Base_UserInfo@default',matchField:'UserName',valueField:'rowid'})
     view.queryConfig = {...view.queryConfig,filterLookups:[{...view.queryConfig.filterLookups![0]!,sourceViewKey:'OTHER@Base_UserInfo@default'}]}
     http.requests.length = 0
     await view.executeFilter({field:'createuser',operator:'contains',value:'张'})
@@ -469,9 +469,9 @@ describe('dictionary catalog formal view assembly', () => {
   })
   it('combines lookup input with the auxiliary view scope rather than replacing it', async () => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
-    http.userRows.push({ID:'OTHER-PK',ROWID:'OTHER-ROW',UserName:'张四'})
+    http.userRows.push({ID:'OTHER-PK',rowid:'OTHER-ROW',UserName:'张四'})
     const users = ds.getView('Base_UserInfo','default')!
-    users.filterExpression = {field:'ROWID',operator:'eq',value:'U-ROW'}
+    users.filterExpression = {field:'rowid',operator:'eq',value:'U-ROW'}
     await ds.getView('_Base_DictType','default')!.executeFilter({field:'createuser',operator:'contains',value:'张'})
     expect(JSON.stringify(http.requests.at(-1)?.data)).toContain('U-ROW')
     expect(JSON.stringify(http.requests.at(-1)?.data)).not.toContain('OTHER-ROW')
@@ -479,7 +479,7 @@ describe('dictionary catalog formal view assembly', () => {
   it('does not bypass query dependencies on a lookup source', async () => {
     const ds = await LowcodeDictionary.loadCatalog('CATALOG'); sets.push(ds)
     ds.addCascade({parentTable: 'Base_StructureType', parentViewId: 'default', childTable: 'Base_UserInfo', childViewId: 'default',
-      autoLoad: false, filterBindings: [{sourceField: 'rowid', targetField: 'ROWID'}]})
+      autoLoad: false, filterBindings: [{sourceField: 'rowid', targetField: 'rowid'}]})
     http.requests.length = 0
     const view = ds.getView('_Base_DictType', 'default')!
     await view.executeFilter({field: 'createuser', operator: 'contains', value: '张'})

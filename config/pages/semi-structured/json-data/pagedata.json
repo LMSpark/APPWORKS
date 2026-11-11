@@ -58,13 +58,13 @@
           "autoLoad": true,
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
-          "valueField": "ROWID",
+          "valueField": "rowid",
           "labelField": "UserName",
           "pageSize": 500,
           "queryConfig": {
             "fields": [
               "ID",
-              "ROWID",
+              "rowid",
               "UserName"
             ],
             "allPages": true

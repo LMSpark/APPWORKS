@@ -23,14 +23,14 @@ beforeEach(() => {
     Base_DataViewList: [{rowid: 'V1', sysid: 'APP', name: 'A', createuser: 'U-ROW'}],
     Base_WorkflowDefinition: [{rowid: 'W1', name: 'B', workflow_key: 'B', status: '1'}],
     workflowStatus: [],
-    Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
+    Base_UserInfo: [{ID: 'U-PK', rowid: 'U-ROW', UserName: '张三'}],
   })
   service.readRequestScope.mockReturnValue({token: 'scope', headers: {'X-AppId': 'APP'}})
   service.readModel.mockImplementation(({metaName}: {metaName: string}) => Promise.resolve(
     buildFormalModels({
       Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser', 'createtime'],
       Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
-      Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+      Base_UserInfo: ['ID', 'rowid', 'UserName'],
     }).map(model=>{const table=Object.entries(logicCatalog.tables).find(([name])=>name===model.metaName)?.[1];return {...model,id:table&&'modelBinding' in table?table.modelBinding.modelId:model.id}}).find(m => m.metaName === metaName),
   ))
   runtime = new DataSpaceRuntimeApi({http, readScope: service.readRequestScope})
@@ -45,7 +45,7 @@ describe('structured-config catalog loaders', () => {
       buildFormalModels({
         Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
         Base_AppSystemList: ['rowid', 'AppName'],
-        Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+        Base_UserInfo: ['ID', 'rowid', 'UserName'],
         Base_StructureType: ['rowid', 'Mrowid', 'Name'],
       }).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId}p${({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName] ?? '001'}`})).find(m => m.metaName === metaName),
     ))

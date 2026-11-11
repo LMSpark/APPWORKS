@@ -118,12 +118,17 @@ function formalDatabaseTable(row: DataSpaceFormalRow): boolean {
   return ['数据库表', '表', 'table'].includes(formalText(row, ['Type', 'type']))
 }
 
+// 服务端总把系统行键投影为小写 rowid（row_id AS rowid），未起别名的 ROWID 字段按实际输出名消费。
+function formalOutputName(name: string): string {
+  return name.toLowerCase() === 'rowid' ? 'rowid' : name
+}
+
 function formalField(row: DataSpaceFormalRow, sourcePrimaryKey: string): DataSpaceFormalField {
   const name = requiredText(formalText(row, ['Name', 'name']), '正式字段 Name')
   const order = Number(row['Order'] ?? row['order'])
   return Object.freeze({ id: requiredText(formalRowId(row), '正式字段 ID'),
     modelId: formalText(row, ['dataModelId', 'DataModelId', 'datamodelid']), name,
-    canonicalName: formalText(row, ['AsName', 'asName', 'asname']) || name,
+    canonicalName: formalText(row, ['AsName', 'asName', 'asname']) || formalOutputName(name),
     type: formalText(row, ['FieldType', 'fieldType', 'fieldtype']),
     primaryKey: sourcePrimaryKey ? name === sourcePrimaryKey : binary(row['IsPKey'] ?? row['isPKey']),
     description: formalText(row, ['description', 'Description']),

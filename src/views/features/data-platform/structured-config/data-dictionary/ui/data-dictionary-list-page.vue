@@ -74,8 +74,8 @@ const hasUnresolvedCreator = computed(() => {
   const catalog = view.value
   const users = session.runtime?.getDataSet(scenarioId.value)?.getView('Base_UserInfo', 'default')
   if (!catalog || !users) return false
-  const readableIds = new Set(users.rows.filter(row => users.fieldAccess(row, 'ROWID').read === 'visible'
-    && users.fieldAccess(row, 'UserName').read === 'visible').map(row => row['ROWID']))
+  const readableIds = new Set(users.rows.filter(row => users.fieldAccess(row, 'rowid').read === 'visible'
+    && users.fieldAccess(row, 'UserName').read === 'visible').map(row => row['rowid']))
   return catalog.rows.some(row => catalog.fieldAccess(row, 'createuser').read === 'visible'
     && row['createuser'] !== null && row['createuser'] !== undefined && row['createuser'] !== ''
     && !readableIds.has(row['createuser']))

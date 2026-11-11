@@ -3,7 +3,7 @@ import appworks from '../../config/applications/appworks.json'
 const builtinScenarioNames = ['dataSpaceDesign', 'dataSpaceCatalog', 'dataDictionary', 'projectBlueprint', 'cacheManagement',
   'logicViewCatalog', 'apiProvider', 'apiConfig', 'apiInterface', 'dataCodeCatalog', 'dataCodeEditor', 'workflowCatalog', 'excelImportCatalog', 'pdfInspectCatalog',
   'excelImportEditor', 'workflowEditor', 'jsonDataCatalog', 'businessTableSelector', 'agentWorkflowFiles', 'organizationStructure', 'jobManagement', 'applicationManager',
-  'bugManage', 'dataRecovery'] as const
+  'bugManage', 'dataRecovery', 'flowMonitor'] as const
 export type BuiltinScenarioName = typeof builtinScenarioNames[number]
 export type BuiltinScenarioResource = Readonly<{name: BuiltinScenarioName; scenarioId: string; resourceId: string; path: string}>
 export type BuiltinNavigationResource = Readonly<{resourceId: string; path: string}>

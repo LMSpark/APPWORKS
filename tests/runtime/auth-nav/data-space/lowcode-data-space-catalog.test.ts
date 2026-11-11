@@ -23,7 +23,7 @@ import CatalogPage from '@/views/features/data-platform/data-set-management/ui/d
 const disposals:Array<()=>void>=[],originalStubs=config.global.stubs
 const models={Base_DataSet:['rowid','Name','Type','description','sysid','createuser','createtime'],
   Base_DataModel:['rowid','dataSetId'],
-  Base_AppSystemList:['rowid','AppDesc','AppName'],Base_UserInfo:['ID','ROWID','rowid','UserName'],
+  Base_AppSystemList:['rowid','AppDesc','AppName'],Base_UserInfo:['ID','rowid','UserName'],
   Base_NavigationInfo:['rowid','SysId','conid','prowid','FunName','name','NavigationUrl']}
 // 与线上导航模型一致：conid 只能作服务端过滤（output=false），查询结果不返回。
 const navigationProjection=models.Base_NavigationInfo.map((field,index)=>({fieldId:field.toUpperCase(),source:'resource',resourceFieldId:field.toUpperCase(),
@@ -264,7 +264,7 @@ describe('native DataView catalog',()=>{
       return context(view,view.tableName==='Base_DataSet'?(++attempts===1?[{rowid:'OLD',createuser:'USER'}]:[{rowid:'NEW'}]):[])
     })
     const value=await owner(),first=value.view.refresh();await flushPromises();await value.view.refresh()
-    release(context(users,[{ID:'P',ROWID:'USER',UserName:'Old'}]));await first
+    release(context(users,[{ID:'P',rowid:'USER',UserName:'Old'}]));await first
     expect(value.view.rows[0]?.['rowid']).toBe('NEW');expect(value.view.loadingError).toBeNull();expect(value.unresolvedCreatorCount).toBe(0)
   })
   it('loads formal views, retains native values and uses the same view for filtering and paging',async()=>{
@@ -276,7 +276,7 @@ describe('native DataView catalog',()=>{
     const filter:DataViewFilterTree={logic:'and',filters:[{logic:'or',filters:[{field:'Name',operator:'contains',value:'needle'},
       {field:'rowid',operator:'eq',value:'needle'}]},{field:'sysid',operator:'eq',value:'APP'}]}
     await value.view.executeFilter(filter);await value.view.setPage(2);expect(last()).toMatchObject({page:2,filter})
-    expect(last('Base_UserInfo')).toMatchObject({allPages:true,fields:['ID','ROWID','UserName'],filter:{field:'ROWID',operator:'in',value:['USER']}})
+    expect(last('Base_UserInfo')).toMatchObject({allPages:true,fields:['ID','rowid','UserName'],filter:{field:'rowid',operator:'in',value:['USER']}})
     await value.view.executeFilter(undefined);expect(last()).not.toHaveProperty('filter')
   })
   it.each(['count','missing','duplicate','wrong-key','non-scalar'] as const)('rejects catalog %s failures',async kind=>{
@@ -285,11 +285,11 @@ describe('native DataView catalog',()=>{
         [{rowid:'ROW',Name:kind==='non-scalar'?{}:'name'}],{count:kind!=='count',...(kind==='wrong-key'?{key:'other'}:{})}))
     const value=await owner();await value.initialize();expect(value.view.loadingError).not.toBeNull();expect(value.designTarget()).toBe('')
   })
-  it.each(['missing','duplicate','wrong-key','non-scalar','conflicting-alias','count'] as const)('rejects user directory %s without claiming list success',async kind=>{
+  it.each(['missing','duplicate','wrong-key','non-scalar','count'] as const)('rejects user directory %s without claiming list success',async kind=>{
     executeQuery.mockImplementation(async(view:DataView)=>context(view,view.tableName==='Base_UserInfo'?
-      kind==='missing'?[{ROWID:'USER'}]:kind==='duplicate'?[{ID:'DUP',ROWID:'USER'},{ID:'DUP',ROWID:'USER'}]:
-      [{ID:'P',ROWID:'USER',...(kind==='conflicting-alias'?{rowid:'DIFFERENT'}:{}),UserName:kind==='non-scalar'?{}:'name'}]:defaults[view.tableName]??[],
-      view.tableName==='Base_UserInfo'?{count:kind!=='count',...(kind==='wrong-key'?{key:'ROWID'}:{})}:{}))
+      kind==='missing'?[{rowid:'USER'}]:kind==='duplicate'?[{ID:'DUP',rowid:'USER'},{ID:'DUP',rowid:'USER'}]:
+      [{ID:'P',rowid:'USER',UserName:kind==='non-scalar'?{}:'name'}]:defaults[view.tableName]??[],
+      view.tableName==='Base_UserInfo'?{count:kind!=='count',...(kind==='wrong-key'?{key:'rowid'}:{})}:{}))
     const value=await owner();await value.initialize();expect(value.view.loadingError).not.toBeNull()
   })
   it('consumes both permissions, rejects ambiguous associations and never uses user permission IDs as business IDs',async()=>{
@@ -298,13 +298,13 @@ describe('native DataView catalog',()=>{
       {rowid:'D',createuser:'HIDDEN',lingma_sys_params:{h:['createuser']}},{rowid:'E',createuser:'VISIBLE'},
       {rowid:'F',createuser:'DUP'},{rowid:'G',createuser:'MASK-NAME'},{rowid:'H',createuser:'HIDE-NAME'},{rowid:'I',createuser:'HIDE-ASSOCIATION'},
     ]:view.tableName==='Base_UserInfo'?[
-      {ID:'PERMISSION-VISIBLE',rowid:'VISIBLE',UserName:'Ada'},{ID:'P1',ROWID:'DUP',UserName:'First'},{ID:'P2',ROWID:'DUP',UserName:'Second'},
-      {ID:'P3',ROWID:'MASK-NAME',UserName:'SECRET',lingma_sys_params:{m:['UserName']}},
-      {ID:'P4',ROWID:'HIDE-NAME',UserName:'HIDDEN',lingma_sys_params:{h:['UserName']}},
-      {ID:'HIDE-ASSOCIATION',ROWID:'HIDE-ASSOCIATION',UserName:'NEVER',lingma_sys_params:{h:['ROWID']}},
+      {ID:'PERMISSION-VISIBLE',rowid:'VISIBLE',UserName:'Ada'},{ID:'P1',rowid:'DUP',UserName:'First'},{ID:'P2',rowid:'DUP',UserName:'Second'},
+      {ID:'P3',rowid:'MASK-NAME',UserName:'SECRET',lingma_sys_params:{m:['UserName']}},
+      {ID:'P4',rowid:'HIDE-NAME',UserName:'HIDDEN',lingma_sys_params:{h:['UserName']}},
+      {ID:'HIDE-ASSOCIATION',rowid:'HIDE-ASSOCIATION',UserName:'NEVER',lingma_sys_params:{h:['rowid']}},
     ]:[]))
     const value=await owner();await value.initialize()
-    expect(last('Base_UserInfo').filter).toEqual({field:'ROWID',operator:'in',value:['VISIBLE','MISSING','DUP','MASK-NAME','HIDE-NAME','HIDE-ASSOCIATION']})
+    expect(last('Base_UserInfo').filter).toEqual({field:'rowid',operator:'in',value:['VISIBLE','MISSING','DUP','MASK-NAME','HIDE-NAME','HIDE-ASSOCIATION']})
     expect(value.creatorLabel('VISIBLE')).toBe('Ada');expect(value.creatorLabel('DUP')).toBe('未解析用户')
     expect(value.creatorLabel('MASK-NAME')).toBe('••••');expect(value.creatorLabel('HIDE-NAME')).toBe('')
     expect(value.creatorLabel('HIDE-ASSOCIATION')).toBe('未解析用户');expect(value.unresolvedCreatorCount).toBe(3)

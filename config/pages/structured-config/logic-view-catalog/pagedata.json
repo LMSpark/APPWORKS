@@ -40,7 +40,7 @@
                 "field": "createuser",
                 "sourceViewKey": "EB720370EF06A5A656838F87E0716D6B@Base_UserInfo@default",
                 "matchField": "UserName",
-                "valueField": "ROWID"
+                "valueField": "rowid"
               }
             ]
           },
@@ -93,12 +93,12 @@
           "autoCurrentFirst": false,
           "autoSelectFirst": false,
           "selectionDelimiter": "",
-          "valueField": "ROWID",
+          "valueField": "rowid",
           "labelField": "UserName",
           "queryConfig": {
             "fields": [
               "ID",
-              "ROWID",
+              "rowid",
               "UserName"
             ],
             "allPages": true

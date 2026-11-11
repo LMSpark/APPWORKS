@@ -11,15 +11,15 @@ describe('database/catalog/scenario exact identity', () => {
   it('checks the exact host-bound data-space id and required models once', async () => {
     readModelBatch.mockReset().mockResolvedValue(undefined)
     const result = await resolveDatabaseCatalogScenarioId({
-      preferredScenarioId: 'FORM-ROWID',
+      preferredScenarioId: 'FORM-rowid',
       metaNames: ['_base_dbInfo', '_Base_TblList', '_Base_ViewList', 'Base_TblField'],
       assertCurrent: () => {},
     })
-    expect(result).toBe('FORM-ROWID')
+    expect(result).toBe('FORM-rowid')
     expect(readModelBatch).toHaveBeenCalledTimes(1)
     expect(readModelBatch).toHaveBeenCalledWith(expect.objectContaining({
       designScenarioId: DATA_SPACE_DESIGN_FORM_KEY,
-      dataSpaceId: 'FORM-ROWID',
+      dataSpaceId: 'FORM-rowid',
       metaNames: ['_base_dbInfo', '_Base_TblList', '_Base_ViewList', 'Base_TblField'],
     }))
   })
@@ -27,12 +27,12 @@ describe('database/catalog/scenario exact identity', () => {
   it('fails the exact target when required models are missing without trying candidates', async () => {
     readModelBatch.mockReset().mockRejectedValue(new Error('target models missing'))
     await expect(resolveDatabaseCatalogScenarioId({
-      preferredScenarioId: 'FORM-ROWID',
+      preferredScenarioId: 'FORM-rowid',
       metaNames: ['_base_dbInfo', '_Base_TblList'],
       assertCurrent: () => {},
     })).rejects.toThrow('target models missing')
     expect(readModelBatch).toHaveBeenCalledTimes(1)
-    expect(readModelBatch.mock.calls[0]?.[0]).toMatchObject({dataSpaceId: 'FORM-ROWID'})
+    expect(readModelBatch.mock.calls[0]?.[0]).toMatchObject({dataSpaceId: 'FORM-rowid'})
   })
 
   it('rejects a missing host target without querying another data space', async () => {

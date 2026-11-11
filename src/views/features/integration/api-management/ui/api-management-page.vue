@@ -54,8 +54,8 @@ const unresolvedModifier = computed(() => {
   revision.value
   const users = dataSet?.getView('Base_UserInfo', 'default'), providers = view('default')
   if (!users || !providers) return false
-  const ids = new Set(users.rows.filter(row => users.fieldAccess(row, 'ROWID').read === 'visible'
-    && users.fieldAccess(row, 'UserName').read === 'visible').map(row => row['ROWID']))
+  const ids = new Set(users.rows.filter(row => users.fieldAccess(row, 'rowid').read === 'visible'
+    && users.fieldAccess(row, 'UserName').read === 'visible').map(row => row['rowid']))
   return providers.rows.some(row => providers.fieldAccess(row, 'updateuser').read === 'visible'
     && row['updateuser'] !== undefined && row['updateuser'] !== null && row['updateuser'] !== '' && !ids.has(row['updateuser']))
 })

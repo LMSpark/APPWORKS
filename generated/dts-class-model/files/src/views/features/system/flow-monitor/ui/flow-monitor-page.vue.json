@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/system/flow-monitor/ui/flow-monitor-page",
+    "sourcePath": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+    "sourceFile": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/system/flow-monitor/ui/flow-monitor-page",
+    "jsdoc": "@module app:views/features/system/flow-monitor/ui/flow-monitor-page\n职责：恢复流程监控列表：按应用名称、流程标题、流程状态查询，分页显示办理信息、创建人及创建时间。\n边界：列表与选项绑定同一PageRuntime的正式DataView；办理信息由DataTable计算列派生，创建人经用户选项视图显示姓名。流程运行详情随工作流运行页迁移。\nAI用途：迁移系统运维流程监控时，核对状态字典、创建人映射与查询条件。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T07:28:31.460Z",
+  "models": {}
+}

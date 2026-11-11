@@ -1064,6 +1064,14 @@ describe('DataTable formal field AI generation metadata', () => {
     expect(actual).toMatchObject({allowAIAdd: expected})
   })
 
+  it('consumes an unaliased ROWID field by the server output key rowid', () => {
+    const model = DataSpaceDesignApi.projectModel(modelRow, [
+      {...fieldBase, rowid: 'FIELD-PK', Name: 'ID', IsPKey: 1},
+      {...fieldBase, rowid: 'FIELD-ROW', Name: 'ROWID'},
+    ], 'ID')
+    expect(model.fields.find(item => item.name === 'ROWID')).toMatchObject({canonicalName: 'rowid'})
+  })
+
   it.each([2, '2', true, false, 'true', 'false', -1, {}, []])(
     'rejects invalid formal DB allowAIAdd=%j instead of coercing it to an access flag', value => {
       expect(() => projectField(value)).toThrow(/allowAIAdd/)

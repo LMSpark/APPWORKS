@@ -3114,7 +3114,7 @@
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts",
       "shardFile": "files/packages/spark-lowcode-api/src/platform/data-space/design/data-space-design-api.ts.json",
-      "sourceModifiedAt": "2026-11-03T03:51:14.070Z"
+      "sourceModifiedAt": "2026-11-11T07:43:30.188Z"
     },
     "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts": {
       "sourceFile": "packages/spark-lowcode-api/src/platform/data-space/design/data-space-input-parameters.ts",
@@ -3784,7 +3784,7 @@
     "src/lowcode/data-space/lowcode-data-space-catalog.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-catalog.ts",
       "shardFile": "files/src/lowcode/data-space/lowcode-data-space-catalog.ts.json",
-      "sourceModifiedAt": "2026-11-11T03:43:48.652Z"
+      "sourceModifiedAt": "2026-11-11T07:43:47.629Z"
     },
     "src/lowcode/data-space/lowcode-data-space-design.ts": {
       "sourceFile": "src/lowcode/data-space/lowcode-data-space-design.ts",
@@ -4014,7 +4014,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-11T04:11:02.714Z"
+      "sourceModifiedAt": "2026-11-11T07:36:36.750Z"
     },
     "src/lowcode/resources/database/catalog/db-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/db-view-ops.ts",
@@ -4184,7 +4184,7 @@
     "src/lowcode/resources/repository/builtin-system-navigation.ts": {
       "sourceFile": "src/lowcode/resources/repository/builtin-system-navigation.ts",
       "shardFile": "files/src/lowcode/resources/repository/builtin-system-navigation.ts.json",
-      "sourceModifiedAt": "2026-11-10T15:05:33.855Z"
+      "sourceModifiedAt": "2026-11-11T07:36:36.771Z"
     },
     "src/lowcode/resources/repository/file-resource-query-parameters.ts": {
       "sourceFile": "src/lowcode/resources/repository/file-resource-query-parameters.ts",
@@ -4669,7 +4669,7 @@
     "src/registries/builtin-application-registry.ts": {
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "shardFile": "files/src/registries/builtin-application-registry.ts.json",
-      "sourceModifiedAt": "2026-11-11T06:42:56.737Z"
+      "sourceModifiedAt": "2026-11-11T07:28:53.535Z"
     },
     "src/registries/vue-page-registry.ts": {
       "sourceFile": "src/registries/vue-page-registry.ts",
@@ -5384,7 +5384,7 @@
     "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue",
       "shardFile": "files/src/views/features/data-platform/structured-config/data-dictionary/ui/data-dictionary-list-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T14:20:32.540Z"
+      "sourceModifiedAt": "2026-11-11T07:44:13.852Z"
     },
     "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue": {
       "sourceFile": "src/views/features/data-platform/structured-config/data-dictionary/ui/dictionary-data-page.vue",
@@ -5504,7 +5504,7 @@
     "src/views/features/integration/api-management/ui/api-management-page.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-management-page.vue",
       "shardFile": "files/src/views/features/integration/api-management/ui/api-management-page.vue.json",
-      "sourceModifiedAt": "2026-11-08T15:07:50.321Z"
+      "sourceModifiedAt": "2026-11-11T07:44:13.850Z"
     },
     "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue": {
       "sourceFile": "src/views/features/integration/api-management/ui/api-output-edit-dialog.vue",
@@ -5570,6 +5570,11 @@
       "sourceFile": "src/views/features/system/data-recovery/ui/data-recovery-page.vue",
       "shardFile": "files/src/views/features/system/data-recovery/ui/data-recovery-page.vue.json",
       "sourceModifiedAt": "2026-11-11T07:00:17.936Z"
+    },
+    "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue": {
+      "sourceFile": "src/views/features/system/flow-monitor/ui/flow-monitor-page.vue",
+      "shardFile": "files/src/views/features/system/flow-monitor/ui/flow-monitor-page.vue.json",
+      "sourceModifiedAt": "2026-11-11T07:28:31.460Z"
     },
     "src/views/platform/About.vue": {
       "sourceFile": "src/views/platform/About.vue",

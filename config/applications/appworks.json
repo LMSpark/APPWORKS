@@ -23,6 +23,10 @@
       "resourceId": "repository:scenario-view:70D5D8FACCC201A822F64B16A441BE8F", "path": "config/pages/system/data-recovery/pagedata.json"
     },
     {
+      "name": "flowMonitor", "scenarioId": "E328FBBF518141973C575D612CD75151",
+      "resourceId": "repository:scenario-view:E328FBBF518141973C575D612CD75151", "path": "config/pages/system/flow-monitor/pagedata.json"
+    },
+    {
       "name": "businessTableSelector", "scenarioId": "34BDBE645F461A3D83282A941D6037F4",
       "resourceId": "repository:scenario-view:34BDBE645F461A3D83282A941D6037F4", "path": "config/pages/shared/business-table-selector/pagedata.json"
     },

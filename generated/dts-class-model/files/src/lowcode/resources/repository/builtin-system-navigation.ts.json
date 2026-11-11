@@ -271,7 +271,7 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T15:05:33.855Z",
+  "generatedAt": "2026-11-11T07:36:36.771Z",
   "models": {
     "BuiltinBlueprintField": {
       "name": "BuiltinBlueprintField",

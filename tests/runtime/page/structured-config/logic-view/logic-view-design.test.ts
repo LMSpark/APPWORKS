@@ -19,7 +19,7 @@ let http: LogicViewHttp, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
   Base_DataViewList: ['rowid', 'sysid', 'name', 'description', 'createuser'],
   Base_AppSystemList: ['rowid', 'AppDesc', 'AppName'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+  Base_UserInfo: ['ID', 'rowid', 'UserName'],
   View_TblList:['rowid','tblname','tbldesc','dbid','DbName'],
   Base_TblField:['rowid','tblid','enname','cnname','description','DataType','IsPKey'],
   Base_DataServiceInterface:['rowid','Name','Desc','ProviderID'],

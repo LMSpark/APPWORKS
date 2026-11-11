@@ -22,7 +22,7 @@ let http: ApiBackend, runtime: DataSpaceRuntimeApi
 const models = buildFormalModels({
   Base_CodeDesign: ['rowid', 'AppID', 'Name', 'CodeDescription', 'CodeExample', 'createuser', 'createtime'],
   Base_AppSystemList: ['rowid', 'AppName'],
-  Base_UserInfo: ['ID', 'ROWID', 'UserName'],
+  Base_UserInfo: ['ID', 'rowid', 'UserName'],
   Base_StructureType: ['rowid', 'Mrowid', 'Name'],
 }).map(model => ({...model, id: `${LowcodeDataCode.navigationScenarioId}p${({Base_CodeDesign: '000', Base_AppSystemList: '002', Base_UserInfo: '003'} as Record<string, string>)[model.metaName] ?? '001'}`}))
 vi.mock('@/lowcode/lowcode-runtime', () => ({
@@ -38,7 +38,7 @@ beforeEach(() => {
     Base_CodeDesign: [{rowid: 'C1', AppID: 'TARGET', Name: '订单号', BusTableRowid: 'T1', BusTableName: '订单', createuser: 'U-ROW'},
       {rowid: 'C2', AppID: 'OTHER', Name: '其他应用编码'}],
     Base_AppSystemList: [{rowid: 'TARGET', AppName: '目标应用'}, {rowid: 'OTHER', AppName: '其他应用'}],
-    Base_UserInfo: [{ID: 'U-PK', ROWID: 'U-ROW', UserName: '张三'}],
+    Base_UserInfo: [{ID: 'U-PK', rowid: 'U-ROW', UserName: '张三'}],
     Base_CodeNodeDesign: [{rowid: 'N1', CodeDesignID: 'C1', NodeNo: 1, NodeType: 2, ParameterName: 'INV', CodeNodeDesignJson: '{"ConstString":"INV"}'}],
     Dict_CodeNodeType: [{rowid: 'D2', val: '2', txt: '固定字符串', ordIdx: '2'}],
   }

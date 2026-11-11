@@ -46,7 +46,7 @@ describe('AppWorks repository navigation source', () => {
     expect(publishedNodeIds).toEqual(publishedIds)
     expect(navigation.nodes).toHaveLength(publishedIds.length)
     expect(navigation.nodes.filter(item=>item.kind==='Navitem')).toHaveLength(publishedNavitems)
-    expect(navigation.nodes.find(item=>item.id==='E328FBBF518141973C575D612CD75151')).toBeUndefined()
+    expect(navigation.nodes.find(item=>item.id==='E328FBBF518141973C575D612CD75151')).toMatchObject({title:'流程监控',kind:'Model',url:'vue:/features/system/flow-monitor/ui/flow-monitor-page',publishInMenu:true})
   })
 
   it('derives projection size from the declared published identities without weakening validation', () => {

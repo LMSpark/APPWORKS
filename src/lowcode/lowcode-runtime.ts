@@ -329,7 +329,7 @@ function assembleBuiltinSystemNavigation(input: BuiltinNavigationAssemblyInput):
   const nodesById = new Map(input.navigation.nodes.map(node => [node.id, node]))
   const candidateIds = new Set<string>()
   for (const node of input.navigation.nodes) {
-    if (node.kind !== 'Navitem' || !node.publishInMenu || !node.url) continue
+    if (!node.publishInMenu || !node.url) continue
     const authorization = authorizationById.get(node.id)
     if (!authorization) continue
     if (authorization.target !== node.url || authorization.formKey !== node.conid) {

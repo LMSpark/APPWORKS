@@ -112,7 +112,7 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
     if (id === rootId) continue
     const record = recordsById.get(id)
     if (!record) throw new Error(`BUILTIN_NAVIGATION_SOURCE_INVALID: 发布节点 ${id} 不存在于完整蓝图`)
-    if (record['conType'] === 'Navitem' && (typeof record['NavigationUrl'] !== 'string'
+    if ((record['conType'] === 'Navitem' || record['NavigationUrl'] !== null) && (typeof record['NavigationUrl'] !== 'string'
       || !record['NavigationUrl'].startsWith('vue:/') || typeof record['conid'] !== 'string' || !record['conid'].trim())) {
       throw new Error(`BUILTIN_NAVIGATION_SOURCE_INVALID: 发布页面 ${id} 的原生页面目标无效`)
     }
@@ -128,7 +128,7 @@ export function parseBuiltinSystemNavigation(value: unknown): BuiltinSystemNavig
     if (!record) throw new Error(`BUILTIN_NAVIGATION_SOURCE_INVALID: 发布节点 ${id} 不存在于完整蓝图`)
     return projectPublishedNode(record)
   })
-  if (!nodes.some(node => node.kind === 'Navitem')) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 发布选择缺少页面')
+  if (!nodes.some(node => node.url !== undefined)) throw new Error('BUILTIN_NAVIGATION_SOURCE_INVALID: 发布选择缺少页面')
   return {navigationRootId: rootId, records, publishedNodeIds, nodes}
 }
 
@@ -177,7 +177,7 @@ function projectPublishedNode(record: BuiltinBlueprintRecord): NavigationNode {
   const url = record['NavigationUrl']
   return {id: String(record['rowid']), parentId: String(record['prowid']), title: String(record['FunName']),
     order: Number(record['FunOrderValue']), conid: typeof record['conid'] === 'string' ? record['conid'] : '', kind,
-    ...(kind === 'Navitem' ? {url: String(url), publishInMenu: true} : {})}
+    ...(typeof url === 'string' ? {url, publishInMenu: true} : {})}
 }
 
 function getBuiltinSystemApplicationId(): string {

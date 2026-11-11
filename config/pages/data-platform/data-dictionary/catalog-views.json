@@ -13,7 +13,7 @@
               "field": "createuser",
               "sourceViewKey": "__SCENARIO__@Base_UserInfo@default",
               "matchField": "UserName",
-              "valueField": "ROWID"
+              "valueField": "rowid"
             }]
           },
           "sortExpression": [
@@ -53,7 +53,7 @@
           "autoSelectFirst": false,
           "queryConfig": {"allPages": true},
           "sortExpression": [{"field": "ID", "direction": "asc"}],
-          "valueField": "ROWID",
+          "valueField": "rowid",
           "labelField": "UserName"
         }
       }

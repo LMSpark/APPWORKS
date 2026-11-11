@@ -46,13 +46,14 @@ const pending=computed(()=>{revision.value;const view=ds?.getView('CacheDeleteRe
 useSystemPageDirtySource({get isDirty(){return busy.value||pending.value||!!session.value}})
 const categoryFields:SparkNode[]=[{type:'r-text',props:{field:'txt',label:'缓存类型',readonly:true}}]
 const listFields:SparkNode[]=[{type:'r-text',props:{field:'cacheKey',label:'键',readonly:true}},{type:'r-text',props:{field:'cacheValue',label:'值',readonly:true}}]
-const actions=computed<RToolbarProps>(()=>({children:[{type:'r-button',props:{label:'删除',buttonType:'danger',disabled:busy.value||pending.value||!!session.value,onClick:beginDelete}}]}))
+const actions=computed<RToolbarProps>(()=>({children:[{type:'r-button',props:{label:'删除',buttonType:'danger',permAction:'delete',disabled:busy.value||pending.value||!!session.value,onClick:beginDelete}}]}))
 async function beginDelete(row:DataRow):Promise<void>{
  if(busy.value||pending.value||session.value)return
  busy.value=true;error.value=''
  try{
   const original=ds,list=original?.getView('CacheEntries'),command=original?.getView('CacheDeleteRequest')
   if(!original||!list||!command||!list.rows.includes(row)||list.fieldAccess(row,'cacheKey').read!=='visible')throw Error('缺少原正式缓存行')
+  if(list.deleteActionState(row)!=='enabled')throw Error('当前缓存无法确认删除权限')
   list.setCurrentRow(row)
   const added=await command.addRow({key:row['cacheKey']})
   if(!active||original!==ds)return

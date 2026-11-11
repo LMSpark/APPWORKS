@@ -5,8 +5,26 @@ const sets:DataSet[]=[]
 afterEach(()=>sets.splice(0).forEach(ds=>ds.destroy()))
 async function fixture(){const f=await cacheDeleteFixture();sets.push(f.ds);return f}
 it('stages the original readable key and performs a single native command save',async()=>{
- const f=await fixture();await f.command.addRow({key:'A'});expect(f.http.deletes).toBe(0)
+ const f=await fixture();expect(f.list.deleteActionState(f.list.currentRow)).toBe('enabled')
+ await f.command.addRow({key:'A'});expect(f.http.deletes).toBe(0)
  await f.save();expect(f.http.deletes).toBe(1);expect(f.command.rows[0]).toMatchObject({key:'A',outcome:'confirmed'});expect(f.http.keys).toEqual(['B'])
+})
+it.each([
+ {keyless:true,allowDelete:true},
+ {keyless:false,allowDelete:false},
+])('rejects a readable row without a confirmed delete action: %j',async options=>{
+ const f=await cacheDeleteFixture(options);sets.push(f.ds)
+ expect(f.list.fieldAccess(f.list.currentRow!,'cacheKey').read).toBe('visible')
+ expect(f.list.deleteActionState(f.list.currentRow)).not.toBe('enabled')
+ await expect(f.command.addRow({key:'A'})).rejects.toThrow('CACHE_DELETE_PERMISSION')
+ expect(f.command.rows).toEqual([]);expect(f.http.deletes).toBe(0)
+})
+it('rechecks delete permission after staging and before dispatch',async()=>{
+ const f=await fixture();await f.command.addRow({key:'A'})
+ f.list.allowDelete=false
+ await expect(f.save()).rejects.toThrow('CACHE_DELETE_PERMISSION')
+ expect(f.http.deletes).toBe(0);expect(f.command.hasUnconfirmedSave).toBe(false)
+ f.command.discardPendingChanges();expect(f.command.rows).toEqual([])
 })
 it.each(['selection','refresh','key'] as const)('rejects a changed %s before dispatch without replacing the original intent',async mode=>{
  const f=await fixture();await f.command.addRow({key:'A'})

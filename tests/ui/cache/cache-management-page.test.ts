@@ -20,17 +20,17 @@ const cleanups:(()=>void)[]=[]
 const originalStubs=config.global.stubs
 const route=reactive(mocks.route)
 afterEach(()=>{cleanups.splice(0).reverse().forEach(fn=>fn());config.global.stubs=originalStubs;vi.unstubAllGlobals();route.path='/apps/APP/features/system/cache-management/ui/cache-management-page';route.meta.nodeId='CACHE_NODE';vi.clearAllMocks()})
-async function dataFixture(){
+async function dataFixture(keyless=false){
  const scene='348D1C50B204C779AABBE2489C5E2FDF'
  const ds=DataSet.fromJson({scenarioId:scene,tables:{
   CacheCategories:{modelBinding:{modelId:'84e3c2b4-0df0-4b5d-b148-885c7c812baf',modelName:'缓存过滤条件'},columns:[{name:'txt',type:'string'},{name:'val',type:'string'}],views:{default:{autoLoad:false,queryConfig:{pagination:'none'}}}},
-  CacheEntries:{modelBinding:{modelId:'4f22a823-4da7-472c-8b0e-5dc8a7c23b18',modelName:'获取缓存信息'},columns:[{name:'cacheKey',type:'string'},{name:'cacheValue',type:'string'}],views:{default:{autoLoad:false,queryConfig:{pagination:'none'}}}},
+  CacheEntries:{modelBinding:{modelId:'4f22a823-4da7-472c-8b0e-5dc8a7c23b18',modelName:'获取缓存信息'},columns:[...(keyless?[]:[{name:'sourceId',type:'string',isPrimaryKey:true}]),{name:'cacheKey',type:'string'},{name:'cacheValue',type:'string'}],views:{default:{autoLoad:false,queryConfig:{pagination:'none'}}}},
   CacheDeleteRequest:{resourceType:'command',resourceId:'system:cache-delete',columns:[{name:'commandId',type:'string',isPrimaryKey:true},{name:'key',type:'string'},{name:'outcome',type:'string'}],views:{default:{autoLoad:false,commitMode:'staged',queryConfig:{pagination:'none'}}}},
  }})
  const list=ds.getView('CacheEntries')!,commands=ds.getView('CacheDeleteRequest')!,submit=vi.fn(async()=>({commandId:'ONE',key:'A',outcome:'confirmed'}))
- list.bindQueryExecutor({executeQuery:async()=>({rows:[{cacheKey:'A',cacheValue:'value'}],total:1,resultPrimaryKey:'',assertIdentity:()=>undefined,rowKey:()=>undefined,
+ list.bindQueryExecutor({executeQuery:async()=>({rows:[{...(keyless?{}:{sourceId:'ROW-A'}),cacheKey:'A',cacheValue:'value'}],total:1,resultPrimaryKey:keyless?'':'sourceId',assertIdentity:()=>undefined,rowKey:row=>row['sourceId'],
   fieldAccess:()=>({read:'visible' as const,write:'denied' as const,component:'readonly' as const,required:false,writeMode:'readonly' as const}),readFieldAccess:()=> 'visible' as const,
-  addActionState:()=> 'hidden',editActionState:()=> 'hidden',deleteActionState:()=> 'hidden',createChildActionState:()=> 'hidden',viewActionState:()=> 'enabled'})})
+  addActionState:()=> 'hidden',editActionState:()=> 'hidden',deleteActionState:()=> keyless?'hidden':'enabled',createChildActionState:()=> 'hidden',viewActionState:()=> 'enabled'})})
  await list.refresh()
  const categories=ds.getView('CacheCategories')!
  categories.bindQueryExecutor({executeQuery:async()=>({rows:[],total:0,assertIdentity:()=>undefined,rowKey:()=>undefined,fieldAccess:()=>({read:'visible' as const,write:'denied' as const,component:'readonly' as const,required:false,writeMode:'readonly' as const}),readFieldAccess:()=> 'visible' as const,addActionState:()=> 'hidden',editActionState:()=> 'hidden',deleteActionState:()=> 'hidden',createChildActionState:()=> 'hidden',viewActionState:()=> 'enabled'})})
@@ -38,8 +38,8 @@ async function dataFixture(){
  bindDataSetCommandSubmit(commands,{resource:{resourceType:'command',resourceId:'system:cache-delete'},inputFields:['key'],guard:()=>undefined,createKey:()=> 'ONE',submit,verify,isUnconfirmed:failure=>failure instanceof Error&&failure.message==='UNKNOWN'})
  return{ds,list,commands,submit,verify}
 }
-async function fixture(realTable=false){
- const data=await dataFixture()
+async function fixture(realTable=false,keyless=false){
+ const data=await dataFixture(keyless)
  mocks.load.mockResolvedValue(data.ds)
  const TableStub=defineComponent({name:'RendererTable',props:['dataViewKey','actions','children','currentPageSearch'],setup:()=>()=>h('div',{'data-standard-table':''})})
  const ButtonStub=defineComponent({name:'RendererButton',props:['label','disabled'],emits:['click'],setup:(props,{emit})=>()=>h('button',{disabled:props['disabled'],onClick:()=>emit('click')},String(props['label']))})
@@ -102,11 +102,24 @@ it('keeps a lost receipt in the original dialog and verifies without a second di
  await f.wrapper.findAll('button').find(button=>button.text()==='核验原删除结果')!.trigger('click');await flushPromises()
  expect(f.verify).toHaveBeenCalledTimes(1);expect(f.submit).toHaveBeenCalledTimes(1);expect(f.commands.hasUnconfirmedSave).toBe(true)
 })
-it('takes the original keyless source row from a real standard table action',async()=>{
+it('takes the authorized original source row from a real standard table action',async()=>{
  const f=await fixture(true)
  const button=f.wrapper.findAll('button').find(item=>item.text()==='删除')
  expect(button).toBeDefined();await button!.trigger('click');await flushPromises()
  expect(f.commands.rows[0],f.wrapper.text()).toMatchObject({key:'A'});expect(f.submit).not.toHaveBeenCalled()
+})
+it('disables the real standard table action when a keyless row has no delete authorization',async()=>{
+ const f=await fixture(true,true)
+ const button=f.wrapper.findAll('button').find(item=>item.text()==='删除')
+ expect(button).toBeDefined();expect(button!.attributes('disabled')).toBeDefined()
+ await button!.trigger('click');await flushPromises()
+ expect(f.commands.rows).toEqual([]);expect(f.submit).not.toHaveBeenCalled()
+})
+it('rejects a direct stale or unauthorized row callback before staging',async()=>{
+ const f=await fixture(false,true),table=f.wrapper.findAllComponents(RendererTable)[1]!
+ await activateDelete(table.props('actions'),f.list.rows[0]);await flushPromises()
+ expect(f.wrapper.text()).toContain('当前缓存无法确认删除权限')
+ expect(f.commands.rows).toEqual([]);expect(f.submit).not.toHaveBeenCalled()
 })
 it('preserves an open command across route changes and explicitly continues to the new target after cancel',async()=>{
  const f=await fixture(),destroy=vi.spyOn(f.ds,'destroy')

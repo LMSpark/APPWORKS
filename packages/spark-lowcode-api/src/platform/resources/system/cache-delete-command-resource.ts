@@ -26,6 +26,9 @@ export class CacheDeleteCommandResource{
    if(!intent||row['key']!==intent.key)throw Error('CACHE_DELETE_CAPTURE: 命令与原删除意图不符')
    return intent
   }
+  const assertDelete=(row:DataRow)=>{
+   if(list.deleteActionState(row)!=='enabled')throw Error('CACHE_DELETE_PERMISSION: 当前缓存无法确认删除权限')
+  }
   const receipt=(row:Readonly<DataRow>)=>({[command.primaryKey]:row[command.primaryKey],key:row['key'],outcome:'confirmed'})
   guard()
   return{resource:{resourceType:'command',resourceId},inputFields:['key'],guard,createKey:()=>crypto.randomUUID(),
@@ -36,6 +39,7 @@ export class CacheDeleteCommandResource{
     if(typeof id!=='string'||!id||intents.has(id)||command.hasUnconfirmedSave||[...intents.values()].some(intent=>intent.phase==='dispatched'||intent.phase==='unknown'))throw Error('CACHE_DELETE_CAPTURE: 原命令未处理或命令身份重复')
     if(typeof key!=='string'||!key.trim()||!source||!list.rows.includes(source)||list.fieldAccess(source,'cacheKey').read!=='visible'
      ||source['cacheKey']!==key||list.hasEditingChanges()||list.dirtyTracking.hasPendingChanges())throw Error('CACHE_DELETE_SOURCE: 缺少原可读缓存键或列表已有修改')
+    assertDelete(source)
     const assertRead=list.captureReadRow(source,['cacheKey'])
     intents.set(id,{key,row:source,assertRead,phase:'prepared'})
    },
@@ -47,6 +51,7 @@ export class CacheDeleteCommandResource{
     intent.assertRead()
     if(list.currentRow!==intent.row||!list.rows.includes(intent.row)||list.fieldAccess(intent.row,'cacheKey').read!=='visible'
      ||intent.row['cacheKey']!==intent.key||list.hasEditingChanges()||list.dirtyTracking.hasPendingChanges())throw Error('CACHE_DELETE_SOURCE: 原缓存行、分类或读取身份已变化')
+    assertDelete(intent.row)
     intent.phase='dispatched'
     try{
      const result=await runtime.executeModelCommand(definition,{key:intent.key});guard()

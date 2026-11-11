@@ -41,7 +41,7 @@ it('rejects a mismatched declared model before assembly or service reads',()=>{
  expect(http.calls).toBe(0)
 })
 
-it('uses the configured category cascade, native pages and staged deletion in one assembled DataSet',async()=>{
+it('uses the configured category cascade and native pages, but rejects keyless deletion',async()=>{
  class CacheHttp extends HttpClientBase{
   requests:RequestConfig[]=[];deletes=0;keys=['A','B','C']
   protected override async executeRequest(request:RequestConfig):Promise<HttpResponse<unknown>>{
@@ -58,7 +58,7 @@ it('uses the configured category cascade, native pages and staged deletion in on
     if(table['Name']==='获取缓存信息'){
      expect(values['prefix']).toBe('USER_INFO');expect(body).not.toHaveProperty('PageParam')
      const page=Number(values['page']),size=Number(values['size'])
-     rows=this.keys.slice((page-1)*size,page*size).map(cacheKey=>({cacheKey,cacheValue:'hidden',lingma_sys_params:{r:[],e:[],h:['cacheValue']}}))
+     rows=this.keys.slice((page-1)*size,page*size).map(cacheKey=>({cacheKey,cacheValue:'hidden',lingma_sys_params:{r:[],e:[],h:['cacheValue'],d:true}}))
     }else if(table['Name']==='根据键删除缓存中的值'){
      this.deletes++;this.keys=this.keys.filter(key=>key!==values['key']);rows=[{Code:'200',Type:'success'}]
     }else throw Error('unexpected model')
@@ -78,9 +78,7 @@ it('uses the configured category cascade, native pages and staged deletion in on
  await list.setPage(2)
  expect(list.rows.map(row=>row['cacheKey'])).toEqual(['C']);expect(list.nextPageAvailable).toBe(false);expect(http.requests).toHaveLength(5)
  await list.setPage(1);list.setCurrentRow(list.rows[0]!)
- await command.refresh();await command.addRow({key:'A'});expect(http.deletes).toBe(0)
- command.discardPendingChanges();expect(http.deletes).toBe(0)
- await command.addRow({key:'A'});await ds.saveChanges({views:[{tableName:'CacheDeleteRequest',viewId:'default'}]})
- expect(http.deletes).toBe(1);expect(command.rows[0]).toMatchObject({key:'A',outcome:'confirmed'})
- await list.refresh();expect(list.rows.map(row=>row['cacheKey'])).toEqual(['B','C']);expect(list.nextPageAvailable).toBe(false)
+ expect(list.deleteActionState(list.currentRow)).toBe('hidden')
+ await command.refresh();await expect(command.addRow({key:'A'})).rejects.toThrow('CACHE_DELETE_PERMISSION')
+ expect(command.rows).toEqual([]);expect(http.deletes).toBe(0)
 })

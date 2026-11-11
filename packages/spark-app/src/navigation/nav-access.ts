@@ -21,12 +21,12 @@ import type { DynamicRouter } from '../router/dynamic'
 
 /** 初始化选项 */
 type NavAccessOptions = {
-  /** 导航树未加载时的回退首页路径（默认 '/dashboard'） */
+  /** 导航树未加载时的回退首页路径（默认 '/dev' 开发工作台） */
   defaultHomePath?: string}
 
 /** DynamicRouter 实例引用，由 start.ts 通过 setDynamicRouter 注入 */
 let _dynamicRouter: DynamicRouter | null = null
-let _defaultHomePath = '/dashboard'
+let _defaultHomePath = '/dev'
 
 /** 注册 DynamicRouter 实例（start.ts 中调用） */
 export function setDynamicRouter(router: DynamicRouter, options?: NavAccessOptions): void {

@@ -46,7 +46,7 @@ AI用途：需要理解应用入口、平台视图或业务服务接线时，用
             </el-form-item>
           </div>
           <el-form-item label="首页路径">
-            <el-input v-model="form.homePath" placeholder="/ 或 /dashboard" />
+            <el-input v-model="form.homePath" placeholder="/ 或 /dev" />
           </el-form-item>
           <el-form-item label="日志级别">
             <el-select v-model="form.logLevel" placeholder="选择日志级别">

@@ -1055,7 +1055,6 @@ describe('lowcode project navigation projection', () => {
     })
     expect(projection.items.at(-1)?.children?.map((child) => child.path)).toEqual([
       '/cache-manager',
-      '/dashboard',
       '/workflow-designs',
       '/dev',
     ])
@@ -1078,6 +1077,15 @@ describe('lowcode project navigation projection', () => {
     expect(projection.homePath).toBe('/__page/NODE-1?scenarioId=SCENE-1')
     expect(projection.items[0]).not.toHaveProperty('formKey')
     expect(projection.items[0]?.path).not.toContain('orders')
+  })
+
+  it('lands apps without business pages on the development workbench with its navigation identity', () => {
+    const projection = assembleLowcodeRuntimeNavigation({
+      applicationName: '空应用', projectId: 'PROJECT-1', navigationRootId: 'ROOT-1',
+      records: [], authorization: { items: [], contexts: [] },
+    })
+
+    expect(projection.homePath).toBe(`/dev?${SYSTEM_PAGE_NAVIGATION_ID_QUERY}=appworks-tool-dev`)
   })
 
   it('rejects cfg navigation targets that cannot name one tool file directory', () => {

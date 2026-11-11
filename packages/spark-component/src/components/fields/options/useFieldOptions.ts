@@ -132,7 +132,9 @@ export function useFieldOptions(props: FieldOptionProps, binding = useActiveFiel
   const refreshPointer = () => {if(resolvedOptionDataMember.value===DataMember.Rows)refreshOptions();else invalidateOptions()}
   watch([() => props.optionValueTrim, () => props.optionValueField, () => props.optionChildrenField],
     ([active], [previous]) => {if (active || previous) invalidateOptions()}, {flush: 'sync'})
-  watch(optionDataView, () => {if (props.optionValueTrim) invalidateOptions()}, {flush: 'sync'})
+  // Pre-flush lets the parent unmount stale fields before a removed option view is resolved.
+  watch(() => props.optionValueTrim ? optionDataView.value : undefined,
+    (view, previous) => {if (view !== previous) invalidateOptions()})
   useDataViewEventBridge({resolvedView: optionDataView, onRowsChanged: invalidateOptions, onCleared: invalidateOptions,
     onRequestStateChanged: invalidateOptions, onConfigChanged: invalidateOptions,
     onCurrentRowChanged: refreshPointer, onSelectedRowsChanged: refreshPointer, onEditingChanged: refreshOptions})

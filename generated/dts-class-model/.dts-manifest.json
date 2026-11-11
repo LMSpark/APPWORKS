@@ -564,7 +564,7 @@
     "packages/spark-app/src/navigation/nav-access.ts": {
       "sourceFile": "packages/spark-app/src/navigation/nav-access.ts",
       "shardFile": "files/packages/spark-app/src/navigation/nav-access.ts.json",
-      "sourceModifiedAt": "2026-10-06T19:58:46.707Z"
+      "sourceModifiedAt": "2026-11-11T04:02:24.311Z"
     },
     "packages/spark-app/src/navigation/nav-types.ts": {
       "sourceFile": "packages/spark-app/src/navigation/nav-types.ts",
@@ -2384,7 +2384,7 @@
     "packages/spark-component/src/components/fields/options/useFieldOptions.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useFieldOptions.ts",
       "shardFile": "files/packages/spark-component/src/components/fields/options/useFieldOptions.ts.json",
-      "sourceModifiedAt": "2026-11-10T15:42:36.410Z"
+      "sourceModifiedAt": "2026-11-11T04:04:35.180Z"
     },
     "packages/spark-component/src/components/fields/options/useInputParameterFunctionContext.ts": {
       "sourceFile": "packages/spark-component/src/components/fields/options/useInputParameterFunctionContext.ts",
@@ -4009,7 +4009,7 @@
     "src/lowcode/lowcode-runtime.ts": {
       "sourceFile": "src/lowcode/lowcode-runtime.ts",
       "shardFile": "files/src/lowcode/lowcode-runtime.ts.json",
-      "sourceModifiedAt": "2026-11-10T09:44:40.190Z"
+      "sourceModifiedAt": "2026-11-11T04:11:02.714Z"
     },
     "src/lowcode/resources/database/catalog/db-view-ops.ts": {
       "sourceFile": "src/lowcode/resources/database/catalog/db-view-ops.ts",
@@ -4806,21 +4806,6 @@
       "shardFile": "files/src/views/app/CacheManager.vue.json",
       "sourceModifiedAt": "2026-11-08T18:16:43.508Z"
     },
-    "src/views/app/demo/CustomRTableDemo.vue": {
-      "sourceFile": "src/views/app/demo/CustomRTableDemo.vue",
-      "shardFile": "files/src/views/app/demo/CustomRTableDemo.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:14:12.410Z"
-    },
-    "src/views/app/demo/Dashboard.vue": {
-      "sourceFile": "src/views/app/demo/Dashboard.vue",
-      "shardFile": "files/src/views/app/demo/Dashboard.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:14:14.358Z"
-    },
-    "src/views/app/demo/RFormCompareDemo.vue": {
-      "sourceFile": "src/views/app/demo/RFormCompareDemo.vue",
-      "shardFile": "files/src/views/app/demo/RFormCompareDemo.vue.json",
-      "sourceModifiedAt": "2026-10-30T19:14:11.568Z"
-    },
     "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts": {
       "sourceFile": "src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts",
       "shardFile": "files/src/views/app/dev-system/blueprint-workspace/blueprint-readonly-info.ts.json",
@@ -5589,7 +5574,7 @@
     "src/views/platform/TenantConfigPanel.vue": {
       "sourceFile": "src/views/platform/TenantConfigPanel.vue",
       "shardFile": "files/src/views/platform/TenantConfigPanel.vue.json",
-      "sourceModifiedAt": "2026-08-09T22:53:30.711Z"
+      "sourceModifiedAt": "2026-11-11T04:02:24.318Z"
     }
   }
 }

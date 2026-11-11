@@ -260,6 +260,15 @@ function firstRuntimePage(items: readonly RuntimeNavigationItem[]): RuntimeNavig
   return undefined
 }
 
+/** Apps without business pages land on the development workbench shell tool, keeping its navigation identity. */
+function runtimeLanding(
+  businessItems: readonly RuntimeNavigationItem[],
+  navigationItems: readonly RuntimeNavigationItem[],
+): RuntimeNavigationItem | undefined {
+  return firstRuntimePage(businessItems)
+    ?? navigationItems.find(item => item.id === 'appworks-system-tools')?.children?.find(item => item.path === '/dev')
+}
+
 function systemPageLandingPath(item: RuntimeNavigationItem): string {
   const path = item.path
   if (path === undefined || item.itemKind !== 'system-page') return path ?? ''
@@ -355,10 +364,11 @@ function assembleBuiltinSystemNavigation(input: BuiltinNavigationAssemblyInput):
   }
   const items = sortBuiltinNavigationNodes(candidates.filter(node => !candidateIds.has(node.parentId)))
     .map(node => buildBuiltinNavigationItem(node, childrenByParent, pageByPath))
-  const landing = firstRuntimePage(items)
+  const navigationItems = withShellSystemTools(items)
+  const landing = runtimeLanding(items, navigationItems)
   const homePath = landing?.itemKind === 'system-page' ? systemPageLandingPath(landing) : landing?.path
   return {id: input.navigation.navigationRootId, projectId: input.projectId, title: input.applicationName,
-    childPlacement: 'header', ...(homePath === undefined ? {} : {homePath}), items: withShellSystemTools(items)}
+    childPlacement: 'header', ...(homePath === undefined ? {} : {homePath}), items: navigationItems}
 }
 
 function sortBuiltinNavigationNodes(nodes: ReadonlyArray<BuiltinSystemNavigation['nodes'][number]>): Array<BuiltinSystemNavigation['nodes'][number]> {
@@ -398,7 +408,8 @@ export function assembleLowcodeRuntimeNavigation(
   const businessChildren = sortBlueprintRecords(
     candidates.filter(record => !candidateIds.has(record.parentNodeId)),
   ).map(record => buildRuntimeNavigationItem(record, childrenByParent, authorizationById))
-  const landingItem = firstRuntimePage(businessChildren)
+  const navigationItems = withShellSystemTools(businessChildren)
+  const landingItem = runtimeLanding(businessChildren, navigationItems)
   const homePath = landingItem?.itemKind === 'system-page'
     ? systemPageLandingPath(landingItem)
     : landingItem?.path
@@ -408,7 +419,7 @@ export function assembleLowcodeRuntimeNavigation(
     title: input.applicationName,
     childPlacement: 'header',
     ...(homePath === undefined ? {} : { homePath }),
-    items: withShellSystemTools(businessChildren),
+    items: navigationItems,
   }
 }
 

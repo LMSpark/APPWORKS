@@ -23,7 +23,7 @@
     },
     "pageNode": {
         "apiBaseUrl": "/api",
-        "homePath": "/dashboard"
+        "homePath": "/dev"
     },
     "logger": {
         "level": "info",

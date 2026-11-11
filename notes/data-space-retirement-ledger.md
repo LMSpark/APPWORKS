@@ -9218,3 +9218,10 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **BUG 管理待核合同。** 固定参考页包含列表搜索、分页、详情编辑、四类选项及保存；“处理时间”以 `HandleDate` 读入、编辑并随 changed 提交，参考场景测试只验证空间隔离，并未证明该字段可由服务持久化。实服 `5B54AEBD5BD1BBC72710D4022589A404` 有五个所需模型，但 `HandleDate` 不在正式 `Base_Bug_Info` 字段中；`CompletionDate`、`ExpectedCompletionDate`、`ZuiHouTime` 的正式语义分别是实际完成、预计完成和最后修改时间，不能自行替换。`FkType` 为 `int` 而字典 `val` 为 `varchar`，还须核实映射与真实保存合同；尚未实施 BUG 页面迁移。
 - **逻辑视图补充对照。** 对同一正式应用、场景和目标 `viewId` 的 `GetView`，空请求体与 `{}` 请求体均返回 `Code=1003`；不能将该结果认定为空设计或文件缺失，也不能从本地 Java 参考源码推定部署服务的根因。三个备用发布入口仍按上一节登记为未修复。
 - **工作边界。** 本轮未修改后端 Java、未新增或启动 Node.js 服务，未对实服执行业务新增、保存或删除。
+
+### 应用数据库关联续查与烟测断点
+
+- **参考业务。** 固定参考的独立页 `features/application/application-context/ui/application-database-relations-page.vue` 接收应用 `sysid`，按应用及 `type=database` 查询关联，再按 `conid` 查询数据库；选择候选时调用 `db_relation_sel`，输入为 `conidsArray`、`database` 和 `sysid`。选择后新增 `Base_AppAndSource_Relation`，写入 `conid/type/sysid/conName/cnName/isRef=1`；删除使用关系 `rowid`，默认库 `isRef=0` 不可删除，取消选择不写入。参考读取关联及数据库的上限各为 1000，不能据此认定已读取全部数据。
+- **本仓差距与下一步。** 应用管理 0C70 当前的关系 `default` 视图只加载 `isRef=0` 的默认库，数据库视图只投影 `Id/Name`，不能冒充全部关联或完整候选；独立导航节点 93DF 属于另一正式场景。历史只读证据在 93DF 记录了 `_base_dbInfo` 和 `db_relation_show/sel`，其中 `db_relation_sel` 仅证明当时查询成功，返回字段未形成可用于选择的证据；不据此断言关系模型不存在或借用 0C70 的查询权限。续做时先核对两场景各自的正式模型身份、候选 `Id/Name/Remark` 输出、关系写入字段及当次权限，再以各自正式 DataView 实现查询、选择、取消、新增和非默认关联删除，并分别验证真实回执和精确回读；两入口复用领域规则，不新建页面侧保存通道。
+- **本轮验证范围。** `pnpm exec vitest run tests\runtime\application\application-manager\application-manager-page.test.ts` 通过 43 项，属于夹具测试，不是实服写入验收。可控制的共享标签刷新登录页后，标题、账号、密码和登录按钮可见，未观察到页面异常或请求失败；这只证明公开登录入口可加载。用户共享的应用列表标签在浏览器工具中返回“页面不存在”，不证明用户当前页面退出或登录态失效；另一个共享标签仍未登录，故本轮未验证认证页面或执行写入。
+- **状态。** 本轮未修改业务代码、后端 Java，也未新增 Node.js 服务；应用管理完整迁移和认证实服烟测仍开放。固定参考列表只提供关键词筛选，`AppType` 是状态显示，前文“状态筛选”属于当时记录误述。

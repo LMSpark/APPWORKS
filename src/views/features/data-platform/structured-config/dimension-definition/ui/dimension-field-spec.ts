@@ -4,27 +4,13 @@
  * 边界：只描述字段与纯校验；跨记录约束（唯一性、引用、启用前置）由页面基于正式DataView结果判断。
  */
 import type {DataRow} from '@spark-appworks/spark-data'
+import type {FeatureFieldOption, FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
 
-type Option = Readonly<{value: string | number | boolean; label: string}>
-
-/** 统一记录对话框中的一个字段。when 返回 false 时隐藏且不参与必填检查。 */
-export type DimensionFieldSpec = Readonly<{
-  field: string
-  label: string
-  kind?: 'text' | 'textarea' | 'number' | 'select' | 'switch'
-  options?: readonly Option[]
-  optionKey?: string
-  labelFields?: string[]
-  required?: boolean
-  readonly?: boolean
-  when?: (row: Readonly<DataRow>) => boolean
-}>
-
-const opts = (pairs: Record<string, string>): Option[] => Object.entries(pairs).map(([value, label]) => ({value, label}))
-export const STATUS_OPTIONS: readonly Option[] = [{value: 1, label: '启用'}, {value: 0, label: '停用'}]
+const opts = (pairs: Record<string, string>): FeatureFieldOption[] => Object.entries(pairs).map(([value, label]) => ({value, label}))
+export const STATUS_OPTIONS: readonly FeatureFieldOption[] = [{value: 1, label: '启用'}, {value: 0, label: '停用'}]
 /** 只读列展示：各模型状态/标志列有0/1数值与布尔两种正式类型。 */
-export const FLAG_DISPLAY: readonly Option[] = [...STATUS_OPTIONS, {value: true, label: '启用'}, {value: false, label: '停用'}]
-export const YES_NO_DISPLAY: readonly Option[] = [{value: 1, label: '是'}, {value: 0, label: '否'}, {value: true, label: '是'}, {value: false, label: '否'}]
+export const FLAG_DISPLAY: readonly FeatureFieldOption[] = [...STATUS_OPTIONS, {value: true, label: '启用'}, {value: false, label: '停用'}]
+export const YES_NO_DISPLAY: readonly FeatureFieldOption[] = [{value: 1, label: '是'}, {value: 0, label: '否'}, {value: true, label: '是'}, {value: false, label: '否'}]
 const OPERATORS = opts({equal: '等于', contains: '包含', notnull: '非空', notzero: '非零'})
 const CONST_FIELD = opts({CONST: '常量', FIELD: '字段'})
 const CONST_FIELD_FUNC = opts({CONST: '常量', FIELD: '字段', FUNC: '函数'})
@@ -38,12 +24,12 @@ export const enabled = (row: Readonly<DataRow> | undefined, field: string): bool
   return raw === true || raw === 1 || raw === '1' || raw === 'true'
 }
 const has = (field: string) => (row: Readonly<DataRow>) => text(row, field) !== ''
-const typed = (type: string, field: string, label: string): DimensionFieldSpec[] => [
+const typed = (type: string, field: string, label: string): FeatureFieldSpec[] => [
   {field: type, label: `${label}类型`, kind: 'select', options: CONST_FIELD_FUNC},
   {field, label: `${label}表达式`, required: true, when: has(type)},
 ]
 
-export const DEFINITION_SPECS: readonly DimensionFieldSpec[] = [
+export const DEFINITION_SPECS: readonly FeatureFieldSpec[] = [
   {field: 'category_code', label: '维度分类'},
   {field: 'definition_code', label: '维度编码', required: true},
   {field: 'definition_name', label: '维度名称', required: true},
@@ -59,7 +45,7 @@ export const DEFINITION_SPECS: readonly DimensionFieldSpec[] = [
   {field: 'description', label: '说明', kind: 'textarea'},
 ]
 
-export const CATEGORY_SPECS: readonly DimensionFieldSpec[] = [
+export const CATEGORY_SPECS: readonly FeatureFieldSpec[] = [
   {field: 'biz_category_code', label: '分类编码', required: true},
   {field: 'biz_category_name', label: '分类名称', required: true},
   {field: 'sort_no', label: '排序', kind: 'number'},
@@ -67,7 +53,7 @@ export const CATEGORY_SPECS: readonly DimensionFieldSpec[] = [
   {field: 'description', label: '说明', kind: 'textarea'},
 ]
 
-export function ruleSpecs(eventKey: string): DimensionFieldSpec[] {
+export function ruleSpecs(eventKey: string): FeatureFieldSpec[] {
   return [
     {field: 'rule_code', label: '规则编码', required: true},
     {field: 'rule_name', label: '规则名称', required: true},
@@ -83,7 +69,7 @@ export function ruleSpecs(eventKey: string): DimensionFieldSpec[] {
   ]
 }
 
-export function conditionSpecs(resultKey: string): DimensionFieldSpec[] {
+export function conditionSpecs(resultKey: string): FeatureFieldSpec[] {
   const compares = (row: Readonly<DataRow>) => !['notnull', 'notzero'].includes(text(row, 'operator'))
   return [
     {field: 'result_id', label: '作用结果', kind: 'select', optionKey: resultKey, labelFields: ['dim_code', 'collection_path']},
@@ -97,7 +83,7 @@ export function conditionSpecs(resultKey: string): DimensionFieldSpec[] {
   ]
 }
 
-export const RESULT_SPECS: readonly DimensionFieldSpec[] = [
+export const RESULT_SPECS: readonly FeatureFieldSpec[] = [
   {field: 'dim_category', label: '维度分类', required: true},
   {field: 'collection_path', label: '集合路径'},
   {field: 'dim_code_type', label: '维度编码来源', kind: 'select', options: CONST_FIELD, required: true},

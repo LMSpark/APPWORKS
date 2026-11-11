@@ -91,6 +91,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/integration/report/ui/report-management-page",
+      "title": "业务报表管理",
+      "icon": "Document",
+      "scope": "app",
+      "source": "src/views/features/integration/report/ui/report-management-page.vue",
+      "description": "AppWorks 系统导航登记的原生业务报表管理页面",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/features/application/application-context/ui/application-database-relations-page",
       "title": "关联数据库",
       "icon": "Coin",

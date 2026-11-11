@@ -1,0 +1,79 @@
+{
+  "scenarioId": "FB291E325272007AEED8921C28B93CFD",
+  "schemaVersion": 2,
+  "resourceRelations": [],
+  "tables": {
+    "Base_ReportInfo": {
+      "modelBinding": {"modelId": "5203f1d7-ed44-4a1a-a388-02d84793f5ee", "modelName": "Base_ReportInfo"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged",
+        "page": 1, "pageSize": 10,
+        "sortExpression": [{"field": "CreateTime", "direction": "desc"}],
+        "queryConfig": {"fields": ["rowid", "RptName", "RptDesc", "CreateTime", "createuser", "version_id", "version_dataid",
+          "useStatus", "modid", "modname"]}
+      }}
+    },
+    "Base_Report": {
+      "modelBinding": {"modelId": "8d92797f-31aa-49f4-b6e3-fdbfa67ab038", "modelName": "Base_Report"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 500,
+          "valueField": "rowid", "labelField": "Version",
+          "queryConfig": {"allPages": true, "fields": ["rowid", "Version", "DataFormID", "createuser", "createtime", "State", "RptID",
+            "isMerg", "isDashboards"]}
+        },
+        "byReport": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "commitMode": "staged", "pageSize": 200,
+          "filterExpression": {"field": "RptID", "operator": "eq", "value": {"Type": "GetInputParam", "ParamName": "reportId"}},
+          "sortExpression": [{"field": "createtime", "direction": "desc"}],
+          "queryConfig": {"allPages": true, "fields": ["rowid", "Version", "DataFormID", "createuser", "createtime", "State", "RptID", "isMerg",
+            "isDashboards"]}
+        }
+      }
+    },
+    "Base_AppSystemList": {
+      "modelBinding": {"modelId": "b92c3240-2c9e-4a87-bc6e-1b82eab50992", "modelName": "Base_AppSystemList"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+        "valueField": "rowid", "labelField": "AppDesc",
+        "queryConfig": {"allPages": true, "fields": ["rowid", "AppDesc"]}
+      }}
+    },
+    "Base_UserInfo": {
+      "modelBinding": {"modelId": "fc929e22-dbd6-4884-95e6-9896e7434ff9", "modelName": "Base_UserInfo"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 500,
+          "valueField": "rowid", "labelField": "UserName",
+          "queryConfig": {"allPages": true, "fields": ["rowid", "UserName"]}
+        }
+      }
+    },
+    "Base_DataSet": {
+      "modelBinding": {"modelId": "e182e6d4-7841-4900-a5de-c4072d07d38a", "modelName": "Base_DataSet"},
+      "views": {
+        "default": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 1000,
+          "valueField": "rowid", "labelField": "Name",
+          "queryConfig": {"allPages": true, "fields": ["rowid", "Name"]}
+        },
+        "picker": {
+          "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false,
+          "page": 1, "pageSize": 10,
+          "sortExpression": [{"field": "createtime", "direction": "desc"}],
+          "queryConfig": {"fields": ["rowid", "Name", "createtime"]}
+        }
+      }
+    },
+    "功能导航状态字典": {
+      "modelBinding": {"modelId": "0757d812-fd63-4641-b798-da2253f824f4", "modelName": "功能导航状态字典"},
+      "views": {"default": {
+        "autoLoad": false, "autoCurrentFirst": false, "autoSelectFirst": false, "pageSize": 100,
+        "valueField": "val", "labelField": "txt",
+        "sortExpression": [{"field": "ordIdx", "direction": "asc"}],
+        "queryConfig": {"allPages": true, "fields": ["rowid", "val", "txt", "ordIdx"]}
+      }}
+    }
+  },
+  "viewCascades": []
+}

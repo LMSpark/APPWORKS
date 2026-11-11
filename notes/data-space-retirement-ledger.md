@@ -9287,3 +9287,24 @@ bc552fa52 把设计器元空间的 `ProjectToolCatalog` 改为只读 logical-vie
 - **断链修复。** 导航节点 `conid` 为空：系统导航校验允许空 `conid`，由 `vue-pages.json` 的 `dataSpaceId` 提供场景，两者皆缺时报 `BUILTIN_NAVIGATION_DATA_SPACE_MISSING`。参考路径保留 `index.vue` 后，组件扫描把两个 `index.vue` 生成同名导入，`virtual:spark-components` 报 “Identifier 'index' has already been declared”；`src/views/**/index.vue` 页面入口由 `vue-page-registry` 按路径懒加载，已从组件扫描排除。应用管理页测试仍断言“关联数据库”禁用，与已恢复的入口不符，已更正。
 - **已登记差距。** 参考调用 `infra.file-manager`（`/infra/file/page`），实服返回 “No static resource”，改用既有 `/api/File` 合同；列表接口不返回大小，“大小”列未恢复。`RendererTable` 无空状态文案属性，“暂无文件，请点击上传”未恢复。
 - **验证。** typecheck、改动文件 ESLint、`FileDataResource`/上传/导航/配置 vitest、`verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen` 通过。实服烟测：菜单出现“文件数据管理→文件管理”，列表 19 条分页 15；上传 `smoke-fm-*.txt` 得 ACK `/NewApp/…`、字节核验通过并出现在列表；文件名筛选 1 条，确认删除后 `RemoveFile` 成功、列表为空。未改 Java，未新增 Node.js 服务。
+
+### 2026-11-11 集成迁移：业务报表管理
+
+- **迁移落点。** 参考 `features/integration/report/ui/` 按原路径恢复为 `report-management-page.vue` 及新增/历史版本/模型三个对话框。导航 `FB291E325272007AEED8921C28B93CFD` 同时作为场景，配置在 `config/pages/integration/report-management/pagedata.json`。涉及模型：`Base_ReportInfo` 列表（分页 10）、`Base_Report`（`default` 选项；`byReport` 按调用输入 `reportId` 过滤）、`Base_AppSystemList`、`Base_UserInfo`、`Base_DataSet`（`default` 选项；`picker` 分页选择）及 `功能导航状态字典`。新增报表时，报表与首个版本（`Version='0'`、`State='1'`）在同一次 `saveChanges` 中提交；启动版本时，切换各版本状态与报表 `version_id`/`version_dataid` 也在同一次提交中完成；绑定模型同时更新报表与启用版本的 `DataFormID`。单记录编辑对话框从维度中心抽出为共用的 `src/views/features/shared/record/feature-record-dialog.vue`，并增加 `radio` 字段类型，维度中心同步改用（原 `dimension-record-dialog.vue` 已移除）。
+- **断链修复。**
+  - 查询页大小上限为 1000，`Base_DataSet` 选项视图（共 1537 条）改为 `allPages` + `pageSize: 1000`。
+  - `Base_UserInfo` 的 `rowid` 才是 `U00xxx` 用户身份，两处“创建人”都改按 `rowid` 显示，合并为一个视图。
+  - `Base_Report` 的 `State`/`isMerg`/`isDashboards` 在模型中声明为 varchar：前端写入 `'1'`/`'0'` 字符串，读取时兼容数值。
+  - 共用对话框传入空数组 `optionLabelFields` 时，下拉与单选字段不渲染；现在只在声明了标签字段时才传。
+  - 参考的版本列表未按报表过滤，新建版本也未写 `RptID`，已更正。
+  - 参考删除报表会遗留版本记录，现改为与其全部版本在同一次提交中删除。
+- **已登记差距。** 报表设计/预览依赖 `@spark-template/report-ui` 的 ReportHost 引擎，导航 `DEB19A7882B6B91C816FBA700641AB2C` 的 URL 为空，未恢复。模板 `.docx` 上传需在 `lowcode-design-file-upload.ts` 增加 designfile/Report 二进制区，未恢复。`Base_AppSystemList` 按当前用户范围只返回 1 个应用，其他应用的 `modid` 显示原值；部分 `version_dataid` 指向已不存在的模型，也显示原值。
+- **验证。** 已通过：typecheck、改动文件 ESLint、配置/导航 vitest（82），以及 `verify:page-thin`/`docs`/`lowcode-contracts`/`ai-codegen`。实服烟测：
+  - 列表 30 条，应用、创建人、版本、模型、状态均按选项显示。
+  - 新增报表时后端回填创建时间与创建人；合并报表与看板互斥。
+  - 编辑可修改名称与使用状态（单选）。
+  - 新增版本 `v2烟测` 并启动后，列表显示该版本；删除启用中的版本被拦截。
+  - 绑定模型后列表显示模型名。
+  - 删除报表后，`Base_Report` 由 37 条回到 35 条。
+  - 维度中心编辑对话框复测正常。
+  - 未改 Java，未新增 Node.js 服务。

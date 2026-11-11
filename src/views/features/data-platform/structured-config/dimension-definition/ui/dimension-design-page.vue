@@ -62,7 +62,7 @@ AI用途：迁移参考仓 integration/dimension 页面时，核对规则启用�
           :current-page-search="search('biz_category_code', 'biz_category_name')" :show-data-view-meta="false" />
       </RendererTabPane>
     </RendererTabs>
-    <DimensionRecordDialog v-if="ready && dialog" :key="dialog.epoch" :data-view-key="dialog.key" :record-id="dialog.id" :created="dialog.created"
+    <FeatureRecordDialog v-if="ready && dialog" :key="dialog.epoch" :data-view-key="dialog.key" :record-id="dialog.id" :created="dialog.created"
       :title="dialog.title" :specs="dialog.specs" :columns="dialog.columns" :width="dialog.columns === 2 ? 900 : 660" :validate="dialog.validate"
       @close="closeDialog" />
   </section>
@@ -74,9 +74,10 @@ import {ElMessageBox} from 'element-plus'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, RendererTabs, RendererTabPane, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
-import DimensionRecordDialog from './dimension-record-dialog.vue'
-import {CATEGORY_SPECS, DEFINITION_SPECS, FLAG_DISPLAY, RESULT_SPECS, YES_NO_DISPLAY, conditionSpecs, enabled, ruleSpecs, text, validateResult,
-  type DimensionFieldSpec} from './dimension-field-spec'
+import FeatureRecordDialog from '@/views/features/shared/record/feature-record-dialog.vue'
+import type {FeatureFieldSpec} from '@/views/features/shared/record/feature-field-spec'
+import {CATEGORY_SPECS, DEFINITION_SPECS, FLAG_DISPLAY, RESULT_SPECS, YES_NO_DISPLAY, conditionSpecs, enabled, ruleSpecs, text, validateResult}
+  from './dimension-field-spec'
 
 const scenarioId = '88A4D51B01702C3856F4632E234BF34B'
 const key = (model: string, view = 'default') => buildDataViewKey(`Bil_Dimension_${model}`, view, scenarioId)
@@ -88,7 +89,7 @@ const templateKey = key('Rule_Template'), ruleKey = key('Rule'), definitionKey =
 const categoryKey = key('Biz_Category'), mappingKey = key('Source_Mapping', 'byBinding'), eventBindingKey = key('Source_Binding', 'byEvent')
 const conditionKey = key('Rule_Condition', 'byRule'), resultKey = key('Rule_Result', 'byRule'), dictItemKey = key('Dict_Item', 'byType')
 
-type Dialog = Readonly<{key: string; id: string | number; created: boolean; title: string; specs: readonly DimensionFieldSpec[]
+type Dialog = Readonly<{key: string; id: string | number; created: boolean; title: string; specs: readonly FeatureFieldSpec[]
   columns: number; validate?: (row: Readonly<DataRow>) => string | undefined; epoch: number}>
 const tab = ref('binding'), busy = ref(false), message = ref(''), revision = ref(0)
 const dialog = shallowRef<Dialog>()
@@ -194,7 +195,7 @@ async function refreshAll(): Promise<void> {
   })
 }
 
-const DIALOGS: Record<string, Readonly<{title: string; specs: () => readonly DimensionFieldSpec[]; columns?: number
+const DIALOGS: Record<string, Readonly<{title: string; specs: () => readonly FeatureFieldSpec[]; columns?: number
   defaults: () => Record<string, unknown>; validate?: (id: string | number, row: Readonly<DataRow>) => string | undefined}>> = {
   [definitionKey]: {title: '维度定义', specs: () => DEFINITION_SPECS,
     defaults: () => ({value_type: 'string', cardinality: 'single', null_policy: 'allow', version_no: 1, status: 1}),

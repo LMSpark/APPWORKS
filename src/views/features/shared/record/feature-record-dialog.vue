@@ -1,6 +1,6 @@
 <!--
-@module app:views/features/data-platform/structured-config/dimension-definition/ui/dimension-record-dialog
-职责：按字段清单新增或编辑维度中心的一条记录（维度定义、业务分类、规则头、条件、结果）。
+@module app:views/features/shared/record/feature-record-dialog
+职责：按字段清单新增或编辑一条正式记录（维度中心、业务报表等功能页共用）。
 边界：值写入宿主传入的原DataView并由公共记录编辑保存；页面专有校验由宿主validate给出，不另建草稿或提交通道。
 -->
 <template>
@@ -15,6 +15,7 @@
         <FieldNumber v-else-if="spec.kind === 'number'" :field="spec.field" :label="spec.label" :readonly="locked || !!spec.readonly" />
         <FieldSelect v-else-if="spec.kind === 'select'" :field="spec.field" :label="spec.label" v-bind="selectSource(spec)" :filterable="true" :clearable="!spec.required"
           :readonly="locked || !!spec.readonly" />
+        <FieldRadio v-else-if="spec.kind === 'radio'" :field="spec.field" :label="spec.label" v-bind="selectSource(spec)" :readonly="locked || !!spec.readonly" />
         <FieldText v-else :field="spec.field" :label="spec.label" :readonly="locked || !!spec.readonly" />
       </template>
     </RendererForm>
@@ -31,14 +32,14 @@
 import {computed, ref} from 'vue'
 import type {DataRow} from '@spark-appworks/spark-data'
 import * as Components from '@spark-appworks/spark-component'
-import type {DimensionFieldSpec} from './dimension-field-spec'
-const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldNumber, FieldSelect, FieldSwitch,
+import type {FeatureFieldSpec} from './feature-field-spec'
+const {PAGE_RUNTIME, RendererDialog, RendererForm, RendererButton, FieldText, FieldTextarea, FieldNumber, FieldSelect, FieldRadio, FieldSwitch,
   useSparkComponent, useDataViewRecordEditing} = Components
-const props = withDefaults(defineProps<{dataViewKey: string; recordId: string | number; title: string; specs: readonly DimensionFieldSpec[]
+const props = withDefaults(defineProps<{dataViewKey: string; recordId: string | number; title: string; specs: readonly FeatureFieldSpec[]
   created?: boolean; width?: number; columns?: number; validate?: ((row: Readonly<DataRow>) => string | undefined) | undefined}>(),
 {created: false, width: 660, columns: 1})
 const emit = defineEmits<{close: []}>()
-const {sparkConsume} = useSparkComponent({type: 'dimension-record-dialog'})
+const {sparkConsume} = useSparkComponent({type: 'feature-record-dialog'})
 const {row, busy, current, locked, error, ownUnconfirmed, foreignRecovery, recoveryEnded, hasStaged, permissionsPending,
   confirmedCreation, save, cancel} = useDataViewRecordEditing({mode: 'edit', runtime: () => sparkConsume(PAGE_RUNTIME),
   dataViewKey: () => props.dataViewKey, recordId: () => props.recordId, created: () => props.created,
@@ -56,8 +57,9 @@ async function submit(): Promise<void> {
   }
   await save()
 }
-function selectSource(spec: DimensionFieldSpec): Record<string, unknown> {
-  return spec.optionKey ? {optionDataViewKey: spec.optionKey, optionLabelFields: spec.labelFields ?? []} : {options: [...(spec.options ?? [])]}
+function selectSource(spec: FeatureFieldSpec): Record<string, unknown> {
+  if (!spec.optionKey) return {options: [...(spec.options ?? [])]}
+  return spec.labelFields ? {optionDataViewKey: spec.optionKey, optionLabelFields: spec.labelFields} : {optionDataViewKey: spec.optionKey}
 }
 function isBlank(value: unknown): boolean {
   return value === undefined || value === null || (typeof value === 'string' && value.trim() === '')

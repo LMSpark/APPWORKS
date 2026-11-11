@@ -1,8 +1,8 @@
 /**
- * @module app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime
- * 职责：装配租户组织只读页面的正式运行实例及主视图。
+ * @module app:views/features/shared/runtime/use-feature-page-runtime
+ * 职责：按导航身份装配单数据空间功能页的正式运行实例并加载主视图。
  * 边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。
- * AI用途：机构、岗位和人员目录复用同一生命周期时使用；人员页以独立导航身份消费机构空间。
+ * AI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。
  */
 import {computed, onBeforeUnmount, ref, watch} from 'vue'
 import {useRoute} from 'vue-router'
@@ -12,8 +12,8 @@ import {PAGE_RUNTIME, useSparkComponent} from '@spark-appworks/spark-component'
 import {loadLowcodeRuntimeScenario} from '@/lowcode/data-space/lowcode-data-space-runtime'
 import {parseApplicationPathScope} from '@/services/application-scope'
 
-/** 一个租户组织目录的正式数据身份及组件上下文。 */
-type TenantGovernanceRuntimeOptions = Readonly<{
+/** 一个原生功能页的正式数据身份及组件上下文。 */
+type FeaturePageRuntimeOptions = Readonly<{
   /** 本页消费的正式数据空间身份。 */
   scenarioId: string
   /** 页面导航节点及其蓝图场景身份；省略时页面与数据空间同一身份。 */
@@ -24,10 +24,12 @@ type TenantGovernanceRuntimeOptions = Readonly<{
   componentType: string
   /** 用于入口及主视图诊断的页面名称。 */
   title: string
+  /** 与主视图同批读取 default 视图的选项模型；任一失败即入口失败，不使用旧候选。 */
+  optionModels?: readonly string[]
 }>
 
 /** 当前应用作用域内加载主视图，切换或卸载时撤销原实例。 */
-export function useTenantGovernanceRuntime(options: TenantGovernanceRuntimeOptions) {
+export function useFeaturePageRuntime(options: FeaturePageRuntimeOptions) {
   const {scenarioId, modelName, componentType, title} = options
   const navigationId = options.navigationId ?? scenarioId
   const viewKey = buildDataViewKey(modelName, 'default', scenarioId)
@@ -67,8 +69,15 @@ export function useTenantGovernanceRuntime(options: TenantGovernanceRuntimeOptio
       if (!isCurrent(current, own)) return
       const view = current.getDataSet(scenarioId)?.getView(modelName, 'default')
       if (!view) throw new Error(`${title}缺少正式${modelName}视图`)
-      await view.refresh()
-      if (view.loadingError) throw view.loadingError
+      const dataSet = current.getDataSet(scenarioId)
+      const views = [view, ...(options.optionModels ?? []).map(name => {
+        const option = dataSet?.getView(name, 'default')
+        if (!option) throw new Error(`${title}缺少正式${name}选项视图`)
+        return option
+      })]
+      await Promise.all(views.map(item => item.refresh()))
+      const failed = views.find(item => item.loadingError)
+      if (failed?.loadingError) throw failed.loadingError
       if (!isCurrent(current, own)) return
       sparkProvide(PAGE_RUNTIME, current)
       ready.value = true

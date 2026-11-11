@@ -30,10 +30,10 @@ AI用途：恢复岗位目录时，核对正式导航身份与机构选项绑定
 import {onBeforeUnmount, ref, watch} from 'vue'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
-import {useTenantGovernanceRuntime} from '../../tenant-governance/runtime/use-tenant-governance-runtime'
+import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const scenarioId = '0A835EB88AAC2BDFBDE344477C6827BB'
-const {viewKey, session, ready, loading, error, loadCurrentRoute} = useTenantGovernanceRuntime({
+const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_JobInfo', componentType: 'job-management-page', title: '岗位管理',
 })
 const departmentViewKey = buildDataViewKey('Base_DepartInfo', 'default', scenarioId)

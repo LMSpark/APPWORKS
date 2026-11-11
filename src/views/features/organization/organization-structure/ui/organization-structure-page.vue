@@ -26,10 +26,10 @@ AI用途：恢复组织机构目录时，核对正式导航身份及只读数据
 <script setup lang="ts">
 import type {SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
-import {useTenantGovernanceRuntime} from '../../tenant-governance/runtime/use-tenant-governance-runtime'
+import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const scenarioId = '4138A7C47ECB96EA85CA61A8A8B7191F'
-const {viewKey, ready, loading, error, loadCurrentRoute} = useTenantGovernanceRuntime({
+const {viewKey, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId, modelName: 'Base_DepartInfo', componentType: 'organization-structure-page', title: '机构管理',
 })
 const fields: SparkNode[] = [

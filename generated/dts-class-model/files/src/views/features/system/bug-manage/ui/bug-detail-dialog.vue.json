@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/system/bug-manage/ui/bug-detail-dialog",
+    "sourcePath": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
+    "sourceFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
+    "packageName": "app",
+    "modulePath": "views/features/system/bug-manage/ui/bug-detail-dialog",
+    "jsdoc": "@module app:views/features/system/bug-manage/ui/bug-detail-dialog\n职责：固定一条BUG记录，编辑简述、系统、反馈类型、处理人、状态、表单路径及详情。\n边界：读写与保存使用原DataView及公共记录编辑能力；处理人姓名由所选用户行同步，不另建草稿。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T06:20:07.634Z",
+  "models": {}
+}

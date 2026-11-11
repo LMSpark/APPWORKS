@@ -30,11 +30,11 @@ AI用途：恢复人员目录时，核对导航身份与所消费机构空间的
 import {onBeforeUnmount, ref, watch} from 'vue'
 import {buildDataViewKey, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/spark-component'
-import {useTenantGovernanceRuntime} from '../../tenant-governance/runtime/use-tenant-governance-runtime'
+import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const navigationId = '1B7FD70E326717B8E4B611D0431FFCBA'
 const scenarioId = '4138A7C47ECB96EA85CA61A8A8B7191F'
-const {viewKey, session, ready, loading, error, loadCurrentRoute} = useTenantGovernanceRuntime({
+const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   navigationId, scenarioId, modelName: 'View_UserDJAndDepCSR', componentType: 'user-management-page', title: '人员管理',
 })
 const departmentViewKey = buildDataViewKey('Base_DepartInfo', 'options', scenarioId)

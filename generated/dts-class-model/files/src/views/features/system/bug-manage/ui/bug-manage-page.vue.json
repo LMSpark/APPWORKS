@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "schemaVersion": 3,
+  "module": {
+    "name": "app:views/features/system/bug-manage/ui/bug-manage-page",
+    "sourcePath": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+    "sourceFile": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+    "packageName": "app",
+    "modulePath": "views/features/system/bug-manage/ui/bug-manage-page",
+    "jsdoc": "@module app:views/features/system/bug-manage/ui/bug-manage-page\n职责：恢复BUG列表、按简述查询、分页及单条BUG详情编辑。\n边界：列表、选项与编辑均绑定同一PageRuntime的正式DataView；处理时间字段在正式模型中缺失，不以其他字段替代。\nAI用途：迁移系统运维BUG管理时，核对导航身份、选项视图及处理人姓名同步。",
+    "jsdocSource": "source-file-jsdoc",
+    "symbols": []
+  },
+  "$defs": {},
+  "generatedAt": "2026-11-11T06:07:48.537Z",
+  "models": {}
+}

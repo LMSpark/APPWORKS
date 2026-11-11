@@ -7,7 +7,7 @@ AI用途：需要理解 field radio 的实际渲染结构、slot/toolbar/状态�
 <template>
   <FieldContextRenderer v-bind="fieldCtx">
     <template #form>
-      <el-radio-group :model-value="fieldValue" :disabled="!isCurrentFieldEditable" @update:model-value="handleChange">
+      <el-radio-group :model-value="radioValue" :disabled="!isCurrentFieldEditable" @update:model-value="handleChange">
         <component
           :is="buttonStyle ? 'el-radio-button' : 'el-radio'"
           v-for="option in options"
@@ -26,6 +26,7 @@ AI用途：需要理解 field radio 的实际渲染结构、slot/toolbar/状态�
 /**
  * @description 单选按钮组字段，绑定 string/number 值，可切换按钮样式渲染。
  */
+import { computed } from 'vue'
 import { useChoiceFieldState } from '../../composables/state/useChoiceFieldState'
 import { emitFieldValueUpdate, type FieldValueUpdateEmits } from '../../composables/value/useControlledFieldChange'
 import { coercePrimitiveOptionValue } from '../../composables/value/fieldValueCoercion'
@@ -53,8 +54,12 @@ const {
   emitUpdate: value => emitFieldValueUpdate(emit, value),
 })
 
+// 字典值常以字符串保存而业务字段为数值；按字符串身份选中，写回时保持原字段的数值类型。
+const radioValue = computed(() => options.value.find(option => String(option.value) === String(fieldValue.value))?.value ?? fieldValue.value)
+
 async function handleChange(value: string | number): Promise<void> {
-  await handleControlledChange(value)
+  const numeric = typeof fieldValue.value === 'number' && typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))
+  await handleControlledChange(numeric ? Number(value) : value)
 }
 </script>
 

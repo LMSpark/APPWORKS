@@ -106,4 +106,17 @@ describe('FieldRadio 单选组件', () => {
     expect(model['department']).toBe('product')
     expect(wrapper.find('.el-radio-group-stub').attributes('data-value')).toBe('product')
   })
+
+  it('数值字段按字符串字典值选中，写回时保持数值类型', async () => {
+    const model = reactive<Record<string, unknown>>({ kind: 3 })
+    const wrapper = mountFieldRadio(model, 'kind', {
+      options: [{ label: '功能改进', value: '1' }, { label: '界面设计', value: '3' }],
+    })
+    const group = wrapper.findComponent(ElRadioGroupStub)
+    expect(group.props('modelValue')).toBe('3')
+
+    group.vm.$emit('update:modelValue', '1')
+    await nextTick()
+    expect(model['kind']).toBe(1)
+  })
 })

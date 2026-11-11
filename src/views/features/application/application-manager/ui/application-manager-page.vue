@@ -54,11 +54,11 @@ import {RendererButton, RendererTable, type RFilterProps} from '@spark-appworks/
 import {lowcodeApi, readLowcodePrincipal} from '@/lowcode/lowcode-runtime'
 import {buildApplicationPath} from '@/services/application-scope'
 import {PROJECT_SWITCH_KEY} from '@/services/project/project-shell'
-import {useTenantGovernanceRuntime} from '@/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime'
+import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
 
 const scenarioId = '0C70F74793F9E858B71E0DBDEC784D57'
 const modelName = 'Base_AppSystemList'
-const {viewKey, session, ready, loading, error, loadCurrentRoute} = useTenantGovernanceRuntime({
+const {viewKey, session, ready, loading, error, loadCurrentRoute} = useFeaturePageRuntime({
   scenarioId,
   modelName,
   componentType: 'application-manager-page',

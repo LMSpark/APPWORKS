@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "protocol": "spark-appworks.dts-class-model.bundle",
-  "scannedFileCount": 1115,
+  "scannedFileCount": 1117,
   "files": {
     "packages/spark-ai/src/agent/business/business-kit.ts": {
       "file": "files/packages/spark-ai/src/agent/business/business-kit.ts.json",
@@ -17936,19 +17936,6 @@
         "symbols": []
       }
     },
-    "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts": {
-      "file": "files/src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts.json",
-      "module": {
-        "name": "app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime",
-        "sourcePath": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
-        "sourceFile": "src/views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime.ts",
-        "packageName": "app",
-        "modulePath": "views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime",
-        "jsdoc": "@module app:views/features/organization/tenant-governance/runtime/use-tenant-governance-runtime\n职责：装配租户组织只读页面的正式运行实例及主视图。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。\nAI用途：机构、岗位和人员目录复用同一生命周期时使用；人员页以独立导航身份消费机构空间。",
-        "jsdocSource": "source-file-jsdoc",
-        "symbols": []
-      }
-    },
     "src/views/features/organization/user-management/ui/user-management-page.vue": {
       "file": "files/src/views/features/organization/user-management/ui/user-management-page.vue.json",
       "module": {
@@ -17958,6 +17945,45 @@
         "packageName": "app",
         "modulePath": "views/features/organization/user-management/ui/user-management-page",
         "jsdoc": "@module app:views/features/organization/user-management/ui/user-management-page\n职责：展示当前租户人员任职目录并提供姓名、机构查询、重置、刷新和分页。\n边界：人员及机构选项均读取机构空间正式 DataView，不提供人员编辑或跨租户切换。\nAI用途：恢复人员目录时，核对导航身份与所消费机构空间的绑定。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/shared/runtime/use-feature-page-runtime.ts": {
+      "file": "files/src/views/features/shared/runtime/use-feature-page-runtime.ts.json",
+      "module": {
+        "name": "app:views/features/shared/runtime/use-feature-page-runtime",
+        "sourcePath": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
+        "sourceFile": "src/views/features/shared/runtime/use-feature-page-runtime.ts",
+        "packageName": "app",
+        "modulePath": "views/features/shared/runtime/use-feature-page-runtime",
+        "jsdoc": "@module app:views/features/shared/runtime/use-feature-page-runtime\n职责：按导航身份装配单数据空间功能页的正式运行实例并加载主视图。\n边界：校验导航身份并释放过期实例，不承载页面字段或业务数据副本。\nAI用途：原生功能页以一个主模型视图为入口时复用；navigationId 允许页面以独立导航身份消费其他空间。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue": {
+      "file": "files/src/views/features/system/bug-manage/ui/bug-detail-dialog.vue.json",
+      "module": {
+        "name": "app:views/features/system/bug-manage/ui/bug-detail-dialog",
+        "sourcePath": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
+        "sourceFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
+        "packageName": "app",
+        "modulePath": "views/features/system/bug-manage/ui/bug-detail-dialog",
+        "jsdoc": "@module app:views/features/system/bug-manage/ui/bug-detail-dialog\n职责：固定一条BUG记录，编辑简述、系统、反馈类型、处理人、状态、表单路径及详情。\n边界：读写与保存使用原DataView及公共记录编辑能力；处理人姓名由所选用户行同步，不另建草稿。",
+        "jsdocSource": "source-file-jsdoc",
+        "symbols": []
+      }
+    },
+    "src/views/features/system/bug-manage/ui/bug-manage-page.vue": {
+      "file": "files/src/views/features/system/bug-manage/ui/bug-manage-page.vue.json",
+      "module": {
+        "name": "app:views/features/system/bug-manage/ui/bug-manage-page",
+        "sourcePath": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+        "sourceFile": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+        "packageName": "app",
+        "modulePath": "views/features/system/bug-manage/ui/bug-manage-page",
+        "jsdoc": "@module app:views/features/system/bug-manage/ui/bug-manage-page\n职责：恢复BUG列表、按简述查询、分页及单条BUG详情编辑。\n边界：列表、选项与编辑均绑定同一PageRuntime的正式DataView；处理时间字段在正式模型中缺失，不以其他字段替代。\nAI用途：迁移系统运维BUG管理时，核对导航身份、选项视图及处理人姓名同步。",
         "jsdocSource": "source-file-jsdoc",
         "symbols": []
       }

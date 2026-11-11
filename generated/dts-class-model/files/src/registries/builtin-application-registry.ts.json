@@ -42,7 +42,8 @@
         "agentWorkflowFiles",
         "organizationStructure",
         "jobManagement",
-        "applicationManager"
+        "applicationManager",
+        "bugManage"
       ]
     },
     "BuiltinScenarioResource": {
@@ -112,104 +113,14 @@
       "additionalProperties": false
     }
   },
-  "generatedAt": "2026-11-10T21:23:37.256Z",
+  "generatedAt": "2026-11-11T06:10:45.402Z",
   "models": {
     "BuiltinScenarioName": {
       "name": "BuiltinScenarioName",
       "jsdoc": "",
       "declarationKind": "typeAlias",
       "typeAlias": {
-        "declarationTypeText": "'dataSpaceDesign' | 'dataSpaceCatalog' | 'dataDictionary' | 'projectBlueprint' | 'cacheManagement' | 'logicViewCatalog' | 'apiProvider' | 'apiConfig' | 'apiInterface' | 'dataCodeCatalog' | 'dataCodeEditor' | 'workflowCatalog' | 'excelImportCatalog' | 'pdfInspectCatalog' | 'excelImportEditor' | 'workflowEditor' | 'jsonDataCatalog' | 'businessTableSelector' | 'agentWorkflowFiles' | 'organizationStructure' | 'jobManagement' | 'applicationManager'",
-        "declarationRelations": [
-          {
-            "kind": "union",
-            "typeText": "'dataSpaceDesign'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'dataSpaceCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'dataDictionary'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'projectBlueprint'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'cacheManagement'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'logicViewCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'apiProvider'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'apiConfig'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'apiInterface'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'dataCodeCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'dataCodeEditor'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'workflowCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'excelImportCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'pdfInspectCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'excelImportEditor'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'workflowEditor'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'jsonDataCatalog'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'businessTableSelector'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'agentWorkflowFiles'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'organizationStructure'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'jobManagement'"
-          },
-          {
-            "kind": "union",
-            "typeText": "'applicationManager'"
-          }
-        ],
+        "declarationTypeText": "typeof builtinScenarioNames[number]",
         "members": {}
       }
     },

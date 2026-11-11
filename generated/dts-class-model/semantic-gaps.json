@@ -1,5 +1,5 @@
 {
-  "gapCount": 3671,
+  "gapCount": 3672,
   "notes": [
     ".d.ts 是类型关系真源；declarationRelations 保留 extends / alias / intersection / union 等直接声明边。",
     "module 是单个 DTS shard 的入口语义；必须来自源文件头 JSDoc（职责/边界/AI用途），路径推导只作定位日志。",
@@ -38902,7 +38902,7 @@
       "chainBreak": "BuiltinScenarioName 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 1,
+      "declarationLine": 2,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -38913,7 +38913,7 @@
       "chainBreak": "BuiltinScenarioResource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 2,
+      "declarationLine": 3,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -38925,7 +38925,7 @@
       "chainBreak": "BuiltinScenarioResource.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 3,
+      "declarationLine": 4,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -38937,7 +38937,7 @@
       "chainBreak": "BuiltinScenarioResource.scenarioId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 4,
+      "declarationLine": 5,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -38949,7 +38949,7 @@
       "chainBreak": "BuiltinScenarioResource.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 5,
+      "declarationLine": 6,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -38961,7 +38961,7 @@
       "chainBreak": "BuiltinScenarioResource.path 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 6,
+      "declarationLine": 7,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -38972,7 +38972,7 @@
       "chainBreak": "BuiltinNavigationResource 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 8,
+      "declarationLine": 9,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -38984,7 +38984,7 @@
       "chainBreak": "BuiltinNavigationResource.resourceId 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 9,
+      "declarationLine": 10,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -38996,7 +38996,7 @@
       "chainBreak": "BuiltinNavigationResource.path 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 10,
+      "declarationLine": 11,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -39007,7 +39007,7 @@
       "chainBreak": "BuiltinApplicationDescriptor 的模型语义链在首次声明处断开：声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 12,
+      "declarationLine": 13,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "typeAlias"
     },
@@ -39019,7 +39019,7 @@
       "chainBreak": "BuiltinApplicationDescriptor.id 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 13,
+      "declarationLine": 14,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -39031,7 +39031,7 @@
       "chainBreak": "BuiltinApplicationDescriptor.name 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 14,
+      "declarationLine": 15,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -39043,7 +39043,7 @@
       "chainBreak": "BuiltinApplicationDescriptor.navigation 的成员语义链断开：attribute 声明没有 JSDoc。",
       "fixHint": "在 src/registries/builtin-application-registry.ts 的对应声明前补 JSDoc，然后重新运行 generate:class-model-surface。",
       "declarationFile": "src/registries/builtin-application-registry.ts",
-      "declarationLine": 15,
+      "declarationLine": 16,
       "sourceFile": "src/registries/builtin-application-registry.ts",
       "declarationKind": "interface"
     },
@@ -43408,6 +43408,17 @@
       "declarationFile": "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue",
       "declarationLine": 1,
       "sourceFile": "src/views/features/integration/api-management/ui/public-parameter-binding/api-public-parameter-binding-record.vue"
+    },
+    {
+      "kind": "module",
+      "className": "app:views/features/system/bug-manage/ui/bug-detail-dialog",
+      "moduleName": "app:views/features/system/bug-manage/ui/bug-detail-dialog",
+      "reason": "weak-module-jsdoc",
+      "chainBreak": "app:views/features/system/bug-manage/ui/bug-detail-dialog 的模块级语义链过弱：当前说明只复述包名、路径、组件目录或 symbol 列表，没有表达职责、边界和使用场景。",
+      "fixHint": "在 src/views/features/system/bug-manage/ui/bug-detail-dialog.vue 文件顶部补高质量模块级 JSDoc：说明职责、边界和 AI 选择该模块的用途，然后重新运行 generate:class-model-surface。",
+      "declarationFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue",
+      "declarationLine": 1,
+      "sourceFile": "src/views/features/system/bug-manage/ui/bug-detail-dialog.vue"
     },
     {
       "kind": "module",

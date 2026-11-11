@@ -51,6 +51,16 @@
       "shellTool": false
     },
     {
+      "path": "/features/system/bug-manage/ui/bug-manage-page",
+      "title": "BUG管理",
+      "icon": "Warning",
+      "scope": "app",
+      "source": "src/views/features/system/bug-manage/ui/bug-manage-page.vue",
+      "description": "AppWorks 系统导航登记的原生BUG管理页面",
+      "hidden": true,
+      "shellTool": false
+    },
+    {
       "path": "/app-list",
       "title": "应用列表",
       "icon": "Grid",

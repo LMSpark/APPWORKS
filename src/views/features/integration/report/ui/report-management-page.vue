@@ -32,7 +32,9 @@ AI用途：迁移参考仓 integration/report 页面时，核对报表头与版�
 
 <script setup lang="ts">
 import {computed, ref, shallowRef} from 'vue'
+import {onBeforeRouteLeave, onBeforeRouteUpdate} from 'vue-router'
 import {ElMessageBox} from 'element-plus'
+import {useSystemPageDirtySource} from '@spark-appworks/spark-app'
 import {buildDataViewKey, type DataRow, type DataView, type SparkNode} from '@spark-appworks/spark-data'
 import {RendererButton, RendererTable, type RFilterProps, type RToolbarProps} from '@spark-appworks/spark-component'
 import {useFeaturePageRuntime} from '@/views/features/shared/runtime/use-feature-page-runtime'
@@ -56,6 +58,20 @@ type Dialog = Readonly<{kind: 'create' | 'edit' | 'version' | 'model'; infoId: s
 const busy = ref(false), message = ref('')
 const dialog = shallowRef<Dialog>()
 let epoch = 0
+
+function hasPending(): boolean {
+  const runtime = session.runtime
+  if (busy.value || dialog.value?.kind === 'create' || runtime?.isDirty) return true
+  if (!runtime || runtime.destroyed) return false
+  return runtime.call.scenarioIds.some(id => {
+    const dataSet = runtime.getDataSet(id)
+    return dataSet && Object.values(dataSet.tables).some(table => table.viewList.some(item =>
+      item.mutating || item.hasUnconfirmedSave || item.hasPendingSavedRowPermissions))
+  })
+}
+useSystemPageDirtySource({get isDirty() {return hasPending()}})
+onBeforeRouteLeave(() => !hasPending())
+onBeforeRouteUpdate(() => !hasPending())
 
 function view(target: string): DataView {
   const found = session.runtime?.resolveView(target)
@@ -122,19 +138,30 @@ function validateEdit(row: Readonly<DataRow>): string | undefined {
 }
 const create = () => guarded(async () => {
   const info = view(viewKey), report = view(reportKey)
+  if ([info, report].some(item => item.hasUnconfirmedSave || item.hasPendingSavedRowPermissions
+    || item.hasEditingChanges() || item.dirtyTracking.hasPendingChanges())) {
+    throw new Error('报表存在待处理修改或保存结果，请先处理原记录')
+  }
   const infoId = idOf(info, await info.addRow({}))
+  let reportId: string | number | undefined
   try {
-    const reportId = idOf(report, await report.addRow({RptID: String(infoId), State: '1', Version: '0', isMerg: '0', isDashboards: '0'}))
+    reportId = idOf(report, await report.addRow({RptID: String(infoId), State: '1', Version: '0', isMerg: '0', isDashboards: '0'}))
     info.updateEditingValue(infoId, 'version_id', String(reportId))
     dialog.value = {kind: 'create', infoId, reportId, epoch: ++epoch}
   } catch (cause) {
+    if (reportId !== undefined) report.discardPendingChanges([reportId])
     info.discardPendingChanges([infoId])
     throw cause
   }
 })
-async function closeDialog(): Promise<void> {
+async function closeDialog(reason?: 'abandoned'): Promise<void> {
+  const original = reason === 'abandoned' ? dialog.value : undefined
   dialog.value = undefined
   await guarded(async () => { await Promise.all([view(viewKey).refresh(), view(reportKey).refresh()]) })
+  if (original) {
+    const warning = `已放弃原新增核验，服务端可能已部分或全部生效；请核对报表ID ${String(original.infoId)}、版本ID ${String(original.reportId)}`
+    message.value = message.value ? `${warning}；刷新失败：${message.value}` : warning
+  }
 }
 const remove = (row: DataRow) => guarded(async () => {
   const info = view(viewKey), id = idOf(info, row)
